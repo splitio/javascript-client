@@ -1,0 +1,27 @@
+[
+  {
+    "matcherGroup": {
+      "combiner": "AND",
+      "matchers": [
+        {
+          "matcherType": "WHITELIST",
+          "negate": false,
+          "userDefinedSegmentMatcherData": null,
+          "whitelistMatcherData": {
+            "whitelist": [
+              "u1",
+              "u2",
+              "u3"
+            ]
+          }
+        }
+      ]
+    },
+    "partitions": [
+      {
+        "treatment": "on",
+        "size": 100
+      }
+    ]
+  }
+]

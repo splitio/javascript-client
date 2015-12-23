@@ -1,0 +1,30 @@
+{
+  "name": "split-parser",
+  "version": "0.0.1",
+  "description": "Split AST parser",
+  "author": "Facundo Cabrera <facundo@split.io>",
+  "homepage": "https://github.com/splitio/javascript-client",
+  "license": "Apache-2.0",
+  "repository": "https://github.com/splitio/javascript-client/tree/master/packages/split-parser",
+  "main": "src/index.js",
+  "scripts": {
+    "build": "babel es6 --out-dir src --source-maps",
+    "build-tests": "babel test/es6 --out-dir test/src --source-maps",
+    "watch": "babel es6 --out-dir src --source-maps --watch",
+    "watch-test": "babel test/es6 --out-dir test/src --source-maps --watch"
+  },
+  "dependencies": {
+    "babel-cli": "^6.3.17",
+    "babel-preset-es2015-node5": "^1.1.1",
+    "tape": "^4.2.2"
+  },
+  "devDependencies": {
+    "eslint": "^1.10.3",
+    "jscs": "^2.7.0"
+  },
+  "babel": {
+    "presets": [
+      "es2015-node5"
+    ]
+  }
+}

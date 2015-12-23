@@ -1,0 +1,25 @@
+[
+  {
+    "matcherGroup": {
+      "combiner": "AND",
+      "matchers": [
+        {
+          "matcherType": "ALL_KEYS",
+          "negate": false,
+          "userDefinedSegmentMatcherData": null,
+          "whitelistMatcherData": null
+        }
+      ]
+    },
+    "partitions": [
+      {
+        "treatment": "on",
+        "size": 5
+      },
+      {
+        "treatment": "control",
+        "size": 95
+      }
+    ]
+  }
+]

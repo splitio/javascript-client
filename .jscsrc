@@ -1,0 +1,9 @@
+{
+  "fileExtensions": [".js", ".jsx"],
+  "preset": "crockford",
+  "requireMultipleVarDecl": null,
+  "validateIndentation": 2,
+  "maximumLineLength": 120,
+  "verbose": true,
+  "esnext": true
+}
