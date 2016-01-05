@@ -16,9 +16,9 @@ var andCombiner = require('./combiners/and');
  * @return {Function} helper Verifier if a given Key applies to a Split.
  */
 function parse(input) {
-  let predicates = new Array(input.length);
+  let predicates = [];
 
-  for (let condition in input) {
+  for (let condition of input) {
     let matcherEvaluator = matcherFactory(
       matcherGroupTransform(condition.matcherGroup)
     );

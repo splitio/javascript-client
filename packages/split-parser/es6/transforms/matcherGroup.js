@@ -9,11 +9,13 @@ var whitelistTransform = require('./whitelist');
  * Flat the complex matcherGroup structure into something handy.
  */
 function transform(matcherGroup) {
+  console.log(matcherGroup.matchers[0]);
+
   let {
     matcherType,
     userDefinedSegmentMatcherData: segmentObject,
-    whitelistMatcherData: whitelistArray
-  } = matcherGroup.matchers.slice(0);
+    whitelistMatcherData: whitelistObject
+  } = matcherGroup.matchers[0];
 
   let type = matcherTypes.mapper(matcherType);
   let value;
@@ -23,7 +25,7 @@ function transform(matcherGroup) {
   } else if (type === matcherTypes.enum.SEGMENT) {
     value = segmentTransform(segmentObject);
   } else if (type === matcherTypes.enum.WHITELIST) {
-    value = whitelistTransform(whitelistArray);
+    value = whitelistTransform(whitelistObject);
   }
 
   return {

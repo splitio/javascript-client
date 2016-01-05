@@ -18,4 +18,4 @@ function evaluatorContext(martcherEvaluator, partitionSet) {
 
 }
 
-module.export = evaluatorContext;
+module.exports = evaluatorContext;

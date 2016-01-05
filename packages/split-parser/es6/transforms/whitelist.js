@@ -6,8 +6,8 @@
  * @params {array<string>} items
  * @return Set
  */
-function transform(items = []) {
-  return new Set(items);
+function transform(whitelistObject) {
+  return new Set(whitelistObject.whitelist);
 }
 
 module.exports = transform;
