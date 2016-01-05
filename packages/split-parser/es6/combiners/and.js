@@ -1,6 +1,6 @@
 'use strict';
 
-function andCombiner(predicates) {
+function andContext(predicates) {
 
   return function andCombinerEvaluator(key, seed) {
     for (let evaluator of predicates) {
@@ -12,4 +12,4 @@ function andCombiner(predicates) {
 
 }
 
-module.exports = and;
+module.exports = andContext;

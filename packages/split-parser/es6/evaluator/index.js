@@ -3,14 +3,19 @@
 var engine = require('split-engine');
 
 /**
- * @return boolean
+ * Factory function which creates a evaluator function to be called.
+ *
+ * @param {Function} martcherEvaluator - Given a key evaluates the segment/whitelist
+ * @param {Set} partitionSet           - Set describing partitions of a given condition to be evaluated.
+ *
+ * @return {Function} evaluator function
  */
-function evaluator(martcherEvaluator, partitionSet) {
+function evaluatorContext(martcherEvaluator, partitionSet) {
 
-  return function (key, seed) {
+  return function evaluator(key, seed) {
     return martcherEvaluator(key) && engine.isOn(key, seed, partitionSet);
   };
 
 }
 
-module.export = evaluator;
+module.export = evaluatorContext;

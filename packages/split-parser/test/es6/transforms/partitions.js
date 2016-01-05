@@ -1,7 +1,8 @@
 'use strict';
 
-let transform = require('split-parser/src/transforms/partitions');
-let tape = require('tape');
+var transform = require('split-parser/src/transforms/partitions');
+var partitionTypes = require('split-parser/src/partitions/types');
+var tape = require('tape');
 
 /**
  * Assert if a given Array<Partition> is correctly mapped into a Map
@@ -16,7 +17,7 @@ function checkTransform(input, assert) {
   for(let [key, value] of transform(input)) {
     let {treatment, size} = iterator.next().value;
 
-    assert.equal(treatment, key, `${treatment} is correct`);
+    assert.equal(partitionTypes.type(treatment), key, `${treatment} is correct`);
     assert.equal(size, value, `${size} is correct`);
   }
 }

@@ -6,6 +6,13 @@ var allMatcher = require('./all');
 var segmentMatcher = require('./segment');
 var whitelistMatcher = require('./whitelist');
 
+/**
+ * Matcher factory.
+ *
+ * @param {Object} matcherAbstract - Descriptor object with type/value parameters for matchers building.
+ *
+ * @return {Function} matcher evaluator function
+ */
 function factory(matcherAbstract) {
   let {type, value} = matcherAbstract;
 

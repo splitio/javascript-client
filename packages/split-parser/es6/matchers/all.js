@@ -1,3 +1,9 @@
 'use strict';
 
-module.exports = require('./identity');
+var identity = require('./identity');
+
+function matcherAllContext(value) {
+  return identity;
+};
+
+module.exports = matcherAllContext;

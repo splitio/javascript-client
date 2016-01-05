@@ -1,7 +1,12 @@
 'use strict';
 
-module.exports = function (segmentName) {
-  return function (key) {
+/**
+ * @TODO implementation pending
+ */
+function matcherSegmentContext(segmentName) {
+  return function segmentMatcher(key) {
     return false;
   };
 };
+
+module.exports = matcherSegmentContext;

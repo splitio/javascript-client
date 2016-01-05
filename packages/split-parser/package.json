@@ -11,7 +11,8 @@
     "build": "babel es6 --out-dir src --source-maps",
     "build-tests": "babel test/es6 --out-dir test/src --source-maps",
     "watch": "babel es6 --out-dir src --source-maps --watch",
-    "watch-test": "babel test/es6 --out-dir test/src --source-maps --watch"
+    "watch-test": "babel test/es6 --out-dir test/src --source-maps --watch",
+    "test": "tape test/src/**/*.js"
   },
   "dependencies": {
     "babel-cli": "^6.3.17",
