@@ -1,0 +1,62 @@
+{
+  "splits": [
+    {
+      "orgId": "20ee8040-ae31-11e5-8b21-d8a25e8b1578",
+      "environment": "21011de0-ae31-11e5-8b21-d8a25e8b1578",
+      "name": "sample_feature",
+      "trafficTypeId": "u",
+      "trafficTypeName": "User",
+      "seed": 1452957836,
+      "status": "ACTIVE",
+      "killed": false,
+      "conditions": [
+        {
+          "matcherGroup": {
+            "combiner": "AND",
+            "matchers": [
+              {
+                "matcherType": "IN_SEGMENT",
+                "negate": false,
+                "userDefinedSegmentMatcherData": {
+                  "segmentName": "employees"
+                },
+                "whitelistMatcherData": null
+              }
+            ]
+          },
+          "partitions": [
+            {
+              "treatment": "on",
+              "size": 100
+            }
+          ]
+        },
+        {
+          "matcherGroup": {
+            "combiner": "AND",
+            "matchers": [
+              {
+                "matcherType": "ALL_KEYS",
+                "negate": false,
+                "userDefinedSegmentMatcherData": null,
+                "whitelistMatcherData": null
+              }
+            ]
+          },
+          "partitions": [
+            {
+              "treatment": "on",
+              "size": 5
+            },
+            {
+              "treatment": "control",
+              "size": 95
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "since": -1,
+  "till": 1451396173756
+}

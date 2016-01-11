@@ -9,8 +9,6 @@ var whitelistTransform = require('./whitelist');
  * Flat the complex matcherGroup structure into something handy.
  */
 function transform(matcherGroup) {
-  console.log(matcherGroup.matchers[0]);
-
   let {
     matcherType,
     userDefinedSegmentMatcherData: segmentObject,
