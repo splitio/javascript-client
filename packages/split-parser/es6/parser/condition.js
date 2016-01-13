@@ -20,25 +20,25 @@ function parse(input) {
   let predicates = [];
   let segments = new Set();
   let evaluator = null;
-  
+
   for (let condition of input) {
     let matcherMetadata = matcherGroupTransform(condition.matcherGroup);
-    
+
     let matcherEvaluator = matcherFactory(matcherMetadata);
-    
+
     // Incrementally collect segmentNames
     if (matcherMetadata.type === matcherTypes.SEGMENT) {
       segments.add(matcherMetadata.value);
     }
 
     let partitions = partitionsTransform(condition.partitions);
-  
+
     predicates.push(evaluatorFactory(matcherEvaluator, partitions));
   }
-  
+
   // Instanciate evaluator given the set of conditions
   evaluator = andCombiner(predicates);
-  
+
   return {
     segments,
     evaluator

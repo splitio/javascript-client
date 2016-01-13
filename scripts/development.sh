@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+npm link packages/split
 npm link packages/split-cache
 npm link packages/split-engine
 npm link packages/split-parser

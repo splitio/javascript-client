@@ -1,16 +1,28 @@
 'use strict';
 
-require('native-promise-only');
+var segmentChangesDataSource = require('./ds/segmentChanges');
+var splitChangesDataSource = require('./ds/splitChanges');
 
-var dataManager = require('./dm');
-var dataSources = require('./ds');
-var dsKeys = dataSources.keys;
+var storage = require('./storage');
 
-dataManager.update(dsKeys.SEGMENT_CHANGES, {
-  segmentName: 'demo',
-  authorizationKey: 'eieulll8qhn4ervh3secsnko4t'
-}).then(dto => console.log(JSON.stringify(dto, null, 2))).catch(error => console.log(error));
+function writer(authorizationKey) {
 
-dataManager.update(dsKeys.SPLIT_CHANGES, {
-  authorizationKey: 'eieulll8qhn4ervh3secsnko4t'
-}).then(dto => console.log(JSON.stringify(dto, null, 2))).catch(error => console.log(error));
+  let promise = splitChangesDataSource({authorizationKey})
+    .then(splitsMutator => {
+      console.log(splitsMutator);
+      return splitsMutator(storage.updateSplit);
+    })
+    .then(segments => Promise.all(
+      [...segments].map(segmentName => segmentChangesDataSource({authorizationKey, segmentName}))
+    ))
+    .then(segmentsMutators => {
+      segmentsMutators.forEach( mutator => mutator(storage.getSegment, storage.updateSegment) );
+    })
+    .then( () => storage );
+
+  return promise;
+
+}
+
+//exports.reader = reader;
+exports.writer = writer;

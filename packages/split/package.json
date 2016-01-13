@@ -1,11 +1,11 @@
 {
-  "name": "split-cache",
+  "name": "split",
   "version": "0.0.1",
   "description": "Split Engine",
   "author": "Facundo Cabrera <facundo@split.io>",
   "homepage": "https://github.com/splitio/javascript-client",
   "license": "Apache-2.0",
-  "repository": "https://github.com/splitio/javascript-client/tree/master/packages/split-cache",
+  "repository": "https://github.com/splitio/javascript-client/tree/master/packages/split",
   "main": "src/index.js",
   "scripts": {
     "build": "babel es6 --out-dir src --source-maps",
@@ -19,9 +19,7 @@
     "babel-plugin-syntax-object-rest-spread": "^6.3.13",
     "babel-plugin-transform-object-rest-spread": "^6.3.13",
     "babel-preset-es2015": "^6.3.13",
-    "immutable": "^3.7.6",
-    "isomorphic-fetch": "^2.2.0",
-    "native-promise-only": "^0.8.1",
+    "debug": "^2.2.0",
     "tape": "^4.2.2"
   },
   "devDependencies": {

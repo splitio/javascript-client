@@ -10,6 +10,10 @@ class SplitDTO {
     this.segments = segments;
   }
 
+  getKey() {
+    return this.baseInfo.name;
+  }
+
   getSegments() {
     return this.segments;
   }

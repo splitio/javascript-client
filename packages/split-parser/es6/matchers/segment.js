@@ -1,11 +1,10 @@
 'use strict';
 
-/**
- * @TODO implementation pending
- */
+var storage = require('split-cache/storage');
+
 function matcherSegmentContext(segmentName) {
   return function segmentMatcher(key) {
-    return false;
+    return storage.getSegment(segmentName).has(key);
   };
 };
 
