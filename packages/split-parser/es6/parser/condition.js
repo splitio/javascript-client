@@ -11,27 +11,26 @@ var evaluatorFactory = require('../evaluator');
 var andCombiner = require('../combiners/and');
 
 /**
- * Collect segmentNames and create the evaluator function given a list of conditions.
+ * Collect segmentNames and create the evaluator function given a list of
+ * conditions.
  *
- * @params {Iterable} input - Collection of conditions present in a given Split.
- * @return {Object}   .segments and .evaluator based on the given input.
+ * @params {Iterable} conditions Collection of conditions present in a given Split.
+ * @return {Object} .segments and .evaluator based on the given set of conditions.
  */
-function parse(input) {
+function parse(conditions) {
   let predicates = [];
   let segments = new Set();
   let evaluator = null;
 
-  for (let condition of input) {
+  for (let condition of conditions) {
     let matcherMetadata = matcherGroupTransform(condition.matcherGroup);
-
     let matcherEvaluator = matcherFactory(matcherMetadata);
+    let partitions = partitionsTransform(condition.partitions);
 
     // Incrementally collect segmentNames
     if (matcherMetadata.type === matcherTypes.SEGMENT) {
       segments.add(matcherMetadata.value);
     }
-
-    let partitions = partitionsTransform(condition.partitions);
 
     predicates.push(evaluatorFactory(matcherEvaluator, partitions));
   }

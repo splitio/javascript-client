@@ -1,5 +1,12 @@
 'use strict';
 
+/**
+@TODO
+
+1- Evaluate to change the API and separate segments from splits into different
+   modules.
+**/
+
 var Immutable = require('Immutable');
 
 var splits = new Immutable.Map();
@@ -28,4 +35,4 @@ module.exports = {
     console.log(segments.toJS());
   }
 
-}
+};

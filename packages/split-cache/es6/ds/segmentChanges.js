@@ -1,5 +1,18 @@
 'use strict';
 
+/**
+@TODO
+
+1- Babel provides ES6 promises using babel-polyfill, need to invest some time
+   configuring that correct and remove 'native-promise-only' from here.
+2- URLs should be handled in another way, probably reading a configuration file
+   so clients could build / configure servers deployments.
+3- DataSources could be abstracted because for now, both implementations are the
+   same.
+4- LOG should be only present while we use development mode.
+
+**/
+
 // es6 promises support
 require('native-promise-only');
 // fetch API polyfill

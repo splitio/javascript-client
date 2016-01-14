@@ -9,7 +9,6 @@ function writer(authorizationKey) {
 
   let promise = splitChangesDataSource({authorizationKey})
     .then(splitsMutator => {
-      console.log(splitsMutator);
       return splitsMutator(storage.updateSplit);
     })
     .then(segments => Promise.all(

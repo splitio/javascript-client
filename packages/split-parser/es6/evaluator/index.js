@@ -1,6 +1,6 @@
 'use strict';
 
-var engine = require('split-engine');
+var engine = require('../engine');
 
 /**
  * Factory function which creates a evaluator function to be called.

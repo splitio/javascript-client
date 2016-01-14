@@ -1,5 +1,20 @@
 'use strict';
 
+/**
+@TODO
+
+1- We are not going to have multiple keys in the same instance of the SDK, so
+   there is no need of cache "strategies" for the since value.
+2- Babel provides ES6 promises using babel-polyfill, need to invest some time
+   configuring that correct and remove 'native-promise-only' from here.
+3- URLs should be handled in another way, probably reading a configuration file
+   so clients could build / configure servers deployments.
+4- DataSources could be abstracted because for now, both implementations are the
+   same.
+5- LOG should be only present while we use development mode.
+
+**/
+
 // es6 promises support
 require('native-promise-only');
 // fetch API polyfill

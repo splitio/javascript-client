@@ -16,8 +16,8 @@ function splitMutationsFactory(splits) {
     }
 
     return segmentNamesSet;
-  }
+  };
 
-};
+}
 
 module.exports = splitMutationsFactory;

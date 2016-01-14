@@ -1,9 +1,15 @@
 'use strict';
 
-var partitionTypes = require('split-parser/src/partitions/types');
+var partitionTypes = require('../partitions/types');
 var murmur = require('murmurhash-js');
 
 var engine = {
+  /**
+   * Defines how much error we could have at the moment we run percentage calculations.
+   * => For now, we consider 0.1% acceptable.
+   */
+  TOLERANCE: 0.1,
+
   /**
    * Get the treatment name given a key, and the seed of the feature.
    *
