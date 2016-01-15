@@ -1,6 +1,6 @@
 'use strict';
 
-var parser = require('split-parser/src/parser/condition');
+var parser = require('split-engine/src/parser/condition');
 var tape = require('tape');
 
 tape('if user is in segment all 100%:on', function (assert) {

@@ -2,6 +2,7 @@
   "name": "split-cache",
   "version": "0.0.1",
   "description": "Split Engine",
+  "readme": "README.md",
   "author": "Facundo Cabrera <facundo@split.io>",
   "homepage": "https://github.com/splitio/javascript-client",
   "license": "Apache-2.0",

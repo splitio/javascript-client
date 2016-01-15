@@ -1,7 +1,7 @@
 'use strict';
 
-var matcherTypes = require('split-parser/src/matchers/types');
-var matcherFactory = require('split-parser/src/matchers');
+var matcherTypes = require('split-engine/src/matchers/types');
+var matcherFactory = require('split-engine/src/matchers');
 var tape = require('tape');
 
 tape('Matcher ALL should always return true', function (assert) {

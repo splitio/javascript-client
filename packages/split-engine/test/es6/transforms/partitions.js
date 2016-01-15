@@ -1,7 +1,7 @@
 'use strict';
 
-var transform = require('split-parser/src/transforms/partitions');
-var partitionTypes = require('split-parser/src/partitions/types');
+var transform = require('split-engine/src/transforms/partitions');
+var partitionTypes = require('split-engine/src/partitions/types');
 var tape = require('tape');
 
 /**

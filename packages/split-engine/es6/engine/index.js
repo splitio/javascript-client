@@ -6,9 +6,8 @@ var murmur = require('murmurhash-js');
 var engine = {
   /**
    * Defines how much error we could have at the moment we run percentage calculations.
-   * => For now, we consider 0.1% acceptable.
    */
-  TOLERANCE: 0.1,
+  TOLERANCE: 1, // For now, we consider 1% acceptable.
 
   /**
    * Get the treatment name given a key, and the seed of the feature.
@@ -19,8 +18,8 @@ var engine = {
    *
    * @return {boolean}
    */
-  isOn(key, seed, partitions) {
-    return partitions.get(partitionTypes.enum.ON) >= (murmur(key, seed) % 100 + 1);
+  isOn(key /*: string */, seed /*: number */, partitions /*: Map */) {
+    return partitions.get(partitionTypes.enum.ON) >= (murmur(key, seed) % 100);
   }
 };
 

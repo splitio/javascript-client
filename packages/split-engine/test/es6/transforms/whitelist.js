@@ -1,6 +1,6 @@
 'use strict';
 
-let transform = require('split-parser/src/transforms/whitelist');
+let transform = require('split-engine/src/transforms/whitelist');
 let tape = require('tape');
 
 tape('a whitelist Array should be casted into a Set', function (assert) {

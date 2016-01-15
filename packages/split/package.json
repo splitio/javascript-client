@@ -2,6 +2,7 @@
   "name": "split",
   "version": "0.0.1",
   "description": "Split Engine",
+  "readme": "README.md",
   "author": "Facundo Cabrera <facundo@split.io>",
   "homepage": "https://github.com/splitio/javascript-client",
   "license": "Apache-2.0",
@@ -23,8 +24,13 @@
     "tape": "^4.2.2"
   },
   "devDependencies": {
+    "browserify": "^13.0.0",
     "eslint": "^1.10.3",
     "jscs": "^2.7.0"
+  },
+  "engines": {
+    "node": ">=0.12",
+    "npm" : "^3"
   },
   "babel": {
     "presets": [

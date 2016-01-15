@@ -1,11 +1,12 @@
 {
-  "name": "split-parser",
+  "name": "split-engine",
   "version": "0.0.1",
-  "description": "Split AST parser",
+  "description": "Split Engine",
+  "readme": "README.md",
   "author": "Facundo Cabrera <facundo@split.io>",
   "homepage": "https://github.com/splitio/javascript-client",
   "license": "Apache-2.0",
-  "repository": "https://github.com/splitio/javascript-client/tree/master/packages/split-parser",
+  "repository": "https://github.com/splitio/javascript-client/tree/master/packages/split-engine",
   "main": "src/index.js",
   "scripts": {
     "build": "babel es6 --out-dir src --source-maps",
@@ -19,12 +20,12 @@
     "babel-plugin-syntax-object-rest-spread": "^6.3.13",
     "babel-plugin-transform-object-rest-spread": "^6.3.13",
     "babel-preset-es2015": "^6.3.13",
-    "tape": "^4.2.2",
     "murmurhash-js": "^1.0.0"
   },
   "devDependencies": {
     "eslint": "^1.10.3",
-    "jscs": "^2.7.0"
+    "jscs": "^2.7.0",
+    "tape": "^4.2.2"
   },
   "babel": {
     "presets": [

@@ -1,8 +1,8 @@
 'use strict';
 
-function andContext(predicates) {
+function andContext(predicates /*: Array<function> */) {
 
-  return function andCombinerEvaluator(key, seed) {
+  return function andCombinerEvaluator(key /*: string */, seed /*: number */) {
     for (let evaluator of predicates) {
       if (evaluator(key, seed)) return true;
     }

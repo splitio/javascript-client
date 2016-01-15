@@ -1,8 +1,8 @@
 'use strict';
 
 var tape = require('tape');
-var engine = require('split-parser/src/engine');
-var partitionTypes = require('split-parser/src/partitions/types');
+var engine = require('split-engine/src/engine');
+var partitionTypes = require('split-engine/src/partitions/types');
 var keys = require('./mocks/1000_keys_10_chart_length');
 
 tape('The engine should evaluates always true', function (assert) {
