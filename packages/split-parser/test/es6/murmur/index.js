@@ -4,10 +4,8 @@ var murmur = require('murmurhash-js');
 var tape = require('tape');
 
 var datasets = [
-//  require('./mocks/10_keys_of_length_10'),
-//  require('./mocks/100_keys_of_length_10'),
-//  require('./mocks/1000_keys_of_length_10'),
-//  require('./mocks/10000_keys_of_length_10'),
+  require('./mocks/1000_keys_of_length_10'),
+  require('./mocks/10000_keys_of_length_10'),
   require('./mocks/100000_keys_of_length_10')
 ];
 
@@ -16,33 +14,52 @@ function engine(key, seed) {
 }
 
 function stats(keys) {
+  let numberOfBuckets = 100;
+  let universeSize = keys.length;
   let collisionCounter = new Map();
-  let p = new Map();
-  let mean = 0;
-  let sd = 0;
+  let probabilityDistribution = new Map();
 
   // translate values to bucket and accumulate collisions
   for (let k of keys) {
-    let b = engine(k, 424344136);
+    let bucket = engine(k, 424344136);
 
-    collisionCounter.set(b, (collisionCounter.get(b) || 0) + 1);
+    collisionCounter.set(bucket, (collisionCounter.get(bucket) || 0) + 1);
   }
 
   // calculate probability of each bucket
-  for (let [b, c] of collisionCounter) {
-    p.set(b, c / keys.length);
-
-    //@TODO Test around 0.01
+  for (let [bucket, collisions] of collisionCounter) {
+    probabilityDistribution.set(bucket, collisions / universeSize);
   }
 
-  for (let [b, p] of p) {
-    mean += b * p;
-  }
+  // @TODO Test around 0.01
 
-  for (let [b, p] of p) {
-    sd += p * Math.pow(b - mean, 2);
-  }
-  sd = Math.sqrt(sd);
+  //
+  // We expect always # keys / 100 buckets will be equal, so we distribute elements
+  // using that expectation (validated before with the 0.01 test).
+  //
+  // Given it's an experiment were it's in the bucket, or not, we could analyse the
+  // problem as follow:
+  //
+  // - Each bucket will have N = 1000 keys (assuming a universe of 100000 keys )
+  // - The probability P of success is 0.01
+  // - The probability Q of failure is 0.99
+  //
+
+  let n = universeSize / numberOfBuckets;
+  let p = 0.01;
+  let q = (1 - p);
+
+  let mean = n * p;
+  let sd = Math.sqrt( n * p * q );
+
+  //  for (let [b, p] of p) {
+  //    mean += b * p;
+  //  }
+  //
+  //  for (let [b, p] of p) {
+  //    sd += p * Math.pow(b - mean, 2);
+  //  }
+  //  sd = Math.sqrt(sd);
 
   console.log('================================================================');
   console.log(`Mean for ${keys.length} keys of length 10: ${mean.toFixed(2)}`);
