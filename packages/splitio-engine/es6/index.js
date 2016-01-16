@@ -28,14 +28,14 @@ class Split {
   }
 
   isOn(key) {
-    this.evalutor(key, this.baseInfo.seed);
+    return this.evaluator(key, this.baseInfo.seed);
   }
 
   static parse(splitFlatStructure) {
     let {conditions, ...baseInfo} = splitFlatStructure;
     let {evaluator, segments} = parser(conditions);
 
-    return new SplitDTO(baseInfo, evaluator, segments);
+    return new Split(baseInfo, evaluator, segments);
   }
 
 }

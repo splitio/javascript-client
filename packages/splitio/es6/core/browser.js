@@ -4,7 +4,10 @@ var updater = require('splitio-cache');
 
 var core = {
   schedule(fn /*: function */, delay /*: number */, ...params /*:? Array<any> */) {
-    setTimeout(fn, delay, ...params);
+    setTimeout(() => {
+      fn(...params);
+      this.schedule(fn, delay, ...params);
+    }, delay);
   },
 
   start(authorizationKey /*: string */) {
@@ -14,7 +17,7 @@ var core = {
       }
 
       // fire cache updater each 5 seconds
-      this.schedule(writer, 5000, authorizationKey);
+      this.schedule(updater, 5000, authorizationKey);
 
       return storage;
     });

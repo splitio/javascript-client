@@ -1,5 +1,6 @@
-
 'use strict';
+
+var log = require('debug')('splitio-engine:matcher');
 
 /**
  * Check if a key is inside a whitelist.
@@ -10,7 +11,11 @@
  */
 function whitelistMatcherContext(whitelist /*: Set */) {
   return function whitelistMatcher(key /*: string */) {
-    return whitelist.has(key);
+    let isInWhitelist = whitelist.has(key);
+
+    log(`[whitelistMatcher] evaluated ${whitelist} / ${key} => ${isInWhitelist}`);
+
+    return isInWhitelist;
   };
 }
 

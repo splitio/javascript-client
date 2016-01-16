@@ -2,10 +2,11 @@
 
 var segmentChangesDataSource = require('./ds/segmentChanges');
 var splitChangesDataSource = require('./ds/splitChanges');
-
 var storage = require('./storage');
+var log = require('debug')('splitio-cache');
 
 function writer(authorizationKey) {
+  log(`Running updater using key: ${authorizationKey}`);
 
   return splitChangesDataSource({authorizationKey})
     .then(splitsMutator => {
@@ -21,4 +22,4 @@ function writer(authorizationKey) {
 
 }
 
-exports.writer = writer;
+module.exports = writer;

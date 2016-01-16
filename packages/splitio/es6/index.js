@@ -1,6 +1,7 @@
 'use strict';
 
 var core = require('./core');
+var log = require('debug')('splitio');
 
 function splitter(authorizationKey /*: string */) {
   return core.start(authorizationKey).then(storage => {
@@ -9,7 +10,18 @@ function splitter(authorizationKey /*: string */) {
        * Evaluates is a given userId is enabled for a given feature.
        */
       isOn(userId /*: string */, featureName /*: string */) {
-        return storage.getSplit(featureName).evaluate(userId);
+        let split = storage.getSplit(featureName);
+
+        if (split) {
+          let splitEvaluation = split.isOn(userId);
+
+          log(`[splitio] feature ${featureName} key ${userId} evaluated as ${splitEvaluation}`);
+
+          return splitEvaluation;
+        } else {
+          console.log('Feature is not present yet');
+          return false;
+        }
       }
     };
   });

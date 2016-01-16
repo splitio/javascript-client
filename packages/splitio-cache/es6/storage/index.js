@@ -18,8 +18,8 @@ module.exports = {
     segments = segments.set(name, segmentSet);
   },
 
-  updateSplit(featureName, splitDTO) {
-    splits = splits.set(featureName, splitDTO);
+  updateSplit(featureName, split) {
+    splits = splits.set(featureName, split);
   },
 
   getSplit(featureName) {

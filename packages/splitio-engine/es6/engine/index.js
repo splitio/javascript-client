@@ -2,6 +2,7 @@
 
 var partitionTypes = require('../partitions/types');
 var murmur = require('murmurhash-js');
+var log = require('debug')('splitio-engine');
 
 var engine = {
   /**
@@ -19,7 +20,12 @@ var engine = {
    * @return {boolean}
    */
   isOn(key /*: string */, seed /*: number */, partitions /*: Map */) {
-    return partitions.get(partitionTypes.enum.ON) >= (murmur(key, seed) % 100);
+    let percentageOn = partitions.get(partitionTypes.enum.ON);
+    let keyPercentageValue = (murmur(key, seed) % 100);
+
+    log(`[engine] percentage on ${percentageOn} and key ${keyPercentageValue}`);
+
+    return percentageOn >= keyPercentageValue;
   }
 };
 
