@@ -1,12 +1,10 @@
-'use strict';
+/* @flow */ 'use strict';
 
 /**
 @TODO
 
 1- We are not going to have multiple keys in the same instance of the SDK, so
    there is no need of cache "strategies" for the since value.
-2- Babel provides ES6 promises using babel-polyfill, need to invest some time
-   configuring that correct and remove 'native-promise-only' from here.
 3- URLs should be handled in another way, probably reading a configuration file
    so clients could build / configure servers deployments.
 4- DataSources could be abstracted because for now, both implementations are the
@@ -15,15 +13,13 @@
 
 **/
 
-// es6 promises support
-require('native-promise-only');
-// fetch API polyfill
+require('babel-polyfill');
 require('isomorphic-fetch');
 
-var log = require('debug')('splitio-cache:http');
+let log = require('debug')('splitio-cache:http');
 
-var splitMutatorFactory = require('../mutators/splitChanges');
-var cache = new Map();
+let splitMutatorFactory = require('../mutators/splitChanges');
+let cache = new Map();
 
 function cacheKeyGenerator(authorizationKey) {
   return `${authorizationKey}/splitChanges`;
@@ -50,7 +46,7 @@ function splitChangesDataSource({authorizationKey}) {
     return splitMutatorFactory( splits );
   })
   .catch(error => {
-    log('[%s] failure fetching splits using since [%s] => [%s]', authorizationKey, sinceValue, error);
+    log(`[${authorizationKey}] failure fetching splits using since [${sinceValue}] => [${error}]`);
 
     return error;
   });

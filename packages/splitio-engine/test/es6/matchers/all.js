@@ -1,7 +1,7 @@
 'use strict';
 
-var matcherTypes = require('splitio-engine/src/matchers/types');
-var matcherFactory = require('splitio-engine/src/matchers');
+var matcherTypes = require('splitio-engine/lib/matchers/types');
+var matcherFactory = require('splitio-engine/lib/matchers');
 var tape = require('tape');
 
 tape('Matcher ALL should always return true', function (assert) {

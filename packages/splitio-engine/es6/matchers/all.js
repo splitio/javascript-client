@@ -1,9 +1,9 @@
-'use strict';
+/* @flow */ 'use strict';
 
-var identity = require('./identity');
+let identity = require('./identity');
 
-function matcherAllContext(value) {
+function matcherAllContext() {
   return identity;
-};
+}
 
 module.exports = matcherAllContext;

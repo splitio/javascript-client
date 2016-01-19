@@ -1,11 +1,14 @@
-'use strict';
+/* @flow */ 'use strict';
 
-var storage = require('splitio-cache/src/storage');
-var log = require('debug')('splitio-engine:matcher');
+let segmentsStorage = require('splitio-cache/lib/storage').segments;
+let log = require('debug')('splitio-engine:matcher');
 
+/**
+ * Segment Matcher Factory.
+ */
 function matcherSegmentContext(segmentName /*: string */) {
   return function segmentMatcher(key /*: string */) {
-    let isInSegment = storage.getSegment(segmentName).has(key);
+    let isInSegment = segmentsStorage.get(segmentName).has(key);
 
     log(`[segmentMatcher] evaluated ${segmentName} / ${key} => ${isInSegment}`);
 

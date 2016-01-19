@@ -1,14 +1,14 @@
-'use strict';
+/* @flow */ 'use strict';
 
-var matcherGroupTransform = require('../transforms/matcherGroup');
-var partitionsTransform = require('../transforms/partitions');
+let matcherGroupTransform = require('../transforms/matcherGroup');
+let partitionsTransform = require('../transforms/partitions');
 
-var matcherTypes = require('../matchers/types').enum;
-var matcherFactory = require('../matchers');
+let matcherTypes = require('../matchers/types').enum;
+let matcherFactory = require('../matchers');
 
-var evaluatorFactory = require('../evaluator');
+let evaluatorFactory = require('../evaluator');
 
-var andCombiner = require('../combiners/and');
+let andCombiner = require('../combiners/and');
 
 /**
  * Collect segmentNames and create the evaluator function given a list of

@@ -1,10 +1,10 @@
-'use strict';
+/* @flow */ 'use strict';
 
-var types = require('./types').enum;
+let types = require('./types').enum;
 
-var allMatcher = require('./all');
-var segmentMatcher = require('./segment');
-var whitelistMatcher = require('./whitelist');
+let allMatcher = require('./all');
+let segmentMatcher = require('./segment');
+let whitelistMatcher = require('./whitelist');
 
 /*::
   type MatcherAbstract {

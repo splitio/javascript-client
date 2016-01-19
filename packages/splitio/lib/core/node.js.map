@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../es6/core/node.js"],"names":[],"mappings":"WAAY,YAAY,CAAC;;AAEzB,MAAM,CAAC,OAAO,GAAG,OAAO,CAAC,WAAW,CAAC,CAAC","file":"node.js","sourcesContent":["/* @flow */ 'use strict';\n\nmodule.exports = require('./browser');\n"]}

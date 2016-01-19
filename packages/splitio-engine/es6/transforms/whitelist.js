@@ -1,12 +1,6 @@
-'use strict';
+/* @flow */ 'use strict';
 
-/**
- * Transform the Array structure into a Set.
- *
- * @params {array<string>} items
- * @return Set
- */
-function transform(whitelistObject) {
+function transform(whitelistObject /*: Array<string> */) /*: Set */ {
   return new Set(whitelistObject.whitelist);
 }
 

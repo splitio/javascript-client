@@ -1,4 +1,4 @@
-'use strict';
+/* @flow */ 'use strict';
 
 module.exports = {
   enum: {

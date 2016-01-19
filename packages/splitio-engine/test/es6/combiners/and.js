@@ -1,7 +1,7 @@
 'use strict';
 
 var tape = require('tape');
-var andCombinerFactory = require('splitio-engine/src/combiners/and');
+var andCombinerFactory = require('splitio-engine/lib/combiners/and');
 
 tape('', (assert) => {
   let inputKey = 'sample';

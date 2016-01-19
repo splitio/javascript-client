@@ -1,9 +1,11 @@
-'use strict';
+/* @flow */ 'use strict';
 
-var log = require('debug')('splitio-engine:matcher');
+let log = require('debug')('splitio-engine:matcher');
 
-module.exports = function identityMatcher() {
+function identityMatcher() /*: boolean */{
   log('[identityMatcher] always true');
 
   return true;
-};
+}
+
+module.exports = identityMatcher;

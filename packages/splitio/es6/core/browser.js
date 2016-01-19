@@ -1,8 +1,8 @@
-'use strict';
+/* @flow */ 'use strict';
 
-var updater = require('splitio-cache');
+let updater = require('splitio-cache');
 
-var core = {
+let core = {
   schedule(fn /*: function */, delay /*: number */, ...params /*:? Array<any> */) {
     setTimeout(() => {
       fn(...params);
@@ -13,7 +13,8 @@ var core = {
   start(authorizationKey /*: string */) {
     return updater(authorizationKey).then(storage => {
       if (process.env.NODE_ENV === 'development') {
-        storage.print();
+        console.log(JSON.stringify( storage.segments ));
+        console.log(JSON.stringify( storage.splits ));
       }
 
       // fire cache updater each 5 seconds

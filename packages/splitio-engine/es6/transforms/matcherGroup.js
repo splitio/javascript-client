@@ -1,14 +1,21 @@
-'use strict';
+/* @flow */ 'use strict';
 
-var matcherTypes = require('../matchers/types');
+let matcherTypes = require('../matchers/types');
 
-var segmentTransform = require('./segment');
-var whitelistTransform = require('./whitelist');
+let segmentTransform = require('./segment');
+let whitelistTransform = require('./whitelist');
+
+/*::
+  type MatcherDTO {
+    type: Symbol,
+    value: undefined | string | Array<string>
+  }
+*/
 
 /**
  * Flat the complex matcherGroup structure into something handy.
  */
-function transform(matcherGroup) {
+function transform(matcherGroup /*: object */) /*: MatcherDTO */ {
   let {
     matcherType,
     userDefinedSegmentMatcherData: segmentObject,

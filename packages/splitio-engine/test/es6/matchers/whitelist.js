@@ -1,7 +1,7 @@
 'use strict';
 
-var matcherTypes = require('splitio-engine/src/matchers/types');
-var matcherFactory = require('splitio-engine/src/matchers');
+var matcherTypes = require('splitio-engine/lib/matchers/types');
+var matcherFactory = require('splitio-engine/lib/matchers');
 var tape = require('tape');
 
 tape('Matcher WHITELIST should return true ONLY when the key is defined', function (assert) {

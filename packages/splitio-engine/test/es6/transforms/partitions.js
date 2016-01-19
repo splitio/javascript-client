@@ -1,7 +1,7 @@
 'use strict';
 
-var transform = require('splitio-engine/src/transforms/partitions');
-var partitionTypes = require('splitio-engine/src/partitions/types');
+var transform = require('splitio-engine/lib/transforms/partitions');
+var partitionTypes = require('splitio-engine/lib/partitions/types');
 var tape = require('tape');
 
 /**

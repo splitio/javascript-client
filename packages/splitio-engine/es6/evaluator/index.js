@@ -1,18 +1,13 @@
-'use strict';
+/* @flow */ 'use strict';
 
-var isOn = require('../engine').isOn;
+let isOn = require('../engine').isOn;
 
 /**
- * Factory function which creates a evaluator function to be called.
- *
- * @param {Function} martcherEvaluator - Given a key evaluates the segment/whitelist
- * @param {Set} partitionSet           - Set describing partitions of a given condition to be evaluated.
- *
- * @return {Function} evaluator function
+ * Evaluator factory.
  */
-function evaluatorContext(martcherEvaluator /*: function */, partitionSet /*: Set */) {
+function evaluatorContext(martcherEvaluator /*: function */, partitionSet /*: Set */) /*: Function */ {
 
-  return function evaluator(key /*: string */, seed /*: number */) {
+  return function evaluator(key /*: string */, seed /*: number */) /*: boolean */ {
     return martcherEvaluator(key) && isOn(key, seed, partitionSet);
   };
 

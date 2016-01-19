@@ -1,4 +1,5 @@
-'use strict';
+/* @flow */ 'use strict';
+
 /**
 @TODO
 
@@ -8,9 +9,16 @@
    point to think about.
 **/
 
-var Set = require('Immutable').Set;
+let Set = require('Immutable').Set;
 
-function segmentMutationsFactory({name, added, removed}) {
+/*::
+  type SegmentChangesDTO {
+    name: string,
+    added: Array<string>,
+    removed: Array<string>
+  }
+*/
+function segmentMutationsFactory({name, added, removed} /*: SegmentChangesDTO */) {
 
   return function segmentMutations(storageAccesor, storageMutator) {
     storageMutator(

@@ -1,19 +1,21 @@
-'use strict';
+/* @flow */ 'use strict';
 
-var parse = require('splitio-engine').parse;
+let parse = require('splitio-engine').parse;
 
-function splitMutationsFactory(splits) {
+function splitMutationsFactory(splits /*: Array<Split> */) /*: Function */ {
 
-  return function splitMutations(storageMutator) {
+  return function splitMutations(storageMutator /*: (collection: Array<Split>) => any */) /*: void */ {
+    let splitDtos = [];
     let segmentNamesSet = new Set();
 
-    for (let split of splits) {
-      split = parse(split);
+    for (let splitData of splits) {
+      let split = parse(splitData);
 
-      storageMutator(split.getKey(), split);
-
+      splitDtos.push(split);
       segmentNamesSet = new Set([...segmentNamesSet, ...split.getSegments()]);
     }
+
+    storageMutator(splitDtos);
 
     return segmentNamesSet;
   };

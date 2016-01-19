@@ -9,7 +9,7 @@
 
 **/
 
-var parser = require('./parser/condition');
+let parser = require('./parser/condition');
 
 class Split {
 

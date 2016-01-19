@@ -1,10 +1,10 @@
-'use strict';
+/* @flow */ 'use strict';
 
-var partitionTypes = require('../partitions/types');
-var murmur = require('murmurhash-js');
-var log = require('debug')('splitio-engine');
+let partitionTypes = require('../partitions/types');
+let murmur = require('murmurhash-js');
+let log = require('debug')('splitio-engine');
 
-var engine = {
+let engine = {
   /**
    * Defines how much error we could have at the moment we run percentage calculations.
    */
@@ -12,14 +12,8 @@ var engine = {
 
   /**
    * Get the treatment name given a key, and the seed of the feature.
-   *
-   * @param {string} key        - Unique key for a given user.
-   * @param {number} seed       - Seed create for the Split we are evaluating.
-   * @param {Map}    partitions - Partition Map describing percentages distributions (only ON/OFF for now).
-   *
-   * @return {boolean}
    */
-  isOn(key /*: string */, seed /*: number */, partitions /*: Map */) {
+  isOn(key /*: string */, seed /*: number */, partitions /*: Map */) /*: boolean */ {
     let percentageOn = partitions.get(partitionTypes.enum.ON);
     let keyPercentageValue = (murmur(key, seed) % 100);
 
