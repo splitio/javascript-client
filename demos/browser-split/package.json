@@ -1,0 +1,18 @@
+{
+  "name": "browser-split",
+  "version": "1.0.0",
+  "description": "Browser + Split demo",
+  "readme": "README.md",
+  "author": "Facundo Cabrera <facundo@split.io>",
+  "homepage": "https://github.com/splitio/javascript-client",
+  "license": "Apache-2.0",
+  "repository": "https://github.com/splitio/javascript-client/tree/master/demos/browser-split",
+  "engines": {
+    "node": ">=0.12",
+    "npm": "latest"
+  },
+  "dependencies": {
+    "splitio-browser": "^1.0.0",
+    "http-server": "^0.8.5"
+  }
+}
