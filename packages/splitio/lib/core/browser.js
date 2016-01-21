@@ -23,11 +23,6 @@ var core = {
     }
 
     return updater.apply(undefined, args).then(function (storage) {
-      if (process.env.NODE_ENV === 'development') {
-        console.log(JSON.stringify(storage.segments));
-        console.log(JSON.stringify(storage.splits));
-      }
-
       // fire cache updater each 5 seconds
       _this2.schedule.apply(_this2, [updater, 5000].concat(args));
 

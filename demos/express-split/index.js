@@ -8,6 +8,8 @@ var splitEngine = null;
 
 app.use(function split(req, res, next) {
   if (splitEngine) {
+    // 'userId'      - should be replaced with the token you use to identify the user in the environment
+    // 'hello_world' - should be replaced with the feature name you used in the web console
     if (splitEngine.isOn('userId', 'hello_world')) {
       next();
     } else {
@@ -24,6 +26,7 @@ app.get('/', function (req, res) {
 
 app.listen(5000, function serverStarted() {
 
+  // 'epa57jv812r4602iu43no8jm1h' - should be replaced with your environment token.
   split('epa57jv812r4602iu43no8jm1h')
     .then(function (engine) {
       splitEngine = engine;

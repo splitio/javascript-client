@@ -11,7 +11,7 @@ function writer(authorizationKey) {
   log('[' + authorizationKey + '] Running updater.');
 
   return splitChangesDataSource({ authorizationKey: authorizationKey }).then(function (splitsMutator) {
-    return splitsMutator(storage.splis.update);
+    return splitsMutator(storage.splits.update);
   }).then(function (segments) {
     return Promise.all([].concat(_toConsumableArray(segments)).map(function (segmentName) {
       return segmentChangesDataSource({ authorizationKey: authorizationKey, segmentName: segmentName });

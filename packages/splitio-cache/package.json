@@ -1,6 +1,6 @@
 {
   "name": "splitio-cache",
-  "version": "1.0.0",
+  "version": "0.9.0",
   "description": "Split Cache",
   "readme": "README.md",
   "author": "Facundo Cabrera <facundo@split.io>",
@@ -12,7 +12,7 @@
   "scripts": {
     "build": "babel es6 --out-dir lib --source-maps",
     "build-tests": "babel test/es6 --out-dir test/lib --source-maps",
-    "watch": "babel es6 --out-dir src --source-maps --watch",
+    "watch": "babel es6 --out-dir lib --source-maps --watch",
     "watch-test": "babel test/es6 --out-dir test/lib --source-maps --watch",
     "test": "tape test/lib/**/*.js"
   },

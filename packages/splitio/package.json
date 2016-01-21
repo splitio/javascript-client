@@ -1,6 +1,6 @@
 {
   "name": "splitio",
-  "version": "1.0.0",
+  "version": "0.9.0",
   "description": "Split SDK",
   "readme": "README.md",
   "author": "Facundo Cabrera <facundo@split.io>",

@@ -7,6 +7,7 @@ var parse = require('splitio-engine').parse;
 function splitMutationsFactory(splits /*: Array<Split> */) /*: Function */{
 
   return function splitMutations(storageMutator /*: (collection: Array<Split>) => any */) /*: void */{
+
     var splitDtos = [];
     var segmentNamesSet = new Set();
 

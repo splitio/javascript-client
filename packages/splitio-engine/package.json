@@ -1,6 +1,6 @@
 {
   "name": "splitio-engine",
-  "version": "1.0.0",
+  "version": "0.9.0",
   "description": "Split Engine",
   "readme": "README.md",
   "author": "Facundo Cabrera <facundo@split.io>",

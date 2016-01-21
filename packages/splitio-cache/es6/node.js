@@ -9,7 +9,7 @@ function writer(authorizationKey) {
   log(`[${authorizationKey}] Running updater.`);
 
   return splitChangesDataSource({authorizationKey})
-    .then(splitsMutator => splitsMutator(storage.splis.update))
+    .then(splitsMutator => splitsMutator(storage.splits.update))
     .then(segments => Promise.all(
       [...segments].map(segmentName => segmentChangesDataSource({authorizationKey, segmentName}))
     ))

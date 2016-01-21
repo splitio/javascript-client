@@ -4,9 +4,13 @@ let Immutable = require('Immutable');
 
 let segments = new Immutable.Map();
 
+let log = require('debug')('splitio-cache:segments');
+
 module.exports = {
 
   update(name /*: string */, segmentSet /*: Set */) /*: void */ {
+    log(`Updating segment ${name} with ${segmentSet}`);
+
     segments = segments.set(name, segmentSet);
   },
 
