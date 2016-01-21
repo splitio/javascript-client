@@ -8,7 +8,7 @@ module.exports = {
   update(updatedSplits /*: Array<Split>*/) /*: void */ {
     splits = splits.withMutations(splits => {
       updatedSplits.forEach(updatedSplit => {
-        splits = splits.set(updatedSplit.getKey(), split);
+        splits = splits.set(updatedSplit.getKey(), updatedSplit);
       });
 
       return splits;

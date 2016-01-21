@@ -17,3 +17,7 @@ rm -rf lib/
 npm run build
 cp es6/core/package.json lib/core/package.json
 cd -
+
+cd packages/splitio-browser
+npm run build
+cd -

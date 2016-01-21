@@ -15,17 +15,21 @@ var core = {
       _this.schedule.apply(_this, [fn, delay].concat(params));
     }, delay);
   },
-  start: function start(authorizationKey /*: string */) {
+  start: function start() {
     var _this2 = this;
 
-    return updater(authorizationKey).then(function (storage) {
+    for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+      args[_key2] = arguments[_key2];
+    }
+
+    return updater.apply(undefined, args).then(function (storage) {
       if (process.env.NODE_ENV === 'development') {
         console.log(JSON.stringify(storage.segments));
         console.log(JSON.stringify(storage.splits));
       }
 
       // fire cache updater each 5 seconds
-      _this2.schedule(updater, 5000, authorizationKey);
+      _this2.schedule.apply(_this2, [updater, 5000].concat(args));
 
       return storage;
     });

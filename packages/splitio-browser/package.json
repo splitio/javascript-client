@@ -1,0 +1,28 @@
+{
+  "name": "splitio-browser",
+  "version": "1.0.0",
+  "description": "Split SDK bundled for the browser",
+  "readme": "README.md",
+  "author": "Facundo Cabrera <facundo@split.io>",
+  "homepage": "https://github.com/splitio/javascript-client",
+  "license": "Apache-2.0",
+  "repository": "https://github.com/splitio/javascript-client/tree/master/packages/splitio-browser",
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "node ./scripts/bundler.js"
+  },
+  "devDependencies": {
+    "babelify": "^7.2.0",
+    "browserify": "^11.2.0",
+    "browserify-derequire": "^0.9.4",
+    "bundle-collapser": "^1.2.1",
+    "envify": "^3.4.0",
+    "splitio": "^1.0.0",
+    "string-to-stream": "^1.0.1",
+    "uglify-js": "^2.6.1"
+  },
+  "engines": {
+    "node": ">=0.12",
+    "npm": "latest"
+  }
+}

@@ -16,10 +16,10 @@ function mySegmentsDataSource(_ref /*: MySergmentsRequest */) /*: Promise */{
   var authorizationKey = _ref.authorizationKey;
   var userId = _ref.userId;
 
-  return fetch('http://localhost:8081/api/mySegments/' + userId, {
+  return fetch('//localhost:8081/api/mySegments/' + userId, {
     method: 'GET',
     headers: {
-      'Accept': 'application/json',
+      'SARASA': 'application/json',
       'Content-Type': 'application/json',
       'Authorization': 'Bearer ' + authorizationKey
     }

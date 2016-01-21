@@ -3,13 +3,13 @@
 let core = require('./core');
 let log = require('debug')('splitio');
 
-function splitter(authorizationKey /*: string */) /*: Promise */ {
-  return core.start(authorizationKey).then(storage => {
+function splitter(...args) /*: Promise */ {
+  return core.start(...args).then(storage => {
     return {
       /**
-       * Evaluates is a given userId is enabled for a given feature.
+       * Evaluates if a given 'userId' is enabled for a given featureName.
        */
-      isOn(userId /*: string */, featureName /*: string */) {
+      isOn(userId /*: string */, featureName /*: string */) /*: boolean */ {
         let split = storage.splits.get(featureName);
 
         if (split) {
