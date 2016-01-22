@@ -1,12 +1,14 @@
 {
-  "name": "splitio-browser",
+  "name": "@splitsoftware/splitio-browser",
   "version": "0.9.0",
   "description": "Split SDK bundled for the browser",
-  "readme": "README.md",
   "author": "Facundo Cabrera <facundo@split.io>",
   "homepage": "https://github.com/splitio/javascript-client",
   "license": "Apache-2.0",
-  "repository": "https://github.com/splitio/javascript-client/tree/master/packages/splitio-browser",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/splitio/javascript-client/tree/master/packages/splitio-browser"
+  },
   "main": "lib/index.js",
   "scripts": {
     "build": "node ./scripts/bundler.js"
@@ -24,5 +26,16 @@
   "engines": {
     "node": ">=0.12",
     "npm": "latest"
-  }
+  },
+  "dependencies": {
+    "splitio": "^0.9.0"
+  },
+  "keywords": [
+    "rollout",
+    "release",
+    "feature-oriented",
+    "splitio",
+    "browser",
+    "sdk"
+  ]
 }

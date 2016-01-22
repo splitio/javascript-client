@@ -1,12 +1,14 @@
 {
-  "name": "splitio",
+  "name": "@splitsoftware/splitio",
   "version": "0.9.0",
   "description": "Split SDK",
-  "readme": "README.md",
   "author": "Facundo Cabrera <facundo@split.io>",
   "homepage": "https://github.com/splitio/javascript-client",
   "license": "Apache-2.0",
-  "repository": "https://github.com/splitio/javascript-client/tree/master/packages/splitio",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/splitio/javascript-client/tree/master/packages/splitio"
+  },
   "main": "lib/index.js",
   "scripts": {
     "build": "babel es6 --out-dir lib --source-maps",
@@ -39,5 +41,12 @@
       "syntax-object-rest-spread",
       "transform-object-rest-spread"
     ]
-  }
+  },
+  "keywords": [
+    "rollout",
+    "release",
+    "feature-oriented",
+    "splitio",
+    "sdk"
+  ]
 }

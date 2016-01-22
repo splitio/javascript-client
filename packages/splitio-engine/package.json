@@ -1,12 +1,14 @@
 {
-  "name": "splitio-engine",
+  "name": "@splitsoftware/splitio-engine",
   "version": "0.9.0",
   "description": "Split Engine",
-  "readme": "README.md",
   "author": "Facundo Cabrera <facundo@split.io>",
   "homepage": "https://github.com/splitio/javascript-client",
   "license": "Apache-2.0",
-  "repository": "https://github.com/splitio/javascript-client/tree/master/packages/splitio-engine",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/splitio/javascript-client/tree/master/packages/splitio-engine"
+  },
   "main": "lib/index.js",
   "scripts": {
     "build": "babel es6 --out-dir lib --source-maps",
@@ -36,5 +38,12 @@
       "syntax-object-rest-spread",
       "transform-object-rest-spread"
     ]
-  }
+  },
+  "directories": {
+    "test": "test"
+  },
+  "keywords": [
+    "splitio",
+    "sdk"
+  ]
 }
