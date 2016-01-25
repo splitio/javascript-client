@@ -1,6 +1,6 @@
 'use strict';
 
-var engine = require('splitio');
+var engine = require('@splitsoftware/splitio');
 
 var splitio = global.splitio = {};
 

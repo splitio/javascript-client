@@ -17,6 +17,7 @@ require('babel-polyfill');
 require('isomorphic-fetch');
 
 var log = require('debug')('splitio-cache:http');
+var url = require('../url');
 
 var splitMutatorFactory = require('../mutators/splitChanges');
 var cache = new Map();
@@ -31,7 +32,7 @@ function splitChangesDataSource(_ref) {
   var cacheKey = cacheKeyGenerator(authorizationKey);
   var sinceValue = cache.get(cacheKey) || 0;
 
-  return fetch('http://localhost:8081/api/splitChanges?since=' + sinceValue, {
+  return fetch(url('/splitChanges?since=' + sinceValue), {
     method: 'GET',
     headers: {
       'Accept': 'application/json',

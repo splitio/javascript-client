@@ -1,6 +1,6 @@
 /* @flow */ 'use strict';
 
-let updater = require('splitio-cache');
+let updater = require('@splitsoftware/splitio-cache');
 
 let core = {
   schedule(fn /*: function */, delay /*: number */, ...params /*:? Array<any> */) {

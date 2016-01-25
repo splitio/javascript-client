@@ -17,6 +17,6 @@
   },
   "dependencies": {
     "express": "^4.13.3",
-    "splitio": "^0.9.0"
+    "splitio": "^0.10.0"
   }
 }

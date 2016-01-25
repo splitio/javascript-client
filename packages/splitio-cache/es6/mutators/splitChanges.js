@@ -1,6 +1,6 @@
 /* @flow */ 'use strict';
 
-let parse = require('splitio-engine').parse;
+let parse = require('@splitsoftware/splitio-engine').parse;
 
 function splitMutationsFactory(splits /*: Array<Split> */) /*: Function */ {
 

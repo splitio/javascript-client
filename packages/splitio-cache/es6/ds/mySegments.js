@@ -4,6 +4,7 @@ require('babel-polyfill');
 require('isomorphic-fetch');
 
 let mySegmentMutationsFactory = require('../mutators/mySegments');
+let url = require('../url');
 let log = require('debug')('splitio-cache:http');
 
 /*::
@@ -13,7 +14,7 @@ let log = require('debug')('splitio-cache:http');
   }
 */
 function mySegmentsDataSource({authorizationKey, userId} /*: MySergmentsRequest */) /*: Promise */ {
-  return fetch(`//localhost:8081/api/mySegments/${userId}`, {
+  return fetch(url(`/mySegments/${userId}`), {
     method: 'GET',
     headers: {
       'SARASA': 'application/json',

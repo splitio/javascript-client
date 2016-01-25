@@ -19,16 +19,13 @@
     "browserify-derequire": "^0.9.4",
     "bundle-collapser": "^1.2.1",
     "envify": "^3.4.0",
-    "splitio": "^1.0.0",
+    "@splitsoftware/splitio": "^0.9.0",
     "string-to-stream": "^1.0.1",
     "uglify-js": "^2.6.1"
   },
   "engines": {
     "node": ">=0.12",
     "npm": "latest"
-  },
-  "dependencies": {
-    "splitio": "^0.9.0"
   },
   "keywords": [
     "rollout",

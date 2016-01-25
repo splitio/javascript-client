@@ -26,7 +26,8 @@
     "babel-polyfill": "^6.3.14",
     "immutable": "^3.7.6",
     "isomorphic-fetch": "^2.2.0",
-    "tape": "^4.2.2"
+    "tape": "^4.2.2",
+    "@splitsoftware/splitio-engine": "^0.9.1"
   },
   "devDependencies": {
     "eslint": "^1.10.3",

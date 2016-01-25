@@ -17,6 +17,7 @@ require('babel-polyfill');
 require('isomorphic-fetch');
 
 var log = require('debug')('splitio-cache:http');
+var url = require('../url');
 
 var segmentMutatorFactory = require('../mutators/segmentChanges');
 var cache = new Map();
@@ -32,7 +33,7 @@ function segmentChangesDataSource(_ref) {
   var cacheKey = cacheKeyGenerator(authorizationKey, segmentName);
   var sinceValue = cache.get(cacheKey) || 0;
 
-  return fetch('http://localhost:8081/api/segmentChanges/' + segmentName + '?since=' + sinceValue, {
+  return fetch(url('/segmentChanges/' + segmentName + '?since=' + sinceValue), {
     method: 'GET',
     headers: {
       'Accept': 'application/json',

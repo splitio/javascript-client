@@ -1,6 +1,6 @@
 /* @flow */ 'use strict';
 
-let segmentsStorage = require('splitio-cache/lib/storage').segments;
+let segmentsStorage = require('@splitsoftware/splitio-cache/lib/storage').segments;
 let log = require('debug')('splitio-engine:matcher');
 
 /**

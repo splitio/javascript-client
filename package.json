@@ -3,8 +3,10 @@
   "license": "Apache-2",
   "scripts": {
     "tc": "flow check",
-    "b": "./scripts/build.sh",
-    "l": "eslint packages/*/es6/**/*.js"
+    "lint": "eslint packages/*/es6/**/*.js",
+    "dev": "./scripts/development.sh",
+    "build": "./scripts/build.sh",
+    "watch": "./scripts/watch.sh"
   },
   "devDependencies": {
     "babel-eslint": "^4.0.6",
