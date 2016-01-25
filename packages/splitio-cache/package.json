@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio-cache",
-  "version": "0.9.1",
+  "version": "0.10.0",
   "description": "Split Cache",
   "author": "Facundo Cabrera <facundo@split.io>",
   "homepage": "https://github.com/splitio/javascript-client",
