@@ -1,8 +1,8 @@
 'use strict';
 
 var tape = require('tape');
-var engine = require('splitio-engine/lib/engine');
-var partitionTypes = require('splitio-engine/lib/partitions/types');
+var engine = require('../../../lib/engine');
+var partitionTypes = require('../../../lib/partitions/types');
 var keys = require('./mocks/1000_keys_10_chart_length');
 
 tape('The engine should evaluates always true', function (assert) {

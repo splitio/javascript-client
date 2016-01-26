@@ -1,6 +1,6 @@
 'use strict';
 
-let transform = require('splitio-engine/lib/transforms/whitelist');
+let transform = require('../../../lib/transforms/whitelist');
 let tape = require('tape');
 
 tape('a whitelist Array should be casted into a Set', function (assert) {
