@@ -17,6 +17,6 @@
   },
   "dependencies": {
     "express": "^4.13.3",
-    "@splitsoftware/splitio": "^0.10.0"
+    "@splitsoftware/splitio": "^0.10.1"
   }
 }

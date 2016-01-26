@@ -19,7 +19,7 @@
     "browserify-derequire": "^0.9.4",
     "bundle-collapser": "^1.2.1",
     "envify": "^3.4.0",
-    "@splitsoftware/splitio": "^0.9.0",
+    "@splitsoftware/splitio": "^0.10.1",
     "string-to-stream": "^1.0.1",
     "uglify-js": "^2.6.1"
   },
