@@ -1,50 +1,41 @@
 'use strict';
 
-var tape = require('tape');
-var engine = require('../../../lib/engine');
-var partitionTypes = require('../../../lib/partitions/types');
-var keys = require('./mocks/1000_keys_10_chart_length');
+let tape = require('tape');
+let engine = require('../../../lib/engine');
 
-tape('The engine should evaluates always true', function (assert) {
-  let partitions = new Map().set(partitionTypes.enum.ON, 100);
-  let okCounter = 0;
-  let failCounter = 0;
+let Treatments = require('../../../lib/treatments');
+let treatmentsMock = Treatments.parse([{
+  treatment: 'on',
+  size: 5
+}, {
+  treatment: 'control',
+  size: 95
+}]);
+
+tape('Engine should evaluate always evaluate to false', assert => {
+  let seed = 467569525;
+  let key = 'aUfEsdPN1twuEjff9Sl';
 
   let startTime = Date.now();
 
-  for (let k of keys) {
-    engine.isOn(k, 424344136, partitions) ? okCounter++ : failCounter++;
-  }
+  assert.false(engine.isOn(key, seed, treatmentsMock), 'engine correctly evaluated to false');
 
   let endTime = Date.now();
 
-  assert.true(okCounter === 1000, 'ALL keys should evaluate to true');
-  assert.true(failCounter === 0, 'ANY keys should evaluate to false');
   assert.comment(`Evaluation takes ${(endTime - startTime) / 1000} seconds`);
   assert.end();
 });
 
-tape('The engine should evaluates half true and half false', function (assert) {
-  let partitions = new Map().set(partitionTypes.enum.ON, 50);
-  let okCounter = 0;
-  let failCounter = 0;
+tape('Engine should evaluate always evaluate to true', assert => {
+  let seed = 467569525;
+  let key = 'fXvNwWFb7SXp';
 
-  for (let k of keys) {
-    if (engine.isOn(k, 424344136, partitions)) {
-      okCounter++;
-    } else {
-      failCounter++;
-    }
-  }
+  let startTime = Date.now();
 
-  let total = keys.length;
-  let percentageOk = okCounter * 100 / total;
-  let percentageFail = failCounter * 100 / total;
+  assert.true(engine.isOn(key, seed, treatmentsMock), 'engine correctly evaluated to true');
 
-  let inf = 50 - engine.TOLERANCE;
-  let sup = 50 + engine.TOLERANCE;
+  let endTime = Date.now();
 
-  assert.true(inf <= percentageOk && percentageOk <= sup, `OK should be between(49.9, 50.1): ${percentageOk}`);
-  assert.true(inf <= percentageFail && percentageFail <= sup, `FAIL should be between(49.9, 50.1): ${percentageFail}`);
+  assert.comment(`Evaluation takes ${(endTime - startTime) / 1000} seconds`);
   assert.end();
 });

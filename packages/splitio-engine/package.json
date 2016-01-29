@@ -26,6 +26,7 @@
     "@splitsoftware/splitio-cache": "^0.10.1"
   },
   "devDependencies": {
+    "csv-streamify": "^3.0.3",
     "eslint": "^1.10.3",
     "istanbul": "^0.4.2",
     "jscs": "^2.7.0",

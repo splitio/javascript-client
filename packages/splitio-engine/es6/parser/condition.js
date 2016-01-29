@@ -1,7 +1,7 @@
 /* @flow */ 'use strict';
 
 let matcherGroupTransform = require('../transforms/matcherGroup');
-let partitionsTransform = require('../transforms/partitions');
+let treatmentsParser = require('../treatments').parse;
 
 let matcherTypes = require('../matchers/types').enum;
 let matcherFactory = require('../matchers');
@@ -25,14 +25,14 @@ function parse(conditions) {
   for (let condition of conditions) {
     let matcherMetadata = matcherGroupTransform(condition.matcherGroup);
     let matcherEvaluator = matcherFactory(matcherMetadata);
-    let partitions = partitionsTransform(condition.partitions);
+    let treatments = treatmentsParser(condition.partitions);
 
     // Incrementally collect segmentNames
     if (matcherMetadata.type === matcherTypes.SEGMENT) {
       segments.add(matcherMetadata.value);
     }
 
-    predicates.push(evaluatorFactory(matcherEvaluator, partitions));
+    predicates.push(evaluatorFactory(matcherEvaluator, treatments));
   }
 
   // Instanciate evaluator given the set of conditions

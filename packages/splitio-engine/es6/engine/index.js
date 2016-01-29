@@ -1,25 +1,28 @@
 /* @flow */ 'use strict';
 
-let partitionTypes = require('../partitions/types');
-let murmur = require('murmurhash-js');
+let bucket = require('./utils').bucket;
 let log = require('debug')('splitio-engine');
 
 let engine = {
   /**
-   * Defines how much error we could have at the moment we run percentage calculations.
+   * Verifies if the treatment name matches with OFF treatment.
    */
-  TOLERANCE: 1, // For now, we consider 1% acceptable.
+  isOn(key /*: string */, seed /*: number */, treatments /*: Treatments */) /*: boolean */ {
+    let treatment = this.getTreatment(key, seed, treatments);
+
+    return treatment !== 'control' && treatment !== 'off';
+  },
 
   /**
-   * Get the treatment name given a key, and the seed of the feature.
+   * Get the treatment name given a key, a seed, and the percentage of each treatment.
    */
-  isOn(key /*: string */, seed /*: number */, partitions /*: Map */) /*: boolean */ {
-    let percentageOn = partitions.get(partitionTypes.enum.ON);
-    let keyPercentageValue = (murmur(key, seed) % 100);
+  getTreatment(key /*: string */, seed /*: number */, treatments /*: Treatments */) /*: string */ {
+    let b = bucket(key, seed);
+    let treatment = treatments.getTreatmentFor(b);
 
-    log(`[engine] percentage on ${percentageOn} and key ${keyPercentageValue}`);
+    log(`[engine] bucket ${b} for ${key} using seed ${seed} - treatment ${treatment}`);
 
-    return percentageOn >= keyPercentageValue;
+    return treatment;
   }
 };
 

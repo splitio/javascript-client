@@ -18,4 +18,5 @@ cd -
 ./node_modules/.bin/babel test/es6 --out-dir test/lib --source-maps
 cd test/es6
 find . -name *.json | xargs -J % gcp --parents % ../lib/
+find . -name *.csv | xargs -J % gcp --parents % ../lib/
 cd -
