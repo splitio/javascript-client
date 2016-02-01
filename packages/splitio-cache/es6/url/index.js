@@ -1,8 +1,6 @@
 'use strict';
 
 function hostname(urlWithoutHost) {
-  let { NODE_ENV: env } = process.env;
-
   if ('stage' === process.env.NODE_ENV) {
     return `https://sdk-staging.split.io/api${urlWithoutHost}`;
   } else if ('production' === process.env.NODE_ENV) {
