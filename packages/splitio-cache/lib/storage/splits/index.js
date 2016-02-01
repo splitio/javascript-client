@@ -1,24 +1,21 @@
 /* @flow */'use strict';
 
-var Immutable = require('Immutable');
+require('babel-polyfill');
 
-var splits = new Immutable.Map();
+var _splits = new Map();
 
 module.exports = {
-  update: function update(updatedSplits /*: Array<Split>*/) /*: void */{
-    splits = splits.withMutations(function (splits) {
-      updatedSplits.forEach(function (updatedSplit) {
-        splits = splits.set(updatedSplit.getKey(), updatedSplit);
-      });
+  update: function update(splits /*: Array<Split>*/) /*: void */{
 
-      return splits;
+    splits.forEach(function (s) {
+      _splits.set(s.getKey(), s);
     });
   },
   get: function get(featureName /*: string */) /*: Set */{
-    return splits.get(featureName);
+    return _splits.get(featureName);
   },
-  toJS: function toJS() {
-    return splits.toJS();
+  toJSON: function toJSON() {
+    return _splits;
   }
 };
 //# sourceMappingURL=index.js.map

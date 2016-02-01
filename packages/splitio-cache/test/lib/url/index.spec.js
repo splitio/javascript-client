@@ -24,4 +24,4 @@ tape('url for production', function (assert) {
 });
 
 process.env.NODE_ENV = NODE_ENV;
-//# sourceMappingURL=index.js.map
+//# sourceMappingURL=index.spec.js.map

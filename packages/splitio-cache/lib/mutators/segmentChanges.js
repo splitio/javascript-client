@@ -1,15 +1,6 @@
 /* @flow */'use strict';
 
-/**
-@TODO
-
-1- Mutations should be applied on the storage and I'm not 100% sure about
-   having 2 arguments instead of just provide the data structure as is.
-2- Data initialization is part of the implementation, here I have another
-   point to think about.
-**/
-
-var Set = require('Immutable').Set;
+require('babel-polyfill');
 
 /*::
   type SegmentChangesDTO {
@@ -23,8 +14,17 @@ function segmentMutationsFactory(_ref /*: SegmentChangesDTO */) {
   var added = _ref.added;
   var removed = _ref.removed;
 
-  return function segmentMutations(storageAccesor, storageMutator) {
-    storageMutator(name, (storageAccesor(name) || new Set()).union(added).subtract(removed));
+  return function segmentMutations(storageAccesor /*: Function */, storageMutator /*: Function */) {
+    var segments = storageAccesor(name);
+
+    added.forEach(function (segment) {
+      return segments.add(segment);
+    });
+    removed.forEach(function (segment) {
+      return segments.delete(segment);
+    });
+
+    storageMutator(name, segments);
   };
 }
 

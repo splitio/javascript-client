@@ -8,7 +8,7 @@ let url = require('../url');
 let log = require('debug')('splitio-cache:http');
 
 /*::
-  type MySergmentsRequest {
+  type MySergmentsRequest = {
     authorizationKey: string,
     userId: string
   }

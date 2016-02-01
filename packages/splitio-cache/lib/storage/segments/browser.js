@@ -1,18 +1,18 @@
 /* @flow */'use strict';
 
-var Immutable = require('Immutable');
+require('babel-polyfill');
 
-var segments = new Immutable.Set();
+var _segments = new Set();
 
 module.exports = {
-  update: function update(newSegments /*: Set */) {
-    segments = newSegments;
+  update: function update(segments /*: Set */) {
+    _segments = segments;
   },
   has: function has(name /*: string */) /*: boolean */{
-    return segments.has(name);
+    return _segments.has(name);
   },
-  toJS: function toJS() /*: string */{
-    return segments.toJS();
+  toJSON: function toJSON() {
+    return _segments;
   }
 };
 //# sourceMappingURL=browser.js.map

@@ -1,22 +1,21 @@
 /* @flow */'use strict';
 
-var Immutable = require('Immutable');
+require('babel-polyfill');
 
-var segments = new Immutable.Map();
-
+var _segments = new Map();
 var log = require('debug')('splitio-cache:segments');
 
 module.exports = {
-  update: function update(name /*: string */, segmentSet /*: Set */) /*: void */{
-    log('Updating segment ' + name + ' with ' + segmentSet);
+  update: function update(name /*: string */, segments /*: Set */) /*: void */{
+    log('Updating segment ' + name + ' with ' + segments);
 
-    segments = segments.set(name, segmentSet);
+    _segments.set(name, segments);
   },
   get: function get(name /*: string */) /*: Set */{
-    return segments.get(name);
+    return _segments.get(name) || new Set();
   },
-  toJS: function toJS() /*: string */{
-    return segments.toJS();
+  toJSON: function toJSON() {
+    return _segments;
   }
 };
 //# sourceMappingURL=node.js.map

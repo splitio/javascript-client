@@ -1,6 +1,6 @@
 /* @flow */'use strict';
 
-var Set = require('Immutable').Set;
+require('babel-polyfill');
 
 /*::
   type MySegmentsDTO = Array<string>;

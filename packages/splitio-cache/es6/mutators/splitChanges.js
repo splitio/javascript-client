@@ -1,22 +1,23 @@
 /* @flow */ 'use strict';
 
+require('babel-polyfill');
+
 let parse = require('@splitsoftware/splitio-engine').parse;
 
-function splitMutationsFactory(splits /*: Array<Split> */) /*: Function */ {
+function splitMutationsFactory(splits /*: Array<Object> */) /*: Function */ {
 
   return function splitMutations(storageMutator /*: (collection: Array<Split>) => any */) /*: void */ {
-
-    let splitDtos = [];
+    let dtos = [];
     let segmentNamesSet = new Set();
 
-    for (let splitData of splits) {
-      let split = parse(splitData);
+    for (let s of splits) {
+      let split = parse(s);
 
-      splitDtos.push(split);
+      dtos.push(split);
       segmentNamesSet = new Set([...segmentNamesSet, ...split.getSegments()]);
     }
 
-    storageMutator(splitDtos);
+    storageMutator(dtos);
 
     return segmentNamesSet;
   };

@@ -1,21 +1,21 @@
 /* @flow */ 'use strict';
 
-let Immutable = require('Immutable');
+require('babel-polyfill');
 
-let segments = new Immutable.Set();
+let _segments = new Set();
 
 module.exports = {
 
-  update(newSegments /*: Set */) {
-    segments = newSegments;
+  update(segments /*: Set */) {
+    _segments = segments;
   },
 
   has(name /*: string */) /*: boolean */ {
-    return segments.has(name);
+    return _segments.has(name);
   },
 
-  toJS() /*: string */ {
-    return segments.toJS();
+  toJSON() {
+    return _segments;
   }
 
 };

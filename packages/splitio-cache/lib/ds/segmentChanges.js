@@ -3,8 +3,6 @@
 /**
 @TODO
 
-2- URLs should be handled in another way, probably reading a configuration file
-   so clients could build / configure servers deployments.
 3- DataSources could be abstracted because for now, both implementations are the
    same.
 4- LOG should be only present while we use development mode.
