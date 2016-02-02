@@ -9,12 +9,16 @@ module.exports = {
   update(splits /*: Array<Split>*/) /*: void */ {
 
     splits.forEach(s => {
-      _splits.set(s.getKey(), s)
+      if (!s.isGarbage()) {
+        _splits.set(s.getKey(), s);
+      } else {
+        _splits.delete(s.getKey());
+      }
     });
 
   },
 
-  get(featureName /*: string */) /*: Set */ {
+  get(featureName /*: string */) /*: Split */ {
     return _splits.get(featureName);
   },
 

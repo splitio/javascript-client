@@ -1,14 +1,5 @@
 'use strict';
 
-/**
-@TODO
-
-1- `getKey()` is actually `getFeatureName()` which is unique in the context of
-   a given SPLIT_TOKEN. This key is used inside a data structure used for fast
-   retrival. Evaluate if make sense to rename it or not.
-
-**/
-
 let parser = require('./parser/condition');
 
 class Split {
@@ -28,7 +19,13 @@ class Split {
   }
 
   isOn(key) {
+    if (this.baseInfo.killed) return false;
+
     return this.evaluator(key, this.baseInfo.seed);
+  }
+
+  isGarbage() {
+    return this.baseInfo.status === 'ARCHIVED';
   }
 
   static parse(splitFlatStructure) {

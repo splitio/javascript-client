@@ -7,20 +7,20 @@ function splitter() /*: Promise */{
   return core.start.apply(core, arguments).then(function (storage) {
     return {
       /**
-       * Evaluates if a given 'userId' is enabled for a given featureName.
+       * Evaluates if a given 'key' is enabled for a given featureName.
        */
 
-      isOn: function isOn(userId /*: string */, featureName /*: string */) /*: boolean */{
+      isOn: function isOn(key /*: string */, featureName /*: string */) /*: boolean */{
         var split = storage.splits.get(featureName);
 
         if (split) {
-          var splitEvaluation = split.isOn(userId);
+          var splitEvaluation = split.isOn(key);
 
-          log('[splitio] feature ' + featureName + ' key ' + userId + ' evaluated as ' + splitEvaluation);
+          log('feature ' + featureName + ' key ' + key + ' evaluated as ' + splitEvaluation);
 
           return splitEvaluation;
         } else {
-          log('[splitio] feature ' + featureName + ' is not available yet');
+          log('feature ' + featureName + ' doesn\'t exists');
 
           return false;
         }

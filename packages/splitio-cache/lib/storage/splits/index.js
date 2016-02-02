@@ -8,10 +8,14 @@ module.exports = {
   update: function update(splits /*: Array<Split>*/) /*: void */{
 
     splits.forEach(function (s) {
-      _splits.set(s.getKey(), s);
+      if (!s.isGarbage()) {
+        _splits.set(s.getKey(), s);
+      } else {
+        _splits.delete(s.getKey());
+      }
     });
   },
-  get: function get(featureName /*: string */) /*: Set */{
+  get: function get(featureName /*: string */) /*: Split */{
     return _splits.get(featureName);
   },
   toJSON: function toJSON() {

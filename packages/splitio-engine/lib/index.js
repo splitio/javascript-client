@@ -1,14 +1,5 @@
 'use strict';
 
-/**
-@TODO
-
-1- `getKey()` is actually `getFeatureName()` which is unique in the context of
-   a given SPLIT_TOKEN. This key is used inside a data structure used for fast
-   retrival. Evaluate if make sense to rename it or not.
-
-**/
-
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
@@ -39,7 +30,14 @@ var Split = function () {
   }, {
     key: 'isOn',
     value: function isOn(key) {
+      if (this.baseInfo.killed) return false;
+
       return this.evaluator(key, this.baseInfo.seed);
+    }
+  }, {
+    key: 'isGarbage',
+    value: function isGarbage() {
+      return this.baseInfo.status === 'ARCHIVED';
     }
   }], [{
     key: 'parse',
