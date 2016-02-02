@@ -6,6 +6,9 @@ function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in ob
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+require('babel-polyfill');
+
+var TREATMENT = require('../treatments/reserved');
 var parser = require('./parser/condition');
 
 var Split = function () {
@@ -28,11 +31,18 @@ var Split = function () {
       return this.segments;
     }
   }, {
-    key: 'isOn',
-    value: function isOn(key) {
-      if (this.baseInfo.killed) return false;
+    key: 'getTreatment',
+    value: function getTreatment(key) {
+      if (this.baseInfo.killed) {
+        return TREATMENT.CONTROL;
+      }
 
       return this.evaluator(key, this.baseInfo.seed);
+    }
+  }, {
+    key: 'isOn',
+    value: function isOn(key) {
+      return TREATMENT.isON(this.getTreatment(key));
     }
   }, {
     key: 'isGarbage',

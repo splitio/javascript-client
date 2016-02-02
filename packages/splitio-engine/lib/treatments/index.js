@@ -1,4 +1,4 @@
-'use strict';
+/* @flow */'use strict';
 
 /*::
   type PartitionDTO = {
@@ -14,30 +14,6 @@ var _createClass = function () { function defineProperties(target, props) { for 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var Treatments = function () {
-  _createClass(Treatments, null, [{
-    key: 'parse',
-    value: function parse(data /*: Array<PartitionDTO> */) /*: Treatments */{
-      var _data$reduce = data.reduce(function (accum, value) {
-        var size = value.size;
-        var treatment = value.treatment;
-
-        accum.ranges.push(accum.inc += size);
-        accum.treatments.push(treatment);
-
-        return accum;
-      }, {
-        inc: 0,
-        ranges: [],
-        treatments: []
-      });
-
-      var ranges = _data$reduce.ranges;
-      var treatments = _data$reduce.treatments;
-
-      return new Treatments(ranges, treatments);
-    }
-  }]);
-
   function Treatments(ranges /*: Array<number> */, treatments /*: Array<string> */) {
     _classCallCheck(this, Treatments);
 
@@ -80,10 +56,34 @@ var Treatments = function () {
         }
       }
     }
+  }], [{
+    key: 'parse',
+    value: function parse(data /*: Array<PartitionDTO> */) /*: Treatments */{
+      var _data$reduce = data.reduce(function (accum, value) {
+        var size = value.size;
+        var treatment = value.treatment;
+
+        accum.ranges.push(accum.inc += size);
+        accum.treatments.push(treatment);
+
+        return accum;
+      }, {
+        inc: 0,
+        ranges: [],
+        treatments: []
+      });
+
+      var ranges = _data$reduce.ranges;
+      var treatments = _data$reduce.treatments;
+
+      return new Treatments(ranges, treatments);
+    }
   }]);
 
   return Treatments;
 }();
+
+Treatments.RESERVED = require('./reserved');
 
 module.exports = Treatments;
 //# sourceMappingURL=index.js.map

@@ -10,14 +10,17 @@ var evaluatorFactory = require('../evaluator');
 
 var andCombiner = require('../combiners/and');
 
-/**
- * Collect segmentNames and create the evaluator function given a list of
- * conditions.
- *
- * @params {Iterable} conditions Collection of conditions present in a given Split.
- * @return {Object} .segments and .evaluator based on the given set of conditions.
- */
-function parse(conditions) {
+/*::
+  type ParserOutputDTO = {
+    segments: Set,
+    evaluator: (key: string, seed: number) => boolean
+  }
+*/
+
+// Collect segments and create the evaluator function given a list of
+// conditions. This code is the base used by the class `Split` for
+// instanciation.
+function parse(conditions /*: Iterable<Object> */) /*: ParserOutputDTO */{
   var predicates = [];
   var segments = new Set();
   var evaluator = null;

@@ -1,12 +1,11 @@
 /* @flow */'use strict';
 
-/**
- * AND operator factory.
- */
+var TREATMENT = require('../treatments/reserved');
 
+// Premature evaluator (return as soon as something evaluates to true).
 function andContext(predicates /*: Array<(key: string, seed: number) => boolean)> */) /*: Function */{
 
-  return function andCombinerEvaluator(key /*: string */, seed /*: number */) /*: boolean */{
+  return function andCombinerEvaluator(key /*: string */, seed /*: number */) /*: string */{
     var _iteratorNormalCompletion = true;
     var _didIteratorError = false;
     var _iteratorError = undefined;
@@ -15,7 +14,9 @@ function andContext(predicates /*: Array<(key: string, seed: number) => boolean)
       for (var _iterator = predicates[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
         var evaluator = _step.value;
 
-        if (evaluator(key, seed)) return true;
+        var treatment = evaluator(key, seed);
+
+        if (TREATMENT.isOn(treatment)) return treatment;
       }
     } catch (err) {
       _didIteratorError = true;
@@ -32,7 +33,7 @@ function andContext(predicates /*: Array<(key: string, seed: number) => boolean)
       }
     }
 
-    return false;
+    return TREATMENT.CONTROL;
   };
 }
 

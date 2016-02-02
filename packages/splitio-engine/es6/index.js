@@ -1,5 +1,8 @@
 'use strict';
 
+require('babel-polyfill');
+
+const TREATMENT = require('../treatments/reserved');
 let parser = require('./parser/condition');
 
 class Split {
@@ -18,10 +21,16 @@ class Split {
     return this.segments;
   }
 
-  isOn(key) {
-    if (this.baseInfo.killed) return false;
+  getTreatment(key) {
+    if (this.baseInfo.killed) {
+      return TREATMENT.CONTROL;
+    }
 
     return this.evaluator(key, this.baseInfo.seed);
+  }
+
+  isOn(key) {
+    return TREATMENT.isON(this.getTreatment(key));
   }
 
   isGarbage() {

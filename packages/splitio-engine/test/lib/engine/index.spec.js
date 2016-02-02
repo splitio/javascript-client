@@ -18,7 +18,7 @@ tape('Engine should evaluate always evaluate to false', function (assert) {
 
   var startTime = Date.now();
 
-  assert.false(engine.isOn(key, seed, treatmentsMock), 'engine correctly evaluated to false');
+  assert.false(Treatments.RESERVED.isOn(engine.getTreatment(key, seed, treatmentsMock)), 'engine correctly evaluated to false');
 
   var endTime = Date.now();
 
@@ -32,7 +32,7 @@ tape('Engine should evaluate always evaluate to true', function (assert) {
 
   var startTime = Date.now();
 
-  assert.true(engine.isOn(key, seed, treatmentsMock), 'engine correctly evaluated to true');
+  assert.true(Treatments.RESERVED.isOn(engine.getTreatment(key, seed, treatmentsMock)), 'engine correctly evaluated to true');
 
   var endTime = Date.now();
 

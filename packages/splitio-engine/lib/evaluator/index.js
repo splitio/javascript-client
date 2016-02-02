@@ -1,5 +1,6 @@
 /* @flow */'use strict';
 
+var TREATMENT = require('../treatments/reserved');
 var engine = require('../engine');
 
 /**
@@ -7,8 +8,13 @@ var engine = require('../engine');
  */
 function evaluatorContext(martcherEvaluator /*: function */, treatments /*: Treatments */) /*: Function */{
 
-  return function evaluator(key /*: string */, seed /*: number */) /*: boolean */{
-    return martcherEvaluator(key) && engine.isOn(key, seed, treatments);
+  return function evaluator(key /*: string */, seed /*: number */) /*: string */{
+
+    if (martcherEvaluator(key)) {
+      return engine.getTreatment(key, seed, treatments);
+    }
+
+    return TREATMENT.CONTROL;
   };
 }
 

@@ -1,6 +1,6 @@
 /* @flow */ 'use strict';
 
-function transform(whitelistObject /*: Array<string> */) /*: Set */ {
+function transform(whitelistObject /*: Object */) /*: Set */ {
   return new Set(whitelistObject.whitelist);
 }
 

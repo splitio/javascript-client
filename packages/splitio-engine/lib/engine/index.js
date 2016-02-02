@@ -5,18 +5,9 @@ var log = require('debug')('splitio-engine');
 
 var engine = {
   /**
-   * Verifies if the treatment name matches with OFF treatment.
-   */
-
-  isOn: function isOn(key /*: string */, seed /*: number */, treatments /*: Treatments */) /*: boolean */{
-    var treatment = this.getTreatment(key, seed, treatments);
-
-    return treatment !== 'control' && treatment !== 'off';
-  },
-
-  /**
    * Get the treatment name given a key, a seed, and the percentage of each treatment.
    */
+
   getTreatment: function getTreatment(key /*: string */, seed /*: number */, treatments /*: Treatments */) /*: string */{
     var b = bucket(key, seed);
     var treatment = treatments.getTreatmentFor(b);

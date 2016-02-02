@@ -1,16 +1,18 @@
 /* @flow */ 'use strict';
 
-/**
- * AND operator factory.
- */
+const TREATMENT = require('../treatments/reserved');
+
+// Premature evaluator (return as soon as something evaluates to true).
 function andContext(predicates /*: Array<(key: string, seed: number) => boolean)> */) /*: Function */ {
 
-  return function andCombinerEvaluator(key /*: string */, seed /*: number */) /*: boolean */ {
+  return function andCombinerEvaluator(key /*: string */, seed /*: number */) /*: string */ {
     for (let evaluator of predicates) {
-      if (evaluator(key, seed)) return true;
+      let treatment = evaluator(key, seed);
+
+      if (TREATMENT.isOn( treatment )) return treatment;
     }
 
-    return false;
+    return TREATMENT.CONTROL;
   };
 
 }
