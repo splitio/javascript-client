@@ -17,13 +17,17 @@ function mySegmentsDataSource({authorizationKey, userId} /*: MySergmentsRequest 
   return fetch(url(`/mySegments/${userId}`), {
     method: 'GET',
     headers: {
-      'SARASA': 'application/json',
+      'Accept': 'application/json',
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${authorizationKey}`
     }
   })
   .then(resp => resp.json())
-  .then(json => json.mySegments.map(segment => segment.name))
+  .then(json => {
+    log(`[${authorizationKey}] /mySegments for ${userId}`, json);
+
+    return json.mySegments.map(segment => segment.name);
+  })
   .then(mySegments => mySegmentMutationsFactory(mySegments))
   .catch(error => {
     log(`[${authorizationKey}] failure fetching my segments [${userId}]`);

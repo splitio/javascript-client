@@ -20,13 +20,15 @@ function mySegmentsDataSource(_ref /*: MySergmentsRequest */) /*: Promise */{
   return fetch(url('/mySegments/' + userId), {
     method: 'GET',
     headers: {
-      'SARASA': 'application/json',
+      'Accept': 'application/json',
       'Content-Type': 'application/json',
       'Authorization': 'Bearer ' + authorizationKey
     }
   }).then(function (resp) {
     return resp.json();
   }).then(function (json) {
+    log('[' + authorizationKey + '] /mySegments for ' + userId, json);
+
     return json.mySegments.map(function (segment) {
       return segment.name;
     });

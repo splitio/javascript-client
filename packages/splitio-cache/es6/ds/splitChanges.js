@@ -40,6 +40,8 @@ function splitChangesDataSource({authorizationKey}) {
   .then(json => {
     let {till, splits} = json;
 
+    log(`[${authorizationKey}] /splitChanges response using since=${sinceValue}`, json);
+
     cache.set(cacheKey, till);
 
     return splitMutatorFactory( splits );
