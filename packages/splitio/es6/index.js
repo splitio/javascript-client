@@ -3,12 +3,11 @@
 let core = require('./core');
 let log = require('debug')('splitio');
 
-function splitter(...args) /*: Promise */ {
+function splitio(...args) /*: Promise */ {
   return core.start(...args).then(storage => {
+
     return {
-      /**
-       * Evaluates if a given 'key' is enabled for a given featureName.
-       */
+      // Evaluates if a given 'key' is enabled for a given featureName
       isOn(key /*: string */, featureName /*: string */) /*: boolean */ {
         let split = storage.splits.get(featureName);
 
@@ -25,7 +24,8 @@ function splitter(...args) /*: Promise */ {
         }
       }
     };
+
   });
 }
 
-module.exports = splitter;
+module.exports = splitio;
