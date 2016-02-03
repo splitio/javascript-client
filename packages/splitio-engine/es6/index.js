@@ -1,8 +1,8 @@
 'use strict';
 
-require('babel-polyfill');
+try { require('babel-polyfill'); } catch(e) { /* will be replaced using just core-js */ }
 
-const TREATMENT = require('../treatments/reserved');
+const TREATMENT = require('./treatments/reserved');
 let parser = require('./parser/condition');
 
 class Split {
@@ -30,7 +30,7 @@ class Split {
   }
 
   isOn(key) {
-    return TREATMENT.isON(this.getTreatment(key));
+    return TREATMENT.isOn(this.getTreatment(key));
   }
 
   isGarbage() {
