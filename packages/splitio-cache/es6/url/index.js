@@ -1,6 +1,6 @@
 'use strict';
 
-function hostname(urlWithoutHost) {
+function url(urlWithoutHost) {
   if ('stage' === process.env.NODE_ENV) {
     return `https://sdk-staging.split.io/api${urlWithoutHost}`;
   } else if ('production' === process.env.NODE_ENV) {
@@ -10,4 +10,4 @@ function hostname(urlWithoutHost) {
   }
 }
 
-module.exports = hostname;
+module.exports = url;
