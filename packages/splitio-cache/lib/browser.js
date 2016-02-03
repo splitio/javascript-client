@@ -11,14 +11,14 @@ var storage = require('./storage');
 
 var log = require('debug')('splitio-cache');
 
-function writer(authorizationKey /*: string */, userId /*: string */) /*: Promise */{
+function writer(authorizationKey /*: string */, key /*: string */) /*: Promise */{
   log('[' + authorizationKey + '] Running updater for the browser.');
 
   var splitChangesPromise = splitChangesDataSource({ authorizationKey: authorizationKey }).then(function (splitsMutator) {
     return splitsMutator(storage.splits.update);
   });
 
-  var mySegmentsPromise = mySegmentsDataSource({ authorizationKey: authorizationKey, userId: userId }).then(function (segmentsMutator) {
+  var mySegmentsPromise = mySegmentsDataSource({ authorizationKey: authorizationKey, key: key }).then(function (segmentsMutator) {
     return segmentsMutator(storage.segments.update);
   });
 
