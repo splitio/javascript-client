@@ -17,7 +17,7 @@ function writer(authorizationKey) {
       [...segments].map(segmentName => segmentChangesDataSource({authorizationKey, segmentName}))
     ))
     .then(segmentsMutators => {
-      segmentsMutators.forEach( mutator => mutator(storage.segments.get, storage.segments.update) );
+      segmentsMutators.forEach(mutator => mutator(storage.segments.get, storage.segments.update));
     })
     .then( () => storage );
 

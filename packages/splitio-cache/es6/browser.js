@@ -9,14 +9,14 @@ let storage = require('./storage');
 
 let log = require('debug')('splitio-cache');
 
-function writer(authorizationKey /*: string */, userId /*: string */) /*: Promise */ {
+function writer(authorizationKey /*: string */, key /*: string */) /*: Promise */ {
   log(`[${authorizationKey}] Running updater for the browser.`);
 
   let splitChangesPromise = splitChangesDataSource({authorizationKey}).then(splitsMutator => {
     return splitsMutator(storage.splits.update);
   });
 
-  let mySegmentsPromise = mySegmentsDataSource({authorizationKey, userId}).then(segmentsMutator => {
+  let mySegmentsPromise = mySegmentsDataSource({authorizationKey, key}).then(segmentsMutator => {
     return segmentsMutator(storage.segments.update);
   });
 
