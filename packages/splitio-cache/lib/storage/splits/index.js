@@ -1,7 +1,5 @@
 /* @flow */'use strict';
 
-require('babel-polyfill');
-
 var _splits = new Map();
 
 module.exports = {

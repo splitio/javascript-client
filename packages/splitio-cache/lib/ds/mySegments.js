@@ -1,8 +1,5 @@
 /* @flow */'use strict';
 
-require('babel-polyfill');
-require('isomorphic-fetch');
-
 var mySegmentMutationsFactory = require('../mutators/mySegments');
 var url = require('../url');
 var log = require('debug')('splitio-cache:http');
@@ -17,7 +14,9 @@ function mySegmentsDataSource(_ref /*: MySergmentsRequest */) /*: Promise */{
   var authorizationKey = _ref.authorizationKey;
   var userId = _ref.userId;
 
-  return fetch(url('/mySegments/' + userId), {
+  var nocache = Date.now();
+
+  return fetch(url('/mySegments/' + userId + '?_nocache=' + nocache), {
     method: 'GET',
     headers: {
       'Accept': 'application/json',

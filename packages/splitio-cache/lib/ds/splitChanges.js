@@ -1,36 +1,16 @@
 /* @flow */'use strict';
 
-/**
-@TODO
-
-1- We are not going to have multiple keys in the same instance of the SDK, so
-   there is no need of cache "strategies" for the since value.
-4- DataSources could be abstracted because for now, both implementations are the
-   same.
-5- LOG should be only present while we use development mode.
-
-**/
-
-require('babel-polyfill');
-require('isomorphic-fetch');
-
 var log = require('debug')('splitio-cache:http');
 var url = require('../url');
-
 var splitMutatorFactory = require('../mutators/splitChanges');
-var cache = new Map();
-
-function cacheKeyGenerator(authorizationKey) {
-  return authorizationKey + '/splitChanges';
-}
+var sinceValue = 0;
 
 function splitChangesDataSource(_ref) {
   var authorizationKey = _ref.authorizationKey;
 
-  var cacheKey = cacheKeyGenerator(authorizationKey);
-  var sinceValue = cache.get(cacheKey) || 0;
+  var nocache = Date.now();
 
-  return fetch(url('/splitChanges?since=' + sinceValue), {
+  return fetch(url('/splitChanges?since=' + sinceValue + '&_nocache=' + nocache), {
     method: 'GET',
     headers: {
       'Accept': 'application/json',
@@ -45,7 +25,7 @@ function splitChangesDataSource(_ref) {
 
     log('[' + authorizationKey + '] /splitChanges response using since=' + sinceValue, json);
 
-    cache.set(cacheKey, till);
+    sinceValue = till;
 
     return splitMutatorFactory(splits);
   }).catch(function (error) {

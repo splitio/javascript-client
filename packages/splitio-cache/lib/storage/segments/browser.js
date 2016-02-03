@@ -1,7 +1,5 @@
 /* @flow */'use strict';
 
-require('babel-polyfill');
-
 var _segments = new Set();
 
 module.exports = {

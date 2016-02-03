@@ -1,6 +1,9 @@
 /* @flow */'use strict';
 
-require('babel-polyfill');
+try {
+  require('babel-polyfill');
+} catch (e) {/* will be replaced using just core-js */}
+require('isomorphic-fetch');
 
 var mySegmentsDataSource = require('./ds/mySegments');
 var splitChangesDataSource = require('./ds/splitChanges');

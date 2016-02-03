@@ -1,7 +1,5 @@
 /* @flow */'use strict';
 
-require('babel-polyfill');
-
 /*::
   type SegmentChangesDTO {
     name: string,
@@ -9,6 +7,7 @@ require('babel-polyfill');
     removed: Array<string>
   }
 */
+
 function segmentMutationsFactory(_ref /*: SegmentChangesDTO */) {
   var name = _ref.name;
   var added = _ref.added;
