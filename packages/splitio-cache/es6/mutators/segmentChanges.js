@@ -1,7 +1,5 @@
 /* @flow */ 'use strict';
 
-require('babel-polyfill');
-
 /*::
   type SegmentChangesDTO {
     name: string,

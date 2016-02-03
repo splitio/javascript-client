@@ -1,7 +1,5 @@
 /* @flow */ 'use strict';
 
-require('babel-polyfill');
-
 let parse = require('@splitsoftware/splitio-engine').parse;
 
 function splitMutationsFactory(splits /*: Array<Object> */) /*: Function */ {

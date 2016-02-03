@@ -1,7 +1,5 @@
 /* @flow */ 'use strict';
 
-require('babel-polyfill');
-
 let _segments = new Map();
 let log = require('debug')('splitio-cache:segments');
 

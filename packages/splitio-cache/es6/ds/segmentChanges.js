@@ -1,17 +1,5 @@
 /* @flow */ 'use strict';
 
-/**
-@TODO
-
-3- DataSources could be abstracted because for now, both implementations are the
-   same.
-4- LOG should be only present while we use development mode.
-
-**/
-
-require('babel-polyfill');
-require('isomorphic-fetch');
-
 let log = require('debug')('splitio-cache:http');
 let url = require('../url');
 
@@ -25,8 +13,9 @@ function cacheKeyGenerator(authorizationKey, segmentName) {
 function segmentChangesDataSource({authorizationKey, segmentName}) {
   let cacheKey = cacheKeyGenerator(authorizationKey, segmentName);
   let sinceValue = cache.get(cacheKey) || 0;
+  let nocache = Date.now();
 
-  return fetch(url(`/segmentChanges/${segmentName}?since=${sinceValue}`), {
+  return fetch(url(`/segmentChanges/${segmentName}?since=${sinceValue}&_nocache=${nocache}`), {
     method: 'GET',
     headers: {
       'Accept': 'application/json',
