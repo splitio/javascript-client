@@ -2,12 +2,10 @@
 
 console.log('SPLIT DEMO!');
 
-splitio.start('3ceer7iea9he3kp8tveje9u19a', 'userId').then(function (engine) {
+splitio.start('epa57jv812r4602iu43no8jm1h', 'userId').then(function() {
   console.log(
-    'Feature ' + splitio.isOn('userId', 'hello_world') ? 'enabled! :D' : 'disabled :|'
+    'Feature ' + splitio.isOn('hello_world') ? 'enabled! :D' : 'disabled :|'
   );
-
-  console.log(splitio);
-}).catch(function (error) {
-  console.log(error)
+}).catch(function(error) {
+  console.log(error);
 });
