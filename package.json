@@ -3,7 +3,7 @@
   "license": "Apache-2",
   "scripts": {
     "tc": "flow check",
-    "lint": "eslint packages/*/es6/**/*.js",
+    "lint": "eslint packages/*/es6/**/*.js packages/*/test/es6/**/*.js packages/splitio-browser/lib/*.js",
     "dev": "./scripts/development.sh",
     "build": "./scripts/build.sh",
     "watch": "./scripts/watch.sh"
