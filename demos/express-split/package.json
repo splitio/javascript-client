@@ -16,7 +16,7 @@
     "npm": "latest"
   },
   "dependencies": {
-    "express": "^4.13.3",
-    "@splitsoftware/splitio": "^0.10.1"
+    "@splitsoftware/splitio": "^0.11",
+    "express": "^4.13.3"
   }
 }
