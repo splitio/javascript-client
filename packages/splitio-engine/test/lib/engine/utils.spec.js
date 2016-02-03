@@ -4,7 +4,6 @@ var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = [
 
 var tape = require('tape');
 var utils = require('../../../lib/engine/utils');
-
 var csv = require('csv-streamify');
 var fs = require('fs');
 

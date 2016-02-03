@@ -1,8 +1,7 @@
 'use strict';
 
-var tape = require('tape');
-var utils = require('../../../lib/engine/utils');
-
+let tape = require('tape');
+let utils = require('../../../lib/engine/utils');
 let csv = require('csv-streamify');
 let fs = require('fs');
 

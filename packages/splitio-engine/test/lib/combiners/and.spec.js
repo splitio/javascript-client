@@ -16,7 +16,6 @@ tape('AND combiner', function (assert) {
   }
 
   var predicates = [evaluator];
-
   var andCombinerEvaluator = andCombinerFactory(predicates);
 
   assert.true(andCombinerEvaluator(inputKey, inputSeed) === evaluationResult, 'evaluator should return ' + evaluationResult);

@@ -12,7 +12,7 @@ tape('a whitelist Array should be casted into a Set', function (assert) {
 
   let sampleSet = transform(sample);
 
-  for(let item in sample) {
+  for (let item in sample) {
     if (sampleSet.has(item)) {
       assert.fail(`Missing item ${item}`);
     }

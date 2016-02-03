@@ -1,7 +1,7 @@
 'use strict';
 
-var tape = require('tape');
-var andCombinerFactory = require('../../../lib/combiners/and');
+let tape = require('tape');
+let andCombinerFactory = require('../../../lib/combiners/and');
 
 tape('AND combiner', assert => {
   let inputKey = 'sample';
@@ -16,7 +16,6 @@ tape('AND combiner', assert => {
   }
 
   let predicates = [evaluator];
-
   let andCombinerEvaluator = andCombinerFactory(predicates);
 
   assert.true(

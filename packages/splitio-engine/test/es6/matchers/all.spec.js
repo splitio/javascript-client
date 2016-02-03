@@ -1,12 +1,12 @@
 'use strict';
 
-var matcherTypes = require('../../../lib/matchers/types');
-var matcherFactory = require('../../../lib/matchers');
-var tape = require('tape');
+let matcherTypes = require('../../../lib/matchers/types');
+let matcherFactory = require('../../../lib/matchers');
+let tape = require('tape');
 
 tape('Matcher ALL should always return true', function (assert) {
 
-  var matcher = matcherFactory({
+  let matcher = matcherFactory({
     type: matcherTypes.enum.ALL,
     value: undefined
   });
