@@ -32,15 +32,6 @@
     "jscs": "^2.7.0",
     "istanbul": "^0.4.2"
   },
-  "babel": {
-    "presets": [
-      "es2015"
-    ],
-    "plugins": [
-      "syntax-object-rest-spread",
-      "transform-object-rest-spread"
-    ]
-  },
   "directories": {
     "test": "test"
   },

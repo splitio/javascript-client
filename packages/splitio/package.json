@@ -33,15 +33,6 @@
     "node": ">=0.12",
     "npm": "^3"
   },
-  "babel": {
-    "presets": [
-      "es2015"
-    ],
-    "plugins": [
-      "syntax-object-rest-spread",
-      "transform-object-rest-spread"
-    ]
-  },
   "keywords": [
     "rollout",
     "release",
