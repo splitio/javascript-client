@@ -1,6 +1,7 @@
 # SPLIT Cache
 
-This module is responsible for retrieve and store the information.
+This module is responsible for retrieve and store the information required
+for evaluate keys and features.
 
 ## Development dependency
 
@@ -26,7 +27,7 @@ After run `npm run build` you could continue editing your code but needs
 monitoring tools to transpile on each file change. In order to allow this, just
 run the commands in a console.
 
-### `npm test`
+### `npm test` && `npm test --coverage`
 
 Having all the files transpiled, you could run the test suite to see if
 everything correctly works.

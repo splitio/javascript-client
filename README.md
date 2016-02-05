@@ -2,36 +2,53 @@
 
 ## Technologies
 
-- ES6
-- TAPE for unit tests
-- [MonoRepo approach](https://github.com/babel/babel/blob/development/doc/design/monorepo.md)
-- As simple as possible
+- ES6 (generators are blacklisted).
+- TAPE for unit tests.
+- [MonoRepo approach](https://github.com/babel/babel/blob/development/doc/design/monorepo.md).
+- As simple as possible.
 
 ## Development mode
 
-Execute `./scripts/development.sh` and just continue editing code without worry. In background you will have all the
-babel commands which transpiles `es6` folder and `test/es6`. Transpiled code will be available inside `src/` folder
-at the same level as the original transpiled code.
+In order to simply the startup, please execute the `./scripts/development.sh`, the
+script will do all the necessary steps to:
 
-For more information, just take a look to the script code.
+1- Install dependencies.
+2- Link packages to be used locally.
+3- Try to prune any packages which is possible to be removed.
 
 ## Release process
 
-?
+We have 4 packages (for now) handling different parts of the system as isolated
+as possible.
 
-## Building process
+### Checklist
 
-?
+Each packages should pass:
 
-## Coverage
+1- `npm lint` (it's available at root level).
+2- `npm test` (it's available at package level).
+3- Demos should continue working each time we tag a version.
 
-?
+### Building process
 
-## Browsers
+This step is required to run the tests, and each packages provides his own
+`npm run build`. At root level we provide a `npm run build` which builds all
+the packages in the correct order, so please, each time you want to release
+a bundled version, remember to run `npm run build` at the root dir of the
+repository.
 
-?
+### NPM Publish
 
-## Architectural considerations
+Once everything works, you could continue with the official release of a new
+version, to help in the process, we are using a custom version of [lerna](https://github.com/kittens/lerna).
 
-?
+1- Go and update the 6 `package.json`s manually switching to the version you
+will release. (This will change in a near future).
+2- `lerna publish`
 
+### How to install the custom version of lerna
+
+1- `nvm use 4.2.4` (this version matches with the current version used for development).
+2- `git clone ?` (I deleted the repo => update this once I push it again).
+3- `npm link` inside the directory where you cloned the custom version of lerna.
+4- `lerna --version` should show 2.0.0.

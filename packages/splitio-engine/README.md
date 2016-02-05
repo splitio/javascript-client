@@ -1,7 +1,7 @@
 # SPLIT Engine
 
-This package is responsible of parse the AST of SPLIT DSL in order to be able
-to evaluate if a given key is enabled given a feature to be evaluated.
+This package is responsible of parse the AST of SPLIT's DSL in order to be able
+to evaluate if a given key is enabled given a feature.
 
 If you are looking for how we manage data storage (AST storage basically), you
 should take a look to `@splitsoftware/splitio-cache`.
@@ -30,7 +30,7 @@ After run `npm run build` you could continue editing your code but needs
 monitoring tools to transpile on each file change. In order to allow this, just
 run the commands in a console.
 
-### `npm test`
+### `npm test` && `npm test --coverage`
 
 Having all the files transpiled, you could run the test suite to see if
 everything correctly works.
