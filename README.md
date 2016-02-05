@@ -9,8 +9,8 @@
 
 ## Development mode
 
-In order to simply the startup, please execute the `./scripts/development.sh`, the
-script will do all the necessary steps to:
+In order to simplify the startup, please execute `npm run dev`. The script will
+do all the necessary steps to:
 
 1- Install dependencies.
 2- Link packages to be used locally.
