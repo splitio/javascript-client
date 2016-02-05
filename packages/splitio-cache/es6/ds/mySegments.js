@@ -7,13 +7,13 @@ let log = require('debug')('splitio-cache:http');
 /*::
   type MySergmentsRequest = {
     authorizationKey: string,
-    userId: string
+    key: string
   }
 */
-function mySegmentsDataSource({authorizationKey, userId} /*: MySergmentsRequest */) /*: Promise */ {
+function mySegmentsDataSource({authorizationKey, key} /*: MySergmentsRequest */) /*: Promise */ {
   let nocache = Date.now();
 
-  return fetch(url(`/mySegments/${userId}?_nocache=${nocache}`), {
+  return fetch(url(`/mySegments/${key}?_nocache=${nocache}`), {
     method: 'GET',
     headers: {
       'Accept': 'application/json',
@@ -23,13 +23,13 @@ function mySegmentsDataSource({authorizationKey, userId} /*: MySergmentsRequest 
   })
   .then(resp => resp.json())
   .then(json => {
-    log(`[${authorizationKey}] /mySegments for ${userId}`, json);
+    log(`[${authorizationKey}] /mySegments for ${key}`, json);
 
     return json.mySegments.map(segment => segment.name);
   })
   .then(mySegments => mySegmentMutationsFactory(mySegments))
   .catch(error => {
-    log(`[${authorizationKey}] failure fetching my segments [${userId}]`);
+    log(`[${authorizationKey}] failure fetching my segments [${key}]`);
 
     return error;
   });
