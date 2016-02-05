@@ -19,16 +19,15 @@ running on **OSX**, please run:
 
 The implementation of the engine was made using ES6, so in order to provide an
 easy way to run the code, we are transpiling to ES5. If you have an environment
-which provides some ES6 features, please do not hesitate un customize the
-building tuning the `babel` settings present in `package.json`.
+which provides some ES6 features, please do not hesitate in customize the
+building tuning the `babel` settings present in `.babelrc`.
 
 Reference: https://www.npmjs.com/package/babel-preset-node5
 
 ### `npm run watch` && `npm run watch-test`
 
-After run `npm run build` you could continue editing your code but needs
-monitoring tools to transpile on each file change. In order to allow this, just
-run the commands in a console.
+Run both commands if you want to automate the transpiling process while you edit
+your code.
 
 ### `npm test` && `npm test --coverage`
 
