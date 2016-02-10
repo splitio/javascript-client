@@ -23,8 +23,8 @@ var core = {
     }
 
     return updater.apply(undefined, args).then(function (storage) {
-      // fire cache updater each 5 seconds
-      _this2.schedule.apply(_this2, [updater, 5000].concat(args));
+      // fire cache updater each 60 seconds
+      _this2.schedule.apply(_this2, [updater, 60000].concat(args));
 
       return storage;
     });

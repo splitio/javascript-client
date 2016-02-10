@@ -14,9 +14,7 @@ function mySegmentsDataSource(_ref /*: MySergmentsRequest */) /*: Promise */{
   var authorizationKey = _ref.authorizationKey;
   var key = _ref.key;
 
-  var nocache = Date.now();
-
-  return fetch(url('/mySegments/' + key + '?_nocache=' + nocache), {
+  return fetch(url('/mySegments/' + key), {
     method: 'GET',
     headers: {
       'Accept': 'application/json',

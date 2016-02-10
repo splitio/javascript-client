@@ -8,9 +8,7 @@ var sinceValue = 0;
 function splitChangesDataSource(_ref) {
   var authorizationKey = _ref.authorizationKey;
 
-  var nocache = Date.now();
-
-  return fetch(url('/splitChanges?since=' + sinceValue + '&_nocache=' + nocache), {
+  return fetch(url('/splitChanges?since=' + sinceValue), {
     method: 'GET',
     headers: {
       'Accept': 'application/json',
