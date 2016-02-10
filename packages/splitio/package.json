@@ -16,7 +16,7 @@
     "test": "tape test/lib/**/*.js"
   },
   "dependencies": {
-    "@splitsoftware/splitio-cache": "^0.13",
+    "@splitsoftware/splitio-cache": "^0.14",
     "babel-cli": "^6.3.17",
     "babel-plugin-syntax-object-rest-spread": "^6.3.13",
     "babel-plugin-transform-object-rest-spread": "^6.3.13",
