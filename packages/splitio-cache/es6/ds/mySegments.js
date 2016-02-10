@@ -11,9 +11,7 @@ let log = require('debug')('splitio-cache:http');
   }
 */
 function mySegmentsDataSource({authorizationKey, key} /*: MySergmentsRequest */) /*: Promise */ {
-  let nocache = Date.now();
-
-  return fetch(url(`/mySegments/${key}?_nocache=${nocache}`), {
+  return fetch(url(`/mySegments/${key}`), {
     method: 'GET',
     headers: {
       'Accept': 'application/json',

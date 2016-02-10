@@ -12,8 +12,8 @@ let core = {
 
   start(...args) {
     return updater(...args).then(storage => {
-      // fire cache updater each 5 seconds
-      this.schedule(updater, 5000, ...args);
+      // fire cache updater each 60 seconds
+      this.schedule(updater, 60000, ...args);
 
       return storage;
     });

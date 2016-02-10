@@ -13,9 +13,8 @@ function cacheKeyGenerator(authorizationKey, segmentName) {
 function segmentChangesDataSource({authorizationKey, segmentName}) {
   let cacheKey = cacheKeyGenerator(authorizationKey, segmentName);
   let sinceValue = cache.get(cacheKey) || 0;
-  let nocache = Date.now();
 
-  return fetch(url(`/segmentChanges/${segmentName}?since=${sinceValue}&_nocache=${nocache}`), {
+  return fetch(url(`/segmentChanges/${segmentName}?since=${sinceValue}`), {
     method: 'GET',
     headers: {
       'Accept': 'application/json',

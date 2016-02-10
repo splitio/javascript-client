@@ -6,9 +6,7 @@ let splitMutatorFactory = require('../mutators/splitChanges');
 let sinceValue = 0;
 
 function splitChangesDataSource({authorizationKey}) {
-  let nocache = Date.now();
-
-  return fetch(url(`/splitChanges?since=${sinceValue}&_nocache=${nocache}`), {
+  return fetch(url(`/splitChanges?since=${sinceValue}`), {
     method: 'GET',
     headers: {
       'Accept': 'application/json',
