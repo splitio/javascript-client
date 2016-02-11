@@ -1,5 +1,7 @@
 /* @flow */'use strict';
 
+require('isomorphic-fetch');
+
 var log = require('debug')('splitio-cache:http');
 var url = require('../url');
 var splitMutatorFactory = require('../mutators/splitChanges');

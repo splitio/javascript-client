@@ -1,5 +1,7 @@
 /* @flow */'use strict';
 
+require('isomorphic-fetch');
+
 var mySegmentMutationsFactory = require('../mutators/mySegments');
 var url = require('../url');
 var log = require('debug')('splitio-cache:http');

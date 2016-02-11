@@ -1,12 +1,12 @@
 /* @flow */ 'use strict';
 
-require('isomorphic-fetch');
-
-let segmentChangesDataSource = require('./ds/segmentChanges');
-let storage = require('./storage');
+let segmentChangesDataSource = require('../ds/segmentChanges');
+let storage = require('../storage');
 let log = require('debug')('splitio-cache:updater');
 
-function segmentChangesUpdater(authorizationKey) {
+function segmentChangesUpdater({
+  authorizationKey /*: string */
+}) /*: Promise */ {
   log(`[${authorizationKey}] Updating segmentChanges`);
 
   // Read the list of segments available.
@@ -17,7 +17,7 @@ function segmentChangesUpdater(authorizationKey) {
     [...segments].map(segmentName => segmentChangesDataSource({authorizationKey, segmentName}))
   ).then(segmentsMutators => {
     segmentsMutators.forEach(mutator => mutator(storage.segments.get, storage.segments.update));
-  });
+  }).then(() => storage);
 }
 
 module.exports = segmentChangesUpdater;

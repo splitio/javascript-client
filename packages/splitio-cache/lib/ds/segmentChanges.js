@@ -2,9 +2,10 @@
 
 function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
+require('isomorphic-fetch');
+
 var log = require('debug')('splitio-cache:http');
 var url = require('../url');
-
 var segmentMutatorFactory = require('../mutators/segmentChanges');
 var cache = new Map();
 

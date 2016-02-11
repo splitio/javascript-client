@@ -1,6 +1,5 @@
 /* @flow */'use strict';
 
-var TREATMENT = require('../treatments/reserved');
 var engine = require('../engine');
 
 /**
