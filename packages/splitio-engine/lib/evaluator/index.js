@@ -6,15 +6,17 @@ var engine = require('../engine');
 /**
  * Evaluator factory.
  */
-function evaluatorContext(martcherEvaluator /*: function */, treatments /*: Treatments */) /*: Function */{
+function evaluatorContext(matcherEvaluator /*: function */, treatments /*: Treatments */) /*: Function */{
 
-  return function evaluator(key /*: string */, seed /*: number */) /*: string */{
+  return function evaluator(key /*: string */, seed /*: number */) /*:? string */{
 
-    if (martcherEvaluator(key)) {
+    // if the matcherEvaluator return true, then evaluate the treatment
+    if (matcherEvaluator(key)) {
       return engine.getTreatment(key, seed, treatments);
     }
 
-    return TREATMENT.CONTROL;
+    // else we should notify the engine to continue evaluating
+    return undefined;
   };
 }
 

@@ -21,4 +21,24 @@ tape('AND combiner', function (assert) {
   assert.true(andCombinerEvaluator(inputKey, inputSeed) === evaluationResult, 'evaluator should return ' + evaluationResult);
   assert.end();
 });
+
+tape('AND combiner - stop evaluating when one matcher return a treatment', function (assert) {
+  var called = 0;
+  var predicates = [function undef() {
+    called++;
+    return undefined;
+  }, function exclude() {
+    called++;
+    return 'exclude';
+  }, function alwaysTrue() {
+    called++;
+    return 'alwaysTrue';
+  }];
+
+  var andCombinerEvaluator = andCombinerFactory(predicates);
+
+  assert.true(andCombinerEvaluator() === 'exclude', 'The combiner should STOP at the first predicates which returns a treatment');
+  assert.true(called === 2, 'Just 2 predicates should be called in this test');
+  assert.end();
+});
 //# sourceMappingURL=and.spec.js.map

@@ -9,7 +9,9 @@ function andContext(predicates /*: Array<(key: string, seed: number) => boolean)
     for (let evaluator of predicates) {
       let treatment = evaluator(key, seed);
 
-      if (TREATMENT.isOn( treatment )) return treatment;
+      if (treatment !== undefined) {
+        return treatment;
+      }
     }
 
     return TREATMENT.CONTROL;

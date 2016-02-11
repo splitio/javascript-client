@@ -16,7 +16,9 @@ function andContext(predicates /*: Array<(key: string, seed: number) => boolean)
 
         var treatment = evaluator(key, seed);
 
-        if (TREATMENT.isOn(treatment)) return treatment;
+        if (treatment !== undefined) {
+          return treatment;
+        }
       }
     } catch (err) {
       _didIteratorError = true;
