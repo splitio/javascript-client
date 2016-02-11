@@ -13,7 +13,7 @@
   },
   "engines": {
     "node": ">=0.12",
-    "npm": "latest"
+    "npm": "^3.5.0"
   },
   "dependencies": {
     "@splitsoftware/splitio": "^0.15.0",

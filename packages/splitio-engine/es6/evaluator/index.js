@@ -1,6 +1,5 @@
 /* @flow */ 'use strict';
 
-const TREATMENT = require('../treatments/reserved');
 let engine = require('../engine');
 
 /**

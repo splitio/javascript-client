@@ -11,9 +11,10 @@
   },
   "main": "lib/index.js",
   "scripts": {
-    "build": "babel es6 --out-dir lib --source-maps",
+    "build": "./scripts/build.sh",
     "watch": "babel es6 --out-dir lib --source-maps --watch",
-    "test": "tape test/lib/**/*.js"
+    "watch-test": "babel test/es6 --out-dir test/lib --source-maps --watch",
+    "test": "istanbul test tape -- test/lib/**/*.spec.js"
   },
   "dependencies": {
     "@splitsoftware/splitio-cache": "^0.15.0",
@@ -27,7 +28,9 @@
   "devDependencies": {
     "browserify": "^13.0.0",
     "eslint": "^1.10.3",
-    "jscs": "^2.7.0"
+    "jscs": "^2.7.0",
+    "istanbul": "^0.4.2",
+    "tape": "^4.2.2"
   },
   "engines": {
     "node": ">=0.12",

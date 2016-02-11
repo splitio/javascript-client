@@ -18,7 +18,7 @@ function splitio(...args) /*: Promise */ {
 
           return splitEvaluation;
         } else {
-          log(`feature ${featureName} doesn't exists`);
+          log(`feature ${featureName} doesn't exist`);
 
           return false;
         }

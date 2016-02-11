@@ -2,10 +2,17 @@
 
 console.log('SPLIT DEMO!');
 
-splitio.start('epa57jv812r4602iu43no8jm1h', 'userId').then(function() {
-  console.log(
-    'Feature ' + splitio.isOn('hello_world') ? 'enabled! :D' : 'disabled :|'
-  );
+splitio.start({
+  cache: {
+    authorizationKey: 'c1l5vkd50gimccout3c03pntbu',
+    key: '4a2c4490-ced1-11e5-9b97-d8a25e8b1578'
+  },
+  scheduler: {
+    featuresRefreshRate: 5000,
+    segmentsRefreshRate: 5000 * 3
+  }
+}).then(function() {
+  console.log('Feature ' + ( splitio.isOn('sdk') ? 'enabled! :D' : 'disabled :|' ) );
 }).catch(function(error) {
   console.log(error);
 });

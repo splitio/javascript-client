@@ -3,7 +3,7 @@
 let _splits = new Map();
 
 module.exports = {
-
+  // Update the internal Map given an Array of new splits.
   update(splits /*: Array<Split>*/) /*: void */ {
 
     splits.forEach(s => {
@@ -16,12 +16,24 @@ module.exports = {
 
   },
 
+  // Get the split given a feature name.
   get(featureName /*: string */) /*: Split */ {
     return _splits.get(featureName);
   },
 
-  toJSON() {
+  // Get the current Set of segments across all the split instances available.
+  getSegments() /*: Set */ {
+    let collection = new Set();
+
+    for(let split of _splits) {
+      collection = new Set([...collection, ...split.getSegments()]);
+    }
+
+    return collection;
+  },
+
+  // Allow stringify of the internal structure.
+  toJSON() /*: object */ {
     return _splits;
   }
-
 };

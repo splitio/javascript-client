@@ -4,12 +4,18 @@
 var engine = require('@splitsoftware/splitio');
 var splitio = global.splitio = {};
 
-splitio.isOn = function alwaysFalse() {
+splitio.isOn = function () {
   return false;
 };
 
-splitio.start = function splitStartUp(authorizationKey /*: string */, key /*: string */) {
-  return engine(authorizationKey, key).then(function(API) {
+splitio.start = function (options) {
+  var key = options.cache && options.cache.key;
+
+  if (typeof key !== 'string') {
+    return Promise.reject('key parameter should not be empty');
+  }
+
+  return engine(options).then(function(API) {
     splitio.isOn = API.isOn.bind(API, key);
 
     return splitio;
