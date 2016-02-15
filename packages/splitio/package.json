@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio",
-  "version": "0.16.0",
+  "version": "0.17.0",
   "description": "Split SDK",
   "author": "Facundo Cabrera <facundo@split.io>",
   "homepage": "https://github.com/splitio/javascript-client",
@@ -17,7 +17,7 @@
     "test": "istanbul test tape -- test/lib/**/*.spec.js"
   },
   "dependencies": {
-    "@splitsoftware/splitio-cache": "^0.15.0",
+    "@splitsoftware/splitio-cache": "0.17.0",
     "babel-cli": "^6.3.17",
     "babel-plugin-syntax-object-rest-spread": "^6.3.13",
     "babel-plugin-transform-object-rest-spread": "^6.3.13",
