@@ -4,8 +4,12 @@
 var engine = require('@splitsoftware/splitio');
 var splitio = global.splitio = {};
 
-splitio.isOn = function () {
+splitio.isTreatment = function (/* featureName, treatment */) {
   return false;
+};
+
+splitio.getTreatment = function (featureName, defaultTreatment) {
+  return defaultTreatment;
 };
 
 splitio.start = function (options) {
@@ -16,7 +20,8 @@ splitio.start = function (options) {
   }
 
   return engine(options).then(function(API) {
-    splitio.isOn = API.isOn.bind(API, key);
+    splitio.getTreatment = API.getTreatment.bind(API, key);
+    splitio.isTreatment = API.isTreatment.bind(API, key);
 
     return splitio;
   });

@@ -7,7 +7,7 @@ var _segments = new Set();
 
 module.exports = {
   update: function update(segments /*: Set */) {
-    log('Updating my segments list with', [].concat(_toConsumableArray(segments)));
+    log('Updating my segments list with [' + [].concat(_toConsumableArray(segments)) + ']');
 
     _segments = segments;
   },

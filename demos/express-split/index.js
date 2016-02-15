@@ -3,14 +3,12 @@
 var express = require('express');
 var app = express();
 
-var split = require('splitio');
+var split = require('@splitsoftware/splitio');
 var splitEngine = null;
 
-app.use(function split(req, res, next) {
+app.use(function (req, res, next) {
   if (splitEngine) {
-    // 'userId'      - should be replaced with the token you use to identify the user in the environment
-    // 'hello_world' - should be replaced with the feature name you used in the web console
-    if (splitEngine.isOn('userId', 'hello_world')) {
+    if (splitEngine.getTreatment('4a2c4490-ced1-11e5-9b97-d8a25e8b1578', 'off') === 'on') {
       next();
     } else {
       res.sendStatus(403);
@@ -24,17 +22,24 @@ app.get('/', function (req, res) {
   res.send('Hello World!');
 });
 
-app.listen(5000, function serverStarted() {
-
-  // 'epa57jv812r4602iu43no8jm1h' - should be replaced with your environment token.
-  split('epa57jv812r4602iu43no8jm1h')
-    .then(function (engine) {
-      splitEngine = engine;
-    })
-    .catch(function (error) {
-      console.log('Something went wrong while doing the startup of Split');
-      console.log(error);
-    });
+app.listen(8889, function serverStarted() {
+  split({
+    cache: {
+      authorizationKey: 'c1l5vkd50gimccout3c03pntbu'
+    }
+    // },
+    // scheduler: {
+    //   featuresRefreshRate: 5000,
+    //   segmentsRefreshRate: 5000 * 3
+    // }
+  })
+  .then(function (engine) {
+    splitEngine = engine;
+  })
+  .catch(function (error) {
+    console.log('Something went wrong while doing the startup of Split');
+    console.log(error);
+  });
 
   console.log('Example app listening on port 5000!');
 });

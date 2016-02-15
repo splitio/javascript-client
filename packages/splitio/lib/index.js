@@ -5,24 +5,24 @@ var log = require('debug')('splitio');
 
 function splitio() /*: Promise */{
   return core.start.apply(core, arguments).then(function (storage) {
-
     return {
-      // Evaluates if a given 'key' is enabled for a given featureName
-
-      isOn: function isOn(key /*: string */, featureName /*: string */) /*: boolean */{
+      getTreatment: function getTreatment(key /*: string */, featureName /*: string */, defaultTreatment /*: string */) /*: string */{
         var split = storage.splits.get(featureName);
 
         if (split) {
-          var splitEvaluation = split.isOn(key);
+          var treatment = split.getTreatment(key, defaultTreatment);
 
-          log('feature ' + featureName + ' key ' + key + ' evaluated as ' + splitEvaluation);
+          log('feature ' + featureName + ' key ' + key + ' evaluated as ' + treatment);
 
-          return splitEvaluation;
+          return treatment;
         } else {
           log('feature ' + featureName + ' doesn\'t exist');
 
-          return false;
+          return defaultTreatment;
         }
+      },
+      isTreatment: function isTreatment(key /*: string */, featureName /*: string */, treatment /*: string */) /*: bool */{
+        return this.getTreatment(key, featureName) === treatment;
       }
     };
   });

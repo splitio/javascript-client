@@ -6,7 +6,8 @@
     "lint": "eslint packages/*/es6/**/*.js packages/*/test/es6/**/*.js packages/splitio-browser/lib/*.js",
     "dev": "./scripts/development.sh",
     "build": "./scripts/build.sh",
-    "watch": "./scripts/watch.sh"
+    "watch": "./scripts/watch.sh",
+    "test": "./scripts/test.sh"
   },
   "devDependencies": {
     "babel-eslint": "^4.0.6",

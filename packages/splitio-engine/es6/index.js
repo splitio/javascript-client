@@ -2,7 +2,6 @@
 
 try { require('babel-polyfill'); } catch(e) { /* will be replaced using just core-js */ }
 
-const TREATMENT = require('./treatments/reserved');
 let parser = require('./parser/condition');
 
 class Split {
@@ -21,16 +20,18 @@ class Split {
     return this.segments;
   }
 
-  getTreatment(key) {
+  getTreatment(key, defaultTreatment) {
     if (this.baseInfo.killed) {
-      return TREATMENT.CONTROL;
+      return defaultTreatment;
     }
 
-    return this.evaluator(key, this.baseInfo.seed);
+    let treatment = this.evaluator(key, this.baseInfo.seed);
+
+    return treatment !== undefined ? treatment : defaultTreatment;
   }
 
-  isOn(key) {
-    return TREATMENT.isOn(this.getTreatment(key));
+  isTreatment(key, treatment) {
+    return this.getTreatment(key) === treatment;
   }
 
   isGarbage() {

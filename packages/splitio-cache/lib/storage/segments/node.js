@@ -7,7 +7,7 @@ var log = require('debug')('splitio-cache:segments');
 
 module.exports = {
   update: function update(name /*: string */, segments /*: Set */) /*: void */{
-    log('Updating segment ' + name + ' with ' + [].concat(_toConsumableArray(segments)));
+    log('Updating segment ' + name + ' with [' + [].concat(_toConsumableArray(segments)) + ']');
 
     _segments.set(name, segments);
   },

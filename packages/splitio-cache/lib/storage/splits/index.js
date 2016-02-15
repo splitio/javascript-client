@@ -8,12 +8,11 @@ module.exports = {
   // Update the internal Map given an Array of new splits.
 
   update: function update(splits /*: Array<Split>*/) /*: void */{
-
-    splits.forEach(function (s) {
-      if (!s.isGarbage()) {
-        _splits.set(s.getKey(), s);
+    splits.forEach(function (split) {
+      if (!split.isGarbage()) {
+        _splits.set(split.getKey(), split);
       } else {
-        _splits.delete(s.getKey());
+        _splits.delete(split.getKey());
       }
     });
   },
@@ -32,7 +31,7 @@ module.exports = {
     var _iteratorError = undefined;
 
     try {
-      for (var _iterator = _splits[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+      for (var _iterator = _splits.values()[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
         var split = _step.value;
 
         collection = new Set([].concat(_toConsumableArray(collection), _toConsumableArray(split.getSegments())));

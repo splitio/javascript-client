@@ -4,7 +4,7 @@ var matcherTypes = require('../../../lib/matchers/types');
 var matcherFactory = require('../../../lib/matchers');
 var tape = require('tape');
 
-tape('Matcher ALL should always return true', function (assert) {
+tape('MATCHER ALL / should always return true', function (assert) {
 
   var matcher = matcherFactory({
     type: matcherTypes.enum.ALL,

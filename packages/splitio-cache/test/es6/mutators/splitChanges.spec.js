@@ -13,13 +13,8 @@ tape('Split Changes', assert => {
   }
 
   let mutator = splitChangesMutatorFactory(splitChangesMock);
-  let collectedSegments = mutator(storageMutator);
+  mutator(storageMutator);
 
-  assert.deepEqual(
-    [...collectedSegments],
-    ['employees'],
-    'should collect only employees segment'
-  );
   assert.deepEqual(
     [...splitsStorage.keys()],
     ['sample_feature', 'demo_feature', 'hello_world'],

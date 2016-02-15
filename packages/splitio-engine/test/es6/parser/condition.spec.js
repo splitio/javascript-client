@@ -1,11 +1,9 @@
 'use strict';
 
-const TREATMENT = require('../../../lib/treatments/reserved');
-
 let parser = require('../../../lib/parser/condition');
 let tape = require('tape');
 
-tape('if user is in segment all 100%:on', assert => {
+tape('PARSER / if user is in segment all 100%:on', assert => {
 
   let {evaluator, segments} = parser([{
     matcherGroup: {
@@ -23,13 +21,13 @@ tape('if user is in segment all 100%:on', assert => {
     }]
   }]);
 
-  assert.true(TREATMENT.isOn(evaluator('a key')), 'evaluator should be evaluated to true');
+  assert.true(evaluator('a key', 31) === 'on', "evaluation should throw 'on'");
   assert.true(segments.size === 0, 'there is no segment present in the definition');
   assert.end();
 
 });
 
-tape('if user is in segment all 100%:off', assert => {
+tape('PARSER / if user is in segment all 100%:off', assert => {
 
   let {evaluator, segments} = parser([{
     matcherGroup: {
@@ -50,13 +48,13 @@ tape('if user is in segment all 100%:off', assert => {
     }]
   }]);
 
-  assert.false(TREATMENT.isOn(evaluator('a key')), 'evaluator should be evaluated to false');
+  assert.true(evaluator('a key', 31) === 'off', "evaluation should throw 'off'");
   assert.true(segments.size === 0, 'there is no segment present in the definition');
   assert.end();
 
 });
 
-tape("if user is in segment ['u1', ' u2', ' u3', ' u4'] then split 100%:on", assert => {
+tape("PARSER / if user is in segment ['u1', ' u2', ' u3', ' u4'] then split 100%:on", assert => {
 
   let {evaluator, segments} = parser([{
     matcherGroup: {
@@ -81,9 +79,9 @@ tape("if user is in segment ['u1', ' u2', ' u3', ' u4'] then split 100%:on", ass
     }]
   }]);
 
-  assert.false(TREATMENT.isOn(evaluator('a key')), 'should be evaluated to false');
-  assert.true(TREATMENT.isOn(evaluator('u1')), 'should be evaluated to true');
-  assert.true(TREATMENT.isOn(evaluator('u3')), 'should be evaluated to true');
+  assert.true(evaluator('a key', 31) === undefined, 'evaluation should throw undefined');
+  assert.true(evaluator('u1', 31) === 'on', "evaluation should throw 'on'");
+  assert.true(evaluator('u3', 31) === 'on', "should be evaluated to 'on'");
   assert.true(segments.size === 0, 'there is no segment present in the definition');
   assert.end();
 

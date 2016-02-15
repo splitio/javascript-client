@@ -3,7 +3,7 @@
 var tape = require('tape');
 var Treatments = require('../../../lib/treatments');
 
-tape('Treatments - parse 2 treatments', function (assert) {
+tape('TREATMENTS / parse 2 treatments', function (assert) {
   var t = Treatments.parse([{
     treatment: 'on',
     size: 5
@@ -17,7 +17,7 @@ tape('Treatments - parse 2 treatments', function (assert) {
   assert.end();
 });
 
-tape('Treatments - parse 1 treatment 100%:on', function (assert) {
+tape('TREATMENTS / parse 1 treatment 100%:on', function (assert) {
   var t = Treatments.parse([{
     treatment: 'on',
     size: 100
@@ -28,7 +28,7 @@ tape('Treatments - parse 1 treatment 100%:on', function (assert) {
   assert.end();
 });
 
-tape('Treatments - parse 1 treatment 100%:off', function (assert) {
+tape('TREATMENTS / parse 1 treatment 100%:off', function (assert) {
   var t = Treatments.parse([{
     treatment: 'control',
     size: 100
@@ -39,7 +39,7 @@ tape('Treatments - parse 1 treatment 100%:off', function (assert) {
   assert.end();
 });
 
-tape('Treatments - given a 50%:visa 50%:mastercard we should evaluate correctly', function (assert) {
+tape('TREATMENTS / given a 50%:visa 50%:mastercard we should evaluate correctly', function (assert) {
   var t = Treatments.parse([{
     treatment: 'visa',
     size: 50

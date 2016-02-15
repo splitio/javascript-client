@@ -8,17 +8,17 @@ var treatmentsMock = Treatments.parse([{
   treatment: 'on',
   size: 5
 }, {
-  treatment: 'control',
+  treatment: 'off',
   size: 95
 }]);
 
-tape('Engine should evaluate always evaluate to false', function (assert) {
+tape('ENGINE / should evaluate always evaluate to false', function (assert) {
   var seed = 467569525;
   var key = 'aUfEsdPN1twuEjff9Sl';
 
   var startTime = Date.now();
 
-  assert.false(Treatments.RESERVED.isOn(engine.getTreatment(key, seed, treatmentsMock)), 'engine correctly evaluated to false');
+  assert.true(engine.getTreatment(key, seed, treatmentsMock) === 'off', "treatment should be 'off'");
 
   var endTime = Date.now();
 
@@ -26,13 +26,13 @@ tape('Engine should evaluate always evaluate to false', function (assert) {
   assert.end();
 });
 
-tape('Engine should evaluate always evaluate to true', function (assert) {
+tape('ENGINE / should evaluate always evaluate to true', function (assert) {
   var seed = 467569525;
   var key = 'fXvNwWFb7SXp';
 
   var startTime = Date.now();
 
-  assert.true(Treatments.RESERVED.isOn(engine.getTreatment(key, seed, treatmentsMock)), 'engine correctly evaluated to true');
+  assert.true(engine.getTreatment(key, seed, treatmentsMock) === 'on', "treatment should be 'on'");
 
   var endTime = Date.now();
 

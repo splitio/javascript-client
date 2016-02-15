@@ -41,6 +41,5 @@ class Treatments {
     return new Treatments(ranges, treatments);
   }
 }
-Treatments.RESERVED = require('./reserved');
 
 module.exports = Treatments;

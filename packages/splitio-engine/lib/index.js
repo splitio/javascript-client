@@ -10,7 +10,6 @@ try {
   require('babel-polyfill');
 } catch (e) {/* will be replaced using just core-js */}
 
-var TREATMENT = require('./treatments/reserved');
 var parser = require('./parser/condition');
 
 var Split = function () {
@@ -34,17 +33,19 @@ var Split = function () {
     }
   }, {
     key: 'getTreatment',
-    value: function getTreatment(key) {
+    value: function getTreatment(key, defaultTreatment) {
       if (this.baseInfo.killed) {
-        return TREATMENT.CONTROL;
+        return defaultTreatment;
       }
 
-      return this.evaluator(key, this.baseInfo.seed);
+      var treatment = this.evaluator(key, this.baseInfo.seed);
+
+      return treatment !== undefined ? treatment : defaultTreatment;
     }
   }, {
-    key: 'isOn',
-    value: function isOn(key) {
-      return TREATMENT.isOn(this.getTreatment(key));
+    key: 'isTreatment',
+    value: function isTreatment(key, treatment) {
+      return this.getTreatment(key) === treatment;
     }
   }, {
     key: 'isGarbage',

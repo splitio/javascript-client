@@ -4,9 +4,8 @@ let log = require('debug')('splitio-cache:segments');
 let _segments = new Set();
 
 module.exports = {
-
   update(segments /*: Set */) {
-    log('Updating my segments list with', [...segments]);
+    log(`Updating my segments list with [${[...segments]}]`);
 
     _segments = segments;
   },
@@ -18,5 +17,4 @@ module.exports = {
   toJSON() {
     return _segments;
   }
-
 };

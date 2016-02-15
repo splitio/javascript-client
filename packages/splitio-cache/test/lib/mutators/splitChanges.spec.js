@@ -15,9 +15,8 @@ tape('Split Changes', function (assert) {
   }
 
   var mutator = splitChangesMutatorFactory(splitChangesMock);
-  var collectedSegments = mutator(storageMutator);
+  mutator(storageMutator);
 
-  assert.deepEqual([].concat(_toConsumableArray(collectedSegments)), ['employees'], 'should collect only employees segment');
   assert.deepEqual([].concat(_toConsumableArray(splitsStorage.keys())), ['sample_feature', 'demo_feature', 'hello_world'], 'split keys should match with split names');
   assert.end();
 });

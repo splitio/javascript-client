@@ -5,7 +5,7 @@ let utils = require('../../../lib/engine/utils');
 let csv = require('csv-streamify');
 let fs = require('fs');
 
-tape('Validate hashing behavior using sample data', assert => {
+tape('ENGINE / validate hashing behavior using sample data', assert => {
   let parser = csv();
 
   parser.on('data', line => {

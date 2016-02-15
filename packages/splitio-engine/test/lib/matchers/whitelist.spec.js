@@ -4,7 +4,7 @@ var matcherTypes = require('../../../lib/matchers/types');
 var matcherFactory = require('../../../lib/matchers');
 var tape = require('tape');
 
-tape('Matcher WHITELIST should return true ONLY when the key is defined', function (assert) {
+tape('MATCHER WHITELIST / should return true ONLY when the key is defined', function (assert) {
 
   var matcher = matcherFactory({
     type: matcherTypes.enum.WHITELIST,

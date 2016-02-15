@@ -83,7 +83,5 @@ var Treatments = function () {
   return Treatments;
 }();
 
-Treatments.RESERVED = require('./reserved');
-
 module.exports = Treatments;
 //# sourceMappingURL=index.js.map

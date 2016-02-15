@@ -3,7 +3,7 @@
 let tape = require('tape');
 let Treatments = require('../../../lib/treatments');
 
-tape('Treatments - parse 2 treatments', assert => {
+tape('TREATMENTS / parse 2 treatments', assert => {
   let t = Treatments.parse([{
     treatment: 'on',
     size: 5
@@ -17,7 +17,7 @@ tape('Treatments - parse 2 treatments', assert => {
   assert.end();
 });
 
-tape('Treatments - parse 1 treatment 100%:on', assert => {
+tape('TREATMENTS / parse 1 treatment 100%:on', assert => {
   let t = Treatments.parse([{
     treatment: 'on',
     size: 100
@@ -28,7 +28,7 @@ tape('Treatments - parse 1 treatment 100%:on', assert => {
   assert.end();
 });
 
-tape('Treatments - parse 1 treatment 100%:off', assert => {
+tape('TREATMENTS / parse 1 treatment 100%:off', assert => {
   let t = Treatments.parse([{
     treatment: 'control',
     size: 100
@@ -39,7 +39,7 @@ tape('Treatments - parse 1 treatment 100%:off', assert => {
   assert.end();
 });
 
-tape('Treatments - given a 50%:visa 50%:mastercard we should evaluate correctly', assert => {
+tape('TREATMENTS / given a 50%:visa 50%:mastercard we should evaluate correctly', assert => {
   let t = Treatments.parse([{
     treatment: 'visa',
     size: 50

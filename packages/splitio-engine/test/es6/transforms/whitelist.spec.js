@@ -3,7 +3,7 @@
 let transform = require('../../../lib/transforms/whitelist');
 let tape = require('tape');
 
-tape('a whitelist Array should be casted into a Set', function (assert) {
+tape('TRANSFORMS / a whitelist Array should be casted into a Set', function (assert) {
   let sample = [
     'u1',
     'u2',

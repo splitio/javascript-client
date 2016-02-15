@@ -1,9 +1,8 @@
 /* @flow */'use strict';
 
-var TREATMENT = require('../treatments/reserved');
-
 // Premature evaluator (return as soon as something evaluates to true).
-function andContext(predicates /*: Array<(key: string, seed: number) => boolean)> */) /*: Function */{
+
+function andContext(predicates /*: Array<(key: string, seed: number) => ?string)> */) /*: Function */{
 
   return function andCombinerEvaluator(key /*: string */, seed /*: number */) /*: string */{
     var _iteratorNormalCompletion = true;
@@ -35,7 +34,7 @@ function andContext(predicates /*: Array<(key: string, seed: number) => boolean)
       }
     }
 
-    return TREATMENT.CONTROL;
+    return undefined;
   };
 }
 
