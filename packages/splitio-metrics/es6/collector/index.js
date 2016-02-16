@@ -1,4 +1,4 @@
-'use strict';
+/* @flow */ 'use strict';
 
 let findIndex = require('../utils/binarySearch').bind(null, [
   1000,    1500,    2250,   3375,    5063,
@@ -12,18 +12,29 @@ function Collector() {
   this.clear();
 }
 
-Collector.prototype.counters = function (latency) {
+// Latency counters based on the internal ranges
+Collector.prototype.counters = function () /*: Array<number> */ {
   return this.counter;
 };
 
-Collector.prototype.track = function (latency) {
+// Store latency and return the number of occurrencies inside the range
+// defined
+Collector.prototype.track = function (latency /*: number */) /*: number */ {
   return ++(this.counter[findIndex(latency)]);
 };
 
-Collector.prototype.clear = function () {
-  return this.counter = [
+// Recycle the collector (reset using 0 for all the counters)
+Collector.prototype.clear = function () /*: Collector */ {
+  this.counter = [
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
   ];
+
+  return this;
 };
+
+// Hook JSON.stringify to expose the state of the counters
+Collector.prototype.toJSON = function () {
+  return this.counter;
+}
 
 module.exports = Collector;

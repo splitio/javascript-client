@@ -42,10 +42,19 @@ tape('COLLECTOR should count based on ranges', function (assert) {
   c1.track(985271);
   c1.track(7481830);
 
-  assert.true(c1.clear().reduce(function (sum, c) {
+  assert.true(c1.clear().counters().reduce(function (sum, c) {
     return sum += c;
   }, 0) === 0, 'after call clear, counters should be 0');
 
+  assert.end();
+});
+
+tape('COLLECTOR should support custom toJSON method', function (assert) {
+  var c = new Collector();
+  var hooked = JSON.stringify(c);
+  var manual = JSON.stringify(c.counters());
+
+  assert.true(hooked === manual, 'toJSON should expose the counters as an array of numbers');
   assert.end();
 });
 //# sourceMappingURL=index.spec.js.map

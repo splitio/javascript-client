@@ -43,9 +43,18 @@ tape('COLLECTOR should count based on ranges', assert => {
   c1.track(7481830);
 
   assert.true(
-    c1.clear().reduce((sum, c) => sum += c, 0) === 0,
+    c1.clear().counters().reduce((sum, c) => sum += c, 0) === 0,
     'after call clear, counters should be 0'
   );
 
+  assert.end();
+});
+
+tape('COLLECTOR should support custom toJSON method', assert => {
+  let c = new Collector();
+  let hooked = JSON.stringify(c);
+  let manual = JSON.stringify(c.counters());
+
+  assert.true(hooked === manual, 'toJSON should expose the counters as an array of numbers');
   assert.end();
 });

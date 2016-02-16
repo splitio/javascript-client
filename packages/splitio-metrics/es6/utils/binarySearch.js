@@ -1,6 +1,6 @@
-'use strict';
+/* @flow */ 'use strict';
 
-function bs(items, value) {
+function bs(items /*: Array<number> */, value /*: number */) /*: number */ {
   let startIndex = 0;
   let stopIndex = items.length - 1;
   let middle = Math.floor((stopIndex + startIndex) / 2);
