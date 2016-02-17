@@ -52,9 +52,7 @@ var dev = browserify({
 });
 bundlePath = require.resolve('../bundle/development.js');
 dev.add('./lib/index.js');
-dev.plugin('bundle-collapser/plugin')
-   .plugin('browserify-derequire')
-   .transform(envify({
+dev.transform(envify({
      _: 'purge',
      NODE_ENV: 'development'
    }))

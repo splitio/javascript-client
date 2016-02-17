@@ -7,7 +7,7 @@ function bs(items /*: Array<number> */, value /*: number */) /*: number */ {
   let minIndex = startIndex;
   let maxIndex = stopIndex;
 
-  while(items[middle] !== value && startIndex < stopIndex) {
+  while (items[middle] !== value && startIndex < stopIndex) {
     // adjust search area
     if (value < items[middle]) {
       stopIndex = middle - 1;

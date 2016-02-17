@@ -17,14 +17,14 @@
     "test": "istanbul test tape -- test/lib/**/*.spec.js"
   },
   "dependencies": {
-    "@splitsoftware/splitio-cache": "0.17.0",
+    "@splitsoftware/splitio-cache": "0.17.0"
+  },
+  "devDependencies": {
     "babel-cli": "^6.3.17",
     "babel-plugin-syntax-object-rest-spread": "^6.3.13",
     "babel-plugin-transform-object-rest-spread": "^6.3.13",
+    "babel-plugin-transform-runtime": "^6.5.2",
     "babel-preset-es2015": "^6.3.13",
-    "babel-polyfill": "^6.3.14"
-  },
-  "devDependencies": {
     "csv-streamify": "^3.0.3",
     "eslint": "^1.10.3",
     "istanbul": "^0.4.2",

@@ -2,7 +2,6 @@
 
 require('isomorphic-fetch');
 
-let log = require('debug')('splitio-metrics:http');
 let url = require('../url');
 
 /*::

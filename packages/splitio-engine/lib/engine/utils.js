@@ -10,6 +10,12 @@
 // return h ^ seed; // XOR the hash and seed
 //
 
+var _getIterator2 = require('babel-runtime/core-js/get-iterator');
+
+var _getIterator3 = _interopRequireDefault(_getIterator2);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 function ToInteger(x) {
   x = Number(x);
   return x < 0 ? Math.ceil(x) : Math.floor(x);
@@ -41,7 +47,7 @@ function hash(str /*: string */, seed /*: number */) /*: number */{
   var _iteratorError = undefined;
 
   try {
-    for (var _iterator = str[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+    for (var _iterator = (0, _getIterator3.default)(str), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
       var c = _step.value;
 
       h = ToInt32(ToInt32(31 * h) + c.charCodeAt(0));

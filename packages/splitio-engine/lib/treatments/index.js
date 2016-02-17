@@ -7,15 +7,27 @@
   }
 */
 
-var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+var _slicedToArray2 = require('babel-runtime/helpers/slicedToArray');
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+var _slicedToArray3 = _interopRequireDefault(_slicedToArray2);
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+var _getIterator2 = require('babel-runtime/core-js/get-iterator');
+
+var _getIterator3 = _interopRequireDefault(_getIterator2);
+
+var _classCallCheck2 = require('babel-runtime/helpers/classCallCheck');
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = require('babel-runtime/helpers/createClass');
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var Treatments = function () {
   function Treatments(ranges /*: Array<number> */, treatments /*: Array<string> */) {
-    _classCallCheck(this, Treatments);
+    (0, _classCallCheck3.default)(this, Treatments);
 
     if (ranges[ranges.length - 1] !== 100) throw new RangeError('Provided invalid dataset as input');
 
@@ -23,7 +35,7 @@ var Treatments = function () {
     this._treatments = treatments;
   }
 
-  _createClass(Treatments, [{
+  (0, _createClass3.default)(Treatments, [{
     key: 'getTreatmentFor',
     value: function getTreatmentFor(x /*: number */) /*: string */{
       if (x < 0 || x > 100) throw new RangeError('Please provide a value between 0 and 100');
@@ -33,8 +45,8 @@ var Treatments = function () {
       var _iteratorError = undefined;
 
       try {
-        for (var _iterator = this._ranges.entries()[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-          var _step$value = _slicedToArray(_step.value, 2);
+        for (var _iterator = (0, _getIterator3.default)(this._ranges.entries()), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          var _step$value = (0, _slicedToArray3.default)(_step.value, 2);
 
           var k = _step$value[0];
           var r = _step$value[1];
@@ -79,7 +91,6 @@ var Treatments = function () {
       return new Treatments(ranges, treatments);
     }
   }]);
-
   return Treatments;
 }();
 

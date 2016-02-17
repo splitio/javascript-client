@@ -19,18 +19,18 @@
   },
   "dependencies": {
     "@splitsoftware/splitio-engine": "0.17.0",
+    "isomorphic-fetch": "^2.2.1"
+  },
+  "devDependencies": {
     "babel-cli": "^6.3.17",
     "babel-plugin-syntax-object-rest-spread": "^6.3.13",
     "babel-plugin-transform-object-rest-spread": "^6.3.13",
-    "babel-polyfill": "^6.3.14",
+    "babel-plugin-transform-runtime": "^6.5.2",
     "babel-preset-es2015": "^6.3.13",
-    "isomorphic-fetch": "^2.2.0",
-    "tape": "^4.2.2"
-  },
-  "devDependencies": {
     "eslint": "^1.10.3",
+    "istanbul": "^0.4.2",
     "jscs": "^2.7.0",
-    "istanbul": "^0.4.2"
+    "tape": "^4.2.2"
   },
   "directories": {
     "test": "test"

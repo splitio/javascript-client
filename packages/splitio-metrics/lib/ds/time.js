@@ -1,8 +1,13 @@
 /* @flow */'use strict';
 
+var _stringify = require('babel-runtime/core-js/json/stringify');
+
+var _stringify2 = _interopRequireDefault(_stringify);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 require('isomorphic-fetch');
 
-var log = require('debug')('splitio-metrics:http');
 var url = require('../url');
 
 /*::
@@ -22,7 +27,7 @@ function timeDataSource(_ref /*: TimeRequest */) /*: Promise */{
       'Content-Type': 'application/json',
       'Authorization': 'Bearer ' + authorizationKey
     },
-    body: JSON.stringify(dto)
+    body: (0, _stringify2.default)(dto)
   });
 }
 

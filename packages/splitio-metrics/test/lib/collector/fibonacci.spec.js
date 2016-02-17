@@ -1,5 +1,11 @@
 'use strict';
 
+var _stringify = require('babel-runtime/core-js/json/stringify');
+
+var _stringify2 = _interopRequireDefault(_stringify);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 var tape = require('tape');
 var collectorFactory = require('../../../lib/collector/fibonacci');
 
@@ -51,8 +57,8 @@ tape('FIBONACCI COLLECTOR / should count based on ranges', function (assert) {
 
 tape('FIBONACCI COLLECTOR / should support custom toJSON method', function (assert) {
   var c = collectorFactory();
-  var hooked = JSON.stringify(c);
-  var manual = JSON.stringify(c.counters());
+  var hooked = (0, _stringify2.default)(c);
+  var manual = (0, _stringify2.default)(c.counters());
 
   assert.true(hooked === manual, 'toJSON should expose the counters as an array of numbers');
   assert.end();

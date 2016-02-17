@@ -17,6 +17,10 @@
     "watch-test": "babel test/es6 --out-dir test/lib --source-maps --watch",
     "test": "istanbul test tape -- test/lib/**/*.spec.js"
   },
+  "dependencies": {
+    "@splitsoftware/splitio": "0.17.0",
+    "isomorphic-fetch": "^2.2.1"
+  },
   "devDependencies": {
     "babel-cli": "^6.3.17",
     "babel-plugin-syntax-object-rest-spread": "^6.3.13",

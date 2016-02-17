@@ -1,25 +1,35 @@
 /* @flow */'use strict';
 
+var coreSettings = require('./settings');
 var core = require('./core');
+
+var sdkMetrics = require('@splitsoftware/splitio-metrics').sdk;
 var log = require('debug')('splitio');
 
-function splitio() /*: Promise */{
-  return core.start.apply(core, arguments).then(function (storage) {
+function splitio(settings /*: object */) /*: Promise */{
+
+  // setup settings for all the modules
+  coreSettings.configure(settings);
+
+  return core.start().then(function (storage) {
     return {
       getTreatment: function getTreatment(key /*: string */, featureName /*: string */, defaultTreatment /*: string */) /*: string */{
         var split = storage.splits.get(featureName);
+        var treatment = null;
 
+        var stop = sdkMetrics.start();
         if (split) {
-          var treatment = split.getTreatment(key, defaultTreatment);
+          treatment = split.getTreatment(key, defaultTreatment);
 
           log('feature ' + featureName + ' key ' + key + ' evaluated as ' + treatment);
-
-          return treatment;
         } else {
-          log('feature ' + featureName + ' doesn\'t exist');
+          treatment = defaultTreatment;
 
-          return defaultTreatment;
+          log('feature ' + featureName + ' doesn\'t exist, using default ' + treatment);
         }
+        stop();
+
+        return treatment;
       },
       isTreatment: function isTreatment(key /*: string */, featureName /*: string */, treatment /*: string */) /*: bool */{
         return this.getTreatment(key, featureName) === treatment;

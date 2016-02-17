@@ -1,7 +1,5 @@
 'use strict';
 
-try { require('babel-polyfill'); } catch(e) { /* will be replaced using just core-js */ }
-
 let parser = require('./parser/condition');
 
 class Split {

@@ -1,5 +1,15 @@
 /* @flow */'use strict';
 
+var _getIterator2 = require('babel-runtime/core-js/get-iterator');
+
+var _getIterator3 = _interopRequireDefault(_getIterator2);
+
+var _set = require('babel-runtime/core-js/set');
+
+var _set2 = _interopRequireDefault(_set);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 var matcherGroupTransform = require('../transforms/matcherGroup');
 var treatmentsParser = require('../treatments').parse;
 
@@ -22,7 +32,7 @@ var andCombiner = require('../combiners/and');
 // instanciation.
 function parse(conditions /*: Iterable<Object> */) /*: ParserOutputDTO */{
   var predicates = [];
-  var segments = new Set();
+  var segments = new _set2.default();
   var evaluator = null;
 
   var _iteratorNormalCompletion = true;
@@ -30,7 +40,7 @@ function parse(conditions /*: Iterable<Object> */) /*: ParserOutputDTO */{
   var _iteratorError = undefined;
 
   try {
-    for (var _iterator = conditions[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+    for (var _iterator = (0, _getIterator3.default)(conditions), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
       var condition = _step.value;
 
       var matcherMetadata = matcherGroupTransform(condition.matcherGroup);

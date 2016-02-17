@@ -2,12 +2,8 @@
 
 function TimeDTOFactory(name /*: string */, collector /*: Collector */) /*: object */ {
   return {
-    toJSON() {
-      return {
-        name,
-        collector
-      };
-    }
+    name,
+    collector
   };
 }
 
