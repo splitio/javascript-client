@@ -1,10 +1,10 @@
 'use strict';
 
 let tape = require('tape');
-let Collector = require('../../../lib/collector');
+let collectorFactory = require('../../../lib/collector/fibonacci');
 
-tape('COLLECTOR should count based on ranges', assert => {
-  let c1 = new Collector();
+tape('FIBONACCI COLLECTOR / should count based on ranges', assert => {
+  let c1 = collectorFactory();
 
   c1.track(1);
   c1.track(1000);
@@ -30,8 +30,8 @@ tape('COLLECTOR should count based on ranges', assert => {
   assert.end();
 });
 
-tape('COLLECTOR should count based on ranges', assert => {
-  let c1 = new Collector();
+tape('FIBONACCI COLLECTOR / should count based on ranges', assert => {
+  let c1 = collectorFactory();
 
   c1.track(1);
   c1.track(1000);
@@ -50,8 +50,8 @@ tape('COLLECTOR should count based on ranges', assert => {
   assert.end();
 });
 
-tape('COLLECTOR should support custom toJSON method', assert => {
-  let c = new Collector();
+tape('FIBONACCI COLLECTOR / should support custom toJSON method', assert => {
+  let c = collectorFactory();
   let hooked = JSON.stringify(c);
   let manual = JSON.stringify(c.counters());
 

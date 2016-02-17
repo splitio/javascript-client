@@ -1,10 +1,10 @@
 'use strict';
 
 var tape = require('tape');
-var Collector = require('../../../lib/collector');
+var collectorFactory = require('../../../lib/collector/fibonacci');
 
-tape('COLLECTOR should count based on ranges', function (assert) {
-  var c1 = new Collector();
+tape('FIBONACCI COLLECTOR / should count based on ranges', function (assert) {
+  var c1 = collectorFactory();
 
   c1.track(1);
   c1.track(1000);
@@ -30,8 +30,8 @@ tape('COLLECTOR should count based on ranges', function (assert) {
   assert.end();
 });
 
-tape('COLLECTOR should count based on ranges', function (assert) {
-  var c1 = new Collector();
+tape('FIBONACCI COLLECTOR / should count based on ranges', function (assert) {
+  var c1 = collectorFactory();
 
   c1.track(1);
   c1.track(1000);
@@ -49,12 +49,12 @@ tape('COLLECTOR should count based on ranges', function (assert) {
   assert.end();
 });
 
-tape('COLLECTOR should support custom toJSON method', function (assert) {
-  var c = new Collector();
+tape('FIBONACCI COLLECTOR / should support custom toJSON method', function (assert) {
+  var c = collectorFactory();
   var hooked = JSON.stringify(c);
   var manual = JSON.stringify(c.counters());
 
   assert.true(hooked === manual, 'toJSON should expose the counters as an array of numbers');
   assert.end();
 });
-//# sourceMappingURL=index.spec.js.map
+//# sourceMappingURL=fibonacci.spec.js.map

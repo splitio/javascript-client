@@ -3,6 +3,10 @@
 # Expose all the modules inside NPM so we could link the development versions
 # across different node versions.
 
+cd packages/splitio-metrics
+npm link
+cd -
+
 cd packages/splitio-engine
 npm link
 cd -

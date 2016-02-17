@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+cd packages/splitio-metrics
+npm update
+npm prune
+npm run build
+cd -
+
 cd packages/splitio-cache
 npm update
 npm prune

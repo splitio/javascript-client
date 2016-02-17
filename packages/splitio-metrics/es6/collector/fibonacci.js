@@ -8,23 +8,23 @@ let findIndex = require('../utils/binarySearch').bind(null, [
   3325257, 4987885, 7481828
 ]);
 
-function Collector() {
+function FibonacciCollector() {
   this.clear();
 }
 
 // Latency counters based on the internal ranges
-Collector.prototype.counters = function () /*: Array<number> */ {
+FibonacciCollector.prototype.counters = function () /*: Array<number> */ {
   return this.counter;
 };
 
 // Store latency and return the number of occurrencies inside the range
 // defined
-Collector.prototype.track = function (latency /*: number */) /*: number */ {
+FibonacciCollector.prototype.track = function (latency /*: number */) /*: number */ {
   return ++(this.counter[findIndex(latency)]);
 };
 
 // Recycle the collector (reset using 0 for all the counters)
-Collector.prototype.clear = function () /*: Collector */ {
+FibonacciCollector.prototype.clear = function () /*: FibonacciCollector */ {
   this.counter = [
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
   ];
@@ -33,8 +33,10 @@ Collector.prototype.clear = function () /*: Collector */ {
 };
 
 // Hook JSON.stringify to expose the state of the counters
-Collector.prototype.toJSON = function () {
+FibonacciCollector.prototype.toJSON = function () {
   return this.counter;
-}
+};
 
-module.exports = Collector;
+module.exports = function FibonacciCollectorFactory() {
+  return new FibonacciCollector();
+}

@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+cd packages/splitio-metrics
+npm test
+cd -
+
 cd packages/splitio-cache
 npm test
 cd -
