@@ -17,7 +17,7 @@
     "test": "istanbul test tape -- test/lib/**/*.spec.js"
   },
   "dependencies": {
-    "@splitsoftware/splitio-cache": "0.19.0"
+    "@splitsoftware/splitio-cache": "0.20.0"
   },
   "devDependencies": {
     "babel-cli": "^6.3.17",
