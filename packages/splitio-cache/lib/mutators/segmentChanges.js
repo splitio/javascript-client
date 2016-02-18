@@ -14,7 +14,14 @@ function segmentMutationsFactory(_ref /*: SegmentChangesDTO */) {
   var removed = _ref.removed;
 
   return function segmentMutations(storageAccesor /*: Function */, storageMutator /*: Function */) {
-    var segments = storageAccesor(name);
+    var segments = undefined;
+
+    // nothing to do here
+    if (added.length === 0 && removed.length === 0) {
+      return;
+    }
+
+    segments = storageAccesor(name);
 
     added.forEach(function (segment) {
       return segments.add(segment);

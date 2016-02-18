@@ -26,7 +26,7 @@ function segmentChangesDataSource(_ref) {
   var segmentName = _ref.segmentName;
 
   var cacheKey = cacheKeyGenerator(authorizationKey, segmentName);
-  var sinceValue = cache.get(cacheKey) || 0;
+  var sinceValue = cache.get(cacheKey) || -1;
 
   return fetch(url('/segmentChanges/' + segmentName + '?since=' + sinceValue), {
     method: 'GET',
@@ -41,6 +41,8 @@ function segmentChangesDataSource(_ref) {
     var since = json.since;
     var till = json.till;
     var data = (0, _objectWithoutProperties3.default)(json, ['since', 'till']);
+
+    log('[' + authorizationKey + '] /segmentChanges/' + segmentName + '?since=' + sinceValue, json);
 
     cache.set(cacheKey, till);
 
