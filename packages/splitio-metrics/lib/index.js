@@ -15,9 +15,13 @@ function metricFactory(name, collectorFactory) {
       return t;
     },
     publish: function publish() {
-      return timeDS({
+      return !c.isEmpty() && timeDS({
         authorizationKey: splitSettings.get('authorizationKey'),
         dto: timeDTO('sdk.getTreatment', c)
+      }).then(function (resp) {
+        c.clear();return resp;
+      }).catch(function (error) {
+        c.clear();
       });
     }
   };

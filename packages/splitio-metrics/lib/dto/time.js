@@ -1,9 +1,9 @@
 'use strict';
 
-function TimeDTOFactory(name /*: string */, collector /*: Collector */) /*: object */{
+function TimeDTOFactory(name /*: string */, latencies /*: Collector */) /*: object */{
   return {
     name: name,
-    collector: collector
+    latencies: latencies
   };
 }
 

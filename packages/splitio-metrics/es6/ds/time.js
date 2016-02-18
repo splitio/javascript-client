@@ -10,17 +10,16 @@ let url = require('../url');
     dto: TimeDTO
   }
 */
-function timeDataSource({
-  authorizationKey,
-  dto
-} /*: TimeRequest */) /*: Promise */ {
-  return fetch(url(`/time`), {
+function timeDataSource({authorizationKey, dto} /*: TimeRequest */) /*: Promise */ {
+  return fetch(url(`/metrics/time`), {
     method: 'POST',
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${authorizationKey}`
+      'Authorization': `Bearer ${authorizationKey}`,
+      'SplitSDKVersion': 'javascript-1.0'
     },
+    mode: 'cors',
     body: JSON.stringify(dto)
   });
 }

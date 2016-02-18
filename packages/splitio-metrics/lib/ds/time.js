@@ -20,13 +20,15 @@ function timeDataSource(_ref /*: TimeRequest */) /*: Promise */{
   var authorizationKey = _ref.authorizationKey;
   var dto = _ref.dto;
 
-  return fetch(url('/time'), {
+  return fetch(url('/metrics/time'), {
     method: 'POST',
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + authorizationKey
+      'Authorization': 'Bearer ' + authorizationKey,
+      'SplitSDKVersion': 'javascript-1.0'
     },
+    mode: 'cors',
     body: (0, _stringify2.default)(dto)
   });
 }

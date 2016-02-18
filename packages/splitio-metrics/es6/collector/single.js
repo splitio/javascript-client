@@ -26,6 +26,11 @@ SingleCollector.prototype.toJSON = function () {
   return this.counter;
 };
 
+// Check if the is data changed from the defaults
+SingleCollector.prototype.isEmpty = function () {
+  return this.counter === 0;
+};
+
 module.exports = function SingleCollectorFactory() {
   return new SingleCollector();
 };

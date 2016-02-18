@@ -37,6 +37,11 @@ FibonacciCollector.prototype.toJSON = function () {
   return this.counter;
 };
 
+// Check if the is data changed from the defaults
+FibonacciCollector.prototype.isEmpty = function () {
+  return this.counter.reduce((sum, e) => sum += e ,0) === 0;
+};
+
 module.exports = function FibonacciCollectorFactory() {
   return new FibonacciCollector();
-}
+};

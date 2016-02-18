@@ -26,6 +26,11 @@ SequentialCollector.prototype.toJSON = function () {
   return this.counter;
 };
 
+// Check if the is data changed from the defaults
+SequentialCollector.prototype.isEmpty = function () {
+  return this.counter.length === 0;
+};
+
 module.exports = function SequentialCollectorFactory() {
   return new SequentialCollector();
-}
+};

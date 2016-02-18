@@ -3,7 +3,7 @@
 var coreSettings = require('./settings');
 var core = require('./core');
 
-var sdkMetrics = require('@splitsoftware/splitio-metrics').sdk;
+var tracker = require('@splitsoftware/splitio-metrics').sdk.tracker();
 var log = require('debug')('splitio');
 
 function splitio(settings /*: object */) /*: Promise */{
@@ -17,7 +17,7 @@ function splitio(settings /*: object */) /*: Promise */{
         var split = storage.splits.get(featureName);
         var treatment = null;
 
-        var stop = sdkMetrics.start();
+        var stop = tracker();
         if (split) {
           treatment = split.getTreatment(key, defaultTreatment);
 
