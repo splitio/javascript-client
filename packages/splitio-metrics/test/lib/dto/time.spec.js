@@ -11,13 +11,13 @@ var TimeDTOFactory = require('../../../lib/dto/time');
 var CollectorFactory = require('../../../lib/collector/sequential');
 
 tape('TimeDTO', function (assert) {
-  var collector = CollectorFactory();
+  var latencies = CollectorFactory();
   var name = 'statKey';
-  var dto = TimeDTOFactory('statKey', collector);
+  var dto = TimeDTOFactory('statKey', latencies);
 
-  collector.track(1);
+  latencies.track(1);
 
-  assert.true((0, _stringify2.default)(dto) === (0, _stringify2.default)({ name: name, collector: collector }), 'should abstract the object to be send to the Time API');
+  assert.true((0, _stringify2.default)(dto) === (0, _stringify2.default)({ name: name, latencies: latencies }), 'should abstract the object to be send to the Time API');
   assert.end();
 });
 //# sourceMappingURL=time.spec.js.map

@@ -66,7 +66,7 @@ tape('BINARY SEARCH / given [1,3,5,7,10] as dataset look for several elements', 
   assert.end();
 });
 
-tape('BINARY SEARCH / run test using system keys', function (assert) {
+tape('BINARY SEARCH / run test using integer keys', function (assert) {
   var KEYS = [1000, 1500, 2250, 3375, 5063, 7594, 11391, 17086, 25629, 38443, 57665, 86498, 129746, 194620, 291929, 437894, 656841, 985261, 1477892, 2216838, 3325257, 4987885, 7481828];
 
   var searchFor = bs.bind(null, KEYS);
@@ -88,6 +88,29 @@ tape('BINARY SEARCH / run test using system keys', function (assert) {
 
   index = searchFor(2251);
   assert.true(index === 2, 'expected value 0, returned ' + index);
+
+  assert.end();
+});
+
+tape('BINARY SEARCH / run test using float keys', function (assert) {
+  var KEYS = [1, 1.5, 2.25, 3.38, 5.06, 7.59, 11.39, 17.09, 25.63, 38.44, 57.67, 86.5, 129.75, 194.62, 291.93, 437.89, 656.84, 985.26, 1477.89, 2216.84, 3325.26, 4987.89, 77481.83];
+
+  var searchFor = bs.bind(null, KEYS);
+
+  var index = searchFor(3.38);
+  assert.true(index === 3, 'expected value 3, returned ' + index);
+
+  index = searchFor(6);
+  assert.true(index === 4, 'expected value 4, returned ' + index);
+
+  index = searchFor(500.55);
+  assert.true(index === 15, 'expected value 15, returned ' + index);
+
+  index = searchFor(77481.83);
+  assert.true(index === 22, 'expected value 22, returned ' + index);
+
+  index = searchFor(80000);
+  assert.true(index === 22, 'expected value 22, returned ' + index);
 
   assert.end();
 });
