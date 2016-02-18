@@ -2,20 +2,16 @@
 
 cd packages/splitio-metrics
 npm test
-cd -
+cd - &> /dev/null
 
 cd packages/splitio-cache
 npm test
-cd -
+cd - &> /dev/null
 
 cd packages/splitio-engine
 npm test
-cd -
+cd - &> /dev/null
 
 cd packages/splitio
 npm test
-cd -
-
-# cd packages/splitio-browser
-# npm test
-# cd -
+cd - &> /dev/null

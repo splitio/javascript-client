@@ -4,11 +4,13 @@
   "scripts": {
     "tc": "flow check",
     "lint": "./scripts/lint.sh",
-    "dev": "./scripts/development.sh",
-    "build": "./scripts/build.sh",
-    "watch": "./scripts/watch.sh",
-    "test": "./scripts/test.sh",
-    "expose": "./scripts/expose.sh"
+    "install-all": "./scripts/install-all.sh",
+    "link-deps": "./scripts/link-deps.sh",
+    "build-all": "./scripts/build-all.sh",
+    "test-all": "./scripts/test-all.sh",
+    "expose-all": "./scripts/expose-all.sh",
+    "watch-all": "./scripts/watch-all.sh",
+    "clean-all": "./scripts/clean-all.sh"
   },
   "devDependencies": {
     "babel-eslint": "^4.0.6",
