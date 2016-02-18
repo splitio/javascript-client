@@ -20,9 +20,9 @@ function defaults(custom /*: Settings */) /*: Settings */ {
       key: undefined                 // user key in your system (only required for browser version).
     },
     scheduler: {
-      featuresRefreshRate: 60000,     // miliseconds
-      segmentsRefreshRate: 60000 * 3, // miliseconds
-      metricsRefreshRate: 600000      // miliseconds (randomly choosen based on this initial rate).
+      featuresRefreshRate: 30000, // miliseconds
+      segmentsRefreshRate: 40000, // miliseconds
+      metricsRefreshRate: 300000  // miliseconds (randomly choosen based on this initial rate).
     }
   };
 
