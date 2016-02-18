@@ -5,14 +5,14 @@ let TimeDTOFactory = require('../../../lib/dto/time');
 let CollectorFactory = require('../../../lib/collector/sequential');
 
 tape('TimeDTO', assert => {
-  let collector = CollectorFactory();
+  let latencies = CollectorFactory();
   let name = 'statKey';
-  let dto = TimeDTOFactory('statKey', collector);
+  let dto = TimeDTOFactory('statKey', latencies);
 
-  collector.track(1);
+  latencies.track(1);
 
   assert.true(
-    JSON.stringify(dto) === JSON.stringify({name, collector}),
+    JSON.stringify(dto) === JSON.stringify({name, latencies}),
     'should abstract the object to be send to the Time API'
   );
   assert.end();
