@@ -14,6 +14,7 @@ var _require = require('@splitsoftware/splitio-cache');
 var splitChangesUpdater = _require.splitChangesUpdater;
 var segmentsUpdater = _require.segmentsUpdater;
 
+
 var metrics = require('@splitsoftware/splitio-metrics');
 
 var _isStarted = false;

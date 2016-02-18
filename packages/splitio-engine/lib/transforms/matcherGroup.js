@@ -21,6 +21,7 @@ function transform(matcherGroup /*: object */) /*: MatcherDTO */{
   var segmentObject = _matcherGroup$matcher.userDefinedSegmentMatcherData;
   var whitelistObject = _matcherGroup$matcher.whitelistMatcherData;
 
+
   var type = matcherTypes.mapper(matcherType);
   var value = undefined;
 

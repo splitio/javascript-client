@@ -24,6 +24,7 @@ function factory(matcherAbstract /*: MatcherAbstract */) {
   var type = matcherAbstract.type;
   var value = matcherAbstract.value;
 
+
   if (type === types.ALL) {
     return allMatcher(value);
   } else if (type === types.SEGMENT) {

@@ -75,6 +75,7 @@ var Treatments = function () {
         var size = value.size;
         var treatment = value.treatment;
 
+
         accum.ranges.push(accum.inc += size);
         accum.treatments.push(treatment);
 
@@ -87,6 +88,7 @@ var Treatments = function () {
 
       var ranges = _data$reduce.ranges;
       var treatments = _data$reduce.treatments;
+
 
       return new Treatments(ranges, treatments);
     }

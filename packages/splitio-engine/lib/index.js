@@ -67,6 +67,7 @@ var Split = function () {
       var evaluator = _parser.evaluator;
       var segments = _parser.segments;
 
+
       return new Split(baseInfo, evaluator, segments);
     }
   }]);

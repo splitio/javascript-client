@@ -42,6 +42,7 @@ function segmentChangesDataSource(_ref) {
     var till = json.till;
     var data = (0, _objectWithoutProperties3.default)(json, ['since', 'till']);
 
+
     log('[' + authorizationKey + '] /segmentChanges/' + segmentName + '?since=' + sinceValue, json);
 
     cache.set(cacheKey, till);

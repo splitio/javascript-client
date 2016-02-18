@@ -33,10 +33,12 @@ module.exports = {
     });
   },
 
+
   // Get the split given a feature name.
   get: function get(featureName /*: string */) /*: Split */{
     return _splits.get(featureName);
   },
+
 
   // Get the current Set of segments across all the split instances available.
   getSegments: function getSegments() /*: Set */{
@@ -69,6 +71,7 @@ module.exports = {
 
     return collection;
   },
+
 
   // Allow stringify of the internal structure.
   toJSON: function toJSON() /*: object */{

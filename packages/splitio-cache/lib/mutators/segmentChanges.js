@@ -13,6 +13,7 @@ function segmentMutationsFactory(_ref /*: SegmentChangesDTO */) {
   var added = _ref.added;
   var removed = _ref.removed;
 
+
   return function segmentMutations(storageAccesor /*: Function */, storageMutator /*: Function */) {
     var segments = undefined;
 

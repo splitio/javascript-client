@@ -24,6 +24,7 @@ tape('ENGINE / validate hashing behavior using sample data', function (assert) {
     var hash = _JSON$parse2[2];
     var bucket = _JSON$parse2[3];
 
+
     seed = parseInt(seed, 10);
     hash = parseInt(hash, 10);
     bucket = parseInt(bucket, 10);

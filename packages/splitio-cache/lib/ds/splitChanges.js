@@ -23,6 +23,7 @@ function splitChangesDataSource(_ref) {
     var till = json.till;
     var splits = json.splits;
 
+
     log('[' + authorizationKey + '] /splitChanges response using since=' + sinceValue, json);
 
     sinceValue = till;
