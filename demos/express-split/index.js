@@ -8,7 +8,7 @@ var splitEngine = null;
 
 app.use(function (req, res, next) {
   if (splitEngine) {
-    if (splitEngine.getTreatment('4a2c4490-ced1-11e5-9b97-d8a25e8b1578', 'off') === 'on') {
+    if (splitEngine.getTreatment('4a2c4490-ced1-11e5-9b97-d8a25e8b1578', 'sdk', 'off') === 'on') {
       next();
     } else {
       res.sendStatus(403);
@@ -24,14 +24,14 @@ app.get('/', function (req, res) {
 
 app.listen(8889, function serverStarted() {
   split({
-    cache: {
+    core: {
       authorizationKey: 'c1l5vkd50gimccout3c03pntbu'
+    },
+    scheduler: {
+      // featuresRefreshRate: 5000,
+      // segmentsRefreshRate: 5000 * 3
+      metricsRefreshRate: 10000
     }
-    // },
-    // scheduler: {
-    //   featuresRefreshRate: 5000,
-    //   segmentsRefreshRate: 5000 * 3
-    // }
   })
   .then(function (engine) {
     splitEngine = engine;

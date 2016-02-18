@@ -1,74 +1,41 @@
 /* @flow */ 'use strict';
 
-let cacheFacade = require('@splitsoftware/splitio-cache');
+let splitSettings = require('../settings');
 let schedulerFactory = require('../scheduler');
 
-function defaults(params) {
-  let def = Object.assign({
-    cache: {
-      authorizationKey: undefined,
-      key: undefined
-    },
-    scheduler: {
-      featuresRefreshRate: 60000,
-      segmentsRefreshRate: 60000 * 3
-    }
-  }, params);
+let {
+  splitChangesUpdater,
+  segmentsUpdater
+} = require('@splitsoftware/splitio-cache');
 
-  if (typeof def.cache.authorizationKey !== 'string') {
-    throw Error('Please provide an authorization token to startup the engine');
-  }
-
-  if (typeof def.scheduler.featuresRefreshRate !== 'number') {
-    throw TypeError('featuresRefreshRate should be a number of miliseconds');
-  }
-
-  if (typeof def.scheduler.segmentsRefreshRate !== 'number') {
-    throw TypeError('segmentsRefreshRate should be a number of miliseconds');
-  }
-
-  return def;
-}
+let metrics = require('@splitsoftware/splitio-metrics');
 
 let _isStarted = false;
-let _splitRefreshScheduler;
-let _segmentsRefreshScheduler;
-
 let core = {
-  start(options) {
+  start() {
     if (!_isStarted) {
       _isStarted = true;
     } else {
       return Promise.reject('Engine already started');
     }
 
-    try {
-      options = defaults(options);
-    } catch (error) {
-      return Promise.reject(error);
-    }
+    let coreSettings = splitSettings.get('core');
+    let featuresRefreshRate = splitSettings.get('featuresRefreshRate');
+    let segmentsRefreshRate = splitSettings.get('segmentsRefreshRate');
+    let metricsRefreshRate = splitSettings.get('metricsRefreshRate');
 
-    let {
-      cache,
-      scheduler: {
-        featuresRefreshRate,
-        segmentsRefreshRate
-      }
-    } = options;
+    let splitRefreshScheduler = schedulerFactory();
+    let segmentsRefreshScheduler = schedulerFactory();
+    let metricsPushScheduler = schedulerFactory();
 
-    _splitRefreshScheduler = schedulerFactory();
-    _segmentsRefreshScheduler = schedulerFactory();
+    // send stats to split servers if needed.
+    metricsPushScheduler.forever(metrics.publish, metricsRefreshRate);
 
-    return _splitRefreshScheduler.forever(
-      cacheFacade.splitChangesUpdater,
-      featuresRefreshRate,
-      cache
-    ).then(() => {
-      return _segmentsRefreshScheduler.forever(
-        cacheFacade.segmentsUpdater,
-        segmentsRefreshRate,
-        cache
-      );
+    // the first time the download is sequential:
+    // 1- download feature settings
+    // 2- segments
+    return splitRefreshScheduler.forever(splitChangesUpdater, featuresRefreshRate, coreSettings).then(() => {
+      return segmentsRefreshScheduler.forever(segmentsUpdater, segmentsRefreshRate, coreSettings);
     });
   },
 

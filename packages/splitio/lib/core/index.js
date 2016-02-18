@@ -1,64 +1,47 @@
 /* @flow */'use strict';
 
-var cacheFacade = require('@splitsoftware/splitio-cache');
+var _promise = require('babel-runtime/core-js/promise');
+
+var _promise2 = _interopRequireDefault(_promise);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var splitSettings = require('../settings');
 var schedulerFactory = require('../scheduler');
 
-function defaults(params) {
-  var def = Object.assign({
-    cache: {
-      authorizationKey: undefined,
-      key: undefined
-    },
-    scheduler: {
-      featuresRefreshRate: 60000,
-      segmentsRefreshRate: 60000 * 3
-    }
-  }, params);
+var _require = require('@splitsoftware/splitio-cache');
 
-  if (typeof def.cache.authorizationKey !== 'string') {
-    throw Error('Please provide an authorization token to startup the engine');
-  }
+var splitChangesUpdater = _require.splitChangesUpdater;
+var segmentsUpdater = _require.segmentsUpdater;
 
-  if (typeof def.scheduler.featuresRefreshRate !== 'number') {
-    throw TypeError('featuresRefreshRate should be a number of miliseconds');
-  }
-
-  if (typeof def.scheduler.segmentsRefreshRate !== 'number') {
-    throw TypeError('segmentsRefreshRate should be a number of miliseconds');
-  }
-
-  return def;
-}
+var metrics = require('@splitsoftware/splitio-metrics');
 
 var _isStarted = false;
-var _splitRefreshScheduler = undefined;
-var _segmentsRefreshScheduler = undefined;
-
 var core = {
-  start: function start(options) {
+  start: function start() {
     if (!_isStarted) {
       _isStarted = true;
     } else {
-      return Promise.reject('Engine already started');
+      return _promise2.default.reject('Engine already started');
     }
 
-    try {
-      options = defaults(options);
-    } catch (error) {
-      return Promise.reject(error);
-    }
+    var coreSettings = splitSettings.get('core');
+    var featuresRefreshRate = splitSettings.get('featuresRefreshRate');
+    var segmentsRefreshRate = splitSettings.get('segmentsRefreshRate');
+    var metricsRefreshRate = splitSettings.get('metricsRefreshRate');
 
-    var _options = options;
-    var cache = _options.cache;
-    var _options$scheduler = _options.scheduler;
-    var featuresRefreshRate = _options$scheduler.featuresRefreshRate;
-    var segmentsRefreshRate = _options$scheduler.segmentsRefreshRate;
+    var splitRefreshScheduler = schedulerFactory();
+    var segmentsRefreshScheduler = schedulerFactory();
+    var metricsPushScheduler = schedulerFactory();
 
-    _splitRefreshScheduler = schedulerFactory();
-    _segmentsRefreshScheduler = schedulerFactory();
+    // send stats to split servers if needed.
+    metricsPushScheduler.forever(metrics.publish, metricsRefreshRate);
 
-    return _splitRefreshScheduler.forever(cacheFacade.splitChangesUpdater, featuresRefreshRate, cache).then(function () {
-      return _segmentsRefreshScheduler.forever(cacheFacade.segmentsUpdater, segmentsRefreshRate, cache);
+    // the first time the download is sequential:
+    // 1- download feature settings
+    // 2- segments
+    return splitRefreshScheduler.forever(splitChangesUpdater, featuresRefreshRate, coreSettings).then(function () {
+      return segmentsRefreshScheduler.forever(segmentsUpdater, segmentsRefreshRate, coreSettings);
     });
   },
   isStared: function isStared() {

@@ -1,13 +1,21 @@
 /* @flow */'use strict';
 
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+var _toConsumableArray2 = require('babel-runtime/helpers/toConsumableArray');
+
+var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);
+
+var _set = require('babel-runtime/core-js/set');
+
+var _set2 = _interopRequireDefault(_set);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var log = require('debug')('splitio-cache:segments');
-var _segments = new Set();
+var _segments = new _set2.default();
 
 module.exports = {
   update: function update(segments /*: Set */) {
-    log('Updating my segments list with [' + [].concat(_toConsumableArray(segments)) + ']');
+    log('Updating my segments list with [' + [].concat((0, _toConsumableArray3.default)(segments)) + ']');
 
     _segments = segments;
   },

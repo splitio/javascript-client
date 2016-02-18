@@ -1,27 +1,31 @@
 'use strict';
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+var _objectWithoutProperties2 = require('babel-runtime/helpers/objectWithoutProperties');
 
-function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
+var _objectWithoutProperties3 = _interopRequireDefault(_objectWithoutProperties2);
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+var _classCallCheck2 = require('babel-runtime/helpers/classCallCheck');
 
-try {
-  require('babel-polyfill');
-} catch (e) {/* will be replaced using just core-js */}
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = require('babel-runtime/helpers/createClass');
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var parser = require('./parser/condition');
 
 var Split = function () {
   function Split(baseInfo, evaluator, segments) {
-    _classCallCheck(this, Split);
+    (0, _classCallCheck3.default)(this, Split);
 
     this.baseInfo = baseInfo;
     this.evaluator = evaluator;
     this.segments = segments;
   }
 
-  _createClass(Split, [{
+  (0, _createClass3.default)(Split, [{
     key: 'getKey',
     value: function getKey() {
       return this.baseInfo.name;
@@ -56,8 +60,7 @@ var Split = function () {
     key: 'parse',
     value: function parse(splitFlatStructure) {
       var conditions = splitFlatStructure.conditions;
-
-      var baseInfo = _objectWithoutProperties(splitFlatStructure, ['conditions']);
+      var baseInfo = (0, _objectWithoutProperties3.default)(splitFlatStructure, ['conditions']);
 
       var _parser = parser(conditions);
 
@@ -67,7 +70,6 @@ var Split = function () {
       return new Split(baseInfo, evaluator, segments);
     }
   }]);
-
   return Split;
 }();
 

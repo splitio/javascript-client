@@ -13,7 +13,11 @@ splitio.getTreatment = function (featureName, defaultTreatment) {
 };
 
 splitio.start = function (options) {
-  var key = options.cache && options.cache.key;
+  if (typeof options !== 'object') {
+    return Promise.reject('options parameter should not be empty');
+  }
+
+  var key = options.core && options.core.key;
 
   if (typeof key !== 'string') {
     return Promise.reject('key parameter should not be empty');

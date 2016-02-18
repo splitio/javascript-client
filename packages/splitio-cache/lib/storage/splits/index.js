@@ -1,8 +1,24 @@
 /* @flow */'use strict';
 
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+var _toConsumableArray2 = require('babel-runtime/helpers/toConsumableArray');
 
-var _splits = new Map();
+var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);
+
+var _getIterator2 = require('babel-runtime/core-js/get-iterator');
+
+var _getIterator3 = _interopRequireDefault(_getIterator2);
+
+var _set = require('babel-runtime/core-js/set');
+
+var _set2 = _interopRequireDefault(_set);
+
+var _map = require('babel-runtime/core-js/map');
+
+var _map2 = _interopRequireDefault(_map);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var _splits = new _map2.default();
 
 module.exports = {
   // Update the internal Map given an Array of new splits.
@@ -24,17 +40,17 @@ module.exports = {
 
   // Get the current Set of segments across all the split instances available.
   getSegments: function getSegments() /*: Set */{
-    var collection = new Set();
+    var collection = new _set2.default();
 
     var _iteratorNormalCompletion = true;
     var _didIteratorError = false;
     var _iteratorError = undefined;
 
     try {
-      for (var _iterator = _splits.values()[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+      for (var _iterator = (0, _getIterator3.default)(_splits.values()), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
         var split = _step.value;
 
-        collection = new Set([].concat(_toConsumableArray(collection), _toConsumableArray(split.getSegments())));
+        collection = new _set2.default([].concat((0, _toConsumableArray3.default)(collection), (0, _toConsumableArray3.default)(split.getSegments())));
       }
     } catch (err) {
       _didIteratorError = true;

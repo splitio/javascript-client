@@ -1,10 +1,16 @@
 /* @flow */'use strict';
 
+var _symbol = require('babel-runtime/core-js/symbol');
+
+var _symbol2 = _interopRequireDefault(_symbol);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 module.exports = {
   enum: {
-    ALL: Symbol(),
-    SEGMENT: Symbol(),
-    WHITELIST: Symbol()
+    ALL: (0, _symbol2.default)(),
+    SEGMENT: (0, _symbol2.default)(),
+    WHITELIST: (0, _symbol2.default)()
   },
 
   mapper: function mapper(matcherType /*: string */) {

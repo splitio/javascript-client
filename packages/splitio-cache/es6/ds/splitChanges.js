@@ -5,7 +5,7 @@ require('isomorphic-fetch');
 let log = require('debug')('splitio-cache:http');
 let url = require('../url');
 let splitMutatorFactory = require('../mutators/splitChanges');
-let sinceValue = 0;
+let sinceValue = -1;
 
 function splitChangesDataSource({authorizationKey}) {
   return fetch(url(`/splitChanges?since=${sinceValue}`), {

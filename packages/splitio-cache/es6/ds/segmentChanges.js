@@ -13,7 +13,7 @@ function cacheKeyGenerator(authorizationKey, segmentName) {
 
 function segmentChangesDataSource({authorizationKey, segmentName}) {
   let cacheKey = cacheKeyGenerator(authorizationKey, segmentName);
-  let sinceValue = cache.get(cacheKey) || 0;
+  let sinceValue = cache.get(cacheKey) || -1;
 
   return fetch(url(`/segmentChanges/${segmentName}?since=${sinceValue}`), {
     method: 'GET',
@@ -26,6 +26,8 @@ function segmentChangesDataSource({authorizationKey, segmentName}) {
   .then(resp => resp.json())
   .then(json => {
     let {since, till, ...data} = json;
+
+    log(`[${authorizationKey}] /segmentChanges/${segmentName}?since=${sinceValue}`, json);
 
     cache.set(cacheKey, till);
 

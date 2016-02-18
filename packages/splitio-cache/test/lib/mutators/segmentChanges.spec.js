@@ -1,6 +1,18 @@
 'use strict';
 
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+var _toConsumableArray2 = require('babel-runtime/helpers/toConsumableArray');
+
+var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);
+
+var _set = require('babel-runtime/core-js/set');
+
+var _set2 = _interopRequireDefault(_set);
+
+var _map = require('babel-runtime/core-js/map');
+
+var _map2 = _interopRequireDefault(_map);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var tape = require('tape');
 var segmentChangesMutatorFactory = require('../../../lib/mutators/segmentChanges');
@@ -12,7 +24,7 @@ tape('Segment Changes', function (assert) {
     removed: ['d', 'e', 'f']
   };
 
-  var segmentsStorage = new Map().set('test-segment', new Set(['d', 'e', 'f']));
+  var segmentsStorage = new _map2.default().set('test-segment', new _set2.default(['d', 'e', 'f']));
   function storageMutator(segmentName, segmentSet) {
     segmentsStorage.set(segmentName, segmentSet);
   }
@@ -23,7 +35,7 @@ tape('Segment Changes', function (assert) {
   var mutator = segmentChangesMutatorFactory(segmentChanges);
   mutator(storageAccesor, storageMutator);
 
-  assert.deepEqual([].concat(_toConsumableArray(storageAccesor('test-segment'))), segmentChanges.added, 'We should only have [a, b, c]');
+  assert.deepEqual([].concat((0, _toConsumableArray3.default)(storageAccesor('test-segment'))), segmentChanges.added, 'We should only have [a, b, c]');
   assert.end();
 });
 //# sourceMappingURL=segmentChanges.spec.js.map

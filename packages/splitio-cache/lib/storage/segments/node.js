@@ -1,18 +1,30 @@
 /* @flow */'use strict';
 
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+var _set = require('babel-runtime/core-js/set');
 
-var _segments = new Map();
+var _set2 = _interopRequireDefault(_set);
+
+var _toConsumableArray2 = require('babel-runtime/helpers/toConsumableArray');
+
+var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);
+
+var _map = require('babel-runtime/core-js/map');
+
+var _map2 = _interopRequireDefault(_map);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var _segments = new _map2.default();
 var log = require('debug')('splitio-cache:segments');
 
 module.exports = {
   update: function update(name /*: string */, segments /*: Set */) /*: void */{
-    log('Updating segment ' + name + ' with [' + [].concat(_toConsumableArray(segments)) + ']');
+    log('Updating segment ' + name + ' with [' + [].concat((0, _toConsumableArray3.default)(segments)) + ']');
 
     _segments.set(name, segments);
   },
   get: function get(name /*: string */) /*: Set */{
-    return _segments.get(name) || new Set();
+    return _segments.get(name) || new _set2.default();
   },
   toJSON: function toJSON() {
     return _segments;

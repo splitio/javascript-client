@@ -1,13 +1,21 @@
 /* @flow */'use strict';
 
-function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
+var _objectWithoutProperties2 = require('babel-runtime/helpers/objectWithoutProperties');
+
+var _objectWithoutProperties3 = _interopRequireDefault(_objectWithoutProperties2);
+
+var _map = require('babel-runtime/core-js/map');
+
+var _map2 = _interopRequireDefault(_map);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 require('isomorphic-fetch');
 
 var log = require('debug')('splitio-cache:http');
 var url = require('../url');
 var segmentMutatorFactory = require('../mutators/segmentChanges');
-var cache = new Map();
+var cache = new _map2.default();
 
 function cacheKeyGenerator(authorizationKey, segmentName) {
   return authorizationKey + '/segmentChanges/' + segmentName;
@@ -18,7 +26,7 @@ function segmentChangesDataSource(_ref) {
   var segmentName = _ref.segmentName;
 
   var cacheKey = cacheKeyGenerator(authorizationKey, segmentName);
-  var sinceValue = cache.get(cacheKey) || 0;
+  var sinceValue = cache.get(cacheKey) || -1;
 
   return fetch(url('/segmentChanges/' + segmentName + '?since=' + sinceValue), {
     method: 'GET',
@@ -32,8 +40,9 @@ function segmentChangesDataSource(_ref) {
   }).then(function (json) {
     var since = json.since;
     var till = json.till;
+    var data = (0, _objectWithoutProperties3.default)(json, ['since', 'till']);
 
-    var data = _objectWithoutProperties(json, ['since', 'till']);
+    log('[' + authorizationKey + '] /segmentChanges/' + segmentName + '?since=' + sinceValue, json);
 
     cache.set(cacheKey, till);
 

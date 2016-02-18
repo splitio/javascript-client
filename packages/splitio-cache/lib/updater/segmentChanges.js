@@ -1,6 +1,14 @@
 /* @flow */'use strict';
 
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+var _toConsumableArray2 = require('babel-runtime/helpers/toConsumableArray');
+
+var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);
+
+var _promise = require('babel-runtime/core-js/promise');
+
+var _promise2 = _interopRequireDefault(_promise);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var segmentChangesDataSource = require('../ds/segmentChanges');
 var storage = require('../storage');
@@ -16,7 +24,7 @@ function segmentChangesUpdater(_ref) /*: string */
   var segments = storage.splits.getSegments();
 
   // Per each segment, request the changes and mutate the storage accordingly.
-  return Promise.all([].concat(_toConsumableArray(segments)).map(function (segmentName) {
+  return _promise2.default.all([].concat((0, _toConsumableArray3.default)(segments)).map(function (segmentName) {
     return segmentChangesDataSource({ authorizationKey: authorizationKey, segmentName: segmentName });
   })).then(function (segmentsMutators) {
     segmentsMutators.forEach(function (mutator) {
