@@ -13,27 +13,21 @@ function splitio(settings /*: object */) /*: Promise */ {
 
   return core.start().then(storage => {
     return {
-      getTreatment(key /*: string */, featureName /*: string */, defaultTreatment /*: string */) /*: string */ {
+      getTreatment(key /*: string */, featureName /*: string */) /*: string */ {
         let split = storage.splits.get(featureName);
-        let treatment = null;
+        let treatment = 'control';
 
         let stop = tracker();
         if (split) {
-          treatment = split.getTreatment(key, defaultTreatment);
+          treatment = split.getTreatment(key);
 
           log(`feature ${featureName} key ${key} evaluated as ${treatment}`);
         } else {
-          treatment = defaultTreatment;
-
-          log(`feature ${featureName} doesn't exist, using default ${treatment}`);
+          log(`feature ${featureName} doesn't exist`);
         }
         stop();
 
         return treatment;
-      },
-
-      isTreatment(key /*: string */, featureName /*: string */, treatment /*: string */) /*: bool */ {
-        return this.getTreatment(key, featureName) === treatment;
       }
     };
   });
