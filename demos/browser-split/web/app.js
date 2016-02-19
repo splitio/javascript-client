@@ -3,7 +3,7 @@
 console.log('SPLIT DEMO!');
 console.log(
   'Early evaluation of feature \'sdk\' before startup the engine =>',
-  splitio.getTreatment('sdk', 'default-treatment')
+  splitio.getTreatment('sdk')
 );
 
 splitio.start({
@@ -16,8 +16,8 @@ splitio.start({
   }
 }).then(function() {
   console.log(
-    'Evaluation of feature \'sdk\' after startup the engine =>',
-    splitio.getTreatment('sdk', 'default-treatment')
+    "Evaluation of feature 'sdk' after startup the engine =>",
+    splitio.getTreatment('sdk')
   );
 }).catch(function(error) {
   console.log(error);

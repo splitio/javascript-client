@@ -18,14 +18,14 @@ class Split {
     return this.segments;
   }
 
-  getTreatment(key, defaultTreatment) {
+  getTreatment(key) {
     if (this.baseInfo.killed) {
-      return defaultTreatment;
+      return this.baseInfo.defaultTreatment;
     }
 
     let treatment = this.evaluator(key, this.baseInfo.seed);
 
-    return treatment !== undefined ? treatment : defaultTreatment;
+    return treatment !== undefined ? treatment : this.baseInfo.defaultTreatment;
   }
 
   isTreatment(key, treatment) {

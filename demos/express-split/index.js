@@ -8,7 +8,7 @@ var splitEngine = null;
 
 app.use(function (req, res, next) {
   if (splitEngine) {
-    if (splitEngine.getTreatment('4a2c4490-ced1-11e5-9b97-d8a25e8b1578', 'sdk', 'off') === 'on') {
+    if (splitEngine.getTreatment('4a2c4490-ced1-11e5-9b97-d8a25e8b1578', 'sdk') === 'on') {
       next();
     } else {
       res.sendStatus(403);
