@@ -37,14 +37,14 @@ var Split = function () {
     }
   }, {
     key: 'getTreatment',
-    value: function getTreatment(key, defaultTreatment) {
+    value: function getTreatment(key) {
       if (this.baseInfo.killed) {
-        return defaultTreatment;
+        return this.baseInfo.defaultTreatment;
       }
 
       var treatment = this.evaluator(key, this.baseInfo.seed);
 
-      return treatment !== undefined ? treatment : defaultTreatment;
+      return treatment !== undefined ? treatment : this.baseInfo.defaultTreatment;
     }
   }, {
     key: 'isTreatment',

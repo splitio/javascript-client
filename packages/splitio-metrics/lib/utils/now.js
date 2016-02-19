@@ -8,7 +8,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 module.exports = function () {
   if ((typeof performance === 'undefined' ? 'undefined' : (0, _typeof3.default)(performance)) === 'object' && typeof performance.now === 'function') {
-    return performance.now;
+    return performance.now.bind(performance);
   } else if ((typeof process === 'undefined' ? 'undefined' : (0, _typeof3.default)(process)) === 'object' && typeof hrtime === 'function') {
     return function now() {
       return process.hrtime[0] * 1e3 + process.hrtime[1] * 1e-3; // convert it to milis
