@@ -7,7 +7,15 @@ included in your HTML using a `<script>`.
 
 ## API
 
-### .isOn(featureName : string) : boolean
+### .getTreatment(key: string, featureName : string) : string
 
 Given a feature name, ask the engine if the current user is able or not to
 access the provided feature.
+
+## CDN
+
+Complete here after deploy begin a CDN!!!
+
+## Howto use it?
+
+Complete here after deploy begin a CDN!!!

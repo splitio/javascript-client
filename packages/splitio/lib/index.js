@@ -6,32 +6,41 @@ var core = require('./core');
 var tracker = require('@splitsoftware/splitio-metrics').sdk.tracker();
 var log = require('debug')('splitio');
 
-function splitio(settings /*: object */) /*: Promise */{
+function splitio(settings /*: object */) /*: object */{
+  var engine = undefined;
 
   // setup settings for all the modules
   coreSettings.configure(settings);
 
-  return core.start().then(function (storage) {
-    return {
-      getTreatment: function getTreatment(key /*: string */, featureName /*: string */) /*: string */{
-        var split = storage.splits.get(featureName);
-        var treatment = 'control';
+  // the engine startup is async (till we get localStorage as
+  // secondary cache)
+  core.start().then(function (initializedEngine) {
+    return engine = initializedEngine;
+  });
 
-        var stop = tracker();
-        if (split) {
-          treatment = split.getTreatment(key);
+  return {
+    getTreatment: function getTreatment(key /*: string */, featureName /*: string */) /*: string */{
+      var treatment = 'control';
 
-          log('feature ' + featureName + ' key ' + key + ' evaluated as ' + treatment);
-        } else {
-          log('feature ' + featureName + ' doesn\'t exist');
-        }
-        stop();
-
+      if (engine === undefined) {
         return treatment;
       }
-    };
-  });
+
+      var split = engine.splits.get(featureName);
+      var stop = tracker();
+      if (split) {
+        treatment = split.getTreatment(key);
+
+        log('feature ' + featureName + ' key ' + key + ' evaluated as ' + treatment);
+      } else {
+        log('feature ' + featureName + ' doesn\'t exist');
+      }
+      stop();
+
+      return treatment;
+    }
+  };
 }
 
-module.exports = splitio;
+global.splitio = module.exports = splitio;
 //# sourceMappingURL=index.js.map
