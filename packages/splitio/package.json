@@ -18,8 +18,8 @@
     "test": "istanbul test tape -- test/lib/**/*.spec.js"
   },
   "dependencies": {
-    "@splitsoftware/splitio-metrics": "0.21.0",
-    "@splitsoftware/splitio-cache": "0.21.0",
+    "@splitsoftware/splitio-metrics": "0.22.0",
+    "@splitsoftware/splitio-cache": "0.22.0",
     "debug": "^2.2.0"
   },
   "devDependencies": {
