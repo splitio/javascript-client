@@ -7,10 +7,7 @@ included in your HTML using a `<script>`.
 
 ## API
 
-### .getTreatment(key: string, featureName : string) : string
-
-Given a feature name, ask the engine if the current user is able or not to
-access the provided feature.
+### .getTreatment(featureName : string) : string
 
 ## CDN
 
