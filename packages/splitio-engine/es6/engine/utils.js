@@ -27,7 +27,7 @@ function ToInt32(x) {
   let uint32 = ToUint32(x);
 
   if (uint32 >= Math.pow(2, 31)) {
-    return uint32 - Math.pow(2, 32)
+    return uint32 - Math.pow(2, 32);
   } else {
     return uint32;
   }
