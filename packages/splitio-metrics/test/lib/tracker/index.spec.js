@@ -12,7 +12,7 @@ tape('TRACKER / calling start() and stop() should store and entry inside the col
   setTimeout(function () {
     var et = stop();
 
-    assert.true(collector.counters().indexOf(et) != -1, 'ET should be present in the collector sequence');
+    assert.true(collector.counters().indexOf(et) !== -1, 'ET should be present in the collector sequence');
     assert.end();
   }, 5);
 });

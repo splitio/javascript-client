@@ -8,14 +8,15 @@ var log = require('debug')('splitio');
 
 function splitio(settings /*: object */) /*: object */{
   var engine = undefined;
+  var engineReadyPromise = undefined;
 
   // setup settings for all the modules
   coreSettings.configure(settings);
 
   // the engine startup is async (till we get localStorage as
   // secondary cache)
-  core.start().then(function (initializedEngine) {
-    return engine = initializedEngine;
+  engineReadyPromise = core.start().then(function (initializedEngine) {
+    engine = initializedEngine;
   }).catch(function noop() {/* only for now */});
 
   return {
@@ -38,6 +39,9 @@ function splitio(settings /*: object */) /*: object */{
       stop();
 
       return treatment;
+    },
+    ready: function ready() /*: Promise */{
+      return engineReadyPromise;
     }
   };
 }

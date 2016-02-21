@@ -24,16 +24,8 @@ var sdk = splitio({
   }
 });
 
-var myKey = '4a2c4490-ced1-11e5-9b97-d8a25e8b1578';
-// var myKey = '31d0b4b0-cf9b-11e5-bd73-563bf9b5392b';
+console.info( sdk.getTreatment('early_evaluation') , '<= We are asking for a feature before the engine is ready');
 
-setTimeout(function waitForReadyState() {
-
-  console.info( sdk.getTreatment(myKey, 'js_sdk') );
-  // console.info( sdk.getTreatment(myKey, 'payment_system') );
-  // console.info( sdk.getTreatment(myKey, 'airline_company') );
-  // console.info( sdk.getTreatment(myKey, 'unknown_feature') );
-
-}, 3000);
-
-console.info( sdk.getTreatment(myKey, 'early_evaluation') );
+sdk.ready().then(function () {
+  console.info( sdk.getTreatment('js_sdk'), '<= This answer depends on how the engine is configured' );
+});
