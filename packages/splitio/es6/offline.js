@@ -80,6 +80,8 @@ function splitio(localhost) {
     }
   }
 
+  let alwaysReadyPromise = Promise.resolve(undefined);
+
   return {
     getTreatment(...params) {
       if (params.length > 2 || params.length === 0) {
@@ -95,6 +97,9 @@ function splitio(localhost) {
       return typeof treatment === 'undefined' ?
           'control' :
           treatment;
+    },
+    ready() {
+      return alwaysReadyPromise;
     }
   };
 }

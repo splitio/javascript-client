@@ -3,7 +3,7 @@
 var app = require('express')();
 var sdk;
 
-if (process.env.NODE_ENV === 'development') {
+if (process.env.NODE_ENV === 'offline') {
   sdk = require('@splitsoftware/splitio/lib/offline')({
     features: {
       sdk: 'on'
@@ -34,6 +34,8 @@ app.get('/', function (req, res) {
   res.send('Hello World!');
 });
 
-app.listen(8889, function () {
-  console.log('Check sample using curl -v http://localhost:8889');
+sdk.ready().then(function() {
+  app.listen(8889, function () {
+    console.log('Check sample using curl -v http://localhost:8889');
+  });
 });

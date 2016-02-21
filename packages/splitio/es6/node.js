@@ -8,22 +8,18 @@ let log = require('debug')('splitio');
 
 function splitio(settings /*: object */) /*: object */ {
   let engine;
-  let coreReady;
+  let engineReadyPromise;
 
   // setup settings for all the modules
   coreSettings.configure(settings);
 
   // the engine startup is async (till we get localStorage as
   // secondary cache)
-  coreReady = core.start()
-    .then(initializedEngine => engine = initializedEngine);
-
-  coreReady.catch(function noop() { /* only for now */});
+  engineReadyPromise = core.start().then(function (initializedEngine) {
+    engine = initializedEngine;
+  }).catch(function noop() { /* only for now */});
 
   return {
-    ready(onReady) {
-      coreReady.then(onReady);
-    },
     getTreatment(key /*: string */, featureName /*: string */) /*: string */ {
       let treatment = 'control';
 
@@ -43,6 +39,9 @@ function splitio(settings /*: object */) /*: object */ {
       stop();
 
       return treatment;
+    },
+    ready() /*: Promise */ {
+      return engineReadyPromise;
     }
   };
 }
