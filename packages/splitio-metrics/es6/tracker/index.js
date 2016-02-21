@@ -13,7 +13,7 @@ function TrackerFactory(collector) {
 
       return et;
     };
-  }
+  };
 }
 
 module.exports = TrackerFactory;

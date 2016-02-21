@@ -1,36 +1,3 @@
-/* @flow */ 'use strict';
-
-let coreSettings = require('./settings');
-let core = require('./core');
-
-let tracker = require('@splitsoftware/splitio-metrics').sdk.tracker();
-let log = require('debug')('splitio');
-
-function splitio(settings /*: object */) /*: Promise */ {
-
-  // setup settings for all the modules
-  coreSettings.configure(settings);
-
-  return core.start().then(storage => {
-    return {
-      getTreatment(key /*: string */, featureName /*: string */) /*: string */ {
-        let split = storage.splits.get(featureName);
-        let treatment = 'control';
-
-        let stop = tracker();
-        if (split) {
-          treatment = split.getTreatment(key);
-
-          log(`feature ${featureName} key ${key} evaluated as ${treatment}`);
-        } else {
-          log(`feature ${featureName} doesn't exist`);
-        }
-        stop();
-
-        return treatment;
-      }
-    };
-  });
-}
-
-module.exports = splitio;
+// browserify blacklist the file used for nodejs in the package json, so I 
+// needed to separate the implementation in this way to prevent problems.
+module.exports = require('./node');

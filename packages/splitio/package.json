@@ -10,6 +10,7 @@
     "url": "https://github.com/splitio/javascript-client/tree/master/packages/splitio"
   },
   "main": "lib/index.js",
+  "browser": "lib/browser.js",
   "scripts": {
     "build": "./scripts/build.sh",
     "watch": "babel es6 --out-dir lib --source-maps --watch",

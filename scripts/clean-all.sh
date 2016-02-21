@@ -26,7 +26,8 @@ cd - &> /dev/null
 
 cd packages/splitio-browser
 rm -rf node_modules/
-rm -rf bundle/*
-touch bundle/production.js
-touch bundle/development.js
+rm -rf lib/*
+touch lib/production.js
+touch lib/development.js
+touch lib/offline.js
 cd - &> /dev/null

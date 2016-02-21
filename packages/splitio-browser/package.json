@@ -9,13 +9,13 @@
     "type": "git",
     "url": "https://github.com/splitio/javascript-client/tree/master/packages/splitio-browser"
   },
-  "main": "lib/index.js",
+  "main": "lib/production.js",
   "scripts": {
     "build": "node ./scripts/bundler.js"
   },
   "devDependencies": {
     "@splitsoftware/splitio": "0.21.0",
-    "browserify": "^11.2.0",
+    "browserify": "^13.0.0",
     "browserify-derequire": "^0.9.4",
     "bundle-collapser": "^1.2.1",
     "envify": "^3.4.0",
@@ -23,8 +23,8 @@
     "uglify-js": "^2.6.1"
   },
   "engines": {
-    "node": ">=0.12",
-    "npm": "^3.7.2"
+    "node": "4.x || 5.x",
+    "npm": "3.x"
   },
   "keywords": [
     "rollout",
