@@ -29,5 +29,5 @@ rm -rf node_modules/
 rm -rf lib/*
 touch lib/production.js
 touch lib/development.js
-touch lib/localhost.js
+touch lib/offline.js
 cd - &> /dev/null

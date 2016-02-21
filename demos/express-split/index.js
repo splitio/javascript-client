@@ -4,7 +4,7 @@ var app = require('express')();
 var sdk;
 
 if (process.env.NODE_ENV === 'development') {
-  sdk = require('@splitsoftware/splitio/lib/localhost')({
+  sdk = require('@splitsoftware/splitio/lib/offline')({
     features: {
       sdk: 'on'
     }
@@ -35,5 +35,5 @@ app.get('/', function (req, res) {
 });
 
 app.listen(8889, function () {
-  console.log('Example app listening on port 5000!');
+  console.log('Check sample using curl -v http://localhost:8889');
 });

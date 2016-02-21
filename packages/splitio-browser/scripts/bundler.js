@@ -41,43 +41,43 @@ function minify(bundlePath, customUglifySetting) {
   }, customUglifySetting));
 }
 
-const localhost = browserify();
-const localhostBundlePath = require.resolve('../lib/localhost.js');
-localhost.add('./node_modules/@splitsoftware/splitio/lib/localhost.js');
-localhost.plugin('bundle-collapser/plugin')
-localhost.transform(envify({
-      _: 'purge',
-      NODE_ENV: 'development'
-    }), { global: true })
-    .bundle()
-      .pipe(fs.createWriteStream(localhostBundlePath))
-        .on('finish', function minifyAfterSave() {
-          strStream(minify(localhostBundlePath).code)
-            .pipe(fs.createWriteStream(localhostBundlePath));
-        });
+const offline = browserify();
+const offlineBundlePath = require.resolve('../lib/offline.js');
+offline.add('./node_modules/@splitsoftware/splitio/lib/offline.js');
+/* offline.plugin('bundle-collapser/plugin') */
+offline.transform(envify({
+    _: 'purge',
+    NODE_ENV: 'production'
+  }), { global: true })
+  .bundle()
+    .pipe(fs.createWriteStream(offlineBundlePath))
+      .on('finish', function minifyAfterSave() {
+        strStream(minify(offlineBundlePath).code)
+          .pipe(fs.createWriteStream(offlineBundlePath));
+      });
 
 const dev = browserify({ debug: true });
 const developmentBundlePath = require.resolve('../lib/development.js');
-dev.add('./node_modules/@splitsoftware/splitio/lib/index.js');
+dev.add('./node_modules/@splitsoftware/splitio/lib/browser.js');
 dev.transform(envify({
-      _: 'purge',
-      NODE_ENV: 'development'
-    }))
-    .bundle()
-      .pipe(fs.createWriteStream(developmentBundlePath));
+    _: 'purge',
+    NODE_ENV: 'development'
+  }), { global: true })
+  .bundle()
+    .pipe(fs.createWriteStream(developmentBundlePath));
 
 const prod = browserify();
 const productionBundlePath = require.resolve('../lib/production.js');
-prod.add('./node_modules/@splitsoftware/splitio/lib/index.js');
-prod.plugin('bundle-collapser/plugin')
-    .transform(envify({
-      _: 'purge',
-      NODE_ENV: 'production'
-    }), { global: true })
-    .bundle()
-      .pipe(fs.createWriteStream(productionBundlePath))
-        .on('finish', function minifyAfterSave() {
-          strStream(minify(productionBundlePath, {
-            drop_console: true
-          }).code).pipe(fs.createWriteStream(productionBundlePath));
-        });
+prod.add('./node_modules/@splitsoftware/splitio/lib/browser.js');
+/* prod.plugin('bundle-collapser/plugin') <= generates a bug with Object.assign */
+prod.transform(envify({
+    _: 'purge',
+    NODE_ENV: 'production'
+  }), { global: true })
+  .bundle()
+    .pipe(fs.createWriteStream(productionBundlePath))
+      .on('finish', function minifyAfterSave() {
+        strStream(minify(productionBundlePath, {
+          drop_console: true
+        }).code).pipe(fs.createWriteStream(productionBundlePath));
+      });

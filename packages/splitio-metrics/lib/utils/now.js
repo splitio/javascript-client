@@ -1,5 +1,8 @@
 'use strict';
 
+// @TODO separate now for nodejs from the browser because browserify adds
+// useless overhead to the final bundle
+
 var _typeof2 = require('babel-runtime/helpers/typeof');
 
 var _typeof3 = _interopRequireDefault(_typeof2);

@@ -12,9 +12,9 @@ console.log('SPLIT DEMO!');
 
 var sdk = splitio({
   features: {
-    'sdk': 'on',
-    'payment_system': 'visa',
-    'airline_company': 'delta'
+    'js_sdk': 'on',
+    'js_payment_system': 'visa',
+    'js_airline_company': 'delta'
   }
 });
 
@@ -22,15 +22,15 @@ var sdk = splitio({
 // Some simple cases for my defined features
 //
 console.assert(
-  sdk.getTreatment('optional key could be provided', 'sdk') === 'on',
+  sdk.getTreatment('optional key could be provided', 'js_sdk') === 'on',
   "Expected answer because we defined it as 'on'"
 );
 console.assert(
-  sdk.getTreatment('optional key could be provided', 'payment_system') === 'visa',
+  sdk.getTreatment('optional key could be provided', 'js_payment_system') === 'visa',
   "Expected answer because we defined it as 'visa'"
 );
 console.assert(
-  sdk.getTreatment('optional key could be provided', 'airline_company') === 'delta',
+  sdk.getTreatment('optional key could be provided', 'js_airline_company') === 'delta',
   "Expected answer because we defined it as 'delta'"
 );
 

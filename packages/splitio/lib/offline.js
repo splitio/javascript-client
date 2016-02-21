@@ -103,4 +103,4 @@ function splitio(localhost) {
 }
 
 global.splitio = module.exports = splitio;
-//# sourceMappingURL=localhost.js.map
+//# sourceMappingURL=offline.js.map

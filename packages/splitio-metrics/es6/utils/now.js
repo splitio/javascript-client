@@ -1,5 +1,8 @@
 'use strict';
 
+// @TODO separate now for nodejs from the browser because browserify adds
+// useless overhead to the final bundle
+
 module.exports = (function () {
   if (typeof performance === 'object' && typeof performance.now === 'function') {
     return performance.now.bind(performance);
