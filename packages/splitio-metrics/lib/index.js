@@ -1,14 +1,16 @@
 'use strict';
 
-var timeDS = require('./ds/time');
-var timeDTO = require('./dto/time');
-var trackerFactory = require('./tracker');
-var fibonacciCollector = require('./collector/fibonacci');
+var TimeDS = require('./ds/Time');
+var TimeDTO = require('./dto/Time');
+var TimerFactory = require('./tracker/Timer');
+var FibonacciCollector = require('./collector/Fibonacci');
+
+// @TODO fixes comming soon
 var splitSettings = require('@splitsoftware/splitio/lib/settings');
 
-function metricFactory(name, collectorFactory) {
-  var c = collectorFactory();
-  var t = trackerFactory(c);
+function metricFactory(name, CollectorFactory, TrackerFactory) {
+  var c = CollectorFactory();
+  var t = TrackerFactory(c);
 
   return {
     tracker: function tracker() {
@@ -27,7 +29,7 @@ function metricFactory(name, collectorFactory) {
   };
 }
 
-var sdk = metricFactory('sdk.getTreatment', fibonacciCollector);
+var sdk = metricFactory('sdk.getTreatment', FibonacciCollector, TimerFactory);
 
 function publish() {
   sdk.publish();

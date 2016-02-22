@@ -5,7 +5,7 @@ function SingleCollector() {
 }
 
 // counter based on the internal ranges
-SingleCollector.prototype.counters = function () /*: number */{
+SingleCollector.prototype.state = function () /*: number */{
   return this.counter;
 };
 
@@ -34,4 +34,4 @@ SingleCollector.prototype.isEmpty = function () {
 module.exports = function SingleCollectorFactory() {
   return new SingleCollector();
 };
-//# sourceMappingURL=single.js.map
+//# sourceMappingURL=Single.js.map

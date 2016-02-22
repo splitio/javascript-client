@@ -14,8 +14,9 @@ var _map2 = _interopRequireDefault(_map);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var _segments = new _map2.default();
 var log = require('debug')('splitio-cache:segments');
+
+var _segments = new _map2.default();
 
 module.exports = {
   update: function update(name /*: string */, segments /*: Set */) /*: void */{

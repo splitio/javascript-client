@@ -20,4 +20,4 @@ tape('TimeDTO', function (assert) {
   assert.true((0, _stringify2.default)(dto) === (0, _stringify2.default)({ name: name, latencies: latencies }), 'should abstract the object to be send to the Time API');
   assert.end();
 });
-//# sourceMappingURL=time.spec.js.map
+//# sourceMappingURL=Time.spec.js.map

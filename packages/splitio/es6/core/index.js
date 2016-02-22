@@ -1,7 +1,8 @@
 /* @flow */ 'use strict';
 
+let SchedulerFactory = require('@splitsoftware/splitio-utils/lib/scheduler');
+
 let splitSettings = require('../settings');
-let schedulerFactory = require('../scheduler');
 
 let {
   splitChangesUpdater,
@@ -24,9 +25,9 @@ let core = {
     let segmentsRefreshRate = splitSettings.get('segmentsRefreshRate');
     let metricsRefreshRate = splitSettings.get('metricsRefreshRate');
 
-    let splitRefreshScheduler = schedulerFactory();
-    let segmentsRefreshScheduler = schedulerFactory();
-    let metricsPushScheduler = schedulerFactory();
+    let splitRefreshScheduler = SchedulerFactory();
+    let segmentsRefreshScheduler = SchedulerFactory();
+    let metricsPushScheduler = SchedulerFactory();
 
     // send stats to split servers if needed.
     metricsPushScheduler.forever(metrics.publish, metricsRefreshRate);

@@ -4,7 +4,6 @@ let tape = require('tape');
 let mySegmentsMutatorFactory = require('../../../lib/mutators/mySegments');
 
 tape('Segment mutator', assert => {
-
   let segments = ['segment1', 'segment2'];
 
   let segmentsStorage;

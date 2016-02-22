@@ -11,6 +11,7 @@ var _set2 = _interopRequireDefault(_set);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var log = require('debug')('splitio-cache:segments');
+
 var _segments = new _set2.default();
 
 module.exports = {

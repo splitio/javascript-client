@@ -8,7 +8,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 require('isomorphic-fetch');
 
-var url = require('../url');
+var url = require('@splitsoftware/splitio-utils/lib/url');
 
 /*::
   type TimeRequest = {
@@ -16,7 +16,7 @@ var url = require('../url');
     dto: TimeDTO
   }
 */
-function timeDataSource(_ref /*: TimeRequest */) /*: Promise */{
+function TimeDataSource(_ref /*: TimeRequest */) /*: Promise */{
   var authorizationKey = _ref.authorizationKey;
   var dto = _ref.dto;
 
@@ -33,5 +33,5 @@ function timeDataSource(_ref /*: TimeRequest */) /*: Promise */{
   });
 }
 
-module.exports = timeDataSource;
-//# sourceMappingURL=time.js.map
+module.exports = TimeDataSource;
+//# sourceMappingURL=Time.js.map

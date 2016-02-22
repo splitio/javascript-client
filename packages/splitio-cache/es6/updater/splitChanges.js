@@ -1,8 +1,9 @@
 /* @flow */ 'use strict';
 
+let log = require('debug')('splitio-cache:updater');
+
 let splitChangesDataSource = require('../ds/splitChanges');
 let storage = require('../storage');
-let log = require('debug')('splitio-cache:updater');
 
 function splitChangesUpdater({
   authorizationKey /*: string */

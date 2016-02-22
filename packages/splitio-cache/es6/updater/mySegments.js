@@ -1,8 +1,9 @@
 /* @flow */ 'use strict';
 
+let log = require('debug')('splitio-cache:updater');
+
 let mySegmentsDataSource = require('../ds/mySegments');
 let storage = require('../storage');
-let log = require('debug')('splitio-cache:updater');
 
 function mySegmentsUpdater({
   authorizationKey /*: string */, key /*: string */

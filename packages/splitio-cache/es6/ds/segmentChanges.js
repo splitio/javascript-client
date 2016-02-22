@@ -2,8 +2,9 @@
 
 require('isomorphic-fetch');
 
+let url = require('@splitsoftware/splitio-utils/lib/url');
 let log = require('debug')('splitio-cache:http');
-let url = require('../url');
+
 let segmentMutatorFactory = require('../mutators/segmentChanges');
 let cache = new Map();
 

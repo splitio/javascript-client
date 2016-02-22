@@ -12,8 +12,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 require('isomorphic-fetch');
 
+var url = require('@splitsoftware/splitio-utils/lib/url');
 var log = require('debug')('splitio-cache:http');
-var url = require('../url');
+
 var segmentMutatorFactory = require('../mutators/segmentChanges');
 var cache = new _map2.default();
 

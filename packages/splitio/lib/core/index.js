@@ -6,8 +6,9 @@ var _promise2 = _interopRequireDefault(_promise);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+var SchedulerFactory = require('@splitsoftware/splitio-utils/lib/scheduler');
+
 var splitSettings = require('../settings');
-var schedulerFactory = require('../scheduler');
 
 var _require = require('@splitsoftware/splitio-cache');
 
@@ -31,9 +32,9 @@ var core = {
     var segmentsRefreshRate = splitSettings.get('segmentsRefreshRate');
     var metricsRefreshRate = splitSettings.get('metricsRefreshRate');
 
-    var splitRefreshScheduler = schedulerFactory();
-    var segmentsRefreshScheduler = schedulerFactory();
-    var metricsPushScheduler = schedulerFactory();
+    var splitRefreshScheduler = SchedulerFactory();
+    var segmentsRefreshScheduler = SchedulerFactory();
+    var metricsPushScheduler = SchedulerFactory();
 
     // send stats to split servers if needed.
     metricsPushScheduler.forever(metrics.publish, metricsRefreshRate);

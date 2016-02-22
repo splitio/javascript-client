@@ -2,7 +2,7 @@
 
 require('isomorphic-fetch');
 
-let url = require('../url');
+let url = require('@splitsoftware/splitio-utils/lib/url');
 
 /*::
   type TimeRequest = {
@@ -10,7 +10,7 @@ let url = require('../url');
     dto: TimeDTO
   }
 */
-function timeDataSource({authorizationKey, dto} /*: TimeRequest */) /*: Promise */ {
+function TimeDataSource({authorizationKey, dto} /*: TimeRequest */) /*: Promise */ {
   return fetch(url(`/metrics/time`), {
     method: 'POST',
     headers: {
@@ -24,4 +24,4 @@ function timeDataSource({authorizationKey, dto} /*: TimeRequest */) /*: Promise 
   });
 }
 
-module.exports = timeDataSource;
+module.exports = TimeDataSource;

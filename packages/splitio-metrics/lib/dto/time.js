@@ -8,4 +8,4 @@ function TimeDTOFactory(name /*: string */, latencies /*: Collector */) /*: obje
 }
 
 module.exports = TimeDTOFactory;
-//# sourceMappingURL=time.js.map
+//# sourceMappingURL=Time.js.map

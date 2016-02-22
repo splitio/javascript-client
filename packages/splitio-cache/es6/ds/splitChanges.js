@@ -2,8 +2,9 @@
 
 require('isomorphic-fetch');
 
+let url = require('@splitsoftware/splitio-utils/lib/url');
 let log = require('debug')('splitio-cache:http');
-let url = require('../url');
+
 let splitMutatorFactory = require('../mutators/splitChanges');
 let sinceValue = -1;
 

@@ -1,7 +1,8 @@
 /* @flow */ 'use strict';
 
-let _segments = new Map();
 let log = require('debug')('splitio-cache:segments');
+
+let _segments = new Map();
 
 module.exports = {
   update(name /*: string */, segments /*: Set */) /*: void */ {

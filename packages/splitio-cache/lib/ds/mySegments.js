@@ -2,9 +2,10 @@
 
 require('isomorphic-fetch');
 
-var mySegmentMutationsFactory = require('../mutators/mySegments');
-var url = require('../url');
+var url = require('@splitsoftware/splitio-utils/lib/url');
 var log = require('debug')('splitio-cache:http');
+
+var mySegmentMutationsFactory = require('../mutators/mySegments');
 
 /*::
   type MySergmentsRequest = {
