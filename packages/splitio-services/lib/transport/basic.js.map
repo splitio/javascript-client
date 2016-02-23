@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../es6/transport/basic.js"],"names":[],"mappings":"WAAY;;AAEZ,QAAQ,kBAAR;;AAEA,OAAO,OAAP,GAAiB,KAAjB","file":"basic.js","sourcesContent":["/* @flow */ 'use strict';\n\nrequire('isomorphic-fetch');\n\nmodule.exports = fetch;\n"]}

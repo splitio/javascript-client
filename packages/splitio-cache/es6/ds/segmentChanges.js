@@ -1,42 +1,30 @@
 /* @flow */ 'use strict';
 
-require('isomorphic-fetch');
+const segmentChangesService = require('@splitsoftware/splitio-services/lib/segmentChanges');
+const segmentChangesRequest = require('@splitsoftware/splitio-services/lib/segmentChanges/get');
 
-let log = require('debug')('splitio-cache:http');
-let url = require('../url');
-let segmentMutatorFactory = require('../mutators/segmentChanges');
-let cache = new Map();
+const segmentMutatorFactory = require('../mutators/segmentChanges');
+const cache = new Map();
 
 function cacheKeyGenerator(authorizationKey, segmentName) {
   return `${authorizationKey}/segmentChanges/${segmentName}`;
 }
 
 function segmentChangesDataSource({authorizationKey, segmentName}) {
-  let cacheKey = cacheKeyGenerator(authorizationKey, segmentName);
-  let sinceValue = cache.get(cacheKey) || -1;
+  const cacheKey = cacheKeyGenerator(authorizationKey, segmentName);
+  const since = cache.get(cacheKey) || -1;
 
-  return fetch(url(`/segmentChanges/${segmentName}?since=${sinceValue}`), {
-    method: 'GET',
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${authorizationKey}`
-    }
-  })
+  return segmentChangesService(segmentChangesRequest({
+    since,
+    segmentName
+  }))
   .then(resp => resp.json())
   .then(json => {
     let {since, till, ...data} = json;
 
-    log(`[${authorizationKey}] /segmentChanges/${segmentName}?since=${sinceValue}`, json);
-
     cache.set(cacheKey, till);
 
     return segmentMutatorFactory( data );
-  })
-  .catch(error => {
-    log(`[${authorizationKey}] failure fetching segment [${segmentName}] using since [${sinceValue}] => [${error}]`);
-
-    return error;
   });
 }
 

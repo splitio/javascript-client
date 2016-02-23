@@ -6,9 +6,15 @@
 
 # @see `expose-all.sh` `install-all.sh`
 
+cd packages/splitio-services
+rm -rf node_modules/@splitsoftware
+npm link @splitsoftware/splitio-utils
+cd -
+
 cd packages/splitio-metrics
 rm -rf node_modules/@splitsoftware
-npm link @splitsoftware/splitio
+npm link @splitsoftware/splitio-utils
+npm link @splitsoftware/splitio-services
 cd -
 
 cd packages/splitio-engine

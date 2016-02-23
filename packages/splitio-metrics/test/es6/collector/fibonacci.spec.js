@@ -9,18 +9,18 @@ tape('FIBONACCI COLLECTOR / should count based on ranges', assert => {
   c1.track(1);
   c1.track(1.2);
   c1.track(1.4);
-  assert.true(c1.counters()[0] === 3, 'the bucket #0 should have 3');
+  assert.true(c1.state()[0] === 3, 'the bucket #0 should have 3');
 
   c1.track(1.5);
-  assert.true(c1.counters()[1] === 1, 'the bucket #1 should have 1');
+  assert.true(c1.state()[1] === 1, 'the bucket #1 should have 1');
 
   c1.track(2.25);
   c1.track(2.26);
   c1.track(2.265);
-  assert.true(c1.counters()[2] === 3, 'the bucket #3 should have 1');
+  assert.true(c1.state()[2] === 3, 'the bucket #3 should have 1');
 
   c1.track(985251);
-  assert.true(c1.counters()[22] === 1, 'the bucket #22 should have 1');
+  assert.true(c1.state()[22] === 1, 'the bucket #22 should have 1');
 
   assert.end();
 });
@@ -38,7 +38,7 @@ tape('FIBONACCI COLLECTOR / should count based on ranges', assert => {
   c1.track(7481830);
 
   assert.true(
-    c1.clear().counters().reduce((sum, c) => sum += c, 0) === 0,
+    c1.clear().state().reduce((sum, c) => sum += c, 0) === 0,
     'after call clear, counters should be 0'
   );
 
@@ -48,7 +48,7 @@ tape('FIBONACCI COLLECTOR / should count based on ranges', assert => {
 tape('FIBONACCI COLLECTOR / should support custom toJSON method', assert => {
   let c = collectorFactory();
   let hooked = JSON.stringify(c);
-  let manual = JSON.stringify(c.counters());
+  let manual = JSON.stringify(c.state());
 
   assert.true(hooked === manual, 'toJSON should expose the counters as an array of numbers');
   assert.end();

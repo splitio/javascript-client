@@ -1,8 +1,9 @@
 /* @flow */'use strict';
 
+var log = require('debug')('splitio-cache:updater');
+
 var splitChangesDataSource = require('../ds/splitChanges');
 var storage = require('../storage');
-var log = require('debug')('splitio-cache:updater');
 
 function splitChangesUpdater(_ref) /*: string */
 /*: Promise */{

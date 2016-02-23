@@ -1,17 +1,21 @@
 /* @flow */ 'use strict';
 
-let coreSettings = require('./settings');
-let core = require('./core');
+const log = require('debug')('splitio');
 
-let tracker = require('@splitsoftware/splitio-metrics').sdk.tracker();
-let log = require('debug')('splitio');
+const coreSettings = require('@splitsoftware/splitio-utils/lib/settings');
+
+const metricsEngine = require('@splitsoftware/splitio-metrics');
+const impressionsTracker = metricsEngine.impressions;
+const getTreatmentTracker = metricsEngine.getTreatment;
+
+const core = require('./core');
 
 function splitio(settings /*: object */) /*: object */ {
   let engine;
   let engineReadyPromise;
 
   // setup settings for all the modules
-  coreSettings.configure(settings);
+  settings = coreSettings.configure(settings);
 
   // the engine startup is async (till we get localStorage as
   // secondary cache)
@@ -19,16 +23,27 @@ function splitio(settings /*: object */) /*: object */ {
     engine = initializedEngine;
   }).catch(function noop() { /* only for now */});
 
+  // startup monitoring tools
+  metricsEngine.start(settings);
+
   return {
     getTreatment(key /*: string */, featureName /*: string */) /*: string */ {
       let treatment = 'control';
 
       if (engine === undefined) {
+        impressionsTracker({
+          feature: featureName,
+          key,
+          treatment,
+          when: Date.now()
+        });
+
         return treatment;
       }
 
+      let stopGetTreatmentTracker = getTreatmentTracker(); // start engine perf monitoring
+
       let split = engine.splits.get(featureName);
-      let stop = tracker();
       if (split) {
         treatment = split.getTreatment(key);
 
@@ -36,10 +51,19 @@ function splitio(settings /*: object */) /*: object */ {
       } else {
         log(`feature ${featureName} doesn't exist`);
       }
-      stop();
+
+      stopGetTreatmentTracker(); // finish engine perf monitoring
+
+      impressionsTracker({
+        feature: featureName,
+        key,
+        treatment,
+        when: Date.now()
+      });
 
       return treatment;
     },
+
     ready() /*: Promise */ {
       return engineReadyPromise;
     }

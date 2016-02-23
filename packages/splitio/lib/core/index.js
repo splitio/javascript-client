@@ -6,8 +6,8 @@ var _promise2 = _interopRequireDefault(_promise);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var splitSettings = require('../settings');
-var schedulerFactory = require('../scheduler');
+var SchedulerFactory = require('@splitsoftware/splitio-utils/lib/scheduler');
+var settings = require('@splitsoftware/splitio-utils/lib/settings');
 
 var _require = require('@splitsoftware/splitio-cache');
 
@@ -26,17 +26,12 @@ var core = {
       return _promise2.default.reject('Engine already started');
     }
 
-    var coreSettings = splitSettings.get('core');
-    var featuresRefreshRate = splitSettings.get('featuresRefreshRate');
-    var segmentsRefreshRate = splitSettings.get('segmentsRefreshRate');
-    var metricsRefreshRate = splitSettings.get('metricsRefreshRate');
+    var coreSettings = settings.get('core');
+    var featuresRefreshRate = settings.get('featuresRefreshRate');
+    var segmentsRefreshRate = settings.get('segmentsRefreshRate');
 
-    var splitRefreshScheduler = schedulerFactory();
-    var segmentsRefreshScheduler = schedulerFactory();
-    var metricsPushScheduler = schedulerFactory();
-
-    // send stats to split servers if needed.
-    metricsPushScheduler.forever(metrics.publish, metricsRefreshRate);
+    var splitRefreshScheduler = SchedulerFactory();
+    var segmentsRefreshScheduler = SchedulerFactory();
 
     // the first time the download is sequential:
     // 1- download feature settings

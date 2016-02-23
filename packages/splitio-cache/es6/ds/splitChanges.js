@@ -1,35 +1,23 @@
 /* @flow */ 'use strict';
 
-require('isomorphic-fetch');
+const splitChangesService = require('@splitsoftware/splitio-services/lib/splitChanges');
+const splitChangesRequest = require('@splitsoftware/splitio-services/lib/splitChanges/get');
 
-let log = require('debug')('splitio-cache:http');
-let url = require('../url');
-let splitMutatorFactory = require('../mutators/splitChanges');
-let sinceValue = -1;
+const splitMutatorFactory = require('../mutators/splitChanges');
 
-function splitChangesDataSource({authorizationKey}) {
-  return fetch(url(`/splitChanges?since=${sinceValue}`), {
-    method: 'GET',
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${authorizationKey}`
-    }
-  })
+let since = -1;
+
+function splitChangesDataSource() {
+  return splitChangesService(splitChangesRequest({
+    since
+  }))
   .then(resp => resp.json())
   .then(json => {
     let {till, splits} = json;
 
-    log(`[${authorizationKey}] /splitChanges response using since=${sinceValue}`, json);
-
-    sinceValue = till;
+    since = till;
 
     return splitMutatorFactory( splits );
-  })
-  .catch(error => {
-    log(`[${authorizationKey}] failure fetching splits using since [${sinceValue}] => [${error}]`);
-
-    return error;
   });
 }
 

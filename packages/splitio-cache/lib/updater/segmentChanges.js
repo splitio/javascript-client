@@ -10,9 +10,10 @@ var _promise2 = _interopRequireDefault(_promise);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+var log = require('debug')('splitio-cache:updater');
+
 var segmentChangesDataSource = require('../ds/segmentChanges');
 var storage = require('../storage');
-var log = require('debug')('splitio-cache:updater');
 
 function segmentChangesUpdater(_ref) /*: string */
 /*: Promise */{

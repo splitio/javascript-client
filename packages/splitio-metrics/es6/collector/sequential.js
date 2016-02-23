@@ -1,34 +1,34 @@
 /* @flow */ 'use strict';
 
 function SequentialCollector() {
-  this.counter = [];
+  this.queue = [];
 }
 
-// Get latency sequence
-SequentialCollector.prototype.counters = function () /*: Array<number> */ {
-  return this.counter;
+// Get collected data
+SequentialCollector.prototype.state = function () /*: array<any> */ {
+  return this.queue;
 };
 
-// Store latency in sequential order
-SequentialCollector.prototype.track = function (latency /*: number */) /*: number */ {
-  return this.counter.push(latency);
+// Store object in sequential order
+SequentialCollector.prototype.track = function (data /*: any */) /*: any */ {
+  return this.queue.push(data);
 };
 
-// Recycle the collector (reset using 0 for all the counters)
+// Recycle the collector queue
 SequentialCollector.prototype.clear = function () /*: SequentialCollector */ {
-  this.counter.length = 0;
+  this.queue.length = 0;
 
   return this;
 };
 
 // Hook JSON.stringify to expose the state of the counters
 SequentialCollector.prototype.toJSON = function () {
-  return this.counter;
+  return this.queue;
 };
 
 // Check if the is data changed from the defaults
 SequentialCollector.prototype.isEmpty = function () {
-  return this.counter.length === 0;
+  return this.queue.length === 0;
 };
 
 module.exports = function SequentialCollectorFactory() {

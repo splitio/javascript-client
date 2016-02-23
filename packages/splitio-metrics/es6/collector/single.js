@@ -5,7 +5,7 @@ function SingleCollector() {
 }
 
 // counter based on the internal ranges
-SingleCollector.prototype.counters = function () /*: number */ {
+SingleCollector.prototype.state = function () /*: number */ {
   return this.counter;
 };
 

@@ -1,38 +1,64 @@
 'use strict';
 
-let timeDS = require('./ds/time');
-let timeDTO = require('./dto/time');
-let trackerFactory = require('./tracker');
-let fibonacciCollector = require('./collector/fibonacci');
-let splitSettings = require('@splitsoftware/splitio/lib/settings');
+const SchedulerFactory = require('@splitsoftware/splitio-utils/lib/scheduler');
 
-function metricFactory(name, collectorFactory) {
-  let c = collectorFactory();
-  let t = trackerFactory(c);
+const metricsService = require('@splitsoftware/splitio-services/lib/metrics');
+const metricsServiceRequest = require('@splitsoftware/splitio-services/lib/metrics/post');
+const metricsDTO = require('@splitsoftware/splitio-services/lib/metrics/dto');
 
-  return {
-    tracker() {
-      return t;
-    },
+const impressionsService = require('@splitsoftware/splitio-services/lib/impressions');
+const impressionsBulkRequest = require('@splitsoftware/splitio-services/lib/impressions/bulk');
+const impressionsDTO = require('@splitsoftware/splitio-services/lib/impressions/dto');
 
-    publish() {
-      return !c.isEmpty() && timeDS({
-        authorizationKey: splitSettings.get('authorizationKey'),
-        dto: timeDTO('sdk.getTreatment', c)
-      })
-      .then(function(resp) { c.clear(); return resp; })
-      .catch(function(error) { c.clear(); });
-    }
-  };
+const PassThroughFactory = require('./tracker/PassThrough');
+const TimerFactory = require('./tracker/Timer');
+
+const SequentialCollector = require('./collector/Sequential');
+const FibonacciCollector = require('./collector/Fibonacci');
+
+const impressionsCollector = SequentialCollector();
+const getTreatmentCollector = FibonacciCollector();
+
+const performanceScheduler = SchedulerFactory();
+const impressionsScheduler = SchedulerFactory();
+
+function publishToTime() {
+  if (!getTreatmentCollector.isEmpty()) {
+    metricsService(metricsServiceRequest({
+      body: JSON.stringify(metricsDTO.fromGetTreatmentCollector(getTreatmentCollector))
+    })).then(resp => {
+      getTreatmentCollector.clear(); // once saved, cleanup the collector
+      return resp;
+    }).catch(error => {
+      getTreatmentCollector.clear(); // after try to save, cleanup the collector
+    });
+  }
 }
 
-let sdk = metricFactory('sdk.getTreatment', fibonacciCollector);
-
-function publish() {
-  sdk.publish();
+function publishToImpressions() {
+  if (!impressionsCollector.isEmpty()) {
+    impressionsService(impressionsBulkRequest({
+      body: JSON.stringify(impressionsDTO.fromImpressionsCollector(impressionsCollector))
+    })).then(resp => {
+      impressionsCollector.clear();
+      return resp;
+    }).catch(error => {
+      impressionsCollector.clear();
+    });
+  }
 }
 
 module.exports = {
-  sdk,
-  publish
+  start(settings) {
+    performanceScheduler.forever(publishToTime, settings.get('metricsRefreshRate'));
+    impressionsScheduler.forever(publishToImpressions, settings.get('impressionsRefreshRate'));
+  },
+
+  stop() {
+    performanceScheduler.kill();
+    impressionsScheduler.kill();
+  },
+
+  impressions: PassThroughFactory(impressionsCollector),
+  getTreatment: TimerFactory(getTreatmentCollector)
 };
