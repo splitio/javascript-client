@@ -8,8 +8,6 @@ var splitMutatorFactory = require('../mutators/splitChanges');
 var since = -1;
 
 function splitChangesDataSource() {
-  console.log('splitChangesDataSource', since);
-
   return splitChangesService(splitChangesRequest({
     since: since
   })).then(function (resp) {
