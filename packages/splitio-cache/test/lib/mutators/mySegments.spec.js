@@ -10,7 +10,6 @@ var tape = require('tape');
 var mySegmentsMutatorFactory = require('../../../lib/mutators/mySegments');
 
 tape('Segment mutator', function (assert) {
-
   var segments = ['segment1', 'segment2'];
 
   var segmentsStorage = undefined;

@@ -1,8 +1,7 @@
 /* @flow */ 'use strict';
 
 let SchedulerFactory = require('@splitsoftware/splitio-utils/lib/scheduler');
-
-let splitSettings = require('../settings');
+let settings = require('@splitsoftware/splitio-utils/lib/settings');
 
 let {
   splitChangesUpdater,
@@ -20,17 +19,12 @@ let core = {
       return Promise.reject('Engine already started');
     }
 
-    let coreSettings = splitSettings.get('core');
-    let featuresRefreshRate = splitSettings.get('featuresRefreshRate');
-    let segmentsRefreshRate = splitSettings.get('segmentsRefreshRate');
-    let metricsRefreshRate = splitSettings.get('metricsRefreshRate');
+    let coreSettings = settings.get('core');
+    let featuresRefreshRate = settings.get('featuresRefreshRate');
+    let segmentsRefreshRate = settings.get('segmentsRefreshRate');
 
     let splitRefreshScheduler = SchedulerFactory();
     let segmentsRefreshScheduler = SchedulerFactory();
-    let metricsPushScheduler = SchedulerFactory();
-
-    // send stats to split servers if needed.
-    metricsPushScheduler.forever(metrics.publish, metricsRefreshRate);
 
     // the first time the download is sequential:
     // 1- download feature settings

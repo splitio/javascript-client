@@ -1,10 +1,14 @@
 /* @flow */ 'use strict';
 
-let coreSettings = require('./settings');
-let core = require('./core');
+const log = require('debug')('splitio');
 
-let tracker = require('@splitsoftware/splitio-metrics').sdk.tracker();
-let log = require('debug')('splitio');
+const coreSettings = require('@splitsoftware/splitio-utils/lib/settings');
+
+const metrics = require('@splitsoftware/splitio-metrics');
+const impressionsTracker = metrics.impressions;
+const getTreatmentTracker = metrics.getTreatment;
+
+const core = require('./core');
 
 function splitio(settings /*: object */) /*: object */ {
   let engine;
@@ -24,11 +28,19 @@ function splitio(settings /*: object */) /*: object */ {
       let treatment = 'control';
 
       if (engine === undefined) {
+        impressionsTracker.track({
+          feature: featureName,
+          key,
+          treatment,
+          when: Date.now()
+        });
+
         return treatment;
       }
 
+      let stop = getTreatmentTracker.track(); // start engine perf monitoring
+
       let split = engine.splits.get(featureName);
-      let stop = tracker();
       if (split) {
         treatment = split.getTreatment(key);
 
@@ -36,10 +48,19 @@ function splitio(settings /*: object */) /*: object */ {
       } else {
         log(`feature ${featureName} doesn't exist`);
       }
-      stop();
+
+      stop(); // finish engine perf monitoring
+
+      impressionsTracker.track({
+        feature: featureName,
+        key,
+        treatment,
+        when: Date.now()
+      });
 
       return treatment;
     },
+
     ready() /*: Promise */ {
       return engineReadyPromise;
     }

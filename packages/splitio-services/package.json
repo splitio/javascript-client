@@ -1,27 +1,23 @@
 {
-  "name": "@splitsoftware/splitio-metrics",
+  "name": "@splitsoftware/splitio-services",
   "version": "0.22.0",
-  "description": "Split Metrics",
+  "description": "Split services layer for Node and the Browser",
   "author": "Facundo Cabrera <facundo@split.io>",
   "homepage": "https://github.com/splitio/javascript-client",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/splitio/javascript-client/tree/master/packages/splitio-metrics"
+    "url": "https://github.com/splitio/javascript-client/tree/master/packages/splitio-services"
   },
-  "main": "lib/index.js",
   "scripts": {
     "tc": "flow check",
     "build": "./scripts/build.sh",
-    "watch": "babel es6 --out-dir lib --source-maps --watch",
-    "watch-test": "babel test/es6 --out-dir test/lib --source-maps --watch",
-    "test": "tape test/lib/**/*.spec.js | faucet",
-    "coverage": "istanbul test tape -- test/lib/**/*.spec.js"
+    "watch": "babel es6 --out-dir lib --source-maps --watch"
   },
   "dependencies": {
-    "@splitsoftware/splitio": "0.22.0",
     "@splitsoftware/splitio-utils": "0.22.0",
-    "@splitsoftware/splitio-services": "0.22.0"
+    "isomorphic-fetch": "^2.2.1",
+    "lodash.groupby": "^4.2.0"
   },
   "devDependencies": {
     "babel-cli": "^6.3.17",
@@ -30,13 +26,7 @@
     "babel-plugin-transform-runtime": "^6.5.2",
     "babel-preset-es2015": "^6.3.13",
     "eslint": "^1.10.3",
-    "faucet": "0.0.1",
-    "flow-bin": "^0.21.0",
-    "istanbul": "^0.4.2",
-    "tape": "^4.4.0"
-  },
-  "directories": {
-    "test": "test"
+    "flow-bin": "^0.21.0"
   },
   "keywords": [
     "splitio",

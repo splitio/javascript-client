@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../es6/metrics/index.js"],"names":[],"mappings":"AAAA;;AAEA,OAAO,OAAP,GAAiB,QAAQ,WAAR,EAAqB,QAAQ,oBAAR,CAArB,CAAjB","file":"index.js","sourcesContent":["'use strict';\n\nmodule.exports = require('./service')(require('../transport/basic'));\n"]}
