@@ -58,4 +58,4 @@ tape('FIBONACCI COLLECTOR / should support custom toJSON method', function (asse
   assert.true(hooked === manual, 'toJSON should expose the counters as an array of numbers');
   assert.end();
 });
-//# sourceMappingURL=Fibonacci.spec.js.map
+//# sourceMappingURL=fibonacci.spec.js.map

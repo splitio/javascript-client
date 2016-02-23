@@ -34,4 +34,4 @@ SequentialCollector.prototype.isEmpty = function () {
 module.exports = function SequentialCollectorFactory() {
   return new SequentialCollector();
 };
-//# sourceMappingURL=Sequential.js.map
+//# sourceMappingURL=sequential.js.map

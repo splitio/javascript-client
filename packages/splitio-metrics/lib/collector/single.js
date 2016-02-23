@@ -34,4 +34,4 @@ SingleCollector.prototype.isEmpty = function () {
 module.exports = function SingleCollectorFactory() {
   return new SingleCollector();
 };
-//# sourceMappingURL=Single.js.map
+//# sourceMappingURL=single.js.map

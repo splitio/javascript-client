@@ -35,4 +35,4 @@ tape('SINGLE COLLECTOR / should support custom toJSON method', function (assert)
   assert.true(hooked === manual, 'toJSON should expose the counters as an array of numbers');
   assert.end();
 });
-//# sourceMappingURL=Single.spec.js.map
+//# sourceMappingURL=single.spec.js.map

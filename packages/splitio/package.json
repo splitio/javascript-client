@@ -19,9 +19,10 @@
     "coverage": "istanbul test tape -- test/lib/**/*.spec.js"
   },
   "dependencies": {
-    "@splitsoftware/splitio-metrics": "0.22.0",
     "@splitsoftware/splitio-cache": "0.22.0",
+    "@splitsoftware/splitio-metrics": "0.22.0",
     "@splitsoftware/splitio-utils": "0.22.0",
+    "babel-runtime": "^6.5.0",
     "debug": "^2.2.0"
   },
   "devDependencies": {
@@ -30,11 +31,8 @@
     "babel-plugin-transform-object-rest-spread": "^6.3.13",
     "babel-plugin-transform-runtime": "^6.5.2",
     "babel-preset-es2015": "^6.3.13",
-    "browserify": "^13.0.0",
-    "eslint": "^1.10.3",
     "faucet": "0.0.1",
     "istanbul": "^0.4.2",
-    "jscs": "^2.7.0",
     "tape": "^4.4.0"
   },
   "engines": {

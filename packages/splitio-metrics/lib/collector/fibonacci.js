@@ -39,4 +39,4 @@ FibonacciCollector.prototype.isEmpty = function () {
 module.exports = function FibonacciCollectorFactory() {
   return new FibonacciCollector();
 };
-//# sourceMappingURL=Fibonacci.js.map
+//# sourceMappingURL=fibonacci.js.map
