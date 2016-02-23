@@ -64,6 +64,8 @@ let settings = null;
 module.exports = {
   configure(params) {
     settings = defaults(params);
+
+    return this;
   },
 
   get(settingName) {

@@ -6,7 +6,6 @@ var _stringify2 = _interopRequireDefault(_stringify);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var settings = require('@splitsoftware/splitio-utils/lib/settings');
 var SchedulerFactory = require('@splitsoftware/splitio-utils/lib/scheduler');
 
 var metricsService = require('@splitsoftware/splitio-services/lib/metrics');
@@ -14,7 +13,7 @@ var metricsServiceRequest = require('@splitsoftware/splitio-services/lib/metrics
 var metricsDTO = require('@splitsoftware/splitio-services/lib/metrics/dto');
 
 var impressionsService = require('@splitsoftware/splitio-services/lib/impressions');
-var impressionsServiceRequest = require('@splitsoftware/splitio-services/lib/impressions/post');
+var impressionsBulkRequest = require('@splitsoftware/splitio-services/lib/impressions/bulk');
 var impressionsDTO = require('@splitsoftware/splitio-services/lib/impressions/dto');
 
 var PassThroughFactory = require('./tracker/PassThrough');
@@ -44,21 +43,28 @@ function publishToTime() {
 
 function publishToImpressions() {
   if (!impressionsCollector.isEmpty()) {
-    impressionsService(impressionsServiceRequest({
+    impressionsService(impressionsBulkRequest({
       body: (0, _stringify2.default)(impressionsDTO.fromImpressionsCollector(impressionsCollector))
     })).then(function (resp) {
-      impressions.clear();
+      impressionsCollector.clear();
       return resp;
     }).catch(function (error) {
-      impressions.clear();
+      impressionsCollector.clear();
     });
   }
 }
 
-performanceScheduler.forever(publishToTime, settings.get('metricsRefreshRate'));
-impressionsScheduler.forever(publishToImpressions, settings.get('impressionsRefreshRate'));
+module.exports = {
+  start: function start(settings) {
+    performanceScheduler.forever(publishToTime, settings.get('metricsRefreshRate'));
+    impressionsScheduler.forever(publishToImpressions, settings.get('impressionsRefreshRate'));
+  },
+  stop: function stop() {
+    performanceScheduler.kill();
+    impressionsScheduler.kill();
+  },
 
-modules.exports = {
+
   impressions: PassThroughFactory(impressionsCollector),
   getTreatment: TimerFactory(getTreatmentCollector)
 };

@@ -71,6 +71,8 @@ var settings = null;
 module.exports = {
   configure: function configure(params) {
     settings = defaults(params);
+
+    return this;
   },
   get: function get(settingName) {
     if (!settings) {

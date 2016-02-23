@@ -1,39 +1,27 @@
 /* @flow */'use strict';
 
-require('isomorphic-fetch');
-
-var url = require('@splitsoftware/splitio-utils/lib/url');
-var log = require('debug')('splitio-cache:http');
+var splitChangesService = require('@splitsoftware/splitio-services/lib/splitChanges');
+var splitChangesRequest = require('@splitsoftware/splitio-services/lib/splitChanges/get');
 
 var splitMutatorFactory = require('../mutators/splitChanges');
-var sinceValue = -1;
 
-function splitChangesDataSource(_ref) {
-  var authorizationKey = _ref.authorizationKey;
+var since = -1;
 
-  return fetch(url('/splitChanges?since=' + sinceValue), {
-    method: 'GET',
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + authorizationKey
-    }
-  }).then(function (resp) {
+function splitChangesDataSource() {
+  console.log('splitChangesDataSource', since);
+
+  return splitChangesService(splitChangesRequest({
+    since: since
+  })).then(function (resp) {
     return resp.json();
   }).then(function (json) {
     var till = json.till;
     var splits = json.splits;
 
 
-    log('[' + authorizationKey + '] /splitChanges response using since=' + sinceValue, json);
-
-    sinceValue = till;
+    since = till;
 
     return splitMutatorFactory(splits);
-  }).catch(function (error) {
-    log('[' + authorizationKey + '] failure fetching splits using since [' + sinceValue + '] => [' + error + ']');
-
-    return error;
   });
 }
 

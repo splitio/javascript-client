@@ -21,11 +21,14 @@ var sdk = splitio({
     // featuresRefreshRate: 30000, // miliseconds
     // segmentsRefreshRate: 40000, // miliseconds
     // metricsRefreshRate: 300000  // miliseconds (randomly choosen based on this initial rate).
+    impressionsRefreshRate: 3000
   }
 });
 
-console.info( sdk.getTreatment('early_evaluation') , '<= We are asking for a feature before the engine is ready');
+// console.info( sdk.getTreatment('early_evaluation') , '<= We are asking for a feature before the engine is ready');
 
 sdk.ready().then(function () {
   console.info( sdk.getTreatment('js_sdk'), '<= This answer depends on how the engine is configured' );
+  console.info( sdk.getTreatment('js_sdk'), '<= This answer depends on how the engine is configured' )
+  console.info( sdk.getTreatment('js_sdk'), '<= This answer depends on how the engine is configured' )
 });

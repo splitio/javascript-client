@@ -4,9 +4,9 @@ var log = require('debug')('splitio');
 
 var coreSettings = require('@splitsoftware/splitio-utils/lib/settings');
 
-var metrics = require('@splitsoftware/splitio-metrics');
-var impressionsTracker = metrics.impressions;
-var getTreatmentTracker = metrics.getTreatment;
+var metricsEngine = require('@splitsoftware/splitio-metrics');
+var impressionsTracker = metricsEngine.impressions;
+var getTreatmentTracker = metricsEngine.getTreatment;
 
 var core = require('./core');
 
@@ -15,7 +15,7 @@ function splitio(settings /*: object */) /*: object */{
   var engineReadyPromise = undefined;
 
   // setup settings for all the modules
-  coreSettings.configure(settings);
+  settings = coreSettings.configure(settings);
 
   // the engine startup is async (till we get localStorage as
   // secondary cache)
@@ -23,12 +23,15 @@ function splitio(settings /*: object */) /*: object */{
     engine = initializedEngine;
   }).catch(function noop() {/* only for now */});
 
+  // startup monitoring tools
+  metricsEngine.start(settings);
+
   return {
     getTreatment: function getTreatment(key /*: string */, featureName /*: string */) /*: string */{
       var treatment = 'control';
 
       if (engine === undefined) {
-        impressionsTracker.track({
+        impressionsTracker({
           feature: featureName,
           key: key,
           treatment: treatment,
@@ -38,7 +41,7 @@ function splitio(settings /*: object */) /*: object */{
         return treatment;
       }
 
-      var stop = getTreatmentTracker.track(); // start engine perf monitoring
+      var stopGetTreatmentTracker = getTreatmentTracker(); // start engine perf monitoring
 
       var split = engine.splits.get(featureName);
       if (split) {
@@ -49,9 +52,9 @@ function splitio(settings /*: object */) /*: object */{
         log('feature ' + featureName + ' doesn\'t exist');
       }
 
-      stop(); // finish engine perf monitoring
+      stopGetTreatmentTracker(); // finish engine perf monitoring
 
-      impressionsTracker.track({
+      impressionsTracker({
         feature: featureName,
         key: key,
         treatment: treatment,

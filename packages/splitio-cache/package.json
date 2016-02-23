@@ -19,9 +19,8 @@
     "coverage": "istanbul test tape -- test/lib/**/*.spec.js"
   },
   "dependencies": {
-    "@splitsoftware/splitio-engine": "0.22.0",
-    "@splitsoftware/splitio-utils": "0.22.0",
-    "isomorphic-fetch": "^2.2.1"
+    "@splitsoftware/splitio-services": "0.22.0",
+    "@splitsoftware/splitio-engine": "0.22.0"
   },
   "devDependencies": {
     "babel-cli": "^6.3.17",

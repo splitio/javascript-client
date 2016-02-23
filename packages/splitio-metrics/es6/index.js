@@ -1,6 +1,5 @@
 'use strict';
 
-const settings = require('@splitsoftware/splitio-utils/lib/settings');
 const SchedulerFactory = require('@splitsoftware/splitio-utils/lib/scheduler');
 
 const metricsService = require('@splitsoftware/splitio-services/lib/metrics');
@@ -8,7 +7,7 @@ const metricsServiceRequest = require('@splitsoftware/splitio-services/lib/metri
 const metricsDTO = require('@splitsoftware/splitio-services/lib/metrics/dto');
 
 const impressionsService = require('@splitsoftware/splitio-services/lib/impressions');
-const impressionsServiceRequest = require('@splitsoftware/splitio-services/lib/impressions/post');
+const impressionsBulkRequest = require('@splitsoftware/splitio-services/lib/impressions/bulk');
 const impressionsDTO = require('@splitsoftware/splitio-services/lib/impressions/dto');
 
 const PassThroughFactory = require('./tracker/PassThrough');
@@ -38,21 +37,28 @@ function publishToTime() {
 
 function publishToImpressions() {
   if (!impressionsCollector.isEmpty()) {
-    impressionsService(impressionsServiceRequest({
+    impressionsService(impressionsBulkRequest({
       body: JSON.stringify(impressionsDTO.fromImpressionsCollector(impressionsCollector))
     })).then(resp => {
-      impressions.clear();
+      impressionsCollector.clear();
       return resp;
     }).catch(error => {
-      impressions.clear();
+      impressionsCollector.clear();
     });
   }
 }
 
-performanceScheduler.forever(publishToTime, settings.get('metricsRefreshRate'));
-impressionsScheduler.forever(publishToImpressions, settings.get('impressionsRefreshRate'));
+module.exports = {
+  start(settings) {
+    performanceScheduler.forever(publishToTime, settings.get('metricsRefreshRate'));
+    impressionsScheduler.forever(publishToImpressions, settings.get('impressionsRefreshRate'));
+  },
 
-modules.exports = {
+  stop() {
+    performanceScheduler.kill();
+    impressionsScheduler.kill();
+  },
+
   impressions: PassThroughFactory(impressionsCollector),
   getTreatment: TimerFactory(getTreatmentCollector)
 };

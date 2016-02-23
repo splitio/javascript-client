@@ -4,9 +4,9 @@ const log = require('debug')('splitio');
 
 const coreSettings = require('@splitsoftware/splitio-utils/lib/settings');
 
-const metrics = require('@splitsoftware/splitio-metrics');
-const impressionsTracker = metrics.impressions;
-const getTreatmentTracker = metrics.getTreatment;
+const metricsEngine = require('@splitsoftware/splitio-metrics');
+const impressionsTracker = metricsEngine.impressions;
+const getTreatmentTracker = metricsEngine.getTreatment;
 
 const core = require('./core');
 
@@ -15,7 +15,7 @@ function splitio(settings /*: object */) /*: object */ {
   let engineReadyPromise;
 
   // setup settings for all the modules
-  coreSettings.configure(settings);
+  settings = coreSettings.configure(settings);
 
   // the engine startup is async (till we get localStorage as
   // secondary cache)
@@ -23,12 +23,15 @@ function splitio(settings /*: object */) /*: object */ {
     engine = initializedEngine;
   }).catch(function noop() { /* only for now */});
 
+  // startup monitoring tools
+  metricsEngine.start(settings);
+
   return {
     getTreatment(key /*: string */, featureName /*: string */) /*: string */ {
       let treatment = 'control';
 
       if (engine === undefined) {
-        impressionsTracker.track({
+        impressionsTracker({
           feature: featureName,
           key,
           treatment,
@@ -38,7 +41,7 @@ function splitio(settings /*: object */) /*: object */ {
         return treatment;
       }
 
-      let stop = getTreatmentTracker.track(); // start engine perf monitoring
+      let stopGetTreatmentTracker = getTreatmentTracker(); // start engine perf monitoring
 
       let split = engine.splits.get(featureName);
       if (split) {
@@ -49,9 +52,9 @@ function splitio(settings /*: object */) /*: object */ {
         log(`feature ${featureName} doesn't exist`);
       }
 
-      stop(); // finish engine perf monitoring
+      stopGetTreatmentTracker(); // finish engine perf monitoring
 
-      impressionsTracker.track({
+      impressionsTracker({
         feature: featureName,
         key,
         treatment,

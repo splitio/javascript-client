@@ -19,7 +19,6 @@
     "coverage": "istanbul test tape -- test/lib/**/*.spec.js"
   },
   "dependencies": {
-    "@splitsoftware/splitio": "0.22.0",
     "@splitsoftware/splitio-utils": "0.22.0",
     "@splitsoftware/splitio-services": "0.22.0"
   },

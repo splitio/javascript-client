@@ -15,9 +15,10 @@ if (process.env.NODE_ENV === 'offline') {
       authorizationKey: 'c1l5vkd50gimccout3c03pntbu'
     },
     scheduler: {
-      // featuresRefreshRate: 5000,
-      // segmentsRefreshRate: 5000 * 3
-      metricsRefreshRate: 10000
+      featuresRefreshRate: 1000,
+      segmentsRefreshRate: 1000,
+      metricsRefreshRate: 30000,
+      impressionsRefreshRate: 30000
     }
   });
 }

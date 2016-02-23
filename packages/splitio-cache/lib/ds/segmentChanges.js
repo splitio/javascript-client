@@ -10,10 +10,8 @@ var _map2 = _interopRequireDefault(_map);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-require('isomorphic-fetch');
-
-var url = require('@splitsoftware/splitio-utils/lib/url');
-var log = require('debug')('splitio-cache:http');
+var segmentChangesService = require('@splitsoftware/splitio-services/lib/segmentChanges');
+var segmentChangesRequest = require('@splitsoftware/splitio-services/lib/segmentChanges/get');
 
 var segmentMutatorFactory = require('../mutators/segmentChanges');
 var cache = new _map2.default();
@@ -27,16 +25,12 @@ function segmentChangesDataSource(_ref) {
   var segmentName = _ref.segmentName;
 
   var cacheKey = cacheKeyGenerator(authorizationKey, segmentName);
-  var sinceValue = cache.get(cacheKey) || -1;
+  var since = cache.get(cacheKey) || -1;
 
-  return fetch(url('/segmentChanges/' + segmentName + '?since=' + sinceValue), {
-    method: 'GET',
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + authorizationKey
-    }
-  }).then(function (resp) {
+  return segmentChangesService(segmentChangesRequest({
+    since: since,
+    segmentName: segmentName
+  })).then(function (resp) {
     return resp.json();
   }).then(function (json) {
     var since = json.since;
@@ -44,15 +38,9 @@ function segmentChangesDataSource(_ref) {
     var data = (0, _objectWithoutProperties3.default)(json, ['since', 'till']);
 
 
-    log('[' + authorizationKey + '] /segmentChanges/' + segmentName + '?since=' + sinceValue, json);
-
     cache.set(cacheKey, till);
 
     return segmentMutatorFactory(data);
-  }).catch(function (error) {
-    log('[' + authorizationKey + '] failure fetching segment [' + segmentName + '] using since [' + sinceValue + '] => [' + error + ']');
-
-    return error;
   });
 }
 
