@@ -1,10 +1,25 @@
 'use strict';
 
-const browserify = require('browserify');
+// @TODO 'bundle-collapser/plugin' <= generates a bug with Object.assign
+
 const fs = require('fs');
+const path = require('path');
+const touch = require('touch');
+const mkdirp = require('mkdirp');
+
+const browserify = require('browserify');
 const envify = require('envify/custom');
 const uglify = require('uglify-js');
-const strStream = require('string-to-stream')
+const strStream = require('string-to-stream');
+
+const splitPkg = require('../node_modules/@splitsoftware/splitio/package');
+const offlineSplitSource = path.resolve(path.join(__dirname, '../node_modules/@splitsoftware/splitio/lib/offline.js'));
+const onlineSplitSource = path.resolve(path.join(__dirname, '../node_modules/@splitsoftware/splitio/lib/browser.js'));
+
+const bundlesDir = path.resolve(path.join(__dirname, `../lib`));
+const offlineBundlePath = path.resolve(path.join(bundlesDir, `offline-${splitPkg.version}.js`));
+const debugBundlePath = path.resolve(path.join(bundlesDir, `debug-${splitPkg.version}.js`));
+const onlineBundlePath = path.resolve(path.join(bundlesDir, `online-${splitPkg.version}.js`));
 
 function minify(bundlePath, customUglifySetting) {
   return uglify.minify(bundlePath, Object.assign({
@@ -41,10 +56,15 @@ function minify(bundlePath, customUglifySetting) {
   }, customUglifySetting));
 }
 
+// be sure we have the files created before start
+mkdirp.sync(bundlesDir, '0777');
+touch.sync(offlineBundlePath);
+touch.sync(debugBundlePath);
+touch.sync(onlineBundlePath);
+
+// Offline bundle
 const offline = browserify();
-const offlineBundlePath = require.resolve('../lib/offline.js');
-offline.add('./node_modules/@splitsoftware/splitio/lib/offline.js');
-/* offline.plugin('bundle-collapser/plugin') */
+offline.add(offlineSplitSource);
 offline.transform(envify({
     _: 'purge',
     NODE_ENV: 'production'
@@ -57,27 +77,24 @@ offline.transform(envify({
       });
 
 const dev = browserify({ debug: true });
-const developmentBundlePath = require.resolve('../lib/development.js');
-dev.add('./node_modules/@splitsoftware/splitio/lib/browser.js');
+dev.add(onlineSplitSource);
 dev.transform(envify({
     _: 'purge',
-    NODE_ENV: 'development'
+    NODE_ENV: 'production'
   }), { global: true })
   .bundle()
-    .pipe(fs.createWriteStream(developmentBundlePath));
+    .pipe(fs.createWriteStream(debugBundlePath));
 
 const prod = browserify();
-const productionBundlePath = require.resolve('../lib/production.js');
-prod.add('./node_modules/@splitsoftware/splitio/lib/browser.js');
-/* prod.plugin('bundle-collapser/plugin') <= generates a bug with Object.assign */
+prod.add(onlineSplitSource);
 prod.transform(envify({
     _: 'purge',
     NODE_ENV: 'production'
   }), { global: true })
   .bundle()
-    .pipe(fs.createWriteStream(productionBundlePath))
+    .pipe(fs.createWriteStream(onlineBundlePath))
       .on('finish', function minifyAfterSave() {
-        strStream(minify(productionBundlePath, {
+        strStream(minify(onlineBundlePath, {
           drop_console: true
-        }).code).pipe(fs.createWriteStream(productionBundlePath));
+        }).code).pipe(fs.createWriteStream(onlineBundlePath));
       });
