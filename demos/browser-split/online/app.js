@@ -12,14 +12,8 @@ console.log('SPLIT DEMO!');
 
 var sdk = splitio({
   core: {
-    authorizationKey: 'c1l5vkd50gimccout3c03pntbu',
-    key: '4a2c4490-ced1-11e5-9b97-d8a25e8b1578'
-  },
-  scheduler: {
-    featuresRefreshRate: 30000,  // milis
-    segmentsRefreshRate: 40000,  // milis
-    metricsRefreshRate: 3000,    // milis
-    impressionsRefreshRate: 3000 // milis
+    authorizationKey: 'c1l5vkd50gimccout3c03pntbu', // change this with your api token
+    key: '4a2c4490-ced1-11e5-9b97-d8a25e8b1578'     // change this with your user key
   }
 });
 
@@ -27,6 +21,4 @@ console.info( sdk.getTreatment('early_evaluation') , '<= We are asking for a fea
 
 sdk.ready().then(function () {
   console.info( sdk.getTreatment('js_sdk'), '<= This answer depends on how the engine is configured' );
-  console.info( sdk.getTreatment('js_sdk'), '<= This answer depends on how the engine is configured' )
-  console.info( sdk.getTreatment('js_sdk'), '<= This answer depends on how the engine is configured' )
 });

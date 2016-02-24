@@ -24,7 +24,7 @@ if (process.env.NODE_ENV === 'offline') {
 }
 
 app.use(function (req, res, next) {
-  if (sdk.getTreatment('4a2c4490-ced1-11e5-9b97-d8a25e8b1578', 'sdk') === 'on') {
+  if (sdk.getTreatment('4a2c4490-ced1-11e5-9b97-d8a25e8b1578', 'js_sdk') === 'on') {
     next();
   } else {
     res.sendStatus(403);
