@@ -13,8 +13,8 @@ const impressionsDTO = require('@splitsoftware/splitio-services/lib/impressions/
 const PassThroughFactory = require('./tracker/PassThrough');
 const TimerFactory = require('./tracker/Timer');
 
-const SequentialCollector = require('./collector/Sequential');
-const FibonacciCollector = require('./collector/Fibonacci');
+const SequentialCollector = require('./collector/sequential');
+const FibonacciCollector = require('./collector/fibonacci');
 
 const impressionsCollector = SequentialCollector();
 const getTreatmentCollector = FibonacciCollector();

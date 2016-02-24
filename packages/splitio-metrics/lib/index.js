@@ -19,8 +19,8 @@ var impressionsDTO = require('@splitsoftware/splitio-services/lib/impressions/dt
 var PassThroughFactory = require('./tracker/PassThrough');
 var TimerFactory = require('./tracker/Timer');
 
-var SequentialCollector = require('./collector/Sequential');
-var FibonacciCollector = require('./collector/Fibonacci');
+var SequentialCollector = require('./collector/sequential');
+var FibonacciCollector = require('./collector/fibonacci');
 
 var impressionsCollector = SequentialCollector();
 var getTreatmentCollector = FibonacciCollector();
