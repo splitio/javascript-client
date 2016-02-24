@@ -12,7 +12,7 @@
     "npm": "^3.5.0"
   },
   "dependencies": {
-    "@splitsoftware/splitio-browser": "0.24.0",
+    "@splitsoftware/splitio-browser": "0.25.0",
     "http-server": "^0.8.5"
   }
 }

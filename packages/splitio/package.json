@@ -19,9 +19,9 @@
     "coverage": "istanbul test tape -- test/lib/**/*.spec.js"
   },
   "dependencies": {
-    "@splitsoftware/splitio-cache": "0.24.0",
-    "@splitsoftware/splitio-metrics": "0.24.0",
-    "@splitsoftware/splitio-utils": "0.24.0",
+    "@splitsoftware/splitio-cache": "0.25.0",
+    "@splitsoftware/splitio-metrics": "0.25.0",
+    "@splitsoftware/splitio-utils": "0.25.0",
     "babel-runtime": "^6.5.0",
     "debug": "^2.2.0"
   },

@@ -14,7 +14,7 @@
     "build": "node ./scripts/bundler.js"
   },
   "devDependencies": {
-    "@splitsoftware/splitio": "0.24.0",
+    "@splitsoftware/splitio": "0.25.0",
     "browserify": "^13.0.0",
     "browserify-derequire": "^0.9.4",
     "bundle-collapser": "^1.2.1",
