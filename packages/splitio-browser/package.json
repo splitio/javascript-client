@@ -9,8 +9,8 @@
     "type": "git",
     "url": "https://github.com/splitio/javascript-client/tree/master/packages/splitio-browser"
   },
-  "scripts": {
-    "build": "node ./scripts/bundler.js"
+  "bin": {
+    "splitio-bundler": "bin/bundler.js"
   },
   "engines": {
     "node": "4.x || 5.x",

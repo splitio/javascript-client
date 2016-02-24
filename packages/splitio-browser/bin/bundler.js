@@ -1,6 +1,10 @@
+#!/usr/bin/env node
+
 'use strict';
 
 // @TODO 'bundle-collapser/plugin' <= generates a bug with Object.assign
+
+process.stdout.on('error', process.exit);
 
 const fs = require('fs');
 const path = require('path');
@@ -12,11 +16,12 @@ const envify = require('envify/custom');
 const uglify = require('uglify-js');
 const strStream = require('string-to-stream');
 
-const splitPkg = require('../node_modules/@splitsoftware/splitio/package');
-const offlineSplitSource = path.resolve(path.join(__dirname, '../node_modules/@splitsoftware/splitio/lib/offline.js'));
-const onlineSplitSource = path.resolve(path.join(__dirname, '../node_modules/@splitsoftware/splitio/lib/browser.js'));
+const splitPkg = require('@splitsoftware/splitio/package');
 
-const bundlesDir = path.resolve(path.join(__dirname, `../lib`));
+const offlineSplitSource = require.resolve('@splitsoftware/splitio/lib/offline.js');
+const onlineSplitSource = require.resolve('@splitsoftware/splitio/lib/browser.js');
+
+const bundlesDir = path.resolve(path.join(process.cwd(), `splitio`));
 const offlineBundlePath = path.resolve(path.join(bundlesDir, `offline-${splitPkg.version}.js`));
 const debugBundlePath = path.resolve(path.join(bundlesDir, `debug-${splitPkg.version}.js`));
 const onlineBundlePath = path.resolve(path.join(bundlesDir, `online-${splitPkg.version}.js`));
