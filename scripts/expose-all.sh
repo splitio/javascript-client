@@ -23,10 +23,6 @@ cd packages/splitio-cache
 npm link
 cd -
 
-cd packages/splitio-engine
-npm link
-cd -
-
 cd packages/splitio
 npm link
 cd -

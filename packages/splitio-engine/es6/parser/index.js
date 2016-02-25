@@ -20,14 +20,14 @@ let andCombiner = require('../combiners/and');
 // Collect segments and create the evaluator function given a list of
 // conditions. This code is the base used by the class `Split` for
 // instanciation.
-function parse(conditions /*: Iterable<Object> */) /*: ParserOutputDTO */ {
+function parse(conditions /*: Iterable<Object> */, storage /*: Storage */) /*: ParserOutputDTO */ {
   let predicates = [];
   let segments = new Set();
   let evaluator = null;
 
   for (let condition of conditions) {
     let matcherMetadata = matcherGroupTransform(condition.matcherGroup);
-    let matcherEvaluator = matcherFactory(matcherMetadata);
+    let matcherEvaluator = matcherFactory(matcherMetadata, storage);
     let treatments = treatmentsParser(condition.partitions);
 
     // Incrementally collect segmentNames

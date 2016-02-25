@@ -9,7 +9,6 @@
     "build-all": "./scripts/build-all.sh",
     "test-all": "./scripts/test-all.sh",
     "expose-all": "./scripts/expose-all.sh",
-    "watch-all": "./scripts/watch-all.sh",
     "clean-all": "./scripts/clean-all.sh"
   },
   "devDependencies": {

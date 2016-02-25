@@ -1,10 +1,11 @@
 'use strict';
 
-var parser = require('../../../lib/parser/condition');
-var tape = require('tape');
+let parser = require('../../../lib/parser');
+let tape = require('tape');
 
-tape('PARSER / if user is in segment all 100%:on', function (assert) {
-  var _parser = parser([{
+tape('PARSER / if user is in segment all 100%:on', assert => {
+
+  let {evaluator, segments} = parser([{
     matcherGroup: {
       combiner: 'AND',
       matchers: [{
@@ -20,17 +21,15 @@ tape('PARSER / if user is in segment all 100%:on', function (assert) {
     }]
   }]);
 
-  var evaluator = _parser.evaluator;
-  var segments = _parser.segments;
-
-
   assert.true(evaluator('a key', 31) === 'on', "evaluation should throw 'on'");
   assert.true(segments.size === 0, 'there is no segment present in the definition');
   assert.end();
+
 });
 
-tape('PARSER / if user is in segment all 100%:off', function (assert) {
-  var _parser2 = parser([{
+tape('PARSER / if user is in segment all 100%:off', assert => {
+
+  let {evaluator, segments} = parser([{
     matcherGroup: {
       combiner: 'AND',
       matchers: [{
@@ -49,17 +48,15 @@ tape('PARSER / if user is in segment all 100%:off', function (assert) {
     }]
   }]);
 
-  var evaluator = _parser2.evaluator;
-  var segments = _parser2.segments;
-
-
   assert.true(evaluator('a key', 31) === 'off', "evaluation should throw 'off'");
   assert.true(segments.size === 0, 'there is no segment present in the definition');
   assert.end();
+
 });
 
-tape("PARSER / if user is in segment ['u1', ' u2', ' u3', ' u4'] then split 100%:on", function (assert) {
-  var _parser3 = parser([{
+tape("PARSER / if user is in segment ['u1', ' u2', ' u3', ' u4'] then split 100%:on", assert => {
+
+  let {evaluator, segments} = parser([{
     matcherGroup: {
       combiner: 'AND',
       matchers: [{
@@ -67,7 +64,12 @@ tape("PARSER / if user is in segment ['u1', ' u2', ' u3', ' u4'] then split 100%
         negate: false,
         userDefinedSegmentMatcherData: null,
         whitelistMatcherData: {
-          whitelist: ['u1', 'u2', 'u3', 'u4']
+          whitelist: [
+            'u1',
+            'u2',
+            'u3',
+            'u4'
+          ]
         }
       }]
     },
@@ -77,14 +79,10 @@ tape("PARSER / if user is in segment ['u1', ' u2', ' u3', ' u4'] then split 100%
     }]
   }]);
 
-  var evaluator = _parser3.evaluator;
-  var segments = _parser3.segments;
-
-
   assert.true(evaluator('a key', 31) === undefined, 'evaluation should throw undefined');
   assert.true(evaluator('u1', 31) === 'on', "evaluation should throw 'on'");
   assert.true(evaluator('u3', 31) === 'on', "should be evaluated to 'on'");
   assert.true(segments.size === 0, 'there is no segment present in the definition');
   assert.end();
+
 });
-//# sourceMappingURL=condition.spec.js.map

@@ -23,7 +23,3 @@ cd - &> /dev/null
 cd packages/splitio
 npm run build
 cd - &> /dev/null
-
-cd packages/splitio-browser
-npm run build
-cd - &> /dev/null

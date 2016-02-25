@@ -24,17 +24,6 @@ module.exports = {
       default:
         throw new Error('Invalid matcher type provided');
     }
-  },
-  chooser: function chooser(type /*: Symbol */, segmentData /*:? string*/, whitelistData /*:? Array<string> */) {
-    if (type === this.enum.ALL) {
-      return undefined;
-    } else if (type === this.enum.SEGMENT) {
-      return segmentData;
-    } else if (type === this.enum.WHITELIST) {
-      return whitelistData;
-    } else {
-      throw new Error('Invalid type: ' + type);
-    }
   }
 };
 //# sourceMappingURL=types.js.map

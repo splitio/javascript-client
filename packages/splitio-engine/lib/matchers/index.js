@@ -13,14 +13,8 @@ var whitelistMatcher = require('./whitelist');
   }
 */
 
-/**
- * Matcher factory.
- *
- * @param {Object} matcherAbstract - Descriptor object with type/value parameters for matchers building.
- *
- * @return {Function} matcher evaluator function
- */
-function factory(matcherAbstract /*: MatcherAbstract */) {
+// Matcher factory.
+function factory(matcherAbstract /*: MatcherAbstract */, storage /*: Storage */) /*: function */{
   var type = matcherAbstract.type;
   var value = matcherAbstract.value;
 
@@ -28,7 +22,7 @@ function factory(matcherAbstract /*: MatcherAbstract */) {
   if (type === types.ALL) {
     return allMatcher(value);
   } else if (type === types.SEGMENT) {
-    return segmentMatcher(value);
+    return segmentMatcher(value, storage);
   } else if (type === types.WHITELIST) {
     return whitelistMatcher(value);
   }

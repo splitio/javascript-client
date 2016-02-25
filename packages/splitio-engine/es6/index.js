@@ -1,48 +1,48 @@
 'use strict';
 
-let parser = require('./parser/condition');
+let parser = require('./parser');
 
-class Split {
-
-  constructor(baseInfo, evaluator, segments) {
-    this.baseInfo = baseInfo;
-    this.evaluator = evaluator;
-    this.segments = segments;
+function Split(baseInfo, evaluator, segments) {
+  if (!(this instanceof Split)) {
+     return new Split(baseInfo, evaluator, segments);
   }
 
-  getKey() {
-    return this.baseInfo.name;
+  this.baseInfo = baseInfo;
+  this.evaluator = evaluator;
+  this.segments = segments;
+}
+
+Split.parse = function parse(splitFlatStructure) {
+  let {conditions, ...baseInfo} = splitFlatStructure;
+  let {evaluator, segments} = parser(conditions);
+
+  return new Split(baseInfo, evaluator, segments);
+}
+
+Split.prototype.getKey = function getKey() {
+  return this.baseInfo.name;
+};
+
+Split.prototype.getSegments = function getSegments() {
+  return this.segments;
+}
+
+Split.prototype.getTreatment = function getTreatment(key) {
+  if (this.baseInfo.killed) {
+    return this.baseInfo.defaultTreatment;
   }
 
-  getSegments() {
-    return this.segments;
-  }
+  let treatment = this.evaluator(key, this.baseInfo.seed);
 
-  getTreatment(key) {
-    if (this.baseInfo.killed) {
-      return this.baseInfo.defaultTreatment;
-    }
+  return treatment !== undefined ? treatment : this.baseInfo.defaultTreatment;
+}
 
-    let treatment = this.evaluator(key, this.baseInfo.seed);
+Split.prototype.isTreatment = function isTreatment(key, treatment) {
+  return this.getTreatment(key) === treatment;
+}
 
-    return treatment !== undefined ? treatment : this.baseInfo.defaultTreatment;
-  }
-
-  isTreatment(key, treatment) {
-    return this.getTreatment(key) === treatment;
-  }
-
-  isGarbage() {
-    return this.baseInfo.status === 'ARCHIVED';
-  }
-
-  static parse(splitFlatStructure) {
-    let {conditions, ...baseInfo} = splitFlatStructure;
-    let {evaluator, segments} = parser(conditions);
-
-    return new Split(baseInfo, evaluator, segments);
-  }
-
+Split.prototype.isGarbage = function isGarbage() {
+  return this.baseInfo.status === 'ARCHIVED';
 }
 
 module.exports = Split;

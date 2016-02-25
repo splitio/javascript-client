@@ -1,10 +1,10 @@
 /* @flow */ 'use strict';
 
-let types = require('./types').enum;
+const types = require('./types').enum;
 
-let allMatcher = require('./all');
-let segmentMatcher = require('./segment');
-let whitelistMatcher = require('./whitelist');
+const allMatcher = require('./all');
+const segmentMatcher = require('./segment');
+const whitelistMatcher = require('./whitelist');
 
 /*::
   type MatcherAbstract {
@@ -13,20 +13,14 @@ let whitelistMatcher = require('./whitelist');
   }
 */
 
-/**
- * Matcher factory.
- *
- * @param {Object} matcherAbstract - Descriptor object with type/value parameters for matchers building.
- *
- * @return {Function} matcher evaluator function
- */
-function factory(matcherAbstract /*: MatcherAbstract */) {
+// Matcher factory.
+function factory(matcherAbstract /*: MatcherAbstract */, storage /*: Storage */) /*: function */ {
   let {type, value} = matcherAbstract;
 
   if (type === types.ALL) {
     return allMatcher(value);
   } else if (type === types.SEGMENT) {
-    return segmentMatcher(value);
+    return segmentMatcher(value, storage);
   } else if (type === types.WHITELIST) {
     return whitelistMatcher(value);
   }

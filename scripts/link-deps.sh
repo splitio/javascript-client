@@ -17,20 +17,17 @@ npm link @splitsoftware/splitio-utils
 npm link @splitsoftware/splitio-services
 cd -
 
-cd packages/splitio-engine
-rm -rf node_modules/@splitsoftware
-npm link @splitsoftware/splitio-cache
-cd -
-
 cd packages/splitio-cache
 rm -rf node_modules/@splitsoftware
 npm link @splitsoftware/splitio-engine
+npm link @splitsoftware/splitio-services
 cd -
 
 cd packages/splitio
 rm -rf node_modules/@splitsoftware
 npm link @splitsoftware/splitio-metrics
 npm link @splitsoftware/splitio-cache
+npm link @splitsoftware/splitio-utils
 cd -
 
 cd packages/splitio-browser

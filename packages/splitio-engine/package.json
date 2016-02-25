@@ -17,9 +17,6 @@
     "test": "tape test/lib/**/*.spec.js | faucet",
     "coverage": "istanbul test tape -- test/lib/**/*.spec.js"
   },
-  "dependencies": {
-    "@splitsoftware/splitio-cache": "0.26.0"
-  },
   "devDependencies": {
     "babel-cli": "^6.3.17",
     "babel-plugin-syntax-object-rest-spread": "^6.3.13",

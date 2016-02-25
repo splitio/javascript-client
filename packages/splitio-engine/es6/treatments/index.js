@@ -7,38 +7,39 @@
   }
 */
 
-class Treatments {
-
-  constructor(ranges /*: Array<number> */, treatments /*: Array<string> */) {
-    if (ranges[ranges.length - 1] !== 100) throw new RangeError('Provided invalid dataset as input');
-
-    this._ranges = ranges;
-    this._treatments = treatments;
+function Treatments(ranges /*: array<number> */, treatments /*: array<string> */) {
+  if (!(this instanceof Treatments)) {
+     return new Treatments(baseInfo, evaluator, segments);
   }
 
-  getTreatmentFor(x /*: number */) /*: string */ {
-    if (x < 0 || x > 100) throw new RangeError('Please provide a value between 0 and 100');
+  if (ranges[ranges.length - 1] !== 100) throw new RangeError('Provided invalid dataset as input');
 
-    for (let [k, r] of this._ranges.entries()) {
-      if (x <= r) return this._treatments[k];
-    }
-  }
+  this._ranges = ranges;
+  this._treatments = treatments;
+}
 
-  static parse(data /*: Array<PartitionDTO> */) /*: Treatments */ {
-    let {ranges, treatments} = data.reduce((accum, value) => {
-      let {size, treatment} = value;
+Treatments.parse = function parse(data /*: array<PartitionDTO> */) /*: Treatments */ {
+  let {ranges, treatments} = data.reduce((accum, value) => {
+    let {size, treatment} = value;
 
-      accum.ranges.push( accum.inc += size );
-      accum.treatments.push( treatment );
+    accum.ranges.push( accum.inc += size );
+    accum.treatments.push( treatment );
 
-      return accum;
-    }, {
-      inc: 0,
-      ranges: [],
-      treatments: []
-    });
+    return accum;
+  }, {
+    inc: 0,
+    ranges: [],
+    treatments: []
+  });
 
-    return new Treatments(ranges, treatments);
+  return new Treatments(ranges, treatments);
+}
+
+Treatments.prototype.getTreatmentFor = function getTreatmentFor(x /*: number */) /*: string */ {
+  if (x < 0 || x > 100) throw new RangeError('Please provide a value between 0 and 100');
+
+  for (let [k, r] of this._ranges.entries()) {
+    if (x <= r) return this._treatments[k];
   }
 }
 
