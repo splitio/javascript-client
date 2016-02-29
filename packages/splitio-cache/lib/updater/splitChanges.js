@@ -1,4 +1,4 @@
-/* @flow */'use strict';
+'use strict';
 
 var log = require('debug')('splitio-cache:updater');
 

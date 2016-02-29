@@ -1,21 +1,22 @@
-/* @flow */ 'use strict';
+const log = require('debug')('splitio-cache:segments');
 
-let log = require('debug')('splitio-cache:segments');
+function SegmentsStorage() {
+  this.storage = new Map();
+}
 
-let _segments = new Map();
+// @TODO in a near future I need to support merging strategy
+SegmentsStorage.prototype.update = function (name :string, segment :Set) :void {
+  log(`Updating segment ${name} with ${segment.size} keys`);
 
-module.exports = {
-  update(name /*: string */, segments /*: Set */) /*: void */ {
-    log(`Updating segment ${name} with [${[...segments]}]`);
-
-    _segments.set(name, segments);
-  },
-
-  get(name /*: string */) /*: Set */ {
-    return _segments.get(name) || new Set();
-  },
-
-  toJSON() {
-    return _segments;
-  }
+  this.storage.set(name, segment);
 };
+
+SegmentsStorage.prototype.get = function (name :string) :Set {
+  return this.storage.get(name) || new Set();
+};
+
+SegmentsStorage.prototype.toJSON = function () :Map {
+  return this.storage;
+};
+
+module.exports = SegmentsStorage;

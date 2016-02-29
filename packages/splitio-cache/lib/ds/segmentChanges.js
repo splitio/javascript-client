@@ -1,4 +1,4 @@
-/* @flow */'use strict';
+'use strict';
 
 var _objectWithoutProperties2 = require('babel-runtime/helpers/objectWithoutProperties');
 

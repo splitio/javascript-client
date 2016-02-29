@@ -1,11 +1,6 @@
-/* @flow */ 'use strict';
+function mySegmentMutationsFactory(mySegments :Array<string>) {
 
-/*::
-  type MySegmentsDTO = Array<string>;
-*/
-function mySegmentMutationsFactory(mySegments /*: MySegmentsDTO */) /*: Function */ {
-
-  return function segmentMutations(storageMutator /*: Function */) /*: void */ {
+  return function segmentMutations(storageMutator :Function) {
     storageMutator(new Set(mySegments));
   };
 

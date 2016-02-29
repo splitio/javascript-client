@@ -1,21 +1,21 @@
-/* @flow */ 'use strict';
+const log = require('debug')('splitio-cache:segments');
 
-let log = require('debug')('splitio-cache:segments');
+function SegmentsStorage() {
+  this.storage = new Set();
+}
 
-let _segments = new Set();
+SegmentsStorage.prototype.update = function (segments :Set) :void {
+  log(`Updating my segments list with [${[...segments]}]`);
 
-module.exports = {
-  update(segments /*: Set */) {
-    log(`Updating my segments list with [${[...segments]}]`);
-
-    _segments = segments;
-  },
-
-  has(name /*: string */) /*: boolean */ {
-    return _segments.has(name);
-  },
-
-  toJSON() {
-    return _segments;
-  }
+  this.storage = segments;
 };
+
+SegmentsStorage.prototype.has = function (name :string) :boolean {
+  return this.storage.has(name);
+};
+
+SegmentsStorage.prototype.toJSON = function () {
+  return this.storage;
+};
+
+module.exports = SegmentsStorage;

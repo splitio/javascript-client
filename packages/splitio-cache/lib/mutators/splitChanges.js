@@ -1,4 +1,4 @@
-/* @flow */'use strict';
+'use strict';
 
 var parse = require('@splitsoftware/splitio-engine').parse;
 

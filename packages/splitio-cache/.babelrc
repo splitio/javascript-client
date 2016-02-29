@@ -3,6 +3,13 @@
     "es2015"
   ],
   "plugins": [
+    ["typecheck", {
+      "disable": {
+        "production": true
+      }
+    }],
+    "syntax-flow",
+    "transform-flow-strip-types",
     "syntax-object-rest-spread",
     "transform-object-rest-spread",
     "transform-runtime"

@@ -1,5 +1,8 @@
-/* @flow */'use strict';
+'use strict';
 
-exports.segments = require('./segments');
-exports.splits = require('./splits');
+var SegmentsStorage = require('./segments');
+var SplitsStorage = require('./splits');
+
+exports.segments = new SegmentsStorage();
+exports.splits = new SplitsStorage();
 //# sourceMappingURL=index.js.map

@@ -1,4 +1,4 @@
-/* @flow */'use strict';
+'use strict';
 
 var mySegmentsService = require('@splitsoftware/splitio-services/lib/mySegments');
 var mySegmentsRequest = require('@splitsoftware/splitio-services/lib/mySegments/get');

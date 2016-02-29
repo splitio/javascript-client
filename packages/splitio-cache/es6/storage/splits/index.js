@@ -1,37 +1,38 @@
-/* @flow */ 'use strict';
+const Split = require('@splitsoftware/splitio-engine');
 
-let _splits = new Map();
+function SplitsStorage() {
+  this.storage = new Map();
+}
 
-module.exports = {
-  // Update the internal Map given an Array of new splits.
-  update(splits /*: Array<Split>*/) /*: void */ {
-    splits.forEach(split => {
-      if (!split.isGarbage()) {
-        _splits.set(split.getKey(), split);
-      } else {
-        _splits.delete(split.getKey());
-      }
-    });
-  },
+SplitsStorage.prototype.update = function (updates :Array<Split>) :void {
 
-  // Get the split given a feature name.
-  get(featureName /*: string */) /*: Split */ {
-    return _splits.get(featureName);
-  },
-
-  // Get the current Set of segments across all the split instances available.
-  getSegments() /*: Set */ {
-    let collection = new Set();
-
-    for(let split of _splits.values()) {
-      collection = new Set([...collection, ...(split.getSegments())]);
+  updates.forEach(split => {
+    if (!split.isGarbage()) {
+      this.storage.set(split.getKey(), split);
+    } else {
+      this.storage.delete(split.getKey());
     }
+  });
 
-    return collection;
-  },
-
-  // Allow stringify of the internal structure.
-  toJSON() /*: object */ {
-    return _splits;
-  }
 };
+
+SplitsStorage.prototype.get = function (splitName :string) :Split {
+  return this.storage.get(splitName);
+};
+
+// @TODO optimize this query to be cached after each update
+SplitsStorage.prototype.getSegments = function () :Set {
+  let mergedSegmentNames = new Set();
+
+  for(let split of this.storage.values()) {
+    mergedSegmentNames = new Set([...mergedSegmentNames, ...(split.getSegments())]);
+  }
+
+  return mergedSegmentNames;
+};
+
+SplitsStorage.prototype.toJSON = function () :Map {
+  return this.storage;
+};
+
+module.exports = SplitsStorage;

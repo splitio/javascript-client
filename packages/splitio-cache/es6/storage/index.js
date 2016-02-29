@@ -1,4 +1,5 @@
-/* @flow */ 'use strict';
+const SegmentsStorage = require('./segments');
+const SplitsStorage = require('./splits');
 
-exports.segments = require('./segments');
-exports.splits = require('./splits');
+exports.segments = new SegmentsStorage;
+exports.splits = new SplitsStorage;

@@ -1,4 +1,4 @@
-/* @flow */'use strict';
+'use strict';
 
 var splitChangesService = require('@splitsoftware/splitio-services/lib/splitChanges');
 var splitChangesRequest = require('@splitsoftware/splitio-services/lib/splitChanges/get');

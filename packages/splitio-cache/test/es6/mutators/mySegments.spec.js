@@ -1,19 +1,18 @@
-'use strict';
+const tape = require('tape');
 
-let tape = require('tape');
-let mySegmentsMutatorFactory = require('../../../lib/mutators/mySegments');
+const SegmentsStorage = require('../../../lib/storage/segments/browser');
+const MySegmentsMutatorFactory = require('../../../lib/mutators/mySegments');
 
 tape('Segment mutator', assert => {
-  let segments = ['segment1', 'segment2'];
+  const segments = ['segment1', 'segment2'];
+  const storage = new SegmentsStorage;
+  const mutator = MySegmentsMutatorFactory(segments);
 
-  let segmentsStorage;
-  function storageMutator(segmentSet) {
-    segmentsStorage = segmentSet;
+  mutator(storage.update.bind(storage));
+
+  for (const segmentName of segments) {
+    assert.true(storage.has(segmentName), 'segment should be present in the storage');
   }
 
-  let mutator = mySegmentsMutatorFactory(segments);
-  mutator(storageMutator);
-
-  assert.deepEqual([...segmentsStorage], segments, 'once mutator called data should be the same as the originally provided');
   assert.end();
 });
