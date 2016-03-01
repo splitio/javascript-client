@@ -16,25 +16,57 @@ var _set = require("babel-runtime/core-js/set");
 
 var _set2 = _interopRequireDefault(_set);
 
+var _hasInstance = require("babel-runtime/core-js/symbol/has-instance");
+
+var _hasInstance2 = _interopRequireDefault(_hasInstance);
+
+var _defineProperty = require("babel-runtime/core-js/object/define-property");
+
+var _defineProperty2 = _interopRequireDefault(_defineProperty);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function mySegmentMutationsFactory(mySegments) {
-  if (!(Array.isArray(mySegments) && mySegments.every(function (item) {
-    return typeof item === 'string';
-  }))) {
+var MySegmentsDTO = function () {
+  function MySegmentsDTO(input) {
+    return Array.isArray(input) && input.every(function (item) {
+      return typeof item === 'string';
+    });
+  }
+
+  ;
+  (0, _defineProperty2.default)(MySegmentsDTO, _hasInstance2.default, {
+    value: function value(input) {
+      return MySegmentsDTO(input);
+    }
+  });
+  return MySegmentsDTO;
+}();
+
+function MySegmentMutationsFactory(mySegments) {
+  function _ref(_id) {
+    if (!(typeof _id === 'function')) {
+      throw new TypeError("Function \"MySegmentMutationsFactory\" return value violates contract.\n\nExpected:\nFunction\n\nGot:\n" + _inspect(_id));
+    }
+
+    return _id;
+  }
+
+  if (!MySegmentsDTO(mySegments)) {
     throw new TypeError("Value of argument \"mySegments\" violates contract.\n\nExpected:\nArray<string>\n\nGot:\n" + _inspect(mySegments));
   }
 
-  return function segmentMutations(storageMutator) {
+  function segmentMutations(storageMutator) {
     if (!(typeof storageMutator === 'function')) {
       throw new TypeError("Value of argument \"storageMutator\" violates contract.\n\nExpected:\nFunction\n\nGot:\n" + _inspect(storageMutator));
     }
 
     storageMutator(new _set2.default(mySegments));
-  };
+  }
+
+  return _ref(segmentMutations);
 }
 
-module.exports = mySegmentMutationsFactory;
+module.exports = MySegmentMutationsFactory;
 
 function _inspect(input, depth) {
   var maxDepth = 4;

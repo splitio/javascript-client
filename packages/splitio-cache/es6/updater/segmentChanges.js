@@ -1,17 +1,13 @@
-/* @flow */ 'use strict';
+const log = require('debug')('splitio-cache:updater');
 
-let log = require('debug')('splitio-cache:updater');
+const segmentChangesDataSource = require('../ds/segmentChanges');
+const storage = require('../storage');
 
-let segmentChangesDataSource = require('../ds/segmentChanges');
-let storage = require('../storage');
-
-function segmentChangesUpdater({
-  authorizationKey /*: string */
-}) /*: Promise */ {
+function segmentChangesUpdater({authorizationKey}) :Promise {
   log(`[${authorizationKey}] Updating segmentChanges`);
 
   // Read the list of segments available.
-  let segments = storage.splits.getSegments();
+  const segments = storage.splits.getSegments();
 
   // Per each segment, request the changes and mutate the storage accordingly.
   return Promise.all(

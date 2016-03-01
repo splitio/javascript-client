@@ -1,13 +1,10 @@
 [
   {
-    "orgId": "1d1a9f00-b870-11e5-b331-d8a25e8b1578",
-    "environment": "1d252650-b870-11e5-b331-d8a25e8b1578",
     "name": "sample_feature",
-    "trafficTypeId": "u",
-    "trafficTypeName": "user",
     "seed": 706102125,
     "status": "ACTIVE",
     "killed": false,
+    "defaultTreatment": "on",
     "conditions": [
       {
         "matcherGroup": {
@@ -56,14 +53,11 @@
     ]
   },
   {
-    "orgId": "1d1a9f00-b870-11e5-b331-d8a25e8b1578",
-    "environment": "1d252650-b870-11e5-b331-d8a25e8b1578",
     "name": "demo_feature",
-    "trafficTypeId": "u",
-    "trafficTypeName": "user",
     "seed": 601933008,
     "status": "ACTIVE",
     "killed": false,
+    "defaultTreatment": "control",
     "conditions": [
       {
         "matcherGroup": {
@@ -87,14 +81,11 @@
     ]
   },
   {
-    "orgId": "1d1a9f00-b870-11e5-b331-d8a25e8b1578",
-    "environment": "1d252650-b870-11e5-b331-d8a25e8b1578",
     "name": "hello_world",
-    "trafficTypeId": "u",
-    "trafficTypeName": "user",
     "seed": -85692506,
     "status": "ACTIVE",
     "killed": false,
+    "defaultTreatment": "control",
     "conditions": [
       {
         "matcherGroup": {

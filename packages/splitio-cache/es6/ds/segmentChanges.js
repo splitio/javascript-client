@@ -1,5 +1,3 @@
-/* @flow */ 'use strict';
-
 const segmentChangesService = require('@splitsoftware/splitio-services/lib/segmentChanges');
 const segmentChangesRequest = require('@splitsoftware/splitio-services/lib/segmentChanges/get');
 
@@ -10,7 +8,10 @@ function cacheKeyGenerator(authorizationKey, segmentName) {
   return `${authorizationKey}/segmentChanges/${segmentName}`;
 }
 
-function segmentChangesDataSource({authorizationKey, segmentName}) {
+function segmentChangesDataSource({
+  authorizationKey,
+  segmentName
+}) :Promise {
   const cacheKey = cacheKeyGenerator(authorizationKey, segmentName);
   const since = cache.get(cacheKey) || -1;
 
@@ -25,7 +26,8 @@ function segmentChangesDataSource({authorizationKey, segmentName}) {
     cache.set(cacheKey, till);
 
     return segmentMutatorFactory( data );
-  });
+  })
+  .catch(() => { /* noop */ });
 }
 
 module.exports = segmentChangesDataSource;

@@ -1,9 +1,12 @@
-function mySegmentMutationsFactory(mySegments :Array<string>) {
 
-  return function segmentMutations(storageMutator :Function) {
+type MySegmentsDTO = Array<string>;
+
+function MySegmentMutationsFactory(mySegments :MySegmentsDTO) :Function {
+  function segmentMutations(storageMutator :Function) :void {
     storageMutator(new Set(mySegments));
-  };
+  }
 
+  return segmentMutations;
 }
 
-module.exports = mySegmentMutationsFactory;
+module.exports = MySegmentMutationsFactory;

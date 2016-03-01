@@ -1,15 +1,12 @@
-/* @flow */ 'use strict';
 
-/*::
-  type SegmentChangesDTO {
-    name: string,
-    added: Array<string>,
-    removed: Array<string>
-  }
-*/
-function segmentMutationsFactory({name, added, removed} /*: SegmentChangesDTO */) {
+type SegmentChangesDTO = {
+  name: string,
+  added: Array<string>,
+  removed: Array<string>
+};
 
-  return function segmentMutations(storageAccesor /*: Function */, storageMutator /*: Function */) {
+function SegmentMutationsFactory({name, added, removed} :SegmentChangesDTO) :Function {
+  function segmentMutations(storageAccesor :Function, storageMutator :Function) :void {
     let segments;
 
     // nothing to do here
@@ -23,8 +20,9 @@ function segmentMutationsFactory({name, added, removed} /*: SegmentChangesDTO */
     removed.forEach(segment => segments.delete(segment));
 
     storageMutator(name, segments);
-  };
+  }
 
+  return segmentMutations;
 }
 
-module.exports = segmentMutationsFactory;
+module.exports = SegmentMutationsFactory;

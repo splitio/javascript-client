@@ -1,13 +1,9 @@
-/* @flow */ 'use strict';
+const log = require('debug')('splitio-cache:updater');
 
-let log = require('debug')('splitio-cache:updater');
+const mySegmentsDataSource = require('../ds/mySegments');
+const storage = require('../storage');
 
-let mySegmentsDataSource = require('../ds/mySegments');
-let storage = require('../storage');
-
-function mySegmentsUpdater({
-  authorizationKey /*: string */, key /*: string */
-}) /*: Promise */ {
+function mySegmentsUpdater({authorizationKey, key}) :Promise {
   log(`[${authorizationKey}] Updating mySegments`);
 
   return mySegmentsDataSource({authorizationKey, key})

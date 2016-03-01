@@ -1,13 +1,45 @@
-/* @flow */ 'use strict';
+const Split = require('@splitsoftware/splitio-engine');
+const parse = Split.parse;
 
-let parse = require('@splitsoftware/splitio-engine').parse;
+type PartitionDTO = {
+  treatment: string,
+  size: number
+};
 
-function splitMutationsFactory(splits /*: Array<Object> */) /*: Function */ {
+type MatcherDTO = {
+  matcherType: string,
+  negate: boolean,
+  userDefinedSegmentMatcherData: any,
+  whitelistMatcherData: any
+};
 
-  return function splitMutations(storageMutator /*: (collection: Array<Split>) => any */) /*: void */ {
+type MatcherGroupDTO = {
+  combiner: string,
+  matchers: Array<MatcherDTO>
+};
+
+type ConditionDTO = {
+  matcherGroup: MatcherGroupDTO,
+  partitions: Array<PartitionDTO>
+};
+
+type SplitDTO = {
+  name: string,
+  seed: number,
+  status: string,
+  killed: boolean,
+  defaultTreatment: string,
+  conditions: Array<ConditionDTO>
+};
+
+type SplitDTOCollection = Array<SplitDTO>;
+
+function SplitMutationsFactory(splits :SplitDTOCollection) :Function {
+  function splitMutations(storageMutator :Function) :void {
     storageMutator(splits.map(parse));
-  };
+  }
 
+  return splitMutations;
 }
 
-module.exports = splitMutationsFactory;
+module.exports = SplitMutationsFactory;
