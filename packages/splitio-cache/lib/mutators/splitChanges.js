@@ -130,12 +130,14 @@ function SplitMutationsFactory(splits) {
     throw new TypeError('Value of argument "splits" violates contract.\n\nExpected:\nArray<SplitDTO>\n\nGot:\n' + _inspect(splits));
   }
 
-  function splitMutations(storageMutator) {
+  function splitMutations(storage, storageMutator) {
     if (!(typeof storageMutator === 'function')) {
       throw new TypeError('Value of argument "storageMutator" violates contract.\n\nExpected:\nFunction\n\nGot:\n' + _inspect(storageMutator));
     }
 
-    storageMutator(splits.map(parse));
+    storageMutator(splits.map(function (split) {
+      return parse(split, storage);
+    }));
   }
 
   return _ref(splitMutations);

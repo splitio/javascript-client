@@ -26,11 +26,11 @@ let core = {
     let splitRefreshScheduler = SchedulerFactory();
     let segmentsRefreshScheduler = SchedulerFactory();
 
-    // the first time the download is sequential:
-    // 1- download feature settings
-    // 2- segments
-    return splitRefreshScheduler.forever(splitChangesUpdater, featuresRefreshRate, coreSettings).then(() => {
-      return segmentsRefreshScheduler.forever(segmentsUpdater, segmentsRefreshRate, coreSettings);
+    return Promise.all([
+      splitRefreshScheduler.forever(splitChangesUpdater, featuresRefreshRate, coreSettings),
+      segmentsRefreshScheduler.forever(segmentsUpdater, segmentsRefreshRate, coreSettings)
+    ]).then(function ([storage]) {
+      return storage;
     });
   },
 

@@ -60,8 +60,8 @@ SplitsStorage.prototype.update = function (updates) {
 
 SplitsStorage.prototype.get = function (splitName) {
   function _ref2(_id2) {
-    if (!(_id2 instanceof Split)) {
-      throw new TypeError('Function return value violates contract.\n\nExpected:\nSplit\n\nGot:\n' + _inspect(_id2));
+    if (!(_id2 == null || _id2 instanceof Split)) {
+      throw new TypeError('Function return value violates contract.\n\nExpected:\n?Split\n\nGot:\n' + _inspect(_id2));
     }
 
     return _id2;

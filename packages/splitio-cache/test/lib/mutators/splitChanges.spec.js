@@ -23,7 +23,7 @@ tape('Split Changes', function (assert) {
   }
 
   var mutator = splitChangesMutatorFactory(splitChangesMock);
-  mutator(storageMutator);
+  mutator(splitsStorage, storageMutator);
 
   assert.deepEqual([].concat((0, _toConsumableArray3.default)(splitsStorage.keys())), ['sample_feature', 'demo_feature', 'hello_world'], 'split keys should match with split names');
   assert.end();

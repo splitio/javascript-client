@@ -1,5 +1,9 @@
 /* @flow */'use strict';
 
+var _slicedToArray2 = require('babel-runtime/helpers/slicedToArray');
+
+var _slicedToArray3 = _interopRequireDefault(_slicedToArray2);
+
 var _promise = require('babel-runtime/core-js/promise');
 
 var _promise2 = _interopRequireDefault(_promise);
@@ -33,11 +37,12 @@ var core = {
     var splitRefreshScheduler = SchedulerFactory();
     var segmentsRefreshScheduler = SchedulerFactory();
 
-    // the first time the download is sequential:
-    // 1- download feature settings
-    // 2- segments
-    return splitRefreshScheduler.forever(splitChangesUpdater, featuresRefreshRate, coreSettings).then(function () {
-      return segmentsRefreshScheduler.forever(segmentsUpdater, segmentsRefreshRate, coreSettings);
+    return _promise2.default.all([splitRefreshScheduler.forever(splitChangesUpdater, featuresRefreshRate, coreSettings), segmentsRefreshScheduler.forever(segmentsUpdater, segmentsRefreshRate, coreSettings)]).then(function (_ref) {
+      var _ref2 = (0, _slicedToArray3.default)(_ref, 1);
+
+      var storage = _ref2[0];
+
+      return storage;
     });
   },
   isStared: function isStared() {

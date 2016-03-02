@@ -21,7 +21,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var log = require('debug')('splitio-cache:updater');
 
 var splitChangesDataSource = require('../ds/splitChanges');
+
 var storage = require('../storage');
+var splitsStorage = storage.splits;
+var update = splitsStorage.update.bind(splitsStorage);
 
 function splitChangesUpdater(_ref2) {
   var authorizationKey = _ref2.authorizationKey;
@@ -37,7 +40,7 @@ function splitChangesUpdater(_ref2) {
   log('[' + authorizationKey + '] Updating splitChanges');
 
   return _ref(splitChangesDataSource({ authorizationKey: authorizationKey }).then(function (splitsMutator) {
-    return splitsMutator(storage.splits.update);
+    return splitsMutator(storage, update);
   }).then(function () {
     return storage;
   }));

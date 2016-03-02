@@ -16,7 +16,7 @@ SplitsStorage.prototype.update = function (updates :Array<Split>) :void {
 
 };
 
-SplitsStorage.prototype.get = function (splitName :string) :Split {
+SplitsStorage.prototype.get = function (splitName :string) :? Split {
   return this.storage.get(splitName);
 };
 

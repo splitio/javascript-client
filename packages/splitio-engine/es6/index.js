@@ -12,9 +12,9 @@ function Split(baseInfo, evaluator, segments) {
   this.segments = segments;
 }
 
-Split.parse = function parse(splitFlatStructure) {
+Split.parse = function parse(splitFlatStructure, storage) {
   let {conditions, ...baseInfo} = splitFlatStructure;
-  let {evaluator, segments} = parser(conditions);
+  let {evaluator, segments} = parser(conditions, storage);
 
   return new Split(baseInfo, evaluator, segments);
 }

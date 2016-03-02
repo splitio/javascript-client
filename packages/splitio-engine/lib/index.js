@@ -18,11 +18,11 @@ function Split(baseInfo, evaluator, segments) {
   this.segments = segments;
 }
 
-Split.parse = function parse(splitFlatStructure) {
+Split.parse = function parse(splitFlatStructure, storage) {
   var conditions = splitFlatStructure.conditions;
   var baseInfo = (0, _objectWithoutProperties3.default)(splitFlatStructure, ['conditions']);
 
-  var _parser = parser(conditions);
+  var _parser = parser(conditions, storage);
 
   var evaluator = _parser.evaluator;
   var segments = _parser.segments;

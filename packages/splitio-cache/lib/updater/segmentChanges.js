@@ -25,7 +25,11 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var log = require('debug')('splitio-cache:updater');
 
 var segmentChangesDataSource = require('../ds/segmentChanges');
+
 var storage = require('../storage');
+var segmentsStorage = storage.segments;
+var get = segmentsStorage.get.bind(segmentsStorage);
+var update = segmentsStorage.update.bind(segmentsStorage);
 
 function segmentChangesUpdater(_ref2) {
   var authorizationKey = _ref2.authorizationKey;
@@ -48,7 +52,7 @@ function segmentChangesUpdater(_ref2) {
     return segmentChangesDataSource({ authorizationKey: authorizationKey, segmentName: segmentName });
   })).then(function (segmentsMutators) {
     segmentsMutators.forEach(function (mutator) {
-      return mutator(storage.segments.get, storage.segments.update);
+      return mutator(get, update);
     });
   }).then(function () {
     return storage;

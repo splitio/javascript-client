@@ -1,7 +1,11 @@
 const log = require('debug')('splitio-cache:updater');
 
 const segmentChangesDataSource = require('../ds/segmentChanges');
+
 const storage = require('../storage');
+const segmentsStorage = storage.segments;
+const get = segmentsStorage.get.bind(segmentsStorage);
+const update = segmentsStorage.update.bind(segmentsStorage);
 
 function segmentChangesUpdater({authorizationKey}) :Promise {
   log(`[${authorizationKey}] Updating segmentChanges`);
@@ -13,7 +17,7 @@ function segmentChangesUpdater({authorizationKey}) :Promise {
   return Promise.all(
     [...segments].map(segmentName => segmentChangesDataSource({authorizationKey, segmentName}))
   ).then(segmentsMutators => {
-    segmentsMutators.forEach(mutator => mutator(storage.segments.get, storage.segments.update));
+    segmentsMutators.forEach(mutator => mutator(get, update));
   }).then(() => storage);
 }
 

@@ -13,7 +13,7 @@ tape('Split Changes', assert => {
   }
 
   let mutator = splitChangesMutatorFactory(splitChangesMock);
-  mutator(storageMutator);
+  mutator(splitsStorage, storageMutator);
 
   assert.deepEqual(
     [...splitsStorage.keys()],

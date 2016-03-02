@@ -35,8 +35,10 @@ type SplitDTO = {
 type SplitDTOCollection = Array<SplitDTO>;
 
 function SplitMutationsFactory(splits :SplitDTOCollection) :Function {
-  function splitMutations(storageMutator :Function) :void {
-    storageMutator(splits.map(parse));
+  function splitMutations(storage, storageMutator :Function) :void {
+    storageMutator(splits.map(function(split) {
+      return parse(split, storage);
+    }));
   }
 
   return splitMutations;

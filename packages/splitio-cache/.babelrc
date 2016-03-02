@@ -5,7 +5,8 @@
   "plugins": [
     ["typecheck", {
       "disable": {
-        "production": true
+        "production": true,
+        "loadtesting": true
       }
     }],
     "syntax-flow",
