@@ -72,7 +72,7 @@ const offline = browserify();
 offline.add(offlineSplitSource);
 offline.transform(envify({
     _: 'purge',
-    NODE_ENV: 'production'
+    NODE_ENV: process.env.NODE_ENV || 'production'
   }), { global: true })
   .bundle()
     .pipe(fs.createWriteStream(offlineBundlePath))
@@ -85,7 +85,7 @@ const dev = browserify({ debug: true });
 dev.add(onlineSplitSource);
 dev.transform(envify({
     _: 'purge',
-    NODE_ENV: 'production'
+    NODE_ENV: process.env.NODE_ENV || 'production'
   }), { global: true })
   .bundle()
     .pipe(fs.createWriteStream(debugBundlePath));
@@ -94,7 +94,7 @@ const prod = browserify();
 prod.add(onlineSplitSource);
 prod.transform(envify({
     _: 'purge',
-    NODE_ENV: 'production'
+    NODE_ENV: process.env.NODE_ENV || 'production'
   }), { global: true })
   .bundle()
     .pipe(fs.createWriteStream(onlineBundlePath))
