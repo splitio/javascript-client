@@ -1,9 +1,14 @@
+
+import type {
+  Thenable
+} from '../types';
+
 const mySegmentsService = require('@splitsoftware/splitio-services/lib/mySegments');
 const mySegmentsRequest = require('@splitsoftware/splitio-services/lib/mySegments/get');
 
 const mySegmentMutationsFactory = require('../mutators/mySegments');
 
-function mySegmentsDataSource() :Promise {
+function mySegmentsDataSource() :Thenable {
   return mySegmentsService(mySegmentsRequest())
     .then(resp => resp.json())
     .then(json => {

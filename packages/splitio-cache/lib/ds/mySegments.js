@@ -12,11 +12,12 @@ var _typeof2 = require('babel-runtime/helpers/typeof');
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
-var _promise = require('babel-runtime/core-js/promise');
-
-var _promise2 = _interopRequireDefault(_promise);
+var _types = require('../types');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var Thenable = _types.Thenable;
+
 
 var mySegmentsService = require('@splitsoftware/splitio-services/lib/mySegments');
 var mySegmentsRequest = require('@splitsoftware/splitio-services/lib/mySegments/get');
@@ -25,8 +26,8 @@ var mySegmentMutationsFactory = require('../mutators/mySegments');
 
 function mySegmentsDataSource() {
   function _ref(_id) {
-    if (!(_id instanceof _promise2.default)) {
-      throw new TypeError('Function "mySegmentsDataSource" return value violates contract.\n\nExpected:\nPromise\n\nGot:\n' + _inspect(_id));
+    if (!Thenable(_id)) {
+      throw new TypeError('Function "mySegmentsDataSource" return value violates contract.\n\nExpected:\nThenable\n\nGot:\n' + _inspect(_id));
     }
 
     return _id;

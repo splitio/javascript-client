@@ -16,15 +16,16 @@ var _objectWithoutProperties2 = require('babel-runtime/helpers/objectWithoutProp
 
 var _objectWithoutProperties3 = _interopRequireDefault(_objectWithoutProperties2);
 
-var _promise = require('babel-runtime/core-js/promise');
-
-var _promise2 = _interopRequireDefault(_promise);
-
 var _map = require('babel-runtime/core-js/map');
 
 var _map2 = _interopRequireDefault(_map);
 
+var _types = require('../types');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var Thenable = _types.Thenable;
+
 
 var segmentChangesService = require('@splitsoftware/splitio-services/lib/segmentChanges');
 var segmentChangesRequest = require('@splitsoftware/splitio-services/lib/segmentChanges/get');
@@ -41,8 +42,8 @@ function segmentChangesDataSource(_ref2) {
   var segmentName = _ref2.segmentName;
 
   function _ref(_id) {
-    if (!(_id instanceof _promise2.default)) {
-      throw new TypeError('Function "segmentChangesDataSource" return value violates contract.\n\nExpected:\nPromise\n\nGot:\n' + _inspect(_id));
+    if (!Thenable(_id)) {
+      throw new TypeError('Function "segmentChangesDataSource" return value violates contract.\n\nExpected:\nThenable\n\nGot:\n' + _inspect(_id));
     }
 
     return _id;

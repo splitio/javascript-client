@@ -1,3 +1,8 @@
+
+import type {
+  Thenable
+} from '../types';
+
 const segmentChangesService = require('@splitsoftware/splitio-services/lib/segmentChanges');
 const segmentChangesRequest = require('@splitsoftware/splitio-services/lib/segmentChanges/get');
 
@@ -11,7 +16,7 @@ function cacheKeyGenerator(authorizationKey, segmentName) {
 function segmentChangesDataSource({
   authorizationKey,
   segmentName
-}) :Promise {
+}) :Thenable {
   const cacheKey = cacheKeyGenerator(authorizationKey, segmentName);
   const since = cache.get(cacheKey) || -1;
 
