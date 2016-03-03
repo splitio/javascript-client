@@ -1,10 +1,10 @@
 'use strict';
 
-function MySegmentsContext(Transport) {
-  return function MySegmentsFetch(request) {
+function SplitChangesContext(Transport) {
+  return function SplitChangesFetch(request) {
     return Transport(request);
   };
 }
 
-module.exports = MySegmentsContext;
+module.exports = SplitChangesContext;
 //# sourceMappingURL=service.js.map
