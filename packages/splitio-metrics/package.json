@@ -18,8 +18,8 @@
     "coverage": "istanbul test tape -- test/lib/**/*.spec.js"
   },
   "dependencies": {
-    "@splitsoftware/splitio-utils": "0.26.0",
-    "@splitsoftware/splitio-services": "0.26.0"
+    "@splitsoftware/splitio-utils": "0.27.1-canary.0",
+    "@splitsoftware/splitio-services": "0.27.1-canary.0"
   },
   "devDependencies": {
     "babel-cli": "^6.3.17",
