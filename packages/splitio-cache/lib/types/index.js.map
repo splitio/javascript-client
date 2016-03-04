@@ -1,1 +1,1 @@
-{"version":3,"sources":[],"names":[],"mappings":"","file":"index.js","sourcesContent":[]}
+{"version":3,"sources":["../../es6/types/index.js"],"names":[],"mappings":";;;;;;;;;;;;;;;;;IACY;;yCACV;;;;gCADU","file":"index.js","sourcesContent":["\nexport type Thenable = {\n  then: Function\n};\n"]}
