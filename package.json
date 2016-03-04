@@ -9,7 +9,8 @@
     "build-all": "./scripts/build-all.sh",
     "test-all": "./scripts/test-all.sh",
     "expose-all": "./scripts/expose-all.sh",
-    "clean-all": "./scripts/clean-all.sh"
+    "clean-all": "./scripts/clean-all.sh",
+    "canary-all": "./scripts/canary-all.sh"
   },
   "devDependencies": {
     "babel-eslint": "^4.0.6",
