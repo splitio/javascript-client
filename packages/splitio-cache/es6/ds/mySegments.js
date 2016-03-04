@@ -1,4 +1,3 @@
-
 import type {
   Thenable
 } from '../types';

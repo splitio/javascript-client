@@ -1,3 +1,7 @@
+import type {
+  Thenable
+} from '../types';
+
 const log = require('debug')('splitio-cache:updater');
 
 const segmentChangesDataSource = require('../ds/segmentChanges');
@@ -7,7 +11,7 @@ const segmentsStorage = storage.segments;
 const get = segmentsStorage.get.bind(segmentsStorage);
 const update = segmentsStorage.update.bind(segmentsStorage);
 
-function segmentChangesUpdater({authorizationKey}) :Promise {
+function segmentChangesUpdater({authorizationKey}) :Thenable {
   log(`[${authorizationKey}] Updating segmentChanges`);
 
   // Read the list of segments available.
