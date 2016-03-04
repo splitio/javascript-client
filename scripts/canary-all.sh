@@ -20,9 +20,9 @@ cd packages/splitio-engine
 npm publish --tag canary
 cd - &> /dev/null
 
-# cd packages/splitio
-# npm publish --tag canary
-# cd - &> /dev/null
+cd packages/splitio
+npm publish --tag canary
+cd - &> /dev/null
 
 cd packages/splitio-browser
 npm publish --tag canary
