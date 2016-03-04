@@ -12,8 +12,8 @@ console.log('SPLIT DEMO!');
 
 var sdk = splitio({
   core: {
-    authorizationKey: 'c1l5vkd50gimccout3c03pntbu', // change this with your api token
-    key: '4a2c4490-ced1-11e5-9b97-d8a25e8b1578'     // change this with your user key
+    authorizationKey: '29lsbc79peklpksdto0a90s2e3u1agv8vqm2', // change this with your api token
+    key: '4a2c4490-ced1-11e5-9b97-d8a25e8b1578'               // change this with your user key
   }
 });
 
