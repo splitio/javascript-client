@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio-services",
-  "version": "0.28.0-canary.2",
+  "version": "0.28.0-canary.3",
   "description": "Split services layer for Node and the Browser",
   "author": "Facundo Cabrera <facundo@split.io>",
   "homepage": "https://github.com/splitio/javascript-client",
@@ -14,7 +14,7 @@
     "watch": "babel es6 --out-dir lib --source-maps --watch"
   },
   "dependencies": {
-    "@splitsoftware/splitio-utils": "0.28.0-canary.2",
+    "@splitsoftware/splitio-utils": "0.28.0-canary.3",
     "isomorphic-fetch": "^2.2.1",
     "lodash.groupby": "^4.2.0"
   },
