@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio-metrics",
-  "version": "0.28.0-canary.3",
+  "version": "0.28.0",
   "description": "Split Metrics",
   "author": "Facundo Cabrera <facundo@split.io>",
   "homepage": "https://github.com/splitio/javascript-client",
@@ -18,8 +18,8 @@
     "coverage": "istanbul test tape -- test/lib/**/*.spec.js"
   },
   "dependencies": {
-    "@splitsoftware/splitio-utils": "0.28.0-canary.3",
-    "@splitsoftware/splitio-services": "0.28.0-canary.3"
+    "@splitsoftware/splitio-utils": "0.28.0",
+    "@splitsoftware/splitio-services": "0.28.0"
   },
   "devDependencies": {
     "babel-cli": "^6.3.17",

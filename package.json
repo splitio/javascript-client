@@ -1,6 +1,7 @@
 {
   "private": true,
   "license": "Apache-2",
+  "version": "0.28.0",
   "scripts": {
     "tc": "flow check",
     "lint": "./scripts/lint.sh",
@@ -10,7 +11,8 @@
     "test-all": "./scripts/test-all.sh",
     "expose-all": "./scripts/expose-all.sh",
     "clean-all": "./scripts/clean-all.sh",
-    "canary-all": "./scripts/canary-all.sh"
+    "canary-all": "./scripts/canary-all.sh",
+    "release-all": "./scripts/release-all.sh"
   },
   "devDependencies": {
     "babel-eslint": "^4.0.6",

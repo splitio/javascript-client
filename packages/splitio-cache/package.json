@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio-cache",
-  "version": "0.28.0-canary.3",
+  "version": "0.28.0",
   "description": "Split Cache",
   "author": "Facundo Cabrera <facundo@split.io>",
   "homepage": "https://github.com/splitio/javascript-client",
@@ -19,8 +19,8 @@
     "coverage": "istanbul test tape -- test/lib/**/*.spec.js"
   },
   "dependencies": {
-    "@splitsoftware/splitio-engine": "0.28.0-canary.3",
-    "@splitsoftware/splitio-services": "0.28.0-canary.3",
+    "@splitsoftware/splitio-engine": "0.28.0",
+    "@splitsoftware/splitio-services": "0.28.0",
     "babel-runtime": "^6.5.0"
   },
   "devDependencies": {
