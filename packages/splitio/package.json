@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio",
-  "version": "0.28.0",
+  "version": "0.29.0-canary.0",
   "description": "Split SDK",
   "author": "Facundo Cabrera <facundo@split.io>",
   "homepage": "https://github.com/splitio/javascript-client",
@@ -19,9 +19,9 @@
     "coverage": "istanbul test tape -- test/lib/**/*.spec.js"
   },
   "dependencies": {
-    "@splitsoftware/splitio-cache": "0.28.0",
-    "@splitsoftware/splitio-metrics": "0.28.0",
-    "@splitsoftware/splitio-utils": "0.28.0",
+    "@splitsoftware/splitio-cache": "0.29.0-canary.0",
+    "@splitsoftware/splitio-metrics": "0.29.0-canary.0",
+    "@splitsoftware/splitio-utils": "0.29.0-canary.0",
     "babel-runtime": "^6.5.0",
     "debug": "^2.2.0"
   },
