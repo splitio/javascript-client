@@ -1,7 +1,7 @@
 'use strict';
 
-const matcherTypes = require('../../../lib/matchers/types');
-const matcherFactory = require('../../../lib/matchers');
+const matcherTypes = require('../../../../lib/matchers/types');
+const matcherFactory = require('../../../../lib/matchers');
 const tape = require('tape');
 
 tape('MATCHER SEGMENT / should return true ONLY when the key is defined inside the segment', assert => {

@@ -8,22 +8,36 @@ module.exports = function(config) {
     // enable / disable watching file and executing tests whenever any file changes
     autoWatch: true,
 
+    watchify: {
+      poll: true
+    },
+
     // base path, that will be used to resolve files and exclude
     basePath: '',
 
     // testing framework to use (jasmine/mocha/qunit/...)
     // as well as any additional frameworks (requirejs/chai/sinon/...)
-    frameworks: [
-      'jasmine'
-    ],
+    frameworks: [ 'browserify', 'tap' ],
 
     // list of files / patterns to load in the browser
     files: [
+      'test/lib/**/*.spec.js'
     ],
 
     // list of files / patterns to exclude
     exclude: [
+      'test/lib/**/node.spec.js',
+      'test/lib/engine/utils.spec.js'
     ],
+
+    preprocessors: {
+      'test/**/*.js': [ 'browserify' ]
+    },
+
+    browserify: {
+      debug: true,
+      transform: [ 'brfs' ]
+    },
 
     // web server port
     port: 8080,
@@ -37,12 +51,17 @@ module.exports = function(config) {
     // - PhantomJS
     // - IE (only Windows)
     browsers: [
-      'PhantomJS'
+      'Chrome', 'Firefox', 'Safari'
     ],
 
     // Which plugins to enable
     plugins: [
       'karma-phantomjs-launcher',
+      'karma-chrome-launcher',
+      'karma-firefox-launcher',
+      'karma-safari-launcher',
+      'karma-tap',
+      'karma-browserify'
     ],
 
     // Continuous Integration mode

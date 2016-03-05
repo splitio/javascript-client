@@ -6,8 +6,8 @@ var _set2 = _interopRequireDefault(_set);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var matcherTypes = require('../../../lib/matchers/types');
-var matcherFactory = require('../../../lib/matchers');
+var matcherTypes = require('../../../../lib/matchers/types');
+var matcherFactory = require('../../../../lib/matchers');
 var tape = require('tape');
 
 tape('MATCHER SEGMENT / should return true ONLY when the key is defined inside the segment', function (assert) {
@@ -32,4 +32,4 @@ tape('MATCHER SEGMENT / should return true ONLY when the key is defined inside t
   assert.false(matcher('another_key'), '"another key" should be false');
   assert.end();
 });
-//# sourceMappingURL=segment.spec.js.map
+//# sourceMappingURL=node.spec.js.map
