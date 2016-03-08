@@ -28,7 +28,7 @@
     "browserify-istanbul": "^1.0.0",
     "csv-streamify": "^3.0.3",
     "istanbul": "^0.4.2",
-    "karma": "^0.13.21",
+    "karma": "^0.13.22",
     "karma-browserify": "^5.0.2",
     "karma-chrome-launcher": "^0.2.2",
     "karma-coverage": "^0.5.4",
