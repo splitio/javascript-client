@@ -1,4 +1,3 @@
-'use strict';
 
 function SchedulerFactory() {
   let timeoutID = undefined;

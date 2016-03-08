@@ -1,7 +1,5 @@
-'use strict';
-
-let tape = require('tape');
-let url = require('../../../lib/url');
+const tape = require('tape');
+const url = require('../../../lib/url');
 
 tape('URL / check development url', assert => {
   process.env.NODE_ENV = 'development';

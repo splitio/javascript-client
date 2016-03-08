@@ -1,10 +1,7 @@
-'use strict';
-
-let tape = require('tape');
-let now = require('../../../lib/now');
+const tape = require('tape');
+const now = require('../../../lib/now');
 
 tape('NOW / should generate a value each time you call it', assert => {
-
   let n1 = now();
   let n2 = now();
   let n3 = now();

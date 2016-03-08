@@ -1,4 +1,4 @@
-/* @flow */'use strict';
+"use strict";
 
 function bs(items /*: array<number> */, value /*: number */) /*: number */{
   var startIndex = 0;

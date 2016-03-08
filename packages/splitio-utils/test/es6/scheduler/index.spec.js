@@ -1,7 +1,5 @@
-'use strict';
-
-let tape = require('tape');
-let scheduler = require('../../../lib/scheduler')();
+const tape = require('tape');
+const scheduler = require('../../../lib/scheduler')();
 
 tape('Scheduler', assert => {
   let counter = 0;

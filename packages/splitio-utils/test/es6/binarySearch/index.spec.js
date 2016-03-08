@@ -1,7 +1,5 @@
-'use strict';
-
-let tape = require('tape');
-let bs = require('../../../lib/binarySearch');
+const tape = require('tape');
+const bs = require('../../../lib/binarySearch');
 
 tape('BINARY SEARCH / given [1,3,5,7,10] as dataset look for several elements', assert => {
   let searchFor = bs.bind(null, [1, 3, 5, 7, 10]);

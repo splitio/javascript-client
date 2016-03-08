@@ -1,4 +1,3 @@
-/* @flow */ 'use strict';
 
 function bs(items /*: array<number> */, value /*: number */) /*: number */ {
   let startIndex = 0;

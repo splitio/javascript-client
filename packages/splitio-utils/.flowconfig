@@ -1,7 +1,0 @@
-[ignore]
-.*/scripts/.*
-.*/es6/.*
-.*node_modules.*
-
-[options]
-suppress_comment= \\(.\\|\n\\)*\\$FlowFixMe

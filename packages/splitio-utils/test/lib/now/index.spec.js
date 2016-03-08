@@ -10,7 +10,6 @@ var tape = require('tape');
 var now = require('../../../lib/now');
 
 tape('NOW / should generate a value each time you call it', function (assert) {
-
   var n1 = now();
   var n2 = now();
   var n3 = now();

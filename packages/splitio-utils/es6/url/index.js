@@ -1,4 +1,3 @@
-'use strict';
 
 function url(target) {
   if ('stage' === process.env.NODE_ENV) {
