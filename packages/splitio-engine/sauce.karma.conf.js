@@ -135,8 +135,7 @@ module.exports = function(config) {
     },
 
     browserify: {
-      debug: true,
-      transform: [ 'brfs' ]
+      debug: true
     },
 
     // Which plugins to enable
@@ -159,10 +158,21 @@ module.exports = function(config) {
       },
       public: 'public'
     },
-    // Increase timeout in case connection in CI is slow
-    captureTimeout: 120000,
+
     customLaunchers: customLaunchers,
+
     browsers: Object.keys(customLaunchers),
-    singleRun: true
+
+    singleRun: true,
+
+    concurrency: 2,
+
+    browserDisconnectTimeout : 10000, // default 2000
+
+    browserDisconnectTolerance : 1, // default 0
+
+    browserNoActivityTimeout : 4*60*1000, //default 10000
+
+    captureTimeout : 4*60*1000 //default 60000
   });
 };
