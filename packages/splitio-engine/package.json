@@ -14,8 +14,7 @@
     "build": "./scripts/build.sh",
     "watch": "babel es6 --out-dir lib --source-maps --watch",
     "watch-test": "babel test/es6 --out-dir test/lib --source-maps --watch",
-    "test": "tape 'test/lib/**/!(browser).spec.js' | faucet",
-    "coverage": "istanbul test tape -- test/lib/**/*.spec.js",
+    "test": "istanbul test tape -- 'test/lib/**/!(browser).spec.js'",
     "karma-local": "karma start local.karma.conf.js",
     "karma-sauce": "karma start sauce.karma.conf.js"
   },
@@ -28,7 +27,6 @@
     "browserify": "^13.0.0",
     "browserify-istanbul": "^1.0.0",
     "csv-streamify": "^3.0.3",
-    "faucet": "0.0.1",
     "istanbul": "^0.4.2",
     "karma": "^0.13.21",
     "karma-browserify": "^5.0.2",
@@ -38,7 +36,7 @@
     "karma-phantomjs-launcher": "^1.0.0",
     "karma-safari-launcher": "^0.1.1",
     "karma-sauce-launcher": "^0.3.1",
-    "karma-tap": "^1.0.3",
+    "karma-tap": "^1.0.4",
     "phantomjs-prebuilt": "^2.1.4",
     "tape": "^4.4.0",
     "watchify": "^3.7.0"
