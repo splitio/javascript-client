@@ -23,7 +23,7 @@ function transform(matcherGroup /*: object */) /*: MatcherDTO */{
 
 
   var type = matcherTypes.mapper(matcherType);
-  var value = undefined;
+  var value = void 0;
 
   if (type === matcherTypes.enum.ALL) {
     value = undefined;

@@ -1,6 +1,3 @@
-// Karma configuration
-// Generated on 2016-03-03
-
 module.exports = function(config) {
   'use strict';
 
@@ -42,6 +39,14 @@ module.exports = function(config) {
     // web server port
     port: 8080,
 
+    // make IE happy (in theory not required)
+    // https://msdn.microsoft.com/en-us/library/ff955275(v=vs.85).aspx
+    customHeaders: [{
+      match: 'html',
+      name: 'X-UA-Compatible',
+      value: 'IE=edge'
+    }],
+
     // Start these browsers, currently available:
     // - Chrome
     // - ChromeCanary
@@ -51,7 +56,7 @@ module.exports = function(config) {
     // - PhantomJS
     // - IE (only Windows)
     browsers: [
-      'Chrome', 'Firefox', 'Safari'
+      //'PhantomJS'
     ],
 
     // Which plugins to enable
@@ -66,19 +71,12 @@ module.exports = function(config) {
 
     // Continuous Integration mode
     // if true, it capture browsers, run tests and exit
-    singleRun: true,
+    singleRun: false,
 
     colors: true,
 
     // level of logging
     // possible values: LOG_DISABLE || LOG_ERROR || LOG_WARN || LOG_INFO || LOG_DEBUG
-    logLevel: config.LOG_DEBUG,
-
-    // Uncomment the following lines if you are using grunt's server to run the tests
-    // proxies: {
-    //   '/': 'http://localhost:9000/'
-    // },
-    // URL root prevent conflicts with the site root
-    // urlRoot: '_karma_'
+    logLevel: config.LOG_DEBUG
   });
 };

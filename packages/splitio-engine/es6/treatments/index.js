@@ -1,11 +1,11 @@
-/* @flow */ 'use strict';
-
 /*::
   type PartitionDTO = {
     treatment: string,
     size: number
   }
 */
+
+const findIndex = require('core-js/library/fn/array/find-index');
 
 function Treatments(ranges /*: array<number> */, treatments /*: array<string> */) {
   if (!(this instanceof Treatments)) {
@@ -38,9 +38,18 @@ Treatments.parse = function parse(data /*: array<PartitionDTO> */) /*: Treatment
 Treatments.prototype.getTreatmentFor = function getTreatmentFor(x /*: number */) /*: string */ {
   if (x < 0 || x > 100) throw new RangeError('Please provide a value between 0 and 100');
 
-  for (let [k, r] of this._ranges.entries()) {
-    if (x <= r) return this._treatments[k];
-  }
+  let index = findIndex(this._ranges, range => x <= range);
+  let treatment = this._treatments[index];
+
+  console.log(index, treatment);
+
+  return treatment;
+
+  // We need to manually add any dependency which escape of dummy resolution
+  // I'll deal with this in a future release
+  // for (let [k, r] of this._ranges.entries()) {
+  //   if (x <= r) return this._treatments[k];
+  // }
 }
 
 module.exports = Treatments;
