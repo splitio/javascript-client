@@ -1,20 +1,28 @@
+const istanbul = require('browserify-istanbul');
+const browserifyCoverageTransform = istanbul({
+  ignore: [ '**/*.spec.js' ]
+});
+
 module.exports = function(config) {
   'use strict';
 
   config.set({
     // enable / disable watching file and executing tests whenever any file changes
-    autoWatch: true,
-
-    watchify: {
-      poll: true
-    },
+    // autoWatch: true,
+    //
+    // watchify: {
+    //   poll: true
+    // },
 
     // base path, that will be used to resolve files and exclude
     basePath: '',
 
     // testing framework to use (jasmine/mocha/qunit/...)
     // as well as any additional frameworks (requirejs/chai/sinon/...)
-    frameworks: [ 'browserify', 'tap' ],
+    frameworks: [
+      'browserify',
+      'tap'
+    ],
 
     // list of files / patterns to load in the browser
     files: [
@@ -33,7 +41,7 @@ module.exports = function(config) {
 
     browserify: {
       debug: true,
-      transform: [ 'brfs' ]
+      transform: [ browserifyCoverageTransform ]
     },
 
     // web server port
@@ -56,27 +64,34 @@ module.exports = function(config) {
     // - PhantomJS
     // - IE (only Windows)
     browsers: [
-      //'PhantomJS'
+      'Chrome',
+      'Firefox',
+      'Safari',
+      'PhantomJS'
     ],
 
     // Which plugins to enable
     plugins: [
-      'karma-phantomjs-launcher',
-      'karma-chrome-launcher',
-      'karma-firefox-launcher',
-      'karma-safari-launcher',
-      'karma-tap',
-      'karma-browserify'
+      'karma-*'
     ],
 
     // Continuous Integration mode
     // if true, it capture browsers, run tests and exit
-    singleRun: false,
+    singleRun: true,
 
     colors: true,
 
     // level of logging
     // possible values: LOG_DISABLE || LOG_ERROR || LOG_WARN || LOG_INFO || LOG_DEBUG
-    logLevel: config.LOG_DEBUG
+    logLevel: config.LOG_DEBUG,
+
+    coverageReporter: {
+      type : 'html',
+      dir : 'karma_coverage/'
+    },
+
+    reporters: [
+      'coverage'
+    ]
   });
 };
