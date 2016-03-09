@@ -76,14 +76,6 @@ SplitsStorage.prototype.get = function (splitName) {
 
 // @TODO optimize this query to be cached after each update
 SplitsStorage.prototype.getSegments = function () {
-  function _ref3(_id3) {
-    if (!(_id3 instanceof _set2.default)) {
-      throw new TypeError('Function return value violates contract.\n\nExpected:\nSet\n\nGot:\n' + _inspect(_id3));
-    }
-
-    return _id3;
-  }
-
   var mergedSegmentNames = new _set2.default();
 
   _storage$values = this.storage.values();
@@ -119,7 +111,7 @@ SplitsStorage.prototype.getSegments = function () {
     }
   }
 
-  return _ref3(mergedSegmentNames);
+  return mergedSegmentNames;
 };
 
 SplitsStorage.prototype.toJSON = function () {

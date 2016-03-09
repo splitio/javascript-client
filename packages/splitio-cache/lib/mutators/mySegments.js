@@ -52,7 +52,7 @@ function MySegmentMutationsFactory(mySegments) {
   }
 
   if (!MySegmentsDTO(mySegments)) {
-    throw new TypeError("Value of argument \"mySegments\" violates contract.\n\nExpected:\nArray<string>\n\nGot:\n" + _inspect(mySegments));
+    throw new TypeError("Value of argument \"mySegments\" violates contract.\n\nExpected:\nMySegmentsDTO\n\nGot:\n" + _inspect(mySegments));
   }
 
   function segmentMutations(storageMutator) {

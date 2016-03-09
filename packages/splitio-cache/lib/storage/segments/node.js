@@ -44,19 +44,11 @@ SegmentsStorage.prototype.update = function (name, segment) {
 };
 
 SegmentsStorage.prototype.get = function (name) {
-  function _ref2(_id2) {
-    if (!(_id2 instanceof _set2.default)) {
-      throw new TypeError('Function return value violates contract.\n\nExpected:\nSet\n\nGot:\n' + _inspect(_id2));
-    }
-
-    return _id2;
-  }
-
   if (!(typeof name === 'string')) {
     throw new TypeError('Value of argument "name" violates contract.\n\nExpected:\nstring\n\nGot:\n' + _inspect(name));
   }
 
-  return _ref2(this.storage.get(name) || new _set2.default());
+  return this.storage.get(name) || new _set2.default();
 };
 
 SegmentsStorage.prototype.toJSON = function () {

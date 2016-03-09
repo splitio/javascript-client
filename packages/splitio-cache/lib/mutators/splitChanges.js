@@ -127,7 +127,7 @@ function SplitMutationsFactory(splits) {
   }
 
   if (!SplitDTOCollection(splits)) {
-    throw new TypeError('Value of argument "splits" violates contract.\n\nExpected:\nArray<SplitDTO>\n\nGot:\n' + _inspect(splits));
+    throw new TypeError('Value of argument "splits" violates contract.\n\nExpected:\nSplitDTOCollection\n\nGot:\n' + _inspect(splits));
   }
 
   function splitMutations(storage, storageMutator) {

@@ -11,13 +11,12 @@ var SegmentsStorage = require('../../../../lib/storage/segments');
 
 tape('SEGMENTS STORAGE', function (assert) {
   var storage = new SegmentsStorage();
+  var segments = new _set2.default(['a', 'b', 'c']);
 
-  var segmentName = 's';
-  var segmentSet = new _set2.default(['a', 'b', 'c']);
+  storage.update(segments);
 
-  storage.update(segmentName, segmentSet);
-
-  assert.equal(storage.get(segmentName), segmentSet, 'should use the same instance');
+  assert.true(storage.has('b'), 'b is present in the list of segment names');
+  assert.false(storage.has('s'), 's is present in the list of segment names');
   assert.end();
 });
-//# sourceMappingURL=index.spec.js.map
+//# sourceMappingURL=browser.spec.js.map

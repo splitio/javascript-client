@@ -54,7 +54,7 @@ function SegmentMutationsFactory(_ref3) {
   }
 
   if (!SegmentChangesDTO(arguments[0])) {
-    throw new TypeError("Value of argument 0 violates contract.\n\nExpected:\n{ name: string;\n  added: Array<string>;\n  removed: Array<string>;\n}\n\nGot:\n" + _inspect(arguments[0]));
+    throw new TypeError("Value of argument 0 violates contract.\n\nExpected:\nSegmentChangesDTO\n\nGot:\n" + _inspect(arguments[0]));
   }
 
   function segmentMutations(storageAccesor, storageMutator) {
@@ -66,7 +66,7 @@ function SegmentMutationsFactory(_ref3) {
       throw new TypeError("Value of argument \"storageMutator\" violates contract.\n\nExpected:\nFunction\n\nGot:\n" + _inspect(storageMutator));
     }
 
-    var segments = undefined;
+    var segments = void 0;
 
     // nothing to do here
     if (added.length === 0 && removed.length === 0) {
