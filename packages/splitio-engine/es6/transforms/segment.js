@@ -1,5 +1,3 @@
-/* @flow */ 'use strict';
-
 /**
  * Extract segment name as a plain string.
  */

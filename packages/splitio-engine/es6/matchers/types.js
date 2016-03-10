@@ -1,5 +1,3 @@
-/* @flow */ 'use strict';
-
 module.exports = {
   enum: {
     ALL: Symbol(),

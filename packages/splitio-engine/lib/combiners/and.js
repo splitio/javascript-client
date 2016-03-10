@@ -1,13 +1,12 @@
-/* @flow */'use strict';
+"use strict";
 
-// Premature evaluator (return as soon as something evaluates to true).
-
-var _getIterator2 = require('babel-runtime/core-js/get-iterator');
+var _getIterator2 = require("babel-runtime/core-js/get-iterator");
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+// Premature evaluator (return as soon as something evaluates to true).
 function andContext(predicates /*: Array<(key: string, seed: number) => ?string)> */) /*: Function */{
 
   return function andCombinerEvaluator(key /*: string */, seed /*: number */) /*: string */{

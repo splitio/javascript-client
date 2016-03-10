@@ -1,8 +1,6 @@
-'use strict';
-
-let matcherTypes = require('../../../lib/matchers/types');
-let matcherFactory = require('../../../lib/matchers');
-let tape = require('tape');
+const matcherTypes = require('../../../lib/matchers/types');
+const matcherFactory = require('../../../lib/matchers');
+const tape = require('tape');
 
 tape('MATCHER WHITELIST / should return true ONLY when the key is defined', function (assert) {
 

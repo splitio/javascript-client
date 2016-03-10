@@ -1,5 +1,3 @@
-/* @flow */ 'use strict';
-
 const log = require('debug')('splitio-engine:matcher');
 
 // Segment Matcher Factory.

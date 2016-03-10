@@ -1,12 +1,9 @@
-/* @flow */ 'use strict';
-
-let matcherTypes = require('../matchers/types');
-
-let segmentTransform = require('./segment');
-let whitelistTransform = require('./whitelist');
+const matcherTypes = require('../matchers/types');
+const segmentTransform = require('./segment');
+const whitelistTransform = require('./whitelist');
 
 /*::
-  type MatcherDTO {
+  type MatcherDTO = {
     type: Symbol,
     value: undefined | string | Array<string>
   }

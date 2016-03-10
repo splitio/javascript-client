@@ -1,5 +1,3 @@
-'use strict';
-
 const matcherTypes = require('../../../../lib/matchers/types');
 const matcherFactory = require('../../../../lib/matchers');
 const tape = require('tape');

@@ -1,5 +1,3 @@
-/* @flow */ 'use strict';
-
 const types = require('./types').enum;
 
 const allMatcher = require('./all');
@@ -7,7 +5,7 @@ const segmentMatcher = require('./segment');
 const whitelistMatcher = require('./whitelist');
 
 /*::
-  type MatcherAbstract {
+  type MatcherAbstract = {
     type: Symbol,
     value: undefined | string | Array<string>
   }

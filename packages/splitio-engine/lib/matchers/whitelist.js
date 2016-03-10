@@ -1,4 +1,4 @@
-/* @flow */'use strict';
+'use strict';
 
 var _toConsumableArray2 = require('babel-runtime/helpers/toConsumableArray');
 

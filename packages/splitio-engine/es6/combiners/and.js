@@ -1,4 +1,3 @@
-/* @flow */ 'use strict';
 
 // Premature evaluator (return as soon as something evaluates to true).
 function andContext(predicates /*: Array<(key: string, seed: number) => ?string)> */) /*: Function */ {

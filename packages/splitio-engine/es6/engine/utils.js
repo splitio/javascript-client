@@ -1,5 +1,3 @@
-'use strict';
-
 //
 // JAVA reference implementation for the hashing function.
 //

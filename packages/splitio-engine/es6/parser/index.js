@@ -1,14 +1,12 @@
-/* @flow */ 'use strict';
+const matcherGroupTransform = require('../transforms/matcherGroup');
+const treatmentsParser = require('../treatments').parse;
 
-let matcherGroupTransform = require('../transforms/matcherGroup');
-let treatmentsParser = require('../treatments').parse;
+const matcherTypes = require('../matchers/types').enum;
+const matcherFactory = require('../matchers');
 
-let matcherTypes = require('../matchers/types').enum;
-let matcherFactory = require('../matchers');
+const evaluatorFactory = require('../evaluator');
 
-let evaluatorFactory = require('../evaluator');
-
-let andCombiner = require('../combiners/and');
+const andCombiner = require('../combiners/and');
 
 /*::
   type ParserOutputDTO = {

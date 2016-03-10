@@ -1,4 +1,4 @@
-/* @flow */'use strict';
+'use strict';
 
 var identity = require('./identity');
 

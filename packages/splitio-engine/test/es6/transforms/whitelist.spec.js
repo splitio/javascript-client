@@ -1,7 +1,5 @@
-'use strict';
-
-let transform = require('../../../lib/transforms/whitelist');
-let tape = require('tape');
+const transform = require('../../../lib/transforms/whitelist');
+const tape = require('tape');
 
 tape('TRANSFORMS / a whitelist Array should be casted into a Set', function (assert) {
   let sample = [

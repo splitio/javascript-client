@@ -1,4 +1,10 @@
-'use strict';
+"use strict";
+
+var _getIterator2 = require("babel-runtime/core-js/get-iterator");
+
+var _getIterator3 = _interopRequireDefault(_getIterator2);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 //
 // JAVA reference implementation for the hashing function.
@@ -9,12 +15,6 @@
 // }
 // return h ^ seed; // XOR the hash and seed
 //
-
-var _getIterator2 = require('babel-runtime/core-js/get-iterator');
-
-var _getIterator3 = _interopRequireDefault(_getIterator2);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function ToInteger(x) {
   x = Number(x);

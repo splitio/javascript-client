@@ -1,6 +1,6 @@
-/* @flow */'use strict';
+"use strict";
 
-var _set = require('babel-runtime/core-js/set');
+var _set = require("babel-runtime/core-js/set");
 
 var _set2 = _interopRequireDefault(_set);
 

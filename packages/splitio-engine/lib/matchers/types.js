@@ -1,4 +1,4 @@
-/* @flow */'use strict';
+'use strict';
 
 var _symbol = require('babel-runtime/core-js/symbol');
 

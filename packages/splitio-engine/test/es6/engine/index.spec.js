@@ -1,10 +1,8 @@
-'use strict';
+const tape = require('tape');
+const engine = require('../../../lib/engine');
 
-let tape = require('tape');
-let engine = require('../../../lib/engine');
-
-let Treatments = require('../../../lib/treatments');
-let treatmentsMock = Treatments.parse([{
+const Treatments = require('../../../lib/treatments');
+const treatmentsMock = Treatments.parse([{
   treatment: 'on',
   size: 5
 }, {

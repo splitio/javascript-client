@@ -1,4 +1,4 @@
-/* @flow */'use strict';
+'use strict';
 
 var bucket = require('./utils').bucket;
 var log = require('debug')('splitio-engine');

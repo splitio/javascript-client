@@ -1,6 +1,4 @@
-/* @flow */ 'use strict';
-
-let identity = require('./identity');
+const identity = require('./identity');
 
 function matcherAllContext() {
   return identity;

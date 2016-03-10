@@ -1,7 +1,5 @@
-'use strict';
-
-let parser = require('../../../lib/parser');
-let tape = require('tape');
+const parser = require('../../../lib/parser');
+const tape = require('tape');
 
 tape('PARSER / if user is in segment all 100%:on', assert => {
 

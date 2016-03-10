@@ -1,4 +1,4 @@
-/* @flow */'use strict';
+'use strict';
 
 var _getIterator2 = require('babel-runtime/core-js/get-iterator');
 

@@ -1,12 +1,11 @@
-/* @flow */'use strict';
+'use strict';
 
 var matcherTypes = require('../matchers/types');
-
 var segmentTransform = require('./segment');
 var whitelistTransform = require('./whitelist');
 
 /*::
-  type MatcherDTO {
+  type MatcherDTO = {
     type: Symbol,
     value: undefined | string | Array<string>
   }

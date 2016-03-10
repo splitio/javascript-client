@@ -1,5 +1,3 @@
-'use strict';
-
 const transform = require('../../../lib/transforms/segment');
 const tape = require('tape');
 

@@ -1,6 +1,4 @@
-/* @flow */ 'use strict';
-
-let engine = require('../engine');
+const engine = require('../engine');
 
 /**
  * Evaluator factory.

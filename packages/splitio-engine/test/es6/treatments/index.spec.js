@@ -1,7 +1,5 @@
-'use strict';
-
-let tape = require('tape');
-let Treatments = require('../../../lib/treatments');
+const tape = require('tape');
+const Treatments = require('../../../lib/treatments');
 
 tape('TREATMENTS / parse 2 treatments', assert => {
   let t = Treatments.parse([{

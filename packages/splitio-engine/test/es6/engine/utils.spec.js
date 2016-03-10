@@ -1,9 +1,9 @@
 'use strict';
 
-let tape = require('tape');
-let utils = require('../../../lib/engine/utils');
-let csv = require('csv-streamify');
-let fs = require('fs');
+const tape = require('tape');
+const utils = require('../../../lib/engine/utils');
+const csv = require('csv-streamify');
+const fs = require('fs');
 
 tape('ENGINE / validate hashing behavior using sample data', assert => {
   let parser = csv();

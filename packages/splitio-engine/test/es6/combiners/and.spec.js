@@ -1,7 +1,7 @@
 'use strict';
 
-let tape = require('tape');
-let andCombinerFactory = require('../../../lib/combiners/and');
+const tape = require('tape');
+const andCombinerFactory = require('../../../lib/combiners/and');
 
 tape('AND COMBINER / should correctly propagate context parameters and predicates returns value', assert => {
   let inputKey = 'sample';

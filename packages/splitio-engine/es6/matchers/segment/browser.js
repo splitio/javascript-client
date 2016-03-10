@@ -1,6 +1,4 @@
-/* @flow */ 'use strict';
-
-let log = require('debug')('splitio-engine:matcher');
+const log = require('debug')('splitio-engine:matcher');
 
 // Segment Matcher Factory (for the browser).
 function matcherSegmentContext(segmentName /*: string */, storage /*: Storage */) /*: Function */ {

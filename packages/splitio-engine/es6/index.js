@@ -1,6 +1,4 @@
-'use strict';
-
-let parser = require('./parser');
+const parser = require('./parser');
 
 function Split(baseInfo, evaluator, segments) {
   if (!(this instanceof Split)) {

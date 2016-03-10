@@ -1,8 +1,6 @@
-'use strict';
-
-let matcherTypes = require('../../../lib/matchers/types');
-let matcherFactory = require('../../../lib/matchers');
-let tape = require('tape');
+const matcherTypes = require('../../../lib/matchers/types');
+const matcherFactory = require('../../../lib/matchers');
+const tape = require('tape');
 
 tape('MATCHER ALL / should always return true', function (assert) {
 
