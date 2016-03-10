@@ -1,4 +1,4 @@
-'use strict';
+require('isomorphic-fetch');
 
 const url = require('@splitsoftware/splitio-utils/lib/url');
 const settings = require('@splitsoftware/splitio-utils/lib/settings');

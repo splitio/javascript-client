@@ -1,3 +1,5 @@
+"use strict";
+
 function Context(Transport) {
   return function Fetcher(request) {
     return Transport(request);
@@ -5,3 +7,4 @@ function Context(Transport) {
 }
 
 module.exports = Context;
+//# sourceMappingURL=service.js.map

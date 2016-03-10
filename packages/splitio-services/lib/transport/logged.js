@@ -1,4 +1,4 @@
-/* @flow */'use strict';
+'use strict';
 
 require('isomorphic-fetch');
 

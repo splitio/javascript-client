@@ -1,5 +1,3 @@
-/* @flow */ 'use strict';
-
 require('isomorphic-fetch');
 
 function TrackedRequest(tracker) {

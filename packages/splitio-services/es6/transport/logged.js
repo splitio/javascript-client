@@ -1,5 +1,3 @@
-/* @flow */ 'use strict';
-
 require('isomorphic-fetch');
 
 const log = require('debug')('splitio-services:transport');

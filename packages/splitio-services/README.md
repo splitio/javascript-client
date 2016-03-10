@@ -1,3 +1,3 @@
-# SPLIT Services
+# SPLIT Services API
 
-TODO
+This package contains everything related with backend APIs used by the SDK.

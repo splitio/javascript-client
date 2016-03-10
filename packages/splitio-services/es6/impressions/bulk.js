@@ -1,5 +1,3 @@
-'use strict';
-
 const base = require('../request');
 
 module.exports = function BULK(params) {

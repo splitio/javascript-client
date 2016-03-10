@@ -6,6 +6,8 @@ var _assign2 = _interopRequireDefault(_assign);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+require('isomorphic-fetch');
+
 var url = require('@splitsoftware/splitio-utils/lib/url');
 var settings = require('@splitsoftware/splitio-utils/lib/settings');
 
