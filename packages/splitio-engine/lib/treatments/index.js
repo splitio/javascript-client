@@ -16,7 +16,7 @@ var findIndex = require('core-js/library/fn/array/find-index');
 
 function Treatments(ranges /*: array<number> */, treatments /*: array<string> */) {
   if (!(this instanceof Treatments)) {
-    return new Treatments(baseInfo, evaluator, segments);
+    return new Treatments(ranges, treatments);
   }
 
   if (ranges[ranges.length - 1] !== 100) throw new RangeError('Provided invalid dataset as input');

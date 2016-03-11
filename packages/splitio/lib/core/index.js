@@ -19,8 +19,6 @@ var splitChangesUpdater = _require.splitChangesUpdater;
 var segmentsUpdater = _require.segmentsUpdater;
 
 
-var metrics = require('@splitsoftware/splitio-metrics');
-
 var _isStarted = false;
 var core = {
   start: function start() {
