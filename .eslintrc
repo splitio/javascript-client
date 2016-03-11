@@ -22,8 +22,11 @@
     "no-use-before-define": [2, "nofunc"]
   },
 
-  "ecmaFeatures" : {
-    "jsx" : true,
-    "experimentalObjectRestSpread": true
+  "parserOptions" : {
+    "ecmaVersion": 6,
+    "sourceType": "module",
+    "ecmaFeatures" : {
+      "experimentalObjectRestSpread": true
+    }
   }
 }

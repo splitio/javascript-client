@@ -12,8 +12,6 @@ tape('TRACKER / calling start() and stop() should store and entry inside the col
   setTimeout(function() {
     let et = stop();
 
-    console.log(JSON.stringify( collector.state() ));
-
     assert.true(collector.state().indexOf(et) !== -1, 'ET should be present in the collector sequence');
     assert.end();
   }, 5);

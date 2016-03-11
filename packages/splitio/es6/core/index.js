@@ -8,8 +8,6 @@ let {
   segmentsUpdater
 } = require('@splitsoftware/splitio-cache');
 
-let metrics = require('@splitsoftware/splitio-metrics');
-
 let _isStarted = false;
 let core = {
   start() {

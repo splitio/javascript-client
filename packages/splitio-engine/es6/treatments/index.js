@@ -14,7 +14,7 @@ const findIndex = require('core-js/library/fn/array/find-index');
 
 function Treatments(ranges /*: array<number> */, treatments /*: array<string> */) {
   if (!(this instanceof Treatments)) {
-     return new Treatments(baseInfo, evaluator, segments);
+    return new Treatments(ranges, treatments);
   }
 
   if (ranges[ranges.length - 1] !== 100) throw new RangeError('Provided invalid dataset as input');
@@ -38,7 +38,7 @@ Treatments.parse = function parse(data /*: array<PartitionDTO> */) /*: Treatment
   });
 
   return new Treatments(ranges, treatments);
-}
+};
 
 Treatments.prototype.getTreatmentFor = function getTreatmentFor(x /*: number */) /*: string */ {
   if (x < 0 || x > 100) throw new RangeError('Please provide a value between 0 and 100');
@@ -54,6 +54,6 @@ Treatments.prototype.getTreatmentFor = function getTreatmentFor(x /*: number */)
   const treatment = this._treatments[index];
 
   return treatment;
-}
+};
 
 module.exports = Treatments;
