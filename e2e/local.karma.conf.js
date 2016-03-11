@@ -74,8 +74,8 @@ module.exports = function(config) {
       // 'Chrome',
       // 'Firefox',
       // 'Safari',
-      // 'PhantomJS'
-      'PhantomJS_custom'
+      'PhantomJS'
+      // 'PhantomJS_custom'
     ],
 
     // Which plugins to enable
@@ -85,7 +85,7 @@ module.exports = function(config) {
 
     // Continuous Integration mode
     // if true, it capture browsers, run tests and exit
-    singleRun: false,
+    singleRun: true,
 
     colors: true,
 
@@ -100,8 +100,6 @@ module.exports = function(config) {
 
     reporters: [
       'coverage'
-    ],
-
-    browserDisconnectTimeout: 1000000
+    ]
   });
 };
