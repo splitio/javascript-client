@@ -11,8 +11,8 @@ var getTreatmentTracker = metricsEngine.getTreatment;
 var core = require('./core');
 
 function splitio(settings /*: object */) /*: object */{
-  var engine = undefined;
-  var engineReadyPromise = undefined;
+  var engine = void 0;
+  var engineReadyPromise = void 0;
 
   // setup settings for all the modules
   settings = coreSettings.configure(settings);
