@@ -1,4 +1,6 @@
-/* @flow */ 'use strict';
+// I'll need to fix first 'isomorphic-fetch' to be transpiled using
+// babel-runtime before remove this line of code.
+require('core-js/es6/promise');
 
 const log = require('debug')('splitio');
 
