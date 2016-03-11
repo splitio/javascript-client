@@ -71,9 +71,9 @@ module.exports = function(config) {
     // - PhantomJS
     // - IE (only Windows)
     browsers: [
-      // 'Chrome',
-      // 'Firefox',
-      // 'Safari',
+      'Chrome',
+      'Firefox',
+      'Safari',
       'PhantomJS'
       // 'PhantomJS_custom'
     ],
