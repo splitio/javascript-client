@@ -56,5 +56,5 @@
     "watch": "babel es6 --out-dir lib --source-maps --watch",
     "watch-test": "babel test/es6 --out-dir test/lib --source-maps --watch"
   },
-  "version": "0.29.0"
+  "version": "1.0.0-canary.0"
 }
