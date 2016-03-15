@@ -26,6 +26,22 @@ var _typeof3 = _interopRequireDefault(_typeof2);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+/**
+Copyright 2016 Split Software
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+**/
+
 var help = '\nLooks you are not providing a valid set of settings! Let me show you a little snippet:\n\nvar localhost = {\n    features: {\n        my_cool_feature_name: \'version_a\',\n        another_feature_name: \'version_b\',\n        ...\n    }\n};\n\nvar sdk = splitio(localhost);\n\nsdk.getTreatment(\'my_cool_feature_name\') === \'version_a\'; // This is true!\nsdk.getTreatment(\'another_feature_name\') === \'version_b\'; // This is true!\nsdk.getTreatment(\'missing_feature_name\') === \'control\';   // This is true!\n\nLet\'s start hacking!\n';
 
 var featuresAttributeMustBeAnObject = '\nHey! Please recheck features attribute, it should be an object with the\nfollowing shape:\n\nvar localhost = {\n  ===> features: {\n  ===>     my_cool_feature_name: \'version_a\',\n  ===>     another_feature_name: \'version_b\',\n  ===>     ...\n  ===> }\n};\n\nREMEMBER: any feature not present in this object will be evaluated as \'control\'\n';
