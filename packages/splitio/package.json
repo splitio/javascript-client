@@ -4,7 +4,6 @@
   "description": "Split SDK",
   "author": "Facundo Cabrera <facundo@split.io>",
   "homepage": "https://github.com/splitio/javascript-client",
-  "readme": "README.md",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",

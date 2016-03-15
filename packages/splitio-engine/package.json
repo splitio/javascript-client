@@ -43,7 +43,6 @@
   "license": "Apache-2.0",
   "main": "lib/index.js",
   "name": "@splitsoftware/splitio-engine",
-  "readme": "README.md",
   "repository": {
     "type": "git",
     "url": "https://github.com/splitio/javascript-client/tree/master/packages/splitio-engine"

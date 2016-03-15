@@ -1,7 +1,7 @@
 {
   "name": "@splitsoftware/splitio-browser",
   "version": "1.0.0-canary.0",
-  "description": "Split SDK bundler for the browser",
+  "description": "Split SDK tools for the browser",
   "author": "Facundo Cabrera <facundo@split.io>",
   "homepage": "https://github.com/splitio/javascript-client",
   "license": "Apache-2.0",
