@@ -89,7 +89,7 @@ module.exports = {
 
     switch (settingName) {
       case 'version':
-        return 'javascript-1.0.0-canary.0';
+        return 'javascript-1.0.0';
       case 'core':
         return settings.core;
       case 'scheduler':
