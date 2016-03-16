@@ -22,6 +22,7 @@ limitations under the License.
 
 process.stdout.on('error', process.exit);
 
+const exec = require('child_process').execSync;
 const fs = require('fs');
 const path = require('path');
 const touch = require('touch');
@@ -94,7 +95,12 @@ offline.transform(envify({
     .pipe(fs.createWriteStream(offlineBundlePath))
       .on('finish', function minifyAfterSave() {
         strStream(minify(offlineBundlePath).code)
-          .pipe(fs.createWriteStream(offlineBundlePath));
+          .pipe(fs.createWriteStream(offlineBundlePath))
+            .on('finish', function addCopyrights() {
+              exec(`cat ${path.join(__dirname, '..', 'COPYRIGHT.txt')} > ${offlineBundlePath}.tmp`);
+              exec(`cat ${offlineBundlePath} >> ${offlineBundlePath}.tmp`);
+              exec(`mv ${offlineBundlePath}.tmp ${offlineBundlePath}`);
+            });
       });
 
 const dev = browserify({ debug: true });
@@ -117,5 +123,11 @@ prod.transform(envify({
       .on('finish', function minifyAfterSave() {
         strStream(minify(onlineBundlePath, {
           drop_console: true
-        }).code).pipe(fs.createWriteStream(onlineBundlePath));
+        }).code)
+          .pipe(fs.createWriteStream(onlineBundlePath))
+          .on('finish', function addCopyrights() {
+            exec(`cat ${path.join(__dirname, '..', 'COPYRIGHT.txt')} > ${onlineBundlePath}.tmp`);
+            exec(`cat ${onlineBundlePath} >> ${onlineBundlePath}.tmp`);
+            exec(`mv ${onlineBundlePath}.tmp ${onlineBundlePath}`);
+          });
       });

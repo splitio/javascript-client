@@ -26,13 +26,13 @@
   ],
   "dependencies": {
     "@splitsoftware/splitio": "1.0.0-canary.0",
-    "mkdirp": "^0.5.1",
-    "touch": "^1.0.0",
     "browserify": "^13.0.0",
     "browserify-derequire": "^0.9.4",
     "bundle-collapser": "^1.2.1",
     "envify": "^3.4.0",
+    "mkdirp": "^0.5.1",
     "string-to-stream": "^1.0.1",
+    "touch": "^1.0.0",
     "uglify-js": "^2.6.1"
   }
 }
