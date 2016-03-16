@@ -14,8 +14,8 @@
     "watch": "babel es6 --out-dir lib --source-maps --watch"
   },
   "dependencies": {
-    "@splitsoftware/splitio": "1.0.0",
-    "@splitsoftware/splitio-utils": "1.0.0",
+    "@splitsoftware/splitio": "1.0.1",
+    "@splitsoftware/splitio-utils": "1.0.1",
     "babel-runtime": "^5.8.35",
     "core-js": "^1.2.6"
   },

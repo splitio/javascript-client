@@ -1,3 +1,7 @@
+## 1.0.1 (March 16, 2016)
+
+* No changes made.
+
 ## 1.0.0 (March 15, 2016)
 
 * Initial public release
