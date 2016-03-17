@@ -19,29 +19,29 @@
 #
 
 cd packages/splitio-utils
-npm publish
+npm publish --access public
 cd - &> /dev/null
 
 cd packages/splitio-services
-npm publish
+npm publish --access public
 cd - &> /dev/null
 
 cd packages/splitio-metrics
-npm publish
+npm publish --access public
 cd - &> /dev/null
 
 cd packages/splitio-cache
-npm publish
+npm publish --access public
 cd - &> /dev/null
 
 cd packages/splitio-engine
-npm publish
+npm publish --access public
 cd - &> /dev/null
 
 cd packages/splitio
-npm publish
+npm publish --access public
 cd - &> /dev/null
 
 cd packages/splitio-browser
-npm publish
+npm publish --access public
 cd - &> /dev/null
