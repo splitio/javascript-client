@@ -20,22 +20,55 @@ var segmentTransform = require('./segment');
 var whitelistTransform = require('./whitelist');
 
 /*::
+  type dataTypes = null | 'NUMBER' | 'DATETIME';
+
+  type keySelectorObject = {
+    trafficType: string,
+    attribute: ?string
+  };
+
+  type segmentObject = {
+    segmentName: string
+  };
+
+  type whiteListObject = Array<string>;
+
+  type unaryNumericObject = {
+    dataType: dataTypes,
+    value: number
+  };
+
+  type betweenObject = {
+    dataType: dataTypes,
+    start: number,
+    end: number
+  };
+
   type MatcherDTO = {
+    attribute: ?string,
+    negate: boolean,
     type: Symbol,
-    value: undefined | string | Array<string>
-  }
+    value: undefined | string | whiteListObject | unaryNumericObject | betweenObject
+  };
 */
 
-/**
- * Flat the complex matcherGroup structure into something handy.
- */
+// Flat the complex matcherGroup structure into something handy.
 function transform(matcherGroup /*: object */) /*: MatcherDTO */{
-  var _matcherGroup$matcher = matcherGroup.matchers[0];
-  var matcherType = _matcherGroup$matcher.matcherType;
+  var _matcherGroup$matcher = /*: betweenObject */
+  matcherGroup.matchers[0];
+  var matcherType /*: string */
+  = _matcherGroup$matcher.matcherType;
+  var negate /*: boolean */
+  = _matcherGroup$matcher.negate;
+  var keySelector /*: keySelectorObject */
+  = _matcherGroup$matcher.keySelector;
   var segmentObject = _matcherGroup$matcher.userDefinedSegmentMatcherData;
   var whitelistObject = _matcherGroup$matcher.whitelistMatcherData;
+  var unaryNumericObject = _matcherGroup$matcher.unaryNumericMatcherData;
+  var betweenObject = _matcherGroup$matcher.betweenMatcherData;
 
 
+  var attribute = keySelector && keySelector.attribute;
   var type = matcherTypes.mapper(matcherType);
   var value = void 0;
 
@@ -45,9 +78,15 @@ function transform(matcherGroup /*: object */) /*: MatcherDTO */{
     value = segmentTransform(segmentObject);
   } else if (type === matcherTypes.enum.WHITELIST) {
     value = whitelistTransform(whitelistObject);
+  } else if (type === matcherTypes.enum.EQUAL_TO || type === matcherTypes.enum.GREATER_THAN_OR_EQUAL_TO || type === matcherTypes.enum.LESS_THAN_OR_EQUAL_TO) {
+    value = unaryNumericObject;
+  } else if (type === matcherTypes.enum.BETWEEN) {
+    value = betweenObject;
   }
 
   return {
+    attribute: attribute,
+    negate: negate,
     type: type,
     value: value
   };

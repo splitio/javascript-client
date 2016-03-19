@@ -18,22 +18,51 @@ const segmentTransform = require('./segment');
 const whitelistTransform = require('./whitelist');
 
 /*::
+  type dataTypes = null | 'NUMBER' | 'DATETIME';
+
+  type keySelectorObject = {
+    trafficType: string,
+    attribute: ?string
+  };
+
+  type segmentObject = {
+    segmentName: string
+  };
+
+  type whiteListObject = Array<string>;
+
+  type unaryNumericObject = {
+    dataType: dataTypes,
+    value: number
+  };
+
+  type betweenObject = {
+    dataType: dataTypes,
+    start: number,
+    end: number
+  };
+
   type MatcherDTO = {
+    attribute: ?string,
+    negate: boolean,
     type: Symbol,
-    value: undefined | string | Array<string>
-  }
+    value: undefined | string | whiteListObject | unaryNumericObject | betweenObject
+  };
 */
 
-/**
- * Flat the complex matcherGroup structure into something handy.
- */
+// Flat the complex matcherGroup structure into something handy.
 function transform(matcherGroup /*: object */) /*: MatcherDTO */ {
   let {
-    matcherType,
-    userDefinedSegmentMatcherData: segmentObject,
-    whitelistMatcherData: whitelistObject
+    matcherType                                   /*: string */,
+    negate                                        /*: boolean */,
+    keySelector                                   /*: keySelectorObject */,
+    userDefinedSegmentMatcherData: segmentObject  /*: segmentObject */,
+    whitelistMatcherData: whitelistObject         /*: whiteListObject */,
+    unaryNumericMatcherData: unaryNumericObject   /*: unaryNumericObject */,
+    betweenMatcherData: betweenObject             /*: betweenObject */,
   } = matcherGroup.matchers[0];
 
+  let attribute = keySelector && keySelector.attribute;
   let type = matcherTypes.mapper(matcherType);
   let value;
 
@@ -43,9 +72,17 @@ function transform(matcherGroup /*: object */) /*: MatcherDTO */ {
     value = segmentTransform(segmentObject);
   } else if (type === matcherTypes.enum.WHITELIST) {
     value = whitelistTransform(whitelistObject);
+  } else if (type === matcherTypes.enum.EQUAL_TO ||
+             type === matcherTypes.enum.GREATER_THAN_OR_EQUAL_TO ||
+             type === matcherTypes.enum.LESS_THAN_OR_EQUAL_TO) {
+    value = unaryNumericObject;
+  } else if (type === matcherTypes.enum.BETWEEN) {
+    value = betweenObject;
   }
 
   return {
+    attribute,
+    negate,
     type,
     value
   };

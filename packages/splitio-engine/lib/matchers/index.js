@@ -15,31 +15,48 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+
 var types = require('./types').enum;
 
 var allMatcher = require('./all');
 var segmentMatcher = require('./segment');
 var whitelistMatcher = require('./whitelist');
-
-/*::
-  type MatcherAbstract = {
-    type: Symbol,
-    value: undefined | string | Array<string>
-  }
-*/
+var eqMatcher = require('./eq');
+var gteMatcher = require('./gte');
+var lteMatcher = require('./lte');
+var betweenMatcher = require('./between');
 
 // Matcher factory.
-function factory(matcherAbstract /*: MatcherAbstract */, storage /*: Storage */) /*: function */{
-  var type = matcherAbstract.type;
-  var value = matcherAbstract.value;
+function factory(matcherDto /*: MatcherDTO */, storage /*: Storage */) /*: function */{
+  var negate = matcherDto.negate;
+  var type = matcherDto.type;
+  var value = matcherDto.value;
 
+
+  var matcherFn = void 0;
 
   if (type === types.ALL) {
-    return allMatcher(value);
+    matcherFn = allMatcher(value);
   } else if (type === types.SEGMENT) {
-    return segmentMatcher(value, storage);
+    matcherFn = segmentMatcher(value, storage);
   } else if (type === types.WHITELIST) {
-    return whitelistMatcher(value);
+    matcherFn = whitelistMatcher(value);
+  } else if (type === types.EQUAL_TO) {
+    matcherFn = eqMatcher(value);
+  } else if (type === types.GREATER_THAN_OR_EQUAL_TO) {
+    matcherFn = gteMatcher(value);
+  } else if (type === types.LESS_THAN_OR_EQUAL_TO) {
+    matcherFn = lteMatcher(value);
+  } else if (type === types.BETWEEN) {
+    matcherFn = betweenMatcher(value);
+  }
+
+  if (negate) {
+    return function negateMatcher() {
+      return !matcherFn.apply(undefined, arguments);
+    };
+  } else {
+    return matcherFn;
   }
 }
 

@@ -45,7 +45,7 @@ function splitio(settings /*: object */) /*: object */ {
   metricsEngine.start(settings);
 
   return {
-    getTreatment(key /*: string */, featureName /*: string */) /*: string */ {
+    getTreatment(key /*: string */, featureName /*: string */, attributes /*: object */) /*: string */ {
       let treatment = 'control';
 
       if (engine === undefined) {
@@ -63,7 +63,7 @@ function splitio(settings /*: object */) /*: object */ {
 
       let split = engine.splits.get(featureName);
       if (split) {
-        treatment = split.getTreatment(key);
+        treatment = split.getTreatment(key, attributes);
 
         log(`feature ${featureName} key ${key} evaluated as ${treatment}`);
       } else {

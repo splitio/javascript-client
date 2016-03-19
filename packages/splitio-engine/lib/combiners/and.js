@@ -1,6 +1,6 @@
-"use strict";
+'use strict';
 
-var _getIterator2 = require("babel-runtime/core-js/get-iterator");
+var _getIterator2 = require('babel-runtime/core-js/get-iterator');
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
@@ -22,10 +22,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-// Premature evaluator (return as soon as something evaluates to true).
-function andContext(predicates /*: Array<(key: string, seed: number) => ?string)> */) /*: Function */{
+var log = require('debug')('splitio-engine:combiner');
 
-  return function andCombinerEvaluator(key /*: string */, seed /*: number */) /*: string */{
+// Premature evaluator (return as soon as something evaluates to true).
+function andContext(predicates /*: Array<(key: string, seed: number, attributes: object) => ?string)> */) /*: Function */{
+
+  return function andCombinerEvaluator(key /*: string */, seed /*: number */, attributes /*: object*/) /*: string */{
     var _iteratorNormalCompletion = true;
     var _didIteratorError = false;
     var _iteratorError = undefined;
@@ -34,9 +36,11 @@ function andContext(predicates /*: Array<(key: string, seed: number) => ?string)
       for (var _iterator = (0, _getIterator3.default)(predicates), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
         var evaluator = _step.value;
 
-        var treatment = evaluator(key, seed);
+        var treatment = evaluator(key, seed, attributes);
 
         if (treatment !== undefined) {
+          log('treatment found %s', treatment);
+
           return treatment;
         }
       }
@@ -54,6 +58,8 @@ function andContext(predicates /*: Array<(key: string, seed: number) => ?string)
         }
       }
     }
+
+    log('all predicates evaluted, none treatment available');
 
     return undefined;
   };

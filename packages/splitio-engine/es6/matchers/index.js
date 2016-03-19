@@ -13,29 +13,49 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+
 const types = require('./types').enum;
 
 const allMatcher = require('./all');
 const segmentMatcher = require('./segment');
 const whitelistMatcher = require('./whitelist');
-
-/*::
-  type MatcherAbstract = {
-    type: Symbol,
-    value: undefined | string | Array<string>
-  }
-*/
+const eqMatcher = require('./eq');
+const gteMatcher = require('./gte');
+const lteMatcher = require('./lte');
+const betweenMatcher = require('./between');
 
 // Matcher factory.
-function factory(matcherAbstract /*: MatcherAbstract */, storage /*: Storage */) /*: function */ {
-  let {type, value} = matcherAbstract;
+function factory(matcherDto /*: MatcherDTO */, storage /*: Storage */) /*: function */ {
+  let {
+    negate,
+    type,
+    value
+  } = matcherDto;
+
+  let matcherFn;
 
   if (type === types.ALL) {
-    return allMatcher(value);
+    matcherFn = allMatcher(value);
   } else if (type === types.SEGMENT) {
-    return segmentMatcher(value, storage);
+    matcherFn = segmentMatcher(value, storage);
   } else if (type === types.WHITELIST) {
-    return whitelistMatcher(value);
+    matcherFn = whitelistMatcher(value);
+  } else if (type === types.EQUAL_TO) {
+    matcherFn = eqMatcher(value);
+  } else if (type === types.GREATER_THAN_OR_EQUAL_TO) {
+    matcherFn = gteMatcher(value);
+  } else if (type === types.LESS_THAN_OR_EQUAL_TO) {
+    matcherFn = lteMatcher(value);
+  } else if (type === types.BETWEEN) {
+    matcherFn = betweenMatcher(value);
+  }
+
+  if (negate) {
+    return function negateMatcher(...rest) {
+      return !matcherFn(...rest);
+    };
+  } else {
+    return matcherFn;
   }
 }
 

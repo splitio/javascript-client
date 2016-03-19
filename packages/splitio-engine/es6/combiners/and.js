@@ -14,17 +14,23 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-// Premature evaluator (return as soon as something evaluates to true).
-function andContext(predicates /*: Array<(key: string, seed: number) => ?string)> */) /*: Function */ {
+const log = require('debug')('splitio-engine:combiner');
 
-  return function andCombinerEvaluator(key /*: string */, seed /*: number */) /*: string */ {
+// Premature evaluator (return as soon as something evaluates to true).
+function andContext(predicates /*: Array<(key: string, seed: number, attributes: object) => ?string)> */) /*: Function */ {
+
+  return function andCombinerEvaluator(key /*: string */, seed /*: number */, attributes /*: object*/) /*: string */ {
     for (let evaluator of predicates) {
-      let treatment = evaluator(key, seed);
+      let treatment = evaluator(key, seed, attributes);
 
       if (treatment !== undefined) {
+        log('treatment found %s', treatment);
+
         return treatment;
       }
     }
+
+    log('all predicates evaluted, none treatment available');
 
     return undefined;
   };

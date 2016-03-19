@@ -25,12 +25,12 @@ Split.prototype.getSegments = function getSegments() {
   return this.segments;
 }
 
-Split.prototype.getTreatment = function getTreatment(key) {
+Split.prototype.getTreatment = function getTreatment(key, attributes) {
   if (this.baseInfo.killed) {
     return this.baseInfo.defaultTreatment;
   }
 
-  let treatment = this.evaluator(key, this.baseInfo.seed);
+  let treatment = this.evaluator(key, this.baseInfo.seed, attributes);
 
   return treatment !== undefined ? treatment : this.baseInfo.defaultTreatment;
 }

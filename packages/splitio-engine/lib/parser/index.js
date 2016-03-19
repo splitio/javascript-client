@@ -58,16 +58,16 @@ function parse(conditions /*: Iterable<Object> */, storage /*: Storage */) /*: P
     for (var _iterator = (0, _getIterator3.default)(conditions), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
       var condition = _step.value;
 
-      var matcherMetadata = matcherGroupTransform(condition.matcherGroup);
-      var matcherEvaluator = matcherFactory(matcherMetadata, storage);
+      var matcher = matcherGroupTransform(condition.matcherGroup);
+      var matcherEvaluator = matcherFactory(matcher, storage);
       var treatments = treatmentsParser(condition.partitions);
 
       // Incrementally collect segmentNames
-      if (matcherMetadata.type === matcherTypes.SEGMENT) {
-        segments.add(matcherMetadata.value);
+      if (matcher.type === matcherTypes.SEGMENT) {
+        segments.add(matcher.value);
       }
 
-      predicates.push(evaluatorFactory(matcherEvaluator, treatments));
+      predicates.push(evaluatorFactory(matcherEvaluator, treatments, matcher.attribute));
     }
 
     // Instanciate evaluator given the set of conditions

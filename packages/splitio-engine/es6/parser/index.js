@@ -39,16 +39,20 @@ function parse(conditions /*: Iterable<Object> */, storage /*: Storage */) /*: P
   let evaluator = null;
 
   for (let condition of conditions) {
-    let matcherMetadata = matcherGroupTransform(condition.matcherGroup);
-    let matcherEvaluator = matcherFactory(matcherMetadata, storage);
+    let matcher = matcherGroupTransform(condition.matcherGroup);
+    let matcherEvaluator = matcherFactory(matcher, storage);
     let treatments = treatmentsParser(condition.partitions);
 
     // Incrementally collect segmentNames
-    if (matcherMetadata.type === matcherTypes.SEGMENT) {
-      segments.add(matcherMetadata.value);
+    if (matcher.type === matcherTypes.SEGMENT) {
+      segments.add(matcher.value);
     }
 
-    predicates.push(evaluatorFactory(matcherEvaluator, treatments));
+    predicates.push(evaluatorFactory(
+      matcherEvaluator,
+      treatments,
+      matcher.attribute
+    ));
   }
 
   // Instanciate evaluator given the set of conditions
