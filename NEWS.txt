@@ -1,3 +1,10 @@
+## 2.0.0 (March 21, 2016)
+
+* Improved configurations in order to help developers, now all the refresh rates
+  are in *seconds* instead of *milliseconds*.
+
+* Updated defaults refresh rates with better ones.
+
 ## 1.0.1 (March 16, 2016)
 
 * No changes made.
