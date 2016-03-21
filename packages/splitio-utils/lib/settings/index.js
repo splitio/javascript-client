@@ -96,7 +96,7 @@ module.exports = {
 
     switch (settingName) {
       case 'version':
-        return 'javascript-1.0.1';
+        return 'javascript-2.0.0';
       case 'core':
         return settings.core;
       case 'scheduler':
