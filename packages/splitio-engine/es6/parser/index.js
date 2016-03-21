@@ -13,14 +13,18 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-const matcherGroupTransform = require('../transforms/matcherGroup');
+
+const matchersTransform = require('../transforms/matchers');
 const treatmentsParser = require('../treatments').parse;
 
 const matcherTypes = require('../matchers/types').enum;
 const matcherFactory = require('../matchers');
 
+const value = require('../value');
+
 const evaluatorFactory = require('../evaluator');
 
+const ifElseIfCombiner = require('../combiners/ifelseif');
 const andCombiner = require('../combiners/and');
 
 /*::
@@ -39,24 +43,40 @@ function parse(conditions /*: Iterable<Object> */, storage /*: Storage */) /*: P
   let evaluator = null;
 
   for (let condition of conditions) {
-    let matcher = matcherGroupTransform(condition.matcherGroup);
-    let matcherEvaluator = matcherFactory(matcher, storage);
-    let treatments = treatmentsParser(condition.partitions);
+    let {
+      matcherGroup: {
+        combiner,
+        matchers
+      },
+      partitions
+    } = condition;
 
-    // Incrementally collect segmentNames
-    if (matcher.type === matcherTypes.SEGMENT) {
-      segments.add(matcher.value);
-    }
+    // transform data structure
+    matchers = matchersTransform(matchers);
 
-    predicates.push(evaluatorFactory(
-      matcherEvaluator,
-      treatments,
-      matcher.attribute
-    ));
+    // create a set of pure functions (key, attr, attributes) => boolean
+    let expressions = matchers.map(matcher => {
+      // Incrementally collect segmentNames
+      if (matcher.type === matcherTypes.SEGMENT) {
+        segments.add(matcher.value);
+      }
+
+      let fn = matcherFactory(matcher, storage);
+
+      return function expr(key, attributes) {
+        return fn(value(key, matcher.attribute, attributes));
+      };
+    });
+
+    let andAllMatchers = andCombiner(expressions);
+
+    let treatments = treatmentsParser(partitions);
+
+    predicates.push(evaluatorFactory(andAllMatchers, treatments));
   }
 
-  // Instanciate evaluator given the set of conditions
-  evaluator = andCombiner(predicates);
+  // Instanciate evaluator given the set of conditions using if else if logic
+  evaluator = ifElseIfCombiner(predicates);
 
   return {
     segments,

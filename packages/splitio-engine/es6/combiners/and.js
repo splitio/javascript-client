@@ -16,25 +16,21 @@ limitations under the License.
 
 const log = require('debug')('splitio-engine:combiner');
 
-// Premature evaluator (return as soon as something evaluates to true).
-function andContext(predicates /*: Array<(key: string, seed: number, attributes: object) => ?string)> */) /*: Function */ {
+function andCombinerContext(matchers /*: Array<function> */) /*: function */ {
+  return function andCombiner(...params) /*: boolean */ {
+    let i = 0;
+    let len = matchers.length;
+    let valueHasBeenMatchedAll;
 
-  return function andCombinerEvaluator(key /*: string */, seed /*: number */, attributes /*: object*/) /*: string */ {
-    for (let evaluator of predicates) {
-      let treatment = evaluator(key, seed, attributes);
+    // loop through all the matchers an stop at the first one returning false.
+    for (; i < len && matchers[i](...params); i++);
 
-      if (treatment !== undefined) {
-        log('treatment found %s', treatment);
+    valueHasBeenMatchedAll = i === len;
 
-        return treatment;
-      }
-    }
+    log(`[andCombiner] is evaluates to ${valueHasBeenMatchedAll}`);
 
-    log('all predicates evaluted, none treatment available');
-
-    return undefined;
+    return valueHasBeenMatchedAll;
   };
-
 }
 
-module.exports = andContext;
+module.exports = andCombinerContext;

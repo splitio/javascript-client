@@ -178,7 +178,7 @@ tape('PARSER / if user.account is in segment all then split 100:on', function (a
     account: 'v1'
   }) === 'on', 'v1 is defined in segment all');
 
-  assert.true(evaluator('test@split.io', 31) === undefined, "missing attribute account ends in undefined result");
+  assert.true(evaluator('test@split.io', 31) === undefined, "missing attribute account but using segment all evaluates to on");
 
   assert.end();
 });

@@ -16,14 +16,14 @@ limitations under the License.
 
 const log = require('debug')('splitio-engine:matcher');
 
-function greaterThanEqualContext(valueObject /*: unaryNumericObject */) /*: Function */ {
-  return function greaterThanEqualMatcher(attributeValue /*: string | number */) /*: boolean */ {
-    let isGreaterThanEqual = attributeValue >= valueObject.value;
+function greaterThanEqualMatcherContext(valueObject /*: unaryNumericObject */) /*: Function */ {
+  return function greaterThanEqualMatcher(value /*: string | number */) /*: boolean */ {
+    let isGreaterThanEqual = value >= valueObject.value;
 
-    log(`[greaterThanEqualMatcher] is ${attributeValue} greater than ${valueObject.value}? ${isGreaterThanEqual}`);
+    log(`[greaterThanEqualMatcher] is ${value} greater than ${valueObject.value}? ${isGreaterThanEqual}`);
 
     return isGreaterThanEqual;
   };
 }
 
-module.exports = greaterThanEqualContext;
+module.exports = greaterThanEqualMatcherContext;

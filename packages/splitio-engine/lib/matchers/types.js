@@ -33,7 +33,7 @@ module.exports = {
     BETWEEN: (0, _symbol2.default)()
   },
 
-  mapper: function mapper(matcherType /*: string */) {
+  mapper: function mapper(matcherType /*: string */) /*: Symbol */{
     switch (matcherType) {
       case 'ALL_KEYS':
         return this.enum.ALL;

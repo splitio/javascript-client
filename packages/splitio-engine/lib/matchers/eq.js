@@ -18,15 +18,15 @@ limitations under the License.
 
 var log = require('debug')('splitio-engine:matcher');
 
-function equalToContext(valueObject /*: unaryNumericObject */) /*: Function */{
-  return function equalToMatcher(attributeValue /*: string | number */) /*: boolean */{
-    var isEqualTo = attributeValue == valueObject.value;
+function equalToMatcherContext(valueObject /*: unaryNumericObject */) /*: Function */{
+  return function equalToMatcher(value /*: string | number */) /*: boolean */{
+    var isEqualTo = value == valueObject.value;
 
-    log('[equalToMatcher] is ' + attributeValue + ' equal to ' + valueObject.value + '? ' + isEqualTo);
+    log('[equalToMatcher] is ' + value + ' equal to ' + valueObject.value + '? ' + isEqualTo);
 
     return isEqualTo;
   };
 }
 
-module.exports = equalToContext;
+module.exports = equalToMatcherContext;
 //# sourceMappingURL=eq.js.map

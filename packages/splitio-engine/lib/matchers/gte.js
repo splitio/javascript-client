@@ -18,15 +18,15 @@ limitations under the License.
 
 var log = require('debug')('splitio-engine:matcher');
 
-function greaterThanEqualContext(valueObject /*: unaryNumericObject */) /*: Function */{
-  return function greaterThanEqualMatcher(attributeValue /*: string | number */) /*: boolean */{
-    var isGreaterThanEqual = attributeValue >= valueObject.value;
+function greaterThanEqualMatcherContext(valueObject /*: unaryNumericObject */) /*: Function */{
+  return function greaterThanEqualMatcher(value /*: string | number */) /*: boolean */{
+    var isGreaterThanEqual = value >= valueObject.value;
 
-    log('[greaterThanEqualMatcher] is ' + attributeValue + ' greater than ' + valueObject.value + '? ' + isGreaterThanEqual);
+    log('[greaterThanEqualMatcher] is ' + value + ' greater than ' + valueObject.value + '? ' + isGreaterThanEqual);
 
     return isGreaterThanEqual;
   };
 }
 
-module.exports = greaterThanEqualContext;
+module.exports = greaterThanEqualMatcherContext;
 //# sourceMappingURL=gte.js.map

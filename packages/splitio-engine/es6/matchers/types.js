@@ -25,7 +25,7 @@ module.exports = {
     BETWEEN: Symbol()
   },
 
-  mapper(matcherType /*: string */) {
+  mapper(matcherType /*: string */) /*: Symbol */ {
     switch (matcherType) {
       case 'ALL_KEYS':
         return this.enum.ALL;

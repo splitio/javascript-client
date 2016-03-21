@@ -25,14 +25,18 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-var matcherGroupTransform = require('../transforms/matcherGroup');
+
+var matchersTransform = require('../transforms/matchers');
 var treatmentsParser = require('../treatments').parse;
 
 var matcherTypes = require('../matchers/types').enum;
 var matcherFactory = require('../matchers');
 
+var value = require('../value');
+
 var evaluatorFactory = require('../evaluator');
 
+var ifElseIfCombiner = require('../combiners/ifelseif');
 var andCombiner = require('../combiners/and');
 
 /*::
@@ -57,20 +61,37 @@ function parse(conditions /*: Iterable<Object> */, storage /*: Storage */) /*: P
   try {
     for (var _iterator = (0, _getIterator3.default)(conditions), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
       var condition = _step.value;
+      var _condition$matcherGro = condition.matcherGroup;
+      var combiner = _condition$matcherGro.combiner;
+      var matchers = _condition$matcherGro.matchers;
+      var partitions = condition.partitions;
 
-      var matcher = matcherGroupTransform(condition.matcherGroup);
-      var matcherEvaluator = matcherFactory(matcher, storage);
-      var treatments = treatmentsParser(condition.partitions);
+      // transform data structure
 
-      // Incrementally collect segmentNames
-      if (matcher.type === matcherTypes.SEGMENT) {
-        segments.add(matcher.value);
-      }
+      matchers = matchersTransform(matchers);
 
-      predicates.push(evaluatorFactory(matcherEvaluator, treatments, matcher.attribute));
+      // create a set of pure functions (key, attr, attributes) => boolean
+      var expressions = matchers.map(function (matcher) {
+        // Incrementally collect segmentNames
+        if (matcher.type === matcherTypes.SEGMENT) {
+          segments.add(matcher.value);
+        }
+
+        var fn = matcherFactory(matcher, storage);
+
+        return function expr(key, attributes) {
+          return fn(value(key, matcher.attribute, attributes));
+        };
+      });
+
+      var andAllMatchers = andCombiner(expressions);
+
+      var treatments = treatmentsParser(partitions);
+
+      predicates.push(evaluatorFactory(andAllMatchers, treatments));
     }
 
-    // Instanciate evaluator given the set of conditions
+    // Instanciate evaluator given the set of conditions using if else if logic
   } catch (err) {
     _didIteratorError = true;
     _iteratorError = err;
@@ -86,7 +107,7 @@ function parse(conditions /*: Iterable<Object> */, storage /*: Storage */) /*: P
     }
   }
 
-  evaluator = andCombiner(predicates);
+  evaluator = ifElseIfCombiner(predicates);
 
   return {
     segments: segments,

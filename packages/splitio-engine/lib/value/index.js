@@ -15,13 +15,26 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-var log = require('debug')('splitio-engine:matcher');
 
-function identityMatcher() /*: boolean */{
-  log('[identityMatcher] always true');
+var log = require('debug')('splitio-engine:value');
 
-  return true;
+function value(key /*: string */, attr /*: string */, attributes /*: object */) /*: ?mixed */{
+  var valueToMatch = undefined;
+
+  if (attr) {
+    if (attributes) {
+      valueToMatch = attributes[attr];
+
+      log('extracted attribute [%s], using [%s] for matching', attr, valueToMatch);
+    } else {
+      log('defined attribute [%s], but none attributes defined', attr);
+    }
+  } else {
+    valueToMatch = key;
+  }
+
+  return valueToMatch;
 }
 
-module.exports = identityMatcher;
-//# sourceMappingURL=identity.js.map
+module.exports = value;
+//# sourceMappingURL=index.js.map

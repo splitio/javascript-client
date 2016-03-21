@@ -21,16 +21,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+
 var log = require('debug')('splitio-engine:matcher');
 
-/**
- * White list Matcher Factory.
- */
 function whitelistMatcherContext(whitelist /*: Set */) /*: Function */{
-  return function whitelistMatcher(key /*: string */) /*: boolean */{
-    var isInWhitelist = whitelist.has(key);
+  return function whitelistMatcher(value /*: string */) /*: boolean */{
+    var isInWhitelist = whitelist.has(value);
 
-    log('[whitelistMatcher] evaluated key ' + key + ' in [' + [].concat((0, _toConsumableArray3.default)(whitelist)).join(',') + '] => ' + isInWhitelist);
+    log('[whitelistMatcher] evaluated ' + value + ' in [' + [].concat((0, _toConsumableArray3.default)(whitelist)).join(',') + '] => ' + isInWhitelist);
 
     return isInWhitelist;
   };

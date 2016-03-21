@@ -16,40 +16,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-var log = require('debug')('splitio-engine:evaluator');
 var engine = require('../engine');
 
 // Evaluator factory
-function evaluatorContext(matcherEvaluator /*: function */
-, treatments /*: Treatments */
-, attributeName /*: string */
-) /*: function */{
+function evaluatorContext(matcherEvaluator /*: function */, treatments /*: Treatments */) /*: function */{
 
-  function evaluator(key /*: string */, seed /*: number */, attributes /*: object */) /*:? string */{
-    var valueToMatch = undefined;
-
-    if (attributeName) {
-      if (attributes) {
-        valueToMatch = attributes[attributeName];
-
-        log('extracted attribute %s, using %s for matching', attributeName, attributes[attributeName]);
-      } else {
-        log('defined attribute %s, but none attributes defined', attributeName);
-      }
-    } else {
-      valueToMatch = key;
-    }
-
+  return function evaluator(key /*: string */, seed /*: number */, attributes /*: object */) /*:? string */{
     // if the matcherEvaluator return true, then evaluate the treatment
-    if (valueToMatch !== undefined && matcherEvaluator(valueToMatch)) {
+    if (matcherEvaluator(key, attributes)) {
       return engine.getTreatment(key, seed, treatments);
     }
 
     // else we should notify the engine to continue evaluating
     return undefined;
-  }
-
-  return evaluator;
+  };
 }
 
 module.exports = evaluatorContext;

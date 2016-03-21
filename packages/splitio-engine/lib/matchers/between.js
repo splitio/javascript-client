@@ -18,15 +18,15 @@ limitations under the License.
 
 var log = require('debug')('splitio-engine:matcher');
 
-function betweenContext(valueObject /*: betweenObject */) /*: Function */{
-  return function betweenMatcher(attributeValue /*: string | number */) /*: boolean */{
-    var isBetween = attributeValue >= valueObject.start && attributeValue <= valueObject.end;
+function betweenMatcherContext(valueObject /*: betweenObject */) /*: Function */{
+  return function betweenMatcher(value /*: number */) /*: boolean */{
+    var isBetween = value >= valueObject.start && value <= valueObject.end;
 
-    log('[betweenMatcher] is ' + attributeValue + ' between ' + valueObject.start + ' and ' + valueObject.end + '? ' + isBetween);
+    log('[betweenMatcher] is ' + value + ' between ' + valueObject.start + ' and ' + valueObject.end + '? ' + isBetween);
 
     return isBetween;
   };
 }
 
-module.exports = betweenContext;
+module.exports = betweenMatcherContext;
 //# sourceMappingURL=between.js.map
