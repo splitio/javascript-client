@@ -31,7 +31,7 @@ function SchedulerFactory() {
 
       timeoutID = setTimeout(function () {
         _this.forever.apply(_this, [fn, delay].concat(fnArgs));
-      }, delay);
+      }, Math.floor(delay * 1000));
 
       return firstRunReturnPromise;
     },

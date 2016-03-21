@@ -13,13 +13,13 @@ if (process.env.NODE_ENV === 'offline') {
   sdk = require('@splitsoftware/splitio')({
     core: {
       authorizationKey: 'c1l5vkd50gimccout3c03pntbu'
-    },
+    }/*,
     scheduler: {
-      featuresRefreshRate: 1000,
-      segmentsRefreshRate: 1000,
-      metricsRefreshRate: 30000,
-      impressionsRefreshRate: 30000
-    }
+      featuresRefreshRate: 1,    // fetch feature updates each 1 sec
+      segmentsRefreshRate: 1,    // fetch segment updates each 1 sec
+      metricsRefreshRate: 30,    // publish metrics each 30 sec
+      impressionsRefreshRate: 30 // publish evaluations each 30 sec
+    }*/
   });
 }
 

@@ -35,10 +35,10 @@ function defaults(custom /*: Settings */) /*: Settings */ {
       key: undefined                 // user key in your system (only required for browser version).
     },
     scheduler: {
-      featuresRefreshRate: 60000,    // milis (1min)
-      segmentsRefreshRate: 60000,    // milis (1min)
-      metricsRefreshRate: 300000,    // milis (5min)
-      impressionsRefreshRate: 300000 // milis (5min)
+      featuresRefreshRate:    30, // 30 sec
+      segmentsRefreshRate:    60, // 60 sec
+      metricsRefreshRate:     60, // 60 sec
+      impressionsRefreshRate: 60, // 60 sec
     }
   };
 

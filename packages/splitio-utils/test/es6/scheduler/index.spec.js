@@ -17,22 +17,36 @@ limitations under the License.
 const tape = require('tape');
 const scheduler = require('../../../lib/scheduler')();
 
-tape('Scheduler', assert => {
+tape('SCHEDULER / once we kill the scheduler, the task should not be called again', assert => {
   let counter = 0;
   let lastCounter = 0;
   function task() { counter++; }
 
-  scheduler.forever(task, 15); // fire the task around 15ms + task time
+  scheduler.forever(task, 0.1); // fire the task around 0.1s + task time
 
   setTimeout(function() {
     scheduler.kill(); // stop forever scheduling
 
     lastCounter = counter;
-    assert.true(counter >= 2, 'at least 2 calls should be completed (magic number)');
+    assert.true(counter >= 1, 'at least 1 call should be completed');
 
     setTimeout(function() {
       assert.true(counter === lastCounter, 'the calls should stop');
       assert.end();
-    }, 50);
-  }, 50);
+    }, 200);
+  }, 200);
+});
+
+tape('SCHEDULER / multiple calls to kill should not throw an error', assert => {
+  let counter = 0;
+  function task() { counter++; }
+
+  scheduler.forever(task, 0.1); // fire the task around 0.1s + task time
+  scheduler.kill();
+  scheduler.kill();
+  scheduler.forever(task, 0.1);
+  scheduler.kill();
+
+  assert.true(counter === 2, 'task should be called 2 times');
+  assert.end();
 });

@@ -23,7 +23,7 @@ function SchedulerFactory() {
 
       timeoutID = setTimeout(() => {
         this.forever(fn, delay, ...fnArgs);
-      }, delay);
+      }, Math.floor(delay * 1000));
 
       return firstRunReturnPromise;
     },

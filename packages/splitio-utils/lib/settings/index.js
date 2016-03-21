@@ -43,13 +43,13 @@ function defaults(custom /*: Settings */) /*: Settings */{
       key: undefined // user key in your system (only required for browser version).
     },
     scheduler: {
-      featuresRefreshRate: 60000, // milis (1min)
-      segmentsRefreshRate: 60000, // milis (1min)
-      metricsRefreshRate: 300000, // milis (5min)
-      impressionsRefreshRate: 300000 // milis (5min)
-    }
+      featuresRefreshRate: 30, // 30 sec
+      segmentsRefreshRate: 60, // 60 sec
+      metricsRefreshRate: 60, // 60 sec
+      impressionsRefreshRate: 60 }
   };
 
+  // 60 sec
   var final = (0, _assign2.default)({}, init, custom);
 
   // we can't start the engine without the authorization token.
@@ -96,7 +96,7 @@ module.exports = {
 
     switch (settingName) {
       case 'version':
-        return 'javascript-1.0.0';
+        return 'javascript-1.0.1';
       case 'core':
         return settings.core;
       case 'scheduler':
