@@ -39,7 +39,7 @@ module.exports = {
         return this.enum.GREATER_THAN_OR_EQUAL_TO;
       case 'LESS_THAN_OR_EQUAL_TO':
         return this.enum.LESS_THAN_OR_EQUAL_TO;
-      case 'BETWEEN': Symbol()
+      case 'BETWEEN':
         return this.enum.BETWEEN;
       default:
         throw new Error('Invalid matcher type provided');

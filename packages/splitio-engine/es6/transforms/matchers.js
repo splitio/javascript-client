@@ -62,7 +62,7 @@ function transform(matchers /*: Array<object> */) /*: Array<MatcherDTO> */ {
       userDefinedSegmentMatcherData: segmentObject  /*: segmentObject */,
       whitelistMatcherData: whitelistObject         /*: whiteListObject */,
       unaryNumericMatcherData: unaryNumericObject   /*: unaryNumericObject */,
-      betweenMatcherData: betweenObject             /*: betweenObject */,
+      betweenMatcherData: betweenObject             /*: betweenObject */
     } = matcher;
 
     let attribute = keySelector && keySelector.attribute;

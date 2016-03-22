@@ -38,7 +38,7 @@ function defaults(custom /*: Settings */) /*: Settings */ {
       featuresRefreshRate:    30, // 30 sec
       segmentsRefreshRate:    60, // 60 sec
       metricsRefreshRate:     60, // 60 sec
-      impressionsRefreshRate: 60, // 60 sec
+      impressionsRefreshRate: 60  // 60 sec
     }
   };
 

@@ -45,7 +45,6 @@ function parse(conditions /*: Iterable<Object> */, storage /*: Storage */) /*: P
   for (let condition of conditions) {
     let {
       matcherGroup: {
-        combiner,
         matchers
       },
       partitions
