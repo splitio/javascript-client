@@ -232,6 +232,754 @@
           ]
         }
       ]
+    },
+    {
+      "orgId": null,
+      "environment": null,
+      "trafficTypeId": null,
+      "trafficTypeName": null,
+      "name": "employees_between_21_and_50_and_chrome",
+      "seed": -1073105888,
+      "status": "ACTIVE",
+      "killed": false,
+      "defaultTreatment": "off",
+      "conditions": [
+        {
+          "matcherGroup": {
+            "combiner": "AND",
+            "matchers": [
+              {
+                "keySelector": {
+                  "trafficType": "user",
+                  "attribute": null
+                },
+                "matcherType": "IN_SEGMENT",
+                "negate": false,
+                "userDefinedSegmentMatcherData": {
+                  "segmentName": "splitters"
+                },
+                "whitelistMatcherData": null,
+                "unaryNumericMatcherData": null,
+                "betweenMatcherData": null
+              },
+              {
+                "keySelector": {
+                  "trafficType": "user",
+                  "attribute": "age"
+                },
+                "matcherType": "BETWEEN",
+                "negate": false,
+                "userDefinedSegmentMatcherData": null,
+                "whitelistMatcherData": null,
+                "unaryNumericMatcherData": null,
+                "betweenMatcherData": {
+                  "dataType": null,
+                  "start": 21,
+                  "end": 50
+                }
+              },
+              {
+                "keySelector": {
+                  "trafficType": "user",
+                  "attribute": "agent"
+                },
+                "matcherType": "WHITELIST",
+                "negate": false,
+                "userDefinedSegmentMatcherData": null,
+                "whitelistMatcherData": {
+                  "whitelist": [
+                    "chrome"
+                  ]
+                },
+                "unaryNumericMatcherData": null,
+                "betweenMatcherData": null
+              }
+            ]
+          },
+          "partitions": [
+            {
+              "treatment": "on",
+              "size": 100
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "orgId": null,
+      "environment": null,
+      "trafficTypeId": null,
+      "trafficTypeName": null,
+      "name": "user_attr_gte_10_and_user_attr2_is_not_foo",
+      "seed": 481329258,
+      "status": "ACTIVE",
+      "killed": false,
+      "defaultTreatment": "off",
+      "conditions": [
+        {
+          "matcherGroup": {
+            "combiner": "AND",
+            "matchers": [
+              {
+                "keySelector": {
+                  "trafficType": "user",
+                  "attribute": "attr"
+                },
+                "matcherType": "GREATER_THAN_OR_EQUAL_TO",
+                "negate": false,
+                "userDefinedSegmentMatcherData": null,
+                "whitelistMatcherData": null,
+                "unaryNumericMatcherData": {
+                  "dataType": null,
+                  "value": 10
+                },
+                "betweenMatcherData": null
+              },
+              {
+                "keySelector": {
+                  "trafficType": "user",
+                  "attribute": "attr2"
+                },
+                "matcherType": "WHITELIST",
+                "negate": true,
+                "userDefinedSegmentMatcherData": null,
+                "whitelistMatcherData": {
+                  "whitelist": [
+                    "foo"
+                  ]
+                },
+                "unaryNumericMatcherData": null,
+                "betweenMatcherData": null
+              }
+            ]
+          },
+          "partitions": [
+            {
+              "treatment": "on",
+              "size": 100
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "orgId": null,
+      "environment": null,
+      "trafficTypeId": null,
+      "trafficTypeName": null,
+      "name": "user_account_in_whitelist",
+      "seed": -2122983143,
+      "status": "ACTIVE",
+      "killed": false,
+      "defaultTreatment": "off",
+      "conditions": [
+        {
+          "matcherGroup": {
+            "combiner": "AND",
+            "matchers": [
+              {
+                "keySelector": {
+                  "trafficType": "user",
+                  "attribute": "account"
+                },
+                "matcherType": "WHITELIST",
+                "negate": false,
+                "userDefinedSegmentMatcherData": null,
+                "whitelistMatcherData": {
+                  "whitelist": [
+                    "key_1@split.io",
+                    "key_2@split.io",
+                    "key_3@split.io",
+                    "key_4@split.io",
+                    "key_5@split.io"
+                  ]
+                },
+                "unaryNumericMatcherData": null,
+                "betweenMatcherData": null
+              }
+            ]
+          },
+          "partitions": [
+            {
+              "treatment": "on",
+              "size": 100
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "orgId": null,
+      "environment": null,
+      "trafficTypeId": null,
+      "trafficTypeName": null,
+      "name": "user_account_in_segment_employees",
+      "seed": 1107027749,
+      "status": "ACTIVE",
+      "killed": false,
+      "defaultTreatment": "off",
+      "conditions": [
+        {
+          "matcherGroup": {
+            "combiner": "AND",
+            "matchers": [
+              {
+                "keySelector": {
+                  "trafficType": "user",
+                  "attribute": "account"
+                },
+                "matcherType": "IN_SEGMENT",
+                "negate": false,
+                "userDefinedSegmentMatcherData": {
+                  "segmentName": "employees"
+                },
+                "whitelistMatcherData": null,
+                "unaryNumericMatcherData": null,
+                "betweenMatcherData": null
+              }
+            ]
+          },
+          "partitions": [
+            {
+              "treatment": "on",
+              "size": 100
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "orgId": null,
+      "environment": null,
+      "trafficTypeId": null,
+      "trafficTypeName": null,
+      "name": "user_account_in_segment_all",
+      "seed": -790401804,
+      "status": "ACTIVE",
+      "killed": false,
+      "defaultTreatment": "off",
+      "conditions": [
+        {
+          "matcherGroup": {
+            "combiner": "AND",
+            "matchers": [
+              {
+                "keySelector": {
+                  "trafficType": "user",
+                  "attribute": "account"
+                },
+                "matcherType": "ALL_KEYS",
+                "negate": false,
+                "userDefinedSegmentMatcherData": null,
+                "whitelistMatcherData": null,
+                "unaryNumericMatcherData": null,
+                "betweenMatcherData": null
+              }
+            ]
+          },
+          "partitions": [
+            {
+              "treatment": "on",
+              "size": 100
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "orgId": null,
+      "environment": null,
+      "trafficTypeId": null,
+      "trafficTypeName": null,
+      "name": "user_attr_btw_datetime_1458240947021_and_1458246884077",
+      "seed": 622265394,
+      "status": "ACTIVE",
+      "killed": false,
+      "defaultTreatment": "off",
+      "conditions": [
+        {
+          "matcherGroup": {
+            "combiner": "AND",
+            "matchers": [
+              {
+                "keySelector": {
+                  "trafficType": "user",
+                  "attribute": "attr"
+                },
+                "matcherType": "BETWEEN",
+                "negate": false,
+                "userDefinedSegmentMatcherData": null,
+                "whitelistMatcherData": null,
+                "unaryNumericMatcherData": null,
+                "betweenMatcherData": {
+                  "dataType": "DATETIME",
+                  "start": 1458240947021,
+                  "end": 1458246884077
+                }
+              }
+            ]
+          },
+          "partitions": [
+            {
+              "treatment": "on",
+              "size": 100
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "orgId": null,
+      "environment": null,
+      "trafficTypeId": null,
+      "trafficTypeName": null,
+      "name": "user_attr_btw_number_10_and_20",
+      "seed": 1870594950,
+      "status": "ACTIVE",
+      "killed": false,
+      "defaultTreatment": "off",
+      "conditions": [
+        {
+          "matcherGroup": {
+            "combiner": "AND",
+            "matchers": [
+              {
+                "keySelector": {
+                  "trafficType": "user",
+                  "attribute": "attr"
+                },
+                "matcherType": "BETWEEN",
+                "negate": false,
+                "userDefinedSegmentMatcherData": null,
+                "whitelistMatcherData": null,
+                "unaryNumericMatcherData": null,
+                "betweenMatcherData": {
+                  "dataType": "NUMBER",
+                  "start": 10,
+                  "end": 20
+                }
+              }
+            ]
+          },
+          "partitions": [
+            {
+              "treatment": "on",
+              "size": 100
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "orgId": null,
+      "environment": null,
+      "trafficTypeId": null,
+      "trafficTypeName": null,
+      "name": "user_attr_btw_10_and_20",
+      "seed": -976719381,
+      "status": "ACTIVE",
+      "killed": false,
+      "defaultTreatment": "off",
+      "conditions": [
+        {
+          "matcherGroup": {
+            "combiner": "AND",
+            "matchers": [
+              {
+                "keySelector": {
+                  "trafficType": "user",
+                  "attribute": "attr"
+                },
+                "matcherType": "BETWEEN",
+                "negate": false,
+                "userDefinedSegmentMatcherData": null,
+                "whitelistMatcherData": null,
+                "unaryNumericMatcherData": null,
+                "betweenMatcherData": {
+                  "dataType": null,
+                  "start": 10,
+                  "end": 20
+                }
+              }
+            ]
+          },
+          "partitions": [
+            {
+              "treatment": "on",
+              "size": 100
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "orgId": null,
+      "environment": null,
+      "trafficTypeId": null,
+      "trafficTypeName": null,
+      "name": "user_attr_lte_datetime_1458240947021",
+      "seed": 455590578,
+      "status": "ACTIVE",
+      "killed": false,
+      "defaultTreatment": "off",
+      "conditions": [
+        {
+          "matcherGroup": {
+            "combiner": "AND",
+            "matchers": [
+              {
+                "keySelector": {
+                  "trafficType": "user",
+                  "attribute": "attr"
+                },
+                "matcherType": "LESS_THAN_OR_EQUAL_TO",
+                "negate": false,
+                "userDefinedSegmentMatcherData": null,
+                "whitelistMatcherData": null,
+                "unaryNumericMatcherData": {
+                  "dataType": "DATETIME",
+                  "value": 1458240947021
+                },
+                "betweenMatcherData": null
+              }
+            ]
+          },
+          "partitions": [
+            {
+              "treatment": "on",
+              "size": 100
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "orgId": null,
+      "environment": null,
+      "trafficTypeId": null,
+      "trafficTypeName": null,
+      "name": "user_attr_lte_number_10",
+      "seed": 1895728928,
+      "status": "ACTIVE",
+      "killed": false,
+      "defaultTreatment": "off",
+      "conditions": [
+        {
+          "matcherGroup": {
+            "combiner": "AND",
+            "matchers": [
+              {
+                "keySelector": {
+                  "trafficType": "user",
+                  "attribute": "attr"
+                },
+                "matcherType": "LESS_THAN_OR_EQUAL_TO",
+                "negate": false,
+                "userDefinedSegmentMatcherData": null,
+                "whitelistMatcherData": null,
+                "unaryNumericMatcherData": {
+                  "dataType": "NUMBER",
+                  "value": 10
+                },
+                "betweenMatcherData": null
+              }
+            ]
+          },
+          "partitions": [
+            {
+              "treatment": "on",
+              "size": 100
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "orgId": null,
+      "environment": null,
+      "trafficTypeId": null,
+      "trafficTypeName": null,
+      "name": "user_attr_lte_10",
+      "seed": 773481472,
+      "status": "ACTIVE",
+      "killed": false,
+      "defaultTreatment": "off",
+      "conditions": [
+        {
+          "matcherGroup": {
+            "combiner": "AND",
+            "matchers": [
+              {
+                "keySelector": {
+                  "trafficType": "user",
+                  "attribute": "attr"
+                },
+                "matcherType": "LESS_THAN_OR_EQUAL_TO",
+                "negate": false,
+                "userDefinedSegmentMatcherData": null,
+                "whitelistMatcherData": null,
+                "unaryNumericMatcherData": {
+                  "dataType": null,
+                  "value": 10
+                },
+                "betweenMatcherData": null
+              }
+            ]
+          },
+          "partitions": [
+            {
+              "treatment": "on",
+              "size": 100
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "orgId": null,
+      "environment": null,
+      "trafficTypeId": null,
+      "trafficTypeName": null,
+      "name": "user_attr_gte_datetime_1458240947021",
+      "seed": 582849993,
+      "status": "ACTIVE",
+      "killed": false,
+      "defaultTreatment": "off",
+      "conditions": [
+        {
+          "matcherGroup": {
+            "combiner": "AND",
+            "matchers": [
+              {
+                "keySelector": {
+                  "trafficType": "user",
+                  "attribute": "attr"
+                },
+                "matcherType": "GREATER_THAN_OR_EQUAL_TO",
+                "negate": false,
+                "userDefinedSegmentMatcherData": null,
+                "whitelistMatcherData": null,
+                "unaryNumericMatcherData": {
+                  "dataType": "DATETIME",
+                  "value": 1458240947021
+                },
+                "betweenMatcherData": null
+              }
+            ]
+          },
+          "partitions": [
+            {
+              "treatment": "on",
+              "size": 100
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "orgId": null,
+      "environment": null,
+      "trafficTypeId": null,
+      "trafficTypeName": null,
+      "name": "user_attr_gte_number_10",
+      "seed": -1710564342,
+      "status": "ACTIVE",
+      "killed": false,
+      "defaultTreatment": "off",
+      "conditions": [
+        {
+          "matcherGroup": {
+            "combiner": "AND",
+            "matchers": [
+              {
+                "keySelector": {
+                  "trafficType": "user",
+                  "attribute": "attr"
+                },
+                "matcherType": "GREATER_THAN_OR_EQUAL_TO",
+                "negate": false,
+                "userDefinedSegmentMatcherData": null,
+                "whitelistMatcherData": null,
+                "unaryNumericMatcherData": {
+                  "dataType": "NUMBER",
+                  "value": 10
+                },
+                "betweenMatcherData": null
+              }
+            ]
+          },
+          "partitions": [
+            {
+              "treatment": "on",
+              "size": 100
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "orgId": null,
+      "environment": null,
+      "trafficTypeId": null,
+      "trafficTypeName": null,
+      "name": "user_attr_gte_10",
+      "seed": 2016359772,
+      "status": "ACTIVE",
+      "killed": false,
+      "defaultTreatment": "off",
+      "conditions": [
+        {
+          "matcherGroup": {
+            "combiner": "AND",
+            "matchers": [
+              {
+                "keySelector": {
+                  "trafficType": "user",
+                  "attribute": "attr"
+                },
+                "matcherType": "GREATER_THAN_OR_EQUAL_TO",
+                "negate": false,
+                "userDefinedSegmentMatcherData": null,
+                "whitelistMatcherData": null,
+                "unaryNumericMatcherData": {
+                  "dataType": null,
+                  "value": 10
+                },
+                "betweenMatcherData": null
+              }
+            ]
+          },
+          "partitions": [
+            {
+              "treatment": "on",
+              "size": 100
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "orgId": null,
+      "environment": null,
+      "trafficTypeId": null,
+      "trafficTypeName": null,
+      "name": "user_attr_eq_datetime_1458240947021",
+      "seed": -1927656676,
+      "status": "ACTIVE",
+      "killed": false,
+      "defaultTreatment": "off",
+      "conditions": [
+        {
+          "matcherGroup": {
+            "combiner": "AND",
+            "matchers": [
+              {
+                "keySelector": {
+                  "trafficType": "user",
+                  "attribute": "attr"
+                },
+                "matcherType": "EQUAL_TO",
+                "negate": false,
+                "userDefinedSegmentMatcherData": null,
+                "whitelistMatcherData": null,
+                "unaryNumericMatcherData": {
+                  "dataType": "DATETIME",
+                  "value": 1458240947021
+                },
+                "betweenMatcherData": null
+              }
+            ]
+          },
+          "partitions": [
+            {
+              "treatment": "on",
+              "size": 100
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "orgId": null,
+      "environment": null,
+      "trafficTypeId": null,
+      "trafficTypeName": null,
+      "name": "user_attr_eq_number_ten",
+      "seed": 643770303,
+      "status": "ACTIVE",
+      "killed": false,
+      "defaultTreatment": "off",
+      "conditions": [
+        {
+          "matcherGroup": {
+            "combiner": "AND",
+            "matchers": [
+              {
+                "keySelector": {
+                  "trafficType": "user",
+                  "attribute": "attr"
+                },
+                "matcherType": "EQUAL_TO",
+                "negate": false,
+                "userDefinedSegmentMatcherData": null,
+                "whitelistMatcherData": null,
+                "unaryNumericMatcherData": {
+                  "dataType": "NUMBER",
+                  "value": 10
+                },
+                "betweenMatcherData": null
+              }
+            ]
+          },
+          "partitions": [
+            {
+              "treatment": "on",
+              "size": 100
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "orgId": null,
+      "environment": null,
+      "trafficTypeId": null,
+      "trafficTypeName": null,
+      "name": "user_attr_eq_ten",
+      "seed": 1276593955,
+      "status": "ACTIVE",
+      "killed": false,
+      "defaultTreatment": "off",
+      "conditions": [
+        {
+          "matcherGroup": {
+            "combiner": "AND",
+            "matchers": [
+              {
+                "keySelector": {
+                  "trafficType": "user",
+                  "attribute": "attr"
+                },
+                "matcherType": "EQUAL_TO",
+                "negate": false,
+                "userDefinedSegmentMatcherData": null,
+                "whitelistMatcherData": null,
+                "unaryNumericMatcherData": {
+                  "dataType": null,
+                  "value": 10
+                },
+                "betweenMatcherData": null
+              }
+            ]
+          },
+          "partitions": [
+            {
+              "treatment": "on",
+              "size": 100
+            }
+          ]
+        }
+      ]
     }
   ],
   "since": -1,
