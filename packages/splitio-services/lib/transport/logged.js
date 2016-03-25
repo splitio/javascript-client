@@ -1,5 +1,11 @@
 'use strict';
 
+var _stringify = require('babel-runtime/core-js/json/stringify');
+
+var _stringify2 = _interopRequireDefault(_stringify);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 /**
 Copyright 2016 Split Software
 
@@ -22,11 +28,11 @@ var log = require('debug')('splitio-services:transport');
 
 function LoggedFetch(request) {
   return fetch(request).then(function (resp) {
-    log(resp.url);
+    log('ok', (0, _stringify2.default)(resp));
 
     return resp;
   }).catch(function (error) {
-    log(error);
+    log('fail', (0, _stringify2.default)(error));
 
     throw error;
   });

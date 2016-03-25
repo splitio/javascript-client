@@ -21,12 +21,12 @@ const log = require('debug')('splitio-services:transport');
 function LoggedFetch(request) {
   return fetch(request)
     .then(resp => {
-      log(resp.url);
+      log('ok', JSON.stringify(resp));
 
       return resp;
     })
     .catch(error => {
-      log(error);
+      log('fail', JSON.stringify(error));
 
       throw error;
     });

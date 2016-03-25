@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 /**
 Copyright 2016 Split Software
@@ -16,9 +16,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
+var log = require('debug')('splitio-services:service');
+
 function Context(Transport) {
   return function Fetcher(request) {
-    return Transport(request);
+    return Transport(request).then(function (resp) {
+      if (resp.statusText === 'OK') {
+        return resp;
+      } else {
+        log('throw error because status text is not OK');
+
+        throw Error(resp.statusText);
+      }
+    });
   };
 }
 
