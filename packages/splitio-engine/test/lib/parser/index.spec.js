@@ -106,31 +106,30 @@ tape('PARSER / if user is in segment ["u1", "u2", "u3", "u4"] then split 100%:on
 
 tape('PARSER / if user.account is in list ["v1", "v2", "v3"] then split 100:on', function (assert) {
   var _parser4 = parser([{
-    "matcherGroup": {
-      "combiner": "AND",
-      "matchers": [{
-        "keySelector": {
-          "trafficType": "user",
-          "attribute": "account"
+    matcherGroup: {
+      combiner: 'AND',
+      matchers: [{
+        keySelector: {
+          trafficType: 'user',
+          attribute: 'account'
         },
-        "matcherType": "WHITELIST",
-        "negate": false,
-        "userDefinedSegmentMatcherData": null,
-        "whitelistMatcherData": {
-          "whitelist": ["v1", "v2", "v3"]
+        matcherType: 'WHITELIST',
+        negate: false,
+        userDefinedSegmentMatcherData: null,
+        whitelistMatcherData: {
+          whitelist: ['v1', 'v2', 'v3']
         },
-        "unaryNumericMatcherData": null,
-        "betweenMatcherData": null
+        unaryNumericMatcherData: null,
+        betweenMatcherData: null
       }]
     },
-    "partitions": [{
-      "treatment": "on",
-      "size": 100
+    partitions: [{
+      treatment: 'on',
+      size: 100
     }]
   }]);
 
   var evaluator = _parser4.evaluator;
-  var segments = _parser4.segments;
 
 
   assert.true(evaluator('test@split.io', 31, {
@@ -148,70 +147,68 @@ tape('PARSER / if user.account is in list ["v1", "v2", "v3"] then split 100:on',
 
 tape('PARSER / if user.account is in segment all then split 100:on', function (assert) {
   var _parser5 = parser([{
-    "matcherGroup": {
-      "combiner": "AND",
-      "matchers": [{
-        "keySelector": {
-          "trafficType": "user",
-          "attribute": "account"
+    matcherGroup: {
+      combiner: 'AND',
+      matchers: [{
+        keySelector: {
+          trafficType: 'user',
+          attribute: 'account'
         },
-        "matcherType": "ALL_KEYS",
-        "negate": false,
-        "userDefinedSegmentMatcherData": null,
-        "whitelistMatcherData": null,
-        "unaryNumericMatcherData": null,
-        "betweenMatcherData": null,
-        "unaryStringMatcherData": null
+        matcherType: 'ALL_KEYS',
+        negate: false,
+        userDefinedSegmentMatcherData: null,
+        whitelistMatcherData: null,
+        unaryNumericMatcherData: null,
+        betweenMatcherData: null,
+        unaryStringMatcherData: null
       }]
     },
-    "partitions": [{
-      "treatment": "on",
-      "size": 100
+    partitions: [{
+      treatment: 'on',
+      size: 100
     }]
   }]);
 
   var evaluator = _parser5.evaluator;
-  var segments = _parser5.segments;
 
 
   assert.true(evaluator('test@split.io', 31, {
     account: 'v1'
   }) === 'on', 'v1 is defined in segment all');
 
-  assert.true(evaluator('test@split.io', 31) === undefined, "missing attribute account but using segment all evaluates to on");
+  assert.true(evaluator('test@split.io', 31) === undefined, 'missing attribute should evaluates to undefined');
 
   assert.end();
 });
 
 tape('PARSER / if user.attr is between 10 and 20 then split 100:on', function (assert) {
   var _parser6 = parser([{
-    "matcherGroup": {
-      "combiner": "AND",
-      "matchers": [{
-        "keySelector": {
-          "trafficType": "user",
-          "attribute": "attr"
+    matcherGroup: {
+      combiner: 'AND',
+      matchers: [{
+        keySelector: {
+          trafficType: 'user',
+          attribute: 'attr'
         },
-        "matcherType": "BETWEEN",
-        "negate": false,
-        "userDefinedSegmentMatcherData": null,
-        "whitelistMatcherData": null,
-        "unaryNumericMatcherData": null,
-        "betweenMatcherData": {
-          "dataType": "NUMBER",
-          "start": 10,
-          "end": 20
+        matcherType: 'BETWEEN',
+        negate: false,
+        userDefinedSegmentMatcherData: null,
+        whitelistMatcherData: null,
+        unaryNumericMatcherData: null,
+        betweenMatcherData: {
+          dataType: 'NUMBER',
+          start: 10,
+          end: 20
         }
       }]
     },
-    "partitions": [{
-      "treatment": "on",
-      "size": 100
+    partitions: [{
+      treatment: 'on',
+      size: 100
     }]
   }]);
 
   var evaluator = _parser6.evaluator;
-  var segments = _parser6.segments;
 
 
   assert.true(evaluator('test@split.io', 31, {
@@ -229,32 +226,31 @@ tape('PARSER / if user.attr is between 10 and 20 then split 100:on', function (a
 
 tape('PARSER / if user.attr <= datetime 1458240947021 then split 100:on', function (assert) {
   var _parser7 = parser([{
-    "matcherGroup": {
-      "combiner": "AND",
-      "matchers": [{
-        "keySelector": {
-          "trafficType": "user",
-          "attribute": "attr"
+    matcherGroup: {
+      combiner: 'AND',
+      matchers: [{
+        keySelector: {
+          trafficType: 'user',
+          attribute: 'attr'
         },
-        "matcherType": "LESS_THAN_OR_EQUAL_TO",
-        "negate": false,
-        "userDefinedSegmentMatcherData": null,
-        "whitelistMatcherData": null,
-        "unaryNumericMatcherData": {
-          "dataType": "DATETIME",
-          "value": 1458240947021
+        matcherType: 'LESS_THAN_OR_EQUAL_TO',
+        negate: false,
+        userDefinedSegmentMatcherData: null,
+        whitelistMatcherData: null,
+        unaryNumericMatcherData: {
+          dataType: 'DATETIME',
+          value: 1458240947021
         },
-        "betweenMatcherData": null
+        betweenMatcherData: null
       }]
     },
-    "partitions": [{
-      "treatment": "on",
-      "size": 100
+    partitions: [{
+      treatment: 'on',
+      size: 100
     }]
   }]);
 
   var evaluator = _parser7.evaluator;
-  var segments = _parser7.segments;
 
 
   assert.true(evaluator('test@split.io', 31, {
@@ -276,32 +272,31 @@ tape('PARSER / if user.attr <= datetime 1458240947021 then split 100:on', functi
 
 tape('PARSER / if user.attr >= datetime 1458240947021 then split 100:on', function (assert) {
   var _parser8 = parser([{
-    "matcherGroup": {
-      "combiner": "AND",
-      "matchers": [{
-        "keySelector": {
-          "trafficType": "user",
-          "attribute": "attr"
+    matcherGroup: {
+      combiner: 'AND',
+      matchers: [{
+        keySelector: {
+          trafficType: 'user',
+          attribute: 'attr'
         },
-        "matcherType": "GREATER_THAN_OR_EQUAL_TO",
-        "negate": false,
-        "userDefinedSegmentMatcherData": null,
-        "whitelistMatcherData": null,
-        "unaryNumericMatcherData": {
-          "dataType": "DATETIME",
-          "value": 1458240947021
+        matcherType: 'GREATER_THAN_OR_EQUAL_TO',
+        negate: false,
+        userDefinedSegmentMatcherData: null,
+        whitelistMatcherData: null,
+        unaryNumericMatcherData: {
+          dataType: 'DATETIME',
+          value: 1458240947021
         },
-        "betweenMatcherData": null
+        betweenMatcherData: null
       }]
     },
-    "partitions": [{
-      "treatment": "on",
-      "size": 100
+    partitions: [{
+      treatment: 'on',
+      size: 100
     }]
   }]);
 
   var evaluator = _parser8.evaluator;
-  var segments = _parser8.segments;
 
 
   assert.true(evaluator('test@split.io', 31, {
@@ -323,32 +318,31 @@ tape('PARSER / if user.attr >= datetime 1458240947021 then split 100:on', functi
 
 tape('PARSER / if user.attr = datetime 1458240947021 then split 100:on', function (assert) {
   var _parser9 = parser([{
-    "matcherGroup": {
-      "combiner": "AND",
-      "matchers": [{
-        "keySelector": {
-          "trafficType": "user",
-          "attribute": "attr"
+    matcherGroup: {
+      combiner: 'AND',
+      matchers: [{
+        keySelector: {
+          trafficType: 'user',
+          attribute: 'attr'
         },
-        "matcherType": "EQUAL_TO",
-        "negate": false,
-        "userDefinedSegmentMatcherData": null,
-        "whitelistMatcherData": null,
-        "unaryNumericMatcherData": {
-          "dataType": "DATETIME",
-          "value": 1458240947021
+        matcherType: 'EQUAL_TO',
+        negate: false,
+        userDefinedSegmentMatcherData: null,
+        whitelistMatcherData: null,
+        unaryNumericMatcherData: {
+          dataType: 'DATETIME',
+          value: 1458240947021
         },
-        "betweenMatcherData": null
+        betweenMatcherData: null
       }]
     },
-    "partitions": [{
-      "treatment": "on",
-      "size": 100
+    partitions: [{
+      treatment: 'on',
+      size: 100
     }]
   }]);
 
   var evaluator = _parser9.evaluator;
-  var segments = _parser9.segments;
 
 
   assert.true(evaluator('test@split.io', 31, {

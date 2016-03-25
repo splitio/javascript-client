@@ -40,7 +40,7 @@ function SplitsStorage() {
   this.storage = new _map2.default();
 }
 
-SplitsStorage.prototype.update = function (updates) {
+SplitsStorage.prototype.update = function (updates /*: Array<Split> */) /*: void */{
   var _this = this;
 
   updates.forEach(function (split) {
@@ -52,12 +52,12 @@ SplitsStorage.prototype.update = function (updates) {
   });
 };
 
-SplitsStorage.prototype.get = function (splitName) {
+SplitsStorage.prototype.get = function (splitName /*: string */) /*:? Split */{
   return this.storage.get(splitName);
 };
 
 // @TODO optimize this query to be cached after each update
-SplitsStorage.prototype.getSegments = function () {
+SplitsStorage.prototype.getSegments = function () /*: Set */{
   var mergedSegmentNames = new _set2.default();
 
   var _iteratorNormalCompletion = true;
@@ -88,7 +88,7 @@ SplitsStorage.prototype.getSegments = function () {
   return mergedSegmentNames;
 };
 
-SplitsStorage.prototype.toJSON = function () {
+SplitsStorage.prototype.toJSON = function () /*: Map */{
   return this.storage;
 };
 

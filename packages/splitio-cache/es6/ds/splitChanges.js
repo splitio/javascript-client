@@ -14,10 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-import type {
-  Thenable
-} from '../types';
-
 const splitChangesService = require('@splitsoftware/splitio-services/lib/splitChanges');
 const splitChangesRequest = require('@splitsoftware/splitio-services/lib/splitChanges/get');
 
@@ -25,7 +21,7 @@ const splitMutatorFactory = require('../mutators/splitChanges');
 
 let since = -1;
 
-function splitChangesDataSource() :Thenable {
+function splitChangesDataSource() {
   return splitChangesService(splitChangesRequest({
     since
   }))

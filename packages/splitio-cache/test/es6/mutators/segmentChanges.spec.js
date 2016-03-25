@@ -32,7 +32,7 @@ tape('Segment Changes', assert => {
     return segmentsStorage.get(segmentName);
   }
 
-  let mutator = segmentChangesMutatorFactory(segmentChanges);
+  let mutator = segmentChangesMutatorFactory([segmentChanges]);
   mutator(storageAccesor, storageMutator);
 
   assert.deepEqual(

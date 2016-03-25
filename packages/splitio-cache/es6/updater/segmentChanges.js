@@ -14,31 +14,55 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-import type {
-  Thenable
-} from '../types';
-
 const log = require('debug')('splitio-cache:updater');
 
 const segmentChangesDataSource = require('../ds/segmentChanges');
 
 const storage = require('../storage');
+const splitsStorage = storage.splits;
 const segmentsStorage = storage.segments;
-const get = segmentsStorage.get.bind(segmentsStorage);
-const update = segmentsStorage.update.bind(segmentsStorage);
+const getSegment = segmentsStorage.get.bind(segmentsStorage);
+const updateSegment = segmentsStorage.update.bind(segmentsStorage);
 
-function segmentChangesUpdater({authorizationKey}) :Thenable {
-  log(`[${authorizationKey}] Updating segmentChanges`);
+const pool = require('./pool');
 
-  // Read the list of segments available.
-  const segments = storage.splits.getSegments();
+function segmentChangesUpdater() {
+  log('Updating segmentChanges');
 
-  // Per each segment, request the changes and mutate the storage accordingly.
-  return Promise.all(
-    [...segments].map(segmentName => segmentChangesDataSource({authorizationKey, segmentName}))
-  ).then(segmentsMutators => {
-    segmentsMutators.forEach(mutator => mutator(get, update));
-  }).then(() => storage);
+  return new Promise(function (resolve/*, reject*/) {
+    // Read the list of available segments.
+    const segments = splitsStorage.getSegments();
+
+    let toBeProcessed = segments.size;
+    let processed = 0;
+
+    for (let segmentName of segments) {
+      pool.acquire((err, resource) => {
+
+        segmentChangesDataSource(segmentName).then((mutator) => {
+          pool.release(resource);
+
+          log(`completed download of ${segmentName}`);
+
+          if (typeof mutator === 'function') {
+            mutator(getSegment, updateSegment);
+          }
+
+          log(`completed mutations for ${segmentName}`);
+
+          processed++;
+          if (processed === toBeProcessed) {
+            resolve(storage);
+          }
+        });
+
+      });
+    }
+  }).then(storage => {
+    pool.destroyAllNow();
+
+    return storage;
+  });
 }
 
 module.exports = segmentChangesUpdater;

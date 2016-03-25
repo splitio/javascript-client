@@ -14,27 +14,33 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
+/*::
 type SegmentChangesDTO = {
   name: string,
   added: Array<string>,
   removed: Array<string>
 };
 
-function SegmentMutationsFactory({name, added, removed} :SegmentChangesDTO) :Function {
-  function segmentMutations(storageAccesor :Function, storageMutator :Function) :void {
-    let segments;
+type CollectionOfSegmentChangesDTO = Array<SegmentChangesDTO>;
+*/
 
-    // nothing to do here
-    if (added.length === 0 && removed.length === 0) {
-      return;
-    }
+function SegmentMutationsFactory(changes /*: CollectionOfSegmentChangesDTO */) /*: Function */ {
+  function segmentMutations(storageAccesor /*: Function */, storageMutator /*: Function*/) /*: void */ {
+    changes.forEach(({name, added, removed}) => {
+      let segment;
 
-    segments = storageAccesor(name);
+      // nothing to do here
+      if (added.length === 0 && removed.length === 0) {
+        return;
+      }
 
-    added.forEach(segment => segments.add(segment));
-    removed.forEach(segment => segments.delete(segment));
+      segment = storageAccesor(name);
 
-    storageMutator(name, segments);
+      added.forEach(key => segment.add(key));
+      removed.forEach(key => segment.delete(key));
+
+      storageMutator(name, segment);
+    });
   }
 
   return segmentMutations;

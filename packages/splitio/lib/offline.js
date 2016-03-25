@@ -42,6 +42,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
+/*eslint-disable no-console */
+
 var help = '\nLooks you are not providing a valid set of settings! Let me show you a little snippet:\n\nvar localhost = {\n    features: {\n        my_cool_feature_name: \'version_a\',\n        another_feature_name: \'version_b\',\n        ...\n    }\n};\n\nvar sdk = splitio(localhost);\n\nsdk.getTreatment(\'my_cool_feature_name\') === \'version_a\'; // This is true!\nsdk.getTreatment(\'another_feature_name\') === \'version_b\'; // This is true!\nsdk.getTreatment(\'missing_feature_name\') === \'control\';   // This is true!\n\nLet\'s start hacking!\n';
 
 var featuresAttributeMustBeAnObject = '\nHey! Please recheck features attribute, it should be an object with the\nfollowing shape:\n\nvar localhost = {\n  ===> features: {\n  ===>     my_cool_feature_name: \'version_a\',\n  ===>     another_feature_name: \'version_b\',\n  ===>     ...\n  ===> }\n};\n\nREMEMBER: any feature not present in this object will be evaluated as \'control\'\n';

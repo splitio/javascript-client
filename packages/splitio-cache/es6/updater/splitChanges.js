@@ -14,10 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-import type {
-  Thenable
-} from '../types';
-
 const log = require('debug')('splitio-cache:updater');
 
 const splitChangesDataSource = require('../ds/splitChanges');
@@ -26,7 +22,7 @@ const storage = require('../storage');
 const splitsStorage = storage.splits;
 const update = splitsStorage.update.bind(splitsStorage);
 
-function splitChangesUpdater({authorizationKey}) :Thenable {
+function splitChangesUpdater({authorizationKey}) {
   log(`[${authorizationKey}] Updating splitChanges`);
 
   return splitChangesDataSource({authorizationKey})

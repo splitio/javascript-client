@@ -14,16 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-import type {
-  Thenable
-} from '../types';
-
 const mySegmentsService = require('@splitsoftware/splitio-services/lib/mySegments');
 const mySegmentsRequest = require('@splitsoftware/splitio-services/lib/mySegments/get');
 
 const mySegmentMutationsFactory = require('../mutators/mySegments');
 
-function mySegmentsDataSource() :Thenable {
+function mySegmentsDataSource() {
   return mySegmentsService(mySegmentsRequest())
     .then(resp => resp.json())
     .then(json => {

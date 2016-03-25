@@ -32,13 +32,13 @@ function SegmentsStorage() {
   this.storage = new _set2.default();
 }
 
-SegmentsStorage.prototype.update = function (segments) {
+SegmentsStorage.prototype.update = function (segments /*: Set */) /*: void */{
   log('Updating my segments list with [' + [].concat((0, _toConsumableArray3.default)(segments)) + ']');
 
   this.storage = segments;
 };
 
-SegmentsStorage.prototype.has = function (name) {
+SegmentsStorage.prototype.has = function (name /*: string */) /*: boolean */{
   return this.storage.has(name);
 };
 

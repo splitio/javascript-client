@@ -51,7 +51,7 @@ function publishToTime() {
     })).then(function (resp) {
       getTreatmentCollector.clear(); // once saved, cleanup the collector
       return resp;
-    }).catch(function (error) {
+    }).catch(function () {
       getTreatmentCollector.clear(); // after try to save, cleanup the collector
     });
   }
@@ -64,7 +64,7 @@ function publishToImpressions() {
     })).then(function (resp) {
       impressionsCollector.clear();
       return resp;
-    }).catch(function (error) {
+    }).catch(function () {
       impressionsCollector.clear();
     });
   }

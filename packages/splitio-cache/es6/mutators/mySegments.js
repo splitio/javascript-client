@@ -14,10 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
+/*::
 type MySegmentsDTO = Array<string>;
-
-function MySegmentMutationsFactory(mySegments :MySegmentsDTO) :Function {
-  function segmentMutations(storageMutator :Function) :void {
+*/
+function MySegmentMutationsFactory(mySegments /*: MySegmentsDTO */) /*: Function */ {
+  function segmentMutations(storageMutator /*: Function */) /*: void */ {
     storageMutator(new Set(mySegments));
   }
 

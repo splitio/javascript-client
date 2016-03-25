@@ -14,40 +14,53 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-import type {
-  Thenable
-} from '../types';
-
 const segmentChangesService = require('@splitsoftware/splitio-services/lib/segmentChanges');
 const segmentChangesRequest = require('@splitsoftware/splitio-services/lib/segmentChanges/get');
 
 const segmentMutatorFactory = require('../mutators/segmentChanges');
 const cache = new Map();
 
-function cacheKeyGenerator(authorizationKey, segmentName) {
-  return `${authorizationKey}/segmentChanges/${segmentName}`;
-}
-
-function segmentChangesDataSource({
-  authorizationKey,
-  segmentName
-}) :Thenable {
-  const cacheKey = cacheKeyGenerator(authorizationKey, segmentName);
-  const since = cache.get(cacheKey) || -1;
-
+function greedyFetch(since, segmentName) {
   return segmentChangesService(segmentChangesRequest({
     since,
     segmentName
   }))
   .then(resp => resp.json())
   .then(json => {
-    let {since, till, ...data} = json;
+    let {since, till} = json;
 
-    cache.set(cacheKey, till);
-
-    return segmentMutatorFactory( data );
+    if (since === till) {
+      return [json];
+    } else {
+      return Promise.all([
+        json,
+        greedyFetch(json.till, segmentName)
+      ]).then(flatMe => {
+        return [flatMe[0], ...flatMe[1]];
+      });
+    }
   })
-  .catch(() => { /* noop */ });
+  .catch(function () {
+    // if something goes wrong with the request to the server, we are going to
+    // stop requesting information till the next round of downloading
+    return [];
+  });
+}
+
+function segmentChangesDataSource(segmentName) {
+  const since = cache.get(segmentName) || -1;
+
+  return greedyFetch(since, segmentName).then((changes) => {
+    let len = changes.length;
+
+    if (len > 0) {
+      cache.set(segmentName, changes[len - 1].till);
+
+      return segmentMutatorFactory(changes);
+    }
+  });
 }
 
 module.exports = segmentChangesDataSource;
+module.exports.greedyFetch = greedyFetch;
+module.exports.cache = cache;

@@ -40,13 +40,19 @@ Split.prototype.getSegments = function getSegments() {
 };
 
 Split.prototype.getTreatment = function getTreatment(key, attributes) {
-  if (this.baseInfo.killed) {
-    return this.baseInfo.defaultTreatment;
+  var _baseInfo = this.baseInfo;
+  var killed = _baseInfo.killed;
+  var seed = _baseInfo.seed;
+  var defaultTreatment = _baseInfo.defaultTreatment;
+
+
+  if (killed) {
+    return defaultTreatment;
+  } else {
+    var treatment = this.evaluator(key, seed, attributes);
+
+    return treatment !== undefined ? treatment : defaultTreatment;
   }
-
-  var treatment = this.evaluator(key, this.baseInfo.seed, attributes);
-
-  return treatment !== undefined ? treatment : this.baseInfo.defaultTreatment;
 };
 
 Split.prototype.isTreatment = function isTreatment(key, treatment) {

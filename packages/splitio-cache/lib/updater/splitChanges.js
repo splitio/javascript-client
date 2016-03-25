@@ -1,20 +1,22 @@
 'use strict';
 
-var log = require('debug')('splitio-cache:updater'); /**
-                                                     Copyright 2016 Split Software
-                                                     
-                                                     Licensed under the Apache License, Version 2.0 (the "License");
-                                                     you may not use this file except in compliance with the License.
-                                                     You may obtain a copy of the License at
-                                                     
-                                                         http://www.apache.org/licenses/LICENSE-2.0
-                                                     
-                                                     Unless required by applicable law or agreed to in writing, software
-                                                     distributed under the License is distributed on an "AS IS" BASIS,
-                                                     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-                                                     See the License for the specific language governing permissions and
-                                                     limitations under the License.
-                                                     **/
+/**
+Copyright 2016 Split Software
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+**/
+
+var log = require('debug')('splitio-cache:updater');
 
 var splitChangesDataSource = require('../ds/splitChanges');
 
@@ -23,15 +25,15 @@ var splitsStorage = storage.splits;
 var update = splitsStorage.update.bind(splitsStorage);
 
 function splitChangesUpdater(_ref) {
-  var authorizationKey = _ref.authorizationKey;
+    var authorizationKey = _ref.authorizationKey;
 
-  log('[' + authorizationKey + '] Updating splitChanges');
+    log('[' + authorizationKey + '] Updating splitChanges');
 
-  return splitChangesDataSource({ authorizationKey: authorizationKey }).then(function (splitsMutator) {
-    return splitsMutator(storage, update);
-  }).then(function () {
-    return storage;
-  });
+    return splitChangesDataSource({ authorizationKey: authorizationKey }).then(function (splitsMutator) {
+        return splitsMutator(storage, update);
+    }).then(function () {
+        return storage;
+    });
 }
 
 module.exports = splitChangesUpdater;

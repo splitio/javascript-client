@@ -61,9 +61,7 @@ function parse(conditions /*: Iterable<Object> */, storage /*: Storage */) /*: P
   try {
     for (var _iterator = (0, _getIterator3.default)(conditions), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
       var condition = _step.value;
-      var _condition$matcherGro = condition.matcherGroup;
-      var combiner = _condition$matcherGro.combiner;
-      var matchers = _condition$matcherGro.matchers;
+      var matchers = condition.matcherGroup.matchers;
       var partitions = condition.partitions;
 
       // transform data structure

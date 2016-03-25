@@ -16,6 +16,7 @@ limitations under the License.
 
 require('isomorphic-fetch');
 
+// @TOOD WIP
 function TrackedRequest(tracker) {
   return function RequestFactory(request /*: Request */) /*: Promise */ {
     let stop = tracker.timer('request').start();
@@ -30,8 +31,8 @@ function TrackedRequest(tracker) {
 
         return object;
       })
-      .catch(error => {
-        tracker.counter(response.status).inc();
+      .catch(() => {
+        // tracker.counter(response.status).inc();
         stop();
 
         return undefined;

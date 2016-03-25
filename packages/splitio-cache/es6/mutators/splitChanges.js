@@ -17,6 +17,7 @@ limitations under the License.
 const Split = require('@splitsoftware/splitio-engine');
 const parse = Split.parse;
 
+/*::
 type PartitionDTO = {
   treatment: string,
   size: number
@@ -49,9 +50,10 @@ type SplitDTO = {
 };
 
 type SplitDTOCollection = Array<SplitDTO>;
+*/
 
-function SplitMutationsFactory(splits :SplitDTOCollection) :Function {
-  function splitMutations(storage, storageMutator :Function) :void {
+function SplitMutationsFactory(splits /*: SplitDTOCollection */) /*: Function */ {
+  function splitMutations(storage, storageMutator /*: Function */) /*: void */ {
     storageMutator(splits.map(function(split) {
       return parse(split, storage);
     }));

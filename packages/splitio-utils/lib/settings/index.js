@@ -46,10 +46,16 @@ function defaults(custom /*: Settings */) /*: Settings */{
       featuresRefreshRate: 30, // 30 sec
       segmentsRefreshRate: 60, // 60 sec
       metricsRefreshRate: 60, // 60 sec
-      impressionsRefreshRate: 60 }
+      impressionsRefreshRate: 60 // 60 sec
+    },
+    // NodeJS specific settings
+    node: {
+      http: {
+        poolSize: 6
+      }
+    }
   };
 
-  // 60 sec
   var final = (0, _assign2.default)({}, init, custom);
 
   // we can't start the engine without the authorization token.
@@ -81,7 +87,7 @@ function defaults(custom /*: Settings */) /*: Settings */{
   return final;
 }
 
-var settings = null;
+var settings = void 0;
 
 module.exports = {
   configure: function configure(params) {
@@ -90,17 +96,13 @@ module.exports = {
     return this;
   },
   get: function get(settingName) {
-    if (!settings) {
+    if (settings === undefined) {
       throw Error('Asked for configurations before they were defined');
     }
 
     switch (settingName) {
       case 'version':
-        return 'javascript-2.0.0';
-      case 'core':
-        return settings.core;
-      case 'scheduler':
-        return settings.scheduler;
+        return 'javascript-3.0.0';
       case 'authorizationKey':
         return settings.core.authorizationKey;
       case 'key':
@@ -113,6 +115,8 @@ module.exports = {
         return settings.scheduler.metricsRefreshRate;
       case 'impressionsRefreshRate':
         return settings.scheduler.impressionsRefreshRate;
+      default:
+        return settings[settingName];
     }
   }
 };

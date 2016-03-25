@@ -14,6 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-export type Thenable = {
-  then: Function
+const Pool = require('generic-pool').Pool;
+
+module.exports = function factory(settings) {
+  return new Pool(settings);
 };

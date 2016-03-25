@@ -39,6 +39,12 @@ function defaults(custom /*: Settings */) /*: Settings */ {
       segmentsRefreshRate:    60, // 60 sec
       metricsRefreshRate:     60, // 60 sec
       impressionsRefreshRate: 60  // 60 sec
+    },
+    // NodeJS specific settings
+    node: {
+      http: {
+        poolSize: 6
+      }
     }
   };
 
@@ -73,7 +79,7 @@ function defaults(custom /*: Settings */) /*: Settings */ {
   return final;
 }
 
-let settings = null;
+let settings;
 
 module.exports = {
   configure(params) {
@@ -83,17 +89,13 @@ module.exports = {
   },
 
   get(settingName) {
-    if (!settings) {
+    if (settings === undefined) {
       throw Error('Asked for configurations before they were defined');
     }
 
     switch (settingName) {
       case 'version':
         return 'javascript-3.0.0';
-      case 'core':
-        return settings.core;
-      case 'scheduler':
-        return settings.scheduler;
       case 'authorizationKey':
         return settings.core.authorizationKey;
       case 'key':
@@ -106,6 +108,8 @@ module.exports = {
         return settings.scheduler.metricsRefreshRate;
       case 'impressionsRefreshRate':
         return settings.scheduler.impressionsRefreshRate;
+      default:
+        return settings[settingName];
     }
   }
 };
