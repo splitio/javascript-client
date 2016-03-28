@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 /**
 Copyright 2016 Split Software
@@ -26,6 +26,8 @@ type SegmentChangesDTO = {
 type SegmentChangesDTOCollection = Array<SegmentChangesDTO>;
 */
 
+var log = require('debug')('splitio-cache:mutators');
+
 function SegmentMutationsFactory(changes /*: SegmentChangesDTOCollection */) /*: Function */{
   function segmentMutations(storageAccesor /*: Function */, storageMutator /*: Function*/) /*: void */{
     changes.forEach(function (_ref) {
@@ -37,14 +39,20 @@ function SegmentMutationsFactory(changes /*: SegmentChangesDTOCollection */) /*:
 
       // nothing to do here
       if (added.length === 0 && removed.length === 0) {
+        log('There is none changes to be done to segment ' + name);
         return;
       }
 
       segment = storageAccesor(name);
 
+      log('Adding ' + added.length + ' new keys to the segment ' + name);
+
       added.forEach(function (key) {
         return segment.add(key);
       });
+
+      log('Removing ' + removed.length + ' keys from segment ' + name);
+
       removed.forEach(function (key) {
         return segment.delete(key);
       });
