@@ -14,12 +14,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-let splitNode = require('./node');
+const sdk = require('./sdk');
 
-global.splitio = function splitBrowser(settings /*: object */) /*: object */ {
-  let engine = splitNode(settings);
+function sdkForTheBrowser(settings) {
+  const engine = sdk(settings);
 
+  // We don't allow multiple keys in browser land
   engine.getTreatment = engine.getTreatment.bind(engine, settings.core.key);
 
   return engine;
-};
+}
+
+global.splitio = sdkForTheBrowser;

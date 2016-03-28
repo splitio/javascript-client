@@ -9,7 +9,7 @@
     "type": "git",
     "url": "https://github.com/splitio/javascript-client/tree/master/packages/splitio"
   },
-  "main": "lib/index.js",
+  "main": "lib/node.js",
   "browser": "lib/browser.js",
   "scripts": {
     "build": "./scripts/build.sh",

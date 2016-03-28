@@ -14,15 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-let SchedulerFactory = require('@splitsoftware/splitio-utils/lib/scheduler');
-let settings = require('@splitsoftware/splitio-utils/lib/settings');
-
-let {
-  splitChangesUpdater,
-  segmentsUpdater
-} = require('@splitsoftware/splitio-cache');
+const scheduler = require('../scheduler');
 
 let _isStarted = false;
+
 let core = {
   start() {
     if (!_isStarted) {
@@ -31,19 +26,7 @@ let core = {
       return Promise.reject('Engine already started');
     }
 
-    let coreSettings = settings.get('core');
-    let featuresRefreshRate = settings.get('featuresRefreshRate');
-    let segmentsRefreshRate = settings.get('segmentsRefreshRate');
-
-    let splitRefreshScheduler = SchedulerFactory();
-    let segmentsRefreshScheduler = SchedulerFactory();
-
-    return Promise.all([
-      splitRefreshScheduler.forever(splitChangesUpdater, featuresRefreshRate, coreSettings),
-      segmentsRefreshScheduler.forever(segmentsUpdater, segmentsRefreshRate, coreSettings)
-    ]).then(function ([storage]) {
-      return storage;
-    });
+    return scheduler();
   },
 
   isStared() {
