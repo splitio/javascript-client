@@ -23,15 +23,27 @@ type PartitionDTO = {
   size: number
 };
 
+type MatcherType = 'WHITELIST' | 'IN_SEGMENT' | 'ALL_KEYS' | 'BETWEEN' |
+                   'GREATER_THAN_OR_EQUAL_TO' | 'LESS_THAN_OR_EQUAL_TO' |
+                   'EQUAL_TO';
+
 type MatcherDTO = {
-  matcherType: string,
+  matcherType: MatcherType,
   negate: boolean,
-  userDefinedSegmentMatcherData: any,
-  whitelistMatcherData: any
+  userDefinedSegmentMatcherData: ? {
+    segmentName: string
+  },
+  whitelistMatcherData: ? Array<string>,
+  unaryNumericMatcherData: ? number,
+  betweenMatcherData: ? {
+    dataType: null | 'number' | 'datetime',
+    start: number,
+    end: number
+  }
 };
 
 type MatcherGroupDTO = {
-  combiner: string,
+  combiner: 'AND',
   matchers: Array<MatcherDTO>
 };
 

@@ -27,8 +27,7 @@
                   ]
                 },
                 "unaryNumericMatcherData": null,
-                "betweenMatcherData": null,
-                "unaryStringMatcherData": null
+                "betweenMatcherData": null
               }
             ]
           },
@@ -99,8 +98,7 @@
                   ]
                 },
                 "unaryNumericMatcherData": null,
-                "betweenMatcherData": null,
-                "unaryStringMatcherData": null
+                "betweenMatcherData": null
               }
             ]
           },
@@ -125,8 +123,7 @@
                 "userDefinedSegmentMatcherData": null,
                 "whitelistMatcherData": null,
                 "unaryNumericMatcherData": null,
-                "betweenMatcherData": null,
-                "unaryStringMatcherData": null
+                "betweenMatcherData": null
               }
             ]
           },
@@ -170,8 +167,7 @@
                 },
                 "whitelistMatcherData": null,
                 "unaryNumericMatcherData": null,
-                "betweenMatcherData": null,
-                "unaryStringMatcherData": null
+                "betweenMatcherData": null
               }
             ]
           },
@@ -215,8 +211,7 @@
                 },
                 "whitelistMatcherData": null,
                 "unaryNumericMatcherData": null,
-                "betweenMatcherData": null,
-                "unaryStringMatcherData": null
+                "betweenMatcherData": null
               }
             ]
           },

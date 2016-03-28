@@ -21,10 +21,10 @@ type SegmentChangesDTO = {
   removed: Array<string>
 };
 
-type CollectionOfSegmentChangesDTO = Array<SegmentChangesDTO>;
+type SegmentChangesDTOCollection = Array<SegmentChangesDTO>;
 */
 
-function SegmentMutationsFactory(changes /*: CollectionOfSegmentChangesDTO */) /*: Function */ {
+function SegmentMutationsFactory(changes /*: SegmentChangesDTOCollection */) /*: Function */ {
   function segmentMutations(storageAccesor /*: Function */, storageMutator /*: Function*/) /*: void */ {
     changes.forEach(({name, added, removed}) => {
       let segment;
