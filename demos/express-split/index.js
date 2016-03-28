@@ -12,7 +12,7 @@ if (process.env.NODE_ENV === 'offline') {
 } else {
   sdk = require('@splitsoftware/splitio')({
     core: {
-      authorizationKey: 'c1l5vkd50gimccout3c03pntbu'
+      authorizationKey: 'l1le2jmg4ksjhh1gh671r4aj5tgl9hukrqlv'
     }/*,
     scheduler: {
       featuresRefreshRate: 1,    // fetch feature updates each 1 sec
@@ -24,7 +24,7 @@ if (process.env.NODE_ENV === 'offline') {
 }
 
 app.use(function (req, res, next) {
-  if (sdk.getTreatment('4a2c4490-ced1-11e5-9b97-d8a25e8b1578', 'js_sdk') === 'on') {
+  if (sdk.getTreatment('key_7663', 'test_52') === 't_2') {
     next();
   } else {
     res.sendStatus(403);

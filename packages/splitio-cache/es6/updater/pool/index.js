@@ -14,19 +14,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
+const Pool = require('generic-pool').Pool;
+
 const log = require('debug')('splitio-cache:pool');
 
-const factory = require('./factory');
 const settings = require('@splitsoftware/splitio-utils/lib/settings');
 
-const poolInstance = factory({
-  refreshIdle: false,
-  create(callback) {
-    callback(null, {});
-  },
-  destroy() {},
-  max: settings.get('node').http.poolSize,
-  log
-});
-
-module.exports = poolInstance;
+module.exports = function factory(overrides) {
+  return new Pool(Object.assign({}, {
+    refreshIdle: false,
+    create(callback) {
+      callback(null, {});
+    },
+    destroy() {},
+    max: settings.get('node').http.poolSize,
+    log
+  }, overrides));
+};

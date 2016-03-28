@@ -1,5 +1,11 @@
 'use strict';
 
+var _assign = require('babel-runtime/core-js/object/assign');
+
+var _assign2 = _interopRequireDefault(_assign);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 /**
 Copyright 2016 Split Software
 
@@ -16,21 +22,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
+var Pool = require('generic-pool').Pool;
+
 var log = require('debug')('splitio-cache:pool');
 
-var factory = require('./factory');
 var settings = require('@splitsoftware/splitio-utils/lib/settings');
 
-var poolInstance = factory({
-  refreshIdle: false,
-  create: function create(callback) {
-    callback(null, {});
-  },
-  destroy: function destroy() {},
+module.exports = function factory(overrides) {
+  return new Pool((0, _assign2.default)({}, {
+    refreshIdle: false,
+    create: function create(callback) {
+      callback(null, {});
+    },
+    destroy: function destroy() {},
 
-  max: settings.get('node').http.poolSize,
-  log: log
-});
-
-module.exports = poolInstance;
+    max: settings.get('node').http.poolSize,
+    log: log
+  }, overrides));
+};
 //# sourceMappingURL=index.js.map

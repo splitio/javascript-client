@@ -24,10 +24,12 @@ const segmentsStorage = storage.segments;
 const getSegment = segmentsStorage.get.bind(segmentsStorage);
 const updateSegment = segmentsStorage.update.bind(segmentsStorage);
 
-const pool = require('./pool');
+const PoolFactory = require('./pool');
 
 function segmentChangesUpdater() {
   log('Updating segmentChanges');
+
+  const pool = PoolFactory();
 
   return new Promise(function (resolve/*, reject*/) {
     // Read the list of available segments.

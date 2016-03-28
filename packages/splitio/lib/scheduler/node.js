@@ -35,7 +35,7 @@ function scheduler() {
 
   // 1- Fetch Splits
   // 2- Fetch segments once we have all the Splits downloaded
-  splitRefreshScheduler.forever(splitChangesUpdater, featuresRefreshRate, coreSettings).then(function () {
+  return splitRefreshScheduler.forever(splitChangesUpdater, featuresRefreshRate, coreSettings).then(function scheduleSegmentsFetcher() {
     return segmentsRefreshScheduler.forever(segmentsUpdater, segmentsRefreshRate, coreSettings);
   });
 }
