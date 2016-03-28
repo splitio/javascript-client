@@ -24,13 +24,10 @@ var storage = require('../storage');
 var segmentsStorage = storage.segments;
 var update = segmentsStorage.update.bind(segmentsStorage);
 
-function mySegmentsUpdater(_ref) {
-    var authorizationKey = _ref.authorizationKey;
-    var key = _ref.key;
+function mySegmentsUpdater() {
+    log('Updating mySegments');
 
-    log('[' + authorizationKey + '] Updating mySegments');
-
-    return mySegmentsDataSource({ authorizationKey: authorizationKey, key: key }).then(function (segmentsMutator) {
+    return mySegmentsDataSource().then(function (segmentsMutator) {
         return segmentsMutator(update);
     }).then(function () {
         return storage;

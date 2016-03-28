@@ -24,12 +24,10 @@ var storage = require('../storage');
 var splitsStorage = storage.splits;
 var update = splitsStorage.update.bind(splitsStorage);
 
-function splitChangesUpdater(_ref) {
-    var authorizationKey = _ref.authorizationKey;
+function splitChangesUpdater() {
+    log('Updating splitChanges');
 
-    log('[' + authorizationKey + '] Updating splitChanges');
-
-    return splitChangesDataSource({ authorizationKey: authorizationKey }).then(function (splitsMutator) {
+    return splitChangesDataSource().then(function (splitsMutator) {
         return splitsMutator(storage, update);
     }).then(function () {
         return storage;

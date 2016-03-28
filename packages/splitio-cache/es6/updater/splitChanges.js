@@ -22,12 +22,12 @@ const storage = require('../storage');
 const splitsStorage = storage.splits;
 const update = splitsStorage.update.bind(splitsStorage);
 
-function splitChangesUpdater({authorizationKey}) {
-  log(`[${authorizationKey}] Updating splitChanges`);
+function splitChangesUpdater() {
+  log('Updating splitChanges');
 
-  return splitChangesDataSource({authorizationKey})
-            .then(splitsMutator => splitsMutator(storage, update))
-            .then(() => storage);
+  return splitChangesDataSource()
+    .then(splitsMutator => splitsMutator(storage, update))
+    .then(() => storage);
 }
 
 module.exports = splitChangesUpdater;

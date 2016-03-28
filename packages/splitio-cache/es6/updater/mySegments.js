@@ -22,12 +22,12 @@ const storage = require('../storage');
 const segmentsStorage = storage.segments;
 const update = segmentsStorage.update.bind(segmentsStorage);
 
-function mySegmentsUpdater({authorizationKey, key}) {
-  log(`[${authorizationKey}] Updating mySegments`);
+function mySegmentsUpdater() {
+  log('Updating mySegments');
 
-  return mySegmentsDataSource({authorizationKey, key})
-            .then(segmentsMutator => segmentsMutator(update))
-            .then(() => storage);
+  return mySegmentsDataSource()
+    .then(segmentsMutator => segmentsMutator(update))
+    .then(() => storage);
 }
 
 module.exports = mySegmentsUpdater;
