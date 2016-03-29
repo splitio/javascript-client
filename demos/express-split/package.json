@@ -16,7 +16,7 @@
     "npm": "3.x"
   },
   "dependencies": {
-    "@splitsoftware/splitio": "2.0.0",
+    "@splitsoftware/splitio": "2.1.0",
     "express": "^4.13.3"
   }
 }

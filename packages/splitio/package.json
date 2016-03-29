@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Split SDK",
   "author": "Facundo Cabrera <facundo@split.io>",
   "homepage": "https://github.com/splitio/javascript-client",
@@ -16,9 +16,9 @@
     "watch": "babel es6 --out-dir lib --source-maps --watch"
   },
   "dependencies": {
-    "@splitsoftware/splitio-cache": "2.0.0",
-    "@splitsoftware/splitio-metrics": "2.0.0",
-    "@splitsoftware/splitio-utils": "2.0.0",
+    "@splitsoftware/splitio-cache": "2.1.0",
+    "@splitsoftware/splitio-metrics": "2.1.0",
+    "@splitsoftware/splitio-utils": "2.1.0",
     "babel-runtime": "^5.8.35",
     "core-js": "^1.2.6",
     "debug": "^2.2.0"

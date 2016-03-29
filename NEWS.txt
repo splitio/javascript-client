@@ -1,3 +1,7 @@
+## 2.1.0 (March 29, 2016)
+
+* Internal improvements. It's safe to upgrade without making code changes.
+
 ## 2.0.0 (March 21, 2016)
 
 * Improved configurations in order to help developers, now all the refresh rates
