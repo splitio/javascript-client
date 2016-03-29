@@ -5,6 +5,48 @@
       "environment": null,
       "trafficTypeId": null,
       "trafficTypeName": null,
+      "name": "attr_between_dates",
+      "seed": 622265394,
+      "status": "ACTIVE",
+      "killed": false,
+      "defaultTreatment": "off",
+      "conditions": [
+        {
+          "matcherGroup": {
+            "combiner": "AND",
+            "matchers": [
+              {
+                "keySelector": {
+                  "trafficType": "user",
+                  "attribute": "attr"
+                },
+                "matcherType": "BETWEEN",
+                "negate": false,
+                "userDefinedSegmentMatcherData": null,
+                "whitelistMatcherData": null,
+                "unaryNumericMatcherData": null,
+                "betweenMatcherData": {
+                  "dataType": "DATETIME",
+                  "start": 1458240947021,
+                  "end": 1458246884077
+                }
+              }
+            ]
+          },
+          "partitions": [
+            {
+              "treatment": "on",
+              "size": 100
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "orgId": null,
+      "environment": null,
+      "trafficTypeId": null,
+      "trafficTypeName": null,
       "name": "qc_team",
       "seed": -1984784937,
       "status": "ACTIVE",
