@@ -27,7 +27,7 @@ const whitelistMatcher = require('./whitelist');
 */
 
 // Matcher factory.
-function factory(matcherAbstract /*: MatcherAbstract */, storage /*: Storage */) /*: function */ {
+function factory(matcherAbstract /*: MatcherAbstract */, storage /*: Storage */) /*: ?function */ {
   let {type, value} = matcherAbstract;
 
   if (type === types.ALL) {

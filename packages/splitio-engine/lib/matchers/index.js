@@ -29,7 +29,7 @@ var whitelistMatcher = require('./whitelist');
 */
 
 // Matcher factory.
-function factory(matcherAbstract /*: MatcherAbstract */, storage /*: Storage */) /*: function */{
+function factory(matcherAbstract /*: MatcherAbstract */, storage /*: Storage */) /*: ?function */{
   var type = matcherAbstract.type;
   var value = matcherAbstract.value;
 

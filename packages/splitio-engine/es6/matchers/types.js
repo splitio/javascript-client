@@ -17,19 +17,22 @@ module.exports = {
   enum: {
     ALL: Symbol(),
     SEGMENT: Symbol(),
-    WHITELIST: Symbol()
+    WHITELIST: Symbol(),
+    UNDEFINED: Symbol()
   },
 
   mapper(matcherType /*: string */) {
+    let types = this.enum;
+
     switch (matcherType) {
       case 'ALL_KEYS':
-        return this.enum.ALL;
+        return types.ALL;
       case 'IN_SEGMENT':
-        return this.enum.SEGMENT;
+        return types.SEGMENT;
       case 'WHITELIST':
-        return this.enum.WHITELIST;
+        return types.WHITELIST;
       default:
-        throw new Error('Invalid matcher type provided');
+        return types.UNDEFINED;
     }
   }
 };

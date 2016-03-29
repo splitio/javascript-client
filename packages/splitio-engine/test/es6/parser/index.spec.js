@@ -100,3 +100,35 @@ tape("PARSER / if user is in segment ['u1', ' u2', ' u3', ' u4'] then split 100%
   assert.end();
 
 });
+
+tape('PARSER / given an unexpected structure, always evaluates to undefined', assert => {
+
+  let {evaluator, segments} = parser([{
+    matcherGroup: {
+      combiner: 'AND',
+      matchers: [{
+        keySelector: {
+          trafficType: 'user',
+          attribute: 'attr'
+        },
+        matcherType: 'EQUAL_TO',
+        negate: false,
+        userDefinedSegmentMatcherData: null,
+        whitelistMatcherData: null,
+        unaryNumericMatcherData: {
+          dataType: 'DATETIME',
+          value: 1458240947021
+        },
+        betweenMatcherData: null
+      }]
+    },
+    partitions: [{
+      treatment: 'on',
+      size: 100
+    }]
+  }]);
+
+  assert.equal(evaluator('test@split.io', 31), 'control', 'should evaluates to control');
+  assert.equal(segments.size, 0, 'should return an empty segments set');
+  assert.end();
+});

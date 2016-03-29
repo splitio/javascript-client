@@ -37,11 +37,9 @@ function transform(matcherGroup /*: object */) /*: MatcherDTO */{
 
 
   var type = matcherTypes.mapper(matcherType);
-  var value = void 0;
+  var value = undefined;
 
-  if (type === matcherTypes.enum.ALL) {
-    value = undefined;
-  } else if (type === matcherTypes.enum.SEGMENT) {
+  if (type === matcherTypes.enum.SEGMENT) {
     value = segmentTransform(segmentObject);
   } else if (type === matcherTypes.enum.WHITELIST) {
     value = whitelistTransform(whitelistObject);

@@ -1,5 +1,13 @@
 const parser = require('./parser');
 
+function defaults(inst) {
+  // in case we don't have a default treatment in the instanciation, use
+  // 'control'
+  if (typeof inst.baseInfo.defaultTreatment !== 'string') {
+    inst.baseInfo.defaultTreatment = 'control';
+  }
+}
+
 function Split(baseInfo, evaluator, segments) {
   if (!(this instanceof Split)) {
      return new Split(baseInfo, evaluator, segments);
@@ -8,6 +16,8 @@ function Split(baseInfo, evaluator, segments) {
   this.baseInfo = baseInfo;
   this.evaluator = evaluator;
   this.segments = segments;
+
+  defaults(this);
 }
 
 Split.parse = function parse(splitFlatStructure, storage) {
@@ -32,7 +42,9 @@ Split.prototype.getTreatment = function getTreatment(key) {
 
   let treatment = this.evaluator(key, this.baseInfo.seed);
 
-  return treatment !== undefined ? treatment : this.baseInfo.defaultTreatment;
+  return treatment !== undefined ?
+    treatment :
+    this.baseInfo.defaultTreatment;
 }
 
 Split.prototype.isTreatment = function isTreatment(key, treatment) {

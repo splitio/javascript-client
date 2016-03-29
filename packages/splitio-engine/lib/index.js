@@ -8,6 +8,14 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var parser = require('./parser');
 
+function defaults(inst) {
+  // in case we don't have a default treatment in the instanciation, use
+  // 'control'
+  if (typeof inst.baseInfo.defaultTreatment !== 'string') {
+    inst.baseInfo.defaultTreatment = 'control';
+  }
+}
+
 function Split(baseInfo, evaluator, segments) {
   if (!(this instanceof Split)) {
     return new Split(baseInfo, evaluator, segments);
@@ -16,6 +24,8 @@ function Split(baseInfo, evaluator, segments) {
   this.baseInfo = baseInfo;
   this.evaluator = evaluator;
   this.segments = segments;
+
+  defaults(this);
 }
 
 Split.parse = function parse(splitFlatStructure, storage) {

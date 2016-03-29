@@ -62,6 +62,14 @@ function parse(conditions /*: Iterable<Object> */, storage /*: Storage */) /*: P
       var matcherEvaluator = matcherFactory(matcherMetadata, storage);
       var treatments = treatmentsParser(condition.partitions);
 
+      // if the factory can't instanciate the matcher, the evaluation should
+      // return undefined => check default treatment
+      if (matcherEvaluator === undefined) {
+        predicates = undefined;
+        segments = new _set2.default();
+        break;
+      }
+
       // Incrementally collect segmentNames
       if (matcherMetadata.type === matcherTypes.SEGMENT) {
         segments.add(matcherMetadata.value);

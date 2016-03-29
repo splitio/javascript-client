@@ -1,6 +1,6 @@
-"use strict";
+'use strict';
 
-var _getIterator2 = require("babel-runtime/core-js/get-iterator");
+var _getIterator2 = require('babel-runtime/core-js/get-iterator');
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
@@ -22,10 +22,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
+function unexpectedInputHandler() {
+  return 'control';
+}
+
 // Premature evaluator (return as soon as something evaluates to true).
 function andContext(predicates /*: Array<(key: string, seed: number) => ?string)> */) /*: Function */{
 
-  return function andCombinerEvaluator(key /*: string */, seed /*: number */) /*: string */{
+  function andCombinerEvaluator(key /*: string */, seed /*: number */) /*: string */{
     var _iteratorNormalCompletion = true;
     var _didIteratorError = false;
     var _iteratorError = undefined;
@@ -56,7 +60,14 @@ function andContext(predicates /*: Array<(key: string, seed: number) => ?string)
     }
 
     return undefined;
-  };
+  }
+
+  // if there is none predicates, then there was an error in parsing phase
+  if (!Array.isArray(predicates) || Array.isArray(predicates) && predicates.length === 0) {
+    return unexpectedInputHandler;
+  } else {
+    return andCombinerEvaluator;
+  }
 }
 
 module.exports = andContext;

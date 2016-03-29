@@ -53,12 +53,12 @@ tape('AND COMBINER / should stop evaluating when one matcher return a treatment'
 
   var andCombinerEvaluator = andCombinerFactory(predicates);
 
-  assert.true(andCombinerEvaluator() === 'exclude', 'The combiner should STOP at the first predicates which returns a treatment');
-  assert.true(called === 2, 'Just 2 predicates should be called in this test');
+  assert.equal(andCombinerEvaluator(), 'exclude', 'exclude treatment found');
+  assert.equal(called, 2, '2 predicates should be called');
   assert.end();
 });
 
-tape('AND COMBINER / should return undefined if there is none matching rule', function (assert) {
+tape('AND COMBINER / none matching rule', function (assert) {
   var predicates = [function undef() {
     return undefined;
   }, function undef() {
@@ -67,7 +67,7 @@ tape('AND COMBINER / should return undefined if there is none matching rule', fu
     return undefined;
   }];
 
-  assert.true(andCombinerFactory(predicates)() === undefined);
+  assert.equal(andCombinerFactory(predicates)(), undefined, 'should return undefined when not matching found');
   assert.end();
 });
 //# sourceMappingURL=and.spec.js.map
