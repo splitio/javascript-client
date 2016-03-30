@@ -22,27 +22,30 @@ module.exports = {
     EQUAL_TO: Symbol(),
     GREATER_THAN_OR_EQUAL_TO: Symbol(),
     LESS_THAN_OR_EQUAL_TO: Symbol(),
-    BETWEEN: Symbol()
+    BETWEEN: Symbol(),
+    UNDEFINED: Symbol()
   },
 
   mapper(matcherType /*: string */) /*: Symbol */ {
+    let types = this.enum;
+
     switch (matcherType) {
       case 'ALL_KEYS':
-        return this.enum.ALL;
+        return types.ALL;
       case 'IN_SEGMENT':
-        return this.enum.SEGMENT;
+        return types.SEGMENT;
       case 'WHITELIST':
-        return this.enum.WHITELIST;
+        return types.WHITELIST;
       case 'EQUAL_TO':
-        return this.enum.EQUAL_TO;
+        return types.EQUAL_TO;
       case 'GREATER_THAN_OR_EQUAL_TO':
-        return this.enum.GREATER_THAN_OR_EQUAL_TO;
+        return types.GREATER_THAN_OR_EQUAL_TO;
       case 'LESS_THAN_OR_EQUAL_TO':
-        return this.enum.LESS_THAN_OR_EQUAL_TO;
+        return types.LESS_THAN_OR_EQUAL_TO;
       case 'BETWEEN':
-        return this.enum.BETWEEN;
+        return types.BETWEEN;
       default:
-        throw new Error('Invalid matcher type provided');
+        return types.UNDEFINED;
     }
   }
 };

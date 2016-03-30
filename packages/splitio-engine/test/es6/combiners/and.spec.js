@@ -32,5 +32,4 @@ tape('COMBINER AND / should always return false', function (assert) {
 
   assert.false(AND('always false'), 'should always return false');
   assert.end();
-
 });

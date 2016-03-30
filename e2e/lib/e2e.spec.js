@@ -34,7 +34,7 @@ fetch.mock(url('/splitChanges?since=-1'), splitChangesMock1);
 fetch.mock(url('/splitChanges?since=1457552620999'), splitChangesMock2);
 fetch.mock(url('/mySegments/facundo@split.io'), mySegmentsMock);
 
-tape('E2E ', function (assert) {
+tape('E2E', function (assert) {
   var sdk = Split({
     core: {
       authorizationKey: '<fake-token>',
@@ -48,10 +48,10 @@ tape('E2E ', function (assert) {
     }
   });
 
-  assert.equal(sdk.getTreatment('blacklist'), 'control', 'Ask for `blacklist` before initialization');
-  assert.equal(sdk.getTreatment('whitelist'), 'control', 'Ask for `whitelist` before initialization');
-  assert.equal(sdk.getTreatment('splitters'), 'control', 'Ask for `splitters` before initialization');
-  assert.equal(sdk.getTreatment('qc_team'), 'control', 'Ask for `qc_team` before initialization');
+  assert.equal(sdk.getTreatment('blacklist'), 'control', 'control should be return');
+  assert.equal(sdk.getTreatment('whitelist'), 'control', 'control should be return');
+  assert.equal(sdk.getTreatment('splitters'), 'control', 'control should be return');
+  assert.equal(sdk.getTreatment('qc_team'), 'control', 'control should be return');
 
   sdk.ready().then(function () {
     assert.equal(sdk.getTreatment('blacklist'), 'not_allowed');

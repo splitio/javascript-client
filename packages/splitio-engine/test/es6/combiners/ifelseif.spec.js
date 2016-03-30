@@ -60,8 +60,10 @@ tape('IF ELSE IF COMBINER / should stop evaluating when one matcher return a tre
 
   let ifElseIfEvaluator = ifElseIfCombinerFactory(predicates);
 
-  assert.true(ifElseIfEvaluator() === 'exclude', 'The combiner should STOP at the first predicates which returns a treatment');
-  assert.true(called === 2, 'Just 2 predicates should be called in this test');
+  assert.equal(
+    ifElseIfEvaluator(), 'exclude', 'exclude treatment found'
+  );
+  assert.equal(called, 2, '2 predicates should be called');
   assert.end();
 });
 

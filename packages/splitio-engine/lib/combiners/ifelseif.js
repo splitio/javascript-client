@@ -24,9 +24,13 @@ limitations under the License.
 
 var log = require('debug')('splitio-engine:combiner');
 
+function unexpectedInputHandler() {
+  return 'control';
+}
+
 function ifElseIfCombinerContext(predicates /*: Array<(key: string, seed: number, attributes: object) => ?string)> */) /*: function */{
 
-  return function ifElseIfCombiner(key /*: string */, seed /*: number */, attributes /*: object */) /*: ?string */{
+  function ifElseIfCombiner(key /*: string */, seed /*: number */, attributes /*: object */) /*: ?string */{
 
     // loop throught the if else if structure and stops as soon as one predicate
     // return a treatment
@@ -64,7 +68,14 @@ function ifElseIfCombinerContext(predicates /*: Array<(key: string, seed: number
     log('all predicates evaluted, none treatment available');
 
     return undefined;
-  };
+  }
+
+  // if there is none predicates, then there was an error in parsing phase
+  if (!Array.isArray(predicates) || Array.isArray(predicates) && predicates.length === 0) {
+    return unexpectedInputHandler;
+  } else {
+    return ifElseIfCombiner;
+  }
 }
 
 module.exports = ifElseIfCombinerContext;

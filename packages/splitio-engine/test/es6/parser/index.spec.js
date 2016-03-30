@@ -35,8 +35,9 @@ tape('PARSER / if user is in segment all 100%:on', assert => {
     }]
   }]);
 
-  assert.true(evaluator('a key', 31) === 'on', "evaluation should throw 'on'");
-  assert.true(segments.size === 0, 'there is no segment present in the definition');
+  assert.equal(typeof evaluator, 'function', 'evaluator should be callable');
+  assert.equal(evaluator('a key', 31), 'on', "evaluator should return 'on'");
+  assert.equal(segments.size, 0, 'there is no segment present in the definition');
   assert.end();
 
 });
@@ -347,18 +348,16 @@ tape('PARSER / if user.attr = datetime 1458240947021 then split 100:on', assert 
     }]
   }]);
 
-  assert.true(evaluator('test@split.io', 31, {
+  assert.equal(evaluator('test@split.io', 31, {
     attr: 1458240947021
-  }) === 'on', '1458240947021 is equal');
+  }), 'on', '1458240947021 is equal');
 
-  assert.true(evaluator('test@split.io', 31, {
+  assert.equal(evaluator('test@split.io', 31, {
     attr: 1458240947020
-  }) === undefined, '1458240947020 is not equal to 1458240947021');
+  }), undefined, '1458240947020 is not equal to 1458240947021');
 
-  assert.true(
-    evaluator('test@split.io', 31) === undefined,
+  assert.equal(evaluator('test@split.io', 31), undefined,
     'undefined is not equal to 1458240947021'
   );
-
   assert.end();
 });

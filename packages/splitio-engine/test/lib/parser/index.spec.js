@@ -1,5 +1,11 @@
 'use strict';
 
+var _typeof2 = require('babel-runtime/helpers/typeof');
+
+var _typeof3 = _interopRequireDefault(_typeof2);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 /**
 Copyright 2016 Split Software
 
@@ -40,8 +46,9 @@ tape('PARSER / if user is in segment all 100%:on', function (assert) {
   var segments = _parser.segments;
 
 
-  assert.true(evaluator('a key', 31) === 'on', "evaluation should throw 'on'");
-  assert.true(segments.size === 0, 'there is no segment present in the definition');
+  assert.equal(typeof evaluator === 'undefined' ? 'undefined' : (0, _typeof3.default)(evaluator), 'function', 'evaluator should be callable');
+  assert.equal(evaluator('a key', 31), 'on', "evaluator should return 'on'");
+  assert.equal(segments.size, 0, 'there is no segment present in the definition');
   assert.end();
 });
 
@@ -345,16 +352,15 @@ tape('PARSER / if user.attr = datetime 1458240947021 then split 100:on', functio
   var evaluator = _parser9.evaluator;
 
 
-  assert.true(evaluator('test@split.io', 31, {
+  assert.equal(evaluator('test@split.io', 31, {
     attr: 1458240947021
-  }) === 'on', '1458240947021 is equal');
+  }), 'on', '1458240947021 is equal');
 
-  assert.true(evaluator('test@split.io', 31, {
+  assert.equal(evaluator('test@split.io', 31, {
     attr: 1458240947020
-  }) === undefined, '1458240947020 is not equal to 1458240947021');
+  }), undefined, '1458240947020 is not equal to 1458240947021');
 
-  assert.true(evaluator('test@split.io', 31) === undefined, 'undefined is not equal to 1458240947021');
-
+  assert.equal(evaluator('test@split.io', 31), undefined, 'undefined is not equal to 1458240947021');
   assert.end();
 });
 //# sourceMappingURL=index.spec.js.map

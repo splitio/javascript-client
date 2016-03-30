@@ -56,7 +56,7 @@ var whitelistTransform = require('./whitelist');
 // Flat the complex matcherGroup structure into something handy.
 function transform(matchers /*: Array<object> */) /*: Array<MatcherDTO> */{
 
-  return matchers.map(function (matcher) {
+  var parsedMatchers = matchers.map(function (matcher) {
     var matcherType /*: string */
     = /*: betweenObject */
     matcher.matcherType;
@@ -72,11 +72,9 @@ function transform(matchers /*: Array<object> */) /*: Array<MatcherDTO> */{
 
     var attribute = keySelector && keySelector.attribute;
     var type = matcherTypes.mapper(matcherType);
-    var value = void 0;
+    var value = undefined;
 
-    if (type === matcherTypes.enum.ALL) {
-      value = undefined;
-    } else if (type === matcherTypes.enum.SEGMENT) {
+    if (type === matcherTypes.enum.SEGMENT) {
       value = segmentTransform(segmentObject);
     } else if (type === matcherTypes.enum.WHITELIST) {
       value = whitelistTransform(whitelistObject);
@@ -93,6 +91,14 @@ function transform(matchers /*: Array<object> */) /*: Array<MatcherDTO> */{
       value: value // metadata used for the matching
     };
   });
+
+  if (parsedMatchers.findIndex(function (m) {
+    return m.type === matcherTypes.enum.UNDEFINED;
+  }) === -1) {
+    return parsedMatchers;
+  } else {
+    return [];
+  }
 }
 
 module.exports = transform;

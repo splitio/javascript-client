@@ -54,7 +54,7 @@ const whitelistTransform = require('./whitelist');
 // Flat the complex matcherGroup structure into something handy.
 function transform(matchers /*: Array<object> */) /*: Array<MatcherDTO> */ {
 
-  return matchers.map(matcher => {
+  let parsedMatchers = matchers.map(matcher => {
     let {
       matcherType                                   /*: string */,
       negate                                        /*: boolean */,
@@ -67,11 +67,9 @@ function transform(matchers /*: Array<object> */) /*: Array<MatcherDTO> */ {
 
     let attribute = keySelector && keySelector.attribute;
     let type = matcherTypes.mapper(matcherType);
-    let value;
+    let value = undefined;
 
-    if (type === matcherTypes.enum.ALL) {
-      value = undefined;
-    } else if (type === matcherTypes.enum.SEGMENT) {
+    if (type === matcherTypes.enum.SEGMENT) {
       value = segmentTransform(segmentObject);
     } else if (type === matcherTypes.enum.WHITELIST) {
       value = whitelistTransform(whitelistObject);
@@ -91,6 +89,11 @@ function transform(matchers /*: Array<object> */) /*: Array<MatcherDTO> */ {
     };
   });
 
+  if (parsedMatchers.findIndex(m => m.type === matcherTypes.enum.UNDEFINED) === -1) {
+    return parsedMatchers;
+  } else {
+    return [];
+  }
 }
 
 module.exports = transform;

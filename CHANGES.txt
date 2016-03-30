@@ -1,3 +1,10 @@
+## 2.1.0 (March 29, 2016)
+
+* Added better handling of possible error situations when:
+
+  1. If there is none defaultTreatment present, use 'control' treatment.
+  2. Unexpected matcher structures should produce a 'control' treatment.
+
 ## 2.0.0 (March 21, 2016)
 
 ### Breaking Changes

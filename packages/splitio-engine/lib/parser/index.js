@@ -82,11 +82,17 @@ function parse(conditions /*: Iterable<Object> */, storage /*: Storage */) /*: P
         };
       });
 
-      var andAllMatchers = andCombiner(expressions);
+      // if matcher's factory can't instanciate the matchers, the expressions array
+      // will be empty
+      if (expressions.length === 0) {
+        // reset any data collected during parsing
+        predicates = [];
+        segments = new _set2.default();
 
-      var treatments = treatmentsParser(partitions);
+        break;
+      }
 
-      predicates.push(evaluatorFactory(andAllMatchers, treatments));
+      predicates.push(evaluatorFactory(andCombiner(expressions), treatmentsParser(partitions)));
     }
 
     // Instanciate evaluator given the set of conditions using if else if logic
@@ -108,8 +114,8 @@ function parse(conditions /*: Iterable<Object> */, storage /*: Storage */) /*: P
   evaluator = ifElseIfCombiner(predicates);
 
   return {
-    segments: segments,
-    evaluator: evaluator
+    evaluator: evaluator,
+    segments: segments
   };
 }
 

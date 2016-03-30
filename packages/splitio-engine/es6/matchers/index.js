@@ -25,7 +25,7 @@ const lteMatcher = require('./lte');
 const betweenMatcher = require('./between');
 
 // Matcher factory.
-function factory(matcherDto /*: MatcherDTO */, storage /*: Storage */) /*: function */ {
+function factory(matcherDto /*: MatcherDTO */, storage /*: Storage */) /*:? function */ {
   let {
     negate,
     type,
@@ -53,7 +53,7 @@ function factory(matcherDto /*: MatcherDTO */, storage /*: Storage */) /*: funct
   // @TODO this code is not a responsability of the factory, but in terms of
   // mantainability, it's the simplest way to do this. Lets evaluate in the
   // future if make sense to be refactored as a separate matcher.
-  if (negate) {
+  if (negate && matcherFn !== undefined) {
     return function negateMatcher(...rest) {
       return !matcherFn(...rest);
     };
