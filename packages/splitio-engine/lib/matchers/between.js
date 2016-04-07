@@ -18,11 +18,21 @@ limitations under the License.
 
 var log = require('debug')('splitio-engine:matcher');
 
-function betweenMatcherContext(valueObject /*: betweenObject */) /*: Function */{
-  return function betweenMatcher(value /*: number */) /*: boolean */{
-    var isBetween = value >= valueObject.start && value <= valueObject.end;
+var _require = require('../convertions');
 
-    log('[betweenMatcher] is ' + value + ' between ' + valueObject.start + ' and ' + valueObject.end + '? ' + isBetween);
+var zeroSinceSS = _require.date.zeroSinceSS;
+
+
+function betweenMatcherContext(vo /*: betweenObject */) /*: Function */{
+  return function betweenMatcher(value /*: number */) /*: boolean */{
+    // monkey patch datetime to effectily compare using between
+    if (vo.dataType === 'DATETIME') {
+      value = zeroSinceSS(value);
+    }
+
+    var isBetween = value >= vo.start && value <= vo.end;
+
+    log('[betweenMatcher] is ' + value + ' between ' + vo.start + ' and ' + vo.end + '? ' + isBetween);
 
     return isBetween;
   };

@@ -1,12 +1,12 @@
 'use strict';
 
-var _getIterator2 = require('babel-runtime/core-js/get-iterator');
-
-var _getIterator3 = _interopRequireDefault(_getIterator2);
-
 var _promise = require('babel-runtime/core-js/promise');
 
 var _promise2 = _interopRequireDefault(_promise);
+
+var _toConsumableArray2 = require('babel-runtime/helpers/toConsumableArray');
+
+var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -36,69 +36,22 @@ var segmentsStorage = storage.segments;
 var getSegment = segmentsStorage.get.bind(segmentsStorage);
 var updateSegment = segmentsStorage.update.bind(segmentsStorage);
 
-var PoolFactory = require('./pool');
-
 function segmentChangesUpdater() {
   log('Updating segmentChanges');
 
-  var pool = PoolFactory();
+  var downloads = [].concat((0, _toConsumableArray3.default)(splitsStorage.getSegments())).map(function (segmentName) {
+    return segmentChangesDataSource(segmentName).then(function (mutator) {
+      log('completed download of ' + segmentName);
 
-  return new _promise2.default(function (resolve /*, reject*/) {
-    // Read the list of available segments.
-    var segments = splitsStorage.getSegments();
-
-    var toBeProcessed = segments.size;
-    var processed = 0;
-
-    var _iteratorNormalCompletion = true;
-    var _didIteratorError = false;
-    var _iteratorError = undefined;
-
-    try {
-      var _loop = function _loop() {
-        var segmentName = _step.value;
-
-        pool.acquire(function (err, resource) {
-
-          segmentChangesDataSource(segmentName).then(function (mutator) {
-            pool.release(resource);
-
-            log('completed download of ' + segmentName);
-
-            if (typeof mutator === 'function') {
-              mutator(getSegment, updateSegment);
-            }
-
-            log('completed mutations for ' + segmentName);
-
-            processed++;
-            if (processed === toBeProcessed) {
-              resolve(storage);
-            }
-          });
-        });
-      };
-
-      for (var _iterator = (0, _getIterator3.default)(segments), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-        _loop();
+      if (typeof mutator === 'function') {
+        mutator(getSegment, updateSegment);
       }
-    } catch (err) {
-      _didIteratorError = true;
-      _iteratorError = err;
-    } finally {
-      try {
-        if (!_iteratorNormalCompletion && _iterator.return) {
-          _iterator.return();
-        }
-      } finally {
-        if (_didIteratorError) {
-          throw _iteratorError;
-        }
-      }
-    }
-  }).then(function (storage) {
-    pool.destroyAllNow();
 
+      log('completed mutations for ' + segmentName);
+    });
+  });
+
+  return _promise2.default.all(downloads).then(function () {
     return storage;
   });
 }

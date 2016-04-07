@@ -19,6 +19,8 @@ require('isomorphic-fetch');
 const url = require('@splitsoftware/splitio-utils/lib/url');
 const settings = require('@splitsoftware/splitio-utils/lib/settings');
 
+const requestOptions = require('./options');
+
 function RequestFactory(relativeUrl, params) {
   let apiToken = settings.get('authorizationKey');
   let sdkVersion = settings.get('version');
@@ -30,8 +32,8 @@ function RequestFactory(relativeUrl, params) {
       'Authorization': `Bearer ${apiToken}`,
       'SplitSDKVersion': `${sdkVersion}`
     },
-    mode: 'cors'
-  }, params));
+    compress: true
+  }, requestOptions, params));
 }
 
 module.exports = RequestFactory;

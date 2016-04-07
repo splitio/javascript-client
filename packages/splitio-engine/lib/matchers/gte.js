@@ -18,11 +18,21 @@ limitations under the License.
 
 var log = require('debug')('splitio-engine:matcher');
 
-function greaterThanEqualMatcherContext(valueObject /*: unaryNumericObject */) /*: Function */{
-  return function greaterThanEqualMatcher(value /*: string | number */) /*: boolean */{
-    var isGreaterThanEqual = value >= valueObject.value;
+var _require = require('../convertions');
 
-    log('[greaterThanEqualMatcher] is ' + value + ' greater than ' + valueObject.value + '? ' + isGreaterThanEqual);
+var zeroSinceSS = _require.date.zeroSinceSS;
+
+
+function greaterThanEqualMatcherContext(vo /*: unaryNumericObject */) /*: Function */{
+  return function greaterThanEqualMatcher(value /*: string | number */) /*: boolean */{
+    // monkey patch datetime to effectily compare on equal
+    if (vo.dataType === 'DATETIME') {
+      value = zeroSinceSS(value);
+    }
+
+    var isGreaterThanEqual = value >= vo.value;
+
+    log('[greaterThanEqualMatcher] is ' + value + ' greater than ' + vo.value + '? ' + isGreaterThanEqual);
 
     return isGreaterThanEqual;
   };

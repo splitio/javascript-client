@@ -33,7 +33,7 @@ function splitChangesDataSource() {
 
     return splitMutatorFactory( splits );
   })
-  .catch(() => { /* noop */ });
+  .catch(function() {});
 }
 
 module.exports = splitChangesDataSource;

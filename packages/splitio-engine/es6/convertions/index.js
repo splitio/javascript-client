@@ -14,20 +14,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-const Pool = require('generic-pool').Pool;
+function zeroSinceHH(millisSinceEpoch /*: number */) /*: number */ {
+  return new Date(millisSinceEpoch).setUTCHours(0, 0, 0, 0);
+}
 
-const log = require('debug')('splitio-cache:pool');
+function zeroSinceSS(millisSinceEpoch /*: number */) /*: number */ {
+  return new Date(millisSinceEpoch).setUTCSeconds(0, 0);
+}
 
-const settings = require('@splitsoftware/splitio-utils/lib/settings');
-
-module.exports = function factory(overrides) {
-  return new Pool(Object.assign({}, {
-    refreshIdle: false,
-    create(callback) {
-      callback(null, {});
-    },
-    destroy() {},
-    max: settings.get('node').http.poolSize,
-    log
-  }, overrides));
+module.exports = {
+  date: {
+    zeroSinceHH,
+    zeroSinceSS
+  }
 };

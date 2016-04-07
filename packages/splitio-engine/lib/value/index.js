@@ -18,16 +18,19 @@ limitations under the License.
 
 var log = require('debug')('splitio-engine:value');
 
-function value(key /*: string */, attr /*: string */, attributes /*: object */) /*: ?mixed */{
+function value(key /*: string */
+, attributeName /*: string */
+, attributes /*: object */
+) /*: any */{
   var valueToMatch = undefined;
 
-  if (attr) {
+  if (attributeName) {
     if (attributes) {
-      valueToMatch = attributes[attr];
+      valueToMatch = attributes[attributeName];
 
-      log('extracted attribute [%s], using [%s] for matching', attr, valueToMatch);
+      log('extracted attribute [%s], using [%s] for matching', attributeName, valueToMatch);
     } else {
-      log('defined attribute [%s], but none attributes defined', attr);
+      log('defined attribute [%s], but none attributes defined', attributeName);
     }
   } else {
     valueToMatch = key;

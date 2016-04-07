@@ -101,13 +101,16 @@ tape('E2E', function (assert) {
       account: 'something'
     }), 'on');
 
-    assert.equal(sdk.getTreatment('user_attr_btw_datetime_1458240947021_and_1458246884077'), 'off');
     assert.equal(sdk.getTreatment('user_attr_btw_datetime_1458240947021_and_1458246884077', {
-      attr: 1458240947021
+      attr: new Date('2016-03-17T18:55:47.021Z').getTime()
     }), 'on');
     assert.equal(sdk.getTreatment('user_attr_btw_datetime_1458240947021_and_1458246884077', {
-      attr: 1458240947020
+      attr: new Date('2016-03-17T17:55:47.021Z').getTime()
     }), 'off');
+    assert.equal(sdk.getTreatment('user_attr_btw_datetime_1458240947021_and_1458246884077', {
+      attr: new Date('2016-03-17T21:34:44.077Z').getTime()
+    }), 'off');
+    assert.equal(sdk.getTreatment('user_attr_btw_datetime_1458240947021_and_1458246884077'), 'off');
 
     assert.equal(sdk.getTreatment('user_attr_btw_number_10_and_20'), 'off');
     assert.equal(sdk.getTreatment('user_attr_btw_number_10_and_20', {
@@ -131,49 +134,49 @@ tape('E2E', function (assert) {
       attr: 15
     }), 'on');
 
+    assert.equal(sdk.getTreatment('user_attr_lte_datetime_1458240947021', {
+      attr: new Date('2016-03-17T18:55:47.021Z').getTime()
+    }), 'on');
+    assert.equal(sdk.getTreatment('user_attr_lte_datetime_1458240947021', {
+      attr: new Date('2016-03-16T17:55:47.021Z').getTime()
+    }), 'on');
+    assert.equal(sdk.getTreatment('user_attr_lte_datetime_1458240947021', {
+      attr: new Date('2016-03-17T19:55:47.021Z').getTime()
+    }), 'off');
     assert.equal(sdk.getTreatment('user_attr_lte_datetime_1458240947021'), 'off');
-    assert.equal(sdk.getTreatment('user_attr_lte_datetime_1458240947021', {
-      attr: 1458240947021
-    }), 'on');
-    assert.equal(sdk.getTreatment('user_attr_lte_datetime_1458240947021', {
-      attr: 1458240947020
-    }), 'on');
-    assert.equal(sdk.getTreatment('user_attr_lte_datetime_1458240947021', {
-      attr: 1458240947022
-    }), 'off');
 
+    assert.equal(sdk.getTreatment('user_attr_lte_number_10', {
+      attr: 9
+    }), 'on');
+    assert.equal(sdk.getTreatment('user_attr_lte_number_10', {
+      attr: 10
+    }), 'on');
+    assert.equal(sdk.getTreatment('user_attr_lte_number_10', {
+      attr: 11
+    }), 'off');
     assert.equal(sdk.getTreatment('user_attr_lte_number_10'), 'off');
-    assert.equal(sdk.getTreatment('user_attr_lte_number_10', {
+
+    assert.equal(sdk.getTreatment('user_attr_lte_10', {
       attr: 9
     }), 'on');
-    assert.equal(sdk.getTreatment('user_attr_lte_number_10', {
+    assert.equal(sdk.getTreatment('user_attr_lte_10', {
       attr: 10
     }), 'on');
-    assert.equal(sdk.getTreatment('user_attr_lte_number_10', {
+    assert.equal(sdk.getTreatment('user_attr_lte_10', {
       attr: 11
     }), 'off');
-
     assert.equal(sdk.getTreatment('user_attr_lte_10'), 'off');
-    assert.equal(sdk.getTreatment('user_attr_lte_10', {
-      attr: 9
-    }), 'on');
-    assert.equal(sdk.getTreatment('user_attr_lte_10', {
-      attr: 10
-    }), 'on');
-    assert.equal(sdk.getTreatment('user_attr_lte_10', {
-      attr: 11
-    }), 'off');
 
-    assert.equal(sdk.getTreatment('user_attr_gte_datetime_1458240947021'), 'off');
     assert.equal(sdk.getTreatment('user_attr_gte_datetime_1458240947021', {
-      attr: 1458240947021
+      attr: new Date('2016-03-17T18:55:47.021Z').getTime()
     }), 'on');
     assert.equal(sdk.getTreatment('user_attr_gte_datetime_1458240947021', {
-      attr: 1458240947300
+      attr: new Date('2016-03-17T19:55:47.021Z').getTime()
     }), 'on');
     assert.equal(sdk.getTreatment('user_attr_gte_datetime_1458240947021', {
-      attr: 1458240947020
+      attr: new Date('2016-03-17T17:55:47.021Z').getTime()
     }), 'off');
+    assert.equal(sdk.getTreatment('user_attr_gte_datetime_1458240947021'), 'off');
 
     assert.equal(sdk.getTreatment('user_attr_gte_number_10'), 'off');
     assert.equal(sdk.getTreatment('user_attr_gte_number_10', {
@@ -197,13 +200,13 @@ tape('E2E', function (assert) {
       attr: 0
     }), 'off');
 
-    assert.equal(sdk.getTreatment('user_attr_eq_datetime_1458240947021'), 'off');
     assert.equal(sdk.getTreatment('user_attr_eq_datetime_1458240947021', {
-      attr: 1458240947021
+      attr: new Date('2016-03-17T00:00:00Z').getTime()
     }), 'on');
     assert.equal(sdk.getTreatment('user_attr_eq_datetime_1458240947021', {
-      attr: 11
+      attr: new Date('2016-03-16T10:01:10Z').getTime()
     }), 'off');
+    assert.equal(sdk.getTreatment('user_attr_eq_datetime_1458240947021'), 'off');
 
     assert.equal(sdk.getTreatment('user_attr_eq_number_ten'), 'off');
     assert.equal(sdk.getTreatment('user_attr_eq_number_ten', {

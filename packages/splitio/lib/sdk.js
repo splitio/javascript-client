@@ -41,7 +41,7 @@ function splitio(settings /*: object */) /*: object */{
   // secondary cache)
   engineReadyPromise = core.start().then(function (initializedEngine) {
     engine = initializedEngine;
-  }).catch(function noop() {/* only for now */});
+  }).catch(function () {});
 
   // startup monitoring tools
   metricsEngine.start(settings);

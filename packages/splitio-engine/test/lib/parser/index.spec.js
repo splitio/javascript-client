@@ -261,18 +261,18 @@ tape('PARSER / if user.attr <= datetime 1458240947021 then split 100:on', functi
 
 
   assert.true(evaluator('test@split.io', 31, {
-    attr: 1458240947021
+    attr: new Date('2016-03-17T18:55:47.021Z').getTime()
   }) === 'on', '1458240947021 is equal');
 
   assert.true(evaluator('test@split.io', 31, {
-    attr: 1458240947020
+    attr: new Date('2016-03-17T17:55:47.021Z').getTime()
   }) === 'on', '1458240947020 is less than 1458240947021');
 
   assert.true(evaluator('test@split.io', 31, {
-    attr: 1458240947022
+    attr: new Date('2016-03-17T19:55:47.021Z').getTime()
   }) === undefined, '1458240947022 is not less than 1458240947021');
 
-  assert.true(evaluator('test@split.io', 31) === undefined, 'undefined is not less than 1458240947021');
+  assert.true(evaluator('test@split.io', 31) === undefined, 'missing attributes in the parameters list');
 
   assert.end();
 });
@@ -307,18 +307,18 @@ tape('PARSER / if user.attr >= datetime 1458240947021 then split 100:on', functi
 
 
   assert.true(evaluator('test@split.io', 31, {
-    attr: 1458240947021
+    attr: new Date('2016-03-17T18:55:47.021Z').getTime()
   }) === 'on', '1458240947021 is equal');
 
   assert.true(evaluator('test@split.io', 31, {
-    attr: 1458240947020
+    attr: new Date('2016-03-17T17:55:47.021Z').getTime()
   }) === undefined, '1458240947020 is less than 1458240947021');
 
   assert.true(evaluator('test@split.io', 31, {
-    attr: 1458240947022
-  }) === 'on', '1458240947022 is greater than 1458240947021');
+    attr: new Date('2016-03-17T19:55:47.021Z').getTime()
+  }) === 'on', '1458240947000 is greater than 1458240947021');
 
-  assert.true(evaluator('test@split.io', 31) === undefined, 'undefined is not greater than 1458240947021');
+  assert.true(evaluator('test@split.io', 31) === undefined, 'missing attributes in the parameters list');
 
   assert.end();
 });
@@ -354,13 +354,17 @@ tape('PARSER / if user.attr = datetime 1458240947021 then split 100:on', functio
 
   assert.equal(evaluator('test@split.io', 31, {
     attr: 1458240947021
-  }), 'on', '1458240947021 is equal');
+  }), 'on', '2016-03-17T18:55:47.021Z is equal to 2016-03-17T18:55:47.021Z');
 
   assert.equal(evaluator('test@split.io', 31, {
     attr: 1458240947020
-  }), undefined, '1458240947020 is not equal to 1458240947021');
+  }), 'on', '2016-03-17T18:55:47.020Z is considered equal to 2016-03-17T18:55:47.021Z');
 
-  assert.equal(evaluator('test@split.io', 31), undefined, 'undefined is not equal to 1458240947021');
+  assert.equal(evaluator('test@split.io', 31, {
+    attr: 1458172800000
+  }), 'on', '2016-03-17T00:00:00Z is considered equal to 2016-03-17T18:55:47.021Z');
+
+  assert.equal(evaluator('test@split.io', 31), undefined, 'missing attributes should be evaluated to false');
   assert.end();
 });
 //# sourceMappingURL=index.spec.js.map

@@ -24,45 +24,22 @@ const segmentsStorage = storage.segments;
 const getSegment = segmentsStorage.get.bind(segmentsStorage);
 const updateSegment = segmentsStorage.update.bind(segmentsStorage);
 
-const PoolFactory = require('./pool');
-
 function segmentChangesUpdater() {
   log('Updating segmentChanges');
 
-  const pool = PoolFactory();
+  let downloads = [...splitsStorage.getSegments()].map(segmentName => {
+    return segmentChangesDataSource(segmentName).then(mutator => {
+      log(`completed download of ${segmentName}`);
 
-  return new Promise(function (resolve/*, reject*/) {
-    // Read the list of available segments.
-    const segments = splitsStorage.getSegments();
+      if (typeof mutator === 'function') {
+        mutator(getSegment, updateSegment);
+      }
 
-    let toBeProcessed = segments.size;
-    let processed = 0;
+      log(`completed mutations for ${segmentName}`);
+    });
+  });
 
-    for (let segmentName of segments) {
-      pool.acquire((err, resource) => {
-
-        segmentChangesDataSource(segmentName).then((mutator) => {
-          pool.release(resource);
-
-          log(`completed download of ${segmentName}`);
-
-          if (typeof mutator === 'function') {
-            mutator(getSegment, updateSegment);
-          }
-
-          log(`completed mutations for ${segmentName}`);
-
-          processed++;
-          if (processed === toBeProcessed) {
-            resolve(storage);
-          }
-        });
-
-      });
-    }
-  }).then(storage => {
-    pool.destroyAllNow();
-
+  return Promise.all(downloads).then(() => {
     return storage;
   });
 }

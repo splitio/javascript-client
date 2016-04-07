@@ -17,6 +17,7 @@ limitations under the License.
 const matcherTypes = require('../matchers/types');
 const segmentTransform = require('./segment');
 const whitelistTransform = require('./whitelist');
+const findIndex = require('lodash.findindex');
 
 /*::
   type dataTypes = null | 'NUMBER' | 'DATETIME';
@@ -50,6 +51,12 @@ const whitelistTransform = require('./whitelist');
     value: undefined | string | whiteListObject | unaryNumericObject | betweenObject
   };
 */
+const {
+  date: {
+    zeroSinceHH,
+    zeroSinceSS
+  }
+} = require('../convertions');
 
 // Flat the complex matcherGroup structure into something handy.
 function transform(matchers /*: Array<object> */) /*: Array<MatcherDTO> */ {
@@ -73,12 +80,26 @@ function transform(matchers /*: Array<object> */) /*: Array<MatcherDTO> */ {
       value = segmentTransform(segmentObject);
     } else if (type === matcherTypes.enum.WHITELIST) {
       value = whitelistTransform(whitelistObject);
-    } else if (type === matcherTypes.enum.EQUAL_TO ||
-               type === matcherTypes.enum.GREATER_THAN_OR_EQUAL_TO ||
+    } else if (type === matcherTypes.enum.EQUAL_TO) {
+      value = unaryNumericObject;
+
+      if (unaryNumericObject.dataType === 'DATETIME') {
+        unaryNumericObject.value = zeroSinceHH(unaryNumericObject.value);
+      }
+    } else if (type === matcherTypes.enum.GREATER_THAN_OR_EQUAL_TO ||
                type === matcherTypes.enum.LESS_THAN_OR_EQUAL_TO) {
       value = unaryNumericObject;
+
+      if (unaryNumericObject.dataType === 'DATETIME') {
+        unaryNumericObject.value = zeroSinceSS(unaryNumericObject.value);
+      }
     } else if (type === matcherTypes.enum.BETWEEN) {
       value = betweenObject;
+
+      if (betweenObject.dataType === 'DATETIME') {
+        betweenObject.start = zeroSinceSS(betweenObject.start);
+        betweenObject.end = zeroSinceSS(betweenObject.end);
+      }
     }
 
     return {
@@ -89,7 +110,7 @@ function transform(matchers /*: Array<object> */) /*: Array<MatcherDTO> */ {
     };
   });
 
-  if (parsedMatchers.findIndex(m => m.type === matcherTypes.enum.UNDEFINED) === -1) {
+  if (findIndex(parsedMatchers, m => m.type === matcherTypes.enum.UNDEFINED) === -1) {
     return parsedMatchers;
   } else {
     return [];

@@ -18,11 +18,22 @@ limitations under the License.
 
 const log = require('debug')('splitio-engine:matcher');
 
-function equalToMatcherContext(valueObject /*: unaryNumericObject */) /*: Function */ {
-  return function equalToMatcher(value /*: string | number */) /*: boolean */ {
-    let isEqualTo = value == valueObject.value;
+const {
+  date: {
+    zeroSinceHH
+  }
+} = require('../convertions');
 
-    log(`[equalToMatcher] is ${value} equal to ${valueObject.value}? ${isEqualTo}`);
+function equalToMatcherContext(vo /*: unaryNumericObject */) /*: Function */ {
+  return function equalToMatcher(value /*: string | number */) /*: boolean */ {
+    // monkey patch datetime to effectily compare on equal
+    if (vo.dataType === 'DATETIME') {
+      value = zeroSinceHH(value);
+    }
+
+    let isEqualTo = value == vo.value;
+
+    log(`[equalToMatcher] is ${value} equal to ${vo.value}? ${isEqualTo}`);
 
     return isEqualTo;
   };

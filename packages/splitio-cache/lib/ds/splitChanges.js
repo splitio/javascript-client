@@ -36,7 +36,7 @@ function splitChangesDataSource() {
     since = till;
 
     return splitMutatorFactory(splits);
-  }).catch(function () {/* noop */});
+  }).catch(function () {});
 }
 
 module.exports = splitChangesDataSource;
