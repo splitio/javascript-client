@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio-metrics",
-  "version": "3.0.0",
+  "version": "3.0.0-wip.1",
   "description": "Split Metrics",
   "author": "Facundo Cabrera <facundo@split.io>",
   "homepage": "https://github.com/splitio/javascript-client",
@@ -49,8 +49,8 @@
     "sdk"
   ],
   "dependencies": {
-    "@splitsoftware/splitio-utils": "3.0.0",
-    "@splitsoftware/splitio-services": "3.0.0",
+    "@splitsoftware/splitio-utils": "3.0.0-wip.1",
+    "@splitsoftware/splitio-services": "3.0.0-wip.1",
     "babel-runtime": "^5.8.35",
     "core-js": "^1.2.6"
   }
