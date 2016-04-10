@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio-cache",
-  "version": "3.0.0-wip.1",
+  "version": "3.0.0",
   "description": "Split Cache",
   "author": "Facundo Cabrera <facundo@split.io>",
   "homepage": "https://github.com/splitio/javascript-client",
@@ -20,7 +20,7 @@
     "karma-sauce": "karma start sauce.karma.conf.js"
   },
   "devDependencies": {
-    "@splitsoftware/splitio-utils": "3.0.0-wip.1",
+    "@splitsoftware/splitio-utils": "3.0.0",
     "babel-cli": "^6.3.17",
     "babel-plugin-syntax-object-rest-spread": "^6.3.13",
     "babel-plugin-transform-object-rest-spread": "^6.3.13",
@@ -52,8 +52,8 @@
     "sdk"
   ],
   "dependencies": {
-    "@splitsoftware/splitio-engine": "3.0.0-wip.1",
-    "@splitsoftware/splitio-services": "3.0.0-wip.1",
+    "@splitsoftware/splitio-engine": "3.0.0",
+    "@splitsoftware/splitio-services": "3.0.0",
     "babel-runtime": "^5.8.35",
     "core-js": "^1.2.6",
     "debug": "^2.2.0"
