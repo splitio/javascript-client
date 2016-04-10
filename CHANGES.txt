@@ -1,6 +1,7 @@
 ## 3.0.0 (April 10, 2016)
 
 * Added support for attributes.
+
 ```js
 var sdk = splitio({
   core: {
@@ -8,9 +9,13 @@ var sdk = splitio({
     key: '4a2c4490-ced1-11e5-9b97-d8a25e8b1578'     // your customer id
   }
 });
+
+var treatment = sdk.getTreatment('my_feature', {
+  age: 24,
+  likes: ['apple', 'orange'],
+  dob: new Date('1991-05-22').getTime()
+});
 ```
-
-
 
 * Minor bug fixes and code clean up.
 
