@@ -1,3 +1,7 @@
+## 3.0.0 (April 10, 2016)
+
+* Attributes support.
+
 ## 2.1.0 (March 29, 2016)
 
 * Internal improvements. It's safe to upgrade without making code changes.
