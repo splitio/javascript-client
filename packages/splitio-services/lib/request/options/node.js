@@ -19,7 +19,7 @@ limitations under the License.
 var https = require('https');
 
 var agent = new https.Agent({
-  keepAlive: true,
+  keepAlive: false,
   maxSockets: 70
 });
 

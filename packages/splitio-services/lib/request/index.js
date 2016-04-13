@@ -33,6 +33,8 @@ function RequestFactory(relativeUrl, params) {
   var apiToken = settings.get('authorizationKey');
   var sdkVersion = settings.get('version');
 
+  debugger;
+
   return new Request(url(relativeUrl), (0, _assign2.default)({
     headers: {
       'Accept': 'application/json',

@@ -25,6 +25,8 @@ function RequestFactory(relativeUrl, params) {
   let apiToken = settings.get('authorizationKey');
   let sdkVersion = settings.get('version');
 
+  debugger;
+
   return new Request(url(relativeUrl), Object.assign({
     headers: {
       'Accept': 'application/json',
