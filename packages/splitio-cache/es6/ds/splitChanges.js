@@ -33,9 +33,7 @@ function splitChangesDataSource() {
 
     return splitMutatorFactory( splits );
   })
-  .catch(function () {
-    debugger;
-  });
+  .catch(function () {});
 }
 
 module.exports = splitChangesDataSource;

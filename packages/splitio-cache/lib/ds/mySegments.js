@@ -28,9 +28,7 @@ function mySegmentsDataSource() {
     return mySegmentMutationsFactory(json.mySegments.map(function (segment) {
       return segment.name;
     }));
-  }).catch(function () {
-    debugger;
-  });
+  }).catch(function () {});
 }
 
 module.exports = mySegmentsDataSource;

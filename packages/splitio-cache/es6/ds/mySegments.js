@@ -27,9 +27,7 @@ function mySegmentsDataSource() {
         json.mySegments.map(segment => segment.name)
       );
     })
-    .catch(function () {
-      debugger;
-    });
+    .catch(function () {});
 }
 
 module.exports = mySegmentsDataSource;
