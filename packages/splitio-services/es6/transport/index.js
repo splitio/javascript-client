@@ -16,4 +16,18 @@ limitations under the License.
 
 require('isomorphic-fetch');
 
-module.exports = fetch;
+const log = require('debug')('splitio-services:service');
+
+function Fetcher(request) {
+  return fetch(request).then(resp => {
+    if (resp.statusText === 'OK') {
+      return resp;
+    } else {
+      log('throw error because status text is not OK');
+
+      throw Error(resp.statusText);
+    }
+  });
+}
+
+module.exports = Fetcher;

@@ -1,5 +1,3 @@
-'use strict';
-
 /**
 Copyright 2016 Split Software
 
@@ -16,21 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-var log = require('debug')('splitio-services:service');
+const onlineFactory = require('./sdk/online');
+const offlineFactory = require('./sdk/offline');
 
-function Context(Transport) {
-  return function Fetcher(request) {
-    return Transport(request).then(function (resp) {
-      if (resp.statusText === 'OK') {
-        return resp;
-      } else {
-        log('throw error because status text is not OK');
-
-        throw Error(resp.statusText);
-      }
-    });
-  };
+function factory(settings) {
+  return (settings && settings.core
+    && settings.core.authorizationKey === 'localhost') ?
+    offlineFactory(settings) :
+    onlineFactory(settings);
 }
 
-module.exports = Context;
-//# sourceMappingURL=service.js.map
+module.exports = factory;

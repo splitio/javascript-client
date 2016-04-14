@@ -1,7 +1,5 @@
 'use strict';
 
-console.log('SPLIT DEMO!');
-
 //
 // Bellow you will see how you could define features and the defaults treatments
 // for each one.
@@ -10,6 +8,9 @@ console.log('SPLIT DEMO!');
 //         are providing the default feedback of the engine.
 //
 var sdk = splitio({
+  core: {
+    authorizationKey: 'localhost'
+  },
   features: {
     'js_sdk': 'on',
     'js_payment_system': 'visa',
@@ -39,11 +40,11 @@ sdk.ready().then(function () {
     "<= The expected answer based on the definition before is 'on'"
   );
   console.info(
-    sdk.getTreatment('optional key could be provided', 'js_payment_system'),
+    sdk.getTreatment('js_payment_system'),
     "<= The expected answer based on the definition before is 'visa'"
   );
   console.info(
-    sdk.getTreatment('optional key could be provided', 'js_airline_company'),
+    sdk.getTreatment('js_airline_company'),
     "<= The expected answer based on the definition before is 'delta'"
   );
 });

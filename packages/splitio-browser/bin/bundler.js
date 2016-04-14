@@ -35,13 +35,12 @@ const strStream = require('string-to-stream');
 
 const splitPkg = require('@splitsoftware/splitio/package');
 
-const offlineSplitSource = require.resolve('@splitsoftware/splitio/lib/offline.js');
-const onlineSplitSource = require.resolve('@splitsoftware/splitio/lib/browser.js');
+const splitSource = require.resolve('@splitsoftware/splitio/lib/browser.js');
 
 const bundlesDir = path.resolve(path.join(process.cwd(), `splitio`));
-const offlineBundlePath = path.resolve(path.join(bundlesDir, `offline-${splitPkg.version}.js`));
-const debugBundlePath = path.resolve(path.join(bundlesDir, `debug-${splitPkg.version}.js`));
-const onlineBundlePath = path.resolve(path.join(bundlesDir, `online-${splitPkg.version}.js`));
+
+const debugBundlePath = path.resolve(path.join(bundlesDir, `split-${splitPkg.version}.js`));
+const productionBundlePath = path.resolve(path.join(bundlesDir, `split-${splitPkg.version}.min.js`));
 
 function minify(bundlePath, customUglifySetting) {
   return uglify.minify(bundlePath, Object.assign({
@@ -80,32 +79,12 @@ function minify(bundlePath, customUglifySetting) {
 
 // be sure we have the files created before start
 mkdirp.sync(bundlesDir, '0777');
-touch.sync(offlineBundlePath);
 touch.sync(debugBundlePath);
-touch.sync(onlineBundlePath);
+touch.sync(productionBundlePath);
 
-// Offline bundle
-const offline = browserify();
-offline.add(offlineSplitSource);
-offline.transform(envify({
-    _: 'purge',
-    NODE_ENV: process.env.NODE_ENV || 'production'
-  }), { global: true })
-  .bundle()
-    .pipe(fs.createWriteStream(offlineBundlePath))
-      .on('finish', function minifyAfterSave() {
-        strStream(minify(offlineBundlePath).code)
-          .pipe(fs.createWriteStream(offlineBundlePath))
-            .on('finish', function addCopyrights() {
-              exec(`cat ${path.join(__dirname, '..', 'COPYRIGHT.txt')} > ${offlineBundlePath}.tmp`);
-              exec(`cat ${offlineBundlePath} >> ${offlineBundlePath}.tmp`);
-              exec(`mv ${offlineBundlePath}.tmp ${offlineBundlePath}`);
-            });
-      });
-
-const dev = browserify({ debug: true });
-dev.add(onlineSplitSource);
-dev.transform(envify({
+const debug = browserify({ debug: true });
+debug.add(splitSource);
+debug.transform(envify({
     _: 'purge',
     NODE_ENV: process.env.NODE_ENV || 'production'
   }), { global: true })
@@ -113,21 +92,21 @@ dev.transform(envify({
     .pipe(fs.createWriteStream(debugBundlePath));
 
 const prod = browserify();
-prod.add(onlineSplitSource);
+prod.add(splitSource);
 prod.transform(envify({
     _: 'purge',
     NODE_ENV: process.env.NODE_ENV || 'production'
   }), { global: true })
   .bundle()
-    .pipe(fs.createWriteStream(onlineBundlePath))
+    .pipe(fs.createWriteStream(productionBundlePath))
       .on('finish', function minifyAfterSave() {
-        strStream(minify(onlineBundlePath, {
+        strStream(minify(productionBundlePath, {
           drop_console: true
         }).code)
-          .pipe(fs.createWriteStream(onlineBundlePath))
+          .pipe(fs.createWriteStream(productionBundlePath))
           .on('finish', function addCopyrights() {
-            exec(`cat ${path.join(__dirname, '..', 'COPYRIGHT.txt')} > ${onlineBundlePath}.tmp`);
-            exec(`cat ${onlineBundlePath} >> ${onlineBundlePath}.tmp`);
-            exec(`mv ${onlineBundlePath}.tmp ${onlineBundlePath}`);
+            exec(`cat ${path.join(__dirname, '..', 'COPYRIGHT.txt')} > ${productionBundlePath}.tmp`);
+            exec(`cat ${productionBundlePath} >> ${productionBundlePath}.tmp`);
+            exec(`mv ${productionBundlePath}.tmp ${productionBundlePath}`);
           });
       });

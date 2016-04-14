@@ -28,7 +28,9 @@ function mySegmentsDataSource() {
     return mySegmentMutationsFactory(json.mySegments.map(function (segment) {
       return segment.name;
     }));
-  }).catch(function () {/* noop */});
+  }).catch(function () {
+    debugger;
+  });
 }
 
 module.exports = mySegmentsDataSource;

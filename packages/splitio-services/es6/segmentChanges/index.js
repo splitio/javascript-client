@@ -14,12 +14,4 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-let transport;
-
-// if (process.env.NODE_ENV !== 'production') {
-//   transport = require('../transport/logged');
-// } else {
-  transport = require('../transport/basic');
-// }
-
-module.exports = require('../transport/service')(transport);
+module.exports = require('../transport');

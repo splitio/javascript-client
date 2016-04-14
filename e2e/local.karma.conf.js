@@ -87,10 +87,10 @@ module.exports = function(config) {
     // - PhantomJS
     // - IE (only Windows)
     browsers: [
-      'Chrome',
-      'Firefox',
-      'Safari',
-      'PhantomJS'
+      // 'Chrome',
+      // 'Firefox',
+      // 'Safari',
+      // 'PhantomJS'
       // 'PhantomJS_custom'
     ],
 
@@ -101,7 +101,7 @@ module.exports = function(config) {
 
     // Continuous Integration mode
     // if true, it capture browsers, run tests and exit
-    singleRun: true,
+    singleRun: false,
 
     colors: true,
 

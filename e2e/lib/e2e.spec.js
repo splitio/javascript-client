@@ -21,7 +21,7 @@ var Split = global.splitio;
 
 // This override the default implementation, so you MUST to be sure you include
 // this AFTER the require('isomorphic-fetch')
-var fetch = require('fetch-mock');
+var fetchMock = require('fetch-mock');
 
 var tape = require('tape');
 var url = require('@splitsoftware/splitio-utils/lib/url');
@@ -30,9 +30,9 @@ var splitChangesMock1 = require('./mocks/splitchanges.since.-1.json');
 var splitChangesMock2 = require('./mocks/splitchanges.since.1457552620999.json');
 var mySegmentsMock = require('./mocks/mysegments.facundo@split.io.json');
 
-fetch.mock(url('/splitChanges?since=-1'), splitChangesMock1);
-fetch.mock(url('/splitChanges?since=1457552620999'), splitChangesMock2);
-fetch.mock(url('/mySegments/facundo@split.io'), mySegmentsMock);
+fetchMock.mock(url('/splitChanges?since=-1'), splitChangesMock1);
+fetchMock.mock(url('/splitChanges?since=1457552620999'), splitChangesMock2);
+fetchMock.mock(url('/mySegments/facundo@split.io'), mySegmentsMock);
 
 tape('E2E', function (assert) {
   var sdk = Split({

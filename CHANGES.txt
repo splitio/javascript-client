@@ -1,3 +1,38 @@
+## 4.0.0 (April 13, 2016)
+
+* No more url changes required to switch to development mode.
+
+  ### Before (3.0.0 or earlier)
+  ```html
+  <script src="https://cdn.split.io/sdk/offline-3.0.0.js"></script>
+  <script>
+    var sdk = splitio({
+      features: {
+        feature_name_1: 'treatment_value_1',
+        feature_name_2: 'treatment_value_2',
+        ...
+      }
+    });
+  </script>
+  ```
+
+  ### After (4+)
+  ```html
+  <script src="https://cdn.split.io/sdk/splitio-4.0.0.js"></script>
+  <script>
+    var sdk = splitio({
+      features: {
+        feature_name_1: 'treatment_value_1',
+        feature_name_2: 'treatment_value_2',
+        ...
+      }
+    });
+  </script>
+  ```
+
+  Now you can forget the switch between urls, everything is bundled into the same
+  package!
+
 ## 3.0.0 (April 10, 2016)
 
 * Added support for attributes.

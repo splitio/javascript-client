@@ -14,15 +14,4 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-const sdk = require('./sdk');
-
-function sdkForTheBrowser(settings) {
-  const engine = sdk(settings);
-
-  // We don't allow multiple keys in browser land
-  engine.getTreatment = engine.getTreatment.bind(engine, settings.core.key);
-
-  return engine;
-}
-
-global.splitio = sdkForTheBrowser;
+module.exports = global.splitio = require('./factory');

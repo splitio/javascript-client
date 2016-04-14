@@ -16,5 +16,5 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-module.exports = require('./sdk');
+module.exports = require('./factory');
 //# sourceMappingURL=node.js.map

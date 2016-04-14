@@ -22,20 +22,20 @@ require('core-js/es6/promise');
 
 var log = require('debug')('splitio');
 
-var coreSettings = require('@splitsoftware/splitio-utils/lib/settings');
+var settingsManager = require('@splitsoftware/splitio-utils/lib/settings');
 
 var metricsEngine = require('@splitsoftware/splitio-metrics');
 var impressionsTracker = metricsEngine.impressions;
 var getTreatmentTracker = metricsEngine.getTreatment;
 
-var core = require('./core');
+var core = require('../../core');
 
-function splitio(settings /*: object */) /*: object */{
+function onlineFactory(settings /*: object */) /*: object */{
   var engine = void 0;
   var engineReadyPromise = void 0;
 
   // setup settings for all the modules
-  settings = coreSettings.configure(settings);
+  settings = settingsManager.configure(settings);
 
   // the engine startup is async (till we get localStorage as
   // secondary cache)
@@ -89,5 +89,5 @@ function splitio(settings /*: object */) /*: object */{
   };
 }
 
-module.exports = splitio;
-//# sourceMappingURL=sdk.js.map
+module.exports = onlineFactory;
+//# sourceMappingURL=online.js.map

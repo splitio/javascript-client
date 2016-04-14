@@ -26,5 +26,5 @@ var sdk = splitio({
 console.info( sdk.getTreatment('early_evaluation') , '<= We are asking for a feature before the engine is ready');
 
 sdk.ready().then(function () {
-  console.info( sdk.getTreatment('js_sdk'), '<= This answer depends on how the engine is configured' );
+  console.info( sdk.getTreatment('js_sdk'), '<= This answer depends on split configurations' );
 });

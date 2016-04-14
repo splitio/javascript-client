@@ -1,3 +1,5 @@
+'use strict';
+
 /**
 Copyright 2016 Split Software
 
@@ -14,22 +16,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-require('isomorphic-fetch');
+var onlineFactory = require('./sdk/online');
+var offlineFactory = require('./sdk/offline');
 
-const log = require('debug')('splitio-services:transport');
-
-function LoggedFetch(request) {
-  return fetch(request)
-    .then(resp => {
-      log('ok', JSON.stringify(resp));
-
-      return resp;
-    })
-    .catch(error => {
-      log('fail', JSON.stringify(error));
-
-      throw error;
-    });
+function factory(settings) {
+    return settings && settings.core && settings.core.authorizationKey === 'localhost' ? offlineFactory(settings) : onlineFactory(settings);
 }
 
-module.exports = LoggedFetch;
+module.exports = factory;
+//# sourceMappingURL=node.js.map
