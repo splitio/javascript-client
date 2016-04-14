@@ -39,7 +39,6 @@
     "karma-safari-launcher": "^0.1.1",
     "karma-sauce-launcher": "^0.3.1",
     "karma-tap": "^1.0.4",
-    "mockery": "^1.6.2",
     "phantomjs-prebuilt": "^2.1.4",
     "tape": "^4.4.0",
     "watchify": "^3.7.0"
