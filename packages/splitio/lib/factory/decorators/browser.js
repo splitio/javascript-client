@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 /**
 Copyright 2016 Split Software
@@ -16,7 +16,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-require('isomorphic-fetch');
+function sdkForTheBrowser(settings, engine) {
+  // We don't allow multiple keys in browser land
+  engine.getTreatment = engine.getTreatment.bind(engine, settings.core.key);
 
-module.exports = fetch;
-//# sourceMappingURL=basic.js.map
+  return engine;
+}
+
+module.exports = sdkForTheBrowser;
+//# sourceMappingURL=browser.js.map

@@ -14,21 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-const log = require('debug')('splitio-services:service');
+function sdkForTheBrowser(settings, engine) {
+  // We don't allow multiple keys in browser land
+  engine.getTreatment = engine.getTreatment.bind(engine, settings.core.key);
 
-function Context(Transport) {
-  return function Fetcher(request) {
-    return Transport(request)
-      .then(resp => {
-        if (resp.statusText === 'OK') {
-          return resp;
-        } else {
-          log('throw error because status text is not OK');
-
-          throw Error(resp.statusText);
-        }
-      });
-  };
+  return engine;
 }
 
-module.exports = Context;
+module.exports = sdkForTheBrowser;

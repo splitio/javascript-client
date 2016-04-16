@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio-utils",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "description": "Split Utils",
   "author": "Facundo Cabrera <facundo@split.io>",
   "homepage": "https://github.com/splitio/javascript-client",

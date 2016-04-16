@@ -1,11 +1,5 @@
 'use strict';
 
-var _stringify = require('babel-runtime/core-js/json/stringify');
-
-var _stringify2 = _interopRequireDefault(_stringify);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
 /**
 Copyright 2016 Split Software
 
@@ -24,19 +18,19 @@ limitations under the License.
 
 require('isomorphic-fetch');
 
-var log = require('debug')('splitio-services:transport');
+var log = require('debug')('splitio-services:service');
 
-function LoggedFetch(request) {
+function Fetcher(request) {
   return fetch(request).then(function (resp) {
-    log('ok', (0, _stringify2.default)(resp));
+    if (resp.statusText === 'OK') {
+      return resp;
+    } else {
+      log('throw error because status text is not OK');
 
-    return resp;
-  }).catch(function (error) {
-    log('fail', (0, _stringify2.default)(error));
-
-    throw error;
+      throw Error(resp.statusText);
+    }
   });
 }
 
-module.exports = LoggedFetch;
-//# sourceMappingURL=logged.js.map
+module.exports = Fetcher;
+//# sourceMappingURL=index.js.map

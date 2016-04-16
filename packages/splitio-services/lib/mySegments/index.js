@@ -16,13 +16,5 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-var transport = void 0;
-
-// if (process.env.NODE_ENV !== 'production') {
-//   transport = require('../transport/logged');
-// } else {
-transport = require('../transport/basic');
-// }
-
-module.exports = require('../transport/service')(transport);
+module.exports = require('../transport');
 //# sourceMappingURL=index.js.map

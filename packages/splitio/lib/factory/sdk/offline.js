@@ -20,10 +20,6 @@ var _promise = require('babel-runtime/core-js/promise');
 
 var _promise2 = _interopRequireDefault(_promise);
 
-var _typeof2 = require('babel-runtime/helpers/typeof');
-
-var _typeof3 = _interopRequireDefault(_typeof2);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
@@ -44,32 +40,20 @@ limitations under the License.
 
 /*eslint-disable no-console */
 
-var help = '\nLooks you are not providing a valid set of settings! Let me show you a little snippet:\n\nvar localhost = {\n    features: {\n        my_cool_feature_name: \'version_a\',\n        another_feature_name: \'version_b\',\n        ...\n    }\n};\n\nvar sdk = splitio(localhost);\n\nsdk.getTreatment(\'my_cool_feature_name\') === \'version_a\'; // This is true!\nsdk.getTreatment(\'another_feature_name\') === \'version_b\'; // This is true!\nsdk.getTreatment(\'missing_feature_name\') === \'control\';   // This is true!\n\nLet\'s start hacking!\n';
-
-var featuresAttributeMustBeAnObject = '\nHey! Please recheck features attribute, it should be an object with the\nfollowing shape:\n\nvar localhost = {\n  ===> features: {\n  ===>     my_cool_feature_name: \'version_a\',\n  ===>     another_feature_name: \'version_b\',\n  ===>     ...\n  ===> }\n};\n\nREMEMBER: any feature not present in this object will be evaluated as \'control\'\n';
-
 var validIdentifier = /^[a-z][-_a-z0-9]*$/i;
 function isIdentifierInvalid(str) {
   return !validIdentifier.test(str);
 }
 
-function splitio(localhost) {
-  var typeOfLocalhost = typeof localhost === 'undefined' ? 'undefined' : (0, _typeof3.default)(localhost);
-  var typeOfFeatures = typeOfLocalhost === 'undefined' ? 'undefined' : (0, _typeof3.default)(localhost.features);
-
+function offlineFactory(settings) {
   var _Object$assign = (0, _assign2.default)({
     features: {}
-  }, localhost);
+  }, settings);
 
   var features = _Object$assign.features;
 
 
-  if (typeOfLocalhost === 'undefined' || typeOfFeatures === 'undefined') {
-    console.info(help);
-  } else if (Object.prototype.toString.call(features) !== '[object Object]') {
-    console.info(featuresAttributeMustBeAnObject);
-    features = {};
-  }
+  console.warn('Running Split in Off-the-grid mode!!!!');
 
   var _iteratorNormalCompletion = true;
   var _didIteratorError = false;
@@ -83,12 +67,12 @@ function splitio(localhost) {
       var treatment = _step$value[1];
 
       if (isIdentifierInvalid(name)) {
-        console.error('>\n>> Invalid feature name "' + name + '"\n>>>> Please check using ' + validIdentifier + '\n>\n');
+        console.warn('>\n>> Invalid feature name "' + name + '"\n>>>> Please check you are using ' + validIdentifier + '\n>\n');
         delete features[name];
       }
 
       if (isIdentifierInvalid(treatment)) {
-        console.error('>\n>> Invalid treatment "' + treatment + '" in feature "' + name + '"\n>> Please check using ' + validIdentifier + ' and \'control\' is a reserved word\n>');
+        console.warn('>\n>> Invalid treatment "' + treatment + '" in feature "' + name + '"\n>> Please check you are using ' + validIdentifier + ' (\'control\' is a reserved word)\n>');
         delete features[name];
       }
     }
@@ -110,18 +94,11 @@ function splitio(localhost) {
   var alwaysReadyPromise = _promise2.default.resolve(undefined);
 
   return {
-    getTreatment: function getTreatment() {
-      if (arguments.length > 2 || arguments.length === 0) {
-        console.error('Please verify the parameters, you could use getTreatment(featureName) or getTreatment(key, featureName)');
-
-        return 'control';
-      }
-
+    getTreatment: function getTreatment(key, featureName) {
       // always the latest parameter is the feature name.
-      var featureName = arguments.length <= arguments.length - 1 + 0 ? undefined : arguments[arguments.length - 1 + 0];
       var treatment = features[featureName];
 
-      return typeof treatment === 'undefined' ? 'control' : treatment;
+      return typeof treatment !== 'string' ? 'control' : treatment;
     },
     ready: function ready() {
       return alwaysReadyPromise;
@@ -129,5 +106,5 @@ function splitio(localhost) {
   };
 }
 
-global.splitio = module.exports = splitio;
+module.exports = offlineFactory;
 //# sourceMappingURL=offline.js.map
