@@ -25,14 +25,13 @@ function RequestFactory(relativeUrl, params) {
   let apiToken = settings.get('authorizationKey');
   let sdkVersion = settings.get('version');
 
-  debugger;
-
   return new Request(url(relativeUrl), Object.assign({
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${apiToken}`,
-      'SplitSDKVersion': `${sdkVersion}`
+      'SplitSDKVersion': `${sdkVersion}`,
+      'Connection': 'keep-alive' // node-fetch requires this to correctly support keep-alive connections
     },
     compress: true
   }, requestOptions, params));
