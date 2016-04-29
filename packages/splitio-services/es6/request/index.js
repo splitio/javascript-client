@@ -30,7 +30,8 @@ function RequestFactory(relativeUrl, params) {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${apiToken}`,
-      'SplitSDKVersion': `${sdkVersion}`
+      'SplitSDKVersion': `${sdkVersion}`,
+      'Connection': 'keep-alive' // node-fetch requires this to correctly support keep-alive connections
     },
     compress: true
   }, requestOptions, params));

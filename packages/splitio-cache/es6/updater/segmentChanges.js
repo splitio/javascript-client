@@ -15,6 +15,7 @@ limitations under the License.
 **/
 
 const log = require('debug')('splitio-cache:updater');
+const now = require('@splitsoftware/splitio-utils/lib/now');
 
 const segmentChangesDataSource = require('../ds/segmentChanges');
 
@@ -26,6 +27,8 @@ const updateSegment = segmentsStorage.update.bind(segmentsStorage);
 
 function segmentChangesUpdater() {
   log('Updating segmentChanges');
+
+  let start = process.hrtime();
 
   let downloads = [...splitsStorage.getSegments()].map(segmentName => {
     return segmentChangesDataSource(segmentName).then(mutator => {
@@ -40,6 +43,10 @@ function segmentChangesUpdater() {
   });
 
   return Promise.all(downloads).then(() => {
+    let end = process.hrtime(start);
+
+    log('updated finished after %s seconds', end[0]);
+  }).then(() => {
     return storage;
   });
 }

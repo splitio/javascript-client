@@ -21,7 +21,13 @@ require('isomorphic-fetch');
 var log = require('debug')('splitio-services:service');
 
 function Fetcher(request) {
+  var st = process.hrtime();
+
   return fetch(request).then(function (resp) {
+    var end = process.hrtime(st);
+
+    log('request finished after %s seconds', end[0]);
+
     if (resp.statusText === 'OK') {
       return resp;
     } else {
