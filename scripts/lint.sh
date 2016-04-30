@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env bash -x
 
 # Copyright 2016 Split Software
 #
@@ -15,12 +15,9 @@
 # limitations under the License.
 
 # Verify our code is good enough for machines at least.
-
+set -e
 shopt -s globstar
 
 eslint packages/*/es6/**/*.js packages/*/test/es6/**/*.js
-st1=$?
-jscs packages/*/es6/**/*.js packages/*/test/es6/**/*.js
-st2=$?
 
-exit $st1 || $st2
+jscs packages/*/es6/**/*.js packages/*/test/es6/**/*.js
