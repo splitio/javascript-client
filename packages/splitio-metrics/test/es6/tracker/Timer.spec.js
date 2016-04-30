@@ -23,7 +23,7 @@ tape('TRACKER / calling start() and stop() should store and entry inside the col
   let start = TimerFactory(collector);
   let stop = start();
 
-  setTimeout(function() {
+  setTimeout(function () {
     let et = stop();
 
     assert.true(collector.state().indexOf(et) !== -1, 'ET should be present in the collector sequence');

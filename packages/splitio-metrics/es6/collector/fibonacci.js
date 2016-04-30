@@ -51,7 +51,7 @@ FibonacciCollector.prototype.toJSON = function () {
 
 // Check if the is data changed from the defaults
 FibonacciCollector.prototype.isEmpty = function () {
-  return this.counters.reduce((sum, e) => sum += e ,0) === 0;
+  return this.counters.reduce((sum, e) => sum += e, 0) === 0;
 };
 
 module.exports = function FibonacciCollectorFactory() {

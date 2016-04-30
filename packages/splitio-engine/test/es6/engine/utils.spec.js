@@ -23,7 +23,7 @@ tape('ENGINE / validate hashing behavior using sample data', assert => {
   let parser = csv();
 
   parser.on('data', line => {
-    let [seed, key, hash, bucket] = JSON.parse( line.toString('utf8').trim() );
+    let [seed, key, hash, bucket] = JSON.parse(line.toString('utf8').trim());
 
     seed = parseInt(seed, 10);
     hash = parseInt(hash, 10);

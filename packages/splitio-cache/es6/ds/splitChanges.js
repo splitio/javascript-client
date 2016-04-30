@@ -31,7 +31,7 @@ function splitChangesDataSource() {
 
     since = till;
 
-    return splitMutatorFactory( splits );
+    return splitMutatorFactory(splits);
   })
   .catch(function () {});
 }

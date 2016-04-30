@@ -66,7 +66,7 @@ type SplitDTOCollection = Array<SplitDTO>;
 
 function SplitMutationsFactory(splits /*: SplitDTOCollection */) /*: Function */ {
   function splitMutations(storage, storageMutator /*: Function */) /*: void */ {
-    storageMutator(splits.map(function(split) {
+    storageMutator(splits.map(function (split) {
       return parse(split, storage);
     }));
   }

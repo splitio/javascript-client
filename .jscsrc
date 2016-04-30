@@ -1,10 +1,12 @@
 {
   "preset": "crockford",
   "validateIndentation": 2,
-  "maximumLineLength": 120,
   "requireMultipleVarDecl": false,
   "disallowMultipleVarDecl": {
     "allExcept": ["undefined"]
   },
-  "disallowDanglingUnderscores": false
+  "disallowDanglingUnderscores": false,
+  "disallowEmptyBlocks": {
+    "allExcept": ["comments"]
+  }
 }

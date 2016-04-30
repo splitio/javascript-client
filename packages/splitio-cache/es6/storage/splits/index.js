@@ -37,7 +37,7 @@ SplitsStorage.prototype.get = function (splitName /*: string */) /*:? Split */ {
 SplitsStorage.prototype.getSegments = function () /*: Set */ {
   let mergedSegmentNames = new Set();
 
-  for(let split of this.storage.values()) {
+  for (let split of this.storage.values()) {
     mergedSegmentNames = new Set([...mergedSegmentNames, ...(split.getSegments())]);
   }
 

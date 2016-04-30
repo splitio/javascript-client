@@ -31,7 +31,7 @@ function readSplitConfigFile(path) {
 
   try {
     data = fs.readFileSync(path, 'utf-8');
-  } catch(e) {
+  } catch (e) {
     log(e.message);
 
     return [];
@@ -68,7 +68,7 @@ function makeUpReadOnlySettings(lines) {
 }
 
 function getSplitConfigForFile() {
-  return makeUpReadOnlySettings( readSplitConfigFile( configFilesPath() ));
+  return makeUpReadOnlySettings(readSplitConfigFile(configFilesPath()));
 }
 
 function nodeOfflineFactory(settings) {

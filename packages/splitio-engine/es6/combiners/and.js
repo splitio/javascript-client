@@ -23,7 +23,9 @@ function andCombinerContext(matchers /*: Array<function> */) /*: function */ {
     let valueHasBeenMatchedAll;
 
     // loop through all the matchers an stop at the first one returning false.
-    for (; i < len && matchers[i](...params); i++);
+    for (; i < len && matchers[i](...params); i++) {
+      // logic is run inside the condition of evaluates next step.
+    }
 
     valueHasBeenMatchedAll = i === len;
 

@@ -24,7 +24,7 @@ require('@splitsoftware/splitio-utils/lib/settings').configure({
 const storage = require('../../../../lib/storage');
 
 // mock list of segments to be fetched
-storage.splits.getSegments = function() {
+storage.splits.getSegments = function () {
   return new Set(['segment_1', 'segment_2', 'segment_3']);
 };
 

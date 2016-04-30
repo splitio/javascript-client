@@ -29,7 +29,7 @@ function ToInteger(x) {
 }
 
 function modulo(a, b) {
-  return a - Math.floor(a/b)*b;
+  return a - Math.floor(a / b) * b;
 }
 
 function ToUint32(x) {
@@ -50,10 +50,10 @@ function hash(str /*: string */, seed /*: number */) /*: number */ {
   let h = 0;
 
   for (let c of str) {
-    h = ToInt32( ToInt32(31 * h) + c.charCodeAt(0) );
+    h = ToInt32(ToInt32(31 * h) + c.charCodeAt(0));
   }
 
-  return ToInt32( h ^ seed );
+  return ToInt32(h ^ seed);
 }
 
 function bucket(str /*: string */, seed /*: number */) /*: number */ {
