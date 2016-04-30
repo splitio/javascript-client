@@ -1,18 +1,18 @@
-'use strict';
+"use strict";
 
-var _toConsumableArray2 = require('babel-runtime/helpers/toConsumableArray');
+var _toConsumableArray2 = require("babel-runtime/helpers/toConsumableArray");
 
 var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);
 
-var _getIterator2 = require('babel-runtime/core-js/get-iterator');
+var _getIterator2 = require("babel-runtime/core-js/get-iterator");
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
-var _set = require('babel-runtime/core-js/set');
+var _set = require("babel-runtime/core-js/set");
 
 var _set2 = _interopRequireDefault(_set);
 
-var _map = require('babel-runtime/core-js/map');
+var _map = require("babel-runtime/core-js/map");
 
 var _map2 = _interopRequireDefault(_map);
 
@@ -33,9 +33,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-
-var Split = require('@splitsoftware/splitio-engine');
-
 function SplitsStorage() {
   this.storage = new _map2.default();
 }
