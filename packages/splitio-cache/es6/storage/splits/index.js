@@ -13,9 +13,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-
-const Split = require('@splitsoftware/splitio-engine');
-
 function SplitsStorage() {
   this.storage = new Map();
 }
@@ -40,7 +37,7 @@ SplitsStorage.prototype.get = function (splitName /*: string */) /*:? Split */ {
 SplitsStorage.prototype.getSegments = function () /*: Set */ {
   let mergedSegmentNames = new Set();
 
-  for(let split of this.storage.values()) {
+  for (let split of this.storage.values()) {
     mergedSegmentNames = new Set([...mergedSegmentNames, ...(split.getSegments())]);
   }
 

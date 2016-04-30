@@ -38,7 +38,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-/*eslint-disable no-console */
+var log = require('debug')('splitio:offline');
 
 var validIdentifier = /^[a-z][-_a-z0-9]*$/i;
 function isIdentifierInvalid(str) {
@@ -53,7 +53,7 @@ function offlineFactory(settings) {
   var features = _Object$assign.features;
 
 
-  console.warn('Running Split in Off-the-grid mode!!!!');
+  log('Running Split in Off-the-grid mode!!!!');
 
   var _iteratorNormalCompletion = true;
   var _didIteratorError = false;
@@ -67,12 +67,12 @@ function offlineFactory(settings) {
       var treatment = _step$value[1];
 
       if (isIdentifierInvalid(name)) {
-        console.warn('>\n>> Invalid feature name "' + name + '"\n>>>> Please check you are using ' + validIdentifier + '\n>\n');
+        log('>\n>> Invalid feature name "' + name + '"\n>>>> Please check you are using ' + validIdentifier + '\n>\n');
         delete features[name];
       }
 
       if (isIdentifierInvalid(treatment)) {
-        console.warn('>\n>> Invalid treatment "' + treatment + '" in feature "' + name + '"\n>> Please check you are using ' + validIdentifier + ' (\'control\' is a reserved word)\n>');
+        log('>\n>> Invalid treatment "' + treatment + '" in feature "' + name + '"\n>> Please check you are using ' + validIdentifier + ' (\'control\' is a reserved word)\n>');
         delete features[name];
       }
     }
@@ -107,4 +107,4 @@ function offlineFactory(settings) {
 }
 
 module.exports = offlineFactory;
-//# sourceMappingURL=offline.js.map
+//# sourceMappingURL=base.js.map

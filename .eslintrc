@@ -4,7 +4,6 @@
   "env": {
     "browser": true,
     "node": true,
-    "amd": false,
     "es6": true
   },
 
@@ -22,9 +21,8 @@
     "no-use-before-define": [2, "nofunc"]
   },
 
-  "parserOptions" : {
+  "parserOptions": {
     "ecmaVersion": 6,
-    "sourceType": "module",
     "ecmaFeatures" : {
       "experimentalObjectRestSpread": true
     }

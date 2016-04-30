@@ -13,10 +13,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-
-const log = require('debug')('splitio-cache:updater');
-const now = require('@splitsoftware/splitio-utils/lib/now');
-
 const segmentChangesDataSource = require('../ds/segmentChanges');
 
 const storage = require('../storage');
@@ -24,6 +20,8 @@ const splitsStorage = storage.splits;
 const segmentsStorage = storage.segments;
 const getSegment = segmentsStorage.get.bind(segmentsStorage);
 const updateSegment = segmentsStorage.update.bind(segmentsStorage);
+
+const log = require('debug')('splitio-cache:updater');
 
 function segmentChangesUpdater() {
   log('Updating segmentChanges');

@@ -1,16 +1,17 @@
 'use strict';
 
-var app = require('express')();
-var sdk;
+const app = require('express')();
+const splitio = require('@splitsoftware/splitio');
+let sdk;
 
-if (process.env.NODE_ENV === 'offline') {
-  sdk = require('@splitsoftware/splitio/lib/offline')({
-    features: {
-      sdk: 'on'
+if (process.env.SPLIT_SDK_MODE === 'offline') {
+  sdk = splitio({
+    core: {
+      authorizationKey: 'localhost'
     }
   });
 } else {
-  sdk = require('@splitsoftware/splitio')({
+  sdk = splitio({
     core: {
       authorizationKey: 'l1le2jmg4ksjhh1gh671r4aj5tgl9hukrqlv'
     }/*,

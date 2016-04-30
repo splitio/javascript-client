@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-/*eslint-disable no-console */
+const log = require('debug')('splitio:offline');
 
 const validIdentifier = /^[a-z][-_a-z0-9]*$/i;
 function isIdentifierInvalid(str) {
@@ -26,11 +26,11 @@ function offlineFactory(settings) {
     features: {}
   }, settings);
 
-  console.warn('Running Split in Off-the-grid mode!!!!');
+  log('Running Split in Off-the-grid mode!!!!');
 
   for (let [name, treatment] of Object.entries(features)) {
     if (isIdentifierInvalid(name)) {
-      console.warn(
+      log(
 `>
 >> Invalid feature name "${name}"
 >>>> Please check you are using ${validIdentifier}
@@ -41,7 +41,7 @@ function offlineFactory(settings) {
     }
 
     if (isIdentifierInvalid(treatment)) {
-      console.warn(
+      log(
 `>
 >> Invalid treatment "${treatment}" in feature "${name}"
 >> Please check you are using ${validIdentifier} ('control' is a reserved word)

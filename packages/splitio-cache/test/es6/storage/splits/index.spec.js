@@ -34,7 +34,7 @@ tape('SPLITS STORAGE / should return a list of unique segment names', assert => 
   storage.update([s1, s2, s3]);
 
   let allMustBePresent = true;
-  for(let segment of storage.getSegments()) {
+  for (let segment of storage.getSegments()) {
     allMustBePresent = allMustBePresent && mergedSegments.has(segment);
   }
 

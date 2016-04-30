@@ -34,7 +34,9 @@ function Treatments(ranges /*: array<number> */, treatments /*: array<string> */
     return new Treatments(ranges, treatments);
   }
 
-  if (ranges[ranges.length - 1] !== 100) throw new RangeError('Provided invalid dataset as input');
+  if (ranges[ranges.length - 1] !== 100) {
+    throw new RangeError('Provided invalid dataset as input');
+  }
 
   this._ranges = ranges;
   this._treatments = treatments;
@@ -64,7 +66,9 @@ Treatments.parse = function parse(data /*: array<PartitionDTO> */) /*: Treatment
 };
 
 Treatments.prototype.getTreatmentFor = function getTreatmentFor(x /*: number */) /*: string */{
-  if (x < 0 || x > 100) throw new RangeError('Please provide a value between 0 and 100');
+  if (x < 0 || x > 100) {
+    throw new RangeError('Please provide a value between 0 and 100');
+  }
 
   // Readme [1]
   // We need to manually add any dependency which escape of dummy resolution

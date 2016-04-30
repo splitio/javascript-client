@@ -43,7 +43,7 @@ tape('DS SEGMENT CHANGES / greedy fetch should download while since != till', fu
     since: 1,
     till: 2
   };
-  fetchMock.mock(function (request, opts) {
+  fetchMock.mock(function (request) {
     return request.url === url('/segmentChanges/segment_1?since=-1');
   }, (0, _stringify2.default)(response1));
 
@@ -54,7 +54,7 @@ tape('DS SEGMENT CHANGES / greedy fetch should download while since != till', fu
     since: 2,
     till: 3
   };
-  fetchMock.mock(function (request, opts) {
+  fetchMock.mock(function (request) {
     return request.url === url('/segmentChanges/segment_1?since=2');
   }, (0, _stringify2.default)(response2));
 
@@ -65,7 +65,7 @@ tape('DS SEGMENT CHANGES / greedy fetch should download while since != till', fu
     since: 3,
     till: 4
   };
-  fetchMock.mock(function (request, opts) {
+  fetchMock.mock(function (request) {
     return request.url === url('/segmentChanges/segment_1?since=3');
   }, (0, _stringify2.default)(response3));
 
@@ -76,7 +76,7 @@ tape('DS SEGMENT CHANGES / greedy fetch should download while since != till', fu
     since: 4,
     till: 4
   };
-  fetchMock.mock(function (request, opts) {
+  fetchMock.mock(function (request) {
     return request.url === url('/segmentChanges/segment_1?since=4');
   }, (0, _stringify2.default)(response4));
 
@@ -101,18 +101,11 @@ tape('DS SEGMENT CHANGES / ', function (assert) {
     since: 1,
     till: 2
   };
-  fetchMock.mock(function (request, opts) {
+  fetchMock.mock(function (request) {
     return request.url === url('/segmentChanges/segment_1?since=-1');
   }, (0, _stringify2.default)(response1));
 
-  var response2 = {
-    name: 'segment_1',
-    added: [3, 4],
-    removed: [],
-    since: 2,
-    till: 3
-  };
-  fetchMock.mock(function (request, opts) {
+  fetchMock.mock(function (request) {
     return request.url === url('/segmentChanges/segment_1?since=2');
   }, {
     status: 500
@@ -125,7 +118,7 @@ tape('DS SEGMENT CHANGES / ', function (assert) {
     since: 3,
     till: 4
   };
-  fetchMock.mock(function (request, opts) {
+  fetchMock.mock(function (request) {
     return request.url === url('/segmentChanges/segment_1?since=3');
   }, (0, _stringify2.default)(response3));
 
@@ -147,18 +140,11 @@ tape('DS SEGMENT CHANGES / greedy fetch stop fetching if one response fails', fu
     since: 1,
     till: 2
   };
-  fetchMock.mock(function (request, opts) {
+  fetchMock.mock(function (request) {
     return request.url === url('/segmentChanges/segment_1?since=-1');
   }, (0, _stringify2.default)(response1));
 
-  var response2 = {
-    name: 'segment_1',
-    added: [3, 4],
-    removed: [],
-    since: 2,
-    till: 3
-  };
-  fetchMock.mock(function (request, opts) {
+  fetchMock.mock(function (request) {
     return request.url === url('/segmentChanges/segment_1?since=2');
   }, {
     status: 500
@@ -171,7 +157,7 @@ tape('DS SEGMENT CHANGES / greedy fetch stop fetching if one response fails', fu
     since: 3,
     till: 4
   };
-  fetchMock.mock(function (request, opts) {
+  fetchMock.mock(function (request) {
     return request.url === url('/segmentChanges/segment_1?since=3');
   }, (0, _stringify2.default)(response3));
 
