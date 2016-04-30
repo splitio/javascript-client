@@ -38,12 +38,18 @@ function readSplitConfigFile(path) {
   }
 
   let validLines = data.split(/\r?\n/).reduce((accum, line, index) => {
-    let tuple = line.trim().split(/\s+/);
+    let tuple = line.trim();
 
-    if (tuple.length !== 2) {
-      log(`Ignoring line since it does not have exactly two columns #${index}`);
+    if (tuple === '' || tuple.charAt(0) === '#') {
+      log(`Ignoring empty line or comment at #${index}`);
     } else {
-      accum.push(tuple);
+      tuple = tuple.split(/\s+/);
+
+      if (tuple.length !== 2) {
+        log(`Ignoring line since it does not have exactly two columns #${index}`);
+      } else {
+        accum.push(tuple);
+      }
     }
 
     return accum;
