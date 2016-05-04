@@ -56,5 +56,5 @@
     "watch": "babel es6 --out-dir lib --source-maps --watch",
     "watch-test": "babel test/es6 --out-dir test/lib --source-maps --watch"
   },
-  "version": "4.0.0"
+  "version": "4.0.1"
 }

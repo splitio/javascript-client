@@ -95,7 +95,7 @@ module.exports = {
 
     switch (settingName) {
       case 'version':
-        return 'javascript-4.0.0';
+        return 'javascript-4.0.1';
       case 'authorizationKey':
         return settings.core.authorizationKey;
       case 'key':
