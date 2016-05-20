@@ -24,7 +24,7 @@ if (process.env.NODE_ENV !== 'development') {
 
   module.exports = {
     agent
-  };  
+  };
 } else {
   module.exports = {};
 }
