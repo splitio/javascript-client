@@ -54,4 +54,3 @@ tape('Segment Changes', function (assert) {
   assert.deepEqual([].concat((0, _toConsumableArray3.default)(storageAccesor('test-segment'))), segmentChanges.added, 'We should only have [a, b, c]');
   assert.end();
 });
-//# sourceMappingURL=segmentChanges.spec.js.map

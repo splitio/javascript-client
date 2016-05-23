@@ -23,4 +23,3 @@ module.exports = function () {
     return time[0] * 1e3 + time[1] * 1e-3; // convert it to milis
   };
 }();
-//# sourceMappingURL=node.js.map

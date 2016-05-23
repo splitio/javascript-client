@@ -62,4 +62,3 @@ function segmentChangesUpdater() {
 }
 
 module.exports = segmentChangesUpdater;
-//# sourceMappingURL=segmentChanges.js.map

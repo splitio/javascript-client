@@ -35,4 +35,3 @@ tape('SEGMENTS STORAGE', function (assert) {
   assert.false(storage.has('s'), 's is present in the list of segment names');
   assert.end();
 });
-//# sourceMappingURL=browser.spec.js.map

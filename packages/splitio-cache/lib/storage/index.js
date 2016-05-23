@@ -21,4 +21,3 @@ var SplitsStorage = require('./splits');
 
 exports.segments = new SegmentsStorage();
 exports.splits = new SplitsStorage();
-//# sourceMappingURL=index.js.map

@@ -29,4 +29,3 @@ module.exports = function () {
     return Date.now;
   }
 }();
-//# sourceMappingURL=browser.js.map

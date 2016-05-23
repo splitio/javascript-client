@@ -34,4 +34,3 @@ function MySegmentMutationsFactory(mySegments /*: MySegmentsDTO */) /*: Function
 }
 
 module.exports = MySegmentMutationsFactory;
-//# sourceMappingURL=mySegments.js.map

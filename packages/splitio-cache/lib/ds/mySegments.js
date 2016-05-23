@@ -32,4 +32,3 @@ function mySegmentsDataSource() {
 }
 
 module.exports = mySegmentsDataSource;
-//# sourceMappingURL=mySegments.js.map

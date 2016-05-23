@@ -23,17 +23,17 @@ limitations under the License.
 **/
 
 // Minimal settings required
-require('@splitsoftware/splitio-utils/lib/settings').configure({
+var settings = require('@splitsoftware/splitio-utils/lib/settings').configure({
   core: {
-    authorizationKey: 'asd'
+    authorizationKey: 'dummy-token'
   }
 });
+var url = settings.url;
 
 var greedyFetch = require('../../../../lib/ds/segmentChanges').greedyFetch.bind(null, -1);
 var fetchMock = require('fetch-mock');
 
 var tape = require('tape');
-var url = require('@splitsoftware/splitio-utils/lib/url');
 
 tape('DS SEGMENT CHANGES / greedy fetch should download while since != till', function (assert) {
   var response1 = {
@@ -170,4 +170,3 @@ tape('DS SEGMENT CHANGES / greedy fetch stop fetching if one response fails', fu
     assert.end();
   });
 });
-//# sourceMappingURL=node.spec.js.map

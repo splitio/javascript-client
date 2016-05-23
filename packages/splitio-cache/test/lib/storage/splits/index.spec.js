@@ -88,4 +88,3 @@ tape('SPLITS STORAGE / get by split name', function (assert) {
   assert.equal(storage.get('sample_03'), s3, 'should be the same object');
   assert.end();
 });
-//# sourceMappingURL=index.spec.js.map

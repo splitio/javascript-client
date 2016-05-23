@@ -78,4 +78,3 @@ function segmentChangesDataSource(segmentName) {
 module.exports = segmentChangesDataSource;
 module.exports.greedyFetch = greedyFetch;
 module.exports.cache = cache;
-//# sourceMappingURL=segmentChanges.js.map

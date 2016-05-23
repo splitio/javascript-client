@@ -35,4 +35,3 @@ function mySegmentsUpdater() {
 }
 
 module.exports = mySegmentsUpdater;
-//# sourceMappingURL=mySegments.js.map

@@ -33,9 +33,15 @@ limitations under the License.
       segmentsRefreshRate: number,
       metricsRefreshRate: number,
       impressionsRefreshRate: number
+    },
+    urls: {
+      sdk: string,
+      events: string
     }
   };
 */
+var eventsEndpointMatcher = /\/(testImpressions|metrics)/;
+
 function defaults(custom /*: Settings */) /*: Settings */{
   var init = {
     core: {
@@ -48,11 +54,9 @@ function defaults(custom /*: Settings */) /*: Settings */{
       metricsRefreshRate: 60, // 60 sec
       impressionsRefreshRate: 60 // 60 sec
     },
-    // NodeJS specific settings
-    node: {
-      http: {
-        poolSize: 6
-      }
+    urls: {
+      sdk: 'https://sdk.split.io/api',
+      events: 'https://events.split.io/api'
     }
   };
 
@@ -118,6 +122,12 @@ module.exports = {
       default:
         return settings[settingName];
     }
+  },
+  url: function url(target) {
+    if (eventsEndpointMatcher.test(target)) {
+      return '' + settings.urls.events + target;
+    }
+
+    return '' + settings.urls.sdk + target;
   }
 };
-//# sourceMappingURL=index.js.map

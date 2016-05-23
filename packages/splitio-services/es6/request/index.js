@@ -16,7 +16,6 @@ limitations under the License.
 
 require('isomorphic-fetch');
 
-const url = require('@splitsoftware/splitio-utils/lib/url');
 const settings = require('@splitsoftware/splitio-utils/lib/settings');
 
 const requestOptions = require('./options');
@@ -25,7 +24,7 @@ function RequestFactory(relativeUrl, params) {
   let apiToken = settings.get('authorizationKey');
   let sdkVersion = settings.get('version');
 
-  return new Request(url(relativeUrl), Object.assign({
+  return new Request(settings.url(relativeUrl), Object.assign({
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',

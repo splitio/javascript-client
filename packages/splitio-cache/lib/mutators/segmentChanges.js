@@ -65,4 +65,3 @@ function SegmentMutationsFactory(changes /*: SegmentChangesDTOCollection */) /*:
 }
 
 module.exports = SegmentMutationsFactory;
-//# sourceMappingURL=segmentChanges.js.map

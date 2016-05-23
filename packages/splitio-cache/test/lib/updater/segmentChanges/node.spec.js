@@ -50,4 +50,3 @@ tape('UPDATER SEGMENT CHANGES / without backend it should not fail', function (a
     assert.end();
   });
 });
-//# sourceMappingURL=node.spec.js.map

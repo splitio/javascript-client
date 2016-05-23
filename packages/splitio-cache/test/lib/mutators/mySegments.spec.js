@@ -61,4 +61,3 @@ tape('Segment mutator', function (assert) {
 
   assert.end();
 });
-//# sourceMappingURL=mySegments.spec.js.map

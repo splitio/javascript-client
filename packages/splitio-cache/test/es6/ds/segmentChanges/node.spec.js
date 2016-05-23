@@ -15,17 +15,17 @@ limitations under the License.
 **/
 
 // Minimal settings required
-require('@splitsoftware/splitio-utils/lib/settings').configure({
+const settings = require('@splitsoftware/splitio-utils/lib/settings').configure({
   core: {
-    authorizationKey: 'asd'
+    authorizationKey: 'dummy-token'
   }
 });
+const url = settings.url;
 
 const greedyFetch = require('../../../../lib/ds/segmentChanges').greedyFetch.bind(null, -1);
 const fetchMock = require('fetch-mock');
 
 const tape = require('tape');
-const url = require('@splitsoftware/splitio-utils/lib/url');
 
 tape('DS SEGMENT CHANGES / greedy fetch should download while since != till', assert => {
   const response1 = {

@@ -40,4 +40,3 @@ function splitChangesDataSource() {
 }
 
 module.exports = splitChangesDataSource;
-//# sourceMappingURL=splitChanges.js.map

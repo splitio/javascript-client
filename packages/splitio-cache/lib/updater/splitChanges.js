@@ -35,4 +35,3 @@ function splitChangesUpdater() {
 }
 
 module.exports = splitChangesUpdater;
-//# sourceMappingURL=splitChanges.js.map
