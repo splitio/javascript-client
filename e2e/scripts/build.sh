@@ -23,7 +23,7 @@
 rm -rf lib/
 
 # Regenerate lib directory
-./node_modules/.bin/babel es6 --out-dir lib --source-maps
+./node_modules/.bin/babel es6 --out-dir lib
 cd es6
 find . -name *.json | xargs -J % gcp --parents % ../lib/
 cd -
