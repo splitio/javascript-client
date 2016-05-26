@@ -19,4 +19,3 @@ limitations under the License.
 module.exports = {
   mode: 'cors'
 };
-//# sourceMappingURL=browser.js.map

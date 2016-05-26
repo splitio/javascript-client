@@ -33,4 +33,3 @@ function Fetcher(request) {
 }
 
 module.exports = Fetcher;
-//# sourceMappingURL=index.js.map

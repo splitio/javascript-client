@@ -80,4 +80,3 @@ function nodeOfflineFactory(settings) {
 }
 
 module.exports = nodeOfflineFactory;
-//# sourceMappingURL=node.js.map

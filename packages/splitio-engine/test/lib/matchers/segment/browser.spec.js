@@ -41,4 +41,3 @@ tape('MATCHER SEGMENT / should return true ONLY when the segment is defined insi
   assert.true(matcher(), 'segment found in mySegments list');
   assert.end();
 });
-//# sourceMappingURL=browser.spec.js.map

@@ -29,4 +29,3 @@ function allMatcherContext() {
 }
 
 module.exports = allMatcherContext;
-//# sourceMappingURL=all.js.map

@@ -45,4 +45,3 @@ function RequestFactory(relativeUrl, params) {
 }
 
 module.exports = RequestFactory;
-//# sourceMappingURL=index.js.map

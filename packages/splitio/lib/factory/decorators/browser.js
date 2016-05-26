@@ -24,4 +24,3 @@ function sdkForTheBrowser(settings, engine) {
 }
 
 module.exports = sdkForTheBrowser;
-//# sourceMappingURL=browser.js.map

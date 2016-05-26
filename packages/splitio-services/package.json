@@ -11,7 +11,7 @@
   },
   "scripts": {
     "build": "./scripts/build.sh",
-    "watch": "babel es6 --out-dir lib --source-maps --watch"
+    "watch": "babel es6 --out-dir lib --watch"
   },
   "dependencies": {
     "@splitsoftware/splitio-utils": "4.0.1",

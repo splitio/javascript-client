@@ -29,4 +29,3 @@ module.exports = function POST(params) {
     method: 'POST'
   }, params));
 };
-//# sourceMappingURL=post.js.map

@@ -52,4 +52,3 @@ function transform(matcherGroup /*: object */) /*: MatcherDTO */{
 }
 
 module.exports = transform;
-//# sourceMappingURL=matcherGroup.js.map

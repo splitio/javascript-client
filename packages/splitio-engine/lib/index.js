@@ -86,4 +86,3 @@ Split.prototype.isGarbage = function isGarbage() {
 };
 
 module.exports = Split;
-//# sourceMappingURL=index.js.map

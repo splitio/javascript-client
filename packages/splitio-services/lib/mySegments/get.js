@@ -24,4 +24,3 @@ module.exports = function GET() {
 
   return base('/mySegments/' + key);
 };
-//# sourceMappingURL=get.js.map

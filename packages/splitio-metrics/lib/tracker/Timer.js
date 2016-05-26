@@ -33,4 +33,3 @@ function Timer(collector) {
 }
 
 module.exports = Timer;
-//# sourceMappingURL=Timer.js.map

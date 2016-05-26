@@ -53,8 +53,8 @@
     "karma-local": "karma start local.karma.conf.js",
     "karma-sauce": "karma start sauce.karma.conf.js",
     "test": "istanbul test tape -- 'test/lib/**/!(browser).spec.js'",
-    "watch": "babel es6 --out-dir lib --source-maps --watch",
-    "watch-test": "babel test/es6 --out-dir test/lib --source-maps --watch"
+    "watch": "babel es6 --out-dir lib --watch",
+    "watch-test": "babel test/es6 --out-dir test/lib --watch"
   },
   "version": "4.0.1"
 }

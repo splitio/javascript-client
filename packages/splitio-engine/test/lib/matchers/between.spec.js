@@ -63,4 +63,3 @@ tape('MATCHER BETWEEN / negate should return false when the expected return valu
   assert.true(matcher(null), '! null is not between 10 and 20');
   assert.end();
 });
-//# sourceMappingURL=between.spec.js.map

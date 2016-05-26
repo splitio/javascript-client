@@ -107,4 +107,3 @@ function offlineFactory(settings) {
 }
 
 module.exports = offlineFactory;
-//# sourceMappingURL=base.js.map

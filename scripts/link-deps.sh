@@ -35,6 +35,7 @@ cd packages/splitio-cache
 rm -rf node_modules/@splitsoftware
 npm link @splitsoftware/splitio-engine
 npm link @splitsoftware/splitio-services
+npm link @splitsoftware/splitio-utils
 cd -
 
 cd packages/splitio

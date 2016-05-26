@@ -17,4 +17,3 @@ limitations under the License.
 **/
 
 module.exports = global.splitio = require('./factory');
-//# sourceMappingURL=browser.js.map

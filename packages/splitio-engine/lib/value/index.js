@@ -40,4 +40,3 @@ function value(key /*: string */
 }
 
 module.exports = value;
-//# sourceMappingURL=index.js.map

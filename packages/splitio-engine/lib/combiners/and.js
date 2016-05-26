@@ -38,4 +38,3 @@ function andCombinerContext(matchers /*: Array<function> */) /*: function */{
 }
 
 module.exports = andCombinerContext;
-//# sourceMappingURL=and.js.map

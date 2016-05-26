@@ -41,4 +41,3 @@ function scheduler() {
 }
 
 module.exports = scheduler;
-//# sourceMappingURL=node.js.map

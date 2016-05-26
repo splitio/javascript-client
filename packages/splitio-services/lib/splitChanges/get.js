@@ -23,4 +23,3 @@ module.exports = function GET(_ref) {
 
   return base('/splitChanges?since=' + since);
 };
-//# sourceMappingURL=get.js.map

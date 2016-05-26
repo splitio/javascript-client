@@ -90,4 +90,3 @@ function onlineFactory(settings /*: object */) /*: object */{
 }
 
 module.exports = onlineFactory;
-//# sourceMappingURL=online.js.map

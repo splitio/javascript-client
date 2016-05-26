@@ -70,4 +70,3 @@ tape('TREATMENTS / given a 50%:visa 50%:mastercard we should evaluate correctly'
   assert.equal(t.getTreatmentFor(100), 'mastercard', '100 => mastercard');
   assert.end();
 });
-//# sourceMappingURL=index.spec.js.map

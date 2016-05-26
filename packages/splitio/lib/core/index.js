@@ -42,4 +42,3 @@ var core = {
 };
 
 module.exports = core;
-//# sourceMappingURL=index.js.map

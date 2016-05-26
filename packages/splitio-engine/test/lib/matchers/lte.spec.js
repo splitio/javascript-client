@@ -57,4 +57,3 @@ tape('MATCHER LESS THAN OR EQUAL / negate should return false when the expected 
   assert.true(matcher(null), '! null ! <= 10');
   assert.end();
 });
-//# sourceMappingURL=lte.spec.js.map

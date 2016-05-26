@@ -29,4 +29,3 @@ module.exports = function BULK(params) {
     method: 'POST'
   }, params));
 };
-//# sourceMappingURL=bulk.js.map

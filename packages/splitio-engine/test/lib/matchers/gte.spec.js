@@ -55,4 +55,3 @@ tape('MATCHER GREATER THAN OR EQUAL / negate should return false when the expect
   assert.true(matcher(null), '! null ! >= 10');
   assert.end();
 });
-//# sourceMappingURL=gte.spec.js.map

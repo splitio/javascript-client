@@ -48,4 +48,3 @@ tape('MATCHER SEGMENT / should return true ONLY when the key is defined inside t
   assert.false(matcher('another_key'), '"another key" should be false');
   assert.end();
 });
-//# sourceMappingURL=node.spec.js.map

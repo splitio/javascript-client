@@ -24,4 +24,3 @@ module.exports = function GET(_ref) {
 
   return base('/segmentChanges/' + segmentName + '?since=' + since);
 };
-//# sourceMappingURL=get.js.map

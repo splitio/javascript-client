@@ -55,4 +55,3 @@ function scheduler() {
 }
 
 module.exports = scheduler;
-//# sourceMappingURL=browser.js.map

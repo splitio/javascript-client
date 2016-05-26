@@ -35,4 +35,3 @@ function whitelistMatcherContext(whitelist /*: Set */) /*: Function */{
 }
 
 module.exports = whitelistMatcherContext;
-//# sourceMappingURL=whitelist.js.map

@@ -55,4 +55,3 @@ tape('MATCHER EQUAL / negate should return false when the expected return value 
   assert.true(matcher(null), '! 10 != null');
   assert.end();
 });
-//# sourceMappingURL=eq.spec.js.map

@@ -120,4 +120,3 @@ function parse(conditions /*: Iterable<Object> */, storage /*: Storage */) /*: P
 }
 
 module.exports = parse;
-//# sourceMappingURL=index.js.map

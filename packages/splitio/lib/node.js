@@ -17,4 +17,3 @@ limitations under the License.
 **/
 
 module.exports = require('./factory');
-//# sourceMappingURL=node.js.map

@@ -125,4 +125,3 @@ function transform(matchers /*: Array<object> */) /*: Array<MatcherDTO> */{
 }
 
 module.exports = transform;
-//# sourceMappingURL=matchers.js.map

@@ -27,4 +27,3 @@ var agent = new https.Agent({
 module.exports = {
   agent: agent
 };
-//# sourceMappingURL=node.js.map

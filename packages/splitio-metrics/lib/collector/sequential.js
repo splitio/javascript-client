@@ -50,4 +50,3 @@ SequentialCollector.prototype.isEmpty = function () {
 module.exports = function SequentialCollectorFactory() {
   return new SequentialCollector();
 };
-//# sourceMappingURL=sequential.js.map

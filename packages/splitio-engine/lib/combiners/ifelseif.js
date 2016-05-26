@@ -79,4 +79,3 @@ function ifElseIfCombinerContext(predicates /*: Array<(key: string, seed: number
 }
 
 module.exports = ifElseIfCombinerContext;
-//# sourceMappingURL=ifelseif.js.map

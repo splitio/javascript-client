@@ -33,4 +33,3 @@ tape('TRANSFORMS / a whitelist Array should be casted into a Set', function (ass
   assert.ok(true, 'Everything looks fine');
   assert.end();
 });
-//# sourceMappingURL=whitelist.spec.js.map

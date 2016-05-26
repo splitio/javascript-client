@@ -38,4 +38,3 @@ tape('TRANSFORMS / if there is none segmentName entry, returns undefined', funct
   assert.equal(undefinedSegmentName, undefined, 'expected to be undefined');
   assert.end();
 });
-//# sourceMappingURL=segment.spec.js.map

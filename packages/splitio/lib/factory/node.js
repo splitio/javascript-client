@@ -24,4 +24,3 @@ function factory(settings) {
 }
 
 module.exports = factory;
-//# sourceMappingURL=node.js.map

@@ -84,4 +84,3 @@ module.exports = {
   impressions: PassThroughFactory(impressionsCollector),
   getTreatment: TimerFactory(getTreatmentCollector)
 };
-//# sourceMappingURL=index.js.map
