@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+const log = require('debug')('splitio-utils:events');
 
 const EventEmitter = require('events').EventEmitter;
 const eventHandler = new EventEmitter();
@@ -28,8 +29,10 @@ module.exports = function () {
   return Object.assign(eventObject, {
     emit(eventName, ...listeners) {
       if (eventName !== eventConstants.SDK_READY && isReady) {
+        log(`Event ${eventConstants.SDK_READY} emitted`);
         eventHandler.emit(eventName, ...listeners);
       } else if (eventName === eventConstants.SDK_READY) {
+        log(`Event ${eventConstants.SDK_UPDATE} emitted`);
         isReady = true;
         eventHandler.emit(eventName, ...listeners);
       }

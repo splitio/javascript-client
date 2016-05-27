@@ -25,6 +25,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+var log = require('debug')('splitio-utils:events');
 
 var EventEmitter = require('events').EventEmitter;
 var eventHandler = new EventEmitter();
@@ -32,8 +33,6 @@ var eventConstants = {
   SDK_READY: 'state::ready',
   SDK_UPDATE: 'state::update'
 };
-
-// module.exports = eventHandler;
 
 module.exports = function () {
   var isReady = false;
@@ -46,8 +45,10 @@ module.exports = function () {
       }
 
       if (eventName !== eventConstants.SDK_READY && isReady) {
+        log('Event ' + eventConstants.SDK_READY + ' emitted');
         eventHandler.emit.apply(eventHandler, [eventName].concat(listeners));
       } else if (eventName === eventConstants.SDK_READY) {
+        log('Event ' + eventConstants.SDK_UPDATE + ' emitted');
         isReady = true;
         eventHandler.emit.apply(eventHandler, [eventName].concat(listeners));
       }

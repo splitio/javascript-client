@@ -33,6 +33,7 @@ const core = require('../../core');
 function onlineFactory(settings /*: object */) /*: object */ {
   let engine;
   let engineReadyPromise;
+  let eventsHandlerWrapper = Object.create(eventHandlers);
 
   // setup settings for all the modules
   settings = settingsManager.configure(settings);
@@ -45,8 +46,6 @@ function onlineFactory(settings /*: object */) /*: object */ {
 
   // startup monitoring tools
   metricsEngine.start(settings);
-
-  let eventsHandlerWrapper = Object.create(eventHandlers);
 
   return Object.assign(eventsHandlerWrapper, {
     getTreatment(key /*: string */, featureName /*: string */, attributes /*: object */) /*: string */ {
