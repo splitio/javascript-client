@@ -48,5 +48,9 @@ sdk.ready().then(function() {
 });
 
 sdk.on('state::ready', function() {
-  console.log('Testing sdk event ready: ', arguments);
+  console.log('Testing sdk event READY: ', arguments);
+});
+
+sdk.on('state::update', function() {
+  console.log('Testing sdk event UPDATE: ', arguments);
 });

@@ -22,5 +22,5 @@ var eventHandler = new EventEmitter();
 module.exports = eventHandler;
 module.exports.events = {
   SDK_READY: 'state::ready',
-  SDK_UPDATED: 'state::update'
+  SDK_UPDATE: 'state::update'
 };
