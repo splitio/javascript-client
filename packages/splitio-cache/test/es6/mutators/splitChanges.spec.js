@@ -13,26 +13,19 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-
-let tape = require('tape');
-let splitChangesMutatorFactory = require('../../../lib/mutators/splitChanges');
-let splitChangesMock = require('./mocks/splitChanges');
+const tape = require('tape');
+const MutatorFactory = require('../../../lib/mutators/splitChanges');
+const splitChangesMock = require('./mocks/splitChanges');
+const SplitsStorage = require('../../../lib/storage/splits');
 
 tape('Split Changes', assert => {
-  let splitsStorage = new Map();
-  function storageMutator(splitsArray) {
-    splitsArray.forEach(s => {
-      splitsStorage.set(s.getKey(), s);
-    });
+  const splits = new SplitsStorage();
+
+  const mutator = MutatorFactory(splitChangesMock);
+  mutator({splits});
+
+  for (const feature of ['sample_feature', 'demo_feature', 'hello_world']) {
+    assert.true(splits.get(feature) !== undefined, 'split keys should match with split names');
   }
-
-  let mutator = splitChangesMutatorFactory(splitChangesMock);
-  mutator(splitsStorage, storageMutator);
-
-  assert.deepEqual(
-    [...splitsStorage.keys()],
-    ['sample_feature', 'demo_feature', 'hello_world'],
-    'split keys should match with split names'
-  );
   assert.end();
 });

@@ -13,40 +13,27 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+const log = require('debug')('splitio-cache:updater');
 const segmentChangesDataSource = require('../ds/segmentChanges');
 
-const storage = require('../storage');
-const splitsStorage = storage.splits;
-const segmentsStorage = storage.segments;
-const getSegment = segmentsStorage.get.bind(segmentsStorage);
-const updateSegment = segmentsStorage.update.bind(segmentsStorage);
+module.exports = function segmentChangesUpdater(storage) {
+  return function updateSegments() {
+    log('Updating segmentChanges');
 
-const log = require('debug')('splitio-cache:updater');
+    const downloads = [...storage.splits.getSegments()].map(segmentName => {
+      return segmentChangesDataSource(segmentName).then(mutator => {
+        log(`completed download of ${segmentName}`);
 
-function segmentChangesUpdater() {
-  log('Updating segmentChanges');
+        if (typeof mutator === 'function') {
+          mutator(storage);
 
-  let start = process.hrtime();
-
-  let downloads = [...splitsStorage.getSegments()].map(segmentName => {
-    return segmentChangesDataSource(segmentName).then(mutator => {
-      log(`completed download of ${segmentName}`);
-
-      if (typeof mutator === 'function') {
-        mutator(getSegment, updateSegment);
-      }
-
-      log(`completed mutations for ${segmentName}`);
+          log(`completed mutations for ${segmentName}`);
+        } else {
+          log(`networking issue with ${segmentName}`);
+        }
+      });
     });
-  });
 
-  return Promise.all(downloads).then(() => {
-    let end = process.hrtime(start);
-
-    log('updated finished after %s seconds', end[0]);
-  }).then(() => {
-    return storage;
-  });
-}
-
-module.exports = segmentChangesUpdater;
+    return Promise.all(downloads);
+  };
+};

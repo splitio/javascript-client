@@ -25,7 +25,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-
 // Minimal settings required
 require('@splitsoftware/splitio-utils/lib/settings').configure({
   core: {
@@ -33,19 +32,19 @@ require('@splitsoftware/splitio-utils/lib/settings').configure({
   }
 });
 
-var storage = require('../../../../lib/storage');
+var tape = require('tape');
+var storage = require('../../../../lib/storage').createStorage();
+var segmentChangesUpdater = require('../../../../lib/updater/segmentChanges');
 
 // mock list of segments to be fetched
-storage.splits.getSegments = function () {
+storage.splits.getSegments = function getSegmentsMocked() {
   return new _set2.default(['segment_1', 'segment_2', 'segment_3']);
 };
 
-var segmentChangesUpdater = require('../../../../lib/updater/segmentChanges');
-
-var tape = require('tape');
-
 tape('UPDATER SEGMENT CHANGES / without backend it should not fail', function (assert) {
-  segmentChangesUpdater().then(function (storage) {
+  var updater = segmentChangesUpdater(storage);
+
+  updater().then(function () {
     assert.equal([].concat((0, _toConsumableArray3.default)(storage.segments.segmentNames())).length, 0);
     assert.end();
   });

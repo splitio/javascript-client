@@ -25,40 +25,27 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+var log = require('debug')('splitio-cache:updater');
 var segmentChangesDataSource = require('../ds/segmentChanges');
 
-var storage = require('../storage');
-var splitsStorage = storage.splits;
-var segmentsStorage = storage.segments;
-var getSegment = segmentsStorage.get.bind(segmentsStorage);
-var updateSegment = segmentsStorage.update.bind(segmentsStorage);
+module.exports = function segmentChangesUpdater(storage) {
+  return function updateSegments() {
+    log('Updating segmentChanges');
 
-var log = require('debug')('splitio-cache:updater');
+    var downloads = [].concat((0, _toConsumableArray3.default)(storage.splits.getSegments())).map(function (segmentName) {
+      return segmentChangesDataSource(segmentName).then(function (mutator) {
+        log('completed download of ' + segmentName);
 
-function segmentChangesUpdater() {
-  log('Updating segmentChanges');
+        if (typeof mutator === 'function') {
+          mutator(storage);
 
-  var start = process.hrtime();
-
-  var downloads = [].concat((0, _toConsumableArray3.default)(splitsStorage.getSegments())).map(function (segmentName) {
-    return segmentChangesDataSource(segmentName).then(function (mutator) {
-      log('completed download of ' + segmentName);
-
-      if (typeof mutator === 'function') {
-        mutator(getSegment, updateSegment);
-      }
-
-      log('completed mutations for ' + segmentName);
+          log('completed mutations for ' + segmentName);
+        } else {
+          log('completed mutations for ' + segmentName);
+        }
+      });
     });
-  });
 
-  return _promise2.default.all(downloads).then(function () {
-    var end = process.hrtime(start);
-
-    log('updated finished after %s seconds', end[0]);
-  }).then(function () {
-    return storage;
-  });
-}
-
-module.exports = segmentChangesUpdater;
+    return _promise2.default.all(downloads);
+  };
+};

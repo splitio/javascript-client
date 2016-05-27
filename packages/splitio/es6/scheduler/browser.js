@@ -13,27 +13,28 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-
 const settings = require('@splitsoftware/splitio-utils/lib/settings');
 const SchedulerFactory = require('@splitsoftware/splitio-utils/lib/scheduler');
-const {
-  splitChangesUpdater, segmentsUpdater
-} = require('@splitsoftware/splitio-cache');
+
+const Store = require('@splitsoftware/splitio-cache/lib/storage');
+const {splitChangesUpdater, segmentsUpdater} = require('@splitsoftware/splitio-cache');
 
 function scheduler() {
-  let coreSettings = settings.get('core');
-  let featuresRefreshRate = settings.get('featuresRefreshRate');
-  let segmentsRefreshRate = settings.get('segmentsRefreshRate');
+  const coreSettings = settings.get('core');
+  const featuresRefreshRate = settings.get('featuresRefreshRate');
+  const segmentsRefreshRate = settings.get('segmentsRefreshRate');
 
-  let splitRefreshScheduler = SchedulerFactory();
-  let segmentsRefreshScheduler = SchedulerFactory();
+  const splitRefreshScheduler = SchedulerFactory();
+  const segmentsRefreshScheduler = SchedulerFactory();
+
+  const storage = Store.createStorage();
 
   // Fetch Splits and Segments in parallel (there is none dependency between
   // Segments and Splits)
   return Promise.all([
-    splitRefreshScheduler.forever(splitChangesUpdater, featuresRefreshRate, coreSettings),
-    segmentsRefreshScheduler.forever(segmentsUpdater, segmentsRefreshRate, coreSettings)
-  ]).then(function ([storage]) {
+    splitRefreshScheduler.forever(splitChangesUpdater(storage), featuresRefreshRate, coreSettings),
+    segmentsRefreshScheduler.forever(segmentsUpdater(storage), segmentsRefreshRate, coreSettings)
+  ]).then(() => {
     return storage;
   });
 }

@@ -17,12 +17,10 @@ limitations under the License.
 /*::
 type MySegmentsDTO = Array<string>;
 */
-function MySegmentMutationsFactory(mySegments /*: MySegmentsDTO */) /*: Function */ {
-  function segmentMutations(storageMutator /*: Function */) /*: void */ {
-    storageMutator(new Set(mySegments));
-  }
+module.exports = function MySegmentMutationsFactory(mySegments /*: MySegmentsDTO */) /*: Function */ {
 
-  return segmentMutations;
-}
+  return function segmentMutations(storage /*: Object */) /*: void */ {
+    storage.segments.update(new Set(mySegments));
+  };
 
-module.exports = MySegmentMutationsFactory;
+};

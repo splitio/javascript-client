@@ -1,9 +1,5 @@
 'use strict';
 
-var _slicedToArray2 = require('babel-runtime/helpers/slicedToArray');
-
-var _slicedToArray3 = _interopRequireDefault(_slicedToArray2);
-
 var _promise = require('babel-runtime/core-js/promise');
 
 var _promise2 = _interopRequireDefault(_promise);
@@ -25,9 +21,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-
 var settings = require('@splitsoftware/splitio-utils/lib/settings');
 var SchedulerFactory = require('@splitsoftware/splitio-utils/lib/scheduler');
+
+var Store = require('@splitsoftware/splitio-cache/lib/storage');
 
 var _require = require('@splitsoftware/splitio-cache');
 
@@ -43,13 +40,11 @@ function scheduler() {
   var splitRefreshScheduler = SchedulerFactory();
   var segmentsRefreshScheduler = SchedulerFactory();
 
+  var storage = Store.createStorage();
+
   // Fetch Splits and Segments in parallel (there is none dependency between
   // Segments and Splits)
-  return _promise2.default.all([splitRefreshScheduler.forever(splitChangesUpdater, featuresRefreshRate, coreSettings), segmentsRefreshScheduler.forever(segmentsUpdater, segmentsRefreshRate, coreSettings)]).then(function (_ref) {
-    var _ref2 = (0, _slicedToArray3.default)(_ref, 1);
-
-    var storage = _ref2[0];
-
+  return _promise2.default.all([splitRefreshScheduler.forever(splitChangesUpdater(storage), featuresRefreshRate, coreSettings), segmentsRefreshScheduler.forever(segmentsUpdater(storage), segmentsRefreshRate, coreSettings)]).then(function () {
     return storage;
   });
 }
