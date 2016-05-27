@@ -15,16 +15,19 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+if (process.env.NODE_ENV !== 'development') {
+  var https = require('https');
 
-var https = require('https');
+  var agent = new https.Agent({
+    keepAlive: true,
+    keepAliveMsecs: 1500,
+    maxSockets: 70
+  });
 
-var agent = new https.Agent({
-  keepAlive: true,
-  keepAliveMsecs: 1500,
-  maxSockets: 70
-});
-
-module.exports = {
-  agent: agent
-};
+  module.exports = {
+    agent: agent
+  };
+} else {
+  module.exports = {};
+}
 //# sourceMappingURL=node.js.map

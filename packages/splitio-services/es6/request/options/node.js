@@ -13,15 +13,18 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+if (process.env.NODE_ENV !== 'development') {
+  const https = require('https');
 
-const https = require('https');
+  const agent = new https.Agent({
+    keepAlive: true,
+    keepAliveMsecs: 1500,
+    maxSockets: 70
+  });
 
-const agent = new https.Agent({
-  keepAlive: true,
-  keepAliveMsecs: 1500,
-  maxSockets: 70
-});
-
-module.exports = {
-  agent
-};
+  module.exports = {
+    agent
+  };
+} else {
+  module.exports = {};
+}
