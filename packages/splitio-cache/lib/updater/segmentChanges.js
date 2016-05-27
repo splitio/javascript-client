@@ -41,7 +41,7 @@ module.exports = function segmentChangesUpdater(storage) {
 
           log('completed mutations for ' + segmentName);
         } else {
-          log('completed mutations for ' + segmentName);
+          log('networking issue with ' + segmentName);
         }
       });
     });

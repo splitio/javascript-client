@@ -16,5 +16,5 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-exports.splitChangesUpdater = require('./updater/splitChanges');
-exports.segmentsUpdater = require('./updater/mySegments');
+exports.SplitChangesUpdater = require('./updater/splitChanges');
+exports.SegmentsUpdater = require('./updater/mySegments');

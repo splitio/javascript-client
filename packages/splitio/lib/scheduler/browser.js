@@ -28,11 +28,11 @@ var Store = require('@splitsoftware/splitio-cache/lib/storage');
 
 var _require = require('@splitsoftware/splitio-cache');
 
-var splitChangesUpdater = _require.splitChangesUpdater;
-var segmentsUpdater = _require.segmentsUpdater;
+var SplitChangesUpdater = _require.SplitChangesUpdater;
+var SegmentsUpdater = _require.SegmentsUpdater;
 
 
-function scheduler() {
+module.exports = function scheduler() {
   var coreSettings = settings.get('core');
   var featuresRefreshRate = settings.get('featuresRefreshRate');
   var segmentsRefreshRate = settings.get('segmentsRefreshRate');
@@ -44,9 +44,7 @@ function scheduler() {
 
   // Fetch Splits and Segments in parallel (there is none dependency between
   // Segments and Splits)
-  return _promise2.default.all([splitRefreshScheduler.forever(splitChangesUpdater(storage), featuresRefreshRate, coreSettings), segmentsRefreshScheduler.forever(segmentsUpdater(storage), segmentsRefreshRate, coreSettings)]).then(function () {
+  return _promise2.default.all([splitRefreshScheduler.forever(SplitChangesUpdater(storage), featuresRefreshRate, coreSettings), segmentsRefreshScheduler.forever(SegmentsUpdater(storage), segmentsRefreshRate, coreSettings)]).then(function () {
     return storage;
   });
-}
-
-module.exports = scheduler;
+};

@@ -19,13 +19,15 @@ limitations under the License.
 var settings = require('@splitsoftware/splitio-utils/lib/settings');
 var SchedulerFactory = require('@splitsoftware/splitio-utils/lib/scheduler');
 
+var Store = require('@splitsoftware/splitio-cache/lib/storage');
+
 var _require = require('@splitsoftware/splitio-cache');
 
-var splitChangesUpdater = _require.splitChangesUpdater;
-var segmentsUpdater = _require.segmentsUpdater;
+var SplitChangesUpdater = _require.SplitChangesUpdater;
+var SegmentsUpdater = _require.SegmentsUpdater;
 
 
-function scheduler() {
+module.exports = function scheduler() {
   var coreSettings = settings.get('core');
   var featuresRefreshRate = settings.get('featuresRefreshRate');
   var segmentsRefreshRate = settings.get('segmentsRefreshRate');
@@ -33,11 +35,13 @@ function scheduler() {
   var splitRefreshScheduler = SchedulerFactory();
   var segmentsRefreshScheduler = SchedulerFactory();
 
+  var storage = Store.createStorage();
+
   // 1- Fetch Splits
   // 2- Fetch segments once we have all the Splits downloaded
-  return splitRefreshScheduler.forever(splitChangesUpdater, featuresRefreshRate, coreSettings).then(function scheduleSegmentsFetcher() {
-    return segmentsRefreshScheduler.forever(segmentsUpdater, segmentsRefreshRate, coreSettings);
+  return splitRefreshScheduler.forever(SplitChangesUpdater(storage), featuresRefreshRate, coreSettings).then(function scheduleSegmentsFetcher() {
+    return segmentsRefreshScheduler.forever(SegmentsUpdater(storage), segmentsRefreshRate, coreSettings);
+  }).then(function () {
+    return storage;
   });
-}
-
-module.exports = scheduler;
+};
