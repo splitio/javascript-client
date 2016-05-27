@@ -40,6 +40,8 @@
     "karma-sauce-launcher": "1.0.0",
     "karma-tap": "^1.0.4",
     "phantomjs-prebuilt": "^2.1.4",
+    "saucelabs": "^1.2.0",
+    "sauce-connect-launcher": "^0.14.0",
     "tape": "^4.4.0",
     "watchify": "^3.7.0"
   },
