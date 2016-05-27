@@ -1,5 +1,15 @@
 'use strict';
 
+var _assign = require('babel-runtime/core-js/object/assign');
+
+var _assign2 = _interopRequireDefault(_assign);
+
+var _create = require('babel-runtime/core-js/object/create');
+
+var _create2 = _interopRequireDefault(_create);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 /**
 Copyright 2016 Split Software
 
@@ -23,6 +33,8 @@ require('core-js/es6/promise');
 var log = require('debug')('splitio');
 
 var settingsManager = require('@splitsoftware/splitio-utils/lib/settings');
+var eventHandlers = require('@splitsoftware/splitio-utils/lib/events');
+var events = require('@splitsoftware/splitio-utils/lib/events').events;
 
 var metricsEngine = require('@splitsoftware/splitio-metrics');
 var impressionsTracker = metricsEngine.impressions;
@@ -46,7 +58,9 @@ function onlineFactory(settings /*: object */) /*: object */{
   // startup monitoring tools
   metricsEngine.start(settings);
 
-  return {
+  var eventsHandlerWrapper = (0, _create2.default)(eventHandlers);
+
+  return (0, _assign2.default)(eventsHandlerWrapper, {
     getTreatment: function getTreatment(key /*: string */, featureName /*: string */, attributes /*: object */) /*: string */{
       var treatment = 'control';
 
@@ -84,9 +98,13 @@ function onlineFactory(settings /*: object */) /*: object */{
       return treatment;
     },
     ready: function ready() /*: Promise */{
-      return engineReadyPromise;
+      var _this = this;
+
+      return engineReadyPromise.then(function () {
+        return _this.emit(events.SDK_READY, engine);
+      });
     }
-  };
+  });
 }
 
 module.exports = onlineFactory;

@@ -5,6 +5,7 @@ const splitio = require('@splitsoftware/splitio');
 let sdk;
 
 if (process.env.SPLIT_SDK_MODE === 'offline') {
+  console.log('offline mode');
   sdk = splitio({
     core: {
       authorizationKey: 'localhost'
@@ -13,14 +14,18 @@ if (process.env.SPLIT_SDK_MODE === 'offline') {
 } else {
   sdk = splitio({
     core: {
-      authorizationKey: 'l1le2jmg4ksjhh1gh671r4aj5tgl9hukrqlv'
-    }/*,
+      authorizationKey: 'emco6aj80nu9ehoq58u9svugucdkotfo8gp3'
+    },
+    urls: {
+      sdk: 'https://sdk-staging.split.io/api',
+      events: 'https://events-staging.split.io/api'
+    },
     scheduler: {
-      featuresRefreshRate: 1,    // fetch feature updates each 1 sec
-      segmentsRefreshRate: 1,    // fetch segment updates each 1 sec
+      featuresRefreshRate: 15,    // fetch feature updates each 1 sec
+      segmentsRefreshRate: 15,    // fetch segment updates each 1 sec
       metricsRefreshRate: 30,    // publish metrics each 30 sec
       impressionsRefreshRate: 30 // publish evaluations each 30 sec
-    }*/
+    }
   });
 }
 
@@ -40,4 +45,8 @@ sdk.ready().then(function() {
   app.listen(8889, function () {
     console.log('Check sample using curl -v http://localhost:8889');
   });
+});
+
+sdk.on('state::ready', function() {
+  console.log('Testing sdk event ready: ', arguments);
 });
