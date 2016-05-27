@@ -8,10 +8,6 @@ var _set = require('babel-runtime/core-js/set');
 
 var _set2 = _interopRequireDefault(_set);
 
-var _map = require('babel-runtime/core-js/map');
-
-var _map2 = _interopRequireDefault(_map);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
@@ -29,9 +25,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-
 var tape = require('tape');
-var segmentChangesMutatorFactory = require('../../../lib/mutators/segmentChanges');
+var SegmentsStorage = require('../../../lib/storage/segments/node');
+var MutatorFactory = require('../../../lib/mutators/segmentChanges');
 
 tape('Segment Changes', function (assert) {
   var segmentChanges = {
@@ -40,17 +36,12 @@ tape('Segment Changes', function (assert) {
     removed: ['d', 'e', 'f']
   };
 
-  var segmentsStorage = new _map2.default().set('test-segment', new _set2.default(['d', 'e', 'f']));
-  function storageMutator(segmentName, segmentSet) {
-    segmentsStorage.set(segmentName, segmentSet);
-  }
-  function storageAccesor(segmentName) {
-    return segmentsStorage.get(segmentName);
-  }
+  var segments = new SegmentsStorage();
+  segments.update('test-segment', new _set2.default(['d', 'e', 'f']));
 
-  var mutator = segmentChangesMutatorFactory([segmentChanges]);
-  mutator(storageAccesor, storageMutator);
+  var mutator = MutatorFactory([segmentChanges]);
+  mutator({ segments: segments });
 
-  assert.deepEqual([].concat((0, _toConsumableArray3.default)(storageAccesor('test-segment'))), segmentChanges.added, 'We should only have [a, b, c]');
+  assert.deepEqual([].concat((0, _toConsumableArray3.default)(segments.get('test-segment'))), segmentChanges.added, 'We should only have [a, b, c]');
   assert.end();
 });

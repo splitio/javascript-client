@@ -13,9 +13,17 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-
 const SegmentsStorage = require('./segments');
 const SplitsStorage = require('./splits');
 
-exports.segments = new SegmentsStorage;
-exports.splits = new SplitsStorage;
+module.exports = {
+  SegmentsStorage,
+  SplitsStorage,
+
+  createStorage() {
+    return {
+      splits: new SplitsStorage,
+      segments: new SegmentsStorage
+    };
+  }
+};

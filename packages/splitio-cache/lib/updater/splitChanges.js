@@ -15,23 +15,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-
 var log = require('debug')('splitio-cache:updater');
-
 var splitChangesDataSource = require('../ds/splitChanges');
 
-var storage = require('../storage');
-var splitsStorage = storage.splits;
-var update = splitsStorage.update.bind(splitsStorage);
-
-function splitChangesUpdater() {
+module.exports = function splitChangesUpdater(storage) {
+  return function updateSplits() {
     log('Updating splitChanges');
 
     return splitChangesDataSource().then(function (splitsMutator) {
-        return splitsMutator(storage, update);
-    }).then(function () {
-        return storage;
+      return splitsMutator(storage);
     });
-}
-
-module.exports = splitChangesUpdater;
+  };
+};

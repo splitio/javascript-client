@@ -13,21 +13,19 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-
 const tape = require('tape');
-
 const SegmentsStorage = require('../../../lib/storage/segments/browser');
 const MySegmentsMutatorFactory = require('../../../lib/mutators/mySegments');
 
 tape('Segment mutator', assert => {
-  const segments = ['segment1', 'segment2'];
-  const storage = new SegmentsStorage;
-  const mutator = MySegmentsMutatorFactory(segments);
+  const segmentNames = ['segment1', 'segment2'];
+  const segments = new SegmentsStorage;
+  const mutator = MySegmentsMutatorFactory(segmentNames);
 
-  mutator(storage.update.bind(storage));
+  mutator({segments});
 
-  for (const segmentName of segments) {
-    assert.true(storage.has(segmentName), 'segment should be present in the storage');
+  for (const name of segmentNames) {
+    assert.true(segments.has(name), 'segment should be present in the storage');
   }
 
   assert.end();

@@ -21,28 +21,26 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-
 var tape = require('tape');
-
 var SegmentsStorage = require('../../../lib/storage/segments/browser');
 var MySegmentsMutatorFactory = require('../../../lib/mutators/mySegments');
 
 tape('Segment mutator', function (assert) {
-  var segments = ['segment1', 'segment2'];
-  var storage = new SegmentsStorage();
-  var mutator = MySegmentsMutatorFactory(segments);
+  var segmentNames = ['segment1', 'segment2'];
+  var segments = new SegmentsStorage();
+  var mutator = MySegmentsMutatorFactory(segmentNames);
 
-  mutator(storage.update.bind(storage));
+  mutator({ segments: segments });
 
   var _iteratorNormalCompletion = true;
   var _didIteratorError = false;
   var _iteratorError = undefined;
 
   try {
-    for (var _iterator = (0, _getIterator3.default)(segments), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-      var segmentName = _step.value;
+    for (var _iterator = (0, _getIterator3.default)(segmentNames), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+      var name = _step.value;
 
-      assert.true(storage.has(segmentName), 'segment should be present in the storage');
+      assert.true(segments.has(name), 'segment should be present in the storage');
     }
   } catch (err) {
     _didIteratorError = true;
