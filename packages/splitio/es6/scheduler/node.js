@@ -16,27 +16,29 @@ limitations under the License.
 
 const settings = require('@splitsoftware/splitio-utils/lib/settings');
 const SchedulerFactory = require('@splitsoftware/splitio-utils/lib/scheduler');
-const {
-  splitChangesUpdater, segmentsUpdater
-} = require('@splitsoftware/splitio-cache');
 
-function scheduler() {
-  let coreSettings = settings.get('core');
-  let featuresRefreshRate = settings.get('featuresRefreshRate');
-  let segmentsRefreshRate = settings.get('segmentsRefreshRate');
+const Store = require('@splitsoftware/splitio-cache/lib/storage');
+const {SplitChangesUpdater, SegmentsUpdater} = require('@splitsoftware/splitio-cache');
 
-  let splitRefreshScheduler = SchedulerFactory();
-  let segmentsRefreshScheduler = SchedulerFactory();
+module.exports = function scheduler() {
+  const coreSettings = settings.get('core');
+  const featuresRefreshRate = settings.get('featuresRefreshRate');
+  const segmentsRefreshRate = settings.get('segmentsRefreshRate');
+
+  const splitRefreshScheduler = SchedulerFactory();
+  const segmentsRefreshScheduler = SchedulerFactory();
+
+  const storage = Store.createStorage();
 
   // 1- Fetch Splits
   // 2- Fetch segments once we have all the Splits downloaded
   return splitRefreshScheduler.forever(
-    splitChangesUpdater, featuresRefreshRate, coreSettings
+    SplitChangesUpdater(storage), featuresRefreshRate, coreSettings
   ).then(function scheduleSegmentsFetcher() {
     return segmentsRefreshScheduler.forever(
-      segmentsUpdater, segmentsRefreshRate, coreSettings
+      SegmentsUpdater(storage), segmentsRefreshRate, coreSettings
     );
+  }).then(() => {
+    return storage;
   });
-}
-
-module.exports = scheduler;
+};
