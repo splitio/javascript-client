@@ -16,9 +16,25 @@ limitations under the License.
 
 const EventEmitter = require('events').EventEmitter;
 const eventHandler = new EventEmitter();
-
-module.exports = eventHandler;
-module.exports.events = {
+const eventConstants = {
   SDK_READY: 'state::ready',
   SDK_UPDATE: 'state::update'
 };
+
+module.exports = function () {
+  let isReady = false;
+  let eventObject = Object.create(eventHandler);
+
+  return Object.assign(eventObject, {
+    emit(eventName, ...listeners) {
+      if (eventName !== eventConstants.SDK_READY && isReady) {
+        eventHandler.emit(eventName, ...listeners);
+      } else if (eventName === eventConstants.SDK_READY) {
+        isReady = true;
+        eventHandler.emit(eventName, ...listeners);
+      }
+    }
+  });
+}();
+
+module.exports.events = eventConstants;

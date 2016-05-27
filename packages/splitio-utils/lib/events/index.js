@@ -1,5 +1,15 @@
 'use strict';
 
+var _assign = require('babel-runtime/core-js/object/assign');
+
+var _assign2 = _interopRequireDefault(_assign);
+
+var _create = require('babel-runtime/core-js/object/create');
+
+var _create2 = _interopRequireDefault(_create);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 /**
 Copyright 2016 Split Software
 
@@ -18,9 +28,31 @@ limitations under the License.
 
 var EventEmitter = require('events').EventEmitter;
 var eventHandler = new EventEmitter();
-
-module.exports = eventHandler;
-module.exports.events = {
+var eventConstants = {
   SDK_READY: 'state::ready',
   SDK_UPDATE: 'state::update'
 };
+
+// module.exports = eventHandler;
+
+module.exports = function () {
+  var isReady = false;
+  var eventObject = (0, _create2.default)(eventHandler);
+
+  return (0, _assign2.default)(eventObject, {
+    emit: function emit(eventName) {
+      for (var _len = arguments.length, listeners = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+        listeners[_key - 1] = arguments[_key];
+      }
+
+      if (eventName !== eventConstants.SDK_READY && isReady) {
+        eventHandler.emit.apply(eventHandler, [eventName].concat(listeners));
+      } else if (eventName === eventConstants.SDK_READY) {
+        isReady = true;
+        eventHandler.emit.apply(eventHandler, [eventName].concat(listeners));
+      }
+    }
+  });
+}();
+
+module.exports.events = eventConstants;
