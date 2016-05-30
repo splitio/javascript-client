@@ -22,6 +22,9 @@ const log = require('debug')('splitio');
 
 const SettingsFactory = require('@splitsoftware/splitio-utils/lib/settings');
 
+const eventHandlers = require('@splitsoftware/splitio-utils/lib/events');
+const events = require('@splitsoftware/splitio-utils/lib/events').events;
+
 const metricsEngine = require('@splitsoftware/splitio-metrics');
 const impressionsTracker = metricsEngine.impressions;
 const getTreatmentTracker = metricsEngine.getTreatment;
@@ -31,6 +34,7 @@ const core = require('../../core');
 function onlineFactory(settings /*: object */) /*: object */ {
   let engine;
   let engineReadyPromise;
+  let eventsHandlerWrapper = Object.create(eventHandlers);
 
   // setup settings for all the modules
   settings = SettingsFactory(settings);
@@ -44,7 +48,7 @@ function onlineFactory(settings /*: object */) /*: object */ {
   // startup monitoring tools
   metricsEngine.start(settings);
 
-  return {
+  return Object.assign(eventsHandlerWrapper, {
     getTreatment(key /*: string */, featureName /*: string */, attributes /*: object */) /*: string */ {
       let treatment = 'control';
 
@@ -83,9 +87,9 @@ function onlineFactory(settings /*: object */) /*: object */ {
     },
 
     ready() /*: Promise */ {
-      return engineReadyPromise;
+      return engineReadyPromise.then(() => this.emit(events.SDK_READY, engine));
     }
-  };
+  });
 }
 
 module.exports = onlineFactory;

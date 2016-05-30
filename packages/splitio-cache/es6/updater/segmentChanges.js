@@ -15,6 +15,8 @@ limitations under the License.
 **/
 const log = require('debug')('splitio-cache:updater');
 const segmentChangesDataSource = require('../ds/segmentChanges');
+const eventHandlers = require('@splitsoftware/splitio-utils/lib/events');
+const events = eventHandlers.events;
 
 module.exports = function segmentChangesUpdater(settings, storage) {
   return function updateSegments() {
@@ -34,6 +36,8 @@ module.exports = function segmentChangesUpdater(settings, storage) {
       });
     });
 
-    return Promise.all(downloads);
+    return Promise.all(downloads)
+      .then(() => eventHandlers.emit(events.SDK_UPDATE, storage))
+      .catch((error) => eventHandlers.emit(events.SDK_UPDATE_ERROR, error));
   };
 };
