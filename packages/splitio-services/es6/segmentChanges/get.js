@@ -16,6 +16,6 @@ limitations under the License.
 
 const base = require('../request');
 
-module.exports = function GET({since, segmentName}) {
-  return base(`/segmentChanges/${segmentName}?since=${since}`);
+module.exports = function GET(settings, {since, segmentName}) {
+  return base(settings, `/segmentChanges/${segmentName}?since=${since}`);
 };

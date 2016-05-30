@@ -24,8 +24,8 @@ limitations under the License.
 
 var base = require('../request');
 
-module.exports = function POST(params) {
-  return base('/metrics/time', (0, _assign2.default)({
+module.exports = function POST(settings, params) {
+  return base(settings, '/metrics/time', (0, _assign2.default)({
     method: 'POST'
   }, params));
 };

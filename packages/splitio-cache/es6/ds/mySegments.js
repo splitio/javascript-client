@@ -19,8 +19,8 @@ const mySegmentsRequest = require('@splitsoftware/splitio-services/lib/mySegment
 
 const mySegmentMutationsFactory = require('../mutators/mySegments');
 
-function mySegmentsDataSource() {
-  return mySegmentsService(mySegmentsRequest())
+function mySegmentsDataSource(settings) {
+  return mySegmentsService(mySegmentsRequest(settings))
     .then(resp => resp.json())
     .then(json => {
       return mySegmentMutationsFactory(

@@ -16,10 +16,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 var tape = require('tape');
-var settings = require('../../../lib/settings');
+var SettingsFactory = require('../../../lib/settings');
 
 tape('SETTINGS / check defaults', function (assert) {
-  settings.configure({
+  var settings = SettingsFactory({
     core: {
       authorizationKey: 'dummy token'
     }
@@ -38,7 +38,7 @@ tape('SETTINGS / urls should be configurable', function (assert) {
     events: 'events-url'
   };
 
-  settings.configure({
+  var settings = SettingsFactory({
     core: {
       authorizationKey: 'dummy token'
     },

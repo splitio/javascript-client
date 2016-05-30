@@ -18,11 +18,11 @@ limitations under the License.
 var log = require('debug')('splitio-cache:updater');
 var splitChangesDataSource = require('../ds/splitChanges');
 
-module.exports = function splitChangesUpdater(storage) {
+module.exports = function splitChangesUpdater(settings, storage) {
   return function updateSplits() {
     log('Updating splitChanges');
 
-    return splitChangesDataSource().then(function (splitsMutator) {
+    return splitChangesDataSource(settings).then(function (splitsMutator) {
       return splitsMutator(storage);
     });
   };

@@ -14,10 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 const tape = require('tape');
-const settings = require('../../../lib/settings');
+const SettingsFactory = require('../../../lib/settings');
 
 tape('SETTINGS / check defaults', assert => {
-  settings.configure({
+  const settings = SettingsFactory({
     core: {
       authorizationKey: 'dummy token'
     }
@@ -36,7 +36,7 @@ tape('SETTINGS / urls should be configurable', assert => {
     events: 'events-url'
   };
 
-  settings.configure({
+  const settings = SettingsFactory({
     core: {
       authorizationKey: 'dummy token'
     },

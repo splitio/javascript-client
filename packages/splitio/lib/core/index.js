@@ -27,14 +27,14 @@ var scheduler = require('../scheduler');
 var _isStarted = false;
 
 var core = {
-  start: function start() {
+  start: function start(settings) {
     if (!_isStarted) {
       _isStarted = true;
     } else {
       return _promise2.default.reject('Engine already started');
     }
 
-    return scheduler();
+    return scheduler(settings);
   },
   isStared: function isStared() {
     return _isStarted;

@@ -1,0 +1,341 @@
+#!/usr/bin/env node
+
+'use strict';
+
+const exec = require('child_process').execSync;
+
+// SETUP THE ENVIRONMENT HERE!
+const orgId = 'e9dd7c90-0110-11e6-8aff-cea8d6f43ae4';              // Google
+const environment = 'eab73ac0-0110-11e6-8aff-cea8d6f43ae4';        // production
+const TOKEN = 'ZDA1Y2JmNjAtMzI0My00ZmMwLWIxODUtMWIzYWY5ZTE0M2M3';  // woow
+const SDK_TOKEN = 'lu78o1osahssej3bevbnqkkvfr1ahjoj706v';          // production
+// SETUP THE ENVIRONMENT HERE!
+
+function createTestCurl(spec) {
+  return `curl 'https://api.split.io/internal/api/tests' -H 'Authorization: Bearer ${TOKEN}' -H 'Content-Type: application/json' --data-binary '${JSON.stringify(spec)}'`;
+}
+
+//------------------------------------------------------------------------------
+
+const user_attr_eq_10 = {
+  name: 'user_attr_eq_ten',
+  description: 'user.attr = 10',
+  definition: 'if user.attr = 10 then split 100:on',
+  treatments: [
+    { name: 'on',
+      includes: [],
+      description: null },
+    { name: 'off',
+      includes: [],
+      description: null }
+  ],
+  environment,
+  orgId
+};
+
+const user_attr_eq_number_10 = {
+  name: 'user_attr_eq_number_ten',
+  description: 'user.attr = number 10',
+  definition: 'if user.attr = number 10 then split 100:on',
+  treatments: [
+    { name: 'on',
+      includes: [],
+      description: null },
+    { name: 'off',
+      includes: [],
+      description: null }
+  ],
+  environment,
+  orgId
+};
+
+// new Date(1458240947021)
+// Thu Mar 17 2016 15:55:47 GMT-0300 (ART)
+const user_attr_eq_datetime_1458240947021 = {
+  name: 'user_attr_eq_datetime_1458240947021',
+  description: 'user.attr = datetime 1458240947021',
+  definition: 'if user.attr = datetime 1458240947021 then split 100:on',
+  treatments: [
+    { name: 'on',
+      includes: [],
+      description: null },
+    { name: 'off',
+      includes: [],
+      description: null }
+  ],
+  environment,
+  orgId
+};
+
+//------------------------------------------------------------------------------
+
+const user_attr_gte_10 = {
+  name: 'user_attr_gte_10',
+  description: 'user.attr >= 10',
+  definition: 'if user.attr >= 10 then split 100:on',
+  treatments: [
+    { name: 'on',
+      includes: [],
+      description: null },
+    { name: 'off',
+      includes: [],
+      description: null }
+  ],
+  environment,
+  orgId
+};
+
+const user_attr_gte_number_10 = {
+  name: 'user_attr_gte_number_10',
+  description: 'user.attr >= number 10',
+  definition: 'if user.attr >= number 10 then split 100:on',
+  treatments: [
+    { name: 'on',
+      includes: [],
+      description: null },
+    { name: 'off',
+      includes: [],
+      description: null }
+  ],
+  environment,
+  orgId
+};
+
+const user_attr_gte_datetime_1458240947021 = {
+  name: 'user_attr_gte_datetime_1458240947021',
+  description: 'user.attr >= datetime 1458240947021',
+  definition: 'if user.attr >= datetime 1458240947021 then split 100:on',
+  treatments: [
+    { name: 'on',
+      includes: [],
+      description: null },
+    { name: 'off',
+      includes: [],
+      description: null }
+  ],
+  environment,
+  orgId
+};
+
+//------------------------------------------------------------------------------
+
+const user_attr_lte_10 = {
+  name: 'user_attr_lte_10',
+  description: 'user.attr <= 10',
+  definition: 'if user.attr <= 10 then split 100:on',
+  treatments: [
+    { name: 'on',
+      includes: [],
+      description: null },
+    { name: 'off',
+      includes: [],
+      description: null }
+  ],
+  environment,
+  orgId
+};
+
+const user_attr_lte_number_10 = {
+  name: 'user_attr_lte_number_10',
+  description: 'user.attr <= number 10',
+  definition: 'if user.attr <= number 10 then split 100:on',
+  treatments: [
+    { name: 'on',
+      includes: [],
+      description: null },
+    { name: 'off',
+      includes: [],
+      description: null }
+  ],
+  environment,
+  orgId
+};
+
+const user_attr_lte_datetime_1458240947021 = {
+  name: 'user_attr_lte_datetime_1458240947021',
+  description: 'user.attr <= datetime 1458240947021',
+  definition: 'if user.attr <= datetime 1458240947021 then split 100:on',
+  treatments: [
+    { name: 'on',
+      includes: [],
+      description: null },
+    { name: 'off',
+      includes: [],
+      description: null }
+  ],
+  environment,
+  orgId
+};
+
+//------------------------------------------------------------------------------
+
+const user_attr_btw_10_and_20 = {
+  name: 'user_attr_btw_10_and_20',
+  description: 'user.attr between 10 and 20',
+  definition: 'if user.attr is between 10 and 20 then split 100:on',
+  treatments: [
+    { name: 'on',
+      includes: [],
+      description: null },
+    { name: 'off',
+      includes: [],
+      description: null }
+  ],
+  environment,
+  orgId
+};
+
+const user_attr_btw_number_10_and_20 = {
+  name: 'user_attr_btw_number_10_and_20',
+  description: 'user.attr between number 10 and 20',
+  definition: 'if user.attr is between number 10 and 20 then split 100:on',
+  treatments: [
+    { name: 'on',
+      includes: [],
+      description: null },
+    { name: 'off',
+      includes: [],
+      description: null }
+  ],
+  environment,
+  orgId
+};
+
+
+// new Date(1458240947021)
+// Thu Mar 17 2016 15:55:47 GMT-0300 (ART)
+// new Date(1458246884077)
+// Thu Mar 17 2016 17:34:44 GMT-0300 (ART)
+const user_attr_btw_datetime_1458240947021_and_1458246884077 = {
+  name: 'user_attr_btw_datetime_1458240947021_and_1458246884077',
+  description: 'user.attr between datetime 1458240947021 and 1458246884077',
+  definition: 'if user.attr is between datetime 1458240947021 and 1458246884077 then split 100:on',
+  treatments: [
+    { name: 'on',
+      includes: [],
+      description: null },
+    { name: 'off',
+      includes: [],
+      description: null }
+  ],
+  environment,
+  orgId
+};
+
+//------------------------------------------------------------------------------
+
+const user_account_in_segment_all = {
+  name: 'user_account_in_segment_all',
+  description: 'user.account in segment all',
+  definition: 'if user.account is in segment all then split 100:on',
+  treatments: [
+    { name: 'on',
+      includes: [],
+      description: null },
+    { name: 'off',
+      includes: [],
+      description: null }
+  ],
+  environment,
+  orgId
+};
+
+const user_account_in_segment_employees = {
+  name: 'user_account_in_segment_employees',
+  description: 'user.account in segment employees',
+  definition: 'if user.account is in segment employees then split 100:on',
+  treatments: [
+    { name: 'on',
+      includes: [],
+      description: null },
+    { name: 'off',
+      includes: [],
+      description: null }
+  ],
+  environment,
+  orgId
+};
+
+const user_account_in_whitelist = {
+  name: 'user_account_in_whitelist',
+  description: 'user.account in whitelist',
+  definition: 'if user.account is in list ["key_1@split.io", "key_2@split.io", "key_3@split.io", "key_4@split.io", "key_5@split.io"] then split 100:on',
+  treatments: [
+    { name: 'on',
+      includes: [],
+      description: null },
+    { name: 'off',
+      includes: [],
+      description: null }
+  ],
+  environment,
+  orgId
+};
+
+//------------------------------------------------------------------------------
+
+const user_between_dates_or_admin = {
+  name: 'user_between_dates_or_admin',
+  description: 'user between dates or is in admin segment',
+  definition: `
+    if user.time is between datetime 1458240947021 and 1458246884077 then split 100:on
+    else if user is in segment admin then 100:on
+  `,
+  treatments: [
+    { name: 'on',
+      includes: [],
+      description: null },
+    { name: 'off',
+      includes: [],
+      description: null }
+  ],
+  environment,
+  orgId
+};
+
+//------------------------------------------------------------------------------
+
+const user_attr_gte_10_and_user_attr2_is_not_foo = {
+  name: 'user_attr_gte_10_and_user_attr2_is_not_foo',
+  description: 'user.attr >= 10 and user.attr2 not foo',
+  definition: `
+    if user.attr >= 10 and user.attr2 is not in list ["foo"] then split 100%:on
+  `,
+  treatments: [
+    { name: 'on',
+      includes: [],
+      description: null },
+    { name: 'off',
+      includes: [],
+      description: null }
+  ],
+  environment,
+  orgId
+};
+
+//------------------------------------------------------------------------------
+
+// Loop over each item in the array an hit the backend
+[
+  user_attr_eq_10,
+  user_attr_eq_number_10,
+  user_attr_eq_datetime_1458240947021,
+  user_attr_gte_10,
+  user_attr_gte_number_10,
+  user_attr_gte_datetime_1458240947021,
+  user_attr_lte_10,
+  user_attr_lte_number_10,
+  user_attr_lte_datetime_1458240947021,
+  user_attr_btw_10_and_20,
+  user_attr_btw_number_10_and_20,
+  user_attr_btw_datetime_1458240947021_and_1458246884077,
+  user_account_in_segment_all,
+  user_account_in_segment_employees,
+  user_account_in_whitelist,
+  user_between_dates_or_admin,
+  user_attr_gte_10_and_user_attr2_is_not_foo
+].forEach(function (body) {
+  let cmd = createTestCurl(body);
+  console.log(cmd);
+  exec(cmd);
+});

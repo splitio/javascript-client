@@ -18,8 +18,8 @@ limitations under the License.
 
 var base = require('../request');
 
-module.exports = function GET(_ref) {
+module.exports = function GET(settings, _ref) {
   var since = _ref.since;
 
-  return base('/splitChanges?since=' + since);
+  return base(settings, '/splitChanges?since=' + since);
 };

@@ -14,13 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-const settings = require('@splitsoftware/splitio-utils/lib/settings');
+// const settings = require('@splitsoftware/splitio-utils/lib/settings');
 const SchedulerFactory = require('@splitsoftware/splitio-utils/lib/scheduler');
 
 const Store = require('@splitsoftware/splitio-cache/lib/storage');
 const {SplitChangesUpdater, SegmentsUpdater} = require('@splitsoftware/splitio-cache');
 
-module.exports = function scheduler() {
+module.exports = function scheduler(settings) {
   const coreSettings = settings.get('core');
   const featuresRefreshRate = settings.get('featuresRefreshRate');
   const segmentsRefreshRate = settings.get('segmentsRefreshRate');

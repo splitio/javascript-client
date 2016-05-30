@@ -15,22 +15,22 @@ limitations under the License.
 **/
 
 /*::
-  type Settings = {
-    core: {
-      authorizationKey: string,
-      key: ?string
-    },
-    scheduler: {
-      featuresRefreshRate: number,
-      segmentsRefreshRate: number,
-      metricsRefreshRate: number,
-      impressionsRefreshRate: number
-    },
-    urls: {
-      sdk: string,
-      events: string
-    }
-  };
+type Settings = {
+  core: {
+    authorizationKey: string,
+    key: ?string
+  },
+  scheduler: {
+    featuresRefreshRate: number,
+    segmentsRefreshRate: number,
+    metricsRefreshRate: number,
+    impressionsRefreshRate: number
+  },
+  urls: {
+    sdk: string,
+    events: string
+  }
+};
 */
 const eventsEndpointMatcher = /\/(testImpressions|metrics)/;
 
@@ -83,45 +83,37 @@ function defaults(custom /*: Settings */) /*: Settings */ {
   return final;
 }
 
-let settings;
-
-module.exports = {
-  configure(params) {
-    settings = defaults(params);
-
-    return this;
-  },
-
-  get(settingName) {
-    if (settings === undefined) {
-      throw Error('Asked for configurations before they were defined');
-    }
-
-    switch (settingName) {
+const proto = {
+  get(name) {
+    switch (name) {
       case 'version':
         return 'javascript-4.0.1';
       case 'authorizationKey':
-        return settings.core.authorizationKey;
+        return this.core.authorizationKey;
       case 'key':
-        return settings.core.key;
+        return this.core.key;
       case 'featuresRefreshRate':
-        return settings.scheduler.featuresRefreshRate;
+        return this.scheduler.featuresRefreshRate;
       case 'segmentsRefreshRate':
-        return settings.scheduler.segmentsRefreshRate;
+        return this.scheduler.segmentsRefreshRate;
       case 'metricsRefreshRate':
-        return settings.scheduler.metricsRefreshRate;
+        return this.scheduler.metricsRefreshRate;
       case 'impressionsRefreshRate':
-        return settings.scheduler.impressionsRefreshRate;
+        return this.scheduler.impressionsRefreshRate;
       default:
-        return settings[settingName];
+        return this[name];
     }
   },
 
   url(target) {
     if (eventsEndpointMatcher.test(target)) {
-      return `${settings.urls.events}${target}`;
+      return `${this.urls.events}${target}`;
     }
 
-    return `${settings.urls.sdk}${target}`;
+    return `${this.urls.sdk}${target}`;
   }
+};
+
+module.exports = function CreateSettings(settings) {
+  return Object.assign(Object.create(proto), defaults(settings));
 };

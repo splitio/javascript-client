@@ -14,11 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-const settings = require('@splitsoftware/splitio-utils/lib/settings');
+// const settings = require('@splitsoftware/splitio-utils/lib/settings');
 const base = require('../request');
 
-module.exports = function GET() {
-  let key = settings.get('key');
-
-  return base(`/mySegments/${key}`);
+module.exports = function GET(settings) {
+  return base(settings, `/mySegments/${settings.get('key')}`);
 };

@@ -13,7 +13,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-
 const SchedulerFactory = require('@splitsoftware/splitio-utils/lib/scheduler');
 
 const metricsService = require('@splitsoftware/splitio-services/lib/metrics');
@@ -62,17 +61,21 @@ function publishToImpressions() {
   }
 }
 
-module.exports = {
-  start(settings) {
-    performanceScheduler.forever(publishToTime, settings.get('metricsRefreshRate'));
-    impressionsScheduler.forever(publishToImpressions, settings.get('impressionsRefreshRate'));
-  },
+// return {
+//   start(settings) {
+//     performanceScheduler.forever(publishToTime, settings.get('metricsRefreshRate'));
+//     impressionsScheduler.forever(publishToImpressions, settings.get('impressionsRefreshRate'));
+//   },
+//
+//   stop() {
+//     performanceScheduler.kill();
+//     impressionsScheduler.kill();
+//   },
+//
+//   impressions: PassThroughFactory(impressionsCollector),
+//   getTreatment: TimerFactory(getTreatmentCollector)
+// };
 
-  stop() {
-    performanceScheduler.kill();
-    impressionsScheduler.kill();
-  },
-
-  impressions: PassThroughFactory(impressionsCollector),
-  getTreatment: TimerFactory(getTreatmentCollector)
+module.exports = function MetricsFactory() {
+// TODO
 };

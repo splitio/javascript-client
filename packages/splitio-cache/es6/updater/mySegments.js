@@ -16,10 +16,10 @@ limitations under the License.
 const log = require('debug')('splitio-cache:updater');
 const mySegmentsDataSource = require('../ds/mySegments');
 
-module.exports = function mySegmentsUpdater(storage) {
+module.exports = function mySegmentsUpdater(settings, storage) {
   return function updateMySegments() {
     log('Updating mySegments');
 
-    return mySegmentsDataSource().then(segmentsMutator => segmentsMutator(storage));
+    return mySegmentsDataSource(settings).then(segmentsMutator => segmentsMutator(storage));
   };
 };

@@ -16,12 +16,12 @@ limitations under the License.
 const log = require('debug')('splitio-cache:updater');
 const segmentChangesDataSource = require('../ds/segmentChanges');
 
-module.exports = function segmentChangesUpdater(storage) {
+module.exports = function segmentChangesUpdater(settings, storage) {
   return function updateSegments() {
     log('Updating segmentChanges');
 
     const downloads = [...storage.splits.getSegments()].map(segmentName => {
-      return segmentChangesDataSource(segmentName).then(mutator => {
+      return segmentChangesDataSource(settings, segmentName).then(mutator => {
         log(`completed download of ${segmentName}`);
 
         if (typeof mutator === 'function') {

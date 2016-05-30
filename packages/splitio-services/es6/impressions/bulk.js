@@ -16,8 +16,8 @@ limitations under the License.
 
 const base = require('../request');
 
-module.exports = function BULK(params) {
-  return base('/testImpressions/bulk', Object.assign({
+module.exports = function BULK(settings, params) {
+  return base(settings, '/testImpressions/bulk', Object.assign({
     method: 'POST'
   }, params));
 };

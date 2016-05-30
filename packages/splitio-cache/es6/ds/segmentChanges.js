@@ -20,8 +20,8 @@ const segmentChangesRequest = require('@splitsoftware/splitio-services/lib/segme
 const segmentMutatorFactory = require('../mutators/segmentChanges');
 const cache = new Map();
 
-function greedyFetch(since, segmentName) {
-  return segmentChangesService(segmentChangesRequest({
+function greedyFetch(settings, since, segmentName) {
+  return segmentChangesService(segmentChangesRequest(settings, {
     since,
     segmentName
   }))
@@ -47,10 +47,10 @@ function greedyFetch(since, segmentName) {
   });
 }
 
-function segmentChangesDataSource(segmentName) {
+function segmentChangesDataSource(settings, segmentName) {
   const since = cache.get(segmentName) || -1;
 
-  return greedyFetch(since, segmentName).then((changes) => {
+  return greedyFetch(settings, since, segmentName).then((changes) => {
     let len = changes.length;
 
     if (len > 0) {

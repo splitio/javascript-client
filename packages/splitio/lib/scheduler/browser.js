@@ -21,7 +21,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-var settings = require('@splitsoftware/splitio-utils/lib/settings');
+// const settings = require('@splitsoftware/splitio-utils/lib/settings');
 var SchedulerFactory = require('@splitsoftware/splitio-utils/lib/scheduler');
 
 var Store = require('@splitsoftware/splitio-cache/lib/storage');
@@ -32,7 +32,7 @@ var SplitChangesUpdater = _require.SplitChangesUpdater;
 var SegmentsUpdater = _require.SegmentsUpdater;
 
 
-module.exports = function scheduler() {
+module.exports = function scheduler(settings) {
   var coreSettings = settings.get('core');
   var featuresRefreshRate = settings.get('featuresRefreshRate');
   var segmentsRefreshRate = settings.get('segmentsRefreshRate');
