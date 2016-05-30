@@ -24,7 +24,7 @@ tape('EVENTS / should not emit event update if ready event it isn\'t emmited', a
   assert.plan(1);
 
   eventsHandler.on(events.SDK_UPDATE, () => {
-    assert.fail('EVENT SDK_UPDATE has not to be emmited if SDK_READY event it is not emmited before')
+    assert.fail('EVENT SDK_UPDATE has not to be emmited if SDK_READY event it is not emmited before');
   });
 
   eventsHandler.emit(events.SDK_UPDATE);
@@ -67,7 +67,7 @@ tape('EVENTS / should emmit and listen to event SDK_UPDATE_ERROR', assert => {
 
   assert.plan(2);
 
-  eventsHandler.on(events.SDK_UPDATE_ERROR, (...args) => {
+  eventsHandler.on(events.SDK_UPDATE_ERROR, () => {
     assert.pass('SDK_UPDATE_ERROR event listened');
   });
 
