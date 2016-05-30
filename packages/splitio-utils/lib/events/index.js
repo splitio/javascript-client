@@ -31,7 +31,8 @@ var EventEmitter = require('events').EventEmitter;
 var eventHandler = new EventEmitter();
 var eventConstants = {
   SDK_READY: 'state::ready',
-  SDK_UPDATE: 'state::update'
+  SDK_UPDATE: 'state::update',
+  SDK_UPDATE_ERROR: 'state::update-error'
 };
 
 module.exports = function () {
