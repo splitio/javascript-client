@@ -24,19 +24,28 @@ const eventConstants = {
 };
 
 module.exports = (function () {
-  let isReady = false;
+  let _isReady = false;
   let eventObject = Object.create(eventHandler);
 
   return Object.assign(eventObject, {
     emit(eventName, ...listeners) {
-      if (eventName !== eventConstants.SDK_READY && isReady) {
-        log(`Event ${eventConstants.SDK_READY} emitted`);
+      if (eventName !== eventConstants.SDK_READY && _isReady) {
+        log(`Event ${eventName} emitted`);
         eventHandler.emit(eventName, ...listeners);
       } else if (eventName === eventConstants.SDK_READY) {
         log(`Event ${eventConstants.SDK_UPDATE} emitted`);
-        isReady = true;
+        _isReady = true;
         eventHandler.emit(eventName, ...listeners);
       }
+    },
+
+    isReady() {
+      return _isReady;
+    },
+
+    removeAllListeners(...args) {
+      _isReady = false;
+      eventHandler.removeAllListeners(...args);
     }
   });
 }());

@@ -36,7 +36,7 @@ var eventConstants = {
 };
 
 module.exports = function () {
-  var isReady = false;
+  var _isReady = false;
   var eventObject = (0, _create2.default)(eventHandler);
 
   return (0, _assign2.default)(eventObject, {
@@ -45,14 +45,21 @@ module.exports = function () {
         listeners[_key - 1] = arguments[_key];
       }
 
-      if (eventName !== eventConstants.SDK_READY && isReady) {
-        log('Event ' + eventConstants.SDK_READY + ' emitted');
+      if (eventName !== eventConstants.SDK_READY && _isReady) {
+        log('Event ' + eventName + ' emitted');
         eventHandler.emit.apply(eventHandler, [eventName].concat(listeners));
       } else if (eventName === eventConstants.SDK_READY) {
         log('Event ' + eventConstants.SDK_UPDATE + ' emitted');
-        isReady = true;
+        _isReady = true;
         eventHandler.emit.apply(eventHandler, [eventName].concat(listeners));
       }
+    },
+    isReady: function isReady() {
+      return _isReady;
+    },
+    removeAllListeners: function removeAllListeners() {
+      _isReady = false;
+      eventHandler.removeAllListeners.apply(eventHandler, arguments);
     }
   });
 }();
