@@ -38,6 +38,6 @@ module.exports = function segmentChangesUpdater(storage) {
 
     return Promise.all(downloads)
       .then(() => eventHandlers.emit(events.SDK_UPDATE, storage))
-      .catch(() => eventHandlers.emit(events.SDK_UPDATE_ERROR));
+      .catch((error) => eventHandlers.emit(events.SDK_UPDATE_ERROR, error));
   };
 };

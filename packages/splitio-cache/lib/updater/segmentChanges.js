@@ -50,8 +50,8 @@ module.exports = function segmentChangesUpdater(storage) {
 
     return _promise2.default.all(downloads).then(function () {
       return eventHandlers.emit(events.SDK_UPDATE, storage);
-    }).catch(function () {
-      return eventHandlers.emit(events.SDK_UPDATE_ERROR);
+    }).catch(function (error) {
+      return eventHandlers.emit(events.SDK_UPDATE_ERROR, error);
     });
   };
 };

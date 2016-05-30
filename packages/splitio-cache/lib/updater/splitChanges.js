@@ -28,8 +28,8 @@ module.exports = function splitChangesUpdater(storage) {
       return splitsMutator(storage);
     }).then(function () {
       return eventHandlers.emit(events.SDK_UPDATE, storage);
-    }).catch(function () {
-      return eventHandlers.emit(events.SDK_UPDATE_ERROR);
+    }).catch(function (error) {
+      return eventHandlers.emit(events.SDK_UPDATE_ERROR, error);
     });
   };
 };

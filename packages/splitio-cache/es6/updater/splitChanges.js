@@ -25,6 +25,6 @@ module.exports = function splitChangesUpdater(storage) {
     return splitChangesDataSource()
       .then(splitsMutator => splitsMutator(storage))
       .then(() => eventHandlers.emit(events.SDK_UPDATE, storage))
-      .catch(() => eventHandlers.emit(events.SDK_UPDATE_ERROR));
+      .catch((error) => eventHandlers.emit(events.SDK_UPDATE_ERROR, error));
   };
 };
