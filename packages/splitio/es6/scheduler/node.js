@@ -33,10 +33,10 @@ module.exports = function scheduler(settings, hub) {
   // 1- Fetch Splits
   // 2- Fetch segments once we have all the Splits downloaded
   return splitRefreshScheduler.forever(
-    SplitChangesUpdater(storage), featuresRefreshRate, coreSettings
+    SplitChangesUpdater(settings, hub, storage), featuresRefreshRate, coreSettings
   ).then(function scheduleSegmentsFetcher() {
     return segmentsRefreshScheduler.forever(
-      SegmentsUpdater(storage), segmentsRefreshRate, coreSettings
+      SegmentsUpdater(settings, hub, storage), segmentsRefreshRate, coreSettings
     );
   }).then(() => {
     return storage;

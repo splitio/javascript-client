@@ -38,13 +38,13 @@ class Metrics {
     this.impressionsScheduler = SchedulerFactory();
 
     this.impressions = PassThroughFactory(this.impressionsCollector);
-    this.getTreatment = TimerFactory(getTreatmentCollector);
+    this.getTreatment = TimerFactory(this.getTreatmentCollector);
   }
 
   publishToTime(settings) {
     if (!this.getTreatmentCollector.isEmpty()) {
       metricsService(metricsServiceRequest(settings, {
-        body: JSON.stringify(metricsDTO.fromGetTreatmentCollector(getTreatmentCollector))
+        body: JSON.stringify(metricsDTO.fromGetTreatmentCollector(this.getTreatmentCollector))
       })).then(resp => {
         this.getTreatmentCollector.clear();
         return resp;
@@ -57,7 +57,7 @@ class Metrics {
   publishToImpressions(settings) {
     if (!this.impressionsCollector.isEmpty()) {
       impressionsService(impressionsBulkRequest(settings, {
-        body: JSON.stringify(impressionsDTO.fromImpressionsCollector(impressionsCollector))
+        body: JSON.stringify(impressionsDTO.fromImpressionsCollector(this.impressionsCollector))
       })).then(resp => {
         this.impressionsCollector.clear();
         return resp;

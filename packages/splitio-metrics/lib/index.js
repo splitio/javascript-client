@@ -56,7 +56,7 @@ var Metrics = function () {
     this.impressionsScheduler = SchedulerFactory();
 
     this.impressions = PassThroughFactory(this.impressionsCollector);
-    this.getTreatment = TimerFactory(getTreatmentCollector);
+    this.getTreatment = TimerFactory(this.getTreatmentCollector);
   }
 
   (0, _createClass3.default)(Metrics, [{
@@ -66,7 +66,7 @@ var Metrics = function () {
 
       if (!this.getTreatmentCollector.isEmpty()) {
         metricsService(metricsServiceRequest(settings, {
-          body: (0, _stringify2.default)(metricsDTO.fromGetTreatmentCollector(getTreatmentCollector))
+          body: (0, _stringify2.default)(metricsDTO.fromGetTreatmentCollector(this.getTreatmentCollector))
         })).then(function (resp) {
           _this.getTreatmentCollector.clear();
           return resp;
@@ -82,7 +82,7 @@ var Metrics = function () {
 
       if (!this.impressionsCollector.isEmpty()) {
         impressionsService(impressionsBulkRequest(settings, {
-          body: (0, _stringify2.default)(impressionsDTO.fromImpressionsCollector(impressionsCollector))
+          body: (0, _stringify2.default)(impressionsDTO.fromImpressionsCollector(this.impressionsCollector))
         })).then(function (resp) {
           _this2.impressionsCollector.clear();
           return resp;
