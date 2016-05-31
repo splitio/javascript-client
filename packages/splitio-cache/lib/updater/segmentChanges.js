@@ -8,6 +8,10 @@ var _toConsumableArray2 = require('babel-runtime/helpers/toConsumableArray');
 
 var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);
 
+var _map = require('babel-runtime/core-js/map');
+
+var _map2 = _interopRequireDefault(_map);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
@@ -31,19 +35,21 @@ var eventHandlers = require('@splitsoftware/splitio-utils/lib/events');
 var events = eventHandlers.events;
 
 module.exports = function segmentChangesUpdater(settings, storage) {
+  var sinceValuesCache = new _map2.default();
+
   return function updateSegments() {
     log('Updating segmentChanges');
 
     var downloads = [].concat((0, _toConsumableArray3.default)(storage.splits.getSegments())).map(function (segmentName) {
-      return segmentChangesDataSource(settings, segmentName).then(function (mutator) {
+      return segmentChangesDataSource(settings, segmentName, sinceValuesCache).then(function (mutator) {
         log('completed download of ' + segmentName);
 
-        if (typeof mutator === 'function') {
+        if (mutator !== undefined) {
           mutator(storage);
 
           log('completed mutations for ' + segmentName);
         } else {
-          log('networking issue with ' + segmentName);
+          log('none changes to be made to ' + segmentName);
         }
       });
     });

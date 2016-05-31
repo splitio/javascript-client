@@ -19,19 +19,21 @@ const eventHandlers = require('@splitsoftware/splitio-utils/lib/events');
 const events = eventHandlers.events;
 
 module.exports = function segmentChangesUpdater(settings, storage) {
+  const sinceValuesCache = new Map();
+
   return function updateSegments() {
     log('Updating segmentChanges');
 
     const downloads = [...storage.splits.getSegments()].map(segmentName => {
-      return segmentChangesDataSource(settings, segmentName).then(mutator => {
+      return segmentChangesDataSource(settings, segmentName, sinceValuesCache).then(mutator => {
         log(`completed download of ${segmentName}`);
 
-        if (typeof mutator === 'function') {
+        if (mutator !== undefined) {
           mutator(storage);
 
           log(`completed mutations for ${segmentName}`);
         } else {
-          log(`networking issue with ${segmentName}`);
+          log(`none changes to be made to ${segmentName}`);
         }
       });
     });

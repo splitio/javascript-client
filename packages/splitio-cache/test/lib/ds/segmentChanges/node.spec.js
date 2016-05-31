@@ -21,16 +21,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-
-// Minimal settings required
-var settings = require('@splitsoftware/splitio-utils/lib/settings').configure({
+var SettingsFactory = require('@splitsoftware/splitio-utils/lib/settings');
+var settings = SettingsFactory({
   core: {
     authorizationKey: 'dummy-token'
   }
 });
-var url = settings.url;
+var url = settings.url.bind(settings);
 
-var greedyFetch = require('../../../../lib/ds/segmentChanges').greedyFetch.bind(null, -1);
+var greedyFetch = require('../../../../lib/ds/segmentChanges').greedyFetch.bind(null, settings, -1);
 var fetchMock = require('fetch-mock');
 
 var tape = require('tape');

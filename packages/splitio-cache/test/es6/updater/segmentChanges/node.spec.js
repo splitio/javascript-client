@@ -13,10 +13,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-// Minimal settings required
-require('@splitsoftware/splitio-utils/lib/settings').configure({
+const SettingsFactory = require('@splitsoftware/splitio-utils/lib/settings');
+const settings = SettingsFactory({
   core: {
-    authorizationKey: 'asd'
+    authorizationKey: 'dummy-token'
   }
 });
 
@@ -30,7 +30,7 @@ storage.splits.getSegments = function getSegmentsMocked() {
 };
 
 tape('UPDATER SEGMENT CHANGES / without backend it should not fail', assert => {
-  const updater = segmentChangesUpdater(storage);
+  const updater = segmentChangesUpdater(settings, storage);
 
   updater().then(() => {
     assert.equal([...storage.segments.segmentNames()].length, 0);
