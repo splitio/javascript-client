@@ -17,10 +17,12 @@ const log = require('debug')('splitio-cache:updater');
 const splitChangesDataSource = require('../ds/splitChanges');
 
 module.exports = function SplitChangesUpdater(settings, hub, storage) {
+  const sinceValueCache = {since: -1};
+
   return function updateSplits() {
     log('Updating splitChanges');
 
-    return splitChangesDataSource(settings)
+    return splitChangesDataSource(settings, sinceValueCache)
       .then(splitsMutator => splitsMutator(storage))
       .then(() => hub.emit(hub.Event.SDK_UPDATE, storage))
       .catch((error) => hub.emit(hub.Event.SDK_UPDATE_ERROR, error));
