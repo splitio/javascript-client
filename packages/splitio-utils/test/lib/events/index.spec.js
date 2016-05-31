@@ -15,65 +15,32 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-
 var tape = require('tape');
-var eventsHandler = require('../../../lib/events');
-var events = eventsHandler.events;
+var EventsFactory = require('../../../lib/events');
+var Event = EventsFactory.Event;
 
-tape('EVENTS / should not emit event update if ready event it isn\'t emmited', function (assert) {
-  eventsHandler.removeAllListeners();
+tape('EVENTS / ' + Event.SDK_READY + ' should be emitted once', function (assert) {
+  var hub = EventsFactory();
+  var counter = 0;
 
-  assert.plan(1);
-
-  eventsHandler.on(events.SDK_UPDATE, function () {
-    assert.fail('EVENT SDK_UPDATE has not to be emmited if SDK_READY event it is not emmited before');
+  hub.on(hub.Event.SDK_READY, function () {
+    counter++;
   });
+  hub.emit(hub.Event.SDK_READY);
+  hub.emit(hub.Event.SDK_READY);
 
-  eventsHandler.emit(events.SDK_UPDATE);
-
-  assert.ok(!eventsHandler.isReady(), 'isReady should be false');
+  assert.equal(counter, 1, 'called once');
+  assert.end();
 });
 
-tape('EVENTS / should emmit and listen to event SDK_READY', function (assert) {
-  eventsHandler.removeAllListeners();
+tape('EVENTS / should not emit ' + Event.SDK_UPDATE + ' if ' + Event.SDK_READY + ' is not emitted yet', function (assert) {
+  var hub = EventsFactory();
 
-  assert.plan(2);
-
-  eventsHandler.on(events.SDK_READY, function () {
-    assert.pass('SDK_READY event listened');
+  hub.on(hub.Event.SDK_UPDATE, function () {
+    assert.fail('should not be called yet');
   });
+  hub.emit(hub.Event.SDK_UPDATE);
 
-  eventsHandler.emit(events.SDK_READY);
-
-  assert.ok(eventsHandler.isReady(), 'isReady should be true');
-});
-
-tape('EVENTS / should emmit and listen to event SDK_UPDATE', function (assert) {
-  eventsHandler.removeAllListeners();
-
-  assert.plan(2);
-
-  eventsHandler.on(events.SDK_UPDATE, function () {
-    assert.pass('SDK_UPDATE event listened');
-  });
-
-  eventsHandler.emit(events.SDK_READY);
-  eventsHandler.emit(events.SDK_UPDATE);
-
-  assert.ok(eventsHandler.isReady(), 'isReady should be true');
-});
-
-tape('EVENTS / should emmit and listen to event SDK_UPDATE_ERROR', function (assert) {
-  eventsHandler.removeAllListeners();
-
-  assert.plan(2);
-
-  eventsHandler.on(events.SDK_UPDATE_ERROR, function () {
-    assert.pass('SDK_UPDATE_ERROR event listened');
-  });
-
-  eventsHandler.emit(events.SDK_READY);
-  eventsHandler.emit(events.SDK_UPDATE_ERROR);
-
-  assert.ok(eventsHandler.isReady(), 'isReady should be true');
+  assert.pass('looks good');
+  assert.end();
 });

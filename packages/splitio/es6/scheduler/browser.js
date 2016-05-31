@@ -19,7 +19,7 @@ const SchedulerFactory = require('@splitsoftware/splitio-utils/lib/scheduler');
 const Store = require('@splitsoftware/splitio-cache/lib/storage');
 const {SplitChangesUpdater, SegmentsUpdater} = require('@splitsoftware/splitio-cache');
 
-module.exports = function scheduler(settings) {
+module.exports = function scheduler(settings, hub) {
   const coreSettings = settings.get('core');
   const featuresRefreshRate = settings.get('featuresRefreshRate');
   const segmentsRefreshRate = settings.get('segmentsRefreshRate');
@@ -32,8 +32,10 @@ module.exports = function scheduler(settings) {
   // Fetch Splits and Segments in parallel (there is none dependency between
   // Segments and Splits)
   return Promise.all([
-    splitRefreshScheduler.forever(SplitChangesUpdater(storage), featuresRefreshRate, coreSettings),
-    segmentsRefreshScheduler.forever(SegmentsUpdater(storage), segmentsRefreshRate, coreSettings)
+    splitRefreshScheduler.forever(
+      SplitChangesUpdater(settings, hub, storage), featuresRefreshRate, coreSettings),
+    segmentsRefreshScheduler.forever(
+      SegmentsUpdater(settings, hub, storage), segmentsRefreshRate, coreSettings)
   ]).then(() => {
     return storage;
   });

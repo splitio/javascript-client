@@ -4,10 +4,6 @@ var _assign = require('babel-runtime/core-js/object/assign');
 
 var _assign2 = _interopRequireDefault(_assign);
 
-var _create = require('babel-runtime/core-js/object/create');
-
-var _create2 = _interopRequireDefault(_create);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
@@ -34,33 +30,32 @@ var log = require('debug')('splitio');
 
 var SettingsFactory = require('@splitsoftware/splitio-utils/lib/settings');
 
-var eventHandlers = require('@splitsoftware/splitio-utils/lib/events');
-var events = require('@splitsoftware/splitio-utils/lib/events').events;
+var EventsFactory = require('@splitsoftware/splitio-utils/lib/events');
+var Event = EventsFactory.Event;
 
-var metricsEngine = require('@splitsoftware/splitio-metrics');
-var impressionsTracker = metricsEngine.impressions;
-var getTreatmentTracker = metricsEngine.getTreatment;
+var MetricsFactory = require('@splitsoftware/splitio-metrics');
 
-var core = require('../../core');
+var core = require('../../scheduler');
 
-function onlineFactory(settings /*: object */) /*: object */{
+function onlineFactory(params /*: object */) /*: object */{
+  var settings = SettingsFactory(params);
+  var metrics = MetricsFactory(settings);
+  var impressionsTracker = metrics.impressions;
+  var getTreatmentTracker = metrics.getTreatment;
+  var hub = EventsFactory();
   var engine = void 0;
   var engineReadyPromise = void 0;
-  var eventsHandlerWrapper = (0, _create2.default)(eventHandlers);
-
-  // setup settings for all the modules
-  settings = SettingsFactory(settings);
 
   // the engine startup is async (till we get localStorage as
   // secondary cache)
-  engineReadyPromise = core.start(settings).then(function (initializedEngine) {
-    engine = initializedEngine;
+  engineReadyPromise = core(settings, hub).then(function (state) {
+    engine = state;
   }).catch(function () {});
 
   // startup monitoring tools
-  metricsEngine.start(settings);
+  metrics.start(settings);
 
-  return (0, _assign2.default)(eventsHandlerWrapper, {
+  return (0, _assign2.default)(hub, {
     getTreatment: function getTreatment(key /*: string */, featureName /*: string */, attributes /*: object */) /*: string */{
       var treatment = 'control';
 
@@ -101,7 +96,7 @@ function onlineFactory(settings /*: object */) /*: object */{
       var _this = this;
 
       return engineReadyPromise.then(function () {
-        return _this.emit(events.SDK_READY, engine);
+        return _this.emit(Event.SDK_READY, engine);
       });
     }
   });

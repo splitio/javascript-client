@@ -16,38 +16,46 @@ limitations under the License.
 const log = require('debug')('splitio-utils:events');
 
 const EventEmitter = require('events').EventEmitter;
-const eventHandler = new EventEmitter();
-const eventConstants = {
+const Event = {
   SDK_READY: 'state::ready',
   SDK_UPDATE: 'state::update',
   SDK_UPDATE_ERROR: 'state::update-error'
 };
 
-module.exports = (function () {
+module.exports = function EventFactory() {
+  const proto = new EventEmitter();
+  const hub = Object.create(proto);
   let _isReady = false;
-  let eventObject = Object.create(eventHandler);
 
-  return Object.assign(eventObject, {
+  return Object.assign(hub, {
     emit(eventName, ...listeners) {
-      if (eventName !== eventConstants.SDK_READY && _isReady) {
-        log(`Event ${eventName} emitted`);
-        eventHandler.emit(eventName, ...listeners);
-      } else if (eventName === eventConstants.SDK_READY) {
-        log(`Event ${eventConstants.SDK_UPDATE} emitted`);
-        _isReady = true;
-        eventHandler.emit(eventName, ...listeners);
+      // simulating once event just for simplicity
+      if (eventName === Event.SDK_READY) {
+        if (!_isReady) {
+          log(`Emitting event ${Event.SDK_READY}`);
+          _isReady = true;
+          return proto.emit(eventName, ...listeners);
+        } else {
+          log(`Discarding event ${Event.SDK_READY}`);
+          return false;
+        }
       }
-    },
 
-    isReady() {
-      return _isReady;
-    },
+      // updates should be fired only after ready state
+      if (eventName === Event.SDK_UPDATE) {
+        if (_isReady) {
+          log(`Emitting event ${eventName}`);
+          return proto.emit(eventName, ...listeners);
+        } else {
+          log(`Discarding event ${Event.SDK_UPDATE}`);
+          return false;
+        }
+      }
 
-    removeAllListeners(...args) {
-      _isReady = false;
-      eventHandler.removeAllListeners(...args);
-    }
+      // for future events just fire them
+      return proto.emit(eventName, ...listeners);
+    },
+    Event
   });
-}());
-
-module.exports.events = eventConstants;
+};
+module.exports.Event = Event;

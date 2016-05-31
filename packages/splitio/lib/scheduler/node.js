@@ -27,7 +27,7 @@ var SplitChangesUpdater = _require.SplitChangesUpdater;
 var SegmentsUpdater = _require.SegmentsUpdater;
 
 
-module.exports = function scheduler(settings) {
+module.exports = function scheduler(settings, hub) {
   var coreSettings = settings.get('core');
   var featuresRefreshRate = settings.get('featuresRefreshRate');
   var segmentsRefreshRate = settings.get('segmentsRefreshRate');

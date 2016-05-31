@@ -22,33 +22,32 @@ const log = require('debug')('splitio');
 
 const SettingsFactory = require('@splitsoftware/splitio-utils/lib/settings');
 
-const eventHandlers = require('@splitsoftware/splitio-utils/lib/events');
-const events = require('@splitsoftware/splitio-utils/lib/events').events;
+const EventsFactory = require('@splitsoftware/splitio-utils/lib/events');
+const Event = EventsFactory.Event;
 
-const metricsEngine = require('@splitsoftware/splitio-metrics');
-const impressionsTracker = metricsEngine.impressions;
-const getTreatmentTracker = metricsEngine.getTreatment;
+const MetricsFactory = require('@splitsoftware/splitio-metrics');
 
-const core = require('../../core');
+const core = require('../../scheduler');
 
-function onlineFactory(settings /*: object */) /*: object */ {
+function onlineFactory(params /*: object */) /*: object */ {
+  const settings = SettingsFactory(params);
+  const metrics = MetricsFactory(settings);
+  const impressionsTracker = metrics.impressions;
+  const getTreatmentTracker = metrics.getTreatment;
+  const hub = EventsFactory();
   let engine;
   let engineReadyPromise;
-  let eventsHandlerWrapper = Object.create(eventHandlers);
-
-  // setup settings for all the modules
-  settings = SettingsFactory(settings);
 
   // the engine startup is async (till we get localStorage as
   // secondary cache)
-  engineReadyPromise = core.start(settings).then(function (initializedEngine) {
-    engine = initializedEngine;
+  engineReadyPromise = core(settings, hub).then(function (state) {
+    engine = state;
   }).catch(function () {});
 
   // startup monitoring tools
-  metricsEngine.start(settings);
+  metrics.start(settings);
 
-  return Object.assign(eventsHandlerWrapper, {
+  return Object.assign(hub, {
     getTreatment(key /*: string */, featureName /*: string */, attributes /*: object */) /*: string */ {
       let treatment = 'control';
 
@@ -87,7 +86,7 @@ function onlineFactory(settings /*: object */) /*: object */ {
     },
 
     ready() /*: Promise */ {
-      return engineReadyPromise.then(() => this.emit(events.SDK_READY, engine));
+      return engineReadyPromise.then(() => this.emit(Event.SDK_READY, engine));
     }
   });
 }

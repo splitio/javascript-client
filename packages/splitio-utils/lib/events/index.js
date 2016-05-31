@@ -28,40 +28,51 @@ limitations under the License.
 var log = require('debug')('splitio-utils:events');
 
 var EventEmitter = require('events').EventEmitter;
-var eventHandler = new EventEmitter();
-var eventConstants = {
+var Event = {
   SDK_READY: 'state::ready',
   SDK_UPDATE: 'state::update',
   SDK_UPDATE_ERROR: 'state::update-error'
 };
 
-module.exports = function () {
+module.exports = function EventFactory() {
+  var proto = new EventEmitter();
+  var hub = (0, _create2.default)(proto);
   var _isReady = false;
-  var eventObject = (0, _create2.default)(eventHandler);
 
-  return (0, _assign2.default)(eventObject, {
+  return (0, _assign2.default)(hub, {
     emit: function emit(eventName) {
       for (var _len = arguments.length, listeners = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
         listeners[_key - 1] = arguments[_key];
       }
 
-      if (eventName !== eventConstants.SDK_READY && _isReady) {
-        log('Event ' + eventName + ' emitted');
-        eventHandler.emit.apply(eventHandler, [eventName].concat(listeners));
-      } else if (eventName === eventConstants.SDK_READY) {
-        log('Event ' + eventConstants.SDK_UPDATE + ' emitted');
-        _isReady = true;
-        eventHandler.emit.apply(eventHandler, [eventName].concat(listeners));
+      // simulating once event just for simplicity
+      if (eventName === Event.SDK_READY) {
+        if (!_isReady) {
+          log('Emitting event ' + Event.SDK_READY);
+          _isReady = true;
+          return proto.emit.apply(proto, [eventName].concat(listeners));
+        } else {
+          log('Discarding event ' + Event.SDK_READY);
+          return false;
+        }
       }
-    },
-    isReady: function isReady() {
-      return _isReady;
-    },
-    removeAllListeners: function removeAllListeners() {
-      _isReady = false;
-      eventHandler.removeAllListeners.apply(eventHandler, arguments);
-    }
-  });
-}();
 
-module.exports.events = eventConstants;
+      // updates should be fired only after ready state
+      if (eventName === Event.SDK_UPDATE) {
+        if (_isReady) {
+          log('Emitting event ' + eventName);
+          return proto.emit.apply(proto, [eventName].concat(listeners));
+        } else {
+          log('Discarding event ' + Event.SDK_UPDATE);
+          return false;
+        }
+      }
+
+      // for future events just fire them
+      return proto.emit.apply(proto, [eventName].concat(listeners));
+    },
+
+    Event: Event
+  });
+};
+module.exports.Event = Event;

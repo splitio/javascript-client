@@ -32,7 +32,7 @@ var SplitChangesUpdater = _require.SplitChangesUpdater;
 var SegmentsUpdater = _require.SegmentsUpdater;
 
 
-module.exports = function scheduler(settings) {
+module.exports = function scheduler(settings, hub) {
   var coreSettings = settings.get('core');
   var featuresRefreshRate = settings.get('featuresRefreshRate');
   var segmentsRefreshRate = settings.get('segmentsRefreshRate');
@@ -44,7 +44,7 @@ module.exports = function scheduler(settings) {
 
   // Fetch Splits and Segments in parallel (there is none dependency between
   // Segments and Splits)
-  return _promise2.default.all([splitRefreshScheduler.forever(SplitChangesUpdater(storage), featuresRefreshRate, coreSettings), segmentsRefreshScheduler.forever(SegmentsUpdater(storage), segmentsRefreshRate, coreSettings)]).then(function () {
+  return _promise2.default.all([splitRefreshScheduler.forever(SplitChangesUpdater(settings, hub, storage), featuresRefreshRate, coreSettings), segmentsRefreshScheduler.forever(SegmentsUpdater(settings, hub, storage), segmentsRefreshRate, coreSettings)]).then(function () {
     return storage;
   });
 };

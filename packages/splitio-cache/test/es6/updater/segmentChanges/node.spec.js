@@ -13,6 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+const tape = require('tape');
+
 const SettingsFactory = require('@splitsoftware/splitio-utils/lib/settings');
 const settings = SettingsFactory({
   core: {
@@ -20,7 +22,9 @@ const settings = SettingsFactory({
   }
 });
 
-const tape = require('tape');
+const EventsFactory = require('@splitsoftware/splitio-utils/lib/events');
+const hub = EventsFactory();
+
 const storage = require('../../../../lib/storage').createStorage();
 const segmentChangesUpdater = require('../../../../lib/updater/segmentChanges');
 
@@ -30,7 +34,7 @@ storage.splits.getSegments = function getSegmentsMocked() {
 };
 
 tape('UPDATER SEGMENT CHANGES / without backend it should not fail', assert => {
-  const updater = segmentChangesUpdater(settings, storage);
+  const updater = segmentChangesUpdater(settings, hub, storage);
 
   updater().then(() => {
     assert.equal([...storage.segments.segmentNames()].length, 0);

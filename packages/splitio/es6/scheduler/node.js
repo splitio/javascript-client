@@ -20,7 +20,7 @@ const SchedulerFactory = require('@splitsoftware/splitio-utils/lib/scheduler');
 const Store = require('@splitsoftware/splitio-cache/lib/storage');
 const {SplitChangesUpdater, SegmentsUpdater} = require('@splitsoftware/splitio-cache');
 
-module.exports = function scheduler(settings) {
+module.exports = function scheduler(settings, hub) {
   const coreSettings = settings.get('core');
   const featuresRefreshRate = settings.get('featuresRefreshRate');
   const segmentsRefreshRate = settings.get('segmentsRefreshRate');
