@@ -29,53 +29,57 @@ const TimerFactory = require('./tracker/Timer');
 const SequentialCollector = require('./collector/sequential');
 const FibonacciCollector = require('./collector/fibonacci');
 
-const impressionsCollector = SequentialCollector();
-const getTreatmentCollector = FibonacciCollector();
+class Metrics {
+  constructor() {
+    this.impressionsCollector = SequentialCollector();
+    this.getTreatmentCollector = FibonacciCollector();
 
-const performanceScheduler = SchedulerFactory();
-const impressionsScheduler = SchedulerFactory();
+    this.performanceScheduler = SchedulerFactory();
+    this.impressionsScheduler = SchedulerFactory();
 
-function publishToTime() {
-  if (!getTreatmentCollector.isEmpty()) {
-    metricsService(metricsServiceRequest({
-      body: JSON.stringify(metricsDTO.fromGetTreatmentCollector(getTreatmentCollector))
-    })).then(resp => {
-      getTreatmentCollector.clear(); // once saved, cleanup the collector
-      return resp;
-    }).catch(() => {
-      getTreatmentCollector.clear(); // after try to save, cleanup the collector
-    });
+    this.impressions = PassThroughFactory(this.impressionsCollector);
+    this.getTreatment = TimerFactory(getTreatmentCollector);
+  }
+
+  publishToTime(settings) {
+    if (!this.getTreatmentCollector.isEmpty()) {
+      metricsService(metricsServiceRequest(settings, {
+        body: JSON.stringify(metricsDTO.fromGetTreatmentCollector(getTreatmentCollector))
+      })).then(resp => {
+        this.getTreatmentCollector.clear();
+        return resp;
+      }).catch(() => {
+        this.getTreatmentCollector.clear();
+      });
+    }
+  }
+
+  publishToImpressions(settings) {
+    if (!this.impressionsCollector.isEmpty()) {
+      impressionsService(impressionsBulkRequest(settings, {
+        body: JSON.stringify(impressionsDTO.fromImpressionsCollector(impressionsCollector))
+      })).then(resp => {
+        this.impressionsCollector.clear();
+        return resp;
+      }).catch(() => {
+        this.impressionsCollector.clear();
+      });
+    }
+  }
+
+  start(settings) {
+    this.performanceScheduler.forever(this.publishToTime.bind(this, settings),
+      settings.get('metricsRefreshRate'));
+    this.impressionsScheduler.forever(this.publishToImpressions.bind(this, settings),
+      settings.get('impressionsRefreshRate'));
+  }
+
+  stop() {
+    this.performanceScheduler.kill();
+    this.impressionsScheduler.kill();
   }
 }
-
-function publishToImpressions() {
-  if (!impressionsCollector.isEmpty()) {
-    impressionsService(impressionsBulkRequest({
-      body: JSON.stringify(impressionsDTO.fromImpressionsCollector(impressionsCollector))
-    })).then(resp => {
-      impressionsCollector.clear();
-      return resp;
-    }).catch(() => {
-      impressionsCollector.clear();
-    });
-  }
-}
-
-// return {
-//   start(settings) {
-//     performanceScheduler.forever(publishToTime, settings.get('metricsRefreshRate'));
-//     impressionsScheduler.forever(publishToImpressions, settings.get('impressionsRefreshRate'));
-//   },
-//
-//   stop() {
-//     performanceScheduler.kill();
-//     impressionsScheduler.kill();
-//   },
-//
-//   impressions: PassThroughFactory(impressionsCollector),
-//   getTreatment: TimerFactory(getTreatmentCollector)
-// };
 
 module.exports = function MetricsFactory() {
-// TODO
+  return new Metrics;
 };

@@ -4,6 +4,14 @@ var _stringify = require('babel-runtime/core-js/json/stringify');
 
 var _stringify2 = _interopRequireDefault(_stringify);
 
+var _classCallCheck2 = require('babel-runtime/helpers/classCallCheck');
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = require('babel-runtime/helpers/createClass');
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
@@ -37,53 +45,68 @@ var TimerFactory = require('./tracker/Timer');
 var SequentialCollector = require('./collector/sequential');
 var FibonacciCollector = require('./collector/fibonacci');
 
-var impressionsCollector = SequentialCollector();
-var getTreatmentCollector = FibonacciCollector();
+var Metrics = function () {
+  function Metrics() {
+    (0, _classCallCheck3.default)(this, Metrics);
 
-var performanceScheduler = SchedulerFactory();
-var impressionsScheduler = SchedulerFactory();
+    this.impressionsCollector = SequentialCollector();
+    this.getTreatmentCollector = FibonacciCollector();
 
-function publishToTime() {
-  if (!getTreatmentCollector.isEmpty()) {
-    metricsService(metricsServiceRequest({
-      body: (0, _stringify2.default)(metricsDTO.fromGetTreatmentCollector(getTreatmentCollector))
-    })).then(function (resp) {
-      getTreatmentCollector.clear(); // once saved, cleanup the collector
-      return resp;
-    }).catch(function () {
-      getTreatmentCollector.clear(); // after try to save, cleanup the collector
-    });
+    this.performanceScheduler = SchedulerFactory();
+    this.impressionsScheduler = SchedulerFactory();
+
+    this.impressions = PassThroughFactory(this.impressionsCollector);
+    this.getTreatment = TimerFactory(getTreatmentCollector);
   }
-}
 
-function publishToImpressions() {
-  if (!impressionsCollector.isEmpty()) {
-    impressionsService(impressionsBulkRequest({
-      body: (0, _stringify2.default)(impressionsDTO.fromImpressionsCollector(impressionsCollector))
-    })).then(function (resp) {
-      impressionsCollector.clear();
-      return resp;
-    }).catch(function () {
-      impressionsCollector.clear();
-    });
-  }
-}
+  (0, _createClass3.default)(Metrics, [{
+    key: 'publishToTime',
+    value: function publishToTime(settings) {
+      var _this = this;
 
-// return {
-//   start(settings) {
-//     performanceScheduler.forever(publishToTime, settings.get('metricsRefreshRate'));
-//     impressionsScheduler.forever(publishToImpressions, settings.get('impressionsRefreshRate'));
-//   },
-//
-//   stop() {
-//     performanceScheduler.kill();
-//     impressionsScheduler.kill();
-//   },
-//
-//   impressions: PassThroughFactory(impressionsCollector),
-//   getTreatment: TimerFactory(getTreatmentCollector)
-// };
+      if (!this.getTreatmentCollector.isEmpty()) {
+        metricsService(metricsServiceRequest(settings, {
+          body: (0, _stringify2.default)(metricsDTO.fromGetTreatmentCollector(getTreatmentCollector))
+        })).then(function (resp) {
+          _this.getTreatmentCollector.clear();
+          return resp;
+        }).catch(function () {
+          _this.getTreatmentCollector.clear();
+        });
+      }
+    }
+  }, {
+    key: 'publishToImpressions',
+    value: function publishToImpressions(settings) {
+      var _this2 = this;
+
+      if (!this.impressionsCollector.isEmpty()) {
+        impressionsService(impressionsBulkRequest(settings, {
+          body: (0, _stringify2.default)(impressionsDTO.fromImpressionsCollector(impressionsCollector))
+        })).then(function (resp) {
+          _this2.impressionsCollector.clear();
+          return resp;
+        }).catch(function () {
+          _this2.impressionsCollector.clear();
+        });
+      }
+    }
+  }, {
+    key: 'start',
+    value: function start(settings) {
+      this.performanceScheduler.forever(this.publishToTime.bind(this, settings), settings.get('metricsRefreshRate'));
+      this.impressionsScheduler.forever(this.publishToImpressions.bind(this, settings), settings.get('impressionsRefreshRate'));
+    }
+  }, {
+    key: 'stop',
+    value: function stop() {
+      this.performanceScheduler.kill();
+      this.impressionsScheduler.kill();
+    }
+  }]);
+  return Metrics;
+}();
 
 module.exports = function MetricsFactory() {
-  // TODO
+  return new Metrics();
 };
