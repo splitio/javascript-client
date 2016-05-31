@@ -29,37 +29,35 @@ require('core-js/es6/promise');
 var log = require('debug')('splitio');
 
 var SettingsFactory = require('@splitsoftware/splitio-utils/lib/settings');
-
 var EventsFactory = require('@splitsoftware/splitio-utils/lib/events');
 var Event = EventsFactory.Event;
-
-var MetricsFactory = require('@splitsoftware/splitio-metrics');
-
-var core = require('../../scheduler');
+var Metrics = require('@splitsoftware/splitio-metrics');
+var Cache = require('@splitsoftware/splitio-cache');
 
 function onlineFactory(params /*: object */) /*: object */{
   var settings = SettingsFactory(params);
-  var metrics = MetricsFactory(settings);
+  var hub = EventsFactory();
+  var metrics = new Metrics(settings);
   var impressionsTracker = metrics.impressions;
   var getTreatmentTracker = metrics.getTreatment;
-  var hub = EventsFactory();
-  var engine = void 0;
-  var engineReadyPromise = void 0;
+  var cache = new Cache(settings, hub);
 
-  // the engine startup is async (till we get localStorage as
-  // secondary cache)
-  engineReadyPromise = core(settings, hub).then(function (state) {
-    engine = state;
-  }).catch(function () {});
+  var storage = void 0;
+  var storageReadyPromise = void 0;
 
-  // startup monitoring tools
+  storageReadyPromise = cache.start().then(function (_storage) {
+    storage = _storage;
+  }).catch(function () {
+    storage = undefined;
+  });
+
   metrics.start(settings);
 
   return (0, _assign2.default)(hub, {
     getTreatment: function getTreatment(key /*: string */, featureName /*: string */, attributes /*: object */) /*: string */{
       var treatment = 'control';
 
-      if (engine === undefined) {
+      if (storage === undefined) {
         impressionsTracker({
           feature: featureName,
           key: key,
@@ -72,7 +70,7 @@ function onlineFactory(params /*: object */) /*: object */{
 
       var stopGetTreatmentTracker = getTreatmentTracker(); // start engine perf monitoring
 
-      var split = engine.splits.get(featureName);
+      var split = storage.splits.get(featureName);
       if (split) {
         treatment = split.getTreatment(key, attributes);
 
@@ -95,9 +93,14 @@ function onlineFactory(params /*: object */) /*: object */{
     ready: function ready() /*: Promise */{
       var _this = this;
 
-      return engineReadyPromise.then(function () {
-        return _this.emit(Event.SDK_READY, engine);
+      return storageReadyPromise.then(function () {
+        return _this.emit(Event.SDK_READY, storage);
       });
+    },
+    destroy: function destroy() {
+      hub.removeAllListeners();
+      metrics.stop();
+      cache.stop();
     }
   });
 }

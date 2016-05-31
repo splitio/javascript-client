@@ -107,6 +107,4 @@ var Metrics = function () {
   return Metrics;
 }();
 
-module.exports = function MetricsFactory() {
-  return new Metrics();
-};
+module.exports = Metrics;

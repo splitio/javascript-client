@@ -102,6 +102,9 @@ function offlineFactory(settings) {
     },
     ready: function ready() {
       return alwaysReadyPromise;
+    },
+    destroy: function destroy() {
+      // noop
     }
   };
 }

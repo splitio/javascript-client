@@ -9,8 +9,7 @@
     "type": "git",
     "url": "https://github.com/splitio/javascript-client/tree/master/packages/splitio-cache"
   },
-  "main": "lib/node.js",
-  "browser": "lib/browser.js",
+  "main": "lib/index.js",
   "scripts": {
     "build": "./scripts/build.sh",
     "watch": "babel es6 --out-dir lib --watch",

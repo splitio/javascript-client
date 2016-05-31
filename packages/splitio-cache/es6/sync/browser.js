@@ -14,18 +14,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-const onlineFactory = require('./sdk/online');
-const offlineFactory = require('./sdk/offline');
-
-const browserDecorator = require('./decorators/browser');
-
-function factory(settings) {
-  return browserDecorator(
-    settings,
-    (settings && settings.core && settings.core.authorizationKey === 'localhost')
-      ? offlineFactory(settings)
-      : onlineFactory(settings)
-  );
-}
-
-module.exports = factory;
+module.exports = function serial() {
+  return this.splitRefreshScheduler.forever(
+    this.splitsUpdater,
+    this.settings.get('featuresRefreshRate'),
+    this.settings.get('core')
+  ).then(() => {
+    return this.segmentsRefreshScheduler.forever(
+      this.segmentsUpdater,
+      this.settings.get('segmentsRefreshRate'),
+      this.settings.get('core')
+    );
+  }).then(() => {
+    return this.storage;
+  });
+};

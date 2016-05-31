@@ -24,7 +24,7 @@ var splitMutatorFactory = require('../mutators/splitChanges');
 function splitChangesDataSource(settings, _ref) {
   var since = _ref.since;
 
-  return splitChangesService(splitChangesRequest({
+  return splitChangesService(splitChangesRequest(settings, {
     since: since
   })).then(function (resp) {
     return resp.json();

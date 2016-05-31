@@ -22,7 +22,8 @@ const Split = global.splitio;
 const fetchMock = require('fetch-mock');
 
 const tape = require('tape');
-const settings = require('@splitsoftware/splitio-utils/lib/settings').configure({
+const SettingsFactory = require('@splitsoftware/splitio-utils/lib/settings');
+const settings = SettingsFactory({
   core: {
     authorizationKey: 'dummy-token'
   }

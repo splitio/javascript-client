@@ -1,5 +1,3 @@
-'use strict';
-
 /**
 Copyright 2016 Split Software
 
@@ -16,13 +14,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-var onlineFactory = require('./sdk/online');
-var offlineFactory = require('./sdk/offline');
-
-var browserDecorator = require('./decorators/browser');
-
-function factory(settings) {
-  return browserDecorator(settings, settings && settings.core && settings.core.authorizationKey === 'localhost' ? offlineFactory(settings) : onlineFactory(settings));
-}
-
-module.exports = factory;
+module.exports = function parallel() {
+  return Promise.all([
+    this.splitRefreshScheduler.forever(
+      this.splitsUpdater,
+      this.settings.get('featuresRefreshRate'),
+      this.settings.get('core')
+    ),
+    this.segmentsRefreshScheduler.forever(
+      this.segmentsUpdater,
+      this.settings.get('segmentsRefreshRate'),
+      this.settings.get('core')
+    )
+  ]).then(() => {
+    return this.storage;
+  });
+};

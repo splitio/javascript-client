@@ -16,4 +16,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-module.exports = require('./factory');
+var onlineFactory = require('./sdk/online');
+var offlineFactory = require('./sdk/offline');
+
+function factory(settings) {
+    return settings && settings.core && settings.core.authorizationKey === 'localhost' ? offlineFactory(settings) : onlineFactory(settings);
+}
+
+module.exports = factory;

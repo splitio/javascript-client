@@ -20,7 +20,7 @@ const splitChangesRequest = require('@splitsoftware/splitio-services/lib/splitCh
 const splitMutatorFactory = require('../mutators/splitChanges');
 
 function splitChangesDataSource(settings, {since}) {
-  return splitChangesService(splitChangesRequest({
+  return splitChangesService(splitChangesRequest(settings, {
     since
   }))
   .then(resp => resp.json())

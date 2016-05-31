@@ -80,6 +80,4 @@ class Metrics {
   }
 }
 
-module.exports = function MetricsFactory() {
-  return new Metrics;
-};
+module.exports = Metrics;

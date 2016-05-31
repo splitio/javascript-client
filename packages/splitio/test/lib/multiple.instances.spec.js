@@ -21,7 +21,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-
 var splitio = require('../../');
 var tape = require('tape');
 
@@ -71,5 +70,10 @@ _promise2.default.all([prod.ready(), stage.ready()]).then(function () {
 
     assert.equal(prodTreatment, stageTreatment, 'Feature get_environment should return the same treatment for both sdks');
     assert.end();
+  });
+
+  tape.onFinish(function () {
+    prod.destroy();
+    stage.destroy();
   });
 });

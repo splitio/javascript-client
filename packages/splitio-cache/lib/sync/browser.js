@@ -16,5 +16,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-exports.SplitChangesUpdater = require('./updater/splitChanges');
-exports.SegmentsUpdater = require('./updater/mySegments');
+module.exports = function serial() {
+  var _this = this;
+
+  return this.splitRefreshScheduler.forever(this.splitsUpdater, this.settings.get('featuresRefreshRate'), this.settings.get('core')).then(function () {
+    return _this.segmentsRefreshScheduler.forever(_this.segmentsUpdater, _this.settings.get('segmentsRefreshRate'), _this.settings.get('core'));
+  }).then(function () {
+    return _this.storage;
+  });
+};
