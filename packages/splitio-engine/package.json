@@ -56,5 +56,5 @@
     "watch": "babel es6 --out-dir lib --watch",
     "watch-test": "babel test/es6 --out-dir test/lib --watch"
   },
-  "version": "4.0.1"
+  "version": "5.0.0"
 }
