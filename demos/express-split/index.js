@@ -47,10 +47,10 @@ sdk.ready().then(function() {
   });
 });
 
-sdk.on('state::ready', function() {
+sdk.on(sdk.Event.SDK_READY, function() {
   console.log('Testing sdk event READY');
 });
 
-sdk.on('state::update', function() {
+sdk.on(sdk.Event.SDK_UPDATE, function() {
   console.log('Testing sdk event UPDATE');
 });
