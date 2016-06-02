@@ -15,13 +15,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-// @TODO remove singleton here.
+
+// @TODO
+// 1- handle multiple protocols automatically
+// 2- destroy it once the sdk is destroyed
 var https = require('https');
 
 var agent = new https.Agent({
   keepAlive: true,
-  keepAliveMsecs: 1500,
-  maxSockets: 70
+  keepAliveMsecs: 1500
 });
 
 module.exports = {
