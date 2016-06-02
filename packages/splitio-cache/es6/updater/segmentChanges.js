@@ -32,7 +32,7 @@ module.exports = function SegmentChangesUpdater(settings, hub, storage) {
 
     return Promise.all(downloads)
       .then(shouldUpdates =>
-        (shouldUpdates.indexOf(true) != -1) && hub.emit(hub.Event.SDK_UPDATE, storage)
+        (shouldUpdates.indexOf(true) !== -1) && hub.emit(hub.Event.SDK_UPDATE, storage)
       ).catch((error) => hub.emit(hub.Event.SDK_UPDATE_ERROR, error));
   };
 };

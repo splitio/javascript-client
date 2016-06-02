@@ -48,8 +48,7 @@ function segmentChangesDataSource(settings, segmentName, sinceValuesCache) {
 
   return greedyFetch(settings, sinceValue, segmentName).then((changes) => {
     const len = changes.length;
-
-    shouldUpdate = !(len === 0 || len === 1 && changes[0].since === changes[0].till);
+    const shouldUpdate = !(len === 0 || len === 1 && changes[0].since === changes[0].till);
 
     if (shouldUpdate) {
       sinceValuesCache.set(segmentName, changes[len - 1].till);

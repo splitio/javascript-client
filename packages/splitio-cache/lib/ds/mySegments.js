@@ -24,7 +24,10 @@ var mySegmentMutationsFactory = require('../mutators/mySegments');
 function mySegmentsDataSource(settings) {
   return mySegmentsService(mySegmentsRequest(settings)).then(function (resp) {
     return resp.json().then(function (json) {
-      return { status: resp.status, json: json };
+      return {
+        status: resp.status,
+        json: json
+      };
     });
   }).then(function (_ref) {
     var status = _ref.status;

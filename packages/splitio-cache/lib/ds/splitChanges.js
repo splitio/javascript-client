@@ -28,7 +28,7 @@ function splitChangesDataSource(settings, sinceValueCache) {
     var till = json.till;
     var splits = json.splits;
 
-    var shouldUpdate = sinceValueCache.since != till;
+    var shouldUpdate = sinceValueCache.since !== till;
 
     sinceValueCache.since = till;
 

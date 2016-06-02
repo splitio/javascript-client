@@ -23,8 +23,8 @@ function splitChangesDataSource(settings, sinceValueCache) {
   return splitChangesService(splitChangesRequest(settings, sinceValueCache))
   .then(resp => resp.json())
   .then(json => {
-    let {till, splits} = json;
-    let shouldUpdate = sinceValueCache.since != till;
+    const {till, splits} = json;
+    const shouldUpdate = sinceValueCache.since !== till;
 
     sinceValueCache.since = till;
 

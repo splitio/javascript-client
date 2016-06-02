@@ -21,10 +21,13 @@ const mySegmentMutationsFactory = require('../mutators/mySegments');
 
 function mySegmentsDataSource(settings) {
   return mySegmentsService(mySegmentsRequest(settings))
-    .then(resp => {
-      return resp.json().then((json) => { return {status: resp.status, json} });
-    })
-    .then(({status, json})=> {
+    .then(resp => resp.json().then(json => {
+      return {
+        status: resp.status,
+        json
+      };
+    }))
+    .then(({status, json}) => {
       const shouldUpdate = status === 200;
 
       return mySegmentMutationsFactory(
