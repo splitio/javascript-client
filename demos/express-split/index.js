@@ -23,8 +23,8 @@ if (process.env.SPLIT_SDK_MODE === 'offline') {
     scheduler: {
       featuresRefreshRate: 15,    // fetch feature updates each 1 sec
       segmentsRefreshRate: 15,    // fetch segment updates each 1 sec
-      metricsRefreshRate: 30,    // publish metrics each 30 sec
-      impressionsRefreshRate: 30 // publish evaluations each 30 sec
+      metricsRefreshRate: 30,     // publish metrics each 30 sec
+      impressionsRefreshRate: 30  // publish evaluations each 30 sec
     }
   });
 }
