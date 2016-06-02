@@ -26,18 +26,13 @@ module.exports = function SegmentChangesUpdater(settings, hub, storage) {
       return segmentChangesDataSource(settings, segmentName, sinceValuesCache).then(mutator => {
         log(`completed download of ${segmentName}`);
 
-        if (mutator !== undefined) {
-          mutator(storage);
-
-          log(`completed mutations for ${segmentName}`);
-        } else {
-          log(`none changes to be made to ${segmentName}`);
-        }
+        return mutator(storage);
       });
     });
 
     return Promise.all(downloads)
-      .then(() => hub.emit(hub.Event.SDK_UPDATE, storage))
-      .catch((error) => hub.emit(hub.Event.SDK_UPDATE_ERROR, error));
+      .then(shouldUpdates =>
+        (shouldUpdates.indexOf(true) != -1) && hub.emit(hub.Event.SDK_UPDATE, storage)
+      ).catch((error) => hub.emit(hub.Event.SDK_UPDATE_ERROR, error));
   };
 };

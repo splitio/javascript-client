@@ -68,10 +68,12 @@ var _require = require('@splitsoftware/splitio-engine');
 var parse = _require.parse;
 
 
-module.exports = function SplitMutationsFactory(splits /*: SplitDTOCollection */) /*: Function */{
+module.exports = function SplitMutationsFactory(shouldUpdate /*: bool */, splits /*: SplitDTOCollection */) /*: Function */{
   return function splitMutations(storage /*: Object */) /*: void */{
     storage.splits.update(splits.map(function (split) {
       return parse(split, storage);
     }));
+
+    return shouldUpdate;
   };
 };

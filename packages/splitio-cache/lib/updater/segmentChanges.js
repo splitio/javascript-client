@@ -42,18 +42,12 @@ module.exports = function SegmentChangesUpdater(settings, hub, storage) {
       return segmentChangesDataSource(settings, segmentName, sinceValuesCache).then(function (mutator) {
         log('completed download of ' + segmentName);
 
-        if (mutator !== undefined) {
-          mutator(storage);
-
-          log('completed mutations for ' + segmentName);
-        } else {
-          log('none changes to be made to ' + segmentName);
-        }
+        return mutator(storage);
       });
     });
 
-    return _promise2.default.all(downloads).then(function () {
-      return hub.emit(hub.Event.SDK_UPDATE, storage);
+    return _promise2.default.all(downloads).then(function (shouldUpdates) {
+      return shouldUpdates.indexOf(true) != -1 && hub.emit(hub.Event.SDK_UPDATE, storage);
     }).catch(function (error) {
       return hub.emit(hub.Event.SDK_UPDATE_ERROR, error);
     });

@@ -31,10 +31,7 @@ function greedyFetch(settings, since, segmentName) {
     if (since === till) {
       return [json];
     } else {
-      return Promise.all([
-        json,
-        greedyFetch(settings, json.till, segmentName)
-      ]).then(flatMe => {
+      return Promise.all([json, greedyFetch(settings, till, segmentName)]).then(flatMe => {
         return [flatMe[0], ...flatMe[1]];
       });
     }
@@ -50,13 +47,15 @@ function segmentChangesDataSource(settings, segmentName, sinceValuesCache) {
   const sinceValue = sinceValuesCache.get(segmentName) || -1;
 
   return greedyFetch(settings, sinceValue, segmentName).then((changes) => {
-    let len = changes.length;
+    const len = changes.length;
 
-    if (len > 0) {
+    shouldUpdate = !(len === 0 || len === 1 && changes[0].since === changes[0].till);
+
+    if (shouldUpdate) {
       sinceValuesCache.set(segmentName, changes[len - 1].till);
-
-      return segmentMutatorFactory(changes);
     }
+
+    return segmentMutatorFactory(shouldUpdate, changes);
   });
 }
 

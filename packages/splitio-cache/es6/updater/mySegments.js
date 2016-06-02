@@ -22,7 +22,7 @@ module.exports = function MySegmentsUpdater(settings, hub, storage) {
 
     return mySegmentsDataSource(settings)
       .then(segmentsMutator => segmentsMutator(storage))
-      .then(() => hub.emit(hub.Event.SDK_UPDATE, storage))
-      .catch((error) => hub.emit(hub.Event.SDK_UPDATE_ERROR, error));
+      .then(shouldUpdate => shouldUpdate && hub.emit(hub.Event.SDK_UPDATE, storage))
+      .catch(error => hub.emit(hub.Event.SDK_UPDATE_ERROR, error));
   };
 };

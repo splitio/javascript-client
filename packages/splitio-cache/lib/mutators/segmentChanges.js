@@ -27,22 +27,15 @@ type SegmentChangesDTOCollection = Array<SegmentChangesDTO>;
 */
 var log = require('debug')('splitio-cache:mutators');
 
-module.exports = function SegmentMutationsFactory(changes /*: SegmentChangesDTOCollection */) /*: Function */{
+module.exports = function SegmentMutationsFactory(shouldUpdate /*: bool */, changes /*: SegmentChangesDTOCollection */
+) /*: Function */{
   return function segmentMutations(storage /*: Object */) /*: void */{
-    changes.forEach(function (_ref) {
+    shouldUpdate && changes.forEach(function (_ref) {
       var name = _ref.name;
       var added = _ref.added;
       var removed = _ref.removed;
 
-      var segment = void 0;
-
-      // nothing to do here
-      if (added.length === 0 && removed.length === 0) {
-        log('There is none changes to be done to segment ' + name);
-        return;
-      }
-
-      segment = storage.segments.get(name);
+      var segment = storage.segments.get(name);
 
       log('Adding ' + added.length + ' new keys to the segment ' + name);
 
@@ -58,5 +51,7 @@ module.exports = function SegmentMutationsFactory(changes /*: SegmentChangesDTOC
 
       storage.segments.update(name, segment);
     });
+
+    return shouldUpdate;
   };
 };

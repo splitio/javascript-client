@@ -62,10 +62,12 @@ type SplitDTOCollection = Array<SplitDTO>;
 */
 const { parse } = require('@splitsoftware/splitio-engine');
 
-module.exports = function SplitMutationsFactory(splits /*: SplitDTOCollection */) /*: Function */ {
+module.exports = function SplitMutationsFactory(shouldUpdate /*: bool */, splits /*: SplitDTOCollection */) /*: Function */ {
   return function splitMutations(storage /*: Object */) /*: void */ {
     storage.splits.update(splits.map(split => {
       return parse(split, storage);
     }));
+
+    return shouldUpdate;
   };
 };

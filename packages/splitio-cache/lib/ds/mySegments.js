@@ -23,9 +23,16 @@ var mySegmentMutationsFactory = require('../mutators/mySegments');
 
 function mySegmentsDataSource(settings) {
   return mySegmentsService(mySegmentsRequest(settings)).then(function (resp) {
-    return resp.json();
-  }).then(function (json) {
-    return mySegmentMutationsFactory(json.mySegments.map(function (segment) {
+    return resp.json().then(function (json) {
+      return { status: resp.status, json: json };
+    });
+  }).then(function (_ref) {
+    var status = _ref.status;
+    var json = _ref.json;
+
+    var shouldUpdate = status === 200;
+
+    return mySegmentMutationsFactory(shouldUpdate, json.mySegments.map(function (segment) {
       return segment.name;
     }));
   }).catch(function () {});

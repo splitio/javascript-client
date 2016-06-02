@@ -45,7 +45,7 @@ function greedyFetch(settings, since, segmentName) {
     if (since === till) {
       return [json];
     } else {
-      return _promise2.default.all([json, greedyFetch(settings, json.till, segmentName)]).then(function (flatMe) {
+      return _promise2.default.all([json, greedyFetch(settings, till, segmentName)]).then(function (flatMe) {
         return [flatMe[0]].concat((0, _toConsumableArray3.default)(flatMe[1]));
       });
     }
@@ -62,11 +62,13 @@ function segmentChangesDataSource(settings, segmentName, sinceValuesCache) {
   return greedyFetch(settings, sinceValue, segmentName).then(function (changes) {
     var len = changes.length;
 
-    if (len > 0) {
-      sinceValuesCache.set(segmentName, changes[len - 1].till);
+    shouldUpdate = !(len === 0 || len === 1 && changes[0].since === changes[0].till);
 
-      return segmentMutatorFactory(changes);
+    if (shouldUpdate) {
+      sinceValuesCache.set(segmentName, changes[len - 1].till);
     }
+
+    return segmentMutatorFactory(shouldUpdate, changes);
   });
 }
 

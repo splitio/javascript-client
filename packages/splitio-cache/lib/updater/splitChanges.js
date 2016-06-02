@@ -26,8 +26,8 @@ module.exports = function SplitChangesUpdater(settings, hub, storage) {
 
     return splitChangesDataSource(settings, sinceValueCache).then(function (splitsMutator) {
       return splitsMutator(storage);
-    }).then(function () {
-      return hub.emit(hub.Event.SDK_UPDATE, storage);
+    }).then(function (shouldUpdate) {
+      return shouldUpdate && hub.emit(hub.Event.SDK_UPDATE, storage);
     }).catch(function (error) {
       return hub.emit(hub.Event.SDK_UPDATE_ERROR, error);
     });

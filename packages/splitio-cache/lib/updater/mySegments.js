@@ -24,8 +24,8 @@ module.exports = function MySegmentsUpdater(settings, hub, storage) {
 
     return mySegmentsDataSource(settings).then(function (segmentsMutator) {
       return segmentsMutator(storage);
-    }).then(function () {
-      return hub.emit(hub.Event.SDK_UPDATE, storage);
+    }).then(function (shouldUpdate) {
+      return shouldUpdate && hub.emit(hub.Event.SDK_UPDATE, storage);
     }).catch(function (error) {
       return hub.emit(hub.Event.SDK_UPDATE_ERROR, error);
     });
