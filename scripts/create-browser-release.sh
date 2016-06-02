@@ -14,17 +14,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+##
+# Browser release relays on nodejs packages. Keep in mind this script always
+# use the latest published version.
+##
+
 set -e
 
 RELEASE_DIR=browser-release
 
-if [ "$CI_BRANCH" == "dev" ]; then
+if [ "$CI_BRANCH" == "master" ]; then
 
   mkdir -p $RELEASE_DIR
   cd $RELEASE_DIR
-  mkdir node_modules
-  npm link @splitsoftware/splitio
-  npm link @splitsoftware/splitio-browser
+  npm install @splitsoftware/splitio-browser
   node node_modules/.bin/splitio-bundler
 
 fi
