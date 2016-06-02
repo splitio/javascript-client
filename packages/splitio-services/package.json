@@ -15,17 +15,18 @@
   },
   "dependencies": {
     "@splitsoftware/splitio-utils": "5.0.0",
-    "babel-runtime": "^5.8.35",
-    "core-js": "^1.2.6",
+    "babel-runtime": "^6.9.0",
+    "core-js": "^2.4.0",
+    "debug": "^2.2.0",
     "isomorphic-fetch": "^2.2.1",
     "lodash.groupby": "4.3.0"
   },
   "devDependencies": {
-    "babel-cli": "^6.3.17",
-    "babel-plugin-syntax-object-rest-spread": "^6.3.13",
-    "babel-plugin-transform-object-rest-spread": "^6.3.13",
-    "babel-plugin-transform-runtime": "^6.5.2",
-    "babel-preset-es2015": "^6.3.13"
+    "babel-cli": "^6.9.0",
+    "babel-plugin-syntax-object-rest-spread": "^6.8.0",
+    "babel-plugin-transform-object-rest-spread": "^6.8.0",
+    "babel-plugin-transform-runtime": "^6.9.0",
+    "babel-preset-es2015": "^6.9.0"
   },
   "keywords": [
     "splitio",

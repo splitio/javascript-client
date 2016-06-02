@@ -20,8 +20,9 @@ const SplitsStorage = require('../../../lib/storage/splits');
 
 tape('Split Changes', assert => {
   const splits = new SplitsStorage();
+  const shouldUpdate = true;
 
-  const mutator = MutatorFactory(splitChangesMock);
+  const mutator = MutatorFactory(shouldUpdate, splitChangesMock);
   mutator({splits});
 
   for (const feature of ['sample_feature', 'demo_feature', 'hello_world']) {
