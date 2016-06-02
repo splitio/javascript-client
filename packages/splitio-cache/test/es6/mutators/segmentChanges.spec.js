@@ -27,7 +27,9 @@ tape('Segment Changes', assert => {
   const segments = new SegmentsStorage;
   segments.update('test-segment', new Set(['d', 'e', 'f']));
 
-  const mutator = MutatorFactory([segmentChanges]);
+  const shouldUpdate = true;
+
+  const mutator = MutatorFactory(shouldUpdate, [segmentChanges]);
   mutator({segments});
 
   assert.deepEqual([...segments.get('test-segment')], segmentChanges.added,

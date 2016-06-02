@@ -39,7 +39,9 @@ tape('Segment Changes', function (assert) {
   var segments = new SegmentsStorage();
   segments.update('test-segment', new _set2.default(['d', 'e', 'f']));
 
-  var mutator = MutatorFactory([segmentChanges]);
+  var shouldUpdate = true;
+
+  var mutator = MutatorFactory(shouldUpdate, [segmentChanges]);
   mutator({ segments: segments });
 
   assert.deepEqual([].concat((0, _toConsumableArray3.default)(segments.get('test-segment'))), segmentChanges.added, 'We should only have [a, b, c]');
