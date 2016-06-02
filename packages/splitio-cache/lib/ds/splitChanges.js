@@ -33,7 +33,9 @@ function splitChangesDataSource(settings, sinceValueCache) {
     sinceValueCache.since = till;
 
     return splitMutatorFactory(shouldUpdate, splits);
-  }).catch(function () {});
+  }).catch(function () {
+    return false;
+  });
 }
 
 module.exports = splitChangesDataSource;

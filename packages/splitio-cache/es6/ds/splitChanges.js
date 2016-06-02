@@ -30,7 +30,7 @@ function splitChangesDataSource(settings, sinceValueCache) {
 
     return splitMutatorFactory(shouldUpdate, splits);
   })
-  .catch(function () {});
+  .catch(() => false);
 }
 
 module.exports = splitChangesDataSource;

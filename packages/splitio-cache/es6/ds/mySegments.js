@@ -13,7 +13,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-
 const mySegmentsService = require('@splitsoftware/splitio-services/lib/mySegments');
 const mySegmentsRequest = require('@splitsoftware/splitio-services/lib/mySegments/get');
 
@@ -21,20 +20,9 @@ const mySegmentMutationsFactory = require('../mutators/mySegments');
 
 function mySegmentsDataSource(settings) {
   return mySegmentsService(mySegmentsRequest(settings))
-    .then(resp => resp.json().then(json => {
-      return {
-        status: resp.status,
-        json
-      };
-    }))
-    .then(({status, json}) => {
-      const shouldUpdate = status === 200;
-
-      return mySegmentMutationsFactory(
-        shouldUpdate, json.mySegments.map(segment => segment.name)
-      );
-    })
-    .catch(function () {});
+    .then(resp => resp.json())
+    .then(json => mySegmentMutationsFactory(json.mySegments.map(segment => segment.name)))
+    .catch(() => false);
 }
 
 module.exports = mySegmentsDataSource;

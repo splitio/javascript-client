@@ -25,11 +25,24 @@ limitations under the License.
 /*::
 type MySegmentsDTO = Array<string>;
 */
-module.exports = function MySegmentMutationsFactory(shouldUpdate /*: bool */, mySegments /*: MySegmentsDTO */
+module.exports = function MySegmentMutationsFactory(mySegments /*: MySegmentsDTO */
 ) /*: Function */{
 
   return function segmentMutations(storage /*: Object */) /*: void */{
-    storage.segments.update(new _set2.default(mySegments));
+    var nextSegments = new _set2.default(mySegments);
+    var isEqual = true;
+    var shouldUpdate = void 0;
+
+    // weak logic for performance
+    for (var i = 0; i < mySegments.length && isEqual; i++) {
+      isEqual = storage.segments.has(mySegments[i]);
+    }
+
+    shouldUpdate = !isEqual;
+
+    if (shouldUpdate) {
+      storage.segments.update(nextSegments);
+    }
 
     return shouldUpdate;
   };
