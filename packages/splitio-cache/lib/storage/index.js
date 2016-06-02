@@ -15,10 +15,17 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-
 var SegmentsStorage = require('./segments');
 var SplitsStorage = require('./splits');
 
-exports.segments = new SegmentsStorage();
-exports.splits = new SplitsStorage();
-//# sourceMappingURL=index.js.map
+module.exports = {
+  SegmentsStorage: SegmentsStorage,
+  SplitsStorage: SplitsStorage,
+
+  createStorage: function createStorage() {
+    return {
+      splits: new SplitsStorage(),
+      segments: new SegmentsStorage()
+    };
+  }
+};

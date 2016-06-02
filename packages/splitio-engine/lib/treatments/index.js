@@ -86,4 +86,3 @@ Treatments.prototype.getTreatmentFor = function getTreatmentFor(x /*: number */)
 };
 
 module.exports = Treatments;
-//# sourceMappingURL=index.js.map

@@ -30,4 +30,3 @@ function matcherSegmentContext(segmentName /*: string */, storage /*: Storage */
 }
 
 module.exports = matcherSegmentContext;
-//# sourceMappingURL=node.js.map

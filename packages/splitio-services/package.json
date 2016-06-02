@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio-services",
-  "version": "4.0.1",
+  "version": "5.0.0",
   "description": "Split services layer for Node and the Browser",
   "author": "Facundo Cabrera <facundo@split.io>",
   "homepage": "https://github.com/splitio/javascript-client",
@@ -11,10 +11,10 @@
   },
   "scripts": {
     "build": "./scripts/build.sh",
-    "watch": "babel es6 --out-dir lib --source-maps --watch"
+    "watch": "babel es6 --out-dir lib --watch"
   },
   "dependencies": {
-    "@splitsoftware/splitio-utils": "4.0.1",
+    "@splitsoftware/splitio-utils": "5.0.0",
     "babel-runtime": "^5.8.35",
     "core-js": "^1.2.6",
     "isomorphic-fetch": "^2.2.1",

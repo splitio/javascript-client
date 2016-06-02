@@ -35,4 +35,3 @@ tape('NOW / should generate a value each time you call it', function (assert) {
   assert.true((0, _isFinite2.default)(n3), 'is a finite value?');
   assert.end();
 });
-//# sourceMappingURL=index.spec.js.map

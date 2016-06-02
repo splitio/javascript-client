@@ -18,10 +18,9 @@ limitations under the License.
 
 var base = require('../request');
 
-module.exports = function GET(_ref) {
+module.exports = function GET(settings, _ref) {
   var since = _ref.since;
   var segmentName = _ref.segmentName;
 
-  return base('/segmentChanges/' + segmentName + '?since=' + since);
+  return base(settings, '/segmentChanges/' + segmentName + '?since=' + since);
 };
-//# sourceMappingURL=get.js.map

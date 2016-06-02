@@ -15,7 +15,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-
+// @TODO remove singleton here.
 var https = require('https');
 
 var agent = new https.Agent({
@@ -27,4 +27,3 @@ var agent = new https.Agent({
 module.exports = {
   agent: agent
 };
-//# sourceMappingURL=node.js.map

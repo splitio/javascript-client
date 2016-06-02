@@ -15,24 +15,21 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-
 var log = require('debug')('splitio-cache:updater');
-
 var splitChangesDataSource = require('../ds/splitChanges');
 
-var storage = require('../storage');
-var splitsStorage = storage.splits;
-var update = splitsStorage.update.bind(splitsStorage);
+module.exports = function SplitChangesUpdater(settings, hub, storage) {
+  var sinceValueCache = { since: -1 };
 
-function splitChangesUpdater() {
+  return function updateSplits() {
     log('Updating splitChanges');
 
-    return splitChangesDataSource().then(function (splitsMutator) {
-        return splitsMutator(storage, update);
-    }).then(function () {
-        return storage;
+    return splitChangesDataSource(settings, sinceValueCache).then(function (splitsMutator) {
+      return splitsMutator(storage);
+    }).then(function (shouldUpdate) {
+      return shouldUpdate && hub.emit(hub.Event.SDK_UPDATE, storage);
+    }).catch(function (error) {
+      return hub.emit(hub.Event.SDK_UPDATE_ERROR, error);
     });
-}
-
-module.exports = splitChangesUpdater;
-//# sourceMappingURL=splitChanges.js.map
+  };
+};

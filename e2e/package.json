@@ -11,11 +11,11 @@
     "build": "./scripts/build.sh",
     "karma-local": "karma start local.karma.conf.js",
     "karma-sauce": "karma start sauce.karma.conf.js",
-    "watch": "babel es6 --out-dir lib --source-maps --watch"
+    "watch": "babel es6 --out-dir lib --watch"
   },
   "dependencies": {
-    "@splitsoftware/splitio": "4.0.1",
-    "@splitsoftware/splitio-utils": "4.0.1",
+    "@splitsoftware/splitio": "5.0.0",
+    "@splitsoftware/splitio-utils": "5.0.0",
     "babel-runtime": "^5.8.35",
     "core-js": "^1.2.6"
   },
@@ -37,9 +37,11 @@
     "karma-firefox-launcher": "^0.1.7",
     "karma-phantomjs-launcher": "^1.0.0",
     "karma-safari-launcher": "^0.1.1",
-    "karma-sauce-launcher": "^0.3.1",
+    "karma-sauce-launcher": "1.0.0",
     "karma-tap": "^1.0.4",
     "phantomjs-prebuilt": "^2.1.4",
+    "saucelabs": "^1.2.0",
+    "sauce-connect-launcher": "^0.14.0",
     "tape": "^4.4.0",
     "watchify": "^3.7.0"
   },

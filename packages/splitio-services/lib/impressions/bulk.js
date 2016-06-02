@@ -24,9 +24,8 @@ limitations under the License.
 
 var base = require('../request');
 
-module.exports = function BULK(params) {
-  return base('/testImpressions/bulk', (0, _assign2.default)({
+module.exports = function BULK(settings, params) {
+  return base(settings, '/testImpressions/bulk', (0, _assign2.default)({
     method: 'POST'
   }, params));
 };
-//# sourceMappingURL=bulk.js.map

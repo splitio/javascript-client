@@ -15,21 +15,21 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-
 var mySegmentsService = require('@splitsoftware/splitio-services/lib/mySegments');
 var mySegmentsRequest = require('@splitsoftware/splitio-services/lib/mySegments/get');
 
 var mySegmentMutationsFactory = require('../mutators/mySegments');
 
-function mySegmentsDataSource() {
-  return mySegmentsService(mySegmentsRequest()).then(function (resp) {
-    return resp.json();
-  }).then(function (json) {
-    return mySegmentMutationsFactory(json.mySegments.map(function (segment) {
-      return segment.name;
-    }));
-  }).catch(function () {});
+function mySegmentsDataSource(settings) {
+    return mySegmentsService(mySegmentsRequest(settings)).then(function (resp) {
+        return resp.json();
+    }).then(function (json) {
+        return mySegmentMutationsFactory(json.mySegments.map(function (segment) {
+            return segment.name;
+        }));
+    }).catch(function () {
+        return false;
+    });
 }
 
 module.exports = mySegmentsDataSource;
-//# sourceMappingURL=mySegments.js.map

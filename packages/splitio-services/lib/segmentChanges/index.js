@@ -17,4 +17,3 @@ limitations under the License.
 **/
 
 module.exports = require('../transport');
-//# sourceMappingURL=index.js.map

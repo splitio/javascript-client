@@ -55,4 +55,3 @@ tape('ENGINE / should evaluate always evaluate to true', function (assert) {
   assert.comment('Evaluation takes ' + (endTime - startTime) / 1000 + ' seconds');
   assert.end();
 });
-//# sourceMappingURL=index.spec.js.map

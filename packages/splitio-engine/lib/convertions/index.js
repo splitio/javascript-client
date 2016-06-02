@@ -30,4 +30,3 @@ module.exports = {
     zeroSinceSS: zeroSinceSS
   }
 };
-//# sourceMappingURL=index.js.map

@@ -21,19 +21,18 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-
-// Minimal settings required
-require('@splitsoftware/splitio-utils/lib/settings').configure({
+var SettingsFactory = require('@splitsoftware/splitio-utils/lib/settings');
+var settings = SettingsFactory({
   core: {
-    authorizationKey: 'asd'
+    authorizationKey: 'dummy-token'
   }
 });
+var url = settings.url.bind(settings);
 
-var greedyFetch = require('../../../../lib/ds/segmentChanges').greedyFetch.bind(null, -1);
+var greedyFetch = require('../../../../lib/ds/segmentChanges').greedyFetch.bind(null, settings, -1);
 var fetchMock = require('fetch-mock');
 
 var tape = require('tape');
-var url = require('@splitsoftware/splitio-utils/lib/url');
 
 tape('DS SEGMENT CHANGES / greedy fetch should download while since != till', function (assert) {
   var response1 = {
@@ -170,4 +169,3 @@ tape('DS SEGMENT CHANGES / greedy fetch stop fetching if one response fails', fu
     assert.end();
   });
 });
-//# sourceMappingURL=node.spec.js.map

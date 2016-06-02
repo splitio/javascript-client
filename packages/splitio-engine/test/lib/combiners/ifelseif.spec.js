@@ -72,4 +72,3 @@ tape('IF ELSE IF COMBINER / should return undefined if there is none matching ru
   assert.true(ifElseIfCombinerFactory(predicates)() === undefined);
   assert.end();
 });
-//# sourceMappingURL=ifelseif.spec.js.map

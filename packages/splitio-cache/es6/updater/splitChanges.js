@@ -13,21 +13,18 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-
 const log = require('debug')('splitio-cache:updater');
-
 const splitChangesDataSource = require('../ds/splitChanges');
 
-const storage = require('../storage');
-const splitsStorage = storage.splits;
-const update = splitsStorage.update.bind(splitsStorage);
+module.exports = function SplitChangesUpdater(settings, hub, storage) {
+  const sinceValueCache = {since: -1};
 
-function splitChangesUpdater() {
-  log('Updating splitChanges');
+  return function updateSplits() {
+    log('Updating splitChanges');
 
-  return splitChangesDataSource()
-    .then(splitsMutator => splitsMutator(storage, update))
-    .then(() => storage);
-}
-
-module.exports = splitChangesUpdater;
+    return splitChangesDataSource(settings, sinceValueCache)
+      .then(splitsMutator => splitsMutator(storage))
+      .then(shouldUpdate => shouldUpdate && hub.emit(hub.Event.SDK_UPDATE, storage))
+      .catch(error => hub.emit(hub.Event.SDK_UPDATE_ERROR, error));
+  };
+};

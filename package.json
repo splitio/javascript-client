@@ -1,7 +1,7 @@
 {
   "private": true,
   "license": "Apache-2",
-  "version": "4.0.1",
+  "version": "5.0.0",
   "scripts": {
     "lint": "./scripts/lint.sh",
     "install-all": "./scripts/install-all.sh",
@@ -11,6 +11,7 @@
     "expose-all": "./scripts/expose-all.sh",
     "clean-all": "./scripts/clean-all.sh",
     "canary-all": "./scripts/canary-all.sh",
-    "release-all": "./scripts/release-all.sh"
+    "release-all": "./scripts/release-all.sh",
+    "create-browser-release": "./scripts/create-browser-release.sh"
   }
 }

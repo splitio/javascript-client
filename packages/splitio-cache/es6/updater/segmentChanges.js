@@ -13,40 +13,26 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+const log = require('debug')('splitio-cache:updater');
 const segmentChangesDataSource = require('../ds/segmentChanges');
 
-const storage = require('../storage');
-const splitsStorage = storage.splits;
-const segmentsStorage = storage.segments;
-const getSegment = segmentsStorage.get.bind(segmentsStorage);
-const updateSegment = segmentsStorage.update.bind(segmentsStorage);
+module.exports = function SegmentChangesUpdater(settings, hub, storage) {
+  const sinceValuesCache = new Map();
 
-const log = require('debug')('splitio-cache:updater');
+  return function updateSegments() {
+    log('Updating segmentChanges');
 
-function segmentChangesUpdater() {
-  log('Updating segmentChanges');
+    const downloads = [...storage.splits.getSegments()].map(segmentName => {
+      return segmentChangesDataSource(settings, segmentName, sinceValuesCache).then(mutator => {
+        log(`completed download of ${segmentName}`);
 
-  let start = process.hrtime();
-
-  let downloads = [...splitsStorage.getSegments()].map(segmentName => {
-    return segmentChangesDataSource(segmentName).then(mutator => {
-      log(`completed download of ${segmentName}`);
-
-      if (typeof mutator === 'function') {
-        mutator(getSegment, updateSegment);
-      }
-
-      log(`completed mutations for ${segmentName}`);
+        return mutator(storage);
+      });
     });
-  });
 
-  return Promise.all(downloads).then(() => {
-    let end = process.hrtime(start);
-
-    log('updated finished after %s seconds', end[0]);
-  }).then(() => {
-    return storage;
-  });
-}
-
-module.exports = segmentChangesUpdater;
+    return Promise.all(downloads)
+      .then(shouldUpdates =>
+        (shouldUpdates.indexOf(true) !== -1) && hub.emit(hub.Event.SDK_UPDATE, storage)
+      ).catch((error) => hub.emit(hub.Event.SDK_UPDATE_ERROR, error));
+  };
+};

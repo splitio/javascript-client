@@ -21,23 +21,21 @@ var splitChangesRequest = require('@splitsoftware/splitio-services/lib/splitChan
 
 var splitMutatorFactory = require('../mutators/splitChanges');
 
-var since = -1;
-
-function splitChangesDataSource() {
-  return splitChangesService(splitChangesRequest({
-    since: since
-  })).then(function (resp) {
+function splitChangesDataSource(settings, sinceValueCache) {
+  return splitChangesService(splitChangesRequest(settings, sinceValueCache)).then(function (resp) {
     return resp.json();
   }).then(function (json) {
     var till = json.till;
     var splits = json.splits;
 
+    var shouldUpdate = sinceValueCache.since !== till;
 
-    since = till;
+    sinceValueCache.since = till;
 
-    return splitMutatorFactory(splits);
-  }).catch(function () {});
+    return splitMutatorFactory(shouldUpdate, splits);
+  }).catch(function () {
+    return false;
+  });
 }
 
 module.exports = splitChangesDataSource;
-//# sourceMappingURL=splitChanges.js.map

@@ -21,29 +21,24 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-
 require('isomorphic-fetch');
 
-var url = require('@splitsoftware/splitio-utils/lib/url');
-var settings = require('@splitsoftware/splitio-utils/lib/settings');
+var baseline = require('./options');
 
-var requestOptions = require('./options');
+function RequestFactory(settings, relativeUrl, params) {
+  var token = settings.get('authorizationKey');
+  var version = settings.get('version');
 
-function RequestFactory(relativeUrl, params) {
-  var apiToken = settings.get('authorizationKey');
-  var sdkVersion = settings.get('version');
-
-  return new Request(url(relativeUrl), (0, _assign2.default)({
+  return new Request(settings.url(relativeUrl), (0, _assign2.default)({
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + apiToken,
-      'SplitSDKVersion': '' + sdkVersion,
+      'Authorization': 'Bearer ' + token,
+      'SplitSDKVersion': '' + version,
       'Connection': 'keep-alive' // node-fetch requires this to correctly support keep-alive connections
     },
     compress: true
-  }, requestOptions, params));
+  }, baseline, params));
 }
 
 module.exports = RequestFactory;
-//# sourceMappingURL=index.js.map

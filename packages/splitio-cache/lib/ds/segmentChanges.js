@@ -8,10 +8,6 @@ var _promise = require('babel-runtime/core-js/promise');
 
 var _promise2 = _interopRequireDefault(_promise);
 
-var _map = require('babel-runtime/core-js/map');
-
-var _map2 = _interopRequireDefault(_map);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
@@ -34,10 +30,9 @@ var segmentChangesService = require('@splitsoftware/splitio-services/lib/segment
 var segmentChangesRequest = require('@splitsoftware/splitio-services/lib/segmentChanges/get');
 
 var segmentMutatorFactory = require('../mutators/segmentChanges');
-var cache = new _map2.default();
 
-function greedyFetch(since, segmentName) {
-  return segmentChangesService(segmentChangesRequest({
+function greedyFetch(settings, since, segmentName) {
+  return segmentChangesService(segmentChangesRequest(settings, {
     since: since,
     segmentName: segmentName
   })).then(function (resp) {
@@ -50,7 +45,7 @@ function greedyFetch(since, segmentName) {
     if (since === till) {
       return [json];
     } else {
-      return _promise2.default.all([json, greedyFetch(json.till, segmentName)]).then(function (flatMe) {
+      return _promise2.default.all([json, greedyFetch(settings, till, segmentName)]).then(function (flatMe) {
         return [flatMe[0]].concat((0, _toConsumableArray3.default)(flatMe[1]));
       });
     }
@@ -61,21 +56,20 @@ function greedyFetch(since, segmentName) {
   });
 }
 
-function segmentChangesDataSource(segmentName) {
-  var since = cache.get(segmentName) || -1;
+function segmentChangesDataSource(settings, segmentName, sinceValuesCache) {
+  var sinceValue = sinceValuesCache.get(segmentName) || -1;
 
-  return greedyFetch(since, segmentName).then(function (changes) {
+  return greedyFetch(settings, sinceValue, segmentName).then(function (changes) {
     var len = changes.length;
+    var shouldUpdate = !(len === 0 || len === 1 && changes[0].since === changes[0].till);
 
-    if (len > 0) {
-      cache.set(segmentName, changes[len - 1].till);
-
-      return segmentMutatorFactory(changes);
+    if (shouldUpdate) {
+      sinceValuesCache.set(segmentName, changes[len - 1].till);
     }
+
+    return segmentMutatorFactory(shouldUpdate, changes);
   });
 }
 
 module.exports = segmentChangesDataSource;
 module.exports.greedyFetch = greedyFetch;
-module.exports.cache = cache;
-//# sourceMappingURL=segmentChanges.js.map

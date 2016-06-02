@@ -47,4 +47,3 @@ SegmentsStorage.prototype.toJSON = function () {
 };
 
 module.exports = SegmentsStorage;
-//# sourceMappingURL=browser.js.map

@@ -36,4 +36,3 @@ tape('SEGMENTS STORAGE', function (assert) {
   assert.equal(storage.get(segmentName), segmentSet, 'should use the same instance');
   assert.end();
 });
-//# sourceMappingURL=node.spec.js.map

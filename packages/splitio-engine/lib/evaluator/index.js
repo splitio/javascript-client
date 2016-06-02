@@ -33,4 +33,3 @@ function evaluatorContext(matcherEvaluator /*: function */, treatments /*: Treat
 }
 
 module.exports = evaluatorContext;
-//# sourceMappingURL=index.js.map

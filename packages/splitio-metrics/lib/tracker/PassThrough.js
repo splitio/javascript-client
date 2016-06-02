@@ -23,4 +23,3 @@ function PassThrough(collector) {
 }
 
 module.exports = PassThrough;
-//# sourceMappingURL=PassThrough.js.map

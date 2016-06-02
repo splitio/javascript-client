@@ -37,4 +37,3 @@ tape('MATCHER WHITELIST / should return true ONLY when the key is defined', func
   assert.false(matcher('another key'), '"another key" should be false');
   assert.end();
 });
-//# sourceMappingURL=whitelist.spec.js.map

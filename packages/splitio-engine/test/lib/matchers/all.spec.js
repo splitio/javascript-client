@@ -31,4 +31,3 @@ tape('MATCHER ALL / should always return true', function (assert) {
   assert.true(matcher('another key'), '"another key" should be true');
   assert.end();
 });
-//# sourceMappingURL=all.spec.js.map

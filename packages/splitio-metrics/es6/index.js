@@ -13,7 +13,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-
 const SchedulerFactory = require('@splitsoftware/splitio-utils/lib/scheduler');
 
 const metricsService = require('@splitsoftware/splitio-services/lib/metrics');
@@ -30,49 +29,55 @@ const TimerFactory = require('./tracker/Timer');
 const SequentialCollector = require('./collector/sequential');
 const FibonacciCollector = require('./collector/fibonacci');
 
-const impressionsCollector = SequentialCollector();
-const getTreatmentCollector = FibonacciCollector();
+class Metrics {
+  constructor() {
+    this.impressionsCollector = SequentialCollector();
+    this.getTreatmentCollector = FibonacciCollector();
 
-const performanceScheduler = SchedulerFactory();
-const impressionsScheduler = SchedulerFactory();
+    this.performanceScheduler = SchedulerFactory();
+    this.impressionsScheduler = SchedulerFactory();
 
-function publishToTime() {
-  if (!getTreatmentCollector.isEmpty()) {
-    metricsService(metricsServiceRequest({
-      body: JSON.stringify(metricsDTO.fromGetTreatmentCollector(getTreatmentCollector))
-    })).then(resp => {
-      getTreatmentCollector.clear(); // once saved, cleanup the collector
-      return resp;
-    }).catch(() => {
-      getTreatmentCollector.clear(); // after try to save, cleanup the collector
-    });
+    this.impressions = PassThroughFactory(this.impressionsCollector);
+    this.getTreatment = TimerFactory(this.getTreatmentCollector);
   }
-}
 
-function publishToImpressions() {
-  if (!impressionsCollector.isEmpty()) {
-    impressionsService(impressionsBulkRequest({
-      body: JSON.stringify(impressionsDTO.fromImpressionsCollector(impressionsCollector))
-    })).then(resp => {
-      impressionsCollector.clear();
-      return resp;
-    }).catch(() => {
-      impressionsCollector.clear();
-    });
+  publishToTime(settings) {
+    if (!this.getTreatmentCollector.isEmpty()) {
+      metricsService(metricsServiceRequest(settings, {
+        body: JSON.stringify(metricsDTO.fromGetTreatmentCollector(this.getTreatmentCollector))
+      })).then(resp => {
+        this.getTreatmentCollector.clear();
+        return resp;
+      }).catch(() => {
+        this.getTreatmentCollector.clear();
+      });
+    }
   }
-}
 
-module.exports = {
+  publishToImpressions(settings) {
+    if (!this.impressionsCollector.isEmpty()) {
+      impressionsService(impressionsBulkRequest(settings, {
+        body: JSON.stringify(impressionsDTO.fromImpressionsCollector(this.impressionsCollector))
+      })).then(resp => {
+        this.impressionsCollector.clear();
+        return resp;
+      }).catch(() => {
+        this.impressionsCollector.clear();
+      });
+    }
+  }
+
   start(settings) {
-    performanceScheduler.forever(publishToTime, settings.get('metricsRefreshRate'));
-    impressionsScheduler.forever(publishToImpressions, settings.get('impressionsRefreshRate'));
-  },
+    this.performanceScheduler.forever(this.publishToTime.bind(this, settings),
+      settings.get('metricsRefreshRate'));
+    this.impressionsScheduler.forever(this.publishToImpressions.bind(this, settings),
+      settings.get('impressionsRefreshRate'));
+  }
 
   stop() {
-    performanceScheduler.kill();
-    impressionsScheduler.kill();
-  },
+    this.performanceScheduler.kill();
+    this.impressionsScheduler.kill();
+  }
+}
 
-  impressions: PassThroughFactory(impressionsCollector),
-  getTreatment: TimerFactory(getTreatmentCollector)
-};
+module.exports = Metrics;

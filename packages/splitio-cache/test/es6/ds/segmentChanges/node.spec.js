@@ -13,19 +13,18 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-
-// Minimal settings required
-require('@splitsoftware/splitio-utils/lib/settings').configure({
+const SettingsFactory = require('@splitsoftware/splitio-utils/lib/settings');
+const settings = SettingsFactory({
   core: {
-    authorizationKey: 'asd'
+    authorizationKey: 'dummy-token'
   }
 });
+const url = settings.url.bind(settings);
 
-const greedyFetch = require('../../../../lib/ds/segmentChanges').greedyFetch.bind(null, -1);
+const greedyFetch = require('../../../../lib/ds/segmentChanges').greedyFetch.bind(null, settings, -1);
 const fetchMock = require('fetch-mock');
 
 const tape = require('tape');
-const url = require('@splitsoftware/splitio-utils/lib/url');
 
 tape('DS SEGMENT CHANGES / greedy fetch should download while since != till', assert => {
   const response1 = {

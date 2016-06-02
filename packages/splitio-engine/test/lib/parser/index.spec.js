@@ -367,4 +367,3 @@ tape('PARSER / if user.attr = datetime 1458240947021 then split 100:on', functio
   assert.equal(evaluator('test@split.io', 31), undefined, 'missing attributes should be evaluated to false');
   assert.end();
 });
-//# sourceMappingURL=index.spec.js.map

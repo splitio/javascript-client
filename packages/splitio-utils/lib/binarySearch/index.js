@@ -51,4 +51,3 @@ function bs(items /*: array<number> */, value /*: number */) /*: number */{
 }
 
 module.exports = bs;
-//# sourceMappingURL=index.js.map

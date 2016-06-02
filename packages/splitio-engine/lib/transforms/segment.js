@@ -25,4 +25,3 @@ function transform() /*: object */ /*: string */{
 }
 
 module.exports = transform;
-//# sourceMappingURL=segment.js.map

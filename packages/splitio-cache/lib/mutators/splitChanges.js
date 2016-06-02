@@ -16,9 +16,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-var Split = require('@splitsoftware/splitio-engine');
-var parse = Split.parse;
-
 /*::
 type PartitionDTO = {
   treatment: string,
@@ -66,15 +63,17 @@ type SplitDTO = {
 type SplitDTOCollection = Array<SplitDTO>;
 */
 
-function SplitMutationsFactory(splits /*: SplitDTOCollection */) /*: Function */{
-  function splitMutations(storage, storageMutator /*: Function */) /*: void */{
-    storageMutator(splits.map(function (split) {
+var _require = require('@splitsoftware/splitio-engine');
+
+var parse = _require.parse;
+
+
+module.exports = function SplitMutationsFactory(shouldUpdate /*: bool */, splits /*: SplitDTOCollection */) /*: Function */{
+  return function splitMutations(storage /*: Object */) /*: void */{
+    storage.splits.update(splits.map(function (split) {
       return parse(split, storage);
     }));
-  }
 
-  return splitMutations;
-}
-
-module.exports = SplitMutationsFactory;
-//# sourceMappingURL=splitChanges.js.map
+    return shouldUpdate;
+  };
+};

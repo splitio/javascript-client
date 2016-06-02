@@ -38,4 +38,3 @@ tape('CONVERTIONS / zero since SS should change the date in a way we only have d
   assert.equal(zeroSinceSS(953683199000), 953683140000, '21 Mar 2000 23:59:59 UT should be transformed to 21 Mar 2000 23:59:00 UT');
   assert.end();
 });
-//# sourceMappingURL=index.spec.js.map

@@ -25,29 +25,31 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+var tape = require('tape');
 
-// Minimal settings required
-require('@splitsoftware/splitio-utils/lib/settings').configure({
+var SettingsFactory = require('@splitsoftware/splitio-utils/lib/settings');
+var settings = SettingsFactory({
   core: {
-    authorizationKey: 'asd'
+    authorizationKey: 'dummy-token'
   }
 });
 
-var storage = require('../../../../lib/storage');
+var EventsFactory = require('@splitsoftware/splitio-utils/lib/events');
+var hub = EventsFactory();
+
+var storage = require('../../../../lib/storage').createStorage();
+var segmentChangesUpdater = require('../../../../lib/updater/segmentChanges');
 
 // mock list of segments to be fetched
-storage.splits.getSegments = function () {
+storage.splits.getSegments = function getSegmentsMocked() {
   return new _set2.default(['segment_1', 'segment_2', 'segment_3']);
 };
 
-var segmentChangesUpdater = require('../../../../lib/updater/segmentChanges');
-
-var tape = require('tape');
-
 tape('UPDATER SEGMENT CHANGES / without backend it should not fail', function (assert) {
-  segmentChangesUpdater().then(function (storage) {
+  var updater = segmentChangesUpdater(settings, hub, storage);
+
+  updater().then(function () {
     assert.equal([].concat((0, _toConsumableArray3.default)(storage.segments.segmentNames())).length, 0);
     assert.end();
   });
 });
-//# sourceMappingURL=node.spec.js.map

@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio-cache",
-  "version": "4.0.1",
+  "version": "5.0.0",
   "description": "Split Cache",
   "author": "Facundo Cabrera <facundo@split.io>",
   "homepage": "https://github.com/splitio/javascript-client",
@@ -9,18 +9,17 @@
     "type": "git",
     "url": "https://github.com/splitio/javascript-client/tree/master/packages/splitio-cache"
   },
-  "main": "lib/node.js",
-  "browser": "lib/browser.js",
+  "main": "lib/index.js",
   "scripts": {
     "build": "./scripts/build.sh",
-    "watch": "babel es6 --out-dir lib --source-maps --watch",
-    "watch-test": "babel test/es6 --out-dir test/lib --source-maps --watch",
+    "watch": "babel es6 --out-dir lib --watch",
+    "watch-test": "babel test/es6 --out-dir test/lib --watch",
     "test": "istanbul test tape -- 'test/lib/**/!(browser).spec.js'",
     "karma-local": "karma start local.karma.conf.js",
     "karma-sauce": "karma start sauce.karma.conf.js"
   },
   "devDependencies": {
-    "@splitsoftware/splitio-utils": "4.0.1",
+    "@splitsoftware/splitio-utils": "5.0.0",
     "babel-cli": "^6.3.17",
     "babel-plugin-syntax-object-rest-spread": "^6.3.13",
     "babel-plugin-transform-object-rest-spread": "^6.3.13",
@@ -52,8 +51,8 @@
     "sdk"
   ],
   "dependencies": {
-    "@splitsoftware/splitio-engine": "4.0.1",
-    "@splitsoftware/splitio-services": "4.0.1",
+    "@splitsoftware/splitio-engine": "5.0.0",
+    "@splitsoftware/splitio-services": "5.0.0",
     "babel-runtime": "^5.8.35",
     "core-js": "^1.2.6",
     "debug": "^2.2.0"

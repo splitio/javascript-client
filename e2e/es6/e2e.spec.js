@@ -22,15 +22,20 @@ const Split = global.splitio;
 const fetchMock = require('fetch-mock');
 
 const tape = require('tape');
-const url = require('@splitsoftware/splitio-utils/lib/url');
+const SettingsFactory = require('@splitsoftware/splitio-utils/lib/settings');
+const settings = SettingsFactory({
+  core: {
+    authorizationKey: 'dummy-token'
+  }
+});
 
 const splitChangesMock1 = require('./mocks/splitchanges.since.-1.json');
 const splitChangesMock2 = require('./mocks/splitchanges.since.1457552620999.json');
 const mySegmentsMock = require('./mocks/mysegments.facundo@split.io.json');
 
-fetchMock.mock(url(`/splitChanges?since=-1`), splitChangesMock1);
-fetchMock.mock(url(`/splitChanges?since=1457552620999`), splitChangesMock2);
-fetchMock.mock(url(`/mySegments/facundo@split.io`), mySegmentsMock);
+fetchMock.mock(settings.url(`/splitChanges?since=-1`), splitChangesMock1);
+fetchMock.mock(settings.url(`/splitChanges?since=1457552620999`), splitChangesMock2);
+fetchMock.mock(settings.url(`/mySegments/facundo@split.io`), mySegmentsMock);
 
 tape('E2E', assert => {
   const sdk = Split({

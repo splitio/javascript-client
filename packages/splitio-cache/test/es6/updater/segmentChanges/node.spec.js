@@ -13,29 +13,31 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+const tape = require('tape');
 
-// Minimal settings required
-require('@splitsoftware/splitio-utils/lib/settings').configure({
+const SettingsFactory = require('@splitsoftware/splitio-utils/lib/settings');
+const settings = SettingsFactory({
   core: {
-    authorizationKey: 'asd'
+    authorizationKey: 'dummy-token'
   }
 });
 
-const storage = require('../../../../lib/storage');
+const EventsFactory = require('@splitsoftware/splitio-utils/lib/events');
+const hub = EventsFactory();
+
+const storage = require('../../../../lib/storage').createStorage();
+const segmentChangesUpdater = require('../../../../lib/updater/segmentChanges');
 
 // mock list of segments to be fetched
-storage.splits.getSegments = function () {
+storage.splits.getSegments = function getSegmentsMocked() {
   return new Set(['segment_1', 'segment_2', 'segment_3']);
 };
 
-const segmentChangesUpdater = require('../../../../lib/updater/segmentChanges');
-
-const tape = require('tape');
-
 tape('UPDATER SEGMENT CHANGES / without backend it should not fail', assert => {
-  segmentChangesUpdater()
-    .then((storage) => {
-      assert.equal([...storage.segments.segmentNames()].length, 0);
-      assert.end();
-    });
+  const updater = segmentChangesUpdater(settings, hub, storage);
+
+  updater().then(() => {
+    assert.equal([...storage.segments.segmentNames()].length, 0);
+    assert.end();
+  });
 });

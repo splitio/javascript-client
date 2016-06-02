@@ -14,4 +14,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-module.exports = global.splitio = require('./factory');
+const onlineFactory = require('./sdk/online');
+const offlineFactory = require('./sdk/offline');
+
+const browserDecorator = require('./decorators/browser');
+
+function factory(settings) {
+  return browserDecorator(
+    settings,
+    (settings && settings.core && settings.core.authorizationKey === 'localhost')
+      ? offlineFactory(settings)
+      : onlineFactory(settings)
+  );
+}
+
+global.splitio = module.exports = factory;

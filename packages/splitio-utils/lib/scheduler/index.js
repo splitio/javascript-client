@@ -43,4 +43,3 @@ function SchedulerFactory() {
 }
 
 module.exports = SchedulerFactory;
-//# sourceMappingURL=index.js.map

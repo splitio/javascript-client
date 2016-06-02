@@ -13,15 +13,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-
-let now = require('@splitsoftware/splitio-utils/lib/now');
+const now = require('@splitsoftware/splitio-utils/lib/now');
 
 function Timer(collector) {
   return function start() {
-    let st = now();
+    const st = now();
 
     return function stop() {
-      let et = now() - st;
+      const et = now() - st;
 
       collector.track(et);
 

@@ -90,4 +90,3 @@ SplitsStorage.prototype.toJSON = function () /*: Map */{
 };
 
 module.exports = SplitsStorage;
-//# sourceMappingURL=index.js.map

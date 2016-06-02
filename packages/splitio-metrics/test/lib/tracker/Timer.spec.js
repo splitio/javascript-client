@@ -32,4 +32,3 @@ tape('TRACKER / calling start() and stop() should store and entry inside the col
     assert.end();
   }, 5);
 });
-//# sourceMappingURL=Timer.spec.js.map

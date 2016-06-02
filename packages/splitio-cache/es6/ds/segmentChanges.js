@@ -18,10 +18,9 @@ const segmentChangesService = require('@splitsoftware/splitio-services/lib/segme
 const segmentChangesRequest = require('@splitsoftware/splitio-services/lib/segmentChanges/get');
 
 const segmentMutatorFactory = require('../mutators/segmentChanges');
-const cache = new Map();
 
-function greedyFetch(since, segmentName) {
-  return segmentChangesService(segmentChangesRequest({
+function greedyFetch(settings, since, segmentName) {
+  return segmentChangesService(segmentChangesRequest(settings, {
     since,
     segmentName
   }))
@@ -32,10 +31,7 @@ function greedyFetch(since, segmentName) {
     if (since === till) {
       return [json];
     } else {
-      return Promise.all([
-        json,
-        greedyFetch(json.till, segmentName)
-      ]).then(flatMe => {
+      return Promise.all([json, greedyFetch(settings, till, segmentName)]).then(flatMe => {
         return [flatMe[0], ...flatMe[1]];
       });
     }
@@ -47,20 +43,20 @@ function greedyFetch(since, segmentName) {
   });
 }
 
-function segmentChangesDataSource(segmentName) {
-  const since = cache.get(segmentName) || -1;
+function segmentChangesDataSource(settings, segmentName, sinceValuesCache) {
+  const sinceValue = sinceValuesCache.get(segmentName) || -1;
 
-  return greedyFetch(since, segmentName).then((changes) => {
-    let len = changes.length;
+  return greedyFetch(settings, sinceValue, segmentName).then((changes) => {
+    const len = changes.length;
+    const shouldUpdate = !(len === 0 || len === 1 && changes[0].since === changes[0].till);
 
-    if (len > 0) {
-      cache.set(segmentName, changes[len - 1].till);
-
-      return segmentMutatorFactory(changes);
+    if (shouldUpdate) {
+      sinceValuesCache.set(segmentName, changes[len - 1].till);
     }
+
+    return segmentMutatorFactory(shouldUpdate, changes);
   });
 }
 
 module.exports = segmentChangesDataSource;
 module.exports.greedyFetch = greedyFetch;
-module.exports.cache = cache;

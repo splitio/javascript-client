@@ -26,4 +26,3 @@ function transform(whitelistObject /*: Object */) /*: Set */{
 }
 
 module.exports = transform;
-//# sourceMappingURL=whitelist.js.map

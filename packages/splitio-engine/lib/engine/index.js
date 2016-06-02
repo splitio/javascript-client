@@ -34,4 +34,3 @@ var engine = {
 };
 
 module.exports = engine;
-//# sourceMappingURL=index.js.map

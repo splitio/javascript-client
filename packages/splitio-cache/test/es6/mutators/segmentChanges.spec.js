@@ -13,31 +13,26 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-
-let tape = require('tape');
-let segmentChangesMutatorFactory = require('../../../lib/mutators/segmentChanges');
+const tape = require('tape');
+const SegmentsStorage = require('../../../lib/storage/segments/node');
+const MutatorFactory = require('../../../lib/mutators/segmentChanges');
 
 tape('Segment Changes', assert => {
-  let segmentChanges = {
+  const segmentChanges = {
     name: 'test-segment',
     added: ['a', 'b', 'c'],
     removed: ['d', 'e', 'f']
   };
 
-  let segmentsStorage = new Map().set('test-segment', new Set(['d', 'e', 'f']));
-  function storageMutator(segmentName, segmentSet) {
-    segmentsStorage.set(segmentName, segmentSet);
-  }
-  function storageAccesor(segmentName) {
-    return segmentsStorage.get(segmentName);
-  }
+  const segments = new SegmentsStorage;
+  segments.update('test-segment', new Set(['d', 'e', 'f']));
 
-  let mutator = segmentChangesMutatorFactory([segmentChanges]);
-  mutator(storageAccesor, storageMutator);
+  const shouldUpdate = true;
 
-  assert.deepEqual(
-    [...storageAccesor('test-segment')],
-    segmentChanges.added,
+  const mutator = MutatorFactory(shouldUpdate, [segmentChanges]);
+  mutator({segments});
+
+  assert.deepEqual([...segments.get('test-segment')], segmentChanges.added,
     'We should only have [a, b, c]'
   );
   assert.end();

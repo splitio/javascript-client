@@ -15,19 +15,25 @@ limitations under the License.
 **/
 
 /*::
-  type Settings = {
-    core: {
-      authorizationKey: string,
-      key: ?string
-    },
-    scheduler: {
-      featuresRefreshRate: number,
-      segmentsRefreshRate: number,
-      metricsRefreshRate: number,
-      impressionsRefreshRate: number
-    }
-  };
+type Settings = {
+  core: {
+    authorizationKey: string,
+    key: ?string
+  },
+  scheduler: {
+    featuresRefreshRate: number,
+    segmentsRefreshRate: number,
+    metricsRefreshRate: number,
+    impressionsRefreshRate: number
+  },
+  urls: {
+    sdk: string,
+    events: string
+  }
+};
 */
+const eventsEndpointMatcher = /\/(testImpressions|metrics)/;
+
 function defaults(custom /*: Settings */) /*: Settings */ {
   let init = {
     core: {
@@ -40,11 +46,9 @@ function defaults(custom /*: Settings */) /*: Settings */ {
       metricsRefreshRate:     60, // 60 sec
       impressionsRefreshRate: 60  // 60 sec
     },
-    // NodeJS specific settings
-    node: {
-      http: {
-        poolSize: 6
-      }
+    urls: {
+      sdk: 'https://sdk.split.io/api',
+      events: 'https://events.split.io/api'
     }
   };
 
@@ -79,37 +83,37 @@ function defaults(custom /*: Settings */) /*: Settings */ {
   return final;
 }
 
-let settings;
-
-module.exports = {
-  configure(params) {
-    settings = defaults(params);
-
-    return this;
+const proto = {
+  get(name) {
+    switch (name) {
+      case 'version':
+        return 'javascript-5.0.0';
+      case 'authorizationKey':
+        return this.core.authorizationKey;
+      case 'key':
+        return this.core.key;
+      case 'featuresRefreshRate':
+        return this.scheduler.featuresRefreshRate;
+      case 'segmentsRefreshRate':
+        return this.scheduler.segmentsRefreshRate;
+      case 'metricsRefreshRate':
+        return this.scheduler.metricsRefreshRate;
+      case 'impressionsRefreshRate':
+        return this.scheduler.impressionsRefreshRate;
+      default:
+        return this[name];
+    }
   },
 
-  get(settingName) {
-    if (settings === undefined) {
-      throw Error('Asked for configurations before they were defined');
+  url(target) {
+    if (eventsEndpointMatcher.test(target)) {
+      return `${this.urls.events}${target}`;
     }
 
-    switch (settingName) {
-      case 'version':
-        return 'javascript-4.0.1';
-      case 'authorizationKey':
-        return settings.core.authorizationKey;
-      case 'key':
-        return settings.core.key;
-      case 'featuresRefreshRate':
-        return settings.scheduler.featuresRefreshRate;
-      case 'segmentsRefreshRate':
-        return settings.scheduler.segmentsRefreshRate;
-      case 'metricsRefreshRate':
-        return settings.scheduler.metricsRefreshRate;
-      case 'impressionsRefreshRate':
-        return settings.scheduler.impressionsRefreshRate;
-      default:
-        return settings[settingName];
-    }
+    return `${this.urls.sdk}${target}`;
   }
+};
+
+module.exports = function CreateSettings(settings) {
+  return Object.assign(Object.create(proto), defaults(settings));
 };

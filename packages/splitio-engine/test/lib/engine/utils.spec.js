@@ -51,4 +51,3 @@ tape('ENGINE / validate hashing behavior using sample data', function (assert) {
 
   fs.createReadStream(require.resolve('./mocks/small-data.csv')).pipe(parser);
 });
-//# sourceMappingURL=utils.spec.js.map

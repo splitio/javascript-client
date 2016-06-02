@@ -130,4 +130,3 @@ tape('BINARY SEARCH / run test using float keys', function (assert) {
 
   assert.end();
 });
-//# sourceMappingURL=index.spec.js.map

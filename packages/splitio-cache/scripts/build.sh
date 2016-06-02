@@ -24,13 +24,13 @@ rm -rf lib/
 rm -rf test/lib/
 
 # Regenerate lib directory
-./node_modules/.bin/babel es6 --out-dir lib --source-maps
+./node_modules/.bin/babel es6 --out-dir lib
 cd es6
 find . -name *.json | xargs -J % gcp --parents % ../lib/
 cd -
 
 # Regenerate test/lib directory
-./node_modules/.bin/babel test/es6 --out-dir test/lib --source-maps
+./node_modules/.bin/babel test/es6 --out-dir test/lib
 cd test/es6
 find . -name *.json | xargs -J % gcp --parents % ../lib/
 find . -name *.csv | xargs -J % gcp --parents % ../lib/

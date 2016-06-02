@@ -13,21 +13,16 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-
 const log = require('debug')('splitio-cache:updater');
-
 const mySegmentsDataSource = require('../ds/mySegments');
 
-const storage = require('../storage');
-const segmentsStorage = storage.segments;
-const update = segmentsStorage.update.bind(segmentsStorage);
+module.exports = function MySegmentsUpdater(settings, hub, storage) {
+  return function updateMySegments() {
+    log('Updating mySegments');
 
-function mySegmentsUpdater() {
-  log('Updating mySegments');
-
-  return mySegmentsDataSource()
-    .then(segmentsMutator => segmentsMutator(update))
-    .then(() => storage);
-}
-
-module.exports = mySegmentsUpdater;
+    return mySegmentsDataSource(settings)
+      .then(segmentsMutator => segmentsMutator(storage))
+      .then(shouldUpdate => shouldUpdate && hub.emit(hub.Event.SDK_UPDATE, storage))
+      .catch(error => hub.emit(hub.Event.SDK_UPDATE_ERROR, error));
+  };
+};

@@ -1,5 +1,9 @@
 'use strict';
 
+var _create = require('babel-runtime/core-js/object/create');
+
+var _create2 = _interopRequireDefault(_create);
+
 var _assign = require('babel-runtime/core-js/object/assign');
 
 var _assign2 = _interopRequireDefault(_assign);
@@ -23,19 +27,25 @@ limitations under the License.
 **/
 
 /*::
-  type Settings = {
-    core: {
-      authorizationKey: string,
-      key: ?string
-    },
-    scheduler: {
-      featuresRefreshRate: number,
-      segmentsRefreshRate: number,
-      metricsRefreshRate: number,
-      impressionsRefreshRate: number
-    }
-  };
+type Settings = {
+  core: {
+    authorizationKey: string,
+    key: ?string
+  },
+  scheduler: {
+    featuresRefreshRate: number,
+    segmentsRefreshRate: number,
+    metricsRefreshRate: number,
+    impressionsRefreshRate: number
+  },
+  urls: {
+    sdk: string,
+    events: string
+  }
+};
 */
+var eventsEndpointMatcher = /\/(testImpressions|metrics)/;
+
 function defaults(custom /*: Settings */) /*: Settings */{
   var init = {
     core: {
@@ -48,11 +58,9 @@ function defaults(custom /*: Settings */) /*: Settings */{
       metricsRefreshRate: 60, // 60 sec
       impressionsRefreshRate: 60 // 60 sec
     },
-    // NodeJS specific settings
-    node: {
-      http: {
-        poolSize: 6
-      }
+    urls: {
+      sdk: 'https://sdk.split.io/api',
+      events: 'https://events.split.io/api'
     }
   };
 
@@ -87,37 +95,36 @@ function defaults(custom /*: Settings */) /*: Settings */{
   return final;
 }
 
-var settings = void 0;
-
-module.exports = {
-  configure: function configure(params) {
-    settings = defaults(params);
-
-    return this;
-  },
-  get: function get(settingName) {
-    if (settings === undefined) {
-      throw Error('Asked for configurations before they were defined');
-    }
-
-    switch (settingName) {
+var proto = {
+  get: function get(name) {
+    switch (name) {
       case 'version':
-        return 'javascript-4.0.1';
+        return 'javascript-5.0.0';
       case 'authorizationKey':
-        return settings.core.authorizationKey;
+        return this.core.authorizationKey;
       case 'key':
-        return settings.core.key;
+        return this.core.key;
       case 'featuresRefreshRate':
-        return settings.scheduler.featuresRefreshRate;
+        return this.scheduler.featuresRefreshRate;
       case 'segmentsRefreshRate':
-        return settings.scheduler.segmentsRefreshRate;
+        return this.scheduler.segmentsRefreshRate;
       case 'metricsRefreshRate':
-        return settings.scheduler.metricsRefreshRate;
+        return this.scheduler.metricsRefreshRate;
       case 'impressionsRefreshRate':
-        return settings.scheduler.impressionsRefreshRate;
+        return this.scheduler.impressionsRefreshRate;
       default:
-        return settings[settingName];
+        return this[name];
     }
+  },
+  url: function url(target) {
+    if (eventsEndpointMatcher.test(target)) {
+      return '' + this.urls.events + target;
+    }
+
+    return '' + this.urls.sdk + target;
   }
 };
-//# sourceMappingURL=index.js.map
+
+module.exports = function CreateSettings(settings) {
+  return (0, _assign2.default)((0, _create2.default)(proto), defaults(settings));
+};

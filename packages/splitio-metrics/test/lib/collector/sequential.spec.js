@@ -46,4 +46,3 @@ tape('SEQUENTIAL COLLECTOR / should support custom toJSON method', function (ass
   assert.true(hooked === manual, 'toJSON should expose the counters as an array of numbers');
   assert.end();
 });
-//# sourceMappingURL=sequential.spec.js.map

@@ -64,4 +64,3 @@ function factory(matcherDto /*: MatcherDTO */, storage /*: Storage */) /*:? func
 }
 
 module.exports = factory;
-//# sourceMappingURL=index.js.map

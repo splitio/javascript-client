@@ -56,4 +56,3 @@ tape('SCHEDULER / multiple calls to kill should not throw an error', function (a
   assert.true(counter === 2, 'task should be called 2 times');
   assert.end();
 });
-//# sourceMappingURL=index.spec.js.map

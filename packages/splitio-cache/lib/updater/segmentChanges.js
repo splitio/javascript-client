@@ -8,6 +8,10 @@ var _toConsumableArray2 = require('babel-runtime/helpers/toConsumableArray');
 
 var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);
 
+var _map = require('babel-runtime/core-js/map');
+
+var _map2 = _interopRequireDefault(_map);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
@@ -25,41 +29,27 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+var log = require('debug')('splitio-cache:updater');
 var segmentChangesDataSource = require('../ds/segmentChanges');
 
-var storage = require('../storage');
-var splitsStorage = storage.splits;
-var segmentsStorage = storage.segments;
-var getSegment = segmentsStorage.get.bind(segmentsStorage);
-var updateSegment = segmentsStorage.update.bind(segmentsStorage);
+module.exports = function SegmentChangesUpdater(settings, hub, storage) {
+  var sinceValuesCache = new _map2.default();
 
-var log = require('debug')('splitio-cache:updater');
+  return function updateSegments() {
+    log('Updating segmentChanges');
 
-function segmentChangesUpdater() {
-  log('Updating segmentChanges');
+    var downloads = [].concat((0, _toConsumableArray3.default)(storage.splits.getSegments())).map(function (segmentName) {
+      return segmentChangesDataSource(settings, segmentName, sinceValuesCache).then(function (mutator) {
+        log('completed download of ' + segmentName);
 
-  var start = process.hrtime();
-
-  var downloads = [].concat((0, _toConsumableArray3.default)(splitsStorage.getSegments())).map(function (segmentName) {
-    return segmentChangesDataSource(segmentName).then(function (mutator) {
-      log('completed download of ' + segmentName);
-
-      if (typeof mutator === 'function') {
-        mutator(getSegment, updateSegment);
-      }
-
-      log('completed mutations for ' + segmentName);
+        return mutator(storage);
+      });
     });
-  });
 
-  return _promise2.default.all(downloads).then(function () {
-    var end = process.hrtime(start);
-
-    log('updated finished after %s seconds', end[0]);
-  }).then(function () {
-    return storage;
-  });
-}
-
-module.exports = segmentChangesUpdater;
-//# sourceMappingURL=segmentChanges.js.map
+    return _promise2.default.all(downloads).then(function (shouldUpdates) {
+      return shouldUpdates.indexOf(true) !== -1 && hub.emit(hub.Event.SDK_UPDATE, storage);
+    }).catch(function (error) {
+      return hub.emit(hub.Event.SDK_UPDATE_ERROR, error);
+    });
+  };
+};
