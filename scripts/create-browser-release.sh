@@ -26,8 +26,15 @@ RELEASE_DIR=browser-release
 if [ "$CI_BRANCH" == "master" ]; then
 
   mkdir -p $RELEASE_DIR
-  cd $RELEASE_DIR
-  npm install @splitsoftware/splitio-browser
+  cd "$RELEASE_DIR"
+
+  # hack npm install behaviour
+  ## it looks up for a package.json choose where install
+  echo '{ "name": "bundler", "version": "1.0.0" }' > package.json
+
+  npm install --save @splitsoftware/splitio-browser
+
+  # generate splitio folder with the bundle
   node node_modules/.bin/splitio-bundler
 
 fi
