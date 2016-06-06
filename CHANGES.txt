@@ -1,3 +1,61 @@
+## 5.0.0 (June 6, 2016)
+
+* Added support for multiple instances.
+
+  ```html
+  <script src="//cdn.split.io/sdk/split-5.0.0.min.js"></script>
+  <script>
+    // instanciation
+    var dynamic1 = splitio({
+      core: {
+        authorizationKey: '<your-token>',
+        key: 'myuser@domain.com'
+      }
+    });
+
+    var dynamic2 = splitio({
+      core: {
+        authorizationKey: '<your-token>',
+        key: 'annoy@domain.com'
+      }
+    });
+
+    // usage
+    var t1 = dynamic1.getTreatment('split-name');
+    var t2 = dynamic2.getTreatment('another-split-name');
+
+    // stop SDK
+    dynamic1.destroy();
+    dynamic2.destroy();
+
+    // unreference
+    dynamic1 = null;
+    dynamic2 = null;
+  </script>
+  ```
+
+* SDK instances inherit from EventEmitter.
+
+  ```html
+  <script src="//cdn.split.io/sdk/split-5.0.0.min.js"></script>
+  <script>
+    var sdk = splitio({
+      core: {
+        authorizationKey: '<your-token>',
+        key: 'myuser@domain.com'
+      }
+    });
+
+    sdk.on(sdk.Event.SDK_READY, function sdkReadyEvent() {
+      // This event will be fired once
+    });
+
+    sdk.on(sdk.Event.SDK_UPDATE, function sdkUpdateEvent() {
+      // This event will be fired each time the SDK downloads an update
+    });
+  </script>
+  ```
+
 ## 4.0.0 (April 13, 2016)
 
 * No more url changes required to switch to development mode.

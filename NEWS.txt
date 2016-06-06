@@ -1,3 +1,11 @@
+## 5.0.0 (June 6, 2016)
+
+* Added support for multiple instances. Now we can call the SDK factory multiple
+  times.
+* SDK instances inherit from EventEmitter. For now we only notifies state changes
+  so you could ask the instance to evaluates `getTreatment` to reflect changes
+  in your system.
+
 ## 4.0.0 (April 13, 2016)
 
 * Refactored offline mode. No more url changes required to switch to development
