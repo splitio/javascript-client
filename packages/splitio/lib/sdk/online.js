@@ -46,9 +46,13 @@ function onlineFactory(params /*: object */) /*: object */{
   var storageReadyPromise = void 0;
 
   storageReadyPromise = cache.start().then(function (_storage) {
-    storage = _storage;
+    return storage = _storage;
   }).catch(function () {
-    storage = undefined;
+    return storage = undefined;
+  }).then(function () {
+    hub.emit(Event.SDK_READY, storage);
+
+    return storage;
   });
 
   metrics.start(settings);
@@ -91,11 +95,7 @@ function onlineFactory(params /*: object */) /*: object */{
       return treatment;
     },
     ready: function ready() /*: Promise */{
-      var _this = this;
-
-      return storageReadyPromise.then(function () {
-        return _this.emit(Event.SDK_READY, storage);
-      });
+      return storageReadyPromise;
     },
     destroy: function destroy() {
       hub.removeAllListeners();

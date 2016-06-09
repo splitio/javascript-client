@@ -72,13 +72,18 @@ Split.prototype.getTreatment = function getTreatment(key, attributes) {
   var defaultTreatment = _baseInfo.defaultTreatment;
 
 
-  if (killed) {
-    return defaultTreatment;
-  } else {
-    var treatment = this.evaluator(key, seed, attributes);
+  var treatment = void 0;
 
-    return treatment !== undefined ? treatment : defaultTreatment;
+  if (this.isGarbage()) {
+    treatment = 'control';
+  } else if (killed) {
+    treatment = defaultTreatment;
+  } else {
+    treatment = this.evaluator(key, seed, attributes);
+    treatment = treatment !== undefined ? treatment : defaultTreatment;
   }
+
+  return treatment;
 };
 
 Split.prototype.isGarbage = function isGarbage() {

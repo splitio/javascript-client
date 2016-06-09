@@ -99,7 +99,7 @@ var proto = {
   get: function get(name) {
     switch (name) {
       case 'version':
-        return 'javascript-5.0.0';
+        return 'javascript-5.1.0';
       case 'authorizationKey':
         return this.core.authorizationKey;
       case 'key':

@@ -1,12 +1,16 @@
-'use strict';
+"use strict";
 
-var _toConsumableArray2 = require('babel-runtime/helpers/toConsumableArray');
-
-var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);
-
-var _set = require('babel-runtime/core-js/set');
+var _set = require("babel-runtime/core-js/set");
 
 var _set2 = _interopRequireDefault(_set);
+
+var _classCallCheck2 = require("babel-runtime/helpers/classCallCheck");
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = require("babel-runtime/helpers/createClass");
+
+var _createClass3 = _interopRequireDefault(_createClass2);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -26,24 +30,30 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-var log = require('debug')('splitio-cache:segments');
+var SegmentsStorage = function () {
+  function SegmentsStorage() {
+    (0, _classCallCheck3.default)(this, SegmentsStorage);
 
-function SegmentsStorage() {
-  this.storage = new _set2.default();
-}
+    this.storage = new _set2.default();
+  }
 
-SegmentsStorage.prototype.update = function (segments /*: Set */) /*: void */{
-  log('Updating my segments list with [' + [].concat((0, _toConsumableArray3.default)(segments)) + ']');
-
-  this.storage = segments;
-};
-
-SegmentsStorage.prototype.has = function (name /*: string */) /*: boolean */{
-  return this.storage.has(name);
-};
-
-SegmentsStorage.prototype.toJSON = function () {
-  return this.storage;
-};
+  (0, _createClass3.default)(SegmentsStorage, [{
+    key: "update",
+    value: function update(segments /*: Set */) /*: void */{
+      this.storage = segments;
+    }
+  }, {
+    key: "has",
+    value: function has(name /*: string */) /*: boolean */{
+      return this.storage.has(name);
+    }
+  }, {
+    key: "toJSON",
+    value: function toJSON() {
+      return this.storage.toJSON();
+    }
+  }]);
+  return SegmentsStorage;
+}();
 
 module.exports = SegmentsStorage;

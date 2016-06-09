@@ -13,39 +13,40 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-function SplitsStorage() {
-  this.storage = new Map();
-}
-
-SplitsStorage.prototype.update = function (updates /*: Array<Split> */) /*: void */ {
-
-  updates.forEach(split => {
-    if (!split.isGarbage()) {
-      this.storage.set(split.getKey(), split);
-    } else {
-      this.storage.delete(split.getKey());
-    }
-  });
-
-};
-
-SplitsStorage.prototype.get = function (splitName /*: string */) /*:? Split */ {
-  return this.storage.get(splitName);
-};
-
-// @TODO optimize this query to be cached after each update
-SplitsStorage.prototype.getSegments = function () /*: Set */ {
-  let mergedSegmentNames = new Set();
-
-  for (let split of this.storage.values()) {
-    mergedSegmentNames = new Set([...mergedSegmentNames, ...(split.getSegments())]);
+class SplitsStorage {
+  constructor() {
+    this.storage = new Map();
   }
 
-  return mergedSegmentNames;
-};
+  update(updates /*: Array<Split> */) /*: void */ {
+    // I'm not deleting splits because we should continue updating segments
+    // doesn't matter if:
+    // 1- no more splits reference to the segment
+    // 2- the user delete the segment on the server
+    //
+    // Basically we are keeping garbage till we restart the SDK.
+    for (let split of updates) {
+      this.storage.set(split.getKey(), split);
+    }
+  }
 
-SplitsStorage.prototype.toJSON = function () /*: Map */ {
-  return this.storage;
-};
+  get(splitKey /*: string */) /*:? Split */ {
+    return this.storage.get(splitKey);
+  }
+
+  getSegments() /*: Set */ {
+    let mergedSegmentNames = new Set();
+
+    for (const split of this.storage.values()) {
+      mergedSegmentNames = new Set([...mergedSegmentNames, ...(split.getSegments())]);
+    }
+
+    return mergedSegmentNames;
+  }
+
+  toJSON() /*: string */ {
+    return this.storage.toJSON();
+  }
+}
 
 module.exports = SplitsStorage;

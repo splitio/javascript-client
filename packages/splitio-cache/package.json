@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio-cache",
-  "version": "5.0.0",
+  "version": "5.1.0",
   "description": "Split Cache",
   "author": "Facundo Cabrera <facundo@split.io>",
   "homepage": "https://github.com/splitio/javascript-client",
@@ -50,9 +50,9 @@
     "sdk"
   ],
   "dependencies": {
-    "@splitsoftware/splitio-utils": "5.0.0",
-    "@splitsoftware/splitio-engine": "5.0.0",
-    "@splitsoftware/splitio-services": "5.0.0",
+    "@splitsoftware/splitio-utils": "5.1.0",
+    "@splitsoftware/splitio-engine": "5.1.0",
+    "@splitsoftware/splitio-services": "5.1.0",
     "babel-runtime": "^6.9.0",
     "core-js": "^2.4.0",
     "debug": "^2.2.0"
