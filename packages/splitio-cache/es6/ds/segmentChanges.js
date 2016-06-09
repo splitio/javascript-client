@@ -19,9 +19,9 @@ const segmentChangesRequest = require('@splitsoftware/splitio-services/lib/segme
 
 const segmentMutatorFactory = require('../mutators/segmentChanges');
 
-function greedyFetch(settings, since, segmentName) {
+function greedyFetch(settings, lastSinceValue, segmentName) {
   return segmentChangesService(segmentChangesRequest(settings, {
-    since,
+    since: lastSinceValue,
     segmentName
   }))
   .then(resp => resp.json())
