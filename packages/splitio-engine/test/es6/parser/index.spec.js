@@ -13,7 +13,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-
 const parser = require('../../../lib/parser');
 const tape = require('tape');
 
@@ -361,5 +360,34 @@ tape('PARSER / if user.attr = datetime 1458240947021 then split 100:on', assert 
   assert.equal(evaluator('test@split.io', 31), undefined,
     'missing attributes should be evaluated to false'
   );
+  assert.end();
+});
+
+tape('PARSER / if user is in segment all then split 20%:A,20%:B,60%:A', assert => {
+  let {evaluator, segments} = parser([{
+    matcherGroup: {
+      combiner: 'AND',
+      matchers: [{
+        matcherType: 'ALL_KEYS',
+        negate: false,
+        userDefinedSegmentMatcherData: null,
+        whitelistMatcherData: null
+      }]
+    },
+    partitions: [{
+      treatment: 'A',
+      size: 20
+    }, {
+      treatment: 'B',
+      size: 20
+    }, {
+      treatment: 'A',
+      size: 60
+    }]
+  }]);
+
+  assert.equal(evaluator('aaaaa', 31), 'A', '20%:A'); // bucket 15
+  assert.equal(evaluator('bbbbbbbbbbbbbbbbbbb', 31), 'B', '20%:B'); // bucket 34
+  assert.equal(evaluator('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 31), 'A', '60%:A'); // bucket 100
   assert.end();
 });
