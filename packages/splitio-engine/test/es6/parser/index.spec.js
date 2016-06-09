@@ -364,7 +364,7 @@ tape('PARSER / if user.attr = datetime 1458240947021 then split 100:on', assert 
 });
 
 tape('PARSER / if user is in segment all then split 20%:A,20%:B,60%:A', assert => {
-  let {evaluator, segments} = parser([{
+  let {evaluator} = parser([{
     matcherGroup: {
       combiner: 'AND',
       matchers: [{
