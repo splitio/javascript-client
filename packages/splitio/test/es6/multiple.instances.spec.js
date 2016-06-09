@@ -38,21 +38,21 @@ const stage = splitio({
 
 // wait till both instances are ready.
 Promise.all([prod.ready(), stage.ready()]).then(() => {
-  tape('evaluates a feature in prod sdk instance', assert => {
+  tape('SDK / evaluates a feature in prod sdk instance', assert => {
     assert.equal(prod.getTreatment('node', 'get_environment', {
       env: 'prod'
     }), 'prod', 'Feature get_environment should return the treatment prod');
     assert.end();
   });
 
-  tape('evaluates a feature in stage sdk instance', assert => {
+  tape('SDK / evaluates a feature in stage sdk instance', assert => {
     assert.equal(stage.getTreatment('node', 'get_environment', {
       env: 'stage'
     }), 'stage', 'Feature get_environment should return the treatment stage');
     assert.end();
   });
 
-  tape('evaluates a feature in both sdks', assert => {
+  tape('SDK / evaluates a feature in both sdks', assert => {
     const prodTreatment = prod.getTreatment('node', 'get_environment', {
       env: 'qc'
     });

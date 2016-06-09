@@ -13,26 +13,25 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-class SegmentsStorage {
-  constructor() {
-    this.storage = new Map();
-  }
+const splitio = require('../../');
+const tape = require('tape');
 
-  update(name /*: string */, segment /*: Set */) /*: void */ {
-    this.storage.set(name, segment);
-  }
+tape('SDK / check the event SDK_READY is fired', {
+  timeout: 5000
+}, assert => {
+  const prod = splitio({
+    core: {
+      authorizationKey: 'kn4j3ctq14ipifmjvbbqu8dgt6'
+    },
+    urls: {
+      sdk: 'https://sdk-staging.split.io/api',
+      events: 'https://events-staging.split.io/api'
+    }
+  });
 
-  get(name /*: string */) /*: Set */ {
-    return this.storage.get(name) || new Set();
-  }
-
-  toJSON() {
-    return this.storage.toJSON();
-  }
-
-  segmentNames() {
-    return this.storage.keys();
-  }
-}
-
-module.exports = SegmentsStorage;
+  assert.plan(1);
+  prod.on(prod.Event.SDK_READY, () => {
+    prod.destroy();
+    assert.pass('ready event fired');
+  });
+});

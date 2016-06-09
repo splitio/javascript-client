@@ -13,25 +13,22 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+class SegmentsStorage {
+  constructor() {
+    this.storage = new Set();
+  }
 
-const log = require('debug')('splitio-cache:segments');
+  update(segments /*: Set */) /*: void */ {
+    this.storage = segments;
+  }
 
-function SegmentsStorage() {
-  this.storage = new Set();
+  has(name /*: string */) /*: boolean */ {
+    return this.storage.has(name);
+  }
+
+  toJSON() {
+    return this.storage.toJSON();
+  }
 }
-
-SegmentsStorage.prototype.update = function (segments /*: Set */) /*: void */ {
-  log(`Updating my segments list with [${[...segments]}]`);
-
-  this.storage = segments;
-};
-
-SegmentsStorage.prototype.has = function (name /*: string */) /*: boolean */ {
-  return this.storage.has(name);
-};
-
-SegmentsStorage.prototype.toJSON = function () {
-  return this.storage;
-};
 
 module.exports = SegmentsStorage;

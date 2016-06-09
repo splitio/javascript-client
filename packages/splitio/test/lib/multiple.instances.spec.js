@@ -46,21 +46,21 @@ var stage = splitio({
 
 // wait till both instances are ready.
 _promise2.default.all([prod.ready(), stage.ready()]).then(function () {
-  tape('evaluates a feature in prod sdk instance', function (assert) {
+  tape('SDK / evaluates a feature in prod sdk instance', function (assert) {
     assert.equal(prod.getTreatment('node', 'get_environment', {
       env: 'prod'
     }), 'prod', 'Feature get_environment should return the treatment prod');
     assert.end();
   });
 
-  tape('evaluates a feature in stage sdk instance', function (assert) {
+  tape('SDK / evaluates a feature in stage sdk instance', function (assert) {
     assert.equal(stage.getTreatment('node', 'get_environment', {
       env: 'stage'
     }), 'stage', 'Feature get_environment should return the treatment stage');
     assert.end();
   });
 
-  tape('evaluates a feature in both sdks', function (assert) {
+  tape('SDK / evaluates a feature in both sdks', function (assert) {
     var prodTreatment = prod.getTreatment('node', 'get_environment', {
       env: 'qc'
     });

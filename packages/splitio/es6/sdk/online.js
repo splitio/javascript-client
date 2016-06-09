@@ -37,13 +37,17 @@ function onlineFactory(params /*: object */) /*: object */ {
   let storage;
   let storageReadyPromise;
 
-  storageReadyPromise = cache.start()
-    .then((_storage) => {
-      storage = _storage;
-    })
-    .catch(() => {
-      storage = undefined;
-    });
+  storageReadyPromise = cache.start().then((_storage) => {
+    return storage = _storage;
+  })
+  .catch(() => {
+    return storage = undefined;
+  })
+  .then(() => {
+    hub.emit(Event.SDK_READY, storage);
+
+    return storage;
+  });
 
   metrics.start(settings);
 
@@ -86,7 +90,7 @@ function onlineFactory(params /*: object */) /*: object */ {
     },
 
     ready() /*: Promise */ {
-      return storageReadyPromise.then(() => this.emit(Event.SDK_READY, storage));
+      return storageReadyPromise;
     },
 
     destroy() {
