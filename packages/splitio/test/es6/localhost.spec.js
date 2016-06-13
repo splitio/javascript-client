@@ -59,5 +59,5 @@ tape('SDK / allow multiple instances when running offline (not too much sense)',
     assert.end();
   }).catch((err) => {
     assert.fail(err);
-  })
+  });
 });
