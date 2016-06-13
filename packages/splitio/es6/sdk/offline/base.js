@@ -16,6 +16,9 @@ limitations under the License.
 
 const log = require('debug')('splitio:offline');
 
+const EventsFactory = require('@splitsoftware/splitio-utils/lib/events');
+const Event = EventsFactory.Event;
+
 const validIdentifier = /^[a-z][-_a-z0-9]*$/i;
 function isIdentifierInvalid(str) {
   return !validIdentifier.test(str);
@@ -25,6 +28,8 @@ function offlineFactory(settings) {
   let { features } = Object.assign({
     features: {}
   }, settings);
+
+  const hub = EventsFactory();
 
   log('Running Split in Off-the-grid mode!!!!');
 
@@ -51,9 +56,11 @@ function offlineFactory(settings) {
     }
   }
 
-  let alwaysReadyPromise = Promise.resolve(undefined);
+  const alwaysReadyPromise = Promise.resolve(undefined).then(() => {
+    hub.emit(Event.SDK_READY);
+  });
 
-  return {
+  return Object.assign(hub, {
     getTreatment(key, featureName) {
       // always the latest parameter is the feature name.
       let treatment = features[featureName];
@@ -64,9 +71,9 @@ function offlineFactory(settings) {
       return alwaysReadyPromise;
     },
     destroy() {
-      // noop
+      hub.removeAllListeners();
     }
-  };
+  });
 }
 
 module.exports = offlineFactory;

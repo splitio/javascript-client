@@ -1,4 +1,3 @@
-
 ## E2E for the browser
 
 ### Setup

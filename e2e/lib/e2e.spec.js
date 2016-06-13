@@ -1,5 +1,11 @@
 'use strict';
 
+var _promise = require('babel-runtime/core-js/promise');
+
+var _promise2 = _interopRequireDefault(_promise);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 /**
 Copyright 2016 Split Software
 
@@ -39,7 +45,7 @@ fetchMock.mock(settings.url('/splitChanges?since=-1'), splitChangesMock1);
 fetchMock.mock(settings.url('/splitChanges?since=1457552620999'), splitChangesMock2);
 fetchMock.mock(settings.url('/mySegments/facundo@split.io'), mySegmentsMock);
 
-tape('E2E', function (assert) {
+tape('E2E / lets evaluates!', function (assert) {
   var sdk = Split({
     core: {
       authorizationKey: '<fake-token>',
@@ -229,6 +235,63 @@ tape('E2E', function (assert) {
       attr: 9
     }), 'off');
 
+    sdk.destroy();
+    assert.end();
+  });
+});
+
+tape('E2E / allow multiple instances when running offline', function (assert) {
+  var sdk1 = splitio({
+    core: {
+      authorizationKey: 'localhost',
+      key: 'facundo@split.io'
+    },
+    features: {
+      my_new_feature: 'on'
+    }
+  });
+  var sdk2 = splitio({
+    core: {
+      authorizationKey: 'localhost',
+      key: 'facundo@split.io'
+    },
+    features: {
+      my_new_feature: 'off'
+    }
+  });
+
+  _promise2.default.all([sdk1.ready(), sdk2.ready()]).then(function () {
+    assert.equal(sdk1.getTreatment('my_new_feature'), 'on', 'should evaluates to on');
+    assert.equal(sdk1.getTreatment('unknown_feature'), 'control', 'should evaluates to control');
+
+    assert.equal(sdk2.getTreatment('my_new_feature'), 'off', 'should evaluates to on');
+    assert.equal(sdk2.getTreatment('unknown_feature'), 'control', 'should evaluates to control');
+
+    sdk1.destroy();
+    sdk2.destroy();
+
+    assert.end();
+  }).catch(function (err) {
+    assert.fail(err);
+  });
+});
+
+tape('E2E / evaluates a feature in offline mode', function (assert) {
+  var sdk = splitio({
+    core: {
+      authorizationKey: 'localhost',
+      key: 'facundo@split.io'
+    },
+    features: {
+      my_new_feature: 'on'
+    }
+  });
+
+  sdk.on(sdk.Event.SDK_READY, function () {
+    assert.equal(sdk.getTreatment('my_new_feature'), 'on', 'should evaluates to on');
+    assert.equal(sdk.getTreatment('unknown_feature'), 'control', 'should evaluates to control');
+
+    sdk.destroy();
     assert.end();
   });
 });

@@ -37,7 +37,7 @@ fetchMock.mock(settings.url(`/splitChanges?since=-1`), splitChangesMock1);
 fetchMock.mock(settings.url(`/splitChanges?since=1457552620999`), splitChangesMock2);
 fetchMock.mock(settings.url(`/mySegments/facundo@split.io`), mySegmentsMock);
 
-tape('E2E', assert => {
+tape('E2E / lets evaluates!', assert => {
   const sdk = Split({
     core: {
       authorizationKey: '<fake-token>',
@@ -227,6 +227,63 @@ tape('E2E', assert => {
       attr: 9
     }), 'off');
 
+    sdk.destroy();
+    assert.end();
+  });
+});
+
+tape('E2E / allow multiple instances when running offline', assert => {
+  const sdk1 = splitio({
+    core: {
+      authorizationKey: 'localhost',
+      key: 'facundo@split.io'
+    },
+    features: {
+      my_new_feature: 'on'
+    }
+  });
+  const sdk2 = splitio({
+    core: {
+      authorizationKey: 'localhost',
+      key: 'facundo@split.io'
+    },
+    features: {
+      my_new_feature: 'off'
+    }
+  });
+
+  Promise.all([sdk1.ready(), sdk2.ready()]).then(() => {
+    assert.equal(sdk1.getTreatment('my_new_feature'), 'on', 'should evaluates to on');
+    assert.equal(sdk1.getTreatment('unknown_feature'), 'control', 'should evaluates to control');
+
+    assert.equal(sdk2.getTreatment('my_new_feature'), 'off', 'should evaluates to on');
+    assert.equal(sdk2.getTreatment('unknown_feature'), 'control', 'should evaluates to control');
+
+    sdk1.destroy();
+    sdk2.destroy();
+
+    assert.end();
+  }).catch((err) => {
+    assert.fail(err);
+  })
+});
+
+tape('E2E / evaluates a feature in offline mode', assert => {
+  const sdk = splitio({
+    core: {
+      authorizationKey: 'localhost',
+      key: 'facundo@split.io'
+    },
+    features: {
+      my_new_feature: 'on'
+    }
+  });
+
+  sdk.on(sdk.Event.SDK_READY, () => {
+    assert.equal(sdk.getTreatment('my_new_feature'), 'on', 'should evaluates to on');
+    assert.equal(sdk.getTreatment('unknown_feature'), 'control', 'should evaluates to control');
+
+    sdk.destroy();
     assert.end();
   });
 });
