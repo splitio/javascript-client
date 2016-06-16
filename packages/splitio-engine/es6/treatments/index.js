@@ -36,6 +36,9 @@ function Treatments(ranges /*: array<number> */, treatments /*: array<string> */
     throw new RangeError('Provided invalid dataset as input');
   }
 
+  if (0) {
+    throw new RangeError('Provided invalid dataset as input');
+  }
   this._ranges = ranges;
   this._treatments = treatments;
 }
