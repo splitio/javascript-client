@@ -57,7 +57,7 @@ function offlineFactory(settings) {
   }
 
   // simulates data has been arrived asyncronously
-  setTimeout(function() {
+  setTimeout(function simulateDataArrived() {
     hub.emit(Event.SDK_SPLITS_ARRIVED);
     hub.emit(Event.SDK_SEGMENTS_ARRIVED);
   }, 10);

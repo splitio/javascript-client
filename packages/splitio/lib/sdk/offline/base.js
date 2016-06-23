@@ -98,7 +98,7 @@ function offlineFactory(settings) {
     }
   }
 
-  setTimeout(function () {
+  setTimeout(function simulateDataArrived() {
     hub.emit(Event.SDK_SPLITS_ARRIVED);
     hub.emit(Event.SDK_SEGMENTS_ARRIVED);
   }, 10);
