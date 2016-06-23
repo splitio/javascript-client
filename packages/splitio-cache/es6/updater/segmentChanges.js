@@ -18,21 +18,62 @@ const segmentChangesDataSource = require('../ds/segmentChanges');
 
 module.exports = function SegmentChangesUpdater(settings, hub, storage) {
   const sinceValuesCache = new Map();
+  let segmentsAreReady = new Map();
+  let startingUp = true;
 
   return function updateSegments() {
     log('Updating segmentChanges');
 
     const downloads = [...storage.splits.getSegments()].map(segmentName => {
-      return segmentChangesDataSource(settings, segmentName, sinceValuesCache).then(mutator => {
+      // register segments for future check if they are ready or not
+      if (startingUp) {
+        if (segmentsAreReady.get(segmentName) === undefined) {
+          segmentsAreReady.set(segmentName, false);
+        }
+      }
+
+      return segmentChangesDataSource(settings, segmentName, sinceValuesCache).then(({
+        shouldUpdate, isFullUpdate, mutator
+      }) => {
         log(`completed download of ${segmentName}`);
 
-        return mutator(storage);
+        // apply mutations
+        mutator(storage);
+
+        // register segment data as ready if required
+        if (startingUp && segmentsAreReady.get(segmentName) === false && isFullUpdate) {
+          segmentsAreReady.set(segmentName, true);
+        }
+
+        // did we apply an update?
+        return shouldUpdate;
       });
     });
 
-    return Promise.all(downloads)
-      .then(shouldUpdates =>
-        (shouldUpdates.indexOf(true) !== -1) && hub.emit(hub.Event.SDK_UPDATE, storage)
-      ).catch((error) => hub.emit(hub.Event.SDK_UPDATE_ERROR, error));
+    return Promise.all(downloads).then(shouldUpdates => {
+      // if at least one segment was updated
+      const shouldUpdate = shouldUpdates.indexOf(true) !== -1;
+
+      // check if everything was correctly downloaded only required on start up
+      if (startingUp) {
+        let ready = true;
+
+        for (const v of segmentsAreReady.values()) {
+          ready = ready && v;
+        }
+
+        if (ready) {
+          startingUp = false;
+          segmentsAreReady = null;
+          hub.emit(hub.Event.SDK_SEGMENTS_ARRIVED);
+        }
+      }
+      // should we notificate an update?
+      else {
+        shouldUpdate && hub.emit(hub.Event.SDK_SEGMENTS_ARRIVED);
+      }
+
+      return shouldUpdate;
+    });
   };
 };

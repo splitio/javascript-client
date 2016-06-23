@@ -13,11 +13,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-
+const findIndex = require('core-js/library/fn/array/find-index');
 const matcherTypes = require('../matchers/types');
 const segmentTransform = require('./segment');
 const whitelistTransform = require('./whitelist');
-const findIndex = require('lodash.findindex');
 
 /*::
   type dataTypes = null | 'NUMBER' | 'DATETIME';

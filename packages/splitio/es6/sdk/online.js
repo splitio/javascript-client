@@ -18,6 +18,7 @@ limitations under the License.
 // babel-runtime before remove this line of code.
 require('core-js/es6/promise');
 
+const warning = require('warning');
 const log = require('debug')('splitio');
 
 const SettingsFactory = require('@splitsoftware/splitio-utils/lib/settings');
@@ -33,6 +34,8 @@ function onlineFactory(params /*: object */) /*: object */ {
   const getTreatmentTracker = metrics.getTreatment;
   const cache = new Cache(settings, hub);
 
+  log(settings);
+
   cache.start();
   metrics.start(settings);
 
@@ -42,6 +45,10 @@ function onlineFactory(params /*: object */) /*: object */ {
       hub.emit(hub.Event.SDK_READY_TIMED_OUT);
     }, settings.startup.readyTimeout);
   }
+
+  const readyPromise = new Promise(function onReady(resolve) {
+    hub.on(hub.Event.SDK_READY, resolve);
+  });
 
   return Object.assign(hub, {
     getTreatment(key /*: string */, featureName /*: string */, attributes /*: object */) /*: string */ {
@@ -70,7 +77,14 @@ function onlineFactory(params /*: object */) /*: object */ {
       return treatment;
     },
 
+    ready() {
+      warning(true, '`.ready()` is deprecated. Please use `sdk.on(sdk.Event.SDK_READY, callback)`');
+      return readyPromise;
+    },
+
     destroy() {
+      log('destroying sdk instance');
+
       hub.removeAllListeners();
       metrics.stop();
       cache.stop();

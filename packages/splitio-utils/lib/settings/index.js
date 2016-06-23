@@ -50,6 +50,7 @@ type Settings = {
 };
 */
 var merge = require('lodash/merge');
+var defaultsPerPlatform = require('./defaults');
 
 var eventsEndpointMatcher = /\/(testImpressions|metrics)/;
 
@@ -80,18 +81,10 @@ function defaults(custom /*: Settings */) /*: Settings */{
       sdk: 'https://sdk.split.io/api',
       // Storage for your SDK events
       events: 'https://events.split.io/api'
-    },
-    startup: {
-      // initial requests will have a stretch timeout
-      requestTimeoutBeforeReady: 0.5,
-      // if something fails because a timeout or a network error, retry at least
-      retriesOnFailureBeforeReady: 1,
-      // fires SDK_READY_TIMEOUT after this amount of seconds
-      readyTimeout: 0
     }
   };
 
-  var withDefaults = merge(init, custom);
+  var withDefaults = merge(init, defaultsPerPlatform, custom);
 
   withDefaults.scheduler.featuresRefreshRate = fromSecondsToMillis(withDefaults.scheduler.featuresRefreshRate);
   withDefaults.scheduler.segmentsRefreshRate = fromSecondsToMillis(withDefaults.scheduler.segmentsRefreshRate);

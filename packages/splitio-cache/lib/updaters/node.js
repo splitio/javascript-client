@@ -48,8 +48,11 @@ var Updater = function () {
         _this.splitsUpdater().then(function (splitsHasBeenUpdated) {
           if (!isSegmentsUpdaterRunning && splitsHasBeenUpdated) {
             isSegmentsUpdaterRunning = true;
+
             _this.stopSegmentsUpdate = repeat(function (scheduleSegmentsUpdate) {
-              return _this.segmentsUpdater().then(scheduleSegmentsUpdate);
+              return _this.segmentsUpdater().then(function () {
+                scheduleSegmentsUpdate();
+              });
             }, _this.segmentsUpdaterRefreshRate);
           }
 

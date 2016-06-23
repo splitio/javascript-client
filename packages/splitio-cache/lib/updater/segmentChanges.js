@@ -1,5 +1,9 @@
 'use strict';
 
+var _getIterator2 = require('babel-runtime/core-js/get-iterator');
+
+var _getIterator3 = _interopRequireDefault(_getIterator2);
+
 var _promise = require('babel-runtime/core-js/promise');
 
 var _promise2 = _interopRequireDefault(_promise);
@@ -34,22 +38,85 @@ var segmentChangesDataSource = require('../ds/segmentChanges');
 
 module.exports = function SegmentChangesUpdater(settings, hub, storage) {
   var sinceValuesCache = new _map2.default();
+  var segmentsAreReady = new _map2.default();
+  var startingUp = true;
 
   return function updateSegments() {
     log('Updating segmentChanges');
 
     var downloads = [].concat((0, _toConsumableArray3.default)(storage.splits.getSegments())).map(function (segmentName) {
-      return segmentChangesDataSource(settings, segmentName, sinceValuesCache).then(function (mutator) {
+      // register segments for future check if they are ready or not
+      if (startingUp) {
+        if (segmentsAreReady.get(segmentName) === undefined) {
+          segmentsAreReady.set(segmentName, false);
+        }
+      }
+
+      return segmentChangesDataSource(settings, segmentName, sinceValuesCache).then(function (_ref) {
+        var shouldUpdate = _ref.shouldUpdate;
+        var isFullUpdate = _ref.isFullUpdate;
+        var mutator = _ref.mutator;
+
         log('completed download of ' + segmentName);
 
-        return mutator(storage);
+        // apply mutations
+        mutator(storage);
+
+        // register segment data as ready if required
+        if (startingUp && segmentsAreReady.get(segmentName) === false && isFullUpdate) {
+          segmentsAreReady.set(segmentName, true);
+        }
+
+        // did we apply an update?
+        return shouldUpdate;
       });
     });
 
     return _promise2.default.all(downloads).then(function (shouldUpdates) {
-      return shouldUpdates.indexOf(true) !== -1 && hub.emit(hub.Event.SDK_UPDATE, storage);
-    }).catch(function (error) {
-      return hub.emit(hub.Event.SDK_UPDATE_ERROR, error);
+      // if at least one segment was updated
+      var shouldUpdate = shouldUpdates.indexOf(true) !== -1;
+
+      // check if everything was correctly downloaded only required on start up
+      if (startingUp) {
+        var ready = true;
+
+        var _iteratorNormalCompletion = true;
+        var _didIteratorError = false;
+        var _iteratorError = undefined;
+
+        try {
+          for (var _iterator = (0, _getIterator3.default)(segmentsAreReady.values()), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var v = _step.value;
+
+            ready = ready && v;
+          }
+        } catch (err) {
+          _didIteratorError = true;
+          _iteratorError = err;
+        } finally {
+          try {
+            if (!_iteratorNormalCompletion && _iterator.return) {
+              _iterator.return();
+            }
+          } finally {
+            if (_didIteratorError) {
+              throw _iteratorError;
+            }
+          }
+        }
+
+        if (ready) {
+          startingUp = false;
+          segmentsAreReady = null;
+          hub.emit(hub.Event.SDK_SEGMENTS_ARRIVED);
+        }
+      }
+      // should we notificate an update?
+      else {
+          shouldUpdate && hub.emit(hub.Event.SDK_SEGMENTS_ARRIVED);
+        }
+
+      return shouldUpdate;
     });
   };
 };

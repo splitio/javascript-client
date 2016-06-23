@@ -35,8 +35,12 @@ class Updater {
       this.splitsUpdater().then(splitsHasBeenUpdated => {
         if (!isSegmentsUpdaterRunning && splitsHasBeenUpdated) {
           isSegmentsUpdaterRunning = true;
-          this.stopSegmentsUpdate = repeat(
-            scheduleSegmentsUpdate => this.segmentsUpdater().then(scheduleSegmentsUpdate),
+
+          this.stopSegmentsUpdate = repeat(scheduleSegmentsUpdate => {
+            return this.segmentsUpdater().then(() => {
+              scheduleSegmentsUpdate();
+            });
+          },
             this.segmentsUpdaterRefreshRate
           );
         }

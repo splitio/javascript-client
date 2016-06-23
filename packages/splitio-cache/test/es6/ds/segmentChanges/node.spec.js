@@ -78,55 +78,17 @@ tape('DS SEGMENT CHANGES / greedy fetch should download while since != till', as
   }, JSON.stringify(response4));
 
   greedyFetch('segment_1').then(function (responses) {
-    assert.equal(responses.length, 4);
+    const len = responses.length;
+    const last = len - 1;
 
-    assert.deepEqual(responses[0], response1);
-    assert.deepEqual(responses[1], response2);
-    assert.deepEqual(responses[2], response3);
-    assert.deepEqual(responses[3], response4);
+    assert.equal(len, 4);
 
-    fetchMock.restore();
-    assert.end();
-  });
-});
+    assert.deepEqual(responses[0], response1, 'response #1 should be at position 0');
+    assert.deepEqual(responses[1], response2, 'response #2 should be at position 1');
+    assert.deepEqual(responses[2], response3, 'response #3 should be at position 2');
+    assert.deepEqual(responses[3], response4, 'response #4 should be at position 3');
 
-tape('DS SEGMENT CHANGES / ', assert => {
-  const response1 = {
-    name: 'segment_1',
-    added: [
-      1, 2
-    ],
-    removed: [],
-    since: 1,
-    till: 2
-  };
-  fetchMock.mock(function (request) {
-    return request.url === url('/segmentChanges/segment_1?since=-1');
-  }, JSON.stringify(response1));
-
-  fetchMock.mock(function (request) {
-    return request.url === url('/segmentChanges/segment_1?since=2');
-  }, {
-    status: 500
-  });
-
-  const response3 = {
-    name: 'segment_1',
-    added: [
-      5, 6
-    ],
-    removed: [],
-    since: 3,
-    till: 4
-  };
-  fetchMock.mock(function (request) {
-    return request.url === url('/segmentChanges/segment_1?since=3');
-  }, JSON.stringify(response3));
-
-  greedyFetch('segment_1').then(function (responses) {
-    assert.equal(responses.length, 1);
-
-    assert.deepEqual(responses[0], response1);
+    assert.equal(responses[last].since, responses[last].till, 'response #4 should have since === till');
 
     fetchMock.restore();
     assert.end();

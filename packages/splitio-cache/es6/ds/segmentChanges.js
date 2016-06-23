@@ -45,15 +45,30 @@ function greedyFetch(settings, lastSinceValue, segmentName) {
 function segmentChangesDataSource(settings, segmentName, sinceValuesCache) {
   const sinceValue = sinceValuesCache.get(segmentName) || -1;
 
-  return greedyFetch(settings, sinceValue, segmentName).then((changes) => {
+  return greedyFetch(settings, sinceValue, segmentName).then(changes => {
     const len = changes.length;
+    const lastChange = len > 0 ? changes[len - 1] : false;
+
+    // doesn't matter if we fully download the information, say if we need to
+    // update the data or not.
     const shouldUpdate = !(len === 0 || len === 1 && changes[0].since === changes[0].till);
+
+    // do we fully download the segment's changes from the server?
+    const isFullUpdate = lastChange && lastChange.since === lastChange.till;
+
+    // fn which actually applies the changes
+    let mutator = () => false;
 
     if (shouldUpdate) {
       sinceValuesCache.set(segmentName, changes[len - 1].till);
+      mutator = segmentMutatorFactory(changes);
     }
 
-    return segmentMutatorFactory(shouldUpdate, changes);
+    return {
+      shouldUpdate, // did an update?
+      isFullUpdate, // did it was partial or full?
+      mutator
+    };
   });
 }
 

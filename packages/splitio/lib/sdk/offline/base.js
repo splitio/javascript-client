@@ -37,7 +37,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-
+var warning = require('warning');
 var log = require('debug')('splitio:offline');
 
 var EventsFactory = require('@splitsoftware/splitio-utils/lib/events');
@@ -49,14 +49,14 @@ function isIdentifierInvalid(str) {
 }
 
 function offlineFactory(settings) {
+  var hub = EventsFactory();
+
   var _Object$assign = (0, _assign2.default)({
     features: {}
   }, settings);
 
   var features = _Object$assign.features;
 
-
-  var hub = EventsFactory();
 
   log('Running Split in Off-the-grid mode!!!!');
 
@@ -81,6 +81,8 @@ function offlineFactory(settings) {
         delete features[name];
       }
     }
+
+    // simulates data has been arrived asyncronously
   } catch (err) {
     _didIteratorError = true;
     _iteratorError = err;
@@ -96,8 +98,13 @@ function offlineFactory(settings) {
     }
   }
 
-  var alwaysReadyPromise = _promise2.default.resolve(undefined).then(function () {
-    hub.emit(Event.SDK_READY);
+  setTimeout(function () {
+    hub.emit(Event.SDK_SPLITS_ARRIVED);
+    hub.emit(Event.SDK_SEGMENTS_ARRIVED);
+  }, 10);
+
+  var readyPromise = new _promise2.default(function onReady(resolve) {
+    hub.on(hub.Event.SDK_READY, resolve);
   });
 
   return (0, _assign2.default)(hub, {
@@ -108,7 +115,8 @@ function offlineFactory(settings) {
       return typeof treatment !== 'string' ? 'control' : treatment;
     },
     ready: function ready() {
-      return alwaysReadyPromise;
+      warning(true, '`.ready()` is deprecated. Please use `sdk.on(sdk.Event.SDK_READY, callback)`');
+      return readyPromise;
     },
     destroy: function destroy() {
       hub.removeAllListeners();

@@ -4,6 +4,10 @@ var _assign = require('babel-runtime/core-js/object/assign');
 
 var _assign2 = _interopRequireDefault(_assign);
 
+var _promise = require('babel-runtime/core-js/promise');
+
+var _promise2 = _interopRequireDefault(_promise);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
@@ -26,6 +30,7 @@ limitations under the License.
 // babel-runtime before remove this line of code.
 require('core-js/es6/promise');
 
+var warning = require('warning');
 var log = require('debug')('splitio');
 
 var SettingsFactory = require('@splitsoftware/splitio-utils/lib/settings');
@@ -41,6 +46,8 @@ function onlineFactory(params /*: object */) /*: object */{
   var getTreatmentTracker = metrics.getTreatment;
   var cache = new Cache(settings, hub);
 
+  log(settings);
+
   cache.start();
   metrics.start(settings);
 
@@ -50,6 +57,10 @@ function onlineFactory(params /*: object */) /*: object */{
       hub.emit(hub.Event.SDK_READY_TIMED_OUT);
     }, settings.startup.readyTimeout);
   }
+
+  var readyPromise = new _promise2.default(function onReady(resolve) {
+    hub.on(hub.Event.SDK_READY, resolve);
+  });
 
   return (0, _assign2.default)(hub, {
     getTreatment: function getTreatment(key /*: string */, featureName /*: string */, attributes /*: object */) /*: string */{
@@ -77,7 +88,13 @@ function onlineFactory(params /*: object */) /*: object */{
 
       return treatment;
     },
+    ready: function ready() {
+      warning(true, '`.ready()` is deprecated. Please use `sdk.on(sdk.Event.SDK_READY, callback)`');
+      return readyPromise;
+    },
     destroy: function destroy() {
+      log('destroying sdk instance');
+
       hub.removeAllListeners();
       metrics.stop();
       cache.stop();

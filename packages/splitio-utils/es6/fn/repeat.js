@@ -16,13 +16,17 @@ limitations under the License.
 
 function repeat(fn, delay, ...rest) {
   let tid;
+  let stopped = false;
 
   function next(_delay = delay, ...rest) {
-    tid = setTimeout(fn, _delay, ...rest, next);
+    if (!stopped) {
+      tid = setTimeout(fn, _delay, ...rest, next);
+    }
   }
 
   function till() {
     clearTimeout(tid);
+    stopped = true;
   }
 
   fn(...rest, next);

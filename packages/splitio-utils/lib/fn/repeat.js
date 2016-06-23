@@ -22,19 +22,23 @@ function repeat(fn, delay) {
   }
 
   var tid = void 0;
+  var stopped = false;
 
   function next() {
     var _delay = arguments.length <= 0 || arguments[0] === undefined ? delay : arguments[0];
 
-    for (var _len2 = arguments.length, rest = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
-      rest[_key2 - 1] = arguments[_key2];
-    }
+    if (!stopped) {
+      for (var _len2 = arguments.length, rest = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+        rest[_key2 - 1] = arguments[_key2];
+      }
 
-    tid = setTimeout.apply(undefined, [fn, _delay].concat(rest, [next]));
+      tid = setTimeout.apply(undefined, [fn, _delay].concat(rest, [next]));
+    }
   }
 
   function till() {
     clearTimeout(tid);
+    stopped = true;
   }
 
   fn.apply(undefined, rest.concat([next]));
