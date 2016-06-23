@@ -52,6 +52,11 @@ var SegmentsStorage = function () {
     value: function toJSON() {
       return this.storage.toJSON();
     }
+  }, {
+    key: "size",
+    get: function get() {
+      return this.storage.size;
+    }
   }]);
   return SegmentsStorage;
 }();

@@ -25,43 +25,32 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-var SchedulerFactory = require('@splitsoftware/splitio-utils/lib/scheduler');
 var Storage = require('./storage');
-var Updaters = require('./updaters');
 
-var log = require('debug')('splitio-cache');
-var sync = require('./sync');
+var _require = require('./updaters');
+
+var SplitsUpdater = _require.SplitsUpdater;
+var SegmentsUpdater = _require.SegmentsUpdater;
+var Updater = _require.Updater;
 
 var Cache = function () {
   function Cache(settings, hub) {
     (0, _classCallCheck3.default)(this, Cache);
 
-    this.settings = settings;
-    this.hub = hub;
-
-    this.splitRefreshScheduler = SchedulerFactory();
-    this.segmentsRefreshScheduler = SchedulerFactory();
-
     this.storage = Storage.createStorage();
 
-    this.splitsUpdater = Updaters.SplitsUpdater(this.settings, this.hub, this.storage);
-    this.segmentsUpdater = Updaters.SegmentsUpdater(this.settings, this.hub, this.storage);
+    this.updater = new Updater(SplitsUpdater(settings, hub, this.storage), SegmentsUpdater(settings, hub, this.storage), settings.scheduler.featuresRefreshRate, settings.scheduler.segmentsRefreshRate);
   }
 
   (0, _createClass3.default)(Cache, [{
     key: 'start',
     value: function start() {
-      log('sync started');
-
-      return sync.call(this);
+      this.updater.start();
     }
   }, {
     key: 'stop',
     value: function stop() {
-      log('stopped syncing');
-
-      this.splitRefreshScheduler.kill();
-      this.segmentsRefreshScheduler.kill();
+      this.updater.stop();
     }
   }]);
   return Cache;

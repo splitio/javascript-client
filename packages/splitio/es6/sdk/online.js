@@ -22,7 +22,6 @@ const log = require('debug')('splitio');
 
 const SettingsFactory = require('@splitsoftware/splitio-utils/lib/settings');
 const EventsFactory = require('@splitsoftware/splitio-utils/lib/events');
-const Event = EventsFactory.Event;
 const Metrics = require('@splitsoftware/splitio-metrics');
 const Cache = require('@splitsoftware/splitio-cache');
 
@@ -34,41 +33,23 @@ function onlineFactory(params /*: object */) /*: object */ {
   const getTreatmentTracker = metrics.getTreatment;
   const cache = new Cache(settings, hub);
 
-  let storage;
-  let storageReadyPromise;
-
-  storageReadyPromise = cache.start().then((_storage) => {
-    return storage = _storage;
-  })
-  .catch(() => {
-    return storage = undefined;
-  })
-  .then(() => {
-    hub.emit(Event.SDK_READY, storage);
-
-    return storage;
-  });
-
+  cache.start();
   metrics.start(settings);
+
+  // start the race vs the SDK startup!
+  if (settings.startup.readyTimeout > 0) {
+    setTimeout(() => {
+      hub.emit(hub.Event.SDK_READY_TIMED_OUT);
+    }, settings.startup.readyTimeout);
+  }
 
   return Object.assign(hub, {
     getTreatment(key /*: string */, featureName /*: string */, attributes /*: object */) /*: string */ {
       let treatment = 'control';
 
-      if (storage === undefined) {
-        impressionsTracker({
-          feature: featureName,
-          key,
-          treatment,
-          when: Date.now()
-        });
-
-        return treatment;
-      }
-
       let stopGetTreatmentTracker = getTreatmentTracker(); // start engine perf monitoring
 
-      let split = storage.splits.get(featureName);
+      let split = cache.storage.splits.get(featureName);
       if (split) {
         treatment = split.getTreatment(key, attributes);
 
@@ -87,10 +68,6 @@ function onlineFactory(params /*: object */) /*: object */ {
       });
 
       return treatment;
-    },
-
-    ready() /*: Promise */ {
-      return storageReadyPromise;
     },
 
     destroy() {

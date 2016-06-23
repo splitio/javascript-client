@@ -25,7 +25,7 @@ limitations under the License.
 var tape = require('tape');
 var SegmentsStorage = require('../../../../lib/storage/segments');
 
-tape('SEGMENTS STORAGE', function (assert) {
+tape('SEGMENTS STORAGE / get(string) should retrieve the Set which represents the segment requested', function (assert) {
   var storage = new SegmentsStorage();
 
   var segmentName = 's';
@@ -33,6 +33,17 @@ tape('SEGMENTS STORAGE', function (assert) {
 
   storage.update(segmentName, segmentSet);
 
-  assert.equal(storage.get(segmentName), segmentSet, 'should use the same instance');
+  assert.equal(storage.get(segmentName), segmentSet, 'should be the same Set instance');
+  assert.end();
+});
+
+tape('SEGMENTS STORAGE / .size property should represent the amount of segments stored', function (assert) {
+  var storage = new SegmentsStorage();
+  var segmentName = 'mock';
+  var segment = new _set2.default(['a', 'b', 'c', 'd', 'e']);
+
+  storage.update(segmentName, segment);
+
+  assert.equal(storage.size, 1, 'we should have 1 segment stored');
   assert.end();
 });

@@ -29,65 +29,73 @@ type Settings = {
   urls: {
     sdk: string,
     events: string
+  },
+  startup: {
+    requestTimeoutBeforeReady: number,
+    retriesOnFailureBeforeReady: number,
+    readyTimeout: number
   }
 };
 */
+const merge = require('lodash/merge');
+
 const eventsEndpointMatcher = /\/(testImpressions|metrics)/;
+
+function fromSecondsToMillis(n) {
+  return Math.round(n * 1000);
+}
 
 function defaults(custom /*: Settings */) /*: Settings */ {
   let init = {
     core: {
-      authorizationKey: undefined,   // API token (tight to an environment)
-      key: undefined                 // user key in your system (only required for browser version).
+      // API token (tight to an environment)
+      authorizationKey: undefined,
+      // key used in your system (only required for browser version)
+      key: undefined
     },
     scheduler: {
-      featuresRefreshRate:    30, // 30 sec
-      segmentsRefreshRate:    60, // 60 sec
-      metricsRefreshRate:     60, // 60 sec
-      impressionsRefreshRate: 60  // 60 sec
+      // fetch feature updates each 30 sec
+      featuresRefreshRate: 30,
+      // fetch segments updates each 60 sec
+      segmentsRefreshRate: 60,
+      // publish metrics each 60 sec
+      metricsRefreshRate: 60,
+      // publish evaluations each 60 sec
+      impressionsRefreshRate: 60
     },
     urls: {
+      // CDN having all the information for your environment
       sdk: 'https://sdk.split.io/api',
+      // Storage for your SDK events
       events: 'https://events.split.io/api'
+    },
+    startup: {
+      // initial requests will have a stretch timeout
+      requestTimeoutBeforeReady: 0.5,
+      // if something fails because a timeout or a network error, retry at least
+      retriesOnFailureBeforeReady: 1,
+      // fires SDK_READY_TIMEOUT after this amount of seconds
+      readyTimeout: 0
     }
   };
 
-  let final = Object.assign({}, init, custom);
+  const withDefaults = merge(init, custom);
 
-  // we can't start the engine without the authorization token.
+  withDefaults.scheduler.featuresRefreshRate = fromSecondsToMillis(withDefaults.scheduler.featuresRefreshRate);
+  withDefaults.scheduler.segmentsRefreshRate = fromSecondsToMillis(withDefaults.scheduler.segmentsRefreshRate);
+  withDefaults.scheduler.metricsRefreshRate = fromSecondsToMillis(withDefaults.scheduler.metricsRefreshRate);
+  withDefaults.scheduler.impressionsRefreshRate = fromSecondsToMillis(withDefaults.scheduler.impressionsRefreshRate);
+  withDefaults.startup.requestTimeoutBeforeReady = fromSecondsToMillis(withDefaults.startup.requestTimeoutBeforeReady);
+  withDefaults.startup.readyTimeout = fromSecondsToMillis(withDefaults.startup.readyTimeout);
 
-  if (typeof final.core.authorizationKey !== 'string') {
-    throw Error('Please provide an authorization token to startup the engine');
-  }
-
-  // override invalid values with default ones
-
-  if (typeof final.scheduler.featuresRefreshRate !== 'number') {
-    final.scheduler.featuresRefreshRate = init.scheduler.featuresRefreshRate;
-  }
-
-  if (typeof final.scheduler.segmentsRefreshRate !== 'number') {
-    final.scheduler.segmentsRefreshRate = init.scheduler.segmentsRefreshRate;
-  }
-
-  if (typeof final.scheduler.metricsRefreshRate !== 'number') {
-    final.scheduler.metricsRefreshRate = init.scheduler.metricsRefreshRate;
-  }
-
-  if (typeof final.scheduler.impressionsRefreshRate !== 'number') {
-    final.scheduler.impressionsRefreshRate = init.scheduler.impressionsRefreshRate;
-  }
-
-  // return an object with all the magic on it
-
-  return final;
+  return withDefaults;
 }
 
 const proto = {
   get(name) {
     switch (name) {
       case 'version':
-        return 'javascript-5.1.1';
+        return 'javascript-5.2.0';
       case 'authorizationKey':
         return this.core.authorizationKey;
       case 'key':

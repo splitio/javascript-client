@@ -14,19 +14,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-module.exports = function parallel() {
-  return Promise.all([
-    this.splitRefreshScheduler.forever(
-      this.splitsUpdater,
-      this.settings.get('featuresRefreshRate'),
-      this.settings.get('core')
-    ),
-    this.segmentsRefreshScheduler.forever(
-      this.segmentsUpdater,
-      this.settings.get('segmentsRefreshRate'),
-      this.settings.get('core')
-    )
-  ]).then(() => {
-    return this.storage;
-  });
-};
+function repeat(fn, delay, ...rest) {
+  let tid;
+
+  function next(_delay = delay, ...rest) {
+    tid = setTimeout(fn, _delay, ...rest, next);
+  }
+
+  function till() {
+    clearTimeout(tid);
+  }
+
+  fn(...rest, next);
+
+  return till;
+}
+
+module.exports = repeat;

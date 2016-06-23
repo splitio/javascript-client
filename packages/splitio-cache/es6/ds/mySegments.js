@@ -13,16 +13,23 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+const timeout = require('@splitsoftware/splitio-utils/lib/promise/timeout');
+
 const mySegmentsService = require('@splitsoftware/splitio-services/lib/mySegments');
 const mySegmentsRequest = require('@splitsoftware/splitio-services/lib/mySegments/get');
 
 const mySegmentMutationsFactory = require('../mutators/mySegments');
 
-function mySegmentsDataSource(settings) {
-  return mySegmentsService(mySegmentsRequest(settings))
-    .then(resp => resp.json())
-    .then(json => mySegmentMutationsFactory(json.mySegments.map(segment => segment.name)))
-    .catch(() => false);
+function mySegmentsDataSource(settings, shouldApplyTimeout = false) {
+  let requestPromise = mySegmentsService(mySegmentsRequest(settings));
+
+  if (shouldApplyTimeout) {
+    requestPromise = timeout(settings.startup.requestTimeoutBeforeReady, requestPromise);
+  }
+
+  return requestPromise.then(resp => resp.json()).then(
+    json => mySegmentMutationsFactory(json.mySegments.map(segment => segment.name))
+  );
 }
 
 module.exports = mySegmentsDataSource;

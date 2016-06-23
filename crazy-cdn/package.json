@@ -1,0 +1,31 @@
+{
+  "name": "@splitsoftware/crazy-cdn",
+  "version": "1.0.0",
+  "description": "Crazy CDN",
+  "readme": "README.md",
+  "author": "Facundo Cabrera <facundo@split.io>",
+  "homepage": "https://github.com/splitio/javascript-client",
+  "license": "Apache-2.0",
+  "repository": "https://github.com/splitio/javascript-client/tree/master/crazy-cdn",
+  "main": "index.js",
+  "scripts": {
+    "start": "node lib/index.js",
+    "m": "nodemon lib/index.js",
+    "b": "babel src --out-dir lib",
+    "w": "babel src --out-dir lib -w"
+  },
+  "engines": {
+    "node": "4.4.3",
+    "npm": "3.9.3"
+  },
+  "dependencies": {
+    "express": "^4.14.0",
+    "express-request-id": "^1.1.0",
+    "http-proxy": "^1.14.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.10.1",
+    "babel-preset-es2015-node4": "^2.1.0",
+    "nodemon": "^1.9.2"
+  }
+}

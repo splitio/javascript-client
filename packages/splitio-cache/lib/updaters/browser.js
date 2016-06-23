@@ -1,5 +1,15 @@
 'use strict';
 
+var _classCallCheck2 = require('babel-runtime/helpers/classCallCheck');
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = require('babel-runtime/helpers/createClass');
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 /**
 Copyright 2016 Split Software
 
@@ -15,6 +25,47 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+var repeat = require('@splitsoftware/splitio-utils/lib/fn/repeat');
 
-exports.SplitsUpdater = require('../updater/splitChanges');
-exports.SegmentsUpdater = require('../updater/mySegments');
+var Updater = function () {
+  function Updater(splitsUpdater, segmentsUpdater, splitsUpdaterRefreshRate, segmentsUpdaterRefreshRate) {
+    (0, _classCallCheck3.default)(this, Updater);
+
+    this.splitsUpdater = splitsUpdater;
+    this.segmentsUpdater = segmentsUpdater;
+    this.splitsUpdaterRefreshRate = splitsUpdaterRefreshRate;
+    this.segmentsUpdaterRefreshRate = segmentsUpdaterRefreshRate;
+  }
+
+  (0, _createClass3.default)(Updater, [{
+    key: 'start',
+    value: function start() {
+      var _this = this;
+
+      this.stopSplitsUpdate = repeat(function (scheduleSplitsUpdate) {
+        return _this.splitsUpdater().then(function () {
+          return scheduleSplitsUpdate();
+        });
+      }, this.splitsUpdaterRefreshRate);
+
+      this.stopSegmentsUpdate = repeat(function (scheduleSegmentsUpdate) {
+        return _this.segmentsUpdater().then(function () {
+          return scheduleSegmentsUpdate();
+        });
+      }, this.segmentsUpdaterRefreshRate);
+    }
+  }, {
+    key: 'stop',
+    value: function stop() {
+      this.stopSplitsUpdate && this.stopSplitsUpdate();
+      this.stopSegmentsUpdate && this.stopSegmentsUpdate();
+    }
+  }]);
+  return Updater;
+}();
+
+module.exports = {
+  SplitsUpdater: require('../updater/splitChanges'),
+  SegmentsUpdater: require('../updater/mySegments'),
+  Updater: Updater
+};

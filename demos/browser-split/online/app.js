@@ -1,7 +1,5 @@
 'use strict';
 
-console.log('SPLIT DEMO!');
-
 //
 // Bellow you will see how you could define features and the defaults treatments
 // for each one.
@@ -9,22 +7,53 @@ console.log('SPLIT DEMO!');
 // NOTICE: there is NONE asyncronous initialization in offline mode, because you
 //         are providing the default feedback of the engine.
 //
-
 var sdk = splitio({
   core: {
-    authorizationKey: '29lsbc79peklpksdto0a90s2e3u1agv8vqm2', // change this with your api token
-    key: '4a2c4490-ced1-11e5-9b97-d8a25e8b1578'               // change this with your user key
-  }/*,
+    // change this with your api token
+    authorizationKey: '5p2c0r4so20ill66lm35i45h6pkvrd2skmib',
+    // change this with your user key
+    key: '1f84e5ddb06a3e66145ccfc1aac247'
+  },
   scheduler: {
-    featuresRefreshRate: 1,    // fetch feature updates each 1 sec
-    segmentsRefreshRate: 1,    // fetch segment updates each 1 sec
-    metricsRefreshRate: 30,    // publish metrics each 30 sec
-    impressionsRefreshRate: 30 // publish evaluations each 30 sec
-  }*/
+    // fetch feature updates each 1 sec
+    featuresRefreshRate: 3,
+    // fetch segment updates each 1 sec
+    segmentsRefreshRate: 5,
+    // publish metrics each 30 sec
+    metricsRefreshRate: 30,
+    // publish evaluations each 30 sec
+    impressionsRefreshRate: 30
+  },
+  urls: {
+    // crazy cdn
+    // sdk: 'http://localhost:3000/api'
+    sdk: 'https://sdk-aws-staging.split.io/api'
+  },
+  startup: {
+    // stress the request time used while starting up the SDK.
+    requestTimeoutBeforeReady: 1,
+    // how many quick retries we will do while starting up the SDK.
+    retriesOnFailureBeforeReady: 2,
+    // maximun amount of time used before notifies me a timeout.
+    readyTimeout: 1.5
+  }
 });
 
-console.info( sdk.getTreatment('early_evaluation') , '<= We are asking for a feature before the engine is ready');
+console.assert(
+  sdk.getTreatment('in_five_keys') === 'control'
+);
 
-sdk.ready().then(function () {
-  console.info( sdk.getTreatment('js_sdk'), '<= This answer depends on split configurations' );
+sdk.on(sdk.Event.SDK_READY_TIMED_OUT, function onTimeout() {
+  console.log('SDK ready timeout 😭');
+});
+
+sdk.on(sdk.Event.SDK_READY, function onSDKReady() {
+  console.assert(
+    sdk.getTreatment('in_five_keys') === 'activated'
+  );
+});
+
+sdk.on(sdk.Event.SDK_UPDATE, function onSDKUpdate() {
+  console.log(sdk.getTreatment('in_five_keys'));
+  console.log(sdk.getTreatment('in_ten_keys'));
 });

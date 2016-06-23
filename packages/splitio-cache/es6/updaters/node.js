@@ -13,6 +13,49 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+const repeat = require('@splitsoftware/splitio-utils/lib/fn/repeat');
 
-exports.SplitsUpdater = require('../updater/splitChanges');
-exports.SegmentsUpdater = require('../updater/segmentChanges');
+class Updater {
+  constructor(
+    splitsUpdater,
+    segmentsUpdater,
+    splitsUpdaterRefreshRate,
+    segmentsUpdaterRefreshRate
+  ) {
+    this.splitsUpdater = splitsUpdater;
+    this.segmentsUpdater = segmentsUpdater;
+    this.splitsUpdaterRefreshRate = splitsUpdaterRefreshRate;
+    this.segmentsUpdaterRefreshRate = segmentsUpdaterRefreshRate;
+  }
+
+  start() {
+    let isSegmentsUpdaterRunning = false;
+
+    this.stopSplitsUpdate = repeat(scheduleSplitsUpdate => {
+      this.splitsUpdater().then(splitsHasBeenUpdated => {
+        if (!isSegmentsUpdaterRunning && splitsHasBeenUpdated) {
+          isSegmentsUpdaterRunning = true;
+          this.stopSegmentsUpdate = repeat(
+            scheduleSegmentsUpdate => this.segmentsUpdater().then(scheduleSegmentsUpdate),
+            this.segmentsUpdaterRefreshRate
+          );
+        }
+
+        scheduleSplitsUpdate();
+      });
+    },
+    this.splitsUpdaterRefreshRate
+    );
+  }
+
+  stop() {
+    this.stopSplitsUpdate && this.stopSplitsUpdate();
+    this.stopSegmentsUpdate && this.stopSegmentsUpdate();
+  }
+}
+
+module.exports = {
+  SplitsUpdater: require('../updater/splitChanges'),
+  SegmentsUpdater: require('../updater/segmentChanges'),
+  Updater
+};

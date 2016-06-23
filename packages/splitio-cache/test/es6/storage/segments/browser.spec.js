@@ -17,13 +17,23 @@ limitations under the License.
 const tape = require('tape');
 const SegmentsStorage = require('../../../../lib/storage/segments');
 
-tape('SEGMENTS STORAGE', assert => {
+tape('SEGMENTS STORAGE / has(string) should answer true / false if the elements if present or not', assert => {
   const storage = new SegmentsStorage;
   const segments = new Set(['a', 'b', 'c']);
 
   storage.update(segments);
 
   assert.true(storage.has('b'), 'b is present in the list of segment names');
-  assert.false(storage.has('s'), 's is present in the list of segment names');
+  assert.false(storage.has('s'), 's is not present in the list of segment names');
+  assert.end();
+});
+
+tape('SEGMENTS STORAGE / .size property should represent the amount of segments stored', assert => {
+  const storage = new SegmentsStorage;
+  const segment = new Set(['a', 'b', 'c', 'd', 'e']);
+
+  storage.update(segment);
+
+  assert.equal(storage.size, 5, 'we should have 5 keys stored in the current segment');
   assert.end();
 });

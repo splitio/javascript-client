@@ -30,15 +30,15 @@ module.exports = function MySegmentMutationsFactory(mySegments /*: MySegmentsDTO
 
   return function segmentMutations(storage /*: Object */) /*: void */{
     var nextSegments = new _set2.default(mySegments);
+    var sameAmountOfElements = storage.segments.size === nextSegments.size;
     var isEqual = true;
-    var shouldUpdate = void 0;
+    var shouldUpdate = false;
 
-    // weak logic for performance
     for (var i = 0; i < mySegments.length && isEqual; i++) {
       isEqual = storage.segments.has(mySegments[i]);
     }
 
-    shouldUpdate = !isEqual;
+    shouldUpdate = !isEqual || !sameAmountOfElements;
 
     if (shouldUpdate) {
       storage.segments.update(nextSegments);

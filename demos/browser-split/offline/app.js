@@ -31,7 +31,7 @@ console.info(
 // The following code will be evaluated once the engine finalice the
 // initialization
 //
-sdk.ready().then(function () {
+sdk.on(sdk.Event.SDK_READY, function onSDKReady() {
   //
   // Some simple cases for my defined features
   //

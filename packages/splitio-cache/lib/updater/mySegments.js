@@ -18,16 +18,37 @@ limitations under the License.
 var log = require('debug')('splitio-cache:updater');
 var mySegmentsDataSource = require('../ds/mySegments');
 
-module.exports = function MySegmentsUpdater(settings, hub, storage) {
-  return function updateMySegments() {
-    log('Updating mySegments');
+function MySegmentsUpdater(settings, hub, storage) {
+  // only enable retries first load
+  var startingUp = true;
 
-    return mySegmentsDataSource(settings).then(function (segmentsMutator) {
+  return function updateMySegments() {
+    var retry = arguments.length <= 0 || arguments[0] === undefined ? 0 : arguments[0];
+
+    return mySegmentsDataSource(settings, startingUp).then(function (segmentsMutator) {
       return segmentsMutator(storage);
     }).then(function (shouldUpdate) {
-      return shouldUpdate && hub.emit(hub.Event.SDK_UPDATE, storage);
+      if (startingUp) {
+        startingUp = false;
+      }
+
+      if (shouldUpdate) {
+        hub.emit(hub.Event.SDK_SEGMENTS_ARRIVED);
+      }
+
+      return shouldUpdate;
     }).catch(function (error) {
-      return hub.emit(hub.Event.SDK_UPDATE_ERROR, error);
+      if (startingUp && settings.startup.retriesOnFailureBeforeReady > retry) {
+        retry += 1;
+        log('retrying download of segments #%s reason %s', retry, error);
+        return updateMySegments(retry);
+      } else {
+        startingUp = false;
+      }
+
+      return false; // shouldUpdate = false
     });
   };
-};
+}
+
+module.exports = MySegmentsUpdater;

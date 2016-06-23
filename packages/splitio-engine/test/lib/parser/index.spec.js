@@ -391,7 +391,6 @@ tape('PARSER / if user is in segment all then split 20%:A,20%:B,60%:A', function
   }]);
 
   var evaluator = _parser10.evaluator;
-  var segments = _parser10.segments;
 
 
   assert.equal(evaluator('aaaaa', 31), 'A', '20%:A'); // bucket 15

@@ -47,6 +47,10 @@ class SplitsStorage {
   toJSON() /*: string */ {
     return this.storage.toJSON();
   }
+
+  get size() {
+    return this.storage.size;
+  }
 }
 
 module.exports = SplitsStorage;

@@ -16,15 +16,37 @@ limitations under the License.
 const log = require('debug')('splitio-cache:updater');
 const splitChangesDataSource = require('../ds/splitChanges');
 
-module.exports = function SplitChangesUpdater(settings, hub, storage) {
+function SplitChangesUpdater(settings, hub, storage) {
   const sinceValueCache = {since: -1};
+  // only enable retries first load
+  let startingUp = true;
 
-  return function updateSplits() {
-    log('Updating splitChanges');
-
-    return splitChangesDataSource(settings, sinceValueCache)
+  return function updateSplits(retry = 0) {
+    return splitChangesDataSource(settings, sinceValueCache, startingUp)
       .then(splitsMutator => splitsMutator(storage))
-      .then(shouldUpdate => shouldUpdate && hub.emit(hub.Event.SDK_UPDATE, storage))
-      .catch(error => hub.emit(hub.Event.SDK_UPDATE_ERROR, error));
+      .then(shouldUpdate => {
+        if (startingUp) {
+          startingUp = false;
+        }
+
+        if (shouldUpdate) {
+          hub.emit(hub.Event.SDK_SPLITS_ARRIVED);
+        }
+
+        return shouldUpdate;
+      })
+      .catch(error => {
+        if (startingUp && settings.startup.retriesOnFailureBeforeReady > retry) {
+          retry += 1;
+          log('retrying download of splits #%s reason %s', retry, error);
+          return updateSplits(retry);
+        } else {
+          startingUp = false;
+        }
+
+        return false; // shouldUpdate = false
+      });
   };
-};
+}
+
+module.exports = SplitChangesUpdater;

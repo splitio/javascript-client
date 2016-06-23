@@ -13,38 +13,31 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-const SchedulerFactory = require('@splitsoftware/splitio-utils/lib/scheduler');
 const Storage = require('./storage');
-const Updaters = require('./updaters');
-
-const log = require('debug')('splitio-cache');
-const sync = require('./sync');
+const {
+  SplitsUpdater,
+  SegmentsUpdater,
+  Updater
+} = require('./updaters');
 
 class Cache {
   constructor(settings, hub) {
-    this.settings = settings;
-    this.hub = hub;
-
-    this.splitRefreshScheduler = SchedulerFactory();
-    this.segmentsRefreshScheduler = SchedulerFactory();
-
     this.storage = Storage.createStorage();
 
-    this.splitsUpdater = Updaters.SplitsUpdater(this.settings, this.hub, this.storage);
-    this.segmentsUpdater = Updaters.SegmentsUpdater(this.settings, this.hub, this.storage);
+    this.updater = new Updater(
+      SplitsUpdater(settings, hub, this.storage),
+      SegmentsUpdater(settings, hub, this.storage),
+      settings.scheduler.featuresRefreshRate,
+      settings.scheduler.segmentsRefreshRate
+    );
   }
 
   start() {
-    log('sync started');
-
-    return sync.call(this);
+    this.updater.start();
   }
 
   stop() {
-    log('stopped syncing');
-
-    this.splitRefreshScheduler.kill();
-    this.segmentsRefreshScheduler.kill();
+    this.updater.stop();
   }
 }
 
