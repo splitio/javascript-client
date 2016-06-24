@@ -16,43 +16,37 @@ limitations under the License.
 const splitio = require('../../');
 const tape = require('tape');
 
-const prod = splitio({
-  core: {
-    authorizationKey: '5p2c0r4so20ill66lm35i45h6pkvrd2skmib'
-  },
-  urls: {
-    sdk: 'https://sdk-aws-staging.split.io/api',
-    events: 'https://events-aws-staging.split.io/api'
-  }
-});
+tape('SDK / evaluates multiple sdks at the same time', assert => {
+  const prod = splitio({
+    core: {
+      authorizationKey: '5p2c0r4so20ill66lm35i45h6pkvrd2skmib'
+    },
+    urls: {
+      sdk: 'https://sdk-aws-staging.split.io/api',
+      events: 'https://events-aws-staging.split.io/api'
+    }
+  });
 
-const stage = splitio({
-  core: {
-    authorizationKey: '5p2c0r4so20ill66lm35i45h6pkvrd2skmib'
-  },
-  urls: {
-    sdk: 'https://sdk-aws-staging.split.io/api',
-    events: 'https://events-aws-staging.split.io/api'
-  }
-});
+  const stage = splitio({
+    core: {
+      authorizationKey: '5p2c0r4so20ill66lm35i45h6pkvrd2skmib'
+    },
+    urls: {
+      sdk: 'https://sdk-aws-staging.split.io/api',
+      events: 'https://events-aws-staging.split.io/api'
+    }
+  });
 
-// wait till both instances are ready.
-Promise.all([prod.ready(), stage.ready()]).then(() => {
-  tape('SDK / evaluates a feature in prod sdk instance', assert => {
+  Promise.all([prod.ready(), stage.ready()]).then(() => {
+
     assert.equal(prod.getTreatment('node', 'get_environment', {
       env: 'prod'
     }), 'prod', 'Feature get_environment should return the treatment prod');
-    assert.end();
-  });
 
-  tape('SDK / evaluates a feature in stage sdk instance', assert => {
     assert.equal(stage.getTreatment('node', 'get_environment', {
       env: 'stage'
     }), 'stage', 'Feature get_environment should return the treatment stage');
-    assert.end();
-  });
 
-  tape('SDK / evaluates a feature in both sdks', assert => {
     const prodTreatment = prod.getTreatment('node', 'get_environment', {
       env: 'qc'
     });
@@ -63,11 +57,10 @@ Promise.all([prod.ready(), stage.ready()]).then(() => {
     assert.equal(prodTreatment, stageTreatment,
       'Feature get_environment should return the same treatment for both sdks'
     );
-    assert.end();
-  });
 
-  tape.onFinish(() => {
     prod.destroy();
     stage.destroy();
+
+    assert.end();
   });
 });
