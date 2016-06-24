@@ -1,3 +1,7 @@
+## 6.0.1 (June 24, 2016)
+
+* Critical bug fixed which prevent ready state of the SDK.
+
 ## 6.0.0 (June 24, 2016)
 
 * In the browser land we allow quick retries before start using the refresh
