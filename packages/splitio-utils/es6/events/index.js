@@ -17,43 +17,82 @@ const log = require('debug')('splitio-utils:events');
 
 const EventEmitter = require('events').EventEmitter;
 const Event = {
-  SDK_READY: 'state::ready',
+  SDK_READY_TIMED_OUT: 'init::timeout',
+  SDK_READY: 'init::ready',
+  SDK_SPLITS_ARRIVED: 'state::splits-arrived',
+  SDK_SEGMENTS_ARRIVED: 'state::segments-arrived',
   SDK_UPDATE: 'state::update',
   SDK_UPDATE_ERROR: 'state::update-error'
 };
 
+function throwOnInvalidEvent(eventName) {
+  switch (eventName) {
+    case Event.SDK_READY:
+    case Event.SDK_UPDATE:
+      throw new Error('Reserved event name.');
+  }
+}
+
 module.exports = function EventFactory() {
   const proto = new EventEmitter();
   const hub = Object.create(proto);
-  let _isReady = false;
+
+  let isReady = false;
+  let isReadyEventEmitted = false;
+  let areSplitsReady = false;
+  let areSegmentsReady = false;
 
   return Object.assign(hub, {
-    emit(eventName, ...listeners) {
-      // simulating once event just for simplicity
-      if (eventName === Event.SDK_READY) {
-        if (!_isReady) {
-          log(`Emitting event ${Event.SDK_READY}`);
-          _isReady = true;
-          return proto.emit(eventName, ...listeners);
+    emit(eventName, ...rest) {
+      throwOnInvalidEvent(eventName);
+
+      const isDataUpdateEvent = eventName === Event.SDK_SPLITS_ARRIVED ||
+                                eventName === Event.SDK_SEGMENTS_ARRIVED;
+
+      if (!areSplitsReady && eventName === Event.SDK_SPLITS_ARRIVED) {
+        log('splits are ready');
+
+        areSplitsReady = true;
+        isReady = areSplitsReady && areSegmentsReady;
+      }
+
+      if (!areSegmentsReady && eventName === Event.SDK_SEGMENTS_ARRIVED) {
+        log('segments are ready');
+
+        areSegmentsReady = true;
+        isReady = areSplitsReady && areSegmentsReady;
+      }
+
+      if (eventName === Event.SDK_READY_TIMED_OUT) {
+        if (!isReadyEventEmitted) {
+          log(`Emitting event ${Event.SDK_READY_TIMED_OUT}`);
+
+          return proto.emit(eventName, ...rest);
         } else {
-          log(`Discarding event ${Event.SDK_READY}`);
           return false;
         }
       }
 
-      // updates should be fired only after ready state
-      if (eventName === Event.SDK_UPDATE) {
-        if (_isReady) {
-          log(`Emitting event ${eventName}`);
-          return proto.emit(eventName, ...listeners);
-        } else {
-          log(`Discarding event ${Event.SDK_UPDATE}`);
-          return false;
-        }
+      if (!isReadyEventEmitted && isReady && isDataUpdateEvent) {
+        log(`Emitting event ${Event.SDK_READY}`);
+
+        isReadyEventEmitted = true;
+        return proto.emit(Event.SDK_READY, ...rest);
       }
 
-      // for future events just fire them
-      return proto.emit(eventName, ...listeners);
+      if (isReady && isDataUpdateEvent) {
+        log(`Emitting event ${Event.SDK_UPDATE}`);
+
+        return proto.emit(Event.SDK_UPDATE, ...rest);
+      }
+
+      if (!isDataUpdateEvent) {
+        log(`Emitting custom event ${eventName}`);
+
+        return proto.emit(eventName, ...rest);
+      }
+
+      return false;
     },
     Event
   });

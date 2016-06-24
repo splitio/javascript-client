@@ -1,3 +1,43 @@
+## 6.0.0 (June 24, 2016)
+
+* In the browser land we allow quick retries before start using the refresh
+  rates defined for segments and splits, plus the possibility of receive an
+  event when the SDK is taking to much time to startup.
+
+  ```html
+  <script src="//cdn.split.io/sdk/split-6.0.0.min.js"></script>
+  <script>
+    var sdk = splitio({
+      core: {
+        authorizationKey: '<your-token>',
+        key: 'myuser@domain.com'
+      },
+      startup: {
+        // timeout an *initial* request after 0.8 seconds (only affects startup)
+        requestTimeoutBeforeReady: 0.8,
+        // how many quick retries are allowed before use the schedulers refresh
+        // rates (only affects startup)
+        retriesOnFailureBeforeReady: 1,
+        // maximum amount of seconds we are going to wait for the ready event
+        readyTimeout: 1.5
+      }
+    });
+
+    sdk.on(sdk.Event.SDK_READY_TIMED_OUT, function () {
+      // this callback will be called after 1.5 seconds if and only if the SDK
+      // is not ready for that time
+    });
+
+    sdk.on(sdk.Event.SDK_READY, function () {
+      // the SDK is ready for start making evaluations with your data
+    });
+
+    sdk.on(sdk.Event.SDK_UPDATE, function () {
+      // fired each time the SDK state change
+    });
+  </script>
+  ```
+
 ## 5.1.1 (June 13, 2016)
 
 * None API changes. Bug fixing release.

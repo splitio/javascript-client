@@ -61,6 +61,11 @@ var SegmentsStorage = function () {
     value: function segmentNames() {
       return this.storage.keys();
     }
+  }, {
+    key: "size",
+    get: function get() {
+      return this.storage.size;
+    }
   }]);
   return SegmentsStorage;
 }();

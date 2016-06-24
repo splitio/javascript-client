@@ -27,7 +27,8 @@ function RequestFactory(settings, relativeUrl, params) {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`,
       'SplitSDKVersion': `${version}`,
-      'Connection': 'keep-alive' // node-fetch requires this to correctly support keep-alive connections
+      // node-fetch requires this to correctly support keep-alive connections
+      'Connection': 'keep-alive'
     },
     compress: true
   }, baseline, params));

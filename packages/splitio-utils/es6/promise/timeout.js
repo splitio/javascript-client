@@ -1,5 +1,3 @@
-'use strict';
-
 /**
 Copyright 2016 Split Software
 
@@ -16,12 +14,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-module.exports = function serial() {
-  var _this = this;
+function timeout(ms, promise) {
+  return new Promise((resolve, reject) => {
+    const tid = setTimeout(() => {
+      reject('timeout');
+    }, ms);
 
-  return this.splitRefreshScheduler.forever(this.splitsUpdater, this.settings.get('featuresRefreshRate'), this.settings.get('core')).then(function () {
-    return _this.segmentsRefreshScheduler.forever(_this.segmentsUpdater, _this.settings.get('segmentsRefreshRate'), _this.settings.get('core'));
-  }).then(function () {
-    return _this.storage;
+    promise.then((res) => {
+      clearTimeout(tid);
+      resolve(res);
+    },
+    (err) => {
+      clearTimeout(tid);
+      reject(err);
+    });
   });
-};
+}
+
+module.exports = timeout;

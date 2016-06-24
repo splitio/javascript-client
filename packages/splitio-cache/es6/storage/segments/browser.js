@@ -29,6 +29,10 @@ class SegmentsStorage {
   toJSON() {
     return this.storage.toJSON();
   }
+
+  get size() {
+    return this.storage.size;
+  }
 }
 
 module.exports = SegmentsStorage;

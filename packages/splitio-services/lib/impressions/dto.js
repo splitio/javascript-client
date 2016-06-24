@@ -16,7 +16,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-var groupBy = require('lodash.groupby');
+var groupBy = require('lodash/groupBy');
 
 module.exports = {
   fromImpressionsCollector: function fromImpressionsCollector(collector) {

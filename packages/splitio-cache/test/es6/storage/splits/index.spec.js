@@ -38,10 +38,8 @@ tape('SPLITS STORAGE / should return a list of unique segment names', assert => 
     allMustBePresent = allMustBePresent && mergedSegments.has(segment);
   }
 
-  // RangeError: Maximum call stack size exceeded.
-  // assert.deepEqual(storage.getSegments(), mergedSegments, 'all the segment names should be included');
-
   assert.true(allMustBePresent, 'all the segment names should be included');
+  assert.equal(storage.size, 3, 'we should have 3 splits stored');
   assert.end();
 });
 
@@ -53,5 +51,6 @@ tape('SPLITS STORAGE / get by split name', assert => {
   assert.equal(storage.get('sample_01'), s1, 'should be the same object');
   assert.equal(storage.get('sample_02'), s2, 'should be the same object');
   assert.equal(storage.get('sample_03'), s3, 'should be the same object');
+  assert.equal(storage.size, 3, 'we should have 3 splits stored');
   assert.end();
 });

@@ -4,6 +4,10 @@ var _assign = require('babel-runtime/core-js/object/assign');
 
 var _assign2 = _interopRequireDefault(_assign);
 
+var _promise = require('babel-runtime/core-js/promise');
+
+var _promise2 = _interopRequireDefault(_promise);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
@@ -26,11 +30,11 @@ limitations under the License.
 // babel-runtime before remove this line of code.
 require('core-js/es6/promise');
 
+var warning = require('warning');
 var log = require('debug')('splitio');
 
 var SettingsFactory = require('@splitsoftware/splitio-utils/lib/settings');
 var EventsFactory = require('@splitsoftware/splitio-utils/lib/events');
-var Event = EventsFactory.Event;
 var Metrics = require('@splitsoftware/splitio-metrics');
 var Cache = require('@splitsoftware/splitio-cache');
 
@@ -42,39 +46,29 @@ function onlineFactory(params /*: object */) /*: object */{
   var getTreatmentTracker = metrics.getTreatment;
   var cache = new Cache(settings, hub);
 
-  var storage = void 0;
-  var storageReadyPromise = void 0;
+  log(settings);
 
-  storageReadyPromise = cache.start().then(function (_storage) {
-    return storage = _storage;
-  }).catch(function () {
-    return storage = undefined;
-  }).then(function () {
-    hub.emit(Event.SDK_READY, storage);
+  cache.start();
+  metrics.start();
 
-    return storage;
+  // start the race vs the SDK startup!
+  if (settings.startup.readyTimeout > 0) {
+    setTimeout(function () {
+      hub.emit(hub.Event.SDK_READY_TIMED_OUT);
+    }, settings.startup.readyTimeout);
+  }
+
+  var readyPromise = new _promise2.default(function onReady(resolve) {
+    hub.on(hub.Event.SDK_READY, resolve);
   });
-
-  metrics.start(settings);
 
   return (0, _assign2.default)(hub, {
     getTreatment: function getTreatment(key /*: string */, featureName /*: string */, attributes /*: object */) /*: string */{
       var treatment = 'control';
 
-      if (storage === undefined) {
-        impressionsTracker({
-          feature: featureName,
-          key: key,
-          treatment: treatment,
-          when: Date.now()
-        });
-
-        return treatment;
-      }
-
       var stopGetTreatmentTracker = getTreatmentTracker(); // start engine perf monitoring
 
-      var split = storage.splits.get(featureName);
+      var split = cache.storage.splits.get(featureName);
       if (split) {
         treatment = split.getTreatment(key, attributes);
 
@@ -94,10 +88,13 @@ function onlineFactory(params /*: object */) /*: object */{
 
       return treatment;
     },
-    ready: function ready() /*: Promise */{
-      return storageReadyPromise;
+    ready: function ready() {
+      warning(false, '`.ready()` is deprecated. Please use `sdk.on(sdk.Event.SDK_READY, callback)`');
+      return readyPromise;
     },
     destroy: function destroy() {
+      log('destroying sdk instance');
+
       hub.removeAllListeners();
       metrics.stop();
       cache.stop();

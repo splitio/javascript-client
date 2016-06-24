@@ -14,17 +14,17 @@ if (process.env.SPLIT_SDK_MODE === 'offline') {
 } else {
   sdk = splitio({
     core: {
-      authorizationKey: '5p2c0r4so20ill66lm35i45h6pkvrd2skmib' // nodejs environment
+      authorizationKey: '5p2c0r4so20ill66lm35i45h6pkvrd2skmib'
     },
     urls: {
       sdk: 'https://sdk-aws-staging.split.io/api',
       events: 'https://events-aws-staging.split.io/api'
     },
     scheduler: {
-      featuresRefreshRate: 5,     // fetch feature updates each 1 sec
-      segmentsRefreshRate: 5,     // fetch segment updates each 1 sec
-      metricsRefreshRate: 10,     // publish metrics each 30 sec
-      impressionsRefreshRate: 10  // publish evaluations each 30 sec
+      featuresRefreshRate:    15,
+      segmentsRefreshRate:    15,
+      metricsRefreshRate:     15,
+      impressionsRefreshRate: 15
     }
   });
 }

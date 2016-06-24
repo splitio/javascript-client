@@ -31,7 +31,7 @@ console.info(
 // The following code will be evaluated once the engine finalice the
 // initialization
 //
-sdk.ready().then(function () {
+sdk.on(sdk.Event.SDK_READY, function onSDKReady() {
   //
   // Some simple cases for my defined features
   //
@@ -48,3 +48,6 @@ sdk.ready().then(function () {
     "<= The expected answer based on the definition before is 'delta'"
   );
 });
+
+// just to show up the deprecated message
+sdk.ready().then(function() {});

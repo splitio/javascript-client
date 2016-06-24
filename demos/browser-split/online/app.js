@@ -1,7 +1,5 @@
 'use strict';
 
-console.log('SPLIT DEMO!');
-
 //
 // Bellow you will see how you could define features and the defaults treatments
 // for each one.
@@ -9,22 +7,45 @@ console.log('SPLIT DEMO!');
 // NOTICE: there is NONE asyncronous initialization in offline mode, because you
 //         are providing the default feedback of the engine.
 //
-
 var sdk = splitio({
   core: {
-    authorizationKey: '29lsbc79peklpksdto0a90s2e3u1agv8vqm2', // change this with your api token
-    key: '4a2c4490-ced1-11e5-9b97-d8a25e8b1578'               // change this with your user key
-  }/*,
+    // change this with your api token
+    authorizationKey: '5p2c0r4so20ill66lm35i45h6pkvrd2skmib',
+    // change this with your user key
+    key: '1f84e5ddb06a3e66145ccfc1aac247'
+  },
   scheduler: {
-    featuresRefreshRate: 1,    // fetch feature updates each 1 sec
-    segmentsRefreshRate: 1,    // fetch segment updates each 1 sec
-    metricsRefreshRate: 30,    // publish metrics each 30 sec
-    impressionsRefreshRate: 30 // publish evaluations each 30 sec
-  }*/
+    // fetch feature updates each 15 sec
+    featuresRefreshRate: 15,
+    // fetch segment updates each 15 sec
+    segmentsRefreshRate: 15,
+    // publish metrics each 15 sec
+    metricsRefreshRate: 15,
+    // publish evaluations each 15 sec
+    impressionsRefreshRate: 15
+  },
+  urls: {
+    sdk: 'https://sdk-aws-staging.split.io/api',
+    events: 'https://events-aws-staging.split.io/api'
+  }
 });
 
-console.info( sdk.getTreatment('early_evaluation') , '<= We are asking for a feature before the engine is ready');
+console.assert(
+  sdk.getTreatment('in_five_keys') === 'control'
+);
 
-sdk.ready().then(function () {
-  console.info( sdk.getTreatment('js_sdk'), '<= This answer depends on split configurations' );
+sdk.on(sdk.Event.SDK_READY_TIMED_OUT, function onTimeout() {
+  console.log('SDK ready timeout');
 });
+
+sdk.on(sdk.Event.SDK_READY, function onSDKReady() {
+  console.assert(sdk.getTreatment('in_five_keys') === 'activated');
+});
+
+sdk.on(sdk.Event.SDK_UPDATE, function onSDKUpdate() {
+  console.log(sdk.getTreatment('in_five_keys'));
+  console.log(sdk.getTreatment('in_ten_keys'));
+});
+
+// just to show up the deprecated message
+sdk.ready().then(function () {});

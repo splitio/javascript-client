@@ -25,7 +25,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-
 var segmentChangesService = require('@splitsoftware/splitio-services/lib/segmentChanges');
 var segmentChangesRequest = require('@splitsoftware/splitio-services/lib/segmentChanges/get');
 
@@ -61,13 +60,30 @@ function segmentChangesDataSource(settings, segmentName, sinceValuesCache) {
 
   return greedyFetch(settings, sinceValue, segmentName).then(function (changes) {
     var len = changes.length;
+    var lastChange = len > 0 ? changes[len - 1] : false;
+
+    // doesn't matter if we fully download the information, say if we need to
+    // update the data or not.
     var shouldUpdate = !(len === 0 || len === 1 && changes[0].since === changes[0].till);
+
+    // do we fully download the segment's changes from the server?
+    var isFullUpdate = lastChange && lastChange.since === lastChange.till;
+
+    // fn which actually applies the changes
+    var mutator = function mutator() {
+      return false;
+    };
 
     if (shouldUpdate) {
       sinceValuesCache.set(segmentName, changes[len - 1].till);
+      mutator = segmentMutatorFactory(changes);
     }
 
-    return segmentMutatorFactory(shouldUpdate, changes);
+    return {
+      shouldUpdate: shouldUpdate, // did an update?
+      isFullUpdate: isFullUpdate, // did it was partial or full?
+      mutator: mutator
+    };
   });
 }
 

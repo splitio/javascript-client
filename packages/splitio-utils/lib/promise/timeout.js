@@ -22,10 +22,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-module.exports = function parallel() {
-  var _this = this;
+function timeout(ms, promise) {
+  return new _promise2.default(function (resolve, reject) {
+    var tid = setTimeout(function () {
+      reject('timeout');
+    }, ms);
 
-  return _promise2.default.all([this.splitRefreshScheduler.forever(this.splitsUpdater, this.settings.get('featuresRefreshRate'), this.settings.get('core')), this.segmentsRefreshScheduler.forever(this.segmentsUpdater, this.settings.get('segmentsRefreshRate'), this.settings.get('core'))]).then(function () {
-    return _this.storage;
+    promise.then(function (res) {
+      clearTimeout(tid);
+      resolve(res);
+    }, function (err) {
+      clearTimeout(tid);
+      reject(err);
+    });
   });
-};
+}
+
+module.exports = timeout;

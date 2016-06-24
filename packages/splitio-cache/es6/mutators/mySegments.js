@@ -23,15 +23,15 @@ module.exports = function MySegmentMutationsFactory(
 
   return function segmentMutations(storage /*: Object */) /*: void */ {
     const nextSegments = new Set(mySegments);
+    const sameAmountOfElements = storage.segments.size === nextSegments.size;
     let isEqual = true;
-    let shouldUpdate;
+    let shouldUpdate = false;
 
-    // weak logic for performance
     for (let i = 0; i < mySegments.length && isEqual; i++) {
       isEqual = storage.segments.has(mySegments[i]);
     }
 
-    shouldUpdate = !isEqual;
+    shouldUpdate = !isEqual || !sameAmountOfElements;
 
     if (shouldUpdate) {
       storage.segments.update(nextSegments);

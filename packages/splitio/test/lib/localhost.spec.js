@@ -24,7 +24,7 @@ limitations under the License.
 var splitio = require('../../');
 var tape = require('tape');
 
-tape('SDK / evaluates a feature in prod sdk instance', function (assert) {
+tape('SDK / evaluates a feature in offline mode', function (assert) {
   // Look for configurations into $HOME/.split file
   var sdk = splitio({
     core: {

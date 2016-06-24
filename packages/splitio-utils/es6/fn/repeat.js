@@ -14,19 +14,28 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-module.exports = function parallel() {
-  return Promise.all([
-    this.splitRefreshScheduler.forever(
-      this.splitsUpdater,
-      this.settings.get('featuresRefreshRate'),
-      this.settings.get('core')
-    ),
-    this.segmentsRefreshScheduler.forever(
-      this.segmentsUpdater,
-      this.settings.get('segmentsRefreshRate'),
-      this.settings.get('core')
-    )
-  ]).then(() => {
-    return this.storage;
-  });
-};
+function repeat(fn, delay, ...rest) {
+  let tid;
+  let stopped = false;
+
+  function next(_delay = delay, ...rest) {
+    if (!stopped) {
+      // IE 9 doesn't support function arguments through setTimeout call.
+      // https://msdn.microsoft.com/en-us/library/ms536753(v=vs.85).aspx
+      tid = setTimeout(() => {
+        fn(...rest, next);
+      }, _delay);
+    }
+  }
+
+  function till() {
+    clearTimeout(tid);
+    stopped = true;
+  }
+
+  fn(...rest, next);
+
+  return till;
+}
+
+module.exports = repeat;

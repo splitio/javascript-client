@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-const SchedulerFactory = require('@splitsoftware/splitio-utils/lib/scheduler');
+const repeat = require('@splitsoftware/splitio-utils/lib/fn/repeat');
 
 const metricsService = require('@splitsoftware/splitio-services/lib/metrics');
 const metricsServiceRequest = require('@splitsoftware/splitio-services/lib/metrics/post');
@@ -30,53 +30,77 @@ const SequentialCollector = require('./collector/sequential');
 const FibonacciCollector = require('./collector/fibonacci');
 
 class Metrics {
-  constructor() {
+  constructor(settings) {
+    this.settings = settings;
+
     this.impressionsCollector = SequentialCollector();
     this.getTreatmentCollector = FibonacciCollector();
-
-    this.performanceScheduler = SchedulerFactory();
-    this.impressionsScheduler = SchedulerFactory();
 
     this.impressions = PassThroughFactory(this.impressionsCollector);
     this.getTreatment = TimerFactory(this.getTreatmentCollector);
   }
 
-  publishToTime(settings) {
-    if (!this.getTreatmentCollector.isEmpty()) {
-      metricsService(metricsServiceRequest(settings, {
-        body: JSON.stringify(metricsDTO.fromGetTreatmentCollector(this.getTreatmentCollector))
-      })).then(resp => {
+  publishToTime() {
+    return new Promise(resolve => {
+      if (this.getTreatmentCollector.isEmpty()) {
+        return resolve();
+      }
+
+      resolve(metricsService(metricsServiceRequest(this.settings, {
+        body: JSON.stringify(
+          metricsDTO.fromGetTreatmentCollector(this.getTreatmentCollector)
+        )
+      }))
+      .then(resp => {
         this.getTreatmentCollector.clear();
+
         return resp;
-      }).catch(() => {
+      })
+      .catch(() => {
         this.getTreatmentCollector.clear();
-      });
-    }
+      }));
+    });
   }
 
-  publishToImpressions(settings) {
-    if (!this.impressionsCollector.isEmpty()) {
-      impressionsService(impressionsBulkRequest(settings, {
-        body: JSON.stringify(impressionsDTO.fromImpressionsCollector(this.impressionsCollector))
-      })).then(resp => {
+  publishToImpressions() {
+    return new Promise(resolve => {
+      if (this.impressionsCollector.isEmpty()) {
+        return resolve();
+      }
+
+      resolve(impressionsService(impressionsBulkRequest(this.settings, {
+        body: JSON.stringify(
+          impressionsDTO.fromImpressionsCollector(this.impressionsCollector)
+        )
+      }))
+      .then(resp => {
         this.impressionsCollector.clear();
+
         return resp;
-      }).catch(() => {
+      })
+      .catch(() => {
         this.impressionsCollector.clear();
-      });
-    }
+      }));
+    });
   }
 
-  start(settings) {
-    this.performanceScheduler.forever(this.publishToTime.bind(this, settings),
-      settings.get('metricsRefreshRate'));
-    this.impressionsScheduler.forever(this.publishToImpressions.bind(this, settings),
-      settings.get('impressionsRefreshRate'));
+  start() {
+    this.stopImpressionsPublisher = repeat(schedulePublisher => {
+      this.publishToImpressions().then(() => {
+        schedulePublisher();
+      });
+    }, this.settings.scheduler.impressionsRefreshRate);
+
+    this.stopPerformancePublisher = repeat(schedulePublisher => {
+      this.publishToTime().then(() => {
+        schedulePublisher();
+      });
+    }, this.settings.scheduler.metricsRefreshRate);
   }
 
   stop() {
-    this.performanceScheduler.kill();
-    this.impressionsScheduler.kill();
+    this.stopImpressionsPublisher && this.stopImpressionsPublisher();
+    this.stopPerformancePublisher && this.stopPerformancePublisher();
   }
 }
 

@@ -13,24 +13,28 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+const timeout = require('@splitsoftware/splitio-utils/lib/promise/timeout');
 
 const splitChangesService = require('@splitsoftware/splitio-services/lib/splitChanges');
 const splitChangesRequest = require('@splitsoftware/splitio-services/lib/splitChanges/get');
 
 const splitMutatorFactory = require('../mutators/splitChanges');
 
-function splitChangesDataSource(settings, sinceValueCache) {
-  return splitChangesService(splitChangesRequest(settings, sinceValueCache))
-  .then(resp => resp.json())
-  .then(json => {
+function splitChangesDataSource(settings, sinceValueCache, shouldApplyTimeout = false) {
+  let requestPromise = splitChangesService(splitChangesRequest(settings, sinceValueCache));
+
+  if (shouldApplyTimeout) {
+    requestPromise = timeout(settings.startup.requestTimeoutBeforeReady, requestPromise);
+  }
+
+  return requestPromise.then(resp => resp.json()).then(json => {
     const {till, splits} = json;
     const shouldUpdate = sinceValueCache.since !== till;
 
     sinceValueCache.since = till;
 
     return splitMutatorFactory(shouldUpdate, splits);
-  })
-  .catch(() => false);
+  });
 }
 
 module.exports = splitChangesDataSource;

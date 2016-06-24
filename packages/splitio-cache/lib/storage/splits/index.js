@@ -125,6 +125,11 @@ var SplitsStorage = function () {
     value: function toJSON() /*: string */{
       return this.storage.toJSON();
     }
+  }, {
+    key: "size",
+    get: function get() {
+      return this.storage.size;
+    }
   }]);
   return SplitsStorage;
 }();

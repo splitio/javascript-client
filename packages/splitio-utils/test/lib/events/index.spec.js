@@ -26,21 +26,40 @@ tape('EVENTS / ' + Event.SDK_READY + ' should be emitted once', function (assert
   hub.on(hub.Event.SDK_READY, function () {
     counter++;
   });
-  hub.emit(hub.Event.SDK_READY);
-  hub.emit(hub.Event.SDK_READY);
+
+  hub.emit(hub.Event.SDK_SPLITS_ARRIVED);
+  hub.emit(hub.Event.SDK_SEGMENTS_ARRIVED);
+  hub.emit(hub.Event.SDK_SPLITS_ARRIVED);
+  hub.emit(hub.Event.SDK_SEGMENTS_ARRIVED);
+  hub.emit(hub.Event.SDK_SPLITS_ARRIVED);
+  hub.emit(hub.Event.SDK_SEGMENTS_ARRIVED);
 
   assert.equal(counter, 1, 'called once');
   assert.end();
 });
 
-tape('EVENTS / should not emit ' + Event.SDK_UPDATE + ' if ' + Event.SDK_READY + ' is not emitted yet', function (assert) {
+tape('EVENTS / should emit ' + Event.SDK_UPDATE + ' after ' + Event.SDK_READY, function (assert) {
   var hub = EventsFactory();
+  var isReady = false;
+  var counter = 0;
+
+  hub.on(hub.Event.SDK_READY, function () {
+    counter++;
+    isReady = true;
+  });
 
   hub.on(hub.Event.SDK_UPDATE, function () {
-    assert.fail('should not be called yet');
+    isReady && counter++;
   });
-  hub.emit(hub.Event.SDK_UPDATE);
 
-  assert.pass('looks good');
+  hub.emit(hub.Event.SDK_SPLITS_ARRIVED);
+  hub.emit(hub.Event.SDK_SEGMENTS_ARRIVED); // counter = 1
+
+  hub.emit(hub.Event.SDK_SPLITS_ARRIVED); // counter = 2
+  hub.emit(hub.Event.SDK_SEGMENTS_ARRIVED); // counter = 3
+  hub.emit(hub.Event.SDK_SPLITS_ARRIVED); // counter = 4
+  hub.emit(hub.Event.SDK_SEGMENTS_ARRIVED); // counter = 5
+
+  assert.equal(counter, 5, 'counter should have a 5');
   assert.end();
 });

@@ -33,6 +33,10 @@ class SegmentsStorage {
   segmentNames() {
     return this.storage.keys();
   }
+
+  get size() {
+    return this.storage.size;
+  }
 }
 
 module.exports = SegmentsStorage;

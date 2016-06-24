@@ -18,16 +18,32 @@ limitations under the License.
 var splitio = require('../../');
 var tape = require('tape');
 
-tape('SDK / check the event SDK_READY is fired', {
-  timeout: 5000
-}, function (assert) {
+tape('SDK / check the event SDK_READY is fired', function (assert) {
   var prod = splitio({
     core: {
-      authorizationKey: 'kn4j3ctq14ipifmjvbbqu8dgt6'
+      authorizationKey: '5p2c0r4so20ill66lm35i45h6pkvrd2skmib'
     },
     urls: {
-      sdk: 'https://sdk-staging.split.io/api',
-      events: 'https://events-staging.split.io/api'
+      sdk: 'https://sdk-aws-staging.split.io/api',
+      events: 'https://events-aws-staging.split.io/api'
+    },
+    scheduler: {
+      // fetch feature updates each 15 sec
+      featuresRefreshRate: 15,
+      // fetch segments updates each 30 sec
+      segmentsRefreshRate: 30,
+      // publish metrics each 600 sec
+      metricsRefreshRate: 600,
+      // publish evaluations each 600 sec
+      impressionsRefreshRate: 600
+    },
+    startup: {
+      // initial requests will have a stretch timeout
+      requestTimeoutBeforeReady: 10,
+      // if something fails because a timeout or a network error, retry at least
+      retriesOnFailureBeforeReady: 0,
+      // fires SDK_READY_TIMEOUT after this amount of seconds
+      readyTimeout: 0
     }
   });
 
