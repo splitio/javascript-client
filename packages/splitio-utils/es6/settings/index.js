@@ -88,7 +88,7 @@ const proto = {
   get(name) {
     switch (name) {
       case 'version':
-        return 'javascript-5.2.0';
+        return 'javascript-6.0.0-canary.1';
       case 'authorizationKey':
         return this.core.authorizationKey;
       case 'key':

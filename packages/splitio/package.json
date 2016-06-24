@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio",
-  "version": "5.2.0",
+  "version": "6.0.0-canary.1",
   "description": "Split SDK",
   "author": "Facundo Cabrera <facundo@split.io>",
   "homepage": "https://github.com/splitio/javascript-client",
@@ -20,9 +20,9 @@
     "karma-sauce": "karma start sauce.karma.conf.js"
   },
   "dependencies": {
-    "@splitsoftware/splitio-cache": "5.2.0",
-    "@splitsoftware/splitio-metrics": "5.2.0",
-    "@splitsoftware/splitio-utils": "5.2.0",
+    "@splitsoftware/splitio-cache": "6.0.0-canary.1",
+    "@splitsoftware/splitio-metrics": "6.0.0-canary.1",
+    "@splitsoftware/splitio-utils": "6.0.0-canary.1",
     "babel-runtime": "^6.9.0",
     "core-js": "^2.4.0",
     "debug": "^2.2.0",

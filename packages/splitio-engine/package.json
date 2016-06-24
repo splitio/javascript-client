@@ -55,5 +55,5 @@
     "watch": "babel es6 --out-dir lib --watch",
     "watch-test": "babel test/es6 --out-dir test/lib --watch"
   },
-  "version": "5.2.0"
+  "version": "6.0.0-canary.1"
 }

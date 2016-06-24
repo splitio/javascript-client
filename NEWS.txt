@@ -1,3 +1,12 @@
+## 6.0.0 (June 24, 2016)
+
+* In the browser land, it's important to have quick retries before after a
+  stretch timeouts. We added new configurations to handle this.
+* Added the concept of 'ready timeout', so you could take a controlled action if
+  the SDK is taking too much time doing the startup.
+* Fixed few bugs, specially for the browser release.
+* `.ready()` method is deprecated in favor of `sdk.on(sdk.Event.SDK_READY, function onReady() { do something; })`
+
 ## 5.1.1 (June 13, 2016)
 
 * Added missing support for events in offline mode (NodeJS and Browser).
