@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio-browser",
-  "version": "6.0.0-canary.1",
+  "version": "6.0.0",
   "description": "Split SDK tools for the browser",
   "author": "Facundo Cabrera <facundo@split.io>",
   "homepage": "https://github.com/splitio/javascript-client",
@@ -25,7 +25,7 @@
     "sdk"
   ],
   "dependencies": {
-    "@splitsoftware/splitio": "6.0.0-canary.1",
+    "@splitsoftware/splitio": "6.0.0",
     "browserify": "^13.0.0",
     "browserify-derequire": "^0.9.4",
     "bundle-collapser": "^1.2.1",
