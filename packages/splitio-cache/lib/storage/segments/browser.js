@@ -1,14 +1,10 @@
-"use strict";
+'use strict';
 
-var _set = require("babel-runtime/core-js/set");
-
-var _set2 = _interopRequireDefault(_set);
-
-var _classCallCheck2 = require("babel-runtime/helpers/classCallCheck");
+var _classCallCheck2 = require('babel-runtime/helpers/classCallCheck');
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = require("babel-runtime/helpers/createClass");
+var _createClass2 = require('babel-runtime/helpers/createClass');
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
@@ -34,28 +30,28 @@ var SegmentsStorage = function () {
   function SegmentsStorage() {
     (0, _classCallCheck3.default)(this, SegmentsStorage);
 
-    this.storage = new _set2.default();
+    this.storage = null;
   }
 
   (0, _createClass3.default)(SegmentsStorage, [{
-    key: "update",
+    key: 'update',
     value: function update(segments /*: Set */) /*: void */{
       this.storage = segments;
     }
   }, {
-    key: "has",
+    key: 'has',
     value: function has(name /*: string */) /*: boolean */{
-      return this.storage.has(name);
+      return this.storage ? this.storage.has(name) : false;
     }
   }, {
-    key: "toJSON",
+    key: 'toJSON',
     value: function toJSON() {
-      return this.storage.toJSON();
+      return this.storage ? this.storage.toJSON() : 'null';
     }
   }, {
-    key: "size",
+    key: 'size',
     get: function get() {
-      return this.storage.size;
+      return this.storage ? this.storage.size : -1;
     }
   }]);
   return SegmentsStorage;

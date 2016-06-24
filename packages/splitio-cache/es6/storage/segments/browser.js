@@ -15,7 +15,7 @@ limitations under the License.
 **/
 class SegmentsStorage {
   constructor() {
-    this.storage = new Set();
+    this.storage = null;
   }
 
   update(segments /*: Set */) /*: void */ {
@@ -23,15 +23,15 @@ class SegmentsStorage {
   }
 
   has(name /*: string */) /*: boolean */ {
-    return this.storage.has(name);
+    return this.storage ? this.storage.has(name) : false;
   }
 
   toJSON() {
-    return this.storage.toJSON();
+    return this.storage ? this.storage.toJSON() : 'null';
   }
 
   get size() {
-    return this.storage.size;
+    return this.storage ? this.storage.size : -1;
   }
 }
 
