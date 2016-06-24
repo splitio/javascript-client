@@ -35,6 +35,8 @@ var Updater = function () {
     this.segmentsUpdater = segmentsUpdater;
     this.splitsUpdaterRefreshRate = splitsUpdaterRefreshRate;
     this.segmentsUpdaterRefreshRate = segmentsUpdaterRefreshRate;
+
+    this.preventSchedulingOfSegmentsUpdates = false;
   }
 
   (0, _createClass3.default)(Updater, [{
@@ -46,7 +48,7 @@ var Updater = function () {
 
       this.stopSplitsUpdate = repeat(function (scheduleSplitsUpdate) {
         _this.splitsUpdater().then(function (splitsHasBeenUpdated) {
-          if (!isSegmentsUpdaterRunning && splitsHasBeenUpdated) {
+          if (!isSegmentsUpdaterRunning && splitsHasBeenUpdated && !_this.preventSchedulingOfSegmentsUpdates) {
             isSegmentsUpdaterRunning = true;
 
             _this.stopSegmentsUpdate = repeat(function (scheduleSegmentsUpdate) {
@@ -64,7 +66,11 @@ var Updater = function () {
     key: 'stop',
     value: function stop() {
       this.stopSplitsUpdate && this.stopSplitsUpdate();
-      this.stopSegmentsUpdate && this.stopSegmentsUpdate();
+      if (this.stopSegmentsUpdate) {
+        this.stopSegmentsUpdate();
+      } else {
+        this.preventSchedulingOfSegmentsUpdates = true;
+      }
     }
   }]);
   return Updater;

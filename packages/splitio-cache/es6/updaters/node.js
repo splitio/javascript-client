@@ -26,6 +26,8 @@ class Updater {
     this.segmentsUpdater = segmentsUpdater;
     this.splitsUpdaterRefreshRate = splitsUpdaterRefreshRate;
     this.segmentsUpdaterRefreshRate = segmentsUpdaterRefreshRate;
+
+    this.preventSchedulingOfSegmentsUpdates = false;
   }
 
   start() {
@@ -33,7 +35,7 @@ class Updater {
 
     this.stopSplitsUpdate = repeat(scheduleSplitsUpdate => {
       this.splitsUpdater().then(splitsHasBeenUpdated => {
-        if (!isSegmentsUpdaterRunning && splitsHasBeenUpdated) {
+        if (!isSegmentsUpdaterRunning && splitsHasBeenUpdated && !this.preventSchedulingOfSegmentsUpdates) {
           isSegmentsUpdaterRunning = true;
 
           this.stopSegmentsUpdate = repeat(scheduleSegmentsUpdate => {
@@ -54,7 +56,11 @@ class Updater {
 
   stop() {
     this.stopSplitsUpdate && this.stopSplitsUpdate();
-    this.stopSegmentsUpdate && this.stopSegmentsUpdate();
+    if (this.stopSegmentsUpdate) {
+      this.stopSegmentsUpdate();
+    } else {
+      this.preventSchedulingOfSegmentsUpdates = true;
+    }
   }
 }
 

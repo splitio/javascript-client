@@ -35,13 +35,11 @@ console.assert(
 );
 
 sdk.on(sdk.Event.SDK_READY_TIMED_OUT, function onTimeout() {
-  console.log('SDK ready timeout 😭');
+  console.log('SDK ready timeout');
 });
 
 sdk.on(sdk.Event.SDK_READY, function onSDKReady() {
-  console.assert(
-    sdk.getTreatment('in_five_keys') === 'activated'
-  );
+  console.assert(sdk.getTreatment('in_five_keys') === 'activated');
 });
 
 sdk.on(sdk.Event.SDK_UPDATE, function onSDKUpdate() {
@@ -50,4 +48,4 @@ sdk.on(sdk.Event.SDK_UPDATE, function onSDKUpdate() {
 });
 
 // just to show up the deprecated message
-sdk.ready().then(() => {});
+sdk.ready().then(function () {});

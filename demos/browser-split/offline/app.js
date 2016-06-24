@@ -50,4 +50,4 @@ sdk.on(sdk.Event.SDK_READY, function onSDKReady() {
 });
 
 // just to show up the deprecated message
-sdk.ready().then(() => {});
+sdk.ready().then(function() {});

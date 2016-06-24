@@ -20,7 +20,11 @@ function repeat(fn, delay, ...rest) {
 
   function next(_delay = delay, ...rest) {
     if (!stopped) {
-      tid = setTimeout(fn, _delay, ...rest, next);
+      // IE 9 doesn't support function arguments through setTimeout call.
+      // https://msdn.microsoft.com/en-us/library/ms536753(v=vs.85).aspx
+      tid = setTimeout(() => {
+        fn(...rest, next);
+      }, _delay);
     }
   }
 

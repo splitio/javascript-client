@@ -37,7 +37,7 @@ function onlineFactory(params /*: object */) /*: object */ {
   log(settings);
 
   cache.start();
-  metrics.start(settings);
+  metrics.start();
 
   // start the race vs the SDK startup!
   if (settings.startup.readyTimeout > 0) {

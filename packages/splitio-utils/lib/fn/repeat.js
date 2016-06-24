@@ -25,14 +25,18 @@ function repeat(fn, delay) {
   var stopped = false;
 
   function next() {
+    for (var _len2 = arguments.length, rest = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+      rest[_key2 - 1] = arguments[_key2];
+    }
+
     var _delay = arguments.length <= 0 || arguments[0] === undefined ? delay : arguments[0];
 
     if (!stopped) {
-      for (var _len2 = arguments.length, rest = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
-        rest[_key2 - 1] = arguments[_key2];
-      }
-
-      tid = setTimeout.apply(undefined, [fn, _delay].concat(rest, [next]));
+      // IE 9 doesn't support function arguments through setTimeout call.
+      // https://msdn.microsoft.com/en-us/library/ms536753(v=vs.85).aspx
+      tid = setTimeout(function () {
+        fn.apply(undefined, rest.concat([next]));
+      }, _delay);
     }
   }
 
