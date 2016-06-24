@@ -48,3 +48,6 @@ sdk.on(sdk.Event.SDK_UPDATE, function onSDKUpdate() {
   console.log(sdk.getTreatment('in_five_keys'));
   console.log(sdk.getTreatment('in_ten_keys'));
 });
+
+// just to show up the deprecated message
+sdk.ready().then(() => {});

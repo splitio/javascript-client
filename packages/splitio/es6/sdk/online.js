@@ -78,7 +78,7 @@ function onlineFactory(params /*: object */) /*: object */ {
     },
 
     ready() {
-      warning(true, '`.ready()` is deprecated. Please use `sdk.on(sdk.Event.SDK_READY, callback)`');
+      warning(false, '`.ready()` is deprecated. Please use `sdk.on(sdk.Event.SDK_READY, callback)`');
       return readyPromise;
     },
 

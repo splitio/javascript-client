@@ -9,7 +9,8 @@
   "repository": "https://github.com/splitio/javascript-client/tree/master/demo/express-split",
   "main": "index.js",
   "scripts": {
-    "start": "DEBUG=splitio* node index.js"
+    "start": "node index.js",
+    "debug": "DEBUG=splitio* node index.js"
   },
   "engines": {
     "node": ">=0.12",

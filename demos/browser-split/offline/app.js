@@ -48,3 +48,6 @@ sdk.on(sdk.Event.SDK_READY, function onSDKReady() {
     "<= The expected answer based on the definition before is 'delta'"
   );
 });
+
+// just to show up the deprecated message
+sdk.ready().then(() => {});

@@ -86,7 +86,7 @@ const debug = browserify({ debug: true });
 debug.add(splitSource);
 debug.transform(envify({
     _: 'purge',
-    NODE_ENV: process.env.NODE_ENV || 'production'
+    NODE_ENV: 'development'
   }), { global: true })
   .bundle()
     .pipe(fs.createWriteStream(debugBundlePath));
@@ -95,7 +95,7 @@ const prod = browserify();
 prod.add(splitSource);
 prod.transform(envify({
     _: 'purge',
-    NODE_ENV: process.env.NODE_ENV || 'production'
+    NODE_ENV: 'production'
   }), { global: true })
   .bundle()
     .pipe(fs.createWriteStream(productionBundlePath))

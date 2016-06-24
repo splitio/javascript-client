@@ -115,7 +115,7 @@ function offlineFactory(settings) {
       return typeof treatment !== 'string' ? 'control' : treatment;
     },
     ready: function ready() {
-      warning(true, '`.ready()` is deprecated. Please use `sdk.on(sdk.Event.SDK_READY, callback)`');
+      warning(false, '`.ready()` is deprecated. Please use `sdk.on(sdk.Event.SDK_READY, callback)`');
       return readyPromise;
     },
     destroy: function destroy() {
