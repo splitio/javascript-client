@@ -15,8 +15,8 @@ limitations under the License.
 **/
 'use strict';
 
-const splitio = require('../../');
 const ava = require('ava');
+const splitio = require('../node');
 
 ava('SDK / evaluates multiple sdks at the same time', assert => {
   const prod = splitio({

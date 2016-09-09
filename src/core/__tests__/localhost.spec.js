@@ -15,8 +15,8 @@ limitations under the License.
 **/
 'use strict';
 
-const splitio = require('../../');
 const ava = require('ava');
+const splitio = require('../node');
 
 ava('SDK / evaluates a feature in offline mode', assert => {
   // Look for configurations into $HOME/.split file

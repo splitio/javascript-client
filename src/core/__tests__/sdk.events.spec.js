@@ -15,8 +15,8 @@ limitations under the License.
 **/
 'use strict';
 
-const splitio = require('../../');
 const ava = require('ava');
+const splitio = require('../node');
 
 ava('SDK / check the event SDK_READY is fired', assert => {
   const prod = splitio({
