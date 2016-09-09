@@ -13,6 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+'use strict';
+
 const SettingsFactory = require('../../../../utils/settings');
 const settings = SettingsFactory({
   core: {
@@ -24,9 +26,9 @@ const url = settings.url.bind(settings);
 const greedyFetch = require('../../../ds/segmentChanges').greedyFetch.bind(null, settings, -1);
 const fetchMock = require('fetch-mock');
 
-const tape = require('tape');
+const ava = require('ava');
 
-tape('DS SEGMENT CHANGES / greedy fetch should download while since != till', assert => {
+ava('DS SEGMENT CHANGES / greedy fetch should download while since != till', assert => {
   const response1 = {
     name: 'segment_1',
     added: [
@@ -95,7 +97,7 @@ tape('DS SEGMENT CHANGES / greedy fetch should download while since != till', as
   });
 });
 
-tape('DS SEGMENT CHANGES / greedy fetch stop fetching if one response fails', assert => {
+ava('DS SEGMENT CHANGES / greedy fetch stop fetching if one response fails', assert => {
   const response1 = {
     name: 'segment_1',
     added: [

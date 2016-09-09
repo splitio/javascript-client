@@ -23,6 +23,8 @@ type SegmentChangesDTO = {
 
 type SegmentChangesDTOCollection = Array<SegmentChangesDTO>;
 */
+'use strict';
+
 const log = require('debug')('splitio-cache:mutators');
 
 function SegmentMutationsFactory(changes /*: SegmentChangesDTOCollection */) /*: Function */ {

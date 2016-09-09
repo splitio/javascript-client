@@ -13,11 +13,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+'use strict';
+
 const _ = require('lodash');
-const tape = require('tape');
+const ava = require('ava');
 const SettingsFactory = require('../../settings');
 
-tape('SETTINGS / check defaults', assert => {
+ava('SETTINGS / check defaults', assert => {
   const settings = SettingsFactory({
     core: {
       authorizationKey: 'dummy token'
@@ -31,7 +33,7 @@ tape('SETTINGS / check defaults', assert => {
   assert.end();
 });
 
-tape('SETTINGS / urls should be configurable', assert => {
+ava('SETTINGS / urls should be configurable', assert => {
   const urls = {
     sdk: 'sdk-url',
     events: 'events-url'
@@ -48,7 +50,7 @@ tape('SETTINGS / urls should be configurable', assert => {
   assert.end();
 });
 
-tape('SETTINGS / required properties should be always present', assert => {
+ava('SETTINGS / required properties should be always present', assert => {
   const locatorAuthorizationKey = _.property('core.authorizationKey');
 
   const locatorSchedulerFeaturesRefreshRate = _.property('scheduler.featuresRefreshRate');

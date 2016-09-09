@@ -13,12 +13,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-const tape = require('tape');
+'use strict';
+
+const ava = require('ava');
 
 const matcherTypes = require('../../../matchers/types');
 const matcherFactory = require('../../../matchers');
 
-tape('MATCHER SEGMENT / should return true ONLY when the key is defined inside the segment', assert => {
+ava('MATCHER SEGMENT / should return true ONLY when the key is defined inside the segment', assert => {
   const segment = 'employees';
 
   const matcher = matcherFactory({

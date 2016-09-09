@@ -13,7 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-const tape = require('tape');
+'use strict';
+
+const ava = require('ava');
 
 const SettingsFactory = require('../../../../utils/settings');
 const settings = SettingsFactory({
@@ -33,7 +35,7 @@ storage.splits.getSegments = function getSegmentsMocked() {
   return new Set(['segment_1', 'segment_2', 'segment_3']);
 };
 
-tape('UPDATER SEGMENT CHANGES / without backend it should not fail', assert => {
+ava('UPDATER SEGMENT CHANGES / without backend it should not fail', assert => {
   const updater = segmentChangesUpdater(settings, hub, storage);
 
   updater().then(() => {

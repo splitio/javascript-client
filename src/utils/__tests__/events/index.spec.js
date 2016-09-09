@@ -13,11 +13,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-const tape = require('tape');
+'use strict';
+
+const ava = require('ava');
 const EventsFactory = require('../../events');
 const Event = EventsFactory.Event;
 
-tape(`EVENTS / ${Event.SDK_READY} should be emitted once`, assert => {
+ava(`EVENTS / ${Event.SDK_READY} should be emitted once`, assert => {
   const hub = EventsFactory();
   let counter = 0;
 
@@ -36,7 +38,7 @@ tape(`EVENTS / ${Event.SDK_READY} should be emitted once`, assert => {
   assert.end();
 });
 
-tape(`EVENTS / should emit ${Event.SDK_UPDATE} after ${Event.SDK_READY}`, assert => {
+ava(`EVENTS / should emit ${Event.SDK_UPDATE} after ${Event.SDK_READY}`, assert => {
   const hub = EventsFactory();
   let isReady = false;
   let counter = 0;

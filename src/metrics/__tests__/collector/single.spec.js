@@ -13,11 +13,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+'use strict';
 
-let tape = require('tape');
-let collectorFactory = require('../../collector/single');
+const ava = require('ava');
+const collectorFactory = require('../../collector/single');
 
-tape('SINGLE COLLECTOR / should implement a secuencia counter', assert => {
+ava('SINGLE COLLECTOR / should implement a secuencia counter', assert => {
   let c = collectorFactory();
 
   c.track(); c.track(); c.track();
@@ -26,7 +27,7 @@ tape('SINGLE COLLECTOR / should implement a secuencia counter', assert => {
   assert.end();
 });
 
-tape('SINGLE COLLECTOR / should start from 0 after clear call', assert => {
+ava('SINGLE COLLECTOR / should start from 0 after clear call', assert => {
   let c = collectorFactory();
 
   c.track(); c.track(); c.track(); c.clear();
@@ -35,7 +36,7 @@ tape('SINGLE COLLECTOR / should start from 0 after clear call', assert => {
   assert.end();
 });
 
-tape('SINGLE COLLECTOR / should support custom toJSON method', assert => {
+ava('SINGLE COLLECTOR / should support custom toJSON method', assert => {
   let c = collectorFactory();
   let hooked = JSON.stringify(c);
   let manual = JSON.stringify(c.state());

@@ -13,11 +13,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+'use strict';
 
-const tape = require('tape');
+const ava = require('ava');
 const SegmentsStorage = require('../../../../lib/storage/segments');
 
-tape('SEGMENTS STORAGE / has(string) should answer true / false if the elements if present or not', assert => {
+ava('SEGMENTS STORAGE / has(string) should answer true / false if the elements if present or not', assert => {
   const storage = new SegmentsStorage;
   const segments = new Set(['a', 'b', 'c']);
 
@@ -28,7 +29,7 @@ tape('SEGMENTS STORAGE / has(string) should answer true / false if the elements 
   assert.end();
 });
 
-tape('SEGMENTS STORAGE / .size property should represent the amount of segments stored', assert => {
+ava('SEGMENTS STORAGE / .size property should represent the amount of segments stored', assert => {
   const storage = new SegmentsStorage;
   const segment = new Set(['a', 'b', 'c', 'd', 'e']);
 

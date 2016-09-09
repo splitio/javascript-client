@@ -6,3 +6,8 @@
 *~
 **/node_modules
 *.swp
+
+## transpiled code
+/lib
+/es6
+/umd

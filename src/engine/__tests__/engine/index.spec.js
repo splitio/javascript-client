@@ -13,8 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+'use strict';
 
-const tape = require('tape');
+const ava = require('ava');
 const engine = require('../../engine');
 
 const Treatments = require('../../treatments');
@@ -26,7 +27,7 @@ const treatmentsMock = Treatments.parse([{
   size: 95
 }]);
 
-tape('ENGINE / should evaluate always evaluate to false', assert => {
+ava('ENGINE / should evaluate always evaluate to false', assert => {
   let seed = 467569525;
   let key = 'aUfEsdPN1twuEjff9Sl';
 
@@ -43,7 +44,7 @@ tape('ENGINE / should evaluate always evaluate to false', assert => {
   assert.end();
 });
 
-tape('ENGINE / should evaluate always evaluate to true', assert => {
+ava('ENGINE / should evaluate always evaluate to true', assert => {
   let seed = 467569525;
   let key = 'fXvNwWFb7SXp';
 

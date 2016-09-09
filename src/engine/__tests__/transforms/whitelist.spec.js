@@ -13,10 +13,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-const tape = require('tape');
+'use strict';
+
+const ava = require('ava');
 const transform = require('../../transforms/whitelist');
 
-tape('TRANSFORMS / a whitelist Array should be casted into a Set', function (assert) {
+ava('TRANSFORMS / a whitelist Array should be casted into a Set', function (assert) {
   let sample = [
     'u1',
     'u2',

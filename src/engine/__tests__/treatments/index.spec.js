@@ -13,11 +13,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+'use strict';
 
-const tape = require('tape');
+const ava = require('ava');
 const Treatments = require('../../treatments');
 
-tape('TREATMENTS / parse 2 treatments', assert => {
+ava('TREATMENTS / parse 2 treatments', assert => {
   let t = Treatments.parse([{
     treatment: 'on',
     size: 5
@@ -31,7 +32,7 @@ tape('TREATMENTS / parse 2 treatments', assert => {
   assert.end();
 });
 
-tape('TREATMENTS / parse 1 treatment 100%:on', assert => {
+ava('TREATMENTS / parse 1 treatment 100%:on', assert => {
   let t = Treatments.parse([{
     treatment: 'on',
     size: 100
@@ -42,7 +43,7 @@ tape('TREATMENTS / parse 1 treatment 100%:on', assert => {
   assert.end();
 });
 
-tape('TREATMENTS / parse 1 treatment 100%:off', assert => {
+ava('TREATMENTS / parse 1 treatment 100%:off', assert => {
   let t = Treatments.parse([{
     treatment: 'control',
     size: 100
@@ -53,7 +54,7 @@ tape('TREATMENTS / parse 1 treatment 100%:off', assert => {
   assert.end();
 });
 
-tape('TREATMENTS / given a 50%:visa 50%:mastercard we should evaluate correctly', assert => {
+ava('TREATMENTS / given a 50%:visa 50%:mastercard we should evaluate correctly', assert => {
   let t = Treatments.parse([{
     treatment: 'visa',
     size: 50

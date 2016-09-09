@@ -13,12 +13,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-const tape = require('tape');
+'use strict';
+
+const ava = require('ava');
 const MutatorFactory = require('../../../lib/mutators/splitChanges');
 const splitChangesMock = require('./mocks/splitChanges');
 const SplitsStorage = require('../../../lib/storage/splits');
 
-tape('Split Changes', assert => {
+ava('Split Changes', assert => {
   const splits = new SplitsStorage();
   const shouldUpdate = true;
 

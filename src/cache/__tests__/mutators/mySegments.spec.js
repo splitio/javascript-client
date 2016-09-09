@@ -13,11 +13,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-const tape = require('tape');
+'use strict';
+
+const ava = require('ava');
 const SegmentsStorage = require('../../../lib/storage/segments/browser');
 const MySegmentsMutatorFactory = require('../../../lib/mutators/mySegments');
 
-tape('Segment mutator', assert => {
+ava('Segment mutator', assert => {
   const segmentNames = ['segment1', 'segment2'];
   const segments = new SegmentsStorage;
   const mutator = MySegmentsMutatorFactory(segmentNames);

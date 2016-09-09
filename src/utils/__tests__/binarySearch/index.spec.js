@@ -13,10 +13,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-const tape = require('tape');
+'use strict';
+
+const ava = require('ava');
 const bs = require('../../binarySearch');
 
-tape('BINARY SEARCH / given [1,3,5,7,10] as dataset look for several elements', assert => {
+ava('BINARY SEARCH / given [1,3,5,7,10] as dataset look for several elements', assert => {
   let searchFor = bs.bind(null, [1, 3, 5, 7, 10]);
   let index = undefined;
   let value = -1;
@@ -79,7 +81,7 @@ tape('BINARY SEARCH / given [1,3,5,7,10] as dataset look for several elements', 
   assert.end();
 });
 
-tape('BINARY SEARCH / run test using integer keys', assert => {
+ava('BINARY SEARCH / run test using integer keys', assert => {
   const KEYS = [
     1000,    1500,    2250,   3375,    5063,
     7594,    11391,   17086,  25629,   38443,
@@ -111,7 +113,7 @@ tape('BINARY SEARCH / run test using integer keys', assert => {
   assert.end();
 });
 
-tape('BINARY SEARCH / run test using float keys', assert => {
+ava('BINARY SEARCH / run test using float keys', assert => {
   const KEYS = [
     1, 1.5, 2.25, 3.38, 5.06, 7.59, 11.39, 17.09, 25.63, 38.44,
     57.67, 86.5, 129.75, 194.62, 291.93, 437.89, 656.84, 985.26, 1477.89,

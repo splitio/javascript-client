@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = {
   startup: {
     // stress the request time used while starting up the SDK.

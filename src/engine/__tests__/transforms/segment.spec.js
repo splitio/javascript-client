@@ -13,10 +13,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-const tape = require('tape');
+'use strict';
+
+const ava = require('ava');
 const transform = require('../../transforms/segment');
 
-tape('TRANSFORMS / a segment object should be flatten to a string', function (assert) {
+ava('TRANSFORMS / a segment object should be flatten to a string', function (assert) {
   const segmentName = 'employees';
   const sample = {
     segmentName
@@ -28,7 +30,7 @@ tape('TRANSFORMS / a segment object should be flatten to a string', function (as
   assert.end();
 });
 
-tape('TRANSFORMS / if there is none segmentName entry, returns undefined', function (assert) {
+ava('TRANSFORMS / if there is none segmentName entry, returns undefined', function (assert) {
   const sample = undefined;
   const undefinedSegmentName = transform(sample);
 

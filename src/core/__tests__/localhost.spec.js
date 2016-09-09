@@ -13,10 +13,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-const splitio = require('../../');
-const tape = require('tape');
+'use strict';
 
-tape('SDK / evaluates a feature in offline mode', assert => {
+const splitio = require('../../');
+const ava = require('ava');
+
+ava('SDK / evaluates a feature in offline mode', assert => {
   // Look for configurations into $HOME/.split file
   const sdk = splitio({
     core: {
@@ -33,7 +35,7 @@ tape('SDK / evaluates a feature in offline mode', assert => {
   });
 });
 
-tape('SDK / allow multiple instances when running offline (not too much sense)', assert => {
+ava('SDK / allow multiple instances when running offline (not too much sense)', assert => {
   // Look for configurations into $HOME/.split file
   const sdk1 = splitio({
     core: {

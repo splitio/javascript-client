@@ -13,8 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+'use strict';
 
-const tape = require('tape');
+const ava = require('ava');
 const SplitsStorage = require('../../../storage/splits');
 
 const SplitFactory = require('../../../../engine').parse;
@@ -28,7 +29,7 @@ const mergedSegments = new Set([
   ...s3.getSegments()
 ]);
 
-tape('SPLITS STORAGE / should return a list of unique segment names', assert => {
+ava('SPLITS STORAGE / should return a list of unique segment names', assert => {
   const storage = new SplitsStorage;
 
   storage.update([s1, s2, s3]);
@@ -43,7 +44,7 @@ tape('SPLITS STORAGE / should return a list of unique segment names', assert => 
   assert.end();
 });
 
-tape('SPLITS STORAGE / get by split name', assert => {
+ava('SPLITS STORAGE / get by split name', assert => {
   const storage = new SplitsStorage;
 
   storage.update([s1, s2, s3]);

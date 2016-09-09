@@ -13,10 +13,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-const splitio = require('../../');
-const tape = require('tape');
+'use strict';
 
-tape('SDK / check the event SDK_READY is fired', assert => {
+const splitio = require('../../');
+const ava = require('ava');
+
+ava('SDK / check the event SDK_READY is fired', assert => {
   const prod = splitio({
     core: {
       authorizationKey: '5p2c0r4so20ill66lm35i45h6pkvrd2skmib'

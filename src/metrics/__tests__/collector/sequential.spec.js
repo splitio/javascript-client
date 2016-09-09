@@ -13,11 +13,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+'use strict';
 
-let tape = require('tape');
+let ava = require('ava');
 let collectorFactory = require('../../collector/sequential');
 
-tape('SEQUENTIAL COLLECTOR / should incrementally store values', assert => {
+ava('SEQUENTIAL COLLECTOR / should incrementally store values', assert => {
   let c = collectorFactory();
 
   c.track(0);
@@ -31,7 +32,7 @@ tape('SEQUENTIAL COLLECTOR / should incrementally store values', assert => {
   assert.end();
 });
 
-tape('SEQUENTIAL COLLECTOR / should support custom toJSON method', assert => {
+ava('SEQUENTIAL COLLECTOR / should support custom toJSON method', assert => {
   let c = collectorFactory();
   let hooked = JSON.stringify(c);
   let manual = JSON.stringify(c.state());

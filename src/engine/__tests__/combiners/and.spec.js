@@ -13,10 +13,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-const tape = require('tape');
+'use strict';
+
+const ava = require('ava');
 const andCombiner = require('../../combiners/and');
 
-tape('COMBINER AND / should always return true', function (assert) {
+ava('COMBINER AND / should always return true', function (assert) {
 
   let AND = andCombiner([() => true, () => true, () => true]);
 
@@ -25,7 +27,7 @@ tape('COMBINER AND / should always return true', function (assert) {
 
 });
 
-tape('COMBINER AND / should always return false', function (assert) {
+ava('COMBINER AND / should always return false', function (assert) {
 
   let AND = andCombiner([() => true, () => true, () => false]);
 

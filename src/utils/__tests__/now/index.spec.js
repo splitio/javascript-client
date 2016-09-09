@@ -13,11 +13,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+'use strict';
 
-const tape = require('tape');
+const ava = require('ava');
 const now = require('../../now');
 
-tape('NOW / should generate a value each time you call it', assert => {
+ava('NOW / should generate a value each time you call it', assert => {
   let n1 = now();
   let n2 = now();
   let n3 = now();

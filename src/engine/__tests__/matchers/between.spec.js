@@ -13,11 +13,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-const tape = require('tape');
+'use strict';
+
+const ava = require('ava');
 const matcherTypes = require('../../matchers/types').enum;
 const matcherFactory = require('../../matchers');
 
-tape('MATCHER BETWEEN / should return true ONLY when the value is between 10 and 20', function (assert) {
+ava('MATCHER BETWEEN / should return true ONLY when the value is between 10 and 20', function (assert) {
 
   let matcher = matcherFactory({
     negate: false,
@@ -40,7 +42,7 @@ tape('MATCHER BETWEEN / should return true ONLY when the value is between 10 and
 
 });
 
-tape('MATCHER BETWEEN / negate should return false when the expected return value is true', function (assert) {
+ava('MATCHER BETWEEN / negate should return false when the expected return value is true', function (assert) {
 
   let matcher = matcherFactory({
     negate: true,

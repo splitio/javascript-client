@@ -13,11 +13,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+'use strict';
 
-const tape = require('tape');
+const ava = require('ava');
 const scheduler = require('../../scheduler')();
 
-tape('SCHEDULER / once we kill the scheduler, the task should not be called again', assert => {
+ava('SCHEDULER / once we kill the scheduler, the task should not be called again', assert => {
   let counter = 0;
   let lastCounter = 0;
   function task() {
@@ -39,7 +40,7 @@ tape('SCHEDULER / once we kill the scheduler, the task should not be called agai
   }, 200);
 });
 
-tape('SCHEDULER / multiple calls to kill should not throw an error', assert => {
+ava('SCHEDULER / multiple calls to kill should not throw an error', assert => {
   let counter = 0;
   function task() {
     counter++;

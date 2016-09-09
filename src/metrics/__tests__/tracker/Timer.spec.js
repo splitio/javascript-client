@@ -13,12 +13,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+'use strict';
 
-let tape = require('tape');
+let ava = require('ava');
 let TimerFactory = require('../../tracker/Timer');
 let CollectorFactory = require('../../collector/Sequential');
 
-tape('TRACKER / calling start() and stop() should store and entry inside the collector', assert => {
+ava('TRACKER / calling start() and stop() should store and entry inside the collector', assert => {
   let collector = CollectorFactory();
   let start = TimerFactory(collector);
   let stop = start();

@@ -13,11 +13,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+'use strict';
 
-let tape = require('tape');
-let collectorFactory = require('../../collector/fibonacci');
+const ava = require('ava');
+const collectorFactory = require('../../collector/fibonacci');
 
-tape('FIBONACCI COLLECTOR / should count based on ranges', assert => {
+ava('FIBONACCI COLLECTOR / should count based on ranges', assert => {
   let c1 = collectorFactory();
 
   c1.track(1);
@@ -39,7 +40,7 @@ tape('FIBONACCI COLLECTOR / should count based on ranges', assert => {
   assert.end();
 });
 
-tape('FIBONACCI COLLECTOR / should count based on ranges', assert => {
+ava('FIBONACCI COLLECTOR / should count based on ranges', assert => {
   let c1 = collectorFactory();
 
   c1.track(1);
@@ -59,7 +60,7 @@ tape('FIBONACCI COLLECTOR / should count based on ranges', assert => {
   assert.end();
 });
 
-tape('FIBONACCI COLLECTOR / should support custom toJSON method', assert => {
+ava('FIBONACCI COLLECTOR / should support custom toJSON method', assert => {
   let c = collectorFactory();
   let hooked = JSON.stringify(c);
   let manual = JSON.stringify(c.state());
