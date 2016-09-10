@@ -16,7 +16,7 @@ limitations under the License.
 'use strict';
 
 const tape = require('tape');
-const SegmentsStorage = require('../../../../lib/storage/segments');
+const SegmentsStorage = require('../../../storage/segments');
 
 tape('SEGMENTS STORAGE / has(string) should answer true / false if the elements if present or not', assert => {
   const storage = new SegmentsStorage;

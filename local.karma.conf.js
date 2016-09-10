@@ -23,7 +23,8 @@ module.exports = function(config) {
 
     // list of files / patterns to exclude
     exclude: [
-      'src/*/__tests__/**/node.spec.js'
+      'src/*/__tests__/**/node.spec.js',
+      'src/engine/__tests__/engine/utils.spec.js',
     ],
 
     // prepare code for the browser using webpack
@@ -35,7 +36,8 @@ module.exports = function(config) {
       // devtool: 'cheap-module-inline-source-map',
       module: {
         loaders: [
-          { test: /\.js$/, exclude: /node_modules/, loader: 'babel' }
+          { test: /\.js$/, exclude: /node_modules/, loader: 'babel' },
+          { test: /\.json$/, exclude: /node_modules/, loader: 'json' }
         ]
       },
       plugins: [
@@ -101,7 +103,7 @@ module.exports = function(config) {
 
     // level of logging
     // possible values: LOG_DISABLE || LOG_ERROR || LOG_WARN || LOG_INFO || LOG_DEBUG
-    logLevel: config.LOG_DISABLE,
+    logLevel: config.LOG_DEBUG,
 
     coverageReporter: {
       type : 'html',

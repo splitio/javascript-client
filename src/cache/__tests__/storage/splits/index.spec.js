@@ -20,9 +20,9 @@ const SplitsStorage = require('../../../storage/splits');
 
 const SplitFactory = require('../../../../engine').parse;
 
-const s1 = SplitFactory(require('./mocks/01.split'));
-const s2 = SplitFactory(require('./mocks/02.split'));
-const s3 = SplitFactory(require('./mocks/03.split'));
+const s1 = SplitFactory(require('./mocks/01.split.json'));
+const s2 = SplitFactory(require('./mocks/02.split.json'));
+const s3 = SplitFactory(require('./mocks/03.split.json'));
 const mergedSegments = new Set([
   ...s1.getSegments(),
   ...s2.getSegments(),

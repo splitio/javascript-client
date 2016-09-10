@@ -17,7 +17,7 @@ limitations under the License.
 
 let tape = require('tape');
 let TimerFactory = require('../../tracker/Timer');
-let CollectorFactory = require('../../collector/Sequential');
+let CollectorFactory = require('../../collector/sequential');
 
 tape('TRACKER / calling start() and stop() should store and entry inside the collector', assert => {
   let collector = CollectorFactory();

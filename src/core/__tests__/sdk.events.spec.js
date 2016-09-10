@@ -16,7 +16,7 @@ limitations under the License.
 'use strict';
 
 const tape = require('tape');
-const splitio = require('../node');
+const splitio = require('../');
 
 tape('SDK / check the event SDK_READY is fired', assert => {
   const prod = splitio({
