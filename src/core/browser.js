@@ -29,4 +29,4 @@ function factory(settings) {
   );
 }
 
-global.splitio = module.exports = factory;
+module.exports = factory;
