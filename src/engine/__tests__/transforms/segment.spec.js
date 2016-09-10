@@ -15,10 +15,10 @@ limitations under the License.
 **/
 'use strict';
 
-const ava = require('ava');
+const tape = require('tape');
 const transform = require('../../transforms/segment');
 
-ava('TRANSFORMS / a segment object should be flatten to a string', function (assert) {
+tape('TRANSFORMS / a segment object should be flatten to a string', function (assert) {
   const segmentName = 'employees';
   const sample = {
     segmentName
@@ -30,7 +30,7 @@ ava('TRANSFORMS / a segment object should be flatten to a string', function (ass
   assert.end();
 });
 
-ava('TRANSFORMS / if there is none segmentName entry, returns undefined', function (assert) {
+tape('TRANSFORMS / if there is none segmentName entry, returns undefined', function (assert) {
   const sample = undefined;
   const undefinedSegmentName = transform(sample);
 

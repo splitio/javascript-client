@@ -15,11 +15,11 @@ limitations under the License.
 **/
 'use strict';
 
-const ava = require('ava');
+const tape = require('tape');
 const matcherTypes = require('../../matchers/types');
 const matcherFactory = require('../../matchers');
 
-ava('MATCHER ALL / should always return true', function (assert) {
+tape('MATCHER ALL / should always return true', function (assert) {
 
   let matcher = matcherFactory({
     type: matcherTypes.enum.ALL,

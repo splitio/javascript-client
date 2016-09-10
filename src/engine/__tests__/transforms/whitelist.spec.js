@@ -15,10 +15,10 @@ limitations under the License.
 **/
 'use strict';
 
-const ava = require('ava');
+const tape = require('tape');
 const transform = require('../../transforms/whitelist');
 
-ava('TRANSFORMS / a whitelist Array should be casted into a Set', function (assert) {
+tape('TRANSFORMS / a whitelist Array should be casted into a Set', function (assert) {
   let sample = [
     'u1',
     'u2',

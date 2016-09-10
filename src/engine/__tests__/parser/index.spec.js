@@ -15,10 +15,10 @@ limitations under the License.
 **/
 'use strict';
 
-const ava = require('ava');
+const tape = require('tape');
 const parser = require('../../parser');
 
-ava('PARSER / if user is in segment all 100%:on', assert => {
+tape('PARSER / if user is in segment all 100%:on', assert => {
 
   let {evaluator, segments} = parser([{
     matcherGroup: {
@@ -43,7 +43,7 @@ ava('PARSER / if user is in segment all 100%:on', assert => {
 
 });
 
-ava('PARSER / if user is in segment all 100%:off', assert => {
+tape('PARSER / if user is in segment all 100%:off', assert => {
   let {evaluator, segments} = parser([{
     matcherGroup: {
       combiner: 'AND',
@@ -69,7 +69,7 @@ ava('PARSER / if user is in segment all 100%:off', assert => {
 
 });
 
-ava('PARSER / if user is in segment ["u1", "u2", "u3", "u4"] then split 100%:on', assert => {
+tape('PARSER / if user is in segment ["u1", "u2", "u3", "u4"] then split 100%:on', assert => {
 
   let {evaluator, segments} = parser([{
     matcherGroup: {
@@ -102,7 +102,7 @@ ava('PARSER / if user is in segment ["u1", "u2", "u3", "u4"] then split 100%:on'
 
 });
 
-ava('PARSER / if user.account is in list ["v1", "v2", "v3"] then split 100:on', assert => {
+tape('PARSER / if user.account is in list ["v1", "v2", "v3"] then split 100:on', assert => {
 
   let {evaluator} = parser([{
     matcherGroup: {
@@ -146,7 +146,7 @@ ava('PARSER / if user.account is in list ["v1", "v2", "v3"] then split 100:on', 
 
 });
 
-ava('PARSER / if user.account is in segment all then split 100:on', assert => {
+tape('PARSER / if user.account is in segment all then split 100:on', assert => {
 
   let {evaluator} = parser([{
     matcherGroup: {
@@ -183,7 +183,7 @@ ava('PARSER / if user.account is in segment all then split 100:on', assert => {
   assert.end();
 });
 
-ava('PARSER / if user.attr is between 10 and 20 then split 100:on', assert => {
+tape('PARSER / if user.attr is between 10 and 20 then split 100:on', assert => {
 
   let {evaluator} = parser([{
     matcherGroup: {
@@ -227,7 +227,7 @@ ava('PARSER / if user.attr is between 10 and 20 then split 100:on', assert => {
   assert.end();
 });
 
-ava('PARSER / if user.attr <= datetime 1458240947021 then split 100:on', assert => {
+tape('PARSER / if user.attr <= datetime 1458240947021 then split 100:on', assert => {
 
   let {evaluator} = parser([{
     matcherGroup: {
@@ -274,7 +274,7 @@ ava('PARSER / if user.attr <= datetime 1458240947021 then split 100:on', assert 
   assert.end();
 });
 
-ava('PARSER / if user.attr >= datetime 1458240947021 then split 100:on', assert => {
+tape('PARSER / if user.attr >= datetime 1458240947021 then split 100:on', assert => {
 
   let {evaluator} = parser([{
     matcherGroup: {
@@ -320,7 +320,7 @@ ava('PARSER / if user.attr >= datetime 1458240947021 then split 100:on', assert 
   assert.end();
 });
 
-ava('PARSER / if user.attr = datetime 1458240947021 then split 100:on', assert => {
+tape('PARSER / if user.attr = datetime 1458240947021 then split 100:on', assert => {
 
   let {evaluator} = parser([{
     matcherGroup: {
@@ -365,7 +365,7 @@ ava('PARSER / if user.attr = datetime 1458240947021 then split 100:on', assert =
   assert.end();
 });
 
-ava('PARSER / if user is in segment all then split 20%:A,20%:B,60%:A', assert => {
+tape('PARSER / if user is in segment all then split 20%:A,20%:B,60%:A', assert => {
   let {evaluator} = parser([{
     matcherGroup: {
       combiner: 'AND',

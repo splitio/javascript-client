@@ -15,10 +15,10 @@ limitations under the License.
 **/
 'use strict';
 
-const ava = require('ava');
+const tape = require('tape');
 const now = require('../../now');
 
-ava('NOW / should generate a value each time you call it', assert => {
+tape('NOW / should generate a value each time you call it', assert => {
   let n1 = now();
   let n2 = now();
   let n3 = now();

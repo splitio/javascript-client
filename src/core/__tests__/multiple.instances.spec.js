@@ -15,10 +15,10 @@ limitations under the License.
 **/
 'use strict';
 
-const ava = require('ava');
+const tape = require('tape');
 const splitio = require('../node');
 
-ava('SDK / evaluates multiple sdks at the same time', assert => {
+tape('SDK / evaluates multiple sdks at the same time', assert => {
   const prod = splitio({
     core: {
       authorizationKey: '5p2c0r4so20ill66lm35i45h6pkvrd2skmib'

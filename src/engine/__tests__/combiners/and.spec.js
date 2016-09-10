@@ -15,10 +15,10 @@ limitations under the License.
 **/
 'use strict';
 
-const ava = require('ava');
+const tape = require('tape');
 const andCombiner = require('../../combiners/and');
 
-ava('COMBINER AND / should always return true', function (assert) {
+tape('COMBINER AND / should always return true', function (assert) {
 
   let AND = andCombiner([() => true, () => true, () => true]);
 
@@ -27,7 +27,7 @@ ava('COMBINER AND / should always return true', function (assert) {
 
 });
 
-ava('COMBINER AND / should always return false', function (assert) {
+tape('COMBINER AND / should always return false', function (assert) {
 
   let AND = andCombiner([() => true, () => true, () => false]);
 

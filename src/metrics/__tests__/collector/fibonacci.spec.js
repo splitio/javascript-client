@@ -15,10 +15,10 @@ limitations under the License.
 **/
 'use strict';
 
-const ava = require('ava');
+const tape = require('tape');
 const collectorFactory = require('../../collector/fibonacci');
 
-ava('FIBONACCI COLLECTOR / should count based on ranges', assert => {
+tape('FIBONACCI COLLECTOR / should count based on ranges', assert => {
   let c1 = collectorFactory();
 
   c1.track(1);
@@ -40,7 +40,7 @@ ava('FIBONACCI COLLECTOR / should count based on ranges', assert => {
   assert.end();
 });
 
-ava('FIBONACCI COLLECTOR / should count based on ranges', assert => {
+tape('FIBONACCI COLLECTOR / should count based on ranges', assert => {
   let c1 = collectorFactory();
 
   c1.track(1);
@@ -60,7 +60,7 @@ ava('FIBONACCI COLLECTOR / should count based on ranges', assert => {
   assert.end();
 });
 
-ava('FIBONACCI COLLECTOR / should support custom toJSON method', assert => {
+tape('FIBONACCI COLLECTOR / should support custom toJSON method', assert => {
   let c = collectorFactory();
   let hooked = JSON.stringify(c);
   let manual = JSON.stringify(c.state());

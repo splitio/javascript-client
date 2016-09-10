@@ -15,12 +15,12 @@ limitations under the License.
 **/
 'use strict';
 
-const ava = require('ava');
+const tape = require('tape');
 
 const matcherTypes = require('../../../matchers/types');
 const matcherFactory = require('../../../matchers');
 
-ava('MATCHER SEGMENT / should return true ONLY when the key is defined inside the segment', assert => {
+tape('MATCHER SEGMENT / should return true ONLY when the key is defined inside the segment', assert => {
   const segment = 'employees';
 
   const matcher = matcherFactory({

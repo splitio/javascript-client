@@ -15,7 +15,7 @@ limitations under the License.
 **/
 'use strict';
 
-const ava = require('ava');
+const tape = require('tape');
 const engine = require('../../engine');
 
 const Treatments = require('../../treatments');
@@ -27,7 +27,7 @@ const treatmentsMock = Treatments.parse([{
   size: 95
 }]);
 
-ava('ENGINE / should evaluate always evaluate to false', assert => {
+tape('ENGINE / should evaluate always evaluate to false', assert => {
   let seed = 467569525;
   let key = 'aUfEsdPN1twuEjff9Sl';
 
@@ -44,7 +44,7 @@ ava('ENGINE / should evaluate always evaluate to false', assert => {
   assert.end();
 });
 
-ava('ENGINE / should evaluate always evaluate to true', assert => {
+tape('ENGINE / should evaluate always evaluate to true', assert => {
   let seed = 467569525;
   let key = 'fXvNwWFb7SXp';
 

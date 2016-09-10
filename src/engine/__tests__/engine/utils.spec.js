@@ -15,12 +15,12 @@ limitations under the License.
 **/
 'use strict';
 
-const ava = require('ava');
+const tape = require('tape');
 const utils = require('../../engine/utils');
 const csv = require('csv-streamify');
 const fs = require('fs');
 
-ava('ENGINE / validate hashing behavior using sample data', assert => {
+tape('ENGINE / validate hashing behavior using sample data', assert => {
   let parser = csv();
 
   parser.on('data', line => {

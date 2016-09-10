@@ -15,11 +15,11 @@ limitations under the License.
 **/
 'use strict';
 
-const ava = require('ava');
+const tape = require('tape');
 const matcherTypes = require('../../matchers/types').enum;
 const matcherFactory = require('../../matchers');
 
-ava('MATCHER BETWEEN / should return true ONLY when the value is between 10 and 20', function (assert) {
+tape('MATCHER BETWEEN / should return true ONLY when the value is between 10 and 20', function (assert) {
 
   let matcher = matcherFactory({
     negate: false,
@@ -42,7 +42,7 @@ ava('MATCHER BETWEEN / should return true ONLY when the value is between 10 and 
 
 });
 
-ava('MATCHER BETWEEN / negate should return false when the expected return value is true', function (assert) {
+tape('MATCHER BETWEEN / negate should return false when the expected return value is true', function (assert) {
 
   let matcher = matcherFactory({
     negate: true,

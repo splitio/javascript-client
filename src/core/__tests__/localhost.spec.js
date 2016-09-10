@@ -15,10 +15,10 @@ limitations under the License.
 **/
 'use strict';
 
-const ava = require('ava');
+const tape = require('tape');
 const splitio = require('../node');
 
-ava('SDK / evaluates a feature in offline mode', assert => {
+tape('SDK / evaluates a feature in offline mode', assert => {
   // Look for configurations into $HOME/.split file
   const sdk = splitio({
     core: {
@@ -35,7 +35,7 @@ ava('SDK / evaluates a feature in offline mode', assert => {
   });
 });
 
-ava('SDK / allow multiple instances when running offline (not too much sense)', assert => {
+tape('SDK / allow multiple instances when running offline (not too much sense)', assert => {
   // Look for configurations into $HOME/.split file
   const sdk1 = splitio({
     core: {

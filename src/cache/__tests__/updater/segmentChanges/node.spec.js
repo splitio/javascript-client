@@ -15,7 +15,7 @@ limitations under the License.
 **/
 'use strict';
 
-const ava = require('ava');
+const tape = require('tape');
 
 const SettingsFactory = require('../../../../utils/settings');
 const settings = SettingsFactory({
@@ -27,15 +27,15 @@ const settings = SettingsFactory({
 const EventsFactory = require('../../../../utils/events');
 const hub = EventsFactory();
 
-const storage = require('../../../../lib/storage').createStorage();
-const segmentChangesUpdater = require('../../../../lib/updater/segmentChanges');
+const storage = require('../../../storage').createStorage();
+const segmentChangesUpdater = require('../../../updater/segmentChanges');
 
 // mock list of segments to be fetched
 storage.splits.getSegments = function getSegmentsMocked() {
   return new Set(['segment_1', 'segment_2', 'segment_3']);
 };
 
-ava('UPDATER SEGMENT CHANGES / without backend it should not fail', assert => {
+tape('UPDATER SEGMENT CHANGES / without backend it should not fail', assert => {
   const updater = segmentChangesUpdater(settings, hub, storage);
 
   updater().then(() => {

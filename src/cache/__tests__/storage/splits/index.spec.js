@@ -15,7 +15,7 @@ limitations under the License.
 **/
 'use strict';
 
-const ava = require('ava');
+const tape = require('tape');
 const SplitsStorage = require('../../../storage/splits');
 
 const SplitFactory = require('../../../../engine').parse;
@@ -29,7 +29,7 @@ const mergedSegments = new Set([
   ...s3.getSegments()
 ]);
 
-ava('SPLITS STORAGE / should return a list of unique segment names', assert => {
+tape('SPLITS STORAGE / should return a list of unique segment names', assert => {
   const storage = new SplitsStorage;
 
   storage.update([s1, s2, s3]);
@@ -44,7 +44,7 @@ ava('SPLITS STORAGE / should return a list of unique segment names', assert => {
   assert.end();
 });
 
-ava('SPLITS STORAGE / get by split name', assert => {
+tape('SPLITS STORAGE / get by split name', assert => {
   const storage = new SplitsStorage;
 
   storage.update([s1, s2, s3]);

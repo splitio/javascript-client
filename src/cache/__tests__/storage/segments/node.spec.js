@@ -15,10 +15,10 @@ limitations under the License.
 **/
 'use strict';
 
-const ava = require('ava');
-const SegmentsStorage = require('../../../../lib/storage/segments');
+const tape = require('tape');
+const SegmentsStorage = require('../../../storage/segments');
 
-ava('SEGMENTS STORAGE / get(string) should retrieve the Set which represents the segment requested', assert => {
+tape('SEGMENTS STORAGE / get(string) should retrieve the Set which represents the segment requested', assert => {
   const storage = new SegmentsStorage;
 
   const segmentName = 's';
@@ -30,7 +30,7 @@ ava('SEGMENTS STORAGE / get(string) should retrieve the Set which represents the
   assert.end();
 });
 
-ava('SEGMENTS STORAGE / .size property should represent the amount of segments stored', assert => {
+tape('SEGMENTS STORAGE / .size property should represent the amount of segments stored', assert => {
   const storage = new SegmentsStorage;
   const segmentName = 'mock';
   const segment = new Set(['a', 'b', 'c', 'd', 'e']);

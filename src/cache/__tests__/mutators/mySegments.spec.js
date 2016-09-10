@@ -15,11 +15,11 @@ limitations under the License.
 **/
 'use strict';
 
-const ava = require('ava');
-const SegmentsStorage = require('../../../lib/storage/segments/browser');
-const MySegmentsMutatorFactory = require('../../../lib/mutators/mySegments');
+const tape = require('tape');
+const SegmentsStorage = require('../../storage/segments/browser');
+const MySegmentsMutatorFactory = require('../../mutators/mySegments');
 
-ava('Segment mutator', assert => {
+tape('Segment mutator', assert => {
   const segmentNames = ['segment1', 'segment2'];
   const segments = new SegmentsStorage;
   const mutator = MySegmentsMutatorFactory(segmentNames);

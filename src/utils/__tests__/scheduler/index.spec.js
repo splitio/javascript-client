@@ -15,10 +15,10 @@ limitations under the License.
 **/
 'use strict';
 
-const ava = require('ava');
+const tape = require('tape');
 const scheduler = require('../../scheduler')();
 
-ava('SCHEDULER / once we kill the scheduler, the task should not be called again', assert => {
+tape('SCHEDULER / once we kill the scheduler, the task should not be called again', assert => {
   let counter = 0;
   let lastCounter = 0;
   function task() {
@@ -40,7 +40,7 @@ ava('SCHEDULER / once we kill the scheduler, the task should not be called again
   }, 200);
 });
 
-ava('SCHEDULER / multiple calls to kill should not throw an error', assert => {
+tape('SCHEDULER / multiple calls to kill should not throw an error', assert => {
   let counter = 0;
   function task() {
     counter++;

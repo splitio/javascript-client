@@ -16,10 +16,10 @@ limitations under the License.
 'use strict';
 
 const _ = require('lodash');
-const ava = require('ava');
+const tape = require('tape');
 const SettingsFactory = require('../../settings');
 
-ava('SETTINGS / check defaults', assert => {
+tape('SETTINGS / check defaults', assert => {
   const settings = SettingsFactory({
     core: {
       authorizationKey: 'dummy token'
@@ -33,7 +33,7 @@ ava('SETTINGS / check defaults', assert => {
   assert.end();
 });
 
-ava('SETTINGS / urls should be configurable', assert => {
+tape('SETTINGS / urls should be configurable', assert => {
   const urls = {
     sdk: 'sdk-url',
     events: 'events-url'
@@ -50,7 +50,7 @@ ava('SETTINGS / urls should be configurable', assert => {
   assert.end();
 });
 
-ava('SETTINGS / required properties should be always present', assert => {
+tape('SETTINGS / required properties should be always present', assert => {
   const locatorAuthorizationKey = _.property('core.authorizationKey');
 
   const locatorSchedulerFeaturesRefreshRate = _.property('scheduler.featuresRefreshRate');

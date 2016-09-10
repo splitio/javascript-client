@@ -26,9 +26,9 @@ const url = settings.url.bind(settings);
 const greedyFetch = require('../../../ds/segmentChanges').greedyFetch.bind(null, settings, -1);
 const fetchMock = require('fetch-mock');
 
-const ava = require('ava');
+const tape = require('tape');
 
-ava('DS SEGMENT CHANGES / greedy fetch should download while since != till', assert => {
+tape('DS SEGMENT CHANGES / greedy fetch should download while since != till', assert => {
   const response1 = {
     name: 'segment_1',
     added: [
@@ -97,7 +97,7 @@ ava('DS SEGMENT CHANGES / greedy fetch should download while since != till', ass
   });
 });
 
-ava('DS SEGMENT CHANGES / greedy fetch stop fetching if one response fails', assert => {
+tape('DS SEGMENT CHANGES / greedy fetch stop fetching if one response fails', assert => {
   const response1 = {
     name: 'segment_1',
     added: [

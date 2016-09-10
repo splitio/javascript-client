@@ -15,12 +15,12 @@ limitations under the License.
 **/
 'use strict';
 
-const ava = require('ava');
-const MutatorFactory = require('../../../lib/mutators/splitChanges');
+const tape = require('tape');
+const MutatorFactory = require('../../mutators/splitChanges');
 const splitChangesMock = require('./mocks/splitChanges');
-const SplitsStorage = require('../../../lib/storage/splits');
+const SplitsStorage = require('../../storage/splits');
 
-ava('Split Changes', assert => {
+tape('Split Changes', assert => {
   const splits = new SplitsStorage();
   const shouldUpdate = true;
 

@@ -15,10 +15,10 @@ limitations under the License.
 **/
 'use strict';
 
-const ava = require('ava');
+const tape = require('tape');
 const ifElseIfCombinerFactory = require('../../combiners/ifelseif');
 
-ava('IF ELSE IF COMBINER / should correctly propagate context parameters and predicates returns value', assert => {
+tape('IF ELSE IF COMBINER / should correctly propagate context parameters and predicates returns value', assert => {
   let inputKey = 'sample';
   let inputSeed = 1234;
   let inputAttributes = {};
@@ -42,7 +42,7 @@ ava('IF ELSE IF COMBINER / should correctly propagate context parameters and pre
   assert.end();
 });
 
-ava('IF ELSE IF COMBINER / should stop evaluating when one matcher return a treatment', assert => {
+tape('IF ELSE IF COMBINER / should stop evaluating when one matcher return a treatment', assert => {
   let called = 0;
   let predicates = [
     function undef() {
@@ -68,7 +68,7 @@ ava('IF ELSE IF COMBINER / should stop evaluating when one matcher return a trea
   assert.end();
 });
 
-ava('IF ELSE IF COMBINER / should return undefined if there is none matching rule', assert => {
+tape('IF ELSE IF COMBINER / should return undefined if there is none matching rule', assert => {
   let predicates = [
     function undef() {
       return undefined;

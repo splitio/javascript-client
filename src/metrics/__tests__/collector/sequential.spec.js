@@ -15,10 +15,10 @@ limitations under the License.
 **/
 'use strict';
 
-let ava = require('ava');
+let tape = require('tape');
 let collectorFactory = require('../../collector/sequential');
 
-ava('SEQUENTIAL COLLECTOR / should incrementally store values', assert => {
+tape('SEQUENTIAL COLLECTOR / should incrementally store values', assert => {
   let c = collectorFactory();
 
   c.track(0);
@@ -32,7 +32,7 @@ ava('SEQUENTIAL COLLECTOR / should incrementally store values', assert => {
   assert.end();
 });
 
-ava('SEQUENTIAL COLLECTOR / should support custom toJSON method', assert => {
+tape('SEQUENTIAL COLLECTOR / should support custom toJSON method', assert => {
   let c = collectorFactory();
   let hooked = JSON.stringify(c);
   let manual = JSON.stringify(c.state());

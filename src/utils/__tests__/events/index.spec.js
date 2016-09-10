@@ -15,11 +15,11 @@ limitations under the License.
 **/
 'use strict';
 
-const ava = require('ava');
+const tape = require('tape');
 const EventsFactory = require('../../events');
 const Event = EventsFactory.Event;
 
-ava(`EVENTS / ${Event.SDK_READY} should be emitted once`, assert => {
+tape(`EVENTS / ${Event.SDK_READY} should be emitted once`, assert => {
   const hub = EventsFactory();
   let counter = 0;
 
@@ -38,7 +38,7 @@ ava(`EVENTS / ${Event.SDK_READY} should be emitted once`, assert => {
   assert.end();
 });
 
-ava(`EVENTS / should emit ${Event.SDK_UPDATE} after ${Event.SDK_READY}`, assert => {
+tape(`EVENTS / should emit ${Event.SDK_UPDATE} after ${Event.SDK_READY}`, assert => {
   const hub = EventsFactory();
   let isReady = false;
   let counter = 0;

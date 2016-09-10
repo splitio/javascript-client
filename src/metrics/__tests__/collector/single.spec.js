@@ -15,10 +15,10 @@ limitations under the License.
 **/
 'use strict';
 
-const ava = require('ava');
+const tape = require('tape');
 const collectorFactory = require('../../collector/single');
 
-ava('SINGLE COLLECTOR / should implement a secuencia counter', assert => {
+tape('SINGLE COLLECTOR / should implement a secuencia counter', assert => {
   let c = collectorFactory();
 
   c.track(); c.track(); c.track();
@@ -27,7 +27,7 @@ ava('SINGLE COLLECTOR / should implement a secuencia counter', assert => {
   assert.end();
 });
 
-ava('SINGLE COLLECTOR / should start from 0 after clear call', assert => {
+tape('SINGLE COLLECTOR / should start from 0 after clear call', assert => {
   let c = collectorFactory();
 
   c.track(); c.track(); c.track(); c.clear();
@@ -36,7 +36,7 @@ ava('SINGLE COLLECTOR / should start from 0 after clear call', assert => {
   assert.end();
 });
 
-ava('SINGLE COLLECTOR / should support custom toJSON method', assert => {
+tape('SINGLE COLLECTOR / should support custom toJSON method', assert => {
   let c = collectorFactory();
   let hooked = JSON.stringify(c);
   let manual = JSON.stringify(c.state());

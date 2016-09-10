@@ -15,11 +15,11 @@ limitations under the License.
 **/
 'use strict';
 
-let ava = require('ava');
+let tape = require('tape');
 let TimerFactory = require('../../tracker/Timer');
 let CollectorFactory = require('../../collector/Sequential');
 
-ava('TRACKER / calling start() and stop() should store and entry inside the collector', assert => {
+tape('TRACKER / calling start() and stop() should store and entry inside the collector', assert => {
   let collector = CollectorFactory();
   let start = TimerFactory(collector);
   let stop = start();

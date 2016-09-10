@@ -15,7 +15,7 @@ limitations under the License.
 **/
 'use strict';
 
-const ava = require('ava');
+const tape = require('tape');
 const {
   date: {
     zeroSinceHH,
@@ -23,7 +23,7 @@ const {
   }
 } = require('../../convertions');
 
-ava('CONVERTIONS / zero since HH should change the date in a way we only have dd-mm-yyyy since midnight in UTC', assert => {
+tape('CONVERTIONS / zero since HH should change the date in a way we only have dd-mm-yyyy since midnight in UTC', assert => {
 
   assert.equal(zeroSinceHH(1459881314917), 1459814400000, 'Tue Apr 05 2016');
   assert.equal(zeroSinceHH(1420113683000), 1420070400000, 'Thu Jan 01 2015');
@@ -31,7 +31,7 @@ ava('CONVERTIONS / zero since HH should change the date in a way we only have dd
 
 });
 
-ava('CONVERTIONS / zero since SS should change the date in a way we only have dd mm yyyy hh mm since midnight in UTC', assert => {
+tape('CONVERTIONS / zero since SS should change the date in a way we only have dd mm yyyy hh mm since midnight in UTC', assert => {
 
   assert.equal(zeroSinceSS(1420110671000), 1420110660000, '01 Jan 2015 11:11:11 UT should be transformed to 01 Jan 2015 11:11:00 UT');
   assert.equal(zeroSinceSS(953683199000), 953683140000, '21 Mar 2000 23:59:59 UT should be transformed to 21 Mar 2000 23:59:00 UT');

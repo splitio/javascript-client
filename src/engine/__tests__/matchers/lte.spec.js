@@ -15,11 +15,11 @@ limitations under the License.
 **/
 'use strict';
 
-const ava = require('ava');
+const tape = require('tape');
 const matcherTypes = require('../../matchers/types').enum;
 const matcherFactory = require('../../matchers');
 
-ava('MATCHER LESS THAN OR EQUAL / should return true ONLY when the value is less than or equal to 10', function (assert) {
+tape('MATCHER LESS THAN OR EQUAL / should return true ONLY when the value is less than or equal to 10', function (assert) {
 
   let matcher = matcherFactory({
     negate: false,
@@ -39,7 +39,7 @@ ava('MATCHER LESS THAN OR EQUAL / should return true ONLY when the value is less
 
 });
 
-ava('MATCHER LESS THAN OR EQUAL / negate should return false when the expected return value is true', function (assert) {
+tape('MATCHER LESS THAN OR EQUAL / negate should return false when the expected return value is true', function (assert) {
 
   let matcher = matcherFactory({
     negate: true,

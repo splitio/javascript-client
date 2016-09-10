@@ -15,10 +15,10 @@ limitations under the License.
 **/
 'use strict';
 
-const ava = require('ava');
+const tape = require('tape');
 const Treatments = require('../../treatments');
 
-ava('TREATMENTS / parse 2 treatments', assert => {
+tape('TREATMENTS / parse 2 treatments', assert => {
   let t = Treatments.parse([{
     treatment: 'on',
     size: 5
@@ -32,7 +32,7 @@ ava('TREATMENTS / parse 2 treatments', assert => {
   assert.end();
 });
 
-ava('TREATMENTS / parse 1 treatment 100%:on', assert => {
+tape('TREATMENTS / parse 1 treatment 100%:on', assert => {
   let t = Treatments.parse([{
     treatment: 'on',
     size: 100
@@ -43,7 +43,7 @@ ava('TREATMENTS / parse 1 treatment 100%:on', assert => {
   assert.end();
 });
 
-ava('TREATMENTS / parse 1 treatment 100%:off', assert => {
+tape('TREATMENTS / parse 1 treatment 100%:off', assert => {
   let t = Treatments.parse([{
     treatment: 'control',
     size: 100
@@ -54,7 +54,7 @@ ava('TREATMENTS / parse 1 treatment 100%:off', assert => {
   assert.end();
 });
 
-ava('TREATMENTS / given a 50%:visa 50%:mastercard we should evaluate correctly', assert => {
+tape('TREATMENTS / given a 50%:visa 50%:mastercard we should evaluate correctly', assert => {
   let t = Treatments.parse([{
     treatment: 'visa',
     size: 50
