@@ -6,5 +6,16 @@
     "syntax-object-rest-spread",
     "transform-object-rest-spread",
     "transform-runtime"
-  ]
+  ],
+  "env": {
+    "test": {
+      "plugins": [
+        ["istanbul", {
+          "exclude": [
+            "**/*.spec.js"
+          ]
+        }]
+      ]
+    }
+  }
 }
