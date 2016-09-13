@@ -12,7 +12,8 @@
       "plugins": [
         ["istanbul", {
           "exclude": [
-            "**/*.spec.js"
+            "**/*.spec.js",
+            "**/node.js"
           ]
         }]
       ]

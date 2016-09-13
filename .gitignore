@@ -7,8 +7,11 @@
 **/node_modules
 *.swp
 
+## local environment setup
+/startup.sh
+
 ## coverage info
-/karma_coverage
+/karma/coverage
 
 ## transpiled code
 /lib

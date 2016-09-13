@@ -10,8 +10,7 @@ module.exports = function(config) {
     // base path, that will be used to resolve files and exclude
     basePath: '',
 
-    // testing framework to use (jasmine/mocha/qunit/...)
-    // as well as any additional frameworks (requirejs/chai/sinon/...)
+    // load tap integration
     frameworks: [
       'tap'
     ],
@@ -56,7 +55,7 @@ module.exports = function(config) {
     },
 
     // web server port
-    port: 8080,
+    port: 9876,
 
     // make IE happy (in theory not required)
     // https://msdn.microsoft.com/en-us/library/ff955275(v=vs.85).aspx
@@ -66,7 +65,7 @@ module.exports = function(config) {
       value: 'IE=edge'
     }],
 
-    // you can define custom flags
+    // Enable debugging in PhantomJS
     customLaunchers: {
       'PhantomJS_custom': {
         base: 'PhantomJS',
@@ -107,7 +106,7 @@ module.exports = function(config) {
 
     coverageReporter: {
       type : 'html',
-      dir : 'karma_coverage/'
+      dir : 'coverage/'
     },
 
     reporters: [

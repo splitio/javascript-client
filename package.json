@@ -51,8 +51,8 @@
     "build-min": "cross-env NODE_ENV=production webpack -p src/core umd/split.min.js",
     "lint": "eslint src",
     "test": "ava",
-    "test-browser-local": "cross-env NODE_ENV=test karma start local.karma.conf.js",
-    "test-browser-sauce": "cross-env NODE_ENV=test karma start sauce.karma.conf.js",
+    "test-browser-local": "cross-env NODE_ENV=test karma start karma/local.karma.conf.js",
+    "test-browser-sauce": "cross-env NODE_ENV=test karma start karma/sauce.karma.conf.js",
     "test-node": "tape -r babel-register src/*/__tests__/**/!(browser).spec.js"
   },
   "dependencies": {

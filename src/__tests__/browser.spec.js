@@ -1,11 +1,3 @@
-'use strict';
-
-var _promise = require('babel-runtime/core-js/promise');
-
-var _promise2 = _interopRequireDefault(_promise);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
 /**
 Copyright 2016 Split Software
 
@@ -21,50 +13,58 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+'use strict';
 
-require('@splitsoftware/splitio');
-var Split = global.splitio;
+const splitio = require('../core');
 
 // This override the default implementation, so you MUST to be sure you include
 // this AFTER the require('isomorphic-fetch')
-var fetchMock = require('fetch-mock');
+const fetchMock = require('fetch-mock');
 
-var tape = require('tape');
-var SettingsFactory = require('@splitsoftware/splitio-utils/lib/settings');
-var settings = SettingsFactory({
+const tape = require('tape');
+const SettingsFactory = require('../utils/settings');
+const settings = SettingsFactory({
   core: {
-    authorizationKey: 'dummy-token'
+    authorizationKey: '<fake-token>'
   }
 });
 
-var splitChangesMock1 = require('./mocks/splitchanges.since.-1.json');
-var splitChangesMock2 = require('./mocks/splitchanges.since.1457552620999.json');
-var mySegmentsMock = require('./mocks/mysegments.facundo@split.io.json');
+const splitChangesMock1 = require('./mocks/splitchanges.since.-1.json');
+const splitChangesMock2 = require('./mocks/splitchanges.since.1457552620999.json');
+const mySegmentsMock = require('./mocks/mysegments.facundo@split.io.json');
 
-fetchMock.mock(settings.url('/splitChanges?since=-1'), splitChangesMock1);
-fetchMock.mock(settings.url('/splitChanges?since=1457552620999'), splitChangesMock2);
-fetchMock.mock(settings.url('/mySegments/facundo@split.io'), mySegmentsMock);
+fetchMock.mock(settings.url(`/splitChanges?since=-1`), splitChangesMock1);
+fetchMock.mock(settings.url(`/splitChanges?since=1457552620999`), splitChangesMock2);
+fetchMock.mock(settings.url(`/mySegments/facundo@split.io`), mySegmentsMock);
 
-tape('E2E / lets evaluates!', function (assert) {
-  var sdk = Split({
+tape('E2E / lets evaluates!', assert => {
+  const sdk = splitio({
     core: {
       authorizationKey: '<fake-token>',
       key: 'facundo@split.io'
     },
     scheduler: {
-      featuresRefreshRate: 1,
-      segmentsRefreshRate: 1,
-      metricsRefreshRate: 3000, // for now I don't want to publish metrics during E2E run.
-      impressionsRefreshRate: 3000 // for now I don't want to publish impressions during E2E run.
+      featuresRefreshRate:    1,
+      segmentsRefreshRate:    1,
+      metricsRefreshRate:     3000, // for now I don't want to publish metrics during E2E run.
+      impressionsRefreshRate: 3000  // for now I don't want to publish impressions during E2E run.
     }
+  })
+
+  // Monitor the SDK state and execute the tests once we have the ready flag ON.
+  const readyPromise = new Promise(function readiness(resolve, reject) {
+    sdk.on(sdk.Event.SDK_READY, resolve);
+    sdk.on(sdk.Event.SDK_READY_TIMED_OUT, reject);
   });
 
+  // All these tests should ALWAYS return control because the SDK is starting UP (asyncronously).
   assert.equal(sdk.getTreatment('blacklist'), 'control', 'control should be return');
   assert.equal(sdk.getTreatment('whitelist'), 'control', 'control should be return');
   assert.equal(sdk.getTreatment('splitters'), 'control', 'control should be return');
   assert.equal(sdk.getTreatment('qc_team'), 'control', 'control should be return');
 
-  sdk.ready().then(function () {
+  // Once the SDK is ready, verify the SDK behavior.
+  readyPromise.then(() => {
     assert.equal(sdk.getTreatment('blacklist'), 'not_allowed');
     assert.equal(sdk.getTreatment('whitelist'), 'allowed');
     assert.equal(sdk.getTreatment('splitters'), 'on');
@@ -237,11 +237,13 @@ tape('E2E / lets evaluates!', function (assert) {
 
     sdk.destroy();
     assert.end();
+  }).catch((err) => {
+    assert.fail(err);
   });
 });
 
-tape('E2E / allow multiple instances when running offline', function (assert) {
-  var sdk1 = splitio({
+tape('E2E / allow multiple instances when running offline', assert => {
+  const sdk1 = splitio({
     core: {
       authorizationKey: 'localhost',
       key: 'facundo@split.io'
@@ -250,7 +252,7 @@ tape('E2E / allow multiple instances when running offline', function (assert) {
       my_new_feature: 'on'
     }
   });
-  var sdk2 = splitio({
+  const sdk2 = splitio({
     core: {
       authorizationKey: 'localhost',
       key: 'facundo@split.io'
@@ -260,7 +262,16 @@ tape('E2E / allow multiple instances when running offline', function (assert) {
     }
   });
 
-  _promise2.default.all([sdk1.ready(), sdk2.ready()]).then(function () {
+  const sdkOneReady = new Promise(function readiness(resolve, reject) {
+    sdk1.on(sdk.Event.SDK_READY, resolve);
+    sdk1.on(sdk.Event.SDK_READY_TIMED_OUT, reject);
+  });
+  const sdkTwoReady = new Promise(function readiness(resolve, reject) {
+    sdk2.on(sdk.Event.SDK_READY, resolve);
+    sdk2.on(sdk.Event.SDK_READY_TIMED_OUT, reject);
+  });
+
+  Promise.all([sdkOneReady, sdkTwoReady]).then(() => {
     assert.equal(sdk1.getTreatment('my_new_feature'), 'on', 'should evaluates to on');
     assert.equal(sdk1.getTreatment('unknown_feature'), 'control', 'should evaluates to control');
 
@@ -271,13 +282,13 @@ tape('E2E / allow multiple instances when running offline', function (assert) {
     sdk2.destroy();
 
     assert.end();
-  }).catch(function (err) {
+  }).catch((err) => {
     assert.fail(err);
   });
 });
 
-tape('E2E / evaluates a feature in offline mode', function (assert) {
-  var sdk = splitio({
+tape('E2E / evaluates a feature in offline mode', assert => {
+  const sdk = splitio({
     core: {
       authorizationKey: 'localhost',
       key: 'facundo@split.io'
@@ -287,7 +298,7 @@ tape('E2E / evaluates a feature in offline mode', function (assert) {
     }
   });
 
-  sdk.on(sdk.Event.SDK_READY, function () {
+  sdk.on(sdk.Event.SDK_READY, () => {
     assert.equal(sdk.getTreatment('my_new_feature'), 'on', 'should evaluates to on');
     assert.equal(sdk.getTreatment('unknown_feature'), 'control', 'should evaluates to control');
 
