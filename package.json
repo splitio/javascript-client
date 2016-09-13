@@ -52,7 +52,9 @@
     "lint": "eslint src",
     "test": "ava",
     "test-browser-local": "cross-env NODE_ENV=test karma start karma/local.karma.conf.js",
+    "test-browser-e2e-local": "cross-env NODE_ENV=test karma start karma/e2e.local.karma.conf.js",
     "test-browser-sauce": "cross-env NODE_ENV=test karma start karma/sauce.karma.conf.js",
+    "test-browser-e2e-sauce": "cross-env NODE_ENV=test karma start karma/e2e.sauce.karma.conf.js",
     "test-node": "tape -r babel-register src/*/__tests__/**/!(browser).spec.js"
   },
   "dependencies": {

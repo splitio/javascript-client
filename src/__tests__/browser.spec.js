@@ -263,12 +263,12 @@ tape('E2E / allow multiple instances when running offline', assert => {
   });
 
   const sdkOneReady = new Promise(function readiness(resolve, reject) {
-    sdk1.on(sdk.Event.SDK_READY, resolve);
-    sdk1.on(sdk.Event.SDK_READY_TIMED_OUT, reject);
+    sdk1.on(sdk1.Event.SDK_READY, resolve);
+    sdk1.on(sdk1.Event.SDK_READY_TIMED_OUT, reject);
   });
   const sdkTwoReady = new Promise(function readiness(resolve, reject) {
-    sdk2.on(sdk.Event.SDK_READY, resolve);
-    sdk2.on(sdk.Event.SDK_READY_TIMED_OUT, reject);
+    sdk2.on(sdk2.Event.SDK_READY, resolve);
+    sdk2.on(sdk2.Event.SDK_READY_TIMED_OUT, reject);
   });
 
   Promise.all([sdkOneReady, sdkTwoReady]).then(() => {
