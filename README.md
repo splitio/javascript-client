@@ -15,7 +15,8 @@ into your web platform.
 
 #### Versioning
 
-1. Update the package.json with the correct value using semver.
+Update the package.json with the correct value using semver.
+
    1.0.0-canary.0 => First candidate to be fully verified.
    1.0.0-canary.1 => Second candidate to be fully verified.
    1.0.0-canary.2 => Third candidate to be fully verified.
@@ -23,8 +24,14 @@ into your web platform.
 
 #### Publishing into NPM
 
-1. Use `npm publish --tag canary` to release canary trials.
-1. Use `npm publish` to release the stable version.
+1. Use `npm publish --tag canary` => release canary version.
+1. Use `npm publish`              => release the stable version.
+
+#### Building
+
+1. `npm run build`     => ES6 and ES5 versions of the code.
+1. `npm run build-umd` => UMD version of the code (development).
+1. `npm run build-min` => UMD version of the code but minified.
 
 ### CI
 
