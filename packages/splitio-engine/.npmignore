@@ -1,6 +1,0 @@
-/.babelrc
-/.flowconfig
-/es6
-/test
-/scripts
-/*.karma.conf.js
