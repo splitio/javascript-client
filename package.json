@@ -4,7 +4,6 @@
   "description": "Split SDK",
   "files": [
     "*.md",
-    "docs",
     "es6",
     "lib",
     "umd"
@@ -49,6 +48,7 @@
     "build-es": "rimraf es6 && cross-env BABEL_ENV=es babel ./src -d es6 --ignore '__tests__'",
     "build-umd": "cross-env NODE_ENV=development webpack",
     "build-min": "cross-env NODE_ENV=production webpack -p",
+    "rebuild": "rimraf lib es6 umd && npm run build && npm run build-umd && npm run build-min",
     "lint": "eslint src",
     "test-browser-local": "cross-env NODE_ENV=test karma start karma/local.karma.conf.js",
     "test-browser-e2e-local": "cross-env NODE_ENV=test karma start karma/e2e.local.karma.conf.js",
