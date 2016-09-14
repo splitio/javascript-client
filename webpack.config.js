@@ -1,7 +1,17 @@
 const webpack = require('webpack');
+const pkg = require('./package.json');
+
+const VERSION = pkg.version;
+const IS_PROD = process.env.NODE_ENV === 'production';
 
 module.exports = {
+  entry: {
+    splitio: './src/core'
+  },
+
   output: {
+    filename: IS_PROD ? `[name]-${VERSION}.min.js` : `[name]-${VERSION}.js`,
+    path: __dirname + '/umd',
     library: 'splitio',
     libraryTarget: 'umd'
   },
