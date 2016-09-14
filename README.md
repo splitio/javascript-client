@@ -11,6 +11,21 @@ into your web platform.
 - [Getting stared](http://docs.split.io/docs/getting-started)
 - [JS SDK overview](http://docs.split.io/docs/javascript-sdk-overview)
 
+### How to release
+
+#### Versioning
+
+1. Update the package.json with the correct value using semver.
+   1.0.0-canary.0 => First candidate to be fully verified.
+   1.0.0-canary.1 => Second candidate to be fully verified.
+   1.0.0-canary.2 => Third candidate to be fully verified.
+   1.0.0          => Stable release
+
+#### Publishing into NPM
+
+1. Use `npm publish --tag canary` to release canary trials.
+1. Use `npm publish` to release the stable version.
+
 ### CI
 
 #### use latest LTS version of NodeJS
