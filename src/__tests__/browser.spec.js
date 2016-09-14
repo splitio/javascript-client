@@ -33,9 +33,9 @@ const splitChangesMock1 = require('./mocks/splitchanges.since.-1.json');
 const splitChangesMock2 = require('./mocks/splitchanges.since.1457552620999.json');
 const mySegmentsMock = require('./mocks/mysegments.facundo@split.io.json');
 
-fetchMock.mock(settings.url(`/splitChanges?since=-1`), splitChangesMock1);
-fetchMock.mock(settings.url(`/splitChanges?since=1457552620999`), splitChangesMock2);
-fetchMock.mock(settings.url(`/mySegments/facundo@split.io`), mySegmentsMock);
+fetchMock.mock(settings.url('/splitChanges?since=-1'), splitChangesMock1);
+fetchMock.mock(settings.url('/splitChanges?since=1457552620999'), splitChangesMock2);
+fetchMock.mock(settings.url('/mySegments/facundo@split.io'), mySegmentsMock);
 
 tape('E2E / lets evaluates!', assert => {
   const sdk = splitio({
@@ -49,7 +49,7 @@ tape('E2E / lets evaluates!', assert => {
       metricsRefreshRate:     3000, // for now I don't want to publish metrics during E2E run.
       impressionsRefreshRate: 3000  // for now I don't want to publish impressions during E2E run.
     }
-  })
+  });
 
   // Monitor the SDK state and execute the tests once we have the ready flag ON.
   const readyPromise = new Promise(function readiness(resolve, reject) {

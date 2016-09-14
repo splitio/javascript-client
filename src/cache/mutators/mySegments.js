@@ -41,6 +41,6 @@ function MySegmentMutationsFactory(
     return shouldUpdate;
   };
 
-};
+}
 
 module.exports = MySegmentMutationsFactory;

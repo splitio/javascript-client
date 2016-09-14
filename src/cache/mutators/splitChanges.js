@@ -71,6 +71,6 @@ function SplitMutationsFactory(shouldUpdate /*: bool */, splits /*: SplitDTOColl
 
     return shouldUpdate;
   };
-};
+}
 
 module.exports = SplitMutationsFactory;
