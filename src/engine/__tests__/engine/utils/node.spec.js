@@ -16,7 +16,7 @@ limitations under the License.
 'use strict';
 
 const tape = require('tape');
-const utils = require('../../engine/utils');
+const utils = require('../../../engine/utils');
 const csv = require('csv-streamify');
 const fs = require('fs');
 
@@ -34,5 +34,5 @@ tape('ENGINE / validate hashing behavior using sample data', assert => {
     assert.equal(utils.bucket(key, seed), bucket, 'matching using int32 bucket value');
   }).on('end', assert.end);
 
-  fs.createReadStream(require.resolve('./mocks/small-data.csv')).pipe(parser);
+  fs.createReadStream(require.resolve('../mocks/small-data.csv')).pipe(parser);
 });

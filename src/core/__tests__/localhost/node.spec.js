@@ -16,7 +16,7 @@ limitations under the License.
 'use strict';
 
 const tape = require('tape');
-const splitio = require('../');
+const splitio = require('../../../core');
 
 tape('SDK / evaluates a feature in offline mode', assert => {
   // Look for configurations into $HOME/.split file

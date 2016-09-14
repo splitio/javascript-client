@@ -16,7 +16,7 @@ limitations under the License.
 'use strict';
 
 const tape = require('tape');
-const splitio = require('../');
+const splitio = require('../../../core');
 
 tape('SDK / evaluates multiple sdks at the same time', assert => {
   const prod = splitio({
