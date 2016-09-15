@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio",
-  "version": "7.0.0-canary.2",
+  "version": "7.0.0-canary.3",
   "description": "Split SDK",
   "files": [
     "*.md",
@@ -54,7 +54,8 @@
     "test-browser-e2e-sauce": "cross-env NODE_ENV=test karma start karma/e2e.sauce.karma.conf.js",
     "test-browser-ci": "cross-env NODE_ENV=test karma start karma/ci.karma.conf.js",
     "test-browser-e2e-ci": "cross-env NODE_ENV=test karma start karma/e2e.ci.karma.conf.js",
-    "test-node": "tape -r babel-register \"src/*/__tests__/**/!(browser).spec.js\""
+    "test-node": "tape -r babel-register \"src/*/__tests__/**/!(browser).spec.js\"",
+    "canary": "npm run rebuild && npm publish --tag canary"
   },
   "dependencies": {
     "babel-runtime": "^6.11.6",
