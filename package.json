@@ -59,6 +59,7 @@
   },
   "dependencies": {
     "babel-runtime": "^6.11.6",
+    "core-js": "^2.4.0",
     "debug": "^2.2.0",
     "isomorphic-fetch": "^2.2.1",
     "lodash": "^4.15.0",
