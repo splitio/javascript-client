@@ -6,6 +6,7 @@
 *~
 **/node_modules
 *.swp
+/.vscode
 
 ## local environment setup
 /startup.sh
