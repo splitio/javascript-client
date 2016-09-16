@@ -22,7 +22,7 @@ var splitio = require('@splitsoftware/splitio');
 
 Using [bower](https://bower.io):
 
-    $ bower splitio=https://cdn.split.io/split-7.0.0.min.js
+    $ bower install splitio=https://cdn.split.io/split-7.0.0.min.js
 
 And finally, the **UMD** build is also available in our **CDN**:
 
@@ -37,8 +37,8 @@ You can find the library on `window.splitio`.
 - [JS SDK overview](http://docs.split.io/docs/javascript-sdk-overview)
 
 ### Release documentation
-- [Changes](./CHANGES.txt)
-- [News](./NEWS.txt)
+- [Changes](CHANGES.txt)
+- [News](NEWS.txt)
 
 ### How to release
 
@@ -46,10 +46,10 @@ You can find the library on `window.splitio`.
 
 Update the package.json with the correct value using semver.
 
-   1.0.0-canary.0 => First candidate to be fully verified.
-   1.0.0-canary.1 => Second candidate to be fully verified.
-   1.0.0-canary.2 => Third candidate to be fully verified.
-   1.0.0          => Stable release
+    1.0.0-canary.0 => First candidate to be fully verified.
+    1.0.0-canary.1 => Second candidate to be fully verified.
+    1.0.0-canary.2 => Third candidate to be fully verified.
+    1.0.0          => Stable release
 
 #### Publishing into NPM
 
@@ -58,7 +58,7 @@ Update the package.json with the correct value using semver.
 
 #### Building
 
-1. `npm run build`     => ES6 and ES5 versions of the code.
+1. `npm run build`     => ES5 versions of the code.
 1. `npm run build-umd` => UMD version of the code (development).
 1. `npm run build-min` => UMD version of the code but minified.
 
@@ -67,6 +67,7 @@ Update the package.json with the correct value using semver.
 > use latest LTS version of NodeJS
 
 `nvm install v4`
+
 `nvm use v4`
 
 > Upgrade to latest npm
