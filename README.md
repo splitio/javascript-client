@@ -4,23 +4,27 @@ Split SDK is the library you should use for integrate [Split](http://split.io/)
 into your web platform.
 
 ### How to install
+
 Using [npm](https://www.npmjs.com/):
 
-    $ npm install --save @splitspftware/splitio
+    $ npm install --save @splitsoftware/splitio
 
 Then with a module bundler like [webpack](https://webpack.github.io/) that supports
-either CommonJS or ES2015 modules, use as you would anything else:
+either **CommonJS** or **ES2015** modules, use as you would anything else:
 
 ```js
 // using an ES6 transpiler, like babel
-import splitio from '@splitspftware/splitio';
+import splitio from '@splitsoftware/splitio';
 
 // not using an ES6 transpiler
-var splitio = require('@splitspftware/splitio');
+var splitio = require('@splitsoftware/splitio');
 ```
 
-The *UMD* build is also available inside the npm package (looks inside the umd folder)
-and in our *CDN*:
+Using [bower](https://bower.io):
+
+    $ bower splitio=https://cdn.split.io/split-7.0.0.min.js
+
+And finally, the **UMD** build is also available in our **CDN**:
 
 ```html
 <script src="//cdn.split.io/split-7.0.0.min.js"></script>
@@ -60,21 +64,37 @@ Update the package.json with the correct value using semver.
 
 ### CI
 
-#### use latest LTS version of NodeJS
-nvm install v4
-nvm use v4
-#### Upgrade to latest npm
-npm install -g npm@latest
-#### Install dependencies
-npm install
-#### Add binaries to the PATH
-export PATH=$(npm bin):$PATH
-#### Add localhost file for tests!!!
-printf "%s\n" '# this a comment' 'my_new_feature on' '# another comment' > $HOME/.split
-#### For SonarQ since the plugin is in Java 8
-jdk_switcher use oraclejdk8
-#### Tests steps
-npm run lint
-npm run test-browser-ci
-npm run test-browser-e2e-ci
-npm run test-node
+> use latest LTS version of NodeJS
+
+`nvm install v4`
+`nvm use v4`
+
+> Upgrade to latest npm
+
+`npm install -g npm@latest`
+
+> Install dependencies
+
+`npm install`
+
+> Add binaries to the PATH
+
+`export PATH=$(npm bin):$PATH`
+
+> Add localhost file for tests!!!
+
+`printf "%s\n" '# this a comment' 'my_new_feature on' '# another comment' > $HOME/.split`
+
+> For SonarQ since the plugin is in Java 8
+
+`jdk_switcher use oraclejdk8`
+
+> Tests steps
+
+`npm run lint`
+
+`npm run test-browser-ci`
+
+`npm run test-browser-e2e-ci`
+
+`npm run test-node`
