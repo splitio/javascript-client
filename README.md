@@ -3,13 +3,38 @@
 Split SDK is the library you should use for integrate [Split](http://split.io/)
 into your web platform.
 
-### Release documentation
-- [Changes](./CHANGES.txt)
-- [News](./NEWS.txt)
+### How to install
+Using [npm](https://www.npmjs.com/):
+
+    $ npm install --save @splitspftware/splitio
+
+Then with a module bundler like [webpack](https://webpack.github.io/) that supports
+either CommonJS or ES2015 modules, use as you would anything else:
+
+```js
+// using an ES6 transpiler, like babel
+import splitio from '@splitspftware/splitio';
+
+// not using an ES6 transpiler
+var splitio = require('@splitspftware/splitio');
+```
+
+The *UMD* build is also available inside the npm package (looks inside the umd folder)
+and in our *CDN*:
+
+```html
+<script src="//cdn.split.io/split-7.0.0.min.js"></script>
+```
+
+You can find the library on `window.splitio`.
 
 ### Usage documentation
 - [Getting stared](http://docs.split.io/docs/getting-started)
 - [JS SDK overview](http://docs.split.io/docs/javascript-sdk-overview)
+
+### Release documentation
+- [Changes](./CHANGES.txt)
+- [News](./NEWS.txt)
 
 ### How to release
 
