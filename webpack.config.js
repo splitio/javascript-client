@@ -20,7 +20,7 @@ function filename() {
 
 module.exports = {
   entry: {
-    splitio: './src/core'
+    split: './src/core'
   },
 
   output: {
