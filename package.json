@@ -54,7 +54,8 @@
     "test-browser-ci": "cross-env NODE_ENV=test karma start karma/ci.karma.conf.js",
     "test-browser-e2e-ci": "cross-env NODE_ENV=test karma start karma/e2e.ci.karma.conf.js",
     "test-node": "tape -r babel-register \"src/*/__tests__/**/!(browser).spec.js\"",
-    "canary": "npm run rebuild && npm publish --tag canary"
+    "canary": "npm run rebuild && npm publish --tag canary",
+    "stable": "npm run rebuild && npm publish"
   },
   "dependencies": {
     "babel-runtime": "^6.11.6",
