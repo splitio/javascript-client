@@ -6,3 +6,15 @@
 *~
 **/node_modules
 *.swp
+/.vscode
+
+## local environment setup
+/startup.sh
+
+## coverage info
+/karma/coverage
+
+## transpiled code
+/lib
+/es6
+/umd
