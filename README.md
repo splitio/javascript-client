@@ -1,101 +1,52 @@
-# Split SDK for JavaScript
+# Split Javascript SDK
 
-Split SDK is the library you should use for integrate [Split](http://split.io/)
-into your web platform.
+This SDK is designed to work with [Split](https://www.split.io), the platform for controlled rollouts, serving features to your users via the Split feature flag to manage your complete customer experience.
 
-### How to install
+### Quick setup
 
-Using [npm](https://www.npmjs.com/):
+For specific instructions on how to set up the Javascript SDK refer to our [Detailed-README](Detailed-README.md) or our [official SDK documentation](http://docs.split.io/docs/sdk-overview).
 
-    $ npm install --save @splitsoftware/splitio
+### Commitment to Quality:
 
-Then with a module bundler like [webpack](https://webpack.github.io/) that supports
-either **CommonJS** or **ES2015** modules, use as you would anything else:
+Split’s SDKs are in active development and are constantly tested for quality. Unit tests are developed for each SDK based on the unique needs of that language, and integration tests, load and performance tests, and behavior consistency tests are running 24/7 via automated bots. In addition, monitoring instrumentation ensures that these SDKs behave under the expected parameters of memory, CPU, and I/O.
 
-```js
-// using an ES6 transpiler, like babel
-import splitio from '@splitsoftware/splitio';
+### About Split:
 
-// not using an ES6 transpiler
-var splitio = require('@splitsoftware/splitio');
-```
+Split builds on feature flags to create the platform for controlled rollouts, so any team can target customers and release or revert new features without a deployment—or touching code. Get started quickly with SDKs in your language, then create on/off, percentage, and multivariate rollout plans in seconds. Integrations with the services you use to monitor, alert and track issues reduce time-to-resolution when things go wrong, and hotfixes are entirely avoided by killing problem features with a single click.
 
-Using [bower](https://bower.io):
+ * What you can do with Split. Split goes beyond the simple on/off capabilities of basic feature flagging to give your team the power to:
 
-    $ bower install splitio=https://cdn.split.io/split-7.0.1.min.js
+ 	* Create multivariate feature releases
+	* Create A/B feature releases
+	* Kill any feature, over the browser, with a single click
+	* Target releases to subsets of your audience, including percentage roll outs, whitelists,    attribute-based targeting, and individual user IDs 
+	* Integrate with the services your team uses to monitor, plan and communicate, like Datadog, JIRA and Slack 
+	* Manage team access, with features like two-factor authentication and role-based permissioning.
 
-And finally, the **UMD** build is also available in our **CDN**:
 
-```html
-<script src="//cdn.split.io/split-7.0.1.min.js"></script>
-```
+Split has built and maintains a SDKs for:
 
-You can find the library on `window.splitio`.
+* Java [Docs](http://docs.split.io/docs/java-sdk-guide)
+* Javascript [Github](https://github.com/splitio/javascript-client) [Docs](http://docs.split.io/docs/javascript-sdk-overview)
+* Node [Github](https://github.com/splitio/javascript-client) [Docs](http://docs.split.io/docs/nodejs-sdk-overview)
+* .NET [Github](https://github.com/splitio/.net-client) [Docs](http://docs.split.io/docs/net-sdk-overview)
+* Ruby [Github](https://github.com/splitio/ruby-client) [Docs](http://docs.split.io/docs/ruby-sdk-overview)
+* PHP [Github](https://github.com/splitio/php-client) [Docs](http://docs.split.io/docs/php-sdk-overview)
+* Python [Github](https://github.com/splitio/python-client) [Docs](http://docs.split.io/docs/python-sdk-overview)
 
-### Usage documentation
-- [Getting stared](http://docs.split.io/docs/getting-started)
-- [JS SDK overview](http://docs.split.io/docs/javascript-sdk-overview)
+For a comprenhensive list of opensource projects visit our [Github page](https://github.com/splitio?utf8=%E2%9C%93&query=%20only%3Apublic%20).
 
-### Release documentation
-- [Changes](CHANGES.txt)
-- [News](NEWS.txt)
+**Try Split for Free:**
 
-### How to release
+Split is available as a 30-day free trial. To create an account, visit [split.io/trial](https://www.split.io/trial).
 
-#### Versioning
+**Learn more about Split:** 
 
-Update the package.json with the correct value using semver.
+Visit [split.io/product](https://www.split.io/product) for an overview of Split, or visit our documentation at [docs.split.io](http://docs.split.io) for more detailed information.
 
-    1.0.0-canary.0 => First candidate to be fully verified.
-    1.0.0-canary.1 => Second candidate to be fully verified.
-    1.0.0-canary.2 => Third candidate to be fully verified.
-    1.0.0          => Stable release
+**System Status:**
 
-#### Publishing into NPM
+We use a status page to monitor the availability of Split’s various services. You can check the current status at [status.split.io](http://status.split.io).
 
-1. Use `npm publish --tag canary` => release canary version.
-1. Use `npm publish`              => release the stable version.
+----
 
-#### Building
-
-1. `npm run build`     => ES5 versions of the code.
-1. `npm run build-umd` => UMD version of the code (development).
-1. `npm run build-min` => UMD version of the code but minified.
-
-### CI
-
-> use latest LTS version of NodeJS
-
-`nvm install v4`
-
-`nvm use v4`
-
-> Upgrade to latest npm
-
-`npm install -g npm@latest`
-
-> Install dependencies
-
-`npm install`
-
-> Add binaries to the PATH
-
-`export PATH=$(npm bin):$PATH`
-
-> Add localhost file for tests!!!
-
-`printf "%s\n" '# this a comment' 'my_new_feature on' '# another comment' > $HOME/.split`
-
-> For SonarQ since the plugin is in Java 8
-
-`jdk_switcher use oraclejdk8`
-
-> Tests steps
-
-`npm run lint`
-
-`npm run test-browser-ci`
-
-`npm run test-browser-e2e-ci`
-
-`npm run test-node`
