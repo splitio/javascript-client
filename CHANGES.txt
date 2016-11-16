@@ -1,3 +1,7 @@
+## 7.1.1 (November 16, 2016)
+
+* None API changes. Bug fixing release.
+
 ## 7.1.0 (November 15, 2016)
 
 * None API changes. Bug fixing release.
