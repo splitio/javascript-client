@@ -1,3 +1,8 @@
+## 7.1.1 (November 16, 2016)
+
+* In some particular combinations of NodeJS / OS the `require('@splitsoftware/splitio')` could fail. Added
+  a workaround to fix the problem.
+
 ## 7.1.0 (November 15, 2016)
 
 * Bug fixing release. Reported an error with ember-browserify due to an
