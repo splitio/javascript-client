@@ -1,12 +1,19 @@
 {
   "presets": [
-    "es2015"
+    "latest",
+    "flow"
   ],
+
   "plugins": [
-    "syntax-object-rest-spread",
-    "transform-object-rest-spread",
-    "transform-runtime"
+    "syntax-async-functions",       // handle async/await syntax
+    "syntax-object-rest-spread",    // usage of ... in objects
+
+    "transform-async-to-generator", // async/await => generators
+    "transform-regenerator",        // generators => something runnable
+    "transform-object-rest-spread", // usage of ... in objects
+    "transform-runtime"             // automatic polyfilling
   ],
+
   "env": {
     "test": {
       "plugins": [
