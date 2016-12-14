@@ -15,7 +15,7 @@ limitations under the License.
 **/
 'use strict';
 
-const tape = require('tape');
+const tape = require('tape-catch');
 const now = require('../../now');
 
 tape('NOW / should generate a value each time you call it', assert => {

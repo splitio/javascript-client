@@ -15,7 +15,7 @@ limitations under the License.
 **/
 'use strict';
 
-const tape = require('tape');
+const tape = require('tape-catch');
 const SegmentsStorage = require('../../../storage/segments');
 
 tape('SEGMENTS STORAGE / get(string) should retrieve the Set which represents the segment requested', assert => {

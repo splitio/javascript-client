@@ -2,12 +2,12 @@
 
 'use strict';
 
-const tape = require('tape');
+const tape = require('tape-catch');
 const splitObject : SplitObject = require('./splitChanges.mock');
 const splitView : FormattedSplit = require('./manager.expected');
 
 const Manager = require('../');
-const SplitCache = require('../../storage/SplitCacheInMemory');
+const SplitCache = require('../../storage/SplitCache/InMemory');
 
 tape('Manager API', assert => {
   const cache = new SplitCache();

@@ -26,7 +26,7 @@ const url = settings.url.bind(settings);
 const greedyFetch = require('../../../ds/segmentChanges').greedyFetch.bind(null, settings, -1);
 const fetchMock = require('fetch-mock');
 
-const tape = require('tape');
+const tape = require('tape-catch');
 
 tape('DS SEGMENT CHANGES / greedy fetch should download while since != till', assert => {
   const response1 = {

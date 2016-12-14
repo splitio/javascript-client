@@ -15,7 +15,7 @@ limitations under the License.
 **/
 'use strict';
 
-const tape = require('tape');
+const tape = require('tape-catch');
 const collectorFactory = require('../../collector/single');
 
 tape('SINGLE COLLECTOR / should implement a secuencia counter', assert => {

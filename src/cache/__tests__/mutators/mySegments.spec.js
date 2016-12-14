@@ -15,7 +15,7 @@ limitations under the License.
 **/
 'use strict';
 
-const tape = require('tape');
+const tape = require('tape-catch');
 const SegmentsStorage = require('../../storage/segments/browser');
 const MySegmentsMutatorFactory = require('../../mutators/mySegments');
 

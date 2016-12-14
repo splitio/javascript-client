@@ -84,11 +84,10 @@ function onlineFactory(params /*: object */) /*: object */ {
     },
 
     destroy() {
-      log('destroying sdk instance');
-
       hub.removeAllListeners();
       metrics.stop();
       cache.stop();
+      log('destroying sdk instance');
     }
   });
 }

@@ -40,6 +40,7 @@
     "karma-webpack": "^1.8.0",
     "rimraf": "^2.5.4",
     "tape": "^4.6.0",
+    "tape-catch": "^1.0.6",
     "webpack": "^1.13.2"
   },
   "scripts": {

@@ -15,7 +15,7 @@ limitations under the License.
 **/
 'use strict';
 
-const tape = require('tape');
+const tape = require('tape-catch');
 const MutatorFactory = require('../../mutators/splitChanges');
 const splitChangesMock = require('./mocks/splitChanges');
 const SplitsStorage = require('../../storage/splits');

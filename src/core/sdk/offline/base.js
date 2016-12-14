@@ -81,6 +81,7 @@ function offlineFactory(settings) {
     },
     destroy() {
       hub.removeAllListeners();
+      log('destroyed instance');
     }
   });
 }

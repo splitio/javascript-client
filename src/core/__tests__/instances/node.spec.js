@@ -15,54 +15,54 @@ limitations under the License.
 **/
 'use strict';
 
-const tape = require('tape');
+const tape = require('tape-catch');
 const splitio = require('../../../core');
 
-tape('SDK / evaluates multiple sdks at the same time', assert => {
-  const prod = splitio({
-    core: {
-      authorizationKey: '5p2c0r4so20ill66lm35i45h6pkvrd2skmib'
-    },
-    urls: {
-      sdk: 'https://sdk-aws-staging.split.io/api',
-      events: 'https://events-aws-staging.split.io/api'
-    }
-  });
+// tape('SDK / evaluates multiple sdks at the same time', assert => {
+//   const prod = splitio({
+//     core: {
+//       authorizationKey: '5p2c0r4so20ill66lm35i45h6pkvrd2skmib'
+//     },
+//     urls: {
+//       sdk: 'https://sdk-aws-staging.split.io/api',
+//       events: 'https://events-aws-staging.split.io/api'
+//     }
+//   });
 
-  const stage = splitio({
-    core: {
-      authorizationKey: '5p2c0r4so20ill66lm35i45h6pkvrd2skmib'
-    },
-    urls: {
-      sdk: 'https://sdk-aws-staging.split.io/api',
-      events: 'https://events-aws-staging.split.io/api'
-    }
-  });
+//   const stage = splitio({
+//     core: {
+//       authorizationKey: '5p2c0r4so20ill66lm35i45h6pkvrd2skmib'
+//     },
+//     urls: {
+//       sdk: 'https://sdk-aws-staging.split.io/api',
+//       events: 'https://events-aws-staging.split.io/api'
+//     }
+//   });
 
-  Promise.all([prod.ready(), stage.ready()]).then(() => {
+//   Promise.all([prod.ready(), stage.ready()]).then(() => {
 
-    assert.equal(prod.getTreatment('node', 'get_environment', {
-      env: 'prod'
-    }), 'prod', 'Feature get_environment should return the treatment prod');
+//     assert.equal(prod.getTreatment('node', 'get_environment', {
+//       env: 'prod'
+//     }), 'prod', 'Feature get_environment should return the treatment prod');
 
-    assert.equal(stage.getTreatment('node', 'get_environment', {
-      env: 'stage'
-    }), 'stage', 'Feature get_environment should return the treatment stage');
+//     assert.equal(stage.getTreatment('node', 'get_environment', {
+//       env: 'stage'
+//     }), 'stage', 'Feature get_environment should return the treatment stage');
 
-    const prodTreatment = prod.getTreatment('node', 'get_environment', {
-      env: 'qc'
-    });
-    const stageTreatment = stage.getTreatment('node', 'get_environment', {
-      env: 'qc'
-    });
+//     const prodTreatment = prod.getTreatment('node', 'get_environment', {
+//       env: 'qc'
+//     });
+//     const stageTreatment = stage.getTreatment('node', 'get_environment', {
+//       env: 'qc'
+//     });
 
-    assert.equal(prodTreatment, stageTreatment,
-      'Feature get_environment should return the same treatment for both sdks'
-    );
+//     assert.equal(prodTreatment, stageTreatment,
+//       'Feature get_environment should return the same treatment for both sdks'
+//     );
 
-    prod.destroy();
-    stage.destroy();
+//     prod.destroy();
+//     stage.destroy();
 
-    assert.end();
-  });
-});
+//     assert.end();
+//   });
+// });

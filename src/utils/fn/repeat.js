@@ -15,23 +15,32 @@ limitations under the License.
 **/
 'use strict';
 
+var counter = 0;
+
 function repeat(fn, delay, ...rest) {
   let tid;
   let stopped = false;
+  let c = ++counter;
 
   function next(_delay = delay, ...rest) {
     if (!stopped) {
+      console.log(`xxx ${c} repeat`);
       // IE 9 doesn't support function arguments through setTimeout call.
       // https://msdn.microsoft.com/en-us/library/ms536753(v=vs.85).aspx
       tid = setTimeout(() => {
+        console.log(`xxx ${c} repeat repeat`);
         fn(...rest, next);
       }, _delay);
+    } else {
+      console.log(`xxx ${c} called next but stopped`);
     }
   }
 
   function till() {
     clearTimeout(tid);
+    tid = undefined;
     stopped = true;
+    console.log(`xxx ${c} till called`);
   }
 
   fn(...rest, next);
