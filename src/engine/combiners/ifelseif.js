@@ -30,7 +30,7 @@ function unexpectedInputHandler() {
 
 function ifElseIfCombinerContext(predicates /*: Array<(key: string, seed: number, attributes: object) => ?string)> */) /*: function */ {
 
-  function ifElseIfCombiner(key /*: KeyDTO */, seed /*: number */, attributes /*: object */) /*: ?string */ {
+  function ifElseIfCombiner(key /*: string | KeyDTO */, seed /*: number */, attributes /*: object */) /*: ?string */ {
 
     // loop throught the if else if structure and stops as soon as one predicate
     // return a treatment
