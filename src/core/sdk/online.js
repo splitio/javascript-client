@@ -19,6 +19,13 @@ limitations under the License.
 // babel-runtime before remove this line of code.
 require('core-js/es6/promise');
 
+/*::
+  type KeyDTO = {
+    matchingKey: string,
+    bucketingKey: string
+  }
+*/
+
 const warning = require('warning');
 const log = require('debug')('splitio');
 
@@ -52,7 +59,7 @@ function onlineFactory(params /*: object */) /*: object */ {
   });
 
   return Object.assign(hub, {
-    getTreatment(key /*: string */, featureName /*: string */, attributes /*: object */) /*: string */ {
+    getTreatment(key /*: string | KeyDTO */, featureName /*: string */, attributes /*: object */) /*: string */ {
       let treatment = 'control';
 
       let stopGetTreatmentTracker = getTreatmentTracker(); // start engine perf monitoring

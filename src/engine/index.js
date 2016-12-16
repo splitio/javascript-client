@@ -17,6 +17,13 @@ limitations under the License.
 
 const parser = require('./parser');
 
+/*::
+  type KeyDTO = {
+    matchingKey: string,
+    bucketingKey: string
+  }
+*/
+
 function defaults(inst) {
   // in case we don't have a default treatment in the instanciation, use
   // 'control'
@@ -52,7 +59,7 @@ Split.prototype.getSegments = function getSegments() {
   return this.segments;
 };
 
-Split.prototype.getTreatment = function getTreatment(key, attributes) {
+Split.prototype.getTreatment = function getTreatment(key /*: string | KeyDTO */, attributes) {
   let {
     killed,
     seed,

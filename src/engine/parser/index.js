@@ -29,9 +29,16 @@ const ifElseIfCombiner = require('../combiners/ifelseif');
 const andCombiner = require('../combiners/and');
 
 /*::
+  type KeyDTO = {
+    matchingKey: string,
+    bucketingKey: string
+  }
+*/
+
+/*::
   type ParserOutputDTO = {
     segments: Set,
-    evaluator: (key: string, seed: number) => boolean
+    evaluator: (key: string | KeyDTO, seed: number) => boolean
   }
 */
 
