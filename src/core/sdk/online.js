@@ -26,6 +26,7 @@ const SettingsFactory = require('../../utils/settings');
 const EventsFactory = require('../../utils/events');
 const Metrics = require('../../metrics');
 const Cache = require('../../cache');
+const parseKey = require('../../utils/key');
 
 function onlineFactory(params /*: object */) /*: object */ {
   const settings = SettingsFactory(params);
@@ -59,7 +60,7 @@ function onlineFactory(params /*: object */) /*: object */ {
 
       let split = cache.storage.splits.get(featureName);
       if (split) {
-        treatment = split.getTreatment(key, attributes);
+        treatment = split.getTreatment(parseKey(key), attributes);
 
         log(`feature ${featureName} key ${key} evaluated as ${treatment}`);
       } else {

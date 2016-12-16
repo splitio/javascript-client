@@ -19,13 +19,15 @@ const tape = require('tape');
 const ifElseIfCombinerFactory = require('../../combiners/ifelseif');
 
 tape('IF ELSE IF COMBINER / should correctly propagate context parameters and predicates returns value', assert => {
-  let inputKey = 'sample';
+  let inputKey = {
+    matchingKey: 'sample'
+  };
   let inputSeed = 1234;
   let inputAttributes = {};
   let evaluationResult = 'treatment';
 
   function evaluator(key, seed, attributes) {
-    assert.true(key === inputKey, 'key should be equals');
+    assert.true(key.matchingKey === inputKey.matchingKey, 'key should be equals');
     assert.true(seed === inputSeed, 'seed should be equals');
     assert.true(attributes === inputAttributes, 'attributes should be equals');
 

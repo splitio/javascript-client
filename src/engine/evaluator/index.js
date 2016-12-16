@@ -17,13 +17,20 @@ limitations under the License.
 
 const engine = require('../engine');
 
+/*::
+  type KeyDTO = {
+    matchingKey: string,
+    bucketingKey: string
+  }
+*/
+
 // Evaluator factory
 function evaluatorContext(matcherEvaluator /*: function */, treatments /*: Treatments */) /*: function */ {
 
-  return function evaluator(key /*: string */, seed /*: number */, attributes /*: object */) /*:? string */ {
+  return function evaluator(key /*: KeyDTO */, seed /*: number */, attributes /*: object */) /*:? string */ {
     // if the matcherEvaluator return true, then evaluate the treatment
-    if (matcherEvaluator(key, attributes)) {
-      return engine.getTreatment(key, seed, treatments);
+    if (matcherEvaluator(key.matchingKey, attributes)) {
+      return engine.getTreatment(key.bucketingKey, seed, treatments);
     }
 
     // else we should notify the engine to continue evaluating
