@@ -38,7 +38,7 @@ const andCombiner = require('../combiners/and');
 /*::
   type ParserOutputDTO = {
     segments: Set,
-    evaluator: (key: KeyDTO, seed: number) => boolean
+    evaluator: (key: string | KeyDTO, seed: number) => boolean
   }
 */
 

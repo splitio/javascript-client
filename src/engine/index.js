@@ -59,7 +59,7 @@ Split.prototype.getSegments = function getSegments() {
   return this.segments;
 };
 
-Split.prototype.getTreatment = function getTreatment(key /*: KeyDTO */, attributes) {
+Split.prototype.getTreatment = function getTreatment(key /*: string | KeyDTO */, attributes) {
   let {
     killed,
     seed,
