@@ -1,3 +1,7 @@
+/**
+ * Verify type of key and return a valid object key used for get treatment for a
+ * specific split.
+ */
 module.exports = (key) => {
   if (typeof key === 'string') {
     return {
@@ -8,7 +12,7 @@ module.exports = (key) => {
 
   if (typeof key === 'object') {
     if (!key.bucketingKey || !key.matchingKey) {
-      throw 'key object should need property bucketingKey';
+      throw 'key object should has property bucketingKey and matchingKey';
     }
 
     return key;
