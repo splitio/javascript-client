@@ -1,13 +1,16 @@
+const isString = require('lodash/isString');
+const isObject = require('lodash/isObject');
+
 /**
  * Verify type of key and return a string.
  * Use case: impressions tracker need matching key.
  */
 module.exports = (key) => {
-  if (typeof key === 'string') {
+  if (isString(key)) {
     return key;
   }
 
-  if (typeof key === 'object') {
+  if (isObject(key)) {
     if (!key.matchingKey) {
       throw 'key should has property matchingKey';
     }
