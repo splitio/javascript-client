@@ -16,7 +16,7 @@ limitations under the License.
 'use strict';
 
 const engine = require('../engine');
-const keyParser = require('../../utils/key');
+const keyParser = require('../../utils/key/parser');
 
 /*::
   type KeyDTO = {

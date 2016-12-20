@@ -33,6 +33,7 @@ const SettingsFactory = require('../../utils/settings');
 const EventsFactory = require('../../utils/events');
 const Metrics = require('../../metrics');
 const Cache = require('../../cache');
+const impressionsKeyParser = require('../../utils/key/impressions');
 
 function onlineFactory(params /*: object */) /*: object */ {
   const settings = SettingsFactory(params);
@@ -77,7 +78,7 @@ function onlineFactory(params /*: object */) /*: object */ {
 
       impressionsTracker({
         feature: featureName,
-        key,
+        key: impressionsKeyParser(key),
         treatment,
         when: Date.now()
       });
