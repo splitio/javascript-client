@@ -16,14 +16,27 @@ limitations under the License.
 'use strict';
 
 const engine = require('../engine');
+const keyParser = require('../../utils/key/parser');
+
+/*::
+  type KeyDTO = {
+    matchingKey: string,
+    bucketingKey: string
+  }
+*/
 
 // Evaluator factory
-function evaluatorContext(matcherEvaluator /*: function */, treatments /*: Treatments */) /*: function */ {
+function evaluatorContext(matcherEvaluator /*: function */, treatments /*: Treatments */, label /*: string */) /*: function */ {
 
-  return function evaluator(key /*: string */, seed /*: number */, attributes /*: object */) /*:? string */ {
-    // if the matcherEvaluator return true, then evaluate the treatment
-    if (matcherEvaluator(key, attributes)) {
-      return engine.getTreatment(key, seed, treatments);
+  return function evaluator(key /*: string | KeyDTO */, seed /*: number */, attributes /*: object */) /*:? string */ {
+    // parse key, the key could be a string or KeyDTO it should return a keyDTO.
+    const keyParsed = keyParser(key);
+    // if the matcherEvaluator return true, then evaluate the treatment and return the label for that split
+    if (matcherEvaluator(keyParsed.matchingKey, attributes)) {
+      return {
+        treatment: engine.getTreatment(keyParsed.bucketingKey, seed, treatments),
+        label
+      };
     }
 
     // else we should notify the engine to continue evaluating

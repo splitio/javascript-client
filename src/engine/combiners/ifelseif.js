@@ -17,23 +17,30 @@ limitations under the License.
 
 const log = require('debug')('splitio-engine:combiner');
 
+/*::
+  type KeyDTO = {
+    matchingKey: string,
+    bucketingKey: string
+  }
+*/
+
 function unexpectedInputHandler() {
   return 'control';
 }
 
 function ifElseIfCombinerContext(predicates /*: Array<(key: string, seed: number, attributes: object) => ?string)> */) /*: function */ {
 
-  function ifElseIfCombiner(key /*: string */, seed /*: number */, attributes /*: object */) /*: ?string */ {
+  function ifElseIfCombiner(key /*: string | KeyDTO */, seed /*: number */, attributes /*: object */) /*: ?string */ {
 
     // loop throught the if else if structure and stops as soon as one predicate
     // return a treatment
     for (let evaluator of predicates) {
-      let treatment = evaluator(key, seed, attributes);
+      let evalTreatment = evaluator(key, seed, attributes);
 
-      if (treatment !== undefined) {
-        log('treatment found %s', treatment);
+      if (evalTreatment !== undefined) {
+        log('treatment found %s', evalTreatment.treatment);
 
-        return treatment;
+        return evalTreatment;
       }
     }
 
