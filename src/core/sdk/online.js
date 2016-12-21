@@ -33,7 +33,10 @@ const SettingsFactory = require('../../utils/settings');
 const EventsFactory = require('../../utils/events');
 const Metrics = require('../../metrics');
 const Cache = require('../../cache');
-const impressionsKeyParser = require('../../utils/key/impressions');
+const KeyMatchParserFactory = require('../../utils/key/factory');
+const matchingKeyParser = KeyMatchParserFactory('matchingKey');
+const bucketingKeyParser = KeyMatchParserFactory('bucketingKey', true);
+const LabelsConstants = require('../../utils/labels');
 
 function onlineFactory(params /*: object */) /*: object */ {
   const settings = SettingsFactory(params);
@@ -61,15 +64,18 @@ function onlineFactory(params /*: object */) /*: object */ {
 
   return Object.assign(hub, {
     getTreatment(key /*: string | KeyDTO */, featureName /*: string */, attributes /*: object */) /*: string */ {
-      let treatment = 'control';
+      let result = {
+        treatment: 'control',
+        label: LabelsConstants.SPLIT_NOT_FOUND
+      };
 
       let stopGetTreatmentTracker = getTreatmentTracker(); // start engine perf monitoring
 
       let split = cache.storage.splits.get(featureName);
       if (split) {
-        treatment = split.getTreatment(key, attributes);
+        result = split.getTreatment(key, attributes);
 
-        log(`feature ${featureName} key ${key} evaluated as ${treatment}`);
+        log(`feature ${featureName} key ${matchingKeyParser(key)} evaluated as ${result.treatment}`);
       } else {
         log(`feature ${featureName} doesn't exist`);
       }
@@ -78,12 +84,14 @@ function onlineFactory(params /*: object */) /*: object */ {
 
       impressionsTracker({
         feature: featureName,
-        key: impressionsKeyParser(key),
-        treatment,
-        when: Date.now()
+        key: matchingKeyParser(key),
+        treatment: result.treatment,
+        when: Date.now(),
+        bucketingKey: bucketingKeyParser(key),
+        label: result.label
       });
 
-      return treatment;
+      return result.treatment;
     },
 
     ready() {

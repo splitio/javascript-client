@@ -29,7 +29,10 @@ module.exports = {
           return {
             keyName: entry.key,
             treatment: entry.treatment,
-            time: entry.when
+            time: entry.when,
+            changeNumber: entry.changeNumber,
+            label: entry.label,
+            bucketingKey: entry.bucketingKey
           };
         })
       });

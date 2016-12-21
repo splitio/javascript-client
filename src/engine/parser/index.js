@@ -55,7 +55,8 @@ function parse(conditions /*: Iterable<Object> */, storage /*: Storage */) /*: P
       matcherGroup: {
         matchers
       },
-      partitions
+      partitions,
+      label
     } = condition;
 
     // transform data structure
@@ -87,7 +88,9 @@ function parse(conditions /*: Iterable<Object> */, storage /*: Storage */) /*: P
 
     predicates.push(evaluatorFactory(
       andCombiner(expressions),
-      treatmentsParser(partitions)
+      treatmentsParser(partitions),
+      // label it isn't evaluated by js sdk it is needed in the return of each condition.
+      label
     ));
   }
 
