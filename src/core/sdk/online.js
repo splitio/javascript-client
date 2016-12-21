@@ -33,9 +33,7 @@ const SettingsFactory = require('../../utils/settings');
 const EventsFactory = require('../../utils/events');
 const Metrics = require('../../metrics');
 const Cache = require('../../cache');
-const KeyMatchParserFactory = require('../../utils/key/factory');
-const getMatchingKey = KeyMatchParserFactory('matchingKey');
-const getBucketingKey = KeyMatchParserFactory('bucketingKey', true);
+const { matching, bucketing } = require('../../utils/key/factory');
 const LabelsConstants = require('../../utils/labels');
 
 function onlineFactory(params /*: object */) /*: object */ {
@@ -75,7 +73,7 @@ function onlineFactory(params /*: object */) /*: object */ {
       if (split) {
         evaluation = split.getTreatment(key, attributes);
 
-        log(`feature ${featureName} key ${getMatchingKey(key)} evaluated as ${evaluation.treatment}`);
+        log(`feature ${featureName} key ${matching(key)} evaluated as ${evaluation.treatment}`);
       } else {
         log(`feature ${featureName} doesn't exist`);
       }
@@ -84,11 +82,11 @@ function onlineFactory(params /*: object */) /*: object */ {
 
       impressionsTracker({
         feature: featureName,
-        key: getMatchingKey(key),
+        key: matching(key),
         treatment: evaluation.treatment,
         when: Date.now(),
-        bucketingKey: getBucketingKey(key),
-        label: evaluation.label
+        bucketingKey: bucketing(key),
+        label: settings.core.labelsEnabled ? evaluation.label : null
       });
 
       return evaluation.treatment;

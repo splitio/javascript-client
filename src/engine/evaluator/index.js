@@ -33,8 +33,10 @@ function evaluatorContext(matcherEvaluator /*: function */, treatments /*: Treat
     const keyParsed = keyParser(key);
     // if the matcherEvaluator return true, then evaluate the treatment and return the label for that split
     if (matcherEvaluator(keyParsed.matchingKey, attributes)) {
+      const treatment = engine.getTreatment(keyParsed.bucketingKey, seed, treatments);
+
       return {
-        treatment: engine.getTreatment(keyParsed.bucketingKey, seed, treatments),
+        treatment,
         label
       };
     }

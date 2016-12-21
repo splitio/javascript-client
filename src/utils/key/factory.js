@@ -7,7 +7,7 @@ const isObject = require('lodash/isObject');
  * is a string.
  * Use case: impressions tracker need matching key or bucketing key.
  */
-module.exports = function KeyFactory(keyProperty, shouldReturnUndefined = false) {
+function KeyFactory(keyProperty, shouldReturnUndefined = false) {
   return function getKeyProperty(key) {
     if (isString(key)) {
       return shouldReturnUndefined ? undefined : key;
@@ -23,4 +23,9 @@ module.exports = function KeyFactory(keyProperty, shouldReturnUndefined = false)
 
     throw 'key should be a object or a string';
   };
+}
+
+module.exports = {
+  matching: KeyFactory('matchingKey'),
+  bucketing: KeyFactory('bucketingKey', true)
 };

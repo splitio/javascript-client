@@ -17,8 +17,7 @@ limitations under the License.
 
 const tape = require('tape');
 const keyParser = require('../../key/parser');
-const matchingKeyParser = require('../../key/factory')('matchingKey');
-const bucketingKeyParser = require('../../key/factory')('bucketingKey', true);
+const { matching, bucketing } = require('../../key/factory');
 
 tape('KEY PARSER / if a string is passed a param should return a object', assert => {
 
@@ -87,7 +86,7 @@ tape('KEY PARSER / should fail if a invalid key is passed as a param', assert =>
 tape('FACTORY KEY PARSER / if a string is passed as a param it should return a string', assert => {
 
   const key = 'some key';
-  const keyParsed = matchingKeyParser(key);
+  const keyParsed = matching(key);
 
   assert.equal(typeof keyParsed, 'string', 'key parsed should be a string');
   assert.equal(keyParsed, key, 'key parsed should be equal to key');
@@ -102,7 +101,7 @@ tape('FACTORY KEY PARSER / if a object is passed as a param it should return a s
     bucketingKey: 'another key'
   };
 
-  const keyParsed = matchingKeyParser(key);
+  const keyParsed = matching(key);
 
   assert.equal(typeof keyParsed, 'string', 'key parsed should be a string');
   assert.equal(keyParsed, key.matchingKey, 'key parsed should be equal to key');
@@ -114,7 +113,7 @@ tape('FACTORY KEY PARSER / should return undefined if a string is passed as a pa
 
   const key = 'simple key';
 
-  const keyParsed = bucketingKeyParser(key);
+  const keyParsed = bucketing(key);
 
   assert.equal(keyParsed, undefined, 'key parsed should return undefined');
 
@@ -124,7 +123,7 @@ tape('FACTORY KEY PARSER / should return undefined if a string is passed as a pa
 tape('FACTORY KEY PARSER / should fail if a invalid key is passed as a param', assert => {
 
   try {
-    matchingKeyParser({
+    matching({
       bucketingKey: '100%:on'
     });
   } catch(e) {
@@ -137,7 +136,7 @@ tape('FACTORY KEY PARSER / should fail if a invalid key is passed as a param', a
 tape('FACTORY KEY PARSER / should fail if a key isn\'t passed as a param', assert => {
 
   try {
-    matchingKeyParser(undefined);
+    matching(undefined);
   } catch(e) {
     assert.ok(e, 'key parsed should throw an exception if undefined is passed within params');
   }
