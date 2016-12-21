@@ -34,8 +34,8 @@ const EventsFactory = require('../../utils/events');
 const Metrics = require('../../metrics');
 const Cache = require('../../cache');
 const KeyMatchParserFactory = require('../../utils/key/factory');
-const matchingKeyParser = KeyMatchParserFactory('matchingKey');
-const bucketingKeyParser = KeyMatchParserFactory('bucketingKey', true);
+const getMatchingKey = KeyMatchParserFactory('matchingKey');
+const getBucketingKey = KeyMatchParserFactory('bucketingKey', true);
 const LabelsConstants = require('../../utils/labels');
 
 function onlineFactory(params /*: object */) /*: object */ {
@@ -64,7 +64,7 @@ function onlineFactory(params /*: object */) /*: object */ {
 
   return Object.assign(hub, {
     getTreatment(key /*: string | KeyDTO */, featureName /*: string */, attributes /*: object */) /*: string */ {
-      let result = {
+      let evaluation = {
         treatment: 'control',
         label: LabelsConstants.SPLIT_NOT_FOUND
       };
@@ -73,9 +73,9 @@ function onlineFactory(params /*: object */) /*: object */ {
 
       let split = cache.storage.splits.get(featureName);
       if (split) {
-        result = split.getTreatment(key, attributes);
+        evaluation = split.getTreatment(key, attributes);
 
-        log(`feature ${featureName} key ${matchingKeyParser(key)} evaluated as ${result.treatment}`);
+        log(`feature ${featureName} key ${getMatchingKey(key)} evaluated as ${evaluation.treatment}`);
       } else {
         log(`feature ${featureName} doesn't exist`);
       }
@@ -84,14 +84,14 @@ function onlineFactory(params /*: object */) /*: object */ {
 
       impressionsTracker({
         feature: featureName,
-        key: matchingKeyParser(key),
-        treatment: result.treatment,
+        key: getMatchingKey(key),
+        treatment: evaluation.treatment,
         when: Date.now(),
-        bucketingKey: bucketingKeyParser(key),
-        label: result.label
+        bucketingKey: getBucketingKey(key),
+        label: evaluation.label
       });
 
-      return result.treatment;
+      return evaluation.treatment;
     },
 
     ready() {
