@@ -33,7 +33,8 @@ const SettingsFactory = require('../../utils/settings');
 const EventsFactory = require('../../utils/events');
 const Metrics = require('../../metrics');
 const Cache = require('../../cache');
-const impressionsKeyParser = require('../../utils/key/impressions');
+const { matching, bucketing } = require('../../utils/key/factory');
+const LabelsConstants = require('../../utils/labels');
 
 function onlineFactory(params /*: object */) /*: object */ {
   const settings = SettingsFactory(params);
@@ -61,15 +62,18 @@ function onlineFactory(params /*: object */) /*: object */ {
 
   return Object.assign(hub, {
     getTreatment(key /*: string | KeyDTO */, featureName /*: string */, attributes /*: object */) /*: string */ {
-      let treatment = 'control';
+      let evaluation = {
+        treatment: 'control',
+        label: LabelsConstants.SPLIT_NOT_FOUND
+      };
 
       let stopGetTreatmentTracker = getTreatmentTracker(); // start engine perf monitoring
 
       let split = cache.storage.splits.get(featureName);
       if (split) {
-        treatment = split.getTreatment(key, attributes);
+        evaluation = split.getTreatment(key, attributes);
 
-        log(`feature ${featureName} key ${key} evaluated as ${treatment}`);
+        log(`feature ${featureName} key ${matching(key)} evaluated as ${evaluation.treatment}`);
       } else {
         log(`feature ${featureName} doesn't exist`);
       }
@@ -78,12 +82,14 @@ function onlineFactory(params /*: object */) /*: object */ {
 
       impressionsTracker({
         feature: featureName,
-        key: impressionsKeyParser(key),
-        treatment,
-        when: Date.now()
+        key: matching(key),
+        treatment: evaluation.treatment,
+        when: Date.now(),
+        bucketingKey: bucketing(key),
+        label: settings.core.labelsEnabled ? evaluation.label : null
       });
 
-      return treatment;
+      return evaluation.treatment;
     },
 
     ready() {

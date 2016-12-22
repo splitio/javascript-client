@@ -19,7 +19,8 @@ limitations under the License.
 type Settings = {
   core: {
     authorizationKey: string,
-    key: ?string
+    key: ?string,
+    labelsEnabled: ?boolean
   },
   scheduler: {
     featuresRefreshRate: number,
@@ -53,7 +54,9 @@ function defaults(custom /*: Settings */) /*: Settings */ {
       // API token (tight to an environment)
       authorizationKey: undefined,
       // key used in your system (only required for browser version)
-      key: undefined
+      key: undefined,
+      // toggle impressions tracking of labels
+      labelsEnabled: false
     },
     scheduler: {
       // fetch feature updates each 30 sec

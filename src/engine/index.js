@@ -16,7 +16,7 @@ limitations under the License.
 'use strict';
 
 const parser = require('./parser');
-
+const LabelsConstants = require('../utils/labels');
 /*::
   type KeyDTO = {
     matchingKey: string,
@@ -67,17 +67,25 @@ Split.prototype.getTreatment = function getTreatment(key /*: string | KeyDTO */,
   } = this.baseInfo;
 
   let treatment;
+  let label;
+  let evalTreatment;
 
   if (this.isGarbage()) {
     treatment = 'control';
+    label = LabelsConstants.SPLIT_ARCHIVED;
   } else if (killed) {
     treatment = defaultTreatment;
+    label = LabelsConstants.SPLIT_KILLED;
   } else {
-    treatment = this.evaluator(key, seed, attributes);
-    treatment = treatment !== undefined ? treatment : defaultTreatment;
+    evalTreatment = this.evaluator(key, seed, attributes);
+    treatment = evalTreatment !== undefined ? evalTreatment.treatment : defaultTreatment;
+    label = evalTreatment !== undefined ? evalTreatment.label : LabelsConstants.NO_CONDITION_MATCH;
   }
 
-  return treatment;
+  return {
+    treatment,
+    label
+  };
 };
 
 Split.prototype.isGarbage = function isGarbage() {
