@@ -2,6 +2,11 @@
 
 'use strict';
 
+/**
+ * @note The backend sometimes doesn't answer the list of partitions correctly,
+ *       so we need to build it mixing the list of partitions plus the default
+ *       treatment.
+ */
 const fixMissingTreatment = (splitObject : SplitObject) : Array<string> => {
   const treatments = splitObject.conditions[0].partitions.map(v => v.treatment);
 

@@ -9,7 +9,7 @@ const splitView : FormattedSplit = require('./manager.expected');
 const Manager = require('../');
 const SplitCache = require('../../storage/SplitCache/InMemory');
 
-tape('Manager API', assert => {
+tape('MANAGER API / In Memory', assert => {
   const cache = new SplitCache();
   const manager = new Manager(cache);
 

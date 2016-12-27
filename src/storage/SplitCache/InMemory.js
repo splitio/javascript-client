@@ -13,33 +13,47 @@ class SplitCacheInMemory {
     this.changeNumber = -1;
   }
 
-  addSplit(splitName : string , split : string) : boolean {
+  addSplit(splitName: string , split: string): boolean {
     this.splitCache.set(keys.buildSplitKey(splitName), split);
 
     return true;
   }
 
-  removeSplit(splitName : string) : number {
+  addSplits(splitNames: Array<string>, splits: Array<string>) : Array<boolean> {
+    let i = 0;
+    let namesLen = splitNames.length;
+    let splitsLen = splits.length;
+    let results = [];
+
+    while ( i < namesLen && i < splitsLen) {
+      results.push(this.addSplit(splitNames[i], splits[i]));
+      i++;
+    }
+
+    return results;
+  }
+
+  removeSplit(splitName: string): number {
     this.splitCache.delete(keys.buildSplitKey(splitName));
 
     return 1;
   }
 
-  getSplit(splitName : string) : ?string {
+  getSplit(splitName: string): ?string {
     return this.splitCache.get(keys.buildSplitKey(splitName));
   }
 
-  setChangeNumber(changeNumber : number) : boolean {
+  setChangeNumber(changeNumber: number): boolean {
     this.changeNumber = changeNumber;
 
     return true;
   }
 
-  getChangeNumber() : ?number {
+  getChangeNumber(): number {
     return this.changeNumber;
   }
 
-  getAll() : Iterator<string> {
+  getAll(): Iterator<string> {
     return this.splitCache.values();
   }
 }

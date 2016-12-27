@@ -13,10 +13,17 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+// @flow
+
 'use strict';
 
-const base = require('../request');
+const Updater = require('./updaters');
+const StorageFactory = require('../storage');
 
-module.exports = function GET(settings, since) {
-  return base(settings, `/splitChanges?since=${since}`);
-};
+const Producer = (settings: Object, hub: EventEmitter) => {
+  const storage = StorageFactory(settings.storage);
+
+  return Updater(settings, hub, storage);
+}
+
+module.exports = Producer;

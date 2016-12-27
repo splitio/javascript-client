@@ -13,6 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+// @flow
+
 'use strict';
 
 // I'll need to fix first 'isomorphic-fetch' to be transpiled using
@@ -27,15 +29,11 @@ const EventsFactory = require('../../utils/events');
 const Metrics = require('../../metrics');
 const Cache = require('../../cache');
 
-function onlineFactory(params /*: object */) /*: object */ {
-  const settings = SettingsFactory(params);
-  const hub = EventsFactory();
+const onlineFactory = (settings : Object, hub: Object, storage: Object) : SplitClient => {
   const metrics = new Metrics(settings);
   const impressionsTracker = metrics.impressions;
   const getTreatmentTracker = metrics.getTreatment;
   const cache = new Cache(settings, hub);
-
-  log(settings);
 
   cache.start();
   metrics.start();
@@ -52,7 +50,7 @@ function onlineFactory(params /*: object */) /*: object */ {
   });
 
   return Object.assign(hub, {
-    getTreatment(key /*: string */, featureName /*: string */, attributes /*: object */) /*: string */ {
+    getTreatment(key: string, featureName: string, attributes: Object): string {
       let treatment = 'control';
 
       let stopGetTreatmentTracker = getTreatmentTracker(); // start engine perf monitoring
@@ -90,6 +88,6 @@ function onlineFactory(params /*: object */) /*: object */ {
       log('destroying sdk instance');
     }
   });
-}
+};
 
 module.exports = onlineFactory;

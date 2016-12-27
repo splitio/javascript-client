@@ -13,33 +13,30 @@ class SegmentCacheInMemory {
     this.segmentChangeNumber = new Map();
   }
 
-  addToSegment(segmentName : string, segmentKeys : Array<string>) : boolean {
-    const segmentKey = keys.buildSegmentNameKey(segmentName);
-    const values = this.segmentCache.get(segmentKey);
-    const keySet = values ? values : new Set();
+  addToSegment(segmentName: string, segmentKeys: Array<string>): boolean {
+    const values = this.segmentCache.get(segmentName);
+    const keySet = values ? values: new Set();
 
     segmentKeys.forEach(k => keySet.add(k));
 
-    this.segmentCache.set(segmentKey, keySet);
+    this.segmentCache.set(segmentName, keySet);
 
     return true;
   }
 
-  removeFromSegment(segmentName : string, segmentKeys : Array<string>) : boolean {
-    const segmentKey = keys.buildSegmentNameKey(segmentName);
-    const values = this.segmentCache.get(segmentKey);
-    const keySet = values ? values : new Set();
+  removeFromSegment(segmentName: string, segmentKeys: Array<string>): boolean {
+    const values = this.segmentCache.get(segmentName);
+    const keySet = values ? values: new Set();
 
     segmentKeys.forEach(k => keySet.delete(k));
 
-    this.segmentCache.set(segmentKey, keySet);
+    this.segmentCache.set(segmentName, keySet);
 
     return true;
   }
 
-  isInSegment(segmentName : string, key : string) : boolean {
-    const segmentKey : string = keys.buildSegmentNameKey(segmentName);
-    const segmentValues : ? Set<string> = this.segmentCache.get(segmentKey);
+  isInSegment(segmentName: string, key: string): boolean {
+    const segmentValues: ?Set<string> = this.segmentCache.get(segmentName);
 
     if (segmentValues) {
       return segmentValues.has(key);
@@ -48,7 +45,23 @@ class SegmentCacheInMemory {
     return false;
   }
 
-  setChangeNumber(segmentName : string, changeNumber : number) : boolean {
+  registerSegment(segmentName: string): void {
+    if (!this.segmentCache.has(segmentName)) {
+      this.segmentCache.set(segmentName, new Set);
+    }
+  }
+
+  registerSegments(segments: Iterable<string>): void {
+    for (let segmentName of segments) {
+      this.registerSegment(segmentName);
+    }
+  }
+
+  getRegisteredSegments(): Iterator<string> {
+    return this.segmentCache.keys();
+  }
+
+  setChangeNumber(segmentName: string, changeNumber: number): boolean {
     const segmentChangeNumberKey = keys.buildSegmentTillKey(segmentName);
 
     this.segmentChangeNumber.set(segmentChangeNumberKey, changeNumber);
@@ -56,10 +69,11 @@ class SegmentCacheInMemory {
     return true;
   }
 
-  getChangeNumber(segmentName : string) : ?number {
+  getChangeNumber(segmentName: string): number {
     const segmentChangeNumberKey = keys.buildSegmentTillKey(segmentName);
+    const value = this.segmentChangeNumber.get(segmentChangeNumberKey);
 
-    return this.segmentChangeNumber.get(segmentChangeNumberKey);
+    return Number.isInteger(value) ? value: -1;
   }
 }
 

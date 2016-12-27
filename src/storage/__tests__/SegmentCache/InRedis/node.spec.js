@@ -45,3 +45,24 @@ tape('SEGMENT CACHE IN Redis / suite', async function (assert) {
   r.quit();
   assert.end();
 });
+
+tape('SEGMENT CACHE IN Redis / register segments', async function (assert) {
+  const r = new Redis(32768, 'localhost', {
+      dropBufferSupport: true
+  });
+  const cache = new SegmentCache(r);
+
+  await cache.flush();
+
+  await cache.registerSegment('s1');
+  await cache.registerSegment('s2');
+  await cache.registerSegments(['s2', 's3', 's4']);
+
+  const segments = await cache.getRegisteredSegments();
+
+  ['s1', 's2', 's3', 's4'].forEach(s => assert.ok(segments.includes(s)));
+
+  r.quit();
+
+  assert.end();
+});

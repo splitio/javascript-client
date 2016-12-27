@@ -30,12 +30,16 @@ class SplitCacheInRedis {
    * Bulk storage of Splits in Redis.
    */
   addSplits(splitNames: Array<string>, splits: Array<string>) : Promise<Array<boolean>> {
-    return this.redis.pipeline(splitNames.map(
-      (value, index) => ['set', keys.buildSplitKey(value), splits[index]]
-    ))
-      .exec()
-      .then(processPipelineAnswer)
-      .then(answers => answers.map(status => status === 'OK'));
+    if (splitNames.length) {
+      return this.redis.pipeline(splitNames.map(
+        (value, index) => ['set', keys.buildSplitKey(value), splits[index]]
+      ))
+        .exec()
+        .then(processPipelineAnswer)
+        .then(answers => answers.map(status => status === 'OK'));
+    } else {
+      return Promise.resolve([true]);
+    }
   }
 
   /**
@@ -49,7 +53,11 @@ class SplitCacheInRedis {
    * Bulk delete of splits from Redis. Returns the number of deleted keys.
    */
   removeSplits(names: Array<string>): Promise<number> {
-    return this.redis.del(names.map(n => keys.buildSplitKey(n)));
+    if (names.length) {
+      return this.redis.del(names.map(n => keys.buildSplitKey(n)));
+    } else {
+      return Promise.resolve(0);
+    }
   }
 
   /**
@@ -75,11 +83,11 @@ class SplitCacheInRedis {
    *
    * @TODO pending error handling
    */
-  getChangeNumber() : Promise<?number> {
+  getChangeNumber() : Promise<number> {
     return this.redis.get(keys.buildSplitsTillKey()).then(value => {
       const i = parseInt(value, 10);
 
-      return Number.isNaN(i) ? null : i;
+      return Number.isNaN(i) ? -1 : i;
     });
   }
 
