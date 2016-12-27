@@ -9,7 +9,7 @@ const Events = require('../../utils/events');
 
 const Producer = require('../index');
 
-tape('PRODUCER / ', function ( assert ) {
+tape('PRODUCER', function ( assert ) {
   const settings = Settings({
     core: {
       authorizationKey: '5p2c0r4so20ill66lm35i45h6pkvrd2skmib'

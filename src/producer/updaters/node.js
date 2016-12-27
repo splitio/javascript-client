@@ -43,7 +43,7 @@ const NodeUpdater = (settings: Object, hub: EventEmitter, storage: Storage) => {
       stopSplitsUpdate = repeat(
         scheduleSplitsUpdate => {
           log('Fetching splits');
-          splitsUpdater().then(() => scheduleSplitsUpdate())
+          splitsUpdater().then(() => scheduleSplitsUpdate());
         },
         settings.scheduler.featuresRefreshRate
       );
@@ -51,7 +51,7 @@ const NodeUpdater = (settings: Object, hub: EventEmitter, storage: Storage) => {
       stopSegmentsUpdate = repeat(
         scheduleSegmentsUpdate => {
           log('Fetching segments');
-          segmentsUpdater().then(() => scheduleSegmentsUpdate())
+          segmentsUpdater().then(() => scheduleSegmentsUpdate());
         },
         settings.scheduler.segmentsRefreshRate
       );

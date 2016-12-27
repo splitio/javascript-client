@@ -7,7 +7,7 @@ const SplitCacheInMemory = require('./InMemory');
 
 class SplitCacheLocalStorage {
 
-  addSplit(splitName : string , split : string) : boolean {
+  addSplit(splitName: string , split: string): boolean {
     try {
       localStorage.setItem(keys.buildSplitKey(splitName), split);
       return true;
@@ -16,7 +16,7 @@ class SplitCacheLocalStorage {
     }
   }
 
-  removeSplit(splitName : string) : number {
+  removeSplit(splitName: string): number {
     try {
       localStorage.removeItem(keys.buildSplitKey(splitName));
       return 1;
@@ -25,11 +25,11 @@ class SplitCacheLocalStorage {
     }
   }
 
-  getSplit(splitName : string) : ?string {
+  getSplit(splitName: string): ?string {
     return localStorage.getItem(keys.buildSplitKey(splitName));
   }
 
-  setChangeNumber(changeNumber : number) : boolean {
+  setChangeNumber(changeNumber: number): boolean {
     try {
       localStorage.setItem(keys.buildSplitsTillKey(), changeNumber + '');
       return true;
@@ -38,7 +38,7 @@ class SplitCacheLocalStorage {
     }
   }
 
-  getChangeNumber() : ?number {
+  getChangeNumber(): ?number {
     let value = localStorage.getItem(keys.buildSplitsTillKey());
 
     if (value !== null) {
@@ -50,7 +50,7 @@ class SplitCacheLocalStorage {
     return null;
   }
 
-  getAll() : Iterator<string> {
+  getAll(): Iterator<string> {
     const len = localStorage.length;
     let cur = 0;
 

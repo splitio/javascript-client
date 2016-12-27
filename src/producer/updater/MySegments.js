@@ -26,12 +26,12 @@ function MySegmentsUpdater(settings: Object, hub: EventEmitter, segmentCache: Se
 
   return function updateMySegments(retry: number = 0) {
     return mySegmentsFetcher(settings, startingUp).then(segments => {
-        startingUp = false;
+      startingUp = false;
 
-        for (let s of segments) {
-          segmentCache.addToSegment(s);
-        }
-      })
+      for (let s of segments) {
+        segmentCache.addToSegment(s);
+      }
+    })
       // .then(shouldUpdate => {
       //   if (startingUp) {
       //     startingUp = false;

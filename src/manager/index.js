@@ -7,7 +7,7 @@
  *       so we need to build it mixing the list of partitions plus the default
  *       treatment.
  */
-const fixMissingTreatment = (splitObject : SplitObject) : Array<string> => {
+const fixMissingTreatment = (splitObject: SplitObject): Array<string> => {
   const treatments = splitObject.conditions[0].partitions.map(v => v.treatment);
 
   if (treatments.indexOf(splitObject.defaultTreatment) === -1) {
@@ -17,11 +17,11 @@ const fixMissingTreatment = (splitObject : SplitObject) : Array<string> => {
   return treatments;
 };
 
-const SplitManagerFactory = (splitCache : SplitCache) => {
+const SplitManagerFactory = (splitCache: SplitCache) => {
 
   return {
 
-    splits() : Array<FormattedSplit> {
+    splits(): Array<FormattedSplit> {
       const els = [];
 
       for (let split of splitCache.getAll()) {

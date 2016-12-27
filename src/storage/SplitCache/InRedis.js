@@ -29,7 +29,7 @@ class SplitCacheInRedis {
   /**
    * Bulk storage of Splits in Redis.
    */
-  addSplits(splitNames: Array<string>, splits: Array<string>) : Promise<Array<boolean>> {
+  addSplits(splitNames: Array<string>, splits: Array<string>): Promise<Array<boolean>> {
     if (splitNames.length) {
       return this.redis.pipeline(splitNames.map(
         (value, index) => ['set', keys.buildSplitKey(value), splits[index]]
@@ -72,7 +72,7 @@ class SplitCacheInRedis {
    *
    * @TODO pending error handling
    */
-  setChangeNumber(changeNumber : number) : Promise<boolean> {
+  setChangeNumber(changeNumber: number): Promise<boolean> {
     return this.redis.set(keys.buildSplitsTillKey(), changeNumber + '').then(
       status => status === 'OK'
     );
@@ -83,7 +83,7 @@ class SplitCacheInRedis {
    *
    * @TODO pending error handling
    */
-  getChangeNumber() : Promise<number> {
+  getChangeNumber(): Promise<number> {
     return this.redis.get(keys.buildSplitsTillKey()).then(value => {
       const i = parseInt(value, 10);
 
@@ -95,7 +95,7 @@ class SplitCacheInRedis {
    * @TODO we need to benchmark which is the maximun number of commands we could
    *       pipeline without kill redis performance.
    */
-  getAll() : Promise<Array<string>> {
+  getAll(): Promise<Array<string>> {
     return this.redis.keys(keys.searchPatternForSplitKeys()).then(
       (listOfKeys: Array<string>) => this.redis.pipeline(listOfKeys.map(k => ['get', k])).exec()
     ).then(processPipelineAnswer);
@@ -106,7 +106,7 @@ class SplitCacheInRedis {
    *
    * @NOTE documentation says it never fails.
    */
-  flush() : Promise<boolean> {
+  flush(): Promise<boolean> {
     return this.redis.flushdb().then(status => status === 'OK');
   }
 }

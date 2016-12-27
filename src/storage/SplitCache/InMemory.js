@@ -19,7 +19,7 @@ class SplitCacheInMemory {
     return true;
   }
 
-  addSplits(splitNames: Array<string>, splits: Array<string>) : Array<boolean> {
+  addSplits(splitNames: Array<string>, splits: Array<string>): Array<boolean> {
     let i = 0;
     let namesLen = splitNames.length;
     let splitsLen = splits.length;

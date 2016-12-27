@@ -8,7 +8,7 @@ const SplitCacheInRedis = require('../../../SplitCache/InRedis');
 
 tape('SPLIT CACHE / Redis', async function (assert) {
   const r = new Redis(32768, 'localhost', {
-      dropBufferSupport: true
+    dropBufferSupport: true
   });
   const cache = new SplitCacheInRedis(r);
 

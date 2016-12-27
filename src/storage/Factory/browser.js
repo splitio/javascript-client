@@ -8,7 +8,7 @@ const SplitCacheInLocalStorage = require('../SplitCache/InLocalStorage');
 const SegmentCacheInMemory = require('../SegmentCache/InMemory');
 const SegmentCacheInLocalStorage = require('../SegmentCache/InLocalStorage');
 
-const BrowserStorageFactory = (storage: Object) : any => {
+const BrowserStorageFactory = (storage: Object): any => {
 
   switch (storage.type) {
     case 'MEMORY':

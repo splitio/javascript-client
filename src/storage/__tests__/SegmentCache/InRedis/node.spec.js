@@ -8,7 +8,7 @@ const SegmentCache = require('../../../SegmentCache/InRedis');
 
 tape('SEGMENT CACHE IN Redis / suite', async function (assert) {
   const r = new Redis(32768, 'localhost', {
-      dropBufferSupport: true
+    dropBufferSupport: true
   });
   const cache = new SegmentCache(r);
 
@@ -48,7 +48,7 @@ tape('SEGMENT CACHE IN Redis / suite', async function (assert) {
 
 tape('SEGMENT CACHE IN Redis / register segments', async function (assert) {
   const r = new Redis(32768, 'localhost', {
-      dropBufferSupport: true
+    dropBufferSupport: true
   });
   const cache = new SegmentCache(r);
 

@@ -70,6 +70,6 @@ const SplitChangesUpdater = (settings: Object, splitCache: SplitCache, segmentCa
       return false; // shouldUpdate = false
     });
   };
-}
+};
 
 module.exports = SplitChangesUpdater;

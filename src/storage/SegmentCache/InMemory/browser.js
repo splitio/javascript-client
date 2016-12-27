@@ -16,7 +16,7 @@ class SegmentCacheInMemory {
   /**
    * Define a Segment.
    */
-  addToSegment(segmentName : string, segmentKeys : Array<string>) : boolean {
+  addToSegment(segmentName: string, segmentKeys: Array<string>): boolean {
     const segmentKey = keys.buildSegmentNameKey(segmentName);
 
     this.segmentCache.set(segmentKey, true);
@@ -27,7 +27,7 @@ class SegmentCacheInMemory {
   /**
    * Delete a Segment.
    */
-  removeFromSegment(segmentName : string, segmentKeys : Array<string>) : boolean {
+  removeFromSegment(segmentName: string, segmentKeys: Array<string>): boolean {
     const segmentKey = keys.buildSegmentNameKey(segmentName);
 
     this.segmentCache.delete(segmentKey);
@@ -38,7 +38,7 @@ class SegmentCacheInMemory {
   /**
    * Is the segment defined?
    */
-  isInSegment(segmentName : string, key : string) : boolean {
+  isInSegment(segmentName: string, key: string): boolean {
     const segmentKey : string = keys.buildSegmentNameKey(segmentName);
 
     return this.segmentCache.get(segmentKey) === true;
@@ -47,14 +47,14 @@ class SegmentCacheInMemory {
   /**
    * TBD
    */
-  setChangeNumber(segmentName : string, changeNumber : number) : boolean {
+  setChangeNumber(segmentName: string, changeNumber: number): boolean {
     return true;
   }
 
   /**
    * TBD
    */
-  getChangeNumber(segmentName : string) : ?number {
+  getChangeNumber(segmentName: string): ?number {
     return -1;
   }
 }

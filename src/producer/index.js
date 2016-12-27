@@ -24,6 +24,6 @@ const Producer = (settings: Object, hub: EventEmitter) => {
   const storage = StorageFactory(settings.storage);
 
   return Updater(settings, hub, storage);
-}
+};
 
 module.exports = Producer;
