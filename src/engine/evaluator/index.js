@@ -18,11 +18,13 @@ limitations under the License.
 const engine = require('../engine');
 
 // Evaluator factory
-function evaluatorContext(matcherEvaluator /*: function */, treatments /*: Treatments */) /*: function */ {
+function evaluatorContext(matcherEvaluator: Function, treatments: Treatments): Function {
 
-  return function evaluator(key /*: string */, seed /*: number */, attributes /*: object */) /*:? string */ {
-    // if the matcherEvaluator return true, then evaluate the treatment
-    if (matcherEvaluator(key, attributes)) {
+  async function evaluator(key: string, seed: number, attributes: ?Object): Promise<?string> {
+    const matches = await matcherEvaluator(key, attributes);
+
+    // if matches then evaluate the treatment
+    if (matches) {
       return engine.getTreatment(key, seed, treatments);
     }
 
@@ -30,6 +32,7 @@ function evaluatorContext(matcherEvaluator /*: function */, treatments /*: Treat
     return undefined;
   };
 
+  return evaluator;
 }
 
 module.exports = evaluatorContext;

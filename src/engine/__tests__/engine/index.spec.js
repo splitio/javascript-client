@@ -15,7 +15,7 @@ limitations under the License.
 **/
 'use strict';
 
-const tape = require('tape');
+const tape = require('tape-catch');
 const engine = require('../../engine');
 
 const Treatments = require('../../treatments');

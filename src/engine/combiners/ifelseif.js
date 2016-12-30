@@ -21,14 +21,14 @@ function unexpectedInputHandler() {
   return 'control';
 }
 
-function ifElseIfCombinerContext(predicates /*: Array<(key: string, seed: number, attributes: object) => ?string)> */) /*: function */ {
+function ifElseIfCombinerContext(predicates: Array<Function>): Function {
 
-  function ifElseIfCombiner(key /*: string */, seed /*: number */, attributes /*: object */) /*: ?string */ {
+  async function ifElseIfCombiner(key: string, seed: number, attributes: Object): Promise<?string> {
 
     // loop throught the if else if structure and stops as soon as one predicate
     // return a treatment
-    for (let evaluator of predicates) {
-      let treatment = evaluator(key, seed, attributes);
+    for (const evaluator of predicates) {
+      const treatment = await evaluator(key, seed, attributes);
 
       if (treatment !== undefined) {
         log('treatment found %s', treatment);

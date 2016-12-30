@@ -15,7 +15,7 @@ limitations under the License.
 **/
 'use strict';
 
-let tape = require('tape');
+let tape = require('tape-catch');
 let collectorFactory = require('../../collector/sequential');
 
 tape('SEQUENTIAL COLLECTOR / should incrementally store values', assert => {

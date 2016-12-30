@@ -15,7 +15,7 @@ limitations under the License.
 **/
 'use strict';
 
-const tape = require('tape');
+const tape = require('tape-catch');
 const EventsFactory = require('../../events');
 const Event = EventsFactory.Event;
 

@@ -1,0 +1,4 @@
+{
+  "main": "./Factory/node.js",
+  "browser": "./Factory/browser.js"
+}

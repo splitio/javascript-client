@@ -21,7 +21,7 @@ const splitio = require('../core');
 // this AFTER the require('isomorphic-fetch')
 const fetchMock = require('fetch-mock');
 
-const tape = require('tape');
+const tape = require('tape-catch');
 const SettingsFactory = require('../utils/settings');
 const settings = SettingsFactory({
   core: {

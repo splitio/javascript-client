@@ -15,7 +15,7 @@ limitations under the License.
 **/
 'use strict';
 
-let tape = require('tape');
+let tape = require('tape-catch');
 let TimerFactory = require('../../tracker/Timer');
 let CollectorFactory = require('../../collector/sequential');
 

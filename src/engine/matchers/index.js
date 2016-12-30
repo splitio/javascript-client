@@ -25,8 +25,10 @@ const gteMatcher = require('./gte');
 const lteMatcher = require('./lte');
 const betweenMatcher = require('./between');
 
-// Matcher factory.
-function factory(matcherDto /*: MatcherDTO */, storage /*: Storage */) /*:? function */ {
+/**
+ * Matcher factory.
+ */
+function MatcherFactory(matcherDto: Matcher, storage: SplitStorage): Function {
   let {
     negate,
     type,
@@ -63,4 +65,4 @@ function factory(matcherDto /*: MatcherDTO */, storage /*: Storage */) /*:? func
   }
 }
 
-module.exports = factory;
+module.exports = MatcherFactory;

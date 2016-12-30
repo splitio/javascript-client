@@ -13,6 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+// @flow
+
 'use strict';
 
 const parser = require('./parser');
@@ -25,34 +27,29 @@ function defaults(inst) {
   }
 }
 
-function Split(baseInfo, evaluator, segments) {
+function Split(baseInfo: Object, evaluator: Function) {
   if (!(this instanceof Split)) {
-    return new Split(baseInfo, evaluator, segments);
+    return new Split(baseInfo, evaluator);
   }
 
   this.baseInfo = baseInfo;
   this.evaluator = evaluator;
-  this.segments = segments;
 
   defaults(this);
 }
 
-Split.parse = function parse(splitFlatStructure, storage) {
-  let {conditions, ...baseInfo} = splitFlatStructure;
-  let {evaluator, segments} = parser(conditions, storage);
+Split.parse = function parse(splitFlatStructure: SplitObject, storage: SplitStorage) {
+  const { conditions, ...baseInfo } = splitFlatStructure;
+  const evaluator = parser(conditions, storage);
 
-  return new Split(baseInfo, evaluator, segments);
+  return new Split(baseInfo, evaluator);
 };
 
 Split.prototype.getKey = function getKey() {
   return this.baseInfo.name;
 };
 
-Split.prototype.getSegments = function getSegments() {
-  return this.segments;
-};
-
-Split.prototype.getTreatment = function getTreatment(key, attributes) {
+Split.prototype.getTreatment = async function getTreatment(key, attributes): Promise<string> {
   let {
     killed,
     seed,
@@ -66,7 +63,7 @@ Split.prototype.getTreatment = function getTreatment(key, attributes) {
   } else if (killed) {
     treatment = defaultTreatment;
   } else {
-    treatment = this.evaluator(key, seed, attributes);
+    treatment = await this.evaluator(key, seed, attributes);
     treatment = treatment !== undefined ? treatment : defaultTreatment;
   }
 

@@ -16,7 +16,7 @@ limitations under the License.
 'use strict';
 
 const _ = require('lodash');
-const tape = require('tape');
+const tape = require('tape-catch');
 const SettingsFactory = require('../../settings');
 
 tape('SETTINGS / check defaults', assert => {
