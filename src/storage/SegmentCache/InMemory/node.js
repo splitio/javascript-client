@@ -45,19 +45,23 @@ class SegmentCacheInMemory {
     return false;
   }
 
-  registerSegment(segmentName: string): void {
+  registerSegment(segmentName: string): boolean {
     if (!this.segmentCache.has(segmentName)) {
       this.segmentCache.set(segmentName, new Set);
     }
+
+    return true;
   }
 
-  registerSegments(segments: Iterable<string>): void {
+  registerSegments(segments: Iterable<string>): boolean {
     for (let segmentName of segments) {
       this.registerSegment(segmentName);
     }
+
+    return true;
   }
 
-  getRegisteredSegments(): Iterator<string> {
+  getRegisteredSegments(): Iterable<string> {
     return this.segmentCache.keys();
   }
 

@@ -10,7 +10,7 @@ const SplitCacheInRedis = require('../SplitCache/InRedis');
 const SegmentCacheInMemory = require('../SegmentCache/InMemory');
 const SegmentCacheInRedis = require('../SegmentCache/InRedis');
 
-const NodeStorageFactory = (storage: Object): any => {
+const NodeStorageFactory = (storage: Object): SplitStorage => {
 
   switch (storage.type) {
     case 'MEMORY':

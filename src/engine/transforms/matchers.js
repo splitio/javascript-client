@@ -13,45 +13,16 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+// @flow
+
 'use strict';
 
 const findIndex = require('core-js/library/fn/array/find-index');
+
 const matcherTypes = require('../matchers/types');
 const segmentTransform = require('./segment');
 const whitelistTransform = require('./whitelist');
 
-/*::
-  type dataTypes = null | 'NUMBER' | 'DATETIME';
-
-  type keySelectorObject = {
-    trafficType: string,
-    attribute: ?string
-  };
-
-  type segmentObject = {
-    segmentName: string
-  };
-
-  type whiteListObject = Array<string>;
-
-  type unaryNumericObject = {
-    dataType: dataTypes,
-    value: number
-  };
-
-  type betweenObject = {
-    dataType: dataTypes,
-    start: number,
-    end: number
-  };
-
-  type MatcherDTO = {
-    attribute: ?string,
-    negate: boolean,
-    type: Symbol,
-    value: undefined | string | whiteListObject | unaryNumericObject | betweenObject
-  };
-*/
 const {
   date: {
     zeroSinceHH,
@@ -60,7 +31,7 @@ const {
 } = require('../convertions');
 
 // Flat the complex matcherGroup structure into something handy.
-function transform(matchers /*: Array<object> */) /*: Array<MatcherDTO> */ {
+function transform(matchers: Array<Object>): Array<Matcher> {
 
   let parsedMatchers = matchers.map(matcher => {
     let {

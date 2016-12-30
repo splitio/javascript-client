@@ -19,15 +19,15 @@ limitations under the License.
 
 const log = require('debug')('splitio-producer:updater');
 
-const repeat = require('../../utils/fn/repeat');
+const repeat = require('../utils/fn/repeat');
 
-const SplitChangesUpdater = require('../updater/SplitChanges');
-const SegmentChangesUpdater = require('../updater/SegmentChanges');
+const SplitChangesUpdater = require('./updater/SplitChanges');
+const SegmentChangesUpdater = require('./updater/SegmentChanges');
 
 /**
  * Expose start / stop mechanism for pulling data from services.
  */
-const NodeUpdater = (settings: Object, hub: EventEmitter, storage: Storage) => {
+const NodeUpdater = (settings: Object, storage: SplitStorage) => {
   const splitsUpdater = SplitChangesUpdater(settings, storage.splits, storage.segments);
   const segmentsUpdater = SegmentChangesUpdater(settings, storage.segments);
 

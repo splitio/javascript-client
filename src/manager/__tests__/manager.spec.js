@@ -3,18 +3,21 @@
 'use strict';
 
 const tape = require('tape-catch');
-const splitObject : SplitObject = require('./splitChanges.mock');
-const splitView : FormattedSplit = require('./manager.expected');
+
+const splitObject: SplitObject = require('./mocks/input');
+const splitView: FormattedSplit = require('./mocks/output');
 
 const Manager = require('../');
-const SplitCache = require('../../storage/SplitCache/InMemory');
+const SplitCacheInMemory = require('../../storage/SplitCache/InMemory');
 
-tape('MANAGER API / In Memory', assert => {
-  const cache = new SplitCache();
+tape('MANAGER API / In Memory', async function(assert) {
+  const cache = new SplitCacheInMemory();
   const manager = new Manager(cache);
 
   cache.addSplit( splitObject.name, JSON.stringify(splitObject) );
 
-  assert.deepEqual( manager.splits()[0] , splitView );
+  const views = await manager.splits();
+
+  assert.deepEqual( views[0] , splitView );
   assert.end();
 });

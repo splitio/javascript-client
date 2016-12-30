@@ -15,7 +15,7 @@ limitations under the License.
 **/
 'use strict';
 
-const repeat = require('../../utils/fn/repeat');
+const repeat = require('../utils/fn/repeat');
 
 class Updater {
   constructor(
@@ -48,8 +48,4 @@ class Updater {
   }
 }
 
-module.exports = {
-  SplitsUpdater: require('../updater/splitChanges'),
-  SegmentsUpdater: require('../updater/mySegments'),
-  Updater
-};
+module.exports = Updater;

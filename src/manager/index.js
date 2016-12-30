@@ -21,18 +21,19 @@ const SplitManagerFactory = (splitCache: SplitCache) => {
 
   return {
 
-    splits(): Array<FormattedSplit> {
+    async splits(): Array<FormattedSplit> {
       const els = [];
+      const splits = await splitCache.getAll();
 
-      for (let split of splitCache.getAll()) {
-        const splitObject : SplitObject = JSON.parse(split);
+      for (let split of splits) {
+        const splitObject: SplitObject = JSON.parse(split);
 
         els.push({
-          name : splitObject.name,
-          trafficType : splitObject.trafficTypeName,
-          killed : splitObject.killed,
-          changeNumber : splitObject.changeNumber,
-          treatments : fixMissingTreatment(splitObject)
+          name: splitObject.name,
+          trafficType: splitObject.trafficTypeName,
+          killed: splitObject.killed,
+          changeNumber: splitObject.changeNumber,
+          treatments: fixMissingTreatment(splitObject)
         });
       }
 

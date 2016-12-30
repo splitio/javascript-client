@@ -13,6 +13,7 @@ class SegmentCacheInLocalStorage {
 
     try {
       localStorage.setItem(keys.buildSegmentNameKey(segmentName), DEFINED);
+      return true;
     } catch (e) {
       return false;
     }
@@ -33,18 +34,24 @@ class SegmentCacheInLocalStorage {
     return localStorage.getItem(keys.buildSegmentNameKey(segmentName)) === DEFINED;
   }
 
-  /**
-   * TBD
-   */
   setChangeNumber(segmentName: string, changeNumber: number): boolean {
     return true;
   }
 
-  /**
-   * TBD
-   */
-  getChangeNumber(segmentName: string): ?number {
+  getChangeNumber(segmentName: string): number {
     return -1;
+  }
+
+  registerSegment(segment: string): boolean {
+    return false;
+  }
+
+  registerSegments(segments: Iterable<string>): boolean {
+    return false;
+  }
+
+  getRegisteredSegments(): Iterable<string> {
+    return [];
   }
 }
 

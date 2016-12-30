@@ -3,18 +3,18 @@
 'use strict';
 
 const tape = require('tape-catch');
-const SegmentCache = require('../../../SegmentCache/InMemory');
+const SegmentCacheInMemory = require('../../../SegmentCache/InMemory');
 
 tape('SEGMENT CACHE IN MEMORY / suite', assert => {
   const cache = new SegmentCache();
 
-  cache.addToSegment('mocked-segment');
+  cache.addToSegment('mocked-segment', 'optional');
 
-  assert.ok( cache.isInSegment('mocked-segment') === true );
+  assert.ok( cache.isInSegment('mocked-segment', 'optional') === true );
 
-  cache.removeFromSegment('mocked-segment');
+  cache.removeFromSegment('mocked-segment', 'optional');
 
-  assert.ok( cache.isInSegment('mocked-segment') === false );
+  assert.ok( cache.isInSegment('mocked-segment', 'optional') === false );
 
   assert.end();
 });

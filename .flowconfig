@@ -4,7 +4,6 @@
 
 [libs]
 decls/
-flow-typed/
 
 [options]
 experimental.const_params=true

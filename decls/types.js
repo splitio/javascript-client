@@ -1,31 +1,32 @@
 // @flow
 
-type AsyncValue<T> = Promise<T> | T;
+declare type AsyncValue<T> = Promise<T> | T;
 
 /**
- * Split Cache interfaces
+ * Cache interfaces
  */
-declare type SplitCacheKey = string;
-declare type SplitCacheValue = string;
-
 declare interface SplitCache {
-  addSplit(splitName : string , split : string) : AsyncValue<boolean>;
-  removeSplit(splitName : string) : AsyncValue<number>;
-  getSplit(splitName : string) : AsyncValue<?string>;
+  addSplit(splitName: string , split: string): AsyncValue<boolean>;
+  removeSplit(splitName: string): AsyncValue<number>;
+  getSplit(splitName: string): AsyncValue<?string>;
 
-  setChangeNumber(changeNumber : number) : AsyncValue<boolean>;
-  getChangeNumber() : AsyncValue<number>;
+  setChangeNumber(changeNumber: number): AsyncValue<boolean>;
+  getChangeNumber(): AsyncValue<number>;
 
-  getAll() : Iterator<string>;
+  getAll(): AsyncValue<Iterable<string>>;
 }
 
 declare interface SegmentCache {
-  addToSegment(segmentName : string, segmentKeys : Array<string>): AsyncValue<boolean>;
-  removeFromSegment(segmentName : string, segmentKeys : Array<string>): AsyncValue<boolean>;
-  isInSegment(segmentName : string, key : string): AsyncValue<boolean>;
+  addToSegment(segmentName: string, segmentKeys: Array<string>): AsyncValue<boolean>;
+  removeFromSegment(segmentName: string, segmentKeys: Array<string>): AsyncValue<boolean>;
+  isInSegment(segmentName: string, key: string): AsyncValue<boolean>;
 
-  setChangeNumber(segmentName : string, changeNumber : number): AsyncValue<boolean>;
-  getChangeNumber(segmentName : string): AsyncValue<number>;
+  setChangeNumber(segmentName: string, changeNumber: number): AsyncValue<boolean>;
+  getChangeNumber(segmentName: string): AsyncValue<number>;
+
+  registerSegment(segment: string): AsyncValue<boolean>;
+  registerSegments(segments: Iterable<string>): AsyncValue<boolean>;
+  getRegisteredSegments(): AsyncValue<Iterable<string>>;
 }
 
 /**
@@ -33,28 +34,28 @@ declare interface SegmentCache {
  */
 declare type FormattedSplit = {
   // Split Name
-  name : string;
+  name: string;
   // Name of the traffic type
-  trafficType : string;
+  trafficType: string;
   // Is it killed
-  killed : boolean;
+  killed: boolean;
   // List of available treatments
-  treatments : Array<string>;
+  treatments: Array<string>;
   // Current change number value
-  changeNumber : number;
-}
+  changeNumber: number;
+};
 
 declare interface SplitManager {
    //  Returns all features with status ACTIVE
-   splits() : Array<FormattedSplit>;
-}
+   splits(): Array<FormattedSplit>;
+};
 
 /**
  * Split Client API.
  */
 declare type SplitClient = {
-  getTreatment(key: string, splitName: string, attributes: Object) : string
-}
+  getTreatment(key: string, splitName: string, attributes: ?Object): Promise<string>
+};
 
 // -----------------------------------------------------------------------------
 // Services
@@ -81,44 +82,48 @@ declare type MySegments = Array<string>;
 /**
  * Split Changes Service
  */
-declare type Partition = {|
+declare type Partition = {
   treatment: string,
   size: number
-|};
+};
 
 declare type MatcherType = 'WHITELIST' | 'IN_SEGMENT' | 'ALL_KEYS' | 'BETWEEN' |
                            'GREATER_THAN_OR_EQUAL_TO' | 'LESS_THAN_OR_EQUAL_TO' |
                            'EQUAL_TO';
 
-declare type Matcher = {|
+declare type UserDefinedSegmentMatcher = {
+  segmentName: string
+};
+
+declare type BetweenMatcher = {
+  dataType: null | 'number' | 'datetime',
+  start: number,
+  end: number
+};
+
+declare type Matcher = {
   matcherType: MatcherType,
   negate: boolean,
-  userDefinedSegmentMatcherData: ?{|
-    segmentName: string
-  |},
-  whitelistMatcherData: ?Array<string>,
-  unaryNumericMatcherData: ?number,
-  betweenMatcherData: ?{|
-    dataType: null | 'number' | 'datetime',
-    start: number,
-    end: number
-  |}
-|};
+  userDefinedSegmentMatcherData: UserDefinedSegmentMatcher,
+  whitelistMatcherData: Array<string>,
+  unaryNumericMatcherData: number,
+  betweenMatcherData: BetweenMatcher
+};
 
-declare type MatcherGroup = {|
+declare type MatcherGroup = {
   combiner: 'AND',
   matchers: Array<Matcher>
-|};
+};
 
-declare type Condition = {|
+declare type Condition = {
   matcherGroup: MatcherGroup,
   partitions: Array<Partition>
-|};
+};
 
 // @todo review declaration with backend enums
 declare type SplitStatus = 'ACTIVE' | 'KILLED' | 'ARCHIVED';
 
-declare type SplitObject = {|
+declare type SplitObject = {
   trafficTypeName: string,
   name: string,
   seed: number,
@@ -128,18 +133,43 @@ declare type SplitObject = {|
   killed: boolean,
   defaultTreatment: string,
   conditions: Array<Condition>
-|};
+};
 
-declare type SplitChanges = {|
+declare type SplitChanges = {
   splits: Array<SplitObject>,
   since: number,
   till: number
-|};
+};
 
 /**
- * Storage
+ * Split Storage
  */
-declare type Storage = {|
+declare type SplitStorage = {
   splits: SplitCache,
   segments: SegmentCache
-|};
+};
+
+/**
+ * IORedis
+ */
+declare interface IORedisQueue {
+  exec(): Promise<Array<[any, string]>>
+}
+
+declare interface IORedis {
+  keys(pattern: string): Promise<Array<string>>;
+
+  sadd(key: string, value: any): Promise<string>;
+  srem(key: string, value: any): Promise<string>;
+  sismember(key: string, value: string): Promise<number>;
+  smembers(key: string): Promise<Array<string>>;
+
+  set(key: string, value: any): Promise<string>;
+  get(key: string): Promise<string>;
+  del(key: string): Promise<number>;
+  del(key: Array<string>): Promise<number>;
+
+  pipeline(cmd: Array<[string, string, ?string]>): IORedisQueue;
+
+  flushdb(): Promise<string>;
+}

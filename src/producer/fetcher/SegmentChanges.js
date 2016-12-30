@@ -46,7 +46,7 @@ function greedyFetch(settings, lastSinceValue, segmentName) {
 }
 
 // @TODO migrate to a generator function and do the job incrementally
-function segmentChangesFetcher(settings: Object, segmentName: string, since: number) : Promise<Array<SegmentChanges>> {
+function segmentChangesFetcher(settings: Object, segmentName: string, since: number) : Promise<SegmentChanges> {
   return greedyFetch(settings, since, segmentName);
 }
 

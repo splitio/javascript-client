@@ -40,11 +40,16 @@ const SegmentChangesUpdater = (settings : Object, segmentCache : SegmentCache) =
         segmentChangesFetcher(settings, segmentName, since).then(async function (changes: SegmentChanges) {
           // Apply all the collected mutations at once
           for (let x of changes) {
-            await segmentCache.addToSegment(segmentName, x.added);
-            await segmentCache.removeFromSegment(segmentName, x.removed);
-            await segmentCache.setChangeNumber(segmentName, x.till);
+            if (x.added.length > 0)
+              await segmentCache.addToSegment(segmentName, x.added);
 
-            log('processed %s with till = %s added %s removed %s', segmentName, x.till, x.added.length, x.removed.length);
+            if (x.removed.length > 0)
+              await segmentCache.removeFromSegment(segmentName, x.removed);
+
+            if (x.added.length > 0 || x.removed.length > 0)
+              await segmentCache.setChangeNumber(segmentName, x.till);
+
+            log('Processed %s with till = %s added %s removed %s', segmentName, x.till, x.added.length, x.removed.length);
           }
         })
       );

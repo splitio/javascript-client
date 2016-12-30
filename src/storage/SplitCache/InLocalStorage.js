@@ -50,7 +50,7 @@ class SplitCacheLocalStorage {
     return null;
   }
 
-  getAll(): Iterator<string> {
+  getAll(): Iterable<string> {
     const len = localStorage.length;
     let cur = 0;
 

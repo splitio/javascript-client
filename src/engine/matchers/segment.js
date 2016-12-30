@@ -15,30 +15,19 @@ limitations under the License.
 **/
 'use strict';
 
-class SegmentsStorage {
-  constructor() {
-    this.storage = new Map();
-  }
+const log = require('debug')('splitio-engine:matcher');
 
-  update(name /*: string */, segment /*: Set */) /*: void */ {
-    this.storage.set(name, segment);
-  }
+function matcherSegmentContext(segmentName: string, storage: SplitStorage) {
 
-  get(name /*: string */) /*: Set */ {
-    return this.storage.get(name) || new Set();
-  }
+  async function segmentMatcher(key: ?string): Promise<boolean> {
+    const isInSegment = await storage.segments.isInSegment(segmentName, key);
 
-  toJSON() {
-    return this.storage.toJSON();
-  }
+    log(`[segmentMatcher] evaluated ${segmentName} / ${key} => ${isInSegment}`);
 
-  segmentNames() {
-    return this.storage.keys();
-  }
+    return isInSegment;
+  };
 
-  get size() {
-    return this.storage.size;
-  }
+  return segmentMatcher;
 }
 
-module.exports = SegmentsStorage;
+module.exports = matcherSegmentContext;

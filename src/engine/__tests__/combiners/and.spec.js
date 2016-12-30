@@ -13,24 +13,27 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+// @flow
+
 'use strict';
 
 const tape = require('tape-catch');
 const andCombiner = require('../../combiners/and');
 
-tape('COMBINER AND / should always return true', function (assert) {
+tape('COMBINER AND / should always return true', async function (assert) {
 
   let AND = andCombiner([() => true, () => true, () => true]);
 
-  assert.true(AND('always true'), 'should always return true');
+  assert.true(await AND('always true'), 'should always return true');
   assert.end();
 
 });
 
-tape('COMBINER AND / should always return false', function (assert) {
+tape('COMBINER AND / should always return false', async function (assert) {
 
   let AND = andCombiner([() => true, () => true, () => false]);
 
-  assert.false(AND('always false'), 'should always return false');
+  assert.false(await AND('always false'), 'should always return false');
   assert.end();
+
 });

@@ -5,8 +5,9 @@
 const keys = require('../../Keys');
 
 class SegmentCacheInRedis {
+  redis: IORedis;
 
-  constructor(redis) {
+  constructor(redis: IORedis) {
     this.redis = redis;
   }
 
@@ -62,7 +63,7 @@ class SegmentCacheInRedis {
     }
   }
 
-  getRegisteredSegments(): Iterator<string> {
+  getRegisteredSegments(): Promise<Array<string>> {
     return this.redis.smembers(keys.buildRegisteredSegmentsKey());
   }
 

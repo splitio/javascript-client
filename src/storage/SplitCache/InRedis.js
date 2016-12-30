@@ -14,21 +14,16 @@ const processPipelineAnswer = (results: Array<[any, string]>): Array<string> =>
   }, []);
 
 class SplitCacheInRedis {
+  redis: IORedis;
 
-  constructor(redis) {
+  constructor(redis: IORedis) {
     this.redis = redis;
   }
 
-  /**
-   * Storage one split in Redis.
-   */
   addSplit(splitName: string, split: string): Promise<boolean> {
-    return this.redis.set(keys.buildSplitKey(splitName), split);
+    return this.redis.set(keys.buildSplitKey(splitName), split).then(status => status === 'OK');
   }
 
-  /**
-   * Bulk storage of Splits in Redis.
-   */
   addSplits(splitNames: Array<string>, splits: Array<string>): Promise<Array<boolean>> {
     if (splitNames.length) {
       return this.redis.pipeline(splitNames.map(

@@ -26,22 +26,27 @@ const EventsFactory = require('./utils/events');
 
 const StorageFactory = require('./storage');
 
-const SplitFactory = ( config ) => {
-  const settings = SettingsFactory( config );
-  const eventsHub = EventsFactory();
-  const storage = StorageFactory( settings.storage );
+const ProducerFactory = require('./producer');
 
-  const client = ClientFactory(
-    eventsHub, settings, storage
-  );
+const SplitFactory = (config: Object) => {
+  const settings = SettingsFactory(config);
+  const storage = StorageFactory(settings.storage);
+  const client = ClientFactory(storage);
+  const producer = ProducerFactory(settings, storage);
 
   return {
-    client() : SplitClient {
+    client(): SplitClient {
       return client;
     },
 
-    manager() : SplitManager {
+    manager(): SplitManager {
       return ManagerFactory(storage);
+    },
+
+    producer() {
+      return producer;
     }
   };
 };
+
+module.exports = SplitFactory;

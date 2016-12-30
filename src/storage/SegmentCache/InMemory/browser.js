@@ -6,16 +6,11 @@ const keys = require('../../Keys');
 
 class SegmentCacheInMemory {
   segmentCache: Map<string, boolean>;
-  segmentChangeNumber: Map<string, number>;
 
   constructor() {
     this.segmentCache = new Map();
-    this.segmentChangeNumber = new Map();
   }
 
-  /**
-   * Define a Segment.
-   */
   addToSegment(segmentName: string, segmentKeys: Array<string>): boolean {
     const segmentKey = keys.buildSegmentNameKey(segmentName);
 
@@ -24,9 +19,6 @@ class SegmentCacheInMemory {
     return true;
   }
 
-  /**
-   * Delete a Segment.
-   */
   removeFromSegment(segmentName: string, segmentKeys: Array<string>): boolean {
     const segmentKey = keys.buildSegmentNameKey(segmentName);
 
@@ -35,27 +27,30 @@ class SegmentCacheInMemory {
     return true;
   }
 
-  /**
-   * Is the segment defined?
-   */
   isInSegment(segmentName: string, key: string): boolean {
-    const segmentKey : string = keys.buildSegmentNameKey(segmentName);
+    const segmentKey: string = keys.buildSegmentNameKey(segmentName);
 
     return this.segmentCache.get(segmentKey) === true;
   }
 
-  /**
-   * TBD
-   */
   setChangeNumber(segmentName: string, changeNumber: number): boolean {
     return true;
   }
 
-  /**
-   * TBD
-   */
-  getChangeNumber(segmentName: string): ?number {
+  getChangeNumber(segmentName: string): number {
     return -1;
+  }
+
+  registerSegment(segment: string): boolean {
+    return false;
+  }
+
+  registerSegments(segments: Iterable<string>): boolean {
+    return false;
+  }
+
+  getRegisteredSegments(): Iterable<string> {
+    return [];
   }
 }
 

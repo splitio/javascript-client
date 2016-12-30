@@ -3,7 +3,7 @@
 'use strict';
 
 const tape = require('tape-catch');
-const SegmentCache = require('../../../SegmentCache/InLocalStorage');
+const SegmentCacheInLocalStorage = require('../../../SegmentCache/InLocalStorage');
 
 tape('SEGMENT CACHE IN MEMORY / suite', assert => {
   const cache = new SegmentCache();
