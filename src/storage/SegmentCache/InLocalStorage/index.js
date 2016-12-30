@@ -11,23 +11,23 @@ class SegmentCacheInLocalStorage {
   addToSegment(segmentName: string, segmentKeys: Array<string>): boolean {
     const segmentKey = keys.buildSegmentNameKey(segmentName);
 
-    try {
+    // try {
       localStorage.setItem(keys.buildSegmentNameKey(segmentName), DEFINED);
       return true;
-    } catch (e) {
-      return false;
-    }
+    // } catch (e) {
+    //   return false;
+    // }
   }
 
   removeFromSegment(segmentName: string, segmentKeys: Array<string>): boolean {
     const segmentKey = keys.buildSegmentNameKey(segmentName);
 
-    try {
+    // try {
       localStorage.removeItem(segmentKey);
       return true;
-    } catch (e) {
-      return false;
-    }
+    // } catch (e) {
+    //   return false;
+    // }
   }
 
   isInSegment(segmentName: string, key: string): boolean {

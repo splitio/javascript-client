@@ -2,6 +2,8 @@
 
 'use strict';
 
+const startsWith = require('core-js/library/fn/string/starts-with');
+
 const buildImpressionsKey
   = (sdkVersion: string, instanceId: string, splitName: string) =>
     `SPLITIO/${sdkVersion}/${instanceId}/impressions.${splitName}`;
@@ -21,7 +23,7 @@ const buildSplitsReady = (): string => 'SPLITIO.splits.ready';
 
 const searchPatternForSplitKeys = (): string => 'SPLITIO.split.*';
 
-const isSplitKey = (key: string) => key.startsWith('SPLITIO.split.');
+const isSplitKey = (key: string) => startsWith(key, 'SPLITIO.split.');
 
 module.exports = {
   // Splits

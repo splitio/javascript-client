@@ -52,33 +52,21 @@ class SplitCacheLocalStorage {
 
   getAll(): Iterable<string> {
     const len = localStorage.length;
+    const accum = [];
+
     let cur = 0;
 
-    return {
-      [Symbol.iterator]() {
-        return this;
-      },
+    while (cur < len) {
+      const key = localStorage.key(cur);
+      const value = key && localStorage.getItem(key);
 
-      next() {
-        let value = null;
+      if (key != null && keys.isSplitKey(key) && value)
+        accum.push( value );
 
-        if (cur === len) return { done: true };
+      cur++;
+    }
 
-        while (cur < len && value == null) {
-          const key = localStorage.key(cur);
-          cur++;
-
-          if (key != null && keys.isSplitKey(key))
-            value = localStorage.getItem(key);
-        }
-
-        if (value == null) return { done: true };
-        else return {
-          value,
-          done: false
-        };
-      }
-    };
+    return accum;
   }
 }
 
