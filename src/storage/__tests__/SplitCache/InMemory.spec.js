@@ -23,7 +23,7 @@ tape('SPLIT CACHE / In Memory', assert => {
   assert.ok( values.indexOf('something') === -1 );
   assert.ok( values.indexOf('something else') !== -1 );
 
-  assert.ok( cache.getSplit('lol1') == undefined );
+  assert.ok( cache.getSplit('lol1') == null );
   assert.ok( cache.getSplit('lol2') === 'something else' );
 
   cache.setChangeNumber(123);

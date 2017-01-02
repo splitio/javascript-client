@@ -28,7 +28,7 @@ tape('SPLIT CACHE / Redis', async function (assert) {
   assert.ok( values.indexOf('something') === -1 );
   assert.ok( values.indexOf('something else') !== -1 );
 
-  assert.ok( await cache.getSplit('lol1') == undefined );
+  assert.ok( await cache.getSplit('lol1') == null );
   assert.ok( await cache.getSplit('lol2') === 'something else' );
 
   await cache.setChangeNumber(123);
