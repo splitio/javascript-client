@@ -13,7 +13,7 @@ declare interface SplitCache {
   setChangeNumber(changeNumber: number): AsyncValue<boolean>;
   getChangeNumber(): AsyncValue<number>;
 
-  getAll(): AsyncValue<Iterable<string>>;
+  getAll(): AsyncValue<Array<string>>;
 }
 
 declare interface SegmentCache {

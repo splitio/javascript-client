@@ -11,14 +11,14 @@ tape('SPLIT CACHE / In Memory', assert => {
   cache.addSplit('lol1', 'something');
   cache.addSplit('lol2', 'something else');
 
-  let values = [...cache.getAll()];
+  let values = cache.getAll();
 
   assert.ok( values.indexOf('something') !== -1 );
   assert.ok( values.indexOf('something else') !== -1 );
 
   cache.removeSplit('lol1');
 
-  values = [...cache.getAll()];
+  values = cache.getAll();
 
   assert.ok( values.indexOf('something') === -1 );
   assert.ok( values.indexOf('something else') !== -1 );

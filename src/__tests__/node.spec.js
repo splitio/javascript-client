@@ -3,7 +3,7 @@
 'use strict';
 
 const tape = require('tape-catch');
-const SplitFactory = require('../../index');
+const SplitFactory = require('../index');
 
 tape('CLIENT', async function (assert) {
   const config = {

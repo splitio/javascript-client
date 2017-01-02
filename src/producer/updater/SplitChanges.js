@@ -62,7 +62,7 @@ const SplitChangesUpdater = (settings: Object, splitCache: SplitCache, segmentCa
       if (startingUp && settings.startup.retriesOnFailureBeforeReady > retry) {
         retry += 1;
         log('retrying download of splits #%s reason %s', retry, error);
-        return updateSplits(retry);
+        return updater(retry);
       } else {
         startingUp = false;
       }

@@ -13,6 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+// @flow
+
 'use strict';
 
 const engine = require('../engine');
@@ -30,7 +32,7 @@ function evaluatorContext(matcherEvaluator: Function, treatments: Treatments): F
 
     // else we should notify the engine to continue evaluating
     return undefined;
-  };
+  }
 
   return evaluator;
 }

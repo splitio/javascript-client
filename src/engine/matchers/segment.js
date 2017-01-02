@@ -25,7 +25,7 @@ function matcherSegmentContext(segmentName: string, storage: SplitStorage) {
     log(`[segmentMatcher] evaluated ${segmentName} / ${key} => ${isInSegment}`);
 
     return isInSegment;
-  };
+  }
 
   return segmentMatcher;
 }

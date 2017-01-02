@@ -53,8 +53,8 @@ class SplitCacheInMemory {
     return this.changeNumber;
   }
 
-  getAll(): Iterator<string> {
-    return this.splitCache.values();
+  getAll(): Array<string> {
+    return [...this.splitCache.values()];
   }
 }
 

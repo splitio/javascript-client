@@ -13,39 +13,57 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+// @flow
+
 'use strict';
+
+const log = require('debug')('splitio-producer:updater');
 
 const repeat = require('../utils/fn/repeat');
 
-class Updater {
-  constructor(
-    splitsUpdater,
-    segmentsUpdater,
-    splitsUpdaterRefreshRate,
-    segmentsUpdaterRefreshRate
-  ) {
-    this.splitsUpdater = splitsUpdater;
-    this.segmentsUpdater = segmentsUpdater;
-    this.splitsUpdaterRefreshRate = splitsUpdaterRefreshRate;
-    this.segmentsUpdaterRefreshRate = segmentsUpdaterRefreshRate;
-  }
+const SplitChangesUpdater = require('./updater/SplitChanges');
+const MySegmentsUpdater = require('./updater/MySegments');
 
-  start() {
-    this.stopSplitsUpdate = repeat(
-      scheduleSplitsUpdate => this.splitsUpdater().then(() => scheduleSplitsUpdate()),
-      this.splitsUpdaterRefreshRate
-    );
+/**
+ * Expose start / stop mechanism for pulling data from services.
+ */
+const BrowserUpdater = (settings: Object, storage: SplitStorage) => {
+  const splitsUpdater = SplitChangesUpdater(settings, storage.splits, storage.segments);
+  const segmentsUpdater = MySegmentsUpdater(settings, storage.segments);
 
-    this.stopSegmentsUpdate = repeat(
-      scheduleSegmentsUpdate => this.segmentsUpdater().then(() => scheduleSegmentsUpdate()),
-      this.segmentsUpdaterRefreshRate
-    );
-  }
+  let stopSplitsUpdate;
+  let stopSegmentsUpdate;
 
-  stop() {
-    this.stopSplitsUpdate && this.stopSplitsUpdate();
-    this.stopSegmentsUpdate && this.stopSegmentsUpdate();
-  }
-}
+  return {
+    start() {
+      log('Starting BROWSER updater');
+      log('Splits will be refreshed each %s millis', settings.scheduler.featuresRefreshRate);
+      log('Segments will be refreshed each %s millis', settings.scheduler.segmentsRefreshRate);
 
-module.exports = Updater;
+      stopSplitsUpdate = repeat(
+        scheduleSplitsUpdate => {
+          log('Fetching splits');
+          splitsUpdater().then(() => scheduleSplitsUpdate());
+        },
+        settings.scheduler.featuresRefreshRate
+      );
+
+      stopSegmentsUpdate = repeat(
+        scheduleSegmentsUpdate => {
+          log('Fetching segments');
+          segmentsUpdater().then(() => scheduleSegmentsUpdate());
+        },
+        settings.scheduler.segmentsRefreshRate
+      );
+    },
+
+    stop() {
+      log('Stopping BROWSER updater');
+
+      stopSplitsUpdate && stopSplitsUpdate();
+      stopSegmentsUpdate && stopSegmentsUpdate();
+    }
+  };
+};
+
+module.exports = BrowserUpdater;

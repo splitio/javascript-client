@@ -31,7 +31,7 @@ const ProducerFactory = require('./producer');
 const SplitFactory = (config: Object) => {
   const settings = SettingsFactory(config);
   const storage = StorageFactory(settings.storage);
-  const client = ClientFactory(storage);
+  const client = ClientFactory(storage, settings);
   const producer = ProducerFactory(settings, storage);
 
   return {
@@ -45,6 +45,10 @@ const SplitFactory = (config: Object) => {
 
     producer() {
       return producer;
+    },
+
+    settings() {
+      return settings;
     }
   };
 };

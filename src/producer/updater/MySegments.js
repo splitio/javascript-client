@@ -20,7 +20,7 @@ limitations under the License.
 const log = require('debug')('splitio-producer:my-segments');
 const mySegmentsFetcher = require('../fetcher/MySegments');
 
-function MySegmentsUpdater(settings: Object, hub: EventEmitter, segmentCache: SegmentCache) {
+function MySegmentsUpdater(settings: Object, segmentCache: SegmentCache) {
   // only enable retries first load
   let startingUp = true;
 
@@ -32,28 +32,17 @@ function MySegmentsUpdater(settings: Object, hub: EventEmitter, segmentCache: Se
         segmentCache.addToSegment(s);
       }
     })
-      // .then(shouldUpdate => {
-      //   if (startingUp) {
-      //     startingUp = false;
-      //   }
+    .catch(error => {
+      if (startingUp && settings.startup.retriesOnFailureBeforeReady > retry) {
+        retry += 1;
+        log('retrying download of segments #%s reason %s', retry, error);
+        return updateMySegments(retry);
+      } else {
+        startingUp = false;
+      }
 
-      //   if (shouldUpdate) {
-      //     hub.emit(hub.Event.SDK_SEGMENTS_ARRIVED);
-      //   }
-
-      //   return shouldUpdate;
-      // })
-      .catch(error => {
-        if (startingUp && settings.startup.retriesOnFailureBeforeReady > retry) {
-          retry += 1;
-          log('retrying download of segments #%s reason %s', retry, error);
-          return updateMySegments(retry);
-        } else {
-          startingUp = false;
-        }
-
-        return false; // shouldUpdate = false
-      });
+      return false; // shouldUpdate = false
+    });
   };
 
 }

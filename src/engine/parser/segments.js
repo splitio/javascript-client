@@ -12,8 +12,7 @@ const parseSegments = (conditions: Array<Condition>): Set<string> => {
     let {
       matcherGroup: {
         matchers
-      },
-      partitions
+      }
     } = condition;
 
     for (let matcher of matchers) {

@@ -2,8 +2,9 @@
 
 'use strict';
 
+const log = require('debug')('splitio-storage:localstorage');
+
 const keys = require('../Keys');
-const SplitCacheInMemory = require('./InMemory');
 
 class SplitCacheLocalStorage {
 
@@ -12,8 +13,21 @@ class SplitCacheLocalStorage {
       localStorage.setItem(keys.buildSplitKey(splitName), split);
       return true;
     } catch (e) {
+      log(e);
       return false;
     }
+  }
+
+  addSplits(splitNames: Array<string>, splits: Array<string>): Array<boolean> {
+    let i = 0;
+    let len = splitNames.length;
+    let accum = [];
+
+    for (; i < len; i++) {
+      accum.push( this.addSplit(splitNames[i], splits[i]) );
+    }
+
+    return accum;
   }
 
   removeSplit(splitName: string): number {
@@ -21,8 +35,24 @@ class SplitCacheLocalStorage {
       localStorage.removeItem(keys.buildSplitKey(splitName));
       return 1;
     } catch(e) {
+      log(e);
       return 0;
     }
+  }
+
+  /**
+   * Bulk delete of splits from LocalStorage. Returns the number of deleted keys.
+   */
+  removeSplits(names: Array<string>): number {
+    let i = 0;
+    let len = names.length;
+    let counter = 0;
+
+    for (; i < len; i++) {
+      counter += this.removeSplit(names[i]);
+    }
+
+    return counter;
   }
 
   getSplit(splitName: string): ?string {
@@ -34,23 +64,25 @@ class SplitCacheLocalStorage {
       localStorage.setItem(keys.buildSplitsTillKey(), changeNumber + '');
       return true;
     } catch (e) {
+      log(e);
       return false;
     }
   }
 
-  getChangeNumber(): ?number {
+  getChangeNumber(): number {
+    const n = -1;
     let value = localStorage.getItem(keys.buildSplitsTillKey());
 
     if (value !== null) {
       value = parseInt(value, 10);
 
-      return Number.isNaN(value) ? null : value;
+      return Number.isNaN(value) ? n : value;
     }
 
-    return null;
+    return n;
   }
 
-  getAll(): Iterable<string> {
+  getAll(): Array<string> {
     const len = localStorage.length;
     const accum = [];
 
@@ -67,6 +99,10 @@ class SplitCacheLocalStorage {
     }
 
     return accum;
+  }
+
+  flush() {
+    localStorage.clear();
   }
 }
 

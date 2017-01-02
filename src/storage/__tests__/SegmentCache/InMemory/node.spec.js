@@ -5,7 +5,7 @@
 const tape = require('tape-catch');
 const SegmentCacheInMemory = require('../../../SegmentCache/InMemory');
 
-tape('SEGMENT CACHE IN MEMORY / suite', assert => {
+tape('SEGMENT CACHE / in memory', assert => {
   const cache = new SegmentCacheInMemory();
 
   cache.addToSegment('mocked-segment', [

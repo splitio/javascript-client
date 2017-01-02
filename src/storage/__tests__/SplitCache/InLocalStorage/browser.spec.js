@@ -8,6 +8,8 @@ const SplitCache = require('../../../SplitCache/InLocalStorage');
 tape('SPLIT CACHE / LocalStorage', assert => {
   const cache = new SplitCache();
 
+  cache.flush();
+
   cache.addSplit('lol1', 'something');
   cache.addSplit('lol2', 'something else');
 
@@ -25,6 +27,8 @@ tape('SPLIT CACHE / LocalStorage', assert => {
 
   assert.ok( cache.getSplit('lol1') == undefined );
   assert.ok( cache.getSplit('lol2') === 'something else' );
+
+  assert.ok( cache.getChangeNumber() === -1 );
 
   cache.setChangeNumber(123);
   assert.ok( cache.getChangeNumber() === 123 );

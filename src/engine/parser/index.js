@@ -17,14 +17,9 @@ limitations under the License.
 
 const matchersTransform = require('../transforms/matchers');
 const treatmentsParser = require('../treatments').parse;
-
-const matcherTypes = require('../matchers/types').enum;
 const matcherFactory = require('../matchers');
-
 const value = require('../value');
-
 const evaluatorFactory = require('../evaluator');
-
 const ifElseIfCombiner = require('../combiners/ifelseif');
 const andCombiner = require('../combiners/and');
 

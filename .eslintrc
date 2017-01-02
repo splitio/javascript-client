@@ -26,11 +26,11 @@
 
   "parser": "babel-eslint",
 
-   "plugins": [
+  "plugins": [
     "flowtype"
   ],
 
-   "settings": {
+  "settings": {
     "flowtype": {
       "onlyFilesWithFlowAnnotation": true
     }
