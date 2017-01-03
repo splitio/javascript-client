@@ -20,22 +20,33 @@ limitations under the License.
 const log = require('debug')('splitio-producer:my-segments');
 const mySegmentsFetcher = require('../fetcher/MySegments');
 
-function MySegmentsUpdater(settings: Object, segmentCache: SegmentCache) {
-  // only enable retries first load
+function MySegmentsUpdater(settings: Object, hub: EventEmitter, storage: SplitStorage) {
+  let readyOnAlreadyExistentState = true;
   let startingUp = true;
 
   return function updateMySegments(retry: number = 0) {
     return mySegmentsFetcher(settings, startingUp).then(segments => {
+      let shouldNotifyUpdate = false;
+
+      // Only we download segments completely, we should not keep retrying anymore
       startingUp = false;
 
       for (let s of segments) {
-        segmentCache.addToSegment(s);
+        if (!storage.segments.isInSegment(s)) {
+          shouldNotifyUpdate = true;
+          storage.segments.addToSegment(s);
+        }
+      }
+
+      if (shouldNotifyUpdate || readyOnAlreadyExistentState) {
+        readyOnAlreadyExistentState = false;
+        hub.emit(hub.SDK_SEGMENTS_ARRIVED);
       }
     })
     .catch(error => {
       if (startingUp && settings.startup.retriesOnFailureBeforeReady > retry) {
         retry += 1;
-        log('retrying download of segments #%s reason %s', retry, error);
+        log('Retrying download of segments #%s reason %s', retry, error);
         return updateMySegments(retry);
       } else {
         startingUp = false;

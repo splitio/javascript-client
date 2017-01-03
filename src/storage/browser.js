@@ -2,11 +2,11 @@
 
 'use strict';
 
-const SplitCacheInMemory = require('../SplitCache/InMemory');
-const SplitCacheInLocalStorage = require('../SplitCache/InLocalStorage');
+const SplitCacheInMemory = require('./SplitCache/InMemory');
+const SplitCacheInLocalStorage = require('./SplitCache/InLocalStorage');
 
-const SegmentCacheInMemory = require('../SegmentCache/InMemory');
-const SegmentCacheInLocalStorage = require('../SegmentCache/InLocalStorage');
+const SegmentCacheInMemory = require('./SegmentCache/InMemory');
+const SegmentCacheInLocalStorage = require('./SegmentCache/InLocalStorage');
 
 const BrowserStorageFactory = (storage: Object): any => {
 

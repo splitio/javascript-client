@@ -7,7 +7,11 @@ declare type AsyncValue<T> = Promise<T> | T;
  */
 declare interface SplitCache {
   addSplit(splitName: string , split: string): AsyncValue<boolean>;
+  addSplits(splitName: Array<string> , split: Array<string>): AsyncValue<boolean>;
+
   removeSplit(splitName: string): AsyncValue<number>;
+  removeSplits(names: Array<string>): AsyncValue<number>;
+
   getSplit(splitName: string): AsyncValue<?string>;
 
   setChangeNumber(changeNumber: number): AsyncValue<boolean>;

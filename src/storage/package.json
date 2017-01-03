@@ -1,4 +1,4 @@
 {
-  "main": "./Factory/node.js",
-  "browser": "./Factory/browser.js"
+  "main": "./node.js",
+  "browser": "./browser.js"
 }

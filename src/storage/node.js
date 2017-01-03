@@ -4,11 +4,11 @@
 
 const Redis = require('ioredis');
 
-const SplitCacheInMemory = require('../SplitCache/InMemory');
-const SplitCacheInRedis = require('../SplitCache/InRedis');
+const SplitCacheInMemory = require('./SplitCache/InMemory');
+const SplitCacheInRedis = require('./SplitCache/InRedis');
 
-const SegmentCacheInMemory = require('../SegmentCache/InMemory');
-const SegmentCacheInRedis = require('../SegmentCache/InRedis');
+const SegmentCacheInMemory = require('./SegmentCache/InMemory');
+const SegmentCacheInRedis = require('./SegmentCache/InRedis');
 
 const NodeStorageFactory = (storage: Object): SplitStorage => {
 

@@ -23,16 +23,16 @@ tape(`EVENTS / ${Event.SDK_READY} should be emitted once`, assert => {
   const hub = EventsFactory();
   let counter = 0;
 
-  hub.on(hub.Event.SDK_READY, () => {
+  hub.on(hub.SDK_READY, () => {
     counter++;
   });
 
-  hub.emit(hub.Event.SDK_SPLITS_ARRIVED);
-  hub.emit(hub.Event.SDK_SEGMENTS_ARRIVED);
-  hub.emit(hub.Event.SDK_SPLITS_ARRIVED);
-  hub.emit(hub.Event.SDK_SEGMENTS_ARRIVED);
-  hub.emit(hub.Event.SDK_SPLITS_ARRIVED);
-  hub.emit(hub.Event.SDK_SEGMENTS_ARRIVED);
+  hub.emit(hub.SDK_SPLITS_ARRIVED);
+  hub.emit(hub.SDK_SEGMENTS_ARRIVED);
+  hub.emit(hub.SDK_SPLITS_ARRIVED);
+  hub.emit(hub.SDK_SEGMENTS_ARRIVED);
+  hub.emit(hub.SDK_SPLITS_ARRIVED);
+  hub.emit(hub.SDK_SEGMENTS_ARRIVED);
 
   assert.equal(counter, 1, 'called once');
   assert.end();
@@ -43,22 +43,22 @@ tape(`EVENTS / should emit ${Event.SDK_UPDATE} after ${Event.SDK_READY}`, assert
   let isReady = false;
   let counter = 0;
 
-  hub.on(hub.Event.SDK_READY, () => {
+  hub.on(hub.SDK_READY, () => {
     counter++;
     isReady = true;
   });
 
-  hub.on(hub.Event.SDK_UPDATE, () => {
+  hub.on(hub.SDK_UPDATE, () => {
     isReady && (counter++);
   });
 
-  hub.emit(hub.Event.SDK_SPLITS_ARRIVED);
-  hub.emit(hub.Event.SDK_SEGMENTS_ARRIVED); // counter = 1
+  hub.emit(hub.SDK_SPLITS_ARRIVED);
+  hub.emit(hub.SDK_SEGMENTS_ARRIVED); // counter = 1
 
-  hub.emit(hub.Event.SDK_SPLITS_ARRIVED);   // counter = 2
-  hub.emit(hub.Event.SDK_SEGMENTS_ARRIVED); // counter = 3
-  hub.emit(hub.Event.SDK_SPLITS_ARRIVED);   // counter = 4
-  hub.emit(hub.Event.SDK_SEGMENTS_ARRIVED); // counter = 5
+  hub.emit(hub.SDK_SPLITS_ARRIVED);   // counter = 2
+  hub.emit(hub.SDK_SEGMENTS_ARRIVED); // counter = 3
+  hub.emit(hub.SDK_SPLITS_ARRIVED);   // counter = 4
+  hub.emit(hub.SDK_SEGMENTS_ARRIVED); // counter = 5
 
   assert.equal(counter, 5, 'counter should have a 5');
   assert.end();

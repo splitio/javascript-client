@@ -20,7 +20,8 @@ limitations under the License.
 const log = require('debug')('splitio-producer:segment-changes');
 const segmentChangesFetcher = require('../fetcher/SegmentChanges');
 
-const SegmentChangesUpdater = (settings : Object, segmentCache : SegmentCache) => {
+const SegmentChangesUpdater = (settings: Object, hub: EventEmitter, storage: SplitStorage) => {
+  let readyOnAlreadyExistentState = true;
 
   return async function updater() {
     log('Started segments update');
@@ -29,33 +30,41 @@ const SegmentChangesUpdater = (settings : Object, segmentCache : SegmentCache) =
     const updaters = [];
 
     // Read list of available segments names to be updated.
-    const segments = await segmentCache.getRegisteredSegments();
+    const segments = await storage.segments.getRegisteredSegments();
 
     for (let segmentName of segments) {
-      const since: number = await segmentCache.getChangeNumber(segmentName);
+      const since: number = await storage.segments.getChangeNumber(segmentName);
 
       log('Processing segment %s', segmentName);
 
-      updaters.push(
-        segmentChangesFetcher(settings, segmentName, since).then(async function (changes: SegmentChanges) {
-          // Apply all the collected mutations at once
-          for (let x of changes) {
-            if (x.added.length > 0)
-              await segmentCache.addToSegment(segmentName, x.added);
+      updaters.push(segmentChangesFetcher(settings, segmentName, since).then(async function (changes: SegmentChanges) {
+        let changeNumber = -1;
 
-            if (x.removed.length > 0)
-              await segmentCache.removeFromSegment(segmentName, x.removed);
+        for (let x of changes) {
+          if (x.added.length > 0)
+            await storage.segments.addToSegment(segmentName, x.added);
 
-            if (x.added.length > 0 || x.removed.length > 0)
-              await segmentCache.setChangeNumber(segmentName, x.till);
+          if (x.removed.length > 0)
+            await storage.segments.removeFromSegment(segmentName, x.removed);
 
-            log('Processed %s with till = %s added %s removed %s', segmentName, x.till, x.added.length, x.removed.length);
+          if (x.added.length > 0 || x.removed.length > 0) {
+            await storage.segments.setChangeNumber(segmentName, x.till);
+            changeNumber = x.till;
           }
-        })
-      );
+
+          log('Processed %s with till = %s added %s removed %s', segmentName, x.till, x.added.length, x.removed.length);
+        }
+
+        return changeNumber;
+      }));
     }
 
-    return Promise.all(updaters);
+    return Promise.all(updaters).then(shouldUpdateFlags => {
+      if (shouldUpdateFlags.findIndex(v => v !== -1) !== -1 || readyOnAlreadyExistentState) {
+        readyOnAlreadyExistentState = false;
+        hub.emit(hub.SDK_SEGMENTS_ARRIVED);
+      }
+    });
   };
 
 };

@@ -43,12 +43,12 @@ tape('E2E / lets evaluates!', function (assert) {
 
   const producer = splitio.producer();
   const client = splitio.client();
+  const events = client.events();
 
   // Start the fetching process.
   producer.start();
 
-  // @todo this code will be removed once we have BUR back
-  setTimeout(async function () {
+  events.on(events.SDK_READY, async function () {
     assert.equal(await client.getTreatment('blacklist'), 'not_allowed');
     assert.equal(await client.getTreatment('whitelist'), 'allowed');
     assert.equal(await client.getTreatment('splitters'), 'on');
@@ -221,6 +221,6 @@ tape('E2E / lets evaluates!', function (assert) {
 
     assert.end();
 
-  }, 1500);
+  });
 
 });

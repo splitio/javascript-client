@@ -22,18 +22,19 @@ const splitChangesFetcher = require('../fetcher/SplitChanges');
 
 const parseSegments = require('../../engine/parser/segments');
 
-const SplitChangesUpdater = (settings: Object, splitCache: SplitCache, segmentCache: SegmentCache) => {
-  // Only enable retries on first load
+function SplitChangesUpdater(settings: Object, hub: EventEmitter, storage: SplitStorage) {
   let startingUp = true;
+  let readyOnAlreadyExistentState = true;
 
   return async function updater(retry: number = 0) {
-    const since: number = await splitCache.getChangeNumber();
+    const since: number = await storage.splits.getChangeNumber();
 
-    log('Spinning up split update using since = %s', since);
+    log('Spin up split update using since = %s', since);
 
     return splitChangesFetcher(settings, since, startingUp).then(splitChanges => {
       startingUp = false;
 
+      // Quick data preparation phase
       const tuples = splitChanges.splits.reduce((accum, split) => {
         accum.keys.push(split.name);
         accum.values.push(JSON.stringify(split));
@@ -50,26 +51,32 @@ const SplitChangesUpdater = (settings: Object, splitCache: SplitCache, segmentCa
       log('Split names collected: ', tuples.keys);
       log('Segment names collected: ', tuples.segments);
 
+      // Write into storage
       return Promise.all([
-        splitCache.addSplits(tuples.keys, tuples.values),
-        splitCache.setChangeNumber(splitChanges.till),
-        segmentCache.registerSegments(tuples.segments)
-      ]);
+        storage.splits.addSplits(tuples.keys, tuples.values),
+        storage.splits.setChangeNumber(splitChanges.till),
+        storage.segments.registerSegments(tuples.segments)
+      ]).then(() => {
+        if (since !== splitChanges.till || readyOnAlreadyExistentState) {
+          readyOnAlreadyExistentState = false;
+          hub.emit(hub.SDK_SPLITS_ARRIVED);
+        }
+      });
     })
     .catch(error => {
       log('Error while doing fetch of Splits %s', error);
 
       if (startingUp && settings.startup.retriesOnFailureBeforeReady > retry) {
         retry += 1;
-        log('retrying download of splits #%s reason %s', retry, error);
+        log('Retrying download of splits #%s reason %s', retry, error);
         return updater(retry);
       } else {
         startingUp = false;
       }
 
-      return false; // shouldUpdate = false
+      return false;
     });
   };
-};
+}
 
 module.exports = SplitChangesUpdater;
