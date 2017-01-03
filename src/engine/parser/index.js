@@ -13,6 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+
+// @flow
+
 'use strict';
 
 const matchersTransform = require('../transforms/matchers');
@@ -23,9 +26,6 @@ const evaluatorFactory = require('../evaluator');
 const ifElseIfCombiner = require('../combiners/ifelseif');
 const andCombiner = require('../combiners/and');
 
-// Collect segments and create the evaluator function given a list of
-// conditions. This code is the base used by the class `Split` for
-// instanciation.
 function parse(conditions: Array<Condition>, storage: SplitStorage): any {
   let predicates = [];
 
@@ -34,7 +34,8 @@ function parse(conditions: Array<Condition>, storage: SplitStorage): any {
       matcherGroup: {
         matchers
       },
-      partitions
+      partitions,
+      label
     } = condition;
 
     // transform data structure
@@ -62,7 +63,8 @@ function parse(conditions: Array<Condition>, storage: SplitStorage): any {
 
     predicates.push(evaluatorFactory(
       andCombiner(expressions),
-      treatmentsParser(partitions)
+      treatmentsParser(partitions),
+      label
     ));
   }
 

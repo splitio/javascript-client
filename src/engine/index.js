@@ -13,11 +13,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+
 // @flow
 
 'use strict';
 
 const parser = require('./parser');
+const LabelsConstants = require('../utils/labels');
 
 function defaults(inst) {
   // in case we don't have a default treatment in the instanciation, use
@@ -49,25 +51,33 @@ Split.prototype.getKey = function getKey() {
   return this.baseInfo.name;
 };
 
-Split.prototype.getTreatment = async function getTreatment(key, attributes): Promise<string> {
-  let {
+Split.prototype.getTreatment = async function getTreatment(key: SplitKey, attributes): Promise<Evaluation> {
+  const {
     killed,
     seed,
     defaultTreatment
   } = this.baseInfo;
 
   let treatment;
+  let label;
 
   if (this.isGarbage()) {
     treatment = 'control';
+    label = LabelsConstants.SPLIT_ARCHIVED;
   } else if (killed) {
     treatment = defaultTreatment;
+    label = LabelsConstants.SPLIT_KILLED;
   } else {
-    treatment = await this.evaluator(key, seed, attributes);
-    treatment = treatment !== undefined ? treatment : defaultTreatment;
+    const evaluation = await this.evaluator(key, seed, attributes);
+
+    treatment = evaluation !== undefined ? evaluation.treatment : defaultTreatment;
+    label = evaluation !== undefined ? evaluation.label : LabelsConstants.NO_CONDITION_MATCH;
   }
 
-  return treatment;
+  return {
+    treatment,
+    label
+  };
 };
 
 Split.prototype.isGarbage = function isGarbage() {

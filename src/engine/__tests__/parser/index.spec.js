@@ -33,11 +33,15 @@ tape('PARSER / if user is in segment all 100%:on', async function (assert) {
     partitions: [{
       treatment: 'on',
       size: 100
-    }]
+    }],
+    label: 'in segment all'
   }]);
 
+  const evaluation = await evaluator('a key', 31);
+
   assert.equal(typeof evaluator, 'function', 'evaluator should be callable');
-  assert.equal(await evaluator('a key', 31), 'on', "evaluator should return 'on'");
+  assert.equal(evaluation.treatment, 'on', "evaluator should return treatment 'on'");
+  assert.equal(evaluation.label, 'in segment all', "evaluator should return label 'in segment all'");
   assert.end();
 
 });
@@ -60,10 +64,14 @@ tape('PARSER / if user is in segment all 100%:off', async function (assert) {
     }, {
       treatment: 'off',
       size: 100
-    }]
+    }],
+    label: 'in segment all'
   }]);
 
-  assert.true(await evaluator('a key', 31) === 'off', "evaluation should throw 'off'");
+  const evaluation = await evaluator('a key', 31);
+
+  assert.true(evaluation.treatment === 'off', "treatment evaluation should throw 'off'");
+  assert.true(evaluation.label === 'in segment all', "label evaluation should throw 'in segment all'");
   assert.end();
 
 });
@@ -90,12 +98,21 @@ tape('PARSER / if user is in segment ["u1", "u2", "u3", "u4"] then split 100%:on
     partitions: [{
       treatment: 'on',
       size: 100
-    }]
+    }],
+    label: 'explicitly included'
   }]);
 
-  assert.true(await evaluator('a key', 31) === undefined, 'evaluation should throw undefined');
-  assert.true(await evaluator('u1', 31) === 'on', "evaluation should throw 'on'");
-  assert.true(await evaluator('u3', 31) === 'on', "should be evaluated to 'on'");
+  let evaluation = await evaluator('a key', 31);
+  assert.true(evaluation === undefined, 'evaluation should throw undefined');
+
+  evaluation = await evaluator('u1', 31);
+  assert.true(evaluation.treatment === 'on', "treatment evaluation should throw 'on'");
+
+  evaluation = await evaluator('u3', 31);
+  assert.true(evaluation.treatment === 'on', "treatment should be evaluated to 'on'");
+
+  evaluation = await evaluator('u3', 31);
+  assert.true(evaluation.label === 'explicitly included', "label should be evaluated to 'explicitly included'");
   assert.end();
 
 });
@@ -127,18 +144,23 @@ tape('PARSER / if user.account is in list ["v1", "v2", "v3"] then split 100:on',
     partitions: [{
       treatment: 'on',
       size: 100
-    }]
+    }],
+    label: 'explicitly included'
   }]);
 
-  assert.true(await evaluator('test@split.io', 31, {
+  let evaluation = await evaluator('test@split.io', 31, {
     account: 'v1'
-  }) === 'on', 'v1 is defined in the whitelist');
+  });
+  assert.true(evaluation.treatment === 'on', 'v1 is defined in the whitelist');
+  assert.true(evaluation.label === 'explicitly included', 'label should be "explicitly included"');
 
-  assert.true(await evaluator('v1', 31) === undefined, 'we are looking for v1 inside the account attribute');
+  evaluation = await evaluator('v1', 31);
+  assert.true(evaluation === undefined, 'we are looking for v1 inside the account attribute');
 
-  assert.true(await evaluator('test@split.io', 31, {
+  evaluation = await evaluator('test@split.io', 31, {
     account: 'v4'
-  }) === undefined, 'v4 is not defined inside the whitelist');
+  });
+  assert.true(evaluation === undefined, 'v4 is not defined inside the whitelist');
 
   assert.end();
 
@@ -166,12 +188,14 @@ tape('PARSER / if user.account is in segment all then split 100:on', async funct
     partitions: [{
       treatment: 'on',
       size: 100
-    }]
+    }],
+    label: 'in segment all'
   }]);
 
-  assert.true(await evaluator('test@split.io', 31, {
+  let evaluation = await evaluator('test@split.io', 31, {
     account: 'v1'
-  }) === 'on', 'v1 is defined in segment all');
+  });
+  assert.true(evaluation.treatment === 'on', 'v1 is defined in segment all');
 
   assert.true(await evaluator('test@split.io', 31) === undefined, 'missing attribute should evaluates to undefined');
 
@@ -206,13 +230,15 @@ tape('PARSER / if user.attr is between 10 and 20 then split 100:on', async funct
     }]
   }]);
 
-  assert.true(await evaluator('test@split.io', 31, {
+  let evaluation = await evaluator('test@split.io', 31, {
     attr: 10
-  }) === 'on', '10 is between 10 and 20');
+  });
+  assert.true(evaluation.treatment === 'on', '10 is between 10 and 20');
 
-  assert.true(await evaluator('test@split.io', 31, {
+  evaluation = await evaluator('test@split.io', 31, {
     attr: 9
-  }) === undefined, '9 is not between 10 and 20');
+  });
+  assert.true(evaluation === undefined, '9 is not between 10 and 20');
 
   assert.true(
     await evaluator('test@split.io', 31) === undefined,
@@ -249,17 +275,20 @@ tape('PARSER / if user.attr <= datetime 1458240947021 then split 100:on', async 
     }]
   }]);
 
-  assert.true(await evaluator('test@split.io', 31, {
+  let evaluation = await evaluator('test@split.io', 31, {
     attr: new Date('2016-03-17T18:55:47.021Z').getTime()
-  }) === 'on', '1458240947021 is equal');
+  });
+  assert.true(evaluation.treatment === 'on', '1458240947021 is equal');
 
-  assert.true(await evaluator('test@split.io', 31, {
+  evaluation = await evaluator('test@split.io', 31, {
     attr: new Date('2016-03-17T17:55:47.021Z').getTime()
-  }) === 'on', '1458240947020 is less than 1458240947021');
+  });
+  assert.true(evaluation.treatment === 'on', '1458240947020 is less than 1458240947021');
 
-  assert.true(await evaluator('test@split.io', 31, {
+  evaluation = await evaluator('test@split.io', 31, {
     attr: new Date('2016-03-17T19:55:47.021Z').getTime()
-  }) === undefined, '1458240947022 is not less than 1458240947021');
+  });
+  assert.true(evaluation === undefined, '1458240947022 is not less than 1458240947021');
 
   assert.true(
     await evaluator('test@split.io', 31) === undefined,
@@ -296,17 +325,20 @@ tape('PARSER / if user.attr >= datetime 1458240947021 then split 100:on', async 
     }]
   }]);
 
-  assert.true(await evaluator('test@split.io', 31, {
+  let evaluation = await evaluator('test@split.io', 31, {
     attr: new Date('2016-03-17T18:55:47.021Z').getTime()
-  }) === 'on', '1458240947021 is equal');
+  });
+  assert.true(evaluation.treatment === 'on', '1458240947021 is equal');
 
-  assert.true(await evaluator('test@split.io', 31, {
+  evaluation = await evaluator('test@split.io', 31, {
     attr: new Date('2016-03-17T17:55:47.021Z').getTime()
-  }) === undefined, '1458240947020 is less than 1458240947021');
+  });
+  assert.true(evaluation === undefined, '1458240947020 is less than 1458240947021');
 
-  assert.true(await evaluator('test@split.io', 31, {
+  evaluation = await evaluator('test@split.io', 31, {
     attr: new Date('2016-03-17T19:55:47.021Z').getTime()
-  }) === 'on', '1458240947000 is greater than 1458240947021');
+  });
+  assert.true(evaluation.treatment === 'on', '1458240947000 is greater than 1458240947021');
 
   assert.true(await evaluator('test@split.io', 31) === undefined,
     'missing attributes in the parameters list'
@@ -342,17 +374,20 @@ tape('PARSER / if user.attr = datetime 1458240947021 then split 100:on', async f
     }]
   }]);
 
-  assert.equal(await evaluator('test@split.io', 31, {
+  let evaluation = await evaluator('test@split.io', 31, {
     attr: 1458240947021
-  }), 'on', '2016-03-17T18:55:47.021Z is equal to 2016-03-17T18:55:47.021Z');
+  });
+  assert.equal(evaluation.treatment, 'on', '2016-03-17T18:55:47.021Z is equal to 2016-03-17T18:55:47.021Z');
 
-  assert.equal(await evaluator('test@split.io', 31, {
+  evaluation = await evaluator('test@split.io', 31, {
     attr: 1458240947020
-  }), 'on', '2016-03-17T18:55:47.020Z is considered equal to 2016-03-17T18:55:47.021Z');
+  });
+  assert.equal(evaluation.treatment, 'on', '2016-03-17T18:55:47.020Z is considered equal to 2016-03-17T18:55:47.021Z');
 
-  assert.equal(await evaluator('test@split.io', 31, {
-    attr: 1458172800000
-  }), 'on', '2016-03-17T00:00:00Z is considered equal to 2016-03-17T18:55:47.021Z');
+  evaluation = await evaluator('test@split.io', 31, {
+    attr: 1458240947020
+  });
+  assert.equal(evaluation.treatment, 'on', '2016-03-17T00:00:00Z is considered equal to 2016-03-17T18:55:47.021Z');
 
   assert.equal(await evaluator('test@split.io', 31), undefined,
     'missing attributes should be evaluated to false'
@@ -383,8 +418,14 @@ tape('PARSER / if user is in segment all then split 20%:A,20%:B,60%:A', async fu
     }]
   }]);
 
-  assert.equal(await evaluator('aaaaa', 31), 'A', '20%:A'); // bucket 15
-  assert.equal(await evaluator('bbbbbbbbbbbbbbbbbbb', 31), 'B', '20%:B'); // bucket 34
-  assert.equal(await evaluator('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 31), 'A', '60%:A'); // bucket 100
+  let evaluation = await evaluator('aaaaa', 31);
+  assert.equal(evaluation.treatment, 'A', '20%:A'); // bucket 15
+
+  evaluation = await evaluator('bbbbbbbbbbbbbbbbbbb', 31);
+  assert.equal(evaluation.treatment, 'B', '20%:B'); // bucket 34
+
+  evaluation = await evaluator('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 31);
+  assert.equal(evaluation.treatment, 'A', '60%:A'); // bucket 100
+
   assert.end();
 });

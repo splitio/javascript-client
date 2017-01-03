@@ -31,17 +31,17 @@ const {
 } = require('../convertions');
 
 // Flat the complex matcherGroup structure into something handy.
-function transform(matchers: Array<Object>): Array<Matcher> {
+function transform(matchers: Array<Matcher>): Array<ParsedMatcher> {
 
   let parsedMatchers = matchers.map(matcher => {
     let {
-      matcherType                                   /*: string */,
-      negate                                        /*: boolean */,
-      keySelector                                   /*: keySelectorObject */,
-      userDefinedSegmentMatcherData: segmentObject  /*: segmentObject */,
-      whitelistMatcherData: whitelistObject         /*: whiteListObject */,
-      unaryNumericMatcherData: unaryNumericObject   /*: unaryNumericObject */,
-      betweenMatcherData: betweenObject             /*: betweenObject */
+      matcherType                                   /* string */,
+      negate                                        /* boolean */,
+      keySelector                                   /* keySelectorObject */,
+      userDefinedSegmentMatcherData: segmentObject  /* segmentObject */,
+      whitelistMatcherData: whitelistObject         /* whiteListObject */,
+      unaryNumericMatcherData: unaryNumericObject   /* unaryNumericObject */,
+      betweenMatcherData: betweenObject             /* betweenObject */
     } = matcher;
 
     let attribute = keySelector && keySelector.attribute;

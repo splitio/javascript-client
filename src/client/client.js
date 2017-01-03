@@ -1,4 +1,4 @@
-// @flow
+src/core/sdk/online.js// @flow
 
 'use strict';
 
@@ -12,23 +12,29 @@ const Engine = require('../engine');
 const TimeTracker = require('../tracker/Timer');
 const PassTracker = require('../tracker/PassThrough');
 
+const { matching, bucketing } = require('../../utils/key/factory');
+const LabelsConstants = require('../../utils/labels');
+
 function SplitClientFactory(storage: SplitStorage): SplitClient {
   const latencyTracker = TimeTracker(storage.metrics);
   const impressionsTracker = PassTracker(storage.impressions);
 
   return {
-    async getTreatment(key: string, splitName: string, attributes: ?Object): Promise<string> {
+    async getTreatment(key: SplitKey, splitName: string, attributes: ?Object): Promise<string> {
       const stopLatencyTracker = latencyTracker();
 
-      const splitObject = await storage.splits.getSplit(splitName);
-      let treatment = 'control';
+      let evaluation = {
+        treatment: 'control',
+        label: LabelsConstants.SPLIT_NOT_FOUND
+      };
 
+      const splitObject = await storage.splits.getSplit(splitName);
       if (splitObject) {
         const split = Engine.parse(JSON.parse(splitObject), storage);
 
-        treatment = await split.getTreatment(key, attributes);
+        evaluation = await split.getTreatment(key, attributes);
 
-        log(`Split ${splitName} key ${key} evaluation ${treatment}`);
+        log(`Split ${splitName} key ${matching(key)} evaluation ${evaluation.treatment}`);
       } else {
         log(`Split ${splitName} doesn't exist`);
       }
@@ -37,12 +43,14 @@ function SplitClientFactory(storage: SplitStorage): SplitClient {
 
       impressionsTracker({
         feature: splitName,
-        key,
-        treatment,
-        when: Date.now()
+        key: matching(key),
+        treatment: evaluation.treatment,
+        when: Date.now(),
+        bucketingKey: bucketing(key),
+        label: settings.core.labelsEnabled ? evaluation.label : null
       });
 
-      return treatment;
+      return evaluation.treatment;
     }
   };
 

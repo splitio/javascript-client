@@ -13,21 +13,32 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+
 // @flow
 
 'use strict';
 
 const engine = require('../engine');
+const keyParser = require('../../utils/key/parser');
 
-// Evaluator factory
-function evaluatorContext(matcherEvaluator: Function, treatments: Treatments): Function {
+/**
+ * Evaluator factory
+ */
+function evaluatorContext(matcherEvaluator: Function, treatments: Treatments, label: string): Function {
 
-  async function evaluator(key: string, seed: number, attributes: ?Object): Promise<?string> {
-    const matches = await matcherEvaluator(key, attributes);
+  async function evaluator(key: SplitKey, seed: number, attributes: ?Object): Promise<?Evaluation> {
+    // parse key, the key could be a string or KeyDTO it should return a keyDTO.
+    const keyParsed = keyParser(key);
+    const matches = await matcherEvaluator(keyParsed.matchingKey, attributes);
 
     // if matches then evaluate the treatment
     if (matches) {
-      return engine.getTreatment(key, seed, treatments);
+      const treatment = engine.getTreatment(keyParsed.bucketingKey, seed, treatments);
+
+      return {
+        treatment,
+        label
+      };
     }
 
     // else we should notify the engine to continue evaluating

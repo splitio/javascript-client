@@ -99,6 +99,8 @@ declare type MySegments = Array<string>;
 /**
  * Split Changes Service
  */
+declare type DataType = 'NUMBER' | 'DATETIME' | 'STRING';
+
 declare type Partition = {
   treatment: string,
   size: number
@@ -113,17 +115,27 @@ declare type UserDefinedSegmentMatcher = {
 };
 
 declare type BetweenMatcher = {
-  dataType: null | 'number' | 'datetime',
+  dataType: DataType,
   start: number,
   end: number
+};
+
+declare type UnaryNumericMatcher = {
+  dataType: DataType,
+  value: string | number
+};
+
+declare type KeySelector = {
+  attribute: string;
 };
 
 declare type Matcher = {
   matcherType: MatcherType,
   negate: boolean,
+  keySelector: KeySelector,
   userDefinedSegmentMatcherData: UserDefinedSegmentMatcher,
   whitelistMatcherData: Array<string>,
-  unaryNumericMatcherData: number,
+  unaryNumericMatcherData: UnaryNumericMatcher,
   betweenMatcherData: BetweenMatcher
 };
 
@@ -134,7 +146,8 @@ declare type MatcherGroup = {
 
 declare type Condition = {
   matcherGroup: MatcherGroup,
-  partitions: Array<Partition>
+  partitions: Array<Partition>,
+  label: string
 };
 
 // @todo review declaration with backend enums
@@ -150,6 +163,13 @@ declare type SplitObject = {
   killed: boolean,
   defaultTreatment: string,
   conditions: Array<Condition>
+};
+
+declare type ParsedMatcher = {
+  attribute: string,
+  negate: boolean,
+  type: Symbol,
+  value: any
 };
 
 declare type SplitChanges = {
@@ -191,4 +211,19 @@ declare interface IORedis {
   pipeline(cmd: Array<[string, string, ?string]>): IORedisQueue;
 
   flushdb(): Promise<string>;
-}
+};
+
+/**
+ * Key types
+ */
+declare type SplitKeyObject = {
+  matchingKey: string,
+  bucketingKey: string
+};
+
+declare type SplitKey = string | SplitKeyObject;
+
+declare type Evaluation = {
+  treatment: string,
+  label: string
+};
