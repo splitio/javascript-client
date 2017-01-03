@@ -13,21 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+
+// @flow
+
 'use strict';
 
-let tape = require('tape-catch');
-let TimerFactory = require('../../tracker/Timer');
-let CollectorFactory = require('../../collector/sequential');
-
-tape('TRACKER / calling start() and stop() should store and entry inside the collector', assert => {
-  let collector = CollectorFactory();
-  let start = TimerFactory(collector);
-  let stop = start();
-
-  setTimeout(function () {
-    let et = stop();
-
-    assert.true(collector.state().indexOf(et) !== -1, 'ET should be present in the collector sequence');
-    assert.end();
-  }, 5);
-});
+module.exports = (collector: StatsCache<any>) => (element: any) => collector.track(element);

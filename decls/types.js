@@ -33,6 +33,19 @@ declare interface SegmentCache {
   getRegisteredSegments(): AsyncValue<Iterable<string>>;
 }
 
+declare interface StatsCache<T> {
+  state(): Array<T>;
+  track(t: T): StatsCache<T>;
+  clear(): StatsCache<T>;
+  isEmpty(): boolean;
+  toJSON(): Array<T>;
+}
+
+declare interface Startable {
+  start(): void;
+  stop(): void;
+}
+
 /**
  * Manager API
  */
@@ -150,7 +163,9 @@ declare type SplitChanges = {
  */
 declare type SplitStorage = {
   splits: SplitCache,
-  segments: SegmentCache
+  segments: SegmentCache,
+  impressions: StatsCache<string>,
+  metrics: StatsCache<number>
 };
 
 /**

@@ -16,10 +16,10 @@ limitations under the License.
 'use strict';
 
 const tape = require('tape-catch');
-const collectorFactory = require('../../collector/fibonacci');
+const MetricsCacheInMemory = require('../../MetricsCache/InMemory');
 
-tape('FIBONACCI COLLECTOR / should count based on ranges', assert => {
-  let c1 = collectorFactory();
+tape('METRICS CACHE IN MEMORY / should count based on ranges', assert => {
+  const c1 = new MetricsCacheInMemory();
 
   c1.track(1);
   c1.track(1.2);
@@ -40,8 +40,8 @@ tape('FIBONACCI COLLECTOR / should count based on ranges', assert => {
   assert.end();
 });
 
-tape('FIBONACCI COLLECTOR / should count based on ranges', assert => {
-  let c1 = collectorFactory();
+tape('METRICS CACHE IN MEMORY / should count based on ranges', assert => {
+  const c1 = new MetricsCacheInMemory();
 
   c1.track(1);
   c1.track(1000);
@@ -60,10 +60,10 @@ tape('FIBONACCI COLLECTOR / should count based on ranges', assert => {
   assert.end();
 });
 
-tape('FIBONACCI COLLECTOR / should support custom toJSON method', assert => {
-  let c = collectorFactory();
-  let hooked = JSON.stringify(c);
-  let manual = JSON.stringify(c.state());
+tape('METRICS CACHE IN MEMORY / should support custom toJSON method', assert => {
+  const c = new MetricsCacheInMemory();
+  const hooked = JSON.stringify(c);
+  const manual = JSON.stringify(c.state());
 
   assert.true(hooked === manual, 'toJSON should expose the counters as an array of numbers');
   assert.end();

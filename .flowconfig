@@ -6,5 +6,5 @@
 decls/
 
 [options]
-experimental.const_params=true
+experimental.const_params=false
 suppress_comment=\\(.\\|\n\\)*\\$FlowIssue

@@ -27,7 +27,7 @@ const MySegmentsUpdater = require('./updater/MySegments');
 /**
  * Expose start / stop mechanism for pulling data from services.
  */
-const BrowserUpdater = (settings: Object, hub: EventEmitter, storage: SplitStorage) => {
+const BrowserUpdater = (settings: Object, hub: EventEmitter, storage: SplitStorage): Startable => {
   const splitsUpdater = SplitChangesUpdater(settings, hub, storage);
   const segmentsUpdater = MySegmentsUpdater(settings, hub, storage);
 

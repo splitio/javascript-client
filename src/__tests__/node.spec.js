@@ -19,23 +19,27 @@ tape('CLIENT', async function (assert) {
       events: 'https://events-aws-staging.split.io/api'
     },
     storage: {
-      type: 'REDIS',
-      options: 'redis://localhost:32768/0'
+      type: 'MEMORY'
+      // type: 'REDIS',
+      // options: 'redis://localhost:32768/0'
     }
   };
   const api = SplitFactory(config);
+
   const client = api.client();
   const producer = api.producer();
+  const metrics = api.metrics();
 
   producer.start();
+  metrics.start();
 
-  // setTimeout(async function test() {
-  //   const treatment = await client.getTreatment('aKey', 'new-storage-approach');
+  setTimeout(async function test() {
+    const treatment = await client.getTreatment('aKey', 'new-storage-approach');
 
-  //   assert.ok(treatment === 'off');
+    // assert.ok(treatment === 'off');
 
-  //   setTimeout(test, 1500);
-  // }, 1500);
+    setTimeout(test, 1500);
+  }, 1500);
 
   // assert.end();
 });

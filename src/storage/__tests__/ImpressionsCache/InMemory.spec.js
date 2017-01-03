@@ -16,30 +16,24 @@ limitations under the License.
 'use strict';
 
 const tape = require('tape-catch');
-const collectorFactory = require('../../collector/single');
+const ImpressionsCacheInMemory = require('../../ImpressionsCache/InMemory');
 
-tape('SINGLE COLLECTOR / should implement a secuencia counter', assert => {
-  let c = collectorFactory();
+tape('IMPRESSIONS CACHE IN MEMORY / should incrementally store values', assert => {
+  const c = new ImpressionsCacheInMemory;
 
-  c.track(); c.track(); c.track();
+  c.track(0).track(1).track(2);
 
-  assert.true(c.state() === 3, 'counter should be 3');
+  assert.true(
+    c.state().reduce((accum, e, k) => accum += e - k, 0) === 0,
+    'all the items should be stored in sequential order'
+  );
   assert.end();
 });
 
-tape('SINGLE COLLECTOR / should start from 0 after clear call', assert => {
-  let c = collectorFactory();
-
-  c.track(); c.track(); c.track(); c.clear();
-
-  assert.true(c.state() === 0, 'counter is 0');
-  assert.end();
-});
-
-tape('SINGLE COLLECTOR / should support custom toJSON method', assert => {
-  let c = collectorFactory();
-  let hooked = JSON.stringify(c);
-  let manual = JSON.stringify(c.state());
+tape('IMPRESSIONS CACHE IN MEMORY / should support custom toJSON method', assert => {
+  const c = new ImpressionsCacheInMemory;
+  const hooked = JSON.stringify(c);
+  const manual = JSON.stringify(c.state());
 
   assert.true(hooked === manual, 'toJSON should expose the counters as an array of numbers');
   assert.end();
