@@ -22,6 +22,13 @@ const SplitFactory = (config: Object) => {
   const producer = ProducerFactory(settings, hub, storage);
   const metrics = MetricsFactory(settings, storage);
 
+  // start the race vs the SDK startup!
+  if (settings.startup.readyTimeout > 0) {
+    setTimeout(() => {
+      hub.emit(hub.SDK_READY_TIMED_OUT);
+    }, settings.startup.readyTimeout);
+  }
+
   return {
     client(): SplitClient {
       return client;
