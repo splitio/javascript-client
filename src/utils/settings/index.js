@@ -13,70 +13,64 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+
+// @flow
+
 'use strict';
 
-/*::
-type Settings = {
-  core: {
-    authorizationKey: string,
-    key: ?string,
-    labelsEnabled: ?boolean
-  },
-  scheduler: {
-    featuresRefreshRate: number,
-    segmentsRefreshRate: number,
-    metricsRefreshRate: number,
-    impressionsRefreshRate: number
-  },
-  urls: {
-    sdk: string,
-    events: string
-  },
-  startup: {
-    requestTimeoutBeforeReady: number,
-    retriesOnFailureBeforeReady: number,
-    readyTimeout: number
-  }
-};
-*/
 const merge = require('lodash/merge');
-const defaultsPerPlatform = require('./defaults');
+
+const runtime: Object = require('./runtime');
+const overridesPerPlatform: Object = require('./defaults');
 
 const eventsEndpointMatcher = /\/(testImpressions|metrics)/;
+
+const base = {
+  // Define which kind of object you want to retrieve from SplitFactory
+  mode: 'standalone',
+
+  core: {
+    // API token (tight to an environment)
+    authorizationKey: undefined,
+    // key used in your system (only required for browser version)
+    key: undefined,
+    // toggle impressions tracking of labels
+    labelsEnabled: false
+  },
+
+  scheduler: {
+    // fetch feature updates each 30 sec
+    featuresRefreshRate: 30,
+    // fetch segments updates each 60 sec
+    segmentsRefreshRate: 60,
+    // publish metrics each 60 sec
+    metricsRefreshRate: 60,
+    // publish evaluations each 60 sec
+    impressionsRefreshRate: 60
+  },
+
+  urls: {
+    // CDN having all the information for your environment
+    sdk: 'https://sdk.split.io/api',
+    // Storage for your SDK events
+    events: 'https://events.split.io/api'
+  },
+
+  // Defines which kind of storage we should instanciate.
+  storage: {
+    type: 'MEMORY'
+  },
+
+  // Instance version.
+  version: 'javascript-8.0.0-canary.0'
+};
 
 function fromSecondsToMillis(n) {
   return Math.round(n * 1000);
 }
 
-function defaults(custom /*: Settings */) /*: Settings */ {
-  let init = {
-    core: {
-      // API token (tight to an environment)
-      authorizationKey: undefined,
-      // key used in your system (only required for browser version)
-      key: undefined,
-      // toggle impressions tracking of labels
-      labelsEnabled: false
-    },
-    scheduler: {
-      // fetch feature updates each 30 sec
-      featuresRefreshRate: 30,
-      // fetch segments updates each 60 sec
-      segmentsRefreshRate: 60,
-      // publish metrics each 60 sec
-      metricsRefreshRate: 60,
-      // publish evaluations each 60 sec
-      impressionsRefreshRate: 60
-    },
-    urls: {
-      // CDN having all the information for your environment
-      sdk: 'https://sdk.split.io/api',
-      // Storage for your SDK events
-      events: 'https://events.split.io/api'
-    }
-  };
-
-  const withDefaults = merge(init, defaultsPerPlatform, custom);
+function defaults(custom: Object): Settings {
+  const withDefaults = merge(base, overridesPerPlatform, custom);
 
   withDefaults.scheduler.featuresRefreshRate = fromSecondsToMillis(withDefaults.scheduler.featuresRefreshRate);
   withDefaults.scheduler.segmentsRefreshRate = fromSecondsToMillis(withDefaults.scheduler.segmentsRefreshRate);
@@ -89,28 +83,10 @@ function defaults(custom /*: Settings */) /*: Settings */ {
 }
 
 const proto = {
-  get(name) {
-    switch (name) {
-      case 'version':
-        return 'javascript-7.2.1-canary.1';
-      case 'authorizationKey':
-        return this.core.authorizationKey;
-      case 'key':
-        return this.core.key;
-      case 'featuresRefreshRate':
-        return this.scheduler.featuresRefreshRate;
-      case 'segmentsRefreshRate':
-        return this.scheduler.segmentsRefreshRate;
-      case 'metricsRefreshRate':
-        return this.scheduler.metricsRefreshRate;
-      case 'impressionsRefreshRate':
-        return this.scheduler.impressionsRefreshRate;
-      default:
-        return this[name];
-    }
-  },
-
-  url(target) {
+  /**
+   * Switch URLs servers based on target.
+   */
+  url(target): string {
     if (eventsEndpointMatcher.test(target)) {
       return `${this.urls.events}${target}`;
     }
@@ -119,6 +95,10 @@ const proto = {
   }
 };
 
-module.exports = function CreateSettings(settings) {
-  return Object.assign(Object.create(proto), defaults(settings));
+module.exports = (settings: Object): Object => {
+  return Object.assign(
+    Object.create(proto),
+    defaults(settings),
+    runtime
+  );
 };

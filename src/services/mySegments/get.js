@@ -18,5 +18,5 @@ limitations under the License.
 const base = require('../request');
 
 module.exports = function GET(settings) {
-  return base(settings, `/mySegments/${settings.get('key')}`);
+  return base(settings, `/mySegments/${settings.core.key}`);
 };

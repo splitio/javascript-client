@@ -227,3 +227,39 @@ declare type Evaluation = {
   treatment: string,
   label: string
 };
+
+/**
+ * Split Settings
+ */
+declare type Settings = {
+  mode: 'consumer' | 'producer' | 'standalone',
+
+  core: {
+    authorizationKey: string,
+    key: ?string,
+    labelsEnabled: ?boolean
+  },
+
+  scheduler: {
+    featuresRefreshRate: number,
+    segmentsRefreshRate: number,
+    metricsRefreshRate: number,
+    impressionsRefreshRate: number
+  },
+
+  urls: {
+    sdk: string,
+    events: string
+  },
+
+  startup: {
+    requestTimeoutBeforeReady: number,
+    retriesOnFailureBeforeReady: number,
+    readyTimeout: number
+  },
+
+  storage: {
+    type: 'MEMORY' | 'LOCALSTORAGE' | 'REDIS',
+    options: any
+  }
+};

@@ -20,8 +20,8 @@ require('isomorphic-fetch');
 const baseline = require('./options');
 
 function RequestFactory(settings, relativeUrl, params) {
-  const token = settings.get('authorizationKey');
-  const version = settings.get('version');
+  const token = settings.core.authorizationKey;
+  const version = settings.version;
 
   return new Request(settings.url(relativeUrl), Object.assign({
     headers: {
