@@ -3,10 +3,10 @@
 'use strict';
 
 const tape = require('tape-catch');
-const SplitCache = require('../../../SplitCache/InLocalStorage');
+const SplitCacheInLocalStorage = require('../../../SplitCache/InLocalStorage');
 
 tape('SPLIT CACHE / LocalStorage', assert => {
-  const cache = new SplitCache();
+  const cache = new SplitCacheInLocalStorage();
 
   cache.flush();
 
@@ -33,5 +33,18 @@ tape('SPLIT CACHE / LocalStorage', assert => {
   cache.setChangeNumber(123);
   assert.ok( cache.getChangeNumber() === 123 );
 
+  assert.end();
+});
+
+tape('SPLIT CACHE / LocalStorage / Get Keys', assert => {
+  const cache = new SplitCacheInLocalStorage();
+
+  cache.addSplit('lol1', 'something');
+  cache.addSplit('lol2', 'something else');
+
+  let keys = cache.getKeys();
+
+  assert.true(keys.includes('lol1'));
+  assert.true(keys.includes('lol2'));
   assert.end();
 });

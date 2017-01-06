@@ -14,7 +14,7 @@ class SplitCacheInMemory {
   }
 
   addSplit(splitName: string , split: string): boolean {
-    this.splitCache.set(keys.buildSplitKey(splitName), split);
+    this.splitCache.set(splitName, split);
 
     return true;
   }
@@ -34,13 +34,13 @@ class SplitCacheInMemory {
   }
 
   removeSplit(splitName: string): number {
-    this.splitCache.delete(keys.buildSplitKey(splitName));
+    this.splitCache.delete(splitName);
 
     return 1;
   }
 
   getSplit(splitName: string): ?string {
-    return this.splitCache.get(keys.buildSplitKey(splitName));
+    return this.splitCache.get(splitName);
   }
 
   setChangeNumber(changeNumber: number): boolean {
@@ -55,6 +55,10 @@ class SplitCacheInMemory {
 
   getAll(): Array<string> {
     return [...this.splitCache.values()];
+  }
+
+  getKeys(): Array<string> {
+    return [...this.splitCache.keys()];
   }
 }
 

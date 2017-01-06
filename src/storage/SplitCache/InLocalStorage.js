@@ -101,6 +101,23 @@ class SplitCacheLocalStorage {
     return accum;
   }
 
+  getKeys(): Array<string> {
+    const len = localStorage.length;
+    const accum = [];
+
+    let cur = 0;
+
+    while (cur < len) {
+      const key = localStorage.key(cur);
+
+      if (key != null && keys.isSplitKey(key)) {
+        accum.push( keys.extractKey(key) );
+      }
+    }
+
+    return accum;
+  }
+
   flush() {
     localStorage.clear();
   }

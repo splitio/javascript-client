@@ -51,6 +51,10 @@ const SplitManagerFactory = (splits: SplitCache): SplitManager => {
       }
 
       return els;
+    },
+
+    async names(): Array<string> {
+      return splits.getKeys();
     }
   };
 

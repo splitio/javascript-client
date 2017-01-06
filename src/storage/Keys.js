@@ -25,6 +25,8 @@ const searchPatternForSplitKeys = (): string => 'SPLITIO.split.*';
 
 const isSplitKey = (key: string) => startsWith(key, 'SPLITIO.split.');
 
+const extractKey = (builtKey: string) => builtKey.substring(14);
+
 module.exports = {
   // Splits
   buildSplitKey,
@@ -47,5 +49,8 @@ module.exports = {
   searchPatternForSplitKeys,
 
   // is* functions
-  isSplitKey
+  isSplitKey,
+
+  // extract functions
+  extractKey
 };

@@ -3,10 +3,10 @@
 'use strict';
 
 const tape = require('tape-catch');
-const SplitCache = require('../../SplitCache/InMemory');
+const SplitCacheInMemory = require('../../SplitCache/InMemory');
 
 tape('SPLIT CACHE / In Memory', assert => {
-  const cache = new SplitCache();
+  const cache = new SplitCacheInMemory();
 
   cache.addSplit('lol1', 'something');
   cache.addSplit('lol2', 'something else');
@@ -29,5 +29,18 @@ tape('SPLIT CACHE / In Memory', assert => {
   cache.setChangeNumber(123);
   assert.ok( cache.getChangeNumber() === 123 );
 
+  assert.end();
+});
+
+tape('SPLIT CACHE / In Memory / Get Keys', assert => {
+  const cache = new SplitCacheInMemory();
+
+  cache.addSplit('lol1', 'something');
+  cache.addSplit('lol2', 'something else');
+
+  let keys = cache.getKeys();
+
+  assert.true(keys.includes('lol1'));
+  assert.true(keys.includes('lol2'));
   assert.end();
 });

@@ -96,6 +96,10 @@ class SplitCacheInRedis {
     ).then(processPipelineAnswer);
   }
 
+  getKeys(): Promise<Array<string>> {
+    throw Error('implement me');
+  }
+
   /**
    * Delete everything in the current database.
    *

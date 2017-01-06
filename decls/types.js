@@ -7,7 +7,7 @@ declare type AsyncValue<T> = Promise<T> | T;
  */
 declare interface SplitCache {
   addSplit(splitName: string , split: string): AsyncValue<boolean>;
-  addSplits(splitName: Array<string> , split: Array<string>): AsyncValue<boolean>;
+  addSplits(splitName: Array<string> , split: Array<string>): AsyncValue<Array<boolean>>;
 
   removeSplit(splitName: string): AsyncValue<number>;
   removeSplits(names: Array<string>): AsyncValue<number>;
@@ -18,6 +18,7 @@ declare interface SplitCache {
   getChangeNumber(): AsyncValue<number>;
 
   getAll(): AsyncValue<Array<string>>;
+  getKeys(): AsyncValue<Array<string>>;
 }
 
 declare interface SegmentCache {
@@ -63,9 +64,9 @@ declare type SplitView = {
 };
 
 declare interface SplitManager {
-   //  Returns all features with status ACTIVE
    splits(): Array<SplitView>;
    split(splitName: string): SplitView;
+   names(): Array<string>;
 };
 
 /**
