@@ -36,7 +36,7 @@ const SplitFactory = (config: Object) => {
     },
 
     manager(): SplitManager {
-      return ManagerFactory(storage);
+      return ManagerFactory(storage.splits);
     },
 
     producer(): Startable {

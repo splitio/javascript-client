@@ -33,12 +33,12 @@ declare interface SegmentCache {
   getRegisteredSegments(): AsyncValue<Iterable<string>>;
 }
 
-declare interface StatsCache<T> {
-  state(): Array<T>;
-  track(t: T): StatsCache<T>;
-  clear(): StatsCache<T>;
+declare interface StatsCache {
+  state(): Array<any>;
+  track(t: any): StatsCache;
+  clear(): StatsCache;
   isEmpty(): boolean;
-  toJSON(): Array<T>;
+  toJSON(): Array<any>;
 }
 
 declare interface Startable {
@@ -49,7 +49,7 @@ declare interface Startable {
 /**
  * Manager API
  */
-declare type FormattedSplit = {
+declare type SplitView = {
   // Split Name
   name: string;
   // Name of the traffic type
@@ -64,7 +64,8 @@ declare type FormattedSplit = {
 
 declare interface SplitManager {
    //  Returns all features with status ACTIVE
-   splits(): Array<FormattedSplit>;
+   splits(): Array<SplitView>;
+   split(splitName: string): SplitView;
 };
 
 /**

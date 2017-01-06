@@ -21,17 +21,13 @@ const MetricsCacheInMemory = require('../../MetricsCache/InMemory');
 tape('METRICS CACHE IN MEMORY / should count based on ranges', assert => {
   const c1 = new MetricsCacheInMemory();
 
-  c1.track(1);
-  c1.track(1.2);
-  c1.track(1.4);
+  c1.track(1).track(1.2).track(1.4);
   assert.true(c1.state()[0] === 3, 'the bucket #0 should have 3');
 
   c1.track(1.5);
   assert.true(c1.state()[1] === 1, 'the bucket #1 should have 1');
 
-  c1.track(2.25);
-  c1.track(2.26);
-  c1.track(2.265);
+  c1.track(2.25).track(2.26).track(2.265);
   assert.true(c1.state()[2] === 3, 'the bucket #3 should have 1');
 
   c1.track(985251);

@@ -17,29 +17,41 @@ const fixMissingTreatment = (splitObject: SplitObject): Array<string> => {
   return treatments;
 };
 
-const SplitManagerFactory = (splitCache: SplitCache) => {
+const ObjectToView = (json: string): SplitView => {
+  const splitObject: SplitObject = JSON.parse(json);
 
   return {
+    name: splitObject.name,
+    trafficType: splitObject.trafficTypeName,
+    killed: splitObject.killed,
+    changeNumber: splitObject.changeNumber,
+    treatments: fixMissingTreatment(splitObject)
+  };
+}
 
-    async splits(): Array<FormattedSplit> {
+const SplitManagerFactory = (splits: SplitCache): SplitManager => {
+
+  return {
+    async split(splitName: string): ?SplitView {
+      const split = await splits.getSplit(splitName);
+
+      if (split) {
+        return ObjectToView(split);
+      } else {
+        return null;
+      }
+    },
+
+    async splits(): Array<SplitView> {
       const els = [];
-      const splits = await splitCache.getAll();
+      const currentSplits = await splits.getAll();
 
-      for (let split of splits) {
-        const splitObject: SplitObject = JSON.parse(split);
-
-        els.push({
-          name: splitObject.name,
-          trafficType: splitObject.trafficTypeName,
-          killed: splitObject.killed,
-          changeNumber: splitObject.changeNumber,
-          treatments: fixMissingTreatment(splitObject)
-        });
+      for (let split of currentSplits) {
+        els.push(ObjectToView(split));
       }
 
       return els;
     }
-
   };
 
 };

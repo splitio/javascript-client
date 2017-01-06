@@ -52,8 +52,10 @@ class MetricsCacheInMemory {
   /**
    * Store latency and return the number of occurrencies inside the range defined
    */
-  track(latency: number): number {
-    return ++(this.counters[findIndex(latency)]);
+  track(latency: number): this {
+    this.counters[findIndex(latency)]++;
+
+    return this;
   }
 
   /**

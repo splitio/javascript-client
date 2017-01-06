@@ -35,7 +35,7 @@ class ImpressionsCacheInMemory {
   /**
    * Store object in sequential order
    */
-  track(data: any): ImpressionsCacheInMemory {
+  track(data: any): this {
     this.queue.push(data);
 
     return this;

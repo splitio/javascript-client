@@ -6,13 +6,13 @@ const tape = require('tape-catch');
 const Redis = require('ioredis');
 
 const splitObject: SplitObject = require('./mocks/input');
-const splitView: FormattedSplit = require('./mocks/output');
+const splitView: SplitView = require('./mocks/output');
 
 const Manager = require('../');
 const SplitCacheInRedis = require('../../storage/SplitCache/InRedis');
 
 tape('MANAGER API / In Redis', async function(assert) {
-  const r = new Redis(32768, '192.168.99.100', {
+  const r = new Redis(32768, 'localhost', {
     dropBufferSupport: true
   });
   const cache = new SplitCacheInRedis(r);
