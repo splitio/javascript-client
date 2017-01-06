@@ -4,17 +4,18 @@
 
 const ClientFactory = require('./client');
 const ManagerFactory = require('./manager');
-const SettingsFactory = require('./utils/settings');
-const EventsFactory = require('./utils/events');
 const StorageFactory = require('./storage');
 const ProducerFactory = require('./producer');
 const MetricsFactory = require('./metrics');
+
+const SettingsFactory = require('./utils/settings');
+const EventsFactory = require('./utils/events');
 
 const SplitFactory = (config: Object) => {
   const settings = SettingsFactory(config);
   const hub = EventsFactory();
   const storage = StorageFactory(settings.storage);
-  const client = Object.assign(ClientFactory(storage, settings), {
+  const client = Object.assign(ClientFactory(settings, storage), {
     events() {
       return hub;
     }

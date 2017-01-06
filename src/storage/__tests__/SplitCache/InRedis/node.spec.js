@@ -7,7 +7,7 @@ const tape = require('tape-catch');
 const SplitCacheInRedis = require('../../../SplitCache/InRedis');
 
 tape('SPLIT CACHE / Redis', async function (assert) {
-  const r = new Redis(32768, 'localhost', {
+  const r = new Redis(32768, '192.168.99.100', {
     dropBufferSupport: true
   });
   const cache = new SplitCacheInRedis(r);

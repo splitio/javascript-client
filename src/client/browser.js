@@ -2,10 +2,10 @@
 
 'use strict';
 
-const SplitClientFactory = require('./client');
+const ClientFactory = require('./client');
 
-function FixKey(storage: SplitStorage, settings: Object): SplitClient {
-  const client = SplitClientFactory(storage);
+function FixKey(settings: Object, storage: SplitStorage): SplitClient {
+  const client = ClientFactory(settings, storage);
 
   client.getTreatment = client.getTreatment.bind(client, settings.core.key);
 

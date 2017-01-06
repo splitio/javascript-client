@@ -26,7 +26,7 @@ tape('SETTINGS / check defaults', assert => {
     }
   });
 
-  assert.deepEqual(settings.get('urls'), {
+  assert.deepEqual(settings.urls, {
     sdk: 'https://sdk.split.io/api',
     events: 'https://events.split.io/api'
   });
@@ -46,7 +46,7 @@ tape('SETTINGS / urls should be configurable', assert => {
     urls
   });
 
-  assert.deepEqual(settings.get('urls'), urls);
+  assert.deepEqual(settings.urls, urls);
   assert.end();
 });
 

@@ -1,4 +1,4 @@
-src/core/sdk/online.js// @flow
+// @flow
 
 'use strict';
 
@@ -12,10 +12,10 @@ const Engine = require('../engine');
 const TimeTracker = require('../tracker/Timer');
 const PassTracker = require('../tracker/PassThrough');
 
-const { matching, bucketing } = require('../../utils/key/factory');
-const LabelsConstants = require('../../utils/labels');
+const { matching, bucketing } = require('../utils/key/factory');
+const LabelsConstants = require('../utils/labels');
 
-function SplitClientFactory(storage: SplitStorage): SplitClient {
+function ClientFactory(settings: Settings, storage: SplitStorage): SplitClient {
   const latencyTracker = TimeTracker(storage.metrics);
   const impressionsTracker = PassTracker(storage.impressions);
 
@@ -56,4 +56,4 @@ function SplitClientFactory(storage: SplitStorage): SplitClient {
 
 }
 
-module.exports = SplitClientFactory;
+module.exports = ClientFactory;

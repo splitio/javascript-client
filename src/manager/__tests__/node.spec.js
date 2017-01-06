@@ -12,7 +12,7 @@ const Manager = require('../');
 const SplitCacheInRedis = require('../../storage/SplitCache/InRedis');
 
 tape('MANAGER API / In Redis', async function(assert) {
-  const r = new Redis(32768, 'localhost', {
+  const r = new Redis(32768, '192.168.99.100', {
     dropBufferSupport: true
   });
   const cache = new SplitCacheInRedis(r);
