@@ -27,7 +27,7 @@ const ObjectToView = (json: string): SplitView => {
     changeNumber: splitObject.changeNumber,
     treatments: fixMissingTreatment(splitObject)
   };
-}
+};
 
 const SplitManagerFactory = (splits: SplitCache): SplitManager => {
 

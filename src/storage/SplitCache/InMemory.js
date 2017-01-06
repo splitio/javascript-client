@@ -2,8 +2,6 @@
 
 'use strict';
 
-const keys = require('../Keys');
-
 class SplitCacheInMemory {
   splitCache: Map<string, string>;
   changeNumber: number;
