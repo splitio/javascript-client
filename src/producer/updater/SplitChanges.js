@@ -17,10 +17,40 @@ limitations under the License.
 
 'use strict';
 
+type SplitMutation = {
+  added: Array<[string, string]>,
+  removed: Array<string>,
+  segments: Array<string> | Set<string>
+};
+
 const log = require('debug')('splitio-producer:split-changes');
 const splitChangesFetcher = require('../fetcher/SplitChanges');
 
 const parseSegments = require('../../engine/parser/segments');
+
+function computeSplitsMutation(entries: Array<SplitObject>): SplitMutation {
+  const computed = entries.reduce((accum, split) => {
+    if (split.status === 'ACTIVE') {
+      accum.added.push([split.name, JSON.stringify(split)]);
+
+      for (let segmentName of parseSegments(split.conditions)) {
+        accum.segments.add(segmentName);
+      }
+    } else {
+      accum.removed.push(split.name);
+    }
+
+    return accum;
+  }, {
+    added: [],
+    removed: [],
+    segments: new Set()
+  });
+
+  computed.segments = [...computed.segments];
+
+  return computed;
+}
 
 function SplitChangesUpdater(settings: Object, hub: EventEmitter, storage: SplitStorage) {
   let startingUp = true;
@@ -34,28 +64,18 @@ function SplitChangesUpdater(settings: Object, hub: EventEmitter, storage: Split
     return splitChangesFetcher(settings, since, startingUp).then(splitChanges => {
       startingUp = false;
 
-      // Quick data preparation phase
-      const tuples = splitChanges.splits.reduce((accum, split) => {
-        accum.keys.push(split.name);
-        accum.values.push(JSON.stringify(split));
+      const mutation = computeSplitsMutation(splitChanges.splits);
 
-        for (let segmentName of parseSegments(split.conditions)) {
-          accum.segments.add(segmentName);
-        }
-
-        return accum;
-      }, { keys: [], values: [], segments: new Set() });
-
-      tuples.segments = [...tuples.segments];
-
-      log('Split names collected: ', tuples.keys);
-      log('Segment names collected: ', tuples.segments);
+      log('New splits %s', mutation.added.length);
+      log('Removed splits %s', mutation.removed.length);
+      log('Segment names collected %s', mutation.segments);
 
       // Write into storage
       return Promise.all([
-        storage.splits.addSplits(tuples.keys, tuples.values),
+        storage.splits.addSplits(mutation.added),
+        storage.splits.removeSplits(mutation.removed),
         storage.splits.setChangeNumber(splitChanges.till),
-        storage.segments.registerSegments(tuples.segments)
+        storage.segments.registerSegments(mutation.segments)
       ]).then(() => {
         if (since !== splitChanges.till || readyOnAlreadyExistentState) {
           readyOnAlreadyExistentState = false;

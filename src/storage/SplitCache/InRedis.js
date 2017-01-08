@@ -24,16 +24,16 @@ class SplitCacheInRedis {
     return this.redis.set(keys.buildSplitKey(splitName), split).then(status => status === 'OK');
   }
 
-  addSplits(splitNames: Array<string>, splits: Array<string>): Promise<Array<boolean>> {
-    if (splitNames.length) {
-      return this.redis.pipeline(splitNames.map(
-        (value, index) => ['set', keys.buildSplitKey(value), splits[index]]
-      ))
+  addSplits(entries: Array<[string, string]>): Promise<Array<boolean>> {
+    if (entries.length) {
+      const cmds = entries.map(([key, value]) => ['set', keys.buildSplitKey(key), value]);
+
+      return this.redis.pipeline(cmds)
         .exec()
         .then(processPipelineAnswer)
         .then(answers => answers.map(status => status === 'OK'));
     } else {
-      return Promise.resolve([true]);
+      return [true];
     }
   }
 

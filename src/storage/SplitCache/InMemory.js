@@ -17,15 +17,11 @@ class SplitCacheInMemory {
     return true;
   }
 
-  addSplits(splitNames: Array<string>, splits: Array<string>): Array<boolean> {
-    let i = 0;
-    let namesLen = splitNames.length;
-    let splitsLen = splits.length;
+  addSplits(entries: Array<[string, string]>): Array<boolean> {
     let results = [];
 
-    while ( i < namesLen && i < splitsLen) {
-      results.push(this.addSplit(splitNames[i], splits[i]));
-      i++;
+    for (const [key, value] of entries) {
+      results.push(this.addSplit(key, value));
     }
 
     return results;
@@ -35,6 +31,12 @@ class SplitCacheInMemory {
     this.splitCache.delete(splitName);
 
     return 1;
+  }
+
+  removeSplits(splitNames: Array<string>): number {
+    splitNames.forEach(n => this.splitCache.delete(n));
+
+    return splitNames.length;
   }
 
   getSplit(splitName: string): ?string {

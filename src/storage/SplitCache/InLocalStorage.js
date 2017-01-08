@@ -18,16 +18,14 @@ class SplitCacheLocalStorage {
     }
   }
 
-  addSplits(splitNames: Array<string>, splits: Array<string>): Array<boolean> {
-    let i = 0;
-    let len = splitNames.length;
-    let accum = [];
+  addSplits(entries: Array<[string, string]>): Array<boolean> {
+    let results = [];
 
-    for (; i < len; i++) {
-      accum.push( this.addSplit(splitNames[i], splits[i]) );
+    for (const [key, value] of entries) {
+      results.push(this.addSplit(key, value));
     }
 
-    return accum;
+    return results;
   }
 
   removeSplit(splitName: string): number {

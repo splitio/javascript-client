@@ -48,3 +48,18 @@ tape('SPLIT CACHE / LocalStorage / Get Keys', assert => {
   assert.true(keys.includes('lol2'));
   assert.end();
 });
+
+tape('SPLIT CACHE / LocalStorage / Add Splits', assert => {
+  const cache = new SplitCacheInLocalStorage();
+
+  cache.addSplits([
+    ['lol1', 'something'],
+    ['lol2', 'something else']
+  ]);
+
+  cache.removeSplits(['lol1', 'lol2']);
+
+  assert.true(cache.getSplit('lol1') == null);
+  assert.true(cache.getSplit('lol2') == null);
+  assert.end();
+});

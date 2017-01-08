@@ -7,10 +7,10 @@ declare type AsyncValue<T> = Promise<T> | T;
  */
 declare interface SplitCache {
   addSplit(splitName: string , split: string): AsyncValue<boolean>;
-  addSplits(splitName: Array<string> , split: Array<string>): AsyncValue<Array<boolean>>;
+  addSplits(entries: Array<[string, string]>): AsyncValue<Array<boolean>>;
 
   removeSplit(splitName: string): AsyncValue<number>;
-  removeSplits(names: Array<string>): AsyncValue<number>;
+  removeSplits(splitNames: Array<string>): AsyncValue<number>;
 
   getSplit(splitName: string): AsyncValue<?string>;
 
@@ -152,8 +152,7 @@ declare type Condition = {
   label: string
 };
 
-// @todo review declaration with backend enums
-declare type SplitStatus = 'ACTIVE' | 'KILLED' | 'ARCHIVED';
+declare type SplitStatus = 'ACTIVE' | 'ARCHIVED';
 
 declare type SplitObject = {
   trafficTypeName: string,

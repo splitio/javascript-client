@@ -14,7 +14,10 @@ tape('SPLIT CACHE / Redis', async function (assert) {
 
   await cache.flush();
 
-  await cache.addSplits(['lol1', 'lol2'], ['something', 'something else']);
+  await cache.addSplits([
+    ['lol1','something'],
+    ['lol2', 'something else']
+  ]);
 
   let values = await cache.getAll();
 
