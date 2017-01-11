@@ -73,7 +73,9 @@ declare interface SplitManager {
  * Split Client API.
  */
 declare type SplitClient = {
-  getTreatment(key: string, splitName: string, attributes: ?Object): Promise<string>
+  getTreatment(key: string, splitName: string, attributes: ?Object): Promise<string>;
+  events(): EventEmitter;
+  destroy(): void;
 };
 
 // -----------------------------------------------------------------------------
@@ -263,4 +265,15 @@ declare type Settings = {
     type: 'MEMORY' | 'LOCALSTORAGE' | 'REDIS',
     options: any
   }
+};
+
+/**
+ * Ready | Update event handlers
+ */
+declare type ReadinessGate = {
+  Events: Object,
+  splits: EventEmitter,
+  segments: EventEmitter,
+  gate: EventEmitter,
+  destroy(): void
 };

@@ -21,10 +21,10 @@ limitations under the License.
 const log = require('debug')('splitio-producer:segment-changes');
 const segmentChangesFetcher = require('../fetcher/SegmentChanges');
 
-const SegmentChangesUpdater = (settings: Object, hub: EventEmitter, storage: SplitStorage) => {
+const SegmentChangesUpdaterFactory = (settings: Object, readiness: ReadinessGate, storage: SplitStorage) => {
   let readyOnAlreadyExistentState = true;
 
-  return async function updater() {
+  return async function SegmentChangesUpdater() {
     log('Started segments update');
 
     // Async fetchers are collected here.
@@ -63,11 +63,11 @@ const SegmentChangesUpdater = (settings: Object, hub: EventEmitter, storage: Spl
     return Promise.all(updaters).then(shouldUpdateFlags => {
       if (shouldUpdateFlags.findIndex(v => v !== -1) !== -1 || readyOnAlreadyExistentState) {
         readyOnAlreadyExistentState = false;
-        hub.emit(hub.SDK_SEGMENTS_ARRIVED);
+        readiness.segments.emit(readiness.Events.SDK_SEGMENTS_ARRIVED);
       }
     });
   };
 
 };
 
-module.exports = SegmentChangesUpdater;
+module.exports = SegmentChangesUpdaterFactory;

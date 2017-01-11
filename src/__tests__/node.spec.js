@@ -3,12 +3,12 @@
 'use strict';
 
 const tape = require('tape-catch');
-const SplitFactory = require('../index');
+const SplitFactory = require('../node');
 
-tape('CLIENT', async function (assert) {
+tape('NodeJS E2E', function (assert) {
   const config = {
     core: {
-      authorizationKey: '5p2c0r4so20ill66lm35i45h6pkvrd2skmib'
+      authorizationKey: '5i7avi2rpj8i7qg99fhmc38244kcineavla0'
     },
     scheduler: {
       featuresRefreshRate: 15,
@@ -17,29 +17,30 @@ tape('CLIENT', async function (assert) {
     urls: {
       sdk: 'https://sdk-aws-staging.split.io/api',
       events: 'https://events-aws-staging.split.io/api'
-    },
-    storage: {
-      type: 'MEMORY'
-      // type: 'REDIS',
-      // options: 'redis://localhost:32768/0'
     }
   };
   const api = SplitFactory(config);
+  const Events = api.Events;
 
   const client = api.client();
-  const producer = api.producer();
-  const metrics = api.metrics();
+  const events = client.events();
 
-  producer.start();
-  metrics.start();
+  events.on(Events.SDK_READY, async function () {
+    assert.comment('QA User');
+    assert.equal(await client.getTreatment('qa-user', 'always-off'), 'off');
+    assert.equal(await client.getTreatment('qa-user', 'always-on'), 'on');
+    assert.equal(await client.getTreatment('qa-user', 'on-if-in-segment-qa'), 'on');
+    assert.equal(await client.getTreatment('qa-user', 'on-if-in-segment-qc'), 'off');
 
-  setTimeout(async function test() {
-    const treatment = await client.getTreatment('aKey', 'new-storage-approach');
+    assert.comment('QC User');
+    assert.equal(await client.getTreatment('qc-user', 'always-off'), 'off');
+    assert.equal(await client.getTreatment('qc-user', 'always-on'), 'on');
+    assert.equal(await client.getTreatment('qc-user', 'on-if-in-segment-qa'), 'off');
+    assert.equal(await client.getTreatment('qc-user', 'on-if-in-segment-qc'), 'on');
 
-    // assert.ok(treatment === 'off');
+    client.destroy();
 
-    setTimeout(test, 1500);
-  }, 1500);
+    assert.end();
+  });
 
-  // assert.end();
 });

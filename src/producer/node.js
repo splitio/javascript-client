@@ -13,12 +13,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+
 // @flow
 
 'use strict';
 
 const log = require('debug')('splitio-producer:updater');
-
 const repeat = require('../utils/fn/repeat');
 
 const SplitChangesUpdater = require('./updater/SplitChanges');
@@ -33,6 +33,7 @@ const NodeUpdater = (settings: Object, hub: EventEmitter, storage: SplitStorage)
 
   let stopSplitsUpdate;
   let stopSegmentsUpdate;
+  let splitFetchCompleted = false;
 
   return {
     start() {
@@ -43,15 +44,22 @@ const NodeUpdater = (settings: Object, hub: EventEmitter, storage: SplitStorage)
       stopSplitsUpdate = repeat(
         scheduleSplitsUpdate => {
           log('Fetching splits');
-          splitsUpdater().then(() => scheduleSplitsUpdate());
+          splitsUpdater().then(() => {
+            splitFetchCompleted = true;
+            scheduleSplitsUpdate();
+          });
         },
         settings.scheduler.featuresRefreshRate
       );
 
       stopSegmentsUpdate = repeat(
         scheduleSegmentsUpdate => {
-          log('Fetching segments');
-          segmentsUpdater().then(() => scheduleSegmentsUpdate());
+          if (splitFetchCompleted) {
+            log('Fetching segments');
+            segmentsUpdater().then(() => scheduleSegmentsUpdate());
+          } else {
+            scheduleSegmentsUpdate();
+          }
         },
         settings.scheduler.segmentsRefreshRate
       );
