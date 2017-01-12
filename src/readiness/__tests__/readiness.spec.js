@@ -23,54 +23,50 @@ tape('READINESS GATE / Share splits but segments (without timeout enabled)', fun
   assert.plan(2);
 
   const ReadinessGateFactory = ReadinessGate();
-  const Events = ReadinessGateFactory.Events;
-
   const readinessGate1 = ReadinessGateFactory();
   const readinessGate2 = ReadinessGateFactory();
 
-  readinessGate1.gate.on(Events.SDK_READY, () => {
+  readinessGate1.gate.on(readinessGate1.gate.SDK_READY, () => {
     assert.pass('should be called');
-  }).on(Events.SDK_UPDATE, () => {
+  }).on(readinessGate1.gate.SDK_UPDATE, () => {
     assert.fail('should be called');
     assert.end();
   });
 
-  readinessGate2.gate.on(Events.SDK_READY, () => {
+  readinessGate2.gate.on(readinessGate2.gate.SDK_READY, () => {
     assert.pass('should be called');
-  }).on(Events.SDK_UPDATE, () => {
+  }).on(readinessGate2.gate.SDK_UPDATE, () => {
     assert.fail('should not be called');
     assert.end();
   });
 
   // Simulate state transitions
   setTimeout(() => {
-    readinessGate1.splits.emit(Events.SDK_SPLITS_ARRIVED);
+    readinessGate1.splits.emit(readinessGate1.splits.SDK_SPLITS_ARRIVED);
   }, 1000 * Math.random());
   setTimeout(() => {
-    readinessGate1.segments.emit(Events.SDK_SEGMENTS_ARRIVED);
+    readinessGate1.segments.emit(readinessGate1.segments.SDK_SEGMENTS_ARRIVED);
   }, 1000 * Math.random());
   setTimeout(() => {
-    readinessGate2.segments.emit(Events.SDK_SEGMENTS_ARRIVED);
+    readinessGate2.segments.emit(readinessGate2.segments.SDK_SEGMENTS_ARRIVED);
   }, 1000 * Math.random());
 });
 
 tape('READINESS GATE / Ready event should be fired once', function (assert) {
   const ReadinessGateFactory = ReadinessGate();
-  const Events = ReadinessGateFactory.Events;
-
   const readinessGate = ReadinessGateFactory();
   let counter = 0;
 
-  readinessGate.gate.on(Events.SDK_READY, () => {
+  readinessGate.gate.on(readinessGate.gate.SDK_READY, () => {
     counter++;
   });
 
-  readinessGate.splits.emit(Events.SDK_SPLITS_ARRIVED);
-  readinessGate.segments.emit(Events.SDK_SEGMENTS_ARRIVED);
-  readinessGate.splits.emit(Events.SDK_SPLITS_ARRIVED);
-  readinessGate.segments.emit(Events.SDK_SEGMENTS_ARRIVED);
-  readinessGate.splits.emit(Events.SDK_SPLITS_ARRIVED);
-  readinessGate.segments.emit(Events.SDK_SEGMENTS_ARRIVED);
+  readinessGate.splits.emit(readinessGate.splits.SDK_SPLITS_ARRIVED);
+  readinessGate.segments.emit(readinessGate.segments.SDK_SEGMENTS_ARRIVED);
+  readinessGate.splits.emit(readinessGate.splits.SDK_SPLITS_ARRIVED);
+  readinessGate.segments.emit(readinessGate.segments.SDK_SEGMENTS_ARRIVED);
+  readinessGate.splits.emit(readinessGate.splits.SDK_SPLITS_ARRIVED);
+  readinessGate.segments.emit(readinessGate.segments.SDK_SEGMENTS_ARRIVED);
 
   assert.equal(counter, 1, 'should be called once');
   assert.end();
@@ -78,28 +74,26 @@ tape('READINESS GATE / Ready event should be fired once', function (assert) {
 
 tape('READINESS GATE / Update event should be fired after the Ready event', function (assert) {
   const ReadinessGateFactory = ReadinessGate();
-  const Events = ReadinessGateFactory.Events;
-
   const readinessGate = ReadinessGateFactory();
   let isReady = false;
   let counter = 0;
 
-  readinessGate.gate.on(Events.SDK_READY, () => {
+  readinessGate.gate.on(readinessGate.gate.SDK_READY, () => {
     counter++;
     isReady = true;
   });
 
-  readinessGate.gate.on(Events.SDK_UPDATE, () => {
+  readinessGate.gate.on(readinessGate.gate.SDK_UPDATE, () => {
     isReady && counter++;
   });
 
-  readinessGate.splits.emit(Events.SDK_SPLITS_ARRIVED);
-  readinessGate.segments.emit(Events.SDK_SEGMENTS_ARRIVED);
+  readinessGate.splits.emit(readinessGate.splits.SDK_SPLITS_ARRIVED);
+  readinessGate.segments.emit(readinessGate.segments.SDK_SEGMENTS_ARRIVED);
 
-  readinessGate.splits.emit(Events.SDK_SPLITS_ARRIVED);
-  readinessGate.segments.emit(Events.SDK_SEGMENTS_ARRIVED);
-  readinessGate.splits.emit(Events.SDK_SPLITS_ARRIVED);
-  readinessGate.segments.emit(Events.SDK_SEGMENTS_ARRIVED);
+  readinessGate.splits.emit(readinessGate.splits.SDK_SPLITS_ARRIVED);
+  readinessGate.segments.emit(readinessGate.segments.SDK_SEGMENTS_ARRIVED);
+  readinessGate.splits.emit(readinessGate.splits.SDK_SPLITS_ARRIVED);
+  readinessGate.segments.emit(readinessGate.segments.SDK_SEGMENTS_ARRIVED);
 
   assert.equal(counter, 5, 'should count 1 ready plus 4 updates');
   assert.end();
@@ -109,48 +103,46 @@ tape('READINESS GATE / Segment updates should not be propagated', function (asse
   assert.plan(2);
 
   const ReadinessGateFactory = ReadinessGate();
-  const Events = ReadinessGateFactory.Events;
+  const Events = ReadinessGateFactory;
 
   const readinessGate1 = ReadinessGateFactory();
   const readinessGate2 = ReadinessGateFactory();
 
-  readinessGate2.gate.on(Events.SDK_UPDATE, () => {
+  readinessGate2.gate.on(readinessGate2.gate.SDK_UPDATE, () => {
     assert.pass('should be called');
   });
 
-  readinessGate1.gate.on(Events.SDK_UPDATE, () => {
+  readinessGate1.gate.on(readinessGate1.gate.SDK_UPDATE, () => {
     assert.fail('should not be called');
   });
 
-  readinessGate1.splits.emit(Events.SDK_SPLITS_ARRIVED);
-  readinessGate2.segments.emit(Events.SDK_SEGMENTS_ARRIVED);
-  readinessGate2.segments.emit(Events.SDK_SEGMENTS_ARRIVED);
-  readinessGate2.segments.emit(Events.SDK_SEGMENTS_ARRIVED);
+  readinessGate1.splits.emit(readinessGate1.splits.SDK_SPLITS_ARRIVED);
+  readinessGate2.segments.emit(readinessGate2.segments.SDK_SEGMENTS_ARRIVED);
+  readinessGate2.segments.emit(readinessGate2.segments.SDK_SEGMENTS_ARRIVED);
+  readinessGate2.segments.emit(readinessGate2.segments.SDK_SEGMENTS_ARRIVED);
 });
 
 tape('READINESS GATE / Timeout ready event', function (assert) {
   assert.plan(1);
 
   const ReadinessGateFactory = ReadinessGate();
-  const Events = ReadinessGateFactory.Events;
-
   const readiness = ReadinessGateFactory(10);
 
   let isReady = false;
   let timeoutCounter = 0;
 
-  readiness.gate.on(Events.SDK_READY_TIMED_OUT, () => {
+  readiness.gate.on(readiness.gate.SDK_READY_TIMED_OUT, () => {
     if (!isReady) timeoutCounter++;
   });
 
-  readiness.gate.on(Events.SDK_READY, () => {
+  readiness.gate.on(readiness.gate.SDK_READY, () => {
     isReady = true;
     assert.equal(timeoutCounter, 1, 'Timeout was scheduled to be fired quickly');
   });
 
   setTimeout(() => {
-    readiness.splits.emit(Events.SDK_SPLITS_ARRIVED);
-    readiness.segments.emit(Events.SDK_SEGMENTS_ARRIVED);
+    readiness.splits.emit(readiness.splits.SDK_SPLITS_ARRIVED);
+    readiness.segments.emit(readiness.segments.SDK_SEGMENTS_ARRIVED);
   }, 50);
 });
 
@@ -158,50 +150,46 @@ tape('READINESS GATE / Cancel timeout if ready fired', function (assert) {
   assert.plan(1);
 
   const ReadinessGateFactory = ReadinessGate();
-  const Events = ReadinessGateFactory.Events;
-
   const readiness = ReadinessGateFactory(10);
 
   let timeoutCounter = 0;
 
-  readiness.gate.on(Events.SDK_READY_TIMED_OUT, () => {
+  readiness.gate.on(readiness.gate.SDK_READY_TIMED_OUT, () => {
     assert.fail('Timeout should not be called');
     timeoutCounter++;
   });
 
-  readiness.gate.on(Events.SDK_READY, () => {
+  readiness.gate.on(readiness.gate.SDK_READY, () => {
     assert.equal(timeoutCounter, 0, 'Timeout should not be called');
   });
 
-  readiness.splits.emit(Events.SDK_SPLITS_ARRIVED);
-  readiness.segments.emit(Events.SDK_SEGMENTS_ARRIVED);
+  readiness.splits.emit(readiness.splits.SDK_SPLITS_ARRIVED);
+  readiness.segments.emit(readiness.segments.SDK_SEGMENTS_ARRIVED);
 });
 
 tape('READINESS GATE / Destroy', function (assert) {
   assert.plan(1);
 
   const ReadinessGateFactory = ReadinessGate();
-  const Events = ReadinessGateFactory.Events;
-
   const readiness = ReadinessGateFactory(10);
 
   let counter = 0;
 
-  readiness.gate.on(Events.SDK_UPDATE, () => {
+  readiness.gate.on(readiness.gate.SDK_UPDATE, () => {
     counter++;
   });
 
-  readiness.splits.emit(Events.SDK_SPLITS_ARRIVED);
-  readiness.segments.emit(Events.SDK_SEGMENTS_ARRIVED); // ready state
+  readiness.splits.emit(readiness.splits.SDK_SPLITS_ARRIVED);
+  readiness.segments.emit(readiness.segments.SDK_SEGMENTS_ARRIVED); // ready state
 
-  readiness.segments.emit(Events.SDK_SEGMENTS_ARRIVED); // fires an update
+  readiness.segments.emit(readiness.segments.SDK_SEGMENTS_ARRIVED); // fires an update
 
   readiness.destroy(); // remove all the listeners
   readiness.destroy(); // no-op
   readiness.destroy(); // no-op
 
-  readiness.segments.emit(Events.SDK_SPLITS_ARRIVED); // fires an update
-  readiness.segments.emit(Events.SDK_SEGMENTS_ARRIVED); // fires an update
+  readiness.segments.emit(readiness.segments.SDK_SPLITS_ARRIVED); // fires an update
+  readiness.segments.emit(readiness.segments.SDK_SEGMENTS_ARRIVED); // fires an update
 
   assert.equal(counter, 1, 'Second update event should be discarded');
 });

@@ -211,6 +211,7 @@ tape('E2E / lets evaluates!', function (assert) {
       attr: 9
     }), 'off');
 
+    fetchMock.restore();
     assert.end();
   });
 

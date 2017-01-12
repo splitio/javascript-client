@@ -44,8 +44,8 @@ tape('SPLIT CACHE / LocalStorage / Get Keys', assert => {
 
   let keys = cache.getKeys();
 
-  assert.true(keys.includes('lol1'));
-  assert.true(keys.includes('lol2'));
+  assert.true(keys.indexOf('lol1') !== -1);
+  assert.true(keys.indexOf('lol2') !== -1);
   assert.end();
 });
 

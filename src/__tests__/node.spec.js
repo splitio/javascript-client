@@ -3,7 +3,7 @@
 'use strict';
 
 const tape = require('tape-catch');
-const SplitFactory = require('../node');
+const SplitFactory = require('../');
 
 tape('NodeJS E2E', function (assert) {
   const config = {
@@ -19,13 +19,11 @@ tape('NodeJS E2E', function (assert) {
       events: 'https://events-aws-staging.split.io/api'
     }
   };
-  const api = SplitFactory(config);
-  const Events = api.Events;
-
-  const client = api.client();
+  const factory = SplitFactory(config);
+  const client = factory.client();
   const events = client.events();
 
-  events.on(Events.SDK_READY, async function () {
+  events.on(events.SDK_READY, async function () {
     assert.comment('QA User');
     assert.equal(await client.getTreatment('qa-user', 'always-off'), 'off');
     assert.equal(await client.getTreatment('qa-user', 'always-on'), 'on');

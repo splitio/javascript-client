@@ -15,10 +15,11 @@ tape('SDK BROWSER / shared instanciation', function (assert) {
     }
   };
 
-  const splitio = SplitFactory(config);
-  const qcUserClient = splitio.client();
+  const factory = SplitFactory(config);
+  const qcUserClient = factory.client();
   const qcEvents = qcUserClient.events();
-  const qaUserClient = splitio.client('qa-user');
+
+  const qaUserClient = factory.sharedClient('qa-user');
   const qaEvents = qaUserClient.events();
 
   const finished = (function* f() {
@@ -46,13 +47,6 @@ tape('SDK BROWSER / shared instanciation', function (assert) {
     finished.next();
   }
 
-  qaEvents.on('init::ready', assertionQA);
-  qcEvents.on('init::ready', assertionQC);
-
-  qcEvents.on(qcEvents.SDK_UPDATE, function () {
-    console.log('Updating QC');
-  });
-  qaEvents.on(qaEvents.SDK_UPDATE, function () {
-    console.log('Updating QA');
-  })
+  qaEvents.on(qaEvents.SDK_READY, assertionQA);
+  qcEvents.on(qcEvents.SDK_READY, assertionQC);
 });

@@ -5,13 +5,18 @@
 const ClientFactory = require('./client');
 const ManagerFactory = require('./manager');
 const StorageFactory = require('./storage');
+
 const ProducerFactory = require('./producer');
+const PartialProducerFactory = require('./producer/browser/Partial');
+
 const MetricsFactory = require('./metrics');
 
 const SettingsFactory = require('./utils/settings');
 
 const ReadinessGate = require('./readiness');
 const ReadinessGateFactory = ReadinessGate();
+
+const instances = {};
 
 function SplitFactory(config: Object) {
   const settings = SettingsFactory(config);
@@ -24,7 +29,7 @@ function SplitFactory(config: Object) {
   producer.start();
   metrics.start();
 
-  const sdk = Object.assign(ClientFactory(settings, storage), {
+  instances.default = Object.assign(ClientFactory(settings, storage), {
     // Expose SDK Events
     events() {
       return readiness.gate;
@@ -35,13 +40,44 @@ function SplitFactory(config: Object) {
       readiness.destroy();
       producer && producer.stop();
       metrics && metrics.stop();
+      delete instances.default;
     }
   });
 
   return {
     // Split evaluation engine
     client(): SplitClient {
-      return sdk;
+      return instances.default;
+    },
+
+    // Shared evaluation engine (browser only)
+    sharedClient(key: string): SplitClient {
+      if (key === settings.core.key) key = 'default';
+
+      if (!instances[key]) {
+        const sharedSettings = settings.overrideKey(key);
+        const sharedStorage = storage.shared();
+        const sharedReadinessGate = ReadinessGateFactory(sharedSettings.startup.readyTimeout);
+        const sharedProducer = PartialProducerFactory(sharedSettings, sharedReadinessGate, sharedStorage);
+
+        sharedProducer.start();
+
+        instances[key] = Object.assign(ClientFactory(sharedSettings, sharedStorage), {
+          // Expose SDK Events
+          events() {
+            return sharedReadinessGate.gate;
+          },
+
+          // Destroy the SDK instance
+          destroy() {
+            sharedReadinessGate.destroy();
+            sharedProducer.stop();
+            delete instances[key];
+          }
+        });
+      }
+
+      return instances[key];
     },
 
     // Manager API to explore available information
@@ -50,10 +86,7 @@ function SplitFactory(config: Object) {
     },
 
     // Expose SDK settings
-    settings,
-
-    // Expose SDK Events names
-    Events: readiness.Events
+    settings
   };
 };
 

@@ -1,5 +1,7 @@
 // @flow
 
+import type { EventEmitter } from 'events';
+
 declare type AsyncValue<T> = Promise<T> | T;
 
 /**
@@ -188,7 +190,8 @@ declare type SplitStorage = {
   splits: SplitCache,
   segments: SegmentCache,
   impressions: StatsCache<string>,
-  metrics: StatsCache<number>
+  metrics: StatsCache<number>,
+  shared(): SplitStorage
 };
 
 /**
@@ -264,14 +267,17 @@ declare type Settings = {
   storage: {
     type: 'MEMORY' | 'LOCALSTORAGE' | 'REDIS',
     options: any
-  }
+  },
+
+  overrideKey(key: string): Settings,
+
+  url(target: string): string
 };
 
 /**
  * Ready | Update event handlers
  */
 declare type ReadinessGate = {
-  Events: Object,
   splits: EventEmitter,
   segments: EventEmitter,
   gate: EventEmitter,

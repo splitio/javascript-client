@@ -21,6 +21,8 @@ const log = require('debug')('splitio-producer:my-segments');
 const mySegmentsFetcher = require('../fetcher/MySegments');
 
 function MySegmentsUpdaterFactory(settings: Object, readiness: ReadinessGate, storage: SplitStorage) {
+  const segmentsEventEmitter = readiness.segments;
+
   let readyOnAlreadyExistentState = true;
   let startingUp = true;
 
@@ -40,7 +42,7 @@ function MySegmentsUpdaterFactory(settings: Object, readiness: ReadinessGate, st
 
       if (shouldNotifyUpdate || readyOnAlreadyExistentState) {
         readyOnAlreadyExistentState = false;
-        readiness.segments.emit(readiness.Events.SDK_SEGMENTS_ARRIVED);
+        segmentsEventEmitter.emit(segmentsEventEmitter.SDK_SEGMENTS_ARRIVED);
       }
     })
     .catch(error => {

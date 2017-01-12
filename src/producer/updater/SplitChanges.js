@@ -53,6 +53,8 @@ function computeSplitsMutation(entries: Array<SplitObject>): SplitMutation {
 }
 
 function SplitChangesUpdaterFactory(settings: Object, readiness: ReadinessGate, storage: SplitStorage) {
+  const splitsEventEmitter = readiness.splits;
+
   let startingUp = true;
   let readyOnAlreadyExistentState = true;
 
@@ -79,7 +81,7 @@ function SplitChangesUpdaterFactory(settings: Object, readiness: ReadinessGate, 
       ]).then(() => {
         if (since !== splitChanges.till || readyOnAlreadyExistentState) {
           readyOnAlreadyExistentState = false;
-          readiness.splits.emit(readiness.Events.SDK_SPLITS_ARRIVED);
+          splitsEventEmitter.emit(splitsEventEmitter.SDK_SPLITS_ARRIVED);
         }
       });
     })

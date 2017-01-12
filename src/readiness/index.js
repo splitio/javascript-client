@@ -69,18 +69,23 @@ function ReadinessGateFactory(splits: EventEmitter, segments: EventEmitter, time
  */
 module.exports = () => {
   const splits = new EventEmitter();
+  splits.SDK_SPLITS_ARRIVED = Events.SDK_SPLITS_ARRIVED;
+
   let refCount = 0;
 
   function SDKReadinessGateFactory(timeout: number = 0): ReadinessGate {
     const segments = new EventEmitter();
+    segments.SDK_SEGMENTS_ARRIVED = Events.SDK_SEGMENTS_ARRIVED;
+
     const gate = ReadinessGateFactory(splits, segments, timeout);
+    gate.SDK_READY = Events.SDK_READY;
+    gate.SDK_UPDATE = Events.SDK_UPDATE;
+    gate.SDK_READY_TIMED_OUT = Events.SDK_READY_TIMED_OUT;
 
     // New Gate has been created, so increase the counter
     refCount++;
 
     return {
-      // Constants
-      Events,
       // Emitters
       splits,
       segments,
@@ -95,7 +100,6 @@ module.exports = () => {
       }
     };
   }
-  SDKReadinessGateFactory.Events = Events;
 
   return SDKReadinessGateFactory;
 };

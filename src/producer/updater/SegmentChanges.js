@@ -22,6 +22,8 @@ const log = require('debug')('splitio-producer:segment-changes');
 const segmentChangesFetcher = require('../fetcher/SegmentChanges');
 
 const SegmentChangesUpdaterFactory = (settings: Object, readiness: ReadinessGate, storage: SplitStorage) => {
+  const segmentsEventEmitter = readiness.segments;
+
   let readyOnAlreadyExistentState = true;
 
   return async function SegmentChangesUpdater() {
@@ -63,7 +65,7 @@ const SegmentChangesUpdaterFactory = (settings: Object, readiness: ReadinessGate
     return Promise.all(updaters).then(shouldUpdateFlags => {
       if (shouldUpdateFlags.findIndex(v => v !== -1) !== -1 || readyOnAlreadyExistentState) {
         readyOnAlreadyExistentState = false;
-        readiness.segments.emit(readiness.Events.SDK_SEGMENTS_ARRIVED);
+        segmentsEventEmitter.emit(segmentsEventEmitter.SDK_SEGMENTS_ARRIVED);
       }
     });
   };

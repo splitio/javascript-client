@@ -25,7 +25,7 @@ const BrowserStorageFactory = (storage: Object): SplitStorage => {
         impressions: new ImpressionsCacheInMemory,
         metrics: new MetricsCacheInMemory,
 
-        createSharingEverythingButSegments() {
+        shared() {
           return {
             splits: this.splits,
             segments: new SegmentCacheInMemory,

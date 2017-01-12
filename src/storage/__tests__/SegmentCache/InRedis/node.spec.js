@@ -60,7 +60,7 @@ tape('SEGMENT CACHE IN Redis / register segments', async function (assert) {
 
   const segments = await cache.getRegisteredSegments();
 
-  ['s1', 's2', 's3', 's4'].forEach(s => assert.ok(segments.includes(s)));
+  ['s1', 's2', 's3', 's4'].forEach(s => assert.ok(segments.indexOf(s) !== -1));
 
   r.quit();
 
