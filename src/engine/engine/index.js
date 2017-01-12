@@ -13,6 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+
+// @flow
+
 'use strict';
 
 const bucket = require('./utils').bucket;
@@ -22,7 +25,7 @@ const engine = {
   /**
    * Get the treatment name given a key, a seed, and the percentage of each treatment.
    */
-  getTreatment(key /*: string */, seed /*: number */, treatments /*: Treatments */) /*: string */ {
+  getTreatment(key: string, seed: number, treatments: Treatments): string {
     const b = bucket(key, seed);
     const treatment = treatments.getTreatmentFor(b);
 

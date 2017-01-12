@@ -13,34 +13,30 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+
+// @flow
+
 'use strict';
 
 const log = require('debug')('splitio-engine:combiner');
-
-/*::
-  type KeyDTO = {
-    matchingKey: string,
-    bucketingKey: string
-  }
-*/
 
 function unexpectedInputHandler() {
   return 'control';
 }
 
-function ifElseIfCombinerContext(predicates /*: Array<(key: string, seed: number, attributes: object) => ?string)> */) /*: function */ {
+function ifElseIfCombinerContext(predicates: Array<Function>): Function {
 
-  function ifElseIfCombiner(key /*: string | KeyDTO */, seed /*: number */, attributes /*: object */) /*: ?string */ {
+  async function ifElseIfCombiner(key: SplitKey, seed: number, attributes: Object): Promise<?string> {
 
     // loop throught the if else if structure and stops as soon as one predicate
     // return a treatment
-    for (let evaluator of predicates) {
-      let evalTreatment = evaluator(key, seed, attributes);
+    for (const evaluator of predicates) {
+      const evaluation = await evaluator(key, seed, attributes);
 
-      if (evalTreatment !== undefined) {
-        log('treatment found %s', evalTreatment.treatment);
+      if (evaluation !== undefined) {
+        log('treatment found %s', evaluation.treatment);
 
-        return evalTreatment;
+        return evaluation;
       }
     }
 

@@ -13,26 +13,26 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+
+// @flow
+
 'use strict';
 
 const engine = require('../engine');
 const keyParser = require('../../utils/key/parser');
 
-/*::
-  type KeyDTO = {
-    matchingKey: string,
-    bucketingKey: string
-  }
-*/
+/**
+ * Evaluator factory
+ */
+function evaluatorContext(matcherEvaluator: Function, treatments: Treatments, label: string): Function {
 
-// Evaluator factory
-function evaluatorContext(matcherEvaluator /*: function */, treatments /*: Treatments */, label /*: string */) /*: function */ {
-
-  return function evaluator(key /*: string | KeyDTO */, seed /*: number */, attributes /*: object */) /*:? string */ {
+  async function evaluator(key: SplitKey, seed: number, attributes: ?Object): Promise<?Evaluation> {
     // parse key, the key could be a string or KeyDTO it should return a keyDTO.
     const keyParsed = keyParser(key);
-    // if the matcherEvaluator return true, then evaluate the treatment and return the label for that split
-    if (matcherEvaluator(keyParsed.matchingKey, attributes)) {
+    const matches = await matcherEvaluator(keyParsed.matchingKey, attributes);
+
+    // if matches then evaluate the treatment
+    if (matches) {
       const treatment = engine.getTreatment(keyParsed.bucketingKey, seed, treatments);
 
       return {
@@ -43,8 +43,9 @@ function evaluatorContext(matcherEvaluator /*: function */, treatments /*: Treat
 
     // else we should notify the engine to continue evaluating
     return undefined;
-  };
+  }
 
+  return evaluator;
 }
 
 module.exports = evaluatorContext;

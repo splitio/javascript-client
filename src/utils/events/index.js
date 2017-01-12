@@ -13,6 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+// @flow
+
 'use strict';
 
 const log = require('debug')('splitio-utils:events');
@@ -52,14 +54,14 @@ module.exports = function EventFactory() {
                                 eventName === Event.SDK_SEGMENTS_ARRIVED;
 
       if (!areSplitsReady && eventName === Event.SDK_SPLITS_ARRIVED) {
-        log('splits are ready');
+        log('Splits are ready');
 
         areSplitsReady = true;
         isReady = areSplitsReady && areSegmentsReady;
       }
 
       if (!areSegmentsReady && eventName === Event.SDK_SEGMENTS_ARRIVED) {
-        log('segments are ready');
+        log('Segments are ready');
 
         areSegmentsReady = true;
         isReady = areSplitsReady && areSegmentsReady;
@@ -96,7 +98,7 @@ module.exports = function EventFactory() {
 
       return false;
     },
-    Event
+    ...Event
   });
 };
 module.exports.Event = Event;

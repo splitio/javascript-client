@@ -13,27 +13,34 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+// @flow
+
 'use strict';
 
 const log = require('debug')('splitio-engine:combiner');
 
-function andCombinerContext(matchers /*: Array<function> */) /*: function */ {
-  return function andCombiner(...params) /*: boolean */ {
-    let i = 0;
-    let len = matchers.length;
-    let valueHasBeenMatchedAll;
+function andCombinerContext(matchers: Array<Function>): Function {
 
-    // loop through all the matchers an stop at the first one returning false.
-    for (; i < len && matchers[i](...params); i++) {
-      // logic is run inside the condition of evaluates next step.
-    }
+  async function andCombiner(...params): Promise<boolean> {
+    return Promise.all(matchers.map(matcher => matcher(...params))).then(results => {
+      let i = 0;
+      let len = results.length;
+      let hasMatchedAll;
 
-    valueHasBeenMatchedAll = i === len;
+      // loop through all the matchers an stop at the first one returning false.
+      for (; i < len && results[i]; i++) {
+        // logic is run inside the condition of evaluates next step.
+      }
 
-    log(`[andCombiner] is evaluates to ${valueHasBeenMatchedAll}`);
+      hasMatchedAll = i === len;
 
-    return valueHasBeenMatchedAll;
-  };
+      log(`[andCombiner] is evaluates to ${hasMatchedAll ? 'true' : 'false'}`);
+
+      return hasMatchedAll;
+    });
+  }
+
+  return andCombiner;
 }
 
 module.exports = andCombinerContext;

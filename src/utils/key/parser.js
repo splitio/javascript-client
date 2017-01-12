@@ -5,7 +5,7 @@ const isObject = require('lodash/isObject');
  * Verify type of key and return a valid object key used for get treatment for a
  * specific split.
  */
-module.exports = (key) => {
+module.exports = (key: any): SplitKeyObject => {
   if (isString(key)) {
     return {
       matchingKey: key,

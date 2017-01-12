@@ -13,14 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-'use strict';
+// @flow
 
-/*::
-  type PartitionDTO = {
-    treatment: string,
-    size: number
-  }
-*/
+'use strict';
 
 //
 // [1] Transpilation process is not doing a good job infering which "polyfills"
@@ -29,7 +24,7 @@ limitations under the License.
 //
 const findIndex = require('core-js/library/fn/array/find-index');
 
-function Treatments(ranges /*: array<number> */, treatments /*: array<string> */) {
+function Treatments(ranges: Array<number>, treatments: Array<string>) {
   if (!(this instanceof Treatments)) {
     return new Treatments(ranges, treatments);
   }
@@ -42,7 +37,7 @@ function Treatments(ranges /*: array<number> */, treatments /*: array<string> */
   this._treatments = treatments;
 }
 
-Treatments.parse = function parse(data /*: array<PartitionDTO> */) /*: Treatments */ {
+Treatments.parse = function parse(data: Array<Partition>): Treatments {
   let {ranges, treatments} = data.reduce((accum, value) => {
     let {size, treatment} = value;
 
@@ -59,7 +54,7 @@ Treatments.parse = function parse(data /*: array<PartitionDTO> */) /*: Treatment
   return new Treatments(ranges, treatments);
 };
 
-Treatments.prototype.getTreatmentFor = function getTreatmentFor(x /*: number */) /*: string */ {
+Treatments.prototype.getTreatmentFor = function getTreatmentFor(x: number): string {
   if (x < 0 || x > 100) {
     throw new RangeError('Please provide a value between 0 and 100');
   }

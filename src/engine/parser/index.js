@@ -13,42 +13,21 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+
+// @flow
+
 'use strict';
 
 const matchersTransform = require('../transforms/matchers');
 const treatmentsParser = require('../treatments').parse;
-
-const matcherTypes = require('../matchers/types').enum;
 const matcherFactory = require('../matchers');
-
 const value = require('../value');
-
 const evaluatorFactory = require('../evaluator');
-
 const ifElseIfCombiner = require('../combiners/ifelseif');
 const andCombiner = require('../combiners/and');
 
-/*::
-  type KeyDTO = {
-    matchingKey: string,
-    bucketingKey: string
-  }
-*/
-
-/*::
-  type ParserOutputDTO = {
-    segments: Set,
-    evaluator: (key: string | KeyDTO, seed: number) => boolean
-  }
-*/
-
-// Collect segments and create the evaluator function given a list of
-// conditions. This code is the base used by the class `Split` for
-// instanciation.
-function parse(conditions /*: Iterable<Object> */, storage /*: Storage */) /*: ParserOutputDTO */ {
+function parse(conditions: Array<Condition>, storage: SplitStorage): any {
   let predicates = [];
-  let segments = new Set();
-  let evaluator = null;
 
   for (let condition of conditions) {
     let {
@@ -62,17 +41,14 @@ function parse(conditions /*: Iterable<Object> */, storage /*: Storage */) /*: P
     // transform data structure
     matchers = matchersTransform(matchers);
 
-    // create a set of pure functions (key, attr, attributes) => boolean
-    let expressions = matchers.map(matcher => {
-      // Incrementally collect segmentNames
-      if (matcher.type === matcherTypes.SEGMENT) {
-        segments.add(matcher.value);
-      }
+    // create a set of pure functions from the matcher's dto
+    const expressions = matchers.map(matcherDto => {
+      const matcher = matcherFactory(matcherDto, storage);
 
-      let fn = matcherFactory(matcher, storage);
-
-      return function expr(key, attributes) {
-        return fn(value(key, matcher.attribute, attributes));
+      return (key, attributes) => {
+        return matcher(
+          value(key, matcherDto.attribute, attributes) // value to be matched
+        );
       };
     });
 
@@ -81,8 +57,7 @@ function parse(conditions /*: Iterable<Object> */, storage /*: Storage */) /*: P
     if (expressions.length === 0) {
       // reset any data collected during parsing
       predicates = [];
-      segments = new Set();
-
+      // and break the loop
       break;
     }
 
@@ -94,12 +69,7 @@ function parse(conditions /*: Iterable<Object> */, storage /*: Storage */) /*: P
   }
 
   // Instanciate evaluator given the set of conditions using if else if logic
-  evaluator = ifElseIfCombiner(predicates);
-
-  return {
-    evaluator,
-    segments
-  };
+  return ifElseIfCombiner(predicates);
 }
 
 module.exports = parse;

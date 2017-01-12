@@ -13,7 +13,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+
+// @flow
+
 'use strict';
+
+const log = require('debug')('splitio-metrics');
 
 const repeat = require('../utils/fn/repeat');
 
@@ -25,85 +30,52 @@ const impressionsService = require('../services/impressions');
 const impressionsBulkRequest = require('../services/impressions/bulk');
 const impressionsDTO = require('../services/impressions/dto');
 
-const PassThroughFactory = require('./tracker/PassThrough');
-const TimerFactory = require('./tracker/Timer');
+const MetricsFactory = (settings: Object, storage: SplitStorage): Startable => {
+  const pushMetrics = (): Promise<void> => {
+    if (storage.metrics.isEmpty()) return Promise.resolve();
 
-const SequentialCollector = require('./collector/sequential');
-const FibonacciCollector = require('./collector/fibonacci');
+    log('Pushing metrics');
 
-class Metrics {
-  constructor(settings) {
-    this.settings = settings;
+    return metricsService(metricsServiceRequest(settings, {
+      body: JSON.stringify(metricsDTO.fromGetTreatmentCollector(storage.metrics))
+    }))
+    .then(() => storage.metrics.clear())
+    .catch(() => storage.metrics.clear());
+  };
 
-    this.impressionsCollector = SequentialCollector();
-    this.getTreatmentCollector = FibonacciCollector();
+  const pushImpressions = (): Promise<void> => {
+    if (storage.impressions.isEmpty()) return Promise.resolve();
 
-    this.impressions = PassThroughFactory(this.impressionsCollector);
-    this.getTreatment = TimerFactory(this.getTreatmentCollector);
-  }
+    log('Pushing impressions');
 
-  publishToTime() {
-    return new Promise(resolve => {
-      if (this.getTreatmentCollector.isEmpty()) {
-        return resolve();
-      }
+    return impressionsService(impressionsBulkRequest(settings, {
+      body: JSON.stringify(impressionsDTO.fromImpressionsCollector(storage.impressions))
+    }))
+    .then(() => storage.impressions.clear())
+    .catch(() => storage.impressions.clear());
+  };
 
-      resolve(metricsService(metricsServiceRequest(this.settings, {
-        body: JSON.stringify(
-          metricsDTO.fromGetTreatmentCollector(this.getTreatmentCollector)
-        )
-      }))
-      .then(resp => {
-        this.getTreatmentCollector.clear();
+  let stopImpressionsPublisher = false;
+  let stopPerformancePublisher = false;
 
-        return resp;
-      })
-      .catch(() => {
-        this.getTreatmentCollector.clear();
-      }));
-    });
-  }
+  return {
+    start() {
+      stopImpressionsPublisher = repeat(
+        schedulePublisher => pushImpressions().then(() => schedulePublisher()),
+        settings.scheduler.impressionsRefreshRate
+      );
 
-  publishToImpressions() {
-    return new Promise(resolve => {
-      if (this.impressionsCollector.isEmpty()) {
-        return resolve();
-      }
+      stopPerformancePublisher = repeat(
+        schedulePublisher => pushMetrics().then(() => schedulePublisher()),
+        settings.scheduler.metricsRefreshRate
+      );
+    },
 
-      resolve(impressionsService(impressionsBulkRequest(this.settings, {
-        body: JSON.stringify(
-          impressionsDTO.fromImpressionsCollector(this.impressionsCollector)
-        )
-      }))
-      .then(resp => {
-        this.impressionsCollector.clear();
+    stop() {
+      stopImpressionsPublisher && stopImpressionsPublisher();
+      stopPerformancePublisher && stopPerformancePublisher();
+    }
+  };
+};
 
-        return resp;
-      })
-      .catch(() => {
-        this.impressionsCollector.clear();
-      }));
-    });
-  }
-
-  start() {
-    this.stopImpressionsPublisher = repeat(schedulePublisher => {
-      this.publishToImpressions().then(() => {
-        schedulePublisher();
-      });
-    }, this.settings.scheduler.impressionsRefreshRate);
-
-    this.stopPerformancePublisher = repeat(schedulePublisher => {
-      this.publishToTime().then(() => {
-        schedulePublisher();
-      });
-    }, this.settings.scheduler.metricsRefreshRate);
-  }
-
-  stop() {
-    this.stopImpressionsPublisher && this.stopImpressionsPublisher();
-    this.stopPerformancePublisher && this.stopPerformancePublisher();
-  }
-}
-
-module.exports = Metrics;
+module.exports = MetricsFactory;

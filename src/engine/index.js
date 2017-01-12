@@ -13,16 +13,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+
+// @flow
+
 'use strict';
 
 const parser = require('./parser');
 const LabelsConstants = require('../utils/labels');
-/*::
-  type KeyDTO = {
-    matchingKey: string,
-    bucketingKey: string
-  }
-*/
 
 function defaults(inst) {
   // in case we don't have a default treatment in the instanciation, use
@@ -32,35 +29,30 @@ function defaults(inst) {
   }
 }
 
-function Split(baseInfo, evaluator, segments) {
+function Split(baseInfo: Object, evaluator: Function) {
   if (!(this instanceof Split)) {
-    return new Split(baseInfo, evaluator, segments);
+    return new Split(baseInfo, evaluator);
   }
 
   this.baseInfo = baseInfo;
   this.evaluator = evaluator;
-  this.segments = segments;
 
   defaults(this);
 }
 
-Split.parse = function parse(splitFlatStructure, storage) {
-  let {conditions, ...baseInfo} = splitFlatStructure;
-  let {evaluator, segments} = parser(conditions, storage);
+Split.parse = function parse(splitFlatStructure: SplitObject, storage: SplitStorage) {
+  const { conditions, ...baseInfo } = splitFlatStructure;
+  const evaluator = parser(conditions, storage);
 
-  return new Split(baseInfo, evaluator, segments);
+  return new Split(baseInfo, evaluator);
 };
 
 Split.prototype.getKey = function getKey() {
   return this.baseInfo.name;
 };
 
-Split.prototype.getSegments = function getSegments() {
-  return this.segments;
-};
-
-Split.prototype.getTreatment = function getTreatment(key /*: string | KeyDTO */, attributes) {
-  let {
+Split.prototype.getTreatment = async function getTreatment(key: SplitKey, attributes): Promise<Evaluation> {
+  const {
     killed,
     seed,
     defaultTreatment
@@ -68,7 +60,6 @@ Split.prototype.getTreatment = function getTreatment(key /*: string | KeyDTO */,
 
   let treatment;
   let label;
-  let evalTreatment;
 
   if (this.isGarbage()) {
     treatment = 'control';
@@ -77,9 +68,10 @@ Split.prototype.getTreatment = function getTreatment(key /*: string | KeyDTO */,
     treatment = defaultTreatment;
     label = LabelsConstants.SPLIT_KILLED;
   } else {
-    evalTreatment = this.evaluator(key, seed, attributes);
-    treatment = evalTreatment !== undefined ? evalTreatment.treatment : defaultTreatment;
-    label = evalTreatment !== undefined ? evalTreatment.label : LabelsConstants.NO_CONDITION_MATCH;
+    const evaluation = await this.evaluator(key, seed, attributes);
+
+    treatment = evaluation !== undefined ? evaluation.treatment : defaultTreatment;
+    label = evaluation !== undefined ? evaluation.label : LabelsConstants.NO_CONDITION_MATCH;
   }
 
   return {
