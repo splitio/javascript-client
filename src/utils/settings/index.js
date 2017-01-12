@@ -108,7 +108,10 @@ const proto = {
         }
       }
     );
-  }
+  },
+
+  // Current ip/hostname information (if available)
+  runtime
 };
 
 const SettingsFactory = (settings: Object): Settings => {
