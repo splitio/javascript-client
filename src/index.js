@@ -88,6 +88,6 @@ function SplitFactory(config: Object) {
     // Expose SDK settings
     settings
   };
-};
+}
 
 module.exports = SplitFactory;

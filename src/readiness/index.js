@@ -39,7 +39,7 @@ function ReadinessGateFactory(splits: EventEmitter, segments: EventEmitter, time
       status |= SDK_NOTIFY_UPDATE_SINCE_NOW;
       gate.emit(Events.SDK_READY);
     } else if (status === SDK_FIRE_UPDATE)
-        gate.emit(Events.SDK_UPDATE);
+      gate.emit(Events.SDK_UPDATE);
 
   });
 

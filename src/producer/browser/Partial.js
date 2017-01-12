@@ -18,8 +18,6 @@ limitations under the License.
 
 'use strict';
 
-const log = require('debug')('splitio-producer:updater');
-
 const TaskFactory = require('../task');
 const MySegmentsUpdater = require('../updater/MySegments');
 

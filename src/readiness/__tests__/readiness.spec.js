@@ -103,8 +103,6 @@ tape('READINESS GATE / Segment updates should not be propagated', function (asse
   assert.plan(2);
 
   const ReadinessGateFactory = ReadinessGate();
-  const Events = ReadinessGateFactory;
-
   const readinessGate1 = ReadinessGateFactory();
   const readinessGate2 = ReadinessGateFactory();
 

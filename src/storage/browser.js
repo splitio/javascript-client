@@ -31,7 +31,7 @@ const BrowserStorageFactory = (storage: Object): SplitStorage => {
             segments: new SegmentCacheInMemory,
             impressions: this.impressions,
             metrics: this.metrics
-          }
+          };
         }
       };
 
