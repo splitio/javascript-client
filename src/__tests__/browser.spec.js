@@ -33,20 +33,12 @@ tape('E2E / lets evaluates!', function (assert) {
       segmentsRefreshRate: 1,
       metricsRefreshRate: 3000, // for now I don't want to publish metrics during E2E run.
       impressionsRefreshRate: 3000  // for now I don't want to publish impressions during E2E run.
-    },
-    storage: {
-      type: 'LOCALSTORAGE'
     }
   };
 
   const splitio = SplitFactory(config);
-
-  const producer = splitio.producer();
   const client = splitio.client();
   const events = client.events();
-
-  // Start the fetching process.
-  producer.start();
 
   events.on(events.SDK_READY, async function () {
     assert.equal(await client.getTreatment('blacklist'), 'not_allowed');
@@ -54,7 +46,7 @@ tape('E2E / lets evaluates!', function (assert) {
     assert.equal(await client.getTreatment('splitters'), 'on');
     assert.equal(await client.getTreatment('qc_team'), 'no');
 
-    assert.equal(await await client.getTreatment('employees_between_21_and_50_and_chrome'), 'off');
+    assert.equal(await client.getTreatment('employees_between_21_and_50_and_chrome'), 'off');
     assert.equal(await client.getTreatment('employees_between_21_and_50_and_chrome', {
       age: 21
     }), 'off');
@@ -219,8 +211,8 @@ tape('E2E / lets evaluates!', function (assert) {
       attr: 9
     }), 'off');
 
+    fetchMock.restore();
     assert.end();
-
   });
 
 });
