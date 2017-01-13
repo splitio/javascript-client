@@ -23,7 +23,16 @@ const BrowserStorageFactory = (storage: Object): SplitStorage => {
         splits: new SplitCacheInMemory,
         segments: new SegmentCacheInMemory,
         impressions: new ImpressionsCacheInMemory,
-        metrics: new MetricsCacheInMemory
+        metrics: new MetricsCacheInMemory,
+
+        shared() {
+          return {
+            splits: this.splits,
+            segments: new SegmentCacheInMemory,
+            impressions: this.impressions,
+            metrics: this.metrics
+          };
+        }
       };
 
     case 'LOCALSTORAGE':

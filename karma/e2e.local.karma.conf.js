@@ -6,11 +6,15 @@ module.exports = function(config) {
   config.set(assign({}, require('./local'), {
     // list of files / patterns to load in the browser
     files: [
-      '../src/__tests__/browser.spec.js'
+      '../src/__tests__/**/browser.spec.js'
+      // '../src/__tests__/browser.spec.js'
+      // '../src/__tests__/shared-instantiation/browser.spec.js'
     ],
     // prepare code for the browser using webpack
     preprocessors: {
-      '../src/__tests__/browser.spec.js': ['webpack']
+      '../src/__tests__/**/browser.spec.js': ['webpack']
+      // '../src/__tests__/browser.spec.js': ['webpack']
+      // '../src/__tests__/shared-instantiation/browser.spec.js': ['webpack']
     },
 
     // level of logging

@@ -29,7 +29,9 @@ const NodeStorageFactory = (storage: Object): SplitStorage => {
 
       return {
         splits: new SplitCacheInRedis(redis),
-        segments: new SegmentCacheInRedis(redis)
+        segments: new SegmentCacheInRedis(redis),
+        impressions: new ImpressionsCacheInMemory,
+        metrics: new MetricsCacheInMemory
       };
     }
 

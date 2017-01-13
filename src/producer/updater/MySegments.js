@@ -20,11 +20,13 @@ limitations under the License.
 const log = require('debug')('splitio-producer:my-segments');
 const mySegmentsFetcher = require('../fetcher/MySegments');
 
-function MySegmentsUpdater(settings: Object, hub: EventEmitter, storage: SplitStorage) {
+function MySegmentsUpdaterFactory(settings: Object, readiness: ReadinessGate, storage: SplitStorage) {
+  const segmentsEventEmitter = readiness.segments;
+
   let readyOnAlreadyExistentState = true;
   let startingUp = true;
 
-  return function updateMySegments(retry: number = 0) {
+  return function MySegmentsUpdater(retry: number = 0) {
     return mySegmentsFetcher(settings, startingUp).then(segments => {
       let shouldNotifyUpdate = false;
 
@@ -40,14 +42,14 @@ function MySegmentsUpdater(settings: Object, hub: EventEmitter, storage: SplitSt
 
       if (shouldNotifyUpdate || readyOnAlreadyExistentState) {
         readyOnAlreadyExistentState = false;
-        hub.emit(hub.SDK_SEGMENTS_ARRIVED);
+        segmentsEventEmitter.emit(segmentsEventEmitter.SDK_SEGMENTS_ARRIVED);
       }
     })
     .catch(error => {
       if (startingUp && settings.startup.retriesOnFailureBeforeReady > retry) {
         retry += 1;
         log('Retrying download of segments #%s reason %s', retry, error);
-        return updateMySegments(retry);
+        return MySegmentsUpdater(retry);
       } else {
         startingUp = false;
       }
@@ -58,4 +60,4 @@ function MySegmentsUpdater(settings: Object, hub: EventEmitter, storage: SplitSt
 
 }
 
-module.exports = MySegmentsUpdater;
+module.exports = MySegmentsUpdaterFactory;

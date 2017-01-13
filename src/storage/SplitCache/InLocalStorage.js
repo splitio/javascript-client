@@ -90,8 +90,7 @@ class SplitCacheLocalStorage {
       const key = localStorage.key(cur);
       const value = key && localStorage.getItem(key);
 
-      if (key != null && keys.isSplitKey(key) && value)
-        accum.push( value );
+      if (key != null && keys.isSplitKey(key) && value) accum.push(value);
 
       cur++;
     }
@@ -108,9 +107,9 @@ class SplitCacheLocalStorage {
     while (cur < len) {
       const key = localStorage.key(cur);
 
-      if (key != null && keys.isSplitKey(key)) {
-        accum.push( keys.extractKey(key) );
-      }
+      if (key != null && keys.isSplitKey(key)) accum.push(keys.extractKey(key));
+
+      cur++;
     }
 
     return accum;

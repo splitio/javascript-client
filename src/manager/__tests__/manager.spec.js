@@ -42,6 +42,6 @@ tape('MANAGER API / In Memory / List all the split names', async function(assert
 
   const names = await manager.names(splitObject.name);
 
-  assert.true(names.includes(splitObject.name));
+  assert.true(names.indexOf(splitObject.name) !== -1);
   assert.end();
 });

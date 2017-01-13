@@ -52,11 +52,13 @@ function computeSplitsMutation(entries: Array<SplitObject>): SplitMutation {
   return computed;
 }
 
-function SplitChangesUpdater(settings: Object, hub: EventEmitter, storage: SplitStorage) {
+function SplitChangesUpdaterFactory(settings: Object, readiness: ReadinessGate, storage: SplitStorage) {
+  const splitsEventEmitter = readiness.splits;
+
   let startingUp = true;
   let readyOnAlreadyExistentState = true;
 
-  return async function updater(retry: number = 0) {
+  return async function SplitChangesUpdater(retry: number = 0) {
     const since: number = await storage.splits.getChangeNumber();
 
     log('Spin up split update using since = %s', since);
@@ -79,7 +81,7 @@ function SplitChangesUpdater(settings: Object, hub: EventEmitter, storage: Split
       ]).then(() => {
         if (since !== splitChanges.till || readyOnAlreadyExistentState) {
           readyOnAlreadyExistentState = false;
-          hub.emit(hub.SDK_SPLITS_ARRIVED);
+          splitsEventEmitter.emit(splitsEventEmitter.SDK_SPLITS_ARRIVED);
         }
       });
     })
@@ -89,7 +91,7 @@ function SplitChangesUpdater(settings: Object, hub: EventEmitter, storage: Split
       if (startingUp && settings.startup.retriesOnFailureBeforeReady > retry) {
         retry += 1;
         log('Retrying download of splits #%s reason %s', retry, error);
-        return updater(retry);
+        return SplitChangesUpdater(retry);
       } else {
         startingUp = false;
       }
@@ -99,4 +101,4 @@ function SplitChangesUpdater(settings: Object, hub: EventEmitter, storage: Split
   };
 }
 
-module.exports = SplitChangesUpdater;
+module.exports = SplitChangesUpdaterFactory;

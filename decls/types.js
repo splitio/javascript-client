@@ -1,5 +1,7 @@
 // @flow
 
+import type { EventEmitter } from 'events';
+
 declare type AsyncValue<T> = Promise<T> | T;
 
 /**
@@ -73,7 +75,9 @@ declare interface SplitManager {
  * Split Client API.
  */
 declare type SplitClient = {
-  getTreatment(key: string, splitName: string, attributes: ?Object): Promise<string>
+  getTreatment(key: string, splitName: string, attributes: ?Object): Promise<string>;
+  events(): EventEmitter;
+  destroy(): void;
 };
 
 // -----------------------------------------------------------------------------
@@ -186,7 +190,8 @@ declare type SplitStorage = {
   splits: SplitCache,
   segments: SegmentCache,
   impressions: StatsCache<string>,
-  metrics: StatsCache<number>
+  metrics: StatsCache<number>,
+  shared(): SplitStorage
 };
 
 /**
@@ -262,5 +267,19 @@ declare type Settings = {
   storage: {
     type: 'MEMORY' | 'LOCALSTORAGE' | 'REDIS',
     options: any
-  }
+  },
+
+  overrideKey(key: string): Settings,
+
+  url(target: string): string
+};
+
+/**
+ * Ready | Update event handlers
+ */
+declare type ReadinessGate = {
+  splits: EventEmitter,
+  segments: EventEmitter,
+  gate: EventEmitter,
+  destroy(): void
 };

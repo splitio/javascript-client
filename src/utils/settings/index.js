@@ -63,7 +63,7 @@ const base = {
   },
 
   // Instance version.
-  version: `${language}-8.0.0-canary.7`
+  version: `${language}-8.0.0-canary.9`
 };
 
 function fromSecondsToMillis(n) {
@@ -93,13 +93,34 @@ const proto = {
     }
 
     return `${this.urls.sdk}${target}`;
-  }
+  },
+
+  /**
+   * Override key on a given configuration object
+   */
+  overrideKey(newKey: string): Settings {
+    return Object.assign(
+      Object.create(proto),
+      {
+        ...this,
+        core: {
+          ...this.core,
+          key: newKey
+        }
+      }
+    );
+  },
+
+  // Current ip/hostname information (if available)
+  runtime
 };
 
-module.exports = (settings: Object): Object => {
+const SettingsFactory = (settings: Object): Settings => {
   return Object.assign(
     Object.create(proto),
     defaults(settings),
     runtime
   );
 };
+
+module.exports = SettingsFactory;
