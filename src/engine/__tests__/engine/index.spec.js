@@ -15,7 +15,7 @@ limitations under the License.
 **/
 'use strict';
 
-const tape = require('tape');
+const tape = require('tape-catch');
 const engine = require('../../engine');
 
 const Treatments = require('../../treatments');
@@ -29,12 +29,12 @@ const treatmentsMock = Treatments.parse([{
 
 tape('ENGINE / should evaluate always evaluate to false', assert => {
   let seed = 467569525;
-  let key = 'aUfEsdPN1twuEjff9Sl';
+  let bucketingKey = 'aUfEsdPN1twuEjff9Sl';
 
   let startTime = Date.now();
 
   assert.true(
-    engine.getTreatment(key, seed, treatmentsMock) === 'off',
+    engine.getTreatment(bucketingKey, seed, treatmentsMock) === 'off',
     "treatment should be 'off'"
   );
 
@@ -46,12 +46,12 @@ tape('ENGINE / should evaluate always evaluate to false', assert => {
 
 tape('ENGINE / should evaluate always evaluate to true', assert => {
   let seed = 467569525;
-  let key = 'fXvNwWFb7SXp';
+  let bucketingKey = 'fXvNwWFb7SXp';
 
   let startTime = Date.now();
 
   assert.true(
-    engine.getTreatment(key, seed, treatmentsMock) === 'on',
+    engine.getTreatment(bucketingKey, seed, treatmentsMock) === 'on',
     "treatment should be 'on'"
   );
 

@@ -1,0 +1,7 @@
+{
+  "trafficType": "user",
+  "name": "Decorate_With_Traffic_Flags",
+  "killed": false,
+  "changeNumber": 1478881219393,
+  "treatments": ["on", "off"]
+}

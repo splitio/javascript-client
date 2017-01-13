@@ -1,5 +1,8 @@
 {
-  "extends": "eslint:recommended",
+  "extends": [
+    "eslint:recommended",
+    "plugin:flowtype/recommended"
+  ],
 
   "env": {
     "browser": true,
@@ -21,10 +24,15 @@
     "no-use-before-define": [2, "nofunc"]
   },
 
-  "parserOptions": {
-    "ecmaVersion": 6,
-    "ecmaFeatures" : {
-      "experimentalObjectRestSpread": true
+  "parser": "babel-eslint",
+
+  "plugins": [
+    "flowtype"
+  ],
+
+  "settings": {
+    "flowtype": {
+      "onlyFilesWithFlowAnnotation": true
     }
   }
 }

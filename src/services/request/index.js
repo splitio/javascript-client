@@ -20,17 +20,18 @@ require('isomorphic-fetch');
 const baseline = require('./options');
 
 function RequestFactory(settings, relativeUrl, params) {
-  const token = settings.get('authorizationKey');
-  const version = settings.get('version');
+  const token = settings.core.authorizationKey;
+  const version = settings.version;
+  const { ip, hostname } = settings.runtime;
 
   return new Request(settings.url(relativeUrl), Object.assign({
     headers: {
-      'Accept': 'application/json',
+      Accept: 'application/json',
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-      'SplitSDKVersion': `${version}`,
-      // node-fetch requires this to correctly support keep-alive connections
-      'Connection': 'keep-alive'
+      Authorization: `Bearer ${token}`,
+      SplitSDKVersion: version,
+      SplitSDKMachineName: hostname,
+      SplitSDKMachineIP: ip
     },
     compress: true
   }, baseline, params));

@@ -1,0 +1,36 @@
+{
+  "trafficTypeName": "user",
+  "name": "Decorate_With_Traffic_Flags",
+  "seed": -1341594820,
+  "status": "ACTIVE",
+  "killed": false,
+  "defaultTreatment": "off",
+  "changeNumber": 1478881219393,
+  "conditions": [
+    {
+      "matcherGroup": {
+        "combiner": "AND",
+        "matchers": [
+          {
+            "keySelector": {
+              "trafficType": "user",
+              "attribute": null
+            },
+            "matcherType": "ALL_KEYS",
+            "negate": false,
+            "userDefinedSegmentMatcherData": null,
+            "whitelistMatcherData": null,
+            "unaryNumericMatcherData": null,
+            "betweenMatcherData": null
+          }
+        ]
+      },
+      "partitions": [
+        {
+          "treatment": "on",
+          "size": 100
+        }
+      ]
+    }
+  ]
+}

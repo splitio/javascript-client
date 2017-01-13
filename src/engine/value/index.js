@@ -13,24 +13,26 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+
+// @flow
+
 'use strict';
 
 const log = require('debug')('splitio-engine:value');
 
-function value(
-  key           /*: string */,
-  attributeName /*: string */,
-  attributes    /*: object */
-) /*: any */ {
+/**
+ * Defines value to be matched (key / attribute).
+ */
+function value(key: string, attributeName: string, attributes: Object): ?string {
   let valueToMatch = undefined;
 
   if (attributeName) {
     if (attributes) {
       valueToMatch = attributes[attributeName];
 
-      log('extracted attribute [%s], using [%s] for matching', attributeName, valueToMatch);
+      log('Extracted attribute [%s], using [%s] for matching', attributeName, valueToMatch);
     } else {
-      log('defined attribute [%s], but none attributes defined', attributeName);
+      log('Defined attribute [%s], but none attributes defined', attributeName);
     }
   } else {
     valueToMatch = key;
