@@ -20,6 +20,7 @@ limitations under the License.
 
 const merge = require('lodash/merge');
 
+const language: string = require('./language');
 const runtime: Object = require('./runtime');
 const overridesPerPlatform: Object = require('./defaults');
 
@@ -62,7 +63,7 @@ const base = {
   },
 
   // Instance version.
-  version: 'javascript-8.0.0-canary.2'
+  version: `${language}-8.0.0-canary.7`
 };
 
 function fromSecondsToMillis(n) {
