@@ -32,7 +32,7 @@ function RequestFactory(settings, relativeUrl, params) {
   headers['SplitSDKVersion'] = version;
 
   if (ip) headers['SplitSDKMachineIP'] = ip;
-  if (hostname) headers['SplitSDKMachineName'] = ip;
+  if (hostname) headers['SplitSDKMachineName'] = hostname;
 
   return new Request(settings.url(relativeUrl), Object.assign({
       headers,
