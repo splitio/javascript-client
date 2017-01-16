@@ -107,7 +107,9 @@ function onlineFactory(params /*: object */) /*: object */ {
       hub.removeAllListeners();
       metrics.stop();
       cache.stop();
-    }
+    },
+
+    settings
   });
 }
 
