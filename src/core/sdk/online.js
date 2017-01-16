@@ -44,8 +44,6 @@ function onlineFactory(params /*: object */) /*: object */ {
   const getTreatmentTracker = metrics.getTreatment;
   const cache = new Cache(settings, hub);
 
-  log(settings);
-
   cache.start();
   metrics.start();
 
@@ -66,12 +64,17 @@ function onlineFactory(params /*: object */) /*: object */ {
         treatment: 'control',
         label: LabelsConstants.SPLIT_NOT_FOUND
       };
+      let changeNumber = undefined;
+      let label = undefined;
 
       let stopGetTreatmentTracker = getTreatmentTracker(); // start engine perf monitoring
 
       let split = cache.storage.splits.get(featureName);
       if (split) {
         evaluation = split.getTreatment(key, attributes);
+        changeNumber = split.getChangeNumber();
+
+        if (settings.core.labelsEnabled) label = evaluation.label;
 
         log(`feature ${featureName} key ${matching(key)} evaluated as ${evaluation.treatment}`);
       } else {
@@ -84,9 +87,10 @@ function onlineFactory(params /*: object */) /*: object */ {
         feature: featureName,
         key: matching(key),
         treatment: evaluation.treatment,
-        when: Date.now(),
+        time: Date.now(),
         bucketingKey: bucketing(key),
-        label: settings.core.labelsEnabled ? evaluation.label : null
+        label,
+        changeNumber
       });
 
       return evaluation.treatment;
