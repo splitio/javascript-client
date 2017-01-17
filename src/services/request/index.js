@@ -23,18 +23,23 @@ function RequestFactory(settings, relativeUrl, params) {
   const token = settings.core.authorizationKey;
   const version = settings.version;
   const { ip, hostname } = settings.runtime;
+  const headers = {};
+
+  headers['Accept'] = 'application/json';
+  headers['Content-Type'] = 'application/json';
+  headers['Authorization'] = `Bearer ${token}`;
+  headers['SplitSDKVersion'] = version;
+
+  if (ip) headers['SplitSDKMachineIP'] = ip;
+  if (hostname) headers['SplitSDKMachineName'] = hostname;
 
   return new Request(settings.url(relativeUrl), Object.assign({
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-      SplitSDKVersion: version,
-      SplitSDKMachineName: hostname,
-      SplitSDKMachineIP: ip
-    },
+    headers,
     compress: true
-  }, baseline, params));
+  },
+  baseline,
+  params
+  ));
 }
 
 module.exports = RequestFactory;

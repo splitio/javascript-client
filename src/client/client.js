@@ -22,17 +22,23 @@ function ClientFactory(settings: Settings, storage: SplitStorage): SplitClient {
   return {
     async getTreatment(key: SplitKey, splitName: string, attributes: ?Object): Promise<string> {
       const stopLatencyTracker = latencyTracker();
+      const splitObject = await storage.splits.getSplit(splitName);
+      const bucketingKey = bucketing(key);
 
       let evaluation = {
         treatment: 'control',
         label: LabelsConstants.SPLIT_NOT_FOUND
       };
+      let changeNumber = undefined;
+      let label = undefined;
 
-      const splitObject = await storage.splits.getSplit(splitName);
       if (splitObject) {
         const split = Engine.parse(JSON.parse(splitObject), storage);
 
         evaluation = await split.getTreatment(key, attributes);
+        changeNumber = split.getChangeNumber();
+
+        if (settings.core.labelsEnabled) label = evaluation.label;
 
         log(`Split ${splitName} key ${matching(key)} evaluation ${evaluation.treatment}`);
       } else {
@@ -45,9 +51,10 @@ function ClientFactory(settings: Settings, storage: SplitStorage): SplitClient {
         feature: splitName,
         key: matching(key),
         treatment: evaluation.treatment,
-        when: Date.now(),
-        bucketingKey: bucketing(key),
-        label: settings.core.labelsEnabled ? evaluation.label : null
+        time: Date.now(),
+        bucketingKey,
+        label,
+        changeNumber
       });
 
       return evaluation.treatment;

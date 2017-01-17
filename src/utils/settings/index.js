@@ -71,7 +71,7 @@ function fromSecondsToMillis(n) {
 }
 
 function defaults(custom: Object): Settings {
-  const withDefaults = merge(base, overridesPerPlatform, custom);
+  const withDefaults = merge({}, base, overridesPerPlatform, custom);
 
   withDefaults.scheduler.featuresRefreshRate = fromSecondsToMillis(withDefaults.scheduler.featuresRefreshRate);
   withDefaults.scheduler.segmentsRefreshRate = fromSecondsToMillis(withDefaults.scheduler.segmentsRefreshRate);
@@ -84,9 +84,8 @@ function defaults(custom: Object): Settings {
 }
 
 const proto = {
-  /**
-   * Switch URLs servers based on target.
-   */
+
+  // Switch URLs servers based on target.
   url(target): string {
     if (eventsEndpointMatcher.test(target)) {
       return `${this.urls.events}${target}`;
@@ -95,9 +94,7 @@ const proto = {
     return `${this.urls.sdk}${target}`;
   },
 
-  /**
-   * Override key on a given configuration object
-   */
+  // Override key on a given configuration object
   overrideKey(newKey: string): Settings {
     return Object.assign(
       Object.create(proto),
@@ -118,8 +115,7 @@ const proto = {
 const SettingsFactory = (settings: Object): Settings => {
   return Object.assign(
     Object.create(proto),
-    defaults(settings),
-    runtime
+    defaults(settings)
   );
 };
 

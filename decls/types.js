@@ -243,7 +243,7 @@ declare type Settings = {
   core: {
     authorizationKey: string,
     key: ?string,
-    labelsEnabled: ?boolean
+    labelsEnabled: boolean
   },
 
   scheduler: {

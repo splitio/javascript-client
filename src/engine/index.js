@@ -84,4 +84,8 @@ Split.prototype.isGarbage = function isGarbage() {
   return this.baseInfo.status === 'ARCHIVED';
 };
 
+Split.prototype.getChangeNumber = function getChangeNumber() {
+  return this.baseInfo.changeNumber;
+};
+
 module.exports = Split;
