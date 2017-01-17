@@ -16,16 +16,8 @@ const MetricsCacheInMemory = require('./MetricsCache/InMemory');
 const NodeStorageFactory = (storage: Object): SplitStorage => {
 
   switch (storage.type) {
-    case 'MEMORY':
-      return {
-        splits: new SplitCacheInMemory,
-        segments: new SegmentCacheInMemory,
-        impressions: new ImpressionsCacheInMemory,
-        metrics: new MetricsCacheInMemory
-      };
-
     case 'REDIS': {
-      const redis = new Redis(storage.options); // improve this
+      const redis = new Redis(storage.options);
 
       return {
         splits: new SplitCacheInRedis(redis),
@@ -35,8 +27,14 @@ const NodeStorageFactory = (storage: Object): SplitStorage => {
       };
     }
 
+    case 'MEMORY':
     default:
-      throw new Error('Unsupported storage type');
+      return {
+        splits: new SplitCacheInMemory,
+        segments: new SegmentCacheInMemory,
+        impressions: new ImpressionsCacheInMemory,
+        metrics: new MetricsCacheInMemory
+      };
   }
 
 };

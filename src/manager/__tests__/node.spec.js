@@ -11,11 +11,16 @@ const splitView: SplitView = require('./mocks/output');
 const Manager = require('../');
 const SplitCacheInRedis = require('../../storage/SplitCache/InRedis');
 
+const SettingsFactory = require('../../utils/settings');
+const settings = SettingsFactory({
+  storage: {
+    type: 'REDIS'
+  }
+});
+
 tape('MANAGER API / In Redis', async function(assert) {
-  const r = new Redis(32768, 'localhost', {
-    dropBufferSupport: true
-  });
-  const cache = new SplitCacheInRedis(r);
+  const connection = new Redis(settings.storage.options);
+  const cache = new SplitCacheInRedis(connection);
   const manager = new Manager(cache);
 
   await cache.flush();
@@ -26,6 +31,6 @@ tape('MANAGER API / In Redis', async function(assert) {
 
   assert.deepEqual( views[0] , splitView );
 
-  r.quit();
+  connection.quit();
   assert.end();
 });

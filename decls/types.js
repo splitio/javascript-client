@@ -269,6 +269,11 @@ declare type Settings = {
     options: any
   },
 
+  runtime: {
+    ip: string,
+    hostname: string
+  },
+
   overrideKey(key: string): Settings,
 
   url(target: string): string

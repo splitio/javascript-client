@@ -6,11 +6,16 @@ const Redis = require('ioredis');
 const tape = require('tape-catch');
 const SegmentCache = require('../../../SegmentCache/InRedis');
 
+const SettingsFactory = require('../../../../utils/settings');
+const settings = SettingsFactory({
+  storage: {
+    type: 'REDIS'
+  }
+});
+
 tape('SEGMENT CACHE IN Redis / suite', async function (assert) {
-  const r = new Redis(32768, 'localhost', {
-    dropBufferSupport: true
-  });
-  const cache = new SegmentCache(r);
+  const connection = new Redis(settings.storage.options);
+  const cache = new SegmentCache(connection);
 
   await cache.flush();
 
@@ -42,15 +47,13 @@ tape('SEGMENT CACHE IN Redis / suite', async function (assert) {
   assert.ok( await cache.isInSegment('mocked-segment', 'd') === true );
   assert.ok( await cache.isInSegment('mocked-segment', 'e') === true );
 
-  r.quit();
+  connection.quit();
   assert.end();
 });
 
 tape('SEGMENT CACHE IN Redis / register segments', async function (assert) {
-  const r = new Redis(32768, 'localhost', {
-    dropBufferSupport: true
-  });
-  const cache = new SegmentCache(r);
+  const connection = new Redis(settings.storage.options);
+  const cache = new SegmentCache(connection);
 
   await cache.flush();
 
@@ -62,7 +65,6 @@ tape('SEGMENT CACHE IN Redis / register segments', async function (assert) {
 
   ['s1', 's2', 's3', 's4'].forEach(s => assert.ok(segments.indexOf(s) !== -1));
 
-  r.quit();
-
+  connection.quit();
   assert.end();
 });

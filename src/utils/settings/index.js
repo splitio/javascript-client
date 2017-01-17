@@ -23,6 +23,7 @@ const merge = require('lodash/merge');
 const language: string = require('./language');
 const runtime: Object = require('./runtime');
 const overridesPerPlatform: Object = require('./defaults');
+const ParseStorageSettings: Function = require('./storage');
 
 const eventsEndpointMatcher = /\/(testImpressions|metrics)/;
 
@@ -79,6 +80,8 @@ function defaults(custom: Object): Settings {
   withDefaults.scheduler.impressionsRefreshRate = fromSecondsToMillis(withDefaults.scheduler.impressionsRefreshRate);
   withDefaults.startup.requestTimeoutBeforeReady = fromSecondsToMillis(withDefaults.startup.requestTimeoutBeforeReady);
   withDefaults.startup.readyTimeout = fromSecondsToMillis(withDefaults.startup.readyTimeout);
+
+  withDefaults.storage = ParseStorageSettings(withDefaults.storage);
 
   return withDefaults;
 }

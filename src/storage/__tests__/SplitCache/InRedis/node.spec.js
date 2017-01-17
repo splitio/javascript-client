@@ -6,11 +6,16 @@ const Redis = require('ioredis');
 const tape = require('tape-catch');
 const SplitCacheInRedis = require('../../../SplitCache/InRedis');
 
+const SettingsFactory = require('../../../../utils/settings');
+const settings = SettingsFactory({
+  storage: {
+    type: 'REDIS'
+  }
+});
+
 tape('SPLIT CACHE / Redis', async function (assert) {
-  const r = new Redis(32768, 'localhost', {
-    dropBufferSupport: true
-  });
-  const cache = new SplitCacheInRedis(r);
+  const connection = new Redis(settings.storage.options);
+  const cache = new SplitCacheInRedis(connection);
 
   await cache.flush();
 
@@ -37,6 +42,6 @@ tape('SPLIT CACHE / Redis', async function (assert) {
   await cache.setChangeNumber(123);
   assert.ok( await cache.getChangeNumber() === 123 );
 
-  r.quit();
+  connection.quit();
   assert.end();
 });
