@@ -26,6 +26,8 @@ const overridesPerPlatform = require('./defaults');
 
 const eventsEndpointMatcher = /\/(testImpressions|metrics)/;
 
+const matchingKey = require('../key/factory').matching;
+
 const base = {
   core: {
     // API token (tight to an environment)
@@ -81,7 +83,7 @@ const proto = {
       case 'authorizationKey':
         return this.core.authorizationKey;
       case 'key':
-        return this.core.key;
+        return matchingKey(this.core.key);
       case 'featuresRefreshRate':
         return this.scheduler.featuresRefreshRate;
       case 'segmentsRefreshRate':
