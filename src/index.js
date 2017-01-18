@@ -6,7 +6,7 @@ const ClientFactory = require('./client');
 const ManagerFactory = require('./manager');
 const StorageFactory = require('./storage');
 
-const ProducerFactory = require('./producer');
+const FullProducerFactory = require('./producer');
 const PartialProducerFactory = require('./producer/browser/Partial');
 
 const MetricsFactory = require('./metrics');
@@ -22,12 +22,24 @@ function SplitFactory(config: Object) {
   const settings = SettingsFactory(config);
   const readiness = ReadinessGateFactory(settings.startup.readyTimeout);
   const storage = StorageFactory(settings.storage);
-  const producer = ProducerFactory(settings, readiness, storage);
-  const metrics = MetricsFactory(settings, storage);
 
-  // Start background jobs tasks
-  producer.start();
-  metrics.start();
+  let producer;
+  let metrics;
+
+  switch(settings.mode) {
+    case 'localhost':
+      break;
+    case 'producer':
+    case 'standalone': {
+      producer = FullProducerFactory(settings, readiness, storage);
+      metrics = MetricsFactory(settings, storage);
+
+      // Start background jobs tasks
+      producer.start();
+      metrics.start();
+      break;
+    }
+  }
 
   instances.default = Object.assign(ClientFactory(settings, storage), {
     // Expose SDK Events
