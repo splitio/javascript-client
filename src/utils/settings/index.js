@@ -35,7 +35,7 @@ const base = {
     // key used in your system (only required for browser version)
     key: undefined,
     // toggle impressions tracking of labels
-    labelsEnabled: false
+    labelsEnabled: true
   },
 
   scheduler: {
@@ -57,7 +57,7 @@ const base = {
   },
 
   // Instance version.
-  version: `${language}-7.3.0-canary.3`
+  version: `${language}-7.3.0`
 };
 
 function fromSecondsToMillis(n) {
