@@ -19,6 +19,13 @@ limitations under the License.
 // babel-runtime before remove this line of code.
 require('core-js/es6/promise');
 
+/*::
+  type KeyDTO = {
+    matchingKey: string,
+    bucketingKey: string
+  }
+*/
+
 const warning = require('warning');
 const log = require('debug')('splitio');
 
@@ -26,6 +33,8 @@ const SettingsFactory = require('../../utils/settings');
 const EventsFactory = require('../../utils/events');
 const Metrics = require('../../metrics');
 const Cache = require('../../cache');
+const { matching, bucketing } = require('../../utils/key/factory');
+const LabelsConstants = require('../../utils/labels');
 
 function onlineFactory(params /*: object */) /*: object */ {
   const settings = SettingsFactory(params);
@@ -34,8 +43,6 @@ function onlineFactory(params /*: object */) /*: object */ {
   const impressionsTracker = metrics.impressions;
   const getTreatmentTracker = metrics.getTreatment;
   const cache = new Cache(settings, hub);
-
-  log(settings);
 
   cache.start();
   metrics.start();
@@ -52,16 +59,24 @@ function onlineFactory(params /*: object */) /*: object */ {
   });
 
   return Object.assign(hub, {
-    getTreatment(key /*: string */, featureName /*: string */, attributes /*: object */) /*: string */ {
-      let treatment = 'control';
+    getTreatment(key /*: string | KeyDTO */, featureName /*: string */, attributes /*: object */) /*: string */ {
+      let evaluation = {
+        treatment: 'control',
+        label: LabelsConstants.SPLIT_NOT_FOUND
+      };
+      let changeNumber = undefined;
+      let label = undefined;
 
       let stopGetTreatmentTracker = getTreatmentTracker(); // start engine perf monitoring
 
       let split = cache.storage.splits.get(featureName);
       if (split) {
-        treatment = split.getTreatment(key, attributes);
+        evaluation = split.getTreatment(key, attributes);
+        changeNumber = split.getChangeNumber();
 
-        log(`feature ${featureName} key ${key} evaluated as ${treatment}`);
+        if (settings.core.labelsEnabled) label = evaluation.label;
+
+        log(`feature ${featureName} key ${matching(key)} evaluated as ${evaluation.treatment}`);
       } else {
         log(`feature ${featureName} doesn't exist`);
       }
@@ -70,12 +85,15 @@ function onlineFactory(params /*: object */) /*: object */ {
 
       impressionsTracker({
         feature: featureName,
-        key,
-        treatment,
-        when: Date.now()
+        key: matching(key),
+        treatment: evaluation.treatment,
+        time: Date.now(),
+        bucketingKey: bucketing(key),
+        label,
+        changeNumber
       });
 
-      return treatment;
+      return evaluation.treatment;
     },
 
     ready() {
@@ -89,7 +107,9 @@ function onlineFactory(params /*: object */) /*: object */ {
       hub.removeAllListeners();
       metrics.stop();
       cache.stop();
-    }
+    },
+
+    settings
   });
 }
 

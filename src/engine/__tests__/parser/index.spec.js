@@ -33,11 +33,15 @@ tape('PARSER / if user is in segment all 100%:on', assert => {
     partitions: [{
       treatment: 'on',
       size: 100
-    }]
+    }],
+    label: 'in segment all'
   }]);
 
+  const evalMock = evaluator('a key', 31);
+
   assert.equal(typeof evaluator, 'function', 'evaluator should be callable');
-  assert.equal(evaluator('a key', 31), 'on', "evaluator should return 'on'");
+  assert.equal(evalMock.treatment, 'on', "evaluator should return treatment 'on'");
+  assert.equal(evalMock.label, 'in segment all', "evaluator should return label 'in segment all'");
   assert.equal(segments.size, 0, 'there is no segment present in the definition');
   assert.end();
 
@@ -60,10 +64,14 @@ tape('PARSER / if user is in segment all 100%:off', assert => {
     }, {
       treatment: 'off',
       size: 100
-    }]
+    }],
+    label: 'in segment all'
   }]);
 
-  assert.true(evaluator('a key', 31) === 'off', "evaluation should throw 'off'");
+  const evalMock = evaluator('a key', 31);
+
+  assert.true(evalMock.treatment === 'off', "treatment evaluation should throw 'off'");
+  assert.true(evalMock.label === 'in segment all', "label evaluation should throw 'in segment all'");
   assert.true(segments.size === 0, 'there is no segment present in the definition');
   assert.end();
 
@@ -91,12 +99,14 @@ tape('PARSER / if user is in segment ["u1", "u2", "u3", "u4"] then split 100%:on
     partitions: [{
       treatment: 'on',
       size: 100
-    }]
+    }],
+    label: 'explicitly included'
   }]);
 
   assert.true(evaluator('a key', 31) === undefined, 'evaluation should throw undefined');
-  assert.true(evaluator('u1', 31) === 'on', "evaluation should throw 'on'");
-  assert.true(evaluator('u3', 31) === 'on', "should be evaluated to 'on'");
+  assert.true(evaluator('u1', 31).treatment === 'on', "treatment evaluation should throw 'on'");
+  assert.true(evaluator('u3', 31).treatment === 'on', "treatment should be evaluated to 'on'");
+  assert.true(evaluator('u3', 31).label === 'explicitly included', "label should be evaluated to 'explicitly included'");
   assert.true(segments.size === 0, 'there is no segment present in the definition');
   assert.end();
 
@@ -129,12 +139,17 @@ tape('PARSER / if user.account is in list ["v1", "v2", "v3"] then split 100:on',
     partitions: [{
       treatment: 'on',
       size: 100
-    }]
+    }],
+    label: 'explicitly included'
   }]);
 
   assert.true(evaluator('test@split.io', 31, {
     account: 'v1'
-  }) === 'on', 'v1 is defined in the whitelist');
+  }).treatment === 'on', 'v1 is defined in the whitelist');
+
+  assert.true(evaluator('test@split.io', 31, {
+    account: 'v1'
+  }).label === 'explicitly included', 'label should be "explicitly included"');
 
   assert.true(evaluator('v1', 31) === undefined, 'we are looking for v1 inside the account attribute');
 
@@ -168,12 +183,13 @@ tape('PARSER / if user.account is in segment all then split 100:on', assert => {
     partitions: [{
       treatment: 'on',
       size: 100
-    }]
+    }],
+    label: 'in segment all'
   }]);
 
   assert.true(evaluator('test@split.io', 31, {
     account: 'v1'
-  }) === 'on', 'v1 is defined in segment all');
+  }).treatment === 'on', 'v1 is defined in segment all');
 
   assert.true(
     evaluator('test@split.io', 31) === undefined,
@@ -213,7 +229,7 @@ tape('PARSER / if user.attr is between 10 and 20 then split 100:on', assert => {
 
   assert.true(evaluator('test@split.io', 31, {
     attr: 10
-  }) === 'on', '10 is between 10 and 20');
+  }).treatment === 'on', '10 is between 10 and 20');
 
   assert.true(evaluator('test@split.io', 31, {
     attr: 9
@@ -256,11 +272,11 @@ tape('PARSER / if user.attr <= datetime 1458240947021 then split 100:on', assert
 
   assert.true(evaluator('test@split.io', 31, {
     attr: new Date('2016-03-17T18:55:47.021Z').getTime()
-  }) === 'on', '1458240947021 is equal');
+  }).treatment === 'on', '1458240947021 is equal');
 
   assert.true(evaluator('test@split.io', 31, {
     attr: new Date('2016-03-17T17:55:47.021Z').getTime()
-  }) === 'on', '1458240947020 is less than 1458240947021');
+  }).treatment === 'on', '1458240947020 is less than 1458240947021');
 
   assert.true(evaluator('test@split.io', 31, {
     attr: new Date('2016-03-17T19:55:47.021Z').getTime()
@@ -303,7 +319,7 @@ tape('PARSER / if user.attr >= datetime 1458240947021 then split 100:on', assert
 
   assert.true(evaluator('test@split.io', 31, {
     attr: new Date('2016-03-17T18:55:47.021Z').getTime()
-  }) === 'on', '1458240947021 is equal');
+  }).treatment === 'on', '1458240947021 is equal');
 
   assert.true(evaluator('test@split.io', 31, {
     attr: new Date('2016-03-17T17:55:47.021Z').getTime()
@@ -311,7 +327,7 @@ tape('PARSER / if user.attr >= datetime 1458240947021 then split 100:on', assert
 
   assert.true(evaluator('test@split.io', 31, {
     attr: new Date('2016-03-17T19:55:47.021Z').getTime()
-  }) === 'on', '1458240947000 is greater than 1458240947021');
+  }).treatment === 'on', '1458240947000 is greater than 1458240947021');
 
   assert.true(evaluator('test@split.io', 31) === undefined,
     'missing attributes in the parameters list'
@@ -349,15 +365,15 @@ tape('PARSER / if user.attr = datetime 1458240947021 then split 100:on', assert 
 
   assert.equal(evaluator('test@split.io', 31, {
     attr: 1458240947021
-  }), 'on', '2016-03-17T18:55:47.021Z is equal to 2016-03-17T18:55:47.021Z');
+  }).treatment, 'on', '2016-03-17T18:55:47.021Z is equal to 2016-03-17T18:55:47.021Z');
 
   assert.equal(evaluator('test@split.io', 31, {
     attr: 1458240947020
-  }), 'on', '2016-03-17T18:55:47.020Z is considered equal to 2016-03-17T18:55:47.021Z');
+  }).treatment, 'on', '2016-03-17T18:55:47.020Z is considered equal to 2016-03-17T18:55:47.021Z');
 
   assert.equal(evaluator('test@split.io', 31, {
     attr: 1458172800000
-  }), 'on', '2016-03-17T00:00:00Z is considered equal to 2016-03-17T18:55:47.021Z');
+  }).treatment, 'on', '2016-03-17T00:00:00Z is considered equal to 2016-03-17T18:55:47.021Z');
 
   assert.equal(evaluator('test@split.io', 31), undefined,
     'missing attributes should be evaluated to false'
@@ -388,8 +404,8 @@ tape('PARSER / if user is in segment all then split 20%:A,20%:B,60%:A', assert =
     }]
   }]);
 
-  assert.equal(evaluator('aaaaa', 31), 'A', '20%:A'); // bucket 15
-  assert.equal(evaluator('bbbbbbbbbbbbbbbbbbb', 31), 'B', '20%:B'); // bucket 34
-  assert.equal(evaluator('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 31), 'A', '60%:A'); // bucket 100
+  assert.equal(evaluator('aaaaa', 31).treatment, 'A', '20%:A'); // bucket 15
+  assert.equal(evaluator('bbbbbbbbbbbbbbbbbbb', 31).treatment, 'B', '20%:B'); // bucket 34
+  assert.equal(evaluator('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 31).treatment, 'A', '60%:A'); // bucket 100
   assert.end();
 });

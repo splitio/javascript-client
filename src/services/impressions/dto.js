@@ -26,11 +26,17 @@ module.exports = {
       dto.push({
         testName: name,
         keyImpressions: groupedByFeature[name].map(entry => {
-          return {
+          const keyImpression = {
             keyName: entry.key,
             treatment: entry.treatment,
-            time: entry.when
+            time: entry.time,
+            changeNumber: entry.changeNumber
           };
+
+          if (entry.label) keyImpression.label = entry.label;
+          if (entry.bucketingKey) keyImpression.bucketingKey = entry.bucketingKey;
+
+          return keyImpression;
         })
       });
     }

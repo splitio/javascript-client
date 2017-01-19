@@ -41,7 +41,10 @@ tape('E2E / lets evaluates!', assert => {
   const sdk = splitio({
     core: {
       authorizationKey: '<fake-token>',
-      key: 'facundo@split.io'
+      key: {
+        matchingKey: 'facundo@split.io',
+        bucketingKey: 'lol'
+      }
     },
     scheduler: {
       featuresRefreshRate:    1,

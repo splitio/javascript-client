@@ -29,9 +29,16 @@ const ifElseIfCombiner = require('../combiners/ifelseif');
 const andCombiner = require('../combiners/and');
 
 /*::
+  type KeyDTO = {
+    matchingKey: string,
+    bucketingKey: string
+  }
+*/
+
+/*::
   type ParserOutputDTO = {
     segments: Set,
-    evaluator: (key: string, seed: number) => boolean
+    evaluator: (key: string | KeyDTO, seed: number) => boolean
   }
 */
 
@@ -48,7 +55,8 @@ function parse(conditions /*: Iterable<Object> */, storage /*: Storage */) /*: P
       matcherGroup: {
         matchers
       },
-      partitions
+      partitions,
+      label
     } = condition;
 
     // transform data structure
@@ -80,7 +88,8 @@ function parse(conditions /*: Iterable<Object> */, storage /*: Storage */) /*: P
 
     predicates.push(evaluatorFactory(
       andCombiner(expressions),
-      treatmentsParser(partitions)
+      treatmentsParser(partitions),
+      label
     ));
   }
 

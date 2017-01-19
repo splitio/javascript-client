@@ -1,7 +1,41 @@
+## 7.3.0 (January 19, 2017)
+
+### Added bucketing key support
+
+Sometimes you want to have annonymous users but been able to track them as
+users after a authentication process. Having this in mind, we provide a way to
+generate treatments using a fixed key (bucketing key), while been able to change
+the matching key without problem, so you can garantice a consistent experience
+without been worried about the matching key.
+
+```
+var sdk = splitio({
+  core: {
+    authorizationKey: '<your-token>',
+    key: {
+      matchingKey: '<your-usual-key>',
+      bucketingKey: '<a-new-key-for-calculate-the-treatment>'
+    }
+  }
+});
+```
+
+### Added labels support
+
+In order to improve visibility in what is happening while doing a matching, we
+are collecting by default some extra information while doing a getTreatment
+call. The information includes:
+
+1. Which condition has been matched?
+2. Which SDK language & version has generated the impression?
+3. If you are running NodeJS, we are adding machine name and ip so you could
+   track evaluations in a cluster.
+
 ## 7.1.1 (November 16, 2016)
 
-* In some particular combinations of NodeJS / OS the `require('@splitsoftware/splitio')` could fail. Added
-  a workaround to fix the problem.
+* In some particular combinations of NodeJS / OS the
+  `require('@splitsoftware/splitio')` could fail. Added a workaround to fix the
+  problem.
 
 ## 7.1.0 (November 15, 2016)
 
@@ -26,7 +60,8 @@
 * Added the concept of 'ready timeout', so you could take a controlled action if
   the SDK is taking too much time doing the startup.
 * Fixed few bugs, specially for the browser release.
-* `.ready()` method is deprecated in favor of `sdk.on(sdk.Event.SDK_READY, function onReady() { do something; })`
+* `.ready()` method is deprecated in favor of
+  `sdk.on(sdk.Event.SDK_READY, function onReady() { do something; })`
 
 ## 5.1.1 (June 13, 2016)
 
