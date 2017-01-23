@@ -63,3 +63,32 @@ tape(`EVENTS / should emit ${Event.SDK_UPDATE} after ${Event.SDK_READY}`, assert
   assert.equal(counter, 5, 'counter should have a 5');
   assert.end();
 });
+
+tape(`EVENTS / expose internal ${Event.SDK_SPLITS_ARRIVED}`, assert => {
+  const hub = EventsFactory();
+  const sequence = [];
+  const expected = [1, 3, 4];
+
+  hub.on(Event.SDK_SPLITS_ARRIVED, () => {
+    sequence.push(1);
+  });
+
+  hub.on(Event.SDK_SEGMENTS_ARRIVED, () => {
+    sequence.push(2);
+  });
+
+  hub.on(hub.Event.SDK_READY, () => {
+    sequence.push(3);
+  });
+
+  hub.on(hub.Event.SDK_UPDATE, () => {
+    sequence.push(4);
+  });
+
+  hub.emit(hub.Event.SDK_SPLITS_ARRIVED);
+  hub.emit(hub.Event.SDK_SEGMENTS_ARRIVED);
+  hub.emit(hub.Event.SDK_SPLITS_ARRIVED);
+
+  assert.deepEqual(sequence, expected);
+  assert.end();
+});
