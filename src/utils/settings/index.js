@@ -23,7 +23,8 @@ const merge = require('lodash/merge');
 const language: string = require('./language');
 const runtime: Object = require('./runtime');
 const overridesPerPlatform: Object = require('./defaults');
-const ParseStorageSettings: Function = require('./storage');
+const storage: Function = require('./storage');
+const mode: Function = require('./mode');
 
 const eventsEndpointMatcher = /\/(testImpressions|metrics)/;
 
@@ -48,7 +49,9 @@ const base = {
     // publish metrics each 60 sec
     metricsRefreshRate: 60,
     // publish evaluations each 60 sec
-    impressionsRefreshRate: 60
+    impressionsRefreshRate: 60,
+    // fetch offline changes each 15 sec
+    offlineRefreshRate: 15
   },
 
   urls: {
@@ -74,14 +77,22 @@ function fromSecondsToMillis(n) {
 function defaults(custom: Object): Settings {
   const withDefaults = merge({}, base, overridesPerPlatform, custom);
 
+  // Scheduler periods
   withDefaults.scheduler.featuresRefreshRate = fromSecondsToMillis(withDefaults.scheduler.featuresRefreshRate);
   withDefaults.scheduler.segmentsRefreshRate = fromSecondsToMillis(withDefaults.scheduler.segmentsRefreshRate);
   withDefaults.scheduler.metricsRefreshRate = fromSecondsToMillis(withDefaults.scheduler.metricsRefreshRate);
   withDefaults.scheduler.impressionsRefreshRate = fromSecondsToMillis(withDefaults.scheduler.impressionsRefreshRate);
+  withDefaults.scheduler.offlineRefreshRate = fromSecondsToMillis(withDefaults.scheduler.offlineRefreshRate);
+
+  // Startup periods
   withDefaults.startup.requestTimeoutBeforeReady = fromSecondsToMillis(withDefaults.startup.requestTimeoutBeforeReady);
   withDefaults.startup.readyTimeout = fromSecondsToMillis(withDefaults.startup.readyTimeout);
 
-  withDefaults.storage = ParseStorageSettings(withDefaults.storage);
+  // ensure a valid SDK mode
+  withDefaults.mode = mode(withDefaults.core.authorizationKey, withDefaults.mode);
+
+  // ensure a valid Storage based on mode defined.
+  withDefaults.storage = storage(withDefaults);
 
   return withDefaults;
 }

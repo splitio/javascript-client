@@ -16,7 +16,16 @@ limitations under the License.
 'use strict';
 
 const ParseStorageSettings = (settings) => {
-  const { type, options = {} } = settings;
+  const {
+    mode,
+    storage: {
+      type, options = {}
+    }
+  } = settings;
+
+  if (mode === 'localhost') return {
+    type: 'MEMORY'
+  };
 
   switch (type) {
     case 'REDIS': {

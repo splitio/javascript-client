@@ -9,6 +9,8 @@ const StorageFactory = require('./storage');
 const FullProducerFactory = require('./producer');
 const PartialProducerFactory = require('./producer/browser/Partial');
 
+const OfflineProducerFactory = require('./producer/offline');
+
 const MetricsFactory = require('./metrics');
 
 const SettingsFactory = require('./utils/settings');
@@ -25,9 +27,14 @@ function SplitFactory(config: Object) {
 
   let producer;
   let metrics;
+  let offline;
 
   switch(settings.mode) {
     case 'localhost':
+      offline = OfflineProducerFactory(settings, readiness, storage);
+
+      // Start background jobs tasks
+      offline.start();
       break;
     case 'producer':
     case 'standalone': {
@@ -39,6 +46,8 @@ function SplitFactory(config: Object) {
       metrics.start();
       break;
     }
+    case 'consumer':
+      break;
   }
 
   instances.default = Object.assign(ClientFactory(settings, storage), {
@@ -50,8 +59,11 @@ function SplitFactory(config: Object) {
     // Destroy the SDK instance
     destroy() {
       readiness.destroy();
+
       producer && producer.stop();
       metrics && metrics.stop();
+      offline && offline.stop();
+
       delete instances.default;
     }
   });
