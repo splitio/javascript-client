@@ -5,19 +5,17 @@
 const tape = require('tape-catch');
 const SplitFactory = require('../../');
 
+const path = require('path');
+
 tape('NodeJS Offline mode', function (assert) {
   const config = {
     core: {
-      authorizationKey: '5i7avi2rpj8i7qg99fhmc38244kcineavla0'
+      authorizationKey: 'localhost'
     },
     scheduler: {
-      featuresRefreshRate: 15,
-      segmentsRefreshRate: 15
+      offlineRefreshRate: 5
     },
-    urls: {
-      sdk: 'https://sdk-aws-staging.split.io/api',
-      events: 'https://events-aws-staging.split.io/api'
-    }
+    features: path.join(__dirname, '.split')
   };
   const factory = SplitFactory(config);
   const client = factory.client();
