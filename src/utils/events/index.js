@@ -56,6 +56,8 @@ module.exports = function EventFactory() {
 
         areSplitsReady = true;
         isReady = areSplitsReady && areSegmentsReady;
+
+        proto.emit(eventName, ...rest);
       }
 
       if (!areSegmentsReady && eventName === Event.SDK_SEGMENTS_ARRIVED) {
