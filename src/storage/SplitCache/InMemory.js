@@ -2,13 +2,12 @@
 
 'use strict';
 
-class SplitCacheInMemory {
+class SplitCacheInMemory implements SplitCache {
   splitCache: Map<string, string>;
   changeNumber: number;
 
   constructor() {
-    this.splitCache = new Map;
-    this.changeNumber = -1;
+    this.flush();
   }
 
   addSplit(splitName: string , split: string): boolean {
@@ -59,6 +58,11 @@ class SplitCacheInMemory {
 
   getKeys(): Array<string> {
     return [...this.splitCache.keys()];
+  }
+
+  flush(): void {
+    this.splitCache = new Map;
+    this.changeNumber = -1;
   }
 }
 

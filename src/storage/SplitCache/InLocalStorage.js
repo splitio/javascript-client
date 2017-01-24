@@ -116,6 +116,7 @@ class SplitCacheLocalStorage {
   }
 
   flush() {
+    // @TODO improve implementation
     localStorage.clear();
   }
 }

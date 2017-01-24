@@ -21,6 +21,8 @@ declare interface SplitCache {
 
   getAll(): AsyncValue<Array<string>>;
   getKeys(): AsyncValue<Array<string>>;
+
+  flush(): void;
 }
 
 declare interface SegmentCache {
@@ -34,6 +36,8 @@ declare interface SegmentCache {
   registerSegment(segment: string): AsyncValue<boolean>;
   registerSegments(segments: Iterable<string>): AsyncValue<boolean>;
   getRegisteredSegments(): AsyncValue<Iterable<string>>;
+
+  flush(): void;
 }
 
 declare interface StatsCache {

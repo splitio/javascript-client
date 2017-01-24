@@ -4,13 +4,12 @@
 
 const keys = require('../../Keys');
 
-class SegmentCacheInMemory {
+class SegmentCacheInMemory implements SegmentCache {
   segmentCache: Map<string, Set<string>>;
   segmentChangeNumber: Map<string, number>;
 
   constructor() {
-    this.segmentCache = new Map();
-    this.segmentChangeNumber = new Map();
+    this.flush();
   }
 
   addToSegment(segmentName: string, segmentKeys: Array<string>): boolean {
@@ -78,6 +77,11 @@ class SegmentCacheInMemory {
     const value = this.segmentChangeNumber.get(segmentChangeNumberKey);
 
     return Number.isInteger(value) ? value: -1;
+  }
+
+  flush(): void {
+    this.segmentCache = new Map();
+    this.segmentChangeNumber = new Map();
   }
 }
 

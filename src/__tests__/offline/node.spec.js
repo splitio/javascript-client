@@ -13,7 +13,7 @@ tape('NodeJS Offline mode', function (assert) {
       authorizationKey: 'localhost'
     },
     scheduler: {
-      offlineRefreshRate: 5
+      offlineRefreshRate: 3
     },
     features: path.join(__dirname, '.split')
   };
@@ -22,21 +22,14 @@ tape('NodeJS Offline mode', function (assert) {
   const events = client.events();
 
   events.on(events.SDK_READY, async function () {
-    assert.comment('QA User');
-    assert.equal(await client.getTreatment('qa-user', 'always-off'), 'off');
-    assert.equal(await client.getTreatment('qa-user', 'always-on'), 'on');
-    assert.equal(await client.getTreatment('qa-user', 'on-if-in-segment-qa'), 'on');
-    assert.equal(await client.getTreatment('qa-user', 'on-if-in-segment-qc'), 'off');
+    // setTimeout(async function self() {
+    assert.equal(await client.getTreatment('qa-user', 'testing_split'), 'on');
+    assert.equal(await client.getTreatment('qa-user', 'testing_split_2'), 'control');
 
-    assert.comment('QC User');
-    assert.equal(await client.getTreatment('qc-user', 'always-off'), 'off');
-    assert.equal(await client.getTreatment('qc-user', 'always-on'), 'on');
-    assert.equal(await client.getTreatment('qc-user', 'on-if-in-segment-qa'), 'off');
-    assert.equal(await client.getTreatment('qc-user', 'on-if-in-segment-qc'), 'on');
+    //   setTimeout(self, 5000);
+    // }, 5000);
 
     client.destroy();
-
     assert.end();
   });
-
 });

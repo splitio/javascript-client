@@ -126,11 +126,6 @@ const proto = {
   runtime
 };
 
-const SettingsFactory = (settings: Object): Settings => {
-  return Object.assign(
-    Object.create(proto),
-    defaults(settings)
-  );
-};
+const SettingsFactory = (settings: Object): Settings => Object.assign(Object.create(proto), defaults(settings));
 
 module.exports = SettingsFactory;

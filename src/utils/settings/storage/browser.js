@@ -14,4 +14,28 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-module.exports = f => f;
+// @flow
+
+'use strict';
+
+const ParseStorageSettings = (settings: Settings) => {
+  let {
+    mode,
+    storage: {
+      type, options = {}
+    }
+  } = settings;
+
+  if (mode === 'localhost') return {
+    type: 'MEMORY'
+  };
+
+  if (type !== 'MEMORY' && type !== 'LOCALSTORAGE') type = 'MEMORY';
+
+  return {
+    type,
+    options
+  };
+};
+
+module.exports = ParseStorageSettings;
