@@ -278,6 +278,8 @@ declare type Settings = {
     hostname: string
   },
 
+  version: string,
+
   overrideKey(key: string): Settings,
 
   url(target: string): string
@@ -291,4 +293,17 @@ declare type ReadinessGate = {
   segments: EventEmitter,
   gate: EventEmitter,
   destroy(): void
+};
+
+/**
+ * Impressions types
+ */
+declare type KeyImpression = {
+  feature: string,
+  key: string,
+  treatment: string,
+  time: number,
+  bucketingKey: string,
+  label: string,
+  changeNumber: number
 };
