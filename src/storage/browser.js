@@ -15,7 +15,8 @@ const MetricsCacheInMemory = require('./MetricsCache/InMemory');
  * Browser storage instanciation which allows persistent strategy for segments
  * and splits.
  */
-const BrowserStorageFactory = (storage: Object): SplitStorage => {
+const BrowserStorageFactory = (settings: Settings): SplitStorage => {
+  const { storage } = settings;
 
   switch (storage.type) {
     case 'MEMORY':
