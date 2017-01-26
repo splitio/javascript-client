@@ -23,7 +23,7 @@ const instances = {};
 function SplitFactory(config: Object) {
   const settings = SettingsFactory(config);
   const readiness = ReadinessGateFactory(settings.startup.readyTimeout);
-  const storage = StorageFactory(settings.storage);
+  const storage = StorageFactory(settings);
 
   let producer;
   let metrics;

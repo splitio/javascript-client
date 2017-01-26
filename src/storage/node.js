@@ -11,9 +11,13 @@ const SegmentCacheInMemory = require('./SegmentCache/InMemory');
 const SegmentCacheInRedis = require('./SegmentCache/InRedis');
 
 const ImpressionsCacheInMemory = require('./ImpressionsCache/InMemory');
-const MetricsCacheInMemory = require('./MetricsCache/InMemory');
+const ImpressionsCacheInRedis = require('./ImpressionsCache/InRedis');
 
-const NodeStorageFactory = (storage: Object): SplitStorage => {
+const MetricsCacheInMemory = require('./MetricsCache/InMemory');
+const MetricsCacheInRedis = require('./MetricsCache/InRedis');
+
+const NodeStorageFactory = (settings: Settings): SplitStorage => {
+  const { storage } = settings;
 
   switch (storage.type) {
     case 'REDIS': {
@@ -22,8 +26,8 @@ const NodeStorageFactory = (storage: Object): SplitStorage => {
       return {
         splits: new SplitCacheInRedis(redis),
         segments: new SegmentCacheInRedis(redis),
-        impressions: new ImpressionsCacheInMemory,
-        metrics: new MetricsCacheInMemory
+        impressions: new ImpressionsCacheInRedis(settings, redis),
+        metrics: new MetricsCacheInRedis(settings, redis)
       };
     }
 
