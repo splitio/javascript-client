@@ -20,7 +20,7 @@ limitations under the License.
 
 const keys = require('../Keys');
 
-const processPipelineAnswer = (results: Array<[any, string]>): Array<string> =>
+const processPipelineAnswer = (results: Array<[any, Array<string>]>): Array<string> =>
   results.reduce((accum, [err, value]) => {
     if (err === null) {
       try {

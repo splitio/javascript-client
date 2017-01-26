@@ -215,6 +215,8 @@ declare interface IORedis {
 
   set(key: string, value: any): Promise<string>;
   get(key: string): Promise<string>;
+  incr(key: string): Promise<number>;
+
   del(key: string): Promise<number>;
   del(key: Array<string>): Promise<number>;
 

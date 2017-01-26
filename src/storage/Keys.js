@@ -36,6 +36,15 @@ const searchPatternForLatency = (sdkVersion: string, instanceId: string): string
 const isSplitKey = (key: string) => startsWith(key, 'SPLITIO.split.');
 
 const extractKey = (builtKey: string) => builtKey.substring(14);
+const extractBucketNumber = (latencyKey: string) => {
+  const m = latencyKey.match(/\d+$/);
+
+  if (m && m.length) {
+    return m[0];
+  } else {
+    throw 'Invalid latency key provided';
+  }
+};
 
 module.exports = {
   // Splits
@@ -56,6 +65,7 @@ module.exports = {
   // Latencies
   buildLatencyKeyPrefix,
   buildLatencyKey,
+  extractBucketNumber,
 
   // Search Patterns
   searchPatternForSplitKeys,

@@ -21,7 +21,8 @@ function ClientFactory(settings: Settings, storage: SplitStorage): SplitClient {
 
   return {
     async getTreatment(key: SplitKey, splitName: string, attributes: ?Object): Promise<string> {
-      const stopLatencyTracker = latencyTracker();
+      // @TODO review parameter
+      const stopLatencyTracker = latencyTracker('getTreament');
       const splitObject = await storage.splits.getSplit(splitName);
       const bucketingKey = bucketing(key);
 
