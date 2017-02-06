@@ -2,17 +2,17 @@
 
 'use strict';
 
-const keys = require('../../Keys');
-
 class SegmentCacheInMemory {
   segmentCache: Map<string, boolean>;
+  keys: KeyBuilder;
 
-  constructor() {
+  constructor(keys: KeyBuilder) {
+    this.keys = keys;
     this.segmentCache = new Map();
   }
 
   addToSegment(segmentName: string/*, segmentKeys: Array<string>*/): boolean {
-    const segmentKey = keys.buildSegmentNameKey(segmentName);
+    const segmentKey = this.keys.buildSegmentNameKey(segmentName);
 
     this.segmentCache.set(segmentKey, true);
 
@@ -20,7 +20,7 @@ class SegmentCacheInMemory {
   }
 
   removeFromSegment(segmentName: string/*, segmentKeys: Array<string>*/): boolean {
-    const segmentKey = keys.buildSegmentNameKey(segmentName);
+    const segmentKey = this.keys.buildSegmentNameKey(segmentName);
 
     this.segmentCache.delete(segmentKey);
 
@@ -28,7 +28,7 @@ class SegmentCacheInMemory {
   }
 
   isInSegment(segmentName: string/*, key: string*/): boolean {
-    const segmentKey: string = keys.buildSegmentNameKey(segmentName);
+    const segmentKey: string = this.keys.buildSegmentNameKey(segmentName);
 
     return this.segmentCache.get(segmentKey) === true;
   }

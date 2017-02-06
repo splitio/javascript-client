@@ -2,8 +2,6 @@
 
 'use strict';
 
-const keys = require('../Keys');
-
 /**
  * Discard errors for an answer of multiple operations.
  */
@@ -15,18 +13,24 @@ const processPipelineAnswer = (results: Array<[any, string]>): Array<string> =>
 
 class SplitCacheInRedis {
   redis: IORedis;
+  keys: KeyBuilder;
 
-  constructor(redis: IORedis) {
+  constructor(keys: KeyBuilder, redis: IORedis) {
     this.redis = redis;
+    this.keys = keys;
   }
 
   addSplit(splitName: string, split: string): Promise<boolean> {
-    return this.redis.set(keys.buildSplitKey(splitName), split).then(status => status === 'OK');
+    return this.redis.set(
+        this.keys.buildSplitKey(splitName), split
+      ).then(
+        status => status === 'OK'
+      );
   }
 
   addSplits(entries: Array<[string, string]>): Promise<Array<boolean>> {
     if (entries.length) {
-      const cmds = entries.map(([key, value]) => ['set', keys.buildSplitKey(key), value]);
+      const cmds = entries.map(([key, value]) => ['set', this.keys.buildSplitKey(key), value]);
 
       return this.redis.pipeline(cmds)
         .exec()
@@ -41,7 +45,7 @@ class SplitCacheInRedis {
    * Remove a given split from Redis. Returns the number of deleted keys.
    */
   removeSplit(splitName: string): Promise<number> {
-    return this.redis.del(keys.buildSplitKey(splitName));
+    return this.redis.del(this.keys.buildSplitKey(splitName));
   }
 
   /**
@@ -49,7 +53,7 @@ class SplitCacheInRedis {
    */
   removeSplits(names: Array<string>): Promise<number> {
     if (names.length) {
-      return this.redis.del(names.map(n => keys.buildSplitKey(n)));
+      return this.redis.del(names.map(n => this.keys.buildSplitKey(n)));
     } else {
       return Promise.resolve(0);
     }
@@ -59,7 +63,7 @@ class SplitCacheInRedis {
    * Get split definition or null if it's not defined.
    */
   getSplit(splitName: string): Promise<?string> {
-    return this.redis.get(keys.buildSplitKey(splitName));
+    return this.redis.get(this.keys.buildSplitKey(splitName));
   }
 
   /**
@@ -68,7 +72,7 @@ class SplitCacheInRedis {
    * @TODO pending error handling
    */
   setChangeNumber(changeNumber: number): Promise<boolean> {
-    return this.redis.set(keys.buildSplitsTillKey(), changeNumber + '').then(
+    return this.redis.set(this.keys.buildSplitsTillKey(), changeNumber + '').then(
       status => status === 'OK'
     );
   }
@@ -79,7 +83,7 @@ class SplitCacheInRedis {
    * @TODO pending error handling
    */
   getChangeNumber(): Promise<number> {
-    return this.redis.get(keys.buildSplitsTillKey()).then(value => {
+    return this.redis.get(this.keys.buildSplitsTillKey()).then(value => {
       const i = parseInt(value, 10);
 
       return Number.isNaN(i) ? -1 : i;
@@ -91,7 +95,7 @@ class SplitCacheInRedis {
    *       pipeline without kill redis performance.
    */
   getAll(): Promise<Array<string>> {
-    return this.redis.keys(keys.searchPatternForSplitKeys()).then(
+    return this.redis.keys(this.keys.searchPatternForSplitKeys()).then(
       (listOfKeys: Array<string>) => this.redis.pipeline(listOfKeys.map(k => ['get', k])).exec()
     ).then(processPipelineAnswer);
   }

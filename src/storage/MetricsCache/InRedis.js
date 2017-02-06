@@ -13,33 +13,29 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-
 // @flow
 
 'use strict';
 
-const keys = require('../Keys');
 const findIndex = require('./findIndex');
 
 class MetricsCacheInRedis {
-  settings: Settings;
   redis: IORedis;
+  keys: KeyBuilder;
 
-  constructor(settings: Settings, redis: IORedis) {
-    this.settings = settings;
+  constructor(keys: KeyBuilder, redis: IORedis) {
+    this.keys = keys;
     this.redis = redis;
   }
 
   scanKeys(): Promise<Array<string>> {
-    return this.redis.keys(keys.searchPatternForLatency(this.settings.version, this.settings.runtime.ip));
+    return this.redis.keys(this.keys.searchPatternForLatency());
   }
 
   track(latency: number, metricName: string = 'getTreatment'): Promise<number> {
     const bucketNumber = findIndex(latency);
 
-    return this.redis.incr(
-      keys.buildLatencyKey(this.settings.version, this.settings.runtime.ip, metricName, bucketNumber)
-    );
+    return this.redis.incr(this.keys.buildLatencyKey(metricName, bucketNumber));
   }
 
   async clear(): Promise<number> {
@@ -62,7 +58,7 @@ class MetricsCacheInRedis {
     counters = counters.map(([err, value]) => (err === null) ? parseInt(value, 10) : -1);
 
     for (const entryIndex in currentKeys) {
-      const bucketNumber = keys.extractBucketNumber(currentKeys[entryIndex]);
+      const bucketNumber = this.keys.extractBucketNumber(currentKeys[entryIndex]);
       const counter = counters[entryIndex];
 
       if (counter > 0) buckets[bucketNumber] = counter;

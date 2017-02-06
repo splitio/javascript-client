@@ -4,77 +4,95 @@
 
 const startsWith = require('core-js/library/fn/string/starts-with');
 
-const buildImpressionsKey
-  = (sdkVersion: string, instanceId: string, splitName: string) =>
-    buildImpressionsKeyPrefix(sdkVersion, instanceId) + `.${splitName}`;
+const everythingAtTheEnd = /[^.]+$/;
+const everyDigitAtTheEnd = /\d+$/;
 
-const buildImpressionsKeyPrefix
-  = (sdkVersion: string, instanceId: string) =>
-    `SPLITIO/${sdkVersion}/${instanceId}/impressions`;
+class KeyBuilder {
+  settings: Settings;
 
-const buildLatencyKey
-  = (sdkVersion: string, instanceId: string, metricName: string, bucketNumber: number) =>
-    buildLatencyKeyPrefix(sdkVersion, instanceId) + `.${metricName}.bucket.${bucketNumber}`;
-
-const buildLatencyKeyPrefix
-  = (sdkVersion: string, instanceId: string) =>
-    `SPLITIO/${sdkVersion}/${instanceId}/latency`;
-
-const buildSegmentNameKey = (segmentName: string) => `SPLITIO.segment.${segmentName}`;
-const buildSegmentTillKey = (segmentName: string) => `SPLITIO.segment.${segmentName}.till`;
-const buildRegisteredSegmentsKey = () => 'SPLITIO.segments.registered';
-const buildSegmentsReady = (): string => 'SPLITIO.segments.ready';
-
-const buildSplitKey = (splitName: string): string => `SPLITIO.split.${splitName}`;
-const buildSplitsTillKey = (): string => 'SPLITIO.splits.till';
-const buildSplitsReady = (): string => 'SPLITIO.splits.ready';
-
-const searchPatternForSplitKeys = (): string => 'SPLITIO.split.*';
-const searchPatternForImpressions = (sdkVersion: string, instanceId: string): string => buildImpressionsKeyPrefix(sdkVersion, instanceId) + '.*';
-const searchPatternForLatency = (sdkVersion: string, instanceId: string): string => buildLatencyKeyPrefix(sdkVersion, instanceId) + '.*';
-
-const isSplitKey = (key: string) => startsWith(key, 'SPLITIO.split.');
-
-const extractKey = (builtKey: string) => builtKey.substring(14);
-const extractBucketNumber = (latencyKey: string) => {
-  const m = latencyKey.match(/\d+$/);
-
-  if (m && m.length) {
-    return m[0];
-  } else {
-    throw 'Invalid latency key provided';
+  constructor(settings: Settings) {
+    this.settings = settings;
   }
-};
 
-module.exports = {
-  // Splits
-  buildSplitKey,
-  buildSplitsTillKey,
-  buildSplitsReady,
+  buildSplitKey(splitName: string): string {
+    return `${this.settings.storage.prefix}.split.${splitName}`;
+  }
 
-  // Segments
-  buildSegmentNameKey,
-  buildSegmentTillKey,
-  buildRegisteredSegmentsKey,
-  buildSegmentsReady,
+  buildSplitsTillKey(): string {
+    return `${this.settings.storage.prefix}.splits.till`;
+  }
 
-  // Impressions
-  buildImpressionsKeyPrefix,
-  buildImpressionsKey,
+  buildSplitsReady(): string {
+    return `${this.settings.storage.prefix}.splits.ready`;
+  }
 
-  // Latencies
-  buildLatencyKeyPrefix,
-  buildLatencyKey,
-  extractBucketNumber,
+  isSplitKey(key: string) {
+    return startsWith(key, `${this.settings.storage.prefix}.split.`);
+  }
 
-  // Search Patterns
-  searchPatternForSplitKeys,
-  searchPatternForImpressions,
-  searchPatternForLatency,
+  buildSegmentNameKey(segmentName: string) {
+    return `${this.settings.storage.prefix}.segment.${segmentName}`;
+  }
 
-  // is* functions
-  isSplitKey,
+  buildSegmentTillKey(segmentName: string) {
+    return `${this.settings.storage.prefix}.segment.${segmentName}.till`;
+  }
 
-  // extract functions
-  extractKey
-};
+  buildRegisteredSegmentsKey() {
+    return `${this.settings.storage.prefix}.segments.registered`;
+  }
+
+  buildSegmentsReady(): string {
+    return `${this.settings.storage.prefix}.segments.ready`;
+  }
+
+  buildImpressionsKeyPrefix(): string {
+    return `${this.settings.storage.prefix}/${this.settings.version}/${this.settings.runtime.ip}/impressions`;
+  }
+
+  buildImpressionsKey(splitName: string) {
+    return this.buildImpressionsKeyPrefix() + `.${splitName}`;
+  }
+
+  buildLatencyKeyPrefix(): string {
+    return `${this.settings.storage.prefix}/${this.settings.version}/${this.settings.runtime.ip}/latency`;
+  }
+
+  buildLatencyKey(metricName: string, bucketNumber: number) {
+    return this.buildLatencyKeyPrefix() + `.${metricName}.bucket.${bucketNumber}`;
+  }
+
+  searchPatternForSplitKeys(): string {
+    return `${this.settings.storage.prefix}.split.*`;
+  }
+
+  searchPatternForImpressions(): string {
+    return this.buildImpressionsKeyPrefix() + '.*';
+  }
+
+  searchPatternForLatency(): string {
+    return this.buildLatencyKeyPrefix() + '.*';
+  }
+
+  extractKey(builtKey: string): string {
+    const s = builtKey.match(everythingAtTheEnd);
+
+    if (s && s.length) {
+      return s[0];
+    } else {
+      throw 'Invalid latency key provided';
+    }
+  }
+
+  extractBucketNumber(latencyKey: string) {
+    const m = latencyKey.match(everyDigitAtTheEnd);
+
+    if (m && m.length) {
+      return parseInt(m[0], 10);
+    } else {
+      throw 'Invalid latency key provided';
+    }
+  }
+}
+
+module.exports = KeyBuilder;

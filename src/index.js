@@ -80,7 +80,7 @@ function SplitFactory(config: Object) {
 
       if (!instances[key]) {
         const sharedSettings = settings.overrideKey(key);
-        const sharedStorage = storage.shared();
+        const sharedStorage = storage.shared(sharedSettings);
         const sharedReadinessGate = ReadinessGateFactory(sharedSettings.startup.readyTimeout);
         const sharedProducer = PartialProducerFactory(sharedSettings, sharedReadinessGate, sharedStorage);
 

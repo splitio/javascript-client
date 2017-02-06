@@ -3,14 +3,18 @@
 'use strict';
 
 const log = require('debug')('splitio-storage:localstorage');
-const keys = require('../../Keys');
 
 const DEFINED = '1';
 
 class SegmentCacheInLocalStorage {
+  keys: KeyBuilder;
+
+  constructor(keys: KeyBuilder) {
+    this.keys = keys;
+  }
 
   addToSegment(segmentName: string/*, segmentKeys: Array<string>*/): boolean {
-    const segmentKey = keys.buildSegmentNameKey(segmentName);
+    const segmentKey = this.keys.buildSegmentNameKey(segmentName);
 
     try {
       localStorage.setItem(segmentKey, DEFINED);
@@ -22,7 +26,7 @@ class SegmentCacheInLocalStorage {
   }
 
   removeFromSegment(segmentName: string/*, segmentKeys: Array<string>*/): boolean {
-    const segmentKey = keys.buildSegmentNameKey(segmentName);
+    const segmentKey = this.keys.buildSegmentNameKey(segmentName);
 
     try {
       localStorage.removeItem(segmentKey);
@@ -34,7 +38,7 @@ class SegmentCacheInLocalStorage {
   }
 
   isInSegment(segmentName: string/*, key: string*/): boolean {
-    return localStorage.getItem(keys.buildSegmentNameKey(segmentName)) === DEFINED;
+    return localStorage.getItem(this.keys.buildSegmentNameKey(segmentName)) === DEFINED;
   }
 
   setChangeNumber(/*segmentName: string, changeNumber: number*/): boolean {

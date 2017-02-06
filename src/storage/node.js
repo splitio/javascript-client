@@ -16,18 +16,21 @@ const ImpressionsCacheInRedis = require('./ImpressionsCache/InRedis');
 const MetricsCacheInMemory = require('./MetricsCache/InMemory');
 const MetricsCacheInRedis = require('./MetricsCache/InRedis');
 
+const KeyBuilder = require('./Keys');
+
 const NodeStorageFactory = (settings: Settings): SplitStorage => {
   const { storage } = settings;
+  const keys = new KeyBuilder(settings);
 
   switch (storage.type) {
     case 'REDIS': {
       const redis = new Redis(storage.options);
 
       return {
-        splits: new SplitCacheInRedis(redis),
-        segments: new SegmentCacheInRedis(redis),
-        impressions: new ImpressionsCacheInRedis(settings, redis),
-        metrics: new MetricsCacheInRedis(settings, redis)
+        splits: new SplitCacheInRedis(keys, redis),
+        segments: new SegmentCacheInRedis(keys, redis),
+        impressions: new ImpressionsCacheInRedis(keys, redis),
+        metrics: new MetricsCacheInRedis(keys, redis)
       };
     }
 
@@ -35,7 +38,7 @@ const NodeStorageFactory = (settings: Settings): SplitStorage => {
     default:
       return {
         splits: new SplitCacheInMemory,
-        segments: new SegmentCacheInMemory,
+        segments: new SegmentCacheInMemory(keys),
         impressions: new ImpressionsCacheInMemory,
         metrics: new MetricsCacheInMemory
       };

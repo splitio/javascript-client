@@ -5,8 +5,9 @@
 const Redis = require('ioredis');
 const tape = require('tape-catch');
 const SplitCacheInRedis = require('../../../SplitCache/InRedis');
-
+const KeyBuilder = require('../../../Keys');
 const SettingsFactory = require('../../../../utils/settings');
+
 const settings = SettingsFactory({
   storage: {
     type: 'REDIS'
@@ -15,7 +16,8 @@ const settings = SettingsFactory({
 
 tape('SPLIT CACHE / Redis', async function (assert) {
   const connection = new Redis(settings.storage.options);
-  const cache = new SplitCacheInRedis(connection);
+  const keys = new KeyBuilder(settings);
+  const cache = new SplitCacheInRedis(keys, connection);
 
   await cache.flush();
 

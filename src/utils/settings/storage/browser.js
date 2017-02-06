@@ -22,19 +22,23 @@ const ParseStorageSettings = (settings: Settings) => {
   let {
     mode,
     storage: {
-      type, options = {}
-    }
+      type = 'MEMORY',
+      options = {},
+      prefix = 'SPLITIO'
+    },
   } = settings;
 
   if (mode === 'localhost') return {
-    type: 'MEMORY'
+    type: 'MEMORY',
+    prefix
   };
 
   if (type !== 'MEMORY' && type !== 'LOCALSTORAGE') type = 'MEMORY';
 
   return {
     type,
-    options
+    options,
+    prefix
   };
 };
 

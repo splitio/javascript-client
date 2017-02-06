@@ -17,8 +17,8 @@ limitations under the License.
 
 const Redis = require('ioredis');
 const tape = require('tape-catch');
-const find = require('lodash/find');
 
+const KeyBuilder = require('../../../Keys');
 const MetricsCacheInRedis = require('../../../MetricsCache/InRedis');
 
 const SettingsFactory = require('../../../../utils/settings');
@@ -30,7 +30,8 @@ const settings = SettingsFactory({
 
 tape('METRICS CACHE IN REDIS / Given a value it should increment by one the correct bucket', async function(assert) {
   const connection = new Redis(settings.storage.options);
-  const cache = new MetricsCacheInRedis(settings, connection);
+  const keys = new KeyBuilder(settings);
+  const cache = new MetricsCacheInRedis(keys, connection);
   let state;
 
   await cache.clear();

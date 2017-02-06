@@ -19,6 +19,7 @@ const Redis = require('ioredis');
 const tape = require('tape-catch');
 const find = require('lodash/find');
 
+const KeyBuilder = require('../../../Keys');
 const ImpressionsCacheInRedis = require('../../../ImpressionsCache/InRedis');
 
 const SettingsFactory = require('../../../../utils/settings');
@@ -30,7 +31,8 @@ const settings = SettingsFactory({
 
 tape('IMPRESSIONS CACHE IN REDIS / should incrementally store values', async function(assert) {
   const connection = new Redis(settings.storage.options);
-  const c = new ImpressionsCacheInRedis(settings, connection);
+  const keys = new KeyBuilder(settings);
+  const c = new ImpressionsCacheInRedis(keys, connection);
 
   const o1 = {
     feature: 'test1',

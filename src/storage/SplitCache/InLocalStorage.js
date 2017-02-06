@@ -4,13 +4,16 @@
 
 const log = require('debug')('splitio-storage:localstorage');
 
-const keys = require('../Keys');
-
 class SplitCacheLocalStorage {
+  keys: KeyBuilder;
+
+  constructor(keys: KeyBuilder) {
+    this.keys = keys;
+  }
 
   addSplit(splitName: string , split: string): boolean {
     try {
-      localStorage.setItem(keys.buildSplitKey(splitName), split);
+      localStorage.setItem(this.keys.buildSplitKey(splitName), split);
       return true;
     } catch (e) {
       log(e);
@@ -30,7 +33,7 @@ class SplitCacheLocalStorage {
 
   removeSplit(splitName: string): number {
     try {
-      localStorage.removeItem(keys.buildSplitKey(splitName));
+      localStorage.removeItem(this.keys.buildSplitKey(splitName));
       return 1;
     } catch(e) {
       log(e);
@@ -54,12 +57,12 @@ class SplitCacheLocalStorage {
   }
 
   getSplit(splitName: string): ?string {
-    return localStorage.getItem(keys.buildSplitKey(splitName));
+    return localStorage.getItem(this.keys.buildSplitKey(splitName));
   }
 
   setChangeNumber(changeNumber: number): boolean {
     try {
-      localStorage.setItem(keys.buildSplitsTillKey(), changeNumber + '');
+      localStorage.setItem(this.keys.buildSplitsTillKey(), changeNumber + '');
       return true;
     } catch (e) {
       log(e);
@@ -69,7 +72,7 @@ class SplitCacheLocalStorage {
 
   getChangeNumber(): number {
     const n = -1;
-    let value = localStorage.getItem(keys.buildSplitsTillKey());
+    let value = localStorage.getItem(this.keys.buildSplitsTillKey());
 
     if (value !== null) {
       value = parseInt(value, 10);
@@ -90,7 +93,7 @@ class SplitCacheLocalStorage {
       const key = localStorage.key(cur);
       const value = key && localStorage.getItem(key);
 
-      if (key != null && keys.isSplitKey(key) && value) accum.push(value);
+      if (key != null && this.keys.isSplitKey(key) && value) accum.push(value);
 
       cur++;
     }
@@ -107,7 +110,7 @@ class SplitCacheLocalStorage {
     while (cur < len) {
       const key = localStorage.key(cur);
 
-      if (key != null && keys.isSplitKey(key)) accum.push(keys.extractKey(key));
+      if (key != null && this.keys.isSplitKey(key)) accum.push(this.keys.extractKey(key));
 
       cur++;
     }

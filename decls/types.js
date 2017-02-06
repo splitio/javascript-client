@@ -272,7 +272,8 @@ declare type Settings = {
 
   storage: {
     type: 'MEMORY' | 'LOCALSTORAGE' | 'REDIS',
-    options: any
+    options: any,
+    prefix: string
   },
 
   runtime: {

@@ -11,6 +11,8 @@ const splitView: SplitView = require('./mocks/output');
 const Manager = require('../');
 const SplitCacheInRedis = require('../../storage/SplitCache/InRedis');
 
+const KeyBuilder = require('../../storage/Keys');
+
 const SettingsFactory = require('../../utils/settings');
 const settings = SettingsFactory({
   storage: {
@@ -20,7 +22,8 @@ const settings = SettingsFactory({
 
 tape('MANAGER API / In Redis', async function(assert) {
   const connection = new Redis(settings.storage.options);
-  const cache = new SplitCacheInRedis(connection);
+  const keys = new KeyBuilder(settings);
+  const cache = new SplitCacheInRedis(keys, connection);
   const manager = new Manager(cache);
 
   await cache.flush();

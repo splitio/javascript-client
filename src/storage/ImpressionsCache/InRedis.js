@@ -13,12 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-
 // @flow
 
 'use strict';
-
-const keys = require('../Keys');
 
 const processPipelineAnswer = (results: Array<[any, Array<string>]>): Array<string> =>
   results.reduce((accum, [err, value]) => {
@@ -31,16 +28,16 @@ const processPipelineAnswer = (results: Array<[any, Array<string>]>): Array<stri
   }, []);
 
 class ImpressionsCacheInRedis {
-  settings: Settings;
+  keys: KeyBuilder;
   redis: IORedis;
 
-  constructor(settings: Settings, redis: IORedis) {
-    this.settings = settings;
+  constructor(keys: KeyBuilder, redis: IORedis) {
+    this.keys = keys;
     this.redis = redis;
   }
 
   scanKeys(): Promise {
-    return this.redis.keys(keys.searchPatternForImpressions(this.settings.version, this.settings.runtime.ip));
+    return this.redis.keys(this.keys.searchPatternForImpressions());
   }
 
   state(): Promise {
@@ -49,7 +46,7 @@ class ImpressionsCacheInRedis {
 
   track(impression: KeyImpression): Promise {
     return this.redis.sadd(
-      keys.buildImpressionsKey(this.settings.version, this.settings.runtime.ip, impression.feature),
+      this.keys.buildImpressionsKey(impression.feature),
       JSON.stringify(impression)
     );
   }

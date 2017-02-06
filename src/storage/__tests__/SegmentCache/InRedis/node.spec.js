@@ -6,6 +6,8 @@ const Redis = require('ioredis');
 const tape = require('tape-catch');
 const SegmentCache = require('../../../SegmentCache/InRedis');
 
+const KeyBuilder = require('../../../Keys');
+
 const SettingsFactory = require('../../../../utils/settings');
 const settings = SettingsFactory({
   storage: {
@@ -15,7 +17,8 @@ const settings = SettingsFactory({
 
 tape('SEGMENT CACHE IN Redis / suite', async function (assert) {
   const connection = new Redis(settings.storage.options);
-  const cache = new SegmentCache(connection);
+  const keys = new KeyBuilder(settings);
+  const cache = new SegmentCache(keys, connection);
 
   await cache.flush();
 
@@ -53,7 +56,9 @@ tape('SEGMENT CACHE IN Redis / suite', async function (assert) {
 
 tape('SEGMENT CACHE IN Redis / register segments', async function (assert) {
   const connection = new Redis(settings.storage.options);
-  const cache = new SegmentCache(connection);
+  const keys = new KeyBuilder(settings);
+
+  const cache = new SegmentCache(keys, connection);
 
   await cache.flush();
 

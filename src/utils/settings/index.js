@@ -97,6 +97,8 @@ function defaults(custom: Object): Settings {
   return withDefaults;
 }
 
+let instanceId = 0;
+
 const proto = {
 
   // Switch URLs servers based on target.
@@ -110,6 +112,8 @@ const proto = {
 
   // Override key on a given configuration object
   overrideKey(newKey: string): Settings {
+    instanceId++;
+
     return Object.assign(
       Object.create(proto),
       {
@@ -117,6 +121,10 @@ const proto = {
         core: {
           ...this.core,
           key: newKey
+        },
+        storage: {
+          ...this.storage,
+          prefix: `${this.storage.prefix}.${instanceId}`
         }
       }
     );

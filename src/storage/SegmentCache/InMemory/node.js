@@ -2,13 +2,13 @@
 
 'use strict';
 
-const keys = require('../../Keys');
-
 class SegmentCacheInMemory implements SegmentCache {
   segmentCache: Map<string, Set<string>>;
   segmentChangeNumber: Map<string, number>;
+  keys: KeyBuilder;
 
-  constructor() {
+  constructor(keys: KeyBuilder) {
+    this.keys = keys;
     this.flush();
   }
 
@@ -65,7 +65,7 @@ class SegmentCacheInMemory implements SegmentCache {
   }
 
   setChangeNumber(segmentName: string, changeNumber: number): boolean {
-    const segmentChangeNumberKey = keys.buildSegmentTillKey(segmentName);
+    const segmentChangeNumberKey = this.keys.buildSegmentTillKey(segmentName);
 
     this.segmentChangeNumber.set(segmentChangeNumberKey, changeNumber);
 
@@ -73,7 +73,7 @@ class SegmentCacheInMemory implements SegmentCache {
   }
 
   getChangeNumber(segmentName: string): number {
-    const segmentChangeNumberKey = keys.buildSegmentTillKey(segmentName);
+    const segmentChangeNumberKey = this.keys.buildSegmentTillKey(segmentName);
     const value = this.segmentChangeNumber.get(segmentChangeNumberKey);
 
     return Number.isInteger(value) ? value: -1;

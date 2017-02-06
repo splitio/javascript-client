@@ -16,17 +16,28 @@ limitations under the License.
 'use strict';
 
 const ParseStorageSettings = (settings) => {
-  const {
+  let {
     mode,
     storage: {
-      type, options = {}
+      type,
+      options = {},
+      prefix
     }
   } = settings;
 
+  if (prefix) {
+    prefix += '.SPLITIO';
+  } else {
+    prefix = 'SPLITIO';
+  }
+
+  // In localhost mode we should force the user to use the MEMORY storage
   if (mode === 'localhost') return {
-    type: 'MEMORY'
+    type: 'MEMORY',
+    prefix
   };
 
+  // In other cases we can have MEMORY or REDIS
   switch (type) {
     case 'REDIS': {
       let {
@@ -47,7 +58,8 @@ const ParseStorageSettings = (settings) => {
 
       if (url) return {
         type,
-        options: url
+        options: url,
+        prefix
       };
 
       return {
@@ -56,13 +68,18 @@ const ParseStorageSettings = (settings) => {
           host,
           port,
           pass
-        }
+        },
+        prefix
       };
     }
 
+    // For now, we don't have modifiers or settings for MEMORY in NodeJS
     case 'MEMORY':
     default: {
-      return undefined;
+      return {
+        type: 'MEMORY',
+        prefix
+      };
     }
   }
 };
