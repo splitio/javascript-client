@@ -25,16 +25,16 @@ tape('NodeJS E2E', function (assert) {
 
   events.on(events.SDK_READY, async function () {
     assert.comment('QA User');
-    assert.equal(await client.getTreatment('qa-user', 'always-off'), 'off');
-    assert.equal(await client.getTreatment('qa-user', 'always-on'), 'on');
-    assert.equal(await client.getTreatment('qa-user', 'on-if-in-segment-qa'), 'on');
-    assert.equal(await client.getTreatment('qa-user', 'on-if-in-segment-qc'), 'off');
+    assert.equal(client.getTreatment('qa-user', 'always-off'), 'off');
+    assert.equal(client.getTreatment('qa-user', 'always-on'), 'on');
+    assert.equal(client.getTreatment('qa-user', 'on-if-in-segment-qa'), 'on');
+    assert.equal(client.getTreatment('qa-user', 'on-if-in-segment-qc'), 'off');
 
     assert.comment('QC User');
-    assert.equal(await client.getTreatment('qc-user', 'always-off'), 'off');
-    assert.equal(await client.getTreatment('qc-user', 'always-on'), 'on');
-    assert.equal(await client.getTreatment('qc-user', 'on-if-in-segment-qa'), 'off');
-    assert.equal(await client.getTreatment('qc-user', 'on-if-in-segment-qc'), 'on');
+    assert.equal(client.getTreatment('qc-user', 'always-off'), 'off');
+    assert.equal(client.getTreatment('qc-user', 'always-on'), 'on');
+    assert.equal(client.getTreatment('qc-user', 'on-if-in-segment-qa'), 'off');
+    assert.equal(client.getTreatment('qc-user', 'on-if-in-segment-qc'), 'on');
 
     client.destroy();
 

@@ -19,7 +19,6 @@ const KeyBuilder = require('./Keys');
  */
 const BrowserStorageFactory = (settings: Settings): SplitStorage => {
   const { storage } = settings;
-  const { prefix } = storage;
   const keys = new KeyBuilder(settings);
 
   switch (storage.type) {

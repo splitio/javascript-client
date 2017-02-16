@@ -51,7 +51,7 @@ Split.prototype.getKey = function getKey() {
   return this.baseInfo.name;
 };
 
-Split.prototype.getTreatment = async function getTreatment(key: SplitKey, attributes): Promise<Evaluation> {
+Split.prototype.getTreatment = function getTreatment(key: SplitKey, attributes): AsyncValue<Evaluation> {
   const {
     killed,
     seed,
@@ -68,10 +68,19 @@ Split.prototype.getTreatment = async function getTreatment(key: SplitKey, attrib
     treatment = defaultTreatment;
     label = LabelsConstants.SPLIT_KILLED;
   } else {
-    const evaluation = await this.evaluator(key, seed, attributes);
+    const evaluation = this.evaluator(key, seed, attributes);
 
-    treatment = evaluation !== undefined ? evaluation.treatment : defaultTreatment;
-    label = evaluation !== undefined ? evaluation.label : LabelsConstants.NO_CONDITION_MATCH;
+    // Evaluation could be async, so we should handle that case checking for a
+    // thenable object
+    if (evaluation && evaluation.then) {
+      return evaluation.then(result => ({
+        treatment: result !== undefined ? result.treatment : defaultTreatment,
+        label: result !== undefined ? result.label : LabelsConstants.NO_CONDITION_MATCH
+      }));
+    } else {
+      treatment = evaluation !== undefined ? evaluation.treatment : defaultTreatment;
+      label = evaluation !== undefined ? evaluation.label : LabelsConstants.NO_CONDITION_MATCH;
+    }
   }
 
   return {

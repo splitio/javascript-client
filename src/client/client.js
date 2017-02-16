@@ -15,50 +15,123 @@ const PassTracker = require('../tracker/PassThrough');
 const { matching, bucketing } = require('../utils/key/factory');
 const LabelsConstants = require('../utils/labels');
 
+function getTreatmentAvailable(
+  evaluation: Evaluation,
+  changeNumber: ?number,
+  settings: Settings,
+  splitName: string,
+  key: SplitKey,
+  stopLatencyTracker: Function,
+  impressionsTracker: Function
+) {
+  const bucketingKey = bucketing(key);
+  const matchingKey = matching(key);
+  const { treatment } = evaluation;
+
+  let label = undefined;
+
+  if (changeNumber > 0) {
+    if (settings.core.labelsEnabled) label = evaluation.label;
+
+    log(`Split ${splitName} key ${matchingKey} evaluation ${treatment}`);
+  } else {
+    log(`Split ${splitName} doesn't exist`);
+  }
+
+  stopLatencyTracker();
+
+  impressionsTracker({
+    feature: splitName,
+    key: matchingKey,
+    treatment,
+    time: Date.now(),
+    bucketingKey,
+    label,
+    changeNumber
+  });
+
+  return evaluation.treatment;
+}
+
+function splitObjectAvailable(
+  splitObject: ?string,
+  splitName: string,
+  key: SplitKey,
+  attributes: ?Object,
+  stopLatencyTracker: Function,
+  impressionsTracker: Function,
+  settings: Settings,
+  storage: SplitStorage
+) {
+  let evaluation = {
+    treatment: 'control',
+    label: LabelsConstants.SPLIT_NOT_FOUND
+  };
+  let changeNumber = undefined;
+
+  if (splitObject) {
+    const split = Engine.parse(JSON.parse(splitObject), storage);
+
+    evaluation = split.getTreatment(key, attributes);
+    changeNumber = split.getChangeNumber();
+
+    // If the storage is async, evaluation and changeNumber will return a
+    // thenable
+    if (evaluation.then || changeNumber.then)
+      return Promise.all([evaluation, changeNumber]).then(([result, changeNumber]) => getTreatmentAvailable(
+        result,
+        changeNumber,
+        settings,
+        splitName,
+        key,
+        stopLatencyTracker,
+        impressionsTracker
+      ));
+  }
+
+  return getTreatmentAvailable(
+    evaluation,
+    changeNumber,
+    settings,
+    splitName,
+    key,
+    stopLatencyTracker,
+    impressionsTracker
+  );
+}
+
 function ClientFactory(settings: Settings, storage: SplitStorage): SplitClient {
   const latencyTracker = TimeTracker(storage.metrics);
   const impressionsTracker = PassTracker(storage.impressions);
 
   return {
-    async getTreatment(key: SplitKey, splitName: string, attributes: ?Object): Promise<string> {
-      // @TODO review parameter
-      const stopLatencyTracker = latencyTracker('getTreament');
-      const splitObject = await storage.splits.getSplit(splitName);
-      const bucketingKey = bucketing(key);
+    getTreatment(key: SplitKey, splitName: string, attributes: ?Object): AsyncValue<string> {
+      const stopLatencyTracker: Function = latencyTracker('getTreament');
+      const splitObject: AsyncValue<?string> = storage.splits.getSplit(splitName);
 
-      let evaluation = {
-        treatment: 'control',
-        label: LabelsConstants.SPLIT_NOT_FOUND
-      };
-      let changeNumber = undefined;
-      let label = undefined;
-
-      if (splitObject) {
-        const split = Engine.parse(JSON.parse(splitObject), storage);
-
-        evaluation = await split.getTreatment(key, attributes);
-        changeNumber = split.getChangeNumber();
-
-        if (settings.core.labelsEnabled) label = evaluation.label;
-
-        log(`Split ${splitName} key ${matching(key)} evaluation ${evaluation.treatment}`);
-      } else {
-        log(`Split ${splitName} doesn't exist`);
+      if (splitObject != undefined && splitObject.then) {
+        return splitObject.then((result: ?string) => splitObjectAvailable(
+          result,
+          splitName,
+          key,
+          attributes,
+          stopLatencyTracker,
+          impressionsTracker,
+          settings,
+          storage
+        ));
       }
 
-      stopLatencyTracker();
-
-      impressionsTracker({
-        feature: splitName,
-        key: matching(key),
-        treatment: evaluation.treatment,
-        time: Date.now(),
-        bucketingKey,
-        label,
-        changeNumber
-      });
-
-      return evaluation.treatment;
+      return splitObjectAvailable(
+        splitObject,
+        splitName,
+        key,
+        attributes,
+        stopLatencyTracker,
+        impressionsTracker,
+        settings,
+        storage
+      );
     }
   };
 

@@ -79,7 +79,7 @@ declare interface SplitManager {
  * Split Client API.
  */
 declare type SplitClient = {
-  getTreatment(key: string, splitName: string, attributes: ?Object): Promise<string>;
+  getTreatment(key: string, splitName: string, attributes: ?Object): AsyncValue<string>;
   events(): EventEmitter;
   destroy(): void;
 };

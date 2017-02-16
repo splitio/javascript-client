@@ -13,7 +13,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-
 // @flow
 
 'use strict';
@@ -21,28 +20,42 @@ limitations under the License.
 const log = require('debug')('splitio-engine:combiner');
 
 function unexpectedInputHandler() {
+  log('Invalid Split provided, none valid conditions found');
+
   return 'control';
+}
+
+function computeTreatment(predicateResults: Array<?Evaluation>): ?Evaluation {
+  const len = predicateResults.length;
+
+  for (let i = 0; i < len; i++) {
+    const evaluation = predicateResults[i];
+
+    if (evaluation != undefined) {
+      log('treatment found %s', evaluation.treatment);
+
+      return evaluation;
+    }
+  }
+
+  log('all predicates evaluted, none treatment available');
+  return undefined;
 }
 
 function ifElseIfCombinerContext(predicates: Array<Function>): Function {
 
-  async function ifElseIfCombiner(key: SplitKey, seed: number, attributes: Object): Promise<?string> {
+  function ifElseIfCombiner(key: SplitKey, seed: number, attributes: Object): Promise<?Evaluation> | ?Evaluation {
+    // In Async environments we are going to have async predicates. There is none way to know
+    // before hand so we need to evaluate all the predicates, verify for thenables, and finally,
+    // define how to return the treatment (wrap result into a Promise or not).
+    const predicateResults = predicates.map(evaluator => evaluator(key, seed, attributes));
 
-    // loop throught the if else if structure and stops as soon as one predicate
-    // return a treatment
-    for (const evaluator of predicates) {
-      const evaluation = await evaluator(key, seed, attributes);
-
-      if (evaluation !== undefined) {
-        log('treatment found %s', evaluation.treatment);
-
-        return evaluation;
-      }
+    // if we find a thenable
+    if (predicateResults.find(r => r != undefined && r.then)) {
+      return Promise.all(predicateResults).then(results => computeTreatment(results));
     }
 
-    log('all predicates evaluted, none treatment available');
-
-    return undefined;
+    return computeTreatment(predicateResults);
   }
 
   // if there is none predicates, then there was an error in parsing phase
