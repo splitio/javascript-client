@@ -17,6 +17,7 @@ limitations under the License.
 
 'use strict';
 
+const findIndex = require('core-js/library/fn/array/find-index');
 const log = require('debug')('splitio-engine:combiner');
 
 function unexpectedInputHandler() {
@@ -51,7 +52,7 @@ function ifElseIfCombinerContext(predicates: Array<Function>): Function {
     const predicateResults = predicates.map(evaluator => evaluator(key, seed, attributes));
 
     // if we find a thenable
-    if (predicateResults.find(r => r != undefined && r.then)) {
+    if (findIndex(predicateResults, r => r && r.then) != -1) {
       return Promise.all(predicateResults).then(results => computeTreatment(results));
     }
 

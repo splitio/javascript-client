@@ -27,10 +27,9 @@ function getTreatmentAvailable(
   const bucketingKey = bucketing(key);
   const matchingKey = matching(key);
   const { treatment } = evaluation;
-
   let label = undefined;
 
-  if (changeNumber > 0) {
+  if (evaluation.treatment !== 'control') {
     if (settings.core.labelsEnabled) label = evaluation.label;
 
     log(`Split ${splitName} key ${matchingKey} evaluation ${treatment}`);
@@ -73,12 +72,12 @@ function splitObjectAvailable(
     const split = Engine.parse(JSON.parse(splitObject), storage);
 
     evaluation = split.getTreatment(key, attributes);
-    changeNumber = split.getChangeNumber();
+    changeNumber = split.getChangeNumber(); // Always sync and optional
 
     // If the storage is async, evaluation and changeNumber will return a
     // thenable
-    if (evaluation.then || changeNumber.then)
-      return Promise.all([evaluation, changeNumber]).then(([result, changeNumber]) => getTreatmentAvailable(
+    if (evaluation.then) {
+      return evaluation.then(result => getTreatmentAvailable(
         result,
         changeNumber,
         settings,
@@ -87,6 +86,7 @@ function splitObjectAvailable(
         stopLatencyTracker,
         impressionsTracker
       ));
+    }
   }
 
   return getTreatmentAvailable(

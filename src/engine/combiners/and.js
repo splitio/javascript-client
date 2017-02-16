@@ -17,6 +17,7 @@ limitations under the License.
 
 'use strict';
 
+const findIndex = require('core-js/library/fn/array/find-index');
 const log = require('debug')('splitio-engine:combiner');
 
 function andResults(results) {
@@ -42,7 +43,7 @@ function andCombinerContext(matchers: Array<Function>): Function {
     const matcherResults = matchers.map(matcher => matcher(...params));
 
     // If any matching result is a thenable we should use Promise.all
-    if (matcherResults.find(value => value.then)) {
+    if (findIndex(matcherResults, value => value && value.then) !== -1) {
       return Promise.all(matcherResults).then(andResults);
     } else {
       return andResults(matcherResults);

@@ -177,7 +177,7 @@ declare type SplitObject = {
 declare type ParsedMatcher = {
   attribute: string,
   negate: boolean,
-  type: Symbol,
+  type: number,
   value: any
 };
 
