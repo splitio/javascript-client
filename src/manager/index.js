@@ -2,8 +2,10 @@
 
 'use strict';
 
+const thenable = require('../utils/promise/thenable');
+
 /**
- * @note The backend sometimes doesn't answer the list of partitions correctly,
+ * @NOTE The backend sometimes doesn't answer the list of partitions correctly,
  *       so we need to build it mixing the list of partitions plus the default
  *       treatment.
  */
@@ -29,31 +31,39 @@ const ObjectToView = (json: string): SplitView => {
   };
 };
 
+const ObjectsToViews = (jsons: Array<string>): Array<SplitView> => {
+  let views = [];
+
+  for (let split of jsons) {
+    views.push(ObjectToView(split));
+  }
+
+  return views;
+};
+
 const SplitManagerFactory = (splits: SplitCache): SplitManager => {
 
   return {
-    async split(splitName: string): ?SplitView {
-      const split = await splits.getSplit(splitName);
+    split(splitName: string): ?SplitView {
+      const split = splits.getSplit(splitName);
 
       if (split) {
+        if (thenable(split)) return split.then(result => ObjectToView(result));
         return ObjectToView(split);
       } else {
         return null;
       }
     },
 
-    async splits(): Array<SplitView> {
+    splits(): Array<SplitView> {
       const els = [];
-      const currentSplits = await splits.getAll();
+      const currentSplits = splits.getAll();
 
-      for (let split of currentSplits) {
-        els.push(ObjectToView(split));
-      }
-
-      return els;
+      if (thenable(currentSplits)) return currentSplits.then(ObjectsToViews);
+      return ObjectsToViews(currentSplits);
     },
 
-    async names(): Array<string> {
+    names(): Array<string> {
       return splits.getKeys();
     }
   };

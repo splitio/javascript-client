@@ -20,29 +20,42 @@ limitations under the License.
 
 const engine = require('../engine');
 const keyParser = require('../../utils/key/parser');
+const thenable = require('../../utils/promise/thenable');
 
-/**
- * Evaluator factory
- */
+// Build Evaluation object if and only if matchingResult is true
+function match(matchingResult: boolean, bucketingKey: string, seed: number, treatments: Treatments, label: string): ?Evaluation {
+  if (matchingResult) {
+    const treatment = engine.getTreatment(bucketingKey, seed, treatments);
+
+    return {
+      treatment,
+      label
+    };
+  }
+
+  // else we should notify the engine to continue evaluating
+  return undefined;
+}
+
+// Evaluator factory
 function evaluatorContext(matcherEvaluator: Function, treatments: Treatments, label: string): Function {
 
-  async function evaluator(key: SplitKey, seed: number, attributes: ?Object): Promise<?Evaluation> {
-    // parse key, the key could be a string or KeyDTO it should return a keyDTO.
-    const keyParsed = keyParser(key);
-    const matches = await matcherEvaluator(keyParsed.matchingKey, attributes);
+  function evaluator(key: SplitKey, seed: number, attributes: ?Object): Promise<?Evaluation> | ?Evaluation {
+    // the key could be a string or KeyDTO it should return a keyDTO.
+    const {
+      matchingKey,
+      bucketingKey
+    } = keyParser(key);
 
-    // if matches then evaluate the treatment
-    if (matches) {
-      const treatment = engine.getTreatment(keyParsed.bucketingKey, seed, treatments);
+    // matcherEvaluator could be Async, this relays on matchers return value, so we need
+    // to verify for thenable before play with the result
+    const matches = matcherEvaluator(matchingKey, attributes);
 
-      return {
-        treatment,
-        label
-      };
+    if (thenable(matches)) {
+      return matches.then(result => match(result, bucketingKey, seed, treatments, label));
     }
 
-    // else we should notify the engine to continue evaluating
-    return undefined;
+    return match(matches, bucketingKey, seed, treatments, label);
   }
 
   return evaluator;

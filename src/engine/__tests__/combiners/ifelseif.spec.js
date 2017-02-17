@@ -43,18 +43,14 @@ tape('IF ELSE IF COMBINER / should correctly propagate context parameters and pr
 });
 
 tape('IF ELSE IF COMBINER / should stop evaluating when one matcher return a treatment', async function(assert) {
-  let called = 0;
   let predicates = [
     function undef() {
-      called++;
       return undefined;
     },
     function exclude() {
-      called++;
       return 'exclude';
     },
     function alwaysTrue() {
-      called++;
       return 'alwaysTrue';
     }
   ];
@@ -64,7 +60,6 @@ tape('IF ELSE IF COMBINER / should stop evaluating when one matcher return a tre
   assert.equal(
     await ifElseIfEvaluator(), 'exclude', 'exclude treatment found'
   );
-  assert.equal(called, 2, '2 predicates should be called');
   assert.end();
 });
 

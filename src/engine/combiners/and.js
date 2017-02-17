@@ -17,27 +17,38 @@ limitations under the License.
 
 'use strict';
 
+const findIndex = require('core-js/library/fn/array/find-index');
 const log = require('debug')('splitio-engine:combiner');
+const thenable = require('../../utils/promise/thenable');
+
+function andResults(results) {
+  let i = 0;
+  let len = results.length;
+  let hasMatchedAll;
+
+  // loop through all the matchers an stop at the first one returning false.
+  for (; i < len && results[i]; i++) {
+    // logic is run inside the condition of evaluates next step.
+  }
+
+  hasMatchedAll = i === len;
+
+  log(`[andCombiner] is evaluates to ${hasMatchedAll ? 'true' : 'false'}`);
+
+  return hasMatchedAll;
+}
 
 function andCombinerContext(matchers: Array<Function>): Function {
 
-  async function andCombiner(...params): Promise<boolean> {
-    return Promise.all(matchers.map(matcher => matcher(...params))).then(results => {
-      let i = 0;
-      let len = results.length;
-      let hasMatchedAll;
+  function andCombiner(...params): AsyncValue<boolean> {
+    const matcherResults = matchers.map(matcher => matcher(...params));
 
-      // loop through all the matchers an stop at the first one returning false.
-      for (; i < len && results[i]; i++) {
-        // logic is run inside the condition of evaluates next step.
-      }
-
-      hasMatchedAll = i === len;
-
-      log(`[andCombiner] is evaluates to ${hasMatchedAll ? 'true' : 'false'}`);
-
-      return hasMatchedAll;
-    });
+    // If any matching result is a thenable we should use Promise.all
+    if (findIndex(matcherResults, thenable) !== -1) {
+      return Promise.all(matcherResults).then(andResults);
+    } else {
+      return andResults(matcherResults);
+    }
   }
 
   return andCombiner;
