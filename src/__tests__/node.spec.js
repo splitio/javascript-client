@@ -23,7 +23,7 @@ tape('NodeJS E2E', function (assert) {
   const client = factory.client();
   const events = client.events();
 
-  events.on(events.SDK_READY, async function () {
+  events.on(events.SDK_READY, function () {
     assert.comment('QA User');
     assert.equal(client.getTreatment('qa-user', 'always-off'), 'off');
     assert.equal(client.getTreatment('qa-user', 'always-on'), 'on');
