@@ -19,6 +19,8 @@ limitations under the License.
 'use strict';
 
 const parser = require('./parser');
+
+const thenable = require('../utils/promise/thenable');
 const LabelsConstants = require('../utils/labels');
 
 function defaults(inst) {
@@ -72,7 +74,7 @@ Split.prototype.getTreatment = function getTreatment(key: SplitKey, attributes):
 
     // Evaluation could be async, so we should handle that case checking for a
     // thenable object
-    if (evaluation && evaluation.then) {
+    if (thenable(evaluation)) {
       return evaluation.then(result => ({
         treatment: result !== undefined ? result.treatment : defaultTreatment,
         label: result !== undefined ? result.label : LabelsConstants.NO_CONDITION_MATCH

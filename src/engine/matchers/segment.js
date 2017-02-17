@@ -16,13 +16,14 @@ limitations under the License.
 'use strict';
 
 const log = require('debug')('splitio-engine:matcher');
+const thenable = require('../../utils/promise/thenable');
 
 function matcherSegmentContext(segmentName: string, storage: SplitStorage) {
 
   function segmentMatcher(key: ?string): AsyncValue<boolean> {
     const isInSegment = storage.segments.isInSegment(segmentName, key);
 
-    if (isInSegment.then) {
+    if (thenable(isInSegment)) {
       isInSegment.then(result => {
         log(`[asyncSegmentMatcher] evaluated ${segmentName} / ${key} => ${isInSegment}`);
 

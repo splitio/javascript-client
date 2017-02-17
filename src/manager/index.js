@@ -2,8 +2,10 @@
 
 'use strict';
 
+const thenable = require('../utils/promise/thenable');
+
 /**
- * @note The backend sometimes doesn't answer the list of partitions correctly,
+ * @NOTE The backend sometimes doesn't answer the list of partitions correctly,
  *       so we need to build it mixing the list of partitions plus the default
  *       treatment.
  */
@@ -46,7 +48,7 @@ const SplitManagerFactory = (splits: SplitCache): SplitManager => {
       const split = splits.getSplit(splitName);
 
       if (split) {
-        if (split.then) return split.then(result => ObjectToView(result));
+        if (thenable(split)) return split.then(result => ObjectToView(result));
         return ObjectToView(split);
       } else {
         return null;
@@ -57,7 +59,7 @@ const SplitManagerFactory = (splits: SplitCache): SplitManager => {
       const els = [];
       const currentSplits = splits.getAll();
 
-      if (currentSplits.then) return currentSplits.then(ObjectsToViews);
+      if (thenable(currentSplits)) return currentSplits.then(ObjectsToViews);
       return ObjectsToViews(currentSplits);
     },
 

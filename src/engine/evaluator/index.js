@@ -20,6 +20,7 @@ limitations under the License.
 
 const engine = require('../engine');
 const keyParser = require('../../utils/key/parser');
+const thenable = require('../../utils/promise/thenable');
 
 // Build Evaluation object if and only if matchingResult is true
 function match(matchingResult: boolean, bucketingKey: string, seed: number, treatments: Treatments, label: string): ?Evaluation {
@@ -50,7 +51,7 @@ function evaluatorContext(matcherEvaluator: Function, treatments: Treatments, la
     // to verify for thenable before play with the result
     const matches = matcherEvaluator(matchingKey, attributes);
 
-    if (matches.then) {
+    if (thenable(matches)) {
       return matches.then(result => match(result, bucketingKey, seed, treatments, label));
     }
 

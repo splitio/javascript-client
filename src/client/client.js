@@ -12,6 +12,7 @@ const Engine = require('../engine');
 const TimeTracker = require('../tracker/Timer');
 const PassTracker = require('../tracker/PassThrough');
 
+const thenable = require('../utils/promise/thenable');
 const { matching, bucketing } = require('../utils/key/factory');
 const LabelsConstants = require('../utils/labels');
 
@@ -76,7 +77,7 @@ function splitObjectAvailable(
 
     // If the storage is async, evaluation and changeNumber will return a
     // thenable
-    if (evaluation.then) {
+    if (thenable(evaluation)) {
       return evaluation.then(result => getTreatmentAvailable(
         result,
         changeNumber,
@@ -109,7 +110,7 @@ function ClientFactory(settings: Settings, storage: SplitStorage): SplitClient {
       const stopLatencyTracker: Function = latencyTracker('getTreament');
       const splitObject: AsyncValue<?string> = storage.splits.getSplit(splitName);
 
-      if (splitObject != undefined && splitObject.then) {
+      if (thenable(splitObject)) {
         return splitObject.then((result: ?string) => splitObjectAvailable(
           result,
           splitName,

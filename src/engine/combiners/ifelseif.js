@@ -19,6 +19,7 @@ limitations under the License.
 
 const findIndex = require('core-js/library/fn/array/find-index');
 const log = require('debug')('splitio-engine:combiner');
+const thenable = require('../../utils/promise/thenable');
 
 function unexpectedInputHandler() {
   log('Invalid Split provided, none valid conditions found');
@@ -45,14 +46,14 @@ function computeTreatment(predicateResults: Array<?Evaluation>): ?Evaluation {
 
 function ifElseIfCombinerContext(predicates: Array<Function>): Function {
 
-  function ifElseIfCombiner(key: SplitKey, seed: number, attributes: Object): Promise<?Evaluation> | ?Evaluation {
+  function ifElseIfCombiner(key: SplitKey, seed: number, attributes: Object): AsyncValue<?Evaluation> {
     // In Async environments we are going to have async predicates. There is none way to know
     // before hand so we need to evaluate all the predicates, verify for thenables, and finally,
     // define how to return the treatment (wrap result into a Promise or not).
     const predicateResults = predicates.map(evaluator => evaluator(key, seed, attributes));
 
     // if we find a thenable
-    if (findIndex(predicateResults, r => r && r.then) != -1) {
+    if (findIndex(predicateResults, thenable) != -1) {
       return Promise.all(predicateResults).then(results => computeTreatment(results));
     }
 
