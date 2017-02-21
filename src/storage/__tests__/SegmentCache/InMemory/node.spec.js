@@ -4,12 +4,12 @@
 
 const tape = require('tape-catch');
 const SegmentCacheInMemory = require('../../../SegmentCache/InMemory');
+
 const KeyBuilder = require('../../../Keys');
 const SettingsFactory = require('../../../../utils/settings');
-const settings = SettingsFactory();
 
 tape('SEGMENT CACHE / in memory', assert => {
-  const cache = new SegmentCacheInMemory(new KeyBuilder(settings));
+  const cache = new SegmentCacheInMemory(new KeyBuilder(SettingsFactory()));
 
   cache.addToSegment('mocked-segment', [
     'a', 'b', 'c'

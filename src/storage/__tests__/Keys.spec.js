@@ -50,7 +50,9 @@ tape('KEYS / splits keys with custom prefix', function (assert) {
   const expectedReady = `${prefix}.SPLITIO.splits.ready`;
 
   assert.true(builder.isSplitKey(expectedKey));
-  assert.true(builder.buildSplitKey(splitName) === expectedKey);
+
+  assert.equals(builder.buildSplitKey(splitName), expectedKey);
+
   assert.true(builder.buildSplitsTillKey() === expectedTill);
   assert.true(builder.buildSplitsReady() === expectedReady);
 

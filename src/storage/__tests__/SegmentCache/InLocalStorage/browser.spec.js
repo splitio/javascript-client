@@ -5,8 +5,14 @@
 const tape = require('tape-catch');
 const SegmentCacheInLocalStorage = require('../../../SegmentCache/InLocalStorage');
 
+const KeyBuilder = require('../../../Keys');
+const SettingsFactory = require('../../../../utils/settings');
+
+const settings = SettingsFactory({});
+
 tape('SEGMENT CACHE / in LocalStorage', assert => {
-  const cache = new SegmentCacheInLocalStorage();
+  const keys = new KeyBuilder(settings);
+  const cache = new SegmentCacheInLocalStorage(keys);
 
   cache.flush();
 

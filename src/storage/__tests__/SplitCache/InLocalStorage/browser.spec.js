@@ -2,11 +2,14 @@
 
 'use strict';
 
-const tape = require('tape-catch');
+const tape = require('tape');
 const SplitCacheInLocalStorage = require('../../../SplitCache/InLocalStorage');
 
+const KeyBuilder = require('../../../Keys');
+const SettingsFactory = require('../../../../utils/settings');
+
 tape('SPLIT CACHE / LocalStorage', assert => {
-  const cache = new SplitCacheInLocalStorage();
+  const cache = new SplitCacheInLocalStorage(new KeyBuilder(SettingsFactory()));
 
   cache.flush();
 
@@ -37,7 +40,7 @@ tape('SPLIT CACHE / LocalStorage', assert => {
 });
 
 tape('SPLIT CACHE / LocalStorage / Get Keys', assert => {
-  const cache = new SplitCacheInLocalStorage();
+  const cache = new SplitCacheInLocalStorage(new KeyBuilder(SettingsFactory()));
 
   cache.addSplit('lol1', 'something');
   cache.addSplit('lol2', 'something else');
@@ -50,7 +53,7 @@ tape('SPLIT CACHE / LocalStorage / Get Keys', assert => {
 });
 
 tape('SPLIT CACHE / LocalStorage / Add Splits', assert => {
-  const cache = new SplitCacheInLocalStorage();
+  const cache = new SplitCacheInLocalStorage(new KeyBuilder(SettingsFactory()));
 
   cache.addSplits([
     ['lol1', 'something'],

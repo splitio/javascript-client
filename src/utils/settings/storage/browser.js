@@ -24,9 +24,16 @@ const ParseStorageSettings = (settings: Settings) => {
     storage: {
       type = 'MEMORY',
       options = {},
-      prefix = 'SPLITIO'
+      prefix
     },
   } = settings;
+
+  if (prefix) {
+    prefix += '.SPLITIO';
+  } else {
+    prefix = 'SPLITIO';
+  }
+
 
   if (mode === 'localhost') return {
     type: 'MEMORY',
