@@ -22,39 +22,36 @@ const Events = {
 /**
  * Machine state to handle the ready / update event propagation.
  */
+let splitsStatus = 0;
+
 function ReadinessGateFactory(splits: EventEmitter, segments: EventEmitter, timeout: number): EventEmitter {
   const gate = new EventEmitter();
+  let segmentsStatus = 0;
   let status = 0;
 
   if (timeout > 0) setTimeout(() => {
 
-    if (status < SDK_FIRE_READY)
-      gate.emit(Events.SDK_READY_TIMED_OUT);
+    if (status < SDK_FIRE_READY) gate.emit(Events.SDK_READY_TIMED_OUT);
 
   }, timeout);
 
   gate.on(Events.READINESS_GATE_CHECK_STATE, () => {
-
-    if (status === SDK_FIRE_READY) {
-      status |= SDK_NOTIFY_UPDATE_SINCE_NOW;
+    if (status !== SDK_FIRE_UPDATE && splitsStatus + segmentsStatus === SDK_FIRE_READY) {
+      status = SDK_FIRE_UPDATE;
       gate.emit(Events.SDK_READY);
-    } else if (status === SDK_FIRE_UPDATE)
+    } else if (status === SDK_FIRE_UPDATE) {
       gate.emit(Events.SDK_UPDATE);
-
+    }
   });
 
   splits.on(Events.SDK_SPLITS_ARRIVED, () => {
-
-    status |= SPLITS_READY;
+    splitsStatus = SPLITS_READY;
     gate.emit(Events.READINESS_GATE_CHECK_STATE);
-
   });
 
   segments.on(Events.SDK_SEGMENTS_ARRIVED, () => {
-
-    status |= SEGMENTS_READY;
+    segmentsStatus = SEGMENTS_READY;
     gate.emit(Events.READINESS_GATE_CHECK_STATE);
-
   });
 
   return gate;
