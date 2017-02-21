@@ -18,7 +18,10 @@ const SettingsFactory = require('./utils/settings');
 const ReadinessGate = require('./readiness');
 const ReadinessGateFactory = ReadinessGate();
 
+const keyParser = require('./utils/key/parser');
+
 const instances = {};
+let sequenceId = 1;
 
 function SplitFactory(config: Object) {
   const settings = SettingsFactory(config);
@@ -50,7 +53,17 @@ function SplitFactory(config: Object) {
       break;
   }
 
-  instances.default = Object.assign(ClientFactory(settings, storage), {
+  let ready = new Promise(
+    resolve => readiness.gate.on(readiness.gate.SDK_READY, resolve)
+  );
+
+  let defaultInstance = Object.assign(ClientFactory(settings, storage), {
+    // Instace ID
+    id: sequenceId++,
+
+    // Ready promise
+    ready,
+
     // Expose SDK Events
     events() {
       return readiness.gate;
@@ -63,30 +76,44 @@ function SplitFactory(config: Object) {
       producer && producer.stop();
       metrics && metrics.stop();
       offline && offline.stop();
-
-      delete instances.default;
     }
   });
 
   return {
     // Split evaluation engine
     client(): SplitClient {
-      return instances.default;
+      return defaultInstance;
     },
 
     // Shared evaluation engine (browser only)
-    sharedClient(key: string): SplitClient {
-      if (key === settings.core.key) key = 'default';
+    sharedClient(key: SplitKey): SplitClient {
+      if (typeof storage.shared != 'function') {
+        throw 'Shared Client not supported by the storage mechanism';
+      }
 
-      if (!instances[key]) {
+      key = keyParser(key);
+
+      const instanceId = `${key.matchingKey}-${key.bucketingKey}`;
+
+      if (!instances[instanceId]) {
         const sharedSettings = settings.overrideKey(key);
         const sharedStorage = storage.shared(sharedSettings);
         const sharedReadinessGate = ReadinessGateFactory(sharedSettings.startup.readyTimeout);
         const sharedProducer = PartialProducerFactory(sharedSettings, sharedReadinessGate, sharedStorage);
 
+        const ready = new Promise(
+          resolve => sharedReadinessGate.gate.on(sharedReadinessGate.gate.SDK_READY, resolve)
+        );
+
         sharedProducer.start();
 
-        instances[key] = Object.assign(ClientFactory(sharedSettings, sharedStorage), {
+        instances[instanceId] = Object.assign(ClientFactory(sharedSettings, sharedStorage), {
+          // Instace ID
+          id: sequenceId++,
+
+          // Ready promise
+          ready,
+
           // Expose SDK Events
           events() {
             return sharedReadinessGate.gate;
@@ -96,12 +123,12 @@ function SplitFactory(config: Object) {
           destroy() {
             sharedReadinessGate.destroy();
             sharedProducer.stop();
-            delete instances[key];
+            delete instances[instanceId];
           }
         });
       }
 
-      return instances[key];
+      return instances[instanceId];
     },
 
     // Manager API to explore available information

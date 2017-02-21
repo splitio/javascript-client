@@ -56,7 +56,6 @@ const SplitManagerFactory = (splits: SplitCache): SplitManager => {
     },
 
     splits(): Array<SplitView> {
-      const els = [];
       const currentSplits = splits.getAll();
 
       if (thenable(currentSplits)) return currentSplits.then(ObjectsToViews);

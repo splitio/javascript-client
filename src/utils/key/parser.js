@@ -20,6 +20,4 @@ module.exports = (key: any): SplitKeyObject => {
 
     return key;
   }
-
-  throw 'key should be a object or a string';
 };

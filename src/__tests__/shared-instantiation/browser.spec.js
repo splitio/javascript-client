@@ -17,10 +17,7 @@ tape('SDK BROWSER / shared instanciation', function (assert) {
 
   const factory = SplitFactory(config);
   const qcUserClient = factory.client();
-  const qcEvents = qcUserClient.events();
-
   const qaUserClient = factory.sharedClient('qa-user');
-  const qaEvents = qaUserClient.events();
 
   const finished = (function* f() {
     yield;
@@ -47,6 +44,6 @@ tape('SDK BROWSER / shared instanciation', function (assert) {
     finished.next();
   }
 
-  qaEvents.on(qaEvents.SDK_READY, assertionQA);
-  qcEvents.on(qcEvents.SDK_READY, assertionQC);
+  qcUserClient.ready.then(assertionQA);
+  qaUserClient.ready.then(assertionQC);
 });

@@ -20,6 +20,8 @@ limitations under the License.
 
 const merge = require('lodash/merge');
 
+const parseKey = require('../../utils/key/parser');
+
 const language: string = require('./language');
 const runtime: Object = require('./runtime');
 const overridesPerPlatform: Object = require('./defaults');
@@ -77,6 +79,9 @@ function fromSecondsToMillis(n) {
 function defaults(custom: Object): Settings {
   const withDefaults = merge({}, base, overridesPerPlatform, custom);
 
+  // Process key
+  withDefaults.core.key = parseKey(withDefaults.core.key);
+
   // Scheduler periods
   withDefaults.scheduler.featuresRefreshRate = fromSecondsToMillis(withDefaults.scheduler.featuresRefreshRate);
   withDefaults.scheduler.segmentsRefreshRate = fromSecondsToMillis(withDefaults.scheduler.segmentsRefreshRate);
@@ -97,10 +102,7 @@ function defaults(custom: Object): Settings {
   return withDefaults;
 }
 
-let instanceId = 0;
-
 const proto = {
-
   // Switch URLs servers based on target.
   url(target): string {
     if (eventsEndpointMatcher.test(target)) {
@@ -110,21 +112,20 @@ const proto = {
     return `${this.urls.sdk}${target}`;
   },
 
-  // Override key on a given configuration object
-  overrideKey(newKey: string): Settings {
-    instanceId++;
+  // Override key on a given configuration object (browser only)
+  overrideKey(key: SplitKeyObject): Settings {
+    const prefix = `${key.matchingKey}-${key.bucketingKey}`;
 
     return Object.assign(
-      Object.create(proto),
-      {
+      Object.create(proto), {
         ...this,
         core: {
           ...this.core,
-          key: newKey
+          key
         },
         storage: {
           ...this.storage,
-          prefix: `${this.storage.prefix}.${instanceId}`
+          prefix
         }
       }
     );
