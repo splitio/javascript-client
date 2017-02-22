@@ -8,7 +8,11 @@ const fetchMock = require('fetch-mock');
 
 const tape = require('tape');
 const SettingsFactory = require('../utils/settings');
-const settings = SettingsFactory();
+const settings = SettingsFactory({
+  core: {
+    key: 'facundo@split.io'
+  }
+});
 
 const splitChangesMock1 = require('./mocks/splitchanges.since.-1.json');
 const splitChangesMock2 = require('./mocks/splitchanges.since.1457552620999.json');
@@ -48,9 +52,7 @@ const settingsInLocalStorage = {
 };
 
 function e2eAssetionSuite(config, assert) {
-  const splitio = SplitFactory(
-
-  );
+  const splitio = SplitFactory(config);
   const client = splitio.client();
 
   client.ready.then(() => {

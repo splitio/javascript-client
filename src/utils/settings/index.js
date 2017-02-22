@@ -114,18 +114,12 @@ const proto = {
 
   // Override key on a given configuration object (browser only)
   overrideKey(key: SplitKeyObject): Settings {
-    const prefix = `${key.matchingKey}-${key.bucketingKey}`;
-
     return Object.assign(
       Object.create(proto), {
         ...this,
         core: {
           ...this.core,
           key
-        },
-        storage: {
-          ...this.storage,
-          prefix
         }
       }
     );
