@@ -48,9 +48,10 @@ const settingsInLocalStorage = {
 };
 
 function e2eAssetionSuite(config, assert) {
-  const splitio = SplitFactory(config);
+  const splitio = SplitFactory(
+
+  );
   const client = splitio.client();
-  const events = client.events();
 
   client.ready.then(() => {
     assert.equal(client.getTreatment('blacklist'), 'not_allowed');
