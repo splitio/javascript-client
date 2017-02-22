@@ -8,11 +8,7 @@ const fetchMock = require('fetch-mock');
 
 const tape = require('tape');
 const SettingsFactory = require('../utils/settings');
-const settings = SettingsFactory({
-  core: {
-    authorizationKey: '<fake-token>'
-  }
-});
+const settings = SettingsFactory();
 
 const splitChangesMock1 = require('./mocks/splitchanges.since.-1.json');
 const splitChangesMock2 = require('./mocks/splitchanges.since.1457552620999.json');
@@ -22,25 +18,41 @@ fetchMock.mock(settings.url('/splitChanges?since=-1'), splitChangesMock1);
 fetchMock.mock(settings.url('/splitChanges?since=1457552620999'), splitChangesMock2);
 fetchMock.mock(settings.url('/mySegments/facundo@split.io'), mySegmentsMock);
 
-tape('E2E / lets evaluates!', function (assert) {
-  const config = {
-    core: {
-      authorizationKey: '<fake-token>',
-      key: 'facundo@split.io'
-    },
-    scheduler: {
-      featuresRefreshRate: 1,
-      segmentsRefreshRate: 1,
-      metricsRefreshRate: 3000, // for now I don't want to publish metrics during E2E run.
-      impressionsRefreshRate: 3000  // for now I don't want to publish impressions during E2E run.
-    }
-  };
+const settingsInMemory = {
+  core: {
+    authorizationKey: '<fake-token>',
+    key: 'facundo@split.io'
+  },
+  scheduler: {
+    featuresRefreshRate: 1,
+    segmentsRefreshRate: 1,
+    metricsRefreshRate: 3000, // for now I don't want to publish metrics during E2E run.
+    impressionsRefreshRate: 3000  // for now I don't want to publish impressions during E2E run.
+  }
+};
 
+const settingsInLocalStorage = {
+  core: {
+    authorizationKey: '<fake-token>',
+    key: 'facundo@split.io'
+  },
+  scheduler: {
+    featuresRefreshRate: 1,
+    segmentsRefreshRate: 1,
+    metricsRefreshRate: 3000, // for now I don't want to publish metrics during E2E run.
+    impressionsRefreshRate: 3000  // for now I don't want to publish impressions during E2E run.
+  },
+  storage: {
+    type: 'LOCALSTORAGE'
+  }
+};
+
+function e2eAssetionSuite(config, assert) {
   const splitio = SplitFactory(config);
   const client = splitio.client();
   const events = client.events();
 
-  events.on(events.SDK_READY, function () {
+  client.ready.then(() => {
     assert.equal(client.getTreatment('blacklist'), 'not_allowed');
     assert.equal(client.getTreatment('whitelist'), 'allowed');
     assert.equal(client.getTreatment('splitters'), 'on');
@@ -211,8 +223,9 @@ tape('E2E / lets evaluates!', function (assert) {
       attr: 9
     }), 'off');
 
-    fetchMock.restore();
     assert.end();
   });
+}
 
-});
+tape('E2E / In Memory', e2eAssetionSuite.bind(null, settingsInMemory));
+tape('E2E / In LocalStorage with In Memory Fallback', e2eAssetionSuite.bind(null, settingsInLocalStorage));

@@ -15,7 +15,7 @@ limitations under the License.
 **/
 'use strict';
 
-const tape = require('tape-catch');
+const tape = require('tape');
 const parser = require('../../parser');
 
 tape('PARSER / if user is in segment all 100%:on', async function (assert) {
