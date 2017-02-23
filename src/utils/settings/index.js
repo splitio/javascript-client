@@ -40,7 +40,7 @@ const base = {
     // key used in your system (only required for browser version)
     key: undefined,
     // toggle impressions tracking of labels
-    labelsEnabled: false
+    labelsEnabled: true
   },
 
   scheduler: {
