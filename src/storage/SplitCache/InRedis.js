@@ -101,7 +101,9 @@ class SplitCacheInRedis {
   }
 
   getKeys(): Promise<Array<string>> {
-    throw Error('implement me');
+    return this.redis.keys(this.keys.searchPatternForSplitKeys()).then(
+      (listOfKeys: Array<string>) => listOfKeys.map(this.keys.extractKey)
+    );
   }
 
   /**
