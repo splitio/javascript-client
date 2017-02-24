@@ -88,12 +88,11 @@ function SplitFactory(config: Object) {
     // Shared evaluation engine (browser only)
     sharedClient(key: SplitKey): SplitClient {
       if (typeof storage.shared != 'function') {
-        throw 'Shared Client not supported by the storage mechanism';
+        throw 'Shared Client not supported by the storage mechanism. Create isolated instances instead.';
       }
 
-      key = keyParser(key);
-
-      const instanceId = `${key.matchingKey}-${key.bucketingKey}`;
+      const parsedkey = keyParser(key);
+      const instanceId = `${parsedkey.matchingKey}-${parsedkey.bucketingKey}`;
 
       if (!instances[instanceId]) {
         const sharedSettings = settings.overrideKey(key);

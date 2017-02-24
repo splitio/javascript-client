@@ -25,8 +25,9 @@ function getTreatmentAvailable(
   stopLatencyTracker: Function,
   impressionsTracker: Function
 ) {
-  const bucketingKey = bucketing(key);
   const matchingKey = matching(key);
+  const bucketingKey = bucketing(key);
+
   const { treatment } = evaluation;
   let label = undefined;
 

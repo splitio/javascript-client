@@ -3,11 +3,12 @@
 'use strict';
 
 const KeyBuilder = require('./Keys');
+const { matching } = require('../utils/key/factory');
 
 class KeyBuilderForLocalStorage extends KeyBuilder {
 
   buildSegmentNameKey(segmentName: string) {
-    return `${this.settings.core.key.matchingKey}.${this.settings.storage.prefix}.segment.${segmentName}`;
+    return `${matching(this.settings.core.key)}.${this.settings.storage.prefix}.segment.${segmentName}`;
   }
 
 }
