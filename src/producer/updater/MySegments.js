@@ -29,18 +29,14 @@ function MySegmentsUpdaterFactory(settings: Object, readiness: ReadinessGate, st
 
   return function MySegmentsUpdater(retry: number = 0) {
     return mySegmentsFetcher(settings, startingUp).then(segments => {
-      let shouldNotifyUpdate = false;
-
-      // Only we download segments completely, we should not keep retrying anymore
+      // Only when we have downloaded segments completely, we should not keep
+      // retrying anymore
       startingUp = false;
 
-      for (let s of segments) {
-        if (!storage.segments.isInSegment(s)) {
-          shouldNotifyUpdate = true;
-          storage.segments.addToSegment(s);
-        }
-      }
+      // Update the list of segment names available
+      const shouldNotifyUpdate = storage.segments.resetSegments(segments);
 
+      // Notify update if required
       if (shouldNotifyUpdate || readyOnAlreadyExistentState) {
         readyOnAlreadyExistentState = false;
         segmentsEventEmitter.emit(segmentsEventEmitter.SDK_SEGMENTS_ARRIVED);
