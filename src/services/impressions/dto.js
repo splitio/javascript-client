@@ -27,7 +27,7 @@ module.exports = {
         testName: name,
         keyImpressions: groupedByFeature[name].map(entry => {
           const keyImpression = {
-            keyName: entry.key,
+            keyName: entry.keyName,
             treatment: entry.treatment,
             time: entry.time,
             changeNumber: entry.changeNumber

@@ -43,7 +43,7 @@ function getTreatmentAvailable(
 
   impressionsTracker({
     feature: splitName,
-    key: matchingKey,
+    keyName: matchingKey,
     treatment,
     time: Date.now(),
     bucketingKey,
