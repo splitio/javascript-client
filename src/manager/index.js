@@ -19,8 +19,16 @@ const fixMissingTreatment = (splitObject: SplitObject): Array<string> => {
   return treatments;
 };
 
-const ObjectToView = (json: string): SplitView => {
-  const splitObject: SplitObject = JSON.parse(json);
+const ObjectToView = (json: string): ?SplitView => {
+  let splitObject: SplitObject;
+
+  try {
+    splitObject = JSON.parse(json);
+  } catch(e) {
+    return null;
+  }
+
+  if (splitObject == null) return null;
 
   return {
     name: splitObject.name,
@@ -35,7 +43,8 @@ const ObjectsToViews = (jsons: Array<string>): Array<SplitView> => {
   let views = [];
 
   for (let split of jsons) {
-    views.push(ObjectToView(split));
+    const view = ObjectToView(split);
+    if (view != null) views.push(view);
   }
 
   return views;
@@ -47,12 +56,8 @@ const SplitManagerFactory = (splits: SplitCache): SplitManager => {
     split(splitName: string): ?SplitView {
       const split = splits.getSplit(splitName);
 
-      if (split) {
-        if (thenable(split)) return split.then(result => ObjectToView(result));
-        return ObjectToView(split);
-      } else {
-        return null;
-      }
+      if (thenable(split)) return split.then(result => ObjectToView(result));
+      return ObjectToView(split);
     },
 
     splits(): Array<SplitView> {
