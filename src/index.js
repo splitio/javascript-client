@@ -20,13 +20,24 @@ const ReadinessGateFactory = ReadinessGate();
 
 const keyParser = require('./utils/key/parser');
 
+// cache instances created
 const instances = {};
-let sequenceId = 1;
 
-function SplitFactory(config: Object) {
-  const settings = SettingsFactory(config);
+//
+// Create SDK instance based on the provided configurations
+//
+function SplitFactory(settings: Settings, storage: SplitStorage) {
   const readiness = ReadinessGateFactory(settings.startup.readyTimeout);
-  const storage = StorageFactory(settings);
+
+  // We are only interested in exposable EventEmitter
+  const { gate } = readiness;
+
+  // Events name
+  const {
+    SDK_READY,
+    SDK_UPDATE,
+    SDK_READY_TIMED_OUT
+  } = gate;
 
   let producer;
   let metrics;
@@ -53,40 +64,105 @@ function SplitFactory(config: Object) {
       break;
   }
 
-  let ready = new Promise(
-    resolve => readiness.gate.on(readiness.gate.SDK_READY, resolve)
+  // Ready promise
+  const ready = new Promise(resolve => gate.on(SDK_READY, resolve));
+
+  const api = Object.assign(
+    // Proto linkage of the EventEmitter to prevent any change
+    Object.create(gate),
+    // GetTreatment
+    ClientFactory(settings, storage),
+    // Utilities
+    {
+      // Ready promise
+      ready,
+
+      // Events contants
+      Event: {
+        SDK_READY,
+        SDK_UPDATE,
+        SDK_READY_TIMED_OUT
+      },
+
+      // Destroy instance
+      destroy() {
+        readiness.destroy();
+
+        producer && producer.stop();
+        metrics && metrics.stop();
+        offline && offline.stop();
+      }
+    }
   );
 
-  let defaultInstance = Object.assign(ClientFactory(settings, storage), {
-    // Instace ID
-    id: sequenceId++,
+  return api;
+}
 
-    // Ready promise
-    ready,
+//
+// Create partial SDK instance reusing as much as we can (ONLY BROWSER).
+//
+function SharedSplitFactory(settings: Settings, storage: SplitStorage) {
+  const readiness = ReadinessGateFactory(settings.startup.readyTimeout);
 
-    // Expose SDK Events
-    events() {
-      return readiness.gate;
-    },
+  // We are only interested in exposable EventEmitter
+  const { gate } = readiness;
 
-    // Destroy the SDK instance
-    destroy() {
-      readiness.destroy();
+  // Events name
+  const {
+    SDK_READY,
+    SDK_UPDATE,
+    SDK_READY_TIMED_OUT
+  } = gate;
 
-      producer && producer.stop();
-      metrics && metrics.stop();
-      offline && offline.stop();
+  const producer = PartialProducerFactory(settings, readiness, storage);
+
+  // Ready promise
+  const ready = new Promise(resolve => gate.on(SDK_READY, resolve));
+
+  // In shared instanciation (only available for the browser), we start producer
+  // module by default
+  producer.start();
+
+  const api = Object.assign(
+    // Proto linkage of the EventEmitter to prevent any change
+    Object.create(gate),
+    // GetTreatment
+    ClientFactory(settings, storage),
+    // Utilities
+    {
+      // Ready promise
+      ready,
+
+      // Events contants
+      Event: {
+        SDK_READY,
+        SDK_UPDATE,
+        SDK_READY_TIMED_OUT
+      },
+
+      // Destroy instance
+      destroy() {
+        readiness.destroy();
+        producer.stop();
+      }
     }
-  });
+  );
+
+  return api;
+}
+
+function SplitFacade(config: Object) {
+  const settings = SettingsFactory(config);
+  const storage = StorageFactory(settings);
+
+  const defaultInstance = SplitFactory(settings, storage);
 
   return {
-    // Split evaluation engine
-    client(): SplitClient {
-      return defaultInstance;
-    },
 
-    // Shared evaluation engine (browser only)
-    sharedClient(key: SplitKey): SplitClient {
+    // Split evaluation engine
+    client(key: ?SplitKey): SplitClient {
+      if (!key) return defaultInstance;
+
       if (typeof storage.shared != 'function') {
         throw 'Shared Client not supported by the storage mechanism. Create isolated instances instead.';
       }
@@ -96,35 +172,7 @@ function SplitFactory(config: Object) {
 
       if (!instances[instanceId]) {
         const sharedSettings = settings.overrideKey(key);
-        const sharedStorage = storage.shared(sharedSettings);
-        const sharedReadinessGate = ReadinessGateFactory(sharedSettings.startup.readyTimeout);
-        const sharedProducer = PartialProducerFactory(sharedSettings, sharedReadinessGate, sharedStorage);
-
-        const ready = new Promise(
-          resolve => sharedReadinessGate.gate.on(sharedReadinessGate.gate.SDK_READY, resolve)
-        );
-
-        sharedProducer.start();
-
-        instances[instanceId] = Object.assign(ClientFactory(sharedSettings, sharedStorage), {
-          // Instace ID
-          id: sequenceId++,
-
-          // Ready promise
-          ready,
-
-          // Expose SDK Events
-          events() {
-            return sharedReadinessGate.gate;
-          },
-
-          // Destroy the SDK instance
-          destroy() {
-            sharedReadinessGate.destroy();
-            sharedProducer.stop();
-            delete instances[instanceId];
-          }
-        });
+        instances[instanceId] = SharedSplitFactory(sharedSettings, storage.shared(sharedSettings));
       }
 
       return instances[instanceId];
@@ -140,4 +188,4 @@ function SplitFactory(config: Object) {
   };
 }
 
-module.exports = SplitFactory;
+module.exports = SplitFacade;
