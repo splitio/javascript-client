@@ -17,3 +17,5 @@ function splitio(config: Object) {
     settings
   });
 }
+
+module.exports = splitio;
