@@ -27,7 +27,7 @@ module.exports = {
   output: {
     filename: filename(),
     path: __dirname + '/umd',
-    library: ['splitFactory', 'splitio'],
+    library: ['splitio-next', 'splitio'],
     libraryTarget: 'umd'
   },
 
