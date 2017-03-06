@@ -20,14 +20,14 @@ function filename() {
 
 module.exports = {
   entry: {
-    splitFactory: './src',
-    splitio: './src/migration'
+    splitFactory: ['./src'],
+    splitio: ['./src/migration']
   },
 
   output: {
     filename: filename(),
     path: __dirname + '/umd',
-    library: ['splitio-next', 'splitio'],
+    library: 'splitio',
     libraryTarget: 'umd'
   },
 
