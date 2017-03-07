@@ -13,7 +13,13 @@ function splitio(config: Object) {
   const settings = factory.settings;
 
   return Object.assign(Object.create(client), {
+    // in v8, this is an attribute instead of a function.
+    ready() {
+      return client.ready;
+    },
+    // This is new to v8, and this method is at the same level as `.client`.
     manager,
+    // Keeps the same in v8.
     settings
   });
 }
