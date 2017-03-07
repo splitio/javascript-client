@@ -65,7 +65,7 @@ function SplitFactory(settings: Settings, storage: SplitStorage) {
   }
 
   // Ready promise
-  const ready = new Promise(resolve => gate.on(SDK_READY, resolve));
+  const readyFlag = new Promise(resolve => gate.on(SDK_READY, resolve));
 
   const api = Object.assign(
     // Proto linkage of the EventEmitter to prevent any change
@@ -75,7 +75,9 @@ function SplitFactory(settings: Settings, storage: SplitStorage) {
     // Utilities
     {
       // Ready promise
-      ready,
+      ready() {
+        return readyFlag;
+      },
 
       // Events contants
       Event: {
@@ -117,7 +119,7 @@ function SharedSplitFactory(settings: Settings, storage: SplitStorage) {
   const producer = PartialProducerFactory(settings, readiness, storage);
 
   // Ready promise
-  const ready = new Promise(resolve => gate.on(SDK_READY, resolve));
+  const readyFlag = new Promise(resolve => gate.on(SDK_READY, resolve));
 
   // In shared instanciation (only available for the browser), we start producer
   // module by default
@@ -131,7 +133,9 @@ function SharedSplitFactory(settings: Settings, storage: SplitStorage) {
     // Utilities
     {
       // Ready promise
-      ready,
+      ready() {
+        return readyFlag;
+      },
 
       // Events contants
       Event: {
