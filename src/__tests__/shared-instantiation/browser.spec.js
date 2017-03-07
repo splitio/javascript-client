@@ -44,6 +44,6 @@ tape('SDK BROWSER / shared instanciation', function (assert) {
     finished.next();
   }
 
-  qcUserClient.ready.then(assertionQA);
-  qaUserClient.ready.then(assertionQC);
+  qcUserClient.ready().then(assertionQA);
+  qaUserClient.ready().then(assertionQC);
 });

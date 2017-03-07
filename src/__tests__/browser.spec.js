@@ -55,7 +55,7 @@ function e2eAssetionSuite(config, assert) {
   const splitio = SplitFactory(config);
   const client = splitio.client();
 
-  client.ready.then(() => {
+  client.ready().then(() => {
     assert.equal(client.getTreatment('blacklist'), 'not_allowed');
     assert.equal(client.getTreatment('whitelist'), 'allowed');
     assert.equal(client.getTreatment('splitters'), 'on');
