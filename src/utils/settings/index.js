@@ -20,8 +20,6 @@ limitations under the License.
 
 const merge = require('lodash/merge');
 
-const parseKey = require('../../utils/key/parser');
-
 const language: string = require('./language');
 const runtime: Object = require('./runtime');
 const overridesPerPlatform: Object = require('./defaults');
@@ -79,9 +77,6 @@ function fromSecondsToMillis(n) {
 function defaults(custom: Object): Settings {
   const withDefaults = merge({}, base, overridesPerPlatform, custom);
 
-  // Process key
-  withDefaults.core.key = parseKey(withDefaults.core.key);
-
   // Scheduler periods
   withDefaults.scheduler.featuresRefreshRate = fromSecondsToMillis(withDefaults.scheduler.featuresRefreshRate);
   withDefaults.scheduler.segmentsRefreshRate = fromSecondsToMillis(withDefaults.scheduler.segmentsRefreshRate);
@@ -113,7 +108,7 @@ const proto = {
   },
 
   // Override key on a given configuration object (browser only)
-  overrideKey(key: SplitKeyObject): Settings {
+  overrideKey(key: SplitKey): Settings {
     return Object.assign(
       Object.create(proto), {
         ...this,
