@@ -4,7 +4,7 @@ const webpack = require('webpack');
 
 module.exports = {
   // base path, that will be used to resolve files and exclude
-  basePath: '',
+  basePath: '../src',
 
   // load tap integration
   frameworks: [
@@ -13,17 +13,24 @@ module.exports = {
 
   // list of files / patterns to load in the browser
   files: [
-    '../src/*/__tests__/**/*.spec.js'
+    '*/__tests__/**/*.spec.js',
+    {
+      pattern: 'engine/__tests__/engine/mocks/murmur3*.csv',
+      watched: false,
+      included: false,
+      served: true,
+      nocache: true
+    }
   ],
 
   // list of files / patterns to exclude
   exclude: [
-    '../src/*/__tests__/**/node.spec.js'
+    '*/__tests__/**/node.spec.js'
   ],
 
   // prepare code for the browser using webpack
   preprocessors: {
-    '../src/*/__tests__/**/*.spec.js': ['webpack']
+    '*/__tests__/**/*.spec.js': ['webpack']
   },
 
   webpack: {
@@ -58,6 +65,10 @@ module.exports = {
     match: 'html',
     name: 'X-UA-Compatible',
     value: 'IE=edge'
+  }, {
+    match: 'csv$',
+    name: 'Content-Type',
+    value: 'text/plain'
   }],
 
   // Enable debugging in PhantomJS
@@ -77,5 +88,16 @@ module.exports = {
   // if true, it capture browsers, run tests and exit
   singleRun: true,
 
-  colors: true
+  colors: true,
+
+  /**
+   * @WARNING in local mode, murmur verification takes forever (chrome tested),
+   *          so I keep this only to be used by PhantomJS.
+   *
+   * @INFO If you want to see how Chrome perform, just run the code and verify the
+   *       devTools / console output.
+   */
+  browserDisconnectTolerance: 1,
+  browserNoActivityTimeout: 60 * 60 * 1000,
+  reportSlowerThan: 15
 };
