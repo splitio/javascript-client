@@ -13,38 +13,52 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+
+// @flow
+
 'use strict';
 
 const engine = require('../engine');
 const keyParser = require('../../utils/key/parser');
+const thenable = require('../../utils/promise/thenable');
 
-/*::
-  type KeyDTO = {
-    matchingKey: string,
-    bucketingKey: string
+// Build Evaluation object if and only if matchingResult is true
+function match(matchingResult: boolean, bucketingKey: string, seed: number, treatments: Treatments, label: string): ?Evaluation {
+  if (matchingResult) {
+    const treatment = engine.getTreatment(bucketingKey, seed, treatments);
+
+    return {
+      treatment,
+      label
+    };
   }
-*/
+
+  // else we should notify the engine to continue evaluating
+  return undefined;
+}
 
 // Evaluator factory
-function evaluatorContext(matcherEvaluator /*: function */, treatments /*: Treatments */, label /*: string */) /*: function */ {
+function evaluatorContext(matcherEvaluator: Function, treatments: Treatments, label: string): Function {
 
-  return function evaluator(key /*: string | KeyDTO */, seed /*: number */, attributes /*: object */) /*:? string */ {
-    // parse key, the key could be a string or KeyDTO it should return a keyDTO.
-    const keyParsed = keyParser(key);
-    // if the matcherEvaluator return true, then evaluate the treatment and return the label for that split
-    if (matcherEvaluator(keyParsed.matchingKey, attributes)) {
-      const treatment = engine.getTreatment(keyParsed.bucketingKey, seed, treatments);
+  function evaluator(key: SplitKey, seed: number, attributes: ?Object): Promise<?Evaluation> | ?Evaluation {
+    // the key could be a string or KeyDTO it should return a keyDTO.
+    const {
+      matchingKey,
+      bucketingKey
+    } = keyParser(key);
 
-      return {
-        treatment,
-        label
-      };
+    // matcherEvaluator could be Async, this relays on matchers return value, so we need
+    // to verify for thenable before play with the result
+    const matches = matcherEvaluator(matchingKey, attributes);
+
+    if (thenable(matches)) {
+      return matches.then(result => match(result, bucketingKey, seed, treatments, label));
     }
 
-    // else we should notify the engine to continue evaluating
-    return undefined;
-  };
+    return match(matches, bucketingKey, seed, treatments, label);
+  }
 
+  return evaluator;
 }
 
 module.exports = evaluatorContext;

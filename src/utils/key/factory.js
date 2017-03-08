@@ -20,8 +20,6 @@ function KeyFactory(keyProperty, shouldReturnUndefined = false) {
 
       return key[keyProperty];
     }
-
-    throw 'key should be a object or a string';
   };
 }
 

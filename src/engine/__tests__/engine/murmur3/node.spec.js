@@ -46,7 +46,7 @@ const utils = require('../../../engine/murmur3');
           assert.equal(utils.bucket(key, seed), bucket);
         }
       })
-      .on('close', assert.end)
+      .on('close', assert.end);
   });
 
 });

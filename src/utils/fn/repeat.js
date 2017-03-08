@@ -31,6 +31,7 @@ function repeat(fn, delay, ...rest) {
 
   function till() {
     clearTimeout(tid);
+    tid = undefined;
     stopped = true;
   }
 

@@ -15,12 +15,12 @@ limitations under the License.
 **/
 'use strict';
 
-const tape = require('tape');
+const tape = require('tape-catch');
 
 const matcherTypes = require('../../../matchers/types');
 const matcherFactory = require('../../../matchers');
 
-tape('MATCHER SEGMENT / should return true ONLY when the segment is defined inside the segment storage', assert => {
+tape('MATCHER SEGMENT / should return true ONLY when the segment is defined inside the segment storage', async function (assert) {
   const segment = 'employees';
 
   const matcher = matcherFactory({
@@ -28,16 +28,12 @@ tape('MATCHER SEGMENT / should return true ONLY when the segment is defined insi
     value: segment
   }, {
     segments: {
-      has(segmentName) {
-        if (segmentName !== segment) {
-          throw Error('Unexpected segment name');
-        }
-
+      isInSegment(segmentName) {
         return segment === segmentName;
       }
     }
   });
 
-  assert.true(matcher(), 'segment found in mySegments list');
+  assert.true(await matcher(), 'segment found in mySegments list');
   assert.end();
 });

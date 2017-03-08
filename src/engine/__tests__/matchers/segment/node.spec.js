@@ -15,12 +15,12 @@ limitations under the License.
 **/
 'use strict';
 
-const tape = require('tape');
+const tape = require('tape-catch');
 
 const matcherTypes = require('../../../matchers/types');
 const matcherFactory = require('../../../matchers');
 
-tape('MATCHER SEGMENT / should return true ONLY when the key is defined inside the segment', assert => {
+tape('MATCHER SEGMENT / should return true ONLY when the key is defined inside the segment', async function (assert) {
   const segment = 'employees';
 
   const matcher = matcherFactory({
@@ -28,17 +28,13 @@ tape('MATCHER SEGMENT / should return true ONLY when the key is defined inside t
     value: segment
   }, {
     segments: {
-      get(segmentName) {
-        if (segmentName !== segment) {
-          throw Error('Unexpected segment name');
-        }
-
-        return new Set(['key']);
+      isInSegment(segmentName, key) {
+        return key === 'key';
       }
     }
   });
 
-  assert.true(matcher('key'), '"key" should be true');
-  assert.false(matcher('another_key'), '"another key" should be false');
+  assert.true(await matcher('key'), '"key" should be true');
+  assert.false(await matcher('another_key'), '"another key" should be false');
   assert.end();
 });

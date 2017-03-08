@@ -15,7 +15,7 @@ limitations under the License.
 **/
 'use strict';
 
-const tape = require('tape');
+const tape = require('tape-catch');
 const bs = require('../../binarySearch');
 
 tape('BINARY SEARCH / given [1,3,5,7,10] as dataset look for several elements', assert => {

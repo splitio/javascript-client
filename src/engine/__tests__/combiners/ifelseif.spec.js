@@ -15,10 +15,10 @@ limitations under the License.
 **/
 'use strict';
 
-const tape = require('tape');
+const tape = require('tape-catch');
 const ifElseIfCombinerFactory = require('../../combiners/ifelseif');
 
-tape('IF ELSE IF COMBINER / should correctly propagate context parameters and predicates returns value', assert => {
+tape('IF ELSE IF COMBINER / should correctly propagate context parameters and predicates returns value', async function (assert) {
   let inputKey = 'sample';
   let inputSeed = 1234;
   let inputAttributes = {};
@@ -36,25 +36,21 @@ tape('IF ELSE IF COMBINER / should correctly propagate context parameters and pr
   let ifElseIfEvaluator = ifElseIfCombinerFactory(predicates);
 
   assert.true(
-    ifElseIfEvaluator(inputKey, inputSeed, inputAttributes) === evaluationResult,
+    await ifElseIfEvaluator(inputKey, inputSeed, inputAttributes) === evaluationResult,
     `evaluator should return ${evaluationResult}`
   );
   assert.end();
 });
 
-tape('IF ELSE IF COMBINER / should stop evaluating when one matcher return a treatment', assert => {
-  let called = 0;
+tape('IF ELSE IF COMBINER / should stop evaluating when one matcher return a treatment', async function(assert) {
   let predicates = [
     function undef() {
-      called++;
       return undefined;
     },
     function exclude() {
-      called++;
       return 'exclude';
     },
     function alwaysTrue() {
-      called++;
       return 'alwaysTrue';
     }
   ];
@@ -62,14 +58,13 @@ tape('IF ELSE IF COMBINER / should stop evaluating when one matcher return a tre
   let ifElseIfEvaluator = ifElseIfCombinerFactory(predicates);
 
   assert.equal(
-    ifElseIfEvaluator(), 'exclude', 'exclude treatment found'
+    await ifElseIfEvaluator(), 'exclude', 'exclude treatment found'
   );
-  assert.equal(called, 2, '2 predicates should be called');
   assert.end();
 });
 
-tape('IF ELSE IF COMBINER / should return undefined if there is none matching rule', assert => {
-  let predicates = [
+tape('IF ELSE IF COMBINER / should return undefined if there is none matching rule', async function (assert) {
+  const predicates = [
     function undef() {
       return undefined;
     },
@@ -81,6 +76,8 @@ tape('IF ELSE IF COMBINER / should return undefined if there is none matching ru
     }
   ];
 
-  assert.true(ifElseIfCombinerFactory(predicates)() === undefined);
+  const ifElseIfEvaluator = ifElseIfCombinerFactory(predicates);
+
+  assert.true(await ifElseIfEvaluator() === undefined);
   assert.end();
 });

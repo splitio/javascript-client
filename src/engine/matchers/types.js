@@ -13,21 +13,24 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+// @flow
+
 'use strict';
 
 module.exports = {
+  // @WARNING Symbol is not correctly working in PhantomJS
   enum: {
-    ALL: Symbol(),
-    SEGMENT: Symbol(),
-    WHITELIST: Symbol(),
-    EQUAL_TO: Symbol(),
-    GREATER_THAN_OR_EQUAL_TO: Symbol(),
-    LESS_THAN_OR_EQUAL_TO: Symbol(),
-    BETWEEN: Symbol(),
-    UNDEFINED: Symbol()
+    ALL: 1,
+    SEGMENT: 2,
+    WHITELIST: 3,
+    EQUAL_TO: 4,
+    GREATER_THAN_OR_EQUAL_TO: 5,
+    LESS_THAN_OR_EQUAL_TO: 6,
+    BETWEEN: 7,
+    UNDEFINED: 8
   },
 
-  mapper(matcherType /*: string */) /*: Symbol */ {
+  mapper(matcherType: string): number {
     let types = this.enum;
 
     switch (matcherType) {

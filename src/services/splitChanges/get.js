@@ -17,6 +17,6 @@ limitations under the License.
 
 const base = require('../request');
 
-module.exports = function GET(settings, {since}) {
+module.exports = function GET(settings, since) {
   return base(settings, `/splitChanges?since=${since}`);
 };

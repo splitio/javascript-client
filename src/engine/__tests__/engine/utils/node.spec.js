@@ -15,7 +15,7 @@ limitations under the License.
 **/
 'use strict';
 
-const tape = require('tape');
+const tape = require('tape-catch');
 const utils = require('../../../engine/utils');
 const csv = require('csv-streamify');
 const fs = require('fs');

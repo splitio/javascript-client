@@ -20,15 +20,18 @@ limitations under the License.
 
 const merge = require('lodash/merge');
 
-const language = require('./language');
-const runtime = require('./runtime');
-const overridesPerPlatform = require('./defaults');
+const language: string = require('./language');
+const runtime: Object = require('./runtime');
+const overridesPerPlatform: Object = require('./defaults');
+const storage: Function = require('./storage');
+const mode: Function = require('./mode');
 
 const eventsEndpointMatcher = /\/(testImpressions|metrics)/;
 
-const matchingKey = require('../key/factory').matching;
-
 const base = {
+  // Define which kind of object you want to retrieve from SplitFactory
+  mode: 'standalone',
+
   core: {
     // API token (tight to an environment)
     authorizationKey: undefined,
@@ -46,7 +49,9 @@ const base = {
     // publish metrics each 60 sec
     metricsRefreshRate: 60,
     // publish evaluations each 60 sec
-    impressionsRefreshRate: 60
+    impressionsRefreshRate: 60,
+    // fetch offline changes each 15 sec
+    offlineRefreshRate: 15
   },
 
   urls: {
@@ -56,49 +61,45 @@ const base = {
     events: 'https://events.split.io/api'
   },
 
+  // Defines which kind of storage we should instanciate.
+  storage: {
+    type: 'MEMORY'
+  },
+
   // Instance version.
-  version: `${language}-7.4.0`
+  version: `${language}-8.0.0-canary.19`
 };
 
 function fromSecondsToMillis(n) {
   return Math.round(n * 1000);
 }
 
-function defaults(custom) {
+function defaults(custom: Object): Settings {
   const withDefaults = merge({}, base, overridesPerPlatform, custom);
 
+  // Scheduler periods
   withDefaults.scheduler.featuresRefreshRate = fromSecondsToMillis(withDefaults.scheduler.featuresRefreshRate);
   withDefaults.scheduler.segmentsRefreshRate = fromSecondsToMillis(withDefaults.scheduler.segmentsRefreshRate);
   withDefaults.scheduler.metricsRefreshRate = fromSecondsToMillis(withDefaults.scheduler.metricsRefreshRate);
   withDefaults.scheduler.impressionsRefreshRate = fromSecondsToMillis(withDefaults.scheduler.impressionsRefreshRate);
+  withDefaults.scheduler.offlineRefreshRate = fromSecondsToMillis(withDefaults.scheduler.offlineRefreshRate);
+
+  // Startup periods
   withDefaults.startup.requestTimeoutBeforeReady = fromSecondsToMillis(withDefaults.startup.requestTimeoutBeforeReady);
   withDefaults.startup.readyTimeout = fromSecondsToMillis(withDefaults.startup.readyTimeout);
+
+  // ensure a valid SDK mode
+  withDefaults.mode = mode(withDefaults.core.authorizationKey, withDefaults.mode);
+
+  // ensure a valid Storage based on mode defined.
+  withDefaults.storage = storage(withDefaults);
 
   return withDefaults;
 }
 
 const proto = {
-  get(name) {
-    switch (name) {
-      case 'authorizationKey':
-        return this.core.authorizationKey;
-      case 'key':
-        return matchingKey(this.core.key);
-      case 'featuresRefreshRate':
-        return this.scheduler.featuresRefreshRate;
-      case 'segmentsRefreshRate':
-        return this.scheduler.segmentsRefreshRate;
-      case 'metricsRefreshRate':
-        return this.scheduler.metricsRefreshRate;
-      case 'impressionsRefreshRate':
-        return this.scheduler.impressionsRefreshRate;
-      default:
-        return this[name];
-    }
-  },
-
   // Switch URLs servers based on target.
-  url(target) {
+  url(target): string {
     if (eventsEndpointMatcher.test(target)) {
       return `${this.urls.events}${target}`;
     }
@@ -106,10 +107,23 @@ const proto = {
     return `${this.urls.sdk}${target}`;
   },
 
+  // Override key on a given configuration object (browser only)
+  overrideKey(key: SplitKey): Settings {
+    return Object.assign(
+      Object.create(proto), {
+        ...this,
+        core: {
+          ...this.core,
+          key
+        }
+      }
+    );
+  },
+
   // Current ip/hostname information (if available)
   runtime
 };
 
-module.exports = function CreateSettings(settings) {
-  return Object.assign(Object.create(proto), defaults(settings));
-};
+const SettingsFactory = (settings: Object): Settings => Object.assign(Object.create(proto), defaults(settings));
+
+module.exports = SettingsFactory;
