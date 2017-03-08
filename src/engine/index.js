@@ -70,7 +70,12 @@ Split.prototype.getTreatment = function getTreatment(key: SplitKey, attributes):
     treatment = defaultTreatment;
     label = LabelsConstants.SPLIT_KILLED;
   } else {
-    const evaluation = this.evaluator(key, seed, attributes);
+    const evaluation = this.evaluator(
+      key,
+      seed,
+      attributes,
+      this.getHashingAlgorithm()
+    );
 
     // Evaluation could be async, so we should handle that case checking for a
     // thenable object
@@ -97,6 +102,10 @@ Split.prototype.isGarbage = function isGarbage() {
 
 Split.prototype.getChangeNumber = function getChangeNumber() {
   return this.baseInfo.changeNumber;
+};
+
+Split.prototype.getHashingAlgorithm = function getHashingAlgorithm() {
+  return this.baseInfo.algo;
 };
 
 module.exports = Split;

@@ -1,4 +1,3 @@
-// const murmur3 = require('murmurHash3.js/murmurHash3');
 const utfx = require('utfx');
 
 const stringSource = utfx.stringSource;

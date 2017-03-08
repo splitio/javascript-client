@@ -18,18 +18,27 @@ limitations under the License.
 
 'use strict';
 
-const bucket = require('./utils').bucket;
 const log = require('debug')('splitio-engine');
+
+const legacy = require('./legacy');
+const murmur = require('./murmur3');
 
 const engine = {
   /**
    * Get the treatment name given a key, a seed, and the percentage of each treatment.
    */
-  getTreatment(key: string, seed: number, treatments: Treatments): string {
-    const b = bucket(key, seed);
-    const treatment = treatments.getTreatmentFor(b);
+  getTreatment(key: string, seed: number, treatments: Treatments, algo: ?number): string {
+    let bucket;
 
-    log(`[engine] bucket ${b} for ${key} using seed ${seed} - treatment ${treatment}`);
+    if (algo === 2) {
+      bucket = murmur.bucket(key, seed);
+    } else {
+      bucket = legacy.bucket(key, seed);
+    }
+
+    const treatment = treatments.getTreatmentFor(bucket);
+
+    log(`[engine] using algo ${algo !== 2 ? 'legacy' : 'murmur'} bucket ${bucket} for ${key} using seed ${seed} - treatment ${treatment}`);
 
     return treatment;
   }
