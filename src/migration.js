@@ -9,7 +9,6 @@ const splitFactory = require('./');
 function splitio(config: Object) {
   const factory = splitFactory(config);
   const client = factory.client();
-  const manager = client.manager;
   const settings = factory.settings;
 
   return Object.assign(Object.create(client), {
