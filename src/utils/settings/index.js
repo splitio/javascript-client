@@ -67,7 +67,7 @@ const base = {
   },
 
   // Instance version.
-  version: `${language}-8.0.0-canary.19`
+  version: `${language}-8.0.0`
 };
 
 function fromSecondsToMillis(n) {
