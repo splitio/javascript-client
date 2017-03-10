@@ -17,7 +17,7 @@ tape('SDK BROWSER / shared instanciation', function (assert) {
 
   const factory = SplitFactory(config);
   const qcUserClient = factory.client();
-  const qaUserClient = factory.sharedClient('qa-user');
+  const qaUserClient = factory.client('qa-user');
 
   const finished = (function* f() {
     yield;

@@ -20,8 +20,8 @@ function filename() {
 
 module.exports = {
   entry: {
-    splitio: ['./src'],
-    ['splitio-migration']: ['./src/migration']
+    split: ['./src'],
+    ['split-migration']: ['./src/migration']
   },
 
   output: {
