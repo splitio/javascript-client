@@ -3,6 +3,7 @@
 Split SDK is the library you should use for integrate [Split](http://split.io/)
 into your web platform.
 
+
 ### How to install
 
 Using [npm](https://www.npmjs.com/):
@@ -22,23 +23,55 @@ var splitio = require('@splitsoftware/splitio');
 
 Using [bower](https://bower.io):
 
-    $ bower install splitio=https://cdn.split.io/split-7.0.1.min.js
+    $ bower install splitio=https://cdn.split.io/split-8.0.0.min.js
 
 And finally, the **UMD** build is also available in our **CDN**:
 
 ```html
-<script src="//cdn.split.io/split-7.0.1.min.js"></script>
+<script src="//cdn.split.io/split-8.0.0.min.js"></script>
 ```
 
 You can find the library on `window.splitio`.
+
+
+#### Migration v7 to v8
+
+If you are comming from v7 and wants to use v8 without apply changes into your
+code, we have provided a migration bundle which decorates the new API simulating
+the old one:
+
+In the browser you were probably using something like:
+
+```html
+<script src="//cdn.split.io/split-7.4.0.min.js"></script>
+```
+
+Now you should use:
+
+```html
+<script src="//cdn.split.io/split-migration-8.0.0.min.js"></script>
+```
+
+In CommonJS environments (even using ES6 modules), you should require/import:
+
+```js
+// using an ES6 transpiler, like babel
+import splitio from '@splitsoftware/splitio/migration';
+
+// not using an ES6 transpiler
+const splitio = require('@splitsoftware/splitio/migration');
+```
+
 
 ### Usage documentation
 - [Getting stared](http://docs.split.io/docs/getting-started)
 - [JS SDK overview](http://docs.split.io/docs/javascript-sdk-overview)
 
+
 ### Release documentation
 - [Changes](CHANGES.txt)
 - [News](NEWS.txt)
+
 
 ### How to release
 
@@ -85,10 +118,6 @@ Update the package.json with the correct value using semver.
 > Add localhost file for tests!!!
 
 `printf "%s\n" '# this a comment' 'my_new_feature on' '# another comment' > $HOME/.split`
-
-> For SonarQ since the plugin is in Java 8
-
-`jdk_switcher use oraclejdk8`
 
 > Tests steps
 
