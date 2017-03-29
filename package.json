@@ -12,6 +12,11 @@
   "bugs": "https://github.com/splitio/javascript-client/issues",
   "license": "Apache-2.0",
   "author": "Facundo Cabrera <facundo@split.io>",
+  "contributors": [{
+    "name" : "Nico Zelaya",
+    "email" : "nicolas.zelaya@split.io",
+    "url" : "https://github.com/NicoZelaya"
+  }],
   "main": "lib/index.js",
   "types": "types",
   "devDependencies": {
