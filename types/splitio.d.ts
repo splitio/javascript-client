@@ -28,13 +28,12 @@ type AsyncTreatmentValue<T> = Promise<T> | T;
 /**
  * @typedef {string} EventOpts
  */
-type EventOpts = 'init::timeout' | 'init::ready' | 'state::splits-arrived' |
-'state::segments-arrived' | 'state::update' | 'state::update-error';
+type EventOpts = 'init::timeout' | 'init::ready' | 'state::update';
 /**
  * Settings interface
- * @interface ISplitSettings
+ * @interface ISettings
  */
-interface ISplitSettings {
+interface ISettings {
   readonly core: {
     authorizationKey: string,
     key: string,
@@ -60,34 +59,34 @@ interface ISplitSettings {
 
 /**
  * Types and interfaces for @splitsoftware/splitio package for usage when integrating javascript sdk on typescript apps.
- * For the SDK package information 
+ * For the SDK package information
  * @see {@link https://www.npmjs.com/package/@splitsoftware/splitio}
  */
 declare namespace SplitIO {
   /**
    * Split treatment value, returned by getTreatment.
-   * @typedef {AsyncTreatmentValue<string>} SplitTreatment
+   * @typedef {AsyncTreatmentValue<string>} Treatment
    */
-  type SplitTreatment = AsyncTreatmentValue<string>;
+  type Treatment = AsyncTreatmentValue<string>;
   /**
    * Possible split events.
-   * @typedef {EventOpts} SplitEvent
+   * @typedef {EventOpts} Event
    */
-  type SplitEvent = EventOpts;
+  type Event = EventOpts;
   /**
    * Split attributes should be on object with values of type string or number (dates should be sent as millis since epoch).
-   * @typedef {Object.<number, string>} SplitAttributes
+   * @typedef {Object.<number, string>} Attributes
    * @see {@link http://docs.split.io/docs/javascript-sdk-overview#section-using-attributes-in-sdk}
    */
-  type SplitAttributes = {
-    [propName: string]: string | number
+  type Attributes = {
+    [attributeName: string]: string | number
   }
   /**
    * Settings interface for SDK instances created on the browser
-   * @interface ISplitBrowserSettings
+   * @interface IBrowserSettings
    * @see {@link http://docs.split.io/docs/javascript-sdk-overview#section-advanced-configuration-of-the-sdk}
    */
-  interface ISplitBrowserSettings {
+  interface IBrowserSettings {
     /**
      * @property {Object} core
      */
@@ -164,10 +163,10 @@ declare namespace SplitIO {
   }
   /**
    * Settings interface for SDK instances created on NodeJS
-   * @interface ISplitNodeSettings
+   * @interface INodeSettings
    * @see {@link http://docs.split.io/docs/nodejs-sdk-overview#section-advanced-configuration-of-the-sdk}
    */
-  interface ISplitNodeSettings {
+  interface INodeSettings {
     /**
      * @property {Object} core
      */
@@ -215,11 +214,11 @@ declare namespace SplitIO {
     }
   }
   /**
-   * @interface ISplitSDK
+   * @interface ISDK
    * @extends NodeJS.Events
    * This represents the interface for the SDK instance.
    */
-  interface ISplitSDK extends NodeJS.Events {
+  interface ISDK extends NodeJS.Events {
     /**
      * Destroy the SDK instance.
      * @function destroy
@@ -227,22 +226,22 @@ declare namespace SplitIO {
      */
     destroy(): void,
     /**
-     * Returns a SplitTreatment value, which will be (or eventually be) the treatment string for the given feature.
+     * Returns a Treatment value, which will be (or eventually be) the treatment string for the given feature.
      * @function getTreatment
      * @param {string} key - The string key representing the consumer.
      * @param {string} featureName - The string that represents the split we wan't to get the treatment.
-     * @param {SplitAttributes=} attributes - An object of type SplitAttributes defining the attributes for the given key.
-     * @returns {SplitTreatment} The treatment or treatment promise which will resolve to the treatment string.
+     * @param {Attributes=} attributes - An object of type Attributes defining the attributes for the given key.
+     * @returns {Treatment} The treatment or treatment promise which will resolve to the treatment string.
      */
-    getTreatment(key: string, featureName: string, attributes?: SplitAttributes): SplitTreatment,
+    getTreatment(key: string, featureName: string, attributes?: Attributes): Treatment,
     /**
-     * Returns a SplitTreatment value, which will be (or eventually be) the treatment string for the given feature.
+     * Returns a Treatment value, which will be (or eventually be) the treatment string for the given feature.
      * @function getTreatment
      * @param {string} featureName The string that represents the split we wan't to get the treatment.
-     * @param {SplitAttributes=} attributes An object of type SplitAttributes defining the attributes for the given key.
-     * @returns {SplitTreatment} The treatment or treatment promise which will resolve to the treatment string.
+     * @param {Attributes=} attributes An object of type Attributes defining the attributes for the given key.
+     * @returns {Treatment} The treatment or treatment promise which will resolve to the treatment string.
      */
-    getTreatment(featureName: string, attributes?: SplitAttributes): SplitTreatment,
+    getTreatment(featureName: string, attributes?: Attributes): Treatment,
     /**
      * Returns a promise that will be resolved once the SDK has finished loading.
      * @function ready
@@ -253,15 +252,15 @@ declare namespace SplitIO {
     /**
      * Used for binding to the different SDK events
      * @function on
-     * @param {EventOpts} eventName The name of the event we wan't to subscribe a callback.
+     * @param {Event} eventName The name of the event we wan't to subscribe a callback.
      * @param {Function} callback The callback to execute when the event is fired. It won't receive any parameters.
-     * @returns {ISplitSDK} The SDK instance.
+     * @returns {ISDK} The SDK instance.
      */
-    on(eventName: EventOpts, callback: () => any): this,
+    on(eventName: Event, callback: () => any): this,
     /**
-     * The settings object which respects the SplitTypes.ISplitSettings interface
+     * The settings object which respects the ISettings interface.
      */
-    settings: ISplitSettings,
+    settings: ISettings,
     /**
      * An object containing the constants for the SDK available events.
      */
