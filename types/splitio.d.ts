@@ -26,10 +26,6 @@ type EventConsts = {
  */
 type AsyncTreatmentValue<T> = Promise<T> | T;
 /**
- * @typedef {string} EventOpts
- */
-type EventOpts = 'init::timeout' | 'init::ready' | 'state::update';
-/**
  * Settings interface
  * @interface ISettings
  */
@@ -70,9 +66,9 @@ declare namespace SplitIO {
   type Treatment = AsyncTreatmentValue<string>;
   /**
    * Possible split events.
-   * @typedef {EventOpts} Event
+   * @typedef {string} Event
    */
-  type Event = EventOpts;
+  type Event = 'init::timeout' | 'init::ready' | 'state::update';;
   /**
    * Split attributes should be on object with values of type string or number (dates should be sent as millis since epoch).
    * @typedef {Object.<number, string>} Attributes
