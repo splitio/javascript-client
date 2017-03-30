@@ -416,6 +416,7 @@ declare namespace SplitIO {
     Event: EventConsts,
     /**
      * Returns a Treatment value, which will be (or eventually be) the treatment string for the given feature.
+     * For usage on NodeJS as we don't have only one key.
      * @function getTreatment
      * @param {string} key - The string key representing the consumer.
      * @param {string} splitName - The string that represents the split we wan't to get the treatment.
@@ -423,6 +424,15 @@ declare namespace SplitIO {
      * @returns {Treatment} The treatment or treatment promise which will resolve to the treatment string.
      */
     getTreatment(key: SplitKey, splitName: string, attributes?: Attributes): Treatment,
+    /**
+     * Returns a Treatment value, which will be (or eventually be) the treatment string for the given feature.
+     * For usage on the Browser as we defined the key on the settings.
+     * @function getTreatment
+     * @param {string} splitName - The string that represents the split we wan't to get the treatment.
+     * @param {Attributes=} attributes - An object of type Attributes defining the attributes for the given key.
+     * @returns {Treatment} The treatment or treatment promise which will resolve to the treatment string.
+     */
+    getTreatment(splitName: string, attributes?: Attributes): Treatment,
     /**
      * Returns a promise that will be resolved once the SDK has finished loading.
      * @function ready
