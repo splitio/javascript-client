@@ -5,7 +5,7 @@
 [include]
 
 [libs]
-decls/
+types/
 
 [options]
 experimental.const_params=false
