@@ -120,7 +120,7 @@ declare namespace SplitIO {
   type MockedFeaturesMap = {
     [featureName: string]: string
   };
-   /**
+  /**
    * Data corresponding to one Split view.
    * @typedef {Object} SplitView
    */
@@ -167,10 +167,15 @@ declare namespace SplitIO {
    */
   type SplitNames = Array<string>;
   /**
-   * Storage valid types.
-   * @typedef {string} Storage
+   * Storage valid types for NodeJS.
+   * @typedef {string} NodeStorage
    */
-  type Storage = 'MEMORY' | 'LOCALSTORAGE' | 'REDIS';
+  type NodeStorage = 'MEMORY' | 'LOCALSTORAGE' | 'REDIS';
+  /**
+   * Storage valid types for the browser.
+   * @typedef {string} BrowserStorage
+   */
+  type BrowserStorage = 'MEMORY' | 'LOCALSTORAGE';
   /**
    * Settings interface for SDK instances created on the browser
    * @interface IBrowserSettings
@@ -264,7 +269,25 @@ declare namespace SplitIO {
      * Mocked features map. For testing purposses only. For using this you should specify "localhost" as authorizationKey on core settings.
      * @see {@link https://gist.github.com/dendril/c3d7515ededa73ae3798faee835e08cc#file-offline-refresh-browser-js}
      */
-    features?: MockedFeaturesMap
+    features?: MockedFeaturesMap,
+    /**
+     * Defines which kind of storage we should instanciate.
+     * @property {Object} storage
+     */
+    storage?: {
+      /**
+       * Storage type to be instantiated by the SDK.
+       * @property {BrowserStorage} type
+       * @default MEMORY
+       */
+      type?: BrowserStorage,
+      /**
+       * Optional prefix to prevent any kind of data collision between SDK versions.
+       * @property {string} prefix
+       * @default SPLITIO
+       */
+      prefix?: string
+    }
   }
   /**
    * Settings interface for SDK instances created on NodeJS
@@ -326,10 +349,10 @@ declare namespace SplitIO {
     storage?: {
       /**
        * Storage type to be instantiated by the SDK.
-       * @property {Storage} type
+       * @property {NodeStorage} type
        * @default MEMORY
        */
-      type: Storage,
+      type?: NodeStorage,
       /**
        * Options to be passed to the selected storage. Use it with type: 'REDIS'
        * @property {Object} options
