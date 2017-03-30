@@ -4,6 +4,9 @@
 
 /// <reference types="node" />
 
+export as namespace SplitIO;
+export = SplitIO;
+
 /**
  * @typedef {Object} EventConsts
  * @property {string} SDK_READY The ready event.
@@ -316,6 +319,7 @@ declare namespace SplitIO {
       /**
        * Optional prefix to prevent any kind of data collision between SDK versions.
        * @property {string} prefix
+       * @default SPLITIO
        */
       prefix?: string
     }
