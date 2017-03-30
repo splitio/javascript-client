@@ -1,4 +1,4 @@
-// Type definitions for Javascript and Node Split Software SDK v7.4.0
+// Type definitions for Javascript and Node Split Software SDK v8.1.0
 // Project: http://www.split.io/
 // Definitions by: Nico Zelaya <https://github.com/NicoZelaya/>
 
@@ -8,23 +8,27 @@
  * @typedef {Object} EventConsts
  * @property {string} SDK_READY The ready event.
  * @property {string} SDK_READY_TIMED_OUT The timeout event.
- * @property {string} SDK_SEGMENTS_ARRIVED The event fired when segments info arrive to the SDK.
- * @property {string} SDK_SPLITS_ARRIVED The event fired when splits info arrive to the SDK.
  * @property {string} SDK_UPDATE The update event.
- * @property {string} SDK_UPDATE_ERROR The update error event.
  */
 type EventConsts = {
   SDK_READY: 'init::ready',
   SDK_READY_TIMED_OUT: 'init::timeout',
-  SDK_SEGMENTS_ARRIVED: 'state::segments-arrived',
-  SDK_SPLITS_ARRIVED: 'state::splits-arrived',
-  SDK_UPDATE: 'state::update',
-  SDK_UPDATE_ERROR: 'state::update-error'
+  SDK_UPDATE: 'state::update'
 };
 /**
  * @typedef {(Promise<T>|T)} AsyncTreatmentValue
  */
 type AsyncTreatmentValue<T> = Promise<T> | T;
+/**
+ * SDK Modes.
+ * @typedef {string} SDKMode
+ */
+type SDKMode = 'standalone' | 'consumer';
+/**
+ * Storage types.
+ * @typedef {string} StorageType
+ */
+type StorageType = 'MEMORY' | 'LOCALSTORAGE' | 'REDIS';
 /**
  * Settings interface
  * @interface ISettings
@@ -35,16 +39,24 @@ interface ISettings {
     key: string,
     labelsEnabled: boolean
   },
+  readonly mode: SDKMode,
   readonly scheduler: {
     featuresRefreshRate: number,
     impressionsRefreshRate: number,
     metricsRefreshRate: number,
-    segmentsRefreshRate: number
+    segmentsRefreshRate: number,
+    offlineRefreshRate: number
   },
   readonly startup: {
     readyTimeout: number,
     requestTimeoutBeforeReady: number,
     retriesOnFailureBeforeReady: number
+  },
+  readonly storage: {
+    options: {
+      prefix: string,
+      type: StorageType
+    }
   },
   readonly urls: {
     events: string,
@@ -52,7 +64,6 @@ interface ISettings {
   },
   readonly version: string
 }
-
 /**
  * Types and interfaces for @splitsoftware/splitio package for usage when integrating javascript sdk on typescript apps.
  * For the SDK package information
@@ -68,7 +79,7 @@ declare namespace SplitIO {
    * Possible split events.
    * @typedef {string} Event
    */
-  type Event = 'init::timeout' | 'init::ready' | 'state::update';;
+  type Event = 'init::timeout' | 'init::ready' | 'state::update';
   /**
    * Split attributes should be on object with values of type string or number (dates should be sent as millis since epoch).
    * @typedef {Object.<number, string>} Attributes
@@ -76,7 +87,68 @@ declare namespace SplitIO {
    */
   type Attributes = {
     [attributeName: string]: string | number
-  }
+  };
+  /**
+   * The SplitKey object format.
+   * @typedef {Object} SplitKeyObject
+   */
+  type SplitKeyObject = {
+    matchingKey: string,
+    bucketingKey: string
+  };
+  /**
+   * The customer identifier. Could be a SplitKeyObject or a string.
+   * @typedef {SplitKeyObject|string} SplitKey
+   */
+  type SplitKey = SplitKeyObject | string;
+  /**
+   * Path to file with mocked features (for node).
+   * @typedef {string} MockedFeaturesFilePath
+   */
+  type MockedFeaturesFilePath = string;
+  /**
+   * Object with mocked features mapping (for browser).
+   * @typedef {Object} MockedFeaturesMap
+   */
+  type MockedFeaturesMap = {
+    [featureName: string]: string
+  };
+   /**
+   * Data corresponding to one Split view.
+   * @typedef {Object} SplitView
+   */
+  type SplitView = {
+    /**
+     * The name of the split.
+     * @property {string} name
+     */
+    name: string,
+    /**
+     * The traffic type of the split.
+     * @property {string} trafficType
+     */
+    trafficType: string,
+    /**
+     * Whether the split is killed or not.
+     * @property {boolean} killed
+     */
+    killed: boolean,
+    /**
+     * The list of treatments available for the split.
+     * @property {Array<string>} treatments
+     */
+    treatments: Array<string>,
+    /**
+     * Current change number of the split.
+     * @property {number} changeNumber
+     */
+    changeNumber: number
+  };
+  /**
+   * Storage valid types.
+   * @typedef {string} Storage
+   */
+  type Storage = 'MEMORY' | 'LOCALSTORAGE' | 'REDIS';
   /**
    * Settings interface for SDK instances created on the browser
    * @interface IBrowserSettings
@@ -84,6 +156,7 @@ declare namespace SplitIO {
    */
   interface IBrowserSettings {
     /**
+     * SDK Core settings for the browser.
      * @property {Object} core
      */
     core: {
@@ -105,6 +178,7 @@ declare namespace SplitIO {
       labelsEnabled?: boolean
     },
     /**
+     * SDK scheduler settings.
      * @property {Object} scheduler
      */
     scheduler?: {
@@ -131,9 +205,17 @@ declare namespace SplitIO {
        * @property {number} segmentsRefreshRate
        * @default 60
        */
-      segmentsRefreshRate?: number
+      segmentsRefreshRate?: number,
+      /**
+       * For mocking/testing only. The SDK will refresh the features mocked data when mode is set to "localhost" by defining the key.
+       * For more information @see {@link https://fakeurl}
+       * @property {number} offlineRefreshRate
+       * @default 15
+       */
+      offlineRefreshRate?: number
     },
     /**
+     * SDK Startup settings.
      * @property {Object} startup
      */
     startup?: {
@@ -155,7 +237,12 @@ declare namespace SplitIO {
        * @default 1
        */
       retriesOnFailureBeforeReady?: number
-    }
+    },
+    /**
+     * Mocked features map. For testing purposses only. For using this you should specify "localhost" as authorizationKey on core settings.
+     * @see {@link https://gist.github.com/dendril/c3d7515ededa73ae3798faee835e08cc#file-offline-refresh-browser-js}
+     */
+    features?: MockedFeaturesMap
   }
   /**
    * Settings interface for SDK instances created on NodeJS
@@ -164,6 +251,7 @@ declare namespace SplitIO {
    */
   interface INodeSettings {
     /**
+     * SDK Core settings for NodeJS.
      * @property {Object} core
      */
     core: {
@@ -180,6 +268,7 @@ declare namespace SplitIO {
       labelsEnabled?: boolean
     },
     /**
+     * SDK scheduler settings.
      * @property {Object} scheduler
      */
     scheduler?: {
@@ -207,59 +296,112 @@ declare namespace SplitIO {
        * @default 60
        */
       segmentsRefreshRate?: number
+    },
+    /**
+     * Defines which kind of storage we should instanciate.
+     * @property {Object} storage
+     */
+    storage?: {
+      /**
+       * Storage type to be instantiated by the SDK.
+       * @property {Storage} type
+       * @default MEMORY
+       */
+      type: Storage,
+      /**
+       * Options to be passed to the selected storage. Use it with type: 'REDIS'
+       * @property {Object} options
+       */
+      options?: Object,
+      /**
+       * Optional prefix to prevent any kind of data collision between SDK versions.
+       * @property {string} prefix
+       */
+      prefix?: string
     }
+    /**
+     * The SDK mode. Possible values are "standalone" (which is the default) and "consumer". For "localhost" mode, use "localhost" as authorizationKey.
+     * @property {SDKMode} mode
+     * @default standalone
+     */
+    mode?: SDKMode,
+    /**
+     * Mocked features file path. For testing purposses only. For using this you should specify "localhost" as authorizationKey on core settings.
+     * @see {@link https://gist.github.com/dendril/c3d7515ededa73ae3798faee835e08cc#file-offline-refresh-node-js}
+     * @property {MockedFeaturesFilePath} features
+     * @default $HOME/.split
+     */
+    features?: MockedFeaturesFilePath
   }
   /**
-   * @interface ISDK
-   * @extends NodeJS.Events
    * This represents the interface for the SDK instance.
+   * @interface ISDK
    */
-  interface ISDK extends NodeJS.Events {
+  interface ISDK {
     /**
-     * Destroy the SDK instance.
-     * @function destroy
-     * @returns {void}
+     * Current settings of the SDK instance.
+     * @property settings
      */
-    destroy(): void,
+    settings: ISettings,
+    /**
+     * Returns a client instance of the SDK. If a key is provided as parameter, the function will return a shared instance. If no key param is provided, we will get the default instance.
+     * @function client
+     * @param {SplitKey=} key The key for the new client instance.
+     * @returns {IClient} The client instance.
+     */
+    client(key?: SplitKey): IClient,
+    /**
+     * Returns a manager instance of the SDK to explore available information.
+     * @function manager
+     * @returns {IManager} The manager instance.
+     */
+    manager(): IManager
+  }
+  /**
+   * Representation of a client instance of the SDK.
+   * @interface IClient
+   * @extends NodeJS.Events
+   */
+  interface IClient extends NodeJS.Events {
     /**
      * Returns a Treatment value, which will be (or eventually be) the treatment string for the given feature.
      * @function getTreatment
      * @param {string} key - The string key representing the consumer.
-     * @param {string} featureName - The string that represents the split we wan't to get the treatment.
+     * @param {string} splitName - The string that represents the split we wan't to get the treatment.
      * @param {Attributes=} attributes - An object of type Attributes defining the attributes for the given key.
      * @returns {Treatment} The treatment or treatment promise which will resolve to the treatment string.
      */
-    getTreatment(key: string, featureName: string, attributes?: Attributes): Treatment,
+    getTreatment(key: SplitKey, splitName: string, attributes?: Attributes): Treatment,
     /**
-     * Returns a Treatment value, which will be (or eventually be) the treatment string for the given feature.
-     * @function getTreatment
-     * @param {string} featureName The string that represents the split we wan't to get the treatment.
-     * @param {Attributes=} attributes An object of type Attributes defining the attributes for the given key.
-     * @returns {Treatment} The treatment or treatment promise which will resolve to the treatment string.
+     * Destroy the client instance.
+     * @function destroy
+     * @returns {void}
      */
-    getTreatment(featureName: string, attributes?: Attributes): Treatment,
+    destroy(): void
+  }
+  /**
+   * Representation of a manager instance of the SDK.
+   * @interface IManager
+   */
+  interface IManager {
     /**
-     * Returns a promise that will be resolved once the SDK has finished loading.
-     * @function ready
-     * @deprecated Use on(sdk.Event.SDK_READY, callback: () => void) instead.
-     * @returns {Promise<void>}
+     * Get the array of splits data in SplitView format.
+     * @function splits
+     * @returns {Array<SplitView>} The list of splits.
      */
-    ready(): Promise<void>,
+    splits(): Array<SplitView>;
     /**
-     * Used for binding to the different SDK events
-     * @function on
-     * @param {Event} eventName The name of the event we wan't to subscribe a callback.
-     * @param {Function} callback The callback to execute when the event is fired. It won't receive any parameters.
-     * @returns {ISDK} The SDK instance.
+     * Get the data of a split in SplitView format.
+     * @function split
+     * @param {string} splitName The name of the split we wan't to get info of.
+     * @returns {SplitView} The data of the split.
      */
-    on(eventName: Event, callback: () => any): this,
+    split(splitName: string): SplitView;
     /**
-     * The settings object which respects the ISettings interface.
+     * Returns the available split names in an array.
+     * @function names
+     * @returns {Array<string>} The array of split names.
      */
-    settings: ISettings,
-    /**
-     * An object containing the constants for the SDK available events.
-     */
-    Event: EventConsts
+    names(): Array<string>;
   }
 }
