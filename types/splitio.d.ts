@@ -19,9 +19,13 @@ type EventConsts = {
   SDK_UPDATE: 'state::update'
 };
 /**
- * @typedef {(Promise<T>|T)} AsyncTreatmentValue
+ * @typedef {(Promise<T>|T)} AsyncValue
  */
-type AsyncTreatmentValue<T> = Promise<T> | T;
+type AsyncValue<T> = Promise<T> | T;
+/**
+ * @typedef {(Promise<T[]>|T[])} AsyncValues
+ */
+type AsyncValues<T> = Promise<T[]> | T[];
 /**
  * SDK Modes.
  * @typedef {string} SDKMode
@@ -75,9 +79,9 @@ interface ISettings {
 declare namespace SplitIO {
   /**
    * Split treatment value, returned by getTreatment.
-   * @typedef {AsyncTreatmentValue<string>} Treatment
+   * @typedef {AsyncValue<string>} Treatment
    */
-  type Treatment = AsyncTreatmentValue<string>;
+  type Treatment = AsyncValue<string>;
   /**
    * Possible split events.
    * @typedef {string} Event
@@ -110,7 +114,7 @@ declare namespace SplitIO {
    */
   type MockedFeaturesFilePath = string;
   /**
-   * Object with mocked features mapping (for browser).
+   * Object with mocked features mapping (for browser). We need to specify the featureName as key, and the mocked treatment as value.
    * @typedef {Object} MockedFeaturesMap
    */
   type MockedFeaturesMap = {
@@ -120,7 +124,7 @@ declare namespace SplitIO {
    * Data corresponding to one Split view.
    * @typedef {Object} SplitView
    */
-  type SplitView = {
+  type SplitViewData = {
     /**
      * The name of the split.
      * @property {string} name
@@ -147,6 +151,21 @@ declare namespace SplitIO {
      */
     changeNumber: number
   };
+  /**
+   * The SplitView or a promise that will be resolved with that SplitView.
+   * @typedef {AsyncValue<SplitViewData>} SplitView
+   */
+  type SplitView = AsyncValue<SplitViewData>;
+  /**
+   * An array containing the SplitViews or a promise that will be resolved with that array.
+   * @typedef {AsyncValues<SplitViewData>} SplitViews
+   */
+  type SplitViews = AsyncValues<SplitViewData>;
+  /**
+   * An array of split names.
+   * @typedef {Array<string>} SplitNames
+   */
+  type SplitNames = Array<string>;
   /**
    * Storage valid types.
    * @typedef {string} Storage
@@ -368,6 +387,11 @@ declare namespace SplitIO {
    */
   interface IClient extends NodeJS.Events {
     /**
+     * Constant object containing the SDK events for you to use.
+     * @property {EventConsts} Event
+     */
+    Event: EventConsts,
+    /**
      * Returns a Treatment value, which will be (or eventually be) the treatment string for the given feature.
      * @function getTreatment
      * @param {string} key - The string key representing the consumer.
@@ -376,6 +400,13 @@ declare namespace SplitIO {
      * @returns {Treatment} The treatment or treatment promise which will resolve to the treatment string.
      */
     getTreatment(key: SplitKey, splitName: string, attributes?: Attributes): Treatment,
+    /**
+     * Returns a promise that will be resolved once the SDK has finished loading.
+     * @function ready
+     * @deprecated Use on(sdk.Event.SDK_READY, callback: () => void) instead.
+     * @returns {Promise<void>}
+     */
+    ready(): void,
     /**
      * Destroy the client instance.
      * @function destroy
@@ -391,21 +422,21 @@ declare namespace SplitIO {
     /**
      * Get the array of splits data in SplitView format.
      * @function splits
-     * @returns {Array<SplitView>} The list of splits.
+     * @returns {SplitViews} The list of SplitViews or a promise that will resolve to that list.
      */
-    splits(): Array<SplitView>;
+    splits(): SplitViews;
     /**
      * Get the data of a split in SplitView format.
      * @function split
      * @param {string} splitName The name of the split we wan't to get info of.
-     * @returns {SplitView} The data of the split.
+     * @returns {SplitView} The SplitView of the given split or a promise that will resolve to the SplitView.
      */
     split(splitName: string): SplitView;
     /**
      * Returns the available split names in an array.
      * @function names
-     * @returns {Array<string>} The array of split names.
+     * @returns {SplitNames} The array of split names or the promise that will be resolved with the array.
      */
-    names(): Array<string>;
+    names(): SplitNames;
   }
 }
