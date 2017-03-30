@@ -5,7 +5,8 @@
   "files": [
     "*.md",
     "lib",
-    "umd"
+    "umd",
+    "types"
   ],
   "repository": "splitio/javascript-client",
   "homepage": "https://github.com/splitio/javascript-client#readme",
