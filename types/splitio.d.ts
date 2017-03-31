@@ -69,7 +69,10 @@ interface ISettings {
     events: string,
     sdk: string
   },
-  readonly version: string
+  readonly version: string,
+  features: {
+    [featureName: string]: string
+  }
 }
 /**
  * Types and interfaces for @splitsoftware/splitio package for usage when integrating javascript sdk on typescript apps.
