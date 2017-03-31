@@ -1,3 +1,19 @@
+## 8.1.1 (March 31, 2017)
+
+* No API changes. Small fix on declaration files.
+
+## 8.1.0 (March 30, 2017)
+
+* No API changes.
+* Added typescript support. SplitSDK custom types live on the SplitIO namespace.
+
+  For example:
+
+  ```ts
+  const myTreatment: SplitIO.Treatment;
+  const myBrowserSettings: SplitIO.IBrowserSettings;
+  ```
+
 ## 8.0.0 (March 10, 2017)
 
 * New API to improve development experience. We added a migration layer so you
