@@ -1,16 +1,9 @@
 ## 8.2.0 (April 4, 2017)
 
+* Adding traffic allocation support.
 * Adding support for murmur hashing algorithm.
 * Bugfixing on manager API for localhost.
-
-## 8.1.2 (April 4, 2017)
-
 * Small fix on declaration files.
-* Adding traffic allocation support.
-
-## 8.1.1 (March 31, 2017)
-
-* No API changes. Small fix on declaration files.
 
 ## 8.1.0 (March 30, 2017)
 
