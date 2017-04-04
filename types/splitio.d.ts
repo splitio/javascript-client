@@ -238,7 +238,7 @@ declare namespace SplitIO {
       segmentsRefreshRate?: number,
       /**
        * For mocking/testing only. The SDK will refresh the features mocked data when mode is set to "localhost" by defining the key.
-       * For more information @see {@link https://fakeurl}
+       * For more information @see {@link http://docs.split.io/docs/javascript-sdk-overview#section-running-the-sdk-in-off-the-grid-mode}
        * @property {number} offlineRefreshRate
        * @default 15
        */
@@ -270,7 +270,7 @@ declare namespace SplitIO {
     },
     /**
      * Mocked features map. For testing purposses only. For using this you should specify "localhost" as authorizationKey on core settings.
-     * @see {@link https://gist.github.com/dendril/c3d7515ededa73ae3798faee835e08cc#file-offline-refresh-browser-js}
+     * @see {@link http://docs.split.io/docs/javascript-sdk-overview#section-running-the-sdk-in-off-the-grid-mode}
      */
     features?: MockedFeaturesMap,
     /**
@@ -343,7 +343,14 @@ declare namespace SplitIO {
        * @property {number} segmentsRefreshRate
        * @default 60
        */
-      segmentsRefreshRate?: number
+      segmentsRefreshRate?: number,
+      /**
+       * For mocking/testing only. The SDK will refresh the features mocked data when mode is set to "localhost" by defining the key.
+       * For more information @see {@link http://docs.split.io/docs/nodejs-sdk-overview#section-running-the-sdk-in-off-the-grid-mode}
+       * @property {number} offlineRefreshRate
+       * @default 15
+       */
+      offlineRefreshRate?: number
     },
     /**
      * Defines which kind of storage we should instanciate.
@@ -376,7 +383,7 @@ declare namespace SplitIO {
     mode?: SDKMode,
     /**
      * Mocked features file path. For testing purposses only. For using this you should specify "localhost" as authorizationKey on core settings.
-     * @see {@link https://gist.github.com/dendril/c3d7515ededa73ae3798faee835e08cc#file-offline-refresh-node-js}
+     * @see {@link http://docs.split.io/docs/nodejs-sdk-overview#section-running-the-sdk-in-off-the-grid-mode}
      * @property {MockedFeaturesFilePath} features
      * @default $HOME/.split
      */
