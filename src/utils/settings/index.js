@@ -67,7 +67,7 @@ const base = {
   },
 
   // Instance version.
-  version: `${language}-8.1.2`
+  version: `${language}-8.2.0`
 };
 
 function fromSecondsToMillis(n) {

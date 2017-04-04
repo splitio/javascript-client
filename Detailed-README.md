@@ -23,12 +23,12 @@ var splitio = require('@splitsoftware/splitio');
 
 Using [bower](https://bower.io):
 
-    $ bower install splitio=https://cdn.split.io/split-8.0.0.min.js
+    $ bower install splitio=https://cdn.split.io/split-8.2.0.min.js
 
 And finally, the **UMD** build is also available in our **CDN**:
 
 ```html
-<script src="//cdn.split.io/split-8.0.0.min.js"></script>
+<script src="//cdn.split.io/split-8.2.0.min.js"></script>
 ```
 
 You can find the library on `window.splitio`.
@@ -49,7 +49,7 @@ In the browser you were probably using something like:
 Now you should use:
 
 ```html
-<script src="//cdn.split.io/split-migration-8.0.0.min.js"></script>
+<script src="//cdn.split.io/split-migration-8.2.0.min.js"></script>
 ```
 
 In CommonJS environments (even using ES6 modules), you should require/import:
