@@ -57,7 +57,9 @@ Split.prototype.getTreatment = function getTreatment(key: SplitKey, attributes):
   const {
     killed,
     seed,
-    defaultTreatment
+    defaultTreatment,
+    trafficAllocation,
+    trafficAllocationSeed
   } = this.baseInfo;
 
   let treatment;
@@ -73,6 +75,8 @@ Split.prototype.getTreatment = function getTreatment(key: SplitKey, attributes):
     const evaluation = this.evaluator(
       key,
       seed,
+      trafficAllocation,
+      trafficAllocationSeed,
       attributes,
       this.getHashingAlgorithm()
     );

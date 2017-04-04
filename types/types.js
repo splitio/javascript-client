@@ -156,7 +156,8 @@ declare type MatcherGroup = {
 declare type Condition = {
   matcherGroup: MatcherGroup,
   partitions: Array<Partition>,
-  label: string
+  label: string,
+  conditionType: string
 };
 
 declare type SplitStatus = 'ACTIVE' | 'ARCHIVED';
@@ -165,6 +166,8 @@ declare type SplitObject = {
   trafficTypeName: string,
   name: string,
   seed: number,
+  trafficAllocation: number,
+  trafficAllocationSeed: number,
   changeNumber: number,
   label: string,
   status: SplitStatus,

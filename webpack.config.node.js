@@ -1,7 +1,7 @@
-// const webpack = require('webpack');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
+  // HACK because the build requires this configuration but it's not used.
   output: {
     filename: 'asd'
   },
