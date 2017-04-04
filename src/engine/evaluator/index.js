@@ -19,6 +19,7 @@ limitations under the License.
 'use strict';
 
 const engine = require('../engine');
+const engineUtils = require('../engine/utils');
 const keyParser = require('../../utils/key/parser');
 const thenable = require('../../utils/promise/thenable');
 
@@ -38,14 +39,24 @@ function match(matchingResult: boolean, bucketingKey: string, seed: number, trea
 }
 
 // Evaluator factory
-function evaluatorContext(matcherEvaluator: Function, treatments: Treatments, label: string): Function {
+function evaluatorContext(matcherEvaluator: Function, treatments: Treatments, label: string, conditionType: string): Function {
 
-  function evaluator(key: SplitKey, seed: number, attributes: ?Object): Promise<?Evaluation> | ?Evaluation {
+  function evaluator(key: SplitKey, seed: number, trafficAllocation: number, trafficAllocationSeed: number, attributes: ?Object): Promise<?Evaluation> | ?Evaluation {
     // the key could be a string or KeyDTO it should return a keyDTO.
     const {
       matchingKey,
       bucketingKey
     } = keyParser(key);
+
+    // Whitelisting has more priority than traffic allocation, so we don't apply this filtering to those conditions.
+    // For rollout, if traffic allocation for splits is 100, we don't need to filter it because everything should evaluate the rollout.
+    if (conditionType === 'ROLLOUT' && trafficAllocation < 100) {
+      const bucket = engineUtils.bucket(bucketingKey, trafficAllocationSeed);
+
+      if (bucket >= trafficAllocation) {
+        return;
+      }
+    }
 
     // matcherEvaluator could be Async, this relays on matchers return value, so we need
     // to verify for thenable before play with the result

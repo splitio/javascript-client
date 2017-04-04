@@ -35,7 +35,8 @@ function parse(conditions: Array<Condition>, storage: SplitStorage): any {
         matchers
       },
       partitions,
-      label
+      label,
+      conditionType
     } = condition;
 
     // transform data structure
@@ -64,7 +65,8 @@ function parse(conditions: Array<Condition>, storage: SplitStorage): any {
     predicates.push(evaluatorFactory(
       andCombiner(expressions),
       treatmentsParser(partitions),
-      label
+      label,
+      conditionType
     ));
   }
 
