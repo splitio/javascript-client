@@ -19,14 +19,13 @@ limitations under the License.
 'use strict';
 
 const engine = require('../engine');
-const engineUtils = require('../engine/utils');
 const keyParser = require('../../utils/key/parser');
 const thenable = require('../../utils/promise/thenable');
 
 // Build Evaluation object if and only if matchingResult is true
-function match(matchingResult: boolean, bucketingKey: string, seed: number, treatments: Treatments, label: string): ?Evaluation {
+function match(matchingResult: boolean, bucketingKey: string, seed: number, treatments: Treatments, label: string, algo: ?number): ?Evaluation {
   if (matchingResult) {
-    const treatment = engine.getTreatment(bucketingKey, seed, treatments);
+    const treatment = engine.getTreatment(bucketingKey, seed, treatments, algo);
 
     return {
       treatment,
@@ -41,7 +40,7 @@ function match(matchingResult: boolean, bucketingKey: string, seed: number, trea
 // Evaluator factory
 function evaluatorContext(matcherEvaluator: Function, treatments: Treatments, label: string, conditionType: string): Function {
 
-  function evaluator(key: SplitKey, seed: number, trafficAllocation: number, trafficAllocationSeed: number, attributes: ?Object): Promise<?Evaluation> | ?Evaluation {
+  function evaluator(key: SplitKey, seed: number, trafficAllocation: number, trafficAllocationSeed: number, attributes: ?Object, algo: ?number): AsyncValue<?Evaluation> {
     // the key could be a string or KeyDTO it should return a keyDTO.
     const {
       matchingKey,
@@ -49,13 +48,8 @@ function evaluatorContext(matcherEvaluator: Function, treatments: Treatments, la
     } = keyParser(key);
 
     // Whitelisting has more priority than traffic allocation, so we don't apply this filtering to those conditions.
-    // For rollout, if traffic allocation for splits is 100, we don't need to filter it because everything should evaluate the rollout.
-    if (conditionType === 'ROLLOUT' && trafficAllocation < 100) {
-      const bucket = engineUtils.bucket(bucketingKey, trafficAllocationSeed);
-
-      if (bucket >= trafficAllocation) {
-        return;
-      }
+    if (conditionType === 'ROLLOUT' && !engine.shouldApplyRollout(trafficAllocation, bucketingKey, trafficAllocationSeed, algo)) {
+      return;
     }
 
     // matcherEvaluator could be Async, this relays on matchers return value, so we need
@@ -63,10 +57,10 @@ function evaluatorContext(matcherEvaluator: Function, treatments: Treatments, la
     const matches = matcherEvaluator(matchingKey, attributes);
 
     if (thenable(matches)) {
-      return matches.then(result => match(result, bucketingKey, seed, treatments, label));
+      return matches.then(result => match(result, bucketingKey, seed, treatments, label, algo));
     }
 
-    return match(matches, bucketingKey, seed, treatments, label);
+    return match(matches, bucketingKey, seed, treatments, label, algo);
   }
 
   return evaluator;

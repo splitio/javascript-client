@@ -59,7 +59,8 @@ Split.prototype.getTreatment = function getTreatment(key: SplitKey, attributes):
     seed,
     defaultTreatment,
     trafficAllocation,
-    trafficAllocationSeed
+    trafficAllocationSeed,
+    algo
   } = this.baseInfo;
 
   let treatment;
@@ -72,7 +73,14 @@ Split.prototype.getTreatment = function getTreatment(key: SplitKey, attributes):
     treatment = defaultTreatment;
     label = LabelsConstants.SPLIT_KILLED;
   } else {
-    const evaluation = this.evaluator(key, seed, trafficAllocation, trafficAllocationSeed, attributes);
+    const evaluation = this.evaluator(
+      key,
+      seed,
+      trafficAllocation,
+      trafficAllocationSeed,
+      attributes,
+      algo
+    );
 
     // Evaluation could be async, so we should handle that case checking for a
     // thenable object

@@ -60,3 +60,43 @@ tape('ENGINE / should evaluate always evaluate to true', assert => {
   assert.comment(`Evaluation takes ${(endTime - startTime) / 1000} seconds`);
   assert.end();
 });
+
+tape('ENGINE / shouldApplyRollout - trafficAllocation 100', assert => {
+
+  const shouldApplyRollout = engine.shouldApplyRollout(100, 'asd', 14, 2);
+
+  assert.ok(shouldApplyRollout, 'Should return true as traffic allocation is 100.');
+  assert.end();
+});
+
+tape('ENGINE / shouldApplyRollout - algo 1 (legacy) | trafficAllocation 80 | bucket 79', assert => {
+
+  const shouldApplyRollout = engine.shouldApplyRollout(80, 'aaab', 31, 1);
+
+  assert.ok(shouldApplyRollout, 'Should return true as traffic allocation is 100.');
+  assert.end();
+});
+
+tape('ENGINE / shouldApplyRollout - algo 1 (legacy) | trafficAllocation 80 | bucket 82', assert => {
+
+  const shouldApplyRollout = engine.shouldApplyRollout(80, 'aaab', 32, 1);
+
+  assert.notOk(shouldApplyRollout, 'Should return false as bucket is higher than trafficAllocation.');
+  assert.end();
+});
+
+tape('ENGINE / shouldApplyRollout - algo 2 (murmur) | trafficAllocation 53 | bucket 51', assert => {
+
+  const shouldApplyRollout = engine.shouldApplyRollout(53, 'a', 29, 2);
+
+  assert.ok(shouldApplyRollout, 'Should return true as traffic allocation is 100.');
+  assert.end();
+});
+
+tape('ENGINE / shouldApplyRollout - algo 2 (murmur) | trafficAllocation 53 | bucket 56', assert => {
+
+  const shouldApplyRollout = engine.shouldApplyRollout(53, 'a', 31, 2);
+
+  assert.notOk(shouldApplyRollout, 'Should return false as bucket is higher than trafficAllocation.');
+  assert.end();
+});
