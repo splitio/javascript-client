@@ -59,7 +59,8 @@ Split.prototype.getTreatment = function getTreatment(key: SplitKey, attributes):
     seed,
     defaultTreatment,
     trafficAllocation,
-    trafficAllocationSeed
+    trafficAllocationSeed,
+    algo
   } = this.baseInfo;
 
   let treatment;
@@ -78,7 +79,7 @@ Split.prototype.getTreatment = function getTreatment(key: SplitKey, attributes):
       trafficAllocation,
       trafficAllocationSeed,
       attributes,
-      this.getHashingAlgorithm()
+      algo
     );
 
     // Evaluation could be async, so we should handle that case checking for a
@@ -106,10 +107,6 @@ Split.prototype.isGarbage = function isGarbage() {
 
 Split.prototype.getChangeNumber = function getChangeNumber() {
   return this.baseInfo.changeNumber;
-};
-
-Split.prototype.getHashingAlgorithm = function getHashingAlgorithm() {
-  return this.baseInfo.algo;
 };
 
 module.exports = Split;
