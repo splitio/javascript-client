@@ -19,7 +19,7 @@ limitations under the License.
 'use strict';
 
 const engine = require('../engine');
-const engineUtils = require('../engine/utils');
+const engineUtils = require('../engine/legacy');
 const keyParser = require('../../utils/key/parser');
 const thenable = require('../../utils/promise/thenable');
 
