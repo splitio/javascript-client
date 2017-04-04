@@ -1,3 +1,8 @@
+## 8.1.2 (April 4, 2017)
+
+* Small fix on declaration files.
+* Adding traffic allocation support.
+
 ## 8.1.1 (March 31, 2017)
 
 * No API changes. Small fix on declaration files.
