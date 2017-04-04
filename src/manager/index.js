@@ -9,11 +9,11 @@ const thenable = require('../utils/promise/thenable');
  *       so we need to build it mixing the list of partitions plus the default
  *       treatment.
  */
-const fixMissingTreatment = (splitObject: SplitObject): Array<string> => {
-  const treatments = splitObject.conditions[0].partitions.map(v => v.treatment);
+const fixMissingTreatment = (firstCondition, defaultTreatment): Array<string> => {
+  const treatments = firstCondition ? firstCondition.partitions.map(v => v.treatment) : [];
 
-  if (treatments.indexOf(splitObject.defaultTreatment) === -1) {
-    treatments.push(splitObject.defaultTreatment);
+  if (treatments.indexOf(defaultTreatment) === -1) {
+    treatments.push(defaultTreatment);
   }
 
   return treatments;
@@ -32,10 +32,10 @@ const ObjectToView = (json: string): ?SplitView => {
 
   return {
     name: splitObject.name,
-    trafficType: splitObject.trafficTypeName,
+    trafficType: splitObject.trafficTypeName || null,
     killed: splitObject.killed,
-    changeNumber: splitObject.changeNumber,
-    treatments: fixMissingTreatment(splitObject)
+    changeNumber: splitObject.changeNumber || 0,
+    treatments: fixMissingTreatment(splitObject.conditions[0], splitObject.defaultTreatment)
   };
 };
 
