@@ -456,7 +456,7 @@ tape('PARSER / if user is in segment all 100%:on but trafficAllocation is 0%', a
   assert.end();
 });
 
-tape('PARSER / if user is in segment all 100%:on but trafficAllocation is 99%', async function (assert) {
+tape('PARSER / if user is in segment all 100%:on but trafficAllocation is 99% with bucket below 99', async function (assert) {
 
   const evaluator = parser([{
     conditionType: 'ROLLOUT',
@@ -480,6 +480,32 @@ tape('PARSER / if user is in segment all 100%:on but trafficAllocation is 99%', 
 
   assert.equal(evaluation.treatment, 'on', "evaluator should return treatment 'on' as traffic allocation is bigger than bucket result");
   assert.equal(evaluation.label, 'in segment all', "evaluator should return label 'in segment all'");
+  assert.end();
+});
+
+tape('PARSER / if user is in segment all 100%:on but trafficAllocation is 99% and bucket returns 100', async function (assert) {
+
+  const evaluator = parser([{
+    conditionType: 'ROLLOUT',
+    matcherGroup: {
+      combiner: 'AND',
+      matchers: [{
+        matcherType: 'ALL_KEYS',
+        negate: false,
+        userDefinedSegmentMatcherData: null,
+        whitelistMatcherData: null
+      }]
+    },
+    partitions: [{
+      treatment: 'on',
+      size: 100
+    }],
+    label: 'in segment all'
+  }]);
+
+  const evaluation = await evaluator('aaaaa', 31, 99, 14);
+
+  assert.equal(evaluation, undefined, "evaluation should return undefined as bucket is bigger than traffic allocation and rollout has less priority");
   assert.end();
 });
 
