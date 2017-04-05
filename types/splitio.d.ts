@@ -60,10 +60,9 @@ interface ISettings {
     retriesOnFailureBeforeReady: number
   },
   readonly storage: {
-    options: {
-      prefix: string,
-      type: StorageType
-    }
+    prefix: string,
+    options: Object,
+    type: StorageType
   },
   readonly urls: {
     events: string,
