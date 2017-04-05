@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+/*
 'use strict';
 
 require('core-js/es6/promise');
@@ -68,3 +69,5 @@ tape('MURMUR3 / validate hashing behavior using chinese dataset', assert => {
     .catch(error => assert.error(error));
 
 });
+
+*/
