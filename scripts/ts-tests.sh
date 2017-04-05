@@ -1,7 +1,7 @@
 #!/bin/bash
 
-clear
 cd ts-tests ## Go to typescript tests folder
+npm link @splitsoftware/splitio ## Link to the cloned code
 echo "Installing dependencies for TypeScript declarations testing..."
 npm install ## Install dependencies
 echo "Dependencies installed, running tsc compiler."
