@@ -20,7 +20,7 @@ let nodeSettings: SplitIO.INodeSettings;
 let browserSettings: SplitIO.IBrowserSettings;
 // Client & Manager APIs
 let client: SplitIO.IClient;
-let manager: SplitIO.IClient;
+let manager: SplitIO.IManager;
 
 /**** Custom Types ****/
 
