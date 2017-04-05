@@ -204,7 +204,7 @@ declare namespace SplitIO {
        * @property {boolean} labelsEnabled
        * @default true
        */
-      labelsEnabled: boolean
+      labelsEnabled?: boolean
     },
     /**
      * SDK scheduler settings.
