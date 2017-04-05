@@ -448,7 +448,7 @@ declare namespace SplitIO {
      * @deprecated Use on(sdk.Event.SDK_READY, callback: () => void) instead.
      * @returns {Promise<void>}
      */
-    ready(): void,
+    ready(): Promise<void>,
     /**
      * Destroy the client instance.
      * @function destroy
