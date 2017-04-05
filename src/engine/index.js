@@ -19,6 +19,7 @@ limitations under the License.
 'use strict';
 
 const parser = require('./parser');
+const keyParser = require('../utils/key/parser');
 
 const thenable = require('../utils/promise/thenable');
 const LabelsConstants = require('../utils/labels');
@@ -63,8 +64,18 @@ Split.prototype.getTreatment = function getTreatment(key: SplitKey, attributes):
     algo
   } = this.baseInfo;
 
+  let parsedKey;
   let treatment;
   let label;
+
+  try {
+    parsedKey = keyParser(key);
+  } catch (e) {
+    return {
+      treatment: 'control',
+      label: LabelsConstants.EXCEPTION
+    };
+  }
 
   if (this.isGarbage()) {
     treatment = 'control';
@@ -74,7 +85,7 @@ Split.prototype.getTreatment = function getTreatment(key: SplitKey, attributes):
     label = LabelsConstants.SPLIT_KILLED;
   } else {
     const evaluation = this.evaluator(
-      key,
+      parsedKey,
       seed,
       trafficAllocation,
       trafficAllocationSeed,
