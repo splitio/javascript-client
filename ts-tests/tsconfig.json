@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "noImplicitAny": true,
+    "target": "es5"
+  },
+  "files": [
+    "index"
+  ]
+}
