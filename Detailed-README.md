@@ -119,12 +119,24 @@ Update the package.json with the correct value using semver.
 
 `printf "%s\n" '# this a comment' 'my_new_feature on' '# another comment' > $HOME/.split`
 
+> Expose package globally for TypeScript validations
+
+`npm link`
+
 > Tests steps
 
-`npm run lint`
+`npm run test-ts-decls`
+
+> TypeScript installation could affect the package so we unlink and install again to keep consistency with the dependencies
+
+`npm unlink`
+
+`npm unlink`
 
 `npm run test-browser-ci`
 
 `npm run test-browser-e2e-ci`
 
 `npm run test-node`
+
+`npm run rebuild`
