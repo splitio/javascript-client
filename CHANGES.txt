@@ -1,3 +1,7 @@
+## 8.1.2 (April 6, 2017)
+
+* Bug fixing release to improve startup performance.
+
 ## 8.1.1 (March 31, 2017)
 
 * No API changes. Small fix on declaration files.

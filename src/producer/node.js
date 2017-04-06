@@ -31,8 +31,8 @@ const NodeUpdater = (settings: Object, hub: EventEmitter, storage: SplitStorage)
   const splitsUpdater = SplitChangesUpdater(settings, hub, storage);
   const segmentsUpdater = SegmentChangesUpdater(settings, hub, storage);
 
-  let stopSplitsUpdate;
-  let stopSegmentsUpdate;
+  let stopSplitsUpdate = false;
+  let stopSegmentsUpdate = false;
   let splitFetchCompleted = false;
 
   return {
@@ -41,27 +41,38 @@ const NodeUpdater = (settings: Object, hub: EventEmitter, storage: SplitStorage)
       log('Splits will be refreshed each %s millis', settings.scheduler.featuresRefreshRate);
       log('Segments will be refreshed each %s millis', settings.scheduler.segmentsRefreshRate);
 
+      // Schedule incremental update of segments only if needed
+      const spinUpSegmentUpdater = () => {
+        if (!stopSegmentsUpdate) {
+          stopSegmentsUpdate = repeat(
+            scheduleSegmentsUpdate => {
+              if (splitFetchCompleted) {
+                log('Fetching segments');
+                segmentsUpdater().then(() => scheduleSegmentsUpdate());
+              } else {
+                scheduleSegmentsUpdate();
+              }
+            },
+            settings.scheduler.segmentsRefreshRate
+          );
+        }
+      };
+
       stopSplitsUpdate = repeat(
         scheduleSplitsUpdate => {
           log('Fetching splits');
-          splitsUpdater().then(() => {
-            splitFetchCompleted = true;
-            scheduleSplitsUpdate();
-          });
+
+          splitsUpdater()
+            .then(() => {
+              // Mark splits as ready (track first successfull call to start downloading segments)
+              splitFetchCompleted = true;
+              // Spin up the segments update if needed
+              spinUpSegmentUpdater();
+              // Re-schedule update
+              scheduleSplitsUpdate();
+            });
         },
         settings.scheduler.featuresRefreshRate
-      );
-
-      stopSegmentsUpdate = repeat(
-        scheduleSegmentsUpdate => {
-          if (splitFetchCompleted) {
-            log('Fetching segments');
-            segmentsUpdater().then(() => scheduleSegmentsUpdate());
-          } else {
-            scheduleSegmentsUpdate();
-          }
-        },
-        settings.scheduler.segmentsRefreshRate
       );
     },
 
