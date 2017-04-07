@@ -142,7 +142,8 @@ function ClientFactory(settings: Settings, storage: SplitStorage): SplitClient {
 
       for (i = 0; i < splitNames.length; i ++) {
         const name = splitNames[i];
-        const treatment = this.getTreatment(key, name, attributes);
+        // If we are on the browser, key was binded to the getTreatment method.
+        const treatment = this.isBrowserClient ? this.getTreatment(name, attributes) : this.getTreatment(key, name, attributes);
 
         if (thenable(treatment)) {
           // If treatment returns a promise as it is being evaluated, save promise for progress tracking.
