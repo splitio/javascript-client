@@ -80,6 +80,7 @@ declare interface SplitManager {
  */
 declare type SplitClient = {
   getTreatment(key: string, splitName: string, attributes: ?Object): AsyncValue<string>;
+  getTreatments(key: string, splitNames: Array<string>, attributes: ?Object): AsyncValue<Object>;
   destroy(): void;
 };
 

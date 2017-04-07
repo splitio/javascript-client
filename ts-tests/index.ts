@@ -26,6 +26,11 @@ let manager: SplitIO.IManager;
 
 // Common
 let treatment: SplitIO.Treatment = 'on';
+let treatmentsMap: SplitIO.Treatments = {
+  feature1: 'on',
+  feature2: 'control'
+};
+let treatments: SplitIO.Treatments = treatmentsMap;
 let splitEvent: SplitIO.Event;
 const attributes: SplitIO.Attributes = {
   attr1: 1,
@@ -49,10 +54,16 @@ let splitNames: SplitIO.SplitNames;
 let nodeStorage: SplitIO.NodeStorage;
 let browserStorage: SplitIO.BrowserStorage;
 
-// Treatments can be the string or the promise which will resolve to treatment string
+// Treatment can be the string or the promise which will resolve to treatment string
 let stringPromise: Promise<string>;
 treatment = 'some treatment';
 treatment = stringPromise;
+// Treatments can be the object or the promise which will resolve to treatments object
+let treatmentsPromise: Promise<SplitIO.Treatments>;
+treatments = {
+  someFeature: 'treatment'
+};
+treatments = treatmentsPromise;
 // SplitViews can be the SplitViewData or the promise which will resolve to SplitViewData obj
 let splitViewPromise: Promise<SplitIO.SplitViewData>;
 splitView = splitViewData;
@@ -124,6 +135,13 @@ treatment = client.getTreatment('mySplit');
 // Attributes parameter is optional on both signatures.
 treatment = client.getTreatment(splitKey, 'mySplit', attributes);
 treatment = client.getTreatment('mySplit', attributes);
+
+// We can call getTreatments with or without a key.
+treatments = client.getTreatments(splitKey, ['mySplit']);
+treatments = client.getTreatments(['mySplit']);
+// Attributes parameter is optional on both signatures.
+treatments = client.getTreatments(splitKey, ['mySplit'], attributes);
+treatments = client.getTreatments(['mySplit'], attributes);
 
 /**** Tests for IManager interface ****/
 

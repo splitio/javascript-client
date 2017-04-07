@@ -86,6 +86,18 @@ declare namespace SplitIO {
    */
   type Treatment = AsyncValue<string>;
   /**
+   * An object with the treatments for a bulk of splits
+   * @typedef {Object.<string>} TreatmentsMap
+   */
+  type TreatmentsMap = {
+    [featureName: string]: string
+  };
+  /**
+   * Split treatments value, returned by getTreatments.
+   * @typedef {AsyncValue<TreatmentsMap>} Treatments
+   */
+  type Treatments = AsyncValue<TreatmentsMap>;
+  /**
    * Possible split events.
    * @typedef {string} Event
    */
@@ -445,6 +457,27 @@ declare namespace SplitIO {
      * @returns {Treatment} The treatment or treatment promise which will resolve to the treatment string.
      */
     getTreatment(splitName: string, attributes?: Attributes): Treatment,
+    /**
+     * Returns a Treatments value, whick will be (or eventually be) an object with the treatments for the given features.
+     * For usage on NodeJS as we don't have only one key.
+     * NOTE: Treatment will be a promise only in async storages, like REDIS.
+     * @function getTreatments
+     * @param {string} key - The string key representing the consumer.
+     * @param {Array<string>} splitNames - An array of the split names we wan't to get the treatments.
+     * @param {Attributes=} attributes - An object of type Attributes defining the attributes for the given key.
+     * @returns {Treatments} The treatments or treatments promise which will resolve to the treatments object.
+     */
+    getTreatments(key: SplitKey, splitNames: string[], attributes?: Attributes): Treatments,
+    /**
+     * Returns a Treatments value, whick will be (or eventually be) an object with the treatments for the given features.
+     * For usage on the Browser as we defined the key on the settings.
+     * NOTE: Treatment will be a promise only in async storages, like REDIS.
+     * @function getTreatments
+     * @param {Array<string>} splitNames - An array of the split names we wan't to get the treatments.
+     * @param {Attributes=} attributes - An object of type Attributes defining the attributes for the given key.
+     * @returns {Treatments} The treatments or treatments promise which will resolve to the treatments object.
+     */
+    getTreatments(splitNames: string[], attributes?: Attributes): Treatments,
     /**
      * Returns a promise that will be resolved once the SDK has finished loading.
      * @function ready
