@@ -17,6 +17,7 @@ limitations under the License.
 
 const tape = require('tape');
 const parser = require('../../parser');
+const keyParser = require('../../../utils/key/parser');
 
 tape('PARSER / if user is in segment all 100%:on', async function (assert) {
 
@@ -37,7 +38,7 @@ tape('PARSER / if user is in segment all 100%:on', async function (assert) {
     label: 'in segment all'
   }]);
 
-  const evaluation = await evaluator('a key', 31, 100, 31);
+  const evaluation = await evaluator(keyParser('a key'), 31, 100, 31);
 
   assert.equal(typeof evaluator, 'function', 'evaluator should be callable');
   assert.equal(evaluation.treatment, 'on', "evaluator should return treatment 'on'");
@@ -68,7 +69,7 @@ tape('PARSER / if user is in segment all 100%:off', async function (assert) {
     label: 'in segment all'
   }]);
 
-  const evaluation = await evaluator('a key', 31, 100, 31);
+  const evaluation = await evaluator(keyParser('a key'), 31, 100, 31);
 
   assert.true(evaluation.treatment === 'off', "treatment evaluation should throw 'off'");
   assert.true(evaluation.label === 'in segment all', "label evaluation should throw 'in segment all'");
@@ -102,16 +103,16 @@ tape('PARSER / if user is in segment ["u1", "u2", "u3", "u4"] then split 100%:on
     label: 'explicitly included'
   }]);
 
-  let evaluation = await evaluator('a key', 31, 100, 31);
+  let evaluation = await evaluator(keyParser('a key'), 31, 100, 31);
   assert.true(evaluation === undefined, 'evaluation should throw undefined');
 
-  evaluation = await evaluator('u1', 31, 100, 31);
+  evaluation = await evaluator(keyParser('u1'), 31, 100, 31);
   assert.true(evaluation.treatment === 'on', "treatment evaluation should throw 'on'");
 
-  evaluation = await evaluator('u3', 31, 100, 31);
+  evaluation = await evaluator(keyParser('u3'), 31, 100, 31);
   assert.true(evaluation.treatment === 'on', "treatment should be evaluated to 'on'");
 
-  evaluation = await evaluator('u3', 31, 100, 31);
+  evaluation = await evaluator(keyParser('u3'), 31, 100, 31);
   assert.true(evaluation.label === 'explicitly included', "label should be evaluated to 'explicitly included'");
   assert.end();
 
@@ -148,16 +149,16 @@ tape('PARSER / if user.account is in list ["v1", "v2", "v3"] then split 100:on',
     label: 'explicitly included'
   }]);
 
-  let evaluation = await evaluator('test@split.io', 31, 100, 31, {
+  let evaluation = await evaluator(keyParser('test@split.io'), 31, 100, 31, {
     account: 'v1'
   });
   assert.true(evaluation.treatment === 'on', 'v1 is defined in the whitelist');
   assert.true(evaluation.label === 'explicitly included', 'label should be "explicitly included"');
 
-  evaluation = await evaluator('v1', 31, 100, 31);
+  evaluation = await evaluator(keyParser('v1'), 31, 100, 31);
   assert.true(evaluation === undefined, 'we are looking for v1 inside the account attribute');
 
-  evaluation = await evaluator('test@split.io', 31, 100, 31, {
+  evaluation = await evaluator(keyParser('test@split.io'), 31, 100, 31, {
     account: 'v4'
   });
   assert.true(evaluation === undefined, 'v4 is not defined inside the whitelist');
@@ -192,12 +193,12 @@ tape('PARSER / if user.account is in segment all then split 100:on', async funct
     label: 'in segment all'
   }]);
 
-  let evaluation = await evaluator('test@split.io', 31, 100, 31, {
+  let evaluation = await evaluator(keyParser('test@split.io'), 31, 100, 31, {
     account: 'v1'
   });
   assert.true(evaluation.treatment === 'on', 'v1 is defined in segment all');
 
-  assert.true(await evaluator('test@split.io', 31, 100, 31) === undefined, 'missing attribute should evaluates to undefined');
+  assert.true(await evaluator(keyParser('test@split.io'), 31, 100, 31) === undefined, 'missing attribute should evaluates to undefined');
 
   assert.end();
 });
@@ -230,18 +231,18 @@ tape('PARSER / if user.attr is between 10 and 20 then split 100:on', async funct
     }]
   }]);
 
-  let evaluation = await evaluator('test@split.io', 31, 100, 31, {
+  let evaluation = await evaluator(keyParser('test@split.io'), 31, 100, 31, {
     attr: 10
   });
   assert.true(evaluation.treatment === 'on', '10 is between 10 and 20');
 
-  evaluation = await evaluator('test@split.io', 31, 100, 31, {
+  evaluation = await evaluator(keyParser('test@split.io'), 31, 100, 31, {
     attr: 9
   });
   assert.true(evaluation === undefined, '9 is not between 10 and 20');
 
   assert.true(
-    await evaluator('test@split.io', 31, 100, 31) === undefined,
+    await evaluator(keyParser('test@split.io'), 31, 100, 31) === undefined,
     'undefined is not between 10 and 20'
   );
 
@@ -275,23 +276,23 @@ tape('PARSER / if user.attr <= datetime 1458240947021 then split 100:on', async 
     }]
   }]);
 
-  let evaluation = await evaluator('test@split.io', 31, 100, 31, {
+  let evaluation = await evaluator(keyParser('test@split.io'), 31, 100, 31, {
     attr: new Date('2016-03-17T18:55:47.021Z').getTime()
   });
   assert.true(evaluation.treatment === 'on', '1458240947021 is equal');
 
-  evaluation = await evaluator('test@split.io', 31, 100, 31, {
+  evaluation = await evaluator(keyParser('test@split.io'), 31, 100, 31, {
     attr: new Date('2016-03-17T17:55:47.021Z').getTime()
   });
   assert.true(evaluation.treatment === 'on', '1458240947020 is less than 1458240947021');
 
-  evaluation = await evaluator('test@split.io', 31, 100, 31, {
+  evaluation = await evaluator(keyParser('test@split.io'), 31, 100, 31, {
     attr: new Date('2016-03-17T19:55:47.021Z').getTime()
   });
   assert.true(evaluation === undefined, '1458240947022 is not less than 1458240947021');
 
   assert.true(
-    await evaluator('test@split.io', 31, 100, 31) === undefined,
+    await evaluator(keyParser('test@split.io'), 31, 100, 31) === undefined,
     'missing attributes in the parameters list'
   );
 
@@ -325,22 +326,22 @@ tape('PARSER / if user.attr >= datetime 1458240947021 then split 100:on', async 
     }]
   }]);
 
-  let evaluation = await evaluator('test@split.io', 31, 100, 31, {
+  let evaluation = await evaluator(keyParser('test@split.io'), 31, 100, 31, {
     attr: new Date('2016-03-17T18:55:47.021Z').getTime()
   });
   assert.true(evaluation.treatment === 'on', '1458240947021 is equal');
 
-  evaluation = await evaluator('test@split.io', 31, 100, 31, {
+  evaluation = await evaluator(keyParser('test@split.io'), 31, 100, 31, {
     attr: new Date('2016-03-17T17:55:47.021Z').getTime()
   });
   assert.true(evaluation === undefined, '1458240947020 is less than 1458240947021');
 
-  evaluation = await evaluator('test@split.io', 31, 100, 31, {
+  evaluation = await evaluator(keyParser('test@split.io'), 31, 100, 31, {
     attr: new Date('2016-03-17T19:55:47.021Z').getTime()
   });
   assert.true(evaluation.treatment === 'on', '1458240947000 is greater than 1458240947021');
 
-  assert.true(await evaluator('test@split.io', 31, 100, 31) === undefined,
+  assert.true(await evaluator(keyParser('test@split.io'), 31, 100, 31) === undefined,
     'missing attributes in the parameters list'
   );
 
@@ -374,22 +375,22 @@ tape('PARSER / if user.attr = datetime 1458240947021 then split 100:on', async f
     }]
   }]);
 
-  let evaluation = await evaluator('test@split.io', 31, 100, 31, {
+  let evaluation = await evaluator(keyParser('test@split.io'), 31, 100, 31, {
     attr: 1458240947021
   });
   assert.equal(evaluation.treatment, 'on', '2016-03-17T18:55:47.021Z is equal to 2016-03-17T18:55:47.021Z');
 
-  evaluation = await evaluator('test@split.io', 31, 100, 31, {
+  evaluation = await evaluator(keyParser('test@split.io'), 31, 100, 31, {
     attr: 1458240947020
   });
   assert.equal(evaluation.treatment, 'on', '2016-03-17T18:55:47.020Z is considered equal to 2016-03-17T18:55:47.021Z');
 
-  evaluation = await evaluator('test@split.io', 31, 100, 31, {
+  evaluation = await evaluator(keyParser('test@split.io'), 31, 100, 31, {
     attr: 1458240947020
   });
   assert.equal(evaluation.treatment, 'on', '2016-03-17T00:00:00Z is considered equal to 2016-03-17T18:55:47.021Z');
 
-  assert.equal(await evaluator('test@split.io', 31, 100, 31), undefined,
+  assert.equal(await evaluator(keyParser('test@split.io'), 31, 100, 31), undefined,
     'missing attributes should be evaluated to false'
   );
   assert.end();
@@ -418,142 +419,14 @@ tape('PARSER / if user is in segment all then split 20%:A,20%:B,60%:A', async fu
     }]
   }]);
 
-  let evaluation = await evaluator('aaaaa', 31, 100, 31);
+  let evaluation = await evaluator(keyParser('aaaaa'), 31, 100, 31);
   assert.equal(evaluation.treatment, 'A', '20%:A'); // bucket 15
 
-  evaluation = await evaluator('bbbbbbbbbbbbbbbbbbb', 31, 100, 31);
+  evaluation = await evaluator(keyParser('bbbbbbbbbbbbbbbbbbb'), 31, 100, 31);
   assert.equal(evaluation.treatment, 'B', '20%:B'); // bucket 34
 
-  evaluation = await evaluator('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 31, 100, 31);
+  evaluation = await evaluator(keyParser('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'), 31, 100, 31);
   assert.equal(evaluation.treatment, 'A', '60%:A'); // bucket 100
 
-  assert.end();
-});
-
-tape('PARSER / if user is in segment all 100%:on but trafficAllocation is 0%', async function (assert) {
-
-  const evaluator = parser([{
-    conditionType: 'ROLLOUT',
-    matcherGroup: {
-      combiner: 'AND',
-      matchers: [{
-        matcherType: 'ALL_KEYS',
-        negate: false,
-        userDefinedSegmentMatcherData: null,
-        whitelistMatcherData: null
-      }]
-    },
-    partitions: [{
-      treatment: 'on',
-      size: 100
-    }],
-    label: 'in segment all'
-  }]);
-
-  const evaluation = await evaluator('a key', 31, 0, 31);
-
-  assert.equal(evaluation.treatment, undefined, 'treatment should be undefined');
-  assert.equal(evaluation.label, 'not in split', 'label should be fixed string');
-  assert.end();
-});
-
-tape('PARSER / if user is in segment all 100%:on but trafficAllocation is 99% with bucket below 99', async function (assert) {
-
-  const evaluator = parser([{
-    conditionType: 'ROLLOUT',
-    matcherGroup: {
-      combiner: 'AND',
-      matchers: [{
-        matcherType: 'ALL_KEYS',
-        negate: false,
-        userDefinedSegmentMatcherData: null,
-        whitelistMatcherData: null
-      }]
-    },
-    partitions: [{
-      treatment: 'on',
-      size: 100
-    }],
-    label: 'in segment all'
-  }]);
-
-  const evaluation = await evaluator('a key', 31, 99, 31);
-
-  assert.equal(evaluation.treatment, 'on', "evaluator should return treatment 'on' as traffic allocation is bigger than bucket result");
-  assert.equal(evaluation.label, 'in segment all', "evaluator should return label 'in segment all'");
-  assert.end();
-});
-
-tape('PARSER / if user is in segment all 100%:on but trafficAllocation is 99% and bucket returns 100', async function (assert) {
-
-  const evaluator = parser([{
-    conditionType: 'ROLLOUT',
-    matcherGroup: {
-      combiner: 'AND',
-      matchers: [{
-        matcherType: 'ALL_KEYS',
-        negate: false,
-        userDefinedSegmentMatcherData: null,
-        whitelistMatcherData: null
-      }]
-    },
-    partitions: [{
-      treatment: 'on',
-      size: 100
-    }],
-    label: 'in segment all'
-  }]);
-
-  const evaluation = await evaluator('aaaaa', 31, 99, 14);
-
-  assert.equal(evaluation.treatment, undefined, 'treatment should be undefined');
-  assert.equal(evaluation.label, 'not in split', 'label should be fixed string');
-  assert.end();
-});
-
-tape('PARSER / if user is explicitly included and in segment all 100%:off with trafficAllocation as 0%', async function (assert) {
-
-  const evaluator = parser([{
-    conditionType: 'WHITELIST',
-    matcherGroup: {
-      combiner: 'AND',
-      matchers: [{
-        matcherType: 'WHITELIST',
-        negate: false,
-        userDefinedSegmentMatcherData: null,
-        whitelistMatcherData: {
-          whitelist: [
-            'a key'
-          ]
-        }
-      }]
-    },
-    partitions: [{
-      treatment: 'on',
-      size: 100
-    }],
-    label: 'explicitly included'
-  }, {
-    conditionType: 'ROLLOUT',
-    matcherGroup: {
-      combiner: 'AND',
-      matchers: [{
-        matcherType: 'ALL_KEYS',
-        negate: false,
-        userDefinedSegmentMatcherData: null,
-        whitelistMatcherData: null
-      }]
-    },
-    partitions: [{
-      treatment: 'off',
-      size: 100
-    }],
-    label: 'in segment all'
-  }]);
-
-  const evaluation = await evaluator('a key', 31, 0, 31);
-
-  assert.equal(evaluation.treatment, 'on', "evaluator should return treatment 'on' as whitelisting has more priority than traffic allocation");
-  assert.equal(evaluation.label, 'explicitly included', "evaluator should return label 'explicitly included'");
   assert.end();
 });
