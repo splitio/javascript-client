@@ -81,6 +81,7 @@ interface ISettings {
 declare namespace SplitIO {
   /**
    * Split treatment value, returned by getTreatment.
+   * NOTE: Treatment will be a promise only in async storages, like REDIS.
    * @typedef {AsyncValue<string>} Treatment
    */
   type Treatment = AsyncValue<string>;
@@ -426,6 +427,7 @@ declare namespace SplitIO {
     /**
      * Returns a Treatment value, which will be (or eventually be) the treatment string for the given feature.
      * For usage on NodeJS as we don't have only one key.
+     * NOTE: Treatment will be a promise only in async storages, like REDIS.
      * @function getTreatment
      * @param {string} key - The string key representing the consumer.
      * @param {string} splitName - The string that represents the split we wan't to get the treatment.
@@ -436,6 +438,7 @@ declare namespace SplitIO {
     /**
      * Returns a Treatment value, which will be (or eventually be) the treatment string for the given feature.
      * For usage on the Browser as we defined the key on the settings.
+     * NOTE: Treatment will be a promise only in async storages, like REDIS.
      * @function getTreatment
      * @param {string} splitName - The string that represents the split we wan't to get the treatment.
      * @param {Attributes=} attributes - An object of type Attributes defining the attributes for the given key.
