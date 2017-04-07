@@ -90,7 +90,11 @@ SDK = SplitFacade(browserSettings);
 SDK = SplitFacade(nodeSettings);
 
 // The settings values the SDK expose.
-const instantiatedSettingsCore: {[key: string]: (string | boolean)} = SDK.settings.core;
+const instantiatedSettingsCore: {
+  authorizationKey: string,
+  key: SplitIO.SplitKey,
+  labelsEnabled: boolean
+} = SDK.settings.core;
 const instantiatedSettingsMode: ('standalone' | 'consumer') = SDK.settings.mode;
 const instantiatedSettingsScheduler: {[key: string]: number} = SDK.settings.scheduler;
 const instantiatedSettingsStartup: {[key: string]: number} = SDK.settings.startup;
