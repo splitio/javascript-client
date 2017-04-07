@@ -43,7 +43,7 @@ type StorageType = 'MEMORY' | 'LOCALSTORAGE' | 'REDIS';
 interface ISettings {
   readonly core: {
     authorizationKey: string,
-    key: string,
+    key: SplitIO.SplitKey,
     labelsEnabled: boolean
   },
   readonly mode: SDKMode,
@@ -209,9 +209,9 @@ declare namespace SplitIO {
       authorizationKey: string,
       /**
        * Customer identifier. Whatever this means to you. @see {@link http://docs.split.io/docs/selecting-the-traffic-type}
-       * @property {string} key
+       * @property {SplitKey} key
        */
-      key: string,
+      key: SplitKey,
       /**
        * Disable labels from being sent to Split backend. Labels may contain sensitive information.
        * @property {boolean} labelsEnabled
