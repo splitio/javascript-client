@@ -20,6 +20,7 @@ limitations under the License.
 
 const engine = require('../engine');
 const thenable = require('../../utils/promise/thenable');
+const LabelsConstants = require('../../utils/labels');
 
 // Build Evaluation object if and only if matchingResult is true
 function match(matchingResult: boolean, bucketingKey: string, seed: number, treatments: Treatments, label: string, algo: ?number): ?Evaluation {
@@ -43,7 +44,10 @@ function evaluatorContext(matcherEvaluator: Function, treatments: Treatments, la
 
     // Whitelisting has more priority than traffic allocation, so we don't apply this filtering to those conditions.
     if (conditionType === 'ROLLOUT' && !engine.shouldApplyRollout(trafficAllocation, key.bucketingKey, trafficAllocationSeed, algo)) {
-      return;
+      return {
+        treatment: undefined,
+        label: LabelsConstants.NO_IN_SPLIT
+      };
     }
 
     // matcherEvaluator could be Async, this relays on matchers return value, so we need

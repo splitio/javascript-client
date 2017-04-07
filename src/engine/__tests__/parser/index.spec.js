@@ -505,7 +505,7 @@ tape('PARSER / if user is in segment all 100%:on but trafficAllocation is 99% an
 
   const evaluation = await evaluator('aaaaa', 31, 99, 14);
 
-  assert.equal(evaluation, undefined, "evaluation should return undefined as bucket is bigger than traffic allocation and rollout has less priority");
+  assert.equal(evaluation, undefined, 'evaluation should return undefined as bucket is bigger than traffic allocation and rollout has less priority');
   assert.end();
 });
 
