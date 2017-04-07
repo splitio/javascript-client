@@ -452,7 +452,8 @@ tape('PARSER / if user is in segment all 100%:on but trafficAllocation is 0%', a
 
   const evaluation = await evaluator('a key', 31, 0, 31);
 
-  assert.equal(evaluation, undefined, "evaluation should return undefined as rollout has less priority than traffic allocation, so we don't apply the rollout");
+  assert.equal(evaluation.treatment, undefined, 'treatment should be undefined');
+  assert.equal(evaluation.label, 'not in split', 'label should be fixed string');
   assert.end();
 });
 
@@ -505,7 +506,8 @@ tape('PARSER / if user is in segment all 100%:on but trafficAllocation is 99% an
 
   const evaluation = await evaluator('aaaaa', 31, 99, 14);
 
-  assert.equal(evaluation, undefined, 'evaluation should return undefined as bucket is bigger than traffic allocation and rollout has less priority');
+  assert.equal(evaluation.treatment, undefined, 'treatment should be undefined');
+  assert.equal(evaluation.label, 'not in split', 'label should be fixed string');
   assert.end();
 });
 
