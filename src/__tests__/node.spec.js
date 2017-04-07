@@ -30,7 +30,10 @@ tape('NodeJS E2E', function (assert) {
     assert.equal(client.getTreatment('qa-user', 'on-if-in-segment-qc'), 'off');
 
     assert.deepEqual(client.getTreatments('qa-user', [
-      'always-off', 'always-on', 'on-if-in-segment-qa', 'on-if-in-segment-qc'
+      'always-off',
+      'always-on',
+      'on-if-in-segment-qa',
+      'on-if-in-segment-qc'
     ]), {
       'always-off': 'off',
       'always-on': 'on',
@@ -45,7 +48,10 @@ tape('NodeJS E2E', function (assert) {
     assert.equal(client.getTreatment('qc-user', 'on-if-in-segment-qc'), 'on');
 
     assert.deepEqual(client.getTreatments('qc-user', [
-      'always-off', 'always-on', 'on-if-in-segment-qa', 'on-if-in-segment-qc'
+      'always-off',
+      'always-on',
+      'on-if-in-segment-qa',
+      'on-if-in-segment-qc'
     ]), {
       'always-off': 'off',
       'always-on': 'on',

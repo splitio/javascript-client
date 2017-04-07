@@ -26,7 +26,8 @@ tape('Browser offline mode', function (assert) {
     assert.equal(await client.getTreatment('testing_split_2'), 'control');
 
      assert.deepEqual(await client.getTreatments('qa-user', [
-      'testing_split', 'testing_split2'
+      'testing_split',
+      'testing_split2'
       ]), {
         testing_split: 'on',
         testing_split_2: 'control'
@@ -43,7 +44,10 @@ tape('Browser offline mode', function (assert) {
       assert.equal(await client.getTreatment('testing_split_3'), 'custom_treatment');
 
       assert.deepEqual(await client.getTreatments('qa-user', [
-      'testing_split', 'testing_split2', 'testing_split3', 'testing_not_exist'
+      'testing_split',
+      'testing_split2',
+      'testing_split3',
+      'testing_not_exist'
       ]), {
         testing_split: 'on',
         testing_split_2: 'off',

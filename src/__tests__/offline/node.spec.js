@@ -25,7 +25,10 @@ tape('NodeJS Offline mode', function (assert) {
     assert.equal(await client.getTreatment('qa-user', 'testing_split_2'), 'control');
 
     assert.deepEqual(await client.getTreatments('qa-user', [
-      'testing_split', 'testing_split2', 'testing_split3', 'testing_not_exist'
+      'testing_split',
+      'testing_split2',
+      'testing_split3',
+      'testing_not_exist'
     ]), {
       testing_split: 'on',
       testing_split2: 'off',
