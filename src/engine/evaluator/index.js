@@ -19,8 +19,8 @@ limitations under the License.
 'use strict';
 
 const engine = require('../engine');
-const keyParser = require('../../utils/key/parser');
 const thenable = require('../../utils/promise/thenable');
+const LabelsConstants = require('../../utils/labels');
 
 // Build Evaluation object if and only if matchingResult is true
 function match(matchingResult: boolean, bucketingKey: string, seed: number, treatments: Treatments, label: string, algo: ?number): ?Evaluation {
@@ -40,27 +40,25 @@ function match(matchingResult: boolean, bucketingKey: string, seed: number, trea
 // Evaluator factory
 function evaluatorContext(matcherEvaluator: Function, treatments: Treatments, label: string, conditionType: string): Function {
 
-  function evaluator(key: SplitKey, seed: number, trafficAllocation: number, trafficAllocationSeed: number, attributes: ?Object, algo: ?number): AsyncValue<?Evaluation> {
-    // the key could be a string or KeyDTO it should return a keyDTO.
-    const {
-      matchingKey,
-      bucketingKey
-    } = keyParser(key);
+  function evaluator(key: SplitKeyObject, seed: number, trafficAllocation: number, trafficAllocationSeed: number, attributes: ?Object, algo: ?number): AsyncValue<?Evaluation> {
 
     // Whitelisting has more priority than traffic allocation, so we don't apply this filtering to those conditions.
-    if (conditionType === 'ROLLOUT' && !engine.shouldApplyRollout(trafficAllocation, bucketingKey, trafficAllocationSeed, algo)) {
-      return;
+    if (conditionType === 'ROLLOUT' && !engine.shouldApplyRollout(trafficAllocation, key.bucketingKey, trafficAllocationSeed, algo)) {
+      return {
+        treatment: undefined,
+        label: LabelsConstants.NOT_IN_SPLIT
+      };
     }
 
     // matcherEvaluator could be Async, this relays on matchers return value, so we need
     // to verify for thenable before play with the result
-    const matches = matcherEvaluator(matchingKey, attributes);
+    const matches = matcherEvaluator(key.matchingKey, attributes);
 
     if (thenable(matches)) {
-      return matches.then(result => match(result, bucketingKey, seed, treatments, label, algo));
+      return matches.then(result => match(result, key.bucketingKey, seed, treatments, label, algo));
     }
 
-    return match(matches, bucketingKey, seed, treatments, label, algo);
+    return match(matches, key.bucketingKey, seed, treatments, label, algo);
   }
 
   return evaluator;

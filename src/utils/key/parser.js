@@ -15,9 +15,11 @@ module.exports = (key: any): SplitKeyObject => {
 
   if (isObject(key)) {
     if (!key.bucketingKey || !key.matchingKey) {
-      throw 'key object should has property bucketingKey and matchingKey';
+      throw 'Key object should have properties bucketingKey and matchingKey.';
     }
 
     return key;
   }
+
+  throw 'Key should be an string or an object with bucketingKey and matchingKey as string properties.';
 };
