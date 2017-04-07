@@ -460,6 +460,7 @@ declare namespace SplitIO {
     /**
      * Returns a Treatments value, whick will be (or eventually be) an object with the treatments for the given features.
      * For usage on NodeJS as we don't have only one key.
+     * NOTE: Treatment will be a promise only in async storages, like REDIS.
      * @function getTreatments
      * @param {string} key - The string key representing the consumer.
      * @param {Array<string>} splitNames - An array of the split names we wan't to get the treatments.
@@ -470,6 +471,7 @@ declare namespace SplitIO {
     /**
      * Returns a Treatments value, whick will be (or eventually be) an object with the treatments for the given features.
      * For usage on the Browser as we defined the key on the settings.
+     * NOTE: Treatment will be a promise only in async storages, like REDIS.
      * @function getTreatments
      * @param {Array<string>} splitNames - An array of the split names we wan't to get the treatments.
      * @param {Attributes=} attributes - An object of type Attributes defining the attributes for the given key.
