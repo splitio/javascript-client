@@ -19,14 +19,6 @@ type EventConsts = {
   SDK_UPDATE: 'state::update'
 };
 /**
- * @typedef {(Promise<T>|T)} AsyncValue
- */
-type AsyncValue<T> = Promise<T> | T;
-/**
- * @typedef {(Promise<T[]>|T[])} AsyncValues
- */
-type AsyncValues<T> = Promise<T[]> | T[];
-/**
  * SDK Modes.
  * @typedef {string} SDKMode
  */
@@ -37,7 +29,8 @@ type SDKMode = 'standalone' | 'consumer';
  */
 type StorageType = 'MEMORY' | 'LOCALSTORAGE' | 'REDIS';
 /**
- * Settings interface
+ * Settings interface. This is a representation of the settings the SDK expose, that's why
+ * most of it's props are readonly. Only features should be rewritten when localhost mode is active.
  * @interface ISettings
  */
 interface ISettings {
@@ -74,6 +67,158 @@ interface ISettings {
   }
 }
 /**
+ * Common settings between Browser and NodeJS settings interface.
+ * @interface ISharedSettings
+ */
+interface ISharedSettings {
+  /**
+   * SDK scheduler settings.
+   * @property {Object} scheduler
+   */
+  scheduler?: {
+    /**
+     * The SDK polls Split servers for changes to feature roll-out plans. This parameter controls this polling period in seconds.
+     * @property {number} featuresRefreshRate
+     * @default 30
+     */
+    featuresRefreshRate?: number,
+    /**
+     * The SDK sends information on who got what treatment at what time back to Split servers to power analytics. This parameter controls how often this data is sent to Split servers. The parameter should be in seconds.
+     * @property {number} impressionsRefreshRate
+     * @default 60
+     */
+    impressionsRefreshRate?: number,
+    /**
+     * The SDK sends diagnostic metrics to Split servers. This parameters controls this metric flush period in seconds.
+     * @property {number} metricsRefreshRate
+     * @default 60
+     */
+    metricsRefreshRate?: number,
+    /**
+     * The SDK polls Split servers for changes to segment definitions. This parameter controls this polling period in seconds.
+     * @property {number} segmentsRefreshRate
+     * @default 60
+     */
+    segmentsRefreshRate?: number,
+    /**
+     * For mocking/testing only. The SDK will refresh the features mocked data when mode is set to "localhost" by defining the key.
+     * For more information @see {@link http://docs.split.io/docs/nodejs-sdk-overview#section-running-the-sdk-in-off-the-grid-mode}
+     * @property {number} offlineRefreshRate
+     * @default 15
+     */
+    offlineRefreshRate?: number
+  }
+}
+/**
+ * Common settings interface for SDK instances on NodeJS.
+ * @interface INodeBasicSettings
+ * @extends ISharedSettings
+ */
+interface INodeBasicSettings extends ISharedSettings {
+  /**
+   * SDK Core settings for NodeJS.
+   * @property {Object} core
+   */
+  core: {
+    /**
+     * Your API key. More information: @see {@link http://docs.split.io/docs/understanding-api-keys}
+     * @property {string} authorizationKey
+     */
+    authorizationKey: string,
+    /**
+     * Disable labels from being sent to Split backend. Labels may contain sensitive information.
+     * @property {boolean} labelsEnabled
+     * @default true
+     */
+    labelsEnabled?: boolean
+  },
+  /**
+   * Defines which kind of storage we should instanciate.
+   * @property {Object} storage
+   */
+  storage?: {
+    /**
+     * Storage type to be instantiated by the SDK.
+     * @property {StorageType} type
+     * @default MEMORY
+     */
+    type?: StorageType,
+    /**
+     * Options to be passed to the selected storage. Use it with type: 'REDIS'
+     * @property {Object} options
+     */
+    options?: Object,
+    /**
+     * Optional prefix to prevent any kind of data collision between SDK versions.
+     * @property {string} prefix
+     * @default SPLITIO
+     */
+    prefix?: string
+  }
+  /**
+   * The SDK mode. Possible values are "standalone" (which is the default) and "consumer". For "localhost" mode, use "localhost" as authorizationKey.
+   * @property {SDKMode} mode
+   * @default standalone
+   */
+  mode?: SDKMode,
+  /**
+   * Mocked features file path. For testing purposses only. For using this you should specify "localhost" as authorizationKey on core settings.
+   * @see {@link http://docs.split.io/docs/nodejs-sdk-overview#section-running-the-sdk-in-off-the-grid-mode}
+   * @property {MockedFeaturesFilePath} features
+   * @default $HOME/.split
+   */
+  features?: SplitIO.MockedFeaturesFilePath
+}
+/**
+ * Common definitions between clients for different environments interface.
+ * @interface IBasicClient
+ * @extends NodeJS.Events
+ */
+interface IBasicClient extends NodeJS.Events {
+  /**
+   * Constant object containing the SDK events for you to use.
+   * @property {EventConsts} Event
+   */
+  Event: EventConsts,
+  /**
+   * Returns a promise that will be resolved once the SDK has finished loading.
+   * @function ready
+   * @deprecated Use on(sdk.Event.SDK_READY, callback: () => void) instead.
+   * @returns {Promise<void>}
+   */
+  ready(): Promise<void>,
+  /**
+   * Destroy the client instance.
+   * @function destroy
+   * @returns {void}
+   */
+  destroy(): void
+}
+/**
+ * Common definitions between managers for different environments interface.
+ * @interface IBasicManager
+ */
+interface IBasicManager {
+  /**
+   * Returns the available split names in an array.
+   * @function names
+   * @returns {SplitNames} The array of split names or the promise that will be resolved with the array.
+   */
+  names(): SplitIO.SplitNames;
+}
+/**
+ * Common definitions between SDK instances for different environments interface.
+ * @interface IBasicSDK
+ */
+interface IBasicSDK {
+  /**
+   * Current settings of the SDK instance.
+   * @property settings
+   */
+  settings: ISettings
+}
+/****** Exposed namespace ******/
+/**
  * Types and interfaces for @splitsoftware/splitio package for usage when integrating javascript sdk on typescript apps.
  * For the SDK package information
  * @see {@link https://www.npmjs.com/package/@splitsoftware/splitio}
@@ -81,22 +226,30 @@ interface ISettings {
 declare namespace SplitIO {
   /**
    * Split treatment value, returned by getTreatment.
-   * NOTE: Treatment will be a promise only in async storages, like REDIS.
-   * @typedef {AsyncValue<string>} Treatment
+   * @typedef {string} Treatment
    */
-  type Treatment = AsyncValue<string>;
+  type Treatment = string;
   /**
-   * An object with the treatments for a bulk of splits
-   * @typedef {Object.<string>} TreatmentsMap
+   * Split treatment promise that will resolve to actual treatment value.
+   * @typedef {Promise<string>} Treatment
    */
-  type TreatmentsMap = {
+  type AsyncTreatment = Promise<string>;
+  /**
+   * An object with the treatments for a bulk of splits, returned by getTreatments. For example:
+   *   {
+   *     feature1: 'on',
+   *     feature2: 'off
+   *   }
+   * @typedef {Object.<string>} Treatments
+   */
+  type Treatments = {
     [featureName: string]: string
   };
   /**
-   * Split treatments value, returned by getTreatments.
-   * @typedef {AsyncValue<TreatmentsMap>} Treatments
+   * Split treatments promise that will resolve to the actual SplitIO.Treatments object.
+   * @typedef {Promise<Treatments>} Treatments
    */
-  type Treatments = AsyncValue<TreatmentsMap>;
+  type AsyncTreatments = Promise<Treatments>;
   /**
    * Possible split events.
    * @typedef {string} Event
@@ -112,7 +265,7 @@ declare namespace SplitIO {
   };
   /**
    * The SplitKey object format.
-   * @typedef {Object} SplitKeyObject
+   * @typedef {Object.<string>} SplitKeyObject
    */
   type SplitKeyObject = {
     matchingKey: string,
@@ -139,7 +292,7 @@ declare namespace SplitIO {
    * Data corresponding to one Split view.
    * @typedef {Object} SplitView
    */
-  type SplitViewData = {
+  type SplitView = {
     /**
      * The name of the split.
      * @property {string} name
@@ -167,25 +320,34 @@ declare namespace SplitIO {
     changeNumber: number
   };
   /**
-   * The SplitView or a promise that will be resolved with that SplitView.
-   * @typedef {AsyncValue<SplitViewData>} SplitView
+   * A promise that will be resolved with that SplitView.
+   * @typedef {Promise<SplitView>} SplitView
    */
-  type SplitView = AsyncValue<SplitViewData>;
+  type SplitViewAsync = Promise<SplitView>;
   /**
-   * An array containing the SplitViews or a promise that will be resolved with that array.
-   * @typedef {AsyncValues<SplitViewData>} SplitViews
+   * An array containing the SplitIO.SplitView elements.
    */
-  type SplitViews = AsyncValues<SplitViewData>;
+  type SplitViews = Array<SplitView>;
+  /**
+   * A promise that will be resolved with an SplitIO.SplitViews array.
+   * @typedef {Promise<SplitViews>} SplitViewsAsync
+   */
+  type SplitViewsAsync = Promise<SplitViews>;
   /**
    * An array of split names.
    * @typedef {Array<string>} SplitNames
    */
   type SplitNames = Array<string>;
   /**
-   * Storage valid types for NodeJS.
-   * @typedef {string} NodeStorage
+   * Synchronous storage valid types for NodeJS.
+   * @typedef {string} NodeSyncStorage
    */
-  type NodeStorage = 'MEMORY' | 'LOCALSTORAGE' | 'REDIS';
+  type NodeSyncStorage = 'MEMORY' | 'LOCALSTORAGE';
+  /**
+   * Asynchronous storages valid types for NodeJS.
+   * @typedef {string} NodeAsyncStorage
+   */
+  type NodeAsyncStorage = 'REDIS';
   /**
    * Storage valid types for the browser.
    * @typedef {string} BrowserStorage
@@ -194,9 +356,10 @@ declare namespace SplitIO {
   /**
    * Settings interface for SDK instances created on the browser
    * @interface IBrowserSettings
+   * @extends ISharedSettings
    * @see {@link http://docs.split.io/docs/javascript-sdk-overview#section-advanced-configuration-of-the-sdk}
    */
-  interface IBrowserSettings {
+  interface IBrowserSettings extends ISharedSettings {
     /**
      * SDK Core settings for the browser.
      * @property {Object} core
@@ -218,43 +381,6 @@ declare namespace SplitIO {
        * @default true
        */
       labelsEnabled?: boolean
-    },
-    /**
-     * SDK scheduler settings.
-     * @property {Object} scheduler
-     */
-    scheduler?: {
-      /**
-       * The SDK polls Split servers for changes to feature roll-out plans. This parameter controls this polling period in seconds.
-       * @property {number} featuresRefreshRate
-       * @default 30
-       */
-      featuresRefreshRate?: number,
-      /**
-       * The SDK sends information on who got what treatment at what time back to Split servers to power analytics. This parameter controls how often this data is sent to Split servers. The parameter should be in seconds.
-       * @property {number} impressionsRefreshRate
-       * @default 60
-       */
-      impressionsRefreshRate?: number,
-      /**
-       * The SDK sends diagnostic metrics to Split servers. This parameters controls this metric flush period in seconds.
-       * @property {number} metricsRefreshRate
-       * @default 60
-       */
-      metricsRefreshRate?: number,
-      /**
-       * The SDK polls Split servers for changes to segment definitions. This parameter controls this polling period in seconds.
-       * @property {number} segmentsRefreshRate
-       * @default 60
-       */
-      segmentsRefreshRate?: number,
-      /**
-       * For mocking/testing only. The SDK will refresh the features mocked data when mode is set to "localhost" by defining the key.
-       * For more information @see {@link http://docs.split.io/docs/javascript-sdk-overview#section-running-the-sdk-in-off-the-grid-mode}
-       * @property {number} offlineRefreshRate
-       * @default 15
-       */
-      offlineRefreshRate?: number
     },
     /**
      * SDK Startup settings.
@@ -305,76 +431,46 @@ declare namespace SplitIO {
     }
   }
   /**
-   * Settings interface for SDK instances created on NodeJS
+   * Settings interface for SDK instances created on NodeJS.
+   * If your storage is asynchronous (Redis for example) use SplitIO.INodeAsyncSettings instead.
    * @interface INodeSettings
+   * @extends INodeBasicSettings
    * @see {@link http://docs.split.io/docs/nodejs-sdk-overview#section-advanced-configuration-of-the-sdk}
    */
-  interface INodeSettings {
-    /**
-     * SDK Core settings for NodeJS.
-     * @property {Object} core
-     */
-    core: {
-      /**
-       * Your API key. More information: @see {@link http://docs.split.io/docs/understanding-api-keys}
-       * @property {string} authorizationKey
-       */
-      authorizationKey: string,
-      /**
-       * Disable labels from being sent to Split backend. Labels may contain sensitive information.
-       * @property {boolean} labelsEnabled
-       * @default true
-       */
-      labelsEnabled?: boolean
-    },
-    /**
-     * SDK scheduler settings.
-     * @property {Object} scheduler
-     */
-    scheduler?: {
-      /**
-       * The SDK polls Split servers for changes to feature roll-out plans. This parameter controls this polling period in seconds.
-       * @property {number} featuresRefreshRate
-       * @default 30
-       */
-      featuresRefreshRate?: number,
-      /**
-       * The SDK sends information on who got what treatment at what time back to Split servers to power analytics. This parameter controls how often this data is sent to Split servers. The parameter should be in seconds.
-       * @property {number} impressionsRefreshRate
-       * @default 60
-       */
-      impressionsRefreshRate?: number,
-      /**
-       * The SDK sends diagnostic metrics to Split servers. This parameters controls this metric flush period in seconds.
-       * @property {number} metricsRefreshRate
-       * @default 60
-       */
-      metricsRefreshRate?: number,
-      /**
-       * The SDK polls Split servers for changes to segment definitions. This parameter controls this polling period in seconds.
-       * @property {number} segmentsRefreshRate
-       * @default 60
-       */
-      segmentsRefreshRate?: number,
-      /**
-       * For mocking/testing only. The SDK will refresh the features mocked data when mode is set to "localhost" by defining the key.
-       * For more information @see {@link http://docs.split.io/docs/nodejs-sdk-overview#section-running-the-sdk-in-off-the-grid-mode}
-       * @property {number} offlineRefreshRate
-       * @default 15
-       */
-      offlineRefreshRate?: number
-    },
+  interface INodeSettings extends INodeBasicSettings {
     /**
      * Defines which kind of storage we should instanciate.
      * @property {Object} storage
      */
     storage?: {
       /**
-       * Storage type to be instantiated by the SDK.
-       * @property {NodeStorage} type
+       * Synchronous storage type to be instantiated by the SDK.
+       * @property {NodeSyncStorage} type
        * @default MEMORY
        */
-      type?: NodeStorage,
+      type?: NodeSyncStorage,
+      /**
+       * Optional prefix to prevent any kind of data collision between SDK versions.
+       * @property {string} prefix
+       * @default SPLITIO
+       */
+      prefix?: string
+    }
+  }
+  /**
+   * Settings interface with async storage for SDK instances created on NodeJS.
+   * If your storage is synchronous (by defaut we use memory, which is sync) use SplitIO.INodeSyncSettings instead.
+   * @interface INodeAsyncSettings
+   * @extends INodeBasicSettings
+   * @see {@link http://docs.split.io/docs/nodejs-sdk-overview#section-advanced-configuration-of-the-sdk}
+   */
+  interface INodeAsyncSettings extends INodeBasicSettings {
+    storage: {
+      /**
+       * Redis storage type to be instantiated by the SDK.
+       * @property {NodeAsyncStorage} type
+       */
+      type: NodeAsyncStorage,
       /**
        * Options to be passed to the selected storage. Use it with type: 'REDIS'
        * @property {Object} options
@@ -387,30 +483,13 @@ declare namespace SplitIO {
        */
       prefix?: string
     }
-    /**
-     * The SDK mode. Possible values are "standalone" (which is the default) and "consumer". For "localhost" mode, use "localhost" as authorizationKey.
-     * @property {SDKMode} mode
-     * @default standalone
-     */
-    mode?: SDKMode,
-    /**
-     * Mocked features file path. For testing purposses only. For using this you should specify "localhost" as authorizationKey on core settings.
-     * @see {@link http://docs.split.io/docs/nodejs-sdk-overview#section-running-the-sdk-in-off-the-grid-mode}
-     * @property {MockedFeaturesFilePath} features
-     * @default $HOME/.split
-     */
-    features?: MockedFeaturesFilePath
   }
   /**
-   * This represents the interface for the SDK instance.
+   * This represents the interface for the SDK instance with synchronous storage.
    * @interface ISDK
+   * @extends IBasicSDK
    */
-  interface ISDK {
-    /**
-     * Current settings of the SDK instance.
-     * @property settings
-     */
-    settings: ISettings,
+  interface ISDK extends IBasicSDK {
     /**
      * Returns a client instance of the SDK. If a key is provided as parameter, the function will return a shared instance. If no key param is provided, we will get the default instance.
      * @function client
@@ -426,16 +505,31 @@ declare namespace SplitIO {
     manager(): IManager
   }
   /**
-   * Representation of a client instance of the SDK.
-   * @interface IClient
-   * @extends NodeJS.Events
+   * This represents the interface for the SDK instance with asynchronous storage.
+   * @interface IAsyncSDK
+   * @extends IBasicSDK
    */
-  interface IClient extends NodeJS.Events {
+  interface IAsyncSDK extends IBasicSDK {
     /**
-     * Constant object containing the SDK events for you to use.
-     * @property {EventConsts} Event
+     * Returns a client instance of the SDK. If a key is provided as parameter, the function will return a shared instance. If no key param is provided, we will get the default instance.
+     * @function client
+     * @param {SplitKey=} key The key for the new client instance.
+     * @returns {IClient} The client instance.
      */
-    Event: EventConsts,
+    client(key?: SplitKey): IAsyncClient,
+    /**
+     * Returns a manager instance of the SDK to explore available information.
+     * @function manager
+     * @returns {IManager} The manager instance.
+     */
+    manager(): IAsyncManager
+  }
+  /**
+   * This represents the interface for the Client instance with synchronous storage.
+   * @interface IClient
+   * @extends IBasicClient
+   */
+  interface IClient extends IBasicClient {
     /**
      * Returns a Treatment value, which will be (or eventually be) the treatment string for the given feature.
      * For usage on NodeJS as we don't have only one key.
@@ -477,44 +571,93 @@ declare namespace SplitIO {
      * @param {Attributes=} attributes - An object of type Attributes defining the attributes for the given key.
      * @returns {Treatments} The treatments or treatments promise which will resolve to the treatments object.
      */
-    getTreatments(splitNames: string[], attributes?: Attributes): Treatments,
-    /**
-     * Returns a promise that will be resolved once the SDK has finished loading.
-     * @function ready
-     * @deprecated Use on(sdk.Event.SDK_READY, callback: () => void) instead.
-     * @returns {Promise<void>}
-     */
-    ready(): Promise<void>,
-    /**
-     * Destroy the client instance.
-     * @function destroy
-     * @returns {void}
-     */
-    destroy(): void
+    getTreatments(splitNames: string[], attributes?: Attributes): Treatments
   }
   /**
-   * Representation of a manager instance of the SDK.
-   * @interface IManager
+   * This represents the interface for the Client instance with asynchronous storage.
+   * @interface IAsyncClient
+   * @extends IBasicClient
    */
-  interface IManager {
+  interface IAsyncClient extends IBasicClient {
+    /**
+     * Returns a Treatment value, which will be (or eventually be) the treatment string for the given feature.
+     * For usage on NodeJS as we don't have only one key.
+     * NOTE: Treatment will be a promise only in async storages, like REDIS.
+     * @function getTreatment
+     * @param {string} key - The string key representing the consumer.
+     * @param {string} splitName - The string that represents the split we wan't to get the treatment.
+     * @param {Attributes=} attributes - An object of type Attributes defining the attributes for the given key.
+     * @returns {Treatment} The treatment or treatment promise which will resolve to the treatment string.
+     */
+    getTreatment(key: SplitKey, splitName: string, attributes?: Attributes): AsyncTreatment,
+    /**
+     * Returns a Treatment value, which will be (or eventually be) the treatment string for the given feature.
+     * For usage on the Browser as we defined the key on the settings.
+     * NOTE: Treatment will be a promise only in async storages, like REDIS.
+     * @function getTreatment
+     * @param {string} splitName - The string that represents the split we wan't to get the treatment.
+     * @param {Attributes=} attributes - An object of type Attributes defining the attributes for the given key.
+     * @returns {Treatment} The treatment or treatment promise which will resolve to the treatment string.
+     */
+    getTreatment(splitName: string, attributes?: Attributes): AsyncTreatment,
+    /**
+     * Returns a Treatments value, whick will be (or eventually be) an object with the treatments for the given features.
+     * For usage on NodeJS as we don't have only one key.
+     * @function getTreatments
+     * @param {string} key - The string key representing the consumer.
+     * @param {Array<string>} splitNames - An array of the split names we wan't to get the treatments.
+     * @param {Attributes=} attributes - An object of type Attributes defining the attributes for the given key.
+     * @returns {Treatments} The treatments or treatments promise which will resolve to the treatments object.
+     */
+    getTreatments(key: SplitKey, splitNames: string[], attributes?: Attributes): AsyncTreatments,
+    /**
+     * Returns a Treatments value, whick will be (or eventually be) an object with the treatments for the given features.
+     * For usage on the Browser as we defined the key on the settings.
+     * @function getTreatments
+     * @param {Array<string>} splitNames - An array of the split names we wan't to get the treatments.
+     * @param {Attributes=} attributes - An object of type Attributes defining the attributes for the given key.
+     * @returns {Treatments} The treatments or treatments promise which will resolve to the treatments object.
+     */
+    getTreatments(splitNames: string[], attributes?: Attributes): AsyncTreatments
+  }
+  /**
+   * Representation of a manager instance with synchronous storage of the SDK.
+   * @interface IManager
+   * @extends IBasicManager
+   */
+  interface IManager extends IBasicManager {
     /**
      * Get the array of splits data in SplitView format.
      * @function splits
-     * @returns {SplitViews} The list of SplitViews or a promise that will resolve to that list.
+     * @returns {SplitViews} The list of SplitIO.SplitView.
      */
     splits(): SplitViews;
     /**
      * Get the data of a split in SplitView format.
      * @function split
      * @param {string} splitName The name of the split we wan't to get info of.
-     * @returns {SplitView} The SplitView of the given split or a promise that will resolve to the SplitView.
+     * @returns {SplitView} The SplitIO.SplitView of the given split.
      */
     split(splitName: string): SplitView;
+  }
+  /**
+   * Representation of a manager instance with asynchronous storage of the SDK.
+   * @interface IAsyncManager
+   * @extends IBasicManager
+   */
+  interface IAsyncManager extends IBasicManager {
     /**
-     * Returns the available split names in an array.
-     * @function names
-     * @returns {SplitNames} The array of split names or the promise that will be resolved with the array.
+     * Get the array of splits data in SplitView format.
+     * @function splits
+     * @returns {SplitViewsAsync} A promise that will resolve to the SplitIO.SplitView list.
      */
-    names(): SplitNames;
+    splits(): SplitViewsAsync;
+    /**
+     * Get the data of a split in SplitView format.
+     * @function split
+     * @param {string} splitName The name of the split we wan't to get info of.
+     * @returns {SplitViewAsync} A promise that will resolve to the SplitIO.SplitView value.
+     */
+    split(splitName: string): SplitViewAsync;
   }
 }
