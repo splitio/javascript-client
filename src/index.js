@@ -26,7 +26,7 @@ const instances = {};
 //
 // Create SDK instance based on the provided configurations
 //
-function SplitFactory(settings: Settings, storage: SplitStorage) {
+function SplitFactory(settings: Settings, storage: SplitStorage, sharedInstance: ?boolean) {
   const readiness = ReadinessGateFactory(settings.startup.readyTimeout);
 
   // We are only interested in exposable EventEmitter
@@ -41,28 +41,26 @@ function SplitFactory(settings: Settings, storage: SplitStorage) {
 
   let producer;
   let metrics;
-  let offline;
 
   switch(settings.mode) {
     case 'localhost':
-      offline = OfflineProducerFactory(settings, readiness, storage);
-
-      // Start background jobs tasks
-      offline.start();
+      producer = OfflineProducerFactory(settings, readiness, storage);
       break;
     case 'producer':
     case 'standalone': {
-      producer = FullProducerFactory(settings, readiness, storage);
-      metrics = MetricsFactory(settings, storage);
-
-      // Start background jobs tasks
-      producer.start();
-      metrics.start();
+      // We don't fully instantiate metrics and producer if we are creating a shared instance.
+      producer = sharedInstance ?
+        PartialProducerFactory(settings, readiness, storage) :
+        FullProducerFactory(settings, readiness, storage);
+      metrics = sharedInstance ? undefined : MetricsFactory(settings, storage);
       break;
     }
     case 'consumer':
       break;
   }
+  // Start background jobs tasks
+  producer && producer.start();
+  metrics && metrics.start();
 
   // Ready promise
   const readyFlag = new Promise(resolve => gate.on(SDK_READY, resolve));
@@ -92,67 +90,6 @@ function SplitFactory(settings: Settings, storage: SplitStorage) {
 
         producer && producer.stop();
         metrics && metrics.stop();
-        offline && offline.stop();
-      }
-    }
-  );
-
-  return api;
-}
-
-//
-// Create partial SDK instance reusing as much as we can (ONLY BROWSER).
-//
-function SharedSplitFactory(settings: Settings, storage: SplitStorage) {
-  const readiness = ReadinessGateFactory(settings.startup.readyTimeout);
-  let producer;
-
-  // We are only interested in exposable EventEmitter
-  const { gate } = readiness;
-
-  // Events name
-  const {
-    SDK_READY,
-    SDK_UPDATE,
-    SDK_READY_TIMED_OUT
-  } = gate;
-
-  if (settings.mode === 'localhost') {
-    producer = OfflineProducerFactory(settings, readiness, storage);
-  } else {
-    producer = PartialProducerFactory(settings, readiness, storage);
-  }
-
-  // Ready promise
-  const readyFlag = new Promise(resolve => gate.on(SDK_READY, resolve));
-
-  // In shared instanciation (only available for the browser), we start producer
-  // module by default
-  producer.start();
-
-  const api = Object.assign(
-    // Proto linkage of the EventEmitter to prevent any change
-    Object.create(gate),
-    // GetTreatment
-    ClientFactory(settings, storage),
-    // Utilities
-    {
-      // Ready promise
-      ready() {
-        return readyFlag;
-      },
-
-      // Events contants
-      Event: {
-        SDK_READY,
-        SDK_UPDATE,
-        SDK_READY_TIMED_OUT
-      },
-
-      // Destroy instance
-      destroy() {
-        readiness.destroy();
-        producer.stop();
       }
     }
   );
@@ -181,7 +118,7 @@ function SplitFacade(config: Object) {
 
       if (!instances[instanceId]) {
         const sharedSettings = settings.overrideKey(key);
-        instances[instanceId] = SharedSplitFactory(sharedSettings, storage.shared(sharedSettings));
+        instances[instanceId] = SplitFactory(sharedSettings, storage.shared(sharedSettings), true);
       }
 
       return instances[instanceId];
