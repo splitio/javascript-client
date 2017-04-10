@@ -105,6 +105,7 @@ function SplitFactory(settings: Settings, storage: SplitStorage) {
 //
 function SharedSplitFactory(settings: Settings, storage: SplitStorage) {
   const readiness = ReadinessGateFactory(settings.startup.readyTimeout);
+  let producer;
 
   // We are only interested in exposable EventEmitter
   const { gate } = readiness;
@@ -116,7 +117,11 @@ function SharedSplitFactory(settings: Settings, storage: SplitStorage) {
     SDK_READY_TIMED_OUT
   } = gate;
 
-  const producer = PartialProducerFactory(settings, readiness, storage);
+  if (settings.mode === 'localhost') {
+    producer = OfflineProducerFactory(settings, readiness, storage);
+  } else {
+    producer = PartialProducerFactory(settings, readiness, storage);
+  }
 
   // Ready promise
   const readyFlag = new Promise(resolve => gate.on(SDK_READY, resolve));
