@@ -10,6 +10,9 @@ var treatmentsMap = client.getTreatments('CUSTOMER_KEY', ['Split_1', 'Split_2'])
 
 * Bugfixing on manager API for localhost.
 
+## 8.1.3 (April 11, 2017)
+
+* No API changes. Bug fixing release.
 
 ## 8.1.2 (April 6, 2017)
 
