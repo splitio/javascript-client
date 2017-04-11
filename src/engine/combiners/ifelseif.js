@@ -24,7 +24,10 @@ const thenable = require('../../utils/promise/thenable');
 function unexpectedInputHandler() {
   log('Invalid Split provided, none valid conditions found');
 
-  return 'control';
+  return {
+    treatment: 'control',
+    label: 'exception'
+  };
 }
 
 function computeTreatment(predicateResults: Array<?Evaluation>): ?Evaluation {
