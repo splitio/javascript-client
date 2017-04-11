@@ -51,11 +51,11 @@ const settingsInLocalStorage = {
   }
 };
 
-function e2eAssetionSuite(config, assert) {
+function e2eAssertionSuite(config, assert) {
   const splitio = SplitFactory(config);
   const client = splitio.client();
 
-  client.ready().then(() => {
+  const getTreatmentTests = () => {
     assert.equal(client.getTreatment('blacklist'), 'not_allowed');
     assert.equal(client.getTreatment('whitelist'), 'allowed');
     assert.equal(client.getTreatment('splitters'), 'on');
@@ -225,10 +225,78 @@ function e2eAssetionSuite(config, assert) {
     assert.equal(client.getTreatment('user_attr_eq_ten', {
       attr: 9
     }), 'off');
+  };
+
+  const getTreatmentsTests = () => {
+    assert.deepEqual(client.getTreatments([
+      // Treatments List
+      'blacklist',
+      'whitelist',
+      'splitters',
+      'qc_team'
+    ]), {
+      // Expected result
+      blacklist: 'not_allowed',
+      whitelist: 'allowed',
+      splitters: 'on',
+      qc_team: 'no'
+    });
+
+    // I'm not sending the attributes
+    assert.deepEqual(client.getTreatments([
+      'employees_between_21_and_50_and_chrome',
+      'user_attr_gte_10_and_user_attr2_is_not_foo',
+      'user_account_in_whitelist'
+    ]), {
+      employees_between_21_and_50_and_chrome: 'off',
+      user_attr_gte_10_and_user_attr2_is_not_foo: 'off',
+      user_account_in_whitelist: 'off'
+    });
+
+    assert.deepEqual(client.getTreatments([
+      'employees_between_21_and_50_and_chrome',
+      'user_attr_gte_10_and_user_attr2_is_not_foo',
+      'user_account_in_whitelist'
+    ], {
+      // Attributes
+      age: 20,
+      agent: 'foo',
+      attr: 55,
+      attr2: 'bar',
+      account: 'key@split.io'
+    }), {
+      employees_between_21_and_50_and_chrome: 'off',
+      user_attr_gte_10_and_user_attr2_is_not_foo: 'on',
+      user_account_in_whitelist: 'off'
+    });
+
+    assert.deepEqual(client.getTreatments([
+      'employees_between_21_and_50_and_chrome',
+      'user_attr_gte_10_and_user_attr2_is_not_foo',
+      'user_account_in_whitelist'
+    ], {
+      // Attributes
+      age: 21,
+      agent: 'chrome',
+      attr: 55,
+      attr2: 'foo',
+      account: 'key_1@split.io'
+    }), {
+      employees_between_21_and_50_and_chrome: 'on',
+      user_attr_gte_10_and_user_attr2_is_not_foo: 'off',
+      user_account_in_whitelist: 'on'
+    });
+
+  };
+
+  client.ready().then(() => {
+    getTreatmentTests();
+    getTreatmentsTests();
 
     assert.end();
   });
+
 }
 
-tape('E2E / In Memory', e2eAssetionSuite.bind(null, settingsInMemory));
-tape('E2E / In LocalStorage with In Memory Fallback', e2eAssetionSuite.bind(null, settingsInLocalStorage));
+tape('E2E / In Memory', e2eAssertionSuite.bind(null, settingsInMemory));
+tape('E2E / In LocalStorage with In Memory Fallback', e2eAssertionSuite.bind(null, settingsInLocalStorage));

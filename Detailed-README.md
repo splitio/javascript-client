@@ -23,12 +23,12 @@ var splitio = require('@splitsoftware/splitio');
 
 Using [bower](https://bower.io):
 
-    $ bower install splitio=https://cdn.split.io/split-8.0.0.min.js
+    $ bower install splitio=https://cdn.split.io/split-8.2.0.min.js
 
 And finally, the **UMD** build is also available in our **CDN**:
 
 ```html
-<script src="//cdn.split.io/split-8.0.0.min.js"></script>
+<script src="//cdn.split.io/split-8.2.0.min.js"></script>
 ```
 
 You can find the library on `window.splitio`.
@@ -49,7 +49,7 @@ In the browser you were probably using something like:
 Now you should use:
 
 ```html
-<script src="//cdn.split.io/split-migration-8.0.0.min.js"></script>
+<script src="//cdn.split.io/split-migration-8.2.0.min.js"></script>
 ```
 
 In CommonJS environments (even using ES6 modules), you should require/import:
@@ -119,12 +119,24 @@ Update the package.json with the correct value using semver.
 
 `printf "%s\n" '# this a comment' 'my_new_feature on' '# another comment' > $HOME/.split`
 
+> Expose package globally for TypeScript validations
+
+`npm link`
+
 > Tests steps
 
-`npm run lint`
+`npm run test-ts-decls`
+
+> TypeScript installation could affect the package so we unlink and install again to keep consistency with the dependencies
+
+`npm unlink`
+
+`npm unlink`
 
 `npm run test-browser-ci`
 
 `npm run test-browser-e2e-ci`
 
 `npm run test-node`
+
+`npm run rebuild`

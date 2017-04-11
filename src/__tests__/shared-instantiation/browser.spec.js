@@ -31,6 +31,17 @@ tape('SDK BROWSER / shared instanciation', function (assert) {
     assert.equal(await qaUserClient.getTreatment('on-if-in-segment-qa'), 'on');
     assert.equal(await qaUserClient.getTreatment('on-if-in-segment-qc'), 'off');
 
+    assert.deepEqual(await qaUserClient.getTreatments([
+      'always-off', 'always-on',
+       'on-if-in-segment-qa',
+       'on-if-in-segment-qc'
+    ]), {
+      'always-off': 'off',
+      'always-on': 'on',
+      'on-if-in-segment-qa': 'on',
+      'on-if-in-segment-qc': 'off'
+    });
+
     finished.next();
   }
 
@@ -40,6 +51,18 @@ tape('SDK BROWSER / shared instanciation', function (assert) {
     assert.equal(await qcUserClient.getTreatment('always-on'), 'on');
     assert.equal(await qcUserClient.getTreatment('on-if-in-segment-qa'), 'off');
     assert.equal(await qcUserClient.getTreatment('on-if-in-segment-qc'), 'on');
+
+    assert.deepEqual(await qcUserClient.getTreatments([
+      'always-off',
+      'always-on',
+      'on-if-in-segment-qa',
+      'on-if-in-segment-qc'
+    ]), {
+      'always-off': 'off',
+      'always-on': 'on',
+      'on-if-in-segment-qa': 'off',
+      'on-if-in-segment-qc': 'on'
+    });
 
     finished.next();
   }

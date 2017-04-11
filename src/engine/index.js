@@ -18,7 +18,10 @@ limitations under the License.
 
 'use strict';
 
+const get = require('lodash/get');
+
 const parser = require('./parser');
+const keyParser = require('../utils/key/parser');
 
 const thenable = require('../utils/promise/thenable');
 const LabelsConstants = require('../utils/labels');
@@ -29,6 +32,13 @@ function defaults(inst) {
   if (typeof inst.baseInfo.defaultTreatment !== 'string') {
     inst.baseInfo.defaultTreatment = 'control';
   }
+}
+
+function evaluationResult(result, defaultTreatment) {
+  return {
+    treatment: get(result, 'treatment', defaultTreatment),
+    label: get(result, 'label', LabelsConstants.NO_CONDITION_MATCH)
+  };
 }
 
 function Split(baseInfo: Object, evaluator: Function) {
@@ -57,11 +67,24 @@ Split.prototype.getTreatment = function getTreatment(key: SplitKey, attributes):
   const {
     killed,
     seed,
-    defaultTreatment
+    defaultTreatment,
+    trafficAllocation,
+    trafficAllocationSeed,
+    algo
   } = this.baseInfo;
 
+  let parsedKey;
   let treatment;
   let label;
+
+  try {
+    parsedKey = keyParser(key);
+  } catch (e) {
+    return {
+      treatment: 'control',
+      label: LabelsConstants.EXCEPTION
+    };
+  }
 
   if (this.isGarbage()) {
     treatment = 'control';
@@ -70,18 +93,21 @@ Split.prototype.getTreatment = function getTreatment(key: SplitKey, attributes):
     treatment = defaultTreatment;
     label = LabelsConstants.SPLIT_KILLED;
   } else {
-    const evaluation = this.evaluator(key, seed, attributes);
+    const evaluation = this.evaluator(
+      parsedKey,
+      seed,
+      trafficAllocation,
+      trafficAllocationSeed,
+      attributes,
+      algo
+    );
 
     // Evaluation could be async, so we should handle that case checking for a
     // thenable object
     if (thenable(evaluation)) {
-      return evaluation.then(result => ({
-        treatment: result !== undefined ? result.treatment : defaultTreatment,
-        label: result !== undefined ? result.label : LabelsConstants.NO_CONDITION_MATCH
-      }));
+      return evaluation.then(result => evaluationResult(result, defaultTreatment));
     } else {
-      treatment = evaluation !== undefined ? evaluation.treatment : defaultTreatment;
-      label = evaluation !== undefined ? evaluation.label : LabelsConstants.NO_CONDITION_MATCH;
+      return evaluationResult(evaluation, defaultTreatment);
     }
   }
 

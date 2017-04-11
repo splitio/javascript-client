@@ -21,12 +21,20 @@ tape('NodeJS Offline mode', function (assert) {
   const client = factory.client();
 
   client.on(client.Event.SDK_READY, async function () {
-    // setTimeout(async function self() {
     assert.equal(await client.getTreatment('qa-user', 'testing_split'), 'on');
     assert.equal(await client.getTreatment('qa-user', 'testing_split_2'), 'control');
 
-    //   setTimeout(self, 5000);
-    // }, 5000);
+    assert.deepEqual(await client.getTreatments('qa-user', [
+      'testing_split',
+      'testing_split2',
+      'testing_split3',
+      'testing_not_exist'
+    ]), {
+      testing_split: 'on',
+      testing_split2: 'off',
+      testing_split3: 'custom_treatment',
+      testing_not_exist: 'control'
+    });
 
     client.destroy();
     assert.end();

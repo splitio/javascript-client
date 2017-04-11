@@ -1,3 +1,27 @@
+## 8.2.0 (April 7, 2017)
+
+* Added Traffic Allocation support. You can specify how much of your traffic you
+  want to send to the rollout plan of a Split via Split Editor.
+
+* Added support for murmur hashing algorithm for better bucket calculations.
+
+* Adding getTreatments method to client API. For example:
+
+```js
+var treatmentsMap = client.getTreatments('CUSTOMER_KEY', ['Split_1', 'Split_2']);
+```
+
+## 8.1.0 (March 30, 2017)
+
+Added typescript support. SplitSDK custom types live on the SplitIO namespace.
+
+For example:
+
+```ts
+const myTreatment: SplitIO.Treatment;
+const myBrowserSettings: SplitIO.IBrowserSettings;
+```
+
 ## 8.0.0 (March 10, 2017)
 
 * New API to improve development experience. We added a migration layer so you

@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio",
-  "version": "8.1.3",
+  "version": "8.2.0-canary.2",
   "description": "Split SDK",
   "files": [
     "*.md",
@@ -69,6 +69,7 @@
     "test-browser-e2e-ci": "cross-env NODE_ENV=test karma start karma/e2e.ci.karma.conf.js",
     "test-node": "tape -r babel-register \"src/*/__tests__/**/!(browser).spec.js\"",
     "test-node-e2e": "tape -r babel-register \"src/__tests__/node.spec.js\"",
+    "test-ts-decls": "./scripts/ts-tests.sh",
     "canary": "npm run rebuild && npm publish --tag canary",
     "stable": "npm run rebuild && npm publish"
   },
@@ -80,6 +81,7 @@
     "ip": "^1.1.4",
     "isomorphic-fetch": "^2.2.1",
     "lodash": "^4.17.3",
+    "utfx": "^1.0.1",
     "warning": "^3.0.0"
   },
   "optionalDependencies": {

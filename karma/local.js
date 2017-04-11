@@ -9,7 +9,7 @@ module.exports = merge({}, require('./config'), {
 
   coverageReporter: {
     type : 'html',
-    dir : 'coverage/'
+    dir : '../karma/coverage/'
   },
 
   reporters: [

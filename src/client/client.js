@@ -134,6 +134,37 @@ function ClientFactory(settings: Settings, storage: SplitStorage): SplitClient {
         settings,
         storage
       );
+    },
+    getTreatments(key: SplitKey, splitNames: Array<string>, attributes: ?Object): AsyncValue<Object> {
+      let results = {};
+      let thenables = [];
+      let i;
+
+      for (i = 0; i < splitNames.length; i ++) {
+        const name = splitNames[i];
+        // If we are on the browser, key was binded to the getTreatment method.
+        const treatment = this.isBrowserClient ? this.getTreatment(name, attributes) : this.getTreatment(key, name, attributes);
+
+        if (thenable(treatment)) {
+          // If treatment returns a promise as it is being evaluated, save promise for progress tracking.
+          thenables.push(treatment);
+          treatment.then((res) => {
+            // set the treatment on the cb;
+            results[name] = res;
+          });
+        } else {
+          results[name] = treatment;
+        }
+      }
+
+      if (thenables.length) {
+        return Promise.all(thenables).then(() => {
+          // After all treatments are resolved, we return the mapping object.
+          return results;
+        });
+      } else {
+        return results;
+      }
     }
   };
 

@@ -1,3 +1,15 @@
+## 8.2.0 (April 7, 2017)
+
+* Adding traffic allocation support.
+* Adding support for murmur hashing algorithm.
+* Adding getTreatments method to client API. For example:
+
+```js
+var treatmentsMap = client.getTreatments('CUSTOMER_KEY', ['Split_1', 'Split_2']);
+```
+
+* Bugfixing on manager API for localhost.
+
 ## 8.1.3 (April 11, 2017)
 
 * No API changes. Bug fixing release.
@@ -8,7 +20,7 @@
 
 ## 8.1.1 (March 31, 2017)
 
-* No API changes. Small fix on declaration files.
+* Small fix on declaration files.
 
 ## 8.1.0 (March 30, 2017)
 
