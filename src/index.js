@@ -44,7 +44,7 @@ function SplitFactory(settings: Settings, storage: SplitStorage, sharedInstance:
 
   switch(settings.mode) {
     case 'localhost':
-      producer = OfflineProducerFactory(settings, readiness, storage);
+      producer = sharedInstance ? undefined : OfflineProducerFactory(settings, readiness, storage);
       break;
     case 'producer':
     case 'standalone': {
@@ -63,7 +63,8 @@ function SplitFactory(settings: Settings, storage: SplitStorage, sharedInstance:
   metrics && metrics.start();
 
   // Ready promise
-  const readyFlag = new Promise(resolve => gate.on(SDK_READY, resolve));
+  const readyFlag = sharedInstance ? Promise.resolve() :
+    new Promise(resolve => gate.on(SDK_READY, resolve));
 
   const api = Object.assign(
     // Proto linkage of the EventEmitter to prevent any change
