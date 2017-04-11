@@ -562,3 +562,131 @@ tape('PARSER / handle invalid matcher as control (complex example)', async funct
 
   assert.end();
 });
+
+tape('PARSER / handle invalid matcher as control (complex example mixing invalid and valid matchers)', async function (assert) {
+  const evaluator = parser([
+    {
+      "conditionType": "WHITELIST",
+      "matcherGroup": {
+        "combiner": "AND",
+        "matchers": [
+          {
+            "keySelector": null,
+            "matcherType": "WHITELIST",
+            "negate": false,
+            "userDefinedSegmentMatcherData": null,
+            "whitelistMatcherData": {
+              "whitelist": [
+                "NicoIncluded"
+              ]
+            },
+            "unaryNumericMatcherData": null,
+            "betweenMatcherData": null
+          }
+        ]
+      },
+      "partitions": [
+        {
+          "treatment": "on",
+          "size": 100
+        }
+      ],
+      "label": "explicitly included"
+    },
+    {
+      "conditionType": "WHITELIST",
+      "matcherGroup": {
+        "combiner": "AND",
+        "matchers": [
+          {
+            "keySelector": null,
+            "matcherType": "WHITELIST",
+            "negate": false,
+            "userDefinedSegmentMatcherData": null,
+            "whitelistMatcherData": {
+              "whitelist": [
+                "NicoExcluded"
+              ]
+            },
+            "unaryNumericMatcherData": null,
+            "betweenMatcherData": null
+          }
+        ]
+      },
+      "partitions": [
+        {
+          "treatment": "off",
+          "size": 100
+        }
+      ],
+      "label": "explicitly included"
+    },
+    {
+      "conditionType": "ROLLOUT",
+      "matcherGroup": {
+        "combiner": "AND",
+        "matchers": [
+          {
+            keySelector: {
+              trafficType: 'user',
+              attribute: 'account'
+            },
+            matcherType: 'ALL_KEYS',
+            negate: false,
+            userDefinedSegmentMatcherData: null,
+            whitelistMatcherData: null,
+            unaryNumericMatcherData: null,
+            betweenMatcherData: null,
+            unaryStringMatcherData: null
+          },
+          {
+            "keySelector": {
+              "trafficType": "test",
+              "attribute": "custom"
+            },
+            "matcherType": "SARASA",
+            "negate": false,
+            "userDefinedSegmentMatcherData": null,
+            "unaryNumericMatcherData": null,
+            "betweenMatcherData": null
+          },
+          {
+            keySelector: {
+              trafficType: 'user',
+              attribute: 'account'
+            },
+            matcherType: 'ALL_KEYS',
+            negate: false,
+            userDefinedSegmentMatcherData: null,
+            whitelistMatcherData: null,
+            unaryNumericMatcherData: null,
+            betweenMatcherData: null,
+            unaryStringMatcherData: null
+          }
+        ]
+      },
+      "partitions": [
+        {
+          "treatment": "on",
+          "size": 100
+        },
+        {
+          "treatment": "off",
+          "size": 0
+        }
+      ],
+      "label": "custom in list [test, more test]"
+    }
+  ]);
+
+  let ev1 = await evaluator('NicoIncluded', 31);
+  let ev2 = await evaluator('NicoExcluded', 31);
+  let ev3 = await evaluator('another_key', 31);
+
+  for (let ev of [ ev1, ev2, ev3 ]) {
+    assert.equal(ev.treatment, 'control', 'return control when invalid matcher');
+    assert.equal(ev.label, 'exception', 'track invalid as an exception');
+  }
+
+  assert.end();
+});
