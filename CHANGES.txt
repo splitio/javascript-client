@@ -1,4 +1,4 @@
-## 8.2.0 (April 7, 2017)
+## 8.2.0 (April 12, 2017)
 
 * Adding traffic allocation support.
 * Adding support for murmur hashing algorithm.
@@ -6,6 +6,14 @@
 
 ```js
 var treatmentsMap = client.getTreatments('CUSTOMER_KEY', ['Split_1', 'Split_2']);
+
+/*
+* treatmentsMap will be an object mapping splits with treatments. For example:
+* {
+*   Split_1: 'on',
+*   Split_2: 'off
+* }
+*/
 ```
 
 * Bugfixing on manager API for localhost.

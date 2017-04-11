@@ -1,4 +1,4 @@
-## 8.2.0 (April 7, 2017)
+## 8.2.0 (April 12, 2017)
 
 * Added Traffic Allocation support. You can specify how much of your traffic you
   want to send to the rollout plan of a Split via Split Editor.
@@ -9,6 +9,14 @@
 
 ```js
 var treatmentsMap = client.getTreatments('CUSTOMER_KEY', ['Split_1', 'Split_2']);
+
+/*
+* treatmentsMap will be an object mapping splits with treatments. For example:
+* {
+*   Split_1: 'on',
+*   Split_2: 'off
+* }
+*/
 ```
 
 ## 8.1.0 (March 30, 2017)
