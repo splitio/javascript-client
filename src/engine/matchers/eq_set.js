@@ -18,18 +18,15 @@ limitations under the License.
 /*eslint-disable eqeqeq */
 
 const log = require('debug')('splitio-engine:matcher');
-const _difference = require('lodash/difference');
+const _uniq = require('lodash/uniq');
+const _isEqual = require('lodash/isEqual');
 
 function equalToSetMatcherContext(vo /*: whitelistObject */) /*: Function */ {
   return function equalToSetMatcher(value /*: array */) /*: boolean */ {
-    let isEqual;
-    if (value.length !== vo.whitelist.length) {
-      isEqual = false;
-    } else {
-      isEqual = _difference(value, vo.whitelist).length === 0;
-    }
+    let normalizedValue = _uniq(value);
+    let isEqual = _isEqual(normalizedValue, vo.whitelist);
 
-    log(`[equalToSetMatcher] is ${value} equal to set ${vo.whitelist}? ${isEqual}`);
+    log(`[equalToSetMatcher] is ${normalizedValue} equal to set ${vo.whitelist}? ${isEqual}`);
 
     return isEqual;
   };

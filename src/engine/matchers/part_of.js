@@ -18,12 +18,14 @@ limitations under the License.
 /*eslint-disable eqeqeq */
 
 const log = require('debug')('splitio-engine:matcher');
-const _intersection = require('lodash/intersection')
+const _intersection = require('lodash/intersection');
+const _uniq = require('lodash/uniq');
 
 function partOfMatcherContext(vo /*: whitelistObject */) /*: Function */ {
   return function partOfMatcher(value /*: array */) /*: boolean */ {
+    let normalizedValue = _uniq(value);
     // If the intersection returns all of value elements, it is a part of vo.value
-    let partOf = _intersection(value, vo.whitelist).length === value.length;
+    let partOf = _intersection(normalizedValue, vo.whitelist).length === normalizedValue.length;
 
     log(`[partOfMatcher] ${value} is part of ${vo.whitelist}? ${partOf}`);
 

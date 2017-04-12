@@ -23,6 +23,7 @@ const _intersection = require('lodash/intersection')
 function containsAllMatcherContext(vo /*: whitelistObject */) /*: Function */ {
   return function containsAllMatcher(value /*: array */) /*: boolean */ {
     let containsAll = false;
+    // If value has less elements than whitelist, there is now way that it contains all the whitelist elems.
     if (value.length >= vo.whitelist.length) {
       containsAll = _intersection(value, vo.whitelist).length === vo.whitelist.length;
     }

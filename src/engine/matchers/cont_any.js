@@ -18,7 +18,7 @@ limitations under the License.
 /*eslint-disable eqeqeq */
 
 const log = require('debug')('splitio-engine:matcher');
-const _intersection = require('lodash/intersection')
+const _intersection = require('lodash/intersection');
 
 function containsAnyMatcherContext(vo /*: whitelistObject */) /*: Function */ {
   return function containsAnyMatcher(value /*: array */) /*: boolean */ {
