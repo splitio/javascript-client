@@ -22,7 +22,6 @@ const _intersection = require('lodash/intersection')
 
 function partOfMatcherContext(vo /*: whitelistObject */) /*: Function */ {
   return function partOfMatcher(value /*: array */) /*: boolean */ {
-    debugger;
     // If the intersection returns all of value elements, it is a part of vo.value
     let partOf = _intersection(value, vo.whitelist).length === value.length;
 

@@ -22,7 +22,6 @@ const _difference = require('lodash/difference');
 
 function equalToSetMatcherContext(vo /*: whitelistObject */) /*: Function */ {
   return function equalToSetMatcher(value /*: array */) /*: boolean */ {
-    debugger;
     let isEqual;
     if (value.length !== vo.whitelist.length) {
       isEqual = false;
