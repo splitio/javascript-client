@@ -2,9 +2,15 @@
 
 'use strict';
 
+const get = require('lodash/get');
+
 const ClientFactory = require('./client');
+const keyParser = require('../utils/key/parser');
 
 function FixKey(settings: Object, storage: SplitStorage): SplitClient {
+  // In the browser land, the key is required
+  keyParser(get(settings, 'core.key', undefined));
+
   const client = ClientFactory(settings, storage);
 
   client.isBrowserClient = true;

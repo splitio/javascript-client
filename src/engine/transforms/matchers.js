@@ -41,7 +41,8 @@ function transform(matchers: Array<Matcher>): Array<ParsedMatcher> {
       userDefinedSegmentMatcherData: segmentObject  /* segmentObject */,
       whitelistMatcherData: whitelistObject         /* whiteListObject */,
       unaryNumericMatcherData: unaryNumericObject   /* unaryNumericObject */,
-      betweenMatcherData: betweenObject             /* betweenObject */
+      betweenMatcherData: betweenObject             /* betweenObject */,
+      unaryStringMatcherData: unaryStringObject     /* unaryStringObject */
     } = matcher;
 
     let attribute = keySelector && keySelector.attribute;
@@ -72,6 +73,15 @@ function transform(matchers: Array<Matcher>): Array<ParsedMatcher> {
         betweenObject.start = zeroSinceSS(betweenObject.start);
         betweenObject.end = zeroSinceSS(betweenObject.end);
       }
+    } else if (
+      type === matcherTypes.enum.EQUAL_TO_SET ||
+      type === matcherTypes.enum.CONTAINS_ANY_OF_SET ||
+      type === matcherTypes.enum.CONTAINS_ALL_OF_SET ||
+      type === matcherTypes.enum.PART_OF_SET
+    ) {
+      value = whitelistObject;
+    } else if (type === matcherTypes.enum.STARTS_WITH || type === matcherTypes.enum.ENDS_WITH) {
+      value = unaryStringObject;
     }
 
     return {

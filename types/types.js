@@ -135,6 +135,10 @@ declare type UnaryNumericMatcher = {
   value: string | number
 };
 
+declare type UnaryStringMatcher = {
+  value: string
+}
+
 declare type KeySelector = {
   attribute: string;
 };
@@ -146,7 +150,8 @@ declare type Matcher = {
   userDefinedSegmentMatcherData: UserDefinedSegmentMatcher,
   whitelistMatcherData: Array<string>,
   unaryNumericMatcherData: UnaryNumericMatcher,
-  betweenMatcherData: BetweenMatcher
+  betweenMatcherData: BetweenMatcher,
+  unaryStringMatcherData: UnaryStringMatcher
 };
 
 declare type MatcherGroup = {
