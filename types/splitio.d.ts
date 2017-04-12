@@ -261,7 +261,7 @@ declare namespace SplitIO {
    * @see {@link http://docs.split.io/docs/javascript-sdk-overview#section-using-attributes-in-sdk}
    */
   type Attributes = {
-    [attributeName: string]: string | number
+    [attributeName: string]: string | number | Array<string | number>
   };
   /**
    * The SplitKey object format.
