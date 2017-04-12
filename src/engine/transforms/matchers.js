@@ -48,7 +48,7 @@ function transform(matchers: Array<Matcher>): Array<ParsedMatcher> {
     let attribute = keySelector && keySelector.attribute;
     let type = matcherTypes.mapper(matcherType);
     let value = undefined;
-    // @TODO: change for case statement
+
     if (type === matcherTypes.enum.SEGMENT) {
       value = segmentTransform(segmentObject);
     } else if (type === matcherTypes.enum.WHITELIST) {
