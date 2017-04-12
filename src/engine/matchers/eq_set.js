@@ -23,7 +23,7 @@ const _isEqual = require('lodash/isEqual');
 
 function equalToSetMatcherContext(vo /*: whitelistObject */) /*: Function */ {
   return function equalToSetMatcher(value /*: array */) /*: boolean */ {
-    let normalizedValue = _uniq(value);
+    let normalizedValue = _uniq(value.map(e => e + '')); // Coerce values to string and remove duplicates
     let isEqual = _isEqual(normalizedValue, vo.whitelist);
 
     log(`[equalToSetMatcher] is ${normalizedValue} equal to set ${vo.whitelist}? ${isEqual}`);

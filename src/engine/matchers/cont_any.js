@@ -22,7 +22,8 @@ const _intersection = require('lodash/intersection');
 
 function containsAnyMatcherContext(vo /*: whitelistObject */) /*: Function */ {
   return function containsAnyMatcher(value /*: array */) /*: boolean */ {
-    let containsAny = _intersection(value, vo.whitelist).length > 0;
+    const normalizedValue = value.map(e => e + '');
+    const containsAny = _intersection(normalizedValue, vo.whitelist).length > 0;
 
     log(`[containsAnyMatcher] ${value} contains at least an element of ${vo.whitelist}? ${containsAny}`);
 

@@ -23,7 +23,7 @@ const _uniq = require('lodash/uniq');
 
 function partOfMatcherContext(vo /*: whitelistObject */) /*: Function */ {
   return function partOfMatcher(value /*: array */) /*: boolean */ {
-    let normalizedValue = _uniq(value);
+    let normalizedValue = _uniq(value.map(e => e + ''));
     // If the intersection returns all of value elements, it is a part of vo.value
     let partOf = _intersection(normalizedValue, vo.whitelist).length === normalizedValue.length;
 
