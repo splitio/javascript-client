@@ -20,9 +20,16 @@ limitations under the License.
 const log = require('debug')('splitio-engine:matcher');
 const uniq = require('lodash/uniq');
 const difference = require('lodash/difference');
+const isArray = require('lodash/isArray');
 
 function equalToSetMatcherContext(vo /*: whitelistObject */) /*: Function */ {
   return function equalToSetMatcher(value /*: array */) /*: boolean */ {
+    if (!isArray(value)) {
+      log(`[equalToSetMatcher] value doesn't match, we only accept Array`);
+
+      return false;
+    }
+
     const values = uniq(value.map(e => e + ''));
     const diff = difference(vo.whitelist, values);
 

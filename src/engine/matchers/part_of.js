@@ -20,10 +20,16 @@ limitations under the License.
 const log = require('debug')('splitio-engine:matcher');
 const intersection = require('lodash/intersection');
 const uniq = require('lodash/uniq');
+const isArray = require('lodash/isArray');
 
 function partOfMatcherContext(vo /*: whitelistObject */) /*: Function */ {
   return function partOfMatcher(value /*: array */) /*: boolean */ {
-    // Set operations are based on string comparisons
+    if (!isArray(value)) {
+      log(`[partOfMatcher] value doesn't match, we only accept Array`);
+
+      return false;
+    }
+
     const normalizedValue = uniq(value.map(e => e + ''));
     let isPartOf = false;
 
