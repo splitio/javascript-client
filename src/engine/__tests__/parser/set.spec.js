@@ -199,6 +199,41 @@ tape('PARSER / if user.permissions ["read", "delete"] equal to set ["read", "wri
   assert.end();
 });
 
+tape('PARSER / if user.countries ["argentina", "usa"] equal to set ["usa","argentina"] then split 100:on', async function (assert) {
+  const label = 'countries = ["usa","argentina"]';
+  const evaluator = parser([{
+    matcherGroup: {
+      combiner: 'AND',
+      matchers: [{
+        keySelector: {
+          trafficType: 'user',
+          attribute: 'countries'
+        },
+        matcherType: 'EQUAL_TO_SET',
+        negate: false,
+        userDefinedSegmentMatcherData: null,
+        unaryStringMatcherData: null,
+        whitelistMatcherData: {
+          whitelist: ["usa","argentina"]
+        }
+      }]
+    },
+    partitions: [{
+      treatment: 'on',
+      size: 100
+    }],
+    label: label
+  }]);
+
+  const evaluation = await evaluator(keyParser('a key'), 31, 100, 31, {
+    countries: ["argentina", "usa"]
+  });
+
+  assert.equal(evaluation.treatment, 'on', "treatment should be 'on'");
+  assert.equal(evaluation.label, label, 'label should match');
+  assert.end();
+});
+
 //
 // CONTAINS_ALL_OF_SET
 //
