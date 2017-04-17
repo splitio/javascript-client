@@ -159,3 +159,182 @@ tape('PARSER / if user.email does not end with "split.io" then not match', async
   assert.equal(evaluation, undefined, "evaluator should return undefined");
   assert.end();
 });
+
+tape('PARSER / if user.email contains "@split" then split 100:on', async function (assert) {
+  const label = 'email contains [@split]';
+  const evaluator = parser([{
+    matcherGroup: {
+      combiner: 'AND',
+      matchers: [{
+        keySelector: {
+          trafficType: 'user',
+          attribute: 'email'
+        },
+        matcherType: 'CONTAINS_STRING',
+        negate: false,
+        userDefinedSegmentMatcherData: null,
+        unaryStringMatcherData: {
+          value: '@split'
+        },
+        whitelistMatcherData: null
+      }]
+    },
+    partitions: [{
+      treatment: 'on',
+      size: 100
+    }],
+    label: label
+  }]);
+
+  const evaluation = await evaluator(keyParser('a key'), 31, 100, 31, {
+    email: 'nicolas.zelaya@split.io'
+  });
+
+  assert.equal(typeof evaluator, 'function', 'evaluator should be callable');
+  assert.equal(evaluation.treatment, 'on', "evaluator should return treatment 'on'");
+  assert.equal(evaluation.label, label, "evaluator should return label ''");
+  assert.end();
+});
+
+tape('PARSER / if user.email contains "@split" (beginning) then split 100:on', async function (assert) {
+  const label = 'email contains [@split]';
+  const evaluator = parser([{
+    matcherGroup: {
+      combiner: 'AND',
+      matchers: [{
+        keySelector: {
+          trafficType: 'user',
+          attribute: 'email'
+        },
+        matcherType: 'CONTAINS_STRING',
+        negate: false,
+        userDefinedSegmentMatcherData: null,
+        unaryStringMatcherData: {
+          value: '@split'
+        },
+        whitelistMatcherData: null
+      }]
+    },
+    partitions: [{
+      treatment: 'on',
+      size: 100
+    }],
+    label: label
+  }]);
+
+  const evaluation = await evaluator(keyParser('a key'), 31, 100, 31, {
+    email: '@split.io.com.ar'
+  });
+
+  assert.equal(typeof evaluator, 'function', 'evaluator should be callable');
+  assert.equal(evaluation.treatment, 'on', "evaluator should return treatment 'on'");
+  assert.equal(evaluation.label, label, "evaluator should return label ''");
+  assert.end();
+});
+
+tape('PARSER / if user.email contains "@split" (end) then split 100:on', async function (assert) {
+  const label = 'email contains [@split]';
+  const evaluator = parser([{
+    matcherGroup: {
+      combiner: 'AND',
+      matchers: [{
+        keySelector: {
+          trafficType: 'user',
+          attribute: 'email'
+        },
+        matcherType: 'CONTAINS_STRING',
+        negate: false,
+        userDefinedSegmentMatcherData: null,
+        unaryStringMatcherData: {
+          value: '@split'
+        },
+        whitelistMatcherData: null
+      }]
+    },
+    partitions: [{
+      treatment: 'on',
+      size: 100
+    }],
+    label: label
+  }]);
+
+  const evaluation = await evaluator(keyParser('a key'), 31, 100, 31, {
+    email: 'nicolas.zelaya@split'
+  });
+
+  assert.equal(typeof evaluator, 'function', 'evaluator should be callable');
+  assert.equal(evaluation.treatment, 'on', "evaluator should return treatment 'on'");
+  assert.equal(evaluation.label, label, "evaluator should return label ''");
+  assert.end();
+});
+
+tape('PARSER / if user.email contains "@split" (whole string matches) then split 100:on', async function (assert) {
+  const label = 'email contains [@split]';
+  const evaluator = parser([{
+    matcherGroup: {
+      combiner: 'AND',
+      matchers: [{
+        keySelector: {
+          trafficType: 'user',
+          attribute: 'email'
+        },
+        matcherType: 'CONTAINS_STRING',
+        negate: false,
+        userDefinedSegmentMatcherData: null,
+        unaryStringMatcherData: {
+          value: '@split'
+        },
+        whitelistMatcherData: null
+      }]
+    },
+    partitions: [{
+      treatment: 'on',
+      size: 100
+    }],
+    label: label
+  }]);
+
+  const evaluation = await evaluator(keyParser('a key'), 31, 100, 31, {
+    email: '@split'
+  });
+
+  assert.equal(typeof evaluator, 'function', 'evaluator should be callable');
+  assert.equal(evaluation.treatment, 'on', "evaluator should return treatment 'on'");
+  assert.equal(evaluation.label, label, "evaluator should return label ''");
+  assert.end();
+});
+
+tape('PARSER / if user.email does not contain "@split" then not match', async function (assert) {
+  const label = 'email contains [@split]';
+  const evaluator = parser([{
+    matcherGroup: {
+      combiner: 'AND',
+      matchers: [{
+        keySelector: {
+          trafficType: 'user',
+          attribute: 'email'
+        },
+        matcherType: 'CONTAINS_STRING',
+        negate: false,
+        userDefinedSegmentMatcherData: null,
+        unaryStringMatcherData: {
+          value: '@split'
+        },
+        whitelistMatcherData: null
+      }]
+    },
+    partitions: [{
+      treatment: 'on',
+      size: 100
+    }],
+    label: label
+  }]);
+
+  const evaluation = await evaluator(keyParser('a key'), 31, 100, 31, {
+    email: 'facundo@gmail.io'
+  });
+
+  assert.equal(typeof evaluator, 'function', 'evaluator should be callable');
+  assert.equal(evaluation, undefined, "evaluator should return undefined");
+  assert.end();
+});
