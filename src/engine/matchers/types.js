@@ -27,7 +27,13 @@ module.exports = {
     GREATER_THAN_OR_EQUAL_TO: 5,
     LESS_THAN_OR_EQUAL_TO: 6,
     BETWEEN: 7,
-    UNDEFINED: 8
+    UNDEFINED: 8,
+    EQUAL_TO_SET: 9,
+    CONTAINS_ANY_OF_SET: 10,
+    CONTAINS_ALL_OF_SET: 11,
+    PART_OF_SET: 12,
+    ENDS_WITH: 13,
+    STARTS_WITH: 14
   },
 
   mapper(matcherType: string): number {
@@ -48,6 +54,18 @@ module.exports = {
         return types.LESS_THAN_OR_EQUAL_TO;
       case 'BETWEEN':
         return types.BETWEEN;
+      case 'EQUAL_TO_SET':
+        return types.EQUAL_TO_SET;
+      case 'CONTAINS_ANY_OF_SET':
+        return types.CONTAINS_ANY_OF_SET;
+      case 'CONTAINS_ALL_OF_SET':
+        return types.CONTAINS_ALL_OF_SET;
+      case 'PART_OF_SET':
+        return types.PART_OF_SET;
+      case 'ENDS_WITH':
+        return types.ENDS_WITH;
+      case 'STARTS_WITH':
+        return types.STARTS_WITH;
       default:
         return types.UNDEFINED;
     }

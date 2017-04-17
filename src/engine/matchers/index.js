@@ -24,6 +24,12 @@ const eqMatcher = require('./eq');
 const gteMatcher = require('./gte');
 const lteMatcher = require('./lte');
 const betweenMatcher = require('./between');
+const equalToSetMatcher = require('./eq_set');
+const containsAllSetMatcher = require('./cont_all');
+const containsAnySetMatcher = require('./cont_any');
+const partOfSetMatcher = require('./part_of');
+const swMatcher = require('./sw');
+const ewMatcher = require('./ew');
 
 /**
  * Matcher factory.
@@ -51,6 +57,18 @@ function MatcherFactory(matcherDto: Matcher, storage: SplitStorage): Function {
     matcherFn = lteMatcher(value);
   } else if (type === types.BETWEEN) {
     matcherFn = betweenMatcher(value);
+  } else if (type === types.EQUAL_TO_SET) {
+    matcherFn = equalToSetMatcher(value);
+  } else if (type === types.CONTAINS_ANY_OF_SET) {
+    matcherFn = containsAnySetMatcher(value);
+  } else if (type === types.CONTAINS_ALL_OF_SET) {
+    matcherFn = containsAllSetMatcher(value);
+  } else if (type === types.PART_OF_SET) {
+    matcherFn = partOfSetMatcher(value);
+  } else if (type === types.STARTS_WITH) {
+    matcherFn = swMatcher(value);
+  } else if (type === types.ENDS_WITH) {
+    matcherFn = ewMatcher(value);
   }
 
   // @TODO this code is not a responsability of the factory, but in terms of
