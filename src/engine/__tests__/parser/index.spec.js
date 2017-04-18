@@ -168,15 +168,10 @@ tape('PARSER / if user.account is in list ["v1", "v2", "v3"] then split 100:on',
 });
 
 tape('PARSER / if user.account is in segment all then split 100:on', async function (assert) {
-
   const evaluator = parser([{
     matcherGroup: {
       combiner: 'AND',
       matchers: [{
-        keySelector: {
-          trafficType: 'user',
-          attribute: 'account'
-        },
         matcherType: 'ALL_KEYS',
         negate: false,
         userDefinedSegmentMatcherData: null,
@@ -193,13 +188,8 @@ tape('PARSER / if user.account is in segment all then split 100:on', async funct
     label: 'in segment all'
   }]);
 
-  let evaluation = await evaluator(keyParser('test@split.io'), 31, 100, 31, {
-    account: 'v1'
-  });
-  assert.true(evaluation.treatment === 'on', 'v1 is defined in segment all');
-
-  evaluation = await evaluator(keyParser('test@split.io'), 31, 100, 31);
-  assert.true(evaluation.treatment === 'on', 'even without attributes segment all should match');
+  const evaluation = await evaluator(keyParser('test@split.io'), 31, 100, 31);
+  assert.true(evaluation.treatment === 'on', 'ALL_KEYS always matches');
 
   assert.end();
 });
