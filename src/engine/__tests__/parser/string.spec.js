@@ -360,7 +360,7 @@ tape('PARSER / if user.email does not end with ["split.io"] then not match', asy
   });
 
   assert.equal(typeof evaluator, 'function', 'evaluator should be callable');
-  assert.equal(evaluation, false, "evaluator should return undefined");
+  assert.equal(evaluation, undefined, "evaluator should return undefined");
   assert.end();
 });
 
