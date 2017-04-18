@@ -22,6 +22,8 @@ const findIndex = require('core-js/library/fn/array/find-index');
 const matcherTypes = require('../matchers/types');
 const segmentTransform = require('./segment');
 const whitelistTransform = require('./whitelist');
+const setTransform = require('./set');
+const numericTransform = require('./unaryNumeric');
 
 const {
   date: {
@@ -41,54 +43,59 @@ function transform(matchers: Array<Matcher>): Array<ParsedMatcher> {
       userDefinedSegmentMatcherData: segmentObject  /* segmentObject */,
       whitelistMatcherData: whitelistObject         /* whiteListObject */,
       unaryNumericMatcherData: unaryNumericObject   /* unaryNumericObject */,
-      betweenMatcherData: betweenObject             /* betweenObject */,
-      unaryStringMatcherData: unaryStringObject     /* unaryStringObject */
+      betweenMatcherData: betweenObject             /* betweenObject */
     } = matcher;
 
     let attribute = keySelector && keySelector.attribute;
     let type = matcherTypes.mapper(matcherType);
     let value = undefined;
+    let inputProcessor = undefined;
 
     if (type === matcherTypes.enum.SEGMENT) {
       value = segmentTransform(segmentObject);
     } else if (type === matcherTypes.enum.WHITELIST) {
       value = whitelistTransform(whitelistObject);
     } else if (type === matcherTypes.enum.EQUAL_TO) {
-      value = unaryNumericObject;
+      value = numericTransform(unaryNumericObject);
 
       if (unaryNumericObject.dataType === 'DATETIME') {
-        unaryNumericObject.value = zeroSinceHH(unaryNumericObject.value);
+        value = zeroSinceHH(value);
+        inputProcessor = zeroSinceHH;
       }
     } else if (type === matcherTypes.enum.GREATER_THAN_OR_EQUAL_TO ||
                type === matcherTypes.enum.LESS_THAN_OR_EQUAL_TO) {
-      value = unaryNumericObject;
+      value = numericTransform(unaryNumericObject);
 
       if (unaryNumericObject.dataType === 'DATETIME') {
-        unaryNumericObject.value = zeroSinceSS(unaryNumericObject.value);
+        value = zeroSinceSS(value);
+        inputProcessor = zeroSinceSS;
       }
     } else if (type === matcherTypes.enum.BETWEEN) {
       value = betweenObject;
 
       if (betweenObject.dataType === 'DATETIME') {
-        betweenObject.start = zeroSinceSS(betweenObject.start);
-        betweenObject.end = zeroSinceSS(betweenObject.end);
+        value.start = zeroSinceSS(value.start);
+        value.end = zeroSinceSS(value.end);
+        inputProcessor = zeroSinceSS;
       }
     } else if (
       type === matcherTypes.enum.EQUAL_TO_SET ||
       type === matcherTypes.enum.CONTAINS_ANY_OF_SET ||
       type === matcherTypes.enum.CONTAINS_ALL_OF_SET ||
-      type === matcherTypes.enum.PART_OF_SET
+      type === matcherTypes.enum.PART_OF_SET ||
+      type === matcherTypes.enum.STARTS_WITH ||
+      type === matcherTypes.enum.ENDS_WITH ||
+      type === matcherTypes.enum.CONTAINS_STRING
     ) {
-      value = whitelistObject;
-    } else if (type === matcherTypes.enum.STARTS_WITH || type === matcherTypes.enum.ENDS_WITH) {
-      value = unaryStringObject;
+      value = setTransform(whitelistObject);
     }
 
     return {
-      attribute, // attribute over we should do the matching, undefined means 'use the key'
-      negate,    // should we negate the result?
-      type,      // which kind of matcher we should evaluate
-      value      // metadata used for the matching
+      attribute,        // attribute over we should do the matching, undefined means 'use the key'
+      negate,           // should we negate the result?
+      type,             // which kind of matcher we should evaluate
+      value,            // metadata used for the matching
+      inputProcessor    // we may need to apply a transformation of the input values we will receive
     };
   });
 
