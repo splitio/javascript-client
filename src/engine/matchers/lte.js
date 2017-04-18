@@ -17,24 +17,12 @@ limitations under the License.
 
 const log = require('debug')('splitio-engine:matcher');
 
-const {
-  date: {
-    zeroSinceSS
-  }
-} = require('../convertions');
+function lessThanEqualMatcherContext(splitValue /*: number */) /*: function */ {
+  return function lessThanEqualMatcher(value /*: number */) /*: boolean */ {
 
-function lessThanEqualMatcherContext(vo /*: unaryNumericObject */) /*: function */ {
-  return function lessThanEqualMatcher(value /*: string | number */) /*: boolean */ {
-    // monkey patch datetime to effectily compare on equal
-    if (vo.dataType === 'DATETIME') {
-      value = zeroSinceSS(value);
-    }
+    let isLessThanEqual = value <= splitValue;
 
-    let isLessThanEqual = value !== null ?
-      value <= vo.value :
-      false;
-
-    log(`[lessThanEqualMatcher] is ${value} less than ${vo.value}? ${isLessThanEqual}`);
+    log(`[lessThanEqualMatcher] is ${value} less than ${splitValue}? ${isLessThanEqual}`);
 
     return isLessThanEqual;
   };

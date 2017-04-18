@@ -19,28 +19,13 @@ limitations under the License.
 
 const log = require('debug')('splitio-engine:matcher');
 const intersection = require('lodash/intersection');
-const uniq = require('lodash/uniq');
-const isArray = require('lodash/isArray');
 
-function partOfMatcherContext(vo /*: whitelistObject */) /*: Function */ {
+function partOfMatcherContext(splitValue /*: array */) /*: Function */ {
   return function partOfMatcher(value /*: array */) /*: boolean */ {
-    if (!isArray(value)) {
-      log(`[partOfMatcher] value doesn't match, we only accept Array`);
+    // If the intersection returns all of value elements, it is a part of splitValue
+    const isPartOf = intersection(value, splitValue).length === value.length;
 
-      return false;
-    }
-
-    const normalizedValue = uniq(value.map(e => e + ''));
-    let isPartOf = false;
-
-    if (normalizedValue.length > 0) {
-      // If the intersection returns all of value elements, it is a part of vo.value
-      isPartOf = intersection(normalizedValue, vo.whitelist).length === normalizedValue.length;
-
-      log(`[partOfMatcher] ${value} is part of ${vo.whitelist}? ${isPartOf}`);
-    } else {
-      log(`[partOfMatcher] empty set doesn't match`);
-    }
+    log(`[partOfMatcher] ${value} is part of ${splitValue}? ${isPartOf}`);
 
     return isPartOf;
   };

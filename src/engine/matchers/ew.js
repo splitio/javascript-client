@@ -18,15 +18,15 @@ limitations under the License.
 /*eslint-disable eqeqeq */
 
 const log = require('debug')('splitio-engine:matcher');
-const _endsWith = require('lodash/endsWith')
+const endsWith = require('lodash/endsWith');
 
-function endsWithMatcherContext(vo /*: unaryStringObject */) /*: Function */ {
+function endsWithMatcherContext(splitValue /*: array */) /*: Function */ {
   return function endsWithMatcher(value /*: string */) /*: boolean */ {
-    let endsWith = _endsWith(value, vo.value);
+    let matches = splitValue.some(e => endsWith(value, e));
 
-    log(`[endsWithMatcher] ${value} ends with ${vo.value}? ${endsWith}`);
+    log(`[endsWithMatcher] ${value} ends with ${splitValue}? ${matches}`);
 
-    return endsWith;
+    return matches;
   };
 }
 

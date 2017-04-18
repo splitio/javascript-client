@@ -15,18 +15,19 @@ limitations under the License.
 **/
 'use strict';
 
+/*eslint-disable eqeqeq */
+
 const log = require('debug')('splitio-engine:matcher');
+const includes = require('lodash/includes');
 
+function containsStringMatcherContext(splitValue /*: array */) /*: Function */ {
+  return function containsStringMatcher(value /*: string */) /*: boolean */ {
+    let contains = splitValue.some(e => includes(value, e));
 
-function greaterThanEqualMatcherContext(splitValue /*: number */) /*: Function */ {
-  return function greaterThanEqualMatcher(value /*: number */) /*: boolean */ {
+    log(`[containsStringMatcher] ${value} ends with ${splitValue}? ${contains}`);
 
-    let isGreaterThanEqual = value >= splitValue;
-
-    log(`[greaterThanEqualMatcher] is ${value} greater than ${splitValue}? ${isGreaterThanEqual}`);
-
-    return isGreaterThanEqual;
+    return contains;
   };
 }
 
-module.exports = greaterThanEqualMatcherContext;
+module.exports = containsStringMatcherContext;

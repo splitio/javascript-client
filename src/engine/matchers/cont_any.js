@@ -19,20 +19,12 @@ limitations under the License.
 
 const log = require('debug')('splitio-engine:matcher');
 const intersection = require('lodash/intersection');
-const isArray = require('lodash/isArray');
 
-function containsAnyMatcherContext(vo /*: whitelistObject */) /*: Function */ {
+function containsAnyMatcherContext(splitValue /*: array */) /*: Function */ {
   return function containsAnyMatcher(value /*: array */) /*: boolean */ {
-    if (!isArray(value)) {
-      log(`[containsAnyMatcher] value doesn't match, we only accept Array`);
+    const containsAny = intersection(value, splitValue).length > 0;
 
-      return false;
-    }
-
-    const normalizedValue = value.map(e => e + '');
-    const containsAny = intersection(normalizedValue, vo.whitelist).length > 0;
-
-    log(`[containsAnyMatcher] ${value} contains at least an element of ${vo.whitelist}? ${containsAny}`);
+    log(`[containsAnyMatcher] ${value} contains at least an element of ${splitValue}? ${containsAny}`);
 
     return containsAny;
   };

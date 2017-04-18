@@ -18,15 +18,15 @@ limitations under the License.
 /*eslint-disable eqeqeq */
 
 const log = require('debug')('splitio-engine:matcher');
-const _startsWith = require('lodash/startsWith')
+const startsWith = require('lodash/startsWith');
 
-function startsWithMatcherContext(vo /*: unaryStringObject */) /*: Function */ {
+function startsWithMatcherContext(splitValue /*: array */) /*: Function */ {
   return function startsWithMatcher(value /*: string */) /*: boolean */ {
-    let startsWith = _startsWith(value, vo.value);
+    let matches = splitValue.some(e => startsWith(value, e));
 
-    log(`[startsWithMatcher] ${value} starts with ${vo.value}? ${startsWith}`);
+    log(`[startsWithMatcher] ${value} starts with ${splitValue}? ${matches}`);
 
-    return startsWith;
+    return matches;
   };
 }
 

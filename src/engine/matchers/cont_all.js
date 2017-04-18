@@ -19,25 +19,18 @@ limitations under the License.
 
 const log = require('debug')('splitio-engine:matcher');
 const intersection = require('lodash/intersection');
-const isArray = require('lodash/isArray');
 
-function containsAllMatcherContext(vo /*: whitelistObject */) /*: Function */ {
+function containsAllMatcherContext(splitValue /*: array */) /*: Function */ {
   return function containsAllMatcher(value /*: array */) /*: boolean */ {
-    if (!isArray(value)) {
-      log(`[containsAllMatcher] value doesn't match, we only accept Array`);
 
-      return false;
-    }
-
-    const normalizedValue = value.map(e => e + '');
     let containsAll = false;
 
     // If value has less elements than whitelist, there is now way that it contains all the whitelist elems.
-    if (normalizedValue.length >= vo.whitelist.length) {
-      containsAll = intersection(normalizedValue, vo.whitelist).length === vo.whitelist.length;
+    if (value.length >= splitValue.length) {
+      containsAll = intersection(value, splitValue).length === splitValue.length;
     }
 
-    log(`[containsAllMatcher] ${value} contains all elements of ${vo.whitelist}? ${containsAll}`);
+    log(`[containsAllMatcher] ${value} contains all elements of ${splitValue}? ${containsAll}`);
 
     return containsAll;
   };
