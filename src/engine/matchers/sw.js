@@ -13,18 +13,17 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-'use strict';
 
-/*eslint-disable eqeqeq */
+'use strict';
 
 const log = require('debug')('splitio-engine:matcher');
 const startsWith = require('lodash/startsWith');
 
-function startsWithMatcherContext(splitValue /*: array */) /*: Function */ {
-  return function startsWithMatcher(value /*: string */) /*: boolean */ {
-    let matches = splitValue.some(e => startsWith(value, e));
+function startsWithMatcherContext(ruleAttr /*: array */) /*: Function */ {
+  return function startsWithMatcher(runtimeAttr /*: string */) /*: boolean */ {
+    let matches = ruleAttr.some(e => startsWith(runtimeAttr, e));
 
-    log(`[startsWithMatcher] ${value} starts with ${splitValue}? ${matches}`);
+    log(`[startsWithMatcher] ${runtimeAttr} starts with ${ruleAttr}? ${matches}`);
 
     return matches;
   };

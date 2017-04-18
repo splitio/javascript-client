@@ -13,21 +13,18 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-'use strict';
 
-/*eslint-disable eqeqeq */
+'use strict';
 
 const log = require('debug')('splitio-engine:matcher');
 const difference = require('lodash/difference');
 
-function equalToSetMatcherContext(splitValue /*: array */) /*: Function */ {
-  return function equalToSetMatcher(value /*: array */) /*: boolean */ {
+function equalToSetMatcherContext(ruleAttr /*: array */) /*: Function */ {
+  return function equalToSetMatcher(runtimeAttr /*: array */) /*: boolean */ {
+    let isEqual = runtimeAttr.length === ruleAttr.length &&
+                  difference(ruleAttr, runtimeAttr).length === 0;
 
-
-    let isEqual = value.length === splitValue.length &&
-                  difference(splitValue, value).length === 0;
-
-    log(`[equalToSetMatcher] is ${value} equal to set ${splitValue}? ${isEqual}`);
+    log(`[equalToSetMatcher] is ${runtimeAttr} equal to set ${ruleAttr}? ${isEqual}`);
 
     return isEqual;
   };

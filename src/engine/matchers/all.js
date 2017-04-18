@@ -17,10 +17,10 @@ limitations under the License.
 
 const log = require('debug')('splitio-engine:matcher');
 
-function allMatcher(value /*: string | number */) /*: boolean */ {
+function allMatcher(runtimeAttr /*: string */) /*: boolean */ {
   log('[allMatcher] always true');
 
-  return value != null;
+  return runtimeAttr != null;
 }
 
 function allMatcherContext() {

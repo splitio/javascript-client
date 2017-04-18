@@ -13,24 +13,22 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-'use strict';
 
-/*eslint-disable eqeqeq */
+'use strict';
 
 const log = require('debug')('splitio-engine:matcher');
 const intersection = require('lodash/intersection');
 
-function containsAllMatcherContext(splitValue /*: array */) /*: Function */ {
-  return function containsAllMatcher(value /*: array */) /*: boolean */ {
-
+function containsAllMatcherContext(ruleAttr /*: array */) /*: Function */ {
+  return function containsAllMatcher(runtimeAttr /*: array */) /*: boolean */ {
     let containsAll = false;
 
-    // If value has less elements than whitelist, there is now way that it contains all the whitelist elems.
-    if (value.length >= splitValue.length) {
-      containsAll = intersection(value, splitValue).length === splitValue.length;
+    // If runtimeAttr has less elements than whitelist, there is now way that it contains all the whitelist elems.
+    if (runtimeAttr.length >= ruleAttr.length) {
+      containsAll = intersection(runtimeAttr, ruleAttr).length === ruleAttr.length;
     }
 
-    log(`[containsAllMatcher] ${value} contains all elements of ${splitValue}? ${containsAll}`);
+    log(`[containsAllMatcher] ${runtimeAttr} contains all elements of ${ruleAttr}? ${containsAll}`);
 
     return containsAll;
   };

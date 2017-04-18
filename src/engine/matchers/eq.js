@@ -13,21 +13,18 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-'use strict';
 
-/*eslint-disable eqeqeq */
+'use strict';
 
 const log = require('debug')('splitio-engine:matcher');
 
+function equalToMatcherContext(ruleAttr /*: number */) /*: Function */ {
+  return function equalToMatcher(runtimeAttr /*: number */) /*: boolean */ {
+    let isEqual = runtimeAttr === ruleAttr;
 
-function equalToMatcherContext(splitValue /*: number */) /*: Function */ {
-  return function equalToMatcher(value /*: number */) /*: boolean */ {
+    log(`[equalToMatcher] is ${runtimeAttr} equal to ${ruleAttr}? ${isEqual}`);
 
-    let isEqualTo = value === splitValue;
-
-    log(`[equalToMatcher] is ${value} equal to ${splitValue}? ${isEqualTo}`);
-
-    return isEqualTo;
+    return isEqual;
   };
 }
 

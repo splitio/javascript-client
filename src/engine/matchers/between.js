@@ -17,13 +17,12 @@ limitations under the License.
 
 const log = require('debug')('splitio-engine:matcher');
 
+function betweenMatcherContext(ruleVO /*: betweenObject */) /*: Function */ {
+  return function betweenMatcher(runtimeAttr /*: number */) /*: boolean */ {
 
-function betweenMatcherContext(vo /*: betweenObject */) /*: Function */ {
-  return function betweenMatcher(value /*: number */) /*: boolean */ {
+    let isBetween = runtimeAttr >= ruleVO.start && runtimeAttr <= ruleVO.end;
 
-    let isBetween = value >= vo.start && value <= vo.end;
-
-    log(`[betweenMatcher] is ${value} between ${vo.start} and ${vo.end}? ${isBetween}`);
+    log(`[betweenMatcher] is ${runtimeAttr} between ${ruleVO.start} and ${ruleVO.end}? ${isBetween}`);
 
     return isBetween;
   };

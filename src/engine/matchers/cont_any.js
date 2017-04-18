@@ -13,18 +13,17 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-'use strict';
 
-/*eslint-disable eqeqeq */
+'use strict';
 
 const log = require('debug')('splitio-engine:matcher');
 const intersection = require('lodash/intersection');
 
-function containsAnyMatcherContext(splitValue /*: array */) /*: Function */ {
-  return function containsAnyMatcher(value /*: array */) /*: boolean */ {
-    const containsAny = intersection(value, splitValue).length > 0;
+function containsAnyMatcherContext(ruleAttr /*: array */) /*: Function */ {
+  return function containsAnyMatcher(runtimeAttr /*: array */) /*: boolean */ {
+    const containsAny = intersection(runtimeAttr, ruleAttr).length > 0;
 
-    log(`[containsAnyMatcher] ${value} contains at least an element of ${splitValue}? ${containsAny}`);
+    log(`[containsAnyMatcher] ${runtimeAttr} contains at least an element of ${ruleAttr}? ${containsAny}`);
 
     return containsAny;
   };

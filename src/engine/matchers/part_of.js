@@ -13,19 +13,18 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-'use strict';
 
-/*eslint-disable eqeqeq */
+'use strict';
 
 const log = require('debug')('splitio-engine:matcher');
 const intersection = require('lodash/intersection');
 
-function partOfMatcherContext(splitValue /*: array */) /*: Function */ {
-  return function partOfMatcher(value /*: array */) /*: boolean */ {
-    // If the intersection returns all of value elements, it is a part of splitValue
-    const isPartOf = intersection(value, splitValue).length === value.length;
+function partOfMatcherContext(ruleAttr /*: array */) /*: Function */ {
+  return function partOfMatcher(runtimeAttr /*: array */) /*: boolean */ {
+    // If the intersection returns all of runtimeAttr elements, it is a part of ruleAttr
+    const isPartOf = intersection(runtimeAttr, ruleAttr).length === runtimeAttr.length;
 
-    log(`[partOfMatcher] ${value} is part of ${splitValue}? ${isPartOf}`);
+    log(`[partOfMatcher] ${runtimeAttr} is part of ${ruleAttr}? ${isPartOf}`);
 
     return isPartOf;
   };

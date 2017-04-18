@@ -13,18 +13,18 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+
 'use strict';
 
 const log = require('debug')('splitio-engine:matcher');
 
-function lessThanEqualMatcherContext(splitValue /*: number */) /*: function */ {
-  return function lessThanEqualMatcher(value /*: number */) /*: boolean */ {
+function lessThanEqualMatcherContext(ruleAttr /*: number */) /*: function */ {
+  return function lessThanEqualMatcher(runtimeAttr /*: number */) /*: boolean */ {
+    let isLessEqualThan = runtimeAttr <= ruleAttr;
 
-    let isLessThanEqual = value <= splitValue;
+    log(`[lessThanEqualMatcher] is ${runtimeAttr} less than ${ruleAttr}? ${isLessEqualThan}`);
 
-    log(`[lessThanEqualMatcher] is ${value} less than ${splitValue}? ${isLessThanEqual}`);
-
-    return isLessThanEqual;
+    return isLessEqualThan;
   };
 }
 
