@@ -198,7 +198,8 @@ tape('PARSER / if user.account is in segment all then split 100:on', async funct
   });
   assert.true(evaluation.treatment === 'on', 'v1 is defined in segment all');
 
-  assert.true(await evaluator(keyParser('test@split.io'), 31, 100, 31) === undefined, 'missing attribute should evaluates to undefined');
+  evaluation = await evaluator(keyParser('test@split.io'), 31, 100, 31);
+  assert.true(evaluation.treatment === 'on', 'even without attributes segment all should match');
 
   assert.end();
 });
