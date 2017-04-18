@@ -19,7 +19,7 @@ const tape = require('tape-catch');
 const matcherTypes = require('../../matchers/types').enum;
 const matcherFactory = require('../../matchers');
 
-tape('MATCHER CONTAINS_STRING / should return true ONLY when the is contained in ["roni", "bad", "ar"]', function (assert) {
+tape('MATCHER CONTAINS_STRING / should return true ONLY when the value is contained in ["roni", "bad", "ar"]', function (assert) {
 
   let matcher = matcherFactory({
     negate: false,
@@ -29,9 +29,9 @@ tape('MATCHER CONTAINS_STRING / should return true ONLY when the is contained in
 
   assert.true(matcher('pepperoni'), 'pepperoni contain ["roni", "bad", "ar"]');
   assert.true(matcher('badminton'), 'badminton contain ["roni", "bad", "ar"]');
-  assert.true(matcher('market'), 'market contain ["roni", "bad", "ar"]');
-  assert.false(matcher('violin'), 'violin does not contain ["roni", "bad", "ar"]');
-  assert.false(matcher('manager'), 'manager does not contain ["roni", "bad", "ar"]');
+  assert.true(matcher('market'),    'market contain ["roni", "bad", "ar"]');
+  assert.false(matcher('violin'),   'violin does not contain ["roni", "bad", "ar"]');
+  assert.false(matcher('manager'),  'manager does not contain ["roni", "bad", "ar"]');
   assert.end();
 
 });
@@ -46,8 +46,8 @@ tape('MATCHER CONTAINS_STRING / negate should return false when the expected ret
 
   assert.false(matcher('pepperoni'), 'NOT pepperoni contain ["roni", "bad", "ar"]');
   assert.false(matcher('badminton'), 'NOT badminton contain ["roni", "bad", "ar"]');
-  assert.false(matcher('market'), 'NOT market contain ["roni", "bad", "ar"]');
-  assert.true(matcher('violin'), 'NOT violin does not contain ["roni", "bad", "ar"]');
-  assert.true(matcher('manager'), 'NOT manager does not contain ["roni", "bad", "ar"]');
+  assert.false(matcher('market'),    'NOT market contain ["roni", "bad", "ar"]');
+  assert.true(matcher('violin'),     'NOT violin does not contain ["roni", "bad", "ar"]');
+  assert.true(matcher('manager'),    'NOT manager does not contain ["roni", "bad", "ar"]');
   assert.end();
 });
