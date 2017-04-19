@@ -33,17 +33,3 @@ tape('MATCHER LESS THAN OR EQUAL / should return true ONLY when the value is les
   assert.end();
 
 });
-
-tape('MATCHER LESS THAN OR EQUAL / negate should return false when the expected return value is true', function (assert) {
-
-  let matcher = matcherFactory({
-    negate: true,
-    type: matcherTypes.LESS_THAN_OR_EQUAL_TO,
-    value: 10
-  });
-
-  assert.false(matcher(10),       '! 10 <= 10');
-  assert.false(matcher(9),        '! 9 <= 10');
-  assert.true(matcher(11),        '! 11 ! <= 10');
-  assert.end();
-});

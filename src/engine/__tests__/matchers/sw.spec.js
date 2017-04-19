@@ -35,19 +35,3 @@ tape('MATCHER STARTS_WITH / should return true ONLY when the value starts with [
   assert.end();
 
 });
-
-tape('MATCHER STARTS_WITH / negate should return false when the expected return value is true', function (assert) {
-
-  let matcher = matcherFactory({
-    negate: true,
-    type: matcherTypes.STARTS_WITH,
-    value: ['a', 'b', 'c']
-  });
-
-  assert.false(matcher('awesome'), 'NOT awesome start with ["a", "b", "c"]');
-  assert.false(matcher('black'), 'NOT black start with ["a", "b", "c"]');
-  assert.false(matcher('chello'), 'NOT chello start with ["a", "b", "c"]');
-  assert.true(matcher('violin'), 'NOT violin doesn\'t start with ["a", "b", "c"]');
-  assert.true(matcher('manager'), 'NOT manager doesn\'t start with ["a", "b", "c"]');
-  assert.end();
-});

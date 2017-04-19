@@ -35,19 +35,3 @@ tape('MATCHER CONTAINS_STRING / should return true ONLY when the value is contai
   assert.end();
 
 });
-
-tape('MATCHER CONTAINS_STRING / negate should return false when the expected return value is true', function (assert) {
-
-  let matcher = matcherFactory({
-    negate: true,
-    type: matcherTypes.CONTAINS_STRING,
-    value: ['roni', 'bad', 'ar']
-  });
-
-  assert.false(matcher('pepperoni'), 'NOT pepperoni contain ["roni", "bad", "ar"]');
-  assert.false(matcher('badminton'), 'NOT badminton contain ["roni", "bad", "ar"]');
-  assert.false(matcher('market'),    'NOT market contain ["roni", "bad", "ar"]');
-  assert.true(matcher('violin'),     'NOT violin does not contain ["roni", "bad", "ar"]');
-  assert.true(matcher('manager'),    'NOT manager does not contain ["roni", "bad", "ar"]');
-  assert.end();
-});
