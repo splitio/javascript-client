@@ -48,7 +48,7 @@ function transform(matchers: Array<Matcher>): Array<ParsedMatcher> {
 
     let attribute = keySelector && keySelector.attribute;
     let type = matcherTypes.mapper(matcherType);
-    let dataType = matcherTypes.dataTypes.STRING;
+    let dataType = matcherTypes.dataTypes.STRING; // As default input data type we use string (even for ALL_KEYS)
     let value = undefined;
 
     if (type === matcherTypes.enum.SEGMENT) {
@@ -57,26 +57,29 @@ function transform(matchers: Array<Matcher>): Array<ParsedMatcher> {
       value = whitelistTransform(whitelistObject);
     } else if (type === matcherTypes.enum.EQUAL_TO) {
       value = numericTransform(unaryNumericObject);
-      dataType = unaryNumericObject.dataType;
+      dataType = matcherTypes.dataTypes.NUMBER;
 
       if (unaryNumericObject.dataType === 'DATETIME') {
         value = zeroSinceHH(value);
+        dataType = matcherTypes.dataTypes.DATETIME;
       }
     } else if (type === matcherTypes.enum.GREATER_THAN_OR_EQUAL_TO ||
                type === matcherTypes.enum.LESS_THAN_OR_EQUAL_TO) {
       value = numericTransform(unaryNumericObject);
-      dataType = unaryNumericObject.dataType;
+      dataType = matcherTypes.dataTypes.NUMBER;
 
       if (unaryNumericObject.dataType === 'DATETIME') {
         value = zeroSinceSS(value);
+        dataType = matcherTypes.dataTypes.DATETIME;
       }
     } else if (type === matcherTypes.enum.BETWEEN) {
       value = betweenObject;
-      dataType = betweenObject.dataType;
+      dataType = matcherTypes.dataTypes.NUMBER;
 
       if (betweenObject.dataType === 'DATETIME') {
         value.start = zeroSinceSS(value.start);
         value.end = zeroSinceSS(value.end);
+        dataType = matcherTypes.dataTypes.DATETIME;
       }
     } else if (
       type === matcherTypes.enum.EQUAL_TO_SET ||
