@@ -48,7 +48,8 @@ function parse(conditions: Array<Condition>, storage: SplitStorage): any {
 
       return (key, attributes) => {
         const value = sanitizeValue(key, matcherDto, attributes);
-        return value !== undefined ? matcher(value) : false;
+        const result = value !== undefined ? matcher(value) : false;
+        return Boolean(result ^ matcherDto.negate);
       };
     });
 
