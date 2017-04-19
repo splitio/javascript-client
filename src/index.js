@@ -15,8 +15,7 @@ const MetricsFactory = require('./metrics');
 
 const SettingsFactory = require('./utils/settings');
 
-const ReadinessGate = require('./readiness');
-const ReadinessGateFactory = ReadinessGate();
+const ReadinessGateFacade = require('./readiness');
 
 const keyParser = require('./utils/key/parser');
 
@@ -26,8 +25,9 @@ const instances = {};
 //
 // Create SDK instance based on the provided configurations
 //
-function SplitFactory(settings: Settings, storage: SplitStorage, sharedInstance: ?boolean) {
-  const readiness = ReadinessGateFactory(settings.startup.readyTimeout);
+function SplitFactory(settings: Settings, storage: SplitStorage, gateFactory: any,sharedInstance: ?boolean) {
+
+  const readiness = gateFactory(settings.startup.readyTimeout);
 
   // We are only interested in exposable EventEmitter
   const { gate } = readiness;
@@ -101,8 +101,9 @@ function SplitFactory(settings: Settings, storage: SplitStorage, sharedInstance:
 function SplitFacade(config: Object) {
   const settings = SettingsFactory(config);
   const storage = StorageFactory(settings);
+  const gateFactory = ReadinessGateFacade();
 
-  const defaultInstance = SplitFactory(settings, storage);
+  const defaultInstance = SplitFactory(settings, storage, gateFactory);
 
   return {
 
@@ -119,7 +120,7 @@ function SplitFacade(config: Object) {
 
       if (!instances[instanceId]) {
         const sharedSettings = settings.overrideKey(key);
-        instances[instanceId] = SplitFactory(sharedSettings, storage.shared(sharedSettings), true);
+        instances[instanceId] = SplitFactory(sharedSettings, storage.shared(sharedSettings), gateFactory, true);
       }
 
       return instances[instanceId];

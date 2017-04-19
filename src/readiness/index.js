@@ -22,54 +22,54 @@ const Events = {
 /**
  * Machine state to handle the ready / update event propagation.
  */
-let splitsStatus = 0;
-
-function ReadinessGateFactory(splits: EventEmitter, segments: EventEmitter, timeout: number): EventEmitter {
-  const gate = new EventEmitter();
-  let segmentsStatus = 0;
-  let status = 0;
-
-  if (timeout > 0) setTimeout(() => {
-
-    if (status < SDK_FIRE_READY) gate.emit(Events.SDK_READY_TIMED_OUT);
-
-  }, timeout);
-
-  gate.on(Events.READINESS_GATE_CHECK_STATE, () => {
-    if (status !== SDK_FIRE_UPDATE && splitsStatus + segmentsStatus === SDK_FIRE_READY) {
-      status = SDK_FIRE_UPDATE;
-      gate.emit(Events.SDK_READY);
-    } else if (status === SDK_FIRE_UPDATE) {
-      gate.emit(Events.SDK_UPDATE);
-    }
-  });
-
-  splits.on(Events.SDK_SPLITS_ARRIVED, () => {
-    splitsStatus = SPLITS_READY;
-    gate.emit(Events.READINESS_GATE_CHECK_STATE);
-  });
-
-  segments.on(Events.SDK_SEGMENTS_ARRIVED, () => {
-    segmentsStatus = SEGMENTS_READY;
-    gate.emit(Events.READINESS_GATE_CHECK_STATE);
-  });
-
-  return gate;
-}
-
-/**
- * SDK Readiness Gate Factory
- *
- * The ready state in the browser relay on sharing the splits ready flag across
- * all the gates, and have an extra flag for the segments which is per gate
- * instance.
- */
-module.exports = () => {
+function GateContext() {
+  // Splits are shared through all instances of the same SDK.
+  let splitsStatus = 0;
   const splits = new EventEmitter();
   splits.SDK_SPLITS_ARRIVED = Events.SDK_SPLITS_ARRIVED;
-
+  // references counter: how many
   let refCount = 0;
 
+  function ReadinessGateFactory(splits: EventEmitter, segments: EventEmitter, timeout: number): EventEmitter {
+    const gate = new EventEmitter();
+    let segmentsStatus = 0;
+    let status = 0;
+
+    if (timeout > 0) setTimeout(() => {
+
+      if (status < SDK_FIRE_READY) gate.emit(Events.SDK_READY_TIMED_OUT);
+
+    }, timeout);
+
+    gate.on(Events.READINESS_GATE_CHECK_STATE, () => {
+      if (status !== SDK_FIRE_UPDATE && splitsStatus + segmentsStatus === SDK_FIRE_READY) {
+        status = SDK_FIRE_UPDATE;
+        gate.emit(Events.SDK_READY);
+      } else if (status === SDK_FIRE_UPDATE) {
+        gate.emit(Events.SDK_UPDATE);
+      }
+    });
+
+    splits.on(Events.SDK_SPLITS_ARRIVED, () => {
+      splitsStatus = SPLITS_READY;
+      gate.emit(Events.READINESS_GATE_CHECK_STATE);
+    });
+
+    segments.on(Events.SDK_SEGMENTS_ARRIVED, () => {
+      segmentsStatus = SEGMENTS_READY;
+      gate.emit(Events.READINESS_GATE_CHECK_STATE);
+    });
+
+    return gate;
+  }
+
+  /**
+   * SDK Readiness Gate Factory
+   *
+   * The ready state in the browser relay on sharing the splits ready flag across
+   * all the gates, and have an extra flag for the segments which is per gate
+   * instance.
+   */
   function SDKReadinessGateFactory(timeout: number = 0): ReadinessGate {
     const segments = new EventEmitter();
     segments.SDK_SEGMENTS_ARRIVED = Events.SDK_SEGMENTS_ARRIVED;
@@ -99,4 +99,6 @@ module.exports = () => {
   }
 
   return SDKReadinessGateFactory;
-};
+}
+
+module.exports = GateContext;
