@@ -13,20 +13,19 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+
 'use strict';
 
-/*eslint-disable eqeqeq */
-
 const log = require('debug')('splitio-engine:matcher');
-const _startsWith = require('lodash/startsWith')
+const startsWith = require('lodash/startsWith');
 
-function startsWithMatcherContext(vo /*: unaryStringObject */) /*: Function */ {
-  return function startsWithMatcher(value /*: string */) /*: boolean */ {
-    let startsWith = _startsWith(value, vo.value);
+function startsWithMatcherContext(ruleAttr /*: array */) /*: Function */ {
+  return function startsWithMatcher(runtimeAttr /*: string */) /*: boolean */ {
+    let matches = ruleAttr.some(e => startsWith(runtimeAttr, e));
 
-    log(`[startsWithMatcher] ${value} starts with ${vo.value}? ${startsWith}`);
+    log(`[startsWithMatcher] ${runtimeAttr} starts with ${ruleAttr}? ${matches}`);
 
-    return startsWith;
+    return matches;
   };
 }
 

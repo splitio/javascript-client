@@ -22,6 +22,8 @@ const findIndex = require('core-js/library/fn/array/find-index');
 const matcherTypes = require('../matchers/types');
 const segmentTransform = require('./segment');
 const whitelistTransform = require('./whitelist');
+const setTransform = require('./set');
+const numericTransform = require('./unaryNumeric');
 
 const {
   date: {
@@ -41,12 +43,12 @@ function transform(matchers: Array<Matcher>): Array<ParsedMatcher> {
       userDefinedSegmentMatcherData: segmentObject  /* segmentObject */,
       whitelistMatcherData: whitelistObject         /* whiteListObject */,
       unaryNumericMatcherData: unaryNumericObject   /* unaryNumericObject */,
-      betweenMatcherData: betweenObject             /* betweenObject */,
-      unaryStringMatcherData: unaryStringObject     /* unaryStringObject */
+      betweenMatcherData: betweenObject             /* betweenObject */
     } = matcher;
 
     let attribute = keySelector && keySelector.attribute;
     let type = matcherTypes.mapper(matcherType);
+    let dataType = matcherTypes.dataTypes.STRING; // As default input data type we use string (even for ALL_KEYS)
     let value = undefined;
 
     if (type === matcherTypes.enum.SEGMENT) {
@@ -54,24 +56,30 @@ function transform(matchers: Array<Matcher>): Array<ParsedMatcher> {
     } else if (type === matcherTypes.enum.WHITELIST) {
       value = whitelistTransform(whitelistObject);
     } else if (type === matcherTypes.enum.EQUAL_TO) {
-      value = unaryNumericObject;
+      value = numericTransform(unaryNumericObject);
+      dataType = matcherTypes.dataTypes.NUMBER;
 
       if (unaryNumericObject.dataType === 'DATETIME') {
-        unaryNumericObject.value = zeroSinceHH(unaryNumericObject.value);
+        value = zeroSinceHH(value);
+        dataType = matcherTypes.dataTypes.DATETIME;
       }
     } else if (type === matcherTypes.enum.GREATER_THAN_OR_EQUAL_TO ||
                type === matcherTypes.enum.LESS_THAN_OR_EQUAL_TO) {
-      value = unaryNumericObject;
+      value = numericTransform(unaryNumericObject);
+      dataType = matcherTypes.dataTypes.NUMBER;
 
       if (unaryNumericObject.dataType === 'DATETIME') {
-        unaryNumericObject.value = zeroSinceSS(unaryNumericObject.value);
+        value = zeroSinceSS(value);
+        dataType = matcherTypes.dataTypes.DATETIME;
       }
     } else if (type === matcherTypes.enum.BETWEEN) {
       value = betweenObject;
+      dataType = matcherTypes.dataTypes.NUMBER;
 
       if (betweenObject.dataType === 'DATETIME') {
-        betweenObject.start = zeroSinceSS(betweenObject.start);
-        betweenObject.end = zeroSinceSS(betweenObject.end);
+        value.start = zeroSinceSS(value.start);
+        value.end = zeroSinceSS(value.end);
+        dataType = matcherTypes.dataTypes.DATETIME;
       }
     } else if (
       type === matcherTypes.enum.EQUAL_TO_SET ||
@@ -79,16 +87,22 @@ function transform(matchers: Array<Matcher>): Array<ParsedMatcher> {
       type === matcherTypes.enum.CONTAINS_ALL_OF_SET ||
       type === matcherTypes.enum.PART_OF_SET
     ) {
-      value = whitelistObject;
-    } else if (type === matcherTypes.enum.STARTS_WITH || type === matcherTypes.enum.ENDS_WITH) {
-      value = unaryStringObject;
+      value = setTransform(whitelistObject);
+      dataType = matcherTypes.dataTypes.SET;
+    } else if (
+      type === matcherTypes.enum.STARTS_WITH ||
+      type === matcherTypes.enum.ENDS_WITH ||
+      type === matcherTypes.enum.CONTAINS_STRING
+    ) {
+      value = setTransform(whitelistObject);
     }
 
     return {
-      attribute, // attribute over we should do the matching, undefined means 'use the key'
-      negate,    // should we negate the result?
-      type,      // which kind of matcher we should evaluate
-      value      // metadata used for the matching
+      attribute,        // attribute over we should do the matching, undefined means 'use the key'
+      negate,           // should we negate the result?
+      type,             // which kind of matcher we should evaluate
+      value,            // metadata used for the matching
+      dataType          // runtime input data type
     };
   });
 

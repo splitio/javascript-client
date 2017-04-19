@@ -30,6 +30,7 @@ const containsAnySetMatcher = require('./cont_any');
 const partOfSetMatcher = require('./part_of');
 const swMatcher = require('./sw');
 const ewMatcher = require('./ew');
+const containsStrMatcher = require('./cont_str');
 
 /**
  * Matcher factory.
@@ -69,6 +70,8 @@ function MatcherFactory(matcherDto: Matcher, storage: SplitStorage): Function {
     matcherFn = swMatcher(value);
   } else if (type === types.ENDS_WITH) {
     matcherFn = ewMatcher(value);
+  } else if (type === types.CONTAINS_STRING) {
+    matcherFn = containsStrMatcher(value);
   }
 
   // @TODO this code is not a responsability of the factory, but in terms of

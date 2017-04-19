@@ -13,28 +13,18 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+
 'use strict';
 
 const log = require('debug')('splitio-engine:matcher');
 
-const {
-  date: {
-    zeroSinceSS
-  }
-} = require('../convertions');
+function greaterThanEqualMatcherContext(ruleAttr /*: number */) /*: Function */ {
+  return function greaterThanEqualMatcher(runtimeAttr /*: number */) /*: boolean */ {
+    let isGreaterEqualThan = runtimeAttr >= ruleAttr;
 
-function greaterThanEqualMatcherContext(vo /*: unaryNumericObject */) /*: Function */ {
-  return function greaterThanEqualMatcher(value /*: string | number */) /*: boolean */ {
-    // monkey patch datetime to effectily compare on equal
-    if (vo.dataType === 'DATETIME') {
-      value = zeroSinceSS(value);
-    }
+    log(`[greaterThanEqualMatcher] is ${runtimeAttr} greater than ${ruleAttr}? ${isGreaterEqualThan}`);
 
-    let isGreaterThanEqual = value >= vo.value;
-
-    log(`[greaterThanEqualMatcher] is ${value} greater than ${vo.value}? ${isGreaterThanEqual}`);
-
-    return isGreaterThanEqual;
+    return isGreaterEqualThan;
   };
 }
 

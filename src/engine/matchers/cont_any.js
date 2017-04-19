@@ -13,26 +13,17 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-'use strict';
 
-/*eslint-disable eqeqeq */
+'use strict';
 
 const log = require('debug')('splitio-engine:matcher');
 const intersection = require('lodash/intersection');
-const isArray = require('lodash/isArray');
 
-function containsAnyMatcherContext(vo /*: whitelistObject */) /*: Function */ {
-  return function containsAnyMatcher(value /*: array */) /*: boolean */ {
-    if (!isArray(value)) {
-      log(`[containsAnyMatcher] value doesn't match, we only accept Array`);
+function containsAnyMatcherContext(ruleAttr /*: array */) /*: Function */ {
+  return function containsAnyMatcher(runtimeAttr /*: array */) /*: boolean */ {
+    const containsAny = intersection(runtimeAttr, ruleAttr).length > 0;
 
-      return false;
-    }
-
-    const normalizedValue = value.map(e => e + '');
-    const containsAny = intersection(normalizedValue, vo.whitelist).length > 0;
-
-    log(`[containsAnyMatcher] ${value} contains at least an element of ${vo.whitelist}? ${containsAny}`);
+    log(`[containsAnyMatcher] ${runtimeAttr} contains at least an element of ${ruleAttr}? ${containsAny}`);
 
     return containsAny;
   };
