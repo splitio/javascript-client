@@ -37,6 +37,14 @@ module.exports = {
     CONTAINS_STRING: 15
   },
 
+  dataTypes: {
+    STRING: 'STRING',
+    NUMBER: 'NUMBER',
+    SET: 'SET',
+    DATETIME: 'DATETIME',
+    NOT_SPECIFIED: 'NOT_SPECIFIED'
+  },
+
   mapper(matcherType: string): number {
     let types = this.enum;
 

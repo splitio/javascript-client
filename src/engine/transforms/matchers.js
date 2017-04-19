@@ -48,8 +48,8 @@ function transform(matchers: Array<Matcher>): Array<ParsedMatcher> {
 
     let attribute = keySelector && keySelector.attribute;
     let type = matcherTypes.mapper(matcherType);
+    let dataType = matcherTypes.dataTypes.STRING;
     let value = undefined;
-    let inputProcessor = undefined;
 
     if (type === matcherTypes.enum.SEGMENT) {
       value = segmentTransform(segmentObject);
@@ -57,32 +57,36 @@ function transform(matchers: Array<Matcher>): Array<ParsedMatcher> {
       value = whitelistTransform(whitelistObject);
     } else if (type === matcherTypes.enum.EQUAL_TO) {
       value = numericTransform(unaryNumericObject);
+      dataType = unaryNumericObject.dataType;
 
       if (unaryNumericObject.dataType === 'DATETIME') {
         value = zeroSinceHH(value);
-        inputProcessor = zeroSinceHH;
       }
     } else if (type === matcherTypes.enum.GREATER_THAN_OR_EQUAL_TO ||
                type === matcherTypes.enum.LESS_THAN_OR_EQUAL_TO) {
       value = numericTransform(unaryNumericObject);
+      dataType = unaryNumericObject.dataType;
 
       if (unaryNumericObject.dataType === 'DATETIME') {
         value = zeroSinceSS(value);
-        inputProcessor = zeroSinceSS;
       }
     } else if (type === matcherTypes.enum.BETWEEN) {
       value = betweenObject;
+      dataType = betweenObject.dataType;
 
       if (betweenObject.dataType === 'DATETIME') {
         value.start = zeroSinceSS(value.start);
         value.end = zeroSinceSS(value.end);
-        inputProcessor = zeroSinceSS;
       }
     } else if (
       type === matcherTypes.enum.EQUAL_TO_SET ||
       type === matcherTypes.enum.CONTAINS_ANY_OF_SET ||
       type === matcherTypes.enum.CONTAINS_ALL_OF_SET ||
-      type === matcherTypes.enum.PART_OF_SET ||
+      type === matcherTypes.enum.PART_OF_SET
+    ) {
+      value = setTransform(whitelistObject);
+      dataType = matcherTypes.dataTypes.SET;
+    } else if (
       type === matcherTypes.enum.STARTS_WITH ||
       type === matcherTypes.enum.ENDS_WITH ||
       type === matcherTypes.enum.CONTAINS_STRING
@@ -95,7 +99,7 @@ function transform(matchers: Array<Matcher>): Array<ParsedMatcher> {
       negate,           // should we negate the result?
       type,             // which kind of matcher we should evaluate
       value,            // metadata used for the matching
-      inputProcessor    // we may need to apply a transformation of the input values we will receive
+      dataType          // runtime input data type
     };
   });
 

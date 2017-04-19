@@ -25,14 +25,16 @@ const uniq = require('lodash/uniq');
 const toString = require('lodash/toString');
 const toNumber = require('lodash/toNumber');
 
-const matcherTypes = require('../matchers/types').enum;
+const {
+  date: {
+    zeroSinceHH,
+    zeroSinceSS
+  }
+} = require('../convertions');
 
-const INPUT_DATA_TYPES = {
-  STRING: 'string',
-  NUMBER: 'number',
-  SET: 'array',
-  NOT_SPECIFIED: 'not_specified'
-};
+const matcherTypes = require('../matchers/types');
+const MATCHERS = matcherTypes.enum;
+const DATA_TYPES = matcherTypes.dataTypes;
 
 function sanitizeNumber(val): ?number {
   const num = toNumber(val);
@@ -49,56 +51,46 @@ function sanitizeArray(val): ?Array<string> {
   return arr.length ? arr : undefined;
 }
 
-function getExpectedType(matcherTypeID: number): string {
+/**
+ * We can define a pre-processing for the value, to be executed prior to matcher evaluation.
+ */
+function getProcessingFunction(matcherTypeID: number, dataType?: string): ?Function {
   switch (matcherTypeID) {
-    case matcherTypes.EQUAL_TO:
-    case matcherTypes.GREATER_THAN_OR_EQUAL_TO:
-    case matcherTypes.LESS_THAN_OR_EQUAL_TO:
-    case matcherTypes.BETWEEN:
-      return INPUT_DATA_TYPES.NUMBER;
-
-    case matcherTypes.EQUAL_TO_SET:
-    case matcherTypes.CONTAINS_ANY_OF_SET:
-    case matcherTypes.CONTAINS_ALL_OF_SET:
-    case matcherTypes.PART_OF_SET:
-      return INPUT_DATA_TYPES.SET;
-
-    case matcherTypes.ALL:
-    case matcherTypes.WHITELIST:
-    case matcherTypes.SEGMENT:
-    case matcherTypes.ENDS_WITH:
-    case matcherTypes.STARTS_WITH:
-    case matcherTypes.CONTAINS_STRING:
-      return INPUT_DATA_TYPES.STRING;
-
+    case MATCHERS.EQUAL_TO:
+      return dataType === 'DATETIME' ? zeroSinceHH : undefined;
+    case MATCHERS.GREATER_THAN_OR_EQUAL_TO:
+    case MATCHERS.LESS_THAN_OR_EQUAL_TO:
+    case MATCHERS.BETWEEN:
+      return dataType === 'DATETIME' ? zeroSinceSS : undefined;
     default:
-      return INPUT_DATA_TYPES.NOT_SPECIFIED;
+      return undefined;
   }
 }
 
-function sanitizeValue(matcherTypeID: number, value: any, process?: Function): any {
-  const expectedType = getExpectedType(matcherTypeID);
+function sanitizeValue(matcherTypeID: number, value: any, dataType: string): any {
+  const processor = getProcessingFunction(matcherTypeID, dataType);
   let sanitizedValue;
 
-  switch (expectedType) {
-    case INPUT_DATA_TYPES.NUMBER:
+  switch (dataType) {
+    case DATA_TYPES.NUMBER:
+    case DATA_TYPES.DATETIME:
       sanitizedValue = sanitizeNumber(value);
       break;
-    case INPUT_DATA_TYPES.STRING:
+    case DATA_TYPES.STRING:
       sanitizedValue = sanitizeString(value);
       break;
-    case INPUT_DATA_TYPES.SET:
+    case DATA_TYPES.SET:
       sanitizedValue = sanitizeArray(value);
       break;
     default:
       sanitizedValue = undefined;
   }
 
-  if (process) {
-    sanitizedValue = process(sanitizedValue);
+  if (processor) {
+    sanitizedValue = processor(sanitizedValue);
   }
 
-  log('Attempted to sanitize [%s] which should be of type [%s]. \n Sanitized value => [%s]', value, expectedType, sanitizedValue);
+  log('Attempted to sanitize [%s] which should be of type [%s]. \n Sanitized value => [%s]', value, dataType, sanitizedValue);
 
   return sanitizedValue;
 }
