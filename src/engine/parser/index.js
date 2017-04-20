@@ -25,6 +25,7 @@ const sanitizeValue = require('../value');
 const evaluatorFactory = require('../evaluator');
 const ifElseIfCombiner = require('../combiners/ifelseif');
 const andCombiner = require('../combiners/and');
+const thenable = require('../../utils/promise/thenable');
 
 function parse(conditions: Array<Condition>, storage: SplitStorage): any {
   let predicates = [];
@@ -49,6 +50,10 @@ function parse(conditions: Array<Condition>, storage: SplitStorage): any {
       return (key, attributes) => {
         const value = sanitizeValue(key, matcherDto, attributes);
         const result = value !== undefined ? matcher(value) : false;
+
+        if (thenable(result)) {
+          return result.then(res => Boolean(res ^ matcherDto.negate));
+        }
         return Boolean(result ^ matcherDto.negate);
       };
     });
