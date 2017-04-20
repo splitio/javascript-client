@@ -50,6 +50,7 @@
     "karma-sauce-launcher": "^1.0.0",
     "karma-tap": "^3.0.1",
     "karma-webpack": "^1.8.0",
+    "redis-dump": "^0.1.10",
     "rimraf": "^2.5.4",
     "tape": "^4.6.0",
     "tape-catch": "^1.0.6",
@@ -69,6 +70,8 @@
     "test-browser-e2e-ci": "cross-env NODE_ENV=test karma start karma/e2e.ci.karma.conf.js",
     "test-node": "tape -r babel-register \"src/*/__tests__/**/!(browser).spec.js\"",
     "test-node-e2e": "tape -r babel-register \"src/__tests__/node.spec.js\"",
+    "pretest-node-redis": "cat ./src/__tests__/mocks/redis_mock.json | ./node_modules/redis-dump/bin/cli/redis-dump --convert | redis-cli",
+    "test-node-redis": "tape -r babel-register \"src/__tests__/node_redis.spec.js\"",
     "test-ts-decls": "./scripts/ts-tests.sh",
     "canary": "npm run rebuild && npm publish --tag canary",
     "stable": "npm run rebuild && npm publish"
