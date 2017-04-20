@@ -58,6 +58,42 @@ tape('PARSER / if user.permissions ["read", "write"] equal to set ["read", "writ
   assert.end();
 });
 
+tape('PARSER / if user.permissions ["write", "read"] equal to set ["read", "write"] then split 100:on', async function (assert) {
+  const label = 'permissions = ["read", "write"]';
+  const evaluator = parser([{
+    matcherGroup: {
+      combiner: 'AND',
+      matchers: [{
+        keySelector: {
+          trafficType: 'user',
+          attribute: 'permissions'
+        },
+        matcherType: 'EQUAL_TO_SET',
+        negate: false,
+        userDefinedSegmentMatcherData: null,
+        unaryStringMatcherData: null,
+        whitelistMatcherData: {
+          whitelist: ["read", "write"]
+        }
+      }]
+    },
+    partitions: [{
+      treatment: 'on',
+      size: 100
+    }],
+    label: label
+  }]);
+
+  const evaluation = await evaluator(keyParser('a key'), 31, 100, 31, {
+    permissions: ["write", "read"]
+  });
+
+  assert.equal(typeof evaluator, 'function', 'evaluator should be callable');
+  assert.equal(evaluation.treatment, 'on', "evaluator should return treatment 'on'");
+  assert.equal(evaluation.label, label, "evaluator should return correct label");
+  assert.end();
+});
+
 tape('PARSER / if user.permissions ["1", 2] equal to set ["1", "2"] then split 100:on', async function (assert) {
   const label = 'permissions = ["1", "2"]';
   const evaluator = parser([{
@@ -260,9 +296,191 @@ tape('PARSER / if attribute is not an array we should not match equal to set', a
     label: label
   }]);
 
-  const evaluation = await evaluator(keyParser('a key'), 31, 100, 31);
+  let evaluation = await evaluator(keyParser('a key'), 31, 100, 31);
+  assert.equal(evaluation, undefined, "evaluator should not match");
+
+  evaluation = await evaluator(keyParser('a key'), 31, 100, 31, {
+    countries: 'argentina'
+  });
+  assert.equal(evaluation, undefined, "evaluator should not match");
+
+  assert.end();
+});
+
+tape('PARSER / if attribute is an EMPTY array we should not match equal to set', async function (assert) {
+  const label = 'countries = ["usa","argentina"]';
+  const evaluator = parser([{
+    matcherGroup: {
+      combiner: 'AND',
+      matchers: [{
+        keySelector: {
+          trafficType: 'user',
+          attribute: 'countries'
+        },
+        matcherType: 'EQUAL_TO_SET',
+        negate: false,
+        userDefinedSegmentMatcherData: null,
+        unaryStringMatcherData: null,
+        whitelistMatcherData: {
+          whitelist: ["usa","argentina"]
+        }
+      }]
+    },
+    partitions: [{
+      treatment: 'on',
+      size: 100
+    }],
+    label: label
+  }]);
+
+  const evaluation = await evaluator(keyParser('a key'), 31, 100, 31, {
+    countries: []
+  });
 
   assert.equal(evaluation, undefined, "evaluator should not match");
+  assert.end();
+});
+
+tape('PARSER / NEGATED if user.permissions ["read", "write"] equal to set ["read", "write"] then split 100:on should not match', async function (assert) {
+  const label = 'not permissions = ["read", "write"]';
+  const evaluator = parser([{
+    matcherGroup: {
+      combiner: 'AND',
+      matchers: [{
+        keySelector: {
+          trafficType: 'user',
+          attribute: 'permissions'
+        },
+        matcherType: 'EQUAL_TO_SET',
+        negate: true,
+        userDefinedSegmentMatcherData: null,
+        unaryStringMatcherData: null,
+        whitelistMatcherData: {
+          whitelist: ["read", "write"]
+        }
+      }]
+    },
+    partitions: [{
+      treatment: 'on',
+      size: 100
+    }],
+    label: label
+  }]);
+
+  const evaluation = await evaluator(keyParser('a key'), 31, 100, 31, {
+    permissions: ["read", "write"]
+  });
+
+  assert.equal(evaluation, undefined, "evaluator should return undefined");
+  assert.end();
+});
+
+tape('PARSER / NEGATED if user.permissions ["read"] equal to set ["read", "write"] false, then match', async function (assert) {
+  const label = 'not permissions = ["read", "write"]';
+  const evaluator = parser([{
+    matcherGroup: {
+      combiner: 'AND',
+      matchers: [{
+        keySelector: {
+          trafficType: 'user',
+          attribute: 'permissions'
+        },
+        matcherType: 'EQUAL_TO_SET',
+        negate: true,
+        userDefinedSegmentMatcherData: null,
+        unaryStringMatcherData: null,
+        whitelistMatcherData: {
+          whitelist: ["read", "write"]
+        }
+      }]
+    },
+    partitions: [{
+      treatment: 'on',
+      size: 100
+    }],
+    label: label
+  }]);
+
+  const evaluation = await evaluator(keyParser('a key'), 31, 100, 31, {
+    permissions: ["read"]
+  });
+
+  assert.equal(evaluation.treatment, 'on', "evaluator should return treatment 'on'");
+  assert.equal(evaluation.label, label, "evaluator should return correct label");
+  assert.end();
+});
+
+tape('PARSER / NEGATED if attribute is not an array we should not match equal to set, so match', async function (assert) {
+  const label = 'countries = ["usa","argentina"]';
+  const evaluator = parser([{
+    matcherGroup: {
+      combiner: 'AND',
+      matchers: [{
+        keySelector: {
+          trafficType: 'user',
+          attribute: 'countries'
+        },
+        matcherType: 'EQUAL_TO_SET',
+        negate: true,
+        userDefinedSegmentMatcherData: null,
+        unaryStringMatcherData: null,
+        whitelistMatcherData: {
+          whitelist: ["usa","argentina"]
+        }
+      }]
+    },
+    partitions: [{
+      treatment: 'on',
+      size: 100
+    }],
+    label: label
+  }]);
+
+  let evaluation = await evaluator(keyParser('a key'), 31, 100, 31);
+  assert.equal(evaluation.treatment, 'on', "evaluator should return treatment 'on'");
+  assert.equal(evaluation.label, label, "evaluator should return correct label");
+
+  evaluation = await evaluator(keyParser('a key'), 31, 100, 31, {
+    countries: 4
+  });
+  assert.equal(evaluation.treatment, 'on', "evaluator should return treatment 'on'");
+  assert.equal(evaluation.label, label, "evaluator should return correct label");
+
+  assert.end();
+});
+
+tape('PARSER / NEGATED if attribute is an EMPTY array we should not match equal to set, so match', async function (assert) {
+  const label = 'countries = ["usa","argentina"]';
+  const evaluator = parser([{
+    matcherGroup: {
+      combiner: 'AND',
+      matchers: [{
+        keySelector: {
+          trafficType: 'user',
+          attribute: 'countries'
+        },
+        matcherType: 'EQUAL_TO_SET',
+        negate: true,
+        userDefinedSegmentMatcherData: null,
+        unaryStringMatcherData: null,
+        whitelistMatcherData: {
+          whitelist: ["usa","argentina"]
+        }
+      }]
+    },
+    partitions: [{
+      treatment: 'on',
+      size: 100
+    }],
+    label: label
+  }]);
+
+  const evaluation = await evaluator(keyParser('a key'), 31, 100, 31, {
+    countries: []
+  });
+
+  assert.equal(evaluation.treatment, 'on', "evaluator should return treatment 'on'");
+  assert.equal(evaluation.label, label, "evaluator should return correct label");
   assert.end();
 });
 
@@ -297,6 +515,42 @@ tape('PARSER / if user.permissions ["read", "edit", "delete"] contains all of se
 
   const evaluation = await evaluator(keyParser('a key'), 31, 100, 31, {
     permissions: ["read", "edit", "delete"]
+  });
+
+  assert.equal(typeof evaluator, 'function', 'evaluator should be callable');
+  assert.equal(evaluation.treatment, 'on', "evaluator should return treatment 'on'");
+  assert.equal(evaluation.label, label, "evaluator should return correct label");
+  assert.end();
+});
+
+tape('PARSER / if user.permissions ["edit", "read", "delete"] contains all of set ["read", "edit"] then split 100:on', async function (assert) {
+  const label = 'permissions contains ["read", "edit"]'
+  const evaluator = parser([{
+    matcherGroup: {
+      combiner: 'AND',
+      matchers: [{
+        keySelector: {
+          trafficType: 'user',
+          attribute: 'permissions'
+        },
+        matcherType: 'CONTAINS_ALL_OF_SET',
+        negate: false,
+        userDefinedSegmentMatcherData: null,
+        unaryStringMatcherData: null,
+        whitelistMatcherData: {
+          whitelist: ["read", "edit"]
+        }
+      }]
+    },
+    partitions: [{
+      treatment: 'on',
+      size: 100
+    }],
+    label: label
+  }]);
+
+  const evaluation = await evaluator(keyParser('a key'), 31, 100, 31, {
+    permissions: ["edit", "read", "delete"]
   });
 
   assert.equal(typeof evaluator, 'function', 'evaluator should be callable');
@@ -437,17 +691,19 @@ tape('PARSER / if attribute is not an array we should not match contains all', a
     label: label
   }]);
 
-  const evaluation = await evaluator(keyParser('a key'), 31, 100, 31);
-
+  let evaluation = await evaluator(keyParser('a key'), 31, 100, 31);
   assert.equal(evaluation, undefined, "evaluator should not match");
+
+  evaluation = await evaluator(keyParser('a key'), 31, 100, 31, {
+    permissions: {}
+  });
+  assert.equal(evaluation, undefined, "evaluator should not match");
+
   assert.end();
 });
 
-//
-// PART_OF_SET
-//
-tape('PARSER / if user.permissions [] is part of set ["read", "edit", "delete"] then split 100:on', async function (assert) {
-  const label = 'permissions part of ["read", "edit", "delete"]';
+tape('PARSER / if attribute is an EMPTY array we should not match contains all', async function (assert) {
+  const label = 'permissions contains ["read", "edit"]'
   const evaluator = parser([{
     matcherGroup: {
       combiner: 'AND',
@@ -456,12 +712,12 @@ tape('PARSER / if user.permissions [] is part of set ["read", "edit", "delete"] 
           trafficType: 'user',
           attribute: 'permissions'
         },
-        matcherType: 'PART_OF_SET',
+        matcherType: 'CONTAINS_ALL_OF_SET',
         negate: false,
         userDefinedSegmentMatcherData: null,
         unaryStringMatcherData: null,
         whitelistMatcherData: {
-          whitelist: ["read", "edit", "delete"]
+          whitelist: ["read", "edit"]
         }
       }]
     },
@@ -476,10 +732,156 @@ tape('PARSER / if user.permissions [] is part of set ["read", "edit", "delete"] 
     permissions: []
   });
 
-  assert.equal(evaluation, undefined, "Empty set should not match 'part of'");
+  assert.equal(evaluation, undefined, "evaluator should not match");
   assert.end();
 });
 
+tape('PARSER / NEGATED if user.permissions ["read", "edit", "delete"] contains all of set ["read", "edit"] then split 100:on should not match', async function (assert) {
+  const label = 'not permissions contains ["read", "edit"]'
+  const evaluator = parser([{
+    matcherGroup: {
+      combiner: 'AND',
+      matchers: [{
+        keySelector: {
+          trafficType: 'user',
+          attribute: 'permissions'
+        },
+        matcherType: 'CONTAINS_ALL_OF_SET',
+        negate: true,
+        userDefinedSegmentMatcherData: null,
+        unaryStringMatcherData: null,
+        whitelistMatcherData: {
+          whitelist: ["read", "edit"]
+        }
+      }]
+    },
+    partitions: [{
+      treatment: 'on',
+      size: 100
+    }],
+    label: label
+  }]);
+
+  const evaluation = await evaluator(keyParser('a key'), 31, 100, 31, {
+    permissions: ["read", "edit", "delete"]
+  });
+
+  assert.equal(evaluation, undefined, "evaluator should return undefined");
+  assert.end();
+});
+
+tape('PARSER / NEGATED if user.permissions ["read"] contains all of set ["read", "edit"] false, so match', async function (assert) {
+  const label = 'not permissions contains ["read", "edit"]'
+  const evaluator = parser([{
+    matcherGroup: {
+      combiner: 'AND',
+      matchers: [{
+        keySelector: {
+          trafficType: 'user',
+          attribute: 'permissions'
+        },
+        matcherType: 'CONTAINS_ALL_OF_SET',
+        negate: true,
+        userDefinedSegmentMatcherData: null,
+        unaryStringMatcherData: null,
+        whitelistMatcherData: {
+          whitelist: ["read", "edit"]
+        }
+      }]
+    },
+    partitions: [{
+      treatment: 'on',
+      size: 100
+    }],
+    label: label
+  }]);
+
+  const evaluation = await evaluator(keyParser('a key'), 31, 100, 31, {
+    permissions: ["read"]
+  });
+
+  assert.equal(evaluation.treatment, 'on', "evaluator should return treatment 'on'");
+  assert.equal(evaluation.label, label, "evaluator should return correct label");
+  assert.end();
+});
+
+tape('PARSER / NEGATED if attribute is not an array we should not match contains all, so match', async function (assert) {
+  const label = 'not permissions contains ["read", "edit"]'
+  const evaluator = parser([{
+    matcherGroup: {
+      combiner: 'AND',
+      matchers: [{
+        keySelector: {
+          trafficType: 'user',
+          attribute: 'permissions'
+        },
+        matcherType: 'CONTAINS_ALL_OF_SET',
+        negate: true,
+        userDefinedSegmentMatcherData: null,
+        unaryStringMatcherData: null,
+        whitelistMatcherData: {
+          whitelist: ["read", "edit"]
+        }
+      }]
+    },
+    partitions: [{
+      treatment: 'on',
+      size: 100
+    }],
+    label: label
+  }]);
+
+  let evaluation = await evaluator(keyParser('a key'), 31, 100, 31);
+  assert.equal(evaluation.treatment, 'on', "evaluator should return treatment 'on'");
+  assert.equal(evaluation.label, label, "evaluator should return correct label");
+
+  evaluation = await evaluator(keyParser('a key'), 31, 100, 31, {
+    countries: /asd/
+  });
+  assert.equal(evaluation.treatment, 'on', "evaluator should return treatment 'on'");
+  assert.equal(evaluation.label, label, "evaluator should return correct label");
+
+  assert.end();
+});
+
+tape('PARSER / NEGATED if attribute is an EMPTY array we should not match contains all, so match', async function (assert) {
+  const label = 'not permissions contains ["read", "edit"]'
+  const evaluator = parser([{
+    matcherGroup: {
+      combiner: 'AND',
+      matchers: [{
+        keySelector: {
+          trafficType: 'user',
+          attribute: 'permissions'
+        },
+        matcherType: 'CONTAINS_ALL_OF_SET',
+        negate: true,
+        userDefinedSegmentMatcherData: null,
+        unaryStringMatcherData: null,
+        whitelistMatcherData: {
+          whitelist: ["read", "edit"]
+        }
+      }]
+    },
+    partitions: [{
+      treatment: 'on',
+      size: 100
+    }],
+    label: label
+  }]);
+
+  const evaluation = await evaluator(keyParser('a key'), 31, 100, 31, {
+    permissions: []
+  });
+
+  assert.equal(evaluation.treatment, 'on', "evaluator should return treatment 'on'");
+  assert.equal(evaluation.label, label, "evaluator should return correct label");
+  assert.end();
+});
+
+//
+// PART_OF_SET
+//
 tape('PARSER / if user.permissions ["read", "edit"] is part of set ["read", "edit", "delete"] then split 100:on', async function (assert) {
   const label = 'permissions part of ["read", "edit", "delete"]'
   const evaluator = parser([{
@@ -508,6 +910,42 @@ tape('PARSER / if user.permissions ["read", "edit"] is part of set ["read", "edi
 
   const evaluation = await evaluator(keyParser('a key'), 31, 100, 31, {
     permissions: ["read", "edit"]
+  });
+
+  assert.equal(typeof evaluator, 'function', 'evaluator should be callable');
+  assert.equal(evaluation.treatment, 'on', "evaluator should return treatment 'on'");
+  assert.equal(evaluation.label, label, "evaluator should return correct label");
+  assert.end();
+});
+
+tape('PARSER / if user.permissions ["edit", "read"] is part of set ["read", "edit", "delete"] then split 100:on', async function (assert) {
+  const label = 'permissions part of ["read", "edit", "delete"]'
+  const evaluator = parser([{
+    matcherGroup: {
+      combiner: 'AND',
+      matchers: [{
+        keySelector: {
+          trafficType: 'user',
+          attribute: 'permissions'
+        },
+        matcherType: 'PART_OF_SET',
+        negate: false,
+        userDefinedSegmentMatcherData: null,
+        unaryStringMatcherData: null,
+        whitelistMatcherData: {
+          whitelist: ["read", "edit", "delete"]
+        }
+      }]
+    },
+    partitions: [{
+      treatment: 'on',
+      size: 100
+    }],
+    label: label
+  }]);
+
+  const evaluation = await evaluator(keyParser('a key'), 31, 100, 31, {
+    permissions: ["edit", "read"]
   });
 
   assert.equal(typeof evaluator, 'function', 'evaluator should be callable');
@@ -613,9 +1051,191 @@ tape('PARSER / if attribute is not an array we should not match part of', async 
     label: label
   }]);
 
-  const evaluation = await evaluator(keyParser('a key'), 31, 100, 31);
+  let evaluation = await evaluator(keyParser('a key'), 31, 100, 31);
+  assert.equal(evaluation, undefined, "evaluator should not match");
+
+  evaluation = await evaluator(keyParser('a key'), 31, 100, 31, {
+    permissions: NaN
+  });
+  assert.equal(evaluation, undefined, "evaluator should not match");
+
+  assert.end();
+});
+
+tape('PARSER / if attribute is an EMPTY array we should not match part of', async function (assert) {
+  const label = 'permissions part of ["read", "edit"]'
+  const evaluator = parser([{
+    matcherGroup: {
+      combiner: 'AND',
+      matchers: [{
+        keySelector: {
+          trafficType: 'user',
+          attribute: 'permissions'
+        },
+        matcherType: 'PART_OF_SET',
+        negate: false,
+        userDefinedSegmentMatcherData: null,
+        unaryStringMatcherData: null,
+        whitelistMatcherData: {
+          whitelist: ["read", "edit"]
+        }
+      }]
+    },
+    partitions: [{
+      treatment: 'on',
+      size: 100
+    }],
+    label: label
+  }]);
+
+  const evaluation = await evaluator(keyParser('a key'), 31, 100, 31, {
+    permissions: []
+  });
 
   assert.equal(evaluation, undefined, "evaluator should return undefined");
+  assert.end();
+});
+
+tape('PARSER / NEGATED if user.permissions ["read", "edit"] is part of set ["read", "edit", "delete"] then split 100:on should not match', async function (assert) {
+  const label = 'not permissions part of ["read", "edit", "delete"]'
+  const evaluator = parser([{
+    matcherGroup: {
+      combiner: 'AND',
+      matchers: [{
+        keySelector: {
+          trafficType: 'user',
+          attribute: 'permissions'
+        },
+        matcherType: 'PART_OF_SET',
+        negate: true,
+        userDefinedSegmentMatcherData: null,
+        unaryStringMatcherData: null,
+        whitelistMatcherData: {
+          whitelist: ["read", "edit", "delete"]
+        }
+      }]
+    },
+    partitions: [{
+      treatment: 'on',
+      size: 100
+    }],
+    label: label
+  }]);
+
+  const evaluation = await evaluator(keyParser('a key'), 31, 100, 31, {
+    permissions: ["read", "edit"]
+  });
+
+  assert.equal(evaluation, undefined, "evaluation should return treatment undefined");
+  assert.end();
+});
+
+tape('PARSER / NEGATED if user.permissions ["admin", "magic"] is part of set ["read", "edit"] false, then match', async function (assert) {
+  const label = 'not permissions part of ["read", "edit"]'
+  const evaluator = parser([{
+    matcherGroup: {
+      combiner: 'AND',
+      matchers: [{
+        keySelector: {
+          trafficType: 'user',
+          attribute: 'permissions'
+        },
+        matcherType: 'PART_OF_SET',
+        negate: true,
+        userDefinedSegmentMatcherData: null,
+        unaryStringMatcherData: null,
+        whitelistMatcherData: {
+          whitelist: ["read", "edit"]
+        }
+      }]
+    },
+    partitions: [{
+      treatment: 'on',
+      size: 100
+    }],
+    label: label
+  }]);
+
+  const evaluation = await evaluator(keyParser('a key'), 31, 100, 31, {
+    permissions: ["admin", "magic"]
+  });
+
+  assert.equal(evaluation.treatment, 'on', "evaluator should return treatment 'on'");
+  assert.equal(evaluation.label, label, "evaluator should return correct label");
+  assert.end();
+});
+
+tape('PARSER / NEGATED if attribute is not an array we should not match part of, so match', async function (assert) {
+  const label = 'not permissions part of ["read", "edit"]'
+  const evaluator = parser([{
+    matcherGroup: {
+      combiner: 'AND',
+      matchers: [{
+        keySelector: {
+          trafficType: 'user',
+          attribute: 'permissions'
+        },
+        matcherType: 'PART_OF_SET',
+        negate: true,
+        userDefinedSegmentMatcherData: null,
+        unaryStringMatcherData: null,
+        whitelistMatcherData: {
+          whitelist: ["read", "edit"]
+        }
+      }]
+    },
+    partitions: [{
+      treatment: 'on',
+      size: 100
+    }],
+    label: label
+  }]);
+
+  let evaluation = await evaluator(keyParser('a key'), 31, 100, 31);
+  assert.equal(evaluation.treatment, 'on', "evaluator should return treatment 'on'");
+  assert.equal(evaluation.label, label, "evaluator should return correct label");
+
+  evaluation = await evaluator(keyParser('a key'), 31, 100, 31, {
+    countries: () => {}
+  });
+  assert.equal(evaluation.treatment, 'on', "evaluator should return treatment 'on'");
+  assert.equal(evaluation.label, label, "evaluator should return correct label");
+
+  assert.end();
+});
+
+tape('PARSER / NEGATED if attribute is an EMPTY array we should not match part of, so match', async function (assert) {
+  const label = 'not permissions part of ["read", "edit"]'
+  const evaluator = parser([{
+    matcherGroup: {
+      combiner: 'AND',
+      matchers: [{
+        keySelector: {
+          trafficType: 'user',
+          attribute: 'permissions'
+        },
+        matcherType: 'PART_OF_SET',
+        negate: true,
+        userDefinedSegmentMatcherData: null,
+        unaryStringMatcherData: null,
+        whitelistMatcherData: {
+          whitelist: ["read", "edit"]
+        }
+      }]
+    },
+    partitions: [{
+      treatment: 'on',
+      size: 100
+    }],
+    label: label
+  }]);
+
+  const evaluation = await evaluator(keyParser('a key'), 31, 100, 31, {
+    permissions: []
+  });
+
+  assert.equal(evaluation.treatment, 'on', "evaluator should return treatment 'on'");
+  assert.equal(evaluation.label, label, "evaluator should return correct label");
   assert.end();
 });
 
@@ -755,8 +1375,184 @@ tape('PARSER / if attribute is not an array we should not match contains any', a
     label: label
   }]);
 
-  const evaluation = await evaluator(keyParser('a key'), 31, 100, 31);
+  let evaluation = await evaluator(keyParser('a key'), 31, 100, 31);
+  assert.equal(evaluation, undefined, "evaluator should not match");
+
+  evaluation = await evaluator(keyParser('a key'), 31, 100, 31, {
+    permissions: null
+  });
+  assert.equal(evaluation, undefined, "evaluator should not match");
+
+  assert.end();
+});
+
+tape('PARSER / if attribute is an EMPTY array we should not match contains any', async function (assert) {
+  const label = 'permissions part of ["read", "edit"]'
+  const evaluator = parser([{
+    matcherGroup: {
+      combiner: 'AND',
+      matchers: [{
+        keySelector: {
+          trafficType: 'user',
+          attribute: 'permissions'
+        },
+        matcherType: 'CONTAINS_ANY_OF_SET',
+        negate: false,
+        userDefinedSegmentMatcherData: null,
+        unaryStringMatcherData: null,
+        whitelistMatcherData: {
+          whitelist: ["read", "edit"]
+        }
+      }]
+    },
+    partitions: [{
+      treatment: 'on',
+      size: 100
+    }],
+    label: label
+  }]);
+
+  const evaluation = await evaluator(keyParser('a key'), 31, 100, 31, {
+    permissions: []
+  });
 
   assert.equal(evaluation, undefined, "evaluator should return undefined");
+  assert.end();
+});
+
+tape('PARSER / NEGATED if user.permissions ["admin", "edit"] contains any of set ["read", "edit", "delete"] then split 100:on should not match', async function (assert) {
+  const label = 'not permissions part of ["read", "edit", "delete"]'
+  const evaluator = parser([{
+    matcherGroup: {
+      combiner: 'AND',
+      matchers: [{
+        keySelector: {
+          trafficType: 'user',
+          attribute: 'permissions'
+        },
+        matcherType: 'CONTAINS_ANY_OF_SET',
+        negate: true,
+        userDefinedSegmentMatcherData: null,
+        unaryStringMatcherData: null,
+        whitelistMatcherData: {
+          whitelist: ["read", "edit", "delete"]
+        }
+      }]
+    },
+    partitions: [{
+      treatment: 'on',
+      size: 100
+    }],
+    label: label
+  }]);
+
+  const evaluation = await evaluator(keyParser('a key'), 31, 100, 31, {
+    permissions: ["admin", "edit"]
+  });
+
+  assert.equal(evaluation, undefined, "evaluator should return undefined");
+  assert.end();
+});
+
+tape('PARSER / NEGATED if user.permissions ["admin", "magic"] contains any of set ["read", "edit"] false, then should match', async function (assert) {
+  const label = 'not permissions part of ["read", "edit"]'
+  const evaluator = parser([{
+    matcherGroup: {
+      combiner: 'AND',
+      matchers: [{
+        keySelector: {
+          trafficType: 'user',
+          attribute: 'permissions'
+        },
+        matcherType: 'CONTAINS_ANY_OF_SET',
+        negate: true,
+        userDefinedSegmentMatcherData: null,
+        unaryStringMatcherData: null,
+        whitelistMatcherData: {
+          whitelist: ["read", "edit"]
+        }
+      }]
+    },
+    partitions: [{
+      treatment: 'on',
+      size: 100
+    }],
+    label: label
+  }]);
+
+  const evaluation = await evaluator(keyParser('a key'), 31, 100, 31, {
+    permissions: ["admin", "magic"]
+  });
+
+  assert.equal(evaluation.treatment, 'on', "evaluator should return treatment 'on'");
+  assert.equal(evaluation.label, label, "evaluator should return correct label");
+  assert.end();
+});
+
+tape('PARSER / NEGATED if attribute is not an array we should not match contains any, then should match', async function (assert) {
+  const label = 'not permissions part of ["read", "edit"]'
+  const evaluator = parser([{
+    matcherGroup: {
+      combiner: 'AND',
+      matchers: [{
+        keySelector: {
+          trafficType: 'user',
+          attribute: 'permissions'
+        },
+        matcherType: 'CONTAINS_ANY_OF_SET',
+        negate: true,
+        userDefinedSegmentMatcherData: null,
+        unaryStringMatcherData: null,
+        whitelistMatcherData: {
+          whitelist: ["read", "edit"]
+        }
+      }]
+    },
+    partitions: [{
+      treatment: 'on',
+      size: 100
+    }],
+    label: label
+  }]);
+
+  const evaluation = await evaluator(keyParser('a key'), 31, 100, 31);
+
+  assert.equal(evaluation.treatment, 'on', "evaluator should return treatment 'on'");
+  assert.equal(evaluation.label, label, "evaluator should return correct label");
+  assert.end();
+});
+
+tape('PARSER / NEGATED if attribute is an EMPTY array we should not match contains any, then should match', async function (assert) {
+  const label = 'not permissions part of ["read", "edit"]'
+  const evaluator = parser([{
+    matcherGroup: {
+      combiner: 'AND',
+      matchers: [{
+        keySelector: {
+          trafficType: 'user',
+          attribute: 'permissions'
+        },
+        matcherType: 'CONTAINS_ANY_OF_SET',
+        negate: true,
+        userDefinedSegmentMatcherData: null,
+        unaryStringMatcherData: null,
+        whitelistMatcherData: {
+          whitelist: ["read", "edit"]
+        }
+      }]
+    },
+    partitions: [{
+      treatment: 'on',
+      size: 100
+    }],
+    label: label
+  }]);
+
+  const evaluation = await evaluator(keyParser('a key'), 31, 100, 31, {
+    permissions: []
+  });
+
+  assert.equal(evaluation.treatment, 'on', "evaluator should return treatment 'on'");
+  assert.equal(evaluation.label, label, "evaluator should return correct label");
   assert.end();
 });
