@@ -37,7 +37,6 @@ const containsStrMatcher = require('./cont_str');
  */
 function MatcherFactory(matcherDto: Matcher, storage: SplitStorage): Function {
   let {
-    negate,
     type,
     value
   } = matcherDto;
