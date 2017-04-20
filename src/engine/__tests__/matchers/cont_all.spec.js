@@ -35,19 +35,3 @@ tape('MATCHER CONTAINS_ALL_OF_SET / should return true ONLY when value contains 
   assert.end();
 
 });
-
-tape('MATCHER CONTAINS_ALL_OF_SET / negate should return false when the expected return value is true', function (assert) {
-
-  let matcher = matcherFactory({
-    negate: true,
-    type: matcherTypes.CONTAINS_ALL_OF_SET,
-    value: ['update', 'add']
-  });
-
-  assert.false(matcher(['update', 'add']),           'NOT ["update", "add"] contains all of set ["update", "add"]');
-  assert.false(matcher(['update', 'add', 'delete']), 'NOT ["update", "add", "delete"] contains all of set ["update", "add"]');
-  assert.true(matcher(['update']),                   'NOT ["update"] does not contain all of set ["update", "add"]');
-  assert.true(matcher(['add', 'create']),            'NOT ["add", "create"] does not contain all of set ["update", "add"]');
-  assert.true(matcher(['add']),                      'NOT ["add"] does not contain all of set ["update", "add"]');
-  assert.end();
-});

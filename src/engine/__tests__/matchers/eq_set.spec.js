@@ -35,19 +35,3 @@ tape('MATCHER EQUAL_TO_SET / should return true ONLY when value is equal to set 
   assert.end();
 
 });
-
-tape('MATCHER EQUAL_TO_SET / negate should return false when the expected return value is true', function (assert) {
-
-  let matcher = matcherFactory({
-    negate: true,
-    type: matcherTypes.EQUAL_TO_SET,
-    value: ['update', 'add']
-  });
-
-  assert.false(matcher(['update', 'add']),          'NOT ["update", "add"] is equal to set ["update", "add"]');
-  assert.false(matcher(['add', 'update']),          'NOT ["add", "update"] is equal to set ["update", "add"]');
-  assert.true(matcher(['rename', 'update', 'add']), 'NOT ["rename", "update", "add"] is not equal to set ["update", "add"]');
-  assert.true(matcher(['update']),                  'NOT ["update"] is not equal to set ["update", "add"]');
-  assert.true(matcher(['write']),                   'NOT ["write"] does not equal to set ["update", "add"]');
-  assert.end();
-});

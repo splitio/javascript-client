@@ -41,26 +41,3 @@ tape('MATCHER BETWEEN / should return true ONLY when the value is between 10 and
   assert.end();
 
 });
-
-tape('MATCHER BETWEEN / negate should return false when the expected return value is true', function (assert) {
-
-  let matcher = matcherFactory({
-    negate: true,
-    type: matcherTypes.BETWEEN,
-    value: {
-      dataType: 'NUMBER',
-      start: 10,
-      end: 20
-    }
-  });
-
-  assert.true(matcher(9),         '! 9 is not between 10 and 20');
-  assert.false(matcher(10),       '! 10 is between 10 and 20');
-  assert.false(matcher(15),       '! 15 is between 10 and 20');
-  assert.false(matcher(20),       '! 20 is between 10 and 20');
-  assert.true(matcher(21),        '! 21 is not between 10 and 20');
-  assert.true(matcher(undefined), '! undefined is not between 10 and 20');
-  assert.true(matcher(null),      '! null is not between 10 and 20');
-  assert.end();
-
-});

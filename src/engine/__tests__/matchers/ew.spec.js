@@ -35,19 +35,3 @@ tape('MATCHER ENDS_WITH / should return true ONLY when the value ends with ["a",
   assert.end();
 
 });
-
-tape('MATCHER ENDS_WITH / negate should return false when the expected return value is true', function (assert) {
-
-  let matcher = matcherFactory({
-    negate: true,
-    type: matcherTypes.ENDS_WITH,
-    value: ['a', 'b', 'c']
-  });
-
-  assert.false(matcher('america'), 'NOT america end with ["a", "b", "c"]');
-  assert.false(matcher('blob'), 'NOT blob end with ["a", "b", "c"]');
-  assert.false(matcher('zodiac'), 'NOT zodiac end with ["a", "b", "c"]');
-  assert.true(matcher('violin'), 'NOT violin doesn\'t end with ["a", "b", "c"]');
-  assert.true(matcher('manager'), 'NOT manager doesn\'t end with ["a", "b", "c"]');
-  assert.end();
-});

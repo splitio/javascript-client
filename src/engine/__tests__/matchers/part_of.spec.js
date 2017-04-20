@@ -36,20 +36,3 @@ tape('MATCHER PART_OF_SET / should return true ONLY when value is part of of set
   assert.end();
 
 });
-
-tape('MATCHER PART_OF_SET / negate should return false when the expected return value is true', function (assert) {
-
-  let matcher = matcherFactory({
-    negate: true,
-    type: matcherTypes.PART_OF_SET,
-    value: ['update', 'add', 'delete']
-  });
-
-  assert.false(matcher(['update', 'add']),           'NOT ["update", "add"] is part of of set ["update", "add", "delete"]');
-  assert.false(matcher(['add', 'update']),           'NOT ["add", "update"] is part of of set ["update", "add", "delete"]');
-  assert.false(matcher(['update', 'add', 'delete']), 'NOT ["update", "add", "delete"] is part of of set ["update", "add", "delete"]');
-  assert.false(matcher(['update']),                  'NOT ["update"] is part of set ["update", "add", "delete"]');
-  assert.true(matcher(['add', 'create']),            'NOT ["add", "create"] is not part of set ["update", "add", "delete"]');
-  assert.true(matcher(['write']),                    'NOT ["add"] is not part of set ["update", "add", "delete"]');
-  assert.end();
-});
