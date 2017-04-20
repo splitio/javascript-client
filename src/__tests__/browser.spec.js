@@ -13,14 +13,19 @@ const settings = SettingsFactory({
     key: 'facundo@split.io'
   }
 });
+const SDK_INSTANCES_TO_TEST = 4;
 
 const splitChangesMock1 = require('./mocks/splitchanges.since.-1.json');
 const splitChangesMock2 = require('./mocks/splitchanges.since.1457552620999.json');
 const mySegmentsMock = require('./mocks/mysegments.facundo@split.io.json');
 
-fetchMock.mock(settings.url('/splitChanges?since=-1'), splitChangesMock1);
-fetchMock.mock(settings.url('/splitChanges?since=1457552620999'), splitChangesMock2);
-fetchMock.mock(settings.url('/mySegments/facundo@split.io'), mySegmentsMock);
+const delayResponse = (mock) => {
+  return new Promise(res => setTimeout(res, 0)).then(() => mock);
+};
+
+fetchMock.mock(settings.url('/splitChanges?since=-1'), () => delayResponse(splitChangesMock1));
+fetchMock.mock(settings.url('/splitChanges?since=1457552620999'), () => delayResponse(splitChangesMock2));
+fetchMock.mock(settings.url('/mySegments/facundo@split.io'), () => delayResponse(mySegmentsMock));
 
 const settingsInMemory = {
   core: {
@@ -52,10 +57,9 @@ const settingsInLocalStorage = {
 };
 
 function e2eAssertionSuite(config, assert) {
-  const splitio = SplitFactory(config);
-  const client = splitio.client();
+  let i = 0, tested = 0;
 
-  const getTreatmentTests = () => {
+  const getTreatmentTests = (client) => {
     assert.equal(client.getTreatment('blacklist'), 'not_allowed');
     assert.equal(client.getTreatment('whitelist'), 'allowed');
     assert.equal(client.getTreatment('splitters'), 'on');
@@ -227,7 +231,7 @@ function e2eAssertionSuite(config, assert) {
     }), 'off');
   };
 
-  const getTreatmentsTests = () => {
+  const getTreatmentsTests = (client) => {
     assert.deepEqual(client.getTreatments([
       // Treatments List
       'blacklist',
@@ -289,12 +293,20 @@ function e2eAssertionSuite(config, assert) {
 
   };
 
-  client.ready().then(() => {
-    getTreatmentTests();
-    getTreatmentsTests();
+  for(i; i < SDK_INSTANCES_TO_TEST; i++) {
+    let splitio = SplitFactory(config);
+    let client = splitio.client();
 
-    assert.end();
-  });
+    client.ready().then(() => {
+      getTreatmentTests(client);
+      getTreatmentsTests(client);
+      tested++;
+
+      if (tested === SDK_INSTANCES_TO_TEST) {
+        assert.end();
+      }
+    });
+  }
 
 }
 

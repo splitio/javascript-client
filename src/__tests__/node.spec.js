@@ -4,25 +4,12 @@
 
 const tape = require('tape-catch');
 const SplitFactory = require('../');
+const SDK_INSTANCES_TO_TEST = 4;
 
 tape('NodeJS E2E', function (assert) {
-  const config = {
-    core: {
-      authorizationKey: '5i7avi2rpj8i7qg99fhmc38244kcineavla0'
-    },
-    scheduler: {
-      featuresRefreshRate: 15,
-      segmentsRefreshRate: 15
-    },
-    urls: {
-      sdk: 'https://sdk-aws-staging.split.io/api',
-      events: 'https://events-aws-staging.split.io/api'
-    }
-  };
-  const factory = SplitFactory(config);
-  const client = factory.client();
+  let i = 0, tested = 0;
 
-  client.on(client.Event.SDK_READY, function () {
+  const assertionSuite = client => {
     assert.comment('QA User');
     assert.equal(client.getTreatment('qa-user', 'always-off'), 'off');
     assert.equal(client.getTreatment('qa-user', 'always-on'), 'on');
@@ -60,8 +47,35 @@ tape('NodeJS E2E', function (assert) {
     });
 
     client.destroy();
+  }
 
-    assert.end();
-  });
+  const config = {
+    core: {
+      authorizationKey: '5i7avi2rpj8i7qg99fhmc38244kcineavla0'
+    },
+    scheduler: {
+      featuresRefreshRate: 15,
+      segmentsRefreshRate: 15
+    },
+    urls: {
+      sdk: 'https://sdk-aws-staging.split.io/api',
+      events: 'https://events-aws-staging.split.io/api'
+    }
+  };
+
+
+  for(i; i < SDK_INSTANCES_TO_TEST; i++) {
+    const factory = SplitFactory(config);
+    const client = factory.client();
+
+    client.ready().then(() => {
+      assertionSuite(client);
+      tested++;
+
+      if (tested === SDK_INSTANCES_TO_TEST) {
+        assert.end();
+      }
+    });
+  }
 
 });
