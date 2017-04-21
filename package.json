@@ -50,7 +50,7 @@
     "karma-sauce-launcher": "^1.0.0",
     "karma-tap": "^3.0.1",
     "karma-webpack": "^1.8.0",
-    "redis-dump": "^0.1.10",
+    "redis-dump": "0.1.10",
     "rimraf": "^2.5.4",
     "tape": "^4.6.0",
     "tape-catch": "^1.0.6",
