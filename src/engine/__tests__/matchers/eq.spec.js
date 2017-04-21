@@ -24,35 +24,12 @@ tape('MATCHER EQUAL / should return true ONLY when the value is equal to 10', fu
   let matcher = matcherFactory({
     negate: false,
     type: matcherTypes.EQUAL_TO,
-    value: {
-      dataType: 'NUMBER',
-      value: 10
-    }
+    value: 10
   });
 
   assert.true(matcher(10),         '10 == 10');
   assert.false(matcher(11),        '10 != 11');
-  assert.false(matcher(undefined), '10 != undefined');
-  assert.false(matcher(null),      '10 != null');
-  assert.end();
-
-});
-
-tape('MATCHER EQUAL / negate should return false when the expected return value is true', function (assert) {
-
-  let matcher = matcherFactory({
-    negate: true,
-    type: matcherTypes.EQUAL_TO,
-    value: {
-      dataType: 'NUMBER',
-      value: 10
-    }
-  });
-
-  assert.false(matcher(10),       '! 10 == 10');
-  assert.true(matcher(11),        '! 10 != 11');
-  assert.true(matcher(undefined), '! 10 != undefined');
-  assert.true(matcher(null),      '! 10 != null');
+  assert.false(matcher(9),         '10 != 9');
   assert.end();
 
 });

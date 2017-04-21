@@ -13,19 +13,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-
 'use strict';
 
-const log = require('debug')('splitio-engine:matcher');
-
-function equalToMatcherContext(ruleAttr /*: number */) /*: Function */ {
-  return function equalToMatcher(runtimeAttr /*: number */) /*: boolean */ {
-    let isEqual = runtimeAttr === ruleAttr;
-
-    log(`[equalToMatcher] is ${runtimeAttr} equal to ${ruleAttr}? ${isEqual}`);
-
-    return isEqual;
-  };
+function transform(unaryNumericObject /*: Object */) /*: number */ {
+  return unaryNumericObject.value;
 }
 
-module.exports = equalToMatcherContext;
+module.exports = transform;

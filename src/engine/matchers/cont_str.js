@@ -17,15 +17,16 @@ limitations under the License.
 'use strict';
 
 const log = require('debug')('splitio-engine:matcher');
+const includes = require('lodash/includes');
 
-function equalToMatcherContext(ruleAttr /*: number */) /*: Function */ {
-  return function equalToMatcher(runtimeAttr /*: number */) /*: boolean */ {
-    let isEqual = runtimeAttr === ruleAttr;
+function containsStringMatcherContext(ruleAttr /*: array */) /*: Function */ {
+  return function containsStringMatcher(runtimeAttr /*: string */) /*: boolean */ {
+    let contains = ruleAttr.some(e => includes(runtimeAttr, e));
 
-    log(`[equalToMatcher] is ${runtimeAttr} equal to ${ruleAttr}? ${isEqual}`);
+    log(`[containsStringMatcher] ${runtimeAttr} ends with ${ruleAttr}? ${contains}`);
 
-    return isEqual;
+    return contains;
   };
 }
 
-module.exports = equalToMatcherContext;
+module.exports = containsStringMatcherContext;

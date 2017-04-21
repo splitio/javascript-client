@@ -13,34 +13,18 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-'use strict';
 
-/*eslint-disable eqeqeq */
+'use strict';
 
 const log = require('debug')('splitio-engine:matcher');
 const intersection = require('lodash/intersection');
-const uniq = require('lodash/uniq');
-const isArray = require('lodash/isArray');
 
-function partOfMatcherContext(vo /*: whitelistObject */) /*: Function */ {
-  return function partOfMatcher(value /*: array */) /*: boolean */ {
-    if (!isArray(value)) {
-      log(`[partOfMatcher] value doesn't match, we only accept Array`);
+function partOfMatcherContext(ruleAttr /*: array */) /*: Function */ {
+  return function partOfMatcher(runtimeAttr /*: array */) /*: boolean */ {
+    // If the intersection returns all of runtimeAttr elements, it is a part of ruleAttr
+    const isPartOf = intersection(runtimeAttr, ruleAttr).length === runtimeAttr.length;
 
-      return false;
-    }
-
-    const normalizedValue = uniq(value.map(e => e + ''));
-    let isPartOf = false;
-
-    if (normalizedValue.length > 0) {
-      // If the intersection returns all of value elements, it is a part of vo.value
-      isPartOf = intersection(normalizedValue, vo.whitelist).length === normalizedValue.length;
-
-      log(`[partOfMatcher] ${value} is part of ${vo.whitelist}? ${isPartOf}`);
-    } else {
-      log(`[partOfMatcher] empty set doesn't match`);
-    }
+    log(`[partOfMatcher] ${runtimeAttr} is part of ${ruleAttr}? ${isPartOf}`);
 
     return isPartOf;
   };

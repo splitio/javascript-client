@@ -21,10 +21,11 @@ limitations under the License.
 const matchersTransform = require('../transforms/matchers');
 const treatmentsParser = require('../treatments').parse;
 const matcherFactory = require('../matchers');
-const value = require('../value');
+const sanitizeValue = require('../value');
 const evaluatorFactory = require('../evaluator');
 const ifElseIfCombiner = require('../combiners/ifelseif');
 const andCombiner = require('../combiners/and');
+const thenable = require('../../utils/promise/thenable');
 
 function parse(conditions: Array<Condition>, storage: SplitStorage): any {
   let predicates = [];
@@ -47,9 +48,13 @@ function parse(conditions: Array<Condition>, storage: SplitStorage): any {
       const matcher = matcherFactory(matcherDto, storage);
 
       return (key, attributes) => {
-        return matcher(
-          value(key, matcherDto.attribute, attributes) // value to be matched
-        );
+        const value = sanitizeValue(key, matcherDto, attributes);
+        const result = value !== undefined ? matcher(value) : false;
+
+        if (thenable(result)) {
+          return result.then(res => Boolean(res ^ matcherDto.negate));
+        }
+        return Boolean(result ^ matcherDto.negate);
       };
     });
 

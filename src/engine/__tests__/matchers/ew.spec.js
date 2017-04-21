@@ -19,25 +19,19 @@ const tape = require('tape-catch');
 const matcherTypes = require('../../matchers/types').enum;
 const matcherFactory = require('../../matchers');
 
-tape('MATCHER BETWEEN / should return true ONLY when the value is between 10 and 20', function (assert) {
+tape('MATCHER ENDS_WITH / should return true ONLY when the value ends with ["a", "b", "c"', function (assert) {
 
   let matcher = matcherFactory({
     negate: false,
-    type: matcherTypes.BETWEEN,
-    value: {
-      dataType: 'NUMBER',
-      start: 10,
-      end: 20
-    }
+    type: matcherTypes.ENDS_WITH,
+    value: ['a', 'b', 'c']
   });
 
-  assert.false(matcher(9),         '9 is not between 10 and 20');
-  assert.true(matcher(10),         '10 is between 10 and 20');
-  assert.true(matcher(15),         '15 is between 10 and 20');
-  assert.true(matcher(20),         '20 is between 10 and 20');
-  assert.false(matcher(21),        '21 is not between 10 and 20');
-  assert.false(matcher(undefined), 'undefined is not between 10 and 20');
-  assert.false(matcher(null),      'null is not between 10 and 20');
+  assert.true(matcher('america'), 'america end with ["a", "b", "c"]');
+  assert.true(matcher('blob'), 'blob end with ["a", "b", "c"]');
+  assert.true(matcher('zodiac'), 'zodiac end with ["a", "b", "c"]');
+  assert.false(matcher('violin'), 'violin doesn\'t end with ["a", "b", "c"]');
+  assert.false(matcher('manager'), 'manager doesn\'t end with ["a", "b", "c"]');
   assert.end();
 
 });

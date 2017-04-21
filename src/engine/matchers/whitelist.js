@@ -17,11 +17,11 @@ limitations under the License.
 
 const log = require('debug')('splitio-engine:matcher');
 
-function whitelistMatcherContext(whitelist /*: Set */) /*: Function */ {
-  return function whitelistMatcher(value /*: string */) /*: boolean */ {
-    let isInWhitelist = whitelist.has(value);
+function whitelistMatcherContext(ruleAttr /*: Set */) /*: Function */ {
+  return function whitelistMatcher(runtimeAttr /*: string */) /*: boolean */ {
+    let isInWhitelist = ruleAttr.has(runtimeAttr);
 
-    log(`[whitelistMatcher] evaluated ${value} in [${[...whitelist].join(',')}] => ${isInWhitelist}`);
+    log(`[whitelistMatcher] evaluated ${runtimeAttr} in [${[...ruleAttr].join(',')}] => ${isInWhitelist}`);
 
     return isInWhitelist;
   };

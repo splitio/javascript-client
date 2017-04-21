@@ -33,7 +33,16 @@ module.exports = {
     CONTAINS_ALL_OF_SET: 11,
     PART_OF_SET: 12,
     ENDS_WITH: 13,
-    STARTS_WITH: 14
+    STARTS_WITH: 14,
+    CONTAINS_STRING: 15
+  },
+
+  dataTypes: {
+    STRING: 'STRING',
+    NUMBER: 'NUMBER',
+    SET: 'SET',
+    DATETIME: 'DATETIME',
+    NOT_SPECIFIED: 'NOT_SPECIFIED'
   },
 
   mapper(matcherType: string): number {
@@ -66,6 +75,8 @@ module.exports = {
         return types.ENDS_WITH;
       case 'STARTS_WITH':
         return types.STARTS_WITH;
+      case 'CONTAINS_STRING':
+        return types.CONTAINS_STRING;
       default:
         return types.UNDEFINED;
     }

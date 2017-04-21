@@ -19,26 +19,38 @@ limitations under the License.
 'use strict';
 
 const log = require('debug')('splitio-engine:value');
+const sanitizeValue = require('./sanitize');
+
+function parseValue(key: string, attributeName: string, attributes: Object) {
+  let value = undefined;
+  if (attributeName) {
+    if (attributes) {
+      value = attributes[attributeName];
+      log('Extracted attribute [%s], [%s] will be used for matching', attributeName, value);
+    } else {
+      log('Defined attribute [%s], no attributes received', attributeName);
+    }
+  } else {
+    value = key;
+  }
+
+  return value;
+}
 
 /**
  * Defines value to be matched (key / attribute).
  */
-function value(key: string, attributeName: string, attributes: Object): ?string {
-  let valueToMatch = undefined;
+function value(key: string, matcherDto: Object, attributes: Object): ?string {
+  const attributeName = matcherDto.attribute;
+  const valueToMatch = parseValue(key, attributeName, attributes);
+  const sanitizedValue = sanitizeValue(matcherDto.type, valueToMatch, matcherDto.dataType);
 
-  if (attributeName) {
-    if (attributes) {
-      valueToMatch = attributes[attributeName];
-
-      log('Extracted attribute [%s], using [%s] for matching', attributeName, valueToMatch);
-    } else {
-      log('Defined attribute [%s], but none attributes defined', attributeName);
-    }
+  if (sanitizedValue !== undefined) {
+    return sanitizedValue;
   } else {
-    valueToMatch = key;
+    log('Value [%s]' + (attributeName ? ' for attribute [%s]' : + '') + ' doesn\'t match with expected type', valueToMatch, attributeName);
+    return;
   }
-
-  return valueToMatch;
 }
 
 module.exports = value;

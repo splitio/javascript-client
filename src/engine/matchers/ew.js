@@ -13,18 +13,17 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+
 'use strict';
 
-/*eslint-disable eqeqeq */
-
 const log = require('debug')('splitio-engine:matcher');
-const _endsWith = require('lodash/endsWith')
+const strEndsWith = require('lodash/endsWith');
 
-function endsWithMatcherContext(vo /*: unaryStringObject */) /*: Function */ {
-  return function endsWithMatcher(value /*: string */) /*: boolean */ {
-    let endsWith = _endsWith(value, vo.value);
+function endsWithMatcherContext(ruleAttr /*: array */) /*: Function */ {
+  return function endsWithMatcher(runtimeAttr /*: string */) /*: boolean */ {
+    let endsWith = ruleAttr.some(e => strEndsWith(runtimeAttr, e));
 
-    log(`[endsWithMatcher] ${value} ends with ${vo.value}? ${endsWith}`);
+    log(`[endsWithMatcher] ${runtimeAttr} ends with ${ruleAttr}? ${endsWith}`);
 
     return endsWith;
   };

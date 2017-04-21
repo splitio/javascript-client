@@ -77,6 +77,33 @@ tape('PARSER / if user is in segment all 100%:off', async function (assert) {
 
 });
 
+tape('PARSER / NEGATED if user is in segment all 100%:on, then no match', async function (assert) {
+
+  const evaluator = parser([{
+    matcherGroup: {
+      combiner: 'AND',
+      matchers: [{
+        matcherType: 'ALL_KEYS',
+        negate: true,
+        userDefinedSegmentMatcherData: null,
+        whitelistMatcherData: null
+      }]
+    },
+    partitions: [{
+      treatment: 'on',
+      size: 100
+    }],
+    label: 'in segment all'
+  }]);
+
+  const evaluation = await evaluator(keyParser('a key'), 31, 100, 31);
+
+  assert.equal(typeof evaluator, 'function', 'evaluator should be callable');
+  assert.equal(evaluation, undefined, "evaluator should return undefined");
+  assert.end();
+
+});
+
 tape('PARSER / if user is in segment ["u1", "u2", "u3", "u4"] then split 100%:on', async function (assert) {
 
   const evaluator = parser([{
@@ -114,6 +141,47 @@ tape('PARSER / if user is in segment ["u1", "u2", "u3", "u4"] then split 100%:on
 
   evaluation = await evaluator(keyParser('u3'), 31, 100, 31);
   assert.true(evaluation.label === 'explicitly included', "label should be evaluated to 'explicitly included'");
+  assert.end();
+
+});
+
+tape('PARSER / NEGATED if user is in segment ["u1", "u2", "u3", "u4"] then split 100%:on, negated results', async function (assert) {
+
+  const evaluator = parser([{
+    matcherGroup: {
+      combiner: 'AND',
+      matchers: [{
+        matcherType: 'WHITELIST',
+        negate: true,
+        userDefinedSegmentMatcherData: null,
+        whitelistMatcherData: {
+          whitelist: [
+            'u1',
+            'u2',
+            'u3',
+            'u4'
+          ]
+        }
+      }]
+    },
+    partitions: [{
+      treatment: 'on',
+      size: 100
+    }],
+    label: 'explicitly included'
+  }]);
+
+  let evaluation = await evaluator(keyParser('a key'), 31, 100, 31);
+  assert.true(evaluation.treatment === 'on', "treatment evaluation should throw 'on'");
+
+  evaluation = await evaluator(keyParser('u1'), 31, 100, 31);
+  assert.true(evaluation === undefined, 'evaluation should throw undefined');
+
+  evaluation = await evaluator(keyParser('u3'), 31, 100, 31);
+  assert.true(evaluation === undefined, 'evaluation should throw undefined');
+
+  evaluation = await evaluator(keyParser('u3'), 31, 100, 31);
+  assert.true(evaluation === undefined, 'evaluation should throw undefined');
   assert.end();
 
 });
@@ -167,7 +235,7 @@ tape('PARSER / if user.account is in list ["v1", "v2", "v3"] then split 100:on',
 
 });
 
-tape('PARSER / if user.account is in segment all then split 100:on', async function (assert) {
+tape('PARSER / NEGATED if user.account is in list ["v1", "v2", "v3"] then split 100:on, negated results', async function (assert) {
 
   const evaluator = parser([{
     matcherGroup: {
@@ -177,6 +245,51 @@ tape('PARSER / if user.account is in segment all then split 100:on', async funct
           trafficType: 'user',
           attribute: 'account'
         },
+        matcherType: 'WHITELIST',
+        negate: true,
+        userDefinedSegmentMatcherData: null,
+        whitelistMatcherData: {
+          whitelist: [
+            'v1',
+            'v2',
+            'v3'
+          ]
+        },
+        unaryNumericMatcherData: null,
+        betweenMatcherData: null
+      }]
+    },
+    partitions: [{
+      treatment: 'on',
+      size: 100
+    }],
+    label: 'explicitly included'
+  }]);
+
+  let evaluation = await evaluator(keyParser('test@split.io'), 31, 100, 31, {
+    account: 'v1'
+  });
+  assert.true(evaluation === undefined, 'v1 is defined in the whitelist');
+
+  evaluation = await evaluator(keyParser('v1'), 31, 100, 31);
+  assert.true(evaluation.treatment === 'on', 'we are looking for v1 inside the account attribute');
+  assert.true(evaluation.label === 'explicitly included', 'label should be "explicitly included"');
+
+  evaluation = await evaluator(keyParser('test@split.io'), 31, 100, 31, {
+    account: 'v4'
+  });
+  assert.true(evaluation.treatment === 'on', 'v4 is not defined in the whitelist');
+  assert.true(evaluation.label === 'explicitly included', 'label should be "explicitly included"');
+
+  assert.end();
+
+});
+
+tape('PARSER / if user.account is in segment all then split 100:on', async function (assert) {
+  const evaluator = parser([{
+    matcherGroup: {
+      combiner: 'AND',
+      matchers: [{
         matcherType: 'ALL_KEYS',
         negate: false,
         userDefinedSegmentMatcherData: null,
@@ -193,12 +306,8 @@ tape('PARSER / if user.account is in segment all then split 100:on', async funct
     label: 'in segment all'
   }]);
 
-  let evaluation = await evaluator(keyParser('test@split.io'), 31, 100, 31, {
-    account: 'v1'
-  });
-  assert.true(evaluation.treatment === 'on', 'v1 is defined in segment all');
-
-  assert.true(await evaluator(keyParser('test@split.io'), 31, 100, 31) === undefined, 'missing attribute should evaluates to undefined');
+  const evaluation = await evaluator(keyParser('test@split.io'), 31, 100, 31);
+  assert.true(evaluation.treatment === 'on', 'ALL_KEYS always matches');
 
   assert.end();
 });
@@ -245,6 +354,50 @@ tape('PARSER / if user.attr is between 10 and 20 then split 100:on', async funct
     await evaluator(keyParser('test@split.io'), 31, 100, 31) === undefined,
     'undefined is not between 10 and 20'
   );
+
+  assert.end();
+});
+
+tape('PARSER / NEGATED if user.attr is between 10 and 20 then split 100:on, negated results', async function (assert) {
+
+  const evaluator = parser([{
+    matcherGroup: {
+      combiner: 'AND',
+      matchers: [{
+        keySelector: {
+          trafficType: 'user',
+          attribute: 'attr'
+        },
+        matcherType: 'BETWEEN',
+        negate: true,
+        userDefinedSegmentMatcherData: null,
+        whitelistMatcherData: null,
+        unaryNumericMatcherData: null,
+        betweenMatcherData: {
+          dataType: 'NUMBER',
+          start: 10,
+          end: 20
+        }
+      }]
+    },
+    partitions: [{
+      treatment: 'on',
+      size: 100
+    }]
+  }]);
+
+  let evaluation = await evaluator(keyParser('test@split.io'), 31, 100, 31, {
+    attr: 10
+  });
+  assert.true(evaluation === undefined, '10 is between 10 and 20');
+
+  evaluation = await evaluator(keyParser('test@split.io'), 31, 100, 31, {
+    attr: 9
+  });
+  assert.true(evaluation.treatment === 'on', '9 is not between 10 and 20');
+
+  evaluation = await evaluator(keyParser('test@split.io'), 31, 100, 31);
+  assert.true(evaluation.treatment === 'on', 'undefined is not between 10 and 20');
 
   assert.end();
 });
@@ -299,6 +452,54 @@ tape('PARSER / if user.attr <= datetime 1458240947021 then split 100:on', async 
   assert.end();
 });
 
+tape('PARSER / NEGATED if user.attr <= datetime 1458240947021 then split 100:on, negated results', async function (assert) {
+
+  const evaluator = parser([{
+    matcherGroup: {
+      combiner: 'AND',
+      matchers: [{
+        keySelector: {
+          trafficType: 'user',
+          attribute: 'attr'
+        },
+        matcherType: 'LESS_THAN_OR_EQUAL_TO',
+        negate: true,
+        userDefinedSegmentMatcherData: null,
+        whitelistMatcherData: null,
+        unaryNumericMatcherData: {
+          dataType: 'DATETIME',
+          value: 1458240947021
+        },
+        betweenMatcherData: null
+      }]
+    },
+    partitions: [{
+      treatment: 'on',
+      size: 100
+    }]
+  }]);
+
+  let evaluation = await evaluator(keyParser('test@split.io'), 31, 100, 31, {
+    attr: new Date('2016-03-17T18:55:47.021Z').getTime()
+  });
+  assert.true(evaluation === undefined, '1458240947021 is equal');
+
+  evaluation = await evaluator(keyParser('test@split.io'), 31, 100, 31, {
+    attr: new Date('2016-03-17T17:55:47.021Z').getTime()
+  });
+  assert.true(evaluation === undefined, '1458240947020 is less than 1458240947021');
+
+  evaluation = await evaluator(keyParser('test@split.io'), 31, 100, 31, {
+    attr: new Date('2016-03-17T19:55:47.021Z').getTime()
+  });
+  assert.true(evaluation.treatment === 'on', '1458240947022 is not less than 1458240947021');
+
+  evaluation = await evaluator(keyParser('test@split.io'), 31, 100, 31);
+  assert.true(evaluation.treatment === 'on', 'missing attributes in the parameters list');
+
+  assert.end();
+});
+
 tape('PARSER / if user.attr >= datetime 1458240947021 then split 100:on', async function (assert) {
 
   const evaluator = parser([{
@@ -348,6 +549,54 @@ tape('PARSER / if user.attr >= datetime 1458240947021 then split 100:on', async 
   assert.end();
 });
 
+tape('PARSER / NEGATED if user.attr >= datetime 1458240947021 then split 100:on, negated results', async function (assert) {
+
+  const evaluator = parser([{
+    matcherGroup: {
+      combiner: 'AND',
+      matchers: [{
+        keySelector: {
+          trafficType: 'user',
+          attribute: 'attr'
+        },
+        matcherType: 'GREATER_THAN_OR_EQUAL_TO',
+        negate: true,
+        userDefinedSegmentMatcherData: null,
+        whitelistMatcherData: null,
+        unaryNumericMatcherData: {
+          dataType: 'DATETIME',
+          value: 1458240947021
+        },
+        betweenMatcherData: null
+      }]
+    },
+    partitions: [{
+      treatment: 'on',
+      size: 100
+    }]
+  }]);
+
+  let evaluation = await evaluator(keyParser('test@split.io'), 31, 100, 31, {
+    attr: new Date('2016-03-17T18:55:47.021Z').getTime()
+  });
+  assert.true(evaluation === undefined, '1458240947021 is equal');
+
+  evaluation = await evaluator(keyParser('test@split.io'), 31, 100, 31, {
+    attr: new Date('2016-03-17T17:55:47.021Z').getTime()
+  });
+  assert.true(evaluation.treatment === 'on', '1458240947020 is less than 1458240947021');
+
+  evaluation = await evaluator(keyParser('test@split.io'), 31, 100, 31, {
+    attr: new Date('2016-03-17T19:55:47.021Z').getTime()
+  });
+  assert.true(evaluation === undefined, '1458240947000 is greater than 1458240947021');
+
+  evaluation = await evaluator(keyParser('test@split.io'), 31, 100, 31);
+  assert.true(evaluation.treatment === 'on', 'missing attributes in the parameters list');
+
+  assert.end();
+});
+
 tape('PARSER / if user.attr = datetime 1458240947021 then split 100:on', async function (assert) {
 
   const evaluator = parser([{
@@ -393,6 +642,54 @@ tape('PARSER / if user.attr = datetime 1458240947021 then split 100:on', async f
   assert.equal(await evaluator(keyParser('test@split.io'), 31, 100, 31), undefined,
     'missing attributes should be evaluated to false'
   );
+  assert.end();
+});
+
+tape('PARSER / NEGATED if user.attr = datetime 1458240947021 then split 100:on, negated results', async function (assert) {
+
+  const evaluator = parser([{
+    matcherGroup: {
+      combiner: 'AND',
+      matchers: [{
+        keySelector: {
+          trafficType: 'user',
+          attribute: 'attr'
+        },
+        matcherType: 'EQUAL_TO',
+        negate: true,
+        userDefinedSegmentMatcherData: null,
+        whitelistMatcherData: null,
+        unaryNumericMatcherData: {
+          dataType: 'DATETIME',
+          value: 1458240947021
+        },
+        betweenMatcherData: null
+      }]
+    },
+    partitions: [{
+      treatment: 'on',
+      size: 100
+    }]
+  }]);
+
+  let evaluation = await evaluator(keyParser('test@split.io'), 31, 100, 31, {
+    attr: 1458240947021
+  });
+  assert.equal(evaluation, undefined, '2016-03-17T18:55:47.021Z is equal to 2016-03-17T18:55:47.021Z');
+
+  evaluation = await evaluator(keyParser('test@split.io'), 31, 100, 31, {
+    attr: 1458240947020
+  });
+  assert.equal(evaluation, undefined, '2016-03-17T18:55:47.020Z is considered equal to 2016-03-17T18:55:47.021Z');
+
+  evaluation = await evaluator(keyParser('test@split.io'), 31, 100, 31, {
+    attr: 1458240947020
+  });
+  assert.equal(evaluation, undefined, '2016-03-17T00:00:00Z is considered equal to 2016-03-17T18:55:47.021Z');
+
+  evaluation = await evaluator(keyParser('test@split.io'), 31, 100, 31);
+  assert.equal(evaluation.treatment, 'on', 'missing attributes should be evaluated to false');
+
   assert.end();
 });
 

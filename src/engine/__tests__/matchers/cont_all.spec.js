@@ -19,25 +19,19 @@ const tape = require('tape-catch');
 const matcherTypes = require('../../matchers/types').enum;
 const matcherFactory = require('../../matchers');
 
-tape('MATCHER BETWEEN / should return true ONLY when the value is between 10 and 20', function (assert) {
+tape('MATCHER CONTAINS_ALL_OF_SET / should return true ONLY when value contains all of set ["update", "add"]', function (assert) {
 
   let matcher = matcherFactory({
     negate: false,
-    type: matcherTypes.BETWEEN,
-    value: {
-      dataType: 'NUMBER',
-      start: 10,
-      end: 20
-    }
+    type: matcherTypes.CONTAINS_ALL_OF_SET,
+    value: ['update', 'add']
   });
 
-  assert.false(matcher(9),         '9 is not between 10 and 20');
-  assert.true(matcher(10),         '10 is between 10 and 20');
-  assert.true(matcher(15),         '15 is between 10 and 20');
-  assert.true(matcher(20),         '20 is between 10 and 20');
-  assert.false(matcher(21),        '21 is not between 10 and 20');
-  assert.false(matcher(undefined), 'undefined is not between 10 and 20');
-  assert.false(matcher(null),      'null is not between 10 and 20');
+  assert.true(matcher(['update', 'add']),           '["update", "add"] contains all of set ["update", "add"]');
+  assert.true(matcher(['update', 'add', 'delete']), '["update", "add", "delete"] contains all of set ["update", "add"]');
+  assert.false(matcher(['update']),                 '["update"] does not contain all of set ["update", "add"]');
+  assert.false(matcher(['add', 'create']),          '["add", "create"] does not contain all of set ["update", "add"]');
+  assert.false(matcher(['add']),                    '["add"] does not contain all of set ["update", "add"]');
   assert.end();
 
 });

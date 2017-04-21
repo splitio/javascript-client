@@ -19,25 +19,19 @@ const tape = require('tape-catch');
 const matcherTypes = require('../../matchers/types').enum;
 const matcherFactory = require('../../matchers');
 
-tape('MATCHER BETWEEN / should return true ONLY when the value is between 10 and 20', function (assert) {
+tape('MATCHER EQUAL_TO_SET / should return true ONLY when value is equal to set ["update", "add"]', function (assert) {
 
   let matcher = matcherFactory({
     negate: false,
-    type: matcherTypes.BETWEEN,
-    value: {
-      dataType: 'NUMBER',
-      start: 10,
-      end: 20
-    }
+    type: matcherTypes.EQUAL_TO_SET,
+    value: ['update', 'add']
   });
 
-  assert.false(matcher(9),         '9 is not between 10 and 20');
-  assert.true(matcher(10),         '10 is between 10 and 20');
-  assert.true(matcher(15),         '15 is between 10 and 20');
-  assert.true(matcher(20),         '20 is between 10 and 20');
-  assert.false(matcher(21),        '21 is not between 10 and 20');
-  assert.false(matcher(undefined), 'undefined is not between 10 and 20');
-  assert.false(matcher(null),      'null is not between 10 and 20');
+  assert.true(matcher(['update', 'add']),            '["update", "add"] is equal to set ["update", "add"]');
+  assert.true(matcher(['add', 'update']),            '["add", "update"] is equal to set ["update", "add"]');
+  assert.false(matcher(['rename', 'update', 'add']), '["rename", "update", "add"] is not equal to set ["update", "add"]');
+  assert.false(matcher(['update']),                  '["update"] is not equal to set ["update", "add"]');
+  assert.false(matcher(['write']),                   '["write"] does not equal to set ["update", "add"]');
   assert.end();
 
 });

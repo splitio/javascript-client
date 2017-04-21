@@ -1,3 +1,7 @@
+## 9.1.0 (April 21, 2017)
+
+* Adding support for STRING matchers.
+
 ## 9.0.0 (April 17, 2017)
 
 * Adding support for SET matchers.
