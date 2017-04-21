@@ -99,10 +99,10 @@ Update the package.json with the correct value using semver.
 
 For generating and consuming JSON files with Redis instances data, we use redis-dump package.
 
-Requirements: Have a redis instance running and with the desired data (use producers to load data from Google Org).
+Requirements: Have a redis instance running with default config.
 
-To regenerate the mock:
-> ./node_modules/redis-dump/bin/cli/redis-dump --json > src/__tests__/mocks/redis_mock
+To regenerate the mock, run on the root of the project:
+> ./node_modules/redis-dump/bin/cli/redis-dump --json > src/__tests__/mocks/redis_mock.json
 
 Then just run the test (you need a redis instance running of course):
 > npm run test-node-redis
