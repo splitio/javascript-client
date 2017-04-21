@@ -203,7 +203,8 @@ declare type SplitStorage = {
   segments: SegmentCache,
   impressions: StatsCache<string>,
   metrics: StatsCache<number>,
-  shared(): SplitStorage
+  shared(): SplitStorage,
+  destroy(): void
 };
 
 /**

@@ -88,6 +88,7 @@ function SplitFactory(settings: Settings, storage: SplitStorage, gateFactory: an
       // Destroy instance
       destroy() {
         readiness.destroy();
+        storage.destroy && storage.destroy();
 
         producer && producer.stop();
         metrics && metrics.stop();
