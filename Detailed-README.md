@@ -95,6 +95,18 @@ Update the package.json with the correct value using semver.
 1. `npm run build-umd` => UMD version of the code (development).
 1. `npm run build-min` => UMD version of the code but minified.
 
+### Updating Redis mocks for UT
+
+For generating and consuming JSON files with Redis instances data, we use redis-dump package.
+
+Requirements: Have a redis instance running with default config.
+
+To regenerate the mock, run on the root of the project:
+> ./node_modules/redis-dump/bin/cli/redis-dump --json > src/__tests__/mocks/redis_mock.json
+
+Then just run the test (you need a redis instance running of course):
+> npm run test-node-redis
+
 ### CI
 
 > use latest LTS version of NodeJS
@@ -138,5 +150,7 @@ Update the package.json with the correct value using semver.
 `npm run test-browser-e2e-ci`
 
 `npm run test-node`
+
+`npm run test-node-redis`
 
 `npm run rebuild`

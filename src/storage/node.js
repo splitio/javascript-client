@@ -30,7 +30,10 @@ const NodeStorageFactory = (settings: Settings): SplitStorage => {
         splits: new SplitCacheInRedis(keys, redis),
         segments: new SegmentCacheInRedis(keys, redis),
         impressions: new ImpressionsCacheInRedis(keys, redis),
-        metrics: new MetricsCacheInRedis(keys, redis)
+        metrics: new MetricsCacheInRedis(keys, redis),
+        destroy() {
+          redis.disconnect();
+        }
       };
     }
 
