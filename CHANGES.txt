@@ -1,10 +1,16 @@
 ## 9.1.0 (April 21, 2017)
 
 * Adding support for STRING matchers.
+* client.destroy() will disconnect from Redis instance, if you are using that storage.
+* Improved support for multiple SDK instances working at the same time.
+* Improved attribute values type coercion.
+* No API changes.
 
 ## 9.0.0 (April 17, 2017)
 
 * Adding support for SET matchers.
+* Added some type coercion for attribute values, in case we don't receive a value of the expected type.
+* No API changes.
 
 ## 8.2.0 (April 12, 2017)
 
