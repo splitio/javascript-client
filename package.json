@@ -80,10 +80,10 @@
     "@types/node": "^7.0.12",
     "babel-runtime": "^6.20.0",
     "core-js": "^2.4.1",
-    "debug": "^2.5.2",
     "ip": "^1.1.4",
     "isomorphic-fetch": "^2.2.1",
     "lodash": "^4.17.3",
+    "logplease": "^1.2.13",
     "utfx": "^1.0.1",
     "warning": "^3.0.0"
   },
