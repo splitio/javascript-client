@@ -18,6 +18,17 @@ limitations under the License.
 
 const Logger = require('logplease');
 
+const LS_KEY = 'splitio_debug';
+const ENV_VAR_KEY = 'SPLITIO_DEBUG';
+
+const isNode = Boolean(process && process.version);
+
+const initialState = String(
+  isNode ?
+  process.env[ENV_VAR_KEY] :
+  window.localStorage.getItem(LS_KEY)
+);
+
 const API = {
   enable() {
     Logger.setLogLevel(Logger.LogLevels.DEBUG);
@@ -26,10 +37,16 @@ const API = {
     Logger.setLogLevel(Logger.LogLevels.NONE);
   }
 };
-// By default it starts disabled.
-API.disable();
+
+// "enable", "enabled" and "on" are acceptable values
+if (/^(enabled?|on)/i.test(initialState)) {
+  API.enable();
+} else {
+  // By default it starts disabled.
+  API.disable();
+}
 
 // Expose the logger instance creation function as the default export
 exports = module.exports = Logger.create;
-// And our API
+// And our API for programatically usage.
 exports.API = API;
