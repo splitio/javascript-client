@@ -18,7 +18,7 @@ limitations under the License.
 
 'use strict';
 
-const log = require('debug')('splitio-settings');
+const log = require('../../../utils/logger')('splitio-settings');
 
 // Verify localstorage availability
 function isLocalStorageAvailable(): boolean {
@@ -58,7 +58,7 @@ const ParseStorageSettings = (settings: Settings) => {
   if (type !== 'MEMORY' && type !== 'LOCALSTORAGE' ||
       type === 'LOCALSTORAGE' && !isLocalStorageAvailable()) {
     type = 'MEMORY';
-    log('Fallbacking into MEMORY storage');
+    log.warn('Invalid or unavailable storage. Fallbacking into MEMORY storage');
   }
 
   return {

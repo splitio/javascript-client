@@ -20,7 +20,7 @@ limitations under the License.
 
 const fs = require('fs');
 const path = require('path');
-const log = require('debug')('splitio:offline');
+const log = require('../../utils/logger')('splitio:offline');
 
 const FILENAME = '.split';
 
@@ -49,7 +49,7 @@ function readSplitConfigFile(path: string): Array<Array<string>> {
   try {
     data = fs.readFileSync(path, 'utf-8');
   } catch (e) {
-    log(e.message);
+    log.error(e.message);
 
     return [];
   }
@@ -58,12 +58,12 @@ function readSplitConfigFile(path: string): Array<Array<string>> {
     let tuple = line.trim();
 
     if (tuple === '' || tuple.charAt(0) === '#') {
-      log(`Ignoring empty line or comment at #${index}`);
+      log.debug(`Ignoring empty line or comment at #${index}`);
     } else {
       tuple = tuple.split(/\s+/);
 
       if (tuple.length !== 2) {
-        log(`Ignoring line since it does not have exactly two columns #${index}`);
+        log.debug(`Ignoring line since it does not have exactly two columns #${index}`);
       } else {
         accum.push(tuple);
       }
