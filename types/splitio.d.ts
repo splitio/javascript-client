@@ -61,10 +61,29 @@ interface ISettings {
     events: string,
     sdk: string
   },
+  readonly enableLogs: boolean,
   readonly version: string,
   features: {
     [featureName: string]: string
   }
+}
+/**
+ * Logger API
+ * @interface ILoggerAPI
+ */
+interface ILoggerAPI {
+  /**
+   * Enables SDK logging to the console.
+   * @function enable
+   * @returns {void}
+   */
+  enable(): void,
+  /**
+   * Disables SDK logging.
+   * @function disable
+   * @returns {void}
+   */
+  disable(): void
 }
 /**
  * Common settings between Browser and NodeJS settings interface.
@@ -107,7 +126,13 @@ interface ISharedSettings {
      * @default 15
      */
     offlineRefreshRate?: number
-  }
+  },
+  /**
+   * Wether the logger should be enabled or disabled by default.
+   * @property {Boolean} enableLogs
+   * @default false
+   */
+  enableLogs?: boolean
 }
 /**
  * Common settings interface for SDK instances on NodeJS.
@@ -215,7 +240,12 @@ interface IBasicSDK {
    * Current settings of the SDK instance.
    * @property settings
    */
-  settings: ISettings
+  settings: ISettings,
+  /**
+   * Logger API.
+   * @property Logger
+   */
+  Logger: ILoggerAPI
 }
 /****** Exposed namespace ******/
 /**
