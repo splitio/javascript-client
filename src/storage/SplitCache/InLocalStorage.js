@@ -2,7 +2,7 @@
 
 'use strict';
 
-const log = require('debug')('splitio-storage:localstorage');
+const log = require('../../utils/logger')('splitio-storage:localstorage');
 
 class SplitCacheLocalStorage {
   keys: KeyBuilder;
@@ -16,7 +16,7 @@ class SplitCacheLocalStorage {
       localStorage.setItem(this.keys.buildSplitKey(splitName), split);
       return true;
     } catch (e) {
-      log(e);
+      log.error(e);
       return false;
     }
   }
@@ -36,7 +36,7 @@ class SplitCacheLocalStorage {
       localStorage.removeItem(this.keys.buildSplitKey(splitName));
       return 1;
     } catch(e) {
-      log(e);
+      log.error(e);
       return 0;
     }
   }
@@ -65,7 +65,7 @@ class SplitCacheLocalStorage {
       localStorage.setItem(this.keys.buildSplitsTillKey(), changeNumber + '');
       return true;
     } catch (e) {
-      log(e);
+      log.error(e);
       return false;
     }
   }

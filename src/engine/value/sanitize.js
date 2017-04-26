@@ -18,7 +18,7 @@ limitations under the License.
 
 'use strict';
 
-const log = require('debug')('splitio-engine:sanitize');
+const log = require('../../utils/logger')('splitio-engine:sanitize');
 
 const isArray = require('lodash/isArray');
 const uniq = require('lodash/uniq');
@@ -90,7 +90,7 @@ function sanitizeValue(matcherTypeID: number, value: any, dataType: string): any
     sanitizedValue = processor(sanitizedValue);
   }
 
-  log('Attempted to sanitize [%s] which should be of type [%s]. \n Sanitized value => [%s]', value, dataType, sanitizedValue);
+  log.debug(`Attempted to sanitize [${value}] which should be of type [${dataType}]. \n Sanitized value => [${sanitizedValue}]`);
 
   return sanitizedValue;
 }
