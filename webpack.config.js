@@ -33,7 +33,14 @@ module.exports = {
 
   module: {
     loaders: [
-      { test: /\.js$/, exclude: /node_modules/, loader: 'babel' }
+      {
+        test: /\.js$/,
+        include: [
+          /src/,
+          /node_modules\/logplease/
+        ],
+        loader: 'babel'
+      }
     ]
   },
 
