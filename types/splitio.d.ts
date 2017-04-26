@@ -61,7 +61,7 @@ interface ISettings {
     events: string,
     sdk: string
   },
-  readonly enableLogs: boolean,
+  readonly debug: boolean,
   readonly version: string,
   features: {
     [featureName: string]: string
@@ -129,10 +129,10 @@ interface ISharedSettings {
   },
   /**
    * Wether the logger should be enabled or disabled by default.
-   * @property {Boolean} enableLogs
+   * @property {Boolean} debug
    * @default false
    */
-  enableLogs?: boolean
+  debug?: boolean
 }
 /**
  * Common settings interface for SDK instances on NodeJS.

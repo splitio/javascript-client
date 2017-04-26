@@ -266,7 +266,7 @@ let fullBrowserSettings: SplitIO.IBrowserSettings = {
     type: 'LOCALSTORAGE',
     prefix: 'PREFIX'
   },
-  enableLogs: true
+  debug: true
 };
 fullBrowserSettings.storage.type = 'MEMORY';
 
@@ -288,7 +288,7 @@ let fullNodeSettings: SplitIO.INodeSettings = {
     prefix: 'PREFIX'
   },
   mode: 'standalone',
-  enableLogs: false
+  debug: false
 };
 fullNodeSettings.storage.type = 'MEMORY';
 fullNodeSettings.mode = 'consumer';
@@ -314,5 +314,5 @@ let fullAsyncSettings: SplitIO.INodeAsyncSettings = {
     prefix: 'PREFIX'
   },
   mode: 'standalone',
-  enableLogs: true
+  debug: true
 };

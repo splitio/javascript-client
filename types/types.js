@@ -285,7 +285,7 @@ declare type Settings = {
     prefix: string
   },
 
-  enableLogs: boolean,
+  debug: boolean,
 
   runtime: {
     ip: string,

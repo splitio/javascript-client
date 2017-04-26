@@ -68,7 +68,7 @@ const base = {
   },
 
   // Defines if the logs are enabled, SDK wide.
-  enableLogs: false,
+  debug: false,
 
   // Instance version.
   version: `${language}-9.1.0`
@@ -104,7 +104,7 @@ function defaults(custom: Object): Settings {
   // ensure a valid Storage based on mode defined.
   withDefaults.storage = storage(withDefaults);
 
-  setupLogger(withDefaults.enableLogs);
+  setupLogger(withDefaults.debug);
 
   return withDefaults;
 }
