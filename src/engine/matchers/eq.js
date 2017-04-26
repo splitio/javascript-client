@@ -16,13 +16,13 @@ limitations under the License.
 
 'use strict';
 
-const log = require('debug')('splitio-engine:matcher');
+const log = require('../../utils/logger')('splitio-engine:matcher');
 
 function equalToMatcherContext(ruleAttr /*: number */) /*: Function */ {
   return function equalToMatcher(runtimeAttr /*: number */) /*: boolean */ {
     let isEqual = runtimeAttr === ruleAttr;
 
-    log(`[equalToMatcher] is ${runtimeAttr} equal to ${ruleAttr}? ${isEqual}`);
+    log.debug(`[equalToMatcher] is ${runtimeAttr} equal to ${ruleAttr}? ${isEqual}`);
 
     return isEqual;
   };

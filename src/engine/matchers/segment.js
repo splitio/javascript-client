@@ -15,7 +15,7 @@ limitations under the License.
 **/
 'use strict';
 
-const log = require('debug')('splitio-engine:matcher');
+const log = require('../../utils/logger')('splitio-engine:matcher');
 const thenable = require('../../utils/promise/thenable');
 
 function matcherSegmentContext(segmentName: string, storage: SplitStorage) {
@@ -25,12 +25,12 @@ function matcherSegmentContext(segmentName: string, storage: SplitStorage) {
 
     if (thenable(isInSegment)) {
       isInSegment.then(result => {
-        log(`[asyncSegmentMatcher] evaluated ${segmentName} / ${key} => ${isInSegment}`);
+        log.debug(`[asyncSegmentMatcher] evaluated ${segmentName} / ${key} => ${isInSegment}`);
 
         return result;
       });
     } else {
-      log(`[segmentMatcher] evaluated ${segmentName} / ${key} => ${isInSegment}`);
+      log.debug(`[segmentMatcher] evaluated ${segmentName} / ${key} => ${isInSegment}`);
     }
 
     return isInSegment;

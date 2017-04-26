@@ -15,10 +15,10 @@ limitations under the License.
 **/
 'use strict';
 
-const log = require('debug')('splitio-engine:matcher');
+const log = require('../../utils/logger')('splitio-engine:matcher');
 
 function allMatcher(runtimeAttr /*: string */) /*: boolean */ {
-  log('[allMatcher] always true');
+  log.debug('[allMatcher] is always true');
 
   return runtimeAttr != null;
 }

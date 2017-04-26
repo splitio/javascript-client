@@ -16,7 +16,7 @@ limitations under the License.
 
 'use strict';
 
-const log = require('debug')('splitio-engine:matcher');
+const log = require('../../utils/logger')('splitio-engine:matcher');
 const difference = require('lodash/difference');
 
 function equalToSetMatcherContext(ruleAttr /*: array */) /*: Function */ {
@@ -24,7 +24,7 @@ function equalToSetMatcherContext(ruleAttr /*: array */) /*: Function */ {
     let isEqual = runtimeAttr.length === ruleAttr.length &&
                   difference(ruleAttr, runtimeAttr).length === 0;
 
-    log(`[equalToSetMatcher] is ${runtimeAttr} equal to set ${ruleAttr}? ${isEqual}`);
+    log.debug(`[equalToSetMatcher] is ${runtimeAttr} equal to set ${ruleAttr}? ${isEqual}`);
 
     return isEqual;
   };
