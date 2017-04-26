@@ -10,8 +10,10 @@ tsc ## Run typescript compiler. No need for flags as we have a tsconfig.json fil
 if [ $? -eq 0 ]
 then
   echo "Successfully compiled TS tests."
+  npm unlink @splitsoftware/splitio
   exit 0
 else
   echo "Error compiling TS tests."
+  npm unlink @splitsoftware/splitio
   exit 1
 fi
