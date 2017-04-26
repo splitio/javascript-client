@@ -40,10 +40,7 @@ module.exports = {
       loaders: [
         {
           test: /\.js$/,
-          include: [
-            /src/,
-            /node_modules\/logplease/
-          ],
+          exclude: /node_modules\/(?!logplease).*/,
           loader: 'babel'
         },
         { test: /\.json$/, exclude: /node_modules/, loader: 'json' }
