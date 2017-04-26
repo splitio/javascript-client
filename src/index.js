@@ -18,6 +18,7 @@ const SettingsFactory = require('./utils/settings');
 const ReadinessGateFacade = require('./readiness');
 
 const keyParser = require('./utils/key/parser');
+const LoggerApi = require('./utils/logger').API;
 
 // cache instances created
 const instances = {};
@@ -131,6 +132,9 @@ function SplitFacade(config: Object) {
     manager(): SplitManager {
       return ManagerFactory(storage.splits);
     },
+
+    // Logger wrapper API
+    Logger: LoggerApi,
 
     // Expose SDK settings
     settings
