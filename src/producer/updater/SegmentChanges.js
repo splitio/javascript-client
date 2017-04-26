@@ -18,7 +18,7 @@ limitations under the License.
 
 'use strict';
 
-const log = require('debug')('splitio-producer:segment-changes');
+const log = require('../../utils/logger')('splitio-producer:segment-changes');
 const segmentChangesFetcher = require('../fetcher/SegmentChanges');
 
 const SegmentChangesUpdaterFactory = (settings: Object, readiness: ReadinessGate, storage: SplitStorage) => {
@@ -27,7 +27,7 @@ const SegmentChangesUpdaterFactory = (settings: Object, readiness: ReadinessGate
   let readyOnAlreadyExistentState = true;
 
   return async function SegmentChangesUpdater() {
-    log('Started segments update');
+    log.debug('Started segments update');
 
     // Async fetchers are collected here.
     const updaters = [];
@@ -38,7 +38,7 @@ const SegmentChangesUpdaterFactory = (settings: Object, readiness: ReadinessGate
     for (let segmentName of segments) {
       const since: number = await storage.segments.getChangeNumber(segmentName);
 
-      log('Processing segment %s', segmentName);
+      log.debug(`Processing segment ${segmentName}`);
 
       updaters.push(segmentChangesFetcher(settings, segmentName, since).then(async function (changes: SegmentChanges) {
         let changeNumber = -1;
@@ -55,7 +55,7 @@ const SegmentChangesUpdaterFactory = (settings: Object, readiness: ReadinessGate
             changeNumber = x.till;
           }
 
-          log('Processed %s with till = %s added %s removed %s', segmentName, x.till, x.added.length, x.removed.length);
+          log.debug(`Processed ${segmentName} with till = ${x.till}. Added: ${x.added.length}. Removed: ${x.removed.length}`);
         }
 
         return changeNumber;

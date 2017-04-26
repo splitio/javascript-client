@@ -18,7 +18,7 @@ limitations under the License.
 
 'use strict';
 
-const log = require('debug')('splitio-metrics');
+const log = require('../utils/logger')('splitio-metrics');
 
 const repeat = require('../utils/fn/repeat');
 
@@ -34,7 +34,7 @@ const MetricsFactory = (settings: Object, storage: SplitStorage): Startable => {
   const pushMetrics = (): Promise<void> => {
     if (storage.metrics.isEmpty()) return Promise.resolve();
 
-    log('Pushing metrics');
+    log.info('Pushing metrics');
 
     return metricsService(metricsServiceRequest(settings, {
       body: JSON.stringify(metricsDTO.fromGetTreatmentCollector(storage.metrics))
@@ -46,7 +46,7 @@ const MetricsFactory = (settings: Object, storage: SplitStorage): Startable => {
   const pushImpressions = (): Promise<void> => {
     if (storage.impressions.isEmpty()) return Promise.resolve();
 
-    log('Pushing impressions');
+    log.info('Pushing impressions');
 
     return impressionsService(impressionsBulkRequest(settings, {
       body: JSON.stringify(impressionsDTO.fromImpressionsCollector(storage.impressions))
