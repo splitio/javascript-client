@@ -20,8 +20,7 @@ function filename() {
 
 module.exports = {
   entry: {
-    split: ['./src'],
-    ['split-migration']: ['./src/migration']
+    split: ['./src']
   },
 
   output: {
