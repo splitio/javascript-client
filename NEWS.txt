@@ -1,3 +1,7 @@
+## 9.2.0 (XX XX, 2017)
+
+* Dropped migration build. Migration packages will no longer receive updates.
+
 ## 9.1.0 (April 21, 2017)
 
 * Adding support for STRING matchers.
