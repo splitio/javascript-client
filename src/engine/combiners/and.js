@@ -18,7 +18,7 @@ limitations under the License.
 'use strict';
 
 const findIndex = require('core-js/library/fn/array/find-index');
-const log = require('debug')('splitio-engine:combiner');
+const log = require('../../utils/logger')('splitio-engine:combiner');
 const thenable = require('../../utils/promise/thenable');
 
 function andResults(results) {
@@ -33,7 +33,7 @@ function andResults(results) {
 
   hasMatchedAll = i === len;
 
-  log(`[andCombiner] is evaluates to ${hasMatchedAll ? 'true' : 'false'}`);
+  log.debug(`[andCombiner] evaluates to ${hasMatchedAll}`);
 
   return hasMatchedAll;
 }

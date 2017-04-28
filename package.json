@@ -72,7 +72,9 @@
     "test-node-e2e": "tape -r babel-register \"src/__tests__/node.spec.js\"",
     "pretest-node-redis": "cat ./src/__tests__/mocks/redis_mock.json | ./node_modules/redis-dump/bin/cli/redis-dump --convert | redis-cli",
     "test-node-redis": "tape -r babel-register \"src/__tests__/node_redis.spec.js\"",
+    "pretest-ts-decls": "npm link",
     "test-ts-decls": "./scripts/ts-tests.sh",
+    "posttest-ts-decls": "npm unlink && npm install",
     "canary": "npm run rebuild && npm publish --tag canary",
     "stable": "npm run rebuild && npm publish"
   },
@@ -80,10 +82,10 @@
     "@types/node": "^7.0.12",
     "babel-runtime": "^6.20.0",
     "core-js": "^2.4.1",
-    "debug": "^2.5.2",
     "ip": "^1.1.4",
     "isomorphic-fetch": "^2.2.1",
     "lodash": "^4.17.3",
+    "logplease": "^1.2.13",
     "utfx": "^1.0.1",
     "warning": "^3.0.0"
   },

@@ -13,19 +13,19 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-
 'use strict';
 
-const log = require('../../utils/logger')('splitio-engine:matcher');
+const tape = require('tape-catch');
 
-function equalToMatcherContext(ruleAttr /*: number */) /*: Function */ {
-  return function equalToMatcher(runtimeAttr /*: number */) /*: boolean */ {
-    let isEqual = runtimeAttr === ruleAttr;
+const splitLogger = require('../../logger');
 
-    log.debug(`[equalToMatcher] is ${runtimeAttr} equal to ${ruleAttr}? ${isEqual}`);
+tape('SPLIT LOGGER / methods', assert => {
 
-    return isEqual;
-  };
-}
+  assert.equal(typeof splitLogger, 'function', 'Importing the module should return a function.');
 
-module.exports = equalToMatcherContext;
+  assert.equal(typeof splitLogger.API, 'object', 'Our logger should expose an API object.');
+  assert.equal(typeof splitLogger.API.enable, 'function', 'API object should have enable method.');
+  assert.equal(typeof splitLogger.API.disable, 'function', 'API object should have disable method.');
+
+  assert.end();
+});

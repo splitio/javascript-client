@@ -18,7 +18,7 @@ limitations under the License.
 
 'use strict';
 
-const log = require('debug')('splitio-producer:updater');
+const log = require('../utils/logger')('splitio-producer:updater');
 const repeat = require('../utils/fn/repeat');
 
 const SplitChangesUpdater = require('./updater/SplitChanges');
@@ -37,9 +37,9 @@ const NodeUpdater = (settings: Object, hub: EventEmitter, storage: SplitStorage)
 
   return {
     start() {
-      log('Starting NODEJS updater');
-      log('Splits will be refreshed each %s millis', settings.scheduler.featuresRefreshRate);
-      log('Segments will be refreshed each %s millis', settings.scheduler.segmentsRefreshRate);
+      log.info('Starting NODEJS updater');
+      log.debug(`Splits will be refreshed each ${settings.scheduler.featuresRefreshRate} millis`);
+      log.debug(`Segments will be refreshed each ${settings.scheduler.segmentsRefreshRate} millis`);
 
       // Schedule incremental update of segments only if needed
       const spinUpSegmentUpdater = () => {
@@ -47,7 +47,7 @@ const NodeUpdater = (settings: Object, hub: EventEmitter, storage: SplitStorage)
           stopSegmentsUpdate = repeat(
             scheduleSegmentsUpdate => {
               if (splitFetchCompleted) {
-                log('Fetching segments');
+                log.debug('Fetching segments');
                 segmentsUpdater().then(() => scheduleSegmentsUpdate());
               } else {
                 scheduleSegmentsUpdate();
@@ -60,7 +60,7 @@ const NodeUpdater = (settings: Object, hub: EventEmitter, storage: SplitStorage)
 
       stopSplitsUpdate = repeat(
         scheduleSplitsUpdate => {
-          log('Fetching splits');
+          log.debug('Fetching splits');
 
           splitsUpdater()
             .then(() => {
@@ -77,7 +77,7 @@ const NodeUpdater = (settings: Object, hub: EventEmitter, storage: SplitStorage)
     },
 
     stop() {
-      log('Stopping NODEJS updater');
+      log.info('Stopping NODEJS updater');
 
       stopSplitsUpdate && stopSplitsUpdate();
       stopSegmentsUpdate && stopSegmentsUpdate();

@@ -18,7 +18,7 @@ limitations under the License.
 
 'use strict';
 
-const log = require('debug')('splitio-producer:updater');
+const log = require('../../utils/logger')('splitio-producer:updater');
 
 const TaskFactory = require('../task');
 
@@ -37,14 +37,14 @@ const FullBrowserProducer = (settings: Object, readiness: ReadinessGate, storage
 
   return {
     start() {
-      log('Starting BROWSER producer');
+      log.info('Starting BROWSER producer');
 
       splitsUpdaterTask.start();
       segmentsUpdaterTask.start();
     },
 
     stop() {
-      log('Stopping BROWSER producer');
+      log.info('Stopping BROWSER producer');
 
       splitsUpdaterTask.stop();
       segmentsUpdaterTask.stop();

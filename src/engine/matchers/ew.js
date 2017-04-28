@@ -16,14 +16,14 @@ limitations under the License.
 
 'use strict';
 
-const log = require('debug')('splitio-engine:matcher');
+const log = require('../../utils/logger')('splitio-engine:matcher');
 const strEndsWith = require('lodash/endsWith');
 
 function endsWithMatcherContext(ruleAttr /*: array */) /*: Function */ {
   return function endsWithMatcher(runtimeAttr /*: string */) /*: boolean */ {
     let endsWith = ruleAttr.some(e => strEndsWith(runtimeAttr, e));
 
-    log(`[endsWithMatcher] ${runtimeAttr} ends with ${ruleAttr}? ${endsWith}`);
+    log.debug(`[endsWithMatcher] ${runtimeAttr} ends with ${ruleAttr}? ${endsWith}`);
 
     return endsWith;
   };

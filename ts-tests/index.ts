@@ -156,6 +156,13 @@ asyncClient = AsyncSDK.client();
 asyncClient = AsyncSDK.client('a customer key');
 asyncManager = AsyncSDK.manager();
 
+// Logger
+SDK.Logger.enable();
+SDK.Logger.disable();
+
+AsyncSDK.Logger.enable();
+AsyncSDK.Logger.disable();
+
 /**** Tests for IClient interface ****/
 
 // Events constants we get
@@ -258,7 +265,8 @@ let fullBrowserSettings: SplitIO.IBrowserSettings = {
   storage: {
     type: 'LOCALSTORAGE',
     prefix: 'PREFIX'
-  }
+  },
+  debug: true
 };
 fullBrowserSettings.storage.type = 'MEMORY';
 
@@ -279,7 +287,8 @@ let fullNodeSettings: SplitIO.INodeSettings = {
     type: 'LOCALSTORAGE',
     prefix: 'PREFIX'
   },
-  mode: 'standalone'
+  mode: 'standalone',
+  debug: false
 };
 fullNodeSettings.storage.type = 'MEMORY';
 fullNodeSettings.mode = 'consumer';
@@ -304,5 +313,6 @@ let fullAsyncSettings: SplitIO.INodeAsyncSettings = {
     },
     prefix: 'PREFIX'
   },
-  mode: 'standalone'
+  mode: 'standalone',
+  debug: true
 };

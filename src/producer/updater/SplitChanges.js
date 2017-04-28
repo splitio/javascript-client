@@ -23,7 +23,7 @@ type SplitMutation = {
   segments: Array<string> | Set<string>
 };
 
-const log = require('debug')('splitio-producer:split-changes');
+const log = require('../../utils/logger')('splitio-producer:split-changes');
 const splitChangesFetcher = require('../fetcher/SplitChanges');
 
 const parseSegments = require('../../engine/parser/segments');
@@ -61,16 +61,16 @@ function SplitChangesUpdaterFactory(settings: Object, readiness: ReadinessGate, 
   return async function SplitChangesUpdater(retry: number = 0) {
     const since: number = await storage.splits.getChangeNumber();
 
-    log('Spin up split update using since = %s', since);
+    log.debug(`Spin up split update using since = ${since}`);
 
     return splitChangesFetcher(settings, since, startingUp).then(splitChanges => {
       startingUp = false;
 
       const mutation = computeSplitsMutation(splitChanges.splits);
 
-      log('New splits %s', mutation.added.length);
-      log('Removed splits %s', mutation.removed.length);
-      log('Segment names collected %s', mutation.segments);
+      log.debug(`New splits ${mutation.added.length}`);
+      log.debug(`Removed splits ${mutation.removed.length}`);
+      log.debug(`Segment names collected ${mutation.segments}`);
 
       // Write into storage
       return Promise.all([
@@ -86,11 +86,11 @@ function SplitChangesUpdaterFactory(settings: Object, readiness: ReadinessGate, 
       });
     })
     .catch(error => {
-      log('Error while doing fetch of Splits %s', error);
+      log.error(`Error while doing fetch of Splits ${error}`);
 
       if (startingUp && settings.startup.retriesOnFailureBeforeReady > retry) {
         retry += 1;
-        log('Retrying download of splits #%s reason %s', retry, error);
+        log.warn(`Retrying download of splits #${retry}. Reason: ${error}`);
         return SplitChangesUpdater(retry);
       } else {
         startingUp = false;
