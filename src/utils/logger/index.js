@@ -17,6 +17,7 @@ limitations under the License.
 'use strict';
 
 const Logger = require('logplease');
+const isLocalStorageAvailable = require('../localstorage/isAvailable');
 
 const LS_KEY = 'splitio_debug';
 const ENV_VAR_KEY = 'SPLITIO_DEBUG';
@@ -25,8 +26,9 @@ const isNode = Boolean(process && process.version);
 
 const initialState = String(
   isNode ?
-  process.env[ENV_VAR_KEY] :
-  window.localStorage.getItem(LS_KEY)
+    process.env[ENV_VAR_KEY] :
+    isLocalStorageAvailable() ?
+      localStorage.getItem(LS_KEY) : ''
 );
 
 const API = {
