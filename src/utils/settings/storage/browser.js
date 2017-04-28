@@ -19,18 +19,7 @@ limitations under the License.
 'use strict';
 
 const log = require('../../../utils/logger')('splitio-settings');
-
-// Verify localstorage availability
-function isLocalStorageAvailable(): boolean {
-  var mod = '__SPLITSOFTWARE__';
-  try {
-    localStorage.setItem(mod, mod);
-    localStorage.removeItem(mod);
-    return true;
-  } catch(e) {
-    return false;
-  }
-}
+const isLocalStorageAvailable = require('../../../utils/localstorage/isAvailable');
 
 const ParseStorageSettings = (settings: Settings) => {
   let {
