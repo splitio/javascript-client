@@ -19,6 +19,10 @@ limitations under the License.
 const Logger = require('logplease');
 const isLocalStorageAvailable = require('../localstorage/isAvailable');
 
+const defaultOptions = {
+  showTimestamp: false
+};
+
 const LS_KEY = 'splitio_debug';
 const ENV_VAR_KEY = 'SPLITIO_DEBUG';
 
@@ -40,6 +44,8 @@ const API = {
   }
 };
 
+const createLog = namespace => Logger.create(namespace, defaultOptions);
+
 // "enable", "enabled" and "on" are acceptable values
 if (/^(enabled?|on)/i.test(initialState)) {
   API.enable();
@@ -48,7 +54,7 @@ if (/^(enabled?|on)/i.test(initialState)) {
   API.disable();
 }
 
-// Expose the logger instance creation function as the default export
-exports = module.exports = Logger.create;
-// And our API for programatically usage.
+// By default we expose logger instance creator wrapper.
+exports = module.exports = createLog;
+// Our API for programatically usage.
 exports.API = API;

@@ -20,6 +20,7 @@ const ReadinessGateFacade = require('./readiness');
 const keyParser = require('./utils/key/parser');
 const Logger = require('./utils/logger');
 const log = Logger('splitio');
+const tracker = require('./utils/logger/timeTracker');
 
 // cache instances created
 const instances = {};
@@ -68,6 +69,10 @@ function SplitFactory(settings: Settings, storage: SplitStorage, gateFactory: an
   const readyFlag = sharedInstance ? Promise.resolve() :
     new Promise(resolve => gate.on(SDK_READY, resolve));
 
+  readyFlag.then(() => {
+    tracker.stop('Split SDK - Getting ready');
+  });
+
   const api = Object.assign(
     // Proto linkage of the EventEmitter to prevent any change
     Object.create(gate),
@@ -109,6 +114,7 @@ function SplitFacade(config: Object) {
   const defaultInstance = SplitFactory(settings, storage, gateFactory);
 
   log.info('New Split SDK instance created.');
+  tracker.start('Split SDK - Getting ready');
 
   return {
 

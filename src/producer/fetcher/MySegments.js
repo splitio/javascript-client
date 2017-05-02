@@ -19,11 +19,13 @@ limitations under the License.
 'use strict';
 
 const timeout = require('../../utils/promise/timeout');
+const tracker = require('../../utils/logger/timeTracker');
 
 const mySegmentsService = require('../../services/mySegments');
 const mySegmentsRequest = require('../../services/mySegments/get');
 
 const mySegmentsFetcher = (settings: Object, shouldApplyTimeout: boolean = false) : Promise<MySegments> => {
+  tracker.start('Fetching My Segments');
   let requestPromise = mySegmentsService(mySegmentsRequest(settings));
 
   // Decorate with the timeout functionality if required
@@ -33,6 +35,10 @@ const mySegmentsFetcher = (settings: Object, shouldApplyTimeout: boolean = false
 
   // Extract segment names
   return requestPromise
+    .then(resp => {
+      tracker.stop('Fetching My Segments');
+      return resp;
+    })
     .then(resp => resp.json())
     .then((json: Object): MySegments => json.mySegments.map(segment => segment.name));
 };

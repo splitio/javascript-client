@@ -26,6 +26,7 @@ function FromObjectUpdaterFactory(Fetcher: Function, settings: Settings, readine
     const splits = [];
     const configs = Fetcher(settings);
 
+    log.debug('Splits data:');
     log.debug(JSON.stringify(configs));
 
     // Make use of the killed behavior to prevent loading all the information
