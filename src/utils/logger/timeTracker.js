@@ -32,8 +32,8 @@ const TrackerAPI = {
   },
   stop(task) {
     const elapsedTime = Date.now() - timeTracker[task];
-    delete timeTracker[task];
     if (!isNaN(elapsedTime)) {
+      delete timeTracker[task];
       logger.log(`[${task}] took ${elapsedTime}ms to finish.`);
     }
   }

@@ -29,7 +29,6 @@ const instances = {};
 // Create SDK instance based on the provided configurations
 //
 function SplitFactory(settings: Settings, storage: SplitStorage, gateFactory: any,sharedInstance: ?boolean) {
-
   const readiness = gateFactory(settings.startup.readyTimeout);
 
   // We are only interested in exposable EventEmitter
@@ -69,10 +68,6 @@ function SplitFactory(settings: Settings, storage: SplitStorage, gateFactory: an
   const readyFlag = sharedInstance ? Promise.resolve() :
     new Promise(resolve => gate.on(SDK_READY, resolve));
 
-  readyFlag.then(() => {
-    tracker.stop('Split SDK - Getting ready');
-  });
-
   const api = Object.assign(
     // Proto linkage of the EventEmitter to prevent any change
     Object.create(gate),
@@ -107,14 +102,18 @@ function SplitFactory(settings: Settings, storage: SplitStorage, gateFactory: an
 }
 
 function SplitFacade(config: Object) {
+  tracker.start('Split SDK - Getting ready');
   const settings = SettingsFactory(config);
   const storage = StorageFactory(settings);
   const gateFactory = ReadinessGateFacade();
 
   const defaultInstance = SplitFactory(settings, storage, gateFactory);
 
+  defaultInstance.ready().then(() => {
+    tracker.stop('Split SDK - Getting ready');
+  });
+
   log.info('New Split SDK instance created.');
-  tracker.start('Split SDK - Getting ready');
 
   return {
 
