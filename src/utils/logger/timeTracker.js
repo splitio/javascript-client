@@ -17,8 +17,9 @@ limitations under the License.
 'use strict';
 
 const Logger = require('logplease');
+const timer = require('../../tracker/Timer');
 
-const timeTracker = {};
+const timers = {};
 
 const logger = Logger.create('[TIME TRACKER]', {
   showTimestamp: false,
@@ -28,13 +29,16 @@ const logger = Logger.create('[TIME TRACKER]', {
 
 const TrackerAPI = {
   start(task) {
-    timeTracker[task] = Date.now();
+    // Create and start the timer, then save the reference.
+    timers[task] = timer()();
   },
   stop(task) {
-    const elapsedTime = Date.now() - timeTracker[task];
-    if (!isNaN(elapsedTime)) {
-      delete timeTracker[task];
-      logger.log(`[${task}] took ${elapsedTime}ms to finish.`);
+    const timer = timers[task];
+    if (timer) {
+      // Stop the timer and round result for readability.
+      const et = Math.round( timer() );
+      delete timers[task];
+      logger.log(`[${task}] took ${et}ms to finish.`);
     }
   }
 };
