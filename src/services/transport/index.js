@@ -21,7 +21,7 @@ const log = require('../../utils/logger')('splitio-services:service');
 
 function Fetcher(request) {
   return fetch(request).then(resp => {
-    if (resp.statusText === 'OK') {
+    if (resp.ok) {
       return resp;
     } else {
       log.error('throw error because status text is not OK');
