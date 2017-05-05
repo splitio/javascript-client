@@ -32,12 +32,12 @@ function getTreatmentAvailable(
   let label = undefined;
 
   if (evaluation.treatment !== 'control') {
-    if (settings.core.labelsEnabled) label = evaluation.label;
-
     log(`Split ${splitName} key ${matchingKey} evaluation ${treatment}`);
   } else {
     log(`Split ${splitName} doesn't exist`);
   }
+
+  if (settings.core.labelsEnabled) label = evaluation.label;
 
   stopLatencyTracker();
 
