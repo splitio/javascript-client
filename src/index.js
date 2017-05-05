@@ -18,6 +18,8 @@ const SettingsFactory = require('./utils/settings');
 const ReadinessGateFacade = require('./readiness');
 
 const keyParser = require('./utils/key/parser');
+const Logger = require('./utils/logger');
+const log = Logger('splitio');
 
 // cache instances created
 const instances = {};
@@ -106,11 +108,16 @@ function SplitFacade(config: Object) {
 
   const defaultInstance = SplitFactory(settings, storage, gateFactory);
 
+  log.info('New Split SDK instance created.');
+
   return {
 
     // Split evaluation engine
     client(key: ?SplitKey): SplitClient {
-      if (!key) return defaultInstance;
+      if (!key) {
+        log.debug('Retrieving default SDK client.');
+        return defaultInstance;
+      }
 
       if (typeof storage.shared != 'function') {
         throw 'Shared Client not supported by the storage mechanism. Create isolated instances instead.';
@@ -122,6 +129,9 @@ function SplitFacade(config: Object) {
       if (!instances[instanceId]) {
         const sharedSettings = settings.overrideKey(key);
         instances[instanceId] = SplitFactory(sharedSettings, storage.shared(sharedSettings), gateFactory, true);
+        log.info('New shared client instance created.');
+      } else {
+        log.debug('Retrieving existing SDK client.');
       }
 
       return instances[instanceId];
@@ -129,8 +139,12 @@ function SplitFacade(config: Object) {
 
     // Manager API to explore available information
     manager(): SplitManager {
+      log.info('New manager instance created.');
       return ManagerFactory(storage.splits);
     },
+
+    // Logger wrapper API
+    Logger: Logger.API,
 
     // Expose SDK settings
     settings

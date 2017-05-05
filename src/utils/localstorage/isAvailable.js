@@ -16,16 +16,13 @@ limitations under the License.
 
 'use strict';
 
-const log = require('../../utils/logger')('splitio-engine:matcher');
-
-function equalToMatcherContext(ruleAttr /*: number */) /*: Function */ {
-  return function equalToMatcher(runtimeAttr /*: number */) /*: boolean */ {
-    let isEqual = runtimeAttr === ruleAttr;
-
-    log.debug(`[equalToMatcher] is ${runtimeAttr} equal to ${ruleAttr}? ${isEqual}`);
-
-    return isEqual;
-  };
-}
-
-module.exports = equalToMatcherContext;
+module.exports = function isLocalStorageAvailable() {
+  var mod = '__SPLITSOFTWARE__';
+  try {
+    localStorage.setItem(mod, mod);
+    localStorage.removeItem(mod);
+    return true;
+  } catch(e) {
+    return false;
+  }
+};

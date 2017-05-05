@@ -16,14 +16,14 @@ limitations under the License.
 
 'use strict';
 
-const log = require('debug')('splitio-engine:matcher');
+const log = require('../../utils/logger')('splitio-engine:matcher');
 const startsWith = require('lodash/startsWith');
 
 function startsWithMatcherContext(ruleAttr /*: array */) /*: Function */ {
   return function startsWithMatcher(runtimeAttr /*: string */) /*: boolean */ {
     let matches = ruleAttr.some(e => startsWith(runtimeAttr, e));
 
-    log(`[startsWithMatcher] ${runtimeAttr} starts with ${ruleAttr}? ${matches}`);
+    log.debug(`[startsWithMatcher] ${runtimeAttr} starts with ${ruleAttr}? ${matches}`);
 
     return matches;
   };

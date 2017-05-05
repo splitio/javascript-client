@@ -285,6 +285,8 @@ declare type Settings = {
     prefix: string
   },
 
+  debug: boolean,
+
   runtime: {
     ip: string,
     hostname: string

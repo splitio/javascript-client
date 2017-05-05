@@ -18,19 +18,8 @@ limitations under the License.
 
 'use strict';
 
-const log = require('debug')('splitio-settings');
-
-// Verify localstorage availability
-function isLocalStorageAvailable(): boolean {
-  var mod = '__SPLITSOFTWARE__';
-  try {
-    localStorage.setItem(mod, mod);
-    localStorage.removeItem(mod);
-    return true;
-  } catch(e) {
-    return false;
-  }
-}
+const log = require('../../../utils/logger')('splitio-settings');
+const isLocalStorageAvailable = require('../../../utils/localstorage/isAvailable');
 
 const ParseStorageSettings = (settings: Settings) => {
   let {
@@ -58,7 +47,7 @@ const ParseStorageSettings = (settings: Settings) => {
   if (type !== 'MEMORY' && type !== 'LOCALSTORAGE' ||
       type === 'LOCALSTORAGE' && !isLocalStorageAvailable()) {
     type = 'MEMORY';
-    log('Fallbacking into MEMORY storage');
+    log.warn('Invalid or unavailable storage. Fallbacking into MEMORY storage');
   }
 
   return {

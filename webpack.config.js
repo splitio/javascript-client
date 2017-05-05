@@ -20,8 +20,7 @@ function filename() {
 
 module.exports = {
   entry: {
-    split: ['./src'],
-    ['split-migration']: ['./src/migration']
+    split: ['./src']
   },
 
   output: {
@@ -33,7 +32,11 @@ module.exports = {
 
   module: {
     rules: [
-      { test: /\.js$/, exclude: /node_modules/, loader: 'babel-loader' }
+      {
+        test: /\.js$/,
+        exclude: /node_modules\/(?!logplease).*/,
+        loader: 'babel-loader'
+      }
     ]
   },
 

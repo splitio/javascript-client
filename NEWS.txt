@@ -1,3 +1,50 @@
+## 9.2.0 (XX XX, 2017)
+
+* Dropped migration build. Migration packages will no longer receive updates.
+* Updated logging functionality. SDK will handle logging with a minimalistic enable/disable approach.
+  Now you have three ways to enable/disable SDK logging:
+
+  1. By setting the localStorage.splitio_debug (browser) or SPLITIO_DEBUG environment var (node)
+    with 'on', 'enable' or 'enabled'.
+
+  2. By passing an extra setting when instantiating the SDK.
+
+    ```js
+    var splitio = require('@splitsoftware/splitio');
+
+    var settings = {
+      core: {
+        authorizationKey: 'YOUR_API_KEY',
+        key: 'CUSTOMER_KEY'  // If on the browser.
+      },
+      debug: true  // Boolean flag for enabling logs. Default value is false.
+    };
+
+    var sdk = splitio(settings);
+    ```
+
+  3. By calling the SDK Logger API (no need for browser refresh):
+
+    ```js
+    var splitio = require('@splitsoftware/splitio');
+
+    var sdk = splitio({
+      core: {
+        authorizationKey: 'YOUR_API_KEY',
+        key: 'CUSTOMER_KEY'  // If on the browser.
+      }
+    });
+
+    // Logger API.
+    sdk.Logger.enable();
+    sdk.Logger.disable();
+    ```
+
+## 9.1.1 (May 03, 2017)
+
+* Bugfixing - Fixed invalid behaviour when using native Fetch API and comparing statusText
+  instead of resp.ok
+
 ## 9.1.0 (April 21, 2017)
 
 * Adding support for STRING matchers.

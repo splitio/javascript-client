@@ -16,7 +16,7 @@ limitations under the License.
 
 'use strict';
 
-const log = require('debug')('splitio-engine:matcher');
+const log = require('../../utils/logger')('splitio-engine:matcher');
 const intersection = require('lodash/intersection');
 
 function containsAllMatcherContext(ruleAttr /*: array */) /*: Function */ {
@@ -28,7 +28,7 @@ function containsAllMatcherContext(ruleAttr /*: array */) /*: Function */ {
       containsAll = intersection(runtimeAttr, ruleAttr).length === ruleAttr.length;
     }
 
-    log(`[containsAllMatcher] ${runtimeAttr} contains all elements of ${ruleAttr}? ${containsAll}`);
+    log.debug(`[containsAllMatcher] ${runtimeAttr} contains all elements of ${ruleAttr}? ${containsAll}`);
 
     return containsAll;
   };

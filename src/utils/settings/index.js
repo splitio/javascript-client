@@ -25,6 +25,7 @@ const runtime: Object = require('./runtime');
 const overridesPerPlatform: Object = require('./defaults');
 const storage: Function = require('./storage');
 const mode: Function = require('./mode');
+const Logger = require('../../utils/logger');
 
 const eventsEndpointMatcher = /\/(testImpressions|metrics)/;
 
@@ -66,12 +67,21 @@ const base = {
     type: 'MEMORY'
   },
 
+  // Defines if the logs are enabled, SDK wide.
+  debug: false,
+
   // Instance version.
-  version: `${language}-9.1.0`
+  version: `${language}-9.2.0-canary.0`
 };
 
 function fromSecondsToMillis(n) {
   return Math.round(n * 1000);
+}
+
+function setupLogger(enable) {
+  if (enable) {
+    Logger.API.enable();
+  }
 }
 
 function defaults(custom: Object): Settings {
@@ -93,6 +103,8 @@ function defaults(custom: Object): Settings {
 
   // ensure a valid Storage based on mode defined.
   withDefaults.storage = storage(withDefaults);
+
+  setupLogger(withDefaults.debug);
 
   return withDefaults;
 }

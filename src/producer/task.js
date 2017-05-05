@@ -18,7 +18,7 @@ limitations under the License.
 
 'use strict';
 
-const log = require('debug')('splitio-producer:task');
+const log = require('../utils/logger')('splitio-producer:task');
 const repeat = require('../utils/fn/repeat');
 
 /**
@@ -29,11 +29,11 @@ const TaskFactory = (updater: Function, period: number): Startable => {
 
   return {
     start() {
-      log('Starting %s refreshing each %s', updater.name, period);
+      log.debug(`Starting ${updater.name} refreshing each ${period}`);
 
       stopUpdater = repeat(
         reschedule => {
-          log('Running %s', updater.name);
+          log.debug(`Running ${updater.name}`);
           updater().then(() => reschedule());
         },
         period
@@ -41,7 +41,7 @@ const TaskFactory = (updater: Function, period: number): Startable => {
     },
 
     stop() {
-      log('Stopping %s', updater.name);
+      log.debug(`Stopping ${updater.name}`);
 
       stopUpdater && stopUpdater();
     }

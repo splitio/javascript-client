@@ -18,7 +18,7 @@ limitations under the License.
 
 'use strict';
 
-const log = require('debug')('splitio-producer:my-segments');
+const log = require('../../utils/logger')('splitio-producer:my-segments');
 const mySegmentsFetcher = require('../fetcher/MySegments');
 
 function MySegmentsUpdaterFactory(settings: Object, readiness: ReadinessGate, storage: SplitStorage) {
@@ -45,7 +45,7 @@ function MySegmentsUpdaterFactory(settings: Object, readiness: ReadinessGate, st
     .catch(error => {
       if (startingUp && settings.startup.retriesOnFailureBeforeReady > retry) {
         retry += 1;
-        log('Retrying download of segments #%s reason %s', retry, error);
+        log.warn(`Retrying download of segments #${retry}. Reason: ${error}`);
         return MySegmentsUpdater(retry);
       } else {
         startingUp = false;

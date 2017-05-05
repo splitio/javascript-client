@@ -15,13 +15,13 @@ limitations under the License.
 **/
 'use strict';
 
-const log = require('debug')('splitio-engine:matcher');
+const log = require('../../utils/logger')('splitio-engine:matcher');
 
 function whitelistMatcherContext(ruleAttr /*: Set */) /*: Function */ {
   return function whitelistMatcher(runtimeAttr /*: string */) /*: boolean */ {
     let isInWhitelist = ruleAttr.has(runtimeAttr);
 
-    log(`[whitelistMatcher] evaluated ${runtimeAttr} in [${[...ruleAttr].join(',')}] => ${isInWhitelist}`);
+    log.debug(`[whitelistMatcher] evaluated ${runtimeAttr} in [${[...ruleAttr].join(',')}] => ${isInWhitelist}`);
 
     return isInWhitelist;
   };
