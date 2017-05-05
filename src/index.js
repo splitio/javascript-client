@@ -102,7 +102,11 @@ function SplitFactory(settings: Settings, storage: SplitStorage, gateFactory: an
 }
 
 function SplitFacade(config: Object) {
+  // Tracking times.
   tracker.start('Split SDK - Getting ready');
+  tracker.start('Splits - Getting ready');
+  tracker.start('Segments - Getting ready');
+
   const settings = SettingsFactory(config);
   const storage = StorageFactory(settings);
   const gateFactory = ReadinessGateFacade();
