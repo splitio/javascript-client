@@ -35,6 +35,7 @@
     "babel-preset-env": "1.4.0",
     "babel-preset-flow": "6.23.0",
     "copy-webpack-plugin": "4.0.1",
+    "copyfiles": "^1.2.0",
     "cross-env": "3.1.3",
     "csv-streamify": "^3.0.4",
     "eslint": "^3.4.0",
@@ -57,7 +58,8 @@
     "webpack": "2.5.0"
   },
   "scripts": {
-    "build-cjs": "rimraf lib && cross-env BABEL_ENV=cjs babel ./src -d lib --ignore '__tests__' && cd src/ && rsync -Rv **/package.json ../lib",
+    "build-cjs": "rimraf lib && cross-env BABEL_ENV=cjs babel ./src -d lib --ignore '__tests__'",
+    "postbuild-cjs": "node scripts/copy.packages.json.js",
     "build-umd": "cross-env NODE_ENV=development webpack",
     "build-min": "cross-env NODE_ENV=production webpack -p",
     "rebuild": "rimraf lib umd && npm run build-cjs && npm run build-umd && npm run build-min",
