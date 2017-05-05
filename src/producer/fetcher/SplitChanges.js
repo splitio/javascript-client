@@ -25,7 +25,7 @@ const splitChangesService = require('../../services/splitChanges');
 const splitChangesRequest = require('../../services/splitChanges/get');
 
 function splitChangesFetcher(settings: Object, since: number, shouldApplyTimeout: boolean = false): Promise<SplitChanges> {
-  tracker.start(`Fetching Split Changes since ${since}`);
+  tracker.start(tracker.C.SPLITS_FETCH);
   let requestPromise = splitChangesService(splitChangesRequest(settings, since));
 
   if (shouldApplyTimeout) {
@@ -33,7 +33,7 @@ function splitChangesFetcher(settings: Object, since: number, shouldApplyTimeout
   }
 
   return requestPromise.then(resp => {
-    tracker.stop(`Fetching Split Changes since ${since}`);
+    tracker.stop(tracker.C.SPLITS_FETCH);
     return resp;
   }).then(resp => resp.json());
 }

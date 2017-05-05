@@ -19,6 +19,16 @@ limitations under the License.
 const Logger = require('logplease');
 const timer = require('../../tracker/Timer');
 
+const CONSTANTS = {
+  SDK_READY: 'Getting ready - Split SDK',
+  SPLITS_READY: 'Getting ready - Splits',
+  SEGMENTS_READY: 'Getting ready - Segments',
+  METRICS_PUSH: 'Pushing - Metrics',
+  IMPRESSIONS_PUSH: 'Pushing - Impressions',
+  SEGMENTS_FETCH: 'Fetching - My Segments',
+  SPLITS_FETCH: 'Fetching - Splits'
+};
+
 const timers = {};
 
 const logger = Logger.create('[TIME TRACKER]', {
@@ -40,7 +50,8 @@ const TrackerAPI = {
       delete timers[task];
       logger.log(`[${task}] took ${et}ms to finish.`);
     }
-  }
+  },
+  C: CONSTANTS
 };
 
 // Our "time tracker" API

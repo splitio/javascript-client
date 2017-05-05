@@ -36,13 +36,13 @@ const MetricsFactory = (settings: Object, storage: SplitStorage): Startable => {
     if (storage.metrics.isEmpty()) return Promise.resolve();
 
     log.info('Pushing metrics');
-    tracker.start('Pushing metrics');
+    tracker.start(tracker.C.METRICS_PUSH);
 
     return metricsService(metricsServiceRequest(settings, {
       body: JSON.stringify(metricsDTO.fromGetTreatmentCollector(storage.metrics))
     }))
     .then(() => {
-      tracker.stop('Pushing metrics');
+      tracker.stop(tracker.C.METRICS_PUSH);
       return storage.metrics.clear();
     })
     .catch(() => storage.metrics.clear());
@@ -52,13 +52,13 @@ const MetricsFactory = (settings: Object, storage: SplitStorage): Startable => {
     if (storage.impressions.isEmpty()) return Promise.resolve();
 
     log.info(`Pushing ${storage.impressions.queue.length} impressions`);
-    tracker.start('Pushing impressions');
+    tracker.start(tracker.C.IMPRESSIONS_PUSH);
 
     return impressionsService(impressionsBulkRequest(settings, {
       body: JSON.stringify(impressionsDTO.fromImpressionsCollector(storage.impressions))
     }))
     .then(() => {
-      tracker.stop('Pushing impressions');
+      tracker.stop(tracker.C.IMPRESSIONS_PUSH);
       return storage.impressions.clear();
     })
     .catch(() => storage.impressions.clear());

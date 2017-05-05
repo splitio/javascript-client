@@ -103,9 +103,9 @@ function SplitFactory(settings: Settings, storage: SplitStorage, gateFactory: an
 
 function SplitFacade(config: Object) {
   // Tracking times.
-  tracker.start('Split SDK - Getting ready');
-  tracker.start('Splits - Getting ready');
-  tracker.start('Segments - Getting ready');
+  tracker.start(tracker.C.SDK_READY);
+  tracker.start(tracker.C.SPLITS_READY);
+  tracker.start(tracker.C.SEGMENTS_READY);
 
   const settings = SettingsFactory(config);
   const storage = StorageFactory(settings);
@@ -114,7 +114,7 @@ function SplitFacade(config: Object) {
   const defaultInstance = SplitFactory(settings, storage, gateFactory);
 
   defaultInstance.ready().then(() => {
-    tracker.stop('Split SDK - Getting ready');
+    tracker.stop(tracker.C.SDK_READY);
   });
 
   log.info('New Split SDK instance created.');

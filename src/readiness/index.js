@@ -52,13 +52,13 @@ function GateContext() {
     });
 
     splits.on(Events.SDK_SPLITS_ARRIVED, () => {
-      tracker.stop('Splits - Getting ready');
+      tracker.stop(tracker.C.SPLITS_READY);
       splitsStatus = SPLITS_READY;
       gate.emit(Events.READINESS_GATE_CHECK_STATE);
     });
 
     segments.on(Events.SDK_SEGMENTS_ARRIVED, () => {
-      tracker.stop('Segments - Getting ready');
+      tracker.stop(tracker.C.SEGMENTS_READY);
       segmentsStatus = SEGMENTS_READY;
       gate.emit(Events.READINESS_GATE_CHECK_STATE);
     });
