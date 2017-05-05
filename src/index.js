@@ -68,6 +68,8 @@ function SplitFactory(settings: Settings, storage: SplitStorage, gateFactory: an
   const readyFlag = sharedInstance ? Promise.resolve() :
     new Promise(resolve => gate.on(SDK_READY, resolve));
 
+  gate.on(SDK_READY, () => tracker.stop(tracker.C.SDK_READY));
+
   const api = Object.assign(
     // Proto linkage of the EventEmitter to prevent any change
     Object.create(gate),
@@ -112,10 +114,6 @@ function SplitFacade(config: Object) {
   const gateFactory = ReadinessGateFacade();
 
   const defaultInstance = SplitFactory(settings, storage, gateFactory);
-
-  defaultInstance.ready().then(() => {
-    tracker.stop(tracker.C.SDK_READY);
-  });
 
   log.info('New Split SDK instance created.');
 
