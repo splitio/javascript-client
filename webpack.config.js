@@ -31,21 +31,21 @@ module.exports = {
   },
 
   module: {
-    loaders: [
+    rules: [
       {
         test: /\.js$/,
         exclude: /node_modules\/(?!logplease).*/,
-        loader: 'babel'
+        loader: 'babel-loader'
       }
     ]
   },
 
   node: {
-    Buffer: false
+    fs: 'empty',
+    module: 'empty'
   },
 
   plugins: [
-    new webpack.optimize.OccurenceOrderPlugin(),
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
     })
