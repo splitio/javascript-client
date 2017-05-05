@@ -20,14 +20,16 @@ limitations under the License.
 
 const now = require('../utils/now');
 
-const Timer = (collector: StatsCache<number>): Function => {
+const Timer = (collector?: StatsCache<number>): Function => {
   return function start(): Function {
     const st = now();
 
     return function stop(): number {
       const et = now() - st;
 
-      collector.track(et);
+      if (collector && collector.track) {
+        collector.track(et);
+      }
 
       return et;
     };

@@ -20,6 +20,7 @@ const ReadinessGateFacade = require('./readiness');
 const keyParser = require('./utils/key/parser');
 const Logger = require('./utils/logger');
 const log = Logger('splitio');
+const tracker = require('./utils/logger/timeTracker');
 
 // cache instances created
 const instances = {};
@@ -28,7 +29,6 @@ const instances = {};
 // Create SDK instance based on the provided configurations
 //
 function SplitFactory(settings: Settings, storage: SplitStorage, gateFactory: any,sharedInstance: ?boolean) {
-
   const readiness = gateFactory(settings.startup.readyTimeout);
 
   // We are only interested in exposable EventEmitter
@@ -68,6 +68,8 @@ function SplitFactory(settings: Settings, storage: SplitStorage, gateFactory: an
   const readyFlag = sharedInstance ? Promise.resolve() :
     new Promise(resolve => gate.on(SDK_READY, resolve));
 
+  gate.on(SDK_READY, () => tracker.stop(tracker.C.SDK_READY));
+
   const api = Object.assign(
     // Proto linkage of the EventEmitter to prevent any change
     Object.create(gate),
@@ -102,6 +104,11 @@ function SplitFactory(settings: Settings, storage: SplitStorage, gateFactory: an
 }
 
 function SplitFacade(config: Object) {
+  // Tracking times.
+  tracker.start(tracker.C.SDK_READY);
+  tracker.start(tracker.C.SPLITS_READY);
+  tracker.start(tracker.C.SEGMENTS_READY);
+
   const settings = SettingsFactory(config);
   const storage = StorageFactory(settings);
   const gateFactory = ReadinessGateFacade();

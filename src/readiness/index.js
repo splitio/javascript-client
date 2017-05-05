@@ -3,6 +3,7 @@
 'use strict';
 
 const EventEmitter = require('events').EventEmitter;
+const tracker = require('../utils/logger/timeTracker');
 
 const SPLITS_READY = 2;
 const SEGMENTS_READY = 4;
@@ -51,11 +52,13 @@ function GateContext() {
     });
 
     splits.on(Events.SDK_SPLITS_ARRIVED, () => {
+      tracker.stop(tracker.C.SPLITS_READY);
       splitsStatus = SPLITS_READY;
       gate.emit(Events.READINESS_GATE_CHECK_STATE);
     });
 
     segments.on(Events.SDK_SEGMENTS_ARRIVED, () => {
+      tracker.stop(tracker.C.SEGMENTS_READY);
       segmentsStatus = SEGMENTS_READY;
       gate.emit(Events.READINESS_GATE_CHECK_STATE);
     });

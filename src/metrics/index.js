@@ -19,6 +19,7 @@ limitations under the License.
 'use strict';
 
 const log = require('../utils/logger')('splitio-metrics');
+const tracker = require('../utils/logger/timeTracker');
 
 const repeat = require('../utils/fn/repeat');
 
@@ -35,23 +36,31 @@ const MetricsFactory = (settings: Object, storage: SplitStorage): Startable => {
     if (storage.metrics.isEmpty()) return Promise.resolve();
 
     log.info('Pushing metrics');
+    tracker.start(tracker.C.METRICS_PUSH);
 
     return metricsService(metricsServiceRequest(settings, {
       body: JSON.stringify(metricsDTO.fromGetTreatmentCollector(storage.metrics))
     }))
-    .then(() => storage.metrics.clear())
+    .then(() => {
+      tracker.stop(tracker.C.METRICS_PUSH);
+      return storage.metrics.clear();
+    })
     .catch(() => storage.metrics.clear());
   };
 
   const pushImpressions = (): Promise<void> => {
     if (storage.impressions.isEmpty()) return Promise.resolve();
 
-    log.info('Pushing impressions');
+    log.info(`Pushing ${storage.impressions.queue.length} impressions`);
+    tracker.start(tracker.C.IMPRESSIONS_PUSH);
 
     return impressionsService(impressionsBulkRequest(settings, {
       body: JSON.stringify(impressionsDTO.fromImpressionsCollector(storage.impressions))
     }))
-    .then(() => storage.impressions.clear())
+    .then(() => {
+      tracker.stop(tracker.C.IMPRESSIONS_PUSH);
+      return storage.impressions.clear();
+    })
     .catch(() => storage.impressions.clear());
   };
 
