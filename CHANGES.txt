@@ -1,4 +1,4 @@
-## 9.1.1 (XX XX, 2017)
+## 9.2.0 (XX XX, 2017)
 
 * Dropped migration build. Migration packages will no longer receive updates.
 * Updated logging functionality. SDK will handle logging with a minimalistic enable/disable approach.
@@ -39,6 +39,11 @@
     sdk.Logger.enable();
     sdk.Logger.disable();
     ```
+
+## 9.1.1 (May 03, 2017)
+
+* Bugfixing - Fixed invalid behaviour when using native Fetch API and comparing statusText
+  instead of resp.ok
 
 ## 9.1.0 (April 21, 2017)
 
