@@ -52,7 +52,8 @@ const settingsInLocalStorage = {
     impressionsRefreshRate: 3000  // for now I don't want to publish impressions during E2E run.
   },
   storage: {
-    type: 'LOCALSTORAGE'
+    type: 'LOCALSTORAGE',
+    prefix: 'e2eTEST'    // Avoid storage name clashes
   }
 };
 
