@@ -18,6 +18,8 @@ limitations under the License.
 
 'use strict';
 
+module.exports = parse;
+
 const matchersTransform = require('../transforms/matchers');
 const treatmentsParser = require('../treatments').parse;
 const matcherFactory = require('../matchers');
@@ -78,5 +80,3 @@ function parse(conditions: Array<Condition>, storage: SplitStorage): any {
   // Instanciate evaluator given the set of conditions using if else if logic
   return ifElseIfCombiner(predicates);
 }
-
-module.exports = parse;

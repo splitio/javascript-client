@@ -51,6 +51,13 @@ function sanitizeArray(val): ?Array<string> {
   return arr.length ? arr : undefined;
 }
 
+function hierarchyProcessor(sanitizedValue, attributes) {
+  return {
+    key: sanitizedValue,
+    attributes
+  };
+}
+
 /**
  * We can define a pre-processing for the value, to be executed prior to matcher evaluation.
  */
@@ -62,12 +69,14 @@ function getProcessingFunction(matcherTypeID: number, dataType?: string): ?Funct
     case MATCHERS.LESS_THAN_OR_EQUAL_TO:
     case MATCHERS.BETWEEN:
       return dataType === 'DATETIME' ? zeroSinceSS : undefined;
+    case MATCHERS.HIERARCHY:
+      return hierarchyProcessor;
     default:
       return undefined;
   }
 }
 
-function sanitizeValue(matcherTypeID: number, value: any, dataType: string): any {
+function sanitizeValue(matcherTypeID: number, value: any, dataType: string, attributes?: Object): any {
   const processor = getProcessingFunction(matcherTypeID, dataType);
   let sanitizedValue;
 
@@ -87,7 +96,7 @@ function sanitizeValue(matcherTypeID: number, value: any, dataType: string): any
   }
 
   if (processor) {
-    sanitizedValue = processor(sanitizedValue);
+    sanitizedValue = processor(sanitizedValue, attributes);
   }
 
   log.debug(`Attempted to sanitize [${value}] which should be of type [${dataType}]. \n Sanitized value => [${sanitizedValue}]`);

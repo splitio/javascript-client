@@ -15,6 +15,8 @@ limitations under the License.
 **/
 'use strict';
 
+module.exports = MatcherFactory;
+
 const types = require('./types').enum;
 
 const allMatcher = require('./all');
@@ -31,6 +33,7 @@ const partOfSetMatcher = require('./part_of');
 const swMatcher = require('./sw');
 const ewMatcher = require('./ew');
 const containsStrMatcher = require('./cont_str');
+const hierarchicalMatcher = require('./hierarchy');
 
 /**
  * Matcher factory.
@@ -71,9 +74,9 @@ function MatcherFactory(matcherDto: Matcher, storage: SplitStorage): Function {
     matcherFn = ewMatcher(value);
   } else if (type === types.CONTAINS_STRING) {
     matcherFn = containsStrMatcher(value);
+  } else if (type === types.HIERARCHY) {
+    matcherFn = hierarchicalMatcher(value, storage);
   }
 
   return matcherFn;
 }
-
-module.exports = MatcherFactory;
