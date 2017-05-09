@@ -975,6 +975,49 @@
           ]
         }
       ]
+    },
+    {
+      "orgId": null,
+      "environment": null,
+      "trafficTypeId": null,
+      "trafficTypeName": null,
+      "name": "hierarchical_splits_test",
+      "seed": 1276793945,
+      "status": "ACTIVE",
+      "killed": false,
+      "defaultTreatment": "off",
+      "conditions": [
+        {
+          "matcherGroup": {
+            "combiner": "AND",
+            "matchers": [
+              {
+                "keySelector": {
+                  "trafficType": "user",
+                  "attribute": null
+                },
+                "matcherType": "HIERARCHY",
+                "negate": false,
+                "parentSplit": "splitters",
+                "userDefinedSegmentMatcherData": null,
+                "whitelistMatcherData": {
+                  "whitelist": [
+                    "on", "partial"
+                  ]
+                },
+                "unaryNumericMatcherData": null,
+                "betweenMatcherData": null
+              }
+            ]
+          },
+          "partitions": [
+            {
+              "treatment": "on",
+              "size": 100
+            }
+          ]
+        }
+      ]
     }
   ],
   "since": -1,
