@@ -229,6 +229,10 @@ function e2eAssertionSuite(config, assert) {
     assert.equal(client.getTreatment('user_attr_eq_ten', {
       attr: 9
     }), 'off');
+
+    // This split depends on treatment 'on' of splitters to be on.
+    assert.equal(client.getTreatment('hierarchical_splits_test'), 'on');
+
   };
 
   const getTreatmentsTests = (client) => {
