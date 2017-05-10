@@ -242,13 +242,15 @@ function e2eAssertionSuite(config, assert) {
       'blacklist',
       'whitelist',
       'splitters',
-      'qc_team'
+      'qc_team',
+      'hierarchical_splits_test'
     ]), {
       // Expected result
       blacklist: 'not_allowed',
       whitelist: 'allowed',
       splitters: 'on',
-      qc_team: 'no'
+      qc_team: 'no',
+      hierarchical_splits_test: 'on'
     });
 
     // I'm not sending the attributes
