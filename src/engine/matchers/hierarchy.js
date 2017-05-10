@@ -20,7 +20,11 @@ const Engine = require('../');
 const thenable = require('../../utils/promise/thenable');
 
 function checkTreatment(evaluation, acceptableTreatments, parentName) {
-  const matches = acceptableTreatments.indexOf(evaluation.treatment) >= 0;
+  let matches = false;
+
+  if (Array.isArray(acceptableTreatments)) {
+    matches = acceptableTreatments.indexOf(evaluation.treatment) >= 0;
+  }
 
   log.debug(`[hierarchicalMatcher] Parent split "${parentName}" evaluated to "${evaluation.treatment}" with label "${evaluation.label}". ${parentName} evaluated treatment is part of [${acceptableTreatments}] ? ${matches}.`);
 
