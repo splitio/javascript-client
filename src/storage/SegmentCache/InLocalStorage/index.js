@@ -2,7 +2,7 @@
 
 'use strict';
 
-const log = require('debug')('splitio-storage:localstorage');
+const log = require('../../../utils/logger')('splitio-storage:localstorage');
 
 const DEFINED = '1';
 
@@ -20,7 +20,7 @@ class SegmentCacheInLocalStorage {
       localStorage.setItem(segmentKey, DEFINED);
       return true;
     } catch (e) {
-      log(e);
+      log.error(e);
       return false;
     }
   }
@@ -32,7 +32,7 @@ class SegmentCacheInLocalStorage {
       localStorage.removeItem(segmentKey);
       return true;
     } catch (e) {
-      log(e);
+      log.error(e);
       return false;
     }
   }

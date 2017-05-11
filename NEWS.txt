@@ -1,3 +1,50 @@
+## 9.2.0 (May 11, 2017)
+
+* Dropped migration build. Migration packages will no longer receive updates.
+* Updated logging functionality. SDK will handle logging with a minimalistic enable/disable approach.
+  Now you have three ways to enable/disable SDK logging:
+
+  1. By setting the localStorage.splitio_debug (browser) or SPLITIO_DEBUG environment var (node)
+    with 'on', 'enable' or 'enabled'.
+
+  2. By passing an extra setting when instantiating the SDK.
+
+    ```js
+    var splitio = require('@splitsoftware/splitio');
+
+    var settings = {
+      core: {
+        authorizationKey: 'YOUR_API_KEY',
+        key: 'CUSTOMER_KEY'  // If on the browser.
+      },
+      debug: true  // Boolean flag for enabling logs. Default value is false.
+    };
+
+    var sdk = splitio(settings);
+    ```
+
+  3. By calling the SDK Logger API (no need for browser refresh):
+
+    ```js
+    var splitio = require('@splitsoftware/splitio');
+
+    var sdk = splitio({
+      core: {
+        authorizationKey: 'YOUR_API_KEY',
+        key: 'CUSTOMER_KEY'  // If on the browser.
+      }
+    });
+
+    // Logger API.
+    sdk.Logger.enable();
+    sdk.Logger.disable();
+    ```
+
+* Added Time Tracker logs. When logs are enabled, we log how much time takes to complete
+  SDK important tasks, like getting ready, downloading important information or pushing
+  metrics and impressions to Split.
+* Bugfixing - Return correct label when consulted Split is not found.
+
 ## 9.1.1 (May 03, 2017)
 
 * Bugfixing - Fixed invalid behaviour when using native Fetch API and comparing statusText

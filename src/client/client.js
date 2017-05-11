@@ -6,7 +6,7 @@
 // babel-runtime before remove this line of code.
 require('core-js/es6/promise');
 
-const log = require('debug')('splitio-client');
+const log = require('../utils/logger')('splitio-client');
 const Engine = require('../engine');
 
 const TimeTracker = require('../tracker/Timer');
@@ -32,9 +32,9 @@ function getTreatmentAvailable(
   let label = undefined;
 
   if (evaluation.treatment !== 'control') {
-    log(`Split ${splitName} key ${matchingKey} evaluation ${treatment}`);
+    log.info(`Split: ${splitName}. Key: ${matchingKey}. Evaluation: ${treatment}`);
   } else {
-    log(`Split ${splitName} doesn't exist`);
+    log.warn(`Split ${splitName} doesn't exist`);
   }
 
   if (settings.core.labelsEnabled) label = evaluation.label;

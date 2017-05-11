@@ -18,7 +18,7 @@ limitations under the License.
 
 'use strict';
 
-const log = require('debug')('splitio-producer:offline');
+const log = require('../../utils/logger')('splitio-producer:offline');
 
 function FromObjectUpdaterFactory(Fetcher: Function, settings: Settings, readiness: ReadinessGate, storage: SplitStorage) {
 
@@ -26,7 +26,8 @@ function FromObjectUpdaterFactory(Fetcher: Function, settings: Settings, readine
     const splits = [];
     const configs = Fetcher(settings);
 
-    log(JSON.stringify(configs));
+    log.debug('Splits data:');
+    log.debug(JSON.stringify(configs));
 
     // Make use of the killed behavior to prevent loading all the information
     // for a given Split.

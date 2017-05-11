@@ -16,13 +16,13 @@ limitations under the License.
 
 'use strict';
 
-const log = require('debug')('splitio-engine:matcher');
+const log = require('../../utils/logger')('splitio-engine:matcher');
 
 function lessThanEqualMatcherContext(ruleAttr /*: number */) /*: function */ {
   return function lessThanEqualMatcher(runtimeAttr /*: number */) /*: boolean */ {
     let isLessEqualThan = runtimeAttr <= ruleAttr;
 
-    log(`[lessThanEqualMatcher] is ${runtimeAttr} less than ${ruleAttr}? ${isLessEqualThan}`);
+    log.debug(`[lessThanEqualMatcher] is ${runtimeAttr} less than ${ruleAttr}? ${isLessEqualThan}`);
 
     return isLessEqualThan;
   };

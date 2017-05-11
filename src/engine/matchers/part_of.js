@@ -16,7 +16,7 @@ limitations under the License.
 
 'use strict';
 
-const log = require('debug')('splitio-engine:matcher');
+const log = require('../../utils/logger')('splitio-engine:matcher');
 const intersection = require('lodash/intersection');
 
 function partOfMatcherContext(ruleAttr /*: array */) /*: Function */ {
@@ -24,7 +24,7 @@ function partOfMatcherContext(ruleAttr /*: array */) /*: Function */ {
     // If the intersection returns all of runtimeAttr elements, it is a part of ruleAttr
     const isPartOf = intersection(runtimeAttr, ruleAttr).length === runtimeAttr.length;
 
-    log(`[partOfMatcher] ${runtimeAttr} is part of ${ruleAttr}? ${isPartOf}`);
+    log.debug(`[partOfMatcher] ${runtimeAttr} is part of ${ruleAttr}? ${isPartOf}`);
 
     return isPartOf;
   };

@@ -35,11 +35,18 @@ module.exports = {
   },
 
   webpack: {
-    // devtool: 'cheap-module-inline-source-map',
     module: {
-      loaders: [
-        { test: /\.js$/, exclude: /node_modules/, loader: 'babel' },
-        { test: /\.json$/, exclude: /node_modules/, loader: 'json' }
+      rules: [
+        {
+          test: /\.js$/,
+          exclude: /node_modules\/(?!logplease).*/,
+          loader: 'babel-loader'
+        },
+        {
+          test: /\.json$/,
+          exclude: /node_modules/,
+          loader: 'json-loader'
+        }
       ]
     },
     plugins: [

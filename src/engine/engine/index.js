@@ -18,7 +18,7 @@ limitations under the License.
 
 'use strict';
 
-const log = require('debug')('splitio-engine');
+const log = require('../../utils/logger')('splitio-engine');
 
 const legacy = require('./legacy');
 const murmur = require('./murmur3');
@@ -44,7 +44,7 @@ const engine = {
 
     const treatment = treatments.getTreatmentFor(bucket);
 
-    log(`[engine] using algo ${algoId !== MURMUR_ID ? 'legacy' : 'murmur'} bucket ${bucket} for ${key} using seed ${seed} - treatment ${treatment}`);
+    log.debug(`[engine] using algo ${algoId !== MURMUR_ID ? 'legacy' : 'murmur'} bucket ${bucket} for key ${key} using seed ${seed} - treatment ${treatment}`);
 
     return treatment;
   },

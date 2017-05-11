@@ -19,18 +19,23 @@ limitations under the License.
 'use strict';
 
 const timeout = require('../../utils/promise/timeout');
+const tracker = require('../../utils/logger/timeTracker');
 
 const splitChangesService = require('../../services/splitChanges');
 const splitChangesRequest = require('../../services/splitChanges/get');
 
 function splitChangesFetcher(settings: Object, since: number, shouldApplyTimeout: boolean = false): Promise<SplitChanges> {
+  tracker.start(tracker.C.SPLITS_FETCH);
   let requestPromise = splitChangesService(splitChangesRequest(settings, since));
 
   if (shouldApplyTimeout) {
     requestPromise = timeout(settings.startup.requestTimeoutBeforeReady, requestPromise);
   }
 
-  return requestPromise.then(resp => resp.json());
+  return requestPromise.then(resp => {
+    tracker.stop(tracker.C.SPLITS_FETCH);
+    return resp;
+  }).then(resp => resp.json());
 }
 
 module.exports = splitChangesFetcher;

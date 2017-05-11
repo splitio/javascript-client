@@ -18,6 +18,9 @@ const SettingsFactory = require('./utils/settings');
 const ReadinessGateFacade = require('./readiness');
 
 const keyParser = require('./utils/key/parser');
+const Logger = require('./utils/logger');
+const log = Logger('splitio');
+const tracker = require('./utils/logger/timeTracker');
 
 // cache instances created
 const instances = {};
@@ -26,7 +29,6 @@ const instances = {};
 // Create SDK instance based on the provided configurations
 //
 function SplitFactory(settings: Settings, storage: SplitStorage, gateFactory: any,sharedInstance: ?boolean) {
-
   const readiness = gateFactory(settings.startup.readyTimeout);
 
   // We are only interested in exposable EventEmitter
@@ -66,6 +68,8 @@ function SplitFactory(settings: Settings, storage: SplitStorage, gateFactory: an
   const readyFlag = sharedInstance ? Promise.resolve() :
     new Promise(resolve => gate.on(SDK_READY, resolve));
 
+  gate.on(SDK_READY, () => tracker.stop(tracker.C.SDK_READY));
+
   const api = Object.assign(
     // Proto linkage of the EventEmitter to prevent any change
     Object.create(gate),
@@ -100,17 +104,27 @@ function SplitFactory(settings: Settings, storage: SplitStorage, gateFactory: an
 }
 
 function SplitFacade(config: Object) {
+  // Tracking times.
+  tracker.start(tracker.C.SDK_READY);
+  tracker.start(tracker.C.SPLITS_READY);
+  tracker.start(tracker.C.SEGMENTS_READY);
+
   const settings = SettingsFactory(config);
   const storage = StorageFactory(settings);
   const gateFactory = ReadinessGateFacade();
 
   const defaultInstance = SplitFactory(settings, storage, gateFactory);
 
+  log.info('New Split SDK instance created.');
+
   return {
 
     // Split evaluation engine
     client(key: ?SplitKey): SplitClient {
-      if (!key) return defaultInstance;
+      if (!key) {
+        log.debug('Retrieving default SDK client.');
+        return defaultInstance;
+      }
 
       if (typeof storage.shared != 'function') {
         throw 'Shared Client not supported by the storage mechanism. Create isolated instances instead.';
@@ -122,6 +136,9 @@ function SplitFacade(config: Object) {
       if (!instances[instanceId]) {
         const sharedSettings = settings.overrideKey(key);
         instances[instanceId] = SplitFactory(sharedSettings, storage.shared(sharedSettings), gateFactory, true);
+        log.info('New shared client instance created.');
+      } else {
+        log.debug('Retrieving existing SDK client.');
       }
 
       return instances[instanceId];
@@ -129,8 +146,12 @@ function SplitFacade(config: Object) {
 
     // Manager API to explore available information
     manager(): SplitManager {
+      log.info('New manager instance created.');
       return ManagerFactory(storage.splits);
     },
+
+    // Logger wrapper API
+    Logger: Logger.API,
 
     // Expose SDK settings
     settings

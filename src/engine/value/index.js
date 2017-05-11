@@ -18,7 +18,7 @@ limitations under the License.
 
 'use strict';
 
-const log = require('debug')('splitio-engine:value');
+const log = require('../../utils/logger')('splitio-engine:value');
 const sanitizeValue = require('./sanitize');
 
 function parseValue(key: string, attributeName: string, attributes: Object) {
@@ -26,9 +26,9 @@ function parseValue(key: string, attributeName: string, attributes: Object) {
   if (attributeName) {
     if (attributes) {
       value = attributes[attributeName];
-      log('Extracted attribute [%s], [%s] will be used for matching', attributeName, value);
+      log.debug(`Extracted attribute [${attributeName}], [${value}] will be used for matching`);
     } else {
-      log('Defined attribute [%s], no attributes received', attributeName);
+      log.warn(`Defined attribute [${attributeName}], no attributes received`);
     }
   } else {
     value = key;
@@ -48,7 +48,7 @@ function value(key: string, matcherDto: Object, attributes: Object): ?string {
   if (sanitizedValue !== undefined) {
     return sanitizedValue;
   } else {
-    log('Value [%s]' + (attributeName ? ' for attribute [%s]' : + '') + ' doesn\'t match with expected type', valueToMatch, attributeName);
+    log.warn(`Value ${valueToMatch} ${attributeName ? `for attribute ${attributeName} ` : + ''}doesn\'t match with expected type`);
     return;
   }
 }

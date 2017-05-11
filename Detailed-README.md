@@ -13,12 +13,18 @@ Using [npm](https://www.npmjs.com/):
 Then with a module bundler like [webpack](https://webpack.github.io/) that supports
 either **CommonJS** or **ES2015** modules, use as you would anything else:
 
+JavaScript
 ```js
 // using an ES6 transpiler, like babel
 import splitio from '@splitsoftware/splitio';
 
 // not using an ES6 transpiler
 var splitio = require('@splitsoftware/splitio');
+```
+
+TypeScript
+```typescript
+import splitio = require('@splitsoftware/splitio');
 ```
 
 Using [bower](https://bower.io):
@@ -86,8 +92,8 @@ Update the package.json with the correct value using semver.
 
 #### Publishing into NPM
 
-1. Use `npm publish --tag canary` => release canary version.
-1. Use `npm publish`              => release the stable version.
+1. Use `npm run canary`   => release canary version.
+1. Use `npm run stable`   => release the stable version.
 
 #### Building
 

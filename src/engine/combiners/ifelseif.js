@@ -18,11 +18,11 @@ limitations under the License.
 'use strict';
 
 const findIndex = require('core-js/library/fn/array/find-index');
-const log = require('debug')('splitio-engine:combiner');
+const log = require('../../utils/logger')('splitio-engine:combiner');
 const thenable = require('../../utils/promise/thenable');
 
 function unexpectedInputHandler() {
-  log('Invalid Split provided, none valid conditions found');
+  log.error('Invalid Split provided, no valid conditions found');
 
   return {
     treatment: 'control',
@@ -37,13 +37,13 @@ function computeTreatment(predicateResults: Array<?Evaluation>): ?Evaluation {
     const evaluation = predicateResults[i];
 
     if (evaluation != undefined) {
-      log('treatment found %s', evaluation.treatment);
+      log.debug(`treatment found: ${evaluation.treatment}`);
 
       return evaluation;
     }
   }
 
-  log('all predicates evaluted, none treatment available');
+  log.debug('all predicates evaluted, no treatment available');
   return undefined;
 }
 
