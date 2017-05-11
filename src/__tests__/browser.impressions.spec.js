@@ -43,7 +43,7 @@ module.exports = function(assert) {
         treatment
       } = hierarchicalChildImpr.keyImpressions[0];
 
-      assert.equal(keyName, 'facundo@split.io', 'Present impression should have the correct key.);
+      assert.equal(keyName, 'facundo@split.io', 'Present impression should have the correct key.');
       // The label present on the mock.
       assert.equal(label, 'expected label', 'Present impression should have the correct label.');
       assert.equal(treatment, 'on', 'Present impression should have the correct treatment.');
