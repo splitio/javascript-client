@@ -981,6 +981,89 @@
       "environment": null,
       "trafficTypeId": null,
       "trafficTypeName": null,
+      "name": "hierarchical_dep_always_on",
+      "seed": -790396804,
+      "status": "ACTIVE",
+      "killed": false,
+      "defaultTreatment": "off",
+      "conditions": [
+        {
+          "matcherGroup": {
+            "combiner": "AND",
+            "matchers": [
+              {
+                "keySelector": {
+                  "trafficType": "user",
+                  "attribute": null
+                },
+                "matcherType": "ALL_KEYS",
+                "negate": false,
+                "userDefinedSegmentMatcherData": null,
+                "whitelistMatcherData": null,
+                "unaryNumericMatcherData": null,
+                "betweenMatcherData": null
+              }
+            ]
+          },
+          "partitions": [
+            {
+              "treatment": "on",
+              "size": 100
+            }
+          ],
+          "label": "hierarchical dependency always on label"
+        }
+      ]
+    },
+    {
+      "orgId": null,
+      "environment": null,
+      "trafficTypeId": null,
+      "trafficTypeName": null,
+      "name": "hierarchical_dep_hierarchical",
+      "seed": 1276793945,
+      "status": "ACTIVE",
+      "killed": false,
+      "defaultTreatment": "off",
+      "conditions": [
+        {
+          "matcherGroup": {
+            "combiner": "AND",
+            "matchers": [
+              {
+                "keySelector": {
+                  "trafficType": "user",
+                  "attribute": null
+                },
+                "matcherType": "HIERARCHY",
+                "negate": false,
+                "parentSplit": "hierarchical_dep_always_on",
+                "userDefinedSegmentMatcherData": null,
+                "whitelistMatcherData": {
+                  "whitelist": [
+                    "on", "partial"
+                  ]
+                },
+                "unaryNumericMatcherData": null,
+                "betweenMatcherData": null
+              }
+            ]
+          },
+          "partitions": [
+            {
+              "treatment": "on",
+              "size": 100
+            }
+          ],
+          "label": "hierarchical dependency label"
+        }
+      ]
+    },
+    {
+      "orgId": null,
+      "environment": null,
+      "trafficTypeId": null,
+      "trafficTypeName": null,
       "name": "hierarchical_splits_test",
       "seed": 1276793945,
       "status": "ACTIVE",
@@ -998,7 +1081,7 @@
                 },
                 "matcherType": "HIERARCHY",
                 "negate": false,
-                "parentSplit": "splitters",
+                "parentSplit": "hierarchical_dep_hierarchical",
                 "userDefinedSegmentMatcherData": null,
                 "whitelistMatcherData": {
                   "whitelist": [
@@ -1015,7 +1098,8 @@
               "treatment": "on",
               "size": 100
             }
-          ]
+          ],
+          "label": "expected label"
         }
       ]
     }
