@@ -99,7 +99,7 @@ function sanitizeValue(matcherTypeID: number, value: any, dataType: string, attr
     sanitizedValue = processor(sanitizedValue, attributes);
   }
 
-  log.debug(`Attempted to sanitize [${value}] which should be of type [${dataType}]. \n Sanitized value => [${sanitizedValue}]`);
+  log.debug(`Attempted to sanitize [${value}] which should be of type [${dataType}]. \n Sanitized and processed value => [${sanitizedValue instanceof Object ? JSON.stringify(sanitizedValue) : sanitizedValue}]`);
 
   return sanitizedValue;
 }
