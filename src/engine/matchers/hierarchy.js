@@ -37,7 +37,7 @@ function evaluateParent(splitObject, name, key, attributes, acceptableTreatments
   let matches = false;
 
   if (thenable(evaluation)) {
-    evaluation.then(res => checkTreatment(res, acceptableTreatments, name));
+    matches = evaluation.then(resp => checkTreatment(resp, acceptableTreatments, name));
   } else {
     matches = checkTreatment(evaluation, acceptableTreatments, name);
   }
@@ -60,7 +60,7 @@ function hierarchicalMatcherContext({
       log.debug(`[hierarchicalMatcher] will evaluate parent split: "${split}" with key: ${key} ${ attributes ? `\n attributes: ${JSON.stringify(attributes)}` : ''}`);
 
       if (thenable(splitObject)) {
-        return splitObject.then((res: string) => evaluateParent(res, split, key, attributes, treatments, storage));
+        return splitObject.then((resp: string) => evaluateParent(resp, split, key, attributes, treatments, storage));
       } else {
         return evaluateParent(splitObject, split, key, attributes, treatments, storage);
       }
