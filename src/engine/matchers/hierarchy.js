@@ -23,7 +23,7 @@ function checkTreatment(evaluation, acceptableTreatments, parentName) {
   let matches = false;
 
   if (Array.isArray(acceptableTreatments)) {
-    matches = acceptableTreatments.indexOf(evaluation.treatment) >= 0;
+    matches = acceptableTreatments.indexOf(evaluation.treatment) !== -1;
   }
 
   log.debug(`[hierarchicalMatcher] Parent split "${parentName}" evaluated to "${evaluation.treatment}" with label "${evaluation.label}". ${parentName} evaluated treatment is part of [${acceptableTreatments}] ? ${matches}.`);
