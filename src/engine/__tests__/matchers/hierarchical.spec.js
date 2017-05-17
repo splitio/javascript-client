@@ -20,6 +20,7 @@ limitations under the License.
 const tape = require('tape-catch');
 const matcherTypes = require('../../matchers/types').enum;
 const matcherFactory = require('../../matchers');
+const splitEvaluator = require('../../evaluator');
 
 const ALWAYS_ON_SPLIT = '{"trafficTypeName":"user","name":"always-on","trafficAllocation":100,"trafficAllocationSeed":1012950810,"seed":-725161385,"status":"ACTIVE","killed":false,"defaultTreatment":"off","changeNumber":1494364996459,"algo":2,"conditions":[{"conditionType":"ROLLOUT","matcherGroup":{"combiner":"AND","matchers":[{"keySelector":{"trafficType":"user","attribute":null},"matcherType":"ALL_KEYS","negate":false,"userDefinedSegmentMatcherData":null,"whitelistMatcherData":null,"unaryNumericMatcherData":null,"betweenMatcherData":null}]},"partitions":[{"treatment":"on","size":100},{"treatment":"off","size":0}],"label":"in segment all"}]}';
 const ALWAYS_OFF_SPLIT = '{"trafficTypeName":"user","name":"always-off","trafficAllocation":100,"trafficAllocationSeed":-331690370,"seed":403891040,"status":"ACTIVE","killed":false,"defaultTreatment":"on","changeNumber":1494365020316,"algo":2,"conditions":[{"conditionType":"ROLLOUT","matcherGroup":{"combiner":"AND","matchers":[{"keySelector":{"trafficType":"user","attribute":null},"matcherType":"ALL_KEYS","negate":false,"userDefinedSegmentMatcherData":null,"whitelistMatcherData":null,"unaryNumericMatcherData":null,"betweenMatcherData":null}]},"partitions":[{"treatment":"on","size":0},{"treatment":"off","size":100}],"label":"in segment all"}]}';
@@ -67,10 +68,10 @@ tape('MATCHER HIERARCHICAL / should return true ONLY when parent split returns o
     }
   }, mockStorage);
 
-  assert.true(matcherTrue_alwaysOn({ key: 'a-key' }), 'Parent split returns one of the expected treatments, so the matcher returns true');
-  assert.false(matcherFalse_alwaysOn({ key: 'a-key' }), 'Parent split returns treatment "on", but we are expecting ["off", "v1"], so the matcher returns false');
-  assert.true(matcherTrue_alwaysOff({ key: 'a-key' }), 'Parent split returns one of the expected treatments, so the matcher returns true');
-  assert.false(matcherFalse_alwaysOff({ key: 'a-key' }), 'Parent split returns treatment "on", but we are expecting ["off", "v1"], so the matcher returns false');
+  assert.true(matcherTrue_alwaysOn({ key: 'a-key' }, splitEvaluator), 'Parent split returns one of the expected treatments, so the matcher returns true');
+  assert.false(matcherFalse_alwaysOn({ key: 'a-key' }, splitEvaluator), 'Parent split returns treatment "on", but we are expecting ["off", "v1"], so the matcher returns false');
+  assert.true(matcherTrue_alwaysOff({ key: 'a-key' }, splitEvaluator), 'Parent split returns one of the expected treatments, so the matcher returns true');
+  assert.false(matcherFalse_alwaysOff({ key: 'a-key' }, splitEvaluator), 'Parent split returns treatment "on", but we are expecting ["off", "v1"], so the matcher returns false');
 
   assert.end();
 });
@@ -132,13 +133,13 @@ tape('MATCHER HIERARCHICAL / Edge cases', function (assert) {
     }
   }, mockStorage);
 
-  assert.false(matcherParentNotExist({ key: 'a-key' }), 'If the parent split does not exist, matcher should return false');
-  assert.false(matcherNoTreatmentsExpected({ key: 'a-key' }), 'If treatments expectation list is empty, matcher should return false (no treatment will match)');
-  assert.false(matcherParentNameEmpty({ key: 'a-key' }), 'If the parent split name is empty, matcher should return false');
-  assert.false(matcherParentNameWrongType({ key: 'a-key' }), 'If the parent split name is not a string, matcher should return false');
-  assert.true(matcherExpectedTreatmentWrongType_matching({ key: 'a-key' }), 'If treatments expectation list has elements of the wrong type, those elements are overlooked.');
-  assert.false(matcherExpectedTreatmentWrongType_notMatching({ key: 'a-key' }), 'If treatments expectation list has elements of the wrong type, those elements are overlooked.');
-  assert.false(matcherExpectationsListWrongType({ key: 'a-key' }), 'If treatments expectation list has wrong type, matcher should return false');
+  assert.false(matcherParentNotExist({ key: 'a-key' }, splitEvaluator), 'If the parent split does not exist, matcher should return false');
+  assert.false(matcherNoTreatmentsExpected({ key: 'a-key' }, splitEvaluator), 'If treatments expectation list is empty, matcher should return false (no treatment will match)');
+  assert.false(matcherParentNameEmpty({ key: 'a-key' }, splitEvaluator), 'If the parent split name is empty, matcher should return false');
+  assert.false(matcherParentNameWrongType({ key: 'a-key' }, splitEvaluator), 'If the parent split name is not a string, matcher should return false');
+  assert.true(matcherExpectedTreatmentWrongType_matching({ key: 'a-key' }, splitEvaluator), 'If treatments expectation list has elements of the wrong type, those elements are overlooked.');
+  assert.false(matcherExpectedTreatmentWrongType_notMatching({ key: 'a-key' }, splitEvaluator), 'If treatments expectation list has elements of the wrong type, those elements are overlooked.');
+  assert.false(matcherExpectationsListWrongType({ key: 'a-key' }, splitEvaluator), 'If treatments expectation list has wrong type, matcher should return false');
 
   assert.end();
 });
