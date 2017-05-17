@@ -55,7 +55,7 @@ const MetricsFactory = (settings: Object, storage: SplitStorage): Startable => {
     tracker.start(tracker.C.IMPRESSIONS_PUSH);
 
     return impressionsService(impressionsBulkRequest(settings, {
-      body: JSON.stringify(impressionsDTO.fromImpressionsCollector(storage.impressions))
+      body: JSON.stringify(impressionsDTO.fromImpressionsCollector(storage.impressions, settings))
     }))
     .then(() => {
       tracker.stop(tracker.C.IMPRESSIONS_PUSH);
