@@ -18,8 +18,6 @@ limitations under the License.
 
 'use strict';
 
-module.exports = parse;
-
 const matchersTransform = require('../transforms/matchers');
 const treatmentsParser = require('../treatments').parse;
 const matcherFactory = require('../matchers');
@@ -50,9 +48,9 @@ function parse(conditions: Array<Condition>, storage: SplitStorage): any {
       const matcher = matcherFactory(matcherDto, storage);
 
       // Evaluator function.
-      return (key, attributes) => {
+      return (key, attributes, splitEvaluator) => {
         const value = sanitizeValue(key, matcherDto, attributes);
-        const result = value !== undefined ? matcher(value) : false;
+        const result = value !== undefined ? matcher(value, splitEvaluator) : false;
 
         if (thenable(result)) {
           return result.then(res => Boolean(res ^ matcherDto.negate));
@@ -81,3 +79,5 @@ function parse(conditions: Array<Condition>, storage: SplitStorage): any {
   // Instanciate evaluator given the set of conditions using if else if logic
   return ifElseIfCombiner(predicates);
 }
+
+module.exports = parse;

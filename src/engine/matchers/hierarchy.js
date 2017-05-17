@@ -18,8 +18,6 @@ limitations under the License.
 const log = require('../../utils/logger')('splitio-engine:matcher');
 const thenable = require('../../utils/promise/thenable');
 
-const evaluator = require('../evaluator');
-
 function checkTreatment(evaluation, acceptableTreatments, parentName) {
   let matches = false;
 
@@ -40,9 +38,9 @@ function hierarchicalMatcherContext({
   return function hierarchicalMatcher({
     key,
     attributes
-  }) {
+  }, splitEvaluator) {
     log.debug(`[hierarchicalMatcher] will evaluate parent split: "${split}" with key: ${key} ${ attributes ? `\n attributes: ${JSON.stringify(attributes)}` : ''}`);
-    const evaluation = evaluator(key, split, attributes, storage);
+    const evaluation = splitEvaluator(key, split, attributes, storage);
 
     if (thenable(evaluation)) {
       return evaluation.then(ev => checkTreatment(ev, treatments, split));

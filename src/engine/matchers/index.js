@@ -15,8 +15,6 @@ limitations under the License.
 **/
 'use strict';
 
-module.exports = MatcherFactory;
-
 const types = require('./types').enum;
 
 const allMatcher = require('./all');
@@ -80,3 +78,5 @@ function MatcherFactory(matcherDto: Matcher, storage: SplitStorage): Function {
 
   return matcherFn;
 }
+
+module.exports = MatcherFactory;
