@@ -37,10 +37,10 @@ function match(matchingResult: boolean, bucketingKey: string, seed: number, trea
   return undefined;
 }
 
-// Evaluator factory
-function evaluatorContext(matcherEvaluator: Function, treatments: Treatments, label: string, conditionType: string): Function {
+// Condition factory
+function conditionContext(matcherEvaluator: Function, treatments: Treatments, label: string, conditionType: string): Function {
 
-  function evaluator(key: SplitKeyObject, seed: number, trafficAllocation: number, trafficAllocationSeed: number, attributes: ?Object, algo: ?number): AsyncValue<?Evaluation> {
+  function conditionEvaluator(key: SplitKeyObject, seed: number, trafficAllocation: number, trafficAllocationSeed: number, attributes: ?Object, algo: ?number): AsyncValue<?Evaluation> {
 
     // Whitelisting has more priority than traffic allocation, so we don't apply this filtering to those conditions.
     if (conditionType === 'ROLLOUT' && !engine.shouldApplyRollout(trafficAllocation, key.bucketingKey, trafficAllocationSeed, algo)) {
@@ -61,7 +61,7 @@ function evaluatorContext(matcherEvaluator: Function, treatments: Treatments, la
     return match(matches, key.bucketingKey, seed, treatments, label, algo);
   }
 
-  return evaluator;
+  return conditionEvaluator;
 }
 
-module.exports = evaluatorContext;
+module.exports = conditionContext;
