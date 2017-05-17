@@ -74,7 +74,7 @@ function SplitFactory(settings: Settings, storage: SplitStorage, gateFactory: an
     // Proto linkage of the EventEmitter to prevent any change
     Object.create(gate),
     // GetTreatment
-    ClientFactory(settings, storage),
+    ClientFactory(storage, settings),
     // Utilities
     {
       // Ready promise

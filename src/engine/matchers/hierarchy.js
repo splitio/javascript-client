@@ -16,8 +16,9 @@ limitations under the License.
 'use strict';
 
 const log = require('../../utils/logger')('splitio-engine:matcher');
-const Engine = require('../');
 const thenable = require('../../utils/promise/thenable');
+
+const evaluator = require('../evaluator');
 
 function checkTreatment(evaluation, acceptableTreatments, parentName) {
   let matches = false;
@@ -31,20 +32,6 @@ function checkTreatment(evaluation, acceptableTreatments, parentName) {
   return matches;
 }
 
-function evaluateParent(splitObject, name, key, attributes, acceptableTreatments, storage) {
-  const splitInstance = Engine.parse(JSON.parse(splitObject), storage);
-  const evaluation = splitInstance.getTreatment(key, attributes);
-  let matches = false;
-
-  if (thenable(evaluation)) {
-    matches = evaluation.then(resp => checkTreatment(resp, acceptableTreatments, name));
-  } else {
-    matches = checkTreatment(evaluation, acceptableTreatments, name);
-  }
-
-  return matches;
-}
-
 function hierarchicalMatcherContext({
   split,
   treatments
@@ -54,19 +41,13 @@ function hierarchicalMatcherContext({
     key,
     attributes
   }) {
-    const splitObject = storage.splits.getSplit(split);
+    log.debug(`[hierarchicalMatcher] will evaluate parent split: "${split}" with key: ${key} ${ attributes ? `\n attributes: ${JSON.stringify(attributes)}` : ''}`);
+    const evaluation = evaluator(key, split, attributes, storage);
 
-    if (splitObject) {
-      log.debug(`[hierarchicalMatcher] will evaluate parent split: "${split}" with key: ${key} ${ attributes ? `\n attributes: ${JSON.stringify(attributes)}` : ''}`);
-
-      if (thenable(splitObject)) {
-        return splitObject.then((resp: string) => evaluateParent(resp, split, key, attributes, treatments, storage));
-      } else {
-        return evaluateParent(splitObject, split, key, attributes, treatments, storage);
-      }
+    if (thenable(evaluation)) {
+      return evaluation.then(ev => checkTreatment(ev, treatments, split));
     } else {
-      log.warn(`[hierarchicalMatcher] Parent split "${split}" does not exist. [hierarchicalMatcher] evaluates to false.`);
-      return false;
+      return checkTreatment(evaluation, treatments, split);
     }
   };
 }
