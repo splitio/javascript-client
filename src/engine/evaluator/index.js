@@ -18,13 +18,18 @@ limitations under the License.
 
 'use strict';
 
-module.exports = evaluateSplit;
+module.exports = splitEvaluator;
 
 const Engine = require('../');
 const thenable = require('../../utils/promise/thenable');
 const LabelsConstants = require('../../utils/labels');
 
-function evaluateSplit(key: SplitKey, splitName: string, attributes: ?Object, storage: SplitStorage): AsyncValue<string> {
+function splitEvaluator(
+  key: SplitKey,
+  splitName: string,
+  attributes: ?Object,
+  storage: SplitStorage
+): AsyncValue<string> {
   const splitObject: AsyncValue<?string> = storage.splits.getSplit(splitName);
 
   if (thenable(splitObject)) {
@@ -41,7 +46,7 @@ function evaluateSplit(key: SplitKey, splitName: string, attributes: ?Object, st
     key,
     attributes,
     storage
-  )
+  );
 }
 
 function getEvaluation(
