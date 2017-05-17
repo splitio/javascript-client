@@ -24,7 +24,7 @@ const matchersTransform = require('../transforms/matchers');
 const treatmentsParser = require('../treatments').parse;
 const matcherFactory = require('../matchers');
 const sanitizeValue = require('../value');
-const evaluatorFactory = require('../evaluator');
+const conditionFactory = require('../condition');
 const ifElseIfCombiner = require('../combiners/ifelseif');
 const andCombiner = require('../combiners/and');
 const thenable = require('../../utils/promise/thenable');
@@ -49,6 +49,7 @@ function parse(conditions: Array<Condition>, storage: SplitStorage): any {
     const expressions = matchers.map(matcherDto => {
       const matcher = matcherFactory(matcherDto, storage);
 
+      // Evaluator function.
       return (key, attributes) => {
         const value = sanitizeValue(key, matcherDto, attributes);
         const result = value !== undefined ? matcher(value) : false;
@@ -69,7 +70,7 @@ function parse(conditions: Array<Condition>, storage: SplitStorage): any {
       break;
     }
 
-    predicates.push(evaluatorFactory(
+    predicates.push(conditionFactory(
       andCombiner(expressions),
       treatmentsParser(partitions),
       label,
