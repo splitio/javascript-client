@@ -1037,13 +1037,14 @@
                 },
                 "matcherType": "HIERARCHY",
                 "negate": false,
-                "parentSplit": "hierarchical_dep_always_on",
-                "userDefinedSegmentMatcherData": null,
-                "whitelistMatcherData": {
-                  "whitelist": [
+                "hierarchicalMatcherData": {
+                  "split": "hierarchical_dep_always_on",
+                  "treatments": [
                     "on", "partial"
                   ]
                 },
+                "userDefinedSegmentMatcherData": null,
+                "whitelistMatcherData": null,
                 "unaryNumericMatcherData": null,
                 "betweenMatcherData": null
               }
@@ -1081,13 +1082,14 @@
                 },
                 "matcherType": "HIERARCHY",
                 "negate": false,
-                "parentSplit": "hierarchical_dep_hierarchical",
-                "userDefinedSegmentMatcherData": null,
-                "whitelistMatcherData": {
-                  "whitelist": [
+                "hierarchicalMatcherData": {
+                  "split": "hierarchical_dep_hierarchical",
+                  "treatments": [
                     "on", "partial"
                   ]
                 },
+                "userDefinedSegmentMatcherData": null,
+                "whitelistMatcherData": null,
                 "unaryNumericMatcherData": null,
                 "betweenMatcherData": null
               }
