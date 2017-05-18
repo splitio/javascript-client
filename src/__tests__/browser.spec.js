@@ -322,6 +322,8 @@ tape('## E2E CI Tests ##', function(assert) {
   assert.test('E2E / Impressions', impressionsSuite);
   assert.test('E2E / In Memory', e2eAssertionSuite.bind(null, settingsInMemory));
   assert.test('E2E / In LocalStorage with In Memory Fallback', e2eAssertionSuite.bind(null, settingsInLocalStorage));
+  // If we change the mocks, we need to clear localstorage. Cleaning up after testing ensures "fresh data".
+  localStorage.clear();
 
   assert.end();
 });

@@ -24,7 +24,6 @@ const segmentTransform = require('./segment');
 const whitelistTransform = require('./whitelist');
 const setTransform = require('./set');
 const numericTransform = require('./unaryNumeric');
-const hierarchyTransform = require('./hierarchy');
 
 const {
   date: {
@@ -43,10 +42,11 @@ let mock = {
   negate: false,
   unaryNumericMatcherData: null,
   userDefinedSegmentMatcherData: null,
-  whitelistMatcherData: {
-    whitelist: ['on', 'partial']
-  },
-  parentSplit: 'NODEJS_andingWithNumbers'
+  whitelistMatcherData: null,
+  hierarchicalMatcherData: {
+    split: 'NODEJS_andingWithNumbers',
+    treatments: ['on', 'partial']
+  }
 };
 
 // Flat the complex matcherGroup structure into something handy.
@@ -65,7 +65,7 @@ function transform(matchers: Array<Matcher>): Array<ParsedMatcher> {
       whitelistMatcherData: whitelistObject         /* whiteListObject */,
       unaryNumericMatcherData: unaryNumericObject   /* unaryNumericObject */,
       betweenMatcherData: betweenObject,            /* betweenObject */
-      parentSplit                                   /* string */
+      hierarchicalMatcherData: hierarchicalObject   /* hierarchicalObject */
     } = matcher;
 
     let attribute = keySelector && keySelector.attribute;
@@ -118,7 +118,7 @@ function transform(matchers: Array<Matcher>): Array<ParsedMatcher> {
     ) {
       value = setTransform(whitelistObject);
     } else if (type === matcherTypes.enum.HIERARCHY) {
-      value = hierarchyTransform(whitelistObject, parentSplit);
+      value = hierarchicalObject;
     }
 
     return {
