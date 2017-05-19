@@ -87,7 +87,7 @@
     "ip": "^1.1.4",
     "isomorphic-fetch": "^2.2.1",
     "lodash": "^4.17.3",
-    "logplease": "NicoZelaya/logplease",
+    "logplease": "NicoZelaya/logplease#1.3.0",
     "utfx": "^1.0.1",
     "warning": "^3.0.0"
   },
