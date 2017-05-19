@@ -1,3 +1,8 @@
+## 9.2.1 (May 19, 2017)
+
+* Bugfixing - Issue with dependency that exposes untranspiled code through cjs require, causes
+  problems on IE and Node 3.
+
 ## 9.2.0 (May 11, 2017)
 
 * Dropped migration build. Migration packages will no longer receive updates.

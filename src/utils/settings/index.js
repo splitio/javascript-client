@@ -71,7 +71,7 @@ const base = {
   debug: false,
 
   // Instance version.
-  version: `${language}-9.2.0`
+  version: `${language}-9.2.1`
 };
 
 function fromSecondsToMillis(n) {
