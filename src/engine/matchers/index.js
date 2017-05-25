@@ -72,7 +72,7 @@ function MatcherFactory(matcherDto: Matcher, storage: SplitStorage): Function {
     matcherFn = ewMatcher(value);
   } else if (type === types.CONTAINS_STRING) {
     matcherFn = containsStrMatcher(value);
-  } else if (type === types.HIERARCHY) {
+  } else if (type === types.IN_SPLIT_TREATMENT) {
     matcherFn = hierarchicalMatcher(value, storage);
   }
 

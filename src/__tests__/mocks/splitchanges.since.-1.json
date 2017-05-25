@@ -1035,9 +1035,9 @@
                   "trafficType": "user",
                   "attribute": null
                 },
-                "matcherType": "HIERARCHY",
+                "matcherType": "IN_SPLIT_TREATMENT",
                 "negate": false,
-                "hierarchicalMatcherData": {
+                "dependencyMatcherData": {
                   "split": "hierarchical_dep_always_on",
                   "treatments": [
                     "on", "partial"
@@ -1080,9 +1080,9 @@
                   "trafficType": "user",
                   "attribute": null
                 },
-                "matcherType": "HIERARCHY",
+                "matcherType": "IN_SPLIT_TREATMENT",
                 "negate": false,
-                "hierarchicalMatcherData": {
+                "dependencyMatcherData": {
                   "split": "hierarchical_dep_hierarchical",
                   "treatments": [
                     "on", "partial"

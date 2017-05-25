@@ -37,7 +37,7 @@ const mockStorage = {
 
 tape('MATCHER HIERARCHICAL / should return true ONLY when parent split returns one of the expected treatments', function (assert) {
   const matcherTrue_alwaysOn = matcherFactory({
-    type: matcherTypes.HIERARCHY,
+    type: matcherTypes.IN_SPLIT_TREATMENT,
     value: {
       split: 'always-on',
       treatments: ['not-existing','on','other'] // We should match from a list of treatments
@@ -45,7 +45,7 @@ tape('MATCHER HIERARCHICAL / should return true ONLY when parent split returns o
   }, mockStorage);
 
   const matcherFalse_alwaysOn = matcherFactory({
-    type: matcherTypes.HIERARCHY,
+    type: matcherTypes.IN_SPLIT_TREATMENT,
     value: {
       split: 'always-on',
       treatments: ['off', 'v1']
@@ -53,7 +53,7 @@ tape('MATCHER HIERARCHICAL / should return true ONLY when parent split returns o
   }, mockStorage);
 
   const matcherTrue_alwaysOff = matcherFactory({
-    type: matcherTypes.HIERARCHY,
+    type: matcherTypes.IN_SPLIT_TREATMENT,
     value: {
       split: 'always-off',
       treatments: ['not-existing','off']
@@ -61,7 +61,7 @@ tape('MATCHER HIERARCHICAL / should return true ONLY when parent split returns o
   }, mockStorage);
 
   const matcherFalse_alwaysOff = matcherFactory({
-    type: matcherTypes.HIERARCHY,
+    type: matcherTypes.IN_SPLIT_TREATMENT,
     value: {
       split: 'always-off',
       treatments: ['v1', 'on']
@@ -78,7 +78,7 @@ tape('MATCHER HIERARCHICAL / should return true ONLY when parent split returns o
 
 tape('MATCHER HIERARCHICAL / Edge cases', function (assert) {
   const matcherParentNotExist = matcherFactory({
-    type: matcherTypes.HIERARCHY,
+    type: matcherTypes.IN_SPLIT_TREATMENT,
     value: {
       split: 'not-existent-split',
       treatments: ['on','off']
@@ -86,7 +86,7 @@ tape('MATCHER HIERARCHICAL / Edge cases', function (assert) {
   }, mockStorage);
 
   const matcherNoTreatmentsExpected = matcherFactory({
-    type: matcherTypes.HIERARCHY,
+    type: matcherTypes.IN_SPLIT_TREATMENT,
     value: {
       split: 'always-on',
       treatments: []
@@ -94,7 +94,7 @@ tape('MATCHER HIERARCHICAL / Edge cases', function (assert) {
   }, mockStorage);
 
   const matcherParentNameEmpty = matcherFactory({
-    type: matcherTypes.HIERARCHY,
+    type: matcherTypes.IN_SPLIT_TREATMENT,
     value: {
       split: '',
       treatments: []
@@ -102,7 +102,7 @@ tape('MATCHER HIERARCHICAL / Edge cases', function (assert) {
   }, mockStorage);
 
   const matcherParentNameWrongType = matcherFactory({
-    type: matcherTypes.HIERARCHY,
+    type: matcherTypes.IN_SPLIT_TREATMENT,
     value: {
       split: { some: 44 },
       treatments: []
@@ -110,7 +110,7 @@ tape('MATCHER HIERARCHICAL / Edge cases', function (assert) {
   }, mockStorage);
 
   const matcherExpectedTreatmentWrongType_matching = matcherFactory({
-    type: matcherTypes.HIERARCHY,
+    type: matcherTypes.IN_SPLIT_TREATMENT,
     value: {
       split: 'always-on',
       treatments: [null, [1,2], 3, {}, true, 'on']
@@ -118,7 +118,7 @@ tape('MATCHER HIERARCHICAL / Edge cases', function (assert) {
   }, mockStorage);
 
   const matcherExpectedTreatmentWrongType_notMatching = matcherFactory({
-    type: matcherTypes.HIERARCHY,
+    type: matcherTypes.IN_SPLIT_TREATMENT,
     value: {
       split: 'always-off',
       treatments: [null, [1,2], 3, {}, true, 'on']
@@ -126,7 +126,7 @@ tape('MATCHER HIERARCHICAL / Edge cases', function (assert) {
   }, mockStorage);
 
   const matcherExpectationsListWrongType = matcherFactory({
-    type: matcherTypes.HIERARCHY,
+    type: matcherTypes.IN_SPLIT_TREATMENT,
     value: {
       split: 'always-on',
       treatments: 658

@@ -69,7 +69,7 @@ function getProcessingFunction(matcherTypeID: number, dataType?: string): ?Funct
     case MATCHERS.LESS_THAN_OR_EQUAL_TO:
     case MATCHERS.BETWEEN:
       return dataType === 'DATETIME' ? zeroSinceSS : undefined;
-    case MATCHERS.HIERARCHY:
+    case MATCHERS.IN_SPLIT_TREATMENT:
       return hierarchyProcessor;
     default:
       return undefined;

@@ -35,7 +35,7 @@ module.exports = {
     ENDS_WITH: 13,
     STARTS_WITH: 14,
     CONTAINS_STRING: 15,
-    HIERARCHY: 16
+    IN_SPLIT_TREATMENT: 16
   },
 
   dataTypes: {
@@ -78,8 +78,8 @@ module.exports = {
         return types.STARTS_WITH;
       case 'CONTAINS_STRING':
         return types.CONTAINS_STRING;
-      case 'HIERARCHY':
-        return types.HIERARCHY;
+      case 'IN_SPLIT_TREATMENT':
+        return types.IN_SPLIT_TREATMENT;
       default:
         return types.UNDEFINED;
     }
