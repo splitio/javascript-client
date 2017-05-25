@@ -31,7 +31,7 @@ const partOfSetMatcher = require('./part_of');
 const swMatcher = require('./sw');
 const ewMatcher = require('./ew');
 const containsStrMatcher = require('./cont_str');
-const hierarchicalMatcher = require('./hierarchy');
+const dependencyMatcher = require('./dependency');
 
 /**
  * Matcher factory.
@@ -73,7 +73,7 @@ function MatcherFactory(matcherDto: Matcher, storage: SplitStorage): Function {
   } else if (type === types.CONTAINS_STRING) {
     matcherFn = containsStrMatcher(value);
   } else if (type === types.IN_SPLIT_TREATMENT) {
-    matcherFn = hierarchicalMatcher(value, storage);
+    matcherFn = dependencyMatcher(value, storage);
   }
 
   return matcherFn;

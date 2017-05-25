@@ -31,9 +31,9 @@ module.exports = function(assert) {
     const respPromise = req.json();
 
     respPromise.then(resp => {
-      const hierarchicalChildImpr = resp.filter(e => e.testName === 'hierarchical_splits_test')[0];
+      const dependencyChildImpr = resp.filter(e => e.testName === 'hierarchical_splits_test')[0];
 
-      assert.true(hierarchicalChildImpr, 'Split we wanted to evaluate should be present on the impressions.');
+      assert.true(dependencyChildImpr, 'Split we wanted to evaluate should be present on the impressions.');
       assert.false(resp.some(e => e.testName === 'hierarchical_dep_always_on'), 'Parent split evaluations should not result in impressions.');
       assert.false(resp.some(e => e.testName === 'hierarchical_dep_hierarchical'), 'No matter how deep is the chain.');
 
@@ -41,7 +41,7 @@ module.exports = function(assert) {
         keyName,
         label,
         treatment
-      } = hierarchicalChildImpr.keyImpressions[0];
+      } = dependencyChildImpr.keyImpressions[0];
 
       assert.equal(keyName, 'facundo@split.io', 'Present impression should have the correct key.');
       // The label present on the mock.

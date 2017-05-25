@@ -35,7 +35,7 @@ const mockStorage = {
   }
 };
 
-tape('MATCHER HIERARCHICAL / should return true ONLY when parent split returns one of the expected treatments', function (assert) {
+tape('MATCHER IN_SPLIT_TREATMENT / should return true ONLY when parent split returns one of the expected treatments', function (assert) {
   const matcherTrue_alwaysOn = matcherFactory({
     type: matcherTypes.IN_SPLIT_TREATMENT,
     value: {
@@ -76,7 +76,7 @@ tape('MATCHER HIERARCHICAL / should return true ONLY when parent split returns o
   assert.end();
 });
 
-tape('MATCHER HIERARCHICAL / Edge cases', function (assert) {
+tape('MATCHER IN_SPLIT_TREATMENT / Edge cases', function (assert) {
   const matcherParentNotExist = matcherFactory({
     type: matcherTypes.IN_SPLIT_TREATMENT,
     value: {

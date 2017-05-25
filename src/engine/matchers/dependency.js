@@ -25,21 +25,21 @@ function checkTreatment(evaluation, acceptableTreatments, parentName) {
     matches = acceptableTreatments.indexOf(evaluation.treatment) !== -1;
   }
 
-  log.debug(`[hierarchicalMatcher] Parent split "${parentName}" evaluated to "${evaluation.treatment}" with label "${evaluation.label}". ${parentName} evaluated treatment is part of [${acceptableTreatments}] ? ${matches}.`);
+  log.debug(`[dependencyMatcher] Parent split "${parentName}" evaluated to "${evaluation.treatment}" with label "${evaluation.label}". ${parentName} evaluated treatment is part of [${acceptableTreatments}] ? ${matches}.`);
 
   return matches;
 }
 
-function hierarchicalMatcherContext({
+function dependencyMatcherContext({
   split,
   treatments
 }, storage: SplitStorage) {
 
-  return function hierarchicalMatcher({
+  return function dependencyMatcher({
     key,
     attributes
   }, splitEvaluator) {
-    log.debug(`[hierarchicalMatcher] will evaluate parent split: "${split}" with key: ${key} ${ attributes ? `\n attributes: ${JSON.stringify(attributes)}` : ''}`);
+    log.debug(`[dependencyMatcher] will evaluate parent split: "${split}" with key: ${key} ${ attributes ? `\n attributes: ${JSON.stringify(attributes)}` : ''}`);
     const evaluation = splitEvaluator(key, split, attributes, storage);
 
     if (thenable(evaluation)) {
@@ -50,4 +50,4 @@ function hierarchicalMatcherContext({
   };
 }
 
-module.exports = hierarchicalMatcherContext;
+module.exports = dependencyMatcherContext;
