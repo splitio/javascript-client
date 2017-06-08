@@ -36,6 +36,10 @@ module.exports = {
           if (entry.label) keyImpression.label = entry.label;
           if (entry.bucketingKey) keyImpression.bucketingKey = entry.bucketingKey;
 
+          properties = {};
+          if (FS) properties.full_story_url = FS.getCurrentSessionURL();
+          keyImpression.properties = JSON.stringify(properties);
+
           return keyImpression;
         })
       });
