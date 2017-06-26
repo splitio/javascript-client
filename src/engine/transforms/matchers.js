@@ -38,12 +38,12 @@ let mock = {
     attribute: null,
     trafficType: 'user'
   },
-  matcherType: 'HIERARCHY',
+  matcherType: 'IN_SPLIT_TREATMENT',
   negate: false,
   unaryNumericMatcherData: null,
   userDefinedSegmentMatcherData: null,
   whitelistMatcherData: null,
-  hierarchicalMatcherData: {
+  dependencyMatcherData: {
     split: 'NODEJS_andingWithNumbers',
     treatments: ['on', 'partial']
   }
@@ -65,7 +65,7 @@ function transform(matchers: Array<Matcher>): Array<ParsedMatcher> {
       whitelistMatcherData: whitelistObject         /* whiteListObject */,
       unaryNumericMatcherData: unaryNumericObject   /* unaryNumericObject */,
       betweenMatcherData: betweenObject,            /* betweenObject */
-      hierarchicalMatcherData: hierarchicalObject   /* hierarchicalObject */
+      dependencyMatcherData: dependencyObject   /* dependencyObject */
     } = matcher;
 
     let attribute = keySelector && keySelector.attribute;
@@ -117,8 +117,8 @@ function transform(matchers: Array<Matcher>): Array<ParsedMatcher> {
       type === matcherTypes.enum.CONTAINS_STRING
     ) {
       value = setTransform(whitelistObject);
-    } else if (type === matcherTypes.enum.HIERARCHY) {
-      value = hierarchicalObject;
+    } else if (type === matcherTypes.enum.IN_SPLIT_TREATMENT) {
+      value = dependencyObject;
     }
 
     return {

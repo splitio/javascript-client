@@ -51,7 +51,7 @@ function sanitizeArray(val): ?Array<string> {
   return arr.length ? arr : undefined;
 }
 
-function hierarchyProcessor(sanitizedValue, attributes) {
+function dependencyProcessor(sanitizedValue, attributes) {
   return {
     key: sanitizedValue,
     attributes
@@ -69,8 +69,8 @@ function getProcessingFunction(matcherTypeID: number, dataType?: string): ?Funct
     case MATCHERS.LESS_THAN_OR_EQUAL_TO:
     case MATCHERS.BETWEEN:
       return dataType === 'DATETIME' ? zeroSinceSS : undefined;
-    case MATCHERS.HIERARCHY:
-      return hierarchyProcessor;
+    case MATCHERS.IN_SPLIT_TREATMENT:
+      return dependencyProcessor;
     default:
       return undefined;
   }

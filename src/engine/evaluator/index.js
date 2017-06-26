@@ -18,8 +18,6 @@ limitations under the License.
 
 'use strict';
 
-module.exports = splitEvaluator;
-
 const Engine = require('../');
 const thenable = require('../../utils/promise/thenable');
 const LabelsConstants = require('../../utils/labels');
@@ -63,7 +61,7 @@ function getEvaluation(
   if (splitObject) {
     const split = Engine.parse(JSON.parse(splitObject), storage);
 
-    evaluation = split.getTreatment(key, attributes);
+    evaluation = split.getTreatment(key, attributes, splitEvaluator);
 
     // If the storage is async, evaluation and changeNumber will return a
     // thenable
@@ -80,3 +78,5 @@ function getEvaluation(
 
   return evaluation;
 }
+
+module.exports = splitEvaluator;

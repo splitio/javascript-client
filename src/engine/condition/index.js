@@ -40,7 +40,7 @@ function match(matchingResult: boolean, bucketingKey: string, seed: number, trea
 // Condition factory
 function conditionContext(matcherEvaluator: Function, treatments: Treatments, label: string, conditionType: string): Function {
 
-  function conditionEvaluator(key: SplitKeyObject, seed: number, trafficAllocation: number, trafficAllocationSeed: number, attributes: ?Object, algo: ?number): AsyncValue<?Evaluation> {
+  function conditionEvaluator(key: SplitKeyObject, seed: number, trafficAllocation: number, trafficAllocationSeed: number, splitEvaluator: Function, attributes: ?Object, algo: ?number): AsyncValue<?Evaluation> {
 
     // Whitelisting has more priority than traffic allocation, so we don't apply this filtering to those conditions.
     if (conditionType === 'ROLLOUT' && !engine.shouldApplyRollout(trafficAllocation, key.bucketingKey, trafficAllocationSeed, algo)) {
@@ -51,8 +51,9 @@ function conditionContext(matcherEvaluator: Function, treatments: Treatments, la
     }
 
     // matcherEvaluator could be Async, this relays on matchers return value, so we need
-    // to verify for thenable before play with the result
-    const matches = matcherEvaluator(key.matchingKey, attributes);
+    // to verify for thenable before play with the result.
+    // Also, we pass splitEvaluator function in case we have a matcher that needs to evaluate another split
+    const matches = matcherEvaluator(key.matchingKey, attributes, splitEvaluator);
 
     if (thenable(matches)) {
       return matches.then(result => match(result, key.bucketingKey, seed, treatments, label, algo));
