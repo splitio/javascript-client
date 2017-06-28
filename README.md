@@ -4,7 +4,7 @@ This SDK is designed to work with [Split](https://www.split.io), the platform fo
 
 ### Quick setup
 
-For specific instructions on how to set up the Javascript SDK refer to our [Detailed-README](Detailed-README.md) or our [official SDK documentation](http://docs.split.io/docs/sdk-overview).
+For specific instructions on how to set up the Split SDK refer to our [Detailed-README](Detailed-README.md) or our [official SDK documentation](http://docs.split.io/docs/sdk-overview).
 
 ### Commitment to Quality:
 
@@ -12,21 +12,11 @@ Split’s SDKs are in active development and are constantly tested for quality. 
 
 ### About Split:
 
-Split builds on feature flags to create the platform for controlled rollouts, so any team can target customers and release or revert new features without a deployment—or touching code. Get started quickly with SDKs in your language, then create on/off, percentage, and multivariate rollout plans in seconds. Integrations with the services you use to monitor, alert and track issues reduce time-to-resolution when things go wrong, and hotfixes are entirely avoided by killing problem features with a single click.
-
- * What you can do with Split. Split goes beyond the simple on/off capabilities of basic feature flagging to give your team the power to:
-
- 	* Create multivariate feature releases
-	* Create A/B feature releases
-	* Kill any feature, over the browser, with a single click
-	* Target releases to subsets of your audience, including percentage roll outs, whitelists,    attribute-based targeting, and individual user IDs 
-	* Integrate with the services your team uses to monitor, plan and communicate, like Datadog, JIRA and Slack 
-	* Manage team access, with features like two-factor authentication and role-based permissioning.
-
+Split is the leading platform for intelligent software delivery, helping businesses of all sizes deliver exceptional user experiences, and mitigate risk, by providing an easy, secure way to target features to customers. Companies like WePay, LendingTree and thredUP rely on Split to safely launch and test new features and derive insights on their use. Founded in 2015, Split's team comes from some of the most innovative enterprises in Silicon Valley, including Google, LinkedIn, Salesforce and Splunk. Split is based in Redwood City, California and backed by Accel Partners and Lightspeed Venture Partners. To learn more about Split, contact hello@split.io, or start a 14-day free trial at www.split.io/trial.
 
 Split has built and maintains a SDKs for:
 
-* Java [Docs](http://docs.split.io/docs/java-sdk-guide)
+* Java [Github](https://github.com/splitio/java-client) [Docs](http://docs.split.io/docs/java-sdk-guide)
 * Javascript [Github](https://github.com/splitio/javascript-client) [Docs](http://docs.split.io/docs/javascript-sdk-overview)
 * Node [Github](https://github.com/splitio/javascript-client) [Docs](http://docs.split.io/docs/nodejs-sdk-overview)
 * .NET [Github](https://github.com/splitio/.net-client) [Docs](http://docs.split.io/docs/net-sdk-overview)
@@ -34,11 +24,11 @@ Split has built and maintains a SDKs for:
 * PHP [Github](https://github.com/splitio/php-client) [Docs](http://docs.split.io/docs/php-sdk-overview)
 * Python [Github](https://github.com/splitio/python-client) [Docs](http://docs.split.io/docs/python-sdk-overview)
 
-For a comprenhensive list of opensource projects visit our [Github page](https://github.com/splitio?utf8=%E2%9C%93&query=%20only%3Apublic%20).
+For a comprehensive list of opensource projects visit our [Github page](https://github.com/splitio?utf8=%E2%9C%93&query=%20only%3Apublic%20).
 
 **Try Split for Free:**
 
-Split is available as a 30-day free trial. To create an account, visit [split.io/trial](https://www.split.io/trial).
+Split is available as a 14-day free trial. To create an account, visit [split.io/trial](https://www.split.io/trial).
 
 **Learn more about Split:** 
 
@@ -47,6 +37,3 @@ Visit [split.io/product](https://www.split.io/product) for an overview of Split,
 **System Status:**
 
 We use a status page to monitor the availability of Split’s various services. You can check the current status at [status.split.io](http://status.split.io).
-
-----
-
