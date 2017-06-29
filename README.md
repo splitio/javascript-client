@@ -1,3 +1,5 @@
+[![npm version](https://badge.fury.io/js/%40splitsoftware%2Fsplitio.svg)](https://badge.fury.io/js/%40splitsoftware%2Fsplitio)
+
 # Split Javascript SDK
 
 This SDK is designed to work with [Split](https://www.split.io), the platform for controlled rollouts, serving features to your users via the Split feature flag to manage your complete customer experience.
@@ -19,8 +21,8 @@ Split builds on feature flags to create the platform for controlled rollouts, so
  	* Create multivariate feature releases
 	* Create A/B feature releases
 	* Kill any feature, over the browser, with a single click
-	* Target releases to subsets of your audience, including percentage roll outs, whitelists,    attribute-based targeting, and individual user IDs 
-	* Integrate with the services your team uses to monitor, plan and communicate, like Datadog, JIRA and Slack 
+	* Target releases to subsets of your audience, including percentage roll outs, whitelists,    attribute-based targeting, and individual user IDs
+	* Integrate with the services your team uses to monitor, plan and communicate, like Datadog, JIRA and Slack
 	* Manage team access, with features like two-factor authentication and role-based permissioning.
 
 
@@ -40,7 +42,7 @@ For a comprenhensive list of opensource projects visit our [Github page](https:/
 
 Split is available as a 30-day free trial. To create an account, visit [split.io/trial](https://www.split.io/trial).
 
-**Learn more about Split:** 
+**Learn more about Split:**
 
 Visit [split.io/product](https://www.split.io/product) for an overview of Split, or visit our documentation at [docs.split.io](http://docs.split.io) for more detailed information.
 
