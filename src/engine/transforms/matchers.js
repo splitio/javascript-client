@@ -43,7 +43,8 @@ function transform(matchers: Array<Matcher>): Array<ParsedMatcher> {
       userDefinedSegmentMatcherData: segmentObject  /* segmentObject */,
       whitelistMatcherData: whitelistObject         /* whiteListObject */,
       unaryNumericMatcherData: unaryNumericObject   /* unaryNumericObject */,
-      betweenMatcherData: betweenObject             /* betweenObject */
+      betweenMatcherData: betweenObject,            /* betweenObject */
+      dependencyMatcherData: dependencyObject   /* dependencyObject */
     } = matcher;
 
     let attribute = keySelector && keySelector.attribute;
@@ -95,6 +96,8 @@ function transform(matchers: Array<Matcher>): Array<ParsedMatcher> {
       type === matcherTypes.enum.CONTAINS_STRING
     ) {
       value = setTransform(whitelistObject);
+    } else if (type === matcherTypes.enum.IN_SPLIT_TREATMENT) {
+      value = dependencyObject;
     }
 
     return {

@@ -1,3 +1,7 @@
+## 9.3.0 (XXX XX, 2017)
+
+* Adding Dependency Matcher support. Now you can tie your Splits conditions to the result of another Split.
+
 ## 9.2.1 (May 19, 2017)
 
 * Bugfixing - Issue with dependency that exposes untranspiled code through cjs require, causes

@@ -47,19 +47,15 @@ tape('NodeJS E2E', function (assert) {
     });
 
     client.destroy();
-  }
+  };
 
   const config = {
     core: {
-      authorizationKey: '5i7avi2rpj8i7qg99fhmc38244kcineavla0'
+      authorizationKey: 'i5du10bq0o6328ousp9a3i9n5k0uit2gov3i'
     },
     scheduler: {
       featuresRefreshRate: 15,
       segmentsRefreshRate: 15
-    },
-    urls: {
-      sdk: 'https://sdk-aws-staging.split.io/api',
-      events: 'https://events-aws-staging.split.io/api'
     }
   };
 

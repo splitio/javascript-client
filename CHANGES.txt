@@ -1,3 +1,7 @@
+## 9.3.0 (XXX XX, 2017)
+
+* Adding Dependency Matcher support.
+
 ## 9.2.1 (May 19, 2017)
 
 * Bugfixing - Issue with dependency that exposes untranspiled code through cjs require, causes

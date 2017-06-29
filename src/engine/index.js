@@ -63,7 +63,7 @@ Split.prototype.getKey = function getKey() {
   return this.baseInfo.name;
 };
 
-Split.prototype.getTreatment = function getTreatment(key: SplitKey, attributes): AsyncValue<Evaluation> {
+Split.prototype.getTreatment = function getTreatment(key: SplitKey, attributes: Object, splitEvaluator: Function): AsyncValue<Evaluation> {
   const {
     killed,
     seed,
@@ -99,7 +99,8 @@ Split.prototype.getTreatment = function getTreatment(key: SplitKey, attributes):
       trafficAllocation,
       trafficAllocationSeed,
       attributes,
-      algo
+      algo,
+      splitEvaluator
     );
 
     // Evaluation could be async, so we should handle that case checking for a
@@ -126,3 +127,4 @@ Split.prototype.getChangeNumber = function getChangeNumber() {
 };
 
 module.exports = Split;
+

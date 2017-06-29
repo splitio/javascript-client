@@ -18,50 +18,65 @@ limitations under the License.
 
 'use strict';
 
-const engine = require('../engine');
+const Engine = require('../');
 const thenable = require('../../utils/promise/thenable');
 const LabelsConstants = require('../../utils/labels');
 
-// Build Evaluation object if and only if matchingResult is true
-function match(matchingResult: boolean, bucketingKey: string, seed: number, treatments: Treatments, label: string, algo: ?number): ?Evaluation {
-  if (matchingResult) {
-    const treatment = engine.getTreatment(bucketingKey, seed, treatments, algo);
+function splitEvaluator(
+  key: SplitKey,
+  splitName: string,
+  attributes: ?Object,
+  storage: SplitStorage
+): AsyncValue<string> {
+  const splitObject: AsyncValue<?string> = storage.splits.getSplit(splitName);
 
-    return {
-      treatment,
-      label
-    };
+  if (thenable(splitObject)) {
+    return splitObject.then((result: ?string) => getEvaluation(
+      result,
+      key,
+      attributes,
+      storage
+    ));
   }
 
-  // else we should notify the engine to continue evaluating
-  return undefined;
+  return getEvaluation(
+    splitObject,
+    key,
+    attributes,
+    storage
+  );
 }
 
-// Evaluator factory
-function evaluatorContext(matcherEvaluator: Function, treatments: Treatments, label: string, conditionType: string): Function {
+function getEvaluation(
+  splitObject: ?string,
+  key: SplitKey,
+  attributes: ?Object,
+  storage: SplitStorage
+) {
+  let evaluation = {
+    treatment: 'control',
+    label: LabelsConstants.SPLIT_NOT_FOUND
+  };
 
-  function evaluator(key: SplitKeyObject, seed: number, trafficAllocation: number, trafficAllocationSeed: number, attributes: ?Object, algo: ?number): AsyncValue<?Evaluation> {
+  if (splitObject) {
+    const split = Engine.parse(JSON.parse(splitObject), storage);
 
-    // Whitelisting has more priority than traffic allocation, so we don't apply this filtering to those conditions.
-    if (conditionType === 'ROLLOUT' && !engine.shouldApplyRollout(trafficAllocation, key.bucketingKey, trafficAllocationSeed, algo)) {
-      return {
-        treatment: undefined,
-        label: LabelsConstants.NOT_IN_SPLIT
-      };
+    evaluation = split.getTreatment(key, attributes, splitEvaluator);
+
+    // If the storage is async, evaluation and changeNumber will return a
+    // thenable
+    if (thenable(evaluation)) {
+      return evaluation.then(result => {
+        result.changeNumber = split.getChangeNumber();
+
+        return result;
+      });
+    } else {
+      evaluation.changeNumber = split.getChangeNumber(); // Always sync and optional
     }
-
-    // matcherEvaluator could be Async, this relays on matchers return value, so we need
-    // to verify for thenable before play with the result
-    const matches = matcherEvaluator(key.matchingKey, attributes);
-
-    if (thenable(matches)) {
-      return matches.then(result => match(result, key.bucketingKey, seed, treatments, label, algo));
-    }
-
-    return match(matches, key.bucketingKey, seed, treatments, label, algo);
   }
 
-  return evaluator;
+  return evaluation;
 }
 
-module.exports = evaluatorContext;
+module.exports = splitEvaluator;
