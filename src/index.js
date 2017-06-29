@@ -28,7 +28,7 @@ const instances = {};
 //
 // Create SDK instance based on the provided configurations
 //
-function SplitFactory(settings: Settings, storage: SplitStorage, gateFactory: any,sharedInstance: ?boolean) {
+function SplitFactory(settings: Settings, storage: SplitStorage, gateFactory: any, sharedInstance: ?boolean) {
   const readiness = gateFactory(settings.startup.readyTimeout);
 
   // We are only interested in exposable EventEmitter

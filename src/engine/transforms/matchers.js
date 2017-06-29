@@ -32,30 +32,9 @@ const {
   }
 } = require('../convertions');
 
-let mock = {
-  betweenMatcherData: null,
-  keySelector: {
-    attribute: null,
-    trafficType: 'user'
-  },
-  matcherType: 'IN_SPLIT_TREATMENT',
-  negate: false,
-  unaryNumericMatcherData: null,
-  userDefinedSegmentMatcherData: null,
-  whitelistMatcherData: null,
-  dependencyMatcherData: {
-    split: 'NODEJS_andingWithNumbers',
-    treatments: ['on', 'partial']
-  }
-};
-
 // Flat the complex matcherGroup structure into something handy.
 function transform(matchers: Array<Matcher>): Array<ParsedMatcher> {
 
-  /*if (mock) {
-    matchers.push(mock);
-    mock = false;
-  }*/
   let parsedMatchers = matchers.map(matcher => {
     let {
       matcherType                                   /* string */,
