@@ -38,6 +38,22 @@ const settingsInMemory = {
   }
 };
 
+const settingsInMemoryWithBucketingKey = {
+  core: {
+    authorizationKey: '<fake-token>',
+    key: {
+      matchingKey: 'facundo@split.io',
+      bucketingKey: 'some_id'
+    }
+  },
+  scheduler: {
+    featuresRefreshRate: 1,
+    segmentsRefreshRate: 1,
+    metricsRefreshRate: 3000, // for now I don't want to publish metrics during E2E run.
+    impressionsRefreshRate: 3000  // for now I don't want to publish impressions during E2E run.
+  }
+};
+
 const settingsInLocalStorage = {
   core: {
     authorizationKey: '<fake-token>',
@@ -57,12 +73,16 @@ const settingsInLocalStorage = {
 
 function e2eAssertionSuite(config, assert) {
   let i = 0, tested = 0;
+  const wBucketing = !!config.core.key.bucketingKey;
 
   const getTreatmentTests = (client) => {
     assert.equal(client.getTreatment('blacklist'), 'not_allowed');
     assert.equal(client.getTreatment('whitelist'), 'allowed');
     assert.equal(client.getTreatment('splitters'), 'on');
     assert.equal(client.getTreatment('qc_team'), 'no');
+    // If we are with the bucketing key, we should get a different treatment.
+    assert.equal(client.getTreatment('user_account_in_segment_all_50_50'), wBucketing ? 'lower' : 'higher');
+    assert.equal(client.getTreatment('user_account_in_segment_all_50_50_2'), wBucketing ? 'higher' : 'lower');
 
     assert.equal(client.getTreatment('employees_between_21_and_50_and_chrome'), 'off');
     assert.equal(client.getTreatment('employees_between_21_and_50_and_chrome', {
@@ -321,6 +341,7 @@ tape('## E2E CI Tests ##', function(assert) {
 
   assert.test('E2E / Impressions', impressionsSuite);
   assert.test('E2E / In Memory', e2eAssertionSuite.bind(null, settingsInMemory));
+  assert.test('E2E / In Memory with Bucketing Key', e2eAssertionSuite.bind(null, settingsInMemoryWithBucketingKey));
   assert.test('E2E / In LocalStorage with In Memory Fallback', e2eAssertionSuite.bind(null, settingsInLocalStorage));
   // If we change the mocks, we need to clear localstorage. Cleaning up after testing ensures "fresh data".
   localStorage.clear();
