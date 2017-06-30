@@ -22,7 +22,6 @@ const log = require('../../utils/logger')('splitio-engine:sanitize');
 
 const isArray = require('lodash/isArray');
 const isObject = require('lodash/isObject');
-const isString = require('lodash/isString');
 const uniq = require('lodash/uniq');
 const toString = require('lodash/toString');
 const toNumber = require('lodash/toNumber');
@@ -48,7 +47,7 @@ function sanitizeString(val): ?string {
 
   if (isObject(val)) {
     // If the value is an object and is not a key, discard it.
-    valueToSanitize = isString(val.matchingKey) ? val.matchingKey : undefined;
+    valueToSanitize = val.matchingKey ? val.matchingKey : undefined;
   }
 
   const str = toString(valueToSanitize);
