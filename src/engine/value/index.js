@@ -43,7 +43,7 @@ function parseValue(key: string, attributeName: string, attributes: Object) {
 function value(key: string, matcherDto: Object, attributes: Object): ?string {
   const attributeName = matcherDto.attribute;
   const valueToMatch = parseValue(key, attributeName, attributes);
-  const sanitizedValue = sanitizeValue(matcherDto.type, valueToMatch, matcherDto.dataType);
+  const sanitizedValue = sanitizeValue(matcherDto.type, valueToMatch, matcherDto.dataType, attributes);
 
   if (sanitizedValue !== undefined) {
     return sanitizedValue;

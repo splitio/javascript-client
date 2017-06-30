@@ -41,6 +41,14 @@ tape('NodeJS Redis', async (assert) => {
     permissions: ['not_matching']
   }), 'on');
 
+  assert.equal(await client.getTreatment('UT_Segment_member', 'always-on'), 'on');
+
+  // Below splits were added manually to the redis_mock.json file.
+  // They are all_keys (always evaluate to on) which depend from always-on split. the _on/off is what treatment they are expecting there.
+  assert.equal(await client.getTreatment('UT_Segment_member', 'hierarchical_splits_testing_on'), 'on');
+  assert.equal(await client.getTreatment('UT_Segment_member', 'hierarchical_splits_testing_off'), 'off');
+  assert.equal(await client.getTreatment('UT_Segment_member', 'hierarchical_splits_testing_on_negated'), 'off');
+
   client.destroy();
   assert.end();
 });

@@ -6,6 +6,8 @@ const SplitFactory = require('../');
 // this AFTER the require('isomorphic-fetch')
 const fetchMock = require('fetch-mock');
 
+const impressionsSuite = require('./browser.impressions.spec');
+
 const tape = require('tape');
 const SettingsFactory = require('../utils/settings');
 const settings = SettingsFactory({
@@ -22,10 +24,6 @@ const mySegmentsMock = require('./mocks/mysegments.facundo@split.io.json');
 const delayResponse = (mock) => {
   return new Promise(res => setTimeout(res, 0)).then(() => mock);
 };
-
-fetchMock.mock(settings.url('/splitChanges?since=-1'), () => delayResponse(splitChangesMock1));
-fetchMock.mock(settings.url('/splitChanges?since=1457552620999'), () => delayResponse(splitChangesMock2));
-fetchMock.mock(settings.url('/mySegments/facundo@split.io'), () => delayResponse(mySegmentsMock));
 
 const settingsInMemory = {
   core: {
@@ -52,7 +50,8 @@ const settingsInLocalStorage = {
     impressionsRefreshRate: 3000  // for now I don't want to publish impressions during E2E run.
   },
   storage: {
-    type: 'LOCALSTORAGE'
+    type: 'LOCALSTORAGE',
+    prefix: 'e2eTEST'    // Avoid storage name clashes
   }
 };
 
@@ -229,6 +228,9 @@ function e2eAssertionSuite(config, assert) {
     assert.equal(client.getTreatment('user_attr_eq_ten', {
       attr: 9
     }), 'off');
+
+    // This split depends on Split hierarchical_dep_hierarchical which depends on a split that always retuns 'on'
+    assert.equal(client.getTreatment('hierarchical_splits_test'), 'on');
   };
 
   const getTreatmentsTests = (client) => {
@@ -237,13 +239,15 @@ function e2eAssertionSuite(config, assert) {
       'blacklist',
       'whitelist',
       'splitters',
-      'qc_team'
+      'qc_team',
+      'hierarchical_splits_test'
     ]), {
       // Expected result
       blacklist: 'not_allowed',
       whitelist: 'allowed',
       splitters: 'on',
-      qc_team: 'no'
+      qc_team: 'no',
+      hierarchical_splits_test: 'on'
     });
 
     // I'm not sending the attributes
@@ -300,6 +304,7 @@ function e2eAssertionSuite(config, assert) {
     client.ready().then(() => {
       getTreatmentTests(client);
       getTreatmentsTests(client);
+      client.destroy();
       tested++;
 
       if (tested === SDK_INSTANCES_TO_TEST) {
@@ -307,8 +312,18 @@ function e2eAssertionSuite(config, assert) {
       }
     });
   }
-
 }
 
-tape('E2E / In Memory', e2eAssertionSuite.bind(null, settingsInMemory));
-tape('E2E / In LocalStorage with In Memory Fallback', e2eAssertionSuite.bind(null, settingsInLocalStorage));
+tape('## E2E CI Tests ##', function(assert) {
+  fetchMock.mock(settings.url('/splitChanges?since=-1'), () => delayResponse(splitChangesMock1));
+  fetchMock.mock(settings.url('/splitChanges?since=1457552620999'), () => delayResponse(splitChangesMock2));
+  fetchMock.mock(settings.url('/mySegments/facundo@split.io'), () => delayResponse(mySegmentsMock));
+
+  assert.test('E2E / Impressions', impressionsSuite);
+  assert.test('E2E / In Memory', e2eAssertionSuite.bind(null, settingsInMemory));
+  assert.test('E2E / In LocalStorage with In Memory Fallback', e2eAssertionSuite.bind(null, settingsInLocalStorage));
+  // If we change the mocks, we need to clear localstorage. Cleaning up after testing ensures "fresh data".
+  localStorage.clear();
+
+  assert.end();
+});

@@ -975,6 +975,135 @@
           ]
         }
       ]
+    },
+    {
+      "orgId": null,
+      "environment": null,
+      "trafficTypeId": null,
+      "trafficTypeName": null,
+      "name": "hierarchical_dep_always_on",
+      "seed": -790396804,
+      "status": "ACTIVE",
+      "killed": false,
+      "defaultTreatment": "off",
+      "conditions": [
+        {
+          "matcherGroup": {
+            "combiner": "AND",
+            "matchers": [
+              {
+                "keySelector": {
+                  "trafficType": "user",
+                  "attribute": null
+                },
+                "matcherType": "ALL_KEYS",
+                "negate": false,
+                "userDefinedSegmentMatcherData": null,
+                "whitelistMatcherData": null,
+                "unaryNumericMatcherData": null,
+                "betweenMatcherData": null
+              }
+            ]
+          },
+          "partitions": [
+            {
+              "treatment": "on",
+              "size": 100
+            }
+          ],
+          "label": "hierarchical dependency always on label"
+        }
+      ]
+    },
+    {
+      "orgId": null,
+      "environment": null,
+      "trafficTypeId": null,
+      "trafficTypeName": null,
+      "name": "hierarchical_dep_hierarchical",
+      "seed": 1276793945,
+      "status": "ACTIVE",
+      "killed": false,
+      "defaultTreatment": "off",
+      "conditions": [
+        {
+          "matcherGroup": {
+            "combiner": "AND",
+            "matchers": [
+              {
+                "keySelector": {
+                  "trafficType": "user",
+                  "attribute": null
+                },
+                "matcherType": "IN_SPLIT_TREATMENT",
+                "negate": false,
+                "dependencyMatcherData": {
+                  "split": "hierarchical_dep_always_on",
+                  "treatments": [
+                    "on", "partial"
+                  ]
+                },
+                "userDefinedSegmentMatcherData": null,
+                "whitelistMatcherData": null,
+                "unaryNumericMatcherData": null,
+                "betweenMatcherData": null
+              }
+            ]
+          },
+          "partitions": [
+            {
+              "treatment": "on",
+              "size": 100
+            }
+          ],
+          "label": "hierarchical dependency label"
+        }
+      ]
+    },
+    {
+      "orgId": null,
+      "environment": null,
+      "trafficTypeId": null,
+      "trafficTypeName": null,
+      "name": "hierarchical_splits_test",
+      "seed": 1276793945,
+      "status": "ACTIVE",
+      "killed": false,
+      "defaultTreatment": "off",
+      "conditions": [
+        {
+          "matcherGroup": {
+            "combiner": "AND",
+            "matchers": [
+              {
+                "keySelector": {
+                  "trafficType": "user",
+                  "attribute": null
+                },
+                "matcherType": "IN_SPLIT_TREATMENT",
+                "negate": false,
+                "dependencyMatcherData": {
+                  "split": "hierarchical_dep_hierarchical",
+                  "treatments": [
+                    "on", "partial"
+                  ]
+                },
+                "userDefinedSegmentMatcherData": null,
+                "whitelistMatcherData": null,
+                "unaryNumericMatcherData": null,
+                "betweenMatcherData": null
+              }
+            ]
+          },
+          "partitions": [
+            {
+              "treatment": "on",
+              "size": 100
+            }
+          ],
+          "label": "expected label"
+        }
+      ]
     }
   ],
   "since": -1,

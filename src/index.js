@@ -28,7 +28,7 @@ const instances = {};
 //
 // Create SDK instance based on the provided configurations
 //
-function SplitFactory(settings: Settings, storage: SplitStorage, gateFactory: any,sharedInstance: ?boolean) {
+function SplitFactory(settings: Settings, storage: SplitStorage, gateFactory: any, sharedInstance: ?boolean) {
   const readiness = gateFactory(settings.startup.readyTimeout);
 
   // We are only interested in exposable EventEmitter
@@ -74,7 +74,7 @@ function SplitFactory(settings: Settings, storage: SplitStorage, gateFactory: an
     // Proto linkage of the EventEmitter to prevent any change
     Object.create(gate),
     // GetTreatment
-    ClientFactory(settings, storage),
+    ClientFactory(storage, settings),
     // Utilities
     {
       // Ready promise

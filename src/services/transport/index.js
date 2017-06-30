@@ -24,7 +24,7 @@ function Fetcher(request) {
     if (resp.ok) {
       return resp;
     } else {
-      log.error('throw error because status text is not OK');
+      log.error('throw error because response status is not OK');
 
       throw Error(resp.statusText);
     }
