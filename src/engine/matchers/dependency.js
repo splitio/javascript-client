@@ -39,7 +39,7 @@ function dependencyMatcherContext({
     key,
     attributes
   }, splitEvaluator) {
-    log.debug(`[dependencyMatcher] will evaluate parent split: "${split}" with key: ${key} ${ attributes ? `\n attributes: ${JSON.stringify(attributes)}` : ''}`);
+    log.debug(`[dependencyMatcher] will evaluate parent split: "${split}" with key: ${JSON.stringify(key)} ${ attributes ? `\n attributes: ${JSON.stringify(attributes)}` : ''}`);
     const evaluation = splitEvaluator(key, split, attributes, storage);
 
     if (thenable(evaluation)) {
