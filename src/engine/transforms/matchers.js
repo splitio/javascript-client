@@ -98,6 +98,7 @@ function transform(matchers: Array<Matcher>): Array<ParsedMatcher> {
       value = setTransform(whitelistObject);
     } else if (type === matcherTypes.enum.IN_SPLIT_TREATMENT) {
       value = dependencyObject;
+      dataType = matcherTypes.dataTypes.NOT_SPECIFIED;
     }
 
     return {
