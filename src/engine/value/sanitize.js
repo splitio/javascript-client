@@ -21,6 +21,8 @@ limitations under the License.
 const log = require('../../utils/logger')('splitio-engine:sanitize');
 
 const isArray = require('lodash/isArray');
+const isObject = require('lodash/isObject');
+const isString = require('lodash/isString');
 const uniq = require('lodash/uniq');
 const toString = require('lodash/toString');
 const toNumber = require('lodash/toNumber');
@@ -42,7 +44,14 @@ function sanitizeNumber(val): ?number {
 }
 
 function sanitizeString(val): ?string {
-  const str = toString(val);
+  let valueToSanitize = val;
+
+  if (isObject(val)) {
+    // If the value is an object and is not a key, discard it.
+    valueToSanitize = isString(val.matchingKey) ? val.matchingKey : undefined;
+  }
+
+  const str = toString(valueToSanitize);
   return str ? str : undefined;
 }
 
@@ -90,6 +99,9 @@ function sanitizeValue(matcherTypeID: number, value: any, dataType: string, attr
       break;
     case DATA_TYPES.SET:
       sanitizedValue = sanitizeArray(value);
+      break;
+    case DATA_TYPES.NOT_SPECIFIED:
+      sanitizedValue = value;
       break;
     default:
       sanitizedValue = undefined;
