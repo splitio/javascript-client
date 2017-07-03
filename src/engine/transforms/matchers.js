@@ -43,13 +43,15 @@ function transform(matchers: Array<Matcher>): Array<ParsedMatcher> {
       userDefinedSegmentMatcherData: segmentObject  /* segmentObject */,
       whitelistMatcherData: whitelistObject         /* whiteListObject */,
       unaryNumericMatcherData: unaryNumericObject   /* unaryNumericObject */,
-      betweenMatcherData: betweenObject,            /* betweenObject */
-      dependencyMatcherData: dependencyObject   /* dependencyObject */
+      betweenMatcherData: betweenObject             /* betweenObject */,
+      dependencyMatcherData: dependencyObject       /* dependencyObject */,
+      booleanMatcherData
     } = matcher;
 
     let attribute = keySelector && keySelector.attribute;
     let type = matcherTypes.mapper(matcherType);
-    let dataType = matcherTypes.dataTypes.STRING; // As default input data type we use string (even for ALL_KEYS)
+    // As default input data type we use string (even for ALL_KEYS)
+    let dataType = matcherTypes.dataTypes.STRING;
     let value = undefined;
 
     if (type === matcherTypes.enum.SEGMENT) {
@@ -98,6 +100,9 @@ function transform(matchers: Array<Matcher>): Array<ParsedMatcher> {
       value = setTransform(whitelistObject);
     } else if (type === matcherTypes.enum.IN_SPLIT_TREATMENT) {
       value = dependencyObject;
+    } else if (type === matcherTypes.enum.EQUAL_TO_BOOLEAN) {
+      dataType = matcherTypes.dataTypes.BOOLEAN;
+      value = booleanMatcherData;
     }
 
     return {
