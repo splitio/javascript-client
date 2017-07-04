@@ -16,8 +16,8 @@ limitations under the License.
 'use strict';
 
 const tape = require('tape');
-const matcherTypes = require('../../matchers/types').enum;
-const matcherFactory = require('../../matchers');
+const matcherTypes = require('../../../matchers/types').enum;
+const matcherFactory = require('../../../matchers');
 
 tape('MATCHER REGEX / should match the attribute value only with the string starts with hello', function (assert) {
 
