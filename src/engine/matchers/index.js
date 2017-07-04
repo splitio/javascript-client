@@ -33,6 +33,7 @@ const ewMatcher = require('./ew');
 const containsStrMatcher = require('./cont_str');
 const dependencyMatcher = require('./dependency');
 const booleanMatcher = require('./boolean');
+const stringMatcher = require('./string');
 
 /**
  * Matcher factory.
@@ -77,6 +78,8 @@ function MatcherFactory(matcherDto, storage) {
     matcherFn = dependencyMatcher(value, storage);
   } else if (type === types.EQUAL_TO_BOOLEAN) {
     matcherFn = booleanMatcher(value);
+  } else if (type === types.MATCHES_STRING) {
+    matcherFn = stringMatcher(value);
   }
 
   return matcherFn;

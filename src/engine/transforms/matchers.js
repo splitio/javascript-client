@@ -45,7 +45,8 @@ function transform(matchers: Array<Matcher>): Array<ParsedMatcher> {
       unaryNumericMatcherData: unaryNumericObject   /* unaryNumericObject */,
       betweenMatcherData: betweenObject             /* betweenObject */,
       dependencyMatcherData: dependencyObject       /* dependencyObject */,
-      booleanMatcherData
+      booleanMatcherData,
+      stringMatcherData
     } = matcher;
 
     let attribute = keySelector && keySelector.attribute;
@@ -103,6 +104,8 @@ function transform(matchers: Array<Matcher>): Array<ParsedMatcher> {
     } else if (type === matcherTypes.enum.EQUAL_TO_BOOLEAN) {
       dataType = matcherTypes.dataTypes.BOOLEAN;
       value = booleanMatcherData;
+    } else if (type === matcherTypes.enum.MATCHES_STRING) {
+      value = stringMatcherData;
     }
 
     return {
