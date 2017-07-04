@@ -52,8 +52,9 @@ function conditionContext(matcherEvaluator: Function, treatments: Treatments, la
 
     // matcherEvaluator could be Async, this relays on matchers return value, so we need
     // to verify for thenable before play with the result.
-    // Also, we pass splitEvaluator function in case we have a matcher that needs to evaluate another split
-    const matches = matcherEvaluator(key.matchingKey, attributes, splitEvaluator);
+    // Also, we pass splitEvaluator function in case we have a matcher that needs to evaluate another split,
+    // as well as the entire key object for the same reason.
+    const matches = matcherEvaluator(key, attributes, splitEvaluator);
 
     if (thenable(matches)) {
       return matches.then(result => match(result, key.bucketingKey, seed, treatments, label, algo));
