@@ -49,7 +49,9 @@ const attributes: SplitIO.Attributes = {
   attr3: Date.now(),
   attr4: ['str1', 2],
   attr5: ['str1', 'str2'],
-  attr6: [1, 2]
+  attr6: [1, 2],
+  attr7: true,
+  attr8: false
 };
 const splitKeyObj: SplitIO.SplitKeyObject = {
   matchingKey: 'matchingKey',
