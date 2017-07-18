@@ -1,83 +1,69 @@
-/**
- * Details of Metrics for the different parts of the system.
- *
- * latency => sdk.ready
- * latency => sdk.getTreatment
- *
- * latency => splitChangeFetcher.time
- * count   => splitChangeFetcher.status.XXX
- * count   => splitChangeFetcher.exception
- *
- * latency => segmentChangeFetcher.time
- * count   => segmentChangeFetcher.status.XXX
- * count   => segmentChangeFetcher.exception
- *
- * latency => mySegmentsFetcher.time
- * count   => mySegmentsFetcher.status.XXX
- * count   => mySegmentsFetcher.exception
- */
-
 class SegmentChangesMetrics {
   constructor(storage) {
     this.storage = storage;
   }
 
   latency(ms) {
-
+    this.storage.metrics.track('segmentChangeFetcher.time', ms);
   }
 
   count(status) {
-
+    this.storage.count.track(`segmentChangeFetcher.status.${status}`);
   }
 
   countException() {
-
+    this.storage.count.track('segmentChangeFetcher.exception');
   }
-
 }
 
 class SplitChangesMetrics {
+  constructor(storage) {
+    this.storage = storage;
+  }
 
   latency(ms) {
-
+    this.storage.metrics.track('splitChangeFetcher.time', ms);
   }
 
   count(status) {
-
+    this.storage.count.track(`splitChangeFetcher.status.${status}`);
   }
 
   countException() {
-
+    this.storage.count.track('splitChangeFetcher.exception');
   }
-
 }
 
 class MySegmentsMetrics {
+  constructor(storage) {
+    this.storage = storage;
+  }
 
   latency(ms) {
-
+    this.storage.metrics.track('mySegmentsFetcher.time', ms);
   }
 
   count(status) {
-
+    this.storage.count.track(`mySegmentsFetcher.status.${status}`);
   }
 
   countException() {
-
+    this.storage.count.track('mySegmentsFetcher.exception');
   }
-
 }
 
 class SDKMetrics {
+  constructor(storage) {
+    this.storage = storage;
+  }
 
   ready(ms) {
-
+    this.storage.metrics.track('sdk.ready', ms);
   }
 
   latency(ms) {
-
+    this.storage.metrics.track('sdk.getTreatment', ms);
   }
-
 }
 
 module.exports = {

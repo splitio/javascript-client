@@ -91,11 +91,15 @@ function SplitFactory(settings: Settings, storage: SplitStorage, gateFactory: an
 
       // Destroy instance
       destroy() {
-        readiness.destroy();
-        storage.destroy && storage.destroy();
-
+        // Stop scheduled jobs
         producer && producer.stop();
         metrics && metrics.stop();
+
+        // Discard rediness information
+        readiness.destroy();
+
+        // Destroy storage (useful when using Redis to shut down the connection)
+        storage.destroy && storage.destroy();
       }
     }
   );
