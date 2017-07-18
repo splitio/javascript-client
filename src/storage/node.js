@@ -1,7 +1,3 @@
-// @flow
-
-'use strict';
-
 const Redis = require('ioredis');
 
 const SplitCacheInMemory = require('./SplitCache/InMemory');
@@ -13,8 +9,11 @@ const SegmentCacheInRedis = require('./SegmentCache/InRedis');
 const ImpressionsCacheInMemory = require('./ImpressionsCache/InMemory');
 const ImpressionsCacheInRedis = require('./ImpressionsCache/InRedis');
 
-const MetricsCacheInMemory = require('./MetricsCache/InMemory');
-const MetricsCacheInRedis = require('./MetricsCache/InRedis');
+const LatencyCacheInMemory = require('./LatencyCache/InMemory');
+const LatencyCacheInRedis = require('./LatencyCache/InRedis');
+
+const CountCacheInMemory = require('./CountCache/InMemory');
+const CountCacheInRedis = require('./CountCache/InRedis');
 
 const KeyBuilder = require('./Keys');
 
@@ -30,7 +29,8 @@ const NodeStorageFactory = (settings: Settings): SplitStorage => {
         splits: new SplitCacheInRedis(keys, redis),
         segments: new SegmentCacheInRedis(keys, redis),
         impressions: new ImpressionsCacheInRedis(keys, redis),
-        metrics: new MetricsCacheInRedis(keys, redis),
+        metrics: new LatencyCacheInRedis(keys, redis),
+        count: new CountCacheInRedis(keys, redis),
         destroy() {
           redis.disconnect();
         }
@@ -43,7 +43,8 @@ const NodeStorageFactory = (settings: Settings): SplitStorage => {
         splits: new SplitCacheInMemory,
         segments: new SegmentCacheInMemory(keys),
         impressions: new ImpressionsCacheInMemory,
-        metrics: new MetricsCacheInMemory
+        metrics: new LatencyCacheInMemory,
+        count: new CountCacheInMemory
       };
   }
 

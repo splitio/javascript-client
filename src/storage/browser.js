@@ -9,7 +9,8 @@ const SegmentCacheInMemory = require('./SegmentCache/InMemory');
 const SegmentCacheInLocalStorage = require('./SegmentCache/InLocalStorage');
 
 const ImpressionsCacheInMemory = require('./ImpressionsCache/InMemory');
-const MetricsCacheInMemory = require('./MetricsCache/InMemory');
+const LatencyCacheInMemory = require('./LatencyCache/InMemory');
+const CountCacheInMemory = require('./CountCache/InMemory');
 
 const KeyBuilder = require('./Keys');
 const KeyBuilderLocalStorage = require('./KeysLocalStorage');
@@ -29,14 +30,17 @@ const BrowserStorageFactory = (settings: Settings): SplitStorage => {
         splits: new SplitCacheInMemory,
         segments: new SegmentCacheInMemory(keys),
         impressions: new ImpressionsCacheInMemory,
-        metrics: new MetricsCacheInMemory,
+        metrics: new LatencyCacheInMemory,
+        count: new CountCacheInMemory,
 
         shared(settings: Settings) {
           return {
             splits: this.splits,
             segments: new SegmentCacheInMemory(new KeyBuilder(settings)),
             impressions: this.impressions,
-            metrics: this.metrics
+            metrics: this.metrics,
+            // @TODO review this because I'm not sure this will work with shared instances
+            count: this.count
           };
         }
       };
@@ -49,14 +53,17 @@ const BrowserStorageFactory = (settings: Settings): SplitStorage => {
         splits: new SplitCacheInLocalStorage(keys),
         segments: new SegmentCacheInLocalStorage(keys),
         impressions: new ImpressionsCacheInMemory,
-        metrics: new MetricsCacheInMemory,
+        metrics: new LatencyCacheInMemory,
+        count: new CountCacheInMemory,
 
         shared(settings: Settings) {
           return {
             splits: this.splits,
             segments: new SegmentCacheInLocalStorage(new KeyBuilderLocalStorage(settings)),
             impressions: this.impressions,
-            metrics: this.metrics
+            metrics: this.metrics,
+            // @TODO review this because I'm not sure this will work with shared instances
+            count: this.count
           };
         }
       };

@@ -24,8 +24,9 @@ const tracker = require('../../utils/logger/timeTracker');
 const mySegmentsService = require('../../services/mySegments');
 const mySegmentsRequest = require('../../services/mySegments/get');
 
-const mySegmentsFetcher = (settings: Object, shouldApplyTimeout: boolean = false) : Promise<MySegments> => {
+const mySegmentsFetcher = (settings: Object, shouldApplyTimeout: boolean = false):Promise<MySegments> => {
   tracker.start(tracker.C.SEGMENTS_FETCH);
+
   let requestPromise = mySegmentsService(mySegmentsRequest(settings));
 
   // Decorate with the timeout functionality if required
