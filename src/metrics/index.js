@@ -80,6 +80,10 @@ const MetricsFactory = (settings: Object, storage: SplitStorage): Startable => {
       );
     },
 
+    flush() {
+      return pushImpressions();
+    },
+
     stop() {
       stopImpressionsPublisher && stopImpressionsPublisher();
       stopPerformancePublisher && stopPerformancePublisher();

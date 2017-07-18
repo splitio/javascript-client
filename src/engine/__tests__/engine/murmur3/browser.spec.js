@@ -22,50 +22,36 @@ require('isomorphic-fetch');
 const tape = require('tape');
 const utils = require('../../../engine/murmur3');
 
-tape('MURMUR3 / validate hashing behavior using basic dataset', assert => {
-  fetch('/base/engine/__tests__/engine/mocks/murmur3-sample-data-v2.csv')
-    .then(response => response.text().then(text => {
-      const lines = text.trim().split(/\r\n|\n|\r/);
+tape('MURMUR3', function (t) {
 
-      assert.plan(2 * lines.length);
+  function assertText(text, assert) {
+    const lines = text.trim().split(/\r\n|\n|\r/);
 
-      for(let parts of lines) {
-        setTimeout(() => {
-          let [seed, key, hash, bucket] = parts.split(',');
+    assert.plan(2 * lines.length);
 
-          seed = parseInt(seed, 10);
-          hash = parseInt(hash, 10);
-          bucket = parseInt(bucket, 10);
+    for(let parts of lines) {
+      setTimeout(() => {
+        let [seed, key, hash, bucket] = parts.split(',');
 
-          assert.equal(utils.hash(key, seed), hash);
-          assert.equal(utils.bucket(key, seed), bucket);
-        }, Math.random() * 100);
-      }
-    }))
-    .catch(error => assert.error(error));
+        seed = parseInt(seed, 10);
+        hash = parseInt(hash, 10);
+        bucket = parseInt(bucket, 10);
 
-});
+        assert.equal(utils.hash(key, seed), hash);
+        assert.equal(utils.bucket(key, seed), bucket);
+      }, Math.random() * 10);
+    }
+  }
 
-tape('MURMUR3 / validate hashing behavior using chinese dataset', assert => {
-  fetch('/base/engine/__tests__/engine/mocks/murmur3-sample-data-non-alpha-numeric-v2.csv')
-    .then(response => response.text().then(text => {
-      const lines = text.trim().split(/\r\n|\n|\r/);
+  t.test('validate hashing behavior using basic dataset', assert => {
+    fetch('/base/engine/__tests__/engine/mocks/murmur3-sample-data-v2.csv')
+      .then(response => response.text().then(text => assertText(text, assert)))
+      .catch(error => assert.error(error));
+  });
 
-      assert.plan(2 * lines.length);
-
-      for(let parts of lines) {
-        setTimeout(() => {
-          let [seed, key, hash, bucket] = parts.split(',');
-
-          seed = parseInt(seed, 10);
-          hash = parseInt(hash, 10);
-          bucket = parseInt(bucket, 10);
-
-          assert.equal(utils.hash(key, seed), hash);
-          assert.equal(utils.bucket(key, seed), bucket);
-        }, Math.random() * 100);
-      }
-    }))
-    .catch(error => assert.error(error));
-
+  t.test('validate hashing behavior using chinese dataset', assert => {
+    fetch('/base/engine/__tests__/engine/mocks/murmur3-sample-data-non-alpha-numeric-v2.csv')
+      .then(response => response.text().then(text => assertText(text, assert)))
+      .catch(error => assert.error(error));
+  });
 });
