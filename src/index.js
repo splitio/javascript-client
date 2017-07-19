@@ -90,24 +90,19 @@ function SplitFactory(settings: Settings, storage: SplitStorage, gateFactory: an
       },
 
       // Destroy instance
-      destroy() {
+      async destroy() {
         // Stop background jobs
         producer && producer.stop();
         metrics && metrics.stop();
 
         // Send impressions if required
-        const done = metrics && metrics.flush();
+        await metrics && metrics.flush();
 
         // Cleanup event listeners
         readiness.destroy();
 
         // Cleanup storage
         storage.destroy && storage.destroy();
-
-        // Always return a promise:
-        // 1- Resolved if there is nothing to wait for
-        // 2- Wait for impressions to be pushed
-        return Promise.resolve(done);
       }
     }
   );

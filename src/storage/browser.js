@@ -38,6 +38,13 @@ const BrowserStorageFactory = (settings: Settings): SplitStorage => {
             impressions: this.impressions,
             metrics: this.metrics
           };
+        },
+
+        destroy() {
+          this.splits = null;
+          this.segments = null;
+          this.impressions = null;
+          this.metrics = null;
         }
       };
     }
@@ -58,6 +65,13 @@ const BrowserStorageFactory = (settings: Settings): SplitStorage => {
             impressions: this.impressions,
             metrics: this.metrics
           };
+        },
+
+        destroy() {
+          this.splits = null;
+          this.segments = null;
+          this.impressions = null;
+          this.metrics = null;
         }
       };
     }

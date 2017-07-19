@@ -1,23 +1,23 @@
-'use strict';
-
 const tape = require('tape-catch');
 const SplitFactory = require('../');
 
 const config = {
   core: {
-    authorizationKey: '5i7avi2rpj8i7qg99fhmc38244kcineavla0'
+    authorizationKey: 'uoj4sb69bjv7d4d027f7ukkitd53ek6a9ai9'
   },
   urls: {
     sdk: 'https://sdk-aws-staging.split.io/api',
     events: 'https://events-aws-staging.split.io/api'
   },
+  mode: 'consumer',
   storage: {
     type: 'REDIS',
     prefix: 'REDIS_NODE_UT'
   }
 };
 
-tape('NodeJS Redis', async (assert) => {
+tape('NodeJS Redis', async function (assert) {
+
   const sdk = SplitFactory(config);
   const client = sdk.client();
 
@@ -42,6 +42,7 @@ tape('NodeJS Redis', async (assert) => {
   }), 'on');
 
   client.destroy();
-  assert.end();
-});
 
+  assert.end();
+
+});

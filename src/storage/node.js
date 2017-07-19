@@ -31,6 +31,7 @@ const NodeStorageFactory = (settings: Settings): SplitStorage => {
         segments: new SegmentCacheInRedis(keys, redis),
         impressions: new ImpressionsCacheInRedis(keys, redis),
         metrics: new MetricsCacheInRedis(keys, redis),
+
         destroy() {
           redis.disconnect();
         }
@@ -43,7 +44,14 @@ const NodeStorageFactory = (settings: Settings): SplitStorage => {
         splits: new SplitCacheInMemory,
         segments: new SegmentCacheInMemory(keys),
         impressions: new ImpressionsCacheInMemory,
-        metrics: new MetricsCacheInMemory
+        metrics: new MetricsCacheInMemory,
+
+        destroy() {
+          this.splits.flush();
+          this.segments.flush();
+          this.impressions.clear();
+          this.metrics.clear();
+        }
       };
   }
 
