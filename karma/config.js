@@ -14,6 +14,7 @@ module.exports = {
   // list of files / patterns to load in the browser
   files: [
     '*/__tests__/**/*.spec.js',
+    '__tests__/destroy/destroy.spec.js',
     {
       pattern: 'engine/__tests__/engine/mocks/murmur3*.csv',
       watched: false,
