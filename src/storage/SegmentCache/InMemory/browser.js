@@ -8,6 +8,10 @@ class SegmentCacheInMemory {
 
   constructor(keys: KeyBuilder) {
     this.keys = keys;
+    this.flush();
+  }
+
+  flush() {
     this.segmentCache = new Map();
   }
 

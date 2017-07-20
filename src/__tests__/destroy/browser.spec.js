@@ -15,7 +15,7 @@ const settings = SettingsFactory({
 
 const splitChangesMock1 = require('./splitChanges.since.-1.json');
 const splitChangesMock2 = require('./splitChanges.since.1500492097547.json');
-const mySegmentsMock = require('./mySegments.facundo@split.io.json');
+const mySegmentsMock = require('./mySegments.json');
 const impressionsMock = require('./impressions.json');
 
 const delayResponse = (mock) => {
@@ -24,23 +24,34 @@ const delayResponse = (mock) => {
 
 fetchMock.mock(settings.url('/splitChanges?since=-1'), () => delayResponse(splitChangesMock1));
 fetchMock.mock(settings.url('/splitChanges?since=1500492097547'), () => delayResponse(splitChangesMock2));
-fetchMock.mock(settings.url('/mySegments/facundo@split.io'), () => delayResponse(mySegmentsMock));
 
-tape('SDK destroy', async function (assert) {
+fetchMock.mock(settings.url('/mySegments/ut1'), () => delayResponse(mySegmentsMock));
+fetchMock.mock(settings.url('/mySegments/ut2'), () => delayResponse(mySegmentsMock));
+fetchMock.mock(settings.url('/mySegments/ut3'), () => delayResponse(mySegmentsMock));
+
+tape('SDK destroy for BrowserJS', async function (assert) {
+  // localStorage.clear();
+
   const config = {
     core: {
       authorizationKey: 'fake-key',
-      key: 'facundo@split.io'
-    },
-    mode: 'standalone'
+      key: 'ut1'
+    }
+    // mode: 'standalone',
+    // storage: {
+    //   type: 'LOCALSTORAGE'
+    // }
   };
 
   const factory = SplitFactory(config);
   const client = factory.client();
+  const client2 = factory.client('ut2');
+  const client3 = factory.client('ut3');
+
   const manager = factory.manager();
 
   // Assert we are sending the impressions while doing the destroy
-  fetchMock.postOnce(settings.url('/testImpressions/bulk'), request => {
+  fetchMock.post(settings.url('/testImpressions/bulk'), request => {
     return request.json().then(impressions => {
       impressions[0].keyImpressions = map(impressions[0].keyImpressions, imp => pick(imp, ['keyName', 'treatment']));
 
@@ -50,13 +61,17 @@ tape('SDK destroy', async function (assert) {
 
   await client.ready();
 
-  client.getTreatment('ut1', 'Single_Test');
-  client.getTreatment('ut2', 'Single_Test');
-  client.getTreatment('ut3', 'Single_Test');
+  assert.equal(client.getTreatment('Single_Test'), 'on');
+  assert.equal(client2.getTreatment('Single_Test'), 'on');
+  assert.equal(client3.getTreatment('Single_Test'), 'on');
 
   await client.destroy();
+  await client2.destroy();
+  await client3.destroy();
 
-  assert.equal( client.getTreatment('ut1', 'Single_Test'), 'control' );
+  assert.equal( client.getTreatment('Single_Test'), 'control' );
+  assert.equal( client2.getTreatment('Single_Test'), 'control' );
+  assert.equal( client3.getTreatment('Single_Test'), 'control' );
 
   assert.equal( manager.splits().length , 0 );
   assert.equal( manager.names().length ,  0 );

@@ -6,7 +6,7 @@ module.exports = function(config) {
   config.set(merge({}, require('./local'), {
     // For now use phantomjs
     browsers: [
-      'PhantomJS'
+      'Chrome'
     ],
 
     // level of logging

@@ -14,7 +14,7 @@ module.exports = {
   // list of files / patterns to load in the browser
   files: [
     '*/__tests__/**/*.spec.js',
-    '__tests__/destroy/destroy.spec.js',
+    '__tests__/destroy/browser.spec.js',
     {
       pattern: 'engine/__tests__/engine/mocks/murmur3*.csv',
       watched: false,
@@ -32,7 +32,8 @@ module.exports = {
 
   // prepare code for the browser using webpack
   preprocessors: {
-    '*/__tests__/**/*.spec.js': ['webpack']
+    '*/__tests__/**/*.spec.js': ['webpack'],
+    '__tests__/destroy/browser.spec.js': ['webpack']
   },
 
   webpack: {
@@ -95,7 +96,7 @@ module.exports = {
 
   // Continuous Integration mode
   // if true, it capture browsers, run tests and exit
-  singleRun: true,
+  singleRun: false,
 
   colors: true,
 
