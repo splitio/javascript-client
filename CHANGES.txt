@@ -1,3 +1,7 @@
+## 9.2.2 (Jul 20, 2017)
+
+* Bugfixing - Added support into the SDK to flush impressions before destroy the instance.
+
 ## 9.2.1 (May 19, 2017)
 
 * Bugfixing - Issue with dependency that exposes untranspiled code through cjs require, causes
