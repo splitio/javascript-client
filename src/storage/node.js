@@ -1,7 +1,3 @@
-// @flow
-
-'use strict';
-
 const Redis = require('ioredis');
 
 const SplitCacheInMemory = require('./SplitCache/InMemory');
@@ -18,7 +14,7 @@ const MetricsCacheInRedis = require('./MetricsCache/InRedis');
 
 const KeyBuilder = require('./Keys');
 
-const NodeStorageFactory = (settings: Settings): SplitStorage => {
+const NodeStorageFactory = (settings) => {
   const { storage } = settings;
   const keys = new KeyBuilder(settings);
 
@@ -31,8 +27,17 @@ const NodeStorageFactory = (settings: Settings): SplitStorage => {
         segments: new SegmentCacheInRedis(keys, redis),
         impressions: new ImpressionsCacheInRedis(keys, redis),
         metrics: new MetricsCacheInRedis(keys, redis),
+
+        // When using REDIS we should:
+        // 1- Disconnect from the storage
+        // 2- Stop sending data to Redis and instance using empty in memory implementation
         destroy() {
           redis.disconnect();
+
+          this.splits = new SplitCacheInMemory;
+          this.segments = new SegmentCacheInMemory(keys);
+          this.impressions = new ImpressionsCacheInMemory;
+          this.metrics = new MetricsCacheInMemory;
         }
       };
     }
@@ -43,7 +48,15 @@ const NodeStorageFactory = (settings: Settings): SplitStorage => {
         splits: new SplitCacheInMemory,
         segments: new SegmentCacheInMemory(keys),
         impressions: new ImpressionsCacheInMemory,
-        metrics: new MetricsCacheInMemory
+        metrics: new MetricsCacheInMemory,
+
+        // When using MEMORY we should flush all the storages and leave them empty
+        destroy() {
+          this.splits.flush();
+          this.segments.flush();
+          this.impressions.clear();
+          this.metrics.clear();
+        }
       };
   }
 

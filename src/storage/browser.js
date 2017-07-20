@@ -1,7 +1,3 @@
-// @flow
-
-'use strict';
-
 const SplitCacheInMemory = require('./SplitCache/InMemory');
 const SplitCacheInLocalStorage = require('./SplitCache/InLocalStorage');
 
@@ -14,11 +10,7 @@ const MetricsCacheInMemory = require('./MetricsCache/InMemory');
 const KeyBuilder = require('./Keys');
 const KeyBuilderLocalStorage = require('./KeysLocalStorage');
 
-/**
- * Browser storage instanciation which allows persistent strategy for segments
- * and splits.
- */
-const BrowserStorageFactory = (settings: Settings): SplitStorage => {
+const BrowserStorageFactory = (settings) => {
   const { storage } = settings;
 
   switch (storage.type) {
@@ -31,13 +23,28 @@ const BrowserStorageFactory = (settings: Settings): SplitStorage => {
         impressions: new ImpressionsCacheInMemory,
         metrics: new MetricsCacheInMemory,
 
-        shared(settings: Settings) {
+        // When using shared instanciation with MEMORY we reuse everything but segments (they are customer per key).
+        shared(settings) {
+          const childKeyBuilder = new KeyBuilder(settings);
+
           return {
             splits: this.splits,
-            segments: new SegmentCacheInMemory(new KeyBuilder(settings)),
+            segments: new SegmentCacheInMemory(childKeyBuilder),
             impressions: this.impressions,
-            metrics: this.metrics
+            metrics: this.metrics,
+
+            destroy() {
+              this.splits = new SplitCacheInMemory;
+              this.segments.flush();
+            }
           };
+        },
+
+        destroy() {
+          this.splits.flush();
+          this.segments.flush();
+          this.impressions.clear();
+          this.metrics.clear();
         }
       };
     }
@@ -51,13 +58,28 @@ const BrowserStorageFactory = (settings: Settings): SplitStorage => {
         impressions: new ImpressionsCacheInMemory,
         metrics: new MetricsCacheInMemory,
 
-        shared(settings: Settings) {
+        // When using shared instanciation with MEMORY we reuse everything but segments (they are customer per key).
+        shared(settings) {
+          const childKeysBuilder = new KeyBuilderLocalStorage(settings);
+
           return {
             splits: this.splits,
-            segments: new SegmentCacheInLocalStorage(new KeyBuilderLocalStorage(settings)),
+            segments: new SegmentCacheInLocalStorage(childKeysBuilder),
             impressions: this.impressions,
-            metrics: this.metrics
+            metrics: this.metrics,
+
+            destroy() {
+              this.splits = new SplitCacheInMemory;
+              this.segments = new SegmentCacheInMemory(childKeysBuilder);
+            }
           };
+        },
+
+        destroy() {
+          this.splits = new SplitCacheInMemory;
+          this.segments = new SegmentCacheInMemory(new KeyBuilder(settings));
+          this.impressions.clear();
+          this.metrics.clear();
         }
       };
     }

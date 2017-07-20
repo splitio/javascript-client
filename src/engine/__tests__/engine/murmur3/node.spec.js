@@ -22,6 +22,8 @@ const rl = require('readline');
 const utils = require('../../../engine/murmur3');
 
 [
+  'murmur3-sample-v4.csv',
+  'murmur3-sample-v3.csv',
   'murmur3-sample-data-v2.csv',
   'murmur3-sample-data-non-alpha-numeric-v2.csv'
 ].forEach(filename => {

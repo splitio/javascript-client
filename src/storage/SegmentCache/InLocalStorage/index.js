@@ -100,6 +100,7 @@ class SegmentCacheInLocalStorage {
   }
 
   flush() {
+    log.info('Flushing localStorage');
     localStorage.clear();
   }
 }
