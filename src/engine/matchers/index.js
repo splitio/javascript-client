@@ -32,11 +32,13 @@ const swMatcher = require('./sw');
 const ewMatcher = require('./ew');
 const containsStrMatcher = require('./cont_str');
 const dependencyMatcher = require('./dependency');
+const booleanMatcher = require('./boolean');
+const stringMatcher = require('./string');
 
 /**
  * Matcher factory.
  */
-function MatcherFactory(matcherDto: Matcher, storage: SplitStorage): Function {
+function MatcherFactory(matcherDto, storage) {
   let {
     type,
     value
@@ -74,6 +76,10 @@ function MatcherFactory(matcherDto: Matcher, storage: SplitStorage): Function {
     matcherFn = containsStrMatcher(value);
   } else if (type === types.IN_SPLIT_TREATMENT) {
     matcherFn = dependencyMatcher(value, storage);
+  } else if (type === types.EQUAL_TO_BOOLEAN) {
+    matcherFn = booleanMatcher(value);
+  } else if (type === types.MATCHES_STRING) {
+    matcherFn = stringMatcher(value);
   }
 
   return matcherFn;

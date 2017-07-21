@@ -99,6 +99,9 @@ function sanitizeValue(matcherTypeID: number, value: any, dataType: string, attr
     case DATA_TYPES.SET:
       sanitizedValue = sanitizeArray(value);
       break;
+    case DATA_TYPES.BOOLEAN:
+      sanitizedValue = Boolean(value);
+      break;
     case DATA_TYPES.NOT_SPECIFIED:
       sanitizedValue = value;
       break;

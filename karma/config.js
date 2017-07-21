@@ -21,6 +21,13 @@ module.exports = {
       included: false,
       served: true,
       nocache: true
+    },
+    {
+      pattern: 'engine/__tests__/matchers/mocks/regex.txt',
+      watched: false,
+      included: false,
+      served: true,
+      nocache: true
     }
   ],
 
