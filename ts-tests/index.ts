@@ -180,7 +180,7 @@ const b: number = client.listenerCount(splitEvent);
 
 // Ready and destroy
 const readyPromise: Promise<void> = client.ready();
-client.destroy();
+const destroyPromise: Promise<void> = client.destroy();
 
 // We can call getTreatment with or without a key.
 treatment = client.getTreatment(splitKey, 'mySplit');
