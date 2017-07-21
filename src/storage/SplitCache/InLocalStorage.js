@@ -119,7 +119,7 @@ class SplitCacheLocalStorage {
   }
 
   flush() {
-    // @TODO improve implementation
+    log.info('Flushing localStorage');
     localStorage.clear();
   }
 }

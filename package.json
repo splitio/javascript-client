@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio",
-  "version": "9.3.0-canary.3",
+  "version": "9.3.0-canary.4",
   "description": "Split SDK",
   "files": [
     "*.md",
@@ -71,7 +71,7 @@
     "test-browser-ci": "cross-env NODE_ENV=test karma start karma/ci.karma.conf.js",
     "test-browser-e2e-ci": "cross-env NODE_ENV=test karma start karma/e2e.ci.karma.conf.js",
     "test-node": "tape -r babel-register \"src/*/__tests__/**/!(browser).spec.js\"",
-    "test-node-e2e": "tape -r babel-register \"src/__tests__/node.spec.js\"",
+    "test-node-e2e": "tape -r babel-register src/__tests__/destroy/node.spec.js",
     "pretest-node-redis": "cat ./src/__tests__/mocks/redis_mock.json | ./node_modules/redis-dump/bin/cli/redis-dump --convert | redis-cli",
     "test-node-redis": "tape -r babel-register \"src/__tests__/node_redis.spec.js\"",
     "pretest-ts-decls": "npm link",

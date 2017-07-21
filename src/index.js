@@ -90,12 +90,19 @@ function SplitFactory(settings: Settings, storage: SplitStorage, gateFactory: an
       },
 
       // Destroy instance
-      destroy() {
-        readiness.destroy();
-        storage.destroy && storage.destroy();
-
+      async destroy() {
+        // Stop background jobs
         producer && producer.stop();
         metrics && metrics.stop();
+
+        // Send impressions if required
+        await metrics && metrics.flush();
+
+        // Cleanup event listeners
+        readiness.destroy();
+
+        // Cleanup storage
+        storage.destroy && storage.destroy();
       }
     }
   );
