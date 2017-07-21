@@ -48,6 +48,16 @@ tape('PARSER / if user.boolean is true then split 100%:on', async function (asse
   });
   assert.equal(evaluation.treatment, 'on');
 
+  evaluation = await evaluator(keyParser('testing'), 31, 100, 31, {
+    bool: 'invalid'
+  });
+  assert.equal(evaluation, undefined);
+
+  evaluation = await evaluator(keyParser('testing'), 31, 100, 31, {
+    bool: 'True'
+  });
+  assert.equal(evaluation.treatment, 'on');
+
   assert.end();
 
 });
