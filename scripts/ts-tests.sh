@@ -1,9 +1,10 @@
 #!/bin/bash
 
 cd ts-tests ## Go to typescript tests folder
-npm link @splitsoftware/splitio ## Link to the cloned code
 echo "Installing dependencies for TypeScript declarations testing..."
 npm install ## Install dependencies
+echo "Linking the @splitsoftware/splitio package."
+npm link @splitsoftware/splitio ## Link to the cloned code
 echo "Dependencies installed, running tsc compiler."
 tsc ## Run typescript compiler. No need for flags as we have a tsconfig.json file
 
