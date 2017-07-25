@@ -15,20 +15,16 @@ limitations under the License.
 **/
 'use strict';
 
-require('isomorphic-fetch');
+const log = require('../../utils/logger')('splitio-engine:matcher');
 
-const log = require('../../utils/logger')('splitio-services:service');
+function booleanMatcherContext(ruleAttr /*: bool */) /*: Function */ {
+  return function booleanMatcher(runtimeAttr /*: bool */) /*: bool */ {
+    let booleanMatches = ruleAttr === runtimeAttr;
 
-function Fetcher(request) {
-  return fetch(request).then(resp => {
-    if (resp.ok) {
-      return resp;
-    } else {
-      log.error('throw error because response status is not OK');
+    log.debug(`[booleanMatcher] ${ruleAttr} === ${runtimeAttr}`);
 
-      throw Error(resp.statusText);
-    }
-  });
+    return booleanMatches;
+  };
 }
 
-module.exports = Fetcher;
+module.exports = booleanMatcherContext;

@@ -246,7 +246,8 @@ declare type SplitKey = string | SplitKeyObject;
 
 declare type Evaluation = {
   treatment: string,
-  label: string
+  label: string,
+  changeNumber: ?number
 };
 
 /**

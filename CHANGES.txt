@@ -1,3 +1,11 @@
+## 9.3.0 (Jul 25, 2017)
+
+Several new matchers have been released:
+
+  * Dependency Matchers
+  * Boolean Matchers
+  * Regex Matchers
+
 ## 9.2.2 (Jul 20, 2017)
 
 * Bugfixing - Added support into the SDK to flush impressions before destroy the instance.

@@ -1,4 +1,4 @@
-const isString = require('lodash/isString');
+const toString = require('lodash/toString');
 const isObject = require('lodash/isObject');
 
 /**
@@ -6,20 +6,28 @@ const isObject = require('lodash/isObject');
  * specific split.
  */
 module.exports = (key: any): SplitKeyObject => {
-  if (isString(key)) {
-    return {
-      matchingKey: key,
-      bucketingKey: key
-    };
-  }
-
   if (isObject(key)) {
-    if (!key.bucketingKey || !key.matchingKey) {
+    // If we've received an object, we will convert to string the matchingKey and bucketingKey properties
+    const keyObject = {
+      matchingKey: toString(key.matchingKey),
+      bucketingKey: toString(key.bucketingKey)
+    };
+    // and if they've resulted on an empty string, we throw an error.
+    if (!keyObject.bucketingKey.length || !keyObject.matchingKey.length) {
       throw 'Key object should have properties bucketingKey and matchingKey.';
     }
 
-    return key;
+    return keyObject;
+  }
+  // In case we don't have an object, we will try to coerce the value to a string, and use it for matchingKey & bucketingKey,
+  // if the coercion results on an empty string, it was an invalid value.
+  const keyString = toString(key);
+  if (keyString.length) {
+    return {
+      matchingKey: keyString,
+      bucketingKey: keyString
+    };
   }
 
-  throw 'Key should be an string or an object with bucketingKey and matchingKey as string properties.';
+  throw 'Key should be a valid string value or an object with bucketingKey and matchingKey with valid string properties.';
 };

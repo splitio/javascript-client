@@ -215,9 +215,9 @@ interface IBasicClient extends NodeJS.Events {
   /**
    * Destroy the client instance.
    * @function destroy
-   * @returns {void}
+   * @returns {Promise<void>}
    */
-  destroy(): void
+  destroy(): Promise<void>
 }
 /**
  * Common definitions between managers for different environments interface.

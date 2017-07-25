@@ -6,6 +6,8 @@ const SplitFactory = require('../');
 // this AFTER the require('isomorphic-fetch')
 const fetchMock = require('fetch-mock');
 
+const impressionsSuite = require('./browser.impressions.spec');
+
 const tape = require('tape');
 const SettingsFactory = require('../utils/settings');
 const settings = SettingsFactory({
@@ -23,14 +25,26 @@ const delayResponse = (mock) => {
   return new Promise(res => setTimeout(res, 0)).then(() => mock);
 };
 
-fetchMock.mock(settings.url('/splitChanges?since=-1'), () => delayResponse(splitChangesMock1));
-fetchMock.mock(settings.url('/splitChanges?since=1457552620999'), () => delayResponse(splitChangesMock2));
-fetchMock.mock(settings.url('/mySegments/facundo@split.io'), () => delayResponse(mySegmentsMock));
-
 const settingsInMemory = {
   core: {
     authorizationKey: '<fake-token>',
     key: 'facundo@split.io'
+  },
+  scheduler: {
+    featuresRefreshRate: 1,
+    segmentsRefreshRate: 1,
+    metricsRefreshRate: 3000, // for now I don't want to publish metrics during E2E run.
+    impressionsRefreshRate: 3000  // for now I don't want to publish impressions during E2E run.
+  }
+};
+
+const settingsInMemoryWithBucketingKey = {
+  core: {
+    authorizationKey: '<fake-token>',
+    key: {
+      matchingKey: 'facundo@split.io',
+      bucketingKey: 'some_id'
+    }
   },
   scheduler: {
     featuresRefreshRate: 1,
@@ -52,18 +66,23 @@ const settingsInLocalStorage = {
     impressionsRefreshRate: 3000  // for now I don't want to publish impressions during E2E run.
   },
   storage: {
-    type: 'LOCALSTORAGE'
+    type: 'LOCALSTORAGE',
+    prefix: 'e2eTEST'    // Avoid storage name clashes
   }
 };
 
 function e2eAssertionSuite(config, assert) {
   let i = 0, tested = 0;
+  const wBucketing = !!config.core.key.bucketingKey;
 
   const getTreatmentTests = (client) => {
     assert.equal(client.getTreatment('blacklist'), 'not_allowed');
     assert.equal(client.getTreatment('whitelist'), 'allowed');
     assert.equal(client.getTreatment('splitters'), 'on');
     assert.equal(client.getTreatment('qc_team'), 'no');
+    // If we are with the bucketing key, we should get a different treatment.
+    assert.equal(client.getTreatment('user_account_in_segment_all_50_50'), wBucketing ? 'lower' : 'higher');
+    assert.equal(client.getTreatment('user_account_in_segment_all_50_50_2'), wBucketing ? 'higher' : 'lower');
 
     assert.equal(client.getTreatment('employees_between_21_and_50_and_chrome'), 'off');
     assert.equal(client.getTreatment('employees_between_21_and_50_and_chrome', {
@@ -229,6 +248,9 @@ function e2eAssertionSuite(config, assert) {
     assert.equal(client.getTreatment('user_attr_eq_ten', {
       attr: 9
     }), 'off');
+
+    // This split depends on Split hierarchical_dep_hierarchical which depends on a split that always retuns 'on'
+    assert.equal(client.getTreatment('hierarchical_splits_test'), 'on');
   };
 
   const getTreatmentsTests = (client) => {
@@ -237,13 +259,15 @@ function e2eAssertionSuite(config, assert) {
       'blacklist',
       'whitelist',
       'splitters',
-      'qc_team'
+      'qc_team',
+      'hierarchical_splits_test'
     ]), {
       // Expected result
       blacklist: 'not_allowed',
       whitelist: 'allowed',
       splitters: 'on',
-      qc_team: 'no'
+      qc_team: 'no',
+      hierarchical_splits_test: 'on'
     });
 
     // I'm not sending the attributes
@@ -300,6 +324,7 @@ function e2eAssertionSuite(config, assert) {
     client.ready().then(() => {
       getTreatmentTests(client);
       getTreatmentsTests(client);
+      client.destroy();
       tested++;
 
       if (tested === SDK_INSTANCES_TO_TEST) {
@@ -307,8 +332,19 @@ function e2eAssertionSuite(config, assert) {
       }
     });
   }
-
 }
 
-tape('E2E / In Memory', e2eAssertionSuite.bind(null, settingsInMemory));
-tape('E2E / In LocalStorage with In Memory Fallback', e2eAssertionSuite.bind(null, settingsInLocalStorage));
+tape('## E2E CI Tests ##', function(assert) {
+  fetchMock.mock(settings.url('/splitChanges?since=-1'), () => delayResponse(splitChangesMock1));
+  fetchMock.mock(settings.url('/splitChanges?since=1457552620999'), () => delayResponse(splitChangesMock2));
+  fetchMock.mock(settings.url('/mySegments/facundo@split.io'), () => delayResponse(mySegmentsMock));
+
+  assert.test('E2E / Impressions', impressionsSuite);
+  assert.test('E2E / In Memory', e2eAssertionSuite.bind(null, settingsInMemory));
+  assert.test('E2E / In Memory with Bucketing Key', e2eAssertionSuite.bind(null, settingsInMemoryWithBucketingKey));
+  assert.test('E2E / In LocalStorage with In Memory Fallback', e2eAssertionSuite.bind(null, settingsInLocalStorage));
+  // If we change the mocks, we need to clear localstorage. Cleaning up after testing ensures "fresh data".
+  localStorage.clear();
+
+  assert.end();
+});

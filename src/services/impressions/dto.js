@@ -18,7 +18,8 @@ limitations under the License.
 const groupBy = require('lodash/groupBy');
 
 module.exports = {
-  fromImpressionsCollector(collector) {
+  fromImpressionsCollector(collector, settings) {
+    const sendLabels = settings.core.labelsEnabled;
     let groupedByFeature = groupBy(collector.state(), 'feature');
     let dto = [];
 
@@ -33,7 +34,7 @@ module.exports = {
             changeNumber: entry.changeNumber
           };
 
-          if (entry.label) keyImpression.label = entry.label;
+          if (sendLabels) keyImpression.label = entry.label;
           if (entry.bucketingKey) keyImpression.bucketingKey = entry.bucketingKey;
 
           return keyImpression;

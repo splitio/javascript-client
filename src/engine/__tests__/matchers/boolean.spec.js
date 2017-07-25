@@ -15,20 +15,23 @@ limitations under the License.
 **/
 'use strict';
 
-require('isomorphic-fetch');
+const tape = require('tape');
+const matcherTypes = require('../../matchers/types').enum;
+const matcherFactory = require('../../matchers');
 
-const log = require('../../utils/logger')('splitio-services:service');
+tape('MATCHER BOOLEAN / should return true ONLY when the value is true', function (assert) {
 
-function Fetcher(request) {
-  return fetch(request).then(resp => {
-    if (resp.ok) {
-      return resp;
-    } else {
-      log.error('throw error because response status is not OK');
-
-      throw Error(resp.statusText);
-    }
+  const matcher = matcherFactory({
+    type: matcherTypes.EQUAL_TO_BOOLEAN,
+    value: true
   });
-}
 
-module.exports = Fetcher;
+  assert.true(matcher(true));
+  assert.false(matcher(false));
+  assert.false(matcher('false'));
+  assert.false(matcher('true'));
+  assert.false(matcher(0));
+  assert.false(matcher(1));
+  assert.end();
+
+});
