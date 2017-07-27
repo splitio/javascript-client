@@ -3,20 +3,13 @@
 'use strict';
 
 const thenable = require('../utils/promise/thenable');
+const find = require('lodash/find');
 
-/**
- * @NOTE The backend sometimes doesn't answer the list of partitions correctly,
- *       so we need to build it mixing the list of partitions plus the default
- *       treatment.
- */
-const fixMissingTreatment = (firstCondition, defaultTreatment): Array<string> => {
-  const treatments = firstCondition ? firstCondition.partitions.map(v => v.treatment) : [];
-
-  if (treatments.indexOf(defaultTreatment) === -1) {
-    treatments.push(defaultTreatment);
-  }
-
-  return treatments;
+const collectTreatments = (conditions): Array<string> => {
+  // Rollout conditions are supposed to have the entire partitions list, so we find the first one.
+  const firstRolloutCondition = find(conditions, (cond) => cond.conditionType === 'ROLLOUT');
+  // Then extract the treatments from the partitions
+  return firstRolloutCondition ? firstRolloutCondition.partitions.map(v => v.treatment) : [];
 };
 
 const ObjectToView = (json: string): ?SplitView => {
@@ -35,7 +28,7 @@ const ObjectToView = (json: string): ?SplitView => {
     trafficType: splitObject.trafficTypeName || null,
     killed: splitObject.killed,
     changeNumber: splitObject.changeNumber || 0,
-    treatments: fixMissingTreatment(splitObject.conditions[0], splitObject.defaultTreatment)
+    treatments: collectTreatments(splitObject.conditions)
   };
 };
 
