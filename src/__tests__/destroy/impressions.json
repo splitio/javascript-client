@@ -1,0 +1,19 @@
+[
+  {
+    "testName": "Single_Test",
+    "keyImpressions": [
+      {
+        "keyName": "ut1",
+        "treatment": "on"
+      },
+      {
+        "keyName": "ut2",
+        "treatment": "on"
+      },
+      {
+        "keyName": "ut3",
+        "treatment": "on"
+      }
+    ]
+  }
+]

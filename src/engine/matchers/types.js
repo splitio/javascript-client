@@ -35,10 +35,13 @@ module.exports = {
     ENDS_WITH: 13,
     STARTS_WITH: 14,
     CONTAINS_STRING: 15,
-    IN_SPLIT_TREATMENT: 16
+    IN_SPLIT_TREATMENT: 16,
+    EQUAL_TO_BOOLEAN: 17,
+    MATCHES_STRING: 18
   },
 
   dataTypes: {
+    BOOLEAN: 'BOOLEAN',
     STRING: 'STRING',
     NUMBER: 'NUMBER',
     SET: 'SET',
@@ -80,6 +83,10 @@ module.exports = {
         return types.CONTAINS_STRING;
       case 'IN_SPLIT_TREATMENT':
         return types.IN_SPLIT_TREATMENT;
+      case 'EQUAL_TO_BOOLEAN':
+        return types.EQUAL_TO_BOOLEAN;
+      case 'MATCHES_STRING':
+        return types.MATCHES_STRING;
       default:
         return types.UNDEFINED;
     }

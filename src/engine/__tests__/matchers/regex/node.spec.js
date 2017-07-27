@@ -16,36 +16,36 @@ limitations under the License.
 'use strict';
 
 const tape = require('tape');
+const matcherTypes = require('../../../matchers/types').enum;
+const matcherFactory = require('../../../matchers');
+
 const fs = require('fs');
 const rl = require('readline');
 
-const utils = require('../../../engine/murmur3');
-
 [
-  'murmur3-sample-v4.csv',
-  'murmur3-sample-v3.csv',
-  'murmur3-sample-data-v2.csv',
-  'murmur3-sample-data-non-alpha-numeric-v2.csv'
+  'regex.txt'
 ].forEach(filename => {
 
-  tape('MURMUR3 / validate hashing behavior using sample data', assert => {
+  tape('MATCHER REGEX / validate regex behavior using sample data', assert => {
     const parser = rl.createInterface({
       input: fs.createReadStream(require.resolve(`../mocks/${filename}`))
     });
 
     parser
       .on('line', line => {
-        const parts = line.toString('utf8').split(',');
+        const parts = line.toString('utf8').split('#');
 
-        if (parts.length === 4) {
-          let [seed, key, hash, bucket] = parts;
+        if (parts.length === 3) {
+          let [regex, input, test] = parts;
 
-          seed = parseInt(seed, 10);
-          hash = parseInt(hash, 10);
-          bucket = parseInt(bucket, 10);
+          test = test === 'true';
 
-          assert.equal(utils.hash(key, seed), hash);
-          assert.equal(utils.bucket(key, seed), bucket);
+          const matcher = matcherFactory({
+            type: matcherTypes.MATCHES_STRING,
+            value: regex
+          });
+
+          assert.true(matcher(input) === test);
         }
       })
       .on('close', assert.end);

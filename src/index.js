@@ -90,15 +90,18 @@ function SplitFactory(settings: Settings, storage: SplitStorage, gateFactory: an
       },
 
       // Destroy instance
-      destroy() {
-        // Stop scheduled jobs
+      async destroy() {
+        // Stop background jobs
         producer && producer.stop();
         metrics && metrics.stop();
 
-        // Discard rediness information
+        // Send impressions if required
+        await metrics && metrics.flush();
+
+        // Cleanup event listeners
         readiness.destroy();
 
-        // Destroy storage (useful when using Redis to shut down the connection)
+        // Cleanup storage
         storage.destroy && storage.destroy();
       }
     }

@@ -59,6 +59,19 @@ function sanitizeArray(val): ?Array<string> {
   return arr.length ? arr : undefined;
 }
 
+function sanitizeBoolean(val) {
+  if (val === true || val === false) return val;
+
+  if (typeof val === 'string') {
+    const lowerCaseValue = val.toLocaleLowerCase();
+
+    if (lowerCaseValue === 'true') return true;
+    if (lowerCaseValue === 'false') return false;
+  }
+
+  return undefined;
+}
+
 function dependencyProcessor(sanitizedValue, attributes) {
   return {
     key: sanitizedValue,
@@ -98,6 +111,9 @@ function sanitizeValue(matcherTypeID: number, value: any, dataType: string, attr
       break;
     case DATA_TYPES.SET:
       sanitizedValue = sanitizeArray(value);
+      break;
+    case DATA_TYPES.BOOLEAN:
+      sanitizedValue = sanitizeBoolean(value);
       break;
     case DATA_TYPES.NOT_SPECIFIED:
       sanitizedValue = value;

@@ -204,7 +204,7 @@ declare type SplitStorage = {
   impressions: StatsCache<string>,
   metrics: StatsCache<number>,
   shared(): SplitStorage,
-  destroy(): void
+  destroy(): AsyncValue<void>
 };
 
 /**

@@ -20,6 +20,7 @@ const Logger = require('logplease');
 const isLocalStorageAvailable = require('../localstorage/isAvailable');
 
 const defaultOptions = {
+  useColors: false,
   showTimestamp: false
 };
 

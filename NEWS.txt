@@ -1,6 +1,14 @@
-## 9.3.0 (XXX XX, 2017)
+## 9.3.0 (Jul 25, 2017)
 
-* Adding Dependency Matcher support. Now you can tie your Splits conditions to the result of another Split.
+Several new matchers have been released:
+
+  * Dependency Matchers
+  * Boolean Matchers
+  * Regex Matchers
+
+## 9.2.2 (Jul 20, 2017)
+
+* Bugfixing - Added support into the SDK to flush impressions before destroy the instance.
 
 ## 9.2.1 (May 19, 2017)
 

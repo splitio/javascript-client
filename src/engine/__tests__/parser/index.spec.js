@@ -172,16 +172,16 @@ tape('PARSER / NEGATED if user is in segment ["u1", "u2", "u3", "u4"] then split
   }]);
 
   let evaluation = await evaluator(keyParser('a key'), 31, 100, 31);
-  assert.true(evaluation.treatment === 'on', "treatment evaluation should throw 'on'");
+  assert.equal(evaluation.treatment, 'on', "treatment evaluation should throw 'on'");
 
   evaluation = await evaluator(keyParser('u1'), 31, 100, 31);
-  assert.true(evaluation === undefined, 'evaluation should throw undefined');
+  assert.equal(evaluation, undefined, 'evaluation should throw undefined');
 
   evaluation = await evaluator(keyParser('u3'), 31, 100, 31);
-  assert.true(evaluation === undefined, 'evaluation should throw undefined');
+  assert.equal(evaluation, undefined, 'evaluation should throw undefined');
 
   evaluation = await evaluator(keyParser('u3'), 31, 100, 31);
-  assert.true(evaluation === undefined, 'evaluation should throw undefined');
+  assert.equal(evaluation, undefined, 'evaluation should throw undefined');
   assert.end();
 
 });
