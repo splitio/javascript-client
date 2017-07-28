@@ -1,4 +1,4 @@
-## 9.3.1 (Jul 27, 2017)
+## 9.3.1 (Jul 28, 2017)
 
 * Bugfixing - Fixed a bug on Manager API which was not retrieving the right treatments for a Split on some cases.
 
