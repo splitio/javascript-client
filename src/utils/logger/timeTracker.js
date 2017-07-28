@@ -34,7 +34,7 @@ const timers = {};
 const logger = Logger.create('[TIME TRACKER]', {
   showTimestamp: false,
   showLevel: false,
-  color: Logger.Colors.Blue
+  useColors: false
 });
 
 const TrackerAPI = {

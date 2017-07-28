@@ -8,6 +8,7 @@
   "changeNumber": 1478881219393,
   "conditions": [
     {
+      "conditionType": "ROLLOUT",
       "matcherGroup": {
         "combiner": "AND",
         "matchers": [
@@ -29,6 +30,10 @@
         {
           "treatment": "on",
           "size": 100
+        },
+        {
+          "treatment": "off",
+          "size": 0
         }
       ]
     }
