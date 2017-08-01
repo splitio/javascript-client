@@ -14,28 +14,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-// @flow
-
 'use strict';
 
 const timeout = require('../../utils/promise/timeout');
-const tracker = require('../../utils/logger/timeTracker');
+const tracker = require('../../utils/timeTracker');
 
 const splitChangesService = require('../../services/splitChanges');
 const splitChangesRequest = require('../../services/splitChanges/get');
 
-function splitChangesFetcher(settings: Object, since: number, shouldApplyTimeout: boolean = false): Promise<SplitChanges> {
-  tracker.start(tracker.C.SPLITS_FETCH);
-  let requestPromise = splitChangesService(splitChangesRequest(settings, since));
+function splitChangesFetcher(settings, since, shouldApplyTimeout = false) {
+  let requestPromise = tracker.start(tracker.C.SPLITS_FETCH, splitChangesService(splitChangesRequest(settings, since)));
 
   if (shouldApplyTimeout) {
     requestPromise = timeout(settings.startup.requestTimeoutBeforeReady, requestPromise);
   }
 
-  return requestPromise.then(resp => {
-    tracker.stop(tracker.C.SPLITS_FETCH);
-    return resp;
-  }).then(resp => resp.json());
+  return requestPromise.then(resp => resp.json());
 }
 
 module.exports = splitChangesFetcher;
