@@ -16,25 +16,7 @@ limitations under the License.
 'use strict';
 
 const tape = require('tape-catch');
-const TimerFactory = require('../Timer');
 const PassThroughFactory = require('../PassThrough');
-
-tape('TIMER / calling start() and stop() should store and entry inside the collector', assert => {
-  let tracked;
-  const start = TimerFactory({
-    track(v) {
-      tracked = v;
-    }
-  });
-  const stop = start();
-
-  setTimeout(function () {
-    const et = stop();
-
-    assert.true(tracked === et, 'ET should be present in the collector sequence');
-    assert.end();
-  }, 5);
-});
 
 tape('PASS / transparently propagate the value into the collector', assert => {
   let tracked;
