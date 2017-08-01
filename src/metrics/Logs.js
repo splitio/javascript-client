@@ -1,60 +1,55 @@
-class SegmentChangesMetrics {
+class MetricsCollector {
   constructor(storage) {
     this.storage = storage;
+
+    this.latency = this.latency.bind(this);
+    this.count = this.count.bind(this);
+    this.countException = this.countException.bind(this);
   }
 
   latency(ms) {
-    this.storage.metrics.track('segmentChangeFetcher.time', ms);
+    this.storage.metrics.track(`${this.metricType}.time`, ms);
   }
 
   count(status) {
-    this.storage.count.track(`segmentChangeFetcher.status.${status}`);
+    this.storage.count.track(`${this.metricType}.status.${status}`);
   }
 
   countException() {
-    this.storage.count.track('segmentChangeFetcher.exception');
+    this.storage.count.track(`${this.metricType}.exception`);
   }
 }
 
-class SplitChangesMetrics {
+class SegmentChangesMetrics extends MetricsCollector {
   constructor(storage) {
-    this.storage = storage;
-  }
+    super(storage);
 
-  latency(ms) {
-    this.storage.metrics.track('splitChangeFetcher.time', ms);
-  }
-
-  count(status) {
-    this.storage.count.track(`splitChangeFetcher.status.${status}`);
-  }
-
-  countException() {
-    this.storage.count.track('splitChangeFetcher.exception');
+    this.metricType = 'segmentChangeFetcher';
   }
 }
 
-class MySegmentsMetrics {
+class SplitChangesMetrics extends MetricsCollector {
   constructor(storage) {
-    this.storage = storage;
-  }
+    super(storage);
 
-  latency(ms) {
-    this.storage.metrics.track('mySegmentsFetcher.time', ms);
+    this.metricType = 'splitChangeFetcher';
   }
+}
 
-  count(status) {
-    this.storage.count.track(`mySegmentsFetcher.status.${status}`);
-  }
+class MySegmentsMetrics extends MetricsCollector {
+  constructor(storage) {
+    super(storage);
 
-  countException() {
-    this.storage.count.track('mySegmentsFetcher.exception');
+    this.metricType = 'mySegmentsFetcher';
   }
 }
 
 class SDKMetrics {
   constructor(storage) {
     this.storage = storage;
+
+    this.ready = this.ready.bind(this);
+    this.latency = this.latency.bind(this);
   }
 
   ready(ms) {
