@@ -3,7 +3,7 @@
 'use strict';
 
 const EventEmitter = require('events').EventEmitter;
-const tracker = require('../utils/logger/timeTracker');
+const tracker = require('../utils/timeTracker');
 
 const SPLITS_READY = 2;
 const SEGMENTS_READY = 4;
