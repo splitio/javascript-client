@@ -20,7 +20,7 @@ const ReadinessGateFacade = require('./readiness');
 const keyParser = require('./utils/key/parser');
 const Logger = require('./utils/logger');
 const log = Logger('splitio');
-const tracker = require('./utils/logger/timeTracker');
+const tracker = require('./utils/timeTracker');
 
 // cache instances created
 const instances = {};
@@ -51,10 +51,10 @@ function SplitFactory(settings: Settings, storage: SplitStorage, gateFactory: an
     case 'producer':
     case 'standalone': {
       // We don't fully instantiate metrics and producer if we are creating a shared instance.
+      metrics = sharedInstance ? undefined : MetricsFactory(settings, storage);
       producer = sharedInstance ?
         PartialProducerFactory(settings, readiness, storage) :
         FullProducerFactory(settings, readiness, storage);
-      metrics = sharedInstance ? undefined : MetricsFactory(settings, storage);
       break;
     }
     case 'consumer':
@@ -63,6 +63,8 @@ function SplitFactory(settings: Settings, storage: SplitStorage, gateFactory: an
   // Start background jobs tasks
   producer && producer.start();
   metrics && metrics.start();
+  // Add a callback to the ready latency tracker.
+  metrics && tracker.setupTrackers(metrics.trackers);
 
   // Ready promise
   const readyFlag = sharedInstance ? Promise.resolve() :
