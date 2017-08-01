@@ -25,7 +25,7 @@ const mySegmentsService = require('../../services/mySegments');
 const mySegmentsRequest = require('../../services/mySegments/get');
 
 const mySegmentsFetcher = (settings: Object, shouldApplyTimeout: boolean = false):Promise<MySegments> => {
-  tracker.start(tracker.C.SEGMENTS_FETCH);
+  tracker.start(tracker.C.MY_SEGMENTS_FETCH);
 
   let requestPromise = mySegmentsService(mySegmentsRequest(settings));
 
@@ -37,10 +37,9 @@ const mySegmentsFetcher = (settings: Object, shouldApplyTimeout: boolean = false
   // Extract segment names
   return requestPromise
     .then(resp => {
-      tracker.stop(tracker.C.SEGMENTS_FETCH);
-      return resp;
+      tracker.stop(tracker.C.MY_SEGMENTS_FETCH);
+      return resp.json();
     })
-    .then(resp => resp.json())
     .then((json: Object): MySegments => json.mySegments.map(segment => segment.name));
 };
 
