@@ -18,7 +18,7 @@ limitations under the License.
 const base = require('../request');
 
 module.exports = function POST(settings, params) {
-  return base(settings, '/metrics/time', Object.assign({
+  return base(settings, '/metrics/times', Object.assign({
     method: 'POST'
   }, params));
 };
