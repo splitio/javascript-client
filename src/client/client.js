@@ -9,8 +9,8 @@ require('core-js/es6/promise');
 const log = require('../utils/logger')('splitio-client');
 const evaluator = require('../engine/evaluator');
 
-const TimeTracker = require('../tracker/Timer');
 const PassTracker = require('../tracker/PassThrough');
+const tracker = require('../utils/timeTracker');
 
 const thenable = require('../utils/promise/thenable');
 const { matching, bucketing } = require('../utils/key/factory');
@@ -19,7 +19,7 @@ function getTreatmentAvailable(
   evaluation: Evaluation,
   splitName: string,
   key: SplitKey,
-  stopLatencyTracker: Function,
+  stopLatencyTracker,
   impressionsTracker: Function
 ) {
   const matchingKey = matching(key);
@@ -49,12 +49,11 @@ function getTreatmentAvailable(
 }
 
 function ClientFactory(storage: SplitStorage): SplitClient {
-  const latencyTracker = TimeTracker(storage.metrics);
   const impressionsTracker = PassTracker(storage.impressions);
 
   return {
     getTreatment(key: SplitKey, splitName: string, attributes: ?Object): AsyncValue<string> {
-      const stopLatencyTracker: Function = latencyTracker('getTreament');
+      const stopLatencyTracker = tracker.startUnique(tracker.C.SDK_GET_TREATMENT);
       const evaluation = evaluator(key, splitName, attributes, storage);
 
       if (thenable(evaluation)) {
