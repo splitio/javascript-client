@@ -19,17 +19,25 @@ limitations under the License.
 'use strict';
 
 const log = require('../utils/logger')('splitio-metrics');
-const tracker = require('../utils/logger/timeTracker');
+const tracker = require('../utils/timeTracker');
 
 const repeat = require('../utils/fn/repeat');
 
 const metricsService = require('../services/metrics');
-const metricsServiceRequest = require('../services/metrics/post');
+const metricsTimesServiceRequest = require('../services/metrics/times');
+const metricsCountersServiceRequest = require('../services/metrics/counters');
 const metricsDTO = require('../services/metrics/dto');
 
 const impressionsService = require('../services/impressions');
 const impressionsBulkRequest = require('../services/impressions/bulk');
 const impressionsDTO = require('../services/impressions/dto');
+
+const {
+  SegmentChangesMetrics,
+  SplitChangesMetrics,
+  MySegmentsMetrics,
+  SDKMetrics
+} = require('./Logs');
 
 const MetricsFactory = (settings: Object, storage: SplitStorage): Startable => {
   const pushMetrics = (): Promise<void> => {
@@ -38,14 +46,29 @@ const MetricsFactory = (settings: Object, storage: SplitStorage): Startable => {
     log.info('Pushing metrics');
     tracker.start(tracker.C.METRICS_PUSH);
 
-    return metricsService(metricsServiceRequest(settings, {
-      body: JSON.stringify(metricsDTO.fromGetTreatmentCollector(storage.metrics))
-    }))
-    .then(() => {
-      tracker.stop(tracker.C.METRICS_PUSH);
-      return storage.metrics.clear();
-    })
+    // POST latencies
+    const latenciesPromise = metricsService(
+      metricsTimesServiceRequest(settings, {
+        body: JSON.stringify(metricsDTO.fromLatenciesCollector(storage.metrics))
+      }
+    ))
+    .then(() => storage.metrics.clear())
     .catch(() => storage.metrics.clear());
+
+    // POST counters
+    const countersPromise = metricsService(
+      metricsCountersServiceRequest(settings, {
+        body: JSON.stringify(metricsDTO.fromCountersCollector(storage.count))
+      }
+    ))
+    .then(() => storage.count.clear())
+    .catch(() => storage.count.clear());
+
+    return Promise.all([latenciesPromise, countersPromise]).then(resp => {
+      // After both finishes, track the end and return the results
+      tracker.stop(tracker.C.METRICS_PUSH);
+      return resp;
+    });
   };
 
   const pushImpressions = (): Promise<void> => {
@@ -87,6 +110,14 @@ const MetricsFactory = (settings: Object, storage: SplitStorage): Startable => {
     stop() {
       stopImpressionsPublisher && stopImpressionsPublisher();
       stopPerformancePublisher && stopPerformancePublisher();
+    },
+
+    // Metrics trackers
+    trackers: {
+      segmentChangesMetrics: new SegmentChangesMetrics(storage),
+      splitChangesMetrics: new SplitChangesMetrics(storage),
+      mySegmentsMetrics: new MySegmentsMetrics(storage),
+      sdkMetrics: new SDKMetrics(storage)
     }
   };
 };
