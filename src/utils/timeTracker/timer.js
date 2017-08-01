@@ -14,26 +14,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-// @flow
-
 'use strict';
 
-const now = require('../utils/now');
+const now = require('../now');
 
-const Timer = (collector?: StatsCache<number>): Function => {
-  return function start(): Function {
-    const st = now();
+function start() {
+  const st = now();
 
-    return function stop(): number {
-      const et = now() - st;
-
-      if (collector && collector.track) {
-        collector.track(et);
-      }
-
-      return et;
-    };
+  return function stop() {
+    return now() - st;
   };
-};
+}
 
-module.exports = Timer;
+module.exports = start;
