@@ -74,11 +74,18 @@ const CALLBACKS = {
 };
 
 const TrackerAPI = {
-  _attachToPromise(promise, task, modifier) {
+  /**
+   * "Private" method, used to attach count/countException callbacks to a promise.
+   *
+   * @param {Promise} promise - The promise we want to attach the callbacks.
+   * @param {string} task - The name of the task.
+   * @param {string} modifier - (optional) The modifier for the task, if any.
+   */
+  __attachToPromise(promise, task, modifier) {
     return promise.then(resp => {
       this.stop(task, modifier);
 
-      const tracker = CALLBACKS[task].metrics();
+      const tracker = CALLBACKS[task] && CALLBACKS[task].metrics();
       tracker.count && tracker.count(resp.status);
 
       return resp;
@@ -86,7 +93,7 @@ const TrackerAPI = {
     .catch(err => {
       this.stop(task, modifier);
 
-      const tracker = CALLBACKS[task].metrics();
+      const tracker = CALLBACKS[task] && CALLBACKS[task].metrics();
       tracker.countException && tracker.countException();
 
       throw err;
@@ -103,7 +110,7 @@ const TrackerAPI = {
     // If we are registering a promise with this task, we should count the status and the exceptions as well
     // as stopping the task when the promise resolves.
     if (thenable(promise)) {
-      result = this._attachToPromise(promise, task);
+      result = this.__attachToPromise(promise, task);
     }
 
     // Start the timer, then save the reference. We do it last to avoid counting as much extra processing
@@ -128,7 +135,7 @@ const TrackerAPI = {
     // If we are registering a promise with this task, we should count the status and the exceptions as well
     // as stopping the task when the promise resolves. Then return the promise
     if (thenable(promise)) {
-      result = this._attachToPromise(promise, task, taskUniqueId);
+      result = this.__attachToPromise(promise, task, taskUniqueId);
     } else {
       // If not, we return the stop function, as it will be stopped manually.
       result = this.stop.bind(this, task, taskUniqueId);
@@ -164,10 +171,10 @@ const TrackerAPI = {
       delete timers[timerName];
 
       // Check if we have a tracker callback.
-      const tracker = CALLBACKS[task];
+      const tracker = CALLBACKS[task] && CALLBACKS[task].metrics();
       if (tracker) {
         // If we have a callback, we call it with the elapsed time of the task and then delete the reference.
-        tracker.metrics()[tracker.method](et);
+        tracker[tracker.method](et);
       }
     }
   },
