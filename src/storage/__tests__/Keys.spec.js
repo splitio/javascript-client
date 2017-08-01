@@ -128,7 +128,7 @@ tape('KEYS / latency keys', function (assert) {
   const builder = new Keys(settings);
 
   const metricName = 'unit testing metric name';
-  const bucketNumber = 10;
+  const bucketNumber = '10';
 
   const expectedLatencyKey = `${prefix}.SPLITIO/${settings.version}/${settings.runtime.ip}/latency.${metricName}.bucket.${bucketNumber}`;
 
