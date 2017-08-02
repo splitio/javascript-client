@@ -53,7 +53,7 @@ function ClientFactory(storage: SplitStorage): SplitClient {
 
   return {
     getTreatment(key: SplitKey, splitName: string, attributes: ?Object): AsyncValue<string> {
-      const stopLatencyTracker = tracker.startUnique(trackerTaskNames.SDK_GET_TREATMENT);
+      const stopLatencyTracker = tracker.startUnique(tracker.TaskNames.SDK_GET_TREATMENT);
       const evaluation = evaluator(key, splitName, attributes, storage);
 
       if (thenable(evaluation)) {

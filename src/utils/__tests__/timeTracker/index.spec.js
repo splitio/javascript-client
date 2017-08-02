@@ -37,7 +37,7 @@ tape('TIME TRACKER / should have the correct API', assert => {
   assert.equal(typeof tracker.startUnique, 'function', 'It should have the correct API.');
   assert.equal(typeof tracker.stop, 'function', 'It should have the correct API.');
   assert.equal(typeof tracker.setupTrackers, 'function', 'It should have the correct API.');
-  assert.equal(typeof trackerTaskNames, 'object', 'It should have the correct API.');
+  assert.equal(typeof tracker..TaskNames, 'object', 'It should have the correct API.');
   assert.end();
 });
 

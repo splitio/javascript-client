@@ -23,7 +23,7 @@ const splitChangesService = require('../../services/splitChanges');
 const splitChangesRequest = require('../../services/splitChanges/get');
 
 function splitChangesFetcher(settings, since, shouldApplyTimeout = false) {
-  let requestPromise = tracker.start(trackerTaskNames.SPLITS_FETCH, splitChangesService(splitChangesRequest(settings, since)));
+  let requestPromise = tracker.start(tracker.TaskNames.SPLITS_FETCH, splitChangesService(splitChangesRequest(settings, since)));
 
   if (shouldApplyTimeout) {
     requestPromise = timeout(settings.startup.requestTimeoutBeforeReady, requestPromise);

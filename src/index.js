@@ -71,7 +71,7 @@ function SplitFactory(settings: Settings, storage: SplitStorage, gateFactory: an
   const readyFlag = sharedInstance ? Promise.resolve() :
     new Promise(resolve => gate.on(SDK_READY, resolve));
 
-  gate.on(SDK_READY, () => tracker.stop(trackerTaskNames.SDK_READY));
+  gate.on(SDK_READY, () => tracker.stop(tracker.TaskNames.SDK_READY));
 
   const api = Object.assign(
     // Proto linkage of the EventEmitter to prevent any change
@@ -115,9 +115,9 @@ function SplitFactory(settings: Settings, storage: SplitStorage, gateFactory: an
 
 function SplitFacade(config: Object) {
   // Tracking times.
-  tracker.start(trackerTaskNames.SDK_READY);
-  tracker.start(trackerTaskNames.SPLITS_READY);
-  tracker.start(trackerTaskNames.SEGMENTS_READY);
+  tracker.start(tracker.TaskNames.SDK_READY);
+  tracker.start(tracker.TaskNames.SPLITS_READY);
+  tracker.start(tracker.TaskNames.SEGMENTS_READY);
 
   const settings = SettingsFactory(config);
   const storage = StorageFactory(settings);
