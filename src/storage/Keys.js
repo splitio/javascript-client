@@ -54,7 +54,7 @@ class KeyBuilder {
   }
 
   buildLatencyKeyPrefix() {
-    return `${this.settings.storage.prefix}/${this.settings.version}/${this.settings.runtime.ip}/latency`;
+    return this.buildVersionablePrefix() + '/latency';
   }
 
   buildLatencyKey(metricName, bucketNumber) {
