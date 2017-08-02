@@ -33,11 +33,11 @@ const impressionsBulkRequest = require('../services/impressions/bulk');
 const impressionsDTO = require('../services/impressions/dto');
 
 const {
-  SegmentChangesMetrics,
-  SplitChangesMetrics,
-  MySegmentsMetrics,
-  SDKMetrics
-} = require('./Logs');
+  SegmentChangesCollector,
+  SplitChangesCollector,
+  MySegmentsCollector,
+  SDKCollector
+} = require('./Collectors');
 
 const MetricsFactory = (settings: Object, storage: SplitStorage): Startable => {
   const pushMetrics = (): Promise<void> => {
@@ -114,10 +114,10 @@ const MetricsFactory = (settings: Object, storage: SplitStorage): Startable => {
 
     // Metrics trackers
     trackers: {
-      segmentChangesMetrics: new SegmentChangesMetrics(storage),
-      splitChangesMetrics: new SplitChangesMetrics(storage),
-      mySegmentsMetrics: new MySegmentsMetrics(storage),
-      sdkMetrics: new SDKMetrics(storage)
+      segmentChanges: new SegmentChangesCollector(storage),
+      splitChanges: new SplitChangesCollector(storage),
+      mySegments: new MySegmentsCollector(storage),
+      SDK: new SDKCollector(storage)
     }
   };
 };

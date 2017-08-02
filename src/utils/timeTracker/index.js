@@ -33,10 +33,10 @@ const timers = {};
 let metricTrackers = false;
 // Functions we will use to get the different tracker modules. It needs to be in this way as we can't
 // set these right away when first starting capturing times.
-const getSDKMetricsTracker = () => metricTrackers.sdkMetrics || false;
-const getMySegmentMetricsTracker = () => metricTrackers.mySegmentsMetrics || false;
-const getSegmentChangesMetricsTracker = () => metricTrackers.segmentChangesMetrics || false;
-const getSplitChangesMetricsTracker = () => metricTrackers.splitChangesMetrics || false;
+const getSDKMetricsTracker = () => metricTrackers.SDK || false;
+const getMySegmentMetricsTracker = () => metricTrackers.mySegments || false;
+const getSegmentChangesMetricsTracker = () => metricTrackers.segmentChanges || false;
+const getSplitChangesMetricsTracker = () => metricTrackers.splitChanges || false;
 
 /**
  * Generates the timer keys using the task name and a modifier, if any.

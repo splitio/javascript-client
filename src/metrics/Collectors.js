@@ -20,7 +20,7 @@ class MetricsCollector {
   }
 }
 
-class SegmentChangesMetrics extends MetricsCollector {
+class SegmentChangesCollector extends MetricsCollector {
   constructor(storage) {
     super(storage);
 
@@ -28,7 +28,7 @@ class SegmentChangesMetrics extends MetricsCollector {
   }
 }
 
-class SplitChangesMetrics extends MetricsCollector {
+class SplitChangesCollector extends MetricsCollector {
   constructor(storage) {
     super(storage);
 
@@ -36,7 +36,7 @@ class SplitChangesMetrics extends MetricsCollector {
   }
 }
 
-class MySegmentsMetrics extends MetricsCollector {
+class MySegmentsCollector extends MetricsCollector {
   constructor(storage) {
     super(storage);
 
@@ -44,7 +44,7 @@ class MySegmentsMetrics extends MetricsCollector {
   }
 }
 
-class SDKMetrics {
+class SDKCollector {
   constructor(storage) {
     this.storage = storage;
 
@@ -62,8 +62,8 @@ class SDKMetrics {
 }
 
 module.exports = {
-  SegmentChangesMetrics,
-  SplitChangesMetrics,
-  MySegmentsMetrics,
-  SDKMetrics
+  SegmentChangesCollector,
+  SplitChangesCollector,
+  MySegmentsCollector,
+  SDKCollector
 };
