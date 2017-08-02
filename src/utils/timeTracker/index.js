@@ -181,10 +181,11 @@ const TrackerAPI = {
       delete timers[timerName];
 
       // Check if we have a tracker callback.
-      const tracker = CALLBACKS[task] && CALLBACKS[task].metrics();
+      const callbackData = CALLBACKS[task];
+      const tracker = callbackData && callbackData.metrics();
       if (tracker) {
         // If we have a callback, we call it with the elapsed time of the task and then delete the reference.
-        tracker[tracker.method](et);
+        tracker[callbackData.method](et);
       }
 
       return et;
