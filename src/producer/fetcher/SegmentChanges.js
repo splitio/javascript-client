@@ -22,7 +22,7 @@ const segmentChangesRequest = require('../../services/segmentChanges/get');
 const tracker = require('../../utils/timeTracker');
 
 function greedyFetch(settings, lastSinceValue, segmentName) {
-  return tracker.startUnique(tracker.C.SEGMENTS_FETCH, segmentChangesService(segmentChangesRequest(settings, {
+  return tracker.startUnique(trackerTaskNames.SEGMENTS_FETCH, segmentChangesService(segmentChangesRequest(settings, {
     since: lastSinceValue,
     segmentName
   })))

@@ -44,7 +44,7 @@ const MetricsFactory = (settings: Object, storage: SplitStorage): Startable => {
     if (storage.metrics.isEmpty()) return Promise.resolve();
 
     log.info('Pushing metrics');
-    tracker.start(tracker.C.METRICS_PUSH);
+    tracker.start(trackerTaskNames.METRICS_PUSH);
 
     // POST latencies
     const latenciesPromise = metricsService(
@@ -66,7 +66,7 @@ const MetricsFactory = (settings: Object, storage: SplitStorage): Startable => {
 
     return Promise.all([latenciesPromise, countersPromise]).then(resp => {
       // After both finishes, track the end and return the results
-      tracker.stop(tracker.C.METRICS_PUSH);
+      tracker.stop(trackerTaskNames.METRICS_PUSH);
       return resp;
     });
   };
@@ -75,13 +75,13 @@ const MetricsFactory = (settings: Object, storage: SplitStorage): Startable => {
     if (storage.impressions.isEmpty()) return Promise.resolve();
 
     log.info(`Pushing ${storage.impressions.queue.length} impressions`);
-    tracker.start(tracker.C.IMPRESSIONS_PUSH);
+    tracker.start(trackerTaskNames.IMPRESSIONS_PUSH);
 
     return impressionsService(impressionsBulkRequest(settings, {
       body: JSON.stringify(impressionsDTO.fromImpressionsCollector(storage.impressions, settings))
     }))
     .then(() => {
-      tracker.stop(tracker.C.IMPRESSIONS_PUSH);
+      tracker.stop(trackerTaskNames.IMPRESSIONS_PUSH);
       return storage.impressions.clear();
     })
     .catch(() => storage.impressions.clear());
