@@ -22,7 +22,7 @@ function start() {
   const st = now();
 
   return function stop() {
-    return now() - st;
+    return Math.round( now() - st );
   };
 }
 

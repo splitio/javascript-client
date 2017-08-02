@@ -175,7 +175,7 @@ const TrackerAPI = {
     const timer = timers[timerName];
     if (timer) {
       // Stop the timer and round result for readability.
-      const et = Math.round( timer() );
+      const et = timer();
       logger.log(`[${task}] took ${et}ms to finish.`);
       delete timers[timerName];
 
