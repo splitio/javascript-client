@@ -63,7 +63,8 @@ function SplitFactory(settings: Settings, storage: SplitStorage, gateFactory: an
   // Start background jobs tasks
   producer && producer.start();
   metrics && metrics.start();
-  // Add a callback to the ready latency tracker.
+
+  // Provide timeTracker with the metric tracker instances.
   metrics && tracker.setupTrackers(metrics.trackers);
 
   // Ready promise
