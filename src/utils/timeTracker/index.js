@@ -193,7 +193,7 @@ const TrackerAPI = {
   /**
    * The constants shortcut for the task names.
    */
-  .TaskNames: CONSTANTS
+  TaskNames: CONSTANTS
 };
 
 // Our "time tracker" API
