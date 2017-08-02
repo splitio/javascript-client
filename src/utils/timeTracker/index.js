@@ -95,7 +95,8 @@ const TrackerAPI = {
       this.stop(task, modifier);
 
       const tracker = CALLBACKS[task] && CALLBACKS[task].metrics();
-      tracker.count && tracker.count(resp.status);
+
+      if (tracker && tracker.count) tracker.count(resp.status);
 
       return resp;
     })
@@ -103,7 +104,7 @@ const TrackerAPI = {
       this.stop(task, modifier);
 
       const tracker = CALLBACKS[task] && CALLBACKS[task].metrics();
-      tracker.countException && tracker.countException();
+      if (tracker && tracker.countException) tracker.countException();
 
       throw err;
     });
@@ -185,6 +186,8 @@ const TrackerAPI = {
         // If we have a callback, we call it with the elapsed time of the task and then delete the reference.
         tracker[tracker.method](et);
       }
+
+      return et;
     }
   },
   /**
