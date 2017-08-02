@@ -37,6 +37,15 @@ const getSDKMetricsTracker = () => metricTrackers.sdkMetrics || false;
 const getMySegmentMetricsTracker = () => metricTrackers.mySegmentsMetrics || false;
 const getSegmentChangesMetricsTracker = () => metricTrackers.segmentChangesMetrics || false;
 const getSplitChangesMetricsTracker = () => metricTrackers.splitChangesMetrics || false;
+
+/**
+ * Generates the timer keys using the task name and a modifier, if any.
+ * @param {string} task - The task name
+ * @param {string} modifier - (optional) The modifier, if any.
+ * @return {string} The generated timer key
+ */
+const generateTimerKey = (task, modifier) => typeof modifier === 'string' ? task + modifier : task;
+
 // Tasks constants
 const CONSTANTS = {
   SDK_READY: 'Getting ready - Split SDK',
@@ -115,7 +124,7 @@ const TrackerAPI = {
 
     // Start the timer, then save the reference. We do it last to avoid counting as much extra processing
     // as possible on the latencies.
-    timers[task] = timer();
+    timers[generateTimerKey(task)] = timer();
 
     // If no promise is present, we will return undefined as before.
     return result;
@@ -142,7 +151,7 @@ const TrackerAPI = {
     }
 
     // We start the timer, with an uniqueId attached to it's name.
-    timers[task + taskUniqueId] = timer();
+    timers[generateTimerKey(task, taskUniqueId)] = timer();
 
     return result;
   },
@@ -162,7 +171,7 @@ const TrackerAPI = {
    * @param {string} modifier - (optional) The modifier for that specific task.
    */
   stop(task, modifier) {
-    const timerName = typeof modifier === 'string' ? task + modifier : task;
+    const timerName = generateTimerKey(task, modifier);
     const timer = timers[timerName];
     if (timer) {
       // Stop the timer and round result for readability.
