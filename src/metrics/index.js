@@ -41,13 +41,13 @@ const {
 
 const MetricsFactory = (settings: Object, storage: SplitStorage): Startable => {
   const pushMetrics = (): Promise<void> => {
-    if (storage.metrics.isEmpty()) return Promise.resolve();
+    if (storage.metrics.isEmpty() && storage.count.isEmpty()) return Promise.resolve();
 
     log.info('Pushing metrics');
     tracker.start(tracker.TaskNames.METRICS_PUSH);
 
     // POST latencies
-    const latenciesPromise = metricsService(
+    const latenciesPromise = storage.metrics.isEmpty() ? null : metricsService(
       metricsTimesServiceRequest(settings, {
         body: JSON.stringify(metricsDTO.fromLatenciesCollector(storage.metrics))
       }
@@ -56,7 +56,7 @@ const MetricsFactory = (settings: Object, storage: SplitStorage): Startable => {
     .catch(() => storage.metrics.clear());
 
     // POST counters
-    const countersPromise = metricsService(
+    const countersPromise = storage.count.isEmpty() ? null : metricsService(
       metricsCountersServiceRequest(settings, {
         body: JSON.stringify(metricsDTO.fromCountersCollector(storage.count))
       }
