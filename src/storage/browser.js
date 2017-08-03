@@ -34,7 +34,6 @@ const BrowserStorageFactory = (settings) => {
             segments: new SegmentCacheInMemory(childKeyBuilder),
             impressions: this.impressions,
             metrics: this.metrics,
-            // @TODO review this because I'm not sure this will work with shared instances
             count: this.count,
 
             destroy() {
@@ -73,7 +72,6 @@ const BrowserStorageFactory = (settings) => {
             segments: new SegmentCacheInLocalStorage(childKeysBuilder),
             impressions: this.impressions,
             metrics: this.metrics,
-            // @TODO review this because I'm not sure this will work with shared instances
             count: this.count,
 
             destroy() {
