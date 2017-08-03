@@ -50,15 +50,15 @@ class KeyBuilder {
   }
 
   buildImpressionsKey(splitName) {
-    return this.buildImpressionsKeyPrefix() + `.${splitName}`;
+    return `${this.buildImpressionsKeyPrefix()}.${splitName}`;
   }
 
   buildLatencyKeyPrefix() {
-    return this.buildVersionablePrefix() + '/latency';
+    return `${this.buildVersionablePrefix()}/latency`;
   }
 
   buildLatencyKey(metricName, bucketNumber) {
-    return this.buildLatencyKeyPrefix() + `.${metricName}.bucket.${bucketNumber}`;
+    return `${this.buildLatencyKeyPrefix()}.${metricName}.bucket.${bucketNumber}`;
   }
 
   buildCountKey(metricName) {
@@ -78,11 +78,11 @@ class KeyBuilder {
   }
 
   searchPatternForImpressions() {
-    return this.buildImpressionsKeyPrefix() + '.*';
+    return `${this.buildImpressionsKeyPrefix()}.*`;
   }
 
   searchPatternForLatency() {
-    return this.buildLatencyKeyPrefix() + '.*';
+    return `${this.buildLatencyKeyPrefix()}.*`;
   }
 
   extractKey(builtKey) {
