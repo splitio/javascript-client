@@ -42,6 +42,7 @@ const NodeStorageFactory = (settings) => {
           this.segments = new SegmentCacheInMemory(keys);
           this.impressions = new ImpressionsCacheInMemory;
           this.metrics = new LatencyCacheInMemory;
+          this.count = new CountCacheInMemory;
         }
       };
     }
@@ -61,6 +62,7 @@ const NodeStorageFactory = (settings) => {
           this.segments.flush();
           this.impressions.clear();
           this.metrics.clear();
+          this.count.clear();
         }
       };
   }

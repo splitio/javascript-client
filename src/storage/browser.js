@@ -49,6 +49,7 @@ const BrowserStorageFactory = (settings) => {
           this.segments.flush();
           this.impressions.clear();
           this.metrics.clear();
+          this.count.clear();
         }
       };
     }
@@ -87,6 +88,7 @@ const BrowserStorageFactory = (settings) => {
           this.segments = new SegmentCacheInMemory(new KeyBuilder(settings));
           this.impressions.clear();
           this.metrics.clear();
+          this.count.clear();
         }
       };
     }
