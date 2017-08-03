@@ -23,7 +23,7 @@ const mySegmentsService = require('../../services/mySegments');
 const mySegmentsRequest = require('../../services/mySegments/get');
 
 const mySegmentsFetcher = (settings, shouldApplyTimeout = false) => {
-  let requestPromise = tracker.start(tracker.TaskNames.MY_SEGMENTS_FETCH, mySegmentsService(mySegmentsRequest(settings)));
+  let requestPromise = tracker.startUnique(tracker.TaskNames.MY_SEGMENTS_FETCH, mySegmentsService(mySegmentsRequest(settings)));
 
   // Decorate with the timeout functionality if required
   if (shouldApplyTimeout) {
