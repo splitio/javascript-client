@@ -27,25 +27,8 @@ const logger = Logger.create('[TIME TRACKER]', {
   showLevel: false,
   useColors: false
 });
-// Map we will use for storing timers
+// Map we will use for storing timers data
 const timers = {};
-// We will use this variable for storing the metrics trackers object.
-let metricTrackers = false;
-// Functions we will use to get the different tracker modules. It needs to be in this way as we can't
-// set these right away when first starting capturing times.
-const getSDKMetricsTracker = () => metricTrackers.SDK || false;
-const getMySegmentMetricsTracker = () => metricTrackers.mySegments || false;
-const getSegmentChangesMetricsTracker = () => metricTrackers.segmentChanges || false;
-const getSplitChangesMetricsTracker = () => metricTrackers.splitChanges || false;
-
-/**
- * Generates the timer keys using the task name and a modifier, if any.
- * @param {string} task - The task name
- * @param {string} modifier - (optional) The modifier, if any.
- * @return {string} The generated timer key
- */
-const generateTimerKey = (task, modifier) => typeof modifier === 'string' ? task + modifier : task;
-
 // Tasks constants
 const CONSTANTS = {
   SDK_READY: 'Getting ready - Split SDK',
@@ -61,109 +44,133 @@ const CONSTANTS = {
 // Tasks callbacks, if any
 const CALLBACKS = {
   [CONSTANTS.SDK_READY]: {
-    metrics: getSDKMetricsTracker,
+    collector: 'SDK',
     method: 'ready'
   },
   [CONSTANTS.SDK_GET_TREATMENT]: {
-    metrics: getSDKMetricsTracker,
+    collector: 'SDK',
     method: 'latency'
   },
   [CONSTANTS.MY_SEGMENTS_FETCH]: {
-    metrics: getMySegmentMetricsTracker,
+    collector: 'mySegments',
     method: 'latency'
   },
   [CONSTANTS.SEGMENTS_FETCH]: {
-    metrics: getSegmentChangesMetricsTracker,
+    collector: 'segmentChanges',
     method: 'latency'
   },
   [CONSTANTS.SPLITS_FETCH]: {
-    metrics: getSplitChangesMetricsTracker,
+    collector: 'splitChanges',
     method: 'latency'
   }
+};
+/**
+ * Generates the timer keys using the task name and a modifier, if any.
+ * @param {string} task - The task name
+ * @param {string} modifier - (optional) The modifier, if any.
+ * @return {string} The generated timer key
+ */
+const generateTimerKey = (task, modifier) => typeof modifier === 'string' ? task + modifier : task;
+/**
+ * Given the collectors map, it returns the specific collector for a given task.
+ *
+ * @param {string} task - The task name
+ * @param {Object} collectors - The collectors map
+ */
+const getCollectorForTask = (task, collectors) => {
+  const callbackData = CALLBACKS[task];
+
+  if (callbackData && collectors) return collectors[callbackData.collector];
+
+  return false;
+};
+/**
+ * Given a collector and a task, returns the callback function that should be called when we stop the timer.
+ *
+ * @param {string} task - The task name
+ * @param {Object} collector - The collector object for the task
+ */
+const getCallbackForTask = (task, collector) => {
+  const callbackData = CALLBACKS[task];
+
+  if (callbackData && collector) return collector[callbackData.method];
+
+  return false;
 };
 
 const TrackerAPI = {
   /**
-   * "Private" method, used to attach count/countException callbacks to a promise.
+   * "Private" method, used to attach count/countException and stop callbacks to a promise.
    *
    * @param {Promise} promise - The promise we want to attach the callbacks.
    * @param {string} task - The name of the task.
    * @param {string} modifier - (optional) The modifier for the task, if any.
    */
-  __attachToPromise(promise, task, modifier) {
+  __attachToPromise(promise, task, collector, modifier) {
     return promise.then(resp => {
       this.stop(task, modifier);
 
-      const tracker = CALLBACKS[task] && CALLBACKS[task].metrics();
-
-      if (tracker && tracker.count) tracker.count(resp.status);
+      if (collector && collector.count) collector.count(resp.status);
 
       return resp;
     })
     .catch(err => {
       this.stop(task, modifier);
 
-      const tracker = CALLBACKS[task] && CALLBACKS[task].metrics();
-      if (tracker && tracker.countException) tracker.countException();
+      if (collector && collector.countException) collector.countException();
 
       throw err;
     });
   },
   /**
-   * Starts tracking the time for a given task.
+   * Starts tracking the time for a given task. All tasks tracked are considered "unique" because
+   * there may be multiple SDK instances tracking a "generic" task, making any task non-generic.
    *
    * @param {string} task - The task we are starting.
+   * @param {Object} collectors - The collectors map.
    * @param {Promise} promise - (optional) The promise we are tracking.
+   * @return {Function | Promise} The stop function for this specific task or the promise received with the callbacks registered.
    */
-  start(task, promise) {
-    let result;
-    // If we are registering a promise with this task, we should count the status and the exceptions as well
-    // as stopping the task when the promise resolves.
-    if (thenable(promise)) {
-      result = this.__attachToPromise(promise, task);
-    }
-
-    // Start the timer, then save the reference. We do it last to avoid counting as much extra processing
-    // as possible on the latencies.
-    timers[generateTimerKey(task)] = timer();
-
-    // If no promise is present, we will return undefined as before.
-    return result;
-  },
-  /**
-   * Starts tracking the time for a given UNIQUE task. By unique task we mean tasks that fall under the same concept
-   * but each call should be tracked in a unique way. (So if you start two timers for the same task before stopping,
-   * we should track them separately)
-   *
-   * @param {string} task - The task we are starting.
-   * @return {Function} The stop function for this specific task.
-   */
-  startUnique(task, promise) {
+  start(task, collectors, promise) {
     const taskUniqueId = uniqueId();
+    const taskCollector = getCollectorForTask(task, collectors);
     let result;
 
     // If we are registering a promise with this task, we should count the status and the exceptions as well
     // as stopping the task when the promise resolves. Then return the promise
     if (thenable(promise)) {
-      result = this.__attachToPromise(promise, task, taskUniqueId);
+      result = this.__attachToPromise(promise, task, taskCollector, taskUniqueId);
     } else {
       // If not, we return the stop function, as it will be stopped manually.
       result = this.stop.bind(this, task, taskUniqueId);
+      // and provide a way for a defered setup of the collector.
+      result.setCollectorForTask = this.setCollectorForTask.bind(this, task, taskUniqueId);
     }
 
-    // We start the timer, with an uniqueId attached to it's name.
-    timers[generateTimerKey(task, taskUniqueId)] = timer();
+    // We start the timer, with an uniqueId attached to it's name, and save tracking info for this task.
+    const trackingKey = generateTimerKey(task, taskUniqueId);
+    const cb = getCallbackForTask(task, taskCollector);
+    timers[trackingKey] = {
+      cb,
+      timer: timer()
+    };
 
     return result;
   },
   /**
-   * Setup the metricTrackers variable for this module. This method should be called as soon as
-   * the metrics get instantiated.
+   * Setup the collector for a task that reports metrics.
    *
-   * @param {Object} trackers - The object containing all the metrics tracker modules.
+   * @param {string} task - The task name
+   * @param {string} taskUniqueId - The unique identifier for this task
+   * @param {Object} collectors - The collectors map.
    */
-  setupTrackers(trackers) {
-    metricTrackers = trackers;
+  setCollectorForTask(task, taskUniqueId, collectors) {
+    const taskCollector = getCollectorForTask(task, collectors);
+
+    if (taskCollector) {
+      const trackingKey = generateTimerKey(task, taskUniqueId);
+      timers[trackingKey].cb = getCallbackForTask(task, taskCollector);
+    }
   },
   /**
    * Stops the tracking of a given task.
@@ -173,20 +180,20 @@ const TrackerAPI = {
    */
   stop(task, modifier) {
     const timerName = generateTimerKey(task, modifier);
-    const timer = timers[timerName];
-    if (timer) {
+    const timerData = timers[timerName];
+    if (timerData) {
       // Stop the timer and round result for readability.
-      const et = timer();
+      const et = timerData.timer();
       logger.log(`[${task}] took ${et}ms to finish.`);
-      delete timers[timerName];
 
       // Check if we have a tracker callback.
-      const callbackData = CALLBACKS[task];
-      const tracker = callbackData && callbackData.metrics();
-      if (tracker) {
+      if (timerData.cb) {
         // If we have a callback, we call it with the elapsed time of the task and then delete the reference.
-        tracker[callbackData.method](et);
+        timerData.cb(et);
       }
+
+      // Remove the task tracking reference.
+      delete timers[timerName];
 
       return et;
     }
