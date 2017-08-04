@@ -112,8 +112,8 @@ const MetricsFactory = (settings: Object, storage: SplitStorage): Startable => {
       stopPerformancePublisher && stopPerformancePublisher();
     },
 
-    // Metrics trackers
-    trackers: {
+    // Metrics collectors
+    collectors: {
       segmentChanges: new SegmentChangesCollector(storage),
       splitChanges: new SplitChangesCollector(storage),
       mySegments: new MySegmentsCollector(storage),

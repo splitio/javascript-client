@@ -53,8 +53,8 @@ function SplitFactory(settings: Settings, storage: SplitStorage, gateFactory: an
       // We don't fully instantiate metrics and producer if we are creating a shared instance.
       metrics = sharedInstance ? undefined : MetricsFactory(settings, storage);
       producer = sharedInstance ?
-        PartialProducerFactory(settings, readiness, storage, metrics && metrics.trackers) :
-        FullProducerFactory(settings, readiness, storage, metrics && metrics.trackers);
+        PartialProducerFactory(settings, readiness, storage, metrics && metrics.collectors) :
+        FullProducerFactory(settings, readiness, storage, metrics && metrics.collectors);
       break;
     }
     case 'consumer':
@@ -68,7 +68,7 @@ function SplitFactory(settings: Settings, storage: SplitStorage, gateFactory: an
 
     // As we start tracking the time as soon as the Facade is called, and in that moment we don't have the metrics instantiated,
     // we need to give the "collectors" to the tracking tools so it can setup the specific collector for this task.
-    sdkReadyTracker.setCollectorForTask(metrics.trackers);
+    sdkReadyTracker.setCollectorForTask(metrics.collectors);
     // We register to readiness gate events.
     gate.on(SDK_READY, sdkReadyTracker);
     splits.on(splits.SDK_SPLITS_ARRIVED, splitsReadyTracker);
@@ -87,7 +87,7 @@ function SplitFactory(settings: Settings, storage: SplitStorage, gateFactory: an
     // Proto linkage of the EventEmitter to prevent any change
     Object.create(gate),
     // GetTreatment/s
-    ClientFactory(storage, metrics && metrics.trackers, settings),
+    ClientFactory(storage, metrics && metrics.collectors, settings),
     // Utilities
     {
       // Ready promise
