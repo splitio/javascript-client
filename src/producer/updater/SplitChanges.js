@@ -52,7 +52,7 @@ function computeSplitsMutation(entries: Array<SplitObject>): SplitMutation {
   return computed;
 }
 
-function SplitChangesUpdaterFactory(settings: Object, readiness: ReadinessGate, storage: SplitStorage) {
+function SplitChangesUpdaterFactory(settings: Object, readiness: ReadinessGate, storage: SplitStorage, metricCollectors: Object) {
   const splitsEventEmitter = readiness.splits;
 
   let startingUp = true;
@@ -63,7 +63,7 @@ function SplitChangesUpdaterFactory(settings: Object, readiness: ReadinessGate, 
 
     log.debug(`Spin up split update using since = ${since}`);
 
-    return splitChangesFetcher(settings, since, startingUp).then(splitChanges => {
+    return splitChangesFetcher(settings, since, startingUp, metricCollectors).then(splitChanges => {
       startingUp = false;
 
       const mutation = computeSplitsMutation(splitChanges.splits);

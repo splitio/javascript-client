@@ -21,8 +21,8 @@ const segmentChangesRequest = require('../../services/segmentChanges/get');
 
 const tracker = require('../../utils/timeTracker');
 
-function greedyFetch(settings, lastSinceValue, segmentName) {
-  return tracker.startUnique(tracker.TaskNames.SEGMENTS_FETCH, segmentChangesService(segmentChangesRequest(settings, {
+function greedyFetch(settings, lastSinceValue, segmentName, metricCollectors) {
+  return tracker.start(tracker.TaskNames.SEGMENTS_FETCH, metricCollectors, segmentChangesService(segmentChangesRequest(settings, {
     since: lastSinceValue,
     segmentName
   })))
@@ -45,8 +45,8 @@ function greedyFetch(settings, lastSinceValue, segmentName) {
 }
 
 // @TODO migrate to a generator function and do the job incrementally
-function segmentChangesFetcher(settings, segmentName, since) {
-  return greedyFetch(settings, since, segmentName);
+function segmentChangesFetcher(settings, segmentName, since, metricCollectors) {
+  return greedyFetch(settings, since, segmentName, metricCollectors);
 }
 
 module.exports = segmentChangesFetcher;

@@ -22,8 +22,8 @@ const tracker = require('../../utils/timeTracker');
 const splitChangesService = require('../../services/splitChanges');
 const splitChangesRequest = require('../../services/splitChanges/get');
 
-function splitChangesFetcher(settings, since, shouldApplyTimeout = false) {
-  let requestPromise = tracker.start(tracker.TaskNames.SPLITS_FETCH, splitChangesService(splitChangesRequest(settings, since)));
+function splitChangesFetcher(settings, since, shouldApplyTimeout = false, metricCollectors) {
+  let requestPromise = tracker.start(tracker.TaskNames.SPLITS_FETCH, metricCollectors, splitChangesService(splitChangesRequest(settings, since)));
 
   if (shouldApplyTimeout) {
     requestPromise = timeout(settings.startup.requestTimeoutBeforeReady, requestPromise);
