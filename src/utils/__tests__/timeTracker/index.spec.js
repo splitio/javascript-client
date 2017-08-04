@@ -34,9 +34,7 @@ tape('TIMER / should count the time between two tasks', assert => {
 
 tape('TIME TRACKER / should have the correct API', assert => {
   assert.equal(typeof tracker.start, 'function', 'It should have the correct API.');
-  assert.equal(typeof tracker.startUnique, 'function', 'It should have the correct API.');
   assert.equal(typeof tracker.stop, 'function', 'It should have the correct API.');
-  assert.equal(typeof tracker.setupTrackers, 'function', 'It should have the correct API.');
   assert.equal(typeof tracker.TaskNames, 'object', 'It should have the correct API.');
   assert.end();
 });
@@ -45,40 +43,25 @@ tape('TIME TRACKER start() / should return the correct type', assert => {
   const promise = new Promise(res => {
     setTimeout(res, 500);
   });
-  const startNormal = tracker.start('fakeTask1');
-  const startWithPromise = tracker.start('fakeTask2', promise);
+  const startNormal = tracker.start('fakeTask3');
+  const startWithPromise = tracker.start('fakeTask4', false, promise);
 
-  assert.equal(typeof startNormal, 'undefined', 'If we call start with only a task name, it will return undefined');
-  assert.deepEqual(startWithPromise, promise, 'But if we also pass a promise, we will get that promise back');
-
-  assert.end();
-});
-
-tape('TIME TRACKER startUnique() / should return the correct type', assert => {
-  const promise = new Promise(res => {
-    setTimeout(res, 500);
-  });
-  const startNormal = tracker.startUnique('fakeTask3');
-  const startWithPromise = tracker.startUnique('fakeTask4', promise);
-
-  assert.equal(typeof startNormal, 'function', 'If we call start with only a task name, it will return the stop function.');
-  assert.deepEqual(startWithPromise, promise, 'But if we also pass a promise, we will get that promise back.');
+  assert.equal(typeof startNormal, 'function', 'If we call start without a promise, it will return the stop function,');
+  assert.equal(typeof startNormal.setCollectorForTask, 'function', 'that has a function as well for setting the collector at a defered time.');
+  assert.deepEqual(startWithPromise, promise, 'But if pass a promise, we will get that promise back, with the callbacks attached.');
 
   assert.end();
 });
 
 tape('TIME TRACKER stop() / should stop the timer and return the time, if any', assert => {
   tracker.start('test_task');
-  const stopFromStartUnique = tracker.startUnique('fakeTask5');
-
+  const stopFromStart = tracker.start('fakeTask5');
   const stopNotExistentTask = tracker.stop('not_existent');
   const stopNotExistentTaskAndModifier = tracker.stop('test_task', 'mod');
-  const stopExistingTask = tracker.stop('test_task');
 
   assert.equal(typeof stopNotExistentTask, 'undefined', 'If we try to stop a timer that does not exist, we get undefined.');
   assert.equal(typeof stopNotExistentTaskAndModifier, 'undefined', 'If we try to stop a timer that does not exist, we get undefined.');
-  assert.equal(typeof stopExistingTask, 'number', 'But if we stop an existing task, we get a number.');
-  assert.equal(typeof stopFromStartUnique(), 'number', 'But if we stop an existing task from the startUnique() returned function, we get a number.');
+  assert.equal(typeof stopFromStart(), 'number', 'But if we stop an existing task from the startUnique() returned function, we get a number.');
 
   assert.end();
 });
