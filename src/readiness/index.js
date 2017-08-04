@@ -81,6 +81,8 @@ function GateContext() {
     gate.SDK_READY = Events.SDK_READY;
     gate.SDK_UPDATE = Events.SDK_UPDATE;
     gate.SDK_READY_TIMED_OUT = Events.SDK_READY_TIMED_OUT;
+    splits.SDK_SPLITS_ARRIVED = Events.SDK_SPLITS_ARRIVED;
+    segments.SDK_SEGMENTS_ARRIVED = Events.SDK_SEGMENTS_ARRIVED;
 
     // New Gate has been created, so increase the counter
     refCount++;
