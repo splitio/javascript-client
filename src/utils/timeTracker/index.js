@@ -143,8 +143,10 @@ const TrackerAPI = {
     } else {
       // If not, we return the stop function, as it will be stopped manually.
       result = this.stop.bind(this, task, taskUniqueId);
-      // and provide a way for a defered setup of the collector.
-      result.setCollectorForTask = this.setCollectorForTask.bind(this, task, taskUniqueId);
+      if (CALLBACKS[task] && !taskCollector) {
+        // and provide a way for a defered setup of the collector, if needed.
+        result.setCollectorForTask = this.setCollectorForTask.bind(this, task, taskUniqueId);
+      }
     }
 
     // We start the timer, with an uniqueId attached to it's name, and save tracking info for this task.
