@@ -22,14 +22,21 @@ const tracker = require('../../utils/timeTracker');
 const splitChangesService = require('../../services/splitChanges');
 const splitChangesRequest = require('../../services/splitChanges/get');
 
-function splitChangesFetcher(settings, since, shouldApplyTimeout = false, metricCollectors) {
-  let requestPromise = tracker.start(tracker.TaskNames.SPLITS_FETCH, metricCollectors, splitChangesService(splitChangesRequest(settings, since)));
+let firstFetch = true;
 
-  if (shouldApplyTimeout) {
-    requestPromise = timeout(settings.startup.requestTimeoutBeforeReady, requestPromise);
+function splitChangesFetcher(settings, since, shouldApplyTimeout = false, metricCollectors, isNode) {
+  let splitsPromise = splitChangesService(splitChangesRequest(settings, since));
+
+  if (isNode || firstFetch) {
+    tracker.start(tracker.TaskNames.SPLITS_FETCH, metricCollectors, splitsPromise);
+    firstFetch = false;
   }
 
-  return requestPromise.then(resp => resp.json());
+  if (shouldApplyTimeout) {
+    splitsPromise = timeout(settings.startup.requestTimeoutBeforeReady, splitsPromise);
+  }
+
+  return splitsPromise.then(resp => resp.json());
 }
 
 module.exports = splitChangesFetcher;

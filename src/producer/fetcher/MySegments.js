@@ -22,16 +22,23 @@ const tracker = require('../../utils/timeTracker');
 const mySegmentsService = require('../../services/mySegments');
 const mySegmentsRequest = require('../../services/mySegments/get');
 
+let firstFetch = true;
+
 const mySegmentsFetcher = (settings, shouldApplyTimeout = false, metricCollectors) => {
-  let requestPromise = tracker.start(tracker.TaskNames.MY_SEGMENTS_FETCH, metricCollectors, mySegmentsService(mySegmentsRequest(settings)));
+  let mySegmentsPromise = mySegmentsService(mySegmentsRequest(settings));
+
+  if (firstFetch) {
+    tracker.start(tracker.TaskNames.MY_SEGMENTS_FETCH, metricCollectors, mySegmentsPromise);
+    firstFetch = false;
+  }
 
   // Decorate with the timeout functionality if required
   if (shouldApplyTimeout) {
-    requestPromise = timeout(settings.startup.requestTimeoutBeforeReady, requestPromise);
+    mySegmentsPromise = timeout(settings.startup.requestTimeoutBeforeReady, mySegmentsPromise);
   }
 
   // Extract segment names
-  return requestPromise
+  return mySegmentsPromise
     .then(resp => resp.json())
     .then(json => json.mySegments.map(segment => segment.name));
 };

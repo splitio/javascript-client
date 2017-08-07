@@ -28,7 +28,8 @@ const instances = {};
 //
 // Create SDK instance based on the provided configurations
 //
-function SplitFactory(settings: Settings, storage: SplitStorage, gateFactory: any, readyTrackers: Object, sharedInstance: ?boolean) {
+function SplitFactory(settings: Settings, storage: SplitStorage, gateFactory: any, readyTrackers: Object, mainClientMetricCollectors: ?Object) {
+  const sharedInstance = !!mainClientMetricCollectors;
   const readiness = gateFactory(settings.startup.readyTimeout);
 
   // We are only interested in exposable EventEmitter
@@ -87,7 +88,7 @@ function SplitFactory(settings: Settings, storage: SplitStorage, gateFactory: an
     // Proto linkage of the EventEmitter to prevent any change
     Object.create(gate),
     // GetTreatment/s
-    ClientFactory(storage, metrics && metrics.collectors, settings),
+    ClientFactory(storage, metrics ? metrics.collectors : mainClientMetricCollectors, settings),
     // Utilities
     {
       // Ready promise
@@ -120,7 +121,10 @@ function SplitFactory(settings: Settings, storage: SplitStorage, gateFactory: an
     }
   );
 
-  return api;
+  return {
+    api,
+    metricCollectors: metrics && metrics.collectors
+  };
 }
 
 function SplitFacade(config: Object) {
@@ -134,7 +138,10 @@ function SplitFacade(config: Object) {
   const storage = StorageFactory(settings);
   const gateFactory = ReadinessGateFacade();
 
-  const defaultInstance = SplitFactory(settings, storage, gateFactory, readyLatencyTrackers);
+  const {
+    api: defaultInstance,
+    metricCollectors: mainClientMetricCollectors
+  } = SplitFactory(settings, storage, gateFactory, readyLatencyTrackers);
 
   log.info('New Split SDK instance created.');
 
@@ -156,7 +163,7 @@ function SplitFacade(config: Object) {
 
       if (!instances[instanceId]) {
         const sharedSettings = settings.overrideKey(key);
-        instances[instanceId] = SplitFactory(sharedSettings, storage.shared(sharedSettings), gateFactory, false, true);
+        instances[instanceId] = SplitFactory(sharedSettings, storage.shared(sharedSettings), gateFactory, false, mainClientMetricCollectors).api;
         log.info('New shared client instance created.');
       } else {
         log.debug('Retrieving existing SDK client.');
