@@ -43,11 +43,13 @@ tape('TIME TRACKER start() / should return the correct type', assert => {
   const promise = new Promise(res => {
     setTimeout(res, 500);
   });
-  const startNormal = tracker.start('fakeTask3');
+  const startNormal = tracker.start(tracker.TaskNames.SDK_READY);
+  const startNormalFake = tracker.start('fakeTask3');
   const startWithPromise = tracker.start('fakeTask4', false, promise);
 
   assert.equal(typeof startNormal, 'function', 'If we call start without a promise, it will return the stop function,');
-  assert.equal(typeof startNormal.setCollectorForTask, 'function', 'that has a function as well for setting the collector at a defered time.');
+  assert.equal(typeof startNormal.setCollectorForTask, 'function', 'that has a function as well for setting the collector at a defered time, because it has a registered cb but no collector received.');
+  assert.equal(typeof startNormalFake.setCollectorForTask, 'undefined', 'If no callback is registered for the task, no collectors setup function is attached to returned one.');
   assert.deepEqual(startWithPromise, promise, 'But if pass a promise, we will get that promise back, with the callbacks attached.');
 
   assert.end();
