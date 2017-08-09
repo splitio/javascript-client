@@ -30,6 +30,7 @@ const utils = require('../../../engine/murmur3');
 
   tape('MURMUR3 / validate hashing behavior using sample data', assert => {
     const parser = rl.createInterface({
+      terminal: false,
       input: fs.createReadStream(require.resolve(`../mocks/${filename}`))
     });
 
