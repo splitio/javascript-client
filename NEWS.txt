@@ -1,3 +1,7 @@
+## 9.3.2 (Aug 9, 2017)
+
+* Adding support for Node v0.10.X
+
 ## 9.3.1 (Jul 28, 2017)
 
 * Bugfixing - Fixed a bug on Manager API which was not retrieving the right treatments for a Split on some cases.
