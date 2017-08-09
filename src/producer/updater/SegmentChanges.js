@@ -20,6 +20,7 @@ limitations under the License.
 
 const log = require('../../utils/logger')('splitio-producer:segment-changes');
 const segmentChangesFetcher = require('../fetcher/SegmentChanges');
+const findIndex = require('core-js/library/fn/array/find-index');
 
 const SegmentChangesUpdaterFactory = (settings: Object, readiness: ReadinessGate, storage: SplitStorage) => {
   const segmentsEventEmitter = readiness.segments;
@@ -63,7 +64,7 @@ const SegmentChangesUpdaterFactory = (settings: Object, readiness: ReadinessGate
     }
 
     return Promise.all(updaters).then(shouldUpdateFlags => {
-      if (shouldUpdateFlags.findIndex(v => v !== -1) !== -1 || readyOnAlreadyExistentState) {
+      if (findIndex(shouldUpdateFlags, v => v !== -1) !== -1 || readyOnAlreadyExistentState) {
         readyOnAlreadyExistentState = false;
         segmentsEventEmitter.emit(segmentsEventEmitter.SDK_SEGMENTS_ARRIVED);
       }
