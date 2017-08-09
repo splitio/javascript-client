@@ -42,8 +42,8 @@ function SplitFactory(settings: Settings, storage: SplitStorage, gateFactory: an
     SDK_READY_TIMED_OUT
   } = gate;
 
+  const metrics = sharedInstance ? undefined : MetricsFactory(settings, storage); // Shared instances use parent metrics collectors
   let producer;
-  let metrics;
 
   switch(settings.mode) {
     case 'localhost':
@@ -51,8 +51,7 @@ function SplitFactory(settings: Settings, storage: SplitStorage, gateFactory: an
       break;
     case 'producer':
     case 'standalone': {
-      // We don't fully instantiate metrics and producer if we are creating a shared instance.
-      metrics = sharedInstance ? undefined : MetricsFactory(settings, storage);
+      // We don't fully instantiate producer if we are creating a shared instance.
       producer = sharedInstance ?
         PartialProducerFactory(settings, readiness, storage, metrics && metrics.collectors) :
         FullProducerFactory(settings, readiness, storage, metrics && metrics.collectors);
@@ -61,16 +60,15 @@ function SplitFactory(settings: Settings, storage: SplitStorage, gateFactory: an
     case 'consumer':
       break;
   }
-  // If we have received the readyTrackers (shared instances don't use them) and we have metrics for this instance storage
-  if (readyTrackers && metrics) {
+
+  if (readyTrackers && !sharedInstance) { // Only track ready events for non-shared clients
     const {
        sdkReadyTracker, splitsReadyTracker, segmentsReadyTracker
     } = readyTrackers;
 
-    // As we start tracking the time as soon as the Facade is called, and in that moment we don't have the metrics instantiated,
-    // we need to give the "collectors" to the tracking tools so it can setup the specific collector for this task.
+    // Defered setup of collectors for this task, as it is the only ready latency we store on BE.
     sdkReadyTracker.setCollectorForTask(metrics.collectors);
-    // We register to readiness gate events.
+
     gate.on(SDK_READY, sdkReadyTracker);
     splits.on(splits.SDK_SPLITS_ARRIVED, splitsReadyTracker);
     segments.on(segments.SDK_SEGMENTS_ARRIVED, segmentsReadyTracker);

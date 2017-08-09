@@ -28,6 +28,7 @@ function MySegmentsUpdaterFactory(settings: Object, readiness: ReadinessGate, st
   let startingUp = true;
 
   return function MySegmentsUpdater(retry: number = 0) {
+    // NOTE: We only collect metrics on startup.
     return mySegmentsFetcher(settings, startingUp, metricCollectors).then(segments => {
       // Only when we have downloaded segments completely, we should not keep
       // retrying anymore
