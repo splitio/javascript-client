@@ -28,6 +28,7 @@ const rl = require('readline');
 
   tape('MATCHER REGEX / validate regex behavior using sample data', assert => {
     const parser = rl.createInterface({
+      terminal: false,
       input: fs.createReadStream(require.resolve(`../mocks/${filename}`))
     });
 
