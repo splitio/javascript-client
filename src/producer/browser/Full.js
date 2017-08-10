@@ -28,9 +28,9 @@ const MySegmentsUpdater = require('../updater/MySegments');
 /**
  * Startup all the background jobs required for a Browser SDK instance.
  */
-const FullBrowserProducer = (settings: Object, readiness: ReadinessGate, storage: SplitStorage): Startable => {
-  const splitsUpdater = SplitChangesUpdater(settings, readiness, storage);
-  const segmentsUpdater = MySegmentsUpdater(settings, readiness, storage);
+const FullBrowserProducer = (settings: Object, readiness: ReadinessGate, storage: SplitStorage, metricCollectors: Object): Startable => {
+  const splitsUpdater = SplitChangesUpdater(settings, readiness, storage, metricCollectors);
+  const segmentsUpdater = MySegmentsUpdater(settings, readiness, storage, metricCollectors);
 
   const splitsUpdaterTask = TaskFactory(splitsUpdater, settings.scheduler.featuresRefreshRate);
   const segmentsUpdaterTask = TaskFactory(segmentsUpdater, settings.scheduler.segmentsRefreshRate);

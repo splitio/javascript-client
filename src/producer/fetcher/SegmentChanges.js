@@ -14,22 +14,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-// @flow
-
 'use strict';
 
 const segmentChangesService = require('../../services/segmentChanges');
 const segmentChangesRequest = require('../../services/segmentChanges/get');
 
-function greedyFetch(settings, lastSinceValue, segmentName) {
-  return segmentChangesService(segmentChangesRequest(settings, {
+const tracker = require('../../utils/timeTracker');
+
+function greedyFetch(settings, lastSinceValue, segmentName, metricCollectors) {
+  return tracker.start(tracker.TaskNames.SEGMENTS_FETCH, metricCollectors, segmentChangesService(segmentChangesRequest(settings, {
     since: lastSinceValue,
     segmentName
-  }))
+  })))
   .then(resp => resp.json())
   .then(json => {
     let {since, till} = json;
-
     if (since === till) {
       return [json];
     } else {
@@ -46,8 +45,8 @@ function greedyFetch(settings, lastSinceValue, segmentName) {
 }
 
 // @TODO migrate to a generator function and do the job incrementally
-function segmentChangesFetcher(settings: Object, segmentName: string, since: number) : Promise<SegmentChanges> {
-  return greedyFetch(settings, since, segmentName);
+function segmentChangesFetcher(settings, segmentName, since, metricCollectors) {
+  return greedyFetch(settings, since, segmentName, metricCollectors);
 }
 
 module.exports = segmentChangesFetcher;

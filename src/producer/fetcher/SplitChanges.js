@@ -14,28 +14,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-// @flow
-
 'use strict';
 
 const timeout = require('../../utils/promise/timeout');
-const tracker = require('../../utils/logger/timeTracker');
+const tracker = require('../../utils/timeTracker');
 
 const splitChangesService = require('../../services/splitChanges');
 const splitChangesRequest = require('../../services/splitChanges/get');
 
-function splitChangesFetcher(settings: Object, since: number, shouldApplyTimeout: boolean = false): Promise<SplitChanges> {
-  tracker.start(tracker.C.SPLITS_FETCH);
-  let requestPromise = splitChangesService(splitChangesRequest(settings, since));
+function splitChangesFetcher(settings, since, startingUp = false, metricCollectors, isNode) {
+  let splitsPromise = splitChangesService(splitChangesRequest(settings, since));
+  const collectMetrics = startingUp || isNode; // If we are on the browser, only collect this metric for first fetch. On node do it always.
 
-  if (shouldApplyTimeout) {
-    requestPromise = timeout(settings.startup.requestTimeoutBeforeReady, requestPromise);
+  tracker.start(tracker.TaskNames.SPLITS_FETCH, collectMetrics ? metricCollectors : false, splitsPromise);
+
+  if (startingUp) { // Decorate with the timeout functionality if required
+    splitsPromise = timeout(settings.startup.requestTimeoutBeforeReady, splitsPromise);
   }
 
-  return requestPromise.then(resp => {
-    tracker.stop(tracker.C.SPLITS_FETCH);
-    return resp;
-  }).then(resp => resp.json());
+  return splitsPromise.then(resp => resp.json());
 }
 
 module.exports = splitChangesFetcher;

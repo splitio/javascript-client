@@ -13,27 +13,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-
-// @flow
-
 'use strict';
 
-const now = require('../utils/now');
+const base = require('../request');
 
-const Timer = (collector?: StatsCache<number>): Function => {
-  return function start(): Function {
-    const st = now();
-
-    return function stop(): number {
-      const et = now() - st;
-
-      if (collector && collector.track) {
-        collector.track(et);
-      }
-
-      return et;
-    };
-  };
+module.exports = function POST(settings, params) {
+  return base(settings, '/metrics/times', Object.assign({
+    method: 'POST'
+  }, params));
 };
-
-module.exports = Timer;

@@ -9,8 +9,11 @@ const SegmentCacheInRedis = require('./SegmentCache/InRedis');
 const ImpressionsCacheInMemory = require('./ImpressionsCache/InMemory');
 const ImpressionsCacheInRedis = require('./ImpressionsCache/InRedis');
 
-const MetricsCacheInMemory = require('./MetricsCache/InMemory');
-const MetricsCacheInRedis = require('./MetricsCache/InRedis');
+const LatencyCacheInMemory = require('./LatencyCache/InMemory');
+const LatencyCacheInRedis = require('./LatencyCache/InRedis');
+
+const CountCacheInMemory = require('./CountCache/InMemory');
+const CountCacheInRedis = require('./CountCache/InRedis');
 
 const KeyBuilder = require('./Keys');
 
@@ -26,7 +29,8 @@ const NodeStorageFactory = (settings) => {
         splits: new SplitCacheInRedis(keys, redis),
         segments: new SegmentCacheInRedis(keys, redis),
         impressions: new ImpressionsCacheInRedis(keys, redis),
-        metrics: new MetricsCacheInRedis(keys, redis),
+        metrics: new LatencyCacheInRedis(keys, redis),
+        count: new CountCacheInRedis(keys, redis),
 
         // When using REDIS we should:
         // 1- Disconnect from the storage
@@ -37,7 +41,8 @@ const NodeStorageFactory = (settings) => {
           this.splits = new SplitCacheInMemory;
           this.segments = new SegmentCacheInMemory(keys);
           this.impressions = new ImpressionsCacheInMemory;
-          this.metrics = new MetricsCacheInMemory;
+          this.metrics = new LatencyCacheInMemory;
+          this.count = new CountCacheInMemory;
         }
       };
     }
@@ -48,7 +53,8 @@ const NodeStorageFactory = (settings) => {
         splits: new SplitCacheInMemory,
         segments: new SegmentCacheInMemory(keys),
         impressions: new ImpressionsCacheInMemory,
-        metrics: new MetricsCacheInMemory,
+        metrics: new LatencyCacheInMemory,
+        count: new CountCacheInMemory,
 
         // When using MEMORY we should flush all the storages and leave them empty
         destroy() {
@@ -56,6 +62,7 @@ const NodeStorageFactory = (settings) => {
           this.segments.flush();
           this.impressions.clear();
           this.metrics.clear();
+          this.count.clear();
         }
       };
   }

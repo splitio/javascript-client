@@ -1,40 +1,35 @@
-// @flow
-
-'use strict';
-
 const startsWith = require('core-js/library/fn/string/starts-with');
 
 const everythingAtTheEnd = /[^.]+$/;
-const everyDigitAtTheEnd = /\d+$/;
+const everythingAfterCount = /count\.([^\/]+)$/;
+const latencyMetricNameAndBucket = /latency\.([^\/]+)\.bucket\.([0-9]+)$/;
 
 class KeyBuilder {
-  settings: Settings;
-
-  constructor(settings: Settings) {
+  constructor(settings) {
     this.settings = settings;
   }
 
-  buildSplitKey(splitName: string): string {
+  buildSplitKey(splitName) {
     return `${this.settings.storage.prefix}.split.${splitName}`;
   }
 
-  buildSplitsTillKey(): string {
+  buildSplitsTillKey() {
     return `${this.settings.storage.prefix}.splits.till`;
   }
 
-  buildSplitsReady(): string {
+  buildSplitsReady() {
     return `${this.settings.storage.prefix}.splits.ready`;
   }
 
-  isSplitKey(key: string) {
+  isSplitKey(key) {
     return startsWith(key, `${this.settings.storage.prefix}.split.`);
   }
 
-  buildSegmentNameKey(segmentName: string) {
+  buildSegmentNameKey(segmentName) {
     return `${this.settings.storage.prefix}.segment.${segmentName}`;
   }
 
-  buildSegmentTillKey(segmentName: string) {
+  buildSegmentTillKey(segmentName) {
     return `${this.settings.storage.prefix}.segment.${segmentName}.till`;
   }
 
@@ -42,39 +37,55 @@ class KeyBuilder {
     return `${this.settings.storage.prefix}.segments.registered`;
   }
 
-  buildSegmentsReady(): string {
+  buildSegmentsReady() {
     return `${this.settings.storage.prefix}.segments.ready`;
   }
 
-  buildImpressionsKeyPrefix(): string {
-    return `${this.settings.storage.prefix}/${this.settings.version}/${this.settings.runtime.ip}/impressions`;
+  buildVersionablePrefix() {
+    return `${this.settings.storage.prefix}/${this.settings.version}/${this.settings.runtime.ip}`;
   }
 
-  buildImpressionsKey(splitName: string) {
-    return this.buildImpressionsKeyPrefix() + `.${splitName}`;
+  buildImpressionsKeyPrefix() {
+    return `${this.buildVersionablePrefix()}/impressions`;
   }
 
-  buildLatencyKeyPrefix(): string {
-    return `${this.settings.storage.prefix}/${this.settings.version}/${this.settings.runtime.ip}/latency`;
+  buildImpressionsKey(splitName) {
+    return `${this.buildImpressionsKeyPrefix()}.${splitName}`;
   }
 
-  buildLatencyKey(metricName: string, bucketNumber: number) {
-    return this.buildLatencyKeyPrefix() + `.${metricName}.bucket.${bucketNumber}`;
+  buildLatencyKeyPrefix() {
+    return `${this.buildVersionablePrefix()}/latency`;
   }
 
-  searchPatternForSplitKeys(): string {
+  buildLatencyKey(metricName, bucketNumber) {
+    return `${this.buildLatencyKeyPrefix()}.${metricName}.bucket.${bucketNumber}`;
+  }
+
+  buildCountKey(metricName) {
+    return `${this.buildVersionablePrefix()}/count.${metricName}`;
+  }
+
+  buildGaugeKey(metricName) {
+    return `${this.buildVersionablePrefix()}/gauge.${metricName}`;
+  }
+
+  searchPatternForCountKeys() {
+    return `${this.buildVersionablePrefix()}/count.*`;
+  }
+
+  searchPatternForSplitKeys() {
     return `${this.settings.storage.prefix}.split.*`;
   }
 
-  searchPatternForImpressions(): string {
-    return this.buildImpressionsKeyPrefix() + '.*';
+  searchPatternForImpressions() {
+    return `${this.buildImpressionsKeyPrefix()}.*`;
   }
 
-  searchPatternForLatency(): string {
-    return this.buildLatencyKeyPrefix() + '.*';
+  searchPatternForLatency() {
+    return `${this.buildLatencyKeyPrefix()}.*`;
   }
 
-  extractKey(builtKey: string): string {
+  extractKey(builtKey) {
     const s = builtKey.match(everythingAtTheEnd);
 
     if (s && s.length) {
@@ -84,13 +95,26 @@ class KeyBuilder {
     }
   }
 
-  extractBucketNumber(latencyKey: string) {
-    const m = latencyKey.match(everyDigitAtTheEnd);
+  extractCounterName(counterKey) {
+    const m = counterKey.match(everythingAfterCount);
 
     if (m && m.length) {
-      return parseInt(m[0], 10);
+      return m[1]; // everything after count
     } else {
-      throw 'Invalid latency key provided';
+      throw 'Invalid counter key provided';
+    }
+  }
+
+  extractLatencyMetricNameAndBucket(latencyKey) {
+    const parts = latencyKey.match(latencyMetricNameAndBucket);
+
+    if (parts && parts.length > 2) {
+      return {
+        metricName: parts[1],
+        bucketNumber: parts[2]
+      };
+    } else {
+      throw 'Invalid counter key provided';
     }
   }
 }

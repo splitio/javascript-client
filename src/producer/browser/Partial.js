@@ -24,8 +24,8 @@ const MySegmentsUpdater = require('../updater/MySegments');
 /**
  * Incremental updater to be used to share data in the browser.
  */
-const PartialBrowserProducer = (settings: Object, readiness: ReadinessGate, storage: SplitStorage): Startable => {
-  const segmentsUpdater = MySegmentsUpdater(settings, readiness, storage);
+const PartialBrowserProducer = (settings: Object, readiness: ReadinessGate, storage: SplitStorage, metricCollectors: Object): Startable => {
+  const segmentsUpdater = MySegmentsUpdater(settings, readiness, storage, metricCollectors);
   const segmentsUpdaterTask = TaskFactory(segmentsUpdater, settings.scheduler.segmentsRefreshRate);
 
   return segmentsUpdaterTask;

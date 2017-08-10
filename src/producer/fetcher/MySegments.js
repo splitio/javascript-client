@@ -14,33 +14,28 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-// @flow
-
 'use strict';
 
 const timeout = require('../../utils/promise/timeout');
-const tracker = require('../../utils/logger/timeTracker');
+const tracker = require('../../utils/timeTracker');
 
 const mySegmentsService = require('../../services/mySegments');
 const mySegmentsRequest = require('../../services/mySegments/get');
 
-const mySegmentsFetcher = (settings: Object, shouldApplyTimeout: boolean = false) : Promise<MySegments> => {
-  tracker.start(tracker.C.SEGMENTS_FETCH);
-  let requestPromise = mySegmentsService(mySegmentsRequest(settings));
+const mySegmentsFetcher = (settings, startingUp = false, metricCollectors) => {
+  let mySegmentsPromise = mySegmentsService(mySegmentsRequest(settings));
+
+  tracker.start(tracker.TaskNames.MY_SEGMENTS_FETCH, startingUp ? metricCollectors : false, mySegmentsPromise);
 
   // Decorate with the timeout functionality if required
-  if (shouldApplyTimeout) {
-    requestPromise = timeout(settings.startup.requestTimeoutBeforeReady, requestPromise);
+  if (startingUp) {
+    mySegmentsPromise = timeout(settings.startup.requestTimeoutBeforeReady, mySegmentsPromise);
   }
 
   // Extract segment names
-  return requestPromise
-    .then(resp => {
-      tracker.stop(tracker.C.SEGMENTS_FETCH);
-      return resp;
-    })
+  return mySegmentsPromise
     .then(resp => resp.json())
-    .then((json: Object): MySegments => json.mySegments.map(segment => segment.name));
+    .then(json => json.mySegments.map(segment => segment.name));
 };
 
 module.exports = mySegmentsFetcher;
