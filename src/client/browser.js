@@ -7,11 +7,11 @@ const get = require('lodash/get');
 const ClientFactory = require('./client');
 const keyParser = require('../utils/key/parser');
 
-function FixKey(storage: SplitStorage, settings: Object): SplitClient {
+function FixKey(storage: SplitStorage, metricCollectors, settings: Object): SplitClient {
   // In the browser land, the key is required
   keyParser(get(settings, 'core.key', undefined));
 
-  const client = ClientFactory(storage);
+  const client = ClientFactory(storage, metricCollectors);
 
   client.isBrowserClient = true;
   client.getTreatment = client.getTreatment.bind(client, settings.core.key);

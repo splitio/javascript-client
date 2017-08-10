@@ -48,12 +48,12 @@ function getTreatmentAvailable(
   return evaluation.treatment;
 }
 
-function ClientFactory(storage: SplitStorage): SplitClient {
+function ClientFactory(storage: SplitStorage, metricCollectors): SplitClient {
   const impressionsTracker = PassTracker(storage.impressions);
 
   return {
     getTreatment(key: SplitKey, splitName: string, attributes: ?Object): AsyncValue<string> {
-      const stopLatencyTracker = tracker.startUnique(tracker.TaskNames.SDK_GET_TREATMENT);
+      const stopLatencyTracker = tracker.start(tracker.TaskNames.SDK_GET_TREATMENT, metricCollectors);
       const evaluation = evaluator(key, splitName, attributes, storage);
 
       if (thenable(evaluation)) {

@@ -22,14 +22,17 @@ const tracker = require('../../utils/timeTracker');
 const splitChangesService = require('../../services/splitChanges');
 const splitChangesRequest = require('../../services/splitChanges/get');
 
-function splitChangesFetcher(settings, since, shouldApplyTimeout = false) {
-  let requestPromise = tracker.start(tracker.TaskNames.SPLITS_FETCH, splitChangesService(splitChangesRequest(settings, since)));
+function splitChangesFetcher(settings, since, startingUp = false, metricCollectors, isNode) {
+  let splitsPromise = splitChangesService(splitChangesRequest(settings, since));
+  const collectMetrics = startingUp || isNode; // If we are on the browser, only collect this metric for first fetch. On node do it always.
 
-  if (shouldApplyTimeout) {
-    requestPromise = timeout(settings.startup.requestTimeoutBeforeReady, requestPromise);
+  tracker.start(tracker.TaskNames.SPLITS_FETCH, collectMetrics ? metricCollectors : false, splitsPromise);
+
+  if (startingUp) { // Decorate with the timeout functionality if required
+    splitsPromise = timeout(settings.startup.requestTimeoutBeforeReady, splitsPromise);
   }
 
-  return requestPromise.then(resp => resp.json());
+  return splitsPromise.then(resp => resp.json());
 }
 
 module.exports = splitChangesFetcher;

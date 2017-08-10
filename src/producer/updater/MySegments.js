@@ -21,14 +21,15 @@ limitations under the License.
 const log = require('../../utils/logger')('splitio-producer:my-segments');
 const mySegmentsFetcher = require('../fetcher/MySegments');
 
-function MySegmentsUpdaterFactory(settings: Object, readiness: ReadinessGate, storage: SplitStorage) {
+function MySegmentsUpdaterFactory(settings: Object, readiness: ReadinessGate, storage: SplitStorage, metricCollectors: Object) {
   const segmentsEventEmitter = readiness.segments;
 
   let readyOnAlreadyExistentState = true;
   let startingUp = true;
 
   return function MySegmentsUpdater(retry: number = 0) {
-    return mySegmentsFetcher(settings, startingUp).then(segments => {
+    // NOTE: We only collect metrics on startup.
+    return mySegmentsFetcher(settings, startingUp, metricCollectors).then(segments => {
       // Only when we have downloaded segments completely, we should not keep
       // retrying anymore
       startingUp = false;
