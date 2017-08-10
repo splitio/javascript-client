@@ -127,7 +127,7 @@ tape('PARSER / if user is in segment ["u1", "u2", "u3", "u4"] then split 100%:on
       treatment: 'on',
       size: 100
     }],
-    label: 'explicitly included'
+    label: 'whitelisted'
   }]);
 
   let evaluation = await evaluator(keyParser('a key'), 31, 100, 31);
@@ -140,7 +140,7 @@ tape('PARSER / if user is in segment ["u1", "u2", "u3", "u4"] then split 100%:on
   assert.true(evaluation.treatment === 'on', "treatment should be evaluated to 'on'");
 
   evaluation = await evaluator(keyParser('u3'), 31, 100, 31);
-  assert.true(evaluation.label === 'explicitly included', "label should be evaluated to 'explicitly included'");
+  assert.true(evaluation.label === 'whitelisted', "label should be evaluated to 'whitelisted'");
   assert.end();
 
 });
@@ -168,7 +168,7 @@ tape('PARSER / NEGATED if user is in segment ["u1", "u2", "u3", "u4"] then split
       treatment: 'on',
       size: 100
     }],
-    label: 'explicitly included'
+    label: 'whitelisted'
   }]);
 
   let evaluation = await evaluator(keyParser('a key'), 31, 100, 31);
@@ -214,14 +214,14 @@ tape('PARSER / if user.account is in list ["v1", "v2", "v3"] then split 100:on',
       treatment: 'on',
       size: 100
     }],
-    label: 'explicitly included'
+    label: 'whitelisted'
   }]);
 
   let evaluation = await evaluator(keyParser('test@split.io'), 31, 100, 31, {
     account: 'v1'
   });
   assert.true(evaluation.treatment === 'on', 'v1 is defined in the whitelist');
-  assert.true(evaluation.label === 'explicitly included', 'label should be "explicitly included"');
+  assert.true(evaluation.label === 'whitelisted', 'label should be "whitelisted"');
 
   evaluation = await evaluator(keyParser('v1'), 31, 100, 31);
   assert.true(evaluation === undefined, 'we are looking for v1 inside the account attribute');
@@ -263,7 +263,7 @@ tape('PARSER / NEGATED if user.account is in list ["v1", "v2", "v3"] then split 
       treatment: 'on',
       size: 100
     }],
-    label: 'explicitly included'
+    label: 'whitelisted'
   }]);
 
   let evaluation = await evaluator(keyParser('test@split.io'), 31, 100, 31, {
@@ -273,13 +273,13 @@ tape('PARSER / NEGATED if user.account is in list ["v1", "v2", "v3"] then split 
 
   evaluation = await evaluator(keyParser('v1'), 31, 100, 31);
   assert.true(evaluation.treatment === 'on', 'we are looking for v1 inside the account attribute');
-  assert.true(evaluation.label === 'explicitly included', 'label should be "explicitly included"');
+  assert.true(evaluation.label === 'whitelisted', 'label should be "whitelisted"');
 
   evaluation = await evaluator(keyParser('test@split.io'), 31, 100, 31, {
     account: 'v4'
   });
   assert.true(evaluation.treatment === 'on', 'v4 is not defined in the whitelist');
-  assert.true(evaluation.label === 'explicitly included', 'label should be "explicitly included"');
+  assert.true(evaluation.label === 'whitelisted', 'label should be "whitelisted"');
 
   assert.end();
 
