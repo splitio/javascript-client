@@ -72,6 +72,7 @@ const splitio = require('@splitsoftware/splitio/migration');
 ### Usage documentation
 - [Getting stared](http://docs.split.io/docs/getting-started)
 - [JS SDK overview](http://docs.split.io/docs/javascript-sdk-overview)
+- [NodeJS SDK overview](http://docs.split.io/docs/nodejs-sdk-overview)
 
 
 ### Release documentation
