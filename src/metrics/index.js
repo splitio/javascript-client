@@ -19,46 +19,69 @@ limitations under the License.
 'use strict';
 
 const log = require('../utils/logger')('splitio-metrics');
-const tracker = require('../utils/logger/timeTracker');
+const tracker = require('../utils/timeTracker');
 
 const repeat = require('../utils/fn/repeat');
 
 const metricsService = require('../services/metrics');
-const metricsServiceRequest = require('../services/metrics/post');
+const metricsTimesServiceRequest = require('../services/metrics/times');
+const metricsCountersServiceRequest = require('../services/metrics/counters');
 const metricsDTO = require('../services/metrics/dto');
 
 const impressionsService = require('../services/impressions');
 const impressionsBulkRequest = require('../services/impressions/bulk');
 const impressionsDTO = require('../services/impressions/dto');
 
+const {
+  SegmentChangesCollector,
+  SplitChangesCollector,
+  MySegmentsCollector,
+  SDKCollector
+} = require('./Collectors');
+
 const MetricsFactory = (settings: Object, storage: SplitStorage): Startable => {
   const pushMetrics = (): Promise<void> => {
-    if (storage.metrics.isEmpty()) return Promise.resolve();
+    if (storage.metrics.isEmpty() && storage.count.isEmpty()) return Promise.resolve();
 
     log.info('Pushing metrics');
-    tracker.start(tracker.C.METRICS_PUSH);
+    const latencyTrackerStop = tracker.start(tracker.TaskNames.METRICS_PUSH);
 
-    return metricsService(metricsServiceRequest(settings, {
-      body: JSON.stringify(metricsDTO.fromGetTreatmentCollector(storage.metrics))
-    }))
-    .then(() => {
-      tracker.stop(tracker.C.METRICS_PUSH);
-      return storage.metrics.clear();
-    })
+    // POST latencies
+    const latenciesPromise = storage.metrics.isEmpty() ? null : metricsService(
+      metricsTimesServiceRequest(settings, {
+        body: JSON.stringify(metricsDTO.fromLatenciesCollector(storage.metrics))
+      }
+    ))
+    .then(() => storage.metrics.clear())
     .catch(() => storage.metrics.clear());
+
+    // POST counters
+    const countersPromise = storage.count.isEmpty() ? null : metricsService(
+      metricsCountersServiceRequest(settings, {
+        body: JSON.stringify(metricsDTO.fromCountersCollector(storage.count))
+      }
+    ))
+    .then(() => storage.count.clear())
+    .catch(() => storage.count.clear());
+
+    return Promise.all([latenciesPromise, countersPromise]).then(resp => {
+      // After both finishes, track the end and return the results
+      latencyTrackerStop();
+      return resp;
+    });
   };
 
   const pushImpressions = (): Promise<void> => {
     if (storage.impressions.isEmpty()) return Promise.resolve();
 
     log.info(`Pushing ${storage.impressions.queue.length} impressions`);
-    tracker.start(tracker.C.IMPRESSIONS_PUSH);
+    const latencyTrackerStop = tracker.start(tracker.TaskNames.IMPRESSIONS_PUSH);
 
     return impressionsService(impressionsBulkRequest(settings, {
       body: JSON.stringify(impressionsDTO.fromImpressionsCollector(storage.impressions, settings))
     }))
     .then(() => {
-      tracker.stop(tracker.C.IMPRESSIONS_PUSH);
+      latencyTrackerStop();
       return storage.impressions.clear();
     })
     .catch(() => storage.impressions.clear());
@@ -87,6 +110,14 @@ const MetricsFactory = (settings: Object, storage: SplitStorage): Startable => {
     stop() {
       stopImpressionsPublisher && stopImpressionsPublisher();
       stopPerformancePublisher && stopPerformancePublisher();
+    },
+
+    // Metrics collectors
+    collectors: {
+      segmentChanges: new SegmentChangesCollector(storage),
+      splitChanges: new SplitChangesCollector(storage),
+      mySegments: new MySegmentsCollector(storage),
+      SDK: new SDKCollector(storage)
     }
   };
 };

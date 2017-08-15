@@ -13,32 +13,26 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-// @flow
-
-'use strict';
-
 const findIndex = require('./findIndex');
 
-class MetricsCacheInRedis {
-  redis: IORedis;
-  keys: KeyBuilder;
+class LatencyCacheInRedis {
 
-  constructor(keys: KeyBuilder, redis: IORedis) {
+  constructor(keys, redis) {
     this.keys = keys;
     this.redis = redis;
   }
 
-  scanKeys(): Promise<Array<string>> {
+  scanKeys() {
     return this.redis.keys(this.keys.searchPatternForLatency());
   }
 
-  track(latency: number, metricName: string = 'getTreatment'): Promise<number> {
+  track(metricName, latency) {
     const bucketNumber = findIndex(latency);
 
     return this.redis.incr(this.keys.buildLatencyKey(metricName, bucketNumber));
   }
 
-  async clear(): Promise<number> {
+  async clear() {
     const currentKeys = await this.scanKeys();
 
     if (currentKeys.length)
@@ -47,29 +41,34 @@ class MetricsCacheInRedis {
     return 0;
   }
 
-  async state(): Promise<Array<number>> {
+  async state() {
+    const results = {};
     const currentKeys = await this.scanKeys();
-    const buckets = [
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-    ];
+    const currentCounters = await this.redis.pipeline(currentKeys.map(k => ['get', k])).exec();
 
-    let counters = await this.redis.pipeline(currentKeys.map(k => ['get', k])).exec();
-
-    counters = counters.map(([err, value]) => (err === null) ? parseInt(value, 10) : -1);
+    const counters = currentCounters.map(([err, value]) => (err === null) ? parseInt(value, 10) : -1);
 
     for (const entryIndex in currentKeys) {
-      const bucketNumber = this.keys.extractBucketNumber(currentKeys[entryIndex]);
+      const { metricName, bucketNumber } = this.keys.extractLatencyMetricNameAndBucket(currentKeys[entryIndex]);
       const counter = counters[entryIndex];
 
-      if (counter > 0) buckets[bucketNumber] = counter;
+      if (counter > 0) {
+        if (results[metricName] === undefined) {
+          results[metricName] = [
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+          ];
+        }
+
+        results[metricName][bucketNumber] = counter;
+      }
     }
 
-    return buckets;
+    return results;
   }
 
-  isEmpty(): Promise<boolean> {
+  isEmpty() {
     return this.scanKeys().then(els => els.length === 0);
   }
 }
 
-module.exports = MetricsCacheInRedis;
+module.exports = LatencyCacheInRedis;

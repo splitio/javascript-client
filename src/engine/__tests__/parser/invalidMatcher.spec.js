@@ -77,7 +77,7 @@ tape('PARSER / handle invalid matcher as control (complex example)', async funct
           "size": 100
         }
       ],
-      "label": "explicitly included"
+      "label": "whitelisted"
     },
     {
       "conditionType": "WHITELIST",
@@ -105,7 +105,7 @@ tape('PARSER / handle invalid matcher as control (complex example)', async funct
           "size": 100
         }
       ],
-      "label": "explicitly included"
+      "label": "whitelisted"
     },
     {
       "conditionType": "ROLLOUT",
@@ -179,7 +179,7 @@ tape('PARSER / handle invalid matcher as control (complex example mixing invalid
           "size": 100
         }
       ],
-      "label": "explicitly included"
+      "label": "whitelisted"
     },
     {
       "conditionType": "WHITELIST",
@@ -207,7 +207,7 @@ tape('PARSER / handle invalid matcher as control (complex example mixing invalid
           "size": 100
         }
       ],
-      "label": "explicitly included"
+      "label": "whitelisted"
     },
     {
       "conditionType": "ROLLOUT",

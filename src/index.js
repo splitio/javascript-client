@@ -20,7 +20,7 @@ const ReadinessGateFacade = require('./readiness');
 const keyParser = require('./utils/key/parser');
 const Logger = require('./utils/logger');
 const log = Logger('splitio');
-const tracker = require('./utils/logger/timeTracker');
+const tracker = require('./utils/timeTracker');
 
 // cache instances created
 const instances = {};
@@ -28,11 +28,12 @@ const instances = {};
 //
 // Create SDK instance based on the provided configurations
 //
-function SplitFactory(settings: Settings, storage: SplitStorage, gateFactory: any, sharedInstance: ?boolean) {
+function SplitFactory(settings: Settings, storage: SplitStorage, gateFactory: any, readyTrackers: Object, mainClientMetricCollectors: ?Object) {
+  const sharedInstance = !!mainClientMetricCollectors;
   const readiness = gateFactory(settings.startup.readyTimeout);
 
   // We are only interested in exposable EventEmitter
-  const { gate } = readiness;
+  const { gate, splits, segments } = readiness;
 
   // Events name
   const {
@@ -41,8 +42,8 @@ function SplitFactory(settings: Settings, storage: SplitStorage, gateFactory: an
     SDK_READY_TIMED_OUT
   } = gate;
 
+  const metrics = sharedInstance ? undefined : MetricsFactory(settings, storage); // Shared instances use parent metrics collectors
   let producer;
-  let metrics;
 
   switch(settings.mode) {
     case 'localhost':
@@ -50,16 +51,29 @@ function SplitFactory(settings: Settings, storage: SplitStorage, gateFactory: an
       break;
     case 'producer':
     case 'standalone': {
-      // We don't fully instantiate metrics and producer if we are creating a shared instance.
+      // We don't fully instantiate producer if we are creating a shared instance.
       producer = sharedInstance ?
-        PartialProducerFactory(settings, readiness, storage) :
-        FullProducerFactory(settings, readiness, storage);
-      metrics = sharedInstance ? undefined : MetricsFactory(settings, storage);
+        PartialProducerFactory(settings, readiness, storage, metrics && metrics.collectors) :
+        FullProducerFactory(settings, readiness, storage, metrics && metrics.collectors);
       break;
     }
     case 'consumer':
       break;
   }
+
+  if (readyTrackers && !sharedInstance) { // Only track ready events for non-shared clients
+    const {
+       sdkReadyTracker, splitsReadyTracker, segmentsReadyTracker
+    } = readyTrackers;
+
+    // Defered setup of collectors for this task, as it is the only ready latency we store on BE.
+    sdkReadyTracker.setCollectorForTask(metrics.collectors);
+
+    gate.on(SDK_READY, sdkReadyTracker);
+    splits.on(splits.SDK_SPLITS_ARRIVED, splitsReadyTracker);
+    segments.on(segments.SDK_SEGMENTS_ARRIVED, segmentsReadyTracker);
+  }
+
   // Start background jobs tasks
   producer && producer.start();
   metrics && metrics.start();
@@ -68,13 +82,11 @@ function SplitFactory(settings: Settings, storage: SplitStorage, gateFactory: an
   const readyFlag = sharedInstance ? Promise.resolve() :
     new Promise(resolve => gate.on(SDK_READY, resolve));
 
-  gate.on(SDK_READY, () => tracker.stop(tracker.C.SDK_READY));
-
   const api = Object.assign(
     // Proto linkage of the EventEmitter to prevent any change
     Object.create(gate),
-    // GetTreatment
-    ClientFactory(storage, settings),
+    // GetTreatment/s
+    ClientFactory(storage, metrics ? metrics.collectors : mainClientMetricCollectors, settings),
     // Utilities
     {
       // Ready promise
@@ -107,20 +119,27 @@ function SplitFactory(settings: Settings, storage: SplitStorage, gateFactory: an
     }
   );
 
-  return api;
+  return {
+    api,
+    metricCollectors: metrics && metrics.collectors
+  };
 }
 
 function SplitFacade(config: Object) {
-  // Tracking times.
-  tracker.start(tracker.C.SDK_READY);
-  tracker.start(tracker.C.SPLITS_READY);
-  tracker.start(tracker.C.SEGMENTS_READY);
-
+  // Tracking times. We need to do it here because we need the storage created.
+  const readyLatencyTrackers = {
+    splitsReadyTracker: tracker.start(tracker.TaskNames.SPLITS_READY),
+    segmentsReadyTracker: tracker.start(tracker.TaskNames.SEGMENTS_READY),
+    sdkReadyTracker: tracker.start(tracker.TaskNames.SDK_READY)
+  };
   const settings = SettingsFactory(config);
   const storage = StorageFactory(settings);
   const gateFactory = ReadinessGateFacade();
 
-  const defaultInstance = SplitFactory(settings, storage, gateFactory);
+  const {
+    api: defaultInstance,
+    metricCollectors: mainClientMetricCollectors
+  } = SplitFactory(settings, storage, gateFactory, readyLatencyTrackers);
 
   log.info('New Split SDK instance created.');
 
@@ -142,7 +161,7 @@ function SplitFacade(config: Object) {
 
       if (!instances[instanceId]) {
         const sharedSettings = settings.overrideKey(key);
-        instances[instanceId] = SplitFactory(sharedSettings, storage.shared(sharedSettings), gateFactory, true);
+        instances[instanceId] = SplitFactory(sharedSettings, storage.shared(sharedSettings), gateFactory, false, mainClientMetricCollectors).api;
         log.info('New shared client instance created.');
       } else {
         log.debug('Retrieving existing SDK client.');

@@ -15,11 +15,34 @@ limitations under the License.
 **/
 'use strict';
 
+const forOwn = require('lodash/forOwn');
+
 module.exports = {
-  fromGetTreatmentCollector(collector) {
-    return {
-      name: 'sdk.getTreatment',
-      latencies: collector
-    };
+  fromLatenciesCollector(latenciesCollector) {
+    const result = [];
+    const metrics = latenciesCollector.toJSON();
+
+    forOwn(metrics, (latencies, key) => {
+      result.push({
+        name: key,
+        latencies
+      });
+    });
+
+    return result;
+  },
+
+  fromCountersCollector(countersCollector) {
+    const result = [];
+    const metrics = countersCollector.toJSON();
+
+    forOwn(metrics, (delta, key) => {
+      result.push({
+        name: key,
+        delta
+      });
+    });
+
+    return result;
   }
 };

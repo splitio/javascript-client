@@ -5,7 +5,8 @@ const SegmentCacheInMemory = require('./SegmentCache/InMemory');
 const SegmentCacheInLocalStorage = require('./SegmentCache/InLocalStorage');
 
 const ImpressionsCacheInMemory = require('./ImpressionsCache/InMemory');
-const MetricsCacheInMemory = require('./MetricsCache/InMemory');
+const LatencyCacheInMemory = require('./LatencyCache/InMemory');
+const CountCacheInMemory = require('./CountCache/InMemory');
 
 const KeyBuilder = require('./Keys');
 const KeyBuilderLocalStorage = require('./KeysLocalStorage');
@@ -21,7 +22,8 @@ const BrowserStorageFactory = (settings) => {
         splits: new SplitCacheInMemory,
         segments: new SegmentCacheInMemory(keys),
         impressions: new ImpressionsCacheInMemory,
-        metrics: new MetricsCacheInMemory,
+        metrics: new LatencyCacheInMemory,
+        count: new CountCacheInMemory,
 
         // When using shared instanciation with MEMORY we reuse everything but segments (they are customer per key).
         shared(settings) {
@@ -32,6 +34,7 @@ const BrowserStorageFactory = (settings) => {
             segments: new SegmentCacheInMemory(childKeyBuilder),
             impressions: this.impressions,
             metrics: this.metrics,
+            count: this.count,
 
             destroy() {
               this.splits = new SplitCacheInMemory;
@@ -45,6 +48,7 @@ const BrowserStorageFactory = (settings) => {
           this.segments.flush();
           this.impressions.clear();
           this.metrics.clear();
+          this.count.clear();
         }
       };
     }
@@ -56,7 +60,8 @@ const BrowserStorageFactory = (settings) => {
         splits: new SplitCacheInLocalStorage(keys),
         segments: new SegmentCacheInLocalStorage(keys),
         impressions: new ImpressionsCacheInMemory,
-        metrics: new MetricsCacheInMemory,
+        metrics: new LatencyCacheInMemory,
+        count: new CountCacheInMemory,
 
         // When using shared instanciation with MEMORY we reuse everything but segments (they are customer per key).
         shared(settings) {
@@ -67,6 +72,7 @@ const BrowserStorageFactory = (settings) => {
             segments: new SegmentCacheInLocalStorage(childKeysBuilder),
             impressions: this.impressions,
             metrics: this.metrics,
+            count: this.count,
 
             destroy() {
               this.splits = new SplitCacheInMemory;
@@ -80,6 +86,7 @@ const BrowserStorageFactory = (settings) => {
           this.segments = new SegmentCacheInMemory(new KeyBuilder(settings));
           this.impressions.clear();
           this.metrics.clear();
+          this.count.clear();
         }
       };
     }

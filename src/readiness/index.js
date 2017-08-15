@@ -3,7 +3,7 @@
 'use strict';
 
 const EventEmitter = require('events').EventEmitter;
-const tracker = require('../utils/logger/timeTracker');
+const tracker = require('../utils/timeTracker');
 
 const SPLITS_READY = 2;
 const SEGMENTS_READY = 4;
@@ -52,13 +52,13 @@ function GateContext() {
     });
 
     splits.on(Events.SDK_SPLITS_ARRIVED, () => {
-      tracker.stop(tracker.C.SPLITS_READY);
+      tracker.stop(tracker.TaskNames.SPLITS_READY);
       splitsStatus = SPLITS_READY;
       gate.emit(Events.READINESS_GATE_CHECK_STATE);
     });
 
     segments.on(Events.SDK_SEGMENTS_ARRIVED, () => {
-      tracker.stop(tracker.C.SEGMENTS_READY);
+      tracker.stop(tracker.TaskNames.SEGMENTS_READY);
       segmentsStatus = SEGMENTS_READY;
       gate.emit(Events.READINESS_GATE_CHECK_STATE);
     });
@@ -81,6 +81,8 @@ function GateContext() {
     gate.SDK_READY = Events.SDK_READY;
     gate.SDK_UPDATE = Events.SDK_UPDATE;
     gate.SDK_READY_TIMED_OUT = Events.SDK_READY_TIMED_OUT;
+    splits.SDK_SPLITS_ARRIVED = Events.SDK_SPLITS_ARRIVED;
+    segments.SDK_SEGMENTS_ARRIVED = Events.SDK_SEGMENTS_ARRIVED;
 
     // New Gate has been created, so increase the counter
     refCount++;

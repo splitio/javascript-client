@@ -22,7 +22,7 @@ const log = require('../../utils/logger')('splitio-producer:segment-changes');
 const segmentChangesFetcher = require('../fetcher/SegmentChanges');
 const findIndex = require('core-js/library/fn/array/find-index');
 
-const SegmentChangesUpdaterFactory = (settings: Object, readiness: ReadinessGate, storage: SplitStorage) => {
+const SegmentChangesUpdaterFactory = (settings: Object, readiness: ReadinessGate, storage: SplitStorage, metricCollectors: Object) => {
   const segmentsEventEmitter = readiness.segments;
 
   let readyOnAlreadyExistentState = true;
@@ -41,7 +41,7 @@ const SegmentChangesUpdaterFactory = (settings: Object, readiness: ReadinessGate
 
       log.debug(`Processing segment ${segmentName}`);
 
-      updaters.push(segmentChangesFetcher(settings, segmentName, since).then(async function (changes: SegmentChanges) {
+      updaters.push(segmentChangesFetcher(settings, segmentName, since, metricCollectors).then(async function (changes: SegmentChanges) {
         let changeNumber = -1;
 
         for (let x of changes) {

@@ -16,10 +16,10 @@ limitations under the License.
 'use strict';
 
 const Redis = require('ioredis');
-const tape = require('tape-catch');
+const tape = require('tape');
 
 const KeyBuilder = require('../../../Keys');
-const MetricsCacheInRedis = require('../../../MetricsCache/InRedis');
+const CountCacheInRedis = require('../../../CountCache/InRedis');
 
 const SettingsFactory = require('../../../../utils/settings');
 const settings = SettingsFactory({
@@ -28,30 +28,27 @@ const settings = SettingsFactory({
   }
 });
 
-tape('METRICS CACHE IN REDIS / Given a value it should increment by one the correct bucket', async function(assert) {
+tape('COUNT CACHE IN REDIS / cover basic behavior', async function(assert) {
   const connection = new Redis(settings.storage.options);
   const keys = new KeyBuilder(settings);
-  const cache = new MetricsCacheInRedis(keys, connection);
+  const cache = new CountCacheInRedis(keys, connection);
   let state;
 
   await cache.clear();
 
-  await cache.track(1);
+  await cache.track('counted-metric-one');
+  await cache.track('counted-metric-one');
+
   state = await cache.state();
 
-  assert.true(state[0] === 1, 'the bucket #0 should have 1');
+  assert.equal(state['counted-metric-one'], 2);
 
-  await cache.track(1.5);
-  state = await cache.state();
-  assert.true(state[1] === 1, 'the bucket #1 should have 1');
+  await cache.track('counted-metric-two');
 
-  await cache.track(2.25);
   state = await cache.state();
-  assert.true(state[2] === 1, 'the bucket #3 should have 1');
 
-  await cache.track(985251);
-  state = await cache.state();
-  assert.true(state[22] === 1, 'the bucket #22 should have 1');
+  assert.equal(state['counted-metric-one'], 2);
+  assert.equal(state['counted-metric-two'], 1);
 
   connection.quit();
   assert.end();

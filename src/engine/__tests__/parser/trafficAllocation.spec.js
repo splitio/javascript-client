@@ -100,7 +100,7 @@ tape('PARSER / if user is in segment all 100%:on but trafficAllocation is 99% an
   assert.end();
 });
 
-tape('PARSER / if user is explicitly included and in segment all 100%:off with trafficAllocation as 0%', async function (assert) {
+tape('PARSER / if user is whitelisted and in segment all 100%:off with trafficAllocation as 0%', async function (assert) {
 
   const evaluator = parser([{
     conditionType: 'WHITELIST',
@@ -121,7 +121,7 @@ tape('PARSER / if user is explicitly included and in segment all 100%:off with t
       treatment: 'on',
       size: 100
     }],
-    label: 'explicitly included'
+    label: 'whitelisted'
   }, {
     conditionType: 'ROLLOUT',
     matcherGroup: {
@@ -143,6 +143,6 @@ tape('PARSER / if user is explicitly included and in segment all 100%:off with t
   const evaluation = await evaluator(keyParser('a key'), 31, 0, 31);
 
   assert.equal(evaluation.treatment, 'on', "evaluator should return treatment 'on' as whitelisting has more priority than traffic allocation");
-  assert.equal(evaluation.label, 'explicitly included', "evaluator should return label 'explicitly included'");
+  assert.equal(evaluation.label, 'whitelisted', "evaluator should return label 'whitelisted'");
   assert.end();
 });

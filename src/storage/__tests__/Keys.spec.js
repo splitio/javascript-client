@@ -81,7 +81,7 @@ tape('KEYS / segments keys', function (assert) {
   assert.end();
 });
 
-tape('KEYS / impressions & metrics keys', function (assert) {
+tape('KEYS / impressions', function (assert) {
   const prefix = 'SPLITIO';
   const settings = SettingsFactory({
     core: {
@@ -101,15 +101,44 @@ tape('KEYS / impressions & metrics keys', function (assert) {
   const builder = new Keys(settings);
 
   const splitName = 'split_name__for_testing';
-  const metricName = 'getTreatment';
-  const bucketNumber = 10;
-
   const expectedImpressionKey = `${prefix}.SPLITIO/${settings.version}/${settings.runtime.ip}/impressions.${splitName}`;
-  const expectedLatencyKey = `${prefix}.SPLITIO/${settings.version}/${settings.runtime.ip}/latency.${metricName}.bucket.${bucketNumber}`;
 
   assert.true(builder.buildImpressionsKey(splitName) === expectedImpressionKey);
+
+  assert.end();
+});
+
+tape('KEYS / latency keys', function (assert) {
+  const prefix = 'SPLITIO';
+  const settings = SettingsFactory({
+    core: {
+      key: 'prevent-browser-testing-throw-exception-because-missing-key'
+    },
+    storage: {
+      prefix
+    }
+  });
+  // Override default detected key.
+  settings.runtime = {
+    ip: '10-10-10-10'
+  };
+  // Override version
+  settings.version = 'js-1234';
+
+  const builder = new Keys(settings);
+
+  const metricName = 'unit testing metric name';
+  const bucketNumber = '10';
+
+  const expectedLatencyKey = `${prefix}.SPLITIO/${settings.version}/${settings.runtime.ip}/latency.${metricName}.bucket.${bucketNumber}`;
+
   assert.true(builder.buildLatencyKey(metricName, bucketNumber) === expectedLatencyKey);
-  assert.true(builder.extractBucketNumber(expectedLatencyKey) === bucketNumber);
+
+  const metricNameAndBucket = builder.extractLatencyMetricNameAndBucket(expectedLatencyKey);
+
+  assert.true(builder.buildLatencyKey(metricName, bucketNumber) === expectedLatencyKey);
+  assert.true(metricName === metricNameAndBucket.metricName);
+  assert.true(bucketNumber === metricNameAndBucket.bucketNumber);
 
   assert.end();
 });

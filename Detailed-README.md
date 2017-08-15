@@ -49,8 +49,8 @@ the old one:
 In the browser you were probably using something like:
 
 ```html
-<script src="//cdn.split.io/split-7.4.0.min.js"></script>
-```
+<script src="//cdn.split.io/split-7.6.0.min.js"></script>
+``6
 
 Now you should use:
 
@@ -72,6 +72,7 @@ const splitio = require('@splitsoftware/splitio/migration');
 ### Usage documentation
 - [Getting stared](http://docs.split.io/docs/getting-started)
 - [JS SDK overview](http://docs.split.io/docs/javascript-sdk-overview)
+- [NodeJS SDK overview](http://docs.split.io/docs/nodejs-sdk-overview)
 
 
 ### Release documentation
@@ -97,9 +98,10 @@ Update the package.json with the correct value using semver.
 
 #### Building
 
-1. `npm run build`     => ES5 versions of the code.
-1. `npm run build-umd` => UMD version of the code (development).
-1. `npm run build-min` => UMD version of the code but minified.
+1. `npm run build-cjs`  => ES5 versions of the code.
+1. `npm run build-umd`  => UMD version of the code (development).
+1. `npm run build-min`  => UMD version of the code but minified.
+1. `npm run rebuild`    => All of the above (complete build).
 
 ### Updating Redis mocks for UT
 
@@ -117,9 +119,9 @@ Then just run the test (you need a redis instance running of course):
 
 > use latest LTS version of NodeJS
 
-`nvm install v4`
+`nvm install v6`
 
-`nvm use v4`
+`nvm use v6`
 
 > Upgrade to latest npm
 
@@ -146,8 +148,6 @@ Then just run the test (you need a redis instance running of course):
 `npm run test-ts-decls`
 
 > TypeScript installation could affect the package so we unlink and install again to keep consistency with the dependencies
-
-`npm unlink`
 
 `npm unlink`
 
