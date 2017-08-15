@@ -1,4 +1,4 @@
-## 9.3.3 (Aug 14, 2017)
+## 9.3.3 (Aug 15, 2017)
 
 * Improved metrics collection.
 
