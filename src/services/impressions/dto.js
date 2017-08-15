@@ -39,9 +39,12 @@ module.exports = {
           if (entry.bucketingKey) keyImpression.bucketingKey = entry.bucketingKey;
 
           // Add Full Story URL if Available
-          const properties = {};
-          if (typeof FS !== 'undefined' && FS) properties.full_story_url = FS.getCurrentSessionURL();
-          keyImpression.properties = JSON.stringify(properties);
+          if (typeof FS !== 'undefined' && FS) {
+            keyImpression.properties = JSON.stringify({
+              full_story_url: FS.getCurrentSessionURL()
+            });
+          }
+
 
           return keyImpression;
         })
