@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+/* global FS */
 'use strict';
 
 const groupBy = require('lodash/groupBy');
@@ -36,6 +37,11 @@ module.exports = {
 
           if (sendLabels) keyImpression.label = entry.label;
           if (entry.bucketingKey) keyImpression.bucketingKey = entry.bucketingKey;
+
+          // Add Full Story URL if Available
+          const properties = {};
+          if (typeof FS !== 'undefined' && FS) properties.full_story_url = FS.getCurrentSessionURL();
+          keyImpression.properties = JSON.stringify(properties);
 
           return keyImpression;
         })
