@@ -57,21 +57,71 @@ tape('CONTEXT / An instance should be able to retrieve stored items', assert => 
   assert.end();
 });
 
+tape('CONTEXT / An instance should return a promise if we try to get something we don\'t have stored.', assert => {
+  const myContext = new Context();
+  const itemPromise = myContext.get('test');
 
+  assert.ok(itemPromise instanceof Promise, 'If we try to get an item not stored, we get a promise.');
+  assert.equal(myContext.get('test'), itemPromise, 'and following attempts on same item will return the same promise.');
 
-// tape('TIME TRACKER start() / should return the correct type', assert => {
-//   const promise = new Promise(res => {
-//     setTimeout(res, 1000);
-//   });
-//   promise.crap = true;
-//   const startNormal = tracker.start(tracker.TaskNames.SDK_READY);
-//   const startNormalFake = tracker.start('fakeTask3');
-//   const startWithPromise = tracker.start('fakeTask4', false, promise);
+  assert.end();
+});
 
-//   assert.equal(typeof startNormal, 'function', 'If we call start without a promise, it will return the stop function,');
-//   assert.equal(typeof startNormal.setCollectorForTask, 'function', 'that has a function as well for setting the collector at a defered time, because it has a registered cb but no collector received.');
-//   assert.equal(typeof startNormalFake.setCollectorForTask, 'undefined', 'If no callback is registered for the task, no collectors setup function is attached to returned one.');
-//   assert.equal(typeof startWithPromise.then, 'function', 'But if we pass a promise, we will get a promise back, with the necessary callbacks already handled.');
+tape('CONTEXT / If we store something someone is waiting for, it should resolve that promise and keep the value', assert => {
+  const myContext = new Context();
+  const itemToStore = {
+    something: true
+  };
+  const itemPromise = myContext.get('test');
 
-//   assert.end();
-// });
+  itemPromise.then(item => {
+    assert.equal(item, itemToStore, 'Once we store something we generated a promise for, the promise should resolve to the item');
+    assert.equal(myContext.get('test'), itemToStore, 'and the next time we ask for the item we will get the value instead of the promise.');
+
+    assert.end();
+  });
+
+  setTimeout(() => {
+    myContext.put('test', itemToStore);
+  }, 10);
+
+  return itemPromise;
+});
+
+tape('CONTEXT / If we store a promise, it should store the value once it is resolved', assert => {
+  const myContext = new Context();
+  const itemToStore = {
+    something: true
+  };
+  const promiseToStore = new Promise(res => {
+    setTimeout(() => {
+      res(itemToStore);
+    }, 50);
+  });
+  myContext.put('test', promiseToStore);
+
+  assert.equal(myContext.get('test'), promiseToStore, 'If we\'ve stored a promise, we will receive a promise until it is resolved.');
+
+  promiseToStore.then(() => {
+    assert.equal(myContext.get('test'), itemToStore, 'But once the promise is resolved, it should store the value and start returning it instead of the promise.');
+
+    assert.end();
+  });
+
+  return promiseToStore;
+});
+
+tape('CONTEXT / Different instances should have different storing maps', assert => {
+  const context1 = new Context();
+  const context2 = new Context();
+  const itemToStore1 = {
+    something: true
+  };
+  const itemToStore2 = () => {};
+  context1.put('test', itemToStore1);
+  context2.put('test', itemToStore2);
+
+  assert.notEqual(context1.get('test'), context2.get('test'), 'Different instances should have their own map of items.');
+
+  assert.end();
+});
