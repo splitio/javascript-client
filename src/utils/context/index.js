@@ -20,6 +20,27 @@ class Context {
     this.map = {};
   }
   /**
+   * Gets an item in the context instance or a promise if the item is not yet stored.
+   * @param {string} name - The name of the item we want to get
+   */
+  get(name) {
+    if (typeof name !== 'string' || typeof name === 'string' && !name.length) {
+      return; // Wrong usage, don't generate item promise.
+    }
+    const item = this.map[name];
+
+    // If we have the item, return it.
+    if (item !== undefined) {
+      return item;
+    } else { // If we don't, return a promise that we will resolve once we receive the item.
+      let resolve;
+      const promise = new Promise(res => resolve = res);
+      promise.manualResolve = resolve;
+      this.map[name] = promise;
+      return promise;
+    }
+  }
+  /**
    * Stores an item in the context instance.
    * @param {string} name - The name of what we are storing
    * @param {any} item - The item can be of any type.
@@ -32,16 +53,14 @@ class Context {
 
     const existingItem = this.map[name];
 
-    // Item already exists and no one is waiting for the value. Abort and return false.
+    // Item already exists and no one is waiting for the item. Abort and return false.
     if (existingItem !== undefined && typeof existingItem.manualResolve !== 'function') return false;
 
     // Someone is waiting for this item, resolve to it.
-    if (thenable(existingItem) && existingItem.manualResolve) {
-      existingItem.manualResolve(item);
-    }
+    if (thenable(existingItem) && existingItem.manualResolve) existingItem.manualResolve(item);
 
-    // We are storing a promise, when resolving save the value.
-    if (thenable(item)) item.then((item) => {
+    // We are storing a promise, when resolving save the item. On error, clean up the item.
+    if (thenable(item)) item.then(item => {
       this.map[name] = item;
       return item;
     }).catch(err => {
@@ -51,26 +70,6 @@ class Context {
 
     this.map[name] = item;
     return true;
-  }
-  /**
-   * Gets an item in the context instance.
-   * @param {string} name - The name of the item we want to get
-   */
-  get(name) {
-    if (typeof name !== 'string' || typeof name === 'string' && !name.length) {
-      return; // Wrong usage, don't generate value promise.
-    }
-    const item = this.map[name];
-
-    if (item !== undefined) {
-      return item;
-    } else {
-      let resolve;
-      const promise = new Promise(res => resolve = res);
-      promise.manualResolve = resolve;
-      this.map[name] = promise;
-      return promise;
-    }
   }
 }
 
