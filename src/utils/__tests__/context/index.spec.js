@@ -33,8 +33,12 @@ tape('CONTEXT / An instance should be able to store an item with a given name an
   const itemToStore = {
     something: true
   };
+  const anotherItemToStore = {
+    somethingelse: true
+  };
 
   assert.equal(myContext.put('test', itemToStore), true, 'Should store an item if a correct name was given.');
+  assert.equal(myContext.put('test', anotherItemToStore), false, 'It should fail if we try to step on an existing item.');
   assert.equal(myContext.put(undefined, itemToStore), false, 'It should fail if no name is provided.');
   assert.equal(myContext.put('', itemToStore), false, 'It should fail if the name is empty string.');
   assert.equal(myContext.put('test'), false, 'It should fail if no item is provided.');

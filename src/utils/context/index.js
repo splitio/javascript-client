@@ -40,7 +40,7 @@ class Context {
       if (existingItem !== undefined) return false;
     }
     // We are storing a promise, when resolving save the value.
-    if (thenable(item)) item.then((item) => {
+    if (existingItem === undefined && thenable(item)) item.then((item) => {
       this.map[name] = item;
       return item;
     });
