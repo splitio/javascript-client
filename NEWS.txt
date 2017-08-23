@@ -1,3 +1,7 @@
+## 9.3.4 (Aug 23, 2017)
+
+* Removed FullStory integration. It was causing an issue when FS was not yet ready.
+
 ## 9.3.3 (Aug 15, 2017)
 
 * Improved metrics collection. Now we report the complete set of them. (Browser only reports first fetch)
