@@ -74,16 +74,16 @@ tape('CONTEXT / If we store something someone is waiting for, it should resolve 
   };
   const itemPromise = myContext.get('test');
 
+  setTimeout(() => {
+    myContext.put('test', itemToStore);
+  }, 100);
+
   itemPromise.then(item => {
     assert.equal(item, itemToStore, 'Once we store something we generated a promise for, the promise should resolve to the item');
     assert.equal(myContext.get('test'), itemToStore, 'and the next time we ask for the item we will get the value instead of the promise.');
 
     assert.end();
   });
-
-  setTimeout(() => {
-    myContext.put('test', itemToStore);
-  }, 10);
 
   return itemPromise;
 });
