@@ -32,15 +32,16 @@ class Context {
 
     const existingItem = this.map[name];
 
+    // Item already exists and no one is waiting for the value. Abort and return false.
+    if (existingItem !== undefined && typeof existingItem.manualResolve !== 'function') return false;
+
     // Someone is waiting for this item, resolve to it.
     if (thenable(existingItem) && existingItem.manualResolve) {
       existingItem.manualResolve(item);
-    } else {
-      // Item already exists. Don't step on it.
-      if (existingItem !== undefined) return false;
     }
+
     // We are storing a promise, when resolving save the value.
-    if (existingItem === undefined && thenable(item)) item.then((item) => {
+    if (thenable(item)) item.then((item) => {
       this.map[name] = item;
       return item;
     });
