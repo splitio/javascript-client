@@ -44,6 +44,9 @@ class Context {
     if (thenable(item)) item.then((item) => {
       this.map[name] = item;
       return item;
+    }).catch(err => {
+      this.map[name] = undefined;
+      return err;
     });
 
     this.map[name] = item;
@@ -55,7 +58,7 @@ class Context {
    */
   get(name) {
     if (typeof name !== 'string' || typeof name === 'string' && !name.length) {
-      return;
+      return; // Wrong usage, don't generate value promise.
     }
     const item = this.map[name];
 
@@ -63,7 +66,7 @@ class Context {
       return item;
     } else {
       let resolve;
-      const promise = new Promise(res => { resolve = res; });
+      const promise = new Promise(res => resolve = res);
       promise.manualResolve = resolve;
       this.map[name] = promise;
       return promise;

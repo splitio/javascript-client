@@ -30,12 +30,8 @@ tape('CONTEXT / Should have an API for storing and retrieving items', assert => 
 
 tape('CONTEXT / An instance should be able to store an item with a given name and return the result of the operation', assert => {
   const myContext = new Context();
-  const itemToStore = {
-    something: true
-  };
-  const anotherItemToStore = {
-    somethingelse: true
-  };
+  const itemToStore = { something: true };
+  const anotherItemToStore = { somethingelse: true };
 
   assert.equal(myContext.put('test', itemToStore), true, 'Should store an item if a correct name was given.');
   assert.equal(myContext.put('test', anotherItemToStore), false, 'It should fail if we try to step on an existing item.');
@@ -48,9 +44,7 @@ tape('CONTEXT / An instance should be able to store an item with a given name an
 
 tape('CONTEXT / An instance should be able to retrieve stored items', assert => {
   const myContext = new Context();
-  const itemToStore = {
-    something: true
-  };
+  const itemToStore = { something: true };
   myContext.put('test', itemToStore);
 
   assert.equal(myContext.get('test'), itemToStore, 'It should retrieve an already stored item.');
@@ -73,14 +67,10 @@ tape('CONTEXT / An instance should return a promise if we try to get something w
 
 tape('CONTEXT / If we store something someone is waiting for, it should resolve that promise and keep the value', assert => {
   const myContext = new Context();
-  const itemToStore = {
-    something: true
-  };
+  const itemToStore = { something: true };
   const itemPromise = myContext.get('test');
 
-  setTimeout(() => {
-    myContext.put('test', itemToStore);
-  }, 100);
+  setTimeout(() => myContext.put('test', itemToStore), 100);
 
   itemPromise.then(item => {
     assert.equal(item, itemToStore, 'Once we store something we generated a promise for, the promise should resolve to the item');
@@ -94,14 +84,8 @@ tape('CONTEXT / If we store something someone is waiting for, it should resolve 
 
 tape('CONTEXT / If we store a promise, it should store the value once it is resolved', assert => {
   const myContext = new Context();
-  const itemToStore = {
-    something: true
-  };
-  const promiseToStore = new Promise(res => {
-    setTimeout(() => {
-      res(itemToStore);
-    }, 50);
-  });
+  const itemToStore = { something: true };
+  const promiseToStore = new Promise(res => setTimeout(() => res(itemToStore), 50));
   myContext.put('test', promiseToStore);
 
   assert.equal(myContext.get('test'), promiseToStore, 'If we\'ve stored a promise, we will receive a promise until it is resolved.');
@@ -115,12 +99,53 @@ tape('CONTEXT / If we store a promise, it should store the value once it is reso
   return promiseToStore;
 });
 
+tape('CONTEXT / If we store a promise, when that promise resolves it should store the value', assert => {
+  const myContext = new Context();
+  const itemToStore = { something: true };
+  const itemPromise = new Promise(res => setTimeout(() => res(itemToStore), 100));
+
+  assert.equal(myContext.put('test', itemPromise), true, 'We should be able to store a promise.');
+  assert.equal(myContext.put('test', 'an item'), false, 'We shouldn\'t be able to step on that value manually.');
+  assert.equal(myContext.get('test'), itemPromise, 'If we get the value before the promise is resolved, we receive the promise.');
+
+  // This callback is attached at the end because for testing purposes, I need the one on the
+  // context module attached first.
+  return itemPromise.then(item => {
+    assert.equal(item, itemToStore, 'The context module will propagate the value to which the promise was resolved.');
+    assert.equal(myContext.get('test'), itemToStore, 'If we try to get the value now that the promise is resolved, we should get that value.');
+
+    assert.end();
+  });
+});
+
+tape('CONTEXT / If we store a promise, but that promise fails, it should clean up that item on the context', assert => {
+  const myContext = new Context();
+  const err = new Error('An error has occured.');
+  const itemPromise = new Promise((res, rej) => setTimeout(() => rej(err), 100));
+  const itemToStore = { something: true };
+
+  myContext.put('test', itemPromise);
+  assert.equal(myContext.get('test'), itemPromise, 'If we get the value before the promise is resolved, we receive the promise.');
+
+  // This callback is attached at the end because for testing purposes, I need the one on the
+  // context module to execute first.
+  return itemPromise.then(() => {
+    assert.ok(false, 'This should not happen on this scenario.');
+
+    assert.end();
+  }).catch(reason => {
+    assert.equal(reason, err, 'If the promise is rejected, the error should propagate instead of doing a recovery.');
+    assert.ok(myContext.put('test', itemToStore), 'So storing an item should be possible under that name again,');
+    assert.equal(myContext.get('test'), itemToStore, 'and we should be able to get that item.');
+
+    assert.end();
+  });
+});
+
 tape('CONTEXT / Different instances should have different storing maps', assert => {
   const context1 = new Context();
   const context2 = new Context();
-  const itemToStore1 = {
-    something: true
-  };
+  const itemToStore1 = { something: true };
   const itemToStore2 = () => {};
   context1.put('test', itemToStore1);
   context2.put('test', itemToStore2);
