@@ -88,7 +88,8 @@ tape('CONTEXT / If we store a promise, it should store the value once it is reso
   const promiseToStore = new Promise(res => setTimeout(() => res(itemToStore), 50));
   myContext.put('test', promiseToStore);
 
-  assert.equal(myContext.get('test'), promiseToStore, 'If we\'ve stored a promise, we will receive a promise until it is resolved.');
+  assert.equal(myContext.get('test'), promiseToStore, 'If we\'ve stored a promise, we will receive that promise until it is resolved.');
+  assert.equal(myContext.get('test'), promiseToStore, 'Doesn\'t matter how many times, we should get the same promise.');
 
   promiseToStore.then(() => {
     assert.equal(myContext.get('test'), itemToStore, 'But once the promise is resolved, it should store the value and start returning it instead of the promise.');
