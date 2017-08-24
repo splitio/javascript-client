@@ -14,20 +14,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 const thenable = require('../promise/thenable');
+const constants = require('./constants');
 
 class Context {
   constructor() {
-    this.map = {};
+    this._map = {};
+    this.constants = constants;
   }
   /**
    * Gets an item in the context instance or a promise if the item is not yet stored.
    * @param {string} name - The name of the item we want to get
    */
   get(name) {
-    if (typeof name !== 'string' || typeof name === 'string' && !name.length) {
-      return; // Wrong usage, don't generate item promise.
-    }
-    const item = this.map[name];
+    if (typeof name !== 'string' || typeof name === 'string' && !name.length) return; // Wrong usage, don't generate item promise.
+
+    const item = this._map[name];
 
     // If we have the item, return it.
     if (item !== undefined) {
@@ -36,7 +37,7 @@ class Context {
       let resolve;
       const promise = new Promise(res => resolve = res);
       promise.manualResolve = resolve;
-      this.map[name] = promise;
+      this._map[name] = promise;
       return promise;
     }
   }
@@ -47,11 +48,9 @@ class Context {
    * @return {boolean}
    */
   put(name, item) {
-    if (typeof name !== 'string' || (typeof name === 'string' && !name.length) || item === undefined) {
-      return false; // We can't store this.
-    }
+    if (typeof name !== 'string' || (typeof name === 'string' && !name.length) || item === undefined) return false; // We can't store this.
 
-    const existingItem = this.map[name];
+    const existingItem = this._map[name];
 
     // Item already exists and no one is waiting for the item. Abort and return false.
     if (existingItem !== undefined && typeof existingItem.manualResolve !== 'function') return false;
@@ -61,14 +60,14 @@ class Context {
 
     // We are storing a promise, when resolving save the item. On error, clean up the item.
     if (thenable(item)) item.then(item => {
-      this.map[name] = item;
+      this._map[name] = item;
       return item;
     }).catch(err => {
-      this.map[name] = undefined;
+      this._map[name] = undefined;
       return err;
     });
 
-    this.map[name] = item;
+    this._map[name] = item;
     return true;
   }
 }

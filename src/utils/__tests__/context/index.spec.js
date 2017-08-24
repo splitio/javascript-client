@@ -17,6 +17,7 @@ limitations under the License.
 
 const tape = require('tape-catch');
 const Context = require('../../context');
+const ContextConsts = require('../../context/constants');
 
 tape('CONTEXT / Should have an API for storing and retrieving items', assert => {
   assert.equal(typeof Context, 'function', 'It should be a class.');
@@ -25,6 +26,14 @@ tape('CONTEXT / Should have an API for storing and retrieving items', assert => 
   assert.equal(typeof myContext, 'object', 'When instantiated it should return an object');
   assert.equal(typeof myContext.put, 'function', 'with a function for storing things');
   assert.equal(typeof myContext.get, 'function', 'and a function for getting what we previously stored.');
+  assert.end();
+});
+
+tape('CONTEXT / Should expose the constants', assert => {
+  const myContext = new Context();
+
+  assert.deepEqual(myContext.constants, ContextConsts, 'Constants should be exposed from the context instance.');
+
   assert.end();
 });
 
@@ -37,7 +46,8 @@ tape('CONTEXT / An instance should be able to store an item with a given name an
   assert.equal(myContext.put('test', anotherItemToStore), false, 'It should fail if we try to step on an existing item.');
   assert.equal(myContext.put(undefined, itemToStore), false, 'It should fail if no name is provided.');
   assert.equal(myContext.put('', itemToStore), false, 'It should fail if the name is empty string.');
-  assert.equal(myContext.put('test'), false, 'It should fail if no item is provided.');
+  assert.equal(myContext.put('test2'), false, 'It should fail if no item is provided.');
+  assert.equal(myContext.put('test3', undefined), false, 'It should fail if no item is provided.');
 
   assert.end();
 });
