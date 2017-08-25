@@ -24,8 +24,9 @@ tape('CONTEXT / Should have an API for storing and retrieving items', assert => 
   const myContext = new Context();
 
   assert.equal(typeof myContext, 'object', 'When instantiated it should return an object');
-  assert.equal(typeof myContext.put, 'function', 'with a function for storing things');
-  assert.equal(typeof myContext.get, 'function', 'and a function for getting what we previously stored.');
+  assert.equal(typeof myContext.put, 'function', 'with a function for storing things,');
+  assert.equal(typeof myContext.get, 'function', 'a function for getting an item we previously stored,');
+  assert.equal(typeof myContext.getAll, 'function', 'and a function for getting all the items that we\'ve previously stored.');
   assert.end();
 });
 
@@ -151,6 +152,25 @@ tape('CONTEXT / If we store a promise, but that promise fails, it should clean u
 
     assert.end();
   });
+});
+
+tape('CONTEXT / Should be able to retrieve all items at once', assert => {
+  const myContext = new Context();
+  const item1 = { some: 'thing' };
+  const item2 = () => {};
+  const item3 = 38;
+
+  myContext.put('test1', item1);
+  myContext.put('test2', item2);
+  myContext.put('test3', item3);
+
+  const { test1, test2, test3 } = myContext.getAll();
+
+  assert.equal(test1, item1, 'It should retrieve all items at once.');
+  assert.equal(test2, item2, 'It should retrieve all items at once.');
+  assert.equal(test3, item3, 'It should retrieve all items at once.');
+
+  assert.end();
 });
 
 tape('CONTEXT / Different instances should have different storing maps', assert => {

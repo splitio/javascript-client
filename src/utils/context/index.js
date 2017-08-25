@@ -24,6 +24,7 @@ class Context {
   /**
    * Gets an item in the context instance or a promise if the item is not yet stored.
    * @param {string} name - The name of the item we want to get
+   * @return any - The item we want to get.
    */
   get(name) {
     if (typeof name !== 'string' || typeof name === 'string' && !name.length) return; // Wrong usage, don't generate item promise.
@@ -42,10 +43,15 @@ class Context {
     }
   }
   /**
+   * Gets all objects stored in the context.
+   * @return {Object} - A new map of context-stored items.
+   */
+  getAll() { return Object.assign({}, this._map); }
+  /**
    * Stores an item in the context instance.
    * @param {string} name - The name of what we are storing
    * @param {any} item - The item can be of any type.
-   * @return {boolean}
+   * @return {boolean} - The result of the operation
    */
   put(name, item) {
     if (typeof name !== 'string' || (typeof name === 'string' && !name.length) || item === undefined) return false; // We can't store this.
