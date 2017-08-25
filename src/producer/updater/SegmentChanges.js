@@ -22,7 +22,13 @@ const log = require('../../utils/logger')('splitio-producer:segment-changes');
 const segmentChangesFetcher = require('../fetcher/SegmentChanges');
 const findIndex = require('core-js/library/fn/array/find-index');
 
-const SegmentChangesUpdaterFactory = (settings: Object, readiness: ReadinessGate, storage: SplitStorage, metricCollectors: Object) => {
+const SegmentChangesUpdaterFactory = (context) => {
+  const {
+    [context.constants.SETTINGS]: settings,
+    [context.constants.READINESS]: readiness,
+    [context.constants.STORAGE]: storage,
+    [context.constants.COLLECTORS]: metricCollectors
+  } = context.getAll();
   const segmentsEventEmitter = readiness.segments;
 
   let readyOnAlreadyExistentState = true;

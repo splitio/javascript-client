@@ -21,7 +21,14 @@ limitations under the License.
 const log = require('../../utils/logger')('splitio-producer:my-segments');
 const mySegmentsFetcher = require('../fetcher/MySegments');
 
-function MySegmentsUpdaterFactory(settings: Object, readiness: ReadinessGate, storage: SplitStorage, metricCollectors: Object) {
+function MySegmentsUpdaterFactory(context) {
+  const {
+    [context.constants.SETTINGS]: settings,
+    [context.constants.READINESS]: readiness,
+    [context.constants.STORAGE]: storage,
+    [context.constants.COLLECTORS]: metricCollectors
+  } = context.getAll();
+
   const segmentsEventEmitter = readiness.segments;
 
   let readyOnAlreadyExistentState = true;

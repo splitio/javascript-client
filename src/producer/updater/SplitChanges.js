@@ -52,7 +52,13 @@ function computeSplitsMutation(entries: Array<SplitObject>): SplitMutation {
   return computed;
 }
 
-function SplitChangesUpdaterFactory(settings: Object, readiness: ReadinessGate, storage: SplitStorage, metricCollectors: Object, isNode = false) {
+function SplitChangesUpdaterFactory(context, isNode = false) {
+  const {
+    [context.constants.SETTINGS]: settings,
+    [context.constants.READINESS]: readiness,
+    [context.constants.STORAGE]: storage,
+    [context.constants.COLLECTORS]: metricCollectors
+  } = context.getAll();
   const splitsEventEmitter = readiness.splits;
 
   let startingUp = true;

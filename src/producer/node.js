@@ -27,9 +27,10 @@ const SegmentChangesUpdater = require('./updater/SegmentChanges');
 /**
  * Expose start / stop mechanism for pulling data from services.
  */
-const NodeUpdater = (settings: Object, hub: EventEmitter, storage: SplitStorage, metricCollectors: Object): Startable => {
-  const splitsUpdater = SplitChangesUpdater(settings, hub, storage, metricCollectors, true /* tell split updater we are in node */);
-  const segmentsUpdater = SegmentChangesUpdater(settings, hub, storage, metricCollectors);
+const NodeUpdater = (context): Startable => {
+  const splitsUpdater = SplitChangesUpdater(context, true /* tell split updater we are in node */);
+  const segmentsUpdater = SegmentChangesUpdater(context);
+  const settings = context.get(context.constants.SETTINGS);
 
   let stopSplitsUpdate = false;
   let stopSegmentsUpdate = false;
