@@ -46,6 +46,9 @@ tape('CONTEXT / An instance should be able to store an item with a given name an
   assert.equal(myContext.put('test', itemToStore), true, 'Should store an item if a correct name was given.');
   assert.equal(myContext.put('test', anotherItemToStore), false, 'It should fail if we try to step on an existing item.');
   assert.equal(myContext.put(undefined, itemToStore), false, 'It should fail if no name is provided.');
+  assert.equal(myContext.put(null, itemToStore), false, 'It should fail if the name provided is not a string.');
+  assert.equal(myContext.put(false, itemToStore), false, 'It should fail if the name provided is not a string.');
+  assert.equal(myContext.put(new Date, itemToStore), false, 'It should fail if the name provided is not a string.');
   assert.equal(myContext.put('', itemToStore), false, 'It should fail if the name is empty string.');
   assert.equal(myContext.put('test2'), false, 'It should fail if no item is provided.');
   assert.equal(myContext.put('test3', undefined), false, 'It should fail if no item is provided.');
