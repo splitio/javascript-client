@@ -20,7 +20,12 @@ limitations under the License.
 
 const log = require('../../utils/logger')('splitio-producer:offline');
 
-function FromObjectUpdaterFactory(Fetcher: Function, settings: Settings, readiness: ReadinessGate, storage: SplitStorage) {
+function FromObjectUpdaterFactory(Fetcher, context) {
+  const {
+    [context.constants.SETTINGS]: settings,
+    [context.constants.READINESS]: readiness,
+    [context.constants.STORAGE]: storage
+  } = context.getAll();
 
   return async function ObjectUpdater() {
     const splits = [];

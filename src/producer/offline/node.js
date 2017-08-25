@@ -21,8 +21,9 @@ limitations under the License.
 const TaskFactory = require('../task');
 const FromFileSystemUpdater = require('../updater/SplitChangesFromFileSystem');
 
-const OfflineFileSystemProducer = (settings: Object, readiness: ReadinessGate, storage: SplitStorage): Startable => {
-  const updater = FromFileSystemUpdater(settings, readiness, storage);
+const OfflineFileSystemProducer = (context): Startable => {
+  const settings = context.get(context.constants.SETTINGS);
+  const updater = FromFileSystemUpdater(context);
   const updaterTask = TaskFactory(updater, settings.scheduler.offlineRefreshRate);
 
   return updaterTask;

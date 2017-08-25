@@ -39,7 +39,9 @@ const {
   SDKCollector
 } = require('./Collectors');
 
-const MetricsFactory = (settings: Object, storage: SplitStorage): Startable => {
+const MetricsFactory = (context): Startable => {
+  const settings = context.get(context.constants.SETTINGS);
+  const storage = context.get(context.constants.STORAGE);
   const pushMetrics = (): Promise<void> => {
     if (storage.metrics.isEmpty() && storage.count.isEmpty()) return Promise.resolve();
 

@@ -48,7 +48,9 @@ function getTreatmentAvailable(
   return evaluation.treatment;
 }
 
-function ClientFactory(storage: SplitStorage, metricCollectors): SplitClient {
+function ClientFactory(context): SplitClient {
+  const storage = context.get(context.constants.STORAGE);
+  const metricCollectors = context.get(context.constants.COLLECTORS);
   const impressionsTracker = PassTracker(storage.impressions);
 
   return {
