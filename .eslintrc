@@ -1,7 +1,6 @@
 {
   "extends": [
-    "eslint:recommended",
-    "plugin:flowtype/recommended"
+    "eslint:recommended"
   ],
 
   "env": {
@@ -24,15 +23,5 @@
     "no-use-before-define": [2, "nofunc"]
   },
 
-  "parser": "babel-eslint",
-
-  "plugins": [
-    "flowtype"
-  ],
-
-  "settings": {
-    "flowtype": {
-      "onlyFilesWithFlowAnnotation": true
-    }
-  }
+  "parser": "babel-eslint"
 }
