@@ -1,4 +1,4 @@
-## 9.3.5 (XXX XX, 2017)
+## 9.3.5 (Sep 13, 2017)
 
 * Internal context module added. The idea was to reduce the amount of parameters flowing through the different functions.
 * Removed /src folder and some misc files from NPM package.

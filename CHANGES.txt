@@ -1,4 +1,4 @@
-## 9.3.5 (XXX XX, 2017)
+## 9.3.5 (Sep 13, 2017)
 
 * Internal context module added.
 * Removed /src folder and some misc files from NPM package.
