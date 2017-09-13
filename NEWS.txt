@@ -1,3 +1,9 @@
+## 9.3.5 (Sep 13, 2017)
+
+* Internal context module added. The idea was to reduce the amount of parameters flowing through the different functions.
+* Removed /src folder and some misc files from NPM package.
+* Dependencies update & cleanup.
+
 ## 9.3.4 (Aug 23, 2017)
 
 * Removed FullStory integration. It was causing an issue when FS was not yet ready.

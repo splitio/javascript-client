@@ -21,8 +21,9 @@ limitations under the License.
 const TaskFactory = require('../task');
 const FromFeaturesUpdater = require('../updater/SplitChangesFromFeatures');
 
-const OfflineFeatureProducer = (settings: Object, readiness: ReadinessGate, storage: SplitStorage): Startable => {
-  const updater = FromFeaturesUpdater(settings, readiness, storage);
+const OfflineFeatureProducer = (context): Startable => {
+  const settings = context.get(context.constants.SETTINGS);
+  const updater = FromFeaturesUpdater(context);
   const updaterTask = TaskFactory(updater, settings.scheduler.offlineRefreshRate);
 
   return updaterTask;

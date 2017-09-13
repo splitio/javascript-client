@@ -26,6 +26,7 @@ const overridesPerPlatform: Object = require('./defaults');
 const storage: Function = require('./storage');
 const mode: Function = require('./mode');
 const Logger = require('../../utils/logger');
+const { version } = require('../../../package.json');
 
 const eventsEndpointMatcher = /\/(testImpressions|metrics)/;
 
@@ -71,7 +72,7 @@ const base = {
   debug: false,
 
   // Instance version.
-  version: `${language}-9.3.4`
+  version: `${language}-${version}`
 };
 
 function fromSecondsToMillis(n) {

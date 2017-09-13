@@ -19,7 +19,7 @@ const tape = require('tape-catch');
 const matcherTypes = require('../../matchers/types').enum;
 const matcherFactory = require('../../matchers');
 
-tape('MATCHER ENDS_WITH / should return true ONLY when the value ends with ["a", "b", "c"', function (assert) {
+tape('MATCHER ENDS_WITH / should return true ONLY when the value ends with ["a", "b", "c"]', function (assert) {
 
   let matcher = matcherFactory({
     negate: false,
@@ -32,6 +32,20 @@ tape('MATCHER ENDS_WITH / should return true ONLY when the value ends with ["a",
   assert.true(matcher('zodiac'), 'zodiac end with ["a", "b", "c"]');
   assert.false(matcher('violin'), 'violin doesn\'t end with ["a", "b", "c"]');
   assert.false(matcher('manager'), 'manager doesn\'t end with ["a", "b", "c"]');
+  assert.end();
+
+});
+
+tape('MATCHER ENDS_WITH / should return true ONLY when the value ends with ["demo.test.org"]', function (assert) {
+
+  let matcher = matcherFactory({
+    negate: false,
+    type: matcherTypes.ENDS_WITH,
+    value: ['demo.test.org']
+  });
+
+  assert.true(matcher('robert@demo.test.org'), 'robert@demo.test.org should match.');
+  assert.false(matcher('robert@test.org'), 'robert@test.org should not match.');
   assert.end();
 
 });

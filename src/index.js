@@ -17,6 +17,8 @@ const SettingsFactory = require('./utils/settings');
 
 const ReadinessGateFacade = require('./readiness');
 
+const Context = require('./utils/context');
+
 const keyParser = require('./utils/key/parser');
 const Logger = require('./utils/logger');
 const log = Logger('splitio');
@@ -28,9 +30,13 @@ const instances = {};
 //
 // Create SDK instance based on the provided configurations
 //
-function SplitFactory(settings: Settings, storage: SplitStorage, gateFactory: any, readyTrackers: Object, mainClientMetricCollectors: ?Object) {
+function SplitFactory(context, gateFactory: any, readyTrackers: Object, mainClientMetricCollectors: ?Object) {
   const sharedInstance = !!mainClientMetricCollectors;
+  const settings = context.get(context.constants.SETTINGS);
+  const storage = context.get(context.constants.STORAGE);
   const readiness = gateFactory(settings.startup.readyTimeout);
+
+  context.put(context.constants.READINESS, readiness);
 
   // We are only interested in exposable EventEmitter
   const { gate, splits, segments } = readiness;
@@ -42,19 +48,20 @@ function SplitFactory(settings: Settings, storage: SplitStorage, gateFactory: an
     SDK_READY_TIMED_OUT
   } = gate;
 
-  const metrics = sharedInstance ? undefined : MetricsFactory(settings, storage); // Shared instances use parent metrics collectors
+  const metrics = sharedInstance ? undefined : MetricsFactory(context); // Shared instances use parent metrics collectors
   let producer;
 
   switch(settings.mode) {
     case 'localhost':
-      producer = sharedInstance ? undefined : OfflineProducerFactory(settings, readiness, storage);
+      producer = sharedInstance ? undefined : OfflineProducerFactory(context);
       break;
     case 'producer':
     case 'standalone': {
+      context.put(context.constants.COLLECTORS, metrics && metrics.collectors);
       // We don't fully instantiate producer if we are creating a shared instance.
       producer = sharedInstance ?
-        PartialProducerFactory(settings, readiness, storage, metrics && metrics.collectors) :
-        FullProducerFactory(settings, readiness, storage, metrics && metrics.collectors);
+        PartialProducerFactory(context) :
+        FullProducerFactory(context);
       break;
     }
     case 'consumer':
@@ -82,11 +89,14 @@ function SplitFactory(settings: Settings, storage: SplitStorage, gateFactory: an
   const readyFlag = sharedInstance ? Promise.resolve() :
     new Promise(resolve => gate.on(SDK_READY, resolve));
 
+  // If no collectors are stored we are on a shared instance, save main one.
+  context.put(context.constants.COLLECTORS, mainClientMetricCollectors);
+
   const api = Object.assign(
     // Proto linkage of the EventEmitter to prevent any change
     Object.create(gate),
     // GetTreatment/s
-    ClientFactory(storage, metrics ? metrics.collectors : mainClientMetricCollectors, settings),
+    ClientFactory(context),
     // Utilities
     {
       // Ready promise
@@ -132,19 +142,22 @@ function SplitFacade(config: Object) {
     segmentsReadyTracker: tracker.start(tracker.TaskNames.SEGMENTS_READY),
     sdkReadyTracker: tracker.start(tracker.TaskNames.SDK_READY)
   };
+  const context = new Context;
   const settings = SettingsFactory(config);
   const storage = StorageFactory(settings);
   const gateFactory = ReadinessGateFacade();
 
+  context.put(context.constants.SETTINGS, settings);
+  context.put(context.constants.STORAGE, storage);
+
   const {
     api: defaultInstance,
     metricCollectors: mainClientMetricCollectors
-  } = SplitFactory(settings, storage, gateFactory, readyLatencyTrackers);
+  } = SplitFactory(context, gateFactory, readyLatencyTrackers);
 
   log.info('New Split SDK instance created.');
 
   return {
-
     // Split evaluation engine
     client(key: ?SplitKey): SplitClient {
       if (!key) {
@@ -161,7 +174,10 @@ function SplitFacade(config: Object) {
 
       if (!instances[instanceId]) {
         const sharedSettings = settings.overrideKey(key);
-        instances[instanceId] = SplitFactory(sharedSettings, storage.shared(sharedSettings), gateFactory, false, mainClientMetricCollectors).api;
+        const sharedContext = new Context;
+        sharedContext.put(context.constants.SETTINGS, sharedSettings);
+        sharedContext.put(context.constants.STORAGE, storage.shared(sharedSettings));
+        instances[instanceId] = SplitFactory(sharedContext, gateFactory, false, mainClientMetricCollectors).api;
         log.info('New shared client instance created.');
       } else {
         log.debug('Retrieving existing SDK client.');
