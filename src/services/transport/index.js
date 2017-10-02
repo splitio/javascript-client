@@ -24,9 +24,13 @@ function Fetcher(request) {
     if (resp.ok) {
       return resp;
     } else {
-      log.error('throw error because response status is not OK');
+      let message = resp.statusText;
+      if (resp.status === 404) {
+        message = 'Invalid API key or resource not found.';
+      }
+      log.error(`Throw error because response status is not OK. Status: ${resp.status}. URL: ${resp.url}`);
 
-      throw Error(resp.statusText);
+      throw Error(message);
     }
   });
 }
