@@ -1,3 +1,8 @@
+## 9.3.6 (XXX XX, 2017)
+
+* Fixed an issue that was not rejecting client.ready() on SDK_READY_TIMED_OUT event.
+* Added custom message for 404 errors.
+
 ## 9.3.5 (Sep 13, 2017)
 
 * Internal context module added. The idea was to reduce the amount of parameters flowing through the different functions.
