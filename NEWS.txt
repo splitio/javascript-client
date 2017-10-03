@@ -2,6 +2,7 @@
 
 * Fixed an issue that was not rejecting client.ready() on SDK_READY_TIMED_OUT event.
 * Added custom message for 404 errors.
+* Updated TypeScript declaration files for exposing startup settings on NodeJS.
 
 ## 9.3.5 (Sep 13, 2017)
 
