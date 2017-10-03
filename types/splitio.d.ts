@@ -91,6 +91,33 @@ interface ILoggerAPI {
  */
 interface ISharedSettings {
   /**
+   * SDK Startup settings.
+   * @property {Object} startup
+   */
+  startup?: {
+    /**
+     * Maximum amount of time used before notify a timeout.
+     * @property {number} readyTimeout
+     * @default 0   // Node
+     * @default 1.5 // Browser
+     */
+    readyTimeout?: number,
+    /**
+     * Time to wait for a request before the SDK is ready. If this time expires, JS Sdk will retry 'retriesOnFailureBeforeReady' times before notifying its failure to be 'ready'.
+     * @property {number} requestTimeoutBeforeReady
+     * @default 15  // Node
+     * @default 0.8 // Browser
+     */
+    requestTimeoutBeforeReady?: number,
+    /**
+     * How many quick retries we will do while starting up the SDK.
+     * @property {number} retriesOnFailureBeforeReady
+     * @default 0 // Node
+     * @default 1 // Browser
+     */
+    retriesOnFailureBeforeReady?: number
+  },
+  /**
    * SDK scheduler settings.
    * @property {Object} scheduler
    */
@@ -411,30 +438,6 @@ declare namespace SplitIO {
        * @default true
        */
       labelsEnabled?: boolean
-    },
-    /**
-     * SDK Startup settings.
-     * @property {Object} startup
-     */
-    startup?: {
-      /**
-       * Maximum amount of time used before notify a timeout.
-       * @property {number} readyTimeout
-       * @default 1.5
-       */
-      readyTimeout?: number,
-      /**
-       * Time to wait for a request before the SDK is ready. If this time expires, JS Sdk will retry 'retriesOnFailureBeforeReady' times before notifying its failure to be 'ready'.
-       * @property {number} requestTimeoutBeforeReady
-       * @default 0.8
-       */
-      requestTimeoutBeforeReady?: number,
-      /**
-       * How many quick retries we will do while starting up the SDK.
-       * @property {number} retriesOnFailureBeforeReady
-       * @default 1
-       */
-      retriesOnFailureBeforeReady?: number
     },
     /**
      * Mocked features map. For testing purposses only. For using this you should specify "localhost" as authorizationKey on core settings.
