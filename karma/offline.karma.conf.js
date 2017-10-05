@@ -10,8 +10,6 @@ module.exports = function(config) {
     // list of files / patterns to load in the browser
     files: [
       '../src/__tests__/offline/browser.spec.js'
-      // '../src/__tests__/shared-instantiation/browser.spec.js'
-      // '../src/storage/__tests__/**/*.spec.js'
     ],
 
     // prepare code for the browser using webpack
