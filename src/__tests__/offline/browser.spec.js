@@ -8,8 +8,7 @@ const SplitFactory = require('../../');
 tape('Browser offline mode', function (assert) {
   const config = {
     core: {
-      authorizationKey: 'localhost',
-      key: 'facundo@split.io'
+      authorizationKey: 'localhost'
     },
     scheduler: {
       offlineRefreshRate: 3
