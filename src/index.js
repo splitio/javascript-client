@@ -70,7 +70,7 @@ function SplitFactory(context, gateFactory: any, readyTrackers: Object, mainClie
 
   if (readyTrackers && !sharedInstance) { // Only track ready events for non-shared clients
     const {
-       sdkReadyTracker, splitsReadyTracker, segmentsReadyTracker
+      sdkReadyTracker, splitsReadyTracker, segmentsReadyTracker
     } = readyTrackers;
 
     // Defered setup of collectors for this task, as it is the only ready latency we store on BE.
