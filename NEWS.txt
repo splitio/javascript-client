@@ -1,4 +1,4 @@
-## 9.3.6 (XXX XX, 2017)
+## 9.3.6 (Oct 12, 2017)
 
 * Fixed an issue that was not rejecting client.ready() on SDK_READY_TIMED_OUT event.
 * Fixed an issue where the SDK required a key even on localhost mode.
