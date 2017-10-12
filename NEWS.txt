@@ -1,3 +1,10 @@
+## 9.3.6 (Oct 12, 2017)
+
+* Fixed an issue that was not rejecting client.ready() on SDK_READY_TIMED_OUT event.
+* Fixed an issue where the SDK required a key even on localhost mode.
+* Added custom message for 404 errors.
+* Updated TypeScript declaration files for exposing startup settings on NodeJS.
+
 ## 9.3.5 (Sep 13, 2017)
 
 * Internal context module added. The idea was to reduce the amount of parameters flowing through the different functions.

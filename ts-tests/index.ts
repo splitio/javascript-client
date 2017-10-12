@@ -1,10 +1,12 @@
 /**
  * Split software typescript declarations testing.
+ *
  * This file is not meant to run but to be compiled without errors. This is the same way to test .d.ts files
  * that you will need to comply to publish packages on @types organization on NPM (DefinitelyTyped).
  * We import the declarations through the NPM package name (using the development branch of the repo)
  * to test in the same way in which customers will be using it on development.
- * The step of compiling this file will be part of the continous integration systems in place.
+ *
+ * The step of compiling this file is part of the continous integration systems in place.
  *
  * @author Nico Zelaya <nicolas.zelaya@split.io>
  */
@@ -282,6 +284,11 @@ let fullNodeSettings: SplitIO.INodeSettings = {
     segmentsRefreshRate: 1,
     offlineRefreshRate: 1
   },
+  startup: {
+    readyTimeout: 1,
+    requestTimeoutBeforeReady: 1,
+    retriesOnFailureBeforeReady: 1
+  },
   features: mockedFeaturesPath,
   storage: {
     type: 'LOCALSTORAGE',
@@ -304,6 +311,11 @@ let fullAsyncSettings: SplitIO.INodeAsyncSettings = {
     metricsRefreshRate: 1,
     segmentsRefreshRate: 1,
     offlineRefreshRate: 1
+  },
+  startup: {
+    readyTimeout: 1,
+    requestTimeoutBeforeReady: 1,
+    retriesOnFailureBeforeReady: 1
   },
   features: mockedFeaturesPath,
   storage: {

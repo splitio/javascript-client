@@ -70,7 +70,7 @@ function SplitFactory(context, gateFactory: any, readyTrackers: Object, mainClie
 
   if (readyTrackers && !sharedInstance) { // Only track ready events for non-shared clients
     const {
-       sdkReadyTracker, splitsReadyTracker, segmentsReadyTracker
+      sdkReadyTracker, splitsReadyTracker, segmentsReadyTracker
     } = readyTrackers;
 
     // Defered setup of collectors for this task, as it is the only ready latency we store on BE.
@@ -87,7 +87,10 @@ function SplitFactory(context, gateFactory: any, readyTrackers: Object, mainClie
 
   // Ready promise
   const readyFlag = sharedInstance ? Promise.resolve() :
-    new Promise(resolve => gate.on(SDK_READY, resolve));
+    new Promise((resolve, reject) => {
+      gate.on(SDK_READY, resolve);
+      gate.on(SDK_READY_TIMED_OUT, reject);
+    });
 
   // If no collectors are stored we are on a shared instance, save main one.
   context.put(context.constants.COLLECTORS, mainClientMetricCollectors);
