@@ -38,6 +38,7 @@ let asyncManager: SplitIO.IAsyncManager;
 // Common
 let treatment: SplitIO.Treatment = 'on';
 let asyncTreatment: SplitIO.AsyncTreatment = stringPromise;
+let tracked: boolean;
 let treatmentsMap: SplitIO.Treatments = {
   feature1: 'on',
   feature2: 'control'
@@ -198,6 +199,13 @@ treatments = client.getTreatments(['mySplit']);
 treatments = client.getTreatments(splitKey, ['mySplit'], attributes);
 treatments = client.getTreatments(['mySplit'], attributes);
 
+// We can call track with or without a key.
+tracked = client.track(splitKey, 'myTrafficType', 'myEventType');
+tracked = client.track('myTrafficType', 'myEventType');
+// Value parameter is optional on both signatures.
+tracked = client.track(splitKey, 'myTrafficType', 'myEventType', 10);
+tracked = client.track('myTrafficType', 'myEventType', 10);
+
 /*** Repeating tests for Async Client...  */
 
 // Events constants we get (same as for sync client, just for interface checking)
@@ -231,6 +239,13 @@ asyncTreatments = asyncClient.getTreatments(['mySplit']);
 asyncTreatments = asyncClient.getTreatments(splitKey, ['mySplit'], attributes);
 asyncTreatments = asyncClient.getTreatments(['mySplit'], attributes);
 
+// We can call track with or without a key.
+tracked = asyncClient.track(splitKey, 'myTrafficType', 'myEventType');
+tracked = asyncClient.track('myTrafficType', 'myEventType');
+// Value parameter is optional on both signatures.
+tracked = asyncClient.track(splitKey, 'myTrafficType', 'myEventType', 10);
+tracked = asyncClient.track('myTrafficType', 'myEventType', 10);
+
 /**** Tests for IManager interface ****/
 
 splitNames = manager.names();
@@ -256,12 +271,14 @@ let fullBrowserSettings: SplitIO.IBrowserSettings = {
     impressionsRefreshRate: 1,
     metricsRefreshRate: 1,
     segmentsRefreshRate: 1,
-    offlineRefreshRate: 1
+    offlineRefreshRate: 1,
+    eventsPushRate: 1
   },
   startup: {
     readyTimeout: 1,
     requestTimeoutBeforeReady: 1,
-    retriesOnFailureBeforeReady: 1
+    retriesOnFailureBeforeReady: 1,
+    eventsFirstPushWindow: 1
   },
   features: mockedFeaturesMap,
   storage: {
@@ -282,7 +299,8 @@ let fullNodeSettings: SplitIO.INodeSettings = {
     impressionsRefreshRate: 1,
     metricsRefreshRate: 1,
     segmentsRefreshRate: 1,
-    offlineRefreshRate: 1
+    offlineRefreshRate: 1,
+    eventsPushRate: 1
   },
   startup: {
     readyTimeout: 1,
@@ -310,7 +328,8 @@ let fullAsyncSettings: SplitIO.INodeAsyncSettings = {
     impressionsRefreshRate: 1,
     metricsRefreshRate: 1,
     segmentsRefreshRate: 1,
-    offlineRefreshRate: 1
+    offlineRefreshRate: 1,
+    eventsPushRate: 1
   },
   startup: {
     readyTimeout: 1,
