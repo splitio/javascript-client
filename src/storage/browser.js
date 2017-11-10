@@ -38,6 +38,7 @@ const BrowserStorageFactory = (settings) => {
             impressions: this.impressions,
             metrics: this.metrics,
             count: this.count,
+            events: this.events,
 
             destroy() {
               this.splits = new SplitCacheInMemory;
