@@ -12,6 +12,7 @@ const PartialProducerFactory = require('./producer/browser/Partial');
 const OfflineProducerFactory = require('./producer/offline');
 
 const MetricsFactory = require('./metrics');
+const EventsFactory = require('./events');
 
 const SettingsFactory = require('./utils/settings');
 
@@ -49,6 +50,7 @@ function SplitFactory(context, gateFactory: any, readyTrackers: Object, mainClie
   } = gate;
 
   const metrics = sharedInstance ? undefined : MetricsFactory(context); // Shared instances use parent metrics collectors
+  const events = sharedInstance ? undefined : EventsFactory(context); // Shared instances use parent events queue
   let producer;
 
   switch(settings.mode) {
@@ -84,6 +86,7 @@ function SplitFactory(context, gateFactory: any, readyTrackers: Object, mainClie
   // Start background jobs tasks
   producer && producer.start();
   metrics && metrics.start();
+  events && events.start();
 
   // Ready promise
   const readyFlag = sharedInstance ? Promise.resolve() :
@@ -119,9 +122,13 @@ function SplitFactory(context, gateFactory: any, readyTrackers: Object, mainClie
         // Stop background jobs
         producer && producer.stop();
         metrics && metrics.stop();
+        events && events.stop();
 
-        // Send impressions if required
-        await metrics && metrics.flush();
+        // Send impressions and events in parallel.
+        await Promise.all([
+          metrics && metrics.flush(),
+          events && events.flush()
+        ]);
 
         // Cleanup event listeners
         readiness.destroy();
