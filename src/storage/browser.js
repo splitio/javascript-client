@@ -8,6 +8,8 @@ const ImpressionsCacheInMemory = require('./ImpressionsCache/InMemory');
 const LatencyCacheInMemory = require('./LatencyCache/InMemory');
 const CountCacheInMemory = require('./CountCache/InMemory');
 
+const EventsCacheInMemory = require('./EventsCache/InMemory');
+
 const KeyBuilder = require('./Keys');
 const KeyBuilderLocalStorage = require('./KeysLocalStorage');
 
@@ -24,6 +26,7 @@ const BrowserStorageFactory = (settings) => {
         impressions: new ImpressionsCacheInMemory,
         metrics: new LatencyCacheInMemory,
         count: new CountCacheInMemory,
+        events: new EventsCacheInMemory,
 
         // When using shared instanciation with MEMORY we reuse everything but segments (they are customer per key).
         shared(settings) {
@@ -35,6 +38,7 @@ const BrowserStorageFactory = (settings) => {
             impressions: this.impressions,
             metrics: this.metrics,
             count: this.count,
+            events: this.events,
 
             destroy() {
               this.splits = new SplitCacheInMemory;
@@ -49,6 +53,7 @@ const BrowserStorageFactory = (settings) => {
           this.impressions.clear();
           this.metrics.clear();
           this.count.clear();
+          this.events.clear();
         }
       };
     }
@@ -62,6 +67,7 @@ const BrowserStorageFactory = (settings) => {
         impressions: new ImpressionsCacheInMemory,
         metrics: new LatencyCacheInMemory,
         count: new CountCacheInMemory,
+        events: new EventsCacheInMemory,
 
         // When using shared instanciation with MEMORY we reuse everything but segments (they are customer per key).
         shared(settings) {
@@ -73,6 +79,7 @@ const BrowserStorageFactory = (settings) => {
             impressions: this.impressions,
             metrics: this.metrics,
             count: this.count,
+            events: this.events,
 
             destroy() {
               this.splits = new SplitCacheInMemory;
@@ -87,6 +94,7 @@ const BrowserStorageFactory = (settings) => {
           this.impressions.clear();
           this.metrics.clear();
           this.count.clear();
+          this.events.clear();
         }
       };
     }

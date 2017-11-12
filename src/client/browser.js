@@ -22,6 +22,7 @@ function FixKey(context): SplitClient {
   client.isBrowserClient = true;
   client.getTreatment = client.getTreatment.bind(client, settings.core.key);
   client.getTreatments = client.getTreatments.bind(client, settings.core.key);
+  client.track = client.track.bind(client, settings.core.key);
 
   return client;
 }

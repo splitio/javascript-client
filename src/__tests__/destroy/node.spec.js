@@ -46,13 +46,37 @@ tape('SDK destroy for NodeJS', async function (assert) {
     });
   });
 
+
+  // Events tracking do not need to wait for ready.
+  client.track('nicolas.zelaya@split.io','tt', 'eventType' /* Invalid value is stored as 0 */);
+  client.track('nicolas.zelaya@gmail.com','tt', 'otherEventType', 1);
+
+  // Assert we are sending the events while doing the destroy
+  fetchMock.post(settings.url('/events/bulk'), request => {
+    return request.json().then(events => {
+      assert.equal(events.length, 2, 'Should flush all events on destroy.');
+
+      const firstEvent = events[0];
+      const secondEvent = events[1];
+
+      assert.equal(firstEvent.key, 'nicolas.zelaya@split.io', 'The flushed events should match the events on the queue.');
+      assert.equal(firstEvent.eventTypeId, 'eventType', 'The flushed events should match the events on the queue.');
+      assert.equal(secondEvent.key, 'nicolas.zelaya@gmail.com', 'The flushed events should match the events on the queue.');
+      assert.equal(secondEvent.eventTypeId, 'otherEventType', 'The flushed events should match the events on the queue.');
+    });
+  });
+
   await client.ready();
 
-  client.getTreatment('ut1', 'Single_Test');
-  client.getTreatment('ut2', 'Single_Test');
-  client.getTreatment('ut3', 'Single_Test');
+  assert.equal(client.getTreatment('ut1', 'Single_Test'), 'on');
+  assert.equal(client.getTreatment('ut2', 'Single_Test'), 'on');
+  assert.equal(client.getTreatment('ut3', 'Single_Test'), 'on');
 
-  await client.destroy();
+  const destroyPromise = client.destroy();
+
+  assert.true(destroyPromise instanceof Promise, 'client.destroy() should return a promise.');
+
+  await destroyPromise;
 
   assert.equal( client.getTreatment('ut1', 'Single_Test'), 'control' );
 
