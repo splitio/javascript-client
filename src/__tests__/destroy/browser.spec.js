@@ -18,7 +18,7 @@ const splitChangesMock2 = require('./splitChanges.since.1500492097547.json');
 const mySegmentsMock = require('./mySegments.json');
 const impressionsMock = require('./impressions.json');
 
-const delayResponse = (mock) => {
+const delayResponse = mock => {
   return new Promise(res => setTimeout(res, 0)).then(() => mock);
 };
 
@@ -30,17 +30,11 @@ fetchMock.mock(settings.url('/mySegments/ut2'), () => delayResponse(mySegmentsMo
 fetchMock.mock(settings.url('/mySegments/ut3'), () => delayResponse(mySegmentsMock));
 
 tape('SDK destroy for BrowserJS', async function (assert) {
-  // localStorage.clear();
-
   const config = {
     core: {
       authorizationKey: 'fake-key',
       key: 'ut1'
     }
-    // mode: 'standalone',
-    // storage: {
-    //   type: 'LOCALSTORAGE'
-    // }
   };
 
   const factory = SplitFactory(config);
@@ -50,12 +44,44 @@ tape('SDK destroy for BrowserJS', async function (assert) {
 
   const manager = factory.manager();
 
+  // Events are shared between shared instances.
+  assert.true(client.track('tt', 'eventType' /* Invalid value is stored as 0 */));
+  client.track('tt2', 'eventType', 1);
+  client2.track('tt', 'eventType', 2);
+  client3.track('tt2', 'otherEventType', 3);
+
   // Assert we are sending the impressions while doing the destroy
   fetchMock.post(settings.url('/testImpressions/bulk'), request => {
     return request.json().then(impressions => {
       impressions[0].keyImpressions = map(impressions[0].keyImpressions, imp => pick(imp, ['keyName', 'treatment']));
 
       assert.deepEqual(impressions, impressionsMock);
+    });
+  });
+
+  // Assert we are sending the events while doing the destroy
+  fetchMock.post(settings.url('/events/bulk'), request => {
+    return request.json().then(events => {
+      /* 4 events were pushed */
+      assert.equal(events.length, 4, 'Should flush all events on destroy.');
+
+      const firstEvent = events[0];
+      const secondEvent = events[1];
+      const thirdEvent = events[2];
+      const fourthEvent = events[3];
+
+      assert.equal(firstEvent.trafficTypeId, 'tt', 'The flushed events should match the events on the queue.');
+      assert.equal(firstEvent.eventTypeId, 'eventType', 'The flushed events should match the events on the queue.');
+      assert.equal(firstEvent.value, 0, 'The flushed events should match the events on the queue.');
+      assert.equal(secondEvent.trafficTypeId, 'tt2', 'The flushed events should match the events on the queue.');
+      assert.equal(secondEvent.eventTypeId, 'eventType', 'The flushed events should match the events on the queue.');
+      assert.equal(secondEvent.value, 1, 'The flushed events should match the events on the queue.');
+      assert.equal(thirdEvent.trafficTypeId, 'tt', 'The flushed events should match the events on the queue.');
+      assert.equal(thirdEvent.eventTypeId, 'eventType', 'The flushed events should match the events on the queue.');
+      assert.equal(thirdEvent.value, 2, 'The flushed events should match the events on the queue.');
+      assert.equal(fourthEvent.trafficTypeId, 'tt2', 'The flushed events should match the events on the queue.');
+      assert.equal(fourthEvent.eventTypeId, 'otherEventType', 'The flushed events should match the events on the queue.');
+      assert.equal(fourthEvent.value, 3, 'The flushed events should match the events on the queue.');
     });
   });
 
