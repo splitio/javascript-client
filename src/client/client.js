@@ -1,11 +1,11 @@
 // @flow
-
 'use strict';
 
 // I'll need to fix first 'isomorphic-fetch' to be transpiled using
 // babel-runtime before remove this line of code.
 require('core-js/es6/promise');
 
+const isFinite = require('lodash/isFinite');
 const log = require('../utils/logger')('splitio-client');
 const evaluator = require('../engine/evaluator');
 
@@ -109,7 +109,7 @@ function ClientFactory(context): SplitClient {
         return false; // If the trafficType or eventType are invalid, return false.
       }
       // Values that are no doubles should be taken as 0 (@Pato's)
-      const value = typeof eventValue === 'number' ? eventValue : 0;
+      const value = isFinite(eventValue) ? eventValue : 0;
 
       storage.events.track({
         eventTypeId,
