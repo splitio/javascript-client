@@ -7,6 +7,7 @@ const SplitFactory = require('../');
 const fetchMock = require('fetch-mock');
 
 const impressionsSuite = require('./browser.impressions.spec');
+const eventsSuite = require('./browser.events.spec');
 
 const tape = require('tape');
 const SettingsFactory = require('../utils/settings');
@@ -340,6 +341,7 @@ tape('## E2E CI Tests ##', function(assert) {
   fetchMock.mock(settings.url('/mySegments/facundo@split.io'), () => delayResponse(mySegmentsMock));
 
   assert.test('E2E / Impressions', impressionsSuite);
+  assert.test('E2E / Events', eventsSuite);
   assert.test('E2E / In Memory', e2eAssertionSuite.bind(null, settingsInMemory));
   assert.test('E2E / In Memory with Bucketing Key', e2eAssertionSuite.bind(null, settingsInMemoryWithBucketingKey));
   assert.test('E2E / In LocalStorage with In Memory Fallback', e2eAssertionSuite.bind(null, settingsInLocalStorage));
