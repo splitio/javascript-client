@@ -37,6 +37,7 @@ interface ISettings {
   readonly core: {
     authorizationKey: string,
     key: SplitIO.SplitKey,
+    trafficType: string,
     labelsEnabled: boolean
   },
   readonly mode: SDKMode,
@@ -266,6 +267,15 @@ interface IBasicClient extends NodeJS.Events {
    * @returns {boolean} Wether the event was added to the queue succesfully or not.
    */
   track(trafficType: string, eventType: string, value?: number): boolean,
+  /**
+   * Tracks an event to be fed to the results product on Split Webconsole.
+   * For usage on the Browser if we defined the key and also the trafficType on the settings.
+   * @function track
+   * @param {string} eventType - The event type corresponding to this event.
+   * @param {number=} value - The value of this event.
+   * @returns {boolean} Wether the event was added to the queue succesfully or not.
+   */
+  track(eventType: string, value?: number): boolean,
   /**
    * Returns a promise that will be resolved once the SDK has finished loading.
    * @function ready
@@ -498,6 +508,12 @@ declare namespace SplitIO {
        * @property {SplitKey} key
        */
       key: SplitKey,
+      /**
+       * Traffic type associated with the customer identifier. @see {@link http://docs.split.io/docs/selecting-the-traffic-type}
+       * If no provided as a setting it will be required on the client.track() calls.
+       * @property {string} trafficType
+       */
+      trafficType?: string,
       /**
        * Disable labels from being sent to Split backend. Labels may contain sensitive information.
        * @property {boolean} labelsEnabled

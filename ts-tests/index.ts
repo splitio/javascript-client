@@ -199,12 +199,14 @@ treatments = client.getTreatments(['mySplit']);
 treatments = client.getTreatments(splitKey, ['mySplit'], attributes);
 treatments = client.getTreatments(['mySplit'], attributes);
 
-// We can call track with or without a key.
-tracked = client.track(splitKey, 'myTrafficType', 'myEventType');
-tracked = client.track('myTrafficType', 'myEventType');
-// Value parameter is optional on both signatures.
+// We can call track with or without a key. Traffic type can also be binded to the client.
+tracked = client.track(splitKey, 'myTrafficType', 'myEventType'); // all params
+tracked = client.track('myTrafficType', 'myEventType'); // key binded, tt provided.
+tracked = client.track('myEventType'); // key and tt binded.
+// Value parameter is optional on all signatures.
 tracked = client.track(splitKey, 'myTrafficType', 'myEventType', 10);
 tracked = client.track('myTrafficType', 'myEventType', 10);
+tracked = client.track('myEventType', 10);
 
 /*** Repeating tests for Async Client...  */
 
@@ -240,11 +242,13 @@ asyncTreatments = asyncClient.getTreatments(splitKey, ['mySplit'], attributes);
 asyncTreatments = asyncClient.getTreatments(['mySplit'], attributes);
 
 // We can call track with or without a key.
-tracked = asyncClient.track(splitKey, 'myTrafficType', 'myEventType');
-tracked = asyncClient.track('myTrafficType', 'myEventType');
+tracked = asyncClient.track(splitKey, 'myTrafficType', 'myEventType'); // all params
+tracked = asyncClient.track('myTrafficType', 'myEventType'); // key binded, tt provided.
+tracked = asyncClient.track('myEventType'); // key and tt binded.
 // Value parameter is optional on both signatures.
 tracked = asyncClient.track(splitKey, 'myTrafficType', 'myEventType', 10);
 tracked = asyncClient.track('myTrafficType', 'myEventType', 10);
+tracked = asyncClient.track('myEventType', 10);
 
 /**** Tests for IManager interface ****/
 
@@ -264,6 +268,7 @@ let fullBrowserSettings: SplitIO.IBrowserSettings = {
   core: {
     authorizationKey: 'asd',
     key: 'asd',
+    trafficType: 'myTT',
     labelsEnabled: false
   },
   scheduler: {
