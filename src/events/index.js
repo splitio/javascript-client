@@ -18,7 +18,7 @@ limitations under the License.
 
 'use strict';
 
-const log = require('../utils/logger')('splitio-metrics');
+const log = require('../utils/logger')('splitio-events');
 const tracker = require('../utils/timeTracker');
 
 const repeat = require('../utils/fn/repeat');
