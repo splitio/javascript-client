@@ -53,6 +53,8 @@ module.exports = function(assert) {
 
       client.destroy();
       assert.end();
+
+      return 200;
     });
 
     return respPromise;
