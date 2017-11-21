@@ -123,8 +123,7 @@ function ClientFactory(context): SplitClient {
         key: matchingKey,
       });
 
-      log.info(`Successfully qeued event of type "${eventTypeId}" for traffic type "${trafficTypeId}".
-                \n Key: ${matchingKey}. Value: ${value}. Timestamp: ${timestamp}.`);
+      log.info(`Successfully qeued event of type "${eventTypeId}" for traffic type "${trafficTypeId}". Key: ${matchingKey}. Value: ${value}. Timestamp: ${timestamp}.`);
 
       return true;
     }
