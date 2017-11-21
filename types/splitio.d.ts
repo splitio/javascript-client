@@ -46,7 +46,8 @@ interface ISettings {
     metricsRefreshRate: number,
     segmentsRefreshRate: number,
     offlineRefreshRate: number,
-    eventsPushRate: number
+    eventsPushRate: number,
+    eventsQueueSize: number
   },
   readonly startup: {
     readyTimeout: number,
@@ -122,11 +123,18 @@ interface ISharedSettings {
      */
     segmentsRefreshRate?: number,
     /**
-     * For SDK posts the queued events data in bulks. This parameter controls the posting rate in seconds.
+     * The SDK posts the queued events data in bulks. This parameter controls the posting rate in seconds.
      * @property {number} eventsPushRate
      * @default 60
      */
     eventsPushRate?: number,
+    /**
+     * The maximum number of event items we want to queue. If we queue more values, it will trigger a flush and reset the timer.
+     * If you use a 0 here, the queue will have no maximum size.
+     * @property {number} eventsQueueSize
+     * @default 500
+     */
+    eventsQueueSize?: number,
     /**
      * For mocking/testing only. The SDK will refresh the features mocked data when mode is set to "localhost" by defining the key.
      * For more information @see {@link http://docs.split.io/docs/nodejs-sdk-overview#section-running-the-sdk-in-off-the-grid-mode}
