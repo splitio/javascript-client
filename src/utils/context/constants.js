@@ -3,5 +3,5 @@ module.exports = {
   STORAGE: 'storage',
   READINESS: 'readiness_gate',
   COLLECTORS: 'metrics_collectors',
-  EVENTS: 'events_scheduler'
+  EVENTS: 'events_publisher'
 };
