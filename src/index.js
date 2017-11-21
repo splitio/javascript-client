@@ -86,7 +86,7 @@ function SplitFactory(context, gateFactory: any, readyTrackers: Object, mainClie
   // Start background jobs tasks
   producer && producer.start();
   metrics && metrics.start();
-  events && events.start();
+  events && context.put(context.constants.EVENTS, events) && events.start();
 
   // Ready promise
   const readyFlag = sharedInstance ? Promise.resolve() :
@@ -154,10 +154,11 @@ function SplitFacade(config: Object) {
   };
   const context = new Context;
   const settings = SettingsFactory(config);
-  const storage = StorageFactory(settings);
+  context.put(context.constants.SETTINGS, settings);
+
+  const storage = StorageFactory(context);
   const gateFactory = ReadinessGateFacade();
 
-  context.put(context.constants.SETTINGS, settings);
   context.put(context.constants.STORAGE, storage);
 
   const {
