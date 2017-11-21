@@ -39,6 +39,8 @@ const base = {
     authorizationKey: undefined,
     // key used in your system (only required for browser version)
     key: undefined,
+    // traffic type for the given key (only used on browser version)
+    trafficType: undefined,
     // toggle impressions tracking of labels
     labelsEnabled: true
   },
