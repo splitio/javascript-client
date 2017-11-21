@@ -13,7 +13,8 @@ const EventsCacheInMemory = require('./EventsCache/InMemory');
 const KeyBuilder = require('./Keys');
 const KeyBuilderLocalStorage = require('./KeysLocalStorage');
 
-const BrowserStorageFactory = (settings) => {
+const BrowserStorageFactory = context => {
+  const settings = context.get(context.constants.SETTINGS);
   const { storage } = settings;
 
   switch (storage.type) {
@@ -26,7 +27,7 @@ const BrowserStorageFactory = (settings) => {
         impressions: new ImpressionsCacheInMemory,
         metrics: new LatencyCacheInMemory,
         count: new CountCacheInMemory,
-        events: new EventsCacheInMemory,
+        events: new EventsCacheInMemory(context),
 
         // When using shared instanciation with MEMORY we reuse everything but segments (they are customer per key).
         shared(settings) {
@@ -67,7 +68,7 @@ const BrowserStorageFactory = (settings) => {
         impressions: new ImpressionsCacheInMemory,
         metrics: new LatencyCacheInMemory,
         count: new CountCacheInMemory,
-        events: new EventsCacheInMemory,
+        events: new EventsCacheInMemory(context),
 
         // When using shared instanciation with MEMORY we reuse everything but segments (they are customer per key).
         shared(settings) {

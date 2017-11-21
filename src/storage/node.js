@@ -19,7 +19,8 @@ const EventsCacheInMemory = require('./EventsCache/InMemory');
 
 const KeyBuilder = require('./Keys');
 
-const NodeStorageFactory = (settings) => {
+const NodeStorageFactory = context => {
+  const settings = context.get(context.constants.SETTINGS);
   const { storage } = settings;
   const keys = new KeyBuilder(settings);
 
@@ -33,7 +34,7 @@ const NodeStorageFactory = (settings) => {
         impressions: new ImpressionsCacheInRedis(keys, redis),
         metrics: new LatencyCacheInRedis(keys, redis),
         count: new CountCacheInRedis(keys, redis),
-        events: new EventsCacheInMemory,
+        events: new EventsCacheInMemory(context),
 
         // When using REDIS we should:
         // 1- Disconnect from the storage
@@ -46,7 +47,7 @@ const NodeStorageFactory = (settings) => {
           this.impressions = new ImpressionsCacheInMemory;
           this.metrics = new LatencyCacheInMemory;
           this.count = new CountCacheInMemory;
-          this.events = new EventsCacheInMemory;
+          this.events = new EventsCacheInMemory(context);
         }
       };
     }
@@ -59,7 +60,7 @@ const NodeStorageFactory = (settings) => {
         impressions: new ImpressionsCacheInMemory,
         metrics: new LatencyCacheInMemory,
         count: new CountCacheInMemory,
-        events: new EventsCacheInMemory,
+        events: new EventsCacheInMemory(context),
 
         // When using MEMORY we should flush all the storages and leave them empty
         destroy() {
