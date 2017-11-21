@@ -341,7 +341,8 @@ tape('## E2E CI Tests ##', function(assert) {
   fetchMock.mock(settings.url('/mySegments/facundo@split.io'), () => delayResponse(mySegmentsMock));
 
   assert.test('E2E / Impressions', impressionsSuite);
-  assert.test('E2E / Events', eventsSuite);
+  assert.test('E2E / Events', eventsSuite.withoutBindingTT);
+  assert.test('E2E / Events with TT binded', eventsSuite.bindingTT);
   assert.test('E2E / In Memory', e2eAssertionSuite.bind(null, settingsInMemory));
   assert.test('E2E / In Memory with Bucketing Key', e2eAssertionSuite.bind(null, settingsInMemoryWithBucketingKey));
   assert.test('E2E / In LocalStorage with In Memory Fallback', e2eAssertionSuite.bind(null, settingsInLocalStorage));
