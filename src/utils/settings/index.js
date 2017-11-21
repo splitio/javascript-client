@@ -55,7 +55,9 @@ const base = {
     // fetch offline changes each 15 sec
     offlineRefreshRate: 15,
     // publish events every 60 seconds after the first flush
-    eventsPushRate: 60
+    eventsPushRate: 60,
+    // how many events will be queued before flushing
+    eventsQueueSize: 500
   },
 
   urls: {

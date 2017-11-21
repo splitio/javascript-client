@@ -272,7 +272,8 @@ let fullBrowserSettings: SplitIO.IBrowserSettings = {
     metricsRefreshRate: 1,
     segmentsRefreshRate: 1,
     offlineRefreshRate: 1,
-    eventsPushRate: 1
+    eventsPushRate: 1,
+    eventsQueueSize: 1
   },
   startup: {
     readyTimeout: 1,
@@ -300,7 +301,8 @@ let fullNodeSettings: SplitIO.INodeSettings = {
     metricsRefreshRate: 1,
     segmentsRefreshRate: 1,
     offlineRefreshRate: 1,
-    eventsPushRate: 1
+    eventsPushRate: 1,
+    eventsQueueSize: 1
   },
   startup: {
     readyTimeout: 1,
@@ -329,7 +331,8 @@ let fullAsyncSettings: SplitIO.INodeAsyncSettings = {
     metricsRefreshRate: 1,
     segmentsRefreshRate: 1,
     offlineRefreshRate: 1,
-    eventsPushRate: 1
+    eventsPushRate: 1,
+    eventsQueueSize: 1
   },
   startup: {
     readyTimeout: 1,
