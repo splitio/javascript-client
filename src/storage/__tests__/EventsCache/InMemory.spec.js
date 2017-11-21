@@ -144,3 +144,52 @@ tape('EVENTS CACHE / Should not call the "flushAndResetTimer" of the events modu
     flushAndResetTimer: () => { cbCalled++; cache.clear(); }
   });
 });
+
+tape('EVENTS CACHE / Should call the "flushAndResetTimer" of the events module if the queue is full and the events module is present for this instance.', assert => {
+  const ctx = new Context;
+  ctx.put(ctx.constants.SETTINGS, {
+    scheduler: {
+      eventsQueueSize: 3
+    }
+  });
+  let cbCalled = 0;
+  let cache;
+  // Context is ready before creating the cache.
+  ctx.put(ctx.constants.EVENTS, {
+    flushAndResetTimer: () => { cbCalled++; cache.clear(); }
+  });
+  cache = new EventsCache(ctx);
+
+  cache.track(0);
+  cache.track(1);
+  assert.equal(cbCalled, 0, 'Cache still not full.');
+  cache.track(2);
+  assert.equal(cbCalled, 1, 'But once it is full, as the events module was ready before creating, there is no need to wait for flush.');
+
+  assert.end();
+});
+
+tape('EVENTS CACHE / Should call the "flushAndResetTimer" of the events module if the queue is full and the events module is present for this instance.', assert => {
+  const ctx = new Context;
+  ctx.put(ctx.constants.SETTINGS, {
+    scheduler: {
+      eventsQueueSize: 3
+    }
+  });
+  let cbCalled = 0;
+  let cache;
+  // Context is ready before creating the cache.
+  ctx.put(ctx.constants.EVENTS, {
+    wrongName: () => { cbCalled++; cache.clear(); }
+  });
+  cache = new EventsCache(ctx);
+
+  cache.track(0);
+  cache.track(1);
+  assert.equal(cbCalled, 0, 'Cache still not full,');
+  assert.doesNotThrow(cache.track.bind(cache, 2), 'but when it is full, as the events module does not have the function we need, nothing happens but no exceptions are thrown.');
+  assert.doesNotThrow(cache.track.bind(cache, 3), 'but when it is full, as the events module does not have the function we need, nothing happens but no exceptions are thrown.');
+  assert.equal(cbCalled, 0, 'but when it is full, as the events module does not have the function we need, nothing happens but no exceptions are thrown.');
+
+  assert.end();
+});

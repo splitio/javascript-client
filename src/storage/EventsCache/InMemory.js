@@ -16,6 +16,8 @@ limitations under the License.
 
 'use strict';
 
+const thenable = require('../../utils/promise/thenable');
+
 class EventsCache {
   queue: Array<any>;
   maxQueue;
@@ -23,14 +25,20 @@ class EventsCache {
 
   constructor(context) {
     const settings = context.get(context.constants.SETTINGS);
-    context.get(context.constants.EVENTS).then(events => {
-      this.onFullQueue = events.flushAndResetTimer;
-      this._checkQueueSize(); // Events is ready, check the queue.
-    });
+    const eventsModule = context.get(context.constants.EVENTS);
 
     this.onFullQueue = false;
     this.maxQueue = settings.scheduler.eventsQueueSize;
     this.queue = [];
+
+    if (thenable(eventsModule)) {
+      eventsModule.then(events => {
+        this.onFullQueue = events.flushAndResetTimer;
+        this._checkQueueSize(); // Events is ready, check the queue.
+      });
+    } else if (typeof eventsModule.flushAndResetTimer === 'function') {
+      this.onFullQueue = eventsModule.flushAndResetTimer;
+    }
   }
 
   /**
