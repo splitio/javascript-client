@@ -72,6 +72,20 @@ tape('SETTINGS / key and traffic type should be overwritable', assert => {
     }
   }, settings3, 'Of course, the new instance should match with the origin settings on every property but the overriden key and trafficType.');
 
+  const settings4 = settings3.overrideKeyAndTT('fourth_key');
+
+  assert.equal(settings4.core.key, 'fourth_key', 'If we call overrideKeyAndTT with only key and NO traffic type, new instance has key overriden as before');
+  assert.equal(settings4.core.trafficType, undefined, 'but traffic type should be blanked. (new key may be different tt)');
+
+  assert.deepEqual({
+    ...settings3,
+    core: {
+      ...settings3.core,
+      key: 'fourth_key',
+      trafficType: undefined
+    }
+  }, settings4, 'Of course, the new instance should match with the origin settings on every property but the overriden key and trafficType.');
+
   assert.end();
 });
 

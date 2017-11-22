@@ -134,15 +134,13 @@ const proto = {
    * @param {string} [trafficType]
    */
   overrideKeyAndTT(key: SplitKey, trafficType: ?String): Settings {
-    const overrides = { key };
-    if (typeof trafficType === 'string') overrides.trafficType = trafficType;
-
     return Object.assign(
       Object.create(proto), {
         ...this,
         core: {
           ...this.core,
-          ...overrides
+          key,
+          trafficType
         }
       }
     );
