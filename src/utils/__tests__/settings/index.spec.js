@@ -33,6 +33,48 @@ tape('SETTINGS / check defaults', assert => {
   assert.end();
 });
 
+tape('SETTINGS / key and traffic type should be overwritable', assert => {
+  const settings = SettingsFactory({
+    core: {
+      authorizationKey: 'dummy token',
+      key: 'start_key'
+    }
+  });
+
+  assert.equal(settings.core.key, 'start_key', 'When creating a setting instance, it will have the provided value for key');
+  assert.equal(settings.core.trafficType, undefined, 'and if no traffic type was provided, it will be undefined.');
+
+  const settings2 = settings.overrideKeyAndTT('second_key');
+
+  assert.notEqual(settings, settings2, 'If we call overrideKeyAndTT we get a new settings instance');
+  assert.equal(settings2.core.key, 'second_key', 'with the key overriden by the value passed to it.');
+  assert.equal(settings2.core.trafficType, undefined, 'As no traffic type was provided, it will still be undefined.');
+
+  assert.deepEqual({
+    ...settings,
+    core: {
+      ...settings.core,
+      key: 'second_key'
+    }
+  }, settings2, 'Of course, the new instance should match with the origin settings on every property but the overriden key.');
+
+  const settings3 = settings.overrideKeyAndTT('third_key', 'myTT');
+
+  assert.equal(settings3.core.key, 'third_key', 'If we call overrideKeyAndTT with both key and traffic type, new instance has key overriden as before');
+  assert.equal(settings3.core.trafficType, 'myTT', 'and as we provided a traffic type, we have that traffic type now.');
+
+  assert.deepEqual({
+    ...settings,
+    core: {
+      ...settings.core,
+      key: 'third_key',
+      trafficType: 'myTT'
+    }
+  }, settings3, 'Of course, the new instance should match with the origin settings on every property but the overriden key and trafficType.');
+
+  assert.end();
+});
+
 tape('SETTINGS / urls should be configurable', assert => {
   const urls = {
     sdk: 'sdk-url',
