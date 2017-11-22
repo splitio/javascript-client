@@ -128,14 +128,21 @@ const proto = {
     return `${this.urls.sdk}${target}`;
   },
 
-  // Override key on a given configuration object (browser only)
-  overrideKey(key: SplitKey): Settings {
+  /**
+   * Returns a settings clone with the key and traffic type (if provided) overriden.
+   * @param {SplitKey} key
+   * @param {string} [trafficType]
+   */
+  overrideKeyAndTT(key: SplitKey, trafficType: ?String): Settings {
+    const overrides = { key };
+    if (typeof trafficType === 'string') overrides.trafficType = trafficType;
+
     return Object.assign(
       Object.create(proto), {
         ...this,
         core: {
           ...this.core,
-          key
+          ...overrides
         }
       }
     );
