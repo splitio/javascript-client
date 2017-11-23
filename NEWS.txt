@@ -1,6 +1,8 @@
 ## 9.3.7 (Nov XX, 2017)
 
 * Adding support for client.track method, for tracking custom events.
+* Adding trafficType as an optional core setting. If provided on the browser it will be binded to the client as the key.
+* Bugfixing - Shared clients (browser) were ready even if the main client was not.
 
 ## 9.3.6 (Oct 12, 2017)
 
