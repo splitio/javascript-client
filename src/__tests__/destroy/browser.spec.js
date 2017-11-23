@@ -56,6 +56,8 @@ tape('SDK destroy for BrowserJS', async function (assert) {
       impressions[0].keyImpressions = map(impressions[0].keyImpressions, imp => pick(imp, ['keyName', 'treatment']));
 
       assert.deepEqual(impressions, impressionsMock);
+
+      return 200;
     });
   });
 
@@ -82,6 +84,8 @@ tape('SDK destroy for BrowserJS', async function (assert) {
       assert.equal(fourthEvent.trafficTypeId, 'tt2', 'The flushed events should match the events on the queue.');
       assert.equal(fourthEvent.eventTypeId, 'otherEventType', 'The flushed events should match the events on the queue.');
       assert.equal(fourthEvent.value, 3, 'The flushed events should match the events on the queue.');
+
+      return 200;
     });
   });
 

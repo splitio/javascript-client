@@ -16,11 +16,29 @@ limitations under the License.
 
 'use strict';
 
+const thenable = require('../../utils/promise/thenable');
+
 class EventsCache {
   queue: Array<any>;
+  maxQueue;
+  onFullQueue;
 
-  constructor() {
+  constructor(context) {
+    const settings = context.get(context.constants.SETTINGS);
+    const eventsModule = context.get(context.constants.EVENTS);
+
+    this.onFullQueue = false;
+    this.maxQueue = settings.scheduler.eventsQueueSize;
     this.queue = [];
+
+    if (thenable(eventsModule)) {
+      eventsModule.then(events => {
+        this.onFullQueue = events.flushAndResetTimer;
+        this._checkQueueSize(); // Events is ready, check the queue.
+      });
+    } else if (typeof eventsModule.flushAndResetTimer === 'function') {
+      this.onFullQueue = eventsModule.flushAndResetTimer;
+    }
   }
 
   /**
@@ -35,6 +53,8 @@ class EventsCache {
    */
   track(data) {
     this.queue.push(data);
+
+    this._checkQueueSize();
 
     return this;
   }
@@ -60,6 +80,16 @@ class EventsCache {
    */
   isEmpty() {
     return this.queue.length === 0;
+  }
+
+  /**
+   * Check if the cache queue is full and we need to flush it.
+   */
+  _checkQueueSize() {
+    // 0 means no maximum value, in case we want to avoid this being triggered.
+    if (this.maxQueue > 0 && this.queue.length >= this.maxQueue) {
+      this.onFullQueue && this.onFullQueue();
+    }
   }
 }
 

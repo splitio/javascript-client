@@ -39,6 +39,8 @@ const base = {
     authorizationKey: undefined,
     // key used in your system (only required for browser version)
     key: undefined,
+    // traffic type for the given key (only used on browser version)
+    trafficType: undefined,
     // toggle impressions tracking of labels
     labelsEnabled: true
   },
@@ -55,7 +57,9 @@ const base = {
     // fetch offline changes each 15 sec
     offlineRefreshRate: 15,
     // publish events every 60 seconds after the first flush
-    eventsPushRate: 60
+    eventsPushRate: 60,
+    // how many events will be queued before flushing
+    eventsQueueSize: 500
   },
 
   urls: {
@@ -124,14 +128,19 @@ const proto = {
     return `${this.urls.sdk}${target}`;
   },
 
-  // Override key on a given configuration object (browser only)
-  overrideKey(key: SplitKey): Settings {
+  /**
+   * Returns a settings clone with the key and traffic type (if provided) overriden.
+   * @param {SplitKey} key
+   * @param {string} [trafficType]
+   */
+  overrideKeyAndTT(key: SplitKey, trafficType: ?String): Settings {
     return Object.assign(
       Object.create(proto), {
         ...this,
         core: {
           ...this.core,
-          key
+          key,
+          trafficType
         }
       }
     );

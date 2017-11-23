@@ -102,12 +102,16 @@ function ClientFactory(context): SplitClient {
       try {
         matchingKey = keyParser(key).matchingKey;
       } catch (e) {
+        log.warn('Attempting to track event with invalid key. Event will be discarded.');
         return false; // If the key is invalid, return false.
       }
 
       if (typeof trafficTypeId !== 'string' || typeof eventTypeId !== 'string') {
+        log.warn('Attempting to track event but Traffic Type and/or Event Type are invalid. Event will be discarded.');
         return false; // If the trafficType or eventType are invalid, return false.
       }
+
+      const timestamp = Date.now();
       // Values that are no doubles should be taken as 0 (@Pato's)
       const value = isFinite(eventValue) ? eventValue : 0;
 
@@ -115,9 +119,11 @@ function ClientFactory(context): SplitClient {
         eventTypeId,
         trafficTypeId,
         value,
-        key : matchingKey,
-        timestamp : Date.now()
+        timestamp,
+        key: matchingKey,
       });
+
+      log.info(`Successfully qeued event of type "${eventTypeId}" for traffic type "${trafficTypeId}". Key: ${matchingKey}. Value: ${value}. Timestamp: ${timestamp}.`);
 
       return true;
     }

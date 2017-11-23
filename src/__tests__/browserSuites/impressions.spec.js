@@ -1,10 +1,10 @@
 'use strict';
 
-const SplitFactory = require('../');
+const SplitFactory = require('../../');
 
 const fetchMock = require('fetch-mock');
 
-const SettingsFactory = require('../utils/settings');
+const SettingsFactory = require('../../utils/settings');
 const settings = SettingsFactory({
   core: {
     key: 'asd'
@@ -53,6 +53,8 @@ module.exports = function(assert) {
 
       client.destroy();
       assert.end();
+
+      return 200;
     });
 
     return respPromise;

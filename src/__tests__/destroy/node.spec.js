@@ -38,11 +38,13 @@ tape('SDK destroy for NodeJS', async function (assert) {
   const manager = factory.manager();
 
   // Assert we are sending the impressions while doing the destroy
-  fetchMock.post(settings.url('/testImpressions/bulk'), request => {
+  fetchMock.postOnce(settings.url('/testImpressions/bulk'), request => {
     return request.json().then(impressions => {
       impressions[0].keyImpressions = map(impressions[0].keyImpressions, imp => pick(imp, ['keyName', 'treatment']));
 
       assert.deepEqual(impressions, impressionsMock);
+
+      return 200;
     });
   });
 
@@ -52,7 +54,7 @@ tape('SDK destroy for NodeJS', async function (assert) {
   client.track('nicolas.zelaya@gmail.com','tt', 'otherEventType', 1);
 
   // Assert we are sending the events while doing the destroy
-  fetchMock.post(settings.url('/events/bulk'), request => {
+  fetchMock.postOnce(settings.url('/events/bulk'), request => {
     return request.json().then(events => {
       assert.equal(events.length, 2, 'Should flush all events on destroy.');
 
@@ -63,6 +65,8 @@ tape('SDK destroy for NodeJS', async function (assert) {
       assert.equal(firstEvent.eventTypeId, 'eventType', 'The flushed events should match the events on the queue.');
       assert.equal(secondEvent.key, 'nicolas.zelaya@gmail.com', 'The flushed events should match the events on the queue.');
       assert.equal(secondEvent.eventTypeId, 'otherEventType', 'The flushed events should match the events on the queue.');
+
+      return 200;
     });
   });
 

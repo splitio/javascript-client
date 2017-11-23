@@ -37,6 +37,7 @@ interface ISettings {
   readonly core: {
     authorizationKey: string,
     key: SplitIO.SplitKey,
+    trafficType: string,
     labelsEnabled: boolean
   },
   readonly mode: SDKMode,
@@ -46,7 +47,8 @@ interface ISettings {
     metricsRefreshRate: number,
     segmentsRefreshRate: number,
     offlineRefreshRate: number,
-    eventsPushRate: number
+    eventsPushRate: number,
+    eventsQueueSize: number
   },
   readonly startup: {
     readyTimeout: number,
@@ -122,11 +124,18 @@ interface ISharedSettings {
      */
     segmentsRefreshRate?: number,
     /**
-     * For SDK posts the queued events data in bulks. This parameter controls the posting rate in seconds.
+     * The SDK posts the queued events data in bulks. This parameter controls the posting rate in seconds.
      * @property {number} eventsPushRate
      * @default 60
      */
     eventsPushRate?: number,
+    /**
+     * The maximum number of event items we want to queue. If we queue more values, it will trigger a flush and reset the timer.
+     * If you use a 0 here, the queue will have no maximum size.
+     * @property {number} eventsQueueSize
+     * @default 500
+     */
+    eventsQueueSize?: number,
     /**
      * For mocking/testing only. The SDK will refresh the features mocked data when mode is set to "localhost" by defining the key.
      * For more information @see {@link http://docs.split.io/docs/nodejs-sdk-overview#section-running-the-sdk-in-off-the-grid-mode}
@@ -258,6 +267,15 @@ interface IBasicClient extends NodeJS.Events {
    * @returns {boolean} Wether the event was added to the queue succesfully or not.
    */
   track(trafficType: string, eventType: string, value?: number): boolean,
+  /**
+   * Tracks an event to be fed to the results product on Split Webconsole.
+   * For usage on the Browser if we defined the key and also the trafficType on the settings.
+   * @function track
+   * @param {string} eventType - The event type corresponding to this event.
+   * @param {number=} value - The value of this event.
+   * @returns {boolean} Wether the event was added to the queue succesfully or not.
+   */
+  track(eventType: string, value?: number): boolean,
   /**
    * Returns a promise that will be resolved once the SDK has finished loading.
    * @function ready
@@ -491,6 +509,12 @@ declare namespace SplitIO {
        */
       key: SplitKey,
       /**
+       * Traffic type associated with the customer identifier. @see {@link http://docs.split.io/docs/selecting-the-traffic-type}
+       * If no provided as a setting it will be required on the client.track() calls.
+       * @property {string} trafficType
+       */
+      trafficType?: string,
+      /**
        * Disable labels from being sent to Split backend. Labels may contain sensitive information.
        * @property {boolean} labelsEnabled
        * @default true
@@ -582,12 +606,19 @@ declare namespace SplitIO {
    */
   interface ISDK extends IBasicSDK {
     /**
-     * Returns a client instance of the SDK. If a key is provided as parameter, the function will return a shared instance. If no key param is provided, we will get the default instance.
+     * Returns the default client instance of the SDK.
      * @function client
-     * @param {SplitKey=} key The key for the new client instance.
      * @returns {IClient} The client instance.
      */
-    client(key?: SplitKey): IClient,
+    client(): IClient,
+    /**
+     * Returns a shared client of the SDK. For usage on the browser.
+     * @function client
+     * @param {SplitKey} key The key for the new client instance.
+     * @param {string=} trafficType The traffic type of the provided key.
+     * @returns {IClient} The client instance.
+     */
+    client(key: SplitKey, trafficType?: string): IClient,
     /**
      * Returns a manager instance of the SDK to explore available information.
      * @function manager
@@ -602,12 +633,11 @@ declare namespace SplitIO {
    */
   interface IAsyncSDK extends IBasicSDK {
     /**
-     * Returns a client instance of the SDK. If a key is provided as parameter, the function will return a shared instance. If no key param is provided, we will get the default instance.
+     * Returns the default client instance of the SDK.
      * @function client
-     * @param {SplitKey=} key The key for the new client instance.
-     * @returns {IClient} The client instance.
+     * @returns {IAsyncClient} The asynchronous client instance.
      */
-    client(key?: SplitKey): IAsyncClient,
+    client(): IAsyncClient,
     /**
      * Returns a manager instance of the SDK to explore available information.
      * @function manager
