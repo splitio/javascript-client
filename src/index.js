@@ -187,7 +187,7 @@ function SplitFacade(config: Object) {
       const instanceId = `${parsedkey.matchingKey}-${parsedkey.bucketingKey}-${trafficType !== undefined ? trafficType : ''}`;
 
       if (!instances[instanceId]) {
-        const sharedSettings = settings.overrideKeyAndTT(parsedkey, trafficType);
+        const sharedSettings = settings.overrideKeyAndTT(key, trafficType);
         const sharedContext = new Context;
         sharedContext.put(context.constants.SETTINGS, sharedSettings);
         sharedContext.put(context.constants.STORAGE, storage.shared(sharedSettings));
