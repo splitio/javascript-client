@@ -1,8 +1,8 @@
 'use strict';
 
-const SplitFactory = require('../');
+const SplitFactory = require('../../');
 
-const SettingsFactory = require('../utils/settings');
+const SettingsFactory = require('../../utils/settings');
 const settings = SettingsFactory({
   core: {
     key: 'asd'
@@ -10,14 +10,6 @@ const settings = SettingsFactory({
 });
 
 const fetchMock = require('fetch-mock');
-const mySegmentsNicolas = require('./mocks/mysegments.nicolas@split.io.json');
-const mySegmentsMarcio = require('./mocks/mysegments.marcio@split.io.json');
-const delayResponse = mock => {
-  return new Promise(res => setTimeout(res, 0)).then(() => mock);
-};
-
-fetchMock.mock(settings.url('/mySegments/nicolas@split.io'), () => delayResponse(mySegmentsNicolas));
-fetchMock.mock(settings.url('/mySegments/marcio@split.io'), () => delayResponse(mySegmentsMarcio));
 
 module.exports = function(startWithTT, assert) {
   const factory = SplitFactory({
