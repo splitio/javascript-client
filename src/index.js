@@ -25,9 +25,6 @@ const Logger = require('./utils/logger');
 const log = Logger('splitio');
 const tracker = require('./utils/timeTracker');
 
-// cache instances created
-const instances = {};
-
 //
 // Create SDK instance based on the provided configurations
 //
@@ -146,6 +143,8 @@ function SplitFactory(context, gateFactory: any, readyTrackers: Object, mainClie
 }
 
 function SplitFacade(config: Object) {
+  // Cache instances created per factory.
+  const instances = {};
   // Tracking times. We need to do it here because we need the storage created.
   const readyLatencyTrackers = {
     splitsReadyTracker: tracker.start(tracker.TaskNames.SPLITS_READY),
