@@ -606,12 +606,19 @@ declare namespace SplitIO {
    */
   interface ISDK extends IBasicSDK {
     /**
-     * Returns a client instance of the SDK. If a key is provided as parameter, the function will return a shared instance. If no key param is provided, we will get the default instance.
+     * Returns the default client instance of the SDK.
      * @function client
-     * @param {SplitKey=} key The key for the new client instance.
      * @returns {IClient} The client instance.
      */
-    client(key?: SplitKey): IClient,
+    client(): IClient,
+    /**
+     * Returns a shared client of the SDK. For usage on the browser.
+     * @function client
+     * @param {SplitKey} key The key for the new client instance.
+     * @param {string=} trafficType The traffic type of the provided key.
+     * @returns {IClient} The client instance.
+     */
+    client(key: SplitKey, trafficType?: string): IClient,
     /**
      * Returns a manager instance of the SDK to explore available information.
      * @function manager
@@ -626,12 +633,11 @@ declare namespace SplitIO {
    */
   interface IAsyncSDK extends IBasicSDK {
     /**
-     * Returns a client instance of the SDK. If a key is provided as parameter, the function will return a shared instance. If no key param is provided, we will get the default instance.
+     * Returns the default client instance of the SDK.
      * @function client
-     * @param {SplitKey=} key The key for the new client instance.
-     * @returns {IClient} The client instance.
+     * @returns {IAsyncClient} The asynchronous client instance.
      */
-    client(key?: SplitKey): IAsyncClient,
+    client(): IAsyncClient,
     /**
      * Returns a manager instance of the SDK to explore available information.
      * @function manager
