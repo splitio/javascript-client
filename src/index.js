@@ -170,7 +170,7 @@ function SplitFacade(config: Object) {
 
   return {
     // Split evaluation engine
-    client(key: ?SplitKey): SplitClient {
+    client(key: ?SplitKey, trafficType: ?String): SplitClient {
       if (!key) {
         log.debug('Retrieving default SDK client.');
         return defaultInstance;
@@ -180,15 +180,22 @@ function SplitFacade(config: Object) {
         throw 'Shared Client not supported by the storage mechanism. Create isolated instances instead.';
       }
 
+      if (trafficType !== undefined && typeof trafficType !== 'string') {
+        throw 'Traffic Type should be a string. Either use a valid Traffic Type or no Traffic Type at all.';
+      }
+
       const parsedkey = keyParser(key);
-      const instanceId = `${parsedkey.matchingKey}-${parsedkey.bucketingKey}`;
+      const instanceId = `${parsedkey.matchingKey}-${parsedkey.bucketingKey}-${trafficType !== undefined ? trafficType : ''}`;
 
       if (!instances[instanceId]) {
-        const sharedSettings = settings.overrideKey(key);
+        const sharedSettings = settings.overrideKeyAndTT(parsedkey, trafficType);
         const sharedContext = new Context;
         sharedContext.put(context.constants.SETTINGS, sharedSettings);
         sharedContext.put(context.constants.STORAGE, storage.shared(sharedSettings));
         instances[instanceId] = SplitFactory(sharedContext, gateFactory, false, mainClientMetricCollectors).api;
+        // The readiness should depend on the readiness of the parent, instead of showing ready by default.
+        instances[instanceId].ready = defaultInstance.ready;
+
         log.info('New shared client instance created.');
       } else {
         log.debug('Retrieving existing SDK client.');
