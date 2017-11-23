@@ -153,10 +153,10 @@ instantiatedSettingsFeatures.something = 'something';
 // Client and Manager
 client = SDK.client();
 client = SDK.client('a customer key');
+client = SDK.client('a customer key', 'a traffic type');
 manager = SDK.manager();
-
+// Today async clients are only possible on Node. Shared client creation not available here.
 asyncClient = AsyncSDK.client();
-asyncClient = AsyncSDK.client('a customer key');
 asyncManager = AsyncSDK.manager();
 
 // Logger
