@@ -29,12 +29,12 @@ import splitio = require('@splitsoftware/splitio');
 
 Using [bower](https://bower.io):
 
-    $ bower install splitio=https://cdn.split.io/sdk/split-8.2.0.min.js
+    $ bower install splitio=https://cdn.split.io/sdk/split-9.3.6.min.js
 
 And finally, the **UMD** build is also available in our **CDN**:
 
 ```html
-<script src="//cdn.split.io/sdk/split-8.2.0.min.js"></script>
+<script src="//cdn.split.io/sdk/split-9.3.6.min.js"></script>
 ```
 
 You can find the library on `window.splitio`.
