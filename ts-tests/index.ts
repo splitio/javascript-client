@@ -38,6 +38,7 @@ let asyncManager: SplitIO.IAsyncManager;
 // Common
 let treatment: SplitIO.Treatment = 'on';
 let asyncTreatment: SplitIO.AsyncTreatment = stringPromise;
+let tracked: boolean;
 let treatmentsMap: SplitIO.Treatments = {
   feature1: 'on',
   feature2: 'control'
@@ -152,10 +153,10 @@ instantiatedSettingsFeatures.something = 'something';
 // Client and Manager
 client = SDK.client();
 client = SDK.client('a customer key');
+client = SDK.client('a customer key', 'a traffic type');
 manager = SDK.manager();
-
+// Today async clients are only possible on Node. Shared client creation not available here.
 asyncClient = AsyncSDK.client();
-asyncClient = AsyncSDK.client('a customer key');
 asyncManager = AsyncSDK.manager();
 
 // Logger
@@ -198,6 +199,15 @@ treatments = client.getTreatments(['mySplit']);
 treatments = client.getTreatments(splitKey, ['mySplit'], attributes);
 treatments = client.getTreatments(['mySplit'], attributes);
 
+// We can call track with or without a key. Traffic type can also be binded to the client.
+tracked = client.track(splitKey, 'myTrafficType', 'myEventType'); // all params
+tracked = client.track('myTrafficType', 'myEventType'); // key binded, tt provided.
+tracked = client.track('myEventType'); // key and tt binded.
+// Value parameter is optional on all signatures.
+tracked = client.track(splitKey, 'myTrafficType', 'myEventType', 10);
+tracked = client.track('myTrafficType', 'myEventType', 10);
+tracked = client.track('myEventType', 10);
+
 /*** Repeating tests for Async Client...  */
 
 // Events constants we get (same as for sync client, just for interface checking)
@@ -231,6 +241,15 @@ asyncTreatments = asyncClient.getTreatments(['mySplit']);
 asyncTreatments = asyncClient.getTreatments(splitKey, ['mySplit'], attributes);
 asyncTreatments = asyncClient.getTreatments(['mySplit'], attributes);
 
+// We can call track with or without a key.
+tracked = asyncClient.track(splitKey, 'myTrafficType', 'myEventType'); // all params
+tracked = asyncClient.track('myTrafficType', 'myEventType'); // key binded, tt provided.
+tracked = asyncClient.track('myEventType'); // key and tt binded.
+// Value parameter is optional on both signatures.
+tracked = asyncClient.track(splitKey, 'myTrafficType', 'myEventType', 10);
+tracked = asyncClient.track('myTrafficType', 'myEventType', 10);
+tracked = asyncClient.track('myEventType', 10);
+
 /**** Tests for IManager interface ****/
 
 splitNames = manager.names();
@@ -249,6 +268,7 @@ let fullBrowserSettings: SplitIO.IBrowserSettings = {
   core: {
     authorizationKey: 'asd',
     key: 'asd',
+    trafficType: 'myTT',
     labelsEnabled: false
   },
   scheduler: {
@@ -256,12 +276,15 @@ let fullBrowserSettings: SplitIO.IBrowserSettings = {
     impressionsRefreshRate: 1,
     metricsRefreshRate: 1,
     segmentsRefreshRate: 1,
-    offlineRefreshRate: 1
+    offlineRefreshRate: 1,
+    eventsPushRate: 1,
+    eventsQueueSize: 1
   },
   startup: {
     readyTimeout: 1,
     requestTimeoutBeforeReady: 1,
-    retriesOnFailureBeforeReady: 1
+    retriesOnFailureBeforeReady: 1,
+    eventsFirstPushWindow: 1
   },
   features: mockedFeaturesMap,
   storage: {
@@ -282,7 +305,9 @@ let fullNodeSettings: SplitIO.INodeSettings = {
     impressionsRefreshRate: 1,
     metricsRefreshRate: 1,
     segmentsRefreshRate: 1,
-    offlineRefreshRate: 1
+    offlineRefreshRate: 1,
+    eventsPushRate: 1,
+    eventsQueueSize: 1
   },
   startup: {
     readyTimeout: 1,
@@ -310,7 +335,9 @@ let fullAsyncSettings: SplitIO.INodeAsyncSettings = {
     impressionsRefreshRate: 1,
     metricsRefreshRate: 1,
     segmentsRefreshRate: 1,
-    offlineRefreshRate: 1
+    offlineRefreshRate: 1,
+    eventsPushRate: 1,
+    eventsQueueSize: 1
   },
   startup: {
     readyTimeout: 1,

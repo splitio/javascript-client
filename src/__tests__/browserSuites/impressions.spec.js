@@ -1,10 +1,10 @@
 'use strict';
 
-const SplitFactory = require('../');
+const SplitFactory = require('../../');
 
 const fetchMock = require('fetch-mock');
 
-const SettingsFactory = require('../utils/settings');
+const SettingsFactory = require('../../utils/settings');
 const settings = SettingsFactory({
   core: {
     key: 'asd'
@@ -23,11 +23,14 @@ module.exports = function(assert) {
       segmentsRefreshRate: 1,
       metricsRefreshRate: 3000,
       impressionsRefreshRate: 1
+    },
+    startup: {
+      eventsFirstPushWindow: 3000
     }
   });
   const client = splitio.client();
 
-  fetchMock.postOnce(settings.url('/testImpressions/bulk'), (req) => {
+  fetchMock.postOnce(settings.url('/testImpressions/bulk'), req => {
     const respPromise = req.json();
 
     respPromise.then(resp => {
@@ -50,6 +53,8 @@ module.exports = function(assert) {
 
       client.destroy();
       assert.end();
+
+      return 200;
     });
 
     return respPromise;
