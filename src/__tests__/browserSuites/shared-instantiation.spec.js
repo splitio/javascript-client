@@ -70,9 +70,9 @@ module.exports = function(startWithTT, assert) {
     fetchMock.postOnce(settings.url('/events/bulk'), req => { // Prepare the mock to check for events having correct values
       return req.json().then(events => {
         assert.equal(events.length, 3, 'Tracked only valid events');
-        assert.equal(events[0].trafficTypeId, `${startWithTT ? 'start' : 'main'}_tt`, 'matching traffic types both binded and provided through client.track()');
-        assert.equal(events[1].trafficTypeId, 'nico_tt', 'matching traffic types both binded and provided through client.track()');
-        assert.equal(events[2].trafficTypeId, 'marcio_tt', 'matching traffic types both binded and provided through client.track()');
+        assert.equal(events[0].trafficTypeName, `${startWithTT ? 'start' : 'main'}_tt`, 'matching traffic types both binded and provided through client.track()');
+        assert.equal(events[1].trafficTypeName, 'nico_tt', 'matching traffic types both binded and provided through client.track()');
+        assert.equal(events[2].trafficTypeName, 'marcio_tt', 'matching traffic types both binded and provided through client.track()');
 
         finished.next();
         return 200;

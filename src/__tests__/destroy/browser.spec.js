@@ -72,16 +72,16 @@ tape('SDK destroy for BrowserJS', async function (assert) {
       const thirdEvent = events[2];
       const fourthEvent = events[3];
 
-      assert.equal(firstEvent.trafficTypeId, 'tt', 'The flushed events should match the events on the queue.');
+      assert.equal(firstEvent.trafficTypeName, 'tt', 'The flushed events should match the events on the queue.');
       assert.equal(firstEvent.eventTypeId, 'eventType', 'The flushed events should match the events on the queue.');
       assert.equal(firstEvent.value, 0, 'The flushed events should match the events on the queue.');
-      assert.equal(secondEvent.trafficTypeId, 'tt2', 'The flushed events should match the events on the queue.');
+      assert.equal(secondEvent.trafficTypeName, 'tt2', 'The flushed events should match the events on the queue.');
       assert.equal(secondEvent.eventTypeId, 'eventType', 'The flushed events should match the events on the queue.');
       assert.equal(secondEvent.value, 1, 'The flushed events should match the events on the queue.');
-      assert.equal(thirdEvent.trafficTypeId, 'tt', 'The flushed events should match the events on the queue.');
+      assert.equal(thirdEvent.trafficTypeName, 'tt', 'The flushed events should match the events on the queue.');
       assert.equal(thirdEvent.eventTypeId, 'eventType', 'The flushed events should match the events on the queue.');
       assert.equal(thirdEvent.value, 2, 'The flushed events should match the events on the queue.');
-      assert.equal(fourthEvent.trafficTypeId, 'tt2', 'The flushed events should match the events on the queue.');
+      assert.equal(fourthEvent.trafficTypeName, 'tt2', 'The flushed events should match the events on the queue.');
       assert.equal(fourthEvent.eventTypeId, 'otherEventType', 'The flushed events should match the events on the queue.');
       assert.equal(fourthEvent.value, 3, 'The flushed events should match the events on the queue.');
 
