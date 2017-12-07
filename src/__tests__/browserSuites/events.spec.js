@@ -44,13 +44,13 @@ function withoutBindingTT(assert) {
 
       assert.equal(firstEvent.key, 'facundo@split.io', 'Key should match received value.');
       assert.equal(firstEvent.eventTypeId, 'someEvent', 'EventTypeId should match received value.');
-      assert.equal(firstEvent.trafficTypeId, 'someTrafficType', 'TrafficTypeId should match received value.');
+      assert.equal(firstEvent.trafficTypeName, 'someTrafficType', 'TrafficTypeName should match received value.');
       assert.equal(firstEvent.value, 10, 'Value should match the value received on the .track() function.');
       assert.equal(typeof firstEvent.timestamp, 'number', 'The timestamp should be a number.');
 
       assert.equal(lastEvent.key, 'facundo@split.io', 'Key should match received value.');
       assert.equal(lastEvent.eventTypeId, 'my.checkout.event', 'EventTypeId should match received value.');
-      assert.equal(lastEvent.trafficTypeId, 'otherTraffictype', 'TrafficTypeId should match received value.');
+      assert.equal(lastEvent.trafficTypeName, 'otherTraffictype', 'TrafficTypeName should match received value.');
       assert.equal(lastEvent.value, 0, 'Should have 0 as value because the value was invalid on the last event.');
       assert.equal(typeof lastEvent.timestamp, 'number', 'The timestamp should be a number.');
 
@@ -101,13 +101,13 @@ function bindingTT(assert) {
 
       assert.equal(firstEvent.key, 'facundo@split.io', 'Key should match received value.');
       assert.equal(firstEvent.eventTypeId, 'someEvent', 'EventTypeId should match received value.');
-      assert.equal(firstEvent.trafficTypeId, 'binded_tt', 'TrafficTypeId should match the binded value.');
+      assert.equal(firstEvent.trafficTypeName, 'binded_tt', 'TrafficTypeName should match the binded value.');
       assert.equal(firstEvent.value, 10, 'Value should match the value received on the .track() function.');
       assert.equal(typeof firstEvent.timestamp, 'number', 'The timestamp should be a number.');
 
       assert.equal(lastEvent.key, 'facundo@split.io', 'Key should match received value.');
       assert.equal(lastEvent.eventTypeId, 'my.checkout.event', 'EventTypeId should match received value.');
-      assert.equal(lastEvent.trafficTypeId, 'binded_tt', 'TrafficTypeId should match the binded value.');
+      assert.equal(lastEvent.trafficTypeName, 'binded_tt', 'TrafficTypeName should match the binded value.');
       assert.equal(lastEvent.value, 0, 'Should have 0 as value because the value was invalid on the last event.');
       assert.equal(typeof lastEvent.timestamp, 'number', 'The timestamp should be a number.');
 

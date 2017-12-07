@@ -97,7 +97,7 @@ function ClientFactory(context): SplitClient {
         return results;
       }
     },
-    track(key, trafficTypeId, eventTypeId, eventValue) {
+    track(key, trafficTypeName, eventTypeId, eventValue) {
       let matchingKey;
       try {
         matchingKey = keyParser(key).matchingKey;
@@ -106,7 +106,7 @@ function ClientFactory(context): SplitClient {
         return false; // If the key is invalid, return false.
       }
 
-      if (typeof trafficTypeId !== 'string' || typeof eventTypeId !== 'string') {
+      if (typeof trafficTypeName !== 'string' || typeof eventTypeId !== 'string') {
         log.warn('Attempting to track event but Traffic Type and/or Event Type are invalid. Event will be discarded.');
         return false; // If the trafficType or eventType are invalid, return false.
       }
@@ -117,13 +117,13 @@ function ClientFactory(context): SplitClient {
 
       storage.events.track({
         eventTypeId,
-        trafficTypeId,
+        trafficTypeName,
         value,
         timestamp,
         key: matchingKey,
       });
 
-      log.info(`Successfully qeued event of type "${eventTypeId}" for traffic type "${trafficTypeId}". Key: ${matchingKey}. Value: ${value}. Timestamp: ${timestamp}.`);
+      log.info(`Successfully qeued event of type "${eventTypeId}" for traffic type "${trafficTypeName}". Key: ${matchingKey}. Value: ${value}. Timestamp: ${timestamp}.`);
 
       return true;
     }
