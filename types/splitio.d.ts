@@ -37,6 +37,7 @@ interface ISettings {
   readonly core: {
     authorizationKey: string,
     key: SplitIO.SplitKey,
+    trafficType: string,
     labelsEnabled: boolean
   },
   readonly mode: SDKMode,
@@ -45,12 +46,15 @@ interface ISettings {
     impressionsRefreshRate: number,
     metricsRefreshRate: number,
     segmentsRefreshRate: number,
-    offlineRefreshRate: number
+    offlineRefreshRate: number,
+    eventsPushRate: number,
+    eventsQueueSize: number
   },
   readonly startup: {
     readyTimeout: number,
     requestTimeoutBeforeReady: number,
-    retriesOnFailureBeforeReady: number
+    retriesOnFailureBeforeReady: number,
+    eventsFirstPushWindow: number
   },
   readonly storage: {
     prefix: string,
@@ -91,33 +95,6 @@ interface ILoggerAPI {
  */
 interface ISharedSettings {
   /**
-   * SDK Startup settings.
-   * @property {Object} startup
-   */
-  startup?: {
-    /**
-     * Maximum amount of time used before notify a timeout.
-     * @property {number} readyTimeout
-     * @default 0   // Node
-     * @default 1.5 // Browser
-     */
-    readyTimeout?: number,
-    /**
-     * Time to wait for a request before the SDK is ready. If this time expires, JS Sdk will retry 'retriesOnFailureBeforeReady' times before notifying its failure to be 'ready'.
-     * @property {number} requestTimeoutBeforeReady
-     * @default 15  // Node
-     * @default 0.8 // Browser
-     */
-    requestTimeoutBeforeReady?: number,
-    /**
-     * How many quick retries we will do while starting up the SDK.
-     * @property {number} retriesOnFailureBeforeReady
-     * @default 0 // Node
-     * @default 1 // Browser
-     */
-    retriesOnFailureBeforeReady?: number
-  },
-  /**
    * SDK scheduler settings.
    * @property {Object} scheduler
    */
@@ -147,6 +124,19 @@ interface ISharedSettings {
      */
     segmentsRefreshRate?: number,
     /**
+     * The SDK posts the queued events data in bulks. This parameter controls the posting rate in seconds.
+     * @property {number} eventsPushRate
+     * @default 60
+     */
+    eventsPushRate?: number,
+    /**
+     * The maximum number of event items we want to queue. If we queue more values, it will trigger a flush and reset the timer.
+     * If you use a 0 here, the queue will have no maximum size.
+     * @property {number} eventsQueueSize
+     * @default 500
+     */
+    eventsQueueSize?: number,
+    /**
      * For mocking/testing only. The SDK will refresh the features mocked data when mode is set to "localhost" by defining the key.
      * For more information @see {@link http://docs.split.io/docs/nodejs-sdk-overview#section-running-the-sdk-in-off-the-grid-mode}
      * @property {number} offlineRefreshRate
@@ -167,6 +157,30 @@ interface ISharedSettings {
  * @extends ISharedSettings
  */
 interface INodeBasicSettings extends ISharedSettings {
+  /**
+   * SDK Startup settings for NodeJS.
+   * @property {Object} startup
+   */
+  startup?: {
+    /**
+     * Maximum amount of time used before notify a timeout.
+     * @property {number} readyTimeout
+     * @default 0
+     */
+    readyTimeout?: number,
+    /**
+     * Time to wait for a request before the SDK is ready. If this time expires, JS Sdk will retry 'retriesOnFailureBeforeReady' times before notifying its failure to be 'ready'.
+     * @property {number} requestTimeoutBeforeReady
+     * @default 15
+     */
+    requestTimeoutBeforeReady?: number,
+    /**
+     * How many quick retries we will do while starting up the SDK.
+     * @property {number} retriesOnFailureBeforeReady
+     * @default 0
+     */
+    retriesOnFailureBeforeReady?: number
+  },
   /**
    * SDK Core settings for NodeJS.
    * @property {Object} core
@@ -232,6 +246,36 @@ interface IBasicClient extends NodeJS.Events {
    * @property {EventConsts} Event
    */
   Event: EventConsts,
+  /**
+   * Tracks an event to be fed to the results product on Split Webconsole.
+   * For usage on NodeJS as we don't have only one key.
+   * @function track
+   * @param {SplitKey} key - The key that identifies the entity related to this event.
+   * @param {string} trafficType - The traffic type of the entity related to this event.
+   * @param {string} eventType - The event type corresponding to this event.
+   * @param {number=} value - The value of this event.
+   * @returns {boolean} Wether the event was added to the queue succesfully or not.
+   */
+  track(key: SplitIO.SplitKey, trafficType: string, eventType: string, value?: number): boolean,
+  /**
+   * Tracks an event to be fed to the results product on Split Webconsole.
+   * For usage on the Browser as we defined the key on the settings.
+   * @function track
+   * @param {string} trafficType - The traffic type of the entity related to this event.
+   * @param {string} eventType - The event type corresponding to this event.
+   * @param {number=} value - The value of this event.
+   * @returns {boolean} Wether the event was added to the queue succesfully or not.
+   */
+  track(trafficType: string, eventType: string, value?: number): boolean,
+  /**
+   * Tracks an event to be fed to the results product on Split Webconsole.
+   * For usage on the Browser if we defined the key and also the trafficType on the settings.
+   * @function track
+   * @param {string} eventType - The event type corresponding to this event.
+   * @param {number=} value - The value of this event.
+   * @returns {boolean} Wether the event was added to the queue succesfully or not.
+   */
+  track(eventType: string, value?: number): boolean,
   /**
    * Returns a promise that will be resolved once the SDK has finished loading.
    * @function ready
@@ -418,6 +462,38 @@ declare namespace SplitIO {
    */
   interface IBrowserSettings extends ISharedSettings {
     /**
+     * SDK Startup settings for the Browser.
+     * @property {Object} startup
+     */
+    startup?: {
+      /**
+       * Maximum amount of time used before notify a timeout.
+       * @property {number} readyTimeout
+       * @default 1.5
+       */
+      readyTimeout?: number,
+      /**
+       * Time to wait for a request before the SDK is ready. If this time expires, JS Sdk will retry 'retriesOnFailureBeforeReady' times before notifying its failure to be 'ready'.
+       * @property {number} requestTimeoutBeforeReady
+       * @default 0.8
+       */
+      requestTimeoutBeforeReady?: number,
+      /**
+       * How many quick retries we will do while starting up the SDK.
+       * @property {number} retriesOnFailureBeforeReady
+       * @default 1
+       */
+      retriesOnFailureBeforeReady?: number,
+      /**
+       * For SDK posts the queued events data in bulks with a given rate, but the first push window is defined separately,
+       * to better control on browsers. This number defines that window before the first events push.
+       *
+       * @property {number} eventsFirstPushWindow
+       * @default 10
+       */
+      eventsFirstPushWindow?: number,
+    },
+    /**
      * SDK Core settings for the browser.
      * @property {Object} core
      */
@@ -432,6 +508,12 @@ declare namespace SplitIO {
        * @property {SplitKey} key
        */
       key: SplitKey,
+      /**
+       * Traffic type associated with the customer identifier. @see {@link http://docs.split.io/docs/selecting-the-traffic-type}
+       * If no provided as a setting it will be required on the client.track() calls.
+       * @property {string} trafficType
+       */
+      trafficType?: string,
       /**
        * Disable labels from being sent to Split backend. Labels may contain sensitive information.
        * @property {boolean} labelsEnabled
@@ -524,12 +606,19 @@ declare namespace SplitIO {
    */
   interface ISDK extends IBasicSDK {
     /**
-     * Returns a client instance of the SDK. If a key is provided as parameter, the function will return a shared instance. If no key param is provided, we will get the default instance.
+     * Returns the default client instance of the SDK.
      * @function client
-     * @param {SplitKey=} key The key for the new client instance.
      * @returns {IClient} The client instance.
      */
-    client(key?: SplitKey): IClient,
+    client(): IClient,
+    /**
+     * Returns a shared client of the SDK. For usage on the browser.
+     * @function client
+     * @param {SplitKey} key The key for the new client instance.
+     * @param {string=} trafficType The traffic type of the provided key.
+     * @returns {IClient} The client instance.
+     */
+    client(key: SplitKey, trafficType?: string): IClient,
     /**
      * Returns a manager instance of the SDK to explore available information.
      * @function manager
@@ -544,12 +633,11 @@ declare namespace SplitIO {
    */
   interface IAsyncSDK extends IBasicSDK {
     /**
-     * Returns a client instance of the SDK. If a key is provided as parameter, the function will return a shared instance. If no key param is provided, we will get the default instance.
+     * Returns the default client instance of the SDK.
      * @function client
-     * @param {SplitKey=} key The key for the new client instance.
-     * @returns {IClient} The client instance.
+     * @returns {IAsyncClient} The asynchronous client instance.
      */
-    client(key?: SplitKey): IAsyncClient,
+    client(): IAsyncClient,
     /**
      * Returns a manager instance of the SDK to explore available information.
      * @function manager

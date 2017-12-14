@@ -1,16 +1,18 @@
 // @flow
-
 'use strict';
 
 // I'll need to fix first 'isomorphic-fetch' to be transpiled using
 // babel-runtime before remove this line of code.
 require('core-js/es6/promise');
 
+const isFinite = require('lodash/isFinite');
 const log = require('../utils/logger')('splitio-client');
 const evaluator = require('../engine/evaluator');
 
 const PassTracker = require('../tracker/PassThrough');
 const tracker = require('../utils/timeTracker');
+
+const keyParser = require('../utils/key/parser');
 
 const thenable = require('../utils/promise/thenable');
 const { matching, bucketing } = require('../utils/key/factory');
@@ -94,6 +96,36 @@ function ClientFactory(context): SplitClient {
       } else {
         return results;
       }
+    },
+    track(key, trafficTypeName, eventTypeId, eventValue) {
+      let matchingKey;
+      try {
+        matchingKey = keyParser(key).matchingKey;
+      } catch (e) {
+        log.warn('Attempting to track event with invalid key. Event will be discarded.');
+        return false; // If the key is invalid, return false.
+      }
+
+      if (typeof trafficTypeName !== 'string' || typeof eventTypeId !== 'string') {
+        log.warn('Attempting to track event but Traffic Type and/or Event Type are invalid. Event will be discarded.');
+        return false; // If the trafficType or eventType are invalid, return false.
+      }
+
+      const timestamp = Date.now();
+      // Values that are no doubles should be taken as 0 (@Pato's)
+      const value = isFinite(eventValue) ? eventValue : 0;
+
+      storage.events.track({
+        eventTypeId,
+        trafficTypeName,
+        value,
+        timestamp,
+        key: matchingKey,
+      });
+
+      log.info(`Successfully qeued event of type "${eventTypeId}" for traffic type "${trafficTypeName}". Key: ${matchingKey}. Value: ${value}. Timestamp: ${timestamp}.`);
+
+      return true;
     }
   };
 
