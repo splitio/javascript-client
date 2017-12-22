@@ -1,3 +1,7 @@
+## 9.3.7 (Dec 22, 2017)
+
+* Updated SDK labels.
+
 ## 9.3.6 (Oct 12, 2017)
 
 * Fixed an issue that was not rejecting client.ready() on SDK_READY_TIMED_OUT event.
