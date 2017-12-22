@@ -1,6 +1,6 @@
-## 9.3.7 (Dec 21, 2017)
+## 9.3.7 (Dec 22, 2017)
 
-* Updated SDK labels.
+* Updated SDK labels to better align with Simplified Editor.
 
 ## 9.3.6 (Oct 12, 2017)
 

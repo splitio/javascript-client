@@ -1,4 +1,4 @@
-## 9.3.7 (Dec 21, 2017)
+## 9.3.7 (Dec 22, 2017)
 
 * Updated SDK labels.
 
