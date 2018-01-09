@@ -1,4 +1,4 @@
-## 9.4.0 (Nov XX, 2017)
+## 9.4.0 (Jan XX, 2018)
 
 * Adding support for client.track method, for tracking custom events.
 * Adding trafficType as an optional core setting. If provided on the browser it will be binded to the client as the key.
