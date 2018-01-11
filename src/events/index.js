@@ -29,9 +29,10 @@ const eventsBulkRequest = require('../services/events/bulk');
 const EventsFactory = context => {
   const settings = context.get(context.constants.SETTINGS);
   const storage = context.get(context.constants.STORAGE);
+  const isLocalhostMode = settings.mode === 'localhost';
 
   const pushEvents = () => {
-    if (storage.events.isEmpty()) return Promise.resolve();
+    if (isLocalhostMode || storage.events.isEmpty()) return Promise.resolve();
 
     log.info(`Pushing ${storage.events.state().length} queued events.`);
     const latencyTrackerStop = tracker.start(tracker.TaskNames.EVENTS_PUSH);
@@ -40,8 +41,7 @@ const EventsFactory = context => {
 
     return eventsService(eventsBulkRequest(settings, {
       body: json
-    }))
-    .then(() => latencyTrackerStop());
+    })).then(() => latencyTrackerStop());
   };
 
   let stopEventsPublisher = false;
