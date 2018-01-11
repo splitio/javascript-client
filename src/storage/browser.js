@@ -13,12 +13,17 @@ const EventsCacheInMemory = require('./EventsCache/InMemory');
 const KeyBuilder = require('./Keys');
 const KeyBuilderLocalStorage = require('./KeysLocalStorage');
 
+const {
+  STORAGE_MEMORY,
+  STORAGE_LOCALSTORAGE
+} = require('../utils/constants');
+
 const BrowserStorageFactory = context => {
   const settings = context.get(context.constants.SETTINGS);
   const { storage } = settings;
 
   switch (storage.type) {
-    case 'MEMORY': {
+    case STORAGE_MEMORY: {
       const keys = new KeyBuilder(settings);
 
       return {
@@ -59,7 +64,7 @@ const BrowserStorageFactory = context => {
       };
     }
 
-    case 'LOCALSTORAGE': {
+    case STORAGE_LOCALSTORAGE: {
       const keys = new KeyBuilderLocalStorage(settings);
 
       return {
