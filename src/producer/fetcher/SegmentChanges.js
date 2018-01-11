@@ -20,6 +20,7 @@ const segmentChangesService = require('../../services/segmentChanges');
 const segmentChangesRequest = require('../../services/segmentChanges/get');
 
 const tracker = require('../../utils/timeTracker');
+const startsWith = require('lodash/startsWith');
 
 function greedyFetch(settings, lastSinceValue, segmentName, metricCollectors) {
   return tracker.start(tracker.TaskNames.SEGMENTS_FETCH, metricCollectors, segmentChangesService(segmentChangesRequest(settings, {
@@ -37,7 +38,9 @@ function greedyFetch(settings, lastSinceValue, segmentName, metricCollectors) {
       });
     }
   })
-  .catch(function () {
+  .catch(err => {
+    // If the operation is forbidden it may be due to permissions, don't recover.
+    if (startsWith(err.message, '403')) throw err;
     // if something goes wrong with the request to the server, we are going to
     // stop requesting information till the next round of downloading
     return [];
