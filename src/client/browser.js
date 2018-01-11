@@ -6,13 +6,14 @@ const get = require('lodash/get');
 
 const ClientFactory = require('./client');
 const keyParser = require('../utils/key/parser');
+const { LOCALHOST_MODE } = require('../utils/constants');
 
 function FixKey(context): SplitClient {
   const settings = context.get(context.constants.SETTINGS);
   let key = get(settings, 'core.key', undefined);
   let tt = get(settings, 'core.trafficType', undefined);
 
-  if (settings.mode === 'localhost' && key === undefined) {
+  if (settings.mode === LOCALHOST_MODE && key === undefined) {
     settings.core.key = 'localhost_key';
   } else {
     keyParser(key);

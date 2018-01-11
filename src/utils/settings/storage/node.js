@@ -15,6 +15,8 @@ limitations under the License.
 **/
 'use strict';
 
+const { LOCALHOST_MODE } = require('../../constants');
+
 const ParseStorageSettings = (settings) => {
   let {
     mode,
@@ -32,7 +34,7 @@ const ParseStorageSettings = (settings) => {
   }
 
   // In localhost mode we should force the user to use the MEMORY storage
-  if (mode === 'localhost') return {
+  if (mode === LOCALHOST_MODE) return {
     type: 'MEMORY',
     prefix
   };

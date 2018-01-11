@@ -26,13 +26,14 @@ const overridesPerPlatform: Object = require('./defaults');
 const storage: Function = require('./storage');
 const mode: Function = require('./mode');
 const Logger = require('../../utils/logger');
+const { STANDALONE_MODE } = require('../../utils/constants');
 const { version } = require('../../../package.json');
 
 const eventsEndpointMatcher = /\/(testImpressions|metrics|events)/;
 
 const base = {
   // Define which kind of object you want to retrieve from SplitFactory
-  mode: 'standalone',
+  mode: STANDALONE_MODE,
 
   core: {
     // API token (tight to an environment)

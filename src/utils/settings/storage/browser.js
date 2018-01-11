@@ -20,8 +20,9 @@ limitations under the License.
 
 const log = require('../../../utils/logger')('splitio-settings');
 const isLocalStorageAvailable = require('../../../utils/localstorage/isAvailable');
+const { LOCALHOST_MODE } = require('../../../utils/constants');
 
-const ParseStorageSettings = (settings: Settings) => {
+const ParseStorageSettings = settings => {
   let {
     mode,
     storage: {
@@ -37,7 +38,7 @@ const ParseStorageSettings = (settings: Settings) => {
     prefix = 'SPLITIO';
   }
 
-  if (mode === 'localhost') return {
+  if (mode === LOCALHOST_MODE) return {
     type: 'MEMORY',
     prefix
   };
