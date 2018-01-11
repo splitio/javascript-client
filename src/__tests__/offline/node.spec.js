@@ -62,7 +62,7 @@ tape('NodeJS Offline mode', function (assert) {
       testing_not_exist: 'control'
     });
 
-    return client.destroy().then(() => {
+    client.destroy().then(() => {
       // We test the breakdown instead of just the misc because it's faster to spot where the issue is
       assert.notOk(fetchMock.called('splitChanges'), 'On offline mode we should not call the splitChanges endpoint.');
       assert.notOk(fetchMock.called('segmentChanges'), 'On offline mode we should not call the segmentChanges endpoint.');
