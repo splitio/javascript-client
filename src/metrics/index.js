@@ -20,7 +20,7 @@ limitations under the License.
 
 const log = require('../utils/logger')('splitio-metrics');
 const tracker = require('../utils/timeTracker');
-
+const { LOCALHOST_MODE } = require('../utils/constants');
 const repeat = require('../utils/fn/repeat');
 
 const metricsService = require('../services/metrics');
@@ -39,11 +39,13 @@ const {
   SDKCollector
 } = require('./Collectors');
 
-const MetricsFactory = (context): Startable => {
+const MetricsFactory = context => {
   const settings = context.get(context.constants.SETTINGS);
   const storage = context.get(context.constants.STORAGE);
+  const isLocalhostMode = settings.mode === LOCALHOST_MODE;
+
   const pushMetrics = (): Promise<void> => {
-    if (storage.metrics.isEmpty() && storage.count.isEmpty()) return Promise.resolve();
+    if (isLocalhostMode || (storage.metrics.isEmpty() && storage.count.isEmpty())) return Promise.resolve();
 
     log.info('Pushing metrics');
     const latencyTrackerStop = tracker.start(tracker.TaskNames.METRICS_PUSH);
@@ -52,19 +54,17 @@ const MetricsFactory = (context): Startable => {
     const latenciesPromise = storage.metrics.isEmpty() ? null : metricsService(
       metricsTimesServiceRequest(settings, {
         body: JSON.stringify(metricsDTO.fromLatenciesCollector(storage.metrics))
-      }
-    ))
-    .then(() => storage.metrics.clear())
-    .catch(() => storage.metrics.clear());
+      }))
+      .then(() => storage.metrics.clear())
+      .catch(() => storage.metrics.clear());
 
     // POST counters
     const countersPromise = storage.count.isEmpty() ? null : metricsService(
       metricsCountersServiceRequest(settings, {
         body: JSON.stringify(metricsDTO.fromCountersCollector(storage.count))
-      }
-    ))
-    .then(() => storage.count.clear())
-    .catch(() => storage.count.clear());
+      }))
+      .then(() => storage.count.clear())
+      .catch(() => storage.count.clear());
 
     return Promise.all([latenciesPromise, countersPromise]).then(resp => {
       // After both finishes, track the end and return the results
@@ -74,7 +74,7 @@ const MetricsFactory = (context): Startable => {
   };
 
   const pushImpressions = (): Promise<void> => {
-    if (storage.impressions.isEmpty()) return Promise.resolve();
+    if (isLocalhostMode || storage.impressions.isEmpty()) return Promise.resolve();
 
     log.info(`Pushing ${storage.impressions.queue.length} impressions`);
     const latencyTrackerStop = tracker.start(tracker.TaskNames.IMPRESSIONS_PUSH);
@@ -82,11 +82,11 @@ const MetricsFactory = (context): Startable => {
     return impressionsService(impressionsBulkRequest(settings, {
       body: JSON.stringify(impressionsDTO.fromImpressionsCollector(storage.impressions, settings))
     }))
-    .then(() => {
-      latencyTrackerStop();
-      return storage.impressions.clear();
-    })
-    .catch(() => storage.impressions.clear());
+      .then(() => {
+        latencyTrackerStop();
+        return storage.impressions.clear();
+      })
+      .catch(() => storage.impressions.clear());
   };
 
   let stopImpressionsPublisher = false;

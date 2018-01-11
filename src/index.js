@@ -25,6 +25,13 @@ const Logger = require('./utils/logger');
 const log = Logger('splitio');
 const tracker = require('./utils/timeTracker');
 
+const {
+  LOCALHOST_MODE,
+  STANDALONE_MODE,
+  PRODUCER_MODE,
+  CONSUMER_MODE
+} = require('./utils/constants');
+
 //
 // Create SDK instance based on the provided configurations
 //
@@ -51,11 +58,11 @@ function SplitFactory(context, gateFactory: any, readyTrackers: Object, mainClie
   let producer;
 
   switch(settings.mode) {
-    case 'localhost':
+    case LOCALHOST_MODE:
       producer = sharedInstance ? undefined : OfflineProducerFactory(context);
       break;
-    case 'producer':
-    case 'standalone': {
+    case PRODUCER_MODE:
+    case STANDALONE_MODE: {
       context.put(context.constants.COLLECTORS, metrics && metrics.collectors);
       // We don't fully instantiate producer if we are creating a shared instance.
       producer = sharedInstance ?
@@ -63,7 +70,7 @@ function SplitFactory(context, gateFactory: any, readyTrackers: Object, mainClie
         FullProducerFactory(context);
       break;
     }
-    case 'consumer':
+    case CONSUMER_MODE:
       break;
   }
 

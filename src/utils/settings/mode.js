@@ -1,9 +1,17 @@
 'use strict';
 
-function mode(key, mode) {
-  if (key === 'localhost') return 'localhost';
+const {
+  LOCALHOST_MODE,
+  STANDALONE_MODE,
+  PRODUCER_MODE,
+  CONSUMER_MODE
+} = require('../constants');
 
-  if (['standalone', 'producer', 'consumer'].indexOf(mode) === -1) throw 'Invalid mode provided';
+function mode(key, mode) {
+  // Leaving the comparison as is, in case we change the mode name but not the setting.
+  if (key === 'localhost') return LOCALHOST_MODE;
+
+  if ([STANDALONE_MODE, PRODUCER_MODE, CONSUMER_MODE].indexOf(mode) === -1) throw Error('Invalid mode provided');
 
   return mode;
 }

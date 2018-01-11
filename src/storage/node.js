@@ -19,13 +19,18 @@ const EventsCacheInMemory = require('./EventsCache/InMemory');
 
 const KeyBuilder = require('./Keys');
 
+const {
+  STORAGE_MEMORY,
+  STORAGE_REDIS
+} = require('../utils/constants');
+
 const NodeStorageFactory = context => {
   const settings = context.get(context.constants.SETTINGS);
   const { storage } = settings;
   const keys = new KeyBuilder(settings);
 
   switch (storage.type) {
-    case 'REDIS': {
+    case STORAGE_REDIS: {
       const redis = new Redis(storage.options);
 
       return {
@@ -52,7 +57,7 @@ const NodeStorageFactory = context => {
       };
     }
 
-    case 'MEMORY':
+    case STORAGE_MEMORY:
     default:
       return {
         splits: new SplitCacheInMemory,

@@ -26,13 +26,14 @@ const overridesPerPlatform: Object = require('./defaults');
 const storage: Function = require('./storage');
 const mode: Function = require('./mode');
 const Logger = require('../../utils/logger');
+const { STANDALONE_MODE, STORAGE_MEMORY } = require('../../utils/constants');
 const { version } = require('../../../package.json');
 
 const eventsEndpointMatcher = /\/(testImpressions|metrics|events)/;
 
 const base = {
   // Define which kind of object you want to retrieve from SplitFactory
-  mode: 'standalone',
+  mode: STANDALONE_MODE,
 
   core: {
     // API token (tight to an environment)
@@ -71,7 +72,7 @@ const base = {
 
   // Defines which kind of storage we should instanciate.
   storage: {
-    type: 'MEMORY'
+    type: STORAGE_MEMORY
   },
 
   // Defines if the logs are enabled, SDK wide.
