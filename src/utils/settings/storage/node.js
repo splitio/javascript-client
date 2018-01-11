@@ -15,7 +15,11 @@ limitations under the License.
 **/
 'use strict';
 
-const { LOCALHOST_MODE } = require('../../constants');
+const {
+  LOCALHOST_MODE,
+  STORAGE_MEMORY,
+  STORAGE_REDIS
+} = require('../../constants');
 
 const ParseStorageSettings = (settings) => {
   let {
@@ -35,13 +39,13 @@ const ParseStorageSettings = (settings) => {
 
   // In localhost mode we should force the user to use the MEMORY storage
   if (mode === LOCALHOST_MODE) return {
-    type: 'MEMORY',
+    type: STORAGE_MEMORY,
     prefix
   };
 
   // In other cases we can have MEMORY or REDIS
   switch (type) {
-    case 'REDIS': {
+    case STORAGE_REDIS: {
       let {
         host,
         port,
@@ -76,10 +80,10 @@ const ParseStorageSettings = (settings) => {
     }
 
     // For now, we don't have modifiers or settings for MEMORY in NodeJS
-    case 'MEMORY':
+    case STORAGE_MEMORY:
     default: {
       return {
-        type: 'MEMORY',
+        type: STORAGE_MEMORY,
         prefix
       };
     }

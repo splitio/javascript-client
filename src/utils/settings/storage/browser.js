@@ -20,13 +20,17 @@ limitations under the License.
 
 const log = require('../../../utils/logger')('splitio-settings');
 const isLocalStorageAvailable = require('../../../utils/localstorage/isAvailable');
-const { LOCALHOST_MODE } = require('../../../utils/constants');
+const {
+  LOCALHOST_MODE,
+  STORAGE_MEMORY,
+  STORAGE_LOCALSTORAGE
+} = require('../../../utils/constants');
 
 const ParseStorageSettings = settings => {
   let {
     mode,
     storage: {
-      type = 'MEMORY',
+      type = STORAGE_MEMORY,
       options = {},
       prefix
     },
@@ -39,15 +43,15 @@ const ParseStorageSettings = settings => {
   }
 
   if (mode === LOCALHOST_MODE) return {
-    type: 'MEMORY',
+    type: STORAGE_MEMORY,
     prefix
   };
 
   // If an invalid storage type is provided OR we want to use LOCALSTORAGE and
   // it's not available, fallback into MEMORY
-  if (type !== 'MEMORY' && type !== 'LOCALSTORAGE' ||
-      type === 'LOCALSTORAGE' && !isLocalStorageAvailable()) {
-    type = 'MEMORY';
+  if (type !== STORAGE_MEMORY && type !== STORAGE_LOCALSTORAGE ||
+      type === STORAGE_LOCALSTORAGE && !isLocalStorageAvailable()) {
+    type = STORAGE_MEMORY;
     log.warn('Invalid or unavailable storage. Fallbacking into MEMORY storage');
   }
 
