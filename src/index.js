@@ -12,6 +12,7 @@ const PartialProducerFactory = require('./producer/browser/Partial');
 const OfflineProducerFactory = require('./producer/offline');
 
 const MetricsFactory = require('./metrics');
+const EventsFactory = require('./events');
 
 const SettingsFactory = require('./utils/settings');
 
@@ -24,8 +25,12 @@ const Logger = require('./utils/logger');
 const log = Logger('splitio');
 const tracker = require('./utils/timeTracker');
 
-// cache instances created
-const instances = {};
+const {
+  LOCALHOST_MODE,
+  STANDALONE_MODE,
+  PRODUCER_MODE,
+  CONSUMER_MODE
+} = require('./utils/constants');
 
 //
 // Create SDK instance based on the provided configurations
@@ -49,14 +54,15 @@ function SplitFactory(context, gateFactory: any, readyTrackers: Object, mainClie
   } = gate;
 
   const metrics = sharedInstance ? undefined : MetricsFactory(context); // Shared instances use parent metrics collectors
+  const events = sharedInstance ? undefined : EventsFactory(context); // Shared instances use parent events queue
   let producer;
 
   switch(settings.mode) {
-    case 'localhost':
+    case LOCALHOST_MODE:
       producer = sharedInstance ? undefined : OfflineProducerFactory(context);
       break;
-    case 'producer':
-    case 'standalone': {
+    case PRODUCER_MODE:
+    case STANDALONE_MODE: {
       context.put(context.constants.COLLECTORS, metrics && metrics.collectors);
       // We don't fully instantiate producer if we are creating a shared instance.
       producer = sharedInstance ?
@@ -64,7 +70,7 @@ function SplitFactory(context, gateFactory: any, readyTrackers: Object, mainClie
         FullProducerFactory(context);
       break;
     }
-    case 'consumer':
+    case CONSUMER_MODE:
       break;
   }
 
@@ -84,6 +90,7 @@ function SplitFactory(context, gateFactory: any, readyTrackers: Object, mainClie
   // Start background jobs tasks
   producer && producer.start();
   metrics && metrics.start();
+  events && context.put(context.constants.EVENTS, events) && events.start();
 
   // Ready promise
   const readyFlag = sharedInstance ? Promise.resolve() :
@@ -119,9 +126,13 @@ function SplitFactory(context, gateFactory: any, readyTrackers: Object, mainClie
         // Stop background jobs
         producer && producer.stop();
         metrics && metrics.stop();
+        events && events.stop();
 
-        // Send impressions if required
-        await metrics && metrics.flush();
+        // Send impressions and events in parallel.
+        await Promise.all([
+          metrics && metrics.flush(),
+          events && events.flush()
+        ]);
 
         // Cleanup event listeners
         readiness.destroy();
@@ -139,6 +150,8 @@ function SplitFactory(context, gateFactory: any, readyTrackers: Object, mainClie
 }
 
 function SplitFacade(config: Object) {
+  // Cache instances created per factory.
+  const instances = {};
   // Tracking times. We need to do it here because we need the storage created.
   const readyLatencyTrackers = {
     splitsReadyTracker: tracker.start(tracker.TaskNames.SPLITS_READY),
@@ -147,10 +160,11 @@ function SplitFacade(config: Object) {
   };
   const context = new Context;
   const settings = SettingsFactory(config);
-  const storage = StorageFactory(settings);
+  context.put(context.constants.SETTINGS, settings);
+
+  const storage = StorageFactory(context);
   const gateFactory = ReadinessGateFacade();
 
-  context.put(context.constants.SETTINGS, settings);
   context.put(context.constants.STORAGE, storage);
 
   const {
@@ -162,7 +176,7 @@ function SplitFacade(config: Object) {
 
   return {
     // Split evaluation engine
-    client(key: ?SplitKey): SplitClient {
+    client(key: ?SplitKey, trafficType: ?String): SplitClient {
       if (!key) {
         log.debug('Retrieving default SDK client.');
         return defaultInstance;
@@ -172,15 +186,22 @@ function SplitFacade(config: Object) {
         throw 'Shared Client not supported by the storage mechanism. Create isolated instances instead.';
       }
 
+      if (trafficType !== undefined && typeof trafficType !== 'string') {
+        throw 'Traffic Type should be a string. Either use a valid Traffic Type or no Traffic Type at all.';
+      }
+
       const parsedkey = keyParser(key);
-      const instanceId = `${parsedkey.matchingKey}-${parsedkey.bucketingKey}`;
+      const instanceId = `${parsedkey.matchingKey}-${parsedkey.bucketingKey}-${trafficType !== undefined ? trafficType : ''}`;
 
       if (!instances[instanceId]) {
-        const sharedSettings = settings.overrideKey(key);
+        const sharedSettings = settings.overrideKeyAndTT(key, trafficType);
         const sharedContext = new Context;
         sharedContext.put(context.constants.SETTINGS, sharedSettings);
         sharedContext.put(context.constants.STORAGE, storage.shared(sharedSettings));
         instances[instanceId] = SplitFactory(sharedContext, gateFactory, false, mainClientMetricCollectors).api;
+        // The readiness should depend on the readiness of the parent, instead of showing ready by default.
+        instances[instanceId].ready = defaultInstance.ready;
+
         log.info('New shared client instance created.');
       } else {
         log.debug('Retrieving existing SDK client.');

@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio",
-  "version": "9.3.7",
+  "version": "9.4.0",
   "description": "Split SDK",
   "files": [
     "README.md",
@@ -67,6 +67,7 @@
     "test-browser-ci": "cross-env NODE_ENV=test karma start karma/ci.karma.conf.js",
     "test-browser-e2e-ci": "cross-env NODE_ENV=test karma start karma/e2e.ci.karma.conf.js",
     "test-browser-offline": "cross-env NODE_ENV=test karma start karma/offline.karma.conf.js",
+    "test-browser-destroy": "cross-env NODE_ENV=test karma start karma/destroy.ci.karma.conf.js",
     "test-node": "tape -r babel-register \"src/*/__tests__/**/!(browser).spec.js\"",
     "test-node-e2e": "tape -r babel-register src/__tests__/destroy/node.spec.js",
     "test-node-offline": "tape -r babel-register src/__tests__/offline/node.spec.js",

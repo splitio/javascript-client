@@ -35,6 +35,12 @@ function repeat(fn, delay, ...rest) {
     stopped = true;
   }
 
+  till.reset = () => {
+    clearTimeout(tid);
+    tid = undefined;
+    next(delay, ...rest);
+  };
+
   fn(...rest, next);
 
   return till;

@@ -26,19 +26,22 @@ const overridesPerPlatform: Object = require('./defaults');
 const storage: Function = require('./storage');
 const mode: Function = require('./mode');
 const Logger = require('../../utils/logger');
+const { STANDALONE_MODE, STORAGE_MEMORY } = require('../../utils/constants');
 const { version } = require('../../../package.json');
 
-const eventsEndpointMatcher = /\/(testImpressions|metrics)/;
+const eventsEndpointMatcher = /\/(testImpressions|metrics|events)/;
 
 const base = {
   // Define which kind of object you want to retrieve from SplitFactory
-  mode: 'standalone',
+  mode: STANDALONE_MODE,
 
   core: {
     // API token (tight to an environment)
     authorizationKey: undefined,
     // key used in your system (only required for browser version)
     key: undefined,
+    // traffic type for the given key (only used on browser version)
+    trafficType: undefined,
     // toggle impressions tracking of labels
     labelsEnabled: true
   },
@@ -53,7 +56,11 @@ const base = {
     // publish evaluations each 60 sec
     impressionsRefreshRate: 60,
     // fetch offline changes each 15 sec
-    offlineRefreshRate: 15
+    offlineRefreshRate: 15,
+    // publish events every 60 seconds after the first flush
+    eventsPushRate: 60,
+    // how many events will be queued before flushing
+    eventsQueueSize: 500
   },
 
   urls: {
@@ -65,7 +72,7 @@ const base = {
 
   // Defines which kind of storage we should instanciate.
   storage: {
-    type: 'MEMORY'
+    type: STORAGE_MEMORY
   },
 
   // Defines if the logs are enabled, SDK wide.
@@ -85,7 +92,7 @@ function setupLogger(enable) {
   }
 }
 
-function defaults(custom: Object): Settings {
+function defaults(custom: Object) {
   const withDefaults = merge({}, base, overridesPerPlatform, custom);
 
   // Scheduler periods
@@ -94,10 +101,12 @@ function defaults(custom: Object): Settings {
   withDefaults.scheduler.metricsRefreshRate = fromSecondsToMillis(withDefaults.scheduler.metricsRefreshRate);
   withDefaults.scheduler.impressionsRefreshRate = fromSecondsToMillis(withDefaults.scheduler.impressionsRefreshRate);
   withDefaults.scheduler.offlineRefreshRate = fromSecondsToMillis(withDefaults.scheduler.offlineRefreshRate);
+  withDefaults.scheduler.eventsPushRate = fromSecondsToMillis(withDefaults.scheduler.eventsPushRate);
 
   // Startup periods
   withDefaults.startup.requestTimeoutBeforeReady = fromSecondsToMillis(withDefaults.startup.requestTimeoutBeforeReady);
   withDefaults.startup.readyTimeout = fromSecondsToMillis(withDefaults.startup.readyTimeout);
+  withDefaults.startup.eventsFirstPushWindow = fromSecondsToMillis(withDefaults.startup.eventsFirstPushWindow);
 
   // ensure a valid SDK mode
   withDefaults.mode = mode(withDefaults.core.authorizationKey, withDefaults.mode);
@@ -120,14 +129,19 @@ const proto = {
     return `${this.urls.sdk}${target}`;
   },
 
-  // Override key on a given configuration object (browser only)
-  overrideKey(key: SplitKey): Settings {
+  /**
+   * Returns a settings clone with the key and traffic type (if provided) overriden.
+   * @param {SplitKey} key
+   * @param {string} [trafficType]
+   */
+  overrideKeyAndTT(key: SplitKey, trafficType: ?String): Settings {
     return Object.assign(
       Object.create(proto), {
         ...this,
         core: {
           ...this.core,
-          key
+          key,
+          trafficType
         }
       }
     );

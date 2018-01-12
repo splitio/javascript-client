@@ -1,3 +1,14 @@
+## 9.4.0 (Jan 12, 2018)
+
+* Adding support for client.track method, for tracking custom events.
+* Adding trafficType as an optional core setting. If provided on the browser it will be binded to the client as the key.
+* TypeScript declarations polishing.
+* Updated SDK labels.
+* Bugfixing - Shared clients (browser) were ready even if the main client was not.
+* Bugfixing - Shared clients (browser) from different SDK instances should be separate.
+* Bugfixing - When using API key with wrong permissions, Node was throwing a false ready event (without segments).
+* Bugfixing - Localhost mode was trying to flush impressions when client.destroy was invoked.
+
 ## 9.3.7 (Dec 22, 2017)
 
 * Updated SDK labels.
