@@ -18,7 +18,7 @@ limitations under the License.
 
 'use strict';
 
-const FromFileSystemFetcher = require('../../services/offline');
+const FromFileSystemFetcher = require('../../services/splitChanges/offline');
 const SplitChangesFromObject = require('./SplitChangesFromObject');
 
 module.exports = SplitChangesFromObject.bind(null, FromFileSystemFetcher);
