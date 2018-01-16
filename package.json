@@ -76,6 +76,8 @@
     "pretest-ts-decls": "npm link",
     "test-ts-decls": "./scripts/ts-tests.sh",
     "posttest-ts-decls": "npm unlink && npm install",
+    "browser-test-suite": "npm run test-browser-local && npm run test-browser-ci && npm run test-browser-e2e-ci && npm run test-browser-offline && npm run test-browser-destroy",
+    "node-test-suite": "npm run test-node && npm run test-node-e2e && npm run test-node-offline && npm run test-node-redis",
     "canary": "npm run rebuild && npm publish --tag canary",
     "stable": "npm run rebuild && npm publish"
   },
