@@ -20,7 +20,7 @@ limitations under the License.
 
 const fs = require('fs');
 const path = require('path');
-const log = require('../../utils/logger')('splitio:offline');
+const log = require('../../../utils/logger')('splitio:offline');
 
 const FILENAME = '.split';
 

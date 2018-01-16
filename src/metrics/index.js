@@ -20,7 +20,6 @@ limitations under the License.
 
 const log = require('../utils/logger')('splitio-metrics');
 const tracker = require('../utils/timeTracker');
-const { LOCALHOST_MODE } = require('../utils/constants');
 const repeat = require('../utils/fn/repeat');
 
 const metricsService = require('../services/metrics');
@@ -42,10 +41,9 @@ const {
 const MetricsFactory = context => {
   const settings = context.get(context.constants.SETTINGS);
   const storage = context.get(context.constants.STORAGE);
-  const isLocalhostMode = settings.mode === LOCALHOST_MODE;
 
   const pushMetrics = (): Promise<void> => {
-    if (isLocalhostMode || (storage.metrics.isEmpty() && storage.count.isEmpty())) return Promise.resolve();
+    if (storage.metrics.isEmpty() && storage.count.isEmpty()) return Promise.resolve();
 
     log.info('Pushing metrics');
     const latencyTrackerStop = tracker.start(tracker.TaskNames.METRICS_PUSH);
@@ -74,7 +72,7 @@ const MetricsFactory = context => {
   };
 
   const pushImpressions = (): Promise<void> => {
-    if (isLocalhostMode || storage.impressions.isEmpty()) return Promise.resolve();
+    if (storage.impressions.isEmpty()) return Promise.resolve();
 
     log.info(`Pushing ${storage.impressions.queue.length} impressions`);
     const latencyTrackerStop = tracker.start(tracker.TaskNames.IMPRESSIONS_PUSH);
