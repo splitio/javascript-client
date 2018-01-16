@@ -72,7 +72,7 @@ const MetricsFactory = context => {
   };
 
   const pushImpressions = (): Promise<void> => {
-    if (isLocalhostMode || storage.impressions.isEmpty()) return Promise.resolve();
+    if (storage.impressions.isEmpty()) return Promise.resolve();
 
     log.info(`Pushing ${storage.impressions.queue.length} impressions`);
     const latencyTrackerStop = tracker.start(tracker.TaskNames.IMPRESSIONS_PUSH);
