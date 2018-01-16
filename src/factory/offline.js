@@ -24,14 +24,14 @@ function SplitFactoryOffline(context, gateFactory, sharedTrackers) {
 
   const producer = sharedInstance ? undefined : OfflineProducerFactory(context);
 
-  // Start background jobs tasks
+  // Start background task for flag updates
   producer && producer.start();
 
   // Ready promise
   const readyFlag = sharedInstance ? Promise.resolve() :
     new Promise(resolve => {
       gate.on(SDK_READY, resolve);
-      // No time out because we use fs.readFileSync. If we revisit that when refactoring
+      // No timeout because we use fs.readFileSync. If we revisit that when refactoring
       // and use an asynchronous method, we may want to reject on timeout event.
     });
 
