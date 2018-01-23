@@ -1,6 +1,6 @@
 'use strict';
 
-function getConfigurationFromSettings(settings: Settings): Object {
+function getConfigurationFromSettings(settings) {
   return settings.features || {};
 }
 

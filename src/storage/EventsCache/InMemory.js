@@ -19,9 +19,6 @@ limitations under the License.
 const thenable = require('../../utils/promise/thenable');
 
 class EventsCache {
-  queue: Array<any>;
-  maxQueue;
-  onFullQueue;
 
   constructor(context) {
     const settings = context.get(context.constants.SETTINGS);

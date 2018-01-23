@@ -33,7 +33,7 @@ function checkTreatment(evaluation, acceptableTreatments, parentName) {
 function dependencyMatcherContext({
   split,
   treatments
-}, storage: SplitStorage) {
+}, storage) {
 
   return function dependencyMatcher({
     key,
