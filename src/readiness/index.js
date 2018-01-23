@@ -1,5 +1,3 @@
-// @flow
-
 'use strict';
 
 const EventEmitter = require('events').EventEmitter;
@@ -31,7 +29,7 @@ function GateContext() {
   // references counter: how many
   let refCount = 0;
 
-  function ReadinessGateFactory(splits: EventEmitter, segments: EventEmitter, timeout: number): EventEmitter {
+  function ReadinessGateFactory(splits, segments, timeout) {
     const gate = new EventEmitter();
     let segmentsStatus = 0;
     let status = 0;
@@ -73,7 +71,7 @@ function GateContext() {
    * all the gates, and have an extra flag for the segments which is per gate
    * instance.
    */
-  function SDKReadinessGateFactory(timeout: number = 0): ReadinessGate {
+  function SDKReadinessGateFactory(timeout = 0) {
     const segments = new EventEmitter();
     segments.SDK_SEGMENTS_ARRIVED = Events.SDK_SEGMENTS_ARRIVED;
 

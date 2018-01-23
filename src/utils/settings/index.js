@@ -14,17 +14,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-// @flow
-
 'use strict';
 
 const merge = require('lodash/merge');
 
-const language: string = require('./language');
-const runtime: Object = require('./runtime');
-const overridesPerPlatform: Object = require('./defaults');
-const storage: Function = require('./storage');
-const mode: Function = require('./mode');
+const language = require('./language');
+const runtime = require('./runtime');
+const overridesPerPlatform = require('./defaults');
+const storage = require('./storage');
+const mode = require('./mode');
 const Logger = require('../../utils/logger');
 const { STANDALONE_MODE, STORAGE_MEMORY } = require('../../utils/constants');
 const { version } = require('../../../package.json');
@@ -92,7 +90,7 @@ function setupLogger(enable) {
   }
 }
 
-function defaults(custom: Object) {
+function defaults(custom) {
   const withDefaults = merge({}, base, overridesPerPlatform, custom);
 
   // Scheduler periods
@@ -121,7 +119,7 @@ function defaults(custom: Object) {
 
 const proto = {
   // Switch URLs servers based on target.
-  url(target): string {
+  url(target) {
     if (eventsEndpointMatcher.test(target)) {
       return `${this.urls.events}${target}`;
     }
@@ -134,7 +132,7 @@ const proto = {
    * @param {SplitKey} key
    * @param {string} [trafficType]
    */
-  overrideKeyAndTT(key: SplitKey, trafficType: ?String): Settings {
+  overrideKeyAndTT(key, trafficType) {
     return Object.assign(
       Object.create(proto), {
         ...this,
@@ -151,6 +149,6 @@ const proto = {
   runtime
 };
 
-const SettingsFactory = (settings: Object): Settings => Object.assign(Object.create(proto), defaults(settings));
+const SettingsFactory = (settings) => Object.assign(Object.create(proto), defaults(settings));
 
 module.exports = SettingsFactory;

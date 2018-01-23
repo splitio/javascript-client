@@ -14,8 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-// @flow
-
 'use strict';
 
 const log = require('../../utils/logger')('splitio-producer:segment-changes');
@@ -43,11 +41,11 @@ const SegmentChangesUpdaterFactory = (context) => {
     const segments = await storage.segments.getRegisteredSegments();
 
     for (let segmentName of segments) {
-      const since: number = await storage.segments.getChangeNumber(segmentName);
+      const since = await storage.segments.getChangeNumber(segmentName);
 
       log.debug(`Processing segment ${segmentName}`);
 
-      updaters.push(segmentChangesFetcher(settings, segmentName, since, metricCollectors).then(async function (changes: SegmentChanges) {
+      updaters.push(segmentChangesFetcher(settings, segmentName, since, metricCollectors).then(async function (changes) {
         let changeNumber = -1;
 
         for (let x of changes) {

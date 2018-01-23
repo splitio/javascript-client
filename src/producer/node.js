@@ -14,8 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-// @flow
-
 'use strict';
 
 const log = require('../utils/logger')('splitio-producer:updater');
@@ -27,7 +25,7 @@ const SegmentChangesUpdater = require('./updater/SegmentChanges');
 /**
  * Expose start / stop mechanism for pulling data from services.
  */
-const NodeUpdater = (context): Startable => {
+const NodeUpdater = (context) => {
   const splitsUpdater = SplitChangesUpdater(context, true /* tell split updater we are in node */);
   const segmentsUpdater = SegmentChangesUpdater(context);
   const settings = context.get(context.constants.SETTINGS);

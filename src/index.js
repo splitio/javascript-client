@@ -1,5 +1,3 @@
-// @flow
-
 'use strict';
 
 const ClientFactory = require('./client');
@@ -35,7 +33,7 @@ const {
 //
 // Create SDK instance based on the provided configurations
 //
-function SplitFactory(context, gateFactory: any, readyTrackers: Object, mainClientMetricCollectors: ?Object) {
+function SplitFactory(context, gateFactory, readyTrackers, mainClientMetricCollectors) {
   const sharedInstance = !!mainClientMetricCollectors;
   const settings = context.get(context.constants.SETTINGS);
   const storage = context.get(context.constants.STORAGE);
@@ -149,7 +147,7 @@ function SplitFactory(context, gateFactory: any, readyTrackers: Object, mainClie
   };
 }
 
-function SplitFacade(config: Object) {
+function SplitFacade(config) {
   // Cache instances created per factory.
   const instances = {};
   // Tracking times. We need to do it here because we need the storage created.
@@ -176,7 +174,7 @@ function SplitFacade(config: Object) {
 
   return {
     // Split evaluation engine
-    client(key: ?SplitKey, trafficType: ?String): SplitClient {
+    client(key, trafficType) {
       if (!key) {
         log.debug('Retrieving default SDK client.');
         return defaultInstance;
@@ -211,7 +209,7 @@ function SplitFacade(config: Object) {
     },
 
     // Manager API to explore available information
-    manager(): SplitManager {
+    manager() {
       log.info('New manager instance created.');
       return ManagerFactory(storage.splits);
     },

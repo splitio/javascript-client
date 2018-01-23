@@ -14,8 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-// @flow
-
 'use strict';
 
 const matchersTransform = require('../transforms/matchers');
@@ -27,7 +25,7 @@ const ifElseIfCombiner = require('../combiners/ifelseif');
 const andCombiner = require('../combiners/and');
 const thenable = require('../../utils/promise/thenable');
 
-function parse(conditions: Array<Condition>, storage: SplitStorage): any {
+function parse(conditions, storage) {
   let predicates = [];
 
   for (let condition of conditions) {

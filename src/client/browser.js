@@ -1,5 +1,3 @@
-// @flow
-
 'use strict';
 
 const get = require('lodash/get');
@@ -8,7 +6,7 @@ const ClientFactory = require('./client');
 const keyParser = require('../utils/key/parser');
 const { LOCALHOST_MODE } = require('../utils/constants');
 
-function FixKey(context): SplitClient {
+function FixKey(context) {
   const settings = context.get(context.constants.SETTINGS);
   let key = get(settings, 'core.key', undefined);
   let tt = get(settings, 'core.trafficType', undefined);

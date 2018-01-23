@@ -14,8 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-// @flow
-
 'use strict';
 
 const get = require('lodash/get');
@@ -41,7 +39,7 @@ function evaluationResult(result, defaultTreatment) {
   };
 }
 
-function Split(baseInfo: Object, evaluator: Function) {
+function Split(baseInfo, evaluator) {
   if (!(this instanceof Split)) {
     return new Split(baseInfo, evaluator);
   }
@@ -52,7 +50,7 @@ function Split(baseInfo: Object, evaluator: Function) {
   defaults(this);
 }
 
-Split.parse = function parse(splitFlatStructure: SplitObject, storage: SplitStorage) {
+Split.parse = function parse(splitFlatStructure, storage) {
   const { conditions, ...baseInfo } = splitFlatStructure;
   const evaluator = parser(conditions, storage);
 
@@ -63,7 +61,7 @@ Split.prototype.getKey = function getKey() {
   return this.baseInfo.name;
 };
 
-Split.prototype.getTreatment = function getTreatment(key: SplitKey, attributes: Object, splitEvaluator: Function): AsyncValue<Evaluation> {
+Split.prototype.getTreatment = function getTreatment(key, attributes, splitEvaluator) {
   const {
     killed,
     seed,
@@ -127,4 +125,3 @@ Split.prototype.getChangeNumber = function getChangeNumber() {
 };
 
 module.exports = Split;
-

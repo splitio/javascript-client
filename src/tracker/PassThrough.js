@@ -14,8 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-// @flow
-
 'use strict';
 
-module.exports = (collector: StatsCache<any>) => (element: any) => collector.track(element);
+module.exports = (collector) => (element) => collector.track(element);

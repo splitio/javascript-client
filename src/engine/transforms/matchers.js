@@ -13,7 +13,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-// @flow
 
 'use strict';
 
@@ -33,7 +32,7 @@ const {
 } = require('../convertions');
 
 // Flat the complex matcherGroup structure into something handy.
-function transform(matchers: Array<Matcher>): Array<ParsedMatcher> {
+function transform(matchers) {
 
   let parsedMatchers = matchers.map(matcher => {
     let {

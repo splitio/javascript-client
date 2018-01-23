@@ -14,14 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-// @flow
-
 'use strict';
 
 const log = require('../../utils/logger')('splitio-engine:value');
 const sanitizeValue = require('./sanitize');
 
-function parseValue(key: string, attributeName: string, attributes: Object) {
+function parseValue(key, attributeName, attributes) {
   let value = undefined;
   if (attributeName) {
     if (attributes) {
@@ -40,7 +38,7 @@ function parseValue(key: string, attributeName: string, attributes: Object) {
 /**
  * Defines value to be matched (key / attribute).
  */
-function value(key: string, matcherDto: Object, attributes: Object): ?string {
+function value(key, matcherDto, attributes) {
   const attributeName = matcherDto.attribute;
   const valueToMatch = parseValue(key, attributeName, attributes);
   const sanitizedValue = sanitizeValue(matcherDto.type, valueToMatch, matcherDto.dataType, attributes);

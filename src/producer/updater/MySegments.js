@@ -14,8 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-// @flow
-
 'use strict';
 
 const log = require('../../utils/logger')('splitio-producer:my-segments');
@@ -34,7 +32,7 @@ function MySegmentsUpdaterFactory(context) {
   let readyOnAlreadyExistentState = true;
   let startingUp = true;
 
-  return function MySegmentsUpdater(retry: number = 0) {
+  return function MySegmentsUpdater(retry = 0) {
     // NOTE: We only collect metrics on startup.
     return mySegmentsFetcher(settings, startingUp, metricCollectors).then(segments => {
       // Only when we have downloaded segments completely, we should not keep

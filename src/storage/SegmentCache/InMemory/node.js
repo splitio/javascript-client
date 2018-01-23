@@ -1,18 +1,13 @@
-// @flow
-
 'use strict';
 
-class SegmentCacheInMemory implements SegmentCache {
-  segmentCache: Map<string, Set<string>>;
-  segmentChangeNumber: Map<string, number>;
-  keys: KeyBuilder;
+class SegmentCacheInMemory {
 
-  constructor(keys: KeyBuilder) {
+  constructor(keys) {
     this.keys = keys;
     this.flush();
   }
 
-  addToSegment(segmentName: string, segmentKeys: Array<string>): boolean {
+  addToSegment(segmentName, segmentKeys) {
     const values = this.segmentCache.get(segmentName);
     const keySet = values ? values: new Set();
 
@@ -23,7 +18,7 @@ class SegmentCacheInMemory implements SegmentCache {
     return true;
   }
 
-  removeFromSegment(segmentName: string, segmentKeys: Array<string>): boolean {
+  removeFromSegment(segmentName, segmentKeys) {
     const values = this.segmentCache.get(segmentName);
     const keySet = values ? values: new Set();
 
@@ -34,8 +29,8 @@ class SegmentCacheInMemory implements SegmentCache {
     return true;
   }
 
-  isInSegment(segmentName: string, key: string): boolean {
-    const segmentValues: ?Set<string> = this.segmentCache.get(segmentName);
+  isInSegment(segmentName, key) {
+    const segmentValues = this.segmentCache.get(segmentName);
 
     if (segmentValues) {
       return segmentValues.has(key);
@@ -44,7 +39,7 @@ class SegmentCacheInMemory implements SegmentCache {
     return false;
   }
 
-  registerSegment(segmentName: string): boolean {
+  registerSegment(segmentName) {
     if (!this.segmentCache.has(segmentName)) {
       this.segmentCache.set(segmentName, new Set);
     }
@@ -52,7 +47,7 @@ class SegmentCacheInMemory implements SegmentCache {
     return true;
   }
 
-  registerSegments(segments: Iterable<string>): boolean {
+  registerSegments(segments) {
     for (let segmentName of segments) {
       this.registerSegment(segmentName);
     }
@@ -60,11 +55,11 @@ class SegmentCacheInMemory implements SegmentCache {
     return true;
   }
 
-  getRegisteredSegments(): Iterable<string> {
+  getRegisteredSegments() {
     return this.segmentCache.keys();
   }
 
-  setChangeNumber(segmentName: string, changeNumber: number): boolean {
+  setChangeNumber(segmentName, changeNumber) {
     const segmentChangeNumberKey = this.keys.buildSegmentTillKey(segmentName);
 
     this.segmentChangeNumber.set(segmentChangeNumberKey, changeNumber);
@@ -72,14 +67,14 @@ class SegmentCacheInMemory implements SegmentCache {
     return true;
   }
 
-  getChangeNumber(segmentName: string): number {
+  getChangeNumber(segmentName) {
     const segmentChangeNumberKey = this.keys.buildSegmentTillKey(segmentName);
     const value = this.segmentChangeNumber.get(segmentChangeNumberKey);
 
     return Number.isInteger(value) ? value: -1;
   }
 
-  flush(): void {
+  flush() {
     this.segmentCache = new Map();
     this.segmentChangeNumber = new Map();
   }

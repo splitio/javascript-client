@@ -1,11 +1,9 @@
-// @flow
-
 'use strict';
 
 const tape = require('tape-catch');
 
-const splitObject: SplitObject = require('./mocks/input');
-const splitView: SplitView = require('./mocks/output');
+const splitObject = require('./mocks/input');
+const splitView = require('./mocks/output');
 
 const Manager = require('../');
 const SplitCacheInMemory = require('../../storage/SplitCache/InMemory');

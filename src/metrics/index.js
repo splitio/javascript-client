@@ -14,8 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-// @flow
-
 'use strict';
 
 const log = require('../utils/logger')('splitio-metrics');
@@ -44,7 +42,7 @@ const MetricsFactory = context => {
   const storage = context.get(context.constants.STORAGE);
   const isLocalhostMode = settings.mode === LOCALHOST_MODE;
 
-  const pushMetrics = (): Promise<void> => {
+  const pushMetrics = () => {
     if (isLocalhostMode || (storage.metrics.isEmpty() && storage.count.isEmpty())) return Promise.resolve();
 
     log.info('Pushing metrics');
@@ -73,7 +71,7 @@ const MetricsFactory = context => {
     });
   };
 
-  const pushImpressions = (): Promise<void> => {
+  const pushImpressions = () => {
     if (isLocalhostMode || storage.impressions.isEmpty()) return Promise.resolve();
 
     log.info(`Pushing ${storage.impressions.queue.length} impressions`);

@@ -14,12 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-// @flow
-
 'use strict';
 
 class ImpressionsCacheInMemory {
-  queue: Array<any>;
 
   constructor() {
     this.queue = [];
@@ -28,14 +25,14 @@ class ImpressionsCacheInMemory {
   /**
    * Get collected data
    */
-  state(): Array<any> {
+  state() {
     return this.queue;
   }
 
   /**
    * Store object in sequential order
    */
-  track(data: any): this {
+  track(data) {
     this.queue.push(data);
 
     return this;
@@ -44,7 +41,7 @@ class ImpressionsCacheInMemory {
   /**
    * Recycle the collector queue
    */
-  clear(): ImpressionsCacheInMemory {
+  clear() {
     this.queue.length = 0;
 
     return this;
@@ -53,7 +50,7 @@ class ImpressionsCacheInMemory {
   /**
    * Hook JSON.stringify to expose the state of the counters
    */
-  toJSON(): Array<any> {
+  toJSON() {
     return this.queue;
   }
 

@@ -1,5 +1,3 @@
-// @flow
-
 'use strict';
 
 const log = require('../../../utils/logger')('splitio-storage:localstorage');
@@ -7,13 +5,12 @@ const log = require('../../../utils/logger')('splitio-storage:localstorage');
 const DEFINED = '1';
 
 class SegmentCacheInLocalStorage {
-  keys: KeyBuilderForLocalStorage;
 
-  constructor(keys: KeyBuilderForLocalStorage) {
+  constructor(keys) {
     this.keys = keys;
   }
 
-  addToSegment(segmentName: string/*, segmentKeys: Array<string>*/): boolean {
+  addToSegment(segmentName/*, segmentKeys: Array<string>*/) {
     const segmentKey = this.keys.buildSegmentNameKey(segmentName);
 
     try {
@@ -25,7 +22,7 @@ class SegmentCacheInLocalStorage {
     }
   }
 
-  removeFromSegment(segmentName: string/*, segmentKeys: Array<string>*/): boolean {
+  removeFromSegment(segmentName/*, segmentKeys: Array<string>*/) {
     const segmentKey = this.keys.buildSegmentNameKey(segmentName);
 
     try {
@@ -37,7 +34,7 @@ class SegmentCacheInLocalStorage {
     }
   }
 
-  resetSegments(segmentNames: Array<string>) {
+  resetSegments(segmentNames) {
     let isDiff = false;
     let index;
 
@@ -75,27 +72,27 @@ class SegmentCacheInLocalStorage {
     return isDiff;
   }
 
-  isInSegment(segmentName: string/*, key: string*/): boolean {
+  isInSegment(segmentName/*, key: string*/) {
     return localStorage.getItem(this.keys.buildSegmentNameKey(segmentName)) === DEFINED;
   }
 
-  setChangeNumber(/*segmentName: string, changeNumber: number*/): boolean {
+  setChangeNumber(/*segmentName: string, changeNumber: number*/) {
     return true;
   }
 
-  getChangeNumber(/*segmentName: string*/): number {
+  getChangeNumber(/*segmentName: string*/) {
     return -1;
   }
 
-  registerSegment(/*segment: string*/): boolean {
+  registerSegment(/*segment: string*/) {
     return false;
   }
 
-  registerSegments(/*segments: Iterable<string>*/): boolean {
+  registerSegments(/*segments: Iterable<string>*/) {
     return false;
   }
 
-  getRegisteredSegments(): Iterable<string> {
+  getRegisteredSegments() {
     return [];
   }
 

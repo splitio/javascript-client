@@ -14,14 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-// @flow
-
 'use strict';
 
 const TaskFactory = require('../task');
 const FromFileSystemUpdater = require('../updater/SplitChangesFromFileSystem');
 
-const OfflineFileSystemProducer = (context): Startable => {
+const OfflineFileSystemProducer = (context) => {
   const settings = context.get(context.constants.SETTINGS);
   const updater = FromFileSystemUpdater(context);
   const updaterTask = TaskFactory(updater, settings.scheduler.offlineRefreshRate);

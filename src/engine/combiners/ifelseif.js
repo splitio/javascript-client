@@ -13,7 +13,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-// @flow
 
 'use strict';
 
@@ -30,7 +29,7 @@ function unexpectedInputHandler() {
   };
 }
 
-function computeTreatment(predicateResults: Array<?Evaluation>): ?Evaluation {
+function computeTreatment(predicateResults) {
   const len = predicateResults.length;
 
   for (let i = 0; i < len; i++) {
@@ -47,9 +46,9 @@ function computeTreatment(predicateResults: Array<?Evaluation>): ?Evaluation {
   return undefined;
 }
 
-function ifElseIfCombinerContext(predicates: Array<Function>): Function {
+function ifElseIfCombinerContext(predicates) {
 
-  function ifElseIfCombiner(key: SplitKey, seed: number, trafficAllocation: number, trafficAllocationSeed: number, attributes: Object, algo: number, splitEvaluator: Function): AsyncValue<?Evaluation> {
+  function ifElseIfCombiner(key, seed, trafficAllocation, trafficAllocationSeed, attributes, algo, splitEvaluator) {
     // In Async environments we are going to have async predicates. There is none way to know
     // before hand so we need to evaluate all the predicates, verify for thenables, and finally,
     // define how to return the treatment (wrap result into a Promise or not).

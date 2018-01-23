@@ -1,12 +1,10 @@
-// @flow
-
 'use strict';
 
 const tape = require('tape-catch');
 const Redis = require('ioredis');
 
-const splitObject: SplitObject = require('./mocks/input');
-const splitView: SplitView = require('./mocks/output');
+const splitObject = require('./mocks/input');
+const splitView = require('./mocks/output');
 
 const Manager = require('../');
 const SplitCacheInRedis = require('../../storage/SplitCache/InRedis');

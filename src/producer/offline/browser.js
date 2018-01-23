@@ -14,14 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-// @flow
-
 'use strict';
 
 const TaskFactory = require('../task');
 const FromFeaturesUpdater = require('../updater/SplitChangesFromFeatures');
 
-const OfflineFeatureProducer = (context): Startable => {
+const OfflineFeatureProducer = (context) => {
   const settings = context.get(context.constants.SETTINGS);
   const updater = FromFeaturesUpdater(context);
   const updaterTask = TaskFactory(updater, settings.scheduler.offlineRefreshRate);

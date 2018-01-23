@@ -13,7 +13,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-// @flow
 
 'use strict';
 
@@ -38,9 +37,9 @@ function andResults(results) {
   return hasMatchedAll;
 }
 
-function andCombinerContext(matchers: Array<Function>): Function {
+function andCombinerContext(matchers) {
 
-  function andCombiner(...params): AsyncValue<boolean> {
+  function andCombiner(...params) {
     const matcherResults = matchers.map(matcher => matcher(...params));
 
     // If any matching result is a thenable we should use Promise.all

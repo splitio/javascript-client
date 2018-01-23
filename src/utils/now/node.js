@@ -14,12 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-// @flow
-
 'use strict';
 
 module.exports = (function () {
-  return function now(): number {
+  return function now() {
     let time = process.hrtime();
 
     return time[0] * 1e3 + time[1] * 1e-6; // convert it to milis

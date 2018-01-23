@@ -13,22 +13,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-// @flow
 
 'use strict';
-
-type SplitMutation = {
-  added: Array<[string, string]>,
-  removed: Array<string>,
-  segments: Array<string> | Set<string>
-};
 
 const log = require('../../utils/logger')('splitio-producer:split-changes');
 const splitChangesFetcher = require('../fetcher/SplitChanges');
 
 const parseSegments = require('../../engine/parser/segments');
 
-function computeSplitsMutation(entries: Array<SplitObject>): SplitMutation {
+function computeSplitsMutation(entries) {
   const computed = entries.reduce((accum, split) => {
     if (split.status === 'ACTIVE') {
       accum.added.push([split.name, JSON.stringify(split)]);
@@ -64,8 +57,8 @@ function SplitChangesUpdaterFactory(context, isNode = false) {
   let startingUp = true;
   let readyOnAlreadyExistentState = true;
 
-  return async function SplitChangesUpdater(retry: number = 0) {
-    const since: number = await storage.splits.getChangeNumber();
+  return async function SplitChangesUpdater(retry = 0) {
+    const since = await storage.splits.getChangeNumber();
 
     log.debug(`Spin up split update using since = ${since}`);
 
