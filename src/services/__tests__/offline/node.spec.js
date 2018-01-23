@@ -3,7 +3,7 @@
 const path = require('path');
 
 const tape = require('tape-catch');
-const getSplitConfigForFile = require('../../offline');
+const getSplitConfigForFile = require('../../splitChanges/offline');
 
 tape('CONFIGURATION READER / Load .split file given a path', function (assert) {
   const config = {

@@ -20,7 +20,6 @@ limitations under the License.
 
 const log = require('../utils/logger')('splitio-events');
 const tracker = require('../utils/timeTracker');
-const { LOCALHOST_MODE } = require('../utils/constants');
 
 const repeat = require('../utils/fn/repeat');
 
@@ -30,10 +29,9 @@ const eventsBulkRequest = require('../services/events/bulk');
 const EventsFactory = context => {
   const settings = context.get(context.constants.SETTINGS);
   const storage = context.get(context.constants.STORAGE);
-  const isLocalhostMode = settings.mode === LOCALHOST_MODE;
 
   const pushEvents = () => {
-    if (isLocalhostMode || storage.events.isEmpty()) return Promise.resolve();
+    if (storage.events.isEmpty()) return Promise.resolve();
 
     log.info(`Pushing ${storage.events.state().length} queued events.`);
     const latencyTrackerStop = tracker.start(tracker.TaskNames.EVENTS_PUSH);
