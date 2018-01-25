@@ -14,13 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 import 'isomorphic-fetch';
-import baseline from './options';
+import options from './options';
 
 function RequestFactory(settings, relativeUrl, params) {
   const token = settings.core.authorizationKey;
   const version = settings.version;
   const { ip, hostname } = settings.runtime;
   const headers = {};
+  const baseline = options();
 
   headers['Accept'] = 'application/json';
   headers['Content-Type'] = 'application/json';

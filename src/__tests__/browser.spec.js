@@ -1,5 +1,5 @@
 // Requiring the Split Facade, which requires 'isomorphic-fetch'
-// import '../';
+import '../';
 
 // This override the default implementation, so you MUST to be sure you include
 // this AFTER the require('isomorphic-fetch')
