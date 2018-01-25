@@ -16,9 +16,9 @@ limitations under the License.
 
 'use strict';
 
-const Engine = require('../');
-const thenable = require('../../utils/promise/thenable');
-const LabelsConstants = require('../../utils/labels');
+import Engine from '../';
+import thenable from '../../utils/promise/thenable';
+import LabelsConstants from '../../utils/labels';
 
 function splitEvaluator(
   key,
@@ -77,4 +77,4 @@ function getEvaluation(
   return evaluation;
 }
 
-module.exports = splitEvaluator;
+export default splitEvaluator;

@@ -1,4 +1,4 @@
-const startsWith = require('core-js/library/fn/string/starts-with');
+import startsWith from 'core-js/library/fn/string/starts-with';
 
 const everythingAtTheEnd = /[^.]+$/;
 const everythingAfterCount = /count\.([^\/]+)$/;
@@ -119,4 +119,4 @@ class KeyBuilder {
   }
 }
 
-module.exports = KeyBuilder;
+export default KeyBuilder;

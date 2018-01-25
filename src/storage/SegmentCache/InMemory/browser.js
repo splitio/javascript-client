@@ -90,4 +90,4 @@ class SegmentCacheInMemory {
   }
 }
 
-module.exports = SegmentCacheInMemory;
+export default SegmentCacheInMemory;

@@ -15,9 +15,9 @@ limitations under the License.
 **/
 'use strict';
 
-const groupBy = require('lodash/groupBy');
+import groupBy from 'lodash/groupBy';
 
-module.exports = {
+export default {
   fromImpressionsCollector(collector, settings) {
     const sendLabels = settings.core.labelsEnabled;
     let groupedByFeature = groupBy(collector.state(), 'feature');

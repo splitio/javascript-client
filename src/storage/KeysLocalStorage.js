@@ -1,9 +1,8 @@
 'use strict';
 
-const startsWith = require('core-js/library/fn/string/starts-with');
-
-const KeyBuilder = require('./Keys');
-const { matching } = require('../utils/key/factory');
+import startsWith from 'core-js/library/fn/string/starts-with';
+import KeyBuilder from './Keys';
+import { matching } from '../utils/key/factory';
 
 class KeyBuilderForLocalStorage extends KeyBuilder {
 
@@ -19,4 +18,4 @@ class KeyBuilderForLocalStorage extends KeyBuilder {
   }
 }
 
-module.exports = KeyBuilderForLocalStorage;
+export default KeyBuilderForLocalStorage;

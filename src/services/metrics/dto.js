@@ -15,9 +15,9 @@ limitations under the License.
 **/
 'use strict';
 
-const forOwn = require('lodash/forOwn');
+import forOwn from 'lodash/forOwn';
 
-module.exports = {
+export default {
   fromLatenciesCollector(latenciesCollector) {
     const result = [];
     const metrics = latenciesCollector.toJSON();

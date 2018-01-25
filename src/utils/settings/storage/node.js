@@ -15,11 +15,7 @@ limitations under the License.
 **/
 'use strict';
 
-const {
-  LOCALHOST_MODE,
-  STORAGE_MEMORY,
-  STORAGE_REDIS
-} = require('../../constants');
+import { LOCALHOST_MODE, STORAGE_MEMORY, STORAGE_REDIS } from '../../constants';
 
 const ParseStorageSettings = (settings) => {
   let {
@@ -90,4 +86,4 @@ const ParseStorageSettings = (settings) => {
   }
 };
 
-module.exports = ParseStorageSettings;
+export default ParseStorageSettings;

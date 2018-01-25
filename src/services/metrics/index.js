@@ -15,4 +15,6 @@ limitations under the License.
 **/
 'use strict';
 
-module.exports = require('../transport');
+import transport from '../transport';
+
+export default transport;

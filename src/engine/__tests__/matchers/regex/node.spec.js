@@ -15,12 +15,11 @@ limitations under the License.
 **/
 'use strict';
 
-const tape = require('tape');
-const matcherTypes = require('../../../matchers/types').enum;
-const matcherFactory = require('../../../matchers');
-
-const fs = require('fs');
-const rl = require('readline');
+import tape from 'tape';
+import { types as matcherTypes } from '../../../matchers/types';
+import matcherFactory from '../../../matchers';
+import fs from 'fs';
+import rl from 'readline';
 
 [
   'regex.txt'

@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = {
+export default {
   startup: {
     // stress the request time used while starting up the SDK.
     requestTimeoutBeforeReady: 15,

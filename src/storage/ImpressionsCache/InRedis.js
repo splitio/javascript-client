@@ -64,4 +64,4 @@ class ImpressionsCacheInRedis {
   }
 }
 
-module.exports = ImpressionsCacheInRedis;
+export default ImpressionsCacheInRedis;

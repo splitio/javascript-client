@@ -16,10 +16,10 @@ limitations under the License.
 
 'use strict';
 
-const uniqueId = require('lodash/uniqueId');
-const Logger = require('logplease');
-const timer = require('./timer');
-const thenable = require('../promise/thenable');
+import uniqueId from 'lodash/uniqueId';
+import Logger from 'logplease';
+import timer from './timer';
+import thenable from '../promise/thenable';
 
 // logger to be used on this module
 const logger = Logger.create('[TIME TRACKER]', {
@@ -208,4 +208,4 @@ const TrackerAPI = {
 };
 
 // Our "time tracker" API
-module.exports = TrackerAPI;
+export default TrackerAPI;

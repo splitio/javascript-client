@@ -1,23 +1,17 @@
 'use strict';
 
-const ManagerFactory = require('./manager');
-const StorageFactory = require('./storage');
-const ReadinessGateFacade = require('./readiness');
-
-const SettingsFactory = require('./utils/settings');
-const Context = require('./utils/context');
-
-const keyParser = require('./utils/key/parser');
-const Logger = require('./utils/logger');
-const log = Logger('splitio');
-const tracker = require('./utils/timeTracker');
-
-const SplitFactoryOnline = require('./factory/online');
-const SplitFactoryOffline = require('./factory/offline');
-
-const {
-  LOCALHOST_MODE
-} = require('./utils/constants');
+import ManagerFactory from './manager';
+import StorageFactory from './storage';
+import ReadinessGateFacade from './readiness';
+import SettingsFactory from './utils/settings';
+import Context from './utils/context';
+import keyParser from './utils/key/parser';
+import logFactory, { API } from './utils/logger';
+const log = logFactory('splitio');
+import tracker from './utils/timeTracker';
+import SplitFactoryOnline from './factory/online';
+import SplitFactoryOffline from './factory/offline';
+import { LOCALHOST_MODE } from './utils/constants';
 
 function SplitFacade(config) {
   // Cache instances created per factory.
@@ -28,7 +22,7 @@ function SplitFacade(config) {
     segmentsReadyTracker: tracker.start(tracker.TaskNames.SEGMENTS_READY),
     sdkReadyTracker: tracker.start(tracker.TaskNames.SDK_READY)
   };
-  const context = new Context;
+  const context = new Context();
   const settings = SettingsFactory(config);
   context.put(context.constants.SETTINGS, settings);
 
@@ -91,11 +85,11 @@ function SplitFacade(config) {
     },
 
     // Logger wrapper API
-    Logger: Logger.API,
+    Logger: API,
 
     // Expose SDK settings
     settings
   };
 }
 
-module.exports = SplitFacade;
+export default SplitFacade;

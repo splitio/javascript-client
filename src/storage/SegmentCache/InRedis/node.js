@@ -68,4 +68,4 @@ class SegmentCacheInRedis {
   }
 }
 
-module.exports = SegmentCacheInRedis;
+export default SegmentCacheInRedis;

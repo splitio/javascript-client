@@ -1,7 +1,7 @@
 'use strict';
 
-const tape = require('tape-catch');
-const SplitCacheInMemory = require('../../SplitCache/InMemory');
+import tape from 'tape-catch';
+import SplitCacheInMemory from '../../SplitCache/InMemory';
 
 tape('SPLIT CACHE / In Memory', assert => {
   const cache = new SplitCacheInMemory();

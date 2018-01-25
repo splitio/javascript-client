@@ -16,10 +16,10 @@ limitations under the License.
 
 'use strict';
 
-const log = require('../../utils/logger')('splitio-producer:split-changes');
-const splitChangesFetcher = require('../fetcher/SplitChanges');
-
-const parseSegments = require('../../engine/parser/segments');
+import logFactory from '../../utils/logger';
+const log = logFactory('splitio-producer:split-changes');
+import splitChangesFetcher from '../fetcher/SplitChanges';
+import parseSegments from '../../engine/parser/segments';
 
 function computeSplitsMutation(entries) {
   const computed = entries.reduce((accum, split) => {
@@ -100,4 +100,4 @@ function SplitChangesUpdaterFactory(context, isNode = false) {
   };
 }
 
-module.exports = SplitChangesUpdaterFactory;
+export default SplitChangesUpdaterFactory;

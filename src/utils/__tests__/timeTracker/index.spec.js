@@ -15,9 +15,9 @@ limitations under the License.
 **/
 'use strict';
 
-const tape = require('tape-catch');
-const timer = require('../../timeTracker/timer');
-const tracker = require('../../timeTracker');
+import tape from 'tape-catch';
+import timer from '../../timeTracker/timer';
+import tracker from '../../timeTracker';
 
 tape('TIMER / should count the time between two tasks', assert => {
   const timerDuration = Math.floor(Math.random() * 1000); // In millis

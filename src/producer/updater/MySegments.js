@@ -16,8 +16,9 @@ limitations under the License.
 
 'use strict';
 
-const log = require('../../utils/logger')('splitio-producer:my-segments');
-const mySegmentsFetcher = require('../fetcher/MySegments');
+import logFactory from '../../utils/logger';
+const log = logFactory('splitio-producer:my-segments');
+import mySegmentsFetcher from '../fetcher/MySegments';
 
 function MySegmentsUpdaterFactory(context) {
   const {
@@ -63,4 +64,4 @@ function MySegmentsUpdaterFactory(context) {
 
 }
 
-module.exports = MySegmentsUpdaterFactory;
+export default MySegmentsUpdaterFactory;

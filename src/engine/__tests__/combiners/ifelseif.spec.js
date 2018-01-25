@@ -15,8 +15,8 @@ limitations under the License.
 **/
 'use strict';
 
-const tape = require('tape-catch');
-const ifElseIfCombinerFactory = require('../../combiners/ifelseif');
+import tape from 'tape-catch';
+import ifElseIfCombinerFactory from '../../combiners/ifelseif';
 
 tape('IF ELSE IF COMBINER / should correctly propagate context parameters and predicates returns value', async function (assert) {
   let inputKey = 'sample';

@@ -15,9 +15,9 @@ limitations under the License.
 **/
 'use strict';
 
-const base = require('../request');
-const { matching } = require('../../utils/key/factory');
+import base from '../request';
+import { matching } from '../../utils/key/factory';
 
-module.exports = function GET(settings) {
+export default function GET(settings) {
   return base(settings, `/mySegments/${matching(settings.core.key)}`);
 };

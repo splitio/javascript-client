@@ -15,9 +15,9 @@ limitations under the License.
 **/
 'use strict';
 
-const tape = require('tape');
-const parser = require('../../parser');
-const keyParser = require('../../../utils/key/parser');
+import tape from 'tape';
+import parser from '../../parser';
+import keyParser from '../../../utils/key/parser';
 
 //
 // STARTS WITH

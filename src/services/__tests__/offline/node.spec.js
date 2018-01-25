@@ -1,9 +1,8 @@
 'use strict';
 
-const path = require('path');
-
-const tape = require('tape-catch');
-const getSplitConfigForFile = require('../../splitChanges/offline');
+import path from 'path';
+import tape from 'tape-catch';
+import getSplitConfigForFile from '../../splitChanges/offline';
 
 tape('CONFIGURATION READER / Load .split file given a path', function (assert) {
   const config = {

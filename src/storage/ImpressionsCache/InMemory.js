@@ -62,4 +62,4 @@ class ImpressionsCacheInMemory {
   }
 }
 
-module.exports = ImpressionsCacheInMemory;
+export default ImpressionsCacheInMemory;

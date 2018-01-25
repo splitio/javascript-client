@@ -46,4 +46,4 @@ function repeat(fn, delay, ...rest) {
   return till;
 }
 
-module.exports = repeat;
+export default repeat;

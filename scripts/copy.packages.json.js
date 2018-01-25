@@ -3,9 +3,10 @@
 const copyfiles = require('copyfiles');
 
 const input = './src/**/package.json';
-const outputDir = './lib';
+const outputCjsDir = './lib';
+const outputEsmDir = './es6';
 
-copyfiles([input, outputDir], {
+copyfiles([input, process.env.NODE_ENV === 'cjs' ? outputCjsDir : outputEsmDir], {
   up: 1
 }, (err) => {
   if (err) {

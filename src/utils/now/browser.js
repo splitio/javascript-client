@@ -16,10 +16,10 @@ limitations under the License.
 
 'use strict';
 
-module.exports = (function () {
+export default function now() {
   if (typeof performance === 'object' && typeof performance.now === 'function') {
     return performance.now.bind(performance);
   } else {
     return Date.now;
   }
-}());
+};

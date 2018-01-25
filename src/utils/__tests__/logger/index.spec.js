@@ -15,17 +15,16 @@ limitations under the License.
 **/
 'use strict';
 
-const tape = require('tape-catch');
-
-const splitLogger = require('../../logger');
+import tape from 'tape-catch';
+import logFactory, { API } from '../../logger';
 
 tape('SPLIT LOGGER / methods', assert => {
 
-  assert.equal(typeof splitLogger, 'function', 'Importing the module should return a function.');
+  assert.equal(typeof logFactory, 'function', 'Importing the module should return a function.');
 
-  assert.equal(typeof splitLogger.API, 'object', 'Our logger should expose an API object.');
-  assert.equal(typeof splitLogger.API.enable, 'function', 'API object should have enable method.');
-  assert.equal(typeof splitLogger.API.disable, 'function', 'API object should have disable method.');
+  assert.equal(typeof API, 'object', 'Our logger should expose an API object.');
+  assert.equal(typeof API.enable, 'function', 'API object should have enable method.');
+  assert.equal(typeof API.disable, 'function', 'API object should have disable method.');
 
   assert.end();
 });

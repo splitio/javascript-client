@@ -1,7 +1,7 @@
 'use strict';
 
-const tape = require('tape-catch');
-const parseSegments = require('../../parser/segments');
+import tape from 'tape-catch';
+import parseSegments from '../../parser/segments';
 
 tape('PARSER / segments parser', assert => {
 

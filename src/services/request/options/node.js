@@ -18,13 +18,13 @@ limitations under the License.
 // @TODO
 // 1- handle multiple protocols automatically
 // 2- destroy it once the sdk is destroyed
-const https = require('https');
+import https from 'https';
 
 const agent = new https.Agent({
   keepAlive: true,
   keepAliveMsecs: 1500
 });
 
-module.exports = {
+export default {
   agent
 };

@@ -16,9 +16,9 @@ limitations under the License.
 
 'use strict';
 
-const engine = require('../engine');
-const thenable = require('../../utils/promise/thenable');
-const LabelsConstants = require('../../utils/labels');
+import engine from '../engine';
+import thenable from '../../utils/promise/thenable';
+import LabelsConstants from '../../utils/labels';
 
 // Build Evaluation object if and only if matchingResult is true
 function match(matchingResult, bucketingKey, seed, treatments, label, algo) {
@@ -64,4 +64,4 @@ function conditionContext(matcherEvaluator, treatments, label, conditionType) {
   return conditionEvaluator;
 }
 
-module.exports = conditionContext;
+export default conditionContext;

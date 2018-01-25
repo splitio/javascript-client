@@ -15,8 +15,8 @@ limitations under the License.
 **/
 'use strict';
 
-function transform(unaryNumericObject /*: Object */) /*: number */ {
+function transform(unaryNumericObject) {
   return unaryNumericObject.value;
 }
 
-module.exports = transform;
+export default transform;

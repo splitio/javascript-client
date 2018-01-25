@@ -15,9 +15,9 @@ limitations under the License.
 **/
 'use strict';
 
-const tape = require('tape-catch');
-const matcherTypes = require('../../matchers/types').enum;
-const matcherFactory = require('../../matchers');
+import tape from 'tape-catch';
+import { types as matcherTypes } from '../../matchers/types';
+import matcherFactory from '../../matchers';
 
 tape('MATCHER GREATER THAN OR EQUAL / should return true ONLY when the value is greater than or equal to 10', function (assert) {
 

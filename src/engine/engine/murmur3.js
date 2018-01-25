@@ -1,4 +1,4 @@
-const utfx = require('utfx');
+import utfx from 'utfx';
 
 const stringSource = utfx.stringSource;
 const stringDestination = utfx.stringDestination;
@@ -122,7 +122,7 @@ function bucket(str /*: string */, seed /*: number */) /*: number */ {
   return Math.abs(hash(str, seed) % 100) + 1;
 }
 
-module.exports = {
+export default {
   hash,
   bucket
 };

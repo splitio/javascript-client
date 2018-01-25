@@ -15,9 +15,9 @@ limitations under the License.
 **/
 'use strict';
 
-const base = require('../request');
+import base from '../request';
 
-module.exports = function BULK(settings, params) {
+export default function BULK(settings, params) {
   return base(settings, '/events/bulk', Object.assign({
     method: 'POST'
   }, params));

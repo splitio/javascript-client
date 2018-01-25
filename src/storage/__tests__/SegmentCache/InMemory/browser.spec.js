@@ -1,10 +1,9 @@
 'use strict';
 
-const tape = require('tape');
-const SegmentCacheInMemory = require('../../../SegmentCache/InMemory');
-
-const KeyBuilder = require('../../../Keys');
-const SettingsFactory = require('../../../../utils/settings');
+import tape from 'tape';
+import SegmentCacheInMemory from '../../../SegmentCache/InMemory';
+import KeyBuilder from '../../../Keys';
+import SettingsFactory from '../../../../utils/settings';
 
 tape('SEGMENT CACHE / in memory', assert => {
   const cache = new SegmentCacheInMemory(new KeyBuilder(SettingsFactory()));

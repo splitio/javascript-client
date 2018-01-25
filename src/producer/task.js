@@ -16,8 +16,9 @@ limitations under the License.
 
 'use strict';
 
-const log = require('../utils/logger')('splitio-producer:task');
-const repeat = require('../utils/fn/repeat');
+import logFactory from '../utils/logger';
+const log = logFactory('splitio-producer:task');
+import repeat from '../utils/fn/repeat';
 
 /**
  * Startable task factory.
@@ -46,4 +47,4 @@ const TaskFactory = (updater, period) => {
   };
 };
 
-module.exports = TaskFactory;
+export default TaskFactory;

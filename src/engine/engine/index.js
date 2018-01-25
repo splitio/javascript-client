@@ -16,10 +16,10 @@ limitations under the License.
 
 'use strict';
 
-const log = require('../../utils/logger')('splitio-engine');
-
-const legacy = require('./legacy');
-const murmur = require('./murmur3');
+import logFactory from '../../utils/logger';
+const log = logFactory('splitio-engine');
+import legacy from './legacy';
+import murmur from './murmur3';
 const MURMUR_ID = 2;
 
 /**
@@ -62,4 +62,4 @@ const engine = {
   }
 };
 
-module.exports = engine;
+export default engine;

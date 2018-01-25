@@ -16,8 +16,9 @@ limitations under the License.
 
 'use strict';
 
-const log = require('../../utils/logger')('splitio-engine:matcher');
-const startsWith = require('lodash/startsWith');
+import logFactory from '../../utils/logger';
+const log = logFactory('splitio-engine:matcher');
+import startsWith from 'lodash/startsWith';
 
 function startsWithMatcherContext(ruleAttr /*: array */) /*: Function */ {
   return function startsWithMatcher(runtimeAttr /*: string */) /*: boolean */ {
@@ -29,4 +30,4 @@ function startsWithMatcherContext(ruleAttr /*: array */) /*: Function */ {
   };
 }
 
-module.exports = startsWithMatcherContext;
+export default startsWithMatcherContext;

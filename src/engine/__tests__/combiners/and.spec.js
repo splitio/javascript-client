@@ -16,8 +16,8 @@ limitations under the License.
 
 'use strict';
 
-const tape = require('tape-catch');
-const andCombiner = require('../../combiners/and');
+import tape from 'tape-catch';
+import andCombiner from '../../combiners/and';
 
 tape('COMBINER AND / should always return true', async function (assert) {
 

@@ -1,6 +1,7 @@
 'use strict';
 
-const log = require('../../utils/logger')('splitio-storage:localstorage');
+import logFactory from '../../utils/logger';
+const log = logFactory('splitio-storage:localstorage');
 
 class SplitCacheLocalStorage {
 
@@ -121,4 +122,4 @@ class SplitCacheLocalStorage {
   }
 }
 
-module.exports = SplitCacheLocalStorage;
+export default SplitCacheLocalStorage;

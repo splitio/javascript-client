@@ -1,6 +1,7 @@
 'use strict';
 
-const log = require('../../../utils/logger')('splitio-storage:localstorage');
+import logFactory from '../../../utils/logger';
+const log = logFactory('splitio-storage:localstorage');
 
 const DEFINED = '1';
 
@@ -102,4 +103,4 @@ class SegmentCacheInLocalStorage {
   }
 }
 
-module.exports = SegmentCacheInLocalStorage;
+export default SegmentCacheInLocalStorage;

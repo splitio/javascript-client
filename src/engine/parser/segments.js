@@ -28,4 +28,4 @@ const parseSegments = (conditions) => {
   return segments;
 };
 
-module.exports = parseSegments;
+export default parseSegments;

@@ -16,8 +16,9 @@ limitations under the License.
 
 'use strict';
 
-const log = require('../../utils/logger')('splitio-engine:matcher');
-const strEndsWith = require('lodash/endsWith');
+import logFactory from '../../utils/logger';
+const log = logFactory('splitio-engine:matcher');
+import strEndsWith from 'lodash/endsWith';
 
 function endsWithMatcherContext(ruleAttr /*: array */) /*: Function */ {
   return function endsWithMatcher(runtimeAttr /*: string */) /*: boolean */ {
@@ -29,4 +30,4 @@ function endsWithMatcherContext(ruleAttr /*: array */) /*: Function */ {
   };
 }
 
-module.exports = endsWithMatcherContext;
+export default endsWithMatcherContext;

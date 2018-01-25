@@ -1,28 +1,32 @@
 'use strict';
+
 // Requiring the Split Facade, which requires 'isomorphic-fetch'
-require('../');
+// import '../';
+
 // This override the default implementation, so you MUST to be sure you include
 // this AFTER the require('isomorphic-fetch')
-const fetchMock = require('fetch-mock');
+import fetchMock from 'fetch-mock';
 
-const evaluationsSuite = require('./browserSuites/evaluations.spec');
-const impressionsSuite = require('./browserSuites/impressions.spec');
-const eventsSuite = require('./browserSuites/events.spec');
-const sharedInstantiationSuite = require('./browserSuites/shared-instantiation.spec');
-
-const tape = require('tape');
-const SettingsFactory = require('../utils/settings');
+import evaluationsSuite from './browserSuites/evaluations.spec';
+import impressionsSuite from './browserSuites/impressions.spec';
+import {
+  withoutBindingTT,
+  bindingTT
+} from './browserSuites/events.spec';
+import sharedInstantiationSuite from './browserSuites/shared-instantiation.spec';
+import tape from 'tape';
+import SettingsFactory from '../utils/settings';
 const settings = SettingsFactory({
   core: {
     key: 'facundo@split.io'
   }
 });
 
-const splitChangesMock1 = require('./mocks/splitchanges.since.-1.json');
-const splitChangesMock2 = require('./mocks/splitchanges.since.1457552620999.json');
-const mySegmentsFacundo = require('./mocks/mysegments.facundo@split.io.json');
-const mySegmentsNicolas = require('./mocks/mysegments.nicolas@split.io.json');
-const mySegmentsMarcio = require('./mocks/mysegments.marcio@split.io.json');
+import splitChangesMock1 from './mocks/splitchanges.since.-1.json';
+import splitChangesMock2 from './mocks/splitchanges.since.1457552620999.json';
+import mySegmentsFacundo from './mocks/mysegments.facundo@split.io.json';
+import mySegmentsNicolas from './mocks/mysegments.nicolas@split.io.json';
+import mySegmentsMarcio from './mocks/mysegments.marcio@split.io.json';
 
 const delayResponse = mock => {
   return new Promise(res => setTimeout(res, 0)).then(() => mock);
@@ -88,8 +92,8 @@ tape('## E2E CI Tests ##', function(assert) {
   /* Check impressions */
   assert.test('E2E / Impressions', impressionsSuite);
   /* Check events */
-  assert.test('E2E / Events', eventsSuite.withoutBindingTT);
-  assert.test('E2E / Events with TT binded', eventsSuite.bindingTT);
+  assert.test('E2E / Events', withoutBindingTT);
+  assert.test('E2E / Events with TT binded', bindingTT);
   /* Check shared clients */
   assert.test('E2E / Shared instances', sharedInstantiationSuite.bind(null, false));
   assert.test('E2E / Shared instances with Traffic Type on factory settings', sharedInstantiationSuite.bind(null, true));

@@ -15,8 +15,8 @@ limitations under the License.
 **/
 'use strict';
 
-const base = require('../request');
+import base from '../request';
 
-module.exports = function GET(settings, since) {
+export default function GET(settings, since) {
   return base(settings, `/splitChanges?since=${since}`);
 };

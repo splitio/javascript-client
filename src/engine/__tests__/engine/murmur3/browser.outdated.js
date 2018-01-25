@@ -16,11 +16,10 @@ limitations under the License.
 
 'use strict';
 
-require('core-js/es6/promise');
-require('isomorphic-fetch');
-
-const tape = require('tape');
-const utils = require('../../../engine/murmur3');
+import 'core-js/es6/promise';
+import 'isomorphic-fetch';
+import tape from 'tape';
+import utils from '../../../engine/murmur3';
 
 tape('MURMUR3', function (t) {
 

@@ -15,8 +15,8 @@ limitations under the License.
 **/
 'use strict';
 
-function transform(whitelistObject /*: Object */) /*: string */ {
+function transform(whitelistObject) {
   return whitelistObject.whitelist;
 }
 
-module.exports = transform;
+export default transform;

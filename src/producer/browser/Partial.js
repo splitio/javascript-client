@@ -16,8 +16,8 @@ limitations under the License.
 
 'use strict';
 
-const TaskFactory = require('../task');
-const MySegmentsUpdater = require('../updater/MySegments');
+import TaskFactory from '../task';
+import MySegmentsUpdater from '../updater/MySegments';
 
 /**
  * Incremental updater to be used to share data in the browser.
@@ -30,4 +30,4 @@ const PartialBrowserProducer = (context) => {
   return segmentsUpdaterTask;
 };
 
-module.exports = PartialBrowserProducer;
+export default PartialBrowserProducer;

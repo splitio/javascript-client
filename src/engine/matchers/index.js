@@ -15,25 +15,24 @@ limitations under the License.
 **/
 'use strict';
 
-const types = require('./types').enum;
-
-const allMatcher = require('./all');
-const segmentMatcher = require('./segment');
-const whitelistMatcher = require('./whitelist');
-const eqMatcher = require('./eq');
-const gteMatcher = require('./gte');
-const lteMatcher = require('./lte');
-const betweenMatcher = require('./between');
-const equalToSetMatcher = require('./eq_set');
-const containsAllSetMatcher = require('./cont_all');
-const containsAnySetMatcher = require('./cont_any');
-const partOfSetMatcher = require('./part_of');
-const swMatcher = require('./sw');
-const ewMatcher = require('./ew');
-const containsStrMatcher = require('./cont_str');
-const dependencyMatcher = require('./dependency');
-const booleanMatcher = require('./boolean');
-const stringMatcher = require('./string');
+import { types } from './types';
+import allMatcher from './all';
+import segmentMatcher from './segment';
+import whitelistMatcher from './whitelist';
+import eqMatcher from './eq';
+import gteMatcher from './gte';
+import lteMatcher from './lte';
+import betweenMatcher from './between';
+import equalToSetMatcher from './eq_set';
+import containsAllSetMatcher from './cont_all';
+import containsAnySetMatcher from './cont_any';
+import partOfSetMatcher from './part_of';
+import swMatcher from './sw';
+import ewMatcher from './ew';
+import containsStrMatcher from './cont_str';
+import dependencyMatcher from './dependency';
+import booleanMatcher from './boolean';
+import stringMatcher from './string';
 
 /**
  * Matcher factory.
@@ -85,4 +84,4 @@ function MatcherFactory(matcherDto, storage) {
   return matcherFn;
 }
 
-module.exports = MatcherFactory;
+export default MatcherFactory;

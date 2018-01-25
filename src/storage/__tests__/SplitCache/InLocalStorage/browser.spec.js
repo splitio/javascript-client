@@ -1,10 +1,9 @@
 'use strict';
 
-const tape = require('tape');
-const SplitCacheInLocalStorage = require('../../../SplitCache/InLocalStorage');
-
-const KeyBuilder = require('../../../Keys');
-const SettingsFactory = require('../../../../utils/settings');
+import tape from 'tape';
+import SplitCacheInLocalStorage from '../../../SplitCache/InLocalStorage';
+import KeyBuilder from '../../../Keys';
+import SettingsFactory from '../../../../utils/settings';
 
 tape('SPLIT CACHE / LocalStorage', assert => {
   const cache = new SplitCacheInLocalStorage(new KeyBuilder(SettingsFactory()));

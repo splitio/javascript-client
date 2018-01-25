@@ -16,8 +16,8 @@ limitations under the License.
 
 'use strict';
 
-const Logger = require('logplease');
-const isLocalStorageAvailable = require('../localstorage/isAvailable');
+import Logger from 'logplease';
+import isLocalStorageAvailable from '../localstorage/isAvailable';
 
 const defaultOptions = {
   useColors: false,
@@ -36,7 +36,7 @@ const initialState = String(
       localStorage.getItem(LS_KEY) : ''
 );
 
-const API = {
+export const API = {
   enable() {
     Logger.setLogLevel(Logger.LogLevels.DEBUG);
   },
@@ -56,6 +56,4 @@ if (/^(enabled?|on)/i.test(initialState)) {
 }
 
 // By default we expose logger instance creator wrapper.
-exports = module.exports = createLog;
-// Our API for programatically usage.
-exports.API = API;
+export default createLog;

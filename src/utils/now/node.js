@@ -16,10 +16,8 @@ limitations under the License.
 
 'use strict';
 
-module.exports = (function () {
-  return function now() {
-    let time = process.hrtime();
+export default function now() {
+  let time = process.hrtime();
 
-    return time[0] * 1e3 + time[1] * 1e-6; // convert it to milis
-  };
-}());
+  return time[0] * 1e3 + time[1] * 1e-6; // convert it to milis
+};

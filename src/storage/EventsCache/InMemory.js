@@ -16,7 +16,7 @@ limitations under the License.
 
 'use strict';
 
-const thenable = require('../../utils/promise/thenable');
+import thenable from '../../utils/promise/thenable';
 
 class EventsCache {
 
@@ -90,4 +90,4 @@ class EventsCache {
   }
 }
 
-module.exports = EventsCache;
+export default EventsCache;

@@ -16,9 +16,10 @@ limitations under the License.
 
 'use strict';
 
-const log = require('../../utils/logger')('splitio-producer:segment-changes');
-const segmentChangesFetcher = require('../fetcher/SegmentChanges');
-const findIndex = require('core-js/library/fn/array/find-index');
+import logFactory from '../../utils/logger';
+const log = logFactory('splitio-producer:segment-changes');
+import segmentChangesFetcher from '../fetcher/SegmentChanges';
+import findIndex from 'core-js/library/fn/array/find-index';
 
 const SegmentChangesUpdaterFactory = (context) => {
   const {
@@ -77,4 +78,4 @@ const SegmentChangesUpdaterFactory = (context) => {
 
 };
 
-module.exports = SegmentChangesUpdaterFactory;
+export default SegmentChangesUpdaterFactory;

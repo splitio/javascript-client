@@ -16,11 +16,11 @@ limitations under the License.
 
 'use strict';
 
-const log = require('../utils/logger')('splitio-producer:updater');
-const repeat = require('../utils/fn/repeat');
-
-const SplitChangesUpdater = require('./updater/SplitChanges');
-const SegmentChangesUpdater = require('./updater/SegmentChanges');
+import logFactory from '../utils/logger';
+const log = logFactory('splitio-producer:updater');
+import repeat from '../utils/fn/repeat';
+import SplitChangesUpdater from './updater/SplitChanges';
+import SegmentChangesUpdater from './updater/SegmentChanges';
 
 /**
  * Expose start / stop mechanism for pulling data from services.
@@ -84,4 +84,4 @@ const NodeUpdater = (context) => {
   };
 };
 
-module.exports = NodeUpdater;
+export default NodeUpdater;

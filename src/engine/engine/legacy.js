@@ -62,7 +62,7 @@ function bucket(str /*: string */, seed /*: number */) /*: number */ {
   return Math.abs(hash(str, seed) % 100) + 1;
 }
 
-module.exports = {
+export default {
   hash,
   bucket
 };

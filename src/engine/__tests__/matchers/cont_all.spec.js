@@ -15,9 +15,9 @@ limitations under the License.
 **/
 'use strict';
 
-const tape = require('tape-catch');
-const matcherTypes = require('../../matchers/types').enum;
-const matcherFactory = require('../../matchers');
+import tape from 'tape-catch';
+import { types as matcherTypes } from '../../matchers/types';
+import matcherFactory from '../../matchers';
 
 tape('MATCHER CONTAINS_ALL_OF_SET / should return true ONLY when value contains all of set ["update", "add"]', function (assert) {
 

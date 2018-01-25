@@ -2,19 +2,17 @@
 
 // I'll need to fix first 'isomorphic-fetch' to be transpiled using
 // babel-runtime before remove this line of code.
-require('core-js/es6/promise');
+import 'core-js/es6/promise';
 
-const isFinite = require('lodash/isFinite');
-const log = require('../utils/logger')('splitio-client');
-const evaluator = require('../engine/evaluator');
-
-const PassTracker = require('../tracker/PassThrough');
-const tracker = require('../utils/timeTracker');
-
-const keyParser = require('../utils/key/parser');
-
-const thenable = require('../utils/promise/thenable');
-const { matching, bucketing } = require('../utils/key/factory');
+import isFinite from 'lodash/isFinite';
+import logFactory from '../utils/logger';
+const log = logFactory('splitio-client');
+import evaluator from '../engine/evaluator';
+import PassTracker from '../tracker/PassThrough';
+import tracker from '../utils/timeTracker';
+import keyParser from '../utils/key/parser';
+import thenable from '../utils/promise/thenable';
+import { matching, bucketing } from '../utils/key/factory';
 
 function getTreatmentAvailable(
   evaluation,
@@ -127,7 +125,6 @@ function ClientFactory(context) {
       return true;
     }
   };
-
 }
 
-module.exports = ClientFactory;
+export default ClientFactory;

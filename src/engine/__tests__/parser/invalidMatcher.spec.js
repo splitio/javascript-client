@@ -15,8 +15,8 @@ limitations under the License.
 **/
 'use strict';
 
-const tape = require('tape');
-const parser = require('../../parser');
+import tape from 'tape';
+import parser from '../../parser';
 
 tape('PARSER / handle invalid matcher as control', async function (assert) {
   const evaluator = parser([{

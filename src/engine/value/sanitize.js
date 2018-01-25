@@ -16,24 +16,20 @@ limitations under the License.
 
 'use strict';
 
-const log = require('../../utils/logger')('splitio-engine:sanitize');
-
-const isArray = require('lodash/isArray');
-const isObject = require('lodash/isObject');
-const uniq = require('lodash/uniq');
-const toString = require('lodash/toString');
-const toNumber = require('lodash/toNumber');
-
-const {
-  date: {
-    zeroSinceHH,
-    zeroSinceSS
-  }
-} = require('../convertions');
-
-const matcherTypes = require('../matchers/types');
-const MATCHERS = matcherTypes.enum;
-const DATA_TYPES = matcherTypes.dataTypes;
+import logFactory from '../../utils/logger';
+const log = logFactory('splitio-engine:sanitize');
+import isArray from 'lodash/isArray';
+import isObject from 'lodash/isObject';
+import uniq from 'lodash/uniq';
+import toString from 'lodash/toString';
+import toNumber from 'lodash/toNumber';
+import { zeroSinceHH, zeroSinceSS } from '../convertions';
+import {
+  types as matcherTypes,
+  dataTypes as matcherDataTypes
+} from '../matchers/types';
+const MATCHERS = matcherTypes;
+const DATA_TYPES = matcherDataTypes;
 
 function sanitizeNumber(val) {
   const num = toNumber(val);
@@ -129,4 +125,4 @@ function sanitizeValue(matcherTypeID, value, dataType, attributes) {
   return sanitizedValue;
 }
 
-module.exports = sanitizeValue;
+export default sanitizeValue;

@@ -62,4 +62,4 @@ class SplitCacheInMemory {
   }
 }
 
-module.exports = SplitCacheInMemory;
+export default SplitCacheInMemory;

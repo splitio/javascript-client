@@ -16,7 +16,8 @@ limitations under the License.
 
 'use strict';
 
-const log = require('../../utils/logger')('splitio-engine:matcher');
+import logFactory from '../../utils/logger';
+const log = logFactory('splitio-engine:matcher');
 
 function equalToMatcherContext(ruleAttr /*: number */) /*: Function */ {
   return function equalToMatcher(runtimeAttr /*: number */) /*: boolean */ {
@@ -28,4 +29,4 @@ function equalToMatcherContext(ruleAttr /*: number */) /*: Function */ {
   };
 }
 
-module.exports = equalToMatcherContext;
+export default equalToMatcherContext;

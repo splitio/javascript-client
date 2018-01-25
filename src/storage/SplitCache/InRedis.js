@@ -112,4 +112,4 @@ class SplitCacheInRedis {
   }
 }
 
-module.exports = SplitCacheInRedis;
+export default SplitCacheInRedis;

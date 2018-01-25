@@ -1,28 +1,17 @@
-const Redis = require('ioredis');
-
-const SplitCacheInMemory = require('./SplitCache/InMemory');
-const SplitCacheInRedis = require('./SplitCache/InRedis');
-
-const SegmentCacheInMemory = require('./SegmentCache/InMemory');
-const SegmentCacheInRedis = require('./SegmentCache/InRedis');
-
-const ImpressionsCacheInMemory = require('./ImpressionsCache/InMemory');
-const ImpressionsCacheInRedis = require('./ImpressionsCache/InRedis');
-
-const LatencyCacheInMemory = require('./LatencyCache/InMemory');
-const LatencyCacheInRedis = require('./LatencyCache/InRedis');
-
-const CountCacheInMemory = require('./CountCache/InMemory');
-const CountCacheInRedis = require('./CountCache/InRedis');
-
-const EventsCacheInMemory = require('./EventsCache/InMemory');
-
-const KeyBuilder = require('./Keys');
-
-const {
-  STORAGE_MEMORY,
-  STORAGE_REDIS
-} = require('../utils/constants');
+import Redis from 'ioredis';
+import SplitCacheInMemory from './SplitCache/InMemory';
+import SplitCacheInRedis from './SplitCache/InRedis';
+import SegmentCacheInMemory from './SegmentCache/InMemory';
+import SegmentCacheInRedis from './SegmentCache/InRedis';
+import ImpressionsCacheInMemory from './ImpressionsCache/InMemory';
+import ImpressionsCacheInRedis from './ImpressionsCache/InRedis';
+import LatencyCacheInMemory from './LatencyCache/InMemory';
+import LatencyCacheInRedis from './LatencyCache/InRedis';
+import CountCacheInMemory from './CountCache/InMemory';
+import CountCacheInRedis from './CountCache/InRedis';
+import EventsCacheInMemory from './EventsCache/InMemory';
+import KeyBuilder from './Keys';
+import { STORAGE_MEMORY, STORAGE_REDIS } from '../utils/constants';
 
 const NodeStorageFactory = context => {
   const settings = context.get(context.constants.SETTINGS);
@@ -81,4 +70,4 @@ const NodeStorageFactory = context => {
 
 };
 
-module.exports = NodeStorageFactory;
+export default NodeStorageFactory;

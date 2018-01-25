@@ -16,7 +16,7 @@ limitations under the License.
 
 'use strict';
 
-const FromSettingsFetcher = require('../../services/splitChanges/offline');
-const SplitChangesFromObject = require('./SplitChangesFromObject');
+import FromSettingsFetcher from '../../services/splitChanges/offline';
+import SplitChangesFromObject from './SplitChangesFromObject';
 
-module.exports = SplitChangesFromObject.bind(null, FromSettingsFetcher);
+export default SplitChangesFromObject.bind(null, FromSettingsFetcher);

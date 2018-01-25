@@ -1,11 +1,11 @@
-const toString = require('lodash/toString');
-const isObject = require('lodash/isObject');
+import toString from 'lodash/toString';
+import isObject from 'lodash/isObject';
 
 /**
  * Verify type of key and return a valid object key used for get treatment for a
  * specific split.
  */
-module.exports = (key) => {
+export default (key) => {
   if (isObject(key)) {
     // If we've received an object, we will convert to string the matchingKey and bucketingKey properties
     const keyObject = {

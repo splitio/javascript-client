@@ -15,7 +15,7 @@ limitations under the License.
 **/
 'use strict';
 
-function bs(items /*: array<number> */, value /*: number */) /*: number */ {
+function bs(items, value) {
   let startIndex = 0;
   let stopIndex = items.length - 1;
   let middle = Math.floor((stopIndex + startIndex) / 2);
@@ -49,4 +49,4 @@ function bs(items /*: array<number> */, value /*: number */) /*: number */ {
   return middle;
 }
 
-module.exports = bs;
+export default bs;

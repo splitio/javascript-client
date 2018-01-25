@@ -15,8 +15,9 @@ limitations under the License.
 **/
 'use strict';
 
-const log = require('../../utils/logger')('splitio-engine:matcher');
-const thenable = require('../../utils/promise/thenable');
+import logFactory from '../../utils/logger';
+const log = logFactory('splitio-engine:matcher');
+import thenable from '../../utils/promise/thenable';
 
 function matcherSegmentContext(segmentName, storage) {
 
@@ -39,4 +40,4 @@ function matcherSegmentContext(segmentName, storage) {
   return segmentMatcher;
 }
 
-module.exports = matcherSegmentContext;
+export default matcherSegmentContext;

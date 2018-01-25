@@ -15,17 +15,10 @@ limitations under the License.
 **/
 'use strict';
 
-function zeroSinceHH(millisSinceEpoch /*: number */) /*: number */ {
+export function zeroSinceHH(millisSinceEpoch /*: number */) /*: number */ {
   return new Date(millisSinceEpoch).setUTCHours(0, 0, 0, 0);
 }
 
-function zeroSinceSS(millisSinceEpoch /*: number */) /*: number */ {
+export function zeroSinceSS(millisSinceEpoch /*: number */) /*: number */ {
   return new Date(millisSinceEpoch).setUTCSeconds(0, 0);
 }
-
-module.exports = {
-  date: {
-    zeroSinceHH,
-    zeroSinceSS
-  }
-};

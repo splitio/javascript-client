@@ -1,17 +1,16 @@
 'use strict';
 
-const SplitFactory = require('../../');
-
-const SettingsFactory = require('../../utils/settings');
+import SplitFactory from '../../';
+import SettingsFactory from '../../utils/settings';
 const settings = SettingsFactory({
   core: {
     key: 'asd'
   }
 });
 
-const fetchMock = require('fetch-mock');
+import fetchMock from 'fetch-mock';
 
-module.exports = function(startWithTT, assert) {
+export default function(startWithTT, assert) {
   const factory = SplitFactory({
     core: {
       authorizationKey: 'dummy',

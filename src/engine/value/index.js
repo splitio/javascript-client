@@ -16,8 +16,9 @@ limitations under the License.
 
 'use strict';
 
-const log = require('../../utils/logger')('splitio-engine:value');
-const sanitizeValue = require('./sanitize');
+import logFactory from '../../utils/logger';
+const log = logFactory('splitio-engine:value');
+import sanitizeValue from './sanitize';
 
 function parseValue(key, attributeName, attributes) {
   let value = undefined;
@@ -51,4 +52,4 @@ function value(key, matcherDto, attributes) {
   }
 }
 
-module.exports = value;
+export default value;

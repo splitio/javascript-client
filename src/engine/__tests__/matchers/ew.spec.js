@@ -15,9 +15,9 @@ limitations under the License.
 **/
 'use strict';
 
-const tape = require('tape-catch');
-const matcherTypes = require('../../matchers/types').enum;
-const matcherFactory = require('../../matchers');
+import tape from 'tape-catch';
+import { types as matcherTypes } from '../../matchers/types';
+import matcherFactory from '../../matchers';
 
 tape('MATCHER ENDS_WITH / should return true ONLY when the value ends with ["a", "b", "c"]', function (assert) {
 

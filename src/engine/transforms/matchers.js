@@ -16,20 +16,17 @@ limitations under the License.
 
 'use strict';
 
-const findIndex = require('core-js/library/fn/array/find-index');
-
-const matcherTypes = require('../matchers/types');
-const segmentTransform = require('./segment');
-const whitelistTransform = require('./whitelist');
-const setTransform = require('./set');
-const numericTransform = require('./unaryNumeric');
-
-const {
-  date: {
-    zeroSinceHH,
-    zeroSinceSS
-  }
-} = require('../convertions');
+import findIndex from 'core-js/library/fn/array/find-index';
+import {
+  types as matcherTypes,
+  mapper as matcherTypesMapper,
+  dataTypes as matcherDataTypes
+} from '../matchers/types';
+import segmentTransform from './segment';
+import whitelistTransform from './whitelist';
+import setTransform from './set';
+import numericTransform from './unaryNumeric';
+import { zeroSinceHH, zeroSinceSS } from '../convertions';
 
 // Flat the complex matcherGroup structure into something handy.
 function transform(matchers) {
@@ -49,62 +46,62 @@ function transform(matchers) {
     } = matcher;
 
     let attribute = keySelector && keySelector.attribute;
-    let type = matcherTypes.mapper(matcherType);
+    let type = matcherTypesMapper(matcherType);
     // As default input data type we use string (even for ALL_KEYS)
-    let dataType = matcherTypes.dataTypes.STRING;
+    let dataType = matcherDataTypes.STRING;
     let value = undefined;
 
-    if (type === matcherTypes.enum.SEGMENT) {
+    if (type === matcherTypes.SEGMENT) {
       value = segmentTransform(segmentObject);
-    } else if (type === matcherTypes.enum.WHITELIST) {
+    } else if (type === matcherTypes.WHITELIST) {
       value = whitelistTransform(whitelistObject);
-    } else if (type === matcherTypes.enum.EQUAL_TO) {
+    } else if (type === matcherTypes.EQUAL_TO) {
       value = numericTransform(unaryNumericObject);
-      dataType = matcherTypes.dataTypes.NUMBER;
+      dataType = matcherDataTypes.NUMBER;
 
       if (unaryNumericObject.dataType === 'DATETIME') {
         value = zeroSinceHH(value);
-        dataType = matcherTypes.dataTypes.DATETIME;
+        dataType = matcherDataTypes.DATETIME;
       }
-    } else if (type === matcherTypes.enum.GREATER_THAN_OR_EQUAL_TO ||
-               type === matcherTypes.enum.LESS_THAN_OR_EQUAL_TO) {
+    } else if (type === matcherTypes.GREATER_THAN_OR_EQUAL_TO ||
+               type === matcherTypes.LESS_THAN_OR_EQUAL_TO) {
       value = numericTransform(unaryNumericObject);
-      dataType = matcherTypes.dataTypes.NUMBER;
+      dataType = matcherDataTypes.NUMBER;
 
       if (unaryNumericObject.dataType === 'DATETIME') {
         value = zeroSinceSS(value);
-        dataType = matcherTypes.dataTypes.DATETIME;
+        dataType = matcherDataTypes.DATETIME;
       }
-    } else if (type === matcherTypes.enum.BETWEEN) {
+    } else if (type === matcherTypes.BETWEEN) {
       value = betweenObject;
-      dataType = matcherTypes.dataTypes.NUMBER;
+      dataType = matcherDataTypes.NUMBER;
 
       if (betweenObject.dataType === 'DATETIME') {
         value.start = zeroSinceSS(value.start);
         value.end = zeroSinceSS(value.end);
-        dataType = matcherTypes.dataTypes.DATETIME;
+        dataType = matcherDataTypes.DATETIME;
       }
     } else if (
-      type === matcherTypes.enum.EQUAL_TO_SET ||
-      type === matcherTypes.enum.CONTAINS_ANY_OF_SET ||
-      type === matcherTypes.enum.CONTAINS_ALL_OF_SET ||
-      type === matcherTypes.enum.PART_OF_SET
+      type === matcherTypes.EQUAL_TO_SET ||
+      type === matcherTypes.CONTAINS_ANY_OF_SET ||
+      type === matcherTypes.CONTAINS_ALL_OF_SET ||
+      type === matcherTypes.PART_OF_SET
     ) {
       value = setTransform(whitelistObject);
-      dataType = matcherTypes.dataTypes.SET;
+      dataType = matcherDataTypes.SET;
     } else if (
-      type === matcherTypes.enum.STARTS_WITH ||
-      type === matcherTypes.enum.ENDS_WITH ||
-      type === matcherTypes.enum.CONTAINS_STRING
+      type === matcherTypes.STARTS_WITH ||
+      type === matcherTypes.ENDS_WITH ||
+      type === matcherTypes.CONTAINS_STRING
     ) {
       value = setTransform(whitelistObject);
-    } else if (type === matcherTypes.enum.IN_SPLIT_TREATMENT) {
+    } else if (type === matcherTypes.IN_SPLIT_TREATMENT) {
       value = dependencyObject;
-      dataType = matcherTypes.dataTypes.NOT_SPECIFIED;
-    } else if (type === matcherTypes.enum.EQUAL_TO_BOOLEAN) {
-      dataType = matcherTypes.dataTypes.BOOLEAN;
+      dataType = matcherDataTypes.NOT_SPECIFIED;
+    } else if (type === matcherTypes.EQUAL_TO_BOOLEAN) {
+      dataType = matcherDataTypes.BOOLEAN;
       value = booleanMatcherData;
-    } else if (type === matcherTypes.enum.MATCHES_STRING) {
+    } else if (type === matcherTypes.MATCHES_STRING) {
       value = stringMatcherData;
     }
 
@@ -117,11 +114,11 @@ function transform(matchers) {
     };
   });
 
-  if (findIndex(parsedMatchers, m => m.type === matcherTypes.enum.UNDEFINED) === -1) {
+  if (findIndex(parsedMatchers, m => m.type === matcherTypes.UNDEFINED) === -1) {
     return parsedMatchers;
   } else {
     return [];
   }
 }
 
-module.exports = transform;
+export default transform;

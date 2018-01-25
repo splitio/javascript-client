@@ -18,13 +18,12 @@ limitations under the License.
 
 'use strict';
 
-const log = require('../utils/logger')('splitio-events');
-const tracker = require('../utils/timeTracker');
-
-const repeat = require('../utils/fn/repeat');
-
-const eventsService = require('../services/events');
-const eventsBulkRequest = require('../services/events/bulk');
+import logFactory from '../utils/logger';
+const log = logFactory('splitio-events');
+import tracker from '../utils/timeTracker';
+import repeat from '../utils/fn/repeat';
+import eventsService from '../services/events';
+import eventsBulkRequest from '../services/events/bulk';
 
 const EventsFactory = context => {
   const settings = context.get(context.constants.SETTINGS);
@@ -77,4 +76,4 @@ const EventsFactory = context => {
   };
 };
 
-module.exports = EventsFactory;
+export default EventsFactory;

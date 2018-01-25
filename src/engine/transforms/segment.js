@@ -18,8 +18,8 @@ limitations under the License.
 /**
  * Extract segment name as a plain string.
  */
-function transform(segment = {} /*: object */) /*: string */ {
+function transform(segment = {}) {
   return segment.segmentName;
 }
 
-module.exports = transform;
+export default transform;

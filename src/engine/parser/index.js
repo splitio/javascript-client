@@ -16,14 +16,14 @@ limitations under the License.
 
 'use strict';
 
-const matchersTransform = require('../transforms/matchers');
-const treatmentsParser = require('../treatments').parse;
-const matcherFactory = require('../matchers');
-const sanitizeValue = require('../value');
-const conditionFactory = require('../condition');
-const ifElseIfCombiner = require('../combiners/ifelseif');
-const andCombiner = require('../combiners/and');
-const thenable = require('../../utils/promise/thenable');
+import matchersTransform from '../transforms/matchers';
+import treatmentsParser from '../treatments';
+import matcherFactory from '../matchers';
+import sanitizeValue from '../value';
+import conditionFactory from '../condition';
+import ifElseIfCombiner from '../combiners/ifelseif';
+import andCombiner from '../combiners/and';
+import thenable from '../../utils/promise/thenable';
 
 function parse(conditions, storage) {
   let predicates = [];
@@ -68,7 +68,7 @@ function parse(conditions, storage) {
 
     predicates.push(conditionFactory(
       andCombiner(expressions),
-      treatmentsParser(partitions),
+      treatmentsParser.parse(partitions),
       label,
       conditionType
     ));
@@ -78,4 +78,4 @@ function parse(conditions, storage) {
   return ifElseIfCombiner(predicates);
 }
 
-module.exports = parse;
+export default parse;

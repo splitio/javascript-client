@@ -15,8 +15,8 @@ limitations under the License.
 **/
 'use strict';
 
-const tape = require('tape-catch');
-const transform = require('../../transforms/whitelist');
+import tape from 'tape-catch';
+import transform from '../../transforms/whitelist';
 
 tape('TRANSFORMS / a whitelist Array should be casted into a Set', function (assert) {
   let sample = [

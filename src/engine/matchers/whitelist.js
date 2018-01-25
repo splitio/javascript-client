@@ -15,7 +15,8 @@ limitations under the License.
 **/
 'use strict';
 
-const log = require('../../utils/logger')('splitio-engine:matcher');
+import logFactory from '../../utils/logger';
+const log = logFactory('splitio-engine:matcher');
 
 function whitelistMatcherContext(ruleAttr /*: Set */) /*: Function */ {
   return function whitelistMatcher(runtimeAttr /*: string */) /*: boolean */ {
@@ -27,4 +28,4 @@ function whitelistMatcherContext(ruleAttr /*: Set */) /*: Function */ {
   };
 }
 
-module.exports = whitelistMatcherContext;
+export default whitelistMatcherContext;

@@ -15,9 +15,8 @@ limitations under the License.
 **/
 'use strict';
 
-require('isomorphic-fetch');
-
-const baseline = require('./options');
+import 'isomorphic-fetch';
+import baseline from './options';
 
 function RequestFactory(settings, relativeUrl, params) {
   const token = settings.core.authorizationKey;
@@ -34,12 +33,12 @@ function RequestFactory(settings, relativeUrl, params) {
   if (hostname) headers['SplitSDKMachineName'] = hostname;
 
   return new Request(settings.url(relativeUrl), Object.assign({
-    headers,
-    compress: true
-  },
-  baseline,
-  params
+      headers,
+      compress: true
+    },
+    baseline,
+    params
   ));
 }
 
-module.exports = RequestFactory;
+export default RequestFactory;

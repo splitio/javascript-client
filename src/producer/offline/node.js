@@ -16,8 +16,8 @@ limitations under the License.
 
 'use strict';
 
-const TaskFactory = require('../task');
-const FromFileSystemUpdater = require('../updater/SplitChangesFromFileSystem');
+import TaskFactory from '../task';
+import FromFileSystemUpdater from '../updater/SplitChangesFromFileSystem';
 
 const OfflineFileSystemProducer = (context) => {
   const settings = context.get(context.constants.SETTINGS);
@@ -27,4 +27,4 @@ const OfflineFileSystemProducer = (context) => {
   return updaterTask;
 };
 
-module.exports = OfflineFileSystemProducer;
+export default OfflineFileSystemProducer;

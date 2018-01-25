@@ -16,7 +16,8 @@ limitations under the License.
 
 'use strict';
 
-const log = require('../../utils/logger')('splitio-producer:offline');
+import logFactory from '../../utils/logger';
+const log = logFactory('splitio-producer:offline');
 
 function FromObjectUpdaterFactory(Fetcher, context) {
   const {
@@ -54,4 +55,4 @@ function FromObjectUpdaterFactory(Fetcher, context) {
 
 }
 
-module.exports = FromObjectUpdaterFactory;
+export default FromObjectUpdaterFactory;

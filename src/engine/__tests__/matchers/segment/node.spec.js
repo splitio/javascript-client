@@ -15,16 +15,15 @@ limitations under the License.
 **/
 'use strict';
 
-const tape = require('tape-catch');
-
-const matcherTypes = require('../../../matchers/types');
-const matcherFactory = require('../../../matchers');
+import tape from 'tape-catch';
+import { types as matcherTypes } from '../../../matchers/types';
+import matcherFactory from '../../../matchers';
 
 tape('MATCHER SEGMENT / should return true ONLY when the key is defined inside the segment', async function (assert) {
   const segment = 'employees';
 
   const matcher = matcherFactory({
-    type: matcherTypes.enum.SEGMENT,
+    type: matcherTypes.SEGMENT,
     value: segment
   }, {
     segments: {

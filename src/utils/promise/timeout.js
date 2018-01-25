@@ -32,4 +32,4 @@ function timeout(ms, promise) {
   });
 }
 
-module.exports = timeout;
+export default timeout;

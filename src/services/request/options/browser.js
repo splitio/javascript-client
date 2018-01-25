@@ -15,6 +15,6 @@ limitations under the License.
 **/
 'use strict';
 
-module.exports = {
+export default {
   mode: 'cors'
 };

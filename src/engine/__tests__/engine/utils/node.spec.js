@@ -15,10 +15,10 @@ limitations under the License.
 **/
 'use strict';
 
-const tape = require('tape-catch');
-const utils = require('../../../engine/legacy');
-const csv = require('csv-streamify');
-const fs = require('fs');
+import tape from 'tape-catch';
+import utils from '../../../engine/legacy';
+import csv from 'csv-streamify';
+import fs from 'fs';
 
 tape('ENGINE / validate hashing behavior using sample data', assert => {
   let parser = csv();

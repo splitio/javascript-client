@@ -16,8 +16,8 @@ limitations under the License.
 
 'use strict';
 
-const tape = require('tape');
-const ReadinessGate = require('../');
+import tape from 'tape';
+import ReadinessGate from '../';
 
 tape('READINESS GATE / Share splits but segments (without timeout enabled)', function (assert) {
   assert.plan(2);

@@ -16,9 +16,10 @@ limitations under the License.
 
 'use strict';
 
-const findIndex = require('core-js/library/fn/array/find-index');
-const log = require('../../utils/logger')('splitio-engine:combiner');
-const thenable = require('../../utils/promise/thenable');
+import findIndex from 'core-js/library/fn/array/find-index';
+import logFactory from '../../utils/logger';
+const log = logFactory('splitio-engine:combiner');
+import thenable from '../../utils/promise/thenable';
 
 function andResults(results) {
   let i = 0;
@@ -53,4 +54,4 @@ function andCombinerContext(matchers) {
   return andCombiner;
 }
 
-module.exports = andCombinerContext;
+export default andCombinerContext;

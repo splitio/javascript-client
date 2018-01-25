@@ -1,7 +1,7 @@
 'use strict';
 
-const thenable = require('../utils/promise/thenable');
-const find = require('lodash/find');
+import thenable from '../utils/promise/thenable';
+import find from 'lodash/find';
 
 const collectTreatments = (conditions) => {
   // Rollout conditions are supposed to have the entire partitions list, so we find the first one.
@@ -65,4 +65,4 @@ const SplitManagerFactory = (splits) => {
 
 };
 
-module.exports = SplitManagerFactory;
+export default SplitManagerFactory;

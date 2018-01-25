@@ -16,11 +16,10 @@ limitations under the License.
 
 'use strict';
 
-const timeout = require('../../utils/promise/timeout');
-const tracker = require('../../utils/timeTracker');
-
-const splitChangesService = require('../../services/splitChanges');
-const splitChangesRequest = require('../../services/splitChanges/get');
+import timeout from '../../utils/promise/timeout';
+import tracker from '../../utils/timeTracker';
+import splitChangesService from '../../services/splitChanges';
+import splitChangesRequest from '../../services/splitChanges/get';
 
 function splitChangesFetcher(settings, since, startingUp = false, metricCollectors, isNode) {
   let splitsPromise = splitChangesService(splitChangesRequest(settings, since));
@@ -35,4 +34,4 @@ function splitChangesFetcher(settings, since, startingUp = false, metricCollecto
   return splitsPromise.then(resp => resp.json());
 }
 
-module.exports = splitChangesFetcher;
+export default splitChangesFetcher;

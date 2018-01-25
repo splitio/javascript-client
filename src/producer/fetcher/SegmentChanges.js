@@ -16,11 +16,10 @@ limitations under the License.
 
 'use strict';
 
-const segmentChangesService = require('../../services/segmentChanges');
-const segmentChangesRequest = require('../../services/segmentChanges/get');
-
-const tracker = require('../../utils/timeTracker');
-const startsWith = require('lodash/startsWith');
+import segmentChangesService from '../../services/segmentChanges';
+import segmentChangesRequest from '../../services/segmentChanges/get';
+import tracker from '../../utils/timeTracker';
+import startsWith from 'lodash/startsWith';
 
 function greedyFetch(settings, lastSinceValue, segmentName, metricCollectors) {
   return tracker.start(tracker.TaskNames.SEGMENTS_FETCH, metricCollectors, segmentChangesService(segmentChangesRequest(settings, {
@@ -52,5 +51,4 @@ function segmentChangesFetcher(settings, segmentName, since, metricCollectors) {
   return greedyFetch(settings, since, segmentName, metricCollectors);
 }
 
-module.exports = segmentChangesFetcher;
-module.exports.greedyFetch = greedyFetch;
+export default segmentChangesFetcher;

@@ -16,4 +16,4 @@ limitations under the License.
 
 'use strict';
 
-module.exports = (collector) => (element) => collector.track(element);
+export default (collector) => (element) => collector.track(element);

@@ -16,7 +16,7 @@ limitations under the License.
 
 'use strict';
 
-module.exports = function isLocalStorageAvailable() {
+export default function isLocalStorageAvailable() {
   var mod = '__SPLITSOFTWARE__';
   try {
     localStorage.setItem(mod, mod);

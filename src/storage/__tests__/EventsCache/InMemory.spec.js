@@ -1,6 +1,6 @@
-const tape = require('tape');
-const EventsCache = require('../../EventsCache/InMemory');
-const Context = require('../../../utils/context'); // Has it's own unit test.
+import tape from 'tape';
+import EventsCache from '../../EventsCache/InMemory';
+import Context from '../../../utils/context'; // Has it's own unit test.
 
 const CONTEXT = new Context;
 CONTEXT.put(CONTEXT.constants.SETTINGS, {

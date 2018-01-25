@@ -16,9 +16,10 @@ limitations under the License.
 
 'use strict';
 
-const fs = require('fs');
-const path = require('path');
-const log = require('../../../utils/logger')('splitio:offline');
+import fs from 'fs';
+import path from 'path';
+import logFactory from '../../../utils/logger';
+const log = logFactory('splitio:offline');
 
 const FILENAME = '.split';
 
@@ -88,4 +89,4 @@ function getSplitConfigForFile(settings) {
   return makeUpReadOnlySettings(readSplitConfigFile(configFilesPath(settings)));
 }
 
-module.exports = getSplitConfigForFile;
+export default getSplitConfigForFile;

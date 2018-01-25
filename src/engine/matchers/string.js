@@ -15,7 +15,8 @@ limitations under the License.
 **/
 'use strict';
 
-const log = require('../../utils/logger')('splitio-engine:matcher');
+import logFactory from '../../utils/logger';
+const log = logFactory('splitio-engine:matcher');
 
 function stringMatcherContext(ruleAttr /*: regex */) /*: Function */ {
   return function stringMatcher(runtimeAttr /*: string */) /*: bool */ {
@@ -37,4 +38,4 @@ function stringMatcherContext(ruleAttr /*: regex */) /*: Function */ {
   };
 }
 
-module.exports = stringMatcherContext;
+export default stringMatcherContext;

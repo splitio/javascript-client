@@ -15,11 +15,10 @@ limitations under the License.
 **/
 'use strict';
 
-const tape = require('tape');
-const fs = require('fs');
-const rl = require('readline');
-
-const utils = require('../../../engine/murmur3');
+import tape from 'tape';
+import fs from 'fs';
+import rl from 'readline';
+import utils from '../../../engine/murmur3';
 
 [
   'murmur3-sample-v4.csv',

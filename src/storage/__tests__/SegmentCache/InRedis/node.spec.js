@@ -1,12 +1,10 @@
 'use strict';
 
-const Redis = require('ioredis');
-const tape = require('tape-catch');
-const SegmentCache = require('../../../SegmentCache/InRedis');
-
-const KeyBuilder = require('../../../Keys');
-
-const SettingsFactory = require('../../../../utils/settings');
+import Redis from 'ioredis';
+import tape from 'tape-catch';
+import SegmentCache from '../../../SegmentCache/InRedis';
+import KeyBuilder from '../../../Keys';
+import SettingsFactory from '../../../../utils/settings';
 const settings = SettingsFactory({
   storage: {
     type: 'REDIS'

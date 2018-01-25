@@ -1,10 +1,9 @@
 'use strict';
 
-const get = require('lodash/get');
-
-const ClientFactory = require('./client');
-const keyParser = require('../utils/key/parser');
-const { LOCALHOST_MODE } = require('../utils/constants');
+import get from 'lodash/get';
+import ClientFactory from './client';
+import keyParser from '../utils/key/parser';
+import { LOCALHOST_MODE } from '../utils/constants';
 
 function FixKey(context) {
   const settings = context.get(context.constants.SETTINGS);
@@ -34,4 +33,4 @@ function FixKey(context) {
   return client;
 }
 
-module.exports = FixKey;
+export default FixKey;

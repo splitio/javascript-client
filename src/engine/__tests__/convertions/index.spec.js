@@ -15,13 +15,8 @@ limitations under the License.
 **/
 'use strict';
 
-const tape = require('tape-catch');
-const {
-  date: {
-    zeroSinceHH,
-    zeroSinceSS
-  }
-} = require('../../convertions');
+import tape from 'tape-catch';
+import { zeroSinceHH, zeroSinceSS } from '../../convertions';
 
 tape('CONVERTIONS / zero since HH should change the date in a way we only have dd-mm-yyyy since midnight in UTC', assert => {
 

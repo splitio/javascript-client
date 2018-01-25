@@ -1,22 +1,14 @@
-const SplitCacheInMemory = require('./SplitCache/InMemory');
-const SplitCacheInLocalStorage = require('./SplitCache/InLocalStorage');
-
-const SegmentCacheInMemory = require('./SegmentCache/InMemory');
-const SegmentCacheInLocalStorage = require('./SegmentCache/InLocalStorage');
-
-const ImpressionsCacheInMemory = require('./ImpressionsCache/InMemory');
-const LatencyCacheInMemory = require('./LatencyCache/InMemory');
-const CountCacheInMemory = require('./CountCache/InMemory');
-
-const EventsCacheInMemory = require('./EventsCache/InMemory');
-
-const KeyBuilder = require('./Keys');
-const KeyBuilderLocalStorage = require('./KeysLocalStorage');
-
-const {
-  STORAGE_MEMORY,
-  STORAGE_LOCALSTORAGE
-} = require('../utils/constants');
+import SplitCacheInMemory from './SplitCache/InMemory';
+import SplitCacheInLocalStorage from './SplitCache/InLocalStorage';
+import SegmentCacheInMemory from './SegmentCache/InMemory';
+import SegmentCacheInLocalStorage from './SegmentCache/InLocalStorage';
+import ImpressionsCacheInMemory from './ImpressionsCache/InMemory';
+import LatencyCacheInMemory from './LatencyCache/InMemory';
+import CountCacheInMemory from './CountCache/InMemory';
+import EventsCacheInMemory from './EventsCache/InMemory';
+import KeyBuilder from './Keys';
+import KeyBuilderLocalStorage from './KeysLocalStorage';
+import { STORAGE_MEMORY, STORAGE_LOCALSTORAGE } from '../utils/constants';
 
 const BrowserStorageFactory = context => {
   const settings = context.get(context.constants.SETTINGS);
@@ -111,4 +103,4 @@ const BrowserStorageFactory = context => {
 
 };
 
-module.exports = BrowserStorageFactory;
+export default BrowserStorageFactory;

@@ -1,7 +1,7 @@
 'use strict';
 
-const tape = require('tape-catch');
-const SplitFactory = require('../');
+import tape from 'tape-catch';
+import SplitFactory from '../';
 const SDK_INSTANCES_TO_TEST = 4;
 
 tape('NodeJS E2E', function (assert) {

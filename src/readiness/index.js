@@ -1,7 +1,7 @@
 'use strict';
 
-const EventEmitter = require('events').EventEmitter;
-const tracker = require('../utils/timeTracker');
+import { EventEmitter } from 'events';
+import tracker from '../utils/timeTracker';
 
 const SPLITS_READY = 2;
 const SEGMENTS_READY = 4;
@@ -104,4 +104,4 @@ function GateContext() {
   return SDKReadinessGateFactory;
 }
 
-module.exports = GateContext;
+export default GateContext;

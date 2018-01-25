@@ -16,16 +16,15 @@ limitations under the License.
 
 'use strict';
 
-const merge = require('lodash/merge');
-
-const language = require('./language');
-const runtime = require('./runtime');
-const overridesPerPlatform = require('./defaults');
-const storage = require('./storage');
-const mode = require('./mode');
-const Logger = require('../../utils/logger');
-const { STANDALONE_MODE, STORAGE_MEMORY } = require('../../utils/constants');
-const { version } = require('../../../package.json');
+import merge from 'lodash/merge';
+import language from './language';
+import { ip, os } from './runtime';
+import overridesPerPlatform from './defaults';
+import storage from './storage';
+import mode from './mode';
+import { API } from '../../utils/logger';
+import { STANDALONE_MODE, STORAGE_MEMORY } from '../../utils/constants';
+import { version } from '../../../package.json';
 
 const eventsEndpointMatcher = /\/(testImpressions|metrics|events)/;
 
@@ -86,7 +85,7 @@ function fromSecondsToMillis(n) {
 
 function setupLogger(enable) {
   if (enable) {
-    Logger.API.enable();
+    API.enable();
   }
 }
 
@@ -146,9 +145,12 @@ const proto = {
   },
 
   // Current ip/hostname information (if available)
-  runtime
+  runtime: {
+    ip,
+    os
+  }
 };
 
 const SettingsFactory = (settings) => Object.assign(Object.create(proto), defaults(settings));
 
-module.exports = SettingsFactory;
+export default SettingsFactory;

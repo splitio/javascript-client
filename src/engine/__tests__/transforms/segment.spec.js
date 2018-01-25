@@ -15,8 +15,8 @@ limitations under the License.
 **/
 'use strict';
 
-const tape = require('tape-catch');
-const transform = require('../../transforms/segment');
+import tape from 'tape-catch';
+import transform from '../../transforms/segment';
 
 tape('TRANSFORMS / a segment object should be flatten to a string', function (assert) {
   const segmentName = 'employees';

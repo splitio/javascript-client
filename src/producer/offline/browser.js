@@ -16,8 +16,8 @@ limitations under the License.
 
 'use strict';
 
-const TaskFactory = require('../task');
-const FromFeaturesUpdater = require('../updater/SplitChangesFromFeatures');
+import TaskFactory from '../task';
+import FromFeaturesUpdater from '../updater/SplitChangesFromFeatures';
 
 const OfflineFeatureProducer = (context) => {
   const settings = context.get(context.constants.SETTINGS);
@@ -27,4 +27,4 @@ const OfflineFeatureProducer = (context) => {
   return updaterTask;
 };
 
-module.exports = OfflineFeatureProducer;
+export default OfflineFeatureProducer;

@@ -16,13 +16,11 @@ limitations under the License.
 
 'use strict';
 
-const get = require('lodash/get');
-
-const parser = require('./parser');
-const keyParser = require('../utils/key/parser');
-
-const thenable = require('../utils/promise/thenable');
-const LabelsConstants = require('../utils/labels');
+import get from 'lodash/get';
+import parser from './parser';
+import keyParser from '../utils/key/parser';
+import thenable from '../utils/promise/thenable';
+import LabelsConstants from '../utils/labels';
 
 function defaults(inst) {
   // in case we don't have a default treatment in the instanciation, use
@@ -124,4 +122,4 @@ Split.prototype.getChangeNumber = function getChangeNumber() {
   return this.baseInfo.changeNumber;
 };
 
-module.exports = Split;
+export default Split;

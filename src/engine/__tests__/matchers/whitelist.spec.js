@@ -15,14 +15,14 @@ limitations under the License.
 **/
 'use strict';
 
-const tape = require('tape-catch');
-const matcherTypes = require('../../matchers/types');
-const matcherFactory = require('../../matchers');
+import tape from 'tape-catch';
+import { types as matcherTypes } from '../../matchers/types';
+import matcherFactory from '../../matchers';
 
 tape('MATCHER WHITELIST / should return true ONLY when the key is defined', function (assert) {
 
   let matcher = matcherFactory({
-    type: matcherTypes.enum.WHITELIST,
+    type: matcherTypes.WHITELIST,
     value: new Set().add('key')
   });
 

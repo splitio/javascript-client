@@ -16,8 +16,8 @@ limitations under the License.
 
 'use strict';
 
-const os = require('os');
-const ip = require('ip');
+import osFunction from 'os';
+import ipFunction from 'ip';
 
-exports.ip = ip.address();
-exports.hostname = os.hostname();
+export const ip = ipFunction.address();
+export const os = osFunction.hostname();

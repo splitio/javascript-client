@@ -15,8 +15,8 @@ limitations under the License.
 **/
 'use strict';
 
-const tape = require('tape-catch');
-const PassThroughFactory = require('../PassThrough');
+import tape from 'tape-catch';
+import PassThroughFactory from '../PassThrough';
 
 tape('PASS / transparently propagate the value into the collector', assert => {
   let tracked;

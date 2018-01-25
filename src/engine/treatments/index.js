@@ -21,7 +21,7 @@ limitations under the License.
 // are required at runtime, so we end doing this kind of lodash style expressions
 // using core-js.
 //
-const findIndex = require('core-js/library/fn/array/find-index');
+import findIndex from 'core-js/library/fn/array/find-index';
 
 function Treatments(ranges, treatments) {
   if (!(this instanceof Treatments)) {
@@ -71,4 +71,4 @@ Treatments.prototype.getTreatmentFor = function getTreatmentFor(x) {
   return treatment;
 };
 
-module.exports = Treatments;
+export default Treatments;

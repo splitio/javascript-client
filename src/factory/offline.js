@@ -1,5 +1,5 @@
-const ClientFactory = require('../client');
-const OfflineProducerFactory = require('../producer/offline');
+import ClientFactory from '../client';
+import OfflineProducerFactory from '../producer/offline';
 
 //
 // Create SDK instance for offline mode.
@@ -72,4 +72,4 @@ function SplitFactoryOffline(context, gateFactory, sharedTrackers) {
   };
 }
 
-module.exports = SplitFactoryOffline;
+export default SplitFactoryOffline;

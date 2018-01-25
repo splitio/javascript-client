@@ -1,8 +1,8 @@
-const SplitFactory = require('../../');
+import SplitFactory from '../../';
 
 const SDK_INSTANCES_TO_TEST = 4;
 
-module.exports = function(config, assert) {
+export default function(config, assert) {
   let i = 0, tested = 0;
   const wBucketing = !!config.core.key.bucketingKey;
 

@@ -1,9 +1,8 @@
 'use strict';
 
-const tape = require('tape');
-const Keys = require('../Keys');
-
-const SettingsFactory = require('../../utils/settings');
+import tape from 'tape';
+import Keys from '../Keys';
+import SettingsFactory from '../../utils/settings';
 
 tape('KEYS / splits keys', function (assert) {
   const settings = SettingsFactory({
