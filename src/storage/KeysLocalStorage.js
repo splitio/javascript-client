@@ -1,5 +1,3 @@
-'use strict';
-
 import startsWith from 'core-js/library/fn/string/starts-with';
 import KeyBuilder from './Keys';
 import { matching } from '../utils/key/factory';

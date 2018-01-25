@@ -1,5 +1,3 @@
-'use strict';
-
 import thenable from '../utils/promise/thenable';
 import find from 'lodash/find';
 

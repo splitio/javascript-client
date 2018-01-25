@@ -1,5 +1,3 @@
-'use strict';
-
 import tape from 'tape-catch';
 import SplitFactory from '../';
 const SDK_INSTANCES_TO_TEST = 4;

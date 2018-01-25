@@ -14,8 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-'use strict';
-
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-producer:split-changes');
 import splitChangesFetcher from '../fetcher/SplitChanges';

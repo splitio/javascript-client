@@ -1,5 +1,3 @@
-'use strict';
-
 import tape from 'tape';
 import SplitFactory from '../../';
 import fetchMock from 'fetch-mock';

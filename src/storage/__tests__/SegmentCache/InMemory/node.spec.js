@@ -1,5 +1,3 @@
-'use strict';
-
 import tape from 'tape-catch';
 import SegmentCacheInMemory from '../../../SegmentCache/InMemory';
 import KeyBuilder from '../../../Keys';

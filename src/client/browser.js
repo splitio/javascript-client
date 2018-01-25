@@ -1,5 +1,3 @@
-'use strict';
-
 import get from 'lodash/get';
 import ClientFactory from './client';
 import keyParser from '../utils/key/parser';

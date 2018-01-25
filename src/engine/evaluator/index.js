@@ -14,8 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-'use strict';
-
 import Engine from '../';
 import thenable from '../../utils/promise/thenable';
 import LabelsConstants from '../../utils/labels';

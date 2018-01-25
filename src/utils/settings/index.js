@@ -14,8 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-'use strict';
-
 import merge from 'lodash/merge';
 import language from './language';
 import { ip, os } from './runtime';

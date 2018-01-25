@@ -1,5 +1,3 @@
-'use strict';
-
 import tape from 'tape';
 import SplitCacheInLocalStorage from '../../../SplitCache/InLocalStorage';
 import KeyBuilder from '../../../Keys';

@@ -1,5 +1,3 @@
-'use strict';
-
 import ManagerFactory from './manager';
 import StorageFactory from './storage';
 import ReadinessGateFacade from './readiness';

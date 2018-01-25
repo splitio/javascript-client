@@ -14,8 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-'use strict';
-
 export default function now() {
   if (typeof performance === 'object' && typeof performance.now === 'function') {
     return performance.now.bind(performance);

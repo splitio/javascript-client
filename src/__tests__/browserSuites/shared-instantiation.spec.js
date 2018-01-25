@@ -1,5 +1,3 @@
-'use strict';
-
 import SplitFactory from '../../';
 import SettingsFactory from '../../utils/settings';
 const settings = SettingsFactory({

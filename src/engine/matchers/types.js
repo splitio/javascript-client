@@ -14,8 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-'use strict';
-
 // @WARNING Symbol is not correctly working in PhantomJS
 export const types = {
   ALL: 1,

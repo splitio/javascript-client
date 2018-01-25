@@ -14,8 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-'use strict';
-
 import findIndex from 'core-js/library/fn/array/find-index';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-engine:combiner');

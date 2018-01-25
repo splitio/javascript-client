@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * Discard errors for an answer of multiple operations.
  */

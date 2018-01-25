@@ -1,5 +1,3 @@
-'use strict';
-
 import logFactory from '../../../utils/logger';
 const log = logFactory('splitio-storage:localstorage');
 

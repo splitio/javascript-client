@@ -14,8 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-'use strict';
-
 import uniqueId from 'lodash/uniqueId';
 import Logger from 'logplease';
 import timer from './timer';

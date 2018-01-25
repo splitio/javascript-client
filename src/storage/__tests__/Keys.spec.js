@@ -1,5 +1,3 @@
-'use strict';
-
 import tape from 'tape';
 import Keys from '../Keys';
 import SettingsFactory from '../../utils/settings';

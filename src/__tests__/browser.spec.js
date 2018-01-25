@@ -1,5 +1,3 @@
-'use strict';
-
 // Requiring the Split Facade, which requires 'isomorphic-fetch'
 // import '../';
 

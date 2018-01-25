@@ -1,5 +1,3 @@
-'use strict';
-
 import SplitFactory from '../../';
 import fetchMock from 'fetch-mock';
 import SettingsFactory from '../../utils/settings';

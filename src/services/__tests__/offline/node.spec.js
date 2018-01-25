@@ -1,5 +1,3 @@
-'use strict';
-
 import path from 'path';
 import tape from 'tape-catch';
 import getSplitConfigForFile from '../../splitChanges/offline';

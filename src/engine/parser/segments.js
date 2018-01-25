@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * Collect segments from a raw split definition.
  */

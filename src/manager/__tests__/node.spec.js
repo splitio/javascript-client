@@ -1,5 +1,3 @@
-'use strict';
-
 import tape from 'tape-catch';
 import Redis from 'ioredis';
 import splitObject from './mocks/input';

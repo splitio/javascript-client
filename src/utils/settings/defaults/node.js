@@ -1,5 +1,3 @@
-'use strict';
-
 export default {
   startup: {
     // stress the request time used while starting up the SDK.

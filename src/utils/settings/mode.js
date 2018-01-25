@@ -1,5 +1,3 @@
-'use strict';
-
 import { LOCALHOST_MODE, STANDALONE_MODE, PRODUCER_MODE, CONSUMER_MODE } from '../constants';
 
 function mode(key, mode) {

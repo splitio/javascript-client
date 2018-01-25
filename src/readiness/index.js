@@ -1,5 +1,3 @@
-'use strict';
-
 import { EventEmitter } from 'events';
 import tracker from '../utils/timeTracker';
 

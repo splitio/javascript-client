@@ -1,5 +1,3 @@
-'use strict';
-
 import Redis from 'ioredis';
 import tape from 'tape-catch';
 import SplitCacheInRedis from '../../../SplitCache/InRedis';

@@ -14,8 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-'use strict';
-
 //
 // [1] Transpilation process is not doing a good job infering which "polyfills"
 // are required at runtime, so we end doing this kind of lodash style expressions

@@ -14,8 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-'use strict';
-
 import get from 'lodash/get';
 import parser from './parser';
 import keyParser from '../utils/key/parser';

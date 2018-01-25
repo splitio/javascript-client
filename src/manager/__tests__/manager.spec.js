@@ -1,5 +1,3 @@
-'use strict';
-
 import tape from 'tape-catch';
 import splitObject from './mocks/input';
 import splitView from './mocks/output';
