@@ -34,7 +34,7 @@ function computeTreatment(predicateResults) {
   for (let i = 0; i < len; i++) {
     const evaluation = predicateResults[i];
 
-    if (evaluation != undefined) {
+    if (evaluation !== undefined) {
       log.debug(`treatment found: ${evaluation.treatment}`);
 
       return evaluation;
@@ -54,7 +54,7 @@ function ifElseIfCombinerContext(predicates) {
     const predicateResults = predicates.map(evaluator => evaluator(key, seed, trafficAllocation, trafficAllocationSeed, splitEvaluator, attributes, algo));
 
     // if we find a thenable
-    if (findIndex(predicateResults, thenable) != -1) {
+    if (findIndex(predicateResults, thenable) !== -1) {
       return Promise.all(predicateResults).then(results => computeTreatment(results));
     }
 

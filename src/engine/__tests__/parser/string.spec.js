@@ -161,7 +161,7 @@ tape('PARSER / if user.email starts with ["nico", "marcio", "facu"] then split 1
 });
 
 tape('PARSER / if user.email does not start with ["nico"] then not match', async function (assert) {
-  const label = 'email starts with ["nico"]';
+  // const label = 'email starts with ["nico"]';
   const evaluator = parser([{
     matcherGroup: {
       combiner: 'AND',
@@ -194,7 +194,7 @@ tape('PARSER / if user.email does not start with ["nico"] then not match', async
 });
 
 tape('PARSER / if user.email is an EMPTY string, start with ["nico"] should not match', async function (assert) {
-  const label = 'email starts with ["nico"]';
+  // const label = 'email starts with ["nico"]';
   const evaluator = parser([{
     matcherGroup: {
       combiner: 'AND',
@@ -225,7 +225,7 @@ tape('PARSER / if user.email is an EMPTY string, start with ["nico"] should not 
 });
 
 tape('PARSER / if user.email is not a string, start with ["nico"] should not match', async function (assert) {
-  const label = 'email starts with ["nico"]';
+  // const label = 'email starts with ["nico"]';
   const evaluator = parser([{
     matcherGroup: {
       combiner: 'AND',
@@ -610,7 +610,7 @@ tape('PARSER / if user.email does not end with ["split.io"] then not match', asy
 });
 
 tape('PARSER / if user.email is an EMPTY string, end with ["nico"] should not match', async function (assert) {
-  const label = 'email ends with ["nico"]';
+  // const label = 'email ends with ["nico"]';
   const evaluator = parser([{
     matcherGroup: {
       combiner: 'AND',
@@ -641,7 +641,7 @@ tape('PARSER / if user.email is an EMPTY string, end with ["nico"] should not ma
 });
 
 tape('PARSER / if user.email is not a string, end with ["nico"] should not match', async function (assert) {
-  const label = 'email ends with ["nico"]';
+  // const label = 'email ends with ["nico"]';
   const evaluator = parser([{
     matcherGroup: {
       combiner: 'AND',
@@ -1098,7 +1098,7 @@ tape('PARSER / if user.email does not contain ["@split"] then not match', async 
 });
 
 tape('PARSER / if user.email is an EMPTY string, contains ["nico"] should not match', async function (assert) {
-  const label = 'email contains ["nico"]';
+  // const label = 'email contains ["nico"]';
   const evaluator = parser([{
     matcherGroup: {
       combiner: 'AND',
@@ -1129,7 +1129,7 @@ tape('PARSER / if user.email is an EMPTY string, contains ["nico"] should not ma
 });
 
 tape('PARSER / if user.email is not a string, contains ["nico"] should not match', async function (assert) {
-  const label = 'email contains ["nico"]';
+  // const label = 'email contains ["nico"]';
   const evaluator = parser([{
     matcherGroup: {
       combiner: 'AND',

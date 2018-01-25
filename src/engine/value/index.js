@@ -45,7 +45,7 @@ function value(key, matcherDto, attributes) {
   if (sanitizedValue !== undefined) {
     return sanitizedValue;
   } else {
-    log.warn(`Value ${valueToMatch} ${attributeName ? `for attribute ${attributeName} ` : + ''}doesn\'t match with expected type`);
+    log.warn(`Value ${valueToMatch} ${attributeName ? `for attribute ${attributeName} ` : + ''}doesn't match with expected type`);
     return;
   }
 }

@@ -96,9 +96,10 @@ function hash32(key, seed) {
   switch (remainder) {
     case 3:
       k1 ^= (key.charCodeAt(i + 2) & 0xff) << 16;
-
+      break;
     case 2:
       k1 ^= (key.charCodeAt(i + 1) & 0xff) << 8;
+      break;
 
     case 1:
       k1 ^= (key.charCodeAt(i) & 0xff);
@@ -106,6 +107,7 @@ function hash32(key, seed) {
       k1 = _x86Rotl(k1, 15);
       k1 = _x86Multiply(k1, c2);
       h1 ^= k1;
+      break;
   }
 
   h1 ^= key.length;

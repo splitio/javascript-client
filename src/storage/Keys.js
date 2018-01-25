@@ -1,8 +1,8 @@
 import startsWith from 'core-js/library/fn/string/starts-with';
 
 const everythingAtTheEnd = /[^.]+$/;
-const everythingAfterCount = /count\.([^\/]+)$/;
-const latencyMetricNameAndBucket = /latency\.([^\/]+)\.bucket\.([0-9]+)$/;
+const everythingAfterCount = /count\.([^/]+)$/;
+const latencyMetricNameAndBucket = /latency\.([^/]+)\.bucket\.([0-9]+)$/;
 
 class KeyBuilder {
   constructor(settings) {

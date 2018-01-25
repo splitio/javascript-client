@@ -58,7 +58,9 @@ class SegmentCacheInLocalStorage {
       segmentNames.forEach(segmentName => this.addToSegment(segmentName));
     } else {
       // Slowest path => we need to find at least 1 difference because
-      for(index = 0; index < segmentNames.length && storedSegmentNames.indexOf(segmentNames[index]) !== -1; index++) {}
+      for(index = 0; index < segmentNames.length && storedSegmentNames.indexOf(segmentNames[index]) !== -1; index++) {
+        // TODO: why empty statement?
+      }
 
       if (index < segmentNames.length) {
         isDiff = true;

@@ -19,7 +19,9 @@ const processPipelineAnswer = (results) =>
     if (err === null) {
       try {
         return accum.concat(value.map(JSON.parse));
-      } catch(e) {}
+      } catch(e) {
+        // noop
+      }
     }
     return accum;
   }, []);
