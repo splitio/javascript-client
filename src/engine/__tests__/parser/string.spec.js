@@ -53,7 +53,7 @@ tape('PARSER / if user.email starts with ["nico"] then split 100:on', async func
 
   assert.equal(typeof evaluator, 'function', 'evaluator should be callable');
   assert.equal(evaluation.treatment, 'on', "evaluator should return treatment 'on'");
-  assert.equal(evaluation.label, label, "evaluator should return correct label");
+  assert.equal(evaluation.label, label, 'evaluator should return correct label');
   assert.end();
 });
 
@@ -88,7 +88,7 @@ tape('PARSER / if user.email = 123, starts with ["1"] then split 100:on should m
 
   assert.equal(typeof evaluator, 'function', 'evaluator should be callable');
   assert.equal(evaluation.treatment, 'on', "evaluator should return treatment 'on'");
-  assert.equal(evaluation.label, label, "evaluator should return correct label");
+  assert.equal(evaluation.label, label, 'evaluator should return correct label');
   assert.end();
 });
 
@@ -123,7 +123,7 @@ tape('PARSER / if user.email starts with ["nico", "marcio", "facu"] then split 1
 
   assert.equal(typeof evaluator, 'function', 'evaluator should be callable');
   assert.equal(evaluation.treatment, 'on', "evaluator should return treatment 'on'");
-  assert.equal(evaluation.label, label, "evaluator should return correct label");
+  assert.equal(evaluation.label, label, 'evaluator should return correct label');
   assert.end();
 });
 
@@ -158,7 +158,7 @@ tape('PARSER / if user.email starts with ["nico", "marcio", "facu"] then split 1
 
   assert.equal(typeof evaluator, 'function', 'evaluator should be callable');
   assert.equal(evaluation.treatment, 'on', "evaluator should return treatment 'on'");
-  assert.equal(evaluation.label, label, "evaluator should return correct label");
+  assert.equal(evaluation.label, label, 'evaluator should return correct label');
   assert.end();
 });
 
@@ -191,7 +191,7 @@ tape('PARSER / if user.email does not start with ["nico"] then not match', async
   });
 
   assert.equal(typeof evaluator, 'function', 'evaluator should be callable');
-  assert.equal(evaluation, undefined, "evaluator should return undefined");
+  assert.equal(evaluation, undefined, 'evaluator should return undefined');
   assert.end();
 });
 
@@ -222,7 +222,7 @@ tape('PARSER / if user.email is an EMPTY string, start with ["nico"] should not 
   const evaluation = await evaluator(keyParser('a key'), 31, 100, 31, {
     email: ''
   });
-  assert.equal(evaluation, undefined, "evaluator should return undefined");
+  assert.equal(evaluation, undefined, 'evaluator should return undefined');
   assert.end();
 });
 
@@ -253,10 +253,10 @@ tape('PARSER / if user.email is not a string, start with ["nico"] should not mat
   let evaluation = await evaluator(keyParser('a key'), 31, 100, 31, {
     email: {}
   });
-  assert.equal(evaluation, undefined, "evaluator should return undefined");
+  assert.equal(evaluation, undefined, 'evaluator should return undefined');
 
   evaluation = await evaluator(keyParser('a key'), 31, 100, 31);
-  assert.equal(evaluation, undefined, "evaluator should return undefined");
+  assert.equal(evaluation, undefined, 'evaluator should return undefined');
 
   assert.end();
 });
@@ -291,7 +291,7 @@ tape('PARSER / NEGATED if user.email starts with ["nico"] then split 100:on, so 
   });
 
   assert.equal(typeof evaluator, 'function', 'evaluator should be callable');
-  assert.equal(evaluation, undefined, "evaluator should return undefined");
+  assert.equal(evaluation, undefined, 'evaluator should return undefined');
   assert.end();
 });
 
@@ -326,7 +326,7 @@ tape('PARSER / NEGATED if user.email does not start with ["nico"] should not mat
 
   assert.equal(typeof evaluator, 'function', 'evaluator should be callable');
   assert.equal(evaluation.treatment, 'on', "evaluator should return treatment 'on'");
-  assert.equal(evaluation.label, label, "evaluator should return correct label");
+  assert.equal(evaluation.label, label, 'evaluator should return correct label');
   assert.end();
 });
 
@@ -359,7 +359,7 @@ tape('PARSER / NEGATED if user.email is an EMPTY string, start with ["nico"] sho
     email: ''
   });
   assert.equal(evaluation.treatment, 'on', "evaluator should return treatment 'on'");
-  assert.equal(evaluation.label, label, "evaluator should return correct label");
+  assert.equal(evaluation.label, label, 'evaluator should return correct label');
   assert.end();
 });
 
@@ -392,11 +392,11 @@ tape('PARSER / NEGATED if user.email is not a string, start with ["nico"] should
     email: /asd4?/
   });
   assert.equal(evaluation.treatment, 'on', "evaluator should return treatment 'on'");
-  assert.equal(evaluation.label, label, "evaluator should return correct label");
+  assert.equal(evaluation.label, label, 'evaluator should return correct label');
 
   evaluation = await evaluator(keyParser('a key'), 31, 100, 31);
   assert.equal(evaluation.treatment, 'on', "evaluator should return treatment 'on'");
-  assert.equal(evaluation.label, label, "evaluator should return correct label");
+  assert.equal(evaluation.label, label, 'evaluator should return correct label');
 
   assert.end();
 });
@@ -469,7 +469,7 @@ tape('PARSER / if user.email = 123, ends with ["3"] then split 100:on should mat
   });
 
   assert.equal(evaluation.treatment, 'on', "evaluator should return treatment 'on'");
-  assert.equal(evaluation.label, label, "evaluator should return correct label");
+  assert.equal(evaluation.label, label, 'evaluator should return correct label');
   assert.end();
 });
 
@@ -573,7 +573,7 @@ tape('PARSER / if user.email ends with ["gmail.com", "split.io", "hotmail.com"] 
   });
 
   assert.equal(typeof evaluator, 'function', 'evaluator should be callable');
-  assert.equal(evaluation, undefined, "evaluator should return undefined");
+  assert.equal(evaluation, undefined, 'evaluator should return undefined');
   assert.end();
 });
 
@@ -607,7 +607,7 @@ tape('PARSER / if user.email does not end with ["split.io"] then not match', asy
   });
 
   assert.equal(typeof evaluator, 'function', 'evaluator should be callable');
-  assert.equal(evaluation, undefined, "evaluator should return undefined");
+  assert.equal(evaluation, undefined, 'evaluator should return undefined');
   assert.end();
 });
 
@@ -638,7 +638,7 @@ tape('PARSER / if user.email is an EMPTY string, end with ["nico"] should not ma
   const evaluation = await evaluator(keyParser('a key'), 31, 100, 31, {
     email: ''
   });
-  assert.equal(evaluation, undefined, "evaluator should return undefined");
+  assert.equal(evaluation, undefined, 'evaluator should return undefined');
   assert.end();
 });
 
@@ -669,12 +669,12 @@ tape('PARSER / if user.email is not a string, end with ["nico"] should not match
   let evaluation = await evaluator(keyParser('a key'), 31, 100, 31, {
     email: []
   });
-  assert.equal(evaluation, undefined, "evaluator should return undefined");
+  assert.equal(evaluation, undefined, 'evaluator should return undefined');
 
   evaluation = await evaluator(keyParser('a key'), 31, 100, 31, {
     email: 'nicole'
   });
-  assert.equal(evaluation, undefined, "evaluator should return undefined");
+  assert.equal(evaluation, undefined, 'evaluator should return undefined');
 
   assert.end();
 });
@@ -708,7 +708,7 @@ tape('PARSER / NEGATED if user.email ends with ["split.io"] then split 100:on, s
     email: 'nicolas.zelaya@split.io'
   });
 
-  assert.equal(evaluation, undefined, "evaluator should return undefined");
+  assert.equal(evaluation, undefined, 'evaluator should return undefined');
   assert.end();
 });
 
@@ -742,7 +742,7 @@ tape('PARSER / NEGATED if user.email does not end with ["split.io"] then no matc
   });
 
   assert.equal(evaluation.treatment, 'on', "evaluator should return treatment 'on'");
-  assert.equal(evaluation.label, label, "evaluator should return correct label");
+  assert.equal(evaluation.label, label, 'evaluator should return correct label');
   assert.end();
 });
 
@@ -775,7 +775,7 @@ tape('PARSER / NEGATED if user.email is an EMPTY string, end with ["nico"] shoul
     email: ''
   });
   assert.equal(evaluation.treatment, 'on', "evaluator should return treatment 'on'");
-  assert.equal(evaluation.label, label, "evaluator should return correct label");
+  assert.equal(evaluation.label, label, 'evaluator should return correct label');
   assert.end();
 });
 
@@ -808,11 +808,11 @@ tape('PARSER / NEGATED if user.email is not a string, end with ["nico"] should n
     email: NaN
   });
   assert.equal(evaluation.treatment, 'on', "evaluator should return treatment 'on'");
-  assert.equal(evaluation.label, label, "evaluator should return correct label");
+  assert.equal(evaluation.label, label, 'evaluator should return correct label');
 
   evaluation = await evaluator(keyParser('a key'), 31, 100, 31);
   assert.equal(evaluation.treatment, 'on', "evaluator should return treatment 'on'");
-  assert.equal(evaluation.label, label, "evaluator should return correct label");
+  assert.equal(evaluation.label, label, 'evaluator should return correct label');
 
   assert.end();
 });
@@ -886,7 +886,7 @@ tape('PARSER / if user.email = 123, contains ["2"] then split 100:on should matc
 
   assert.equal(typeof evaluator, 'function', 'evaluator should be callable');
   assert.equal(evaluation.treatment, 'on', "evaluator should return treatment 'on'");
-  assert.equal(evaluation.label, label, "evaluator should return correct label");
+  assert.equal(evaluation.label, label, 'evaluator should return correct label');
   assert.end();
 });
 
@@ -1095,7 +1095,7 @@ tape('PARSER / if user.email does not contain ["@split"] then not match', async 
   });
 
   assert.equal(typeof evaluator, 'function', 'evaluator should be callable');
-  assert.equal(evaluation, undefined, "evaluator should return undefined");
+  assert.equal(evaluation, undefined, 'evaluator should return undefined');
   assert.end();
 });
 
@@ -1126,7 +1126,7 @@ tape('PARSER / if user.email is an EMPTY string, contains ["nico"] should not ma
   const evaluation = await evaluator(keyParser('a key'), 31, 100, 31, {
     email: ''
   });
-  assert.equal(evaluation, undefined, "evaluator should return undefined");
+  assert.equal(evaluation, undefined, 'evaluator should return undefined');
   assert.end();
 });
 
@@ -1157,12 +1157,12 @@ tape('PARSER / if user.email is not a string, contains ["nico"] should not match
   let evaluation = await evaluator(keyParser('a key'), 31, 100, 31, {
     email: null
   });
-  assert.equal(evaluation, undefined, "evaluator should return undefined");
+  assert.equal(evaluation, undefined, 'evaluator should return undefined');
 
   evaluation = await evaluator(keyParser('a key'), 31, 100, 31, {
     email: new Set()
   });
-  assert.equal(evaluation, undefined, "evaluator should return undefined");
+  assert.equal(evaluation, undefined, 'evaluator should return undefined');
 
   assert.end();
 });
@@ -1197,7 +1197,7 @@ tape('PARSER / NEGATED if user.email contains ["@split"] then split 100:on, then
   });
 
   assert.equal(typeof evaluator, 'function', 'evaluator should be callable');
-  assert.equal(evaluation, undefined, "evaluator should return undefined");
+  assert.equal(evaluation, undefined, 'evaluator should return undefined');
   assert.end();
 });
 
@@ -1264,7 +1264,7 @@ tape('PARSER / NEGATED if user.email is an EMPTY string, contains ["nico"] shoul
     email: ''
   });
   assert.equal(evaluation.treatment, 'on', "evaluator should return treatment 'on'");
-  assert.equal(evaluation.label, label, "evaluator should return correct label");
+  assert.equal(evaluation.label, label, 'evaluator should return correct label');
   assert.end();
 });
 
@@ -1297,11 +1297,11 @@ tape('PARSER / NEGATED if user.email is not a string, contains ["nico"] should n
     email: () => {}
   });
   assert.equal(evaluation.treatment, 'on', "evaluator should return treatment 'on'");
-  assert.equal(evaluation.label, label, "evaluator should return correct label");
+  assert.equal(evaluation.label, label, 'evaluator should return correct label');
 
   evaluation = await evaluator(keyParser('a key'), 31, 100, 31);
   assert.equal(evaluation.treatment, 'on', "evaluator should return treatment 'on'");
-  assert.equal(evaluation.label, label, "evaluator should return correct label");
+  assert.equal(evaluation.label, label, 'evaluator should return correct label');
 
   assert.end();
 });

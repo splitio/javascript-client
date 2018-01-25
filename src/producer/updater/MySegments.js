@@ -49,17 +49,17 @@ function MySegmentsUpdaterFactory(context) {
         segmentsEventEmitter.emit(segmentsEventEmitter.SDK_SEGMENTS_ARRIVED);
       }
     })
-    .catch(error => {
-      if (startingUp && settings.startup.retriesOnFailureBeforeReady > retry) {
-        retry += 1;
-        log.warn(`Retrying download of segments #${retry}. Reason: ${error}`);
-        return MySegmentsUpdater(retry);
-      } else {
-        startingUp = false;
-      }
+      .catch(error => {
+        if (startingUp && settings.startup.retriesOnFailureBeforeReady > retry) {
+          retry += 1;
+          log.warn(`Retrying download of segments #${retry}. Reason: ${error}`);
+          return MySegmentsUpdater(retry);
+        } else {
+          startingUp = false;
+        }
 
-      return false; // shouldUpdate = false
-    });
+        return false; // shouldUpdate = false
+      });
   };
 
 }

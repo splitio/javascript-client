@@ -99,7 +99,7 @@ tape('PARSER / NEGATED if user is in segment all 100%:on, then no match', async 
   const evaluation = await evaluator(keyParser('a key'), 31, 100, 31);
 
   assert.equal(typeof evaluator, 'function', 'evaluator should be callable');
-  assert.equal(evaluation, undefined, "evaluator should return undefined");
+  assert.equal(evaluation, undefined, 'evaluator should return undefined');
   assert.end();
 
 });

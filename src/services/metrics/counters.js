@@ -21,4 +21,4 @@ export default function POST(settings, params) {
   return base(settings, '/metrics/counters', Object.assign({
     method: 'POST'
   }, params));
-};
+}

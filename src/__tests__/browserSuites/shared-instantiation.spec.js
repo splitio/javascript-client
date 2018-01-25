@@ -119,4 +119,4 @@ export default function(startWithTT, assert) {
     assert.comment('Shared instance - marcio@split.io');
     getTreatmentsAssertions(marcioClient, ['off', 'on', 'off', 'off']);
   });
-};
+}

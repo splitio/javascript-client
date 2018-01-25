@@ -84,19 +84,19 @@ function SplitChangesUpdaterFactory(context, isNode = false) {
         }
       });
     })
-    .catch(error => {
-      log.error(`Error while doing fetch of Splits ${error}`);
+      .catch(error => {
+        log.error(`Error while doing fetch of Splits ${error}`);
 
-      if (startingUp && settings.startup.retriesOnFailureBeforeReady > retry) {
-        retry += 1;
-        log.warn(`Retrying download of splits #${retry}. Reason: ${error}`);
-        return SplitChangesUpdater(retry);
-      } else {
-        startingUp = false;
-      }
+        if (startingUp && settings.startup.retriesOnFailureBeforeReady > retry) {
+          retry += 1;
+          log.warn(`Retrying download of splits #${retry}. Reason: ${error}`);
+          return SplitChangesUpdater(retry);
+        } else {
+          startingUp = false;
+        }
 
-      return false;
-    });
+        return false;
+      });
   };
 }
 

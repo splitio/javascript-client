@@ -21,4 +21,4 @@ export default function BULK(settings, params) {
   return base(settings, '/testImpressions/bulk', Object.assign({
     method: 'POST'
   }, params));
-};
+}

@@ -19,4 +19,4 @@ import base from '../request';
 
 export default function GET(settings, since) {
   return base(settings, `/splitChanges?since=${since}`);
-};
+}

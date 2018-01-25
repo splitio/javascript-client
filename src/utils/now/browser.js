@@ -22,4 +22,4 @@ export default function now() {
   } else {
     return Date.now;
   }
-};
+}

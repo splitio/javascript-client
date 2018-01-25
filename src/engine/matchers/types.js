@@ -36,7 +36,7 @@ export const types = {
   IN_SPLIT_TREATMENT: 16,
   EQUAL_TO_BOOLEAN: 17,
   MATCHES_STRING: 18
-}
+};
 
 export const dataTypes = {
   BOOLEAN: 'BOOLEAN',
@@ -45,7 +45,7 @@ export const dataTypes = {
   SET: 'SET',
   DATETIME: 'DATETIME',
   NOT_SPECIFIED: 'NOT_SPECIFIED'
-}
+};
 
 export const mapper = (matcherType) => {
   switch (matcherType) {
@@ -86,4 +86,4 @@ export const mapper = (matcherType) => {
     default:
       return types.UNDEFINED;
   }
-}
+};

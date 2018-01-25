@@ -52,90 +52,90 @@ tape('PARSER / handle invalid matcher as control', async function (assert) {
 tape('PARSER / handle invalid matcher as control (complex example)', async function (assert) {
   const evaluator = parser([
     {
-      "conditionType": "WHITELIST",
-      "matcherGroup": {
-        "combiner": "AND",
-        "matchers": [
+      'conditionType': 'WHITELIST',
+      'matcherGroup': {
+        'combiner': 'AND',
+        'matchers': [
           {
-            "keySelector": null,
-            "matcherType": "WHITELIST",
-            "negate": false,
-            "userDefinedSegmentMatcherData": null,
-            "whitelistMatcherData": {
-              "whitelist": [
-                "NicoIncluded"
+            'keySelector': null,
+            'matcherType': 'WHITELIST',
+            'negate': false,
+            'userDefinedSegmentMatcherData': null,
+            'whitelistMatcherData': {
+              'whitelist': [
+                'NicoIncluded'
               ]
             },
-            "unaryNumericMatcherData": null,
-            "betweenMatcherData": null
+            'unaryNumericMatcherData': null,
+            'betweenMatcherData': null
           }
         ]
       },
-      "partitions": [
+      'partitions': [
         {
-          "treatment": "on",
-          "size": 100
+          'treatment': 'on',
+          'size': 100
         }
       ],
-      "label": "whitelisted"
+      'label': 'whitelisted'
     },
     {
-      "conditionType": "WHITELIST",
-      "matcherGroup": {
-        "combiner": "AND",
-        "matchers": [
+      'conditionType': 'WHITELIST',
+      'matcherGroup': {
+        'combiner': 'AND',
+        'matchers': [
           {
-            "keySelector": null,
-            "matcherType": "WHITELIST",
-            "negate": false,
-            "userDefinedSegmentMatcherData": null,
-            "whitelistMatcherData": {
-              "whitelist": [
-                "NicoExcluded"
+            'keySelector': null,
+            'matcherType': 'WHITELIST',
+            'negate': false,
+            'userDefinedSegmentMatcherData': null,
+            'whitelistMatcherData': {
+              'whitelist': [
+                'NicoExcluded'
               ]
             },
-            "unaryNumericMatcherData": null,
-            "betweenMatcherData": null
+            'unaryNumericMatcherData': null,
+            'betweenMatcherData': null
           }
         ]
       },
-      "partitions": [
+      'partitions': [
         {
-          "treatment": "off",
-          "size": 100
+          'treatment': 'off',
+          'size': 100
         }
       ],
-      "label": "whitelisted"
+      'label': 'whitelisted'
     },
     {
-      "conditionType": "ROLLOUT",
-      "matcherGroup": {
-        "combiner": "AND",
-        "matchers": [
+      'conditionType': 'ROLLOUT',
+      'matcherGroup': {
+        'combiner': 'AND',
+        'matchers': [
           {
-            "keySelector": {
-              "trafficType": "test",
-              "attribute": "custom"
+            'keySelector': {
+              'trafficType': 'test',
+              'attribute': 'custom'
             },
-            "matcherType": "SARASA",
-            "negate": false,
-            "userDefinedSegmentMatcherData": null,
-            "unaryNumericMatcherData": null,
-            "betweenMatcherData": null
+            'matcherType': 'SARASA',
+            'negate': false,
+            'userDefinedSegmentMatcherData': null,
+            'unaryNumericMatcherData': null,
+            'betweenMatcherData': null
           }
         ]
       },
-      "partitions": [
+      'partitions': [
         {
-          "treatment": "on",
-          "size": 100
+          'treatment': 'on',
+          'size': 100
         },
         {
-          "treatment": "off",
-          "size": 0
+          'treatment': 'off',
+          'size': 0
         }
       ],
-      "label": "custom in list [test, more test]"
+      'label': 'custom in list [test, more test]'
     }
   ]);
 
@@ -154,66 +154,66 @@ tape('PARSER / handle invalid matcher as control (complex example)', async funct
 tape('PARSER / handle invalid matcher as control (complex example mixing invalid and valid matchers)', async function (assert) {
   const evaluator = parser([
     {
-      "conditionType": "WHITELIST",
-      "matcherGroup": {
-        "combiner": "AND",
-        "matchers": [
+      'conditionType': 'WHITELIST',
+      'matcherGroup': {
+        'combiner': 'AND',
+        'matchers': [
           {
-            "keySelector": null,
-            "matcherType": "WHITELIST",
-            "negate": false,
-            "userDefinedSegmentMatcherData": null,
-            "whitelistMatcherData": {
-              "whitelist": [
-                "NicoIncluded"
+            'keySelector': null,
+            'matcherType': 'WHITELIST',
+            'negate': false,
+            'userDefinedSegmentMatcherData': null,
+            'whitelistMatcherData': {
+              'whitelist': [
+                'NicoIncluded'
               ]
             },
-            "unaryNumericMatcherData": null,
-            "betweenMatcherData": null
+            'unaryNumericMatcherData': null,
+            'betweenMatcherData': null
           }
         ]
       },
-      "partitions": [
+      'partitions': [
         {
-          "treatment": "on",
-          "size": 100
+          'treatment': 'on',
+          'size': 100
         }
       ],
-      "label": "whitelisted"
+      'label': 'whitelisted'
     },
     {
-      "conditionType": "WHITELIST",
-      "matcherGroup": {
-        "combiner": "AND",
-        "matchers": [
+      'conditionType': 'WHITELIST',
+      'matcherGroup': {
+        'combiner': 'AND',
+        'matchers': [
           {
-            "keySelector": null,
-            "matcherType": "WHITELIST",
-            "negate": false,
-            "userDefinedSegmentMatcherData": null,
-            "whitelistMatcherData": {
-              "whitelist": [
-                "NicoExcluded"
+            'keySelector': null,
+            'matcherType': 'WHITELIST',
+            'negate': false,
+            'userDefinedSegmentMatcherData': null,
+            'whitelistMatcherData': {
+              'whitelist': [
+                'NicoExcluded'
               ]
             },
-            "unaryNumericMatcherData": null,
-            "betweenMatcherData": null
+            'unaryNumericMatcherData': null,
+            'betweenMatcherData': null
           }
         ]
       },
-      "partitions": [
+      'partitions': [
         {
-          "treatment": "off",
-          "size": 100
+          'treatment': 'off',
+          'size': 100
         }
       ],
-      "label": "whitelisted"
+      'label': 'whitelisted'
     },
     {
-      "conditionType": "ROLLOUT",
-      "matcherGroup": {
-        "combiner": "AND",
-        "matchers": [
+      'conditionType': 'ROLLOUT',
+      'matcherGroup': {
+        'combiner': 'AND',
+        'matchers': [
           {
             keySelector: {
               trafficType: 'user',
@@ -228,15 +228,15 @@ tape('PARSER / handle invalid matcher as control (complex example mixing invalid
             unaryStringMatcherData: null
           },
           {
-            "keySelector": {
-              "trafficType": "test",
-              "attribute": "custom"
+            'keySelector': {
+              'trafficType': 'test',
+              'attribute': 'custom'
             },
-            "matcherType": "SARASA",
-            "negate": false,
-            "userDefinedSegmentMatcherData": null,
-            "unaryNumericMatcherData": null,
-            "betweenMatcherData": null
+            'matcherType': 'SARASA',
+            'negate': false,
+            'userDefinedSegmentMatcherData': null,
+            'unaryNumericMatcherData': null,
+            'betweenMatcherData': null
           },
           {
             keySelector: {
@@ -253,17 +253,17 @@ tape('PARSER / handle invalid matcher as control (complex example mixing invalid
           }
         ]
       },
-      "partitions": [
+      'partitions': [
         {
-          "treatment": "on",
-          "size": 100
+          'treatment': 'on',
+          'size': 100
         },
         {
-          "treatment": "off",
-          "size": 0
+          'treatment': 'off',
+          'size': 0
         }
       ],
-      "label": "custom in list [test, more test]"
+      'label': 'custom in list [test, more test]'
     }
   ]);
 

@@ -25,4 +25,4 @@ export default function isLocalStorageAvailable() {
   } catch(e) {
     return false;
   }
-};
+}

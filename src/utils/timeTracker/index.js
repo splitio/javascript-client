@@ -115,13 +115,13 @@ const TrackerAPI = {
 
       return resp;
     })
-    .catch(err => {
-      this.stop(task, modifier);
+      .catch(err => {
+        this.stop(task, modifier);
 
-      if (collector && collector.countException) collector.countException();
+        if (collector && collector.countException) collector.countException();
 
-      throw err;
-    });
+        throw err;
+      });
   },
   /**
    * Starts tracking the time for a given task. All tasks tracked are considered "unique" because

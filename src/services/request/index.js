@@ -33,11 +33,11 @@ function RequestFactory(settings, relativeUrl, params) {
   if (hostname) headers['SplitSDKMachineName'] = hostname;
 
   return new Request(settings.url(relativeUrl), Object.assign({
-      headers,
-      compress: true
-    },
-    baseline,
-    params
+    headers,
+    compress: true
+  },
+  baseline,
+  params
   ));
 }
 

@@ -20,4 +20,4 @@ import { matching } from '../../utils/key/factory';
 
 export default function GET(settings) {
   return base(settings, `/mySegments/${matching(settings.core.key)}`);
-};
+}

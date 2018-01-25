@@ -21,4 +21,4 @@ export default function BULK(settings, params) {
   return base(settings, '/events/bulk', Object.assign({
     method: 'POST'
   }, params));
-};
+}

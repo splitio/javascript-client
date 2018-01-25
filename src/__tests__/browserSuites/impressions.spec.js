@@ -62,4 +62,4 @@ export default function(assert) {
     // depends on hierarchical_dep_hierarchical which depends on hierarchical_dep_always_on
     assert.equal(client.getTreatment('hierarchical_splits_test'), 'on', 'We should get an evaluation as always.');
   });
-};
+}

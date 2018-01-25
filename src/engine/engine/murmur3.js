@@ -8,8 +8,8 @@ function UTF16ToUTF8(key) {
   let sd;
 
   encodeUTF16toUTF8(
-      stringSource(key),
-      sd = stringDestination()
+    stringSource(key),
+    sd = stringDestination()
   );
 
   return sd();

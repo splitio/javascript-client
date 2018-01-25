@@ -18,10 +18,10 @@ class SplitCacheInRedis {
 
   addSplit(splitName, split) {
     return this.redis.set(
-        this.keys.buildSplitKey(splitName), split
-      ).then(
-        status => status === 'OK'
-      );
+      this.keys.buildSplitKey(splitName), split
+    ).then(
+      status => status === 'OK'
+    );
   }
 
   addSplits(entries) {

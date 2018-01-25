@@ -264,4 +264,4 @@ export default function(config, assert) {
       }
     });
   }
-};
+}

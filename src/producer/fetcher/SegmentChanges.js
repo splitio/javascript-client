@@ -26,24 +26,24 @@ function greedyFetch(settings, lastSinceValue, segmentName, metricCollectors) {
     since: lastSinceValue,
     segmentName
   })))
-  .then(resp => resp.json())
-  .then(json => {
-    let {since, till} = json;
-    if (since === till) {
-      return [json];
-    } else {
-      return Promise.all([json, greedyFetch(settings, till, segmentName)]).then(flatMe => {
-        return [flatMe[0], ...flatMe[1]];
-      });
-    }
-  })
-  .catch(err => {
+    .then(resp => resp.json())
+    .then(json => {
+      let {since, till} = json;
+      if (since === till) {
+        return [json];
+      } else {
+        return Promise.all([json, greedyFetch(settings, till, segmentName)]).then(flatMe => {
+          return [flatMe[0], ...flatMe[1]];
+        });
+      }
+    })
+    .catch(err => {
     // If the operation is forbidden it may be due to permissions, don't recover.
-    if (startsWith(err.message, '403')) throw err;
-    // if something goes wrong with the request to the server, we are going to
-    // stop requesting information till the next round of downloading
-    return [];
-  });
+      if (startsWith(err.message, '403')) throw err;
+      // if something goes wrong with the request to the server, we are going to
+      // stop requesting information till the next round of downloading
+      return [];
+    });
 }
 
 // @TODO migrate to a generator function and do the job incrementally

@@ -21,4 +21,4 @@ export default function POST(settings, params) {
   return base(settings, '/testImpressions', Object.assign({
     method: 'POST'
   }, params));
-};
+}
