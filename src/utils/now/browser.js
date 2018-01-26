@@ -14,10 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-export default function now() {
+function nowFactory() {
   if (typeof performance === 'object' && typeof performance.now === 'function') {
     return performance.now.bind(performance);
   } else {
     return Date.now;
   }
 }
+
+const now = nowFactory();
+
+export default now;
