@@ -15,6 +15,7 @@ limitations under the License.
 **/
 import 'isomorphic-fetch';
 import options from './options';
+import isEmpty from 'lodash/isEmpty';
 
 function RequestFactory(settings, relativeUrl, params) {
   const token = settings.core.authorizationKey;
@@ -28,8 +29,8 @@ function RequestFactory(settings, relativeUrl, params) {
   headers['Authorization'] = `Bearer ${token}`;
   headers['SplitSDKVersion'] = version;
 
-  if (ip) headers['SplitSDKMachineIP'] = ip;
-  if (hostname) headers['SplitSDKMachineName'] = hostname;
+  if (!isEmpty(ip)) headers['SplitSDKMachineIP'] = ip;
+  if (!isEmpty(hostname)) headers['SplitSDKMachineName'] = hostname;
 
   return new Request(settings.url(relativeUrl), Object.assign({
     headers,

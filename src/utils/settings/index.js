@@ -16,7 +16,7 @@ limitations under the License.
 
 import merge from 'lodash/merge';
 import language from './language';
-import { ip, os } from './runtime';
+import { ip, hostname } from './runtime';
 import overridesPerPlatform from './defaults';
 import storage from './storage';
 import mode from './mode';
@@ -145,7 +145,7 @@ const proto = {
   // Current ip/hostname information (if available)
   runtime: {
     ip,
-    os
+    hostname
   }
 };
 

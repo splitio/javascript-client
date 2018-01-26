@@ -15,4 +15,4 @@ limitations under the License.
 **/
 
 export const ip = {};
-export const os = {};
+export const hostname = {};

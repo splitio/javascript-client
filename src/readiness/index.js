@@ -1,4 +1,4 @@
-import { EventEmitter } from 'events';
+import EventEmitter from 'events';
 import tracker from '../utils/timeTracker';
 
 const SPLITS_READY = 2;
@@ -32,11 +32,13 @@ function GateContext() {
     let segmentsStatus = 0;
     let status = 0;
 
-    if (timeout > 0) setTimeout(() => {
+    if (timeout > 0) {
+      setTimeout(() => {
 
-      if (status < SDK_FIRE_READY) gate.emit(Events.SDK_READY_TIMED_OUT);
+        if (status < SDK_FIRE_READY) gate.emit(Events.SDK_READY_TIMED_OUT);
 
-    }, timeout);
+      }, timeout);
+    }
 
     gate.on(Events.READINESS_GATE_CHECK_STATE, () => {
       if (status !== SDK_FIRE_UPDATE && splitsStatus + segmentsStatus === SDK_FIRE_READY) {

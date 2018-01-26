@@ -18,4 +18,4 @@ import osFunction from 'os';
 import ipFunction from 'ip';
 
 export const ip = ipFunction.address();
-export const os = osFunction.hostname();
+export const hostname = osFunction.hostname();
