@@ -4,7 +4,7 @@ const copyfiles = require('copyfiles');
 
 const input = './src/**/package.json';
 const outputCjsDir = './lib';
-const outputEsmDir = './es6';
+const outputEsmDir = './es';
 
 copyfiles([input, process.env.NODE_ENV === 'cjs' ? outputCjsDir : outputEsmDir], {
   up: 1
