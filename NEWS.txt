@@ -1,6 +1,11 @@
 ## 9.4.1 (Jan XX, 2018)
 
 * Localhost mode uses fewer dependencies now.
+* Migrated source code to es modules.
+* Removed flowtype since it was not used anymore.
+* Udpated to last node LTS.
+* Added package-lock.json.
+* Fixed eslint configuration.
 
 ## 9.4.0 (Jan 12, 2018)
 
