@@ -6,7 +6,6 @@
   "license": "Apache-2.0",
   "repository": "splitio/javascript-client",
   "dependencies": {
-    "@splitsoftware/splitio": "latest",
     "typescript": "^2.2.2"
   }
 }
