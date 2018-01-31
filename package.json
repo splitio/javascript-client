@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio",
-  "version": "9.4.1-canary.3",
+  "version": "9.4.1-canary.4",
   "description": "Split SDK",
   "files": [
     "README.md",
@@ -92,7 +92,7 @@
     "ip": "1.1.4",
     "isomorphic-fetch": "2.2.1",
     "lodash": "4.17.3",
-    "logplease": "NicoZelaya/logplease#1.3.0",
+    "logplease": "github:NicoZelaya/logplease#1.3.0",
     "utfx": "1.0.1"
   },
   "optionalDependencies": {
