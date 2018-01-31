@@ -13,16 +13,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-'use strict';
-
-const Redis = require('ioredis');
-const tape = require('tape-catch');
-const find = require('lodash/find');
-
-const KeyBuilder = require('../../../Keys');
-const ImpressionsCacheInRedis = require('../../../ImpressionsCache/InRedis');
-
-const SettingsFactory = require('../../../../utils/settings');
+import Redis from 'ioredis';
+import tape from 'tape-catch';
+import find from 'lodash/find';
+import KeyBuilder from '../../../Keys';
+import ImpressionsCacheInRedis from '../../../ImpressionsCache/InRedis';
+import SettingsFactory from '../../../../utils/settings';
 const settings = SettingsFactory({
   storage: {
     type: 'REDIS'

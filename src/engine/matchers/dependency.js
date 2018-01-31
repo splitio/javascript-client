@@ -13,10 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-'use strict';
-
-const log = require('../../utils/logger')('splitio-engine:matcher');
-const thenable = require('../../utils/promise/thenable');
+import logFactory from '../../utils/logger';
+const log = logFactory('splitio-engine:matcher');
+import thenable from '../../utils/promise/thenable';
 
 function checkTreatment(evaluation, acceptableTreatments, parentName) {
   let matches = false;
@@ -33,7 +32,7 @@ function checkTreatment(evaluation, acceptableTreatments, parentName) {
 function dependencyMatcherContext({
   split,
   treatments
-}, storage: SplitStorage) {
+}, storage) {
 
   return function dependencyMatcher({
     key,
@@ -50,4 +49,4 @@ function dependencyMatcherContext({
   };
 }
 
-module.exports = dependencyMatcherContext;
+export default dependencyMatcherContext;

@@ -13,8 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-const tape = require('tape');
-const CountCacheInMemory = require('../../CountCache/InMemory');
+import tape from 'tape';
+
+import CountCacheInMemory from '../../CountCache/InMemory';
 
 tape('COUNT CACHE IN MEMORY / should count metric names incrementatly', assert => {
   const cache = new CountCacheInMemory();

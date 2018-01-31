@@ -13,52 +13,49 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-// @flow
 
-'use strict';
-
-const processPipelineAnswer = (results: Array<[any, Array<string>]>): Array<string> =>
+const processPipelineAnswer = (results) =>
   results.reduce((accum, [err, value]) => {
     if (err === null) {
       try {
         return accum.concat(value.map(JSON.parse));
-      } catch(e) {}
+      } catch(e) {
+        // noop
+      }
     }
     return accum;
   }, []);
 
 class ImpressionsCacheInRedis {
-  keys: KeyBuilder;
-  redis: IORedis;
 
-  constructor(keys: KeyBuilder, redis: IORedis) {
+  constructor(keys, redis) {
     this.keys = keys;
     this.redis = redis;
   }
 
-  scanKeys(): Promise {
+  scanKeys() {
     return this.redis.keys(this.keys.searchPatternForImpressions());
   }
 
-  state(): Promise {
-    return this.scanKeys().then((listOfKeys: Array<string>) => this.redis.pipeline(listOfKeys.map(k => ['smembers', k])).exec()).then(processPipelineAnswer);
+  state() {
+    return this.scanKeys().then((listOfKeys) => this.redis.pipeline(listOfKeys.map(k => ['smembers', k])).exec()).then(processPipelineAnswer);
   }
 
-  track(impression: KeyImpression): Promise {
+  track(impression) {
     return this.redis.sadd(
       this.keys.buildImpressionsKey(impression.feature),
       JSON.stringify(impression)
     );
   }
 
-  clear(): Promise {
-    return this.scanKeys().then((listOfKeys: Array<string>) => {
+  clear() {
+    return this.scanKeys().then((listOfKeys) => {
       if (listOfKeys.length)
         return this.redis.del(listOfKeys);
     });
   }
 
-  toJSON(): Array<any> {
+  toJSON() {
     return this.state();
   }
 
@@ -67,4 +64,4 @@ class ImpressionsCacheInRedis {
   }
 }
 
-module.exports = ImpressionsCacheInRedis;
+export default ImpressionsCacheInRedis;

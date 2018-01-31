@@ -14,17 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-// @flow
-
-'use strict';
-
-const log = require('../../../utils/logger')('splitio-settings');
-const isLocalStorageAvailable = require('../../../utils/localstorage/isAvailable');
-const {
+import logFactory from '../../../utils/logger';
+const log = logFactory('splitio-settings');
+import isLocalStorageAvailable from '../../../utils/localstorage/isAvailable';
+import {
   LOCALHOST_MODE,
   STORAGE_MEMORY,
   STORAGE_LOCALSTORAGE
-} = require('../../../utils/constants');
+} from '../../../utils/constants';
 
 const ParseStorageSettings = settings => {
   let {
@@ -62,4 +59,4 @@ const ParseStorageSettings = settings => {
   };
 };
 
-module.exports = ParseStorageSettings;
+export default ParseStorageSettings;

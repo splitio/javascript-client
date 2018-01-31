@@ -1,7 +1,5 @@
-'use strict';
-
-function getConfigurationFromSettings(settings: Settings): Object {
+function getConfigurationFromSettings(settings) {
   return settings.features || {};
 }
 
-module.exports = getConfigurationFromSettings;
+export default getConfigurationFromSettings;

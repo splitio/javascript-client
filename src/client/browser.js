@@ -1,14 +1,9 @@
-// @flow
+import get from 'lodash/get';
+import ClientFactory from './client';
+import keyParser from '../utils/key/parser';
+import { LOCALHOST_MODE } from '../utils/constants';
 
-'use strict';
-
-const get = require('lodash/get');
-
-const ClientFactory = require('./client');
-const keyParser = require('../utils/key/parser');
-const { LOCALHOST_MODE } = require('../utils/constants');
-
-function FixKey(context): SplitClient {
+function FixKey(context) {
   const settings = context.get(context.constants.SETTINGS);
   let key = get(settings, 'core.key', undefined);
   let tt = get(settings, 'core.trafficType', undefined);
@@ -36,4 +31,4 @@ function FixKey(context): SplitClient {
   return client;
 }
 
-module.exports = FixKey;
+export default FixKey;

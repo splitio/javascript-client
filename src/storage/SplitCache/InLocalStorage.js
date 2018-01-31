@@ -1,17 +1,13 @@
-// @flow
-
-'use strict';
-
-const log = require('../../utils/logger')('splitio-storage:localstorage');
+import logFactory from '../../utils/logger';
+const log = logFactory('splitio-storage:localstorage');
 
 class SplitCacheLocalStorage {
-  keys: KeyBuilder;
 
-  constructor(keys: KeyBuilder) {
+  constructor(keys) {
     this.keys = keys;
   }
 
-  addSplit(splitName: string , split: string): boolean {
+  addSplit(splitName , split) {
     try {
       localStorage.setItem(this.keys.buildSplitKey(splitName), split);
       return true;
@@ -21,7 +17,7 @@ class SplitCacheLocalStorage {
     }
   }
 
-  addSplits(entries: Array<[string, string]>): Array<boolean> {
+  addSplits(entries) {
     let results = [];
 
     for (const [key, value] of entries) {
@@ -31,7 +27,7 @@ class SplitCacheLocalStorage {
     return results;
   }
 
-  removeSplit(splitName: string): number {
+  removeSplit(splitName) {
     try {
       localStorage.removeItem(this.keys.buildSplitKey(splitName));
       return 1;
@@ -44,7 +40,7 @@ class SplitCacheLocalStorage {
   /**
    * Bulk delete of splits from LocalStorage. Returns the number of deleted keys.
    */
-  removeSplits(names: Array<string>): number {
+  removeSplits(names) {
     let i = 0;
     let len = names.length;
     let counter = 0;
@@ -56,11 +52,11 @@ class SplitCacheLocalStorage {
     return counter;
   }
 
-  getSplit(splitName: string): ?string {
+  getSplit(splitName) {
     return localStorage.getItem(this.keys.buildSplitKey(splitName));
   }
 
-  setChangeNumber(changeNumber: number): boolean {
+  setChangeNumber(changeNumber) {
     try {
       localStorage.setItem(this.keys.buildSplitsTillKey(), changeNumber + '');
       return true;
@@ -70,7 +66,7 @@ class SplitCacheLocalStorage {
     }
   }
 
-  getChangeNumber(): number {
+  getChangeNumber() {
     const n = -1;
     let value = localStorage.getItem(this.keys.buildSplitsTillKey());
 
@@ -83,7 +79,7 @@ class SplitCacheLocalStorage {
     return n;
   }
 
-  getAll(): Array<string> {
+  getAll() {
     const len = localStorage.length;
     const accum = [];
 
@@ -101,7 +97,7 @@ class SplitCacheLocalStorage {
     return accum;
   }
 
-  getKeys(): Array<string> {
+  getKeys() {
     const len = localStorage.length;
     const accum = [];
 
@@ -124,4 +120,4 @@ class SplitCacheLocalStorage {
   }
 }
 
-module.exports = SplitCacheLocalStorage;
+export default SplitCacheLocalStorage;

@@ -13,10 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-'use strict';
-
-const tape = require('tape');
-const LatencyCacheInMemory = require('../../LatencyCache/InMemory');
+import tape from 'tape';
+import LatencyCacheInMemory from '../../LatencyCache/InMemory';
 
 tape('METRICS CACHE IN MEMORY / should count based on ranges', assert => {
   const metricName = 'testing';

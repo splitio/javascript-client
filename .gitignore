@@ -16,8 +16,9 @@
 
 ## transpiled code
 /lib
-/es6
+/es
 /umd
 
 ## TS tests compilated files
 /ts-tests/*.js
+/ts-tests/package-lock.json

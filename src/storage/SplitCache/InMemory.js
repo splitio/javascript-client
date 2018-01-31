@@ -1,22 +1,16 @@
-// @flow
-
-'use strict';
-
-class SplitCacheInMemory implements SplitCache {
-  splitCache: Map<string, string>;
-  changeNumber: number;
+class SplitCacheInMemory {
 
   constructor() {
     this.flush();
   }
 
-  addSplit(splitName: string , split: string): boolean {
+  addSplit(splitName , split) {
     this.splitCache.set(splitName, split);
 
     return true;
   }
 
-  addSplits(entries: Array<[string, string]>): Array<boolean> {
+  addSplits(entries) {
     let results = [];
 
     for (const [key, value] of entries) {
@@ -26,44 +20,44 @@ class SplitCacheInMemory implements SplitCache {
     return results;
   }
 
-  removeSplit(splitName: string): number {
+  removeSplit(splitName) {
     this.splitCache.delete(splitName);
 
     return 1;
   }
 
-  removeSplits(splitNames: Array<string>): number {
+  removeSplits(splitNames) {
     splitNames.forEach(n => this.splitCache.delete(n));
 
     return splitNames.length;
   }
 
-  getSplit(splitName: string): ?string {
+  getSplit(splitName) {
     return this.splitCache.get(splitName);
   }
 
-  setChangeNumber(changeNumber: number): boolean {
+  setChangeNumber(changeNumber) {
     this.changeNumber = changeNumber;
 
     return true;
   }
 
-  getChangeNumber(): number {
+  getChangeNumber() {
     return this.changeNumber;
   }
 
-  getAll(): Array<string> {
+  getAll() {
     return [...this.splitCache.values()];
   }
 
-  getKeys(): Array<string> {
+  getKeys() {
     return [...this.splitCache.keys()];
   }
 
-  flush(): void {
+  flush() {
     this.splitCache = new Map;
     this.changeNumber = -1;
   }
 }
 
-module.exports = SplitCacheInMemory;
+export default SplitCacheInMemory;

@@ -1,9 +1,5 @@
-// @flow
-
-'use strict';
-
-const EventEmitter = require('events').EventEmitter;
-const tracker = require('../utils/timeTracker');
+import EventEmitter from 'events';
+import tracker from '../utils/timeTracker';
 
 const SPLITS_READY = 2;
 const SEGMENTS_READY = 4;
@@ -31,16 +27,18 @@ function GateContext() {
   // references counter: how many
   let refCount = 0;
 
-  function ReadinessGateFactory(splits: EventEmitter, segments: EventEmitter, timeout: number): EventEmitter {
+  function ReadinessGateFactory(splits, segments, timeout) {
     const gate = new EventEmitter();
     let segmentsStatus = 0;
     let status = 0;
 
-    if (timeout > 0) setTimeout(() => {
+    if (timeout > 0) {
+      setTimeout(() => {
 
-      if (status < SDK_FIRE_READY) gate.emit(Events.SDK_READY_TIMED_OUT);
+        if (status < SDK_FIRE_READY) gate.emit(Events.SDK_READY_TIMED_OUT);
 
-    }, timeout);
+      }, timeout);
+    }
 
     gate.on(Events.READINESS_GATE_CHECK_STATE, () => {
       if (status !== SDK_FIRE_UPDATE && splitsStatus + segmentsStatus === SDK_FIRE_READY) {
@@ -73,7 +71,7 @@ function GateContext() {
    * all the gates, and have an extra flag for the segments which is per gate
    * instance.
    */
-  function SDKReadinessGateFactory(timeout: number = 0): ReadinessGate {
+  function SDKReadinessGateFactory(timeout = 0) {
     const segments = new EventEmitter();
     segments.SDK_SEGMENTS_ARRIVED = Events.SDK_SEGMENTS_ARRIVED;
 
@@ -106,4 +104,4 @@ function GateContext() {
   return SDKReadinessGateFactory;
 }
 
-module.exports = GateContext;
+export default GateContext;

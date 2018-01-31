@@ -14,9 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-'use strict';
-
-module.exports = function isLocalStorageAvailable() {
+export default function isLocalStorageAvailable() {
   var mod = '__SPLITSOFTWARE__';
   try {
     localStorage.setItem(mod, mod);
@@ -25,4 +23,4 @@ module.exports = function isLocalStorageAvailable() {
   } catch(e) {
     return false;
   }
-};
+}

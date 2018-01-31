@@ -13,11 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-'use strict';
-
-const tape = require('tape');
-const parser = require('../../parser');
-const keyParser = require('../../../utils/key/parser');
+import tape from 'tape';
+import parser from '../../parser';
+import keyParser from '../../../utils/key/parser';
 
 tape('PARSER / if user is in segment all 100%:on', async function (assert) {
 
@@ -99,7 +97,7 @@ tape('PARSER / NEGATED if user is in segment all 100%:on, then no match', async 
   const evaluation = await evaluator(keyParser('a key'), 31, 100, 31);
 
   assert.equal(typeof evaluator, 'function', 'evaluator should be callable');
-  assert.equal(evaluation, undefined, "evaluator should return undefined");
+  assert.equal(evaluation, undefined, 'evaluator should return undefined');
   assert.end();
 
 });

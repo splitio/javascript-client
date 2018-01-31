@@ -14,24 +14,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-// @flow
-
-'use strict';
-
-const Engine = require('../');
-const thenable = require('../../utils/promise/thenable');
-const LabelsConstants = require('../../utils/labels');
+import Engine from '../';
+import thenable from '../../utils/promise/thenable';
+import LabelsConstants from '../../utils/labels';
 
 function splitEvaluator(
-  key: SplitKey,
-  splitName: string,
-  attributes: ?Object,
-  storage: SplitStorage
-): AsyncValue<string> {
-  const splitObject: AsyncValue<?string> = storage.splits.getSplit(splitName);
+  key,
+  splitName,
+  attributes,
+  storage
+) {
+  const splitObject = storage.splits.getSplit(splitName);
 
   if (thenable(splitObject)) {
-    return splitObject.then((result: ?string) => getEvaluation(
+    return splitObject.then((result) => getEvaluation(
       result,
       key,
       attributes,
@@ -48,10 +44,10 @@ function splitEvaluator(
 }
 
 function getEvaluation(
-  splitObject: ?string,
-  key: SplitKey,
-  attributes: ?Object,
-  storage: SplitStorage
+  splitObject,
+  key,
+  attributes,
+  storage
 ) {
   let evaluation = {
     treatment: 'control',
@@ -79,4 +75,4 @@ function getEvaluation(
   return evaluation;
 }
 
-module.exports = splitEvaluator;
+export default splitEvaluator;

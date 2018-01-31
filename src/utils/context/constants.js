@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   SETTINGS: 'settings',
   STORAGE: 'storage',
   READINESS: 'readiness_gate',

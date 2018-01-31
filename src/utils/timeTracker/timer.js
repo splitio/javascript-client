@@ -14,9 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-'use strict';
-
-const now = require('../now');
+import now from '../now';
 
 function start() {
   const st = now();
@@ -26,4 +24,4 @@ function start() {
   };
 }
 
-module.exports = start;
+export default start;

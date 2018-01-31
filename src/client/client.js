@@ -1,28 +1,23 @@
-// @flow
-'use strict';
-
 // I'll need to fix first 'isomorphic-fetch' to be transpiled using
 // babel-runtime before remove this line of code.
-require('core-js/es6/promise');
+import 'core-js/es6/promise';
 
-const isFinite = require('lodash/isFinite');
-const log = require('../utils/logger')('splitio-client');
-const evaluator = require('../engine/evaluator');
-
-const PassTracker = require('../tracker/PassThrough');
-const tracker = require('../utils/timeTracker');
-
-const keyParser = require('../utils/key/parser');
-
-const thenable = require('../utils/promise/thenable');
-const { matching, bucketing } = require('../utils/key/factory');
+import isFinite from 'lodash/isFinite';
+import logFactory from '../utils/logger';
+const log = logFactory('splitio-client');
+import evaluator from '../engine/evaluator';
+import PassTracker from '../tracker/PassThrough';
+import tracker from '../utils/timeTracker';
+import keyParser from '../utils/key/parser';
+import thenable from '../utils/promise/thenable';
+import { matching, bucketing } from '../utils/key/factory';
 
 function getTreatmentAvailable(
-  evaluation: Evaluation,
-  splitName: string,
-  key: SplitKey,
+  evaluation,
+  splitName,
+  key,
   stopLatencyTracker,
-  impressionsTracker: Function
+  impressionsTracker
 ) {
   const matchingKey = matching(key);
   const bucketingKey = bucketing(key);
@@ -50,13 +45,13 @@ function getTreatmentAvailable(
   return evaluation.treatment;
 }
 
-function ClientFactory(context): SplitClient {
+function ClientFactory(context) {
   const storage = context.get(context.constants.STORAGE);
   const metricCollectors = context.get(context.constants.COLLECTORS);
   const impressionsTracker = PassTracker(storage.impressions);
 
   return {
-    getTreatment(key: SplitKey, splitName: string, attributes: ?Object): AsyncValue<string> {
+    getTreatment(key, splitName, attributes) {
       const stopLatencyTracker = tracker.start(tracker.TaskNames.SDK_GET_TREATMENT, metricCollectors);
       const evaluation = evaluator(key, splitName, attributes, storage);
 
@@ -66,7 +61,7 @@ function ClientFactory(context): SplitClient {
         return getTreatmentAvailable(evaluation, splitName, key, stopLatencyTracker, impressionsTracker);
       }
     },
-    getTreatments(key: SplitKey, splitNames: Array<string>, attributes: ?Object): AsyncValue<Object> {
+    getTreatments(key, splitNames, attributes) {
       let results = {};
       let thenables = [];
       let i;
@@ -128,7 +123,6 @@ function ClientFactory(context): SplitClient {
       return true;
     }
   };
-
 }
 
-module.exports = ClientFactory;
+export default ClientFactory;

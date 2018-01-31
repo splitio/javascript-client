@@ -13,8 +13,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-'use strict';
-
 function repeat(fn, delay, ...rest) {
   let tid;
   let stopped = false;
@@ -46,4 +44,4 @@ function repeat(fn, delay, ...rest) {
   return till;
 }
 
-module.exports = repeat;
+export default repeat;

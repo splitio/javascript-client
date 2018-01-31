@@ -13,10 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-'use strict';
-
-const tape = require('tape-catch');
-const now = require('../../now');
+import tape from 'tape-catch';
+import now from '../../now';
 
 tape('NOW / should generate a value each time you call it', assert => {
   let n1 = now();

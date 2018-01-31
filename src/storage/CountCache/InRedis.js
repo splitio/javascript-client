@@ -60,4 +60,4 @@ class CountCacheInRedis {
   }
 }
 
-module.exports = CountCacheInRedis;
+export default CountCacheInRedis;

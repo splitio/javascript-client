@@ -14,20 +14,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-// @flow
-
-'use strict';
-
-const log = require('../../utils/logger')('splitio-engine');
-
-const legacy = require('./legacy');
-const murmur = require('./murmur3');
+import logFactory from '../../utils/logger';
+const log = logFactory('splitio-engine');
+import legacy from './legacy';
+import murmur from './murmur3';
 const MURMUR_ID = 2;
 
 /**
  * Returns the bucket function by algoId.
  */
-function getBucketAlgo(algoId: number): Function {
+function getBucketAlgo(algoId) {
   if (algoId === MURMUR_ID) {
     return murmur.bucket;
   } else {
@@ -39,7 +35,7 @@ const engine = {
   /**
    * Get the treatment name given a key, a seed, and the percentage of each treatment.
    */
-  getTreatment(key: string, seed: number, treatments: Treatments, algoId: ?number): string {
+  getTreatment(key, seed, treatments, algoId) {
     const bucket = getBucketAlgo(algoId)(key, seed);
 
     const treatment = treatments.getTreatmentFor(bucket);
@@ -51,7 +47,7 @@ const engine = {
   /**
    * Evaluates the traffic allocation to see if we should apply rollout conditions or not.
    */
-  shouldApplyRollout(trafficAllocation: number, key: string, trafficAllocationSeed: number, algoId: ?number): boolean {
+  shouldApplyRollout(trafficAllocation, key, trafficAllocationSeed, algoId) {
     // For rollout, if traffic allocation for splits is 100%, we don't need to filter it because everything should evaluate the rollout.
     if (trafficAllocation < 100) {
       const bucket = getBucketAlgo(algoId)(key, trafficAllocationSeed);
@@ -64,4 +60,4 @@ const engine = {
   }
 };
 
-module.exports = engine;
+export default engine;

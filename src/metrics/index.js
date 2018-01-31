@@ -14,35 +14,29 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-// @flow
-
-'use strict';
-
-const log = require('../utils/logger')('splitio-metrics');
-const tracker = require('../utils/timeTracker');
-const repeat = require('../utils/fn/repeat');
-
-const metricsService = require('../services/metrics');
-const metricsTimesServiceRequest = require('../services/metrics/times');
-const metricsCountersServiceRequest = require('../services/metrics/counters');
-const metricsDTO = require('../services/metrics/dto');
-
-const impressionsService = require('../services/impressions');
-const impressionsBulkRequest = require('../services/impressions/bulk');
-const impressionsDTO = require('../services/impressions/dto');
-
-const {
+import logFactory from '../utils/logger';
+const log = logFactory('splitio-metrics');
+import tracker from '../utils/timeTracker';
+import repeat from '../utils/fn/repeat';
+import metricsService from '../services/metrics';
+import metricsTimesServiceRequest from '../services/metrics/times';
+import metricsCountersServiceRequest from '../services/metrics/counters';
+import metricsDTO from '../services/metrics/dto';
+import impressionsService from '../services/impressions';
+import impressionsBulkRequest from '../services/impressions/bulk';
+import impressionsDTO from '../services/impressions/dto';
+import {
   SegmentChangesCollector,
   SplitChangesCollector,
   MySegmentsCollector,
   SDKCollector
-} = require('./Collectors');
+} from './Collectors';
 
 const MetricsFactory = context => {
   const settings = context.get(context.constants.SETTINGS);
   const storage = context.get(context.constants.STORAGE);
 
-  const pushMetrics = (): Promise<void> => {
+  const pushMetrics = () => {
     if (storage.metrics.isEmpty() && storage.count.isEmpty()) return Promise.resolve();
 
     log.info('Pushing metrics');
@@ -71,7 +65,7 @@ const MetricsFactory = context => {
     });
   };
 
-  const pushImpressions = (): Promise<void> => {
+  const pushImpressions = () => {
     if (storage.impressions.isEmpty()) return Promise.resolve();
 
     log.info(`Pushing ${storage.impressions.queue.length} impressions`);
@@ -122,4 +116,4 @@ const MetricsFactory = context => {
   };
 };
 
-module.exports = MetricsFactory;
+export default MetricsFactory;

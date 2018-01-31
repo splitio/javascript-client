@@ -13,16 +13,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-'use strict';
-
-const tape = require('tape-catch');
-const matcherTypes = require('../../matchers/types');
-const matcherFactory = require('../../matchers');
+import tape from 'tape-catch';
+import { types as matcherTypes} from '../../matchers/types';
+import matcherFactory from '../../matchers';
 
 tape('MATCHER ALL / should always return true', function (assert) {
 
   let matcher = matcherFactory({
-    type: matcherTypes.enum.ALL,
+    type: matcherTypes.ALL,
     value: undefined
   });
 

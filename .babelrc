@@ -1,7 +1,8 @@
 {
   "presets": [
-    "env",
-    "flow"
+    ["env", {
+      "modules": false
+    }]
   ],
 
   "plugins": [
@@ -11,7 +12,19 @@
   ],
 
   "env": {
+    "cjs": {
+      "presets": [
+        ["env", {
+          "modules": "commonjs"
+        }]
+      ],
+    },
     "test": {
+      "presets": [
+        ["env", {
+          "modules": "commonjs"
+        }]
+      ],
       "plugins": [
         ["istanbul", {
           "exclude": [

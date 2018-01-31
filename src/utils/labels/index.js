@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   SPLIT_KILLED: 'killed',
   NO_CONDITION_MATCH: 'default rule',
   SPLIT_NOT_FOUND: 'definition not found',

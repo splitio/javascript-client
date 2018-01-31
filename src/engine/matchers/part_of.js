@@ -14,10 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-'use strict';
-
-const log = require('../../utils/logger')('splitio-engine:matcher');
-const intersection = require('lodash/intersection');
+import logFactory from '../../utils/logger';
+const log = logFactory('splitio-engine:matcher');
+import intersection from 'lodash/intersection';
 
 function partOfMatcherContext(ruleAttr /*: array */) /*: Function */ {
   return function partOfMatcher(runtimeAttr /*: array */) /*: boolean */ {
@@ -30,4 +29,4 @@ function partOfMatcherContext(ruleAttr /*: array */) /*: Function */ {
   };
 }
 
-module.exports = partOfMatcherContext;
+export default partOfMatcherContext;

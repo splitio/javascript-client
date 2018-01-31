@@ -13,10 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-'use strict';
+import base from '../request';
 
-const base = require('../request');
-
-module.exports = function GET(settings, {since, segmentName}) {
+export default function GET(settings, {since, segmentName}) {
   return base(settings, `/segmentChanges/${segmentName}?since=${since}`);
-};
+}

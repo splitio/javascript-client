@@ -14,13 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-// @flow
-
-'use strict';
-
-const fs = require('fs');
-const path = require('path');
-const log = require('../../../utils/logger')('splitio:offline');
+import fs from 'fs';
+import path from 'path';
+import logFactory from '../../../utils/logger';
+const log = logFactory('splitio:offline');
 
 const FILENAME = '.split';
 
@@ -43,7 +40,7 @@ function configFilesPath(config = {}) {
 }
 
 // Parse `.split` configuration file and return an array of split => treatments
-function readSplitConfigFile(path: string): Array<Array<string>> {
+function readSplitConfigFile(path) {
   let data;
 
   try {
@@ -76,7 +73,7 @@ function readSplitConfigFile(path: string): Array<Array<string>> {
 }
 
 // Array to Object conversion
-function makeUpReadOnlySettings(lines: Array<Array<string>>): Object {
+function makeUpReadOnlySettings(lines) {
   const SPLIT = 0;
   const TREATMENT = 1;
 
@@ -86,8 +83,8 @@ function makeUpReadOnlySettings(lines: Array<Array<string>>): Object {
 }
 
 // Load the content of a configuration file into an Object
-function getSplitConfigForFile(settings: Settings): Object {
+function getSplitConfigForFile(settings) {
   return makeUpReadOnlySettings(readSplitConfigFile(configFilesPath(settings)));
 }
 
-module.exports = getSplitConfigForFile;
+export default getSplitConfigForFile;

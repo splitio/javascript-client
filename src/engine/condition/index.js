@@ -14,16 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-// @flow
-
-'use strict';
-
-const engine = require('../engine');
-const thenable = require('../../utils/promise/thenable');
-const LabelsConstants = require('../../utils/labels');
+import engine from '../engine';
+import thenable from '../../utils/promise/thenable';
+import LabelsConstants from '../../utils/labels';
 
 // Build Evaluation object if and only if matchingResult is true
-function match(matchingResult: boolean, bucketingKey: string, seed: number, treatments: Treatments, label: string, algo: ?number): ?Evaluation {
+function match(matchingResult, bucketingKey, seed, treatments, label, algo) {
   if (matchingResult) {
     const treatment = engine.getTreatment(bucketingKey, seed, treatments, algo);
 
@@ -38,9 +34,9 @@ function match(matchingResult: boolean, bucketingKey: string, seed: number, trea
 }
 
 // Condition factory
-function conditionContext(matcherEvaluator: Function, treatments: Treatments, label: string, conditionType: string): Function {
+function conditionContext(matcherEvaluator, treatments, label, conditionType) {
 
-  function conditionEvaluator(key: SplitKeyObject, seed: number, trafficAllocation: number, trafficAllocationSeed: number, splitEvaluator: Function, attributes: ?Object, algo: ?number): AsyncValue<?Evaluation> {
+  function conditionEvaluator(key, seed, trafficAllocation, trafficAllocationSeed, splitEvaluator, attributes, algo) {
 
     // Whitelisting has more priority than traffic allocation, so we don't apply this filtering to those conditions.
     if (conditionType === 'ROLLOUT' && !engine.shouldApplyRollout(trafficAllocation, key.bucketingKey, trafficAllocationSeed, algo)) {
@@ -66,4 +62,4 @@ function conditionContext(matcherEvaluator: Function, treatments: Treatments, la
   return conditionEvaluator;
 }
 
-module.exports = conditionContext;
+export default conditionContext;

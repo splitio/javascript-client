@@ -1,16 +1,9 @@
-const ClientFactory = require('../client');
-
-const FullProducerFactory = require('../producer');
-const PartialProducerFactory = require('../producer/browser/Partial');
-
-const MetricsFactory = require('../metrics');
-const EventsFactory = require('../events');
-
-const {
-  STANDALONE_MODE,
-  PRODUCER_MODE,
-  CONSUMER_MODE
-} = require('../utils/constants');
+import ClientFactory from '../client';
+import FullProducerFactory from '../producer';
+import PartialProducerFactory from '../producer/browser/Partial';
+import MetricsFactory from '../metrics';
+import EventsFactory from '../events';
+import { STANDALONE_MODE, PRODUCER_MODE, CONSUMER_MODE } from '../utils/constants';
 
 //
 // Create SDK instance based on the provided configurations
@@ -126,4 +119,4 @@ function SplitFactoryOnline(context, gateFactory, readyTrackers, mainClientMetri
   };
 }
 
-module.exports = SplitFactoryOnline;
+export default SplitFactoryOnline;

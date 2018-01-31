@@ -14,14 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-// @flow
+import TaskFactory from '../task';
+import FromFileSystemUpdater from '../updater/SplitChangesFromFileSystem';
 
-'use strict';
-
-const TaskFactory = require('../task');
-const FromFileSystemUpdater = require('../updater/SplitChangesFromFileSystem');
-
-const OfflineFileSystemProducer = (context): Startable => {
+const OfflineFileSystemProducer = (context) => {
   const settings = context.get(context.constants.SETTINGS);
   const updater = FromFileSystemUpdater(context);
   const updaterTask = TaskFactory(updater, settings.scheduler.offlineRefreshRate);
@@ -29,4 +25,4 @@ const OfflineFileSystemProducer = (context): Startable => {
   return updaterTask;
 };
 
-module.exports = OfflineFileSystemProducer;
+export default OfflineFileSystemProducer;

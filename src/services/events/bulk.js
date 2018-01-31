@@ -13,12 +13,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-'use strict';
+import base from '../request';
 
-const base = require('../request');
-
-module.exports = function BULK(settings, params) {
+export default function BULK(settings, params) {
   return base(settings, '/events/bulk', Object.assign({
     method: 'POST'
   }, params));
-};
+}

@@ -13,35 +13,29 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-'use strict';
-
-const matcherTypes = require('../matchers/types');
-const segmentTransform = require('./segment');
-const whitelistTransform = require('./whitelist');
-
-/*::
-  type MatcherDTO = {
-    type: Symbol,
-    value: undefined | string | Array<string>
-  }
-*/
+import {
+  types as matcherTypes,
+  mapper as matcherTypesMapper
+} from '../matchers/types';
+import segmentTransform from './segment';
+import whitelistTransform from './whitelist';
 
 /**
  * Flat the complex matcherGroup structure into something handy.
  */
-function transform(matcherGroup /*: object */) /*: MatcherDTO */ {
+function transform(matcherGroup) {
   let {
     matcherType,
     userDefinedSegmentMatcherData: segmentObject,
     whitelistMatcherData: whitelistObject
   } = matcherGroup.matchers[0];
 
-  let type = matcherTypes.mapper(matcherType);
+  let type = matcherTypesMapper(matcherType);
   let value = undefined;
 
-  if (type === matcherTypes.enum.SEGMENT) {
+  if (type === matcherTypes.SEGMENT) {
     value = segmentTransform(segmentObject);
-  } else if (type === matcherTypes.enum.WHITELIST) {
+  } else if (type === matcherTypes.WHITELIST) {
     value = whitelistTransform(whitelistObject);
   }
 
@@ -51,4 +45,4 @@ function transform(matcherGroup /*: object */) /*: MatcherDTO */ {
   };
 }
 
-module.exports = transform;
+export default transform;

@@ -13,11 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-'use strict';
+import groupBy from 'lodash/groupBy';
 
-const groupBy = require('lodash/groupBy');
-
-module.exports = {
+export default {
   fromImpressionsCollector(collector, settings) {
     const sendLabels = settings.core.labelsEnabled;
     let groupedByFeature = groupBy(collector.state(), 'feature');

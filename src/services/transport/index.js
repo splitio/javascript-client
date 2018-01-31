@@ -13,11 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-'use strict';
-
-require('isomorphic-fetch');
-
-const log = require('../../utils/logger')('splitio-services:service');
+import 'isomorphic-fetch';
+import logFactory from '../../utils/logger';
+const log = logFactory('splitio-services:service');
 
 function Fetcher(request) {
   return fetch(request).then(resp => {
@@ -41,4 +39,4 @@ function Fetcher(request) {
   });
 }
 
-module.exports = Fetcher;
+export default Fetcher;

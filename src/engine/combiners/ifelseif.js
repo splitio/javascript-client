@@ -13,13 +13,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-// @flow
 
-'use strict';
-
-const findIndex = require('core-js/library/fn/array/find-index');
-const log = require('../../utils/logger')('splitio-engine:combiner');
-const thenable = require('../../utils/promise/thenable');
+import findIndex from 'core-js/library/fn/array/find-index';
+import logFactory from '../../utils/logger';
+const log = logFactory('splitio-engine:combiner');
+import thenable from '../../utils/promise/thenable';
 
 function unexpectedInputHandler() {
   log.error('Invalid Split provided, no valid conditions found');
@@ -30,13 +28,13 @@ function unexpectedInputHandler() {
   };
 }
 
-function computeTreatment(predicateResults: Array<?Evaluation>): ?Evaluation {
+function computeTreatment(predicateResults) {
   const len = predicateResults.length;
 
   for (let i = 0; i < len; i++) {
     const evaluation = predicateResults[i];
 
-    if (evaluation != undefined) {
+    if (evaluation !== undefined) {
       log.debug(`treatment found: ${evaluation.treatment}`);
 
       return evaluation;
@@ -47,16 +45,16 @@ function computeTreatment(predicateResults: Array<?Evaluation>): ?Evaluation {
   return undefined;
 }
 
-function ifElseIfCombinerContext(predicates: Array<Function>): Function {
+function ifElseIfCombinerContext(predicates) {
 
-  function ifElseIfCombiner(key: SplitKey, seed: number, trafficAllocation: number, trafficAllocationSeed: number, attributes: Object, algo: number, splitEvaluator: Function): AsyncValue<?Evaluation> {
+  function ifElseIfCombiner(key, seed, trafficAllocation, trafficAllocationSeed, attributes, algo, splitEvaluator) {
     // In Async environments we are going to have async predicates. There is none way to know
     // before hand so we need to evaluate all the predicates, verify for thenables, and finally,
     // define how to return the treatment (wrap result into a Promise or not).
     const predicateResults = predicates.map(evaluator => evaluator(key, seed, trafficAllocation, trafficAllocationSeed, splitEvaluator, attributes, algo));
 
     // if we find a thenable
-    if (findIndex(predicateResults, thenable) != -1) {
+    if (findIndex(predicateResults, thenable) !== -1) {
       return Promise.all(predicateResults).then(results => computeTreatment(results));
     }
 
@@ -71,4 +69,4 @@ function ifElseIfCombinerContext(predicates: Array<Function>): Function {
   }
 }
 
-module.exports = ifElseIfCombinerContext;
+export default ifElseIfCombinerContext;

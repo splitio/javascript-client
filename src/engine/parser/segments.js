@@ -1,11 +1,7 @@
-// @flow
-
-'use strict';
-
 /**
  * Collect segments from a raw split definition.
  */
-const parseSegments = (conditions: Array<Condition>): Set<string> => {
+const parseSegments = (conditions) => {
   let segments = new Set();
 
   for (let condition of conditions) {
@@ -30,4 +26,4 @@ const parseSegments = (conditions: Array<Condition>): Set<string> => {
   return segments;
 };
 
-module.exports = parseSegments;
+export default parseSegments;

@@ -1,12 +1,8 @@
-// @flow
-
-'use strict';
-
-const Redis = require('ioredis');
-const tape = require('tape-catch');
-const SplitCacheInRedis = require('../../../SplitCache/InRedis');
-const KeyBuilder = require('../../../Keys');
-const SettingsFactory = require('../../../../utils/settings');
+import Redis from 'ioredis';
+import tape from 'tape-catch';
+import SplitCacheInRedis from '../../../SplitCache/InRedis';
+import KeyBuilder from '../../../Keys';
+import SettingsFactory from '../../../../utils/settings';
 
 const settings = SettingsFactory({
   storage: {

@@ -13,9 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-'use strict';
-
-const log = require('../../utils/logger')('splitio-engine:matcher');
+import logFactory from '../../utils/logger';
+const log = logFactory('splitio-engine:matcher');
 
 function booleanMatcherContext(ruleAttr /*: bool */) /*: Function */ {
   return function booleanMatcher(runtimeAttr /*: bool */) /*: bool */ {
@@ -27,4 +26,4 @@ function booleanMatcherContext(ruleAttr /*: bool */) /*: Function */ {
   };
 }
 
-module.exports = booleanMatcherContext;
+export default booleanMatcherContext;

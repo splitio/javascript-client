@@ -14,12 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-// @flow
-
-'use strict';
-
-const log = require('../../utils/logger')('splitio-producer:my-segments');
-const mySegmentsFetcher = require('../fetcher/MySegments');
+import logFactory from '../../utils/logger';
+const log = logFactory('splitio-producer:my-segments');
+import mySegmentsFetcher from '../fetcher/MySegments';
 
 function MySegmentsUpdaterFactory(context) {
   const {
@@ -34,7 +31,7 @@ function MySegmentsUpdaterFactory(context) {
   let readyOnAlreadyExistentState = true;
   let startingUp = true;
 
-  return function MySegmentsUpdater(retry: number = 0) {
+  return function MySegmentsUpdater(retry = 0) {
     // NOTE: We only collect metrics on startup.
     return mySegmentsFetcher(settings, startingUp, metricCollectors).then(segments => {
       // Only when we have downloaded segments completely, we should not keep
@@ -50,19 +47,19 @@ function MySegmentsUpdaterFactory(context) {
         segmentsEventEmitter.emit(segmentsEventEmitter.SDK_SEGMENTS_ARRIVED);
       }
     })
-    .catch(error => {
-      if (startingUp && settings.startup.retriesOnFailureBeforeReady > retry) {
-        retry += 1;
-        log.warn(`Retrying download of segments #${retry}. Reason: ${error}`);
-        return MySegmentsUpdater(retry);
-      } else {
-        startingUp = false;
-      }
+      .catch(error => {
+        if (startingUp && settings.startup.retriesOnFailureBeforeReady > retry) {
+          retry += 1;
+          log.warn(`Retrying download of segments #${retry}. Reason: ${error}`);
+          return MySegmentsUpdater(retry);
+        } else {
+          startingUp = false;
+        }
 
-      return false; // shouldUpdate = false
-    });
+        return false; // shouldUpdate = false
+      });
   };
 
 }
 
-module.exports = MySegmentsUpdaterFactory;
+export default MySegmentsUpdaterFactory;

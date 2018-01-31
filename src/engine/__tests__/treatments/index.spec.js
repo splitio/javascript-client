@@ -13,10 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-'use strict';
-
-const tape = require('tape-catch');
-const Treatments = require('../../treatments');
+import tape from 'tape-catch';
+import Treatments from '../../treatments';
 
 tape('TREATMENTS / parse 2 treatments', assert => {
   let t = Treatments.parse([{

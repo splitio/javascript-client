@@ -1,5 +1,5 @@
-const isString = require('lodash/isString');
-const isObject = require('lodash/isObject');
+import isString from 'lodash/isString';
+import isObject from 'lodash/isObject';
 
 /**
  * Verify type of key and return the set key property
@@ -23,7 +23,5 @@ function KeyFactory(keyProperty, shouldReturnUndefined = false) {
   };
 }
 
-module.exports = {
-  matching: KeyFactory('matchingKey'),
-  bucketing: KeyFactory('bucketingKey', true)
-};
+export const matching = KeyFactory('matchingKey');
+export const bucketing = KeyFactory('bucketingKey', true);

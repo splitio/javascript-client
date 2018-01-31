@@ -14,13 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-'use strict';
-
-const timeout = require('../../utils/promise/timeout');
-const tracker = require('../../utils/timeTracker');
-
-const mySegmentsService = require('../../services/mySegments');
-const mySegmentsRequest = require('../../services/mySegments/get');
+import timeout from '../../utils/promise/timeout';
+import tracker from '../../utils/timeTracker';
+import mySegmentsService from '../../services/mySegments';
+import mySegmentsRequest from '../../services/mySegments/get';
 
 const mySegmentsFetcher = (settings, startingUp = false, metricCollectors) => {
   let mySegmentsPromise = mySegmentsService(mySegmentsRequest(settings));
@@ -38,4 +35,4 @@ const mySegmentsFetcher = (settings, startingUp = false, metricCollectors) => {
     .then(json => json.mySegments.map(segment => segment.name));
 };
 
-module.exports = mySegmentsFetcher;
+export default mySegmentsFetcher;
