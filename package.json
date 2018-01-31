@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio",
-  "version": "9.4.1-canary.4",
+  "version": "9.4.1-canary.5",
   "description": "Split SDK",
   "files": [
     "README.md",
@@ -56,9 +56,9 @@
     "webpack": "3.5.5"
   },
   "scripts": {
-    "build-es": "rimraf es && cross-env BABEL_ENV=es babel ./src -d es --ignore '__tests__'",
+    "build-es": "rimraf es && cross-env NODE_ENV=es babel ./src -d es --ignore '__tests__'",
     "postbuild-es": "cross-env NODE_ENV=es node scripts/copy.packages.json.js",
-    "build-cjs": "rimraf lib && cross-env BABEL_ENV=cjs babel ./src -d lib --ignore '__tests__'",
+    "build-cjs": "rimraf lib && cross-env NODE_ENV=cjs babel ./src -d lib --ignore '__tests__'",
     "postbuild-cjs": "cross-env NODE_ENV=cjs node scripts/copy.packages.json.js",
     "build-umd": "cross-env NODE_ENV=development webpack",
     "build-min": "cross-env NODE_ENV=production webpack -p",
@@ -72,11 +72,11 @@
     "test-browser-e2e-ci": "cross-env NODE_ENV=test karma start karma/e2e.ci.karma.conf.js",
     "test-browser-offline": "cross-env NODE_ENV=test karma start karma/offline.karma.conf.js",
     "test-browser-destroy": "cross-env NODE_ENV=test karma start karma/destroy.ci.karma.conf.js",
-    "test-node": "cross-env BABEL_ENV=test tape -r babel-register \"src/*/__tests__/**/!(browser).spec.js\"",
-    "test-node-e2e": "cross-env BABEL_ENV=test tape -r babel-register src/__tests__/destroy/node.spec.js",
-    "test-node-offline": "cross-env BABEL_ENV=test tape -r babel-register src/__tests__/offline/node.spec.js",
+    "test-node": "cross-env NODE_ENV=test tape -r babel-register \"src/*/__tests__/**/!(browser).spec.js\"",
+    "test-node-e2e": "cross-env NODE_ENV=test tape -r babel-register src/__tests__/destroy/node.spec.js",
+    "test-node-offline": "cross-env NODE_ENV=test tape -r babel-register src/__tests__/offline/node.spec.js",
     "pretest-node-redis": "cat ./src/__tests__/mocks/redis_mock.json | ./node_modules/redis-dump/bin/cli/redis-dump --convert | redis-cli",
-    "test-node-redis": "cross-env BABEL_ENV=test tape -r babel-register \"src/__tests__/node_redis.spec.js\"",
+    "test-node-redis": "cross-env NODE_ENV=test tape -r babel-register \"src/__tests__/node_redis.spec.js\"",
     "pretest-ts-decls": "npm run build-es && npm run build-cjs && npm link",
     "test-ts-decls": "./scripts/ts-tests.sh",
     "posttest-ts-decls": "npm unlink && npm install",

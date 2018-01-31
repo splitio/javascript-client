@@ -22,6 +22,26 @@
         "add-module-exports"
       ]
     },
+    "development": {
+      "presets": [
+        ["env", {
+          "modules": "commonjs"
+        }]
+      ],
+      "plugins": [
+        "add-module-exports"
+      ]
+    },
+    "production": {
+      "presets": [
+        ["env", {
+          "modules": "commonjs"
+        }]
+      ],
+      "plugins": [
+        "add-module-exports"
+      ]
+    },
     "test": {
       "presets": [
         ["env", {
