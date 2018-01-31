@@ -6,9 +6,9 @@
   ],
 
   "plugins": [
-    "syntax-object-rest-spread",    // usage of ... in objects
-    "transform-object-rest-spread", // usage of ... in objects
-    "transform-runtime"             // automatic polyfilling
+    "syntax-object-rest-spread",         // usage of ... in objects
+    "transform-object-rest-spread",      // usage of ... in objects
+    "transform-runtime"                  // automatic polyfilling
   ],
 
   "env": {
@@ -18,6 +18,9 @@
           "modules": "commonjs"
         }]
       ],
+      "plugins": [
+        "add-module-exports"
+      ]
     },
     "test": {
       "presets": [
