@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio",
-  "version": "9.4.1-canary.6",
+  "version": "9.4.1-canary.7",
   "description": "Split SDK",
   "files": [
     "README.md",
@@ -23,7 +23,6 @@
     }
   ],
   "main": "lib/index.js",
-  "module": "es/index.js",
   "types": "types",
   "devDependencies": {
     "babel-cli": "6.26.0",
