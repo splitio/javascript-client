@@ -15,10 +15,10 @@ either **CommonJS** or **ES2015** modules, use as you would anything else:
 
 JavaScript
 ```js
-// using an ES6 transpiler, like babel
-import splitio from '@splitsoftware/splitio';
+// using es modules
+import splitio from '@splitsoftware/splitio/es';
 
-// not using an ES6 transpiler
+// using common js
 var splitio = require('@splitsoftware/splitio');
 ```
 
@@ -98,7 +98,8 @@ Update the package.json with the correct value using semver.
 
 #### Building
 
-1. `npm run build-cjs`  => ES5 versions of the code.
+1. `npm run build-es`   => ES5 version of the code with es modules.
+1. `npm run build-cjs`  => ES5 version of the code with commonjs modules.
 1. `npm run build-umd`  => UMD version of the code (development).
 1. `npm run build-min`  => UMD version of the code but minified.
 1. `npm run rebuild`    => All of the above (complete build).
@@ -119,9 +120,9 @@ Then just run the test (you need a redis instance running of course):
 
 > use latest LTS version of NodeJS
 
-`nvm install v6`
+`nvm install v8`
 
-`nvm use v6`
+`nvm use v8`
 
 > Upgrade to latest npm
 
