@@ -15,10 +15,10 @@ either **CommonJS** or **ES2015** modules, use as you would anything else:
 
 JavaScript
 ```js
-// using an ES6 transpiler, like babel
-import splitio from '@splitsoftware/splitio';
+// using es modules
+import splitio from '@splitsoftware/splitio/es';
 
-// not using an ES6 transpiler
+// using common js
 var splitio = require('@splitsoftware/splitio');
 ```
 
