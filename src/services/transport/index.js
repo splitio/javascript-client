@@ -13,13 +13,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-import 'isomorphic-fetch';
+import axios from 'axios';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-services:service');
 
-function Fetcher(request) {
-  return fetch(request).then(resp => {
-    if (resp.ok) {
+export default function Fetcher(request) {
+  return axios(request).then(resp => {
+    if (resp.statusText === 'OK') {
       return resp;
     } else {
       let message = '';
@@ -32,11 +32,9 @@ function Fetcher(request) {
           break;
       }
 
-      log.error(`Response status is not OK. Status: ${resp.status}. URL: ${resp.url}. Message: ${message}`);
+      log.error(`Response status is not OK. Status: ${resp.status}. URL: ${resp.config.url}. Message: ${message}`);
 
       throw Error(`${resp.status} - ${message}`);
     }
   });
 }
-
-export default Fetcher;

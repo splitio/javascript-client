@@ -15,31 +15,29 @@ limitations under the License.
 **/
 import groupBy from 'lodash/groupBy';
 
-export default {
-  fromImpressionsCollector(collector, settings) {
-    const sendLabels = settings.core.labelsEnabled;
-    let groupedByFeature = groupBy(collector.state(), 'feature');
-    let dto = [];
+export function fromImpressionsCollector(collector, settings) {
+  const sendLabels = settings.core.labelsEnabled;
+  let groupedByFeature = groupBy(collector.state(), 'feature');
+  let dto = [];
 
-    for (let name in groupedByFeature) {
-      dto.push({
-        testName: name,
-        keyImpressions: groupedByFeature[name].map(entry => {
-          const keyImpression = {
-            keyName: entry.keyName,
-            treatment: entry.treatment,
-            time: entry.time,
-            changeNumber: entry.changeNumber
-          };
+  for (let name in groupedByFeature) {
+    dto.push({
+      testName: name,
+      keyImpressions: groupedByFeature[name].map(entry => {
+        const keyImpression = {
+          keyName: entry.keyName,
+          treatment: entry.treatment,
+          time: entry.time,
+          changeNumber: entry.changeNumber
+        };
 
-          if (sendLabels) keyImpression.label = entry.label;
-          if (entry.bucketingKey) keyImpression.bucketingKey = entry.bucketingKey;
+        if (sendLabels) keyImpression.label = entry.label;
+        if (entry.bucketingKey) keyImpression.bucketingKey = entry.bucketingKey;
 
-          return keyImpression;
-        })
-      });
-    }
-
-    return dto;
+        return keyImpression;
+      })
+    });
   }
-};
+
+  return dto;
+}

@@ -15,32 +15,30 @@ limitations under the License.
 **/
 import forOwn from 'lodash/forOwn';
 
-export default {
-  fromLatenciesCollector(latenciesCollector) {
-    const result = [];
-    const metrics = latenciesCollector.toJSON();
+export function fromLatenciesCollector(latenciesCollector) {
+  const result = [];
+  const metrics = latenciesCollector.toJSON();
 
-    forOwn(metrics, (latencies, key) => {
-      result.push({
-        name: key,
-        latencies
-      });
+  forOwn(metrics, (latencies, key) => {
+    result.push({
+      name: key,
+      latencies
     });
+  });
 
-    return result;
-  },
+  return result;
+}
 
-  fromCountersCollector(countersCollector) {
-    const result = [];
-    const metrics = countersCollector.toJSON();
+export function fromCountersCollector(countersCollector) {
+  const result = [];
+  const metrics = countersCollector.toJSON();
 
-    forOwn(metrics, (delta, key) => {
-      result.push({
-        name: key,
-        delta
-      });
+  forOwn(metrics, (delta, key) => {
+    result.push({
+      name: key,
+      delta
     });
+  });
 
-    return result;
-  }
-};
+  return result;
+}
