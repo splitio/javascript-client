@@ -31,7 +31,6 @@ const mySegmentsFetcher = (settings, startingUp = false, metricCollectors) => {
 
   // Extract segment names
   return mySegmentsPromise
-  // .then(resp => resp.json())
     .then(resp => resp.data)
     .then(json => json.mySegments.map(segment => segment.name));
 };

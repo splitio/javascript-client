@@ -13,7 +13,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-// import 'isomorphic-fetch';
 import options from './options';
 import isEmpty from 'lodash/isEmpty';
 
@@ -31,14 +30,6 @@ function RequestFactory(settings, relativeUrl, params) {
 
   if (!isEmpty(ip)) headers['SplitSDKMachineIP'] = ip;
   if (!isEmpty(hostname)) headers['SplitSDKMachineName'] = hostname;
-  //
-  // return new Request(settings.url(relativeUrl), Object.assign({
-  //   headers,
-  //   compress: true
-  // },
-  // baseline,
-  // params
-  // ));
 
   return {
     headers,
