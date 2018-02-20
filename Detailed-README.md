@@ -24,6 +24,10 @@ var splitio = require('@splitsoftware/splitio');
 
 TypeScript
 ```typescript
+// using es modules
+import splitio = require('@splitsoftware/splitio/es');
+
+// using common js
 import splitio = require('@splitsoftware/splitio');
 ```
 
