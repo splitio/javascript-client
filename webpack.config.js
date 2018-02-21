@@ -20,7 +20,7 @@ function filename() {
 
 module.exports = {
   entry: {
-    split: ['./src']
+    split: ['./src/umd']
   },
 
   output: {
