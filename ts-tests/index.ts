@@ -11,7 +11,7 @@
  * @author Nico Zelaya <nicolas.zelaya@split.io>
  */
 
-import { SplitFacade } from '@splitsoftware/splitio';
+import { SplitFactory } from '@splitsoftware/splitio';
 
 let stringPromise: Promise<string>;
 let splitViewPromise: Promise<SplitIO.SplitView>;
@@ -125,9 +125,9 @@ browserSettings = {
   }
 };
 // With sync settings should return ISDK, if settings have async storage it should return IAsyncSDK
-SDK = SplitFacade(browserSettings);
-SDK = SplitFacade(nodeSettings);
-AsyncSDK = SplitFacade(asyncSettings);
+SDK = SplitFactory(browserSettings);
+SDK = SplitFactory(nodeSettings);
+AsyncSDK = SplitFactory(asyncSettings);
 
 // The settings values the SDK expose.
 const instantiatedSettingsCore: {
