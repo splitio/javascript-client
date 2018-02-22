@@ -1,5 +1,5 @@
 import tape from 'tape-catch';
-import { SplitFacade } from '../';
+import { SplitFactory } from '../';
 const SDK_INSTANCES_TO_TEST = 4;
 
 tape('NodeJS E2E', function (assert) {
@@ -57,7 +57,7 @@ tape('NodeJS E2E', function (assert) {
 
 
   for(i; i < SDK_INSTANCES_TO_TEST; i++) {
-    const factory = SplitFacade(config);
+    const factory = SplitFactory(config);
     const client = factory.client();
 
     client.ready().then(() => {

@@ -1,4 +1,4 @@
-import { SplitFacade } from '../../';
+import { SplitFactory } from '../../';
 import fetchMock from 'fetch-mock';
 import SettingsFactory from '../../utils/settings';
 const settings = SettingsFactory({
@@ -25,7 +25,7 @@ const baseSettings = {
 };
 
 export function withoutBindingTT(assert) {
-  const splitio = SplitFacade(baseSettings);
+  const splitio = SplitFactory(baseSettings);
   const client = splitio.client();
 
   fetchMock.postOnce(settings.url('/events/bulk'), req => {
@@ -82,7 +82,7 @@ export function withoutBindingTT(assert) {
 export function bindingTT(assert) {
   const localSettings = Object.assign({}, baseSettings);
   localSettings.core.trafficType = 'binded_tt';
-  const splitio = SplitFacade(localSettings);
+  const splitio = SplitFactory(localSettings);
   const client = splitio.client();
 
   fetchMock.postOnce(settings.url('/events/bulk'), req => {

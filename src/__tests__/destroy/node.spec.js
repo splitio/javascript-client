@@ -1,7 +1,7 @@
 import tape from 'tape';
 import map from 'lodash/map';
 import pick from 'lodash/pick';
-import { SplitFacade } from '../../';
+import { SplitFactory } from '../../';
 import fetchMock from 'fetch-mock';
 import SettingsFactory from '../../utils/settings';
 const settings = SettingsFactory({
@@ -30,7 +30,7 @@ tape('SDK destroy for NodeJS', async function (assert) {
     mode: 'standalone'
   };
 
-  const factory = SplitFacade(config);
+  const factory = SplitFactory(config);
   const client = factory.client();
   const manager = factory.manager();
 

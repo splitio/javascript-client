@@ -1,5 +1,5 @@
 import tape from 'tape-catch';
-import { SplitFacade } from '../';
+import { SplitFactory } from '../';
 
 const config = {
   core: {
@@ -18,7 +18,7 @@ const config = {
 
 tape('NodeJS Redis', async function (assert) {
 
-  const sdk = SplitFacade(config);
+  const sdk = SplitFactory(config);
   const client = sdk.client();
 
   assert.equal(await client.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT'), 'on');

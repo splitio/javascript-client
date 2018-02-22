@@ -1,3 +1,3 @@
-import { SplitFacade } from './index';
+import { SplitFactory } from './index';
 
-export default SplitFacade;
+export default SplitFactory;
