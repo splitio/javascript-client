@@ -16,19 +16,19 @@ either **CommonJS** or **ES2015** modules, use as you would anything else:
 JavaScript
 ```js
 // using es modules
-import splitio from '@splitsoftware/splitio/es';
+import { SplitFacade } from '@splitsoftware/splitio';
 
 // using common js
-var splitio = require('@splitsoftware/splitio');
+const { SplitFacade } = require('@splitsoftware/splitio');
 ```
 
 TypeScript
 ```typescript
 // using es modules
-import splitio = require('@splitsoftware/splitio/es');
+import { SplitFacade } from '@splitsoftware/splitio';
 
 // using common js
-import splitio = require('@splitsoftware/splitio');
+import { SplitFacade } = require('@splitsoftware/splitio');
 ```
 
 Using [bower](https://bower.io):
@@ -43,6 +43,41 @@ And finally, the **UMD** build is also available in our **CDN**:
 
 You can find the library on `window.splitio`.
 
+#### Migration v9 to v10
+
+If you are comming from v9 and want to use v10, you should import our
+library in a different way. Since we migrated our source code to ESM we expose
+a new way to import our SDK but our API doesn't change. We want to take
+advantage of the ESM modules and give support to customer using this module system
+in their projects.
+
+Before v10 we expose a function
+```js
+import splitio from '@splitsoftware/splitio';
+
+const sdk = splitio(settings);
+```
+
+In V10 we expose an object with SplitFacade as a factory function to be consumed.
+```js
+import { SplitFacade } from '@splitsoftware/splitio';
+
+const sdk = SplitFacade(settings);
+```
+
+For UMD build we continue exporting the same factory function
+
+```html
+<script src="//cdn.split.io/split-10.0.0.min.js"></script>
+```
+
+```js
+const sdk = window.splitio(settings);
+
+// or
+
+const sdk = splitio(settings);
+```
 
 #### Migration v7 to v8
 

@@ -1,8 +1,7 @@
-## 9.4.1 (Jan XX, 2018)
+## 10 (Feb XX, 2018)
 
+* Migrated source code to es modules.
 * Localhost mode uses fewer dependencies now.
-* Migrated source code to es modules, now there are two differents builds one with
-* cjs modules and another with es modules.
 * Removed flowtype since it was not used anymore.
 * Udpated to last node 8.9.4 LTS.
 * Added package-lock.json.
