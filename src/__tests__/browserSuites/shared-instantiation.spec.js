@@ -1,4 +1,4 @@
-import SplitFactory from '../../';
+import { SplitFacade } from '../../';
 import SettingsFactory from '../../utils/settings';
 const settings = SettingsFactory({
   core: {
@@ -9,7 +9,7 @@ const settings = SettingsFactory({
 import fetchMock from 'fetch-mock';
 
 export default function(startWithTT, assert) {
-  const factory = SplitFactory({
+  const factory = SplitFacade({
     core: {
       authorizationKey: 'dummy',
       key: 'facundo@split.io',

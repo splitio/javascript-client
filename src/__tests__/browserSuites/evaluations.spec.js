@@ -1,4 +1,4 @@
-import SplitFactory from '../../';
+import { SplitFacade } from '../../';
 
 const SDK_INSTANCES_TO_TEST = 4;
 
@@ -249,7 +249,7 @@ export default function(config, assert) {
   };
 
   for(i; i < SDK_INSTANCES_TO_TEST; i++) {
-    let splitio = SplitFactory(config);
+    let splitio = SplitFacade(config);
 
     let client = splitio.client();
 

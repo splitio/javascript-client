@@ -1,5 +1,5 @@
 import tape from 'tape-catch';
-import SplitFactory from '../../';
+import { SplitFacade } from '../../';
 import fetchMock from 'fetch-mock';
 import path from 'path';
 import SettingsFactory from '../../utils/settings';
@@ -36,7 +36,7 @@ tape('NodeJS Offline mode', function (assert) {
     },
     features: path.join(__dirname, '.split')
   };
-  const factory = SplitFactory(config);
+  const factory = SplitFacade(config);
   const client = factory.client();
   // Tracking some events to test they are not flushed.
   client.track('a_key', 'a_tt', 'an_ev_id');

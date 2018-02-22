@@ -1,5 +1,5 @@
 import tape from 'tape';
-import SplitFactory from '../../';
+import { SplitFacade } from '../../';
 import fetchMock from 'fetch-mock';
 import SettingsFactory from '../../utils/settings';
 const settings = SettingsFactory({ core: { key: 'facundo@split.io' }});
@@ -37,7 +37,7 @@ tape('Browser offline mode', function (assert) {
       testing_split: 'on'
     }
   };
-  const factory = SplitFactory(config);
+  const factory = SplitFacade(config);
   const client = factory.client();
   const sharedClient = factory.client('nicolas.zelaya@split.io');
 
