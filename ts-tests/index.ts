@@ -11,7 +11,7 @@
  * @author Nico Zelaya <nicolas.zelaya@split.io>
  */
 
-import SplitFacade = require('@splitsoftware/splitio');
+import { SplitFacade } from '@splitsoftware/splitio';
 
 let stringPromise: Promise<string>;
 let splitViewPromise: Promise<SplitIO.SplitView>;
