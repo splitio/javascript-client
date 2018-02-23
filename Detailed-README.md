@@ -16,19 +16,19 @@ either **CommonJS** or **ES2015** modules, use as you would anything else:
 JavaScript
 ```js
 // using es modules
-import { SplitFacade } from '@splitsoftware/splitio';
+import { SplitFactory } from '@splitsoftware/splitio';
 
 // using common js
-const { SplitFacade } = require('@splitsoftware/splitio');
+const { SplitFactory } = require('@splitsoftware/splitio');
 ```
 
 TypeScript
 ```typescript
 // using es modules
-import { SplitFacade } from '@splitsoftware/splitio';
+import { SplitFactory } from '@splitsoftware/splitio';
 
 // using common js
-import { SplitFacade } = require('@splitsoftware/splitio');
+import { SplitFactory } = require('@splitsoftware/splitio');
 ```
 
 Using [bower](https://bower.io):
@@ -45,11 +45,9 @@ You can find the library on `window.splitio`.
 
 #### Migration v9 to v10
 
-If you are comming from v9 and want to use v10, you should import our
-library in a different way. Since we migrated our source code to ESM we expose
-a new way to import our SDK but our API doesn't change. We want to take
-advantage of the ESM modules and give support to customer using this module system
-in their projects.
+We migrated our source code to ESM and exposed
+a new way to import our SDK to take
+advantage of the ESM modules.
 
 Before v10 we expose a function
 ```js
@@ -58,11 +56,11 @@ import splitio from '@splitsoftware/splitio';
 const sdk = splitio(settings);
 ```
 
-In V10 we expose an object with SplitFacade as a factory function to be consumed.
+In V10 we expose an object with SplitFactory as a factory function to be consumed.
 ```js
-import { SplitFacade } from '@splitsoftware/splitio';
+import { SplitFactory } from '@splitsoftware/splitio';
 
-const sdk = SplitFacade(settings);
+const sdk = SplitFactory(settings);
 ```
 
 For UMD build we continue exporting the same factory function

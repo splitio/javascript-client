@@ -1,6 +1,39 @@
 ## 10 (Feb XX, 2018)
 
 * Migrated source code to es modules.
+
+We migrated our source code to ESM and exposed
+a new way to import our SDK to take
+advantage of the ESM modules.
+
+Before v10 we expose a function
+```js
+import splitio from '@splitsoftware/splitio';
+
+const sdk = splitio(settings);
+```
+
+In V10 we expose an object with SplitFactory as a factory function to be consumed.
+```js
+import { SplitFactory } from '@splitsoftware/splitio';
+
+const sdk = SplitFactory(settings);
+```
+
+For UMD build we continue exporting the same factory function
+
+```html
+<script src="//cdn.split.io/split-10.0.0.min.js"></script>
+```
+
+```js
+const sdk = window.splitio(settings);
+
+// or
+
+const sdk = splitio(settings);
+```
+
 * Localhost mode uses fewer dependencies now.
 * Removed flowtype since it was not used anymore.
 * Udpated to last node 8.9.4 LTS.
