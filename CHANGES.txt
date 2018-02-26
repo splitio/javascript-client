@@ -1,4 +1,4 @@
-## 10 (Feb XX, 2018)
+## 10.0.0 (Feb 26, 2018)
 
 * Migrated source code to es modules.
 * Localhost mode uses fewer dependencies now.
