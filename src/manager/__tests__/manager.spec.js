@@ -1,14 +1,8 @@
-// @flow
-
-'use strict';
-
-const tape = require('tape-catch');
-
-const splitObject: SplitObject = require('./mocks/input');
-const splitView: SplitView = require('./mocks/output');
-
-const Manager = require('../');
-const SplitCacheInMemory = require('../../storage/SplitCache/InMemory');
+import tape from 'tape-catch';
+import splitObject from './mocks/input';
+import splitView from './mocks/output';
+import Manager from '../';
+import SplitCacheInMemory from '../../storage/SplitCache/InMemory';
 
 tape('MANAGER API / In Memory / List all splits', async function(assert) {
   const cache = new SplitCacheInMemory();

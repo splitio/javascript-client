@@ -13,8 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-const thenable = require('../promise/thenable');
-const constants = require('./constants');
+import thenable from '../promise/thenable';
+
+import constants from './constants';
 
 class Context {
   constructor() {
@@ -78,4 +79,4 @@ class Context {
   }
 }
 
-module.exports = Context;
+export default Context;

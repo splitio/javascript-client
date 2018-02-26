@@ -14,37 +14,34 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-'use strict';
-
-const segmentChangesService = require('../../services/segmentChanges');
-const segmentChangesRequest = require('../../services/segmentChanges/get');
-
-const tracker = require('../../utils/timeTracker');
-const startsWith = require('lodash/startsWith');
+import segmentChangesService from '../../services/segmentChanges';
+import segmentChangesRequest from '../../services/segmentChanges/get';
+import tracker from '../../utils/timeTracker';
+import startsWith from 'lodash/startsWith';
 
 function greedyFetch(settings, lastSinceValue, segmentName, metricCollectors) {
   return tracker.start(tracker.TaskNames.SEGMENTS_FETCH, metricCollectors, segmentChangesService(segmentChangesRequest(settings, {
     since: lastSinceValue,
     segmentName
   })))
-  .then(resp => resp.json())
-  .then(json => {
-    let {since, till} = json;
-    if (since === till) {
-      return [json];
-    } else {
-      return Promise.all([json, greedyFetch(settings, till, segmentName)]).then(flatMe => {
-        return [flatMe[0], ...flatMe[1]];
-      });
-    }
-  })
-  .catch(err => {
+    .then(resp => resp.json())
+    .then(json => {
+      let {since, till} = json;
+      if (since === till) {
+        return [json];
+      } else {
+        return Promise.all([json, greedyFetch(settings, till, segmentName)]).then(flatMe => {
+          return [flatMe[0], ...flatMe[1]];
+        });
+      }
+    })
+    .catch(err => {
     // If the operation is forbidden it may be due to permissions, don't recover.
-    if (startsWith(err.message, '403')) throw err;
-    // if something goes wrong with the request to the server, we are going to
-    // stop requesting information till the next round of downloading
-    return [];
-  });
+      if (startsWith(err.message, '403')) throw err;
+      // if something goes wrong with the request to the server, we are going to
+      // stop requesting information till the next round of downloading
+      return [];
+    });
 }
 
 // @TODO migrate to a generator function and do the job incrementally
@@ -52,5 +49,4 @@ function segmentChangesFetcher(settings, segmentName, since, metricCollectors) {
   return greedyFetch(settings, since, segmentName, metricCollectors);
 }
 
-module.exports = segmentChangesFetcher;
-module.exports.greedyFetch = greedyFetch;
+export default segmentChangesFetcher;

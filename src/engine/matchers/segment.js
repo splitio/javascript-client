@@ -13,14 +13,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-'use strict';
+import logFactory from '../../utils/logger';
+const log = logFactory('splitio-engine:matcher');
+import thenable from '../../utils/promise/thenable';
 
-const log = require('../../utils/logger')('splitio-engine:matcher');
-const thenable = require('../../utils/promise/thenable');
+function matcherSegmentContext(segmentName, storage) {
 
-function matcherSegmentContext(segmentName: string, storage: SplitStorage) {
-
-  function segmentMatcher(key: ?string): AsyncValue<boolean> {
+  function segmentMatcher(key) {
     const isInSegment = storage.segments.isInSegment(segmentName, key);
 
     if (thenable(isInSegment)) {
@@ -39,4 +38,4 @@ function matcherSegmentContext(segmentName: string, storage: SplitStorage) {
   return segmentMatcher;
 }
 
-module.exports = matcherSegmentContext;
+export default matcherSegmentContext;

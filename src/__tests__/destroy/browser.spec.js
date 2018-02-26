@@ -1,22 +1,19 @@
-const tape = require('tape');
-const map = require('lodash/map');
-const pick = require('lodash/pick');
-
-const SplitFactory = require('../../');
-
-const fetchMock = require('fetch-mock');
-
-const SettingsFactory = require('../../utils/settings');
+import tape from 'tape';
+import map from 'lodash/map';
+import pick from 'lodash/pick';
+import { SplitFactory } from '../../';
+import fetchMock from 'fetch-mock';
+import SettingsFactory from '../../utils/settings';
 const settings = SettingsFactory({
   core: {
     key: 'facundo@split.io'
   }
 });
 
-const splitChangesMock1 = require('./splitChanges.since.-1.json');
-const splitChangesMock2 = require('./splitChanges.since.1500492097547.json');
-const mySegmentsMock = require('./mySegments.json');
-const impressionsMock = require('./impressions.json');
+import splitChangesMock1 from './splitChanges.since.-1.json';
+import splitChangesMock2 from './splitChanges.since.1500492097547.json';
+import mySegmentsMock from './mySegments.json';
+import impressionsMock from './impressions.json';
 
 const delayResponse = mock => {
   return new Promise(res => setTimeout(res, 0)).then(() => mock);

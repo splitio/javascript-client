@@ -13,11 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-'use strict';
+import base from '../request';
+import { matching } from '../../utils/key/factory';
 
-const base = require('../request');
-const { matching } = require('../../utils/key/factory');
-
-module.exports = function GET(settings) {
+export default function GET(settings) {
   return base(settings, `/mySegments/${matching(settings.core.key)}`);
-};
+}

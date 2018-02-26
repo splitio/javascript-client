@@ -13,12 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-// @flow
 
-'use strict';
-
-const tape = require('tape-catch');
-const andCombiner = require('../../combiners/and');
+import tape from 'tape-catch';
+import andCombiner from '../../combiners/and';
 
 tape('COMBINER AND / should always return true', async function (assert) {
 

@@ -1,11 +1,4 @@
-'use strict';
-
-const {
-  LOCALHOST_MODE,
-  STANDALONE_MODE,
-  PRODUCER_MODE,
-  CONSUMER_MODE
-} = require('../constants');
+import { LOCALHOST_MODE, STANDALONE_MODE, PRODUCER_MODE, CONSUMER_MODE } from '../constants';
 
 function mode(key, mode) {
   // Leaving the comparison as is, in case we change the mode name but not the setting.
@@ -16,4 +9,4 @@ function mode(key, mode) {
   return mode;
 }
 
-module.exports = mode;
+export default mode;

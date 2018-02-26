@@ -20,7 +20,7 @@ class MetricsCollector {
   }
 }
 
-class SegmentChangesCollector extends MetricsCollector {
+export class SegmentChangesCollector extends MetricsCollector {
   constructor(storage) {
     super(storage);
 
@@ -28,7 +28,7 @@ class SegmentChangesCollector extends MetricsCollector {
   }
 }
 
-class SplitChangesCollector extends MetricsCollector {
+export class SplitChangesCollector extends MetricsCollector {
   constructor(storage) {
     super(storage);
 
@@ -36,7 +36,7 @@ class SplitChangesCollector extends MetricsCollector {
   }
 }
 
-class MySegmentsCollector extends MetricsCollector {
+export class MySegmentsCollector extends MetricsCollector {
   constructor(storage) {
     super(storage);
 
@@ -44,7 +44,7 @@ class MySegmentsCollector extends MetricsCollector {
   }
 }
 
-class SDKCollector {
+export class SDKCollector {
   constructor(storage) {
     this.storage = storage;
 
@@ -60,10 +60,3 @@ class SDKCollector {
     this.storage.metrics.track('sdk.getTreatment', ms);
   }
 }
-
-module.exports = {
-  SegmentChangesCollector,
-  SplitChangesCollector,
-  MySegmentsCollector,
-  SDKCollector
-};

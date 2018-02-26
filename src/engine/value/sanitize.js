@@ -14,35 +14,27 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-// @flow
+import logFactory from '../../utils/logger';
+const log = logFactory('splitio-engine:sanitize');
+import isArray from 'lodash/isArray';
+import isObject from 'lodash/isObject';
+import uniq from 'lodash/uniq';
+import toString from 'lodash/toString';
+import toNumber from 'lodash/toNumber';
+import { zeroSinceHH, zeroSinceSS } from '../convertions';
+import {
+  types as matcherTypes,
+  dataTypes as matcherDataTypes
+} from '../matchers/types';
+const MATCHERS = matcherTypes;
+const DATA_TYPES = matcherDataTypes;
 
-'use strict';
-
-const log = require('../../utils/logger')('splitio-engine:sanitize');
-
-const isArray = require('lodash/isArray');
-const isObject = require('lodash/isObject');
-const uniq = require('lodash/uniq');
-const toString = require('lodash/toString');
-const toNumber = require('lodash/toNumber');
-
-const {
-  date: {
-    zeroSinceHH,
-    zeroSinceSS
-  }
-} = require('../convertions');
-
-const matcherTypes = require('../matchers/types');
-const MATCHERS = matcherTypes.enum;
-const DATA_TYPES = matcherTypes.dataTypes;
-
-function sanitizeNumber(val): ?number {
+function sanitizeNumber(val) {
   const num = toNumber(val);
   return isNaN(num) ? undefined : num;
 }
 
-function sanitizeString(val): ?string {
+function sanitizeString(val) {
   let valueToSanitize = val;
 
   if (isObject(val)) {
@@ -54,7 +46,7 @@ function sanitizeString(val): ?string {
   return str ? str : undefined;
 }
 
-function sanitizeArray(val): ?Array<string> {
+function sanitizeArray(val) {
   const arr = isArray(val) ? uniq(val.map(e => e + '')) : [];
   return arr.length ? arr : undefined;
 }
@@ -82,7 +74,7 @@ function dependencyProcessor(sanitizedValue, attributes) {
 /**
  * We can define a pre-processing for the value, to be executed prior to matcher evaluation.
  */
-function getProcessingFunction(matcherTypeID: number, dataType?: string): ?Function {
+function getProcessingFunction(matcherTypeID, dataType) {
   switch (matcherTypeID) {
     case MATCHERS.EQUAL_TO:
       return dataType === 'DATETIME' ? zeroSinceHH : undefined;
@@ -97,7 +89,7 @@ function getProcessingFunction(matcherTypeID: number, dataType?: string): ?Funct
   }
 }
 
-function sanitizeValue(matcherTypeID: number, value: any, dataType: string, attributes?: Object): any {
+function sanitizeValue(matcherTypeID, value, dataType, attributes) {
   const processor = getProcessingFunction(matcherTypeID, dataType);
   let sanitizedValue;
 
@@ -131,4 +123,4 @@ function sanitizeValue(matcherTypeID: number, value: any, dataType: string, attr
   return sanitizedValue;
 }
 
-module.exports = sanitizeValue;
+export default sanitizeValue;

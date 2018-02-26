@@ -1,4 +1,4 @@
-const utfx = require('utfx');
+import utfx from 'utfx';
 
 const stringSource = utfx.stringSource;
 const stringDestination = utfx.stringDestination;
@@ -8,8 +8,8 @@ function UTF16ToUTF8(key) {
   let sd;
 
   encodeUTF16toUTF8(
-      stringSource(key),
-      sd = stringDestination()
+    stringSource(key),
+    sd = stringDestination()
   );
 
   return sd();
@@ -96,7 +96,6 @@ function hash32(key, seed) {
   switch (remainder) {
     case 3:
       k1 ^= (key.charCodeAt(i + 2) & 0xff) << 16;
-
     case 2:
       k1 ^= (key.charCodeAt(i + 1) & 0xff) << 8;
 
@@ -122,7 +121,7 @@ function bucket(str /*: string */, seed /*: number */) /*: number */ {
   return Math.abs(hash(str, seed) % 100) + 1;
 }
 
-module.exports = {
+export default {
   hash,
   bucket
 };

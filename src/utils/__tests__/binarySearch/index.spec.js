@@ -13,10 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-'use strict';
-
-const tape = require('tape-catch');
-const bs = require('../../binarySearch');
+import tape from 'tape-catch';
+import bs from '../../binarySearch';
 
 tape('BINARY SEARCH / given [1,3,5,7,10] as dataset look for several elements', assert => {
   let searchFor = bs.bind(null, [1, 3, 5, 7, 10]);

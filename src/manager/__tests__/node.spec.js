@@ -1,19 +1,11 @@
-// @flow
-
-'use strict';
-
-const tape = require('tape-catch');
-const Redis = require('ioredis');
-
-const splitObject: SplitObject = require('./mocks/input');
-const splitView: SplitView = require('./mocks/output');
-
-const Manager = require('../');
-const SplitCacheInRedis = require('../../storage/SplitCache/InRedis');
-
-const KeyBuilder = require('../../storage/Keys');
-
-const SettingsFactory = require('../../utils/settings');
+import tape from 'tape-catch';
+import Redis from 'ioredis';
+import splitObject from './mocks/input';
+import splitView from './mocks/output';
+import Manager from '../';
+import SplitCacheInRedis from '../../storage/SplitCache/InRedis';
+import KeyBuilder from '../../storage/Keys';
+import SettingsFactory from '../../utils/settings';
 const settings = SettingsFactory({
   storage: {
     type: 'REDIS'

@@ -14,12 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-'use strict';
-
-const uniqueId = require('lodash/uniqueId');
-const Logger = require('logplease');
-const timer = require('./timer');
-const thenable = require('../promise/thenable');
+import uniqueId from 'lodash/uniqueId';
+import Logger from 'logplease';
+import timer from './timer';
+import thenable from '../promise/thenable';
 
 // logger to be used on this module
 const logger = Logger.create('[TIME TRACKER]', {
@@ -115,13 +113,13 @@ const TrackerAPI = {
 
       return resp;
     })
-    .catch(err => {
-      this.stop(task, modifier);
+      .catch(err => {
+        this.stop(task, modifier);
 
-      if (collector && collector.countException) collector.countException();
+        if (collector && collector.countException) collector.countException();
 
-      throw err;
-    });
+        throw err;
+      });
   },
   /**
    * Starts tracking the time for a given task. All tasks tracked are considered "unique" because
@@ -208,4 +206,4 @@ const TrackerAPI = {
 };
 
 // Our "time tracker" API
-module.exports = TrackerAPI;
+export default TrackerAPI;

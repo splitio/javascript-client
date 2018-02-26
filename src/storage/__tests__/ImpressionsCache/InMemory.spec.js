@@ -13,10 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-'use strict';
-
-const tape = require('tape-catch');
-const ImpressionsCacheInMemory = require('../../ImpressionsCache/InMemory');
+import tape from 'tape-catch';
+import ImpressionsCacheInMemory from '../../ImpressionsCache/InMemory';
 
 tape('IMPRESSIONS CACHE IN MEMORY / should incrementally store values', assert => {
   const c = new ImpressionsCacheInMemory;

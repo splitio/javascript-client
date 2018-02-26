@@ -1,39 +1,18 @@
 import { setTimeout } from 'core-js/library/web/timers';
 
-/**
-Copyright 2016 Split Software
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-**/
-
-'use strict';
-
-const log = require('../utils/logger')('splitio-events');
-const tracker = require('../utils/timeTracker');
-const { LOCALHOST_MODE } = require('../utils/constants');
-
-const repeat = require('../utils/fn/repeat');
-
-const eventsService = require('../services/events');
-const eventsBulkRequest = require('../services/events/bulk');
+import logFactory from '../utils/logger';
+const log = logFactory('splitio-events');
+import tracker from '../utils/timeTracker';
+import repeat from '../utils/fn/repeat';
+import eventsService from '../services/events';
+import eventsBulkRequest from '../services/events/bulk';
 
 const EventsFactory = context => {
   const settings = context.get(context.constants.SETTINGS);
   const storage = context.get(context.constants.STORAGE);
-  const isLocalhostMode = settings.mode === LOCALHOST_MODE;
 
   const pushEvents = () => {
-    if (isLocalhostMode || storage.events.isEmpty()) return Promise.resolve();
+    if (storage.events.isEmpty()) return Promise.resolve();
 
     log.info(`Pushing ${storage.events.state().length} queued events.`);
     const latencyTrackerStop = tracker.start(tracker.TaskNames.EVENTS_PUSH);
@@ -79,4 +58,4 @@ const EventsFactory = context => {
   };
 };
 
-module.exports = EventsFactory;
+export default EventsFactory;

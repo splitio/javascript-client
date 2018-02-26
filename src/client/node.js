@@ -1,1 +1,3 @@
-module.exports = require('./client');
+import ClientFactory from './client';
+
+export default ClientFactory;

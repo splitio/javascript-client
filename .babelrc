@@ -1,17 +1,53 @@
 {
   "presets": [
-    "env",
-    "flow"
+    ["env", {
+      "modules": false
+    }]
   ],
 
   "plugins": [
-    "syntax-object-rest-spread",    // usage of ... in objects
-    "transform-object-rest-spread", // usage of ... in objects
-    "transform-runtime"             // automatic polyfilling
+    "syntax-object-rest-spread",         // usage of ... in objects
+    "transform-object-rest-spread",      // usage of ... in objects
+    "transform-runtime"                  // automatic polyfilling
   ],
 
   "env": {
+    "cjs": {
+      "presets": [
+        ["env", {
+          "modules": "commonjs"
+        }]
+      ],
+      "plugins": [
+        "add-module-exports"
+      ]
+    },
+    "development": {
+      "presets": [
+        ["env", {
+          "modules": "commonjs"
+        }]
+      ],
+      "plugins": [
+        "add-module-exports"
+      ]
+    },
+    "production": {
+      "presets": [
+        ["env", {
+          "modules": "commonjs"
+        }]
+      ],
+      "plugins": [
+        "add-module-exports"
+      ]
+    },
     "test": {
+      "presets": [
+        ["env", {
+          "modules": "commonjs"
+        }]
+      ],
       "plugins": [
         ["istanbul", {
           "exclude": [

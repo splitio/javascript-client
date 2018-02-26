@@ -14,14 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-// @flow
+import TaskFactory from '../task';
+import FromFeaturesUpdater from '../updater/SplitChangesFromFeatures';
 
-'use strict';
-
-const TaskFactory = require('../task');
-const FromFeaturesUpdater = require('../updater/SplitChangesFromFeatures');
-
-const OfflineFeatureProducer = (context): Startable => {
+const OfflineFeatureProducer = (context) => {
   const settings = context.get(context.constants.SETTINGS);
   const updater = FromFeaturesUpdater(context);
   const updaterTask = TaskFactory(updater, settings.scheduler.offlineRefreshRate);
@@ -29,4 +25,4 @@ const OfflineFeatureProducer = (context): Startable => {
   return updaterTask;
 };
 
-module.exports = OfflineFeatureProducer;
+export default OfflineFeatureProducer;

@@ -14,12 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-// @flow
+import osFunction from 'os';
+import ipFunction from 'ip';
 
-'use strict';
-
-const os = require('os');
-const ip = require('ip');
-
-exports.ip = ip.address();
-exports.hostname = os.hostname();
+export const ip = ipFunction.address();
+export const hostname = osFunction.hostname();

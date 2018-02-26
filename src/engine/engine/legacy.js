@@ -13,8 +13,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-'use strict';
-
 //
 // JAVA reference implementation for the hashing function.
 //
@@ -62,7 +60,7 @@ function bucket(str /*: string */, seed /*: number */) /*: number */ {
   return Math.abs(hash(str, seed) % 100) + 1;
 }
 
-module.exports = {
+export default {
   hash,
   bucket
 };

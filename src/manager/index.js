@@ -1,19 +1,15 @@
-// @flow
+import thenable from '../utils/promise/thenable';
+import find from 'lodash/find';
 
-'use strict';
-
-const thenable = require('../utils/promise/thenable');
-const find = require('lodash/find');
-
-const collectTreatments = (conditions): Array<string> => {
+const collectTreatments = (conditions) => {
   // Rollout conditions are supposed to have the entire partitions list, so we find the first one.
   const firstRolloutCondition = find(conditions, (cond) => cond.conditionType === 'ROLLOUT');
   // Then extract the treatments from the partitions
   return firstRolloutCondition ? firstRolloutCondition.partitions.map(v => v.treatment) : [];
 };
 
-const ObjectToView = (json: string): ?SplitView => {
-  let splitObject: SplitObject;
+const ObjectToView = (json) => {
+  let splitObject;
 
   try {
     splitObject = JSON.parse(json);
@@ -32,7 +28,7 @@ const ObjectToView = (json: string): ?SplitView => {
   };
 };
 
-const ObjectsToViews = (jsons: Array<string>): Array<SplitView> => {
+const ObjectsToViews = (jsons) => {
   let views = [];
 
   for (let split of jsons) {
@@ -43,28 +39,28 @@ const ObjectsToViews = (jsons: Array<string>): Array<SplitView> => {
   return views;
 };
 
-const SplitManagerFactory = (splits: SplitCache): SplitManager => {
+const SplitManagerFactory = (splits) => {
 
   return {
-    split(splitName: string): ?SplitView {
+    split(splitName) {
       const split = splits.getSplit(splitName);
 
       if (thenable(split)) return split.then(result => ObjectToView(result));
       return ObjectToView(split);
     },
 
-    splits(): Array<SplitView> {
+    splits() {
       const currentSplits = splits.getAll();
 
       if (thenable(currentSplits)) return currentSplits.then(ObjectsToViews);
       return ObjectsToViews(currentSplits);
     },
 
-    names(): Array<string> {
+    names() {
       return splits.getKeys();
     }
   };
 
 };
 
-module.exports = SplitManagerFactory;
+export default SplitManagerFactory;

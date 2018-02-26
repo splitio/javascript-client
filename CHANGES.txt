@@ -1,3 +1,12 @@
+## 10.0.0 (Feb 26, 2018)
+
+* Migrated source code to es modules.
+* Localhost mode uses fewer dependencies now.
+* Removed flowtype since it was not used anymore.
+* Udpated to last node LTS.
+* Added package-lock.json.
+* Fixed eslint configuration.
+
 ## 9.4.0 (Jan 12, 2018)
 
 * Adding support for client.track method, for tracking custom events.

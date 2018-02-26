@@ -14,14 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-'use strict';
-
-require('core-js/es6/promise');
-require('isomorphic-fetch');
-
-const tape = require('tape');
-const matcherTypes = require('../../../matchers/types').enum;
-const matcherFactory = require('../../../matchers');
+import 'core-js/es6/promise';
+import 'isomorphic-fetch';
+import tape from 'tape';
+import { types as matcherTypes } from '../../../matchers/types';
+import matcherFactory from '../../../matchers';
 
 tape('MATCHER REGEX / validate regex behavior using sample data', assert => {
   fetch('/base/engine/__tests__/matchers/mocks/regex.txt')

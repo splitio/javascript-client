@@ -13,18 +13,18 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-'use strict';
-
 // @TODO
 // 1- handle multiple protocols automatically
 // 2- destroy it once the sdk is destroyed
-const https = require('https');
+import https from 'https';
 
 const agent = new https.Agent({
   keepAlive: true,
   keepAliveMsecs: 1500
 });
 
-module.exports = {
-  agent
-};
+export default function() {
+  return {
+    agent
+  };
+}

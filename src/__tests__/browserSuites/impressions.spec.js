@@ -1,17 +1,13 @@
-'use strict';
-
-const SplitFactory = require('../../');
-
-const fetchMock = require('fetch-mock');
-
-const SettingsFactory = require('../../utils/settings');
+import { SplitFactory } from '../../';
+import fetchMock from 'fetch-mock';
+import SettingsFactory from '../../utils/settings';
 const settings = SettingsFactory({
   core: {
     key: 'asd'
   }
 });
 
-module.exports = function(assert) {
+export default function(assert) {
 
   const splitio = SplitFactory({
     core: {
@@ -64,4 +60,4 @@ module.exports = function(assert) {
     // depends on hierarchical_dep_hierarchical which depends on hierarchical_dep_always_on
     assert.equal(client.getTreatment('hierarchical_splits_test'), 'on', 'We should get an evaluation as always.');
   });
-};
+}

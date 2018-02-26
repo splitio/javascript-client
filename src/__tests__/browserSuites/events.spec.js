@@ -1,10 +1,6 @@
-'use strict';
-
-const SplitFactory = require('../../');
-
-const fetchMock = require('fetch-mock');
-
-const SettingsFactory = require('../../utils/settings');
+import { SplitFactory } from '../../';
+import fetchMock from 'fetch-mock';
+import SettingsFactory from '../../utils/settings';
 const settings = SettingsFactory({
   core: {
     key: 'asd'
@@ -28,7 +24,7 @@ const baseSettings = {
   }
 };
 
-function withoutBindingTT(assert) {
+export function withoutBindingTT(assert) {
   const splitio = SplitFactory(baseSettings);
   const client = splitio.client();
 
@@ -83,7 +79,7 @@ function withoutBindingTT(assert) {
   assert.notOk(client.track('asd', 20, 'trafficType'), 'client.track returns false if an event data was incorrect and it could not be added to the queue.');
 }
 
-function bindingTT(assert) {
+export function bindingTT(assert) {
   const localSettings = Object.assign({}, baseSettings);
   localSettings.core.trafficType = 'binded_tt';
   const splitio = SplitFactory(localSettings);
@@ -139,8 +135,3 @@ function bindingTT(assert) {
   assert.notOk(client.track(), 'client.track returns false if an event data was incorrect and it could not be added to the queue.');
   assert.notOk(client.track(10, 'someTrafficType', 'someEvent'), 'client.track returns false if an event data was incorrect and it could not be added to the queue.');
 }
-
-module.exports = {
-  withoutBindingTT,
-  bindingTT
-};

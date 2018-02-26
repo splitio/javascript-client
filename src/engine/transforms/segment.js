@@ -13,13 +13,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-'use strict';
-
 /**
  * Extract segment name as a plain string.
  */
-function transform(segment = {} /*: object */) /*: string */ {
+function transform(segment = {}) {
   return segment.segmentName;
 }
 
-module.exports = transform;
+export default transform;

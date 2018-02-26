@@ -1,12 +1,6 @@
-// @flow
-
-'use strict';
-
 class SegmentCacheInMemory {
-  segmentCache: Map<string, boolean>;
-  keys: KeyBuilder;
 
-  constructor(keys: KeyBuilder) {
+  constructor(keys) {
     this.keys = keys;
     this.flush();
   }
@@ -15,7 +9,7 @@ class SegmentCacheInMemory {
     this.segmentCache = new Map();
   }
 
-  addToSegment(segmentName: string/*, segmentKeys: Array<string>*/): boolean {
+  addToSegment(segmentName/*, segmentKeys: Array<string>*/) {
     const segmentKey = this.keys.buildSegmentNameKey(segmentName);
 
     this.segmentCache.set(segmentKey, true);
@@ -23,7 +17,7 @@ class SegmentCacheInMemory {
     return true;
   }
 
-  removeFromSegment(segmentName: string/*, segmentKeys: Array<string>*/): boolean {
+  removeFromSegment(segmentName/*, segmentKeys: Array<string>*/) {
     const segmentKey = this.keys.buildSegmentNameKey(segmentName);
 
     this.segmentCache.delete(segmentKey);
@@ -33,7 +27,7 @@ class SegmentCacheInMemory {
 
   // @NOTE based on the way we use segments in the browser, this way is the best
   //       option
-  resetSegments(segmentNames: Array<string>) {
+  resetSegments(segmentNames) {
     let isDiff = false;
     let index;
     let s;
@@ -52,7 +46,9 @@ class SegmentCacheInMemory {
       }
     } else {
       // Slowest path => we need to find at least 1 difference because
-      for(index = 0; index < segmentNames.length && this.isInSegment(segmentNames[index]); index++) {}
+      for(index = 0; index < segmentNames.length && this.isInSegment(segmentNames[index]); index++) {
+        // TODO: why empty statement?
+      }
 
       if (index < segmentNames.length) {
         isDiff = true;
@@ -67,31 +63,31 @@ class SegmentCacheInMemory {
     return isDiff;
   }
 
-  isInSegment(segmentName: string/*, key: string*/): boolean {
-    const segmentKey: string = this.keys.buildSegmentNameKey(segmentName);
+  isInSegment(segmentName/*, key: string*/) {
+    const segmentKey = this.keys.buildSegmentNameKey(segmentName);
 
     return this.segmentCache.get(segmentKey) === true;
   }
 
-  setChangeNumber(/*segmentName: string, changeNumber: number*/): boolean {
+  setChangeNumber(/*segmentName: string, changeNumber: number*/) {
     return true;
   }
 
-  getChangeNumber(/*segmentName: string*/): number {
+  getChangeNumber(/*segmentName: string*/) {
     return -1;
   }
 
-  registerSegment(/*segment: string*/): boolean {
+  registerSegment(/*segment: string*/) {
     return false;
   }
 
-  registerSegments(/*segments: Iterable<string>*/): boolean {
+  registerSegments(/*segments: Iterable<string>*/) {
     return false;
   }
 
-  getRegisteredSegments(): Iterable<string> {
+  getRegisteredSegments() {
     return [];
   }
 }
 
-module.exports = SegmentCacheInMemory;
+export default SegmentCacheInMemory;

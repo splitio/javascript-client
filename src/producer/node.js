@@ -14,20 +14,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-// @flow
-
-'use strict';
-
-const log = require('../utils/logger')('splitio-producer:updater');
-const repeat = require('../utils/fn/repeat');
-
-const SplitChangesUpdater = require('./updater/SplitChanges');
-const SegmentChangesUpdater = require('./updater/SegmentChanges');
+import logFactory from '../utils/logger';
+const log = logFactory('splitio-producer:updater');
+import repeat from '../utils/fn/repeat';
+import SplitChangesUpdater from './updater/SplitChanges';
+import SegmentChangesUpdater from './updater/SegmentChanges';
 
 /**
  * Expose start / stop mechanism for pulling data from services.
  */
-const NodeUpdater = (context): Startable => {
+const NodeUpdater = (context) => {
   const splitsUpdater = SplitChangesUpdater(context, true /* tell split updater we are in node */);
   const segmentsUpdater = SegmentChangesUpdater(context);
   const settings = context.get(context.constants.SETTINGS);
@@ -86,4 +82,4 @@ const NodeUpdater = (context): Startable => {
   };
 };
 
-module.exports = NodeUpdater;
+export default NodeUpdater;

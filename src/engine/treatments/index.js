@@ -13,18 +13,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-// @flow
-
-'use strict';
 
 //
 // [1] Transpilation process is not doing a good job infering which "polyfills"
 // are required at runtime, so we end doing this kind of lodash style expressions
 // using core-js.
 //
-const findIndex = require('core-js/library/fn/array/find-index');
+import findIndex from 'core-js/library/fn/array/find-index';
 
-function Treatments(ranges: Array<number>, treatments: Array<string>) {
+function Treatments(ranges, treatments) {
   if (!(this instanceof Treatments)) {
     return new Treatments(ranges, treatments);
   }
@@ -37,7 +34,7 @@ function Treatments(ranges: Array<number>, treatments: Array<string>) {
   this._treatments = treatments;
 }
 
-Treatments.parse = function parse(data: Array<Partition>): Treatments {
+Treatments.parse = function parse(data) {
   let {ranges, treatments} = data.reduce((accum, value) => {
     let {size, treatment} = value;
 
@@ -54,7 +51,7 @@ Treatments.parse = function parse(data: Array<Partition>): Treatments {
   return new Treatments(ranges, treatments);
 };
 
-Treatments.prototype.getTreatmentFor = function getTreatmentFor(x: number): string {
+Treatments.prototype.getTreatmentFor = function getTreatmentFor(x) {
   if (x < 0 || x > 100) {
     throw new RangeError('Please provide a value between 0 and 100');
   }
@@ -72,4 +69,4 @@ Treatments.prototype.getTreatmentFor = function getTreatmentFor(x: number): stri
   return treatment;
 };
 
-module.exports = Treatments;
+export default Treatments;

@@ -13,11 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-'use strict';
-
-const _ = require('lodash');
-const tape = require('tape-catch');
-const SettingsFactory = require('../../settings');
+import _ from 'lodash';
+import tape from 'tape-catch';
+import SettingsFactory from '../../settings';
 
 tape('SETTINGS / check defaults', assert => {
   const settings = SettingsFactory({

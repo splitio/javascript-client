@@ -15,16 +15,20 @@ either **CommonJS** or **ES2015** modules, use as you would anything else:
 
 JavaScript
 ```js
-// using an ES6 transpiler, like babel
-import splitio from '@splitsoftware/splitio';
+// using es modules
+import { SplitFactory } from '@splitsoftware/splitio';
 
-// not using an ES6 transpiler
-var splitio = require('@splitsoftware/splitio');
+// using common js
+const { SplitFactory } = require('@splitsoftware/splitio');
 ```
 
 TypeScript
 ```typescript
-import splitio = require('@splitsoftware/splitio');
+// using es modules
+import { SplitFactory } from '@splitsoftware/splitio';
+
+// using common js
+import { SplitFactory } = require('@splitsoftware/splitio');
 ```
 
 Using [bower](https://bower.io):
@@ -39,6 +43,39 @@ And finally, the **UMD** build is also available in our **CDN**:
 
 You can find the library on `window.splitio`.
 
+#### Migration v9 to v10
+
+We migrated our source code to ESM and exposed
+a new way to import our SDK to take
+advantage of the ESM modules.
+
+Before v10 we expose a function
+```js
+import splitio from '@splitsoftware/splitio';
+
+const sdk = splitio(settings);
+```
+
+In V10 we expose an object with SplitFactory as a factory function to be consumed.
+```js
+import { SplitFactory } from '@splitsoftware/splitio';
+
+const sdk = SplitFactory(settings);
+```
+
+For UMD build we continue exporting the same factory function
+
+```html
+<script src="//cdn.split.io/split-10.0.0.min.js"></script>
+```
+
+```js
+const sdk = window.splitio(settings);
+
+// or
+
+const sdk = splitio(settings);
+```
 
 #### Migration v7 to v8
 
@@ -98,7 +135,8 @@ Update the package.json with the correct value using semver.
 
 #### Building
 
-1. `npm run build-cjs`  => ES5 versions of the code.
+1. `npm run build-es`   => ES5 version of the code with es modules.
+1. `npm run build-cjs`  => ES5 version of the code with commonjs modules.
 1. `npm run build-umd`  => UMD version of the code (development).
 1. `npm run build-min`  => UMD version of the code but minified.
 1. `npm run rebuild`    => All of the above (complete build).
@@ -119,9 +157,9 @@ Then just run the test (you need a redis instance running of course):
 
 > use latest LTS version of NodeJS
 
-`nvm install v6`
+`nvm install v8`
 
-`nvm use v6`
+`nvm use v8`
 
 > Upgrade to latest npm
 

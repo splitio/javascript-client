@@ -13,13 +13,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-// @flow
 
-'use strict';
-
-const findIndex = require('core-js/library/fn/array/find-index');
-const log = require('../../utils/logger')('splitio-engine:combiner');
-const thenable = require('../../utils/promise/thenable');
+import findIndex from 'core-js/library/fn/array/find-index';
+import logFactory from '../../utils/logger';
+const log = logFactory('splitio-engine:combiner');
+import thenable from '../../utils/promise/thenable';
 
 function andResults(results) {
   let i = 0;
@@ -38,9 +36,9 @@ function andResults(results) {
   return hasMatchedAll;
 }
 
-function andCombinerContext(matchers: Array<Function>): Function {
+function andCombinerContext(matchers) {
 
-  function andCombiner(...params): AsyncValue<boolean> {
+  function andCombiner(...params) {
     const matcherResults = matchers.map(matcher => matcher(...params));
 
     // If any matching result is a thenable we should use Promise.all
@@ -54,4 +52,4 @@ function andCombinerContext(matchers: Array<Function>): Function {
   return andCombiner;
 }
 
-module.exports = andCombinerContext;
+export default andCombinerContext;

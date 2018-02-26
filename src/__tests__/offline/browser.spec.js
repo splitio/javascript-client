@@ -1,11 +1,7 @@
-// @flow
-
-'use strict';
-
-const tape = require('tape');
-const SplitFactory = require('../../');
-const fetchMock = require('fetch-mock');
-const SettingsFactory = require('../../utils/settings');
+import tape from 'tape';
+import { SplitFactory } from '../../';
+import fetchMock from 'fetch-mock';
+import SettingsFactory from '../../utils/settings';
 const settings = SettingsFactory({ core: { key: 'facundo@split.io' }});
 
 const delayResponse = () => new Promise(res => setTimeout(res, 0)).then(() => 'mock');

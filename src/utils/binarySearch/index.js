@@ -13,9 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-'use strict';
-
-function bs(items /*: array<number> */, value /*: number */) /*: number */ {
+function bs(items, value) {
   let startIndex = 0;
   let stopIndex = items.length - 1;
   let middle = Math.floor((stopIndex + startIndex) / 2);
@@ -49,4 +47,4 @@ function bs(items /*: array<number> */, value /*: number */) /*: number */ {
   return middle;
 }
 
-module.exports = bs;
+export default bs;

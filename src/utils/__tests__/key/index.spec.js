@@ -13,11 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-'use strict';
-
-const tape = require('tape');
-const keyParser = require('../../key/parser');
-const { matching, bucketing } = require('../../key/factory');
+import tape from 'tape';
+import keyParser from '../../key/parser';
+import { matching, bucketing } from '../../key/factory';
 
 tape('KEY PARSER / if a string is passed a param should return a object', assert => {
 

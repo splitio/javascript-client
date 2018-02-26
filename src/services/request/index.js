@@ -13,25 +13,24 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-'use strict';
-
-require('isomorphic-fetch');
-
-const baseline = require('./options');
+import 'isomorphic-fetch';
+import options from './options';
+import isEmpty from 'lodash/isEmpty';
 
 function RequestFactory(settings, relativeUrl, params) {
   const token = settings.core.authorizationKey;
   const version = settings.version;
   const { ip, hostname } = settings.runtime;
   const headers = {};
+  const baseline = options();
 
   headers['Accept'] = 'application/json';
   headers['Content-Type'] = 'application/json';
   headers['Authorization'] = `Bearer ${token}`;
   headers['SplitSDKVersion'] = version;
 
-  if (ip) headers['SplitSDKMachineIP'] = ip;
-  if (hostname) headers['SplitSDKMachineName'] = hostname;
+  if (!isEmpty(ip)) headers['SplitSDKMachineIP'] = ip;
+  if (!isEmpty(hostname)) headers['SplitSDKMachineName'] = hostname;
 
   return new Request(settings.url(relativeUrl), Object.assign({
     headers,
@@ -42,4 +41,4 @@ function RequestFactory(settings, relativeUrl, params) {
   ));
 }
 
-module.exports = RequestFactory;
+export default RequestFactory;

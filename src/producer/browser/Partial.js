@@ -14,17 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-// @flow
-
-'use strict';
-
-const TaskFactory = require('../task');
-const MySegmentsUpdater = require('../updater/MySegments');
+import TaskFactory from '../task';
+import MySegmentsUpdater from '../updater/MySegments';
 
 /**
  * Incremental updater to be used to share data in the browser.
  */
-const PartialBrowserProducer = (context): Startable => {
+const PartialBrowserProducer = (context) => {
   const settings = context.get(context.constants.SETTINGS);
   const segmentsUpdater = MySegmentsUpdater(context);
   const segmentsUpdaterTask = TaskFactory(segmentsUpdater, settings.scheduler.segmentsRefreshRate);
@@ -32,4 +28,4 @@ const PartialBrowserProducer = (context): Startable => {
   return segmentsUpdaterTask;
 };
 
-module.exports = PartialBrowserProducer;
+export default PartialBrowserProducer;

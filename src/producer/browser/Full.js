@@ -14,21 +14,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-// @flow
-
-'use strict';
-
-const log = require('../../utils/logger')('splitio-producer:updater');
-
-const TaskFactory = require('../task');
-
-const SplitChangesUpdater = require('../updater/SplitChanges');
-const MySegmentsUpdater = require('../updater/MySegments');
+import logFactory from '../../utils/logger';
+const log = logFactory('splitio-producer:updater');
+import TaskFactory from '../task';
+import SplitChangesUpdater from '../updater/SplitChanges';
+import MySegmentsUpdater from '../updater/MySegments';
 
 /**
  * Startup all the background jobs required for a Browser SDK instance.
  */
-const FullBrowserProducer = (context): Startable => {
+const FullBrowserProducer = (context) => {
   const splitsUpdater = SplitChangesUpdater(context);
   const segmentsUpdater = MySegmentsUpdater(context);
   const settings = context.get(context.constants.SETTINGS);
@@ -53,4 +48,4 @@ const FullBrowserProducer = (context): Startable => {
   };
 };
 
-module.exports = FullBrowserProducer;
+export default FullBrowserProducer;

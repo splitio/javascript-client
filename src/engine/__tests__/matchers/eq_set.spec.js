@@ -13,11 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-'use strict';
-
-const tape = require('tape-catch');
-const matcherTypes = require('../../matchers/types').enum;
-const matcherFactory = require('../../matchers');
+import tape from 'tape-catch';
+import { types as matcherTypes } from '../../matchers/types';
+import matcherFactory from '../../matchers';
 
 tape('MATCHER EQUAL_TO_SET / should return true ONLY when value is equal to set ["update", "add"]', function (assert) {
 

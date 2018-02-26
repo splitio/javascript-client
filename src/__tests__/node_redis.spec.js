@@ -1,5 +1,5 @@
-const tape = require('tape-catch');
-const SplitFactory = require('../');
+import tape from 'tape-catch';
+import { SplitFactory } from '../';
 
 const config = {
   core: {

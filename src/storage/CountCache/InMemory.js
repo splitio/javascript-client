@@ -45,4 +45,4 @@ class CountCacheInMemory {
   }
 }
 
-module.exports = CountCacheInMemory;
+export default CountCacheInMemory;

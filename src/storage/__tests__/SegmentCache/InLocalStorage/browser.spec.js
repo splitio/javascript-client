@@ -1,12 +1,7 @@
-// @flow
-
-'use strict';
-
-const tape = require('tape-catch');
-const SegmentCacheInLocalStorage = require('../../../SegmentCache/InLocalStorage');
-
-const KeyBuilder = require('../../../Keys');
-const SettingsFactory = require('../../../../utils/settings');
+import tape from 'tape-catch';
+import SegmentCacheInLocalStorage from '../../../SegmentCache/InLocalStorage';
+import KeyBuilder from '../../../Keys';
+import SettingsFactory from '../../../../utils/settings';
 
 const settings = SettingsFactory({});
 

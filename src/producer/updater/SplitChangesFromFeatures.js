@@ -14,11 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-// @flow
+import FromSettingsFetcher from '../../services/splitChanges/offline';
+import SplitChangesFromObject from './SplitChangesFromObject';
 
-'use strict';
-
-const FromSettingsFetcher = require('../../services/offline');
-const SplitChangesFromObject = require('./SplitChangesFromObject');
-
-module.exports = SplitChangesFromObject.bind(null, FromSettingsFetcher);
+export default SplitChangesFromObject.bind(null, FromSettingsFetcher);
