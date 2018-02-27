@@ -1,5 +1,5 @@
 import tape from 'tape-catch';
-import SplitFactory from '../../';
+import { SplitFactory } from '../../';
 import fetchMock from 'fetch-mock';
 import path from 'path';
 import SettingsFactory from '../../utils/settings';

@@ -11,7 +11,7 @@ import SplitFactoryOnline from './factory/online';
 import SplitFactoryOffline from './factory/offline';
 import { LOCALHOST_MODE } from './utils/constants';
 
-function SplitFacade(config) {
+export function SplitFactory(config) {
   // Cache instances created per factory.
   const instances = {};
   // Tracking times. We need to do it here because we need the storage created.
@@ -89,5 +89,3 @@ function SplitFacade(config) {
     settings
   };
 }
-
-export default SplitFacade;

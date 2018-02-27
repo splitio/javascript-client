@@ -1,7 +1,7 @@
 import tape from 'tape';
 import map from 'lodash/map';
 import pick from 'lodash/pick';
-import SplitFactory from '../../';
+import { SplitFactory } from '../../';
 import fetchMock from 'fetch-mock';
 import SettingsFactory from '../../utils/settings';
 const settings = SettingsFactory({

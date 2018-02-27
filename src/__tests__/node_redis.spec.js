@@ -1,5 +1,5 @@
 import tape from 'tape-catch';
-import SplitFactory from '../';
+import { SplitFactory } from '../';
 
 const config = {
   core: {

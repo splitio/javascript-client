@@ -1,5 +1,5 @@
 import tape from 'tape-catch';
-import SplitFactory from '../';
+import { SplitFactory } from '../';
 const SDK_INSTANCES_TO_TEST = 4;
 
 tape('NodeJS E2E', function (assert) {
