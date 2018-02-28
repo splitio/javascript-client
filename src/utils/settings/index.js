@@ -115,7 +115,12 @@ function defaults(custom) {
 }
 
 const proto = {
-  // Switch URLs servers based on target.
+  /**
+   * Switch URLs servers based on target.
+   *
+   * @param {String} target url target
+   * @return {String} completed url
+   */
   url(target) {
     if (eventsEndpointMatcher.test(target)) {
       return `${this.urls.events}${target}`;
@@ -127,7 +132,7 @@ const proto = {
   /**
    * Returns a settings clone with the key and traffic type (if provided) overriden.
    * @param {SplitKey} key
-   * @param {string} [trafficType]
+   * @param {String} trafficType
    */
   overrideKeyAndTT(key, trafficType) {
     return Object.assign(

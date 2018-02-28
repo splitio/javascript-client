@@ -19,7 +19,7 @@ const log = logFactory('splitio-services:service');
 
 export default function Fetcher(request) {
   return axios(request).then(resp => {
-    if (resp.statusText === 'OK') {
+    if (resp.status >= 200 && resp.status < 300) {
       return resp;
     } else {
       let message = '';
