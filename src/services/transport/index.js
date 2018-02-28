@@ -18,23 +18,24 @@ import logFactory from '../../utils/logger';
 const log = logFactory('splitio-services:service');
 
 export default function Fetcher(request) {
-  return axios(request).then(resp => {
-    if (resp.status >= 200 && resp.status < 300) {
-      return resp;
-    } else {
-      let message = '';
-      switch (resp.status) {
-        case 403: message = 'Forbidden operation. Check API key permissions.';
-          break;
-        case 404: message = 'Invalid API key or resource not found.';
-          break;
-        default: message = resp.statusText;
-          break;
+  return axios(request)
+    .then(resp => {
+      if (resp.status >= 200 && resp.status < 300) {
+        return resp;
+      } else {
+        let message = '';
+        switch (resp.status) {
+          case 403: message = 'Forbidden operation. Check API key permissions.';
+            break;
+          case 404: message = 'Invalid API key or resource not found.';
+            break;
+          default: message = resp.statusText;
+            break;
+        }
+
+        log.error(`Response status is not OK. Status: ${resp.status}. URL: ${resp.config.url}. Message: ${message}`);
+
+        throw Error(`${resp.status} - ${message}`);
       }
-
-      log.error(`Response status is not OK. Status: ${resp.status}. URL: ${resp.config.url}. Message: ${message}`);
-
-      throw Error(`${resp.status} - ${message}`);
-    }
-  });
+    });
 }

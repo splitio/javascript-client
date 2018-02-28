@@ -1,8 +1,13 @@
+import { SplitFactory } from '../../';
 import tape from 'tape';
 import map from 'lodash/map';
 import pick from 'lodash/pick';
-import { SplitFactory } from '../../';
-import fetchMock from 'fetch-mock';
+import axios from 'axios';
+import MockAdapter from 'axios-mock-adapter';
+
+// This sets the mock adapter on the default instance
+const mock = new MockAdapter(axios);
+
 import SettingsFactory from '../../utils/settings';
 const settings = SettingsFactory({
   core: {
@@ -14,12 +19,8 @@ import splitChangesMock1 from './splitChanges.since.-1.json';
 import splitChangesMock2 from './splitChanges.since.1500492097547.json';
 import impressionsMock from './impressions.json';
 
-const delayResponse = (mock) => {
-  return new Promise(res => setTimeout(res, 0)).then(() => mock);
-};
-
-fetchMock.mock(settings.url('/splitChanges?since=-1'), () => delayResponse(splitChangesMock1));
-fetchMock.mock(settings.url('/splitChanges?since=1500492097547'), () => delayResponse(splitChangesMock2));
+mock.onGet(settings.url('/splitChanges?since=-1')).reply(200, splitChangesMock1);
+mock.onGet(settings.url('/splitChanges?since=-1500492097547')).reply(200, splitChangesMock2);
 
 tape('SDK destroy for NodeJS', async function (assert) {
   const config = {
@@ -35,36 +36,35 @@ tape('SDK destroy for NodeJS', async function (assert) {
   const manager = factory.manager();
 
   // Assert we are sending the impressions while doing the destroy
-  fetchMock.postOnce(settings.url('/testImpressions/bulk'), request => {
-    return request.json().then(impressions => {
-      impressions[0].keyImpressions = map(impressions[0].keyImpressions, imp => pick(imp, ['keyName', 'treatment']));
+  mock.onPost(settings.url('/testImpressions/bulk')).replyOnce(request => {
+    const impressions = JSON.parse(request.data);
 
-      assert.deepEqual(impressions, impressionsMock);
+    impressions[0].keyImpressions = map(impressions[0].keyImpressions, imp => pick(imp, ['keyName', 'treatment']));
 
-      return 200;
-    });
+    assert.deepEqual(impressions, impressionsMock);
+
+    return [200];
   });
-
 
   // Events tracking do not need to wait for ready.
   client.track('nicolas.zelaya@split.io','tt', 'eventType' /* Invalid value is stored as 0 */);
   client.track('nicolas.zelaya@gmail.com','tt', 'otherEventType', 1);
 
   // Assert we are sending the events while doing the destroy
-  fetchMock.postOnce(settings.url('/events/bulk'), request => {
-    return request.json().then(events => {
-      assert.equal(events.length, 2, 'Should flush all events on destroy.');
+  mock.onPost(settings.url('/events/bulk')).replyOnce(request => {
+    const events = JSON.parse(request.data);
 
-      const firstEvent = events[0];
-      const secondEvent = events[1];
+    assert.equal(events.length, 2, 'Should flush all events on destroy.');
 
-      assert.equal(firstEvent.key, 'nicolas.zelaya@split.io', 'The flushed events should match the events on the queue.');
-      assert.equal(firstEvent.eventTypeId, 'eventType', 'The flushed events should match the events on the queue.');
-      assert.equal(secondEvent.key, 'nicolas.zelaya@gmail.com', 'The flushed events should match the events on the queue.');
-      assert.equal(secondEvent.eventTypeId, 'otherEventType', 'The flushed events should match the events on the queue.');
+    const firstEvent = events[0];
+    const secondEvent = events[1];
 
-      return 200;
-    });
+    assert.equal(firstEvent.key, 'nicolas.zelaya@split.io', 'The flushed events should match the events on the queue.');
+    assert.equal(firstEvent.eventTypeId, 'eventType', 'The flushed events should match the events on the queue.');
+    assert.equal(secondEvent.key, 'nicolas.zelaya@gmail.com', 'The flushed events should match the events on the queue.');
+    assert.equal(secondEvent.eventTypeId, 'otherEventType', 'The flushed events should match the events on the queue.');
+
+    return [200];
   });
 
   await client.ready();
@@ -84,6 +84,8 @@ tape('SDK destroy for NodeJS', async function (assert) {
   assert.equal( manager.splits().length , 0 );
   assert.equal( manager.names().length ,  0 );
   assert.equal( manager.split('Single_Test') , null );
+
+  mock.restore();
 
   assert.end();
 });
