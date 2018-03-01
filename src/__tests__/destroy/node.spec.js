@@ -85,7 +85,5 @@ tape('SDK destroy for NodeJS', async function (assert) {
   assert.equal( manager.names().length ,  0 );
   assert.equal( manager.split('Single_Test') , null );
 
-  mock.restore();
-
   assert.end();
 });
