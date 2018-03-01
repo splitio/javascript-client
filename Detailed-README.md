@@ -19,7 +19,7 @@ JavaScript
 import { SplitFactory } from '@splitsoftware/splitio';
 
 // using common js
-const { SplitFactory } = require('@splitsoftware/splitio');
+const SplitFactory = require('@splitsoftware/splitio').SplitFactory;
 ```
 
 TypeScript
@@ -87,7 +87,7 @@ In the browser you were probably using something like:
 
 ```html
 <script src="//cdn.split.io/split-7.6.0.min.js"></script>
-``6
+```
 
 Now you should use:
 
