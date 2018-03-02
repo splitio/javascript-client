@@ -13,16 +13,16 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-
 import 'core-js/es6/promise';
-import 'isomorphic-fetch';
+import axios from 'axios';
 import tape from 'tape';
 import { types as matcherTypes } from '../../../matchers/types';
 import matcherFactory from '../../../matchers';
 
 tape('MATCHER REGEX / validate regex behavior using sample data', assert => {
-  fetch('/base/engine/__tests__/matchers/mocks/regex.txt')
-    .then(response => response.text().then(text => {
+  axios.get('/base/engine/__tests__/matchers/mocks/regex.txt')
+    .then(response => response.data)
+    .then(text => {
       const lines = text.trim().split(/\r\n|\n|\r/);
 
       assert.plan(lines.length);
@@ -41,7 +41,7 @@ tape('MATCHER REGEX / validate regex behavior using sample data', assert => {
           assert.true(matcher(input) === test);
         }, Math.random() * 100);
       }
-    }))
+    })
     .catch(error => assert.error(error));
 
 });
