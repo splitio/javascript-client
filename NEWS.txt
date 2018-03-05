@@ -2,11 +2,9 @@
 
 * Replaced isomorphic-fetch with axios.
 
-  Isomorphic-fetch was deprecated around end of 2015, and many dependencies have
-  updated, so and old lib with updated dependencies is causing trouble.
-  Libraries evolve all the time. This library in particular was maintained until
-  end of 2015. Two years later the JS ecosystem changed a lot, so the library
-  itself has old code. In fact, libraries that depend on these one have been
+  Isomorphic-fetch was deprecated, and many dependencies have updated, so and
+  old lib with updated dependencies is causing trouble.
+  Libraries evolve all the time so libraries that depend on these one have been
   updated, so the usage of inner dependencies can break the old implementation
   of this deprecated lib, since nobody took anymore the time to update it.
   For example, node-fetch is used by isomorphic-fetch (currently deprecated),
