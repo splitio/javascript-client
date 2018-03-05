@@ -24,7 +24,7 @@ function greedyFetch(settings, lastSinceValue, segmentName, metricCollectors) {
     since: lastSinceValue,
     segmentName
   })))
-    .then(resp => resp.json())
+    .then(resp => resp.data)
     .then(json => {
       let {since, till} = json;
       if (since === till) {

@@ -1,13 +1,13 @@
 import { SplitFactory } from '../../';
-import fetchMock from 'fetch-mock';
 import SettingsFactory from '../../utils/settings';
+
 const settings = SettingsFactory({
   core: {
     key: 'asd'
   }
 });
 
-export default function(assert) {
+export default function(mock, assert) {
 
   const splitio = SplitFactory({
     core: {
@@ -26,34 +26,30 @@ export default function(assert) {
   });
   const client = splitio.client();
 
-  fetchMock.postOnce(settings.url('/testImpressions/bulk'), req => {
-    const respPromise = req.json();
+  mock.onPost(settings.url('/testImpressions/bulk')).replyOnce(req => {
+    const resp = JSON.parse(req.data);
 
-    respPromise.then(resp => {
-      const dependencyChildImpr = resp.filter(e => e.testName === 'hierarchical_splits_test')[0];
+    const dependencyChildImpr = resp.filter(e => e.testName === 'hierarchical_splits_test')[0];
 
-      assert.true(dependencyChildImpr, 'Split we wanted to evaluate should be present on the impressions.');
-      assert.false(resp.some(e => e.testName === 'hierarchical_dep_always_on'), 'Parent split evaluations should not result in impressions.');
-      assert.false(resp.some(e => e.testName === 'hierarchical_dep_hierarchical'), 'No matter how deep is the chain.');
+    assert.true(dependencyChildImpr, 'Split we wanted to evaluate should be present on the impressions.');
+    assert.false(resp.some(e => e.testName === 'hierarchical_dep_always_on'), 'Parent split evaluations should not result in impressions.');
+    assert.false(resp.some(e => e.testName === 'hierarchical_dep_hierarchical'), 'No matter how deep is the chain.');
 
-      const {
-        keyName,
-        label,
-        treatment
-      } = dependencyChildImpr.keyImpressions[0];
+    const {
+      keyName,
+      label,
+      treatment
+    } = dependencyChildImpr.keyImpressions[0];
 
-      assert.equal(keyName, 'facundo@split.io', 'Present impression should have the correct key.');
-      // The label present on the mock.
-      assert.equal(label, 'expected label', 'Present impression should have the correct label.');
-      assert.equal(treatment, 'on', 'Present impression should have the correct treatment.');
+    assert.equal(keyName, 'facundo@split.io', 'Present impression should have the correct key.');
+    // The label present on the mock.
+    assert.equal(label, 'expected label', 'Present impression should have the correct label.');
+    assert.equal(treatment, 'on', 'Present impression should have the correct treatment.');
 
-      client.destroy();
-      assert.end();
+    client.destroy();
+    assert.end();
 
-      return 200;
-    });
-
-    return respPromise;
+    return [200];
   });
 
   client.ready().then(() => {

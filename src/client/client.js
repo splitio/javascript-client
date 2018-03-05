@@ -1,5 +1,3 @@
-// I'll need to fix first 'isomorphic-fetch' to be transpiled using
-// babel-runtime before remove this line of code.
 import 'core-js/es6/promise';
 
 import isFinite from 'lodash/isFinite';

@@ -24,8 +24,8 @@ class Context {
   }
   /**
    * Gets an item in the context instance or a promise if the item is not yet stored.
-   * @param {string} name - The name of the item we want to get
-   * @return any - The item we want to get.
+   * @param {String} name - The name of the item we want to get
+   * @return {Any} The item we want to get.
    */
   get(name) {
     if (typeof name !== 'string' || typeof name === 'string' && !name.length) return; // Wrong usage, don't generate item promise.
@@ -50,9 +50,9 @@ class Context {
   getAll() { return Object.assign({}, this._map); }
   /**
    * Stores an item in the context instance.
-   * @param {string} name - The name of what we are storing
-   * @param {any} item - The item can be of any type.
-   * @return {boolean} - The result of the operation
+   * @param {String} name - The name of what we are storing
+   * @param {Any} item - The item can be of any type.
+   * @return {Boolean} - The result of the operation
    */
   put(name, item) {
     if (typeof name !== 'string' || (typeof name === 'string' && !name.length) || item === undefined) return false; // We can't store this.
@@ -66,13 +66,15 @@ class Context {
     if (thenable(existingItem) && existingItem.manualResolve) existingItem.manualResolve(item);
 
     // We are storing a promise, when resolving save the item. On error, clean up the item.
-    if (thenable(item)) item.then(item => {
-      this._map[name] = item;
-      return item;
-    }).catch(err => {
-      this._map[name] = undefined;
-      return err;
-    });
+    if (thenable(item)) {
+      item.then(item => {
+        this._map[name] = item;
+        return item;
+      }).catch(err => {
+        this._map[name] = undefined;
+        return err;
+      });
+    }
 
     this._map[name] = item;
     return true;

@@ -15,22 +15,28 @@ limitations under the License.
 **/
 
 import logFactory from '../utils/logger';
-const log = logFactory('splitio-metrics');
 import tracker from '../utils/timeTracker';
 import repeat from '../utils/fn/repeat';
 import metricsService from '../services/metrics';
 import metricsTimesServiceRequest from '../services/metrics/times';
 import metricsCountersServiceRequest from '../services/metrics/counters';
-import metricsDTO from '../services/metrics/dto';
+import {
+  fromLatenciesCollector,
+  fromCountersCollector
+} from '../services/metrics/dto';
 import impressionsService from '../services/impressions';
 import impressionsBulkRequest from '../services/impressions/bulk';
-import impressionsDTO from '../services/impressions/dto';
+import {
+  fromImpressionsCollector
+} from '../services/impressions/dto';
 import {
   SegmentChangesCollector,
   SplitChangesCollector,
   MySegmentsCollector,
   SDKCollector
 } from './Collectors';
+
+const log = logFactory('splitio-metrics');
 
 const MetricsFactory = context => {
   const settings = context.get(context.constants.SETTINGS);
@@ -45,7 +51,7 @@ const MetricsFactory = context => {
     // POST latencies
     const latenciesPromise = storage.metrics.isEmpty() ? null : metricsService(
       metricsTimesServiceRequest(settings, {
-        body: JSON.stringify(metricsDTO.fromLatenciesCollector(storage.metrics))
+        data: JSON.stringify(fromLatenciesCollector(storage.metrics))
       }))
       .then(() => storage.metrics.clear())
       .catch(() => storage.metrics.clear());
@@ -53,7 +59,7 @@ const MetricsFactory = context => {
     // POST counters
     const countersPromise = storage.count.isEmpty() ? null : metricsService(
       metricsCountersServiceRequest(settings, {
-        body: JSON.stringify(metricsDTO.fromCountersCollector(storage.count))
+        data: JSON.stringify(fromCountersCollector(storage.count))
       }))
       .then(() => storage.count.clear())
       .catch(() => storage.count.clear());
@@ -72,7 +78,7 @@ const MetricsFactory = context => {
     const latencyTrackerStop = tracker.start(tracker.TaskNames.IMPRESSIONS_PUSH);
 
     return impressionsService(impressionsBulkRequest(settings, {
-      body: JSON.stringify(impressionsDTO.fromImpressionsCollector(storage.impressions, settings))
+      data: JSON.stringify(fromImpressionsCollector(storage.impressions, settings))
     }))
       .then(() => {
         latencyTrackerStop();

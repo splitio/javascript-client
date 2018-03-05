@@ -18,13 +18,13 @@ limitations under the License.
 // 2- destroy it once the sdk is destroyed
 import https from 'https';
 
-const agent = new https.Agent({
+const httpsAgent = new https.Agent({
   keepAlive: true,
   keepAliveMsecs: 1500
 });
 
 export default function() {
   return {
-    agent
+    httpsAgent
   };
 }
