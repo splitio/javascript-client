@@ -132,7 +132,7 @@ const proto = {
   /**
    * Returns a settings clone with the key and traffic type (if provided) overriden.
    * @param {SplitKey} key
-   * @param {String} trafficType
+   * @param {string} [trafficType]
    */
   overrideKeyAndTT(key, trafficType) {
     return Object.assign(
