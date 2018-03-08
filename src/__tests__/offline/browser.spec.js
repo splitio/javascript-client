@@ -1,21 +1,41 @@
 import tape from 'tape';
 import { SplitFactory } from '../../';
-import fetchMock from 'fetch-mock';
 import SettingsFactory from '../../utils/settings';
+import axios from 'axios';
+import MockAdapter from 'axios-mock-adapter';
+import sinon from 'sinon';
+
 const settings = SettingsFactory({ core: { key: 'facundo@split.io' }});
 
-const delayResponse = () => new Promise(res => setTimeout(res, 0)).then(() => 'mock');
+// Set the mock adapter on the default instance
+const mock = new MockAdapter(axios);
+
+const spySplitChanges = sinon.spy();
+const spySegmentChanges = sinon.spy();
+const spyMySegments = sinon.spy();
+const spyEventsBulk = sinon.spy();
+const spyTestImpressionsBulk = sinon.spy();
+const spyMetricsTimes = sinon.spy();
+const spyMetricsCounters = sinon.spy();
+const spyAny = sinon.spy();
+
+// helper function that should call the spy function and return a 200 to keep
+// going the axios request flow
+const replySpy = spy => {
+  spy();
+  return [200];
+};
 
 const configMocks = () => {
-  fetchMock
-    .mock(settings.url('/splitChanges/*'), () => delayResponse(), { name: 'splitChanges' })
-    .mock(settings.url('/segmentChanges/*'), () => delayResponse(), { name: 'segmentChanges' })
-    .mock(settings.url('/mySegments/*'), () => delayResponse(), { name: 'mySegments' })
-    .mock(settings.url('/events/bulk'), () => delayResponse(), { name: 'events' })
-    .mock(settings.url('/testImpressions/bulk'), () => delayResponse(), { name: 'impressions' })
-    .mock(settings.url('/metrics/times'), () => delayResponse(), { name: 'metricTimes' })
-    .mock(settings.url('/metrics/counters'), () => delayResponse(), { name: 'metricCounters' })
-    .mock('*', () => delayResponse(), { name: 'miscelaneous' });
+  mock
+    .onAny(new RegExp(`${settings.url('/splitChanges/')}.*`)).reply(() => replySpy(spySplitChanges))
+    .onAny(new RegExp(`${settings.url('/segmentChanges/')}.*`)).reply(() => replySpy(spySegmentChanges))
+    .onAny(new RegExp(`${settings.url('/mySegments/')}.*`)).reply(() => replySpy(spyMySegments))
+    .onAny(settings.url('/events/bulk')).reply(() => replySpy(spyEventsBulk))
+    .onAny(settings.url('/testImpressions/bulk')).reply(() => replySpy(spyTestImpressionsBulk))
+    .onAny(settings.url('/metrics/times')).reply(() => replySpy(spyMetricsTimes))
+    .onAny(settings.url('/metrics/counters')).reply(() => replySpy(spyMetricsCounters))
+    .onAny().reply(() => replySpy(spyAny));
 };
 
 tape('Browser offline mode', function (assert) {
@@ -110,17 +130,18 @@ tape('Browser offline mode', function (assert) {
 
       const sharedClientDestroyPromise = sharedClient.destroy();
       const mainClientDestroyPromise = client.destroy();
+
       // When both promises have been resolved, we check for network activity
       Promise.all([sharedClientDestroyPromise, mainClientDestroyPromise]).then(() => {
         // We test the breakdown instead of just the misc because it's faster to spot where the issue is
-        assert.notOk(fetchMock.called('splitChanges'), 'On offline mode we should not call the splitChanges endpoint.');
-        assert.notOk(fetchMock.called('segmentChanges'), 'On offline mode we should not call the segmentChanges endpoint.');
-        assert.notOk(fetchMock.called('mySegments'), 'On offline mode we should not call the mySegments endpoint.');
-        assert.notOk(fetchMock.called('events'), 'On offline mode we should not call the events endpoint.');
-        assert.notOk(fetchMock.called('impressions'), 'On offline mode we should not call the impressions endpoint.');
-        assert.notOk(fetchMock.called('metric times'), 'On offline mode we should not call the metric times endpoint.');
-        assert.notOk(fetchMock.called('metric counters'), 'On offline mode we should not call the metric counters endpoint.');
-        assert.notOk(fetchMock.called('miscelaneous'), 'On offline mode we should NOT call to ANY endpoint, we are completely isolated from BE.');
+        assert.notOk(spySplitChanges.called, 'On offline mode we should not call the splitChanges endpoint.');
+        assert.notOk(spySegmentChanges.called, 'On offline mode we should not call the segmentChanges endpoint.');
+        assert.notOk(spyMySegments.called, 'On offline mode we should not call the mySegments endpoint.');
+        assert.notOk(spyEventsBulk.called, 'On offline mode we should not call the events endpoint.');
+        assert.notOk(spyTestImpressionsBulk.called, 'On offline mode we should not call the impressions endpoint.');
+        assert.notOk(spyMetricsTimes.called, 'On offline mode we should not call the metric times endpoint.');
+        assert.notOk(spyMetricsCounters.called, 'On offline mode we should not call the metric counters endpoint.');
+        assert.notOk(spyAny.called, 'On offline mode we should NOT call to ANY endpoint, we are completely isolated from BE.');
 
         assert.end();
       });

@@ -1,3 +1,26 @@
+## 10.1.0 (March 8, 2018)
+
+* Replaced isomorphic-fetch with axios.
+
+  Isomorphic-fetch was deprecated, and many dependencies have updated, so and
+  old lib with updated dependencies is causing trouble.
+  Libraries evolve all the time so libraries that depend on these one have been
+  updated, so the usage of inner dependencies can break the old implementation
+  of this deprecated lib, since nobody took anymore the time to update it.
+  For example, node-fetch is used by isomorphic-fetch (currently deprecated),
+  but node-fetch is not deprecated, so devs are still making implementations
+  changes to node-fetch. New version of node-fetch are released, and
+  isomorphic-fetch updates to that node-fetch new version, but no one updates
+  the implementation of isomorphic-fetch. If node-fetch introduces breaking
+  changes, isomorphic-fetch has to be updated, but it is deprecated,
+  so it might break.
+  Axios is a promise based HTTP client for the browser and node.js. This library
+  give us the possibility to cancel request, has a built-in XSRF protection,
+  has transformers that allow performing transforms on data before request
+  is made or after response is received and interceptors that allow us to
+  alter the request or response entirely (headers as well), also perform async
+  operations before request is made or before Promise settles.
+
 ## 10.0.0 (Feb 26, 2018)
 
 * Migrated source code to es modules.

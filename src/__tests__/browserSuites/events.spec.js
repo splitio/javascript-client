@@ -1,6 +1,6 @@
 import { SplitFactory } from '../../';
-import fetchMock from 'fetch-mock';
 import SettingsFactory from '../../utils/settings';
+
 const settings = SettingsFactory({
   core: {
     key: 'asd'
@@ -24,37 +24,35 @@ const baseSettings = {
   }
 };
 
-export function withoutBindingTT(assert) {
+export function withoutBindingTT(mock, assert) {
   const splitio = SplitFactory(baseSettings);
   const client = splitio.client();
 
-  fetchMock.postOnce(settings.url('/events/bulk'), req => {
-    const respPromise = req.json();
 
-    // respPromise will resolve to the value we will send to BE.
-    respPromise.then(resp => {
-      // We will test the first and last item in detail.
-      const firstEvent = resp[0];
-      const lastEvent = resp[5];
-      assert.equal(resp.length, 6, 'We had pushed 6 valid events, so we should post 6 items.');
+  mock.onPost(settings.url('/events/bulk')).replyOnce(req => {
+    const resp = JSON.parse(req.data);
 
-      assert.equal(firstEvent.key, 'facundo@split.io', 'Key should match received value.');
-      assert.equal(firstEvent.eventTypeId, 'someEvent', 'EventTypeId should match received value.');
-      assert.equal(firstEvent.trafficTypeName, 'someTrafficType', 'TrafficTypeName should match received value.');
-      assert.equal(firstEvent.value, 10, 'Value should match the value received on the .track() function.');
-      assert.equal(typeof firstEvent.timestamp, 'number', 'The timestamp should be a number.');
+    // We will test the first and last item in detail.
+    const firstEvent = resp[0];
+    const lastEvent = resp[5];
+    assert.equal(resp.length, 6, 'We had pushed 6 valid events, so we should post 6 items.');
 
-      assert.equal(lastEvent.key, 'facundo@split.io', 'Key should match received value.');
-      assert.equal(lastEvent.eventTypeId, 'my.checkout.event', 'EventTypeId should match received value.');
-      assert.equal(lastEvent.trafficTypeName, 'otherTraffictype', 'TrafficTypeName should match received value.');
-      assert.equal(lastEvent.value, 0, 'Should have 0 as value because the value was invalid on the last event.');
-      assert.equal(typeof lastEvent.timestamp, 'number', 'The timestamp should be a number.');
+    assert.equal(firstEvent.key, 'facundo@split.io', 'Key should match received value.');
+    assert.equal(firstEvent.eventTypeId, 'someEvent', 'EventTypeId should match received value.');
+    assert.equal(firstEvent.trafficTypeName, 'someTrafficType', 'TrafficTypeName should match received value.');
+    assert.equal(firstEvent.value, 10, 'Value should match the value received on the .track() function.');
+    assert.equal(typeof firstEvent.timestamp, 'number', 'The timestamp should be a number.');
 
-      client.destroy();
-      assert.end();
-    });
+    assert.equal(lastEvent.key, 'facundo@split.io', 'Key should match received value.');
+    assert.equal(lastEvent.eventTypeId, 'my.checkout.event', 'EventTypeId should match received value.');
+    assert.equal(lastEvent.trafficTypeName, 'otherTraffictype', 'TrafficTypeName should match received value.');
+    assert.equal(lastEvent.value, 0, 'Should have 0 as value because the value was invalid on the last event.');
+    assert.equal(typeof lastEvent.timestamp, 'number', 'The timestamp should be a number.');
 
-    return respPromise;
+    client.destroy();
+    assert.end();
+
+    return [200];
   });
 
   assert.ok(client.track, 'client.track should be defined.');
@@ -79,41 +77,36 @@ export function withoutBindingTT(assert) {
   assert.notOk(client.track('asd', 20, 'trafficType'), 'client.track returns false if an event data was incorrect and it could not be added to the queue.');
 }
 
-export function bindingTT(assert) {
+export function bindingTT(mock, assert) {
   const localSettings = Object.assign({}, baseSettings);
   localSettings.core.trafficType = 'binded_tt';
   const splitio = SplitFactory(localSettings);
   const client = splitio.client();
 
-  fetchMock.postOnce(settings.url('/events/bulk'), req => {
-    const respPromise = req.json();
+  mock.onPost(settings.url('/events/bulk')).replyOnce(req => {
+    const resp = JSON.parse(req.data);
 
-    // respPromise will resolve to the value we will send to BE.
-    respPromise.then(resp => {
-      // We will test the first and last item in detail.
-      const firstEvent = resp[0];
-      const lastEvent = resp[5];
-      assert.equal(resp.length, 6, 'We had pushed 6 valid events, so we should post 6 items.');
+    // We will test the first and last item in detail.
+    const firstEvent = resp[0];
+    const lastEvent = resp[5];
+    assert.equal(resp.length, 6, 'We had pushed 6 valid events, so we should post 6 items.');
 
-      assert.equal(firstEvent.key, 'facundo@split.io', 'Key should match received value.');
-      assert.equal(firstEvent.eventTypeId, 'someEvent', 'EventTypeId should match received value.');
-      assert.equal(firstEvent.trafficTypeName, 'binded_tt', 'TrafficTypeName should match the binded value.');
-      assert.equal(firstEvent.value, 10, 'Value should match the value received on the .track() function.');
-      assert.equal(typeof firstEvent.timestamp, 'number', 'The timestamp should be a number.');
+    assert.equal(firstEvent.key, 'facundo@split.io', 'Key should match received value.');
+    assert.equal(firstEvent.eventTypeId, 'someEvent', 'EventTypeId should match received value.');
+    assert.equal(firstEvent.trafficTypeName, 'binded_tt', 'TrafficTypeName should match the binded value.');
+    assert.equal(firstEvent.value, 10, 'Value should match the value received on the .track() function.');
+    assert.equal(typeof firstEvent.timestamp, 'number', 'The timestamp should be a number.');
 
-      assert.equal(lastEvent.key, 'facundo@split.io', 'Key should match received value.');
-      assert.equal(lastEvent.eventTypeId, 'my.checkout.event', 'EventTypeId should match received value.');
-      assert.equal(lastEvent.trafficTypeName, 'binded_tt', 'TrafficTypeName should match the binded value.');
-      assert.equal(lastEvent.value, 0, 'Should have 0 as value because the value was invalid on the last event.');
-      assert.equal(typeof lastEvent.timestamp, 'number', 'The timestamp should be a number.');
+    assert.equal(lastEvent.key, 'facundo@split.io', 'Key should match received value.');
+    assert.equal(lastEvent.eventTypeId, 'my.checkout.event', 'EventTypeId should match received value.');
+    assert.equal(lastEvent.trafficTypeName, 'binded_tt', 'TrafficTypeName should match the binded value.');
+    assert.equal(lastEvent.value, 0, 'Should have 0 as value because the value was invalid on the last event.');
+    assert.equal(typeof lastEvent.timestamp, 'number', 'The timestamp should be a number.');
 
-      client.destroy();
-      assert.end();
+    client.destroy();
+    assert.end();
 
-      return 200;
-    });
-
-    return respPromise;
+    return [200];
   });
 
   assert.ok(client.track, 'client.track should be defined.');

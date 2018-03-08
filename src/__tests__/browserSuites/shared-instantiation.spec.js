@@ -6,9 +6,7 @@ const settings = SettingsFactory({
   }
 });
 
-import fetchMock from 'fetch-mock';
-
-export default function(startWithTT, assert) {
+export default function(startWithTT, mock, assert) {
   const factory = SplitFactory({
     core: {
       authorizationKey: 'dummy',
@@ -64,16 +62,18 @@ export default function(startWithTT, assert) {
    * Assertion suite for client.track()
    */
   const trackAssertions = () => {
-    fetchMock.postOnce(settings.url('/events/bulk'), req => { // Prepare the mock to check for events having correct values
-      return req.json().then(events => {
-        assert.equal(events.length, 3, 'Tracked only valid events');
-        assert.equal(events[0].trafficTypeName, `${startWithTT ? 'start' : 'main'}_tt`, 'matching traffic types both binded and provided through client.track()');
-        assert.equal(events[1].trafficTypeName, 'nico_tt', 'matching traffic types both binded and provided through client.track()');
-        assert.equal(events[2].trafficTypeName, 'marcio_tt', 'matching traffic types both binded and provided through client.track()');
+    // Prepare the mock to check for events having correct values
+    mock.onPost(settings.url('/events/bulk')).replyOnce(req => {
+      const events = JSON.parse(req.data);
 
-        finished.next();
-        return 200;
-      });
+      assert.equal(events.length, 3, 'Tracked only valid events');
+      assert.equal(events[0].trafficTypeName, `${startWithTT ? 'start' : 'main'}_tt`, 'matching traffic types both binded and provided through client.track()');
+      assert.equal(events[1].trafficTypeName, 'nico_tt', 'matching traffic types both binded and provided through client.track()');
+      assert.equal(events[2].trafficTypeName, 'marcio_tt', 'matching traffic types both binded and provided through client.track()');
+
+      finished.next();
+
+      return [200];
     });
 
     if (startWithTT) {

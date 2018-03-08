@@ -20,7 +20,7 @@ const EventsFactory = context => {
     storage.events.clear(); // we always clear the queue.
 
     return eventsService(eventsBulkRequest(settings, {
-      body: json
+      data: json
     })).then(() => latencyTrackerStop());
   };
 

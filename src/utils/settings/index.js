@@ -115,7 +115,12 @@ function defaults(custom) {
 }
 
 const proto = {
-  // Switch URLs servers based on target.
+  /**
+   * Switch URLs servers based on target.
+   *
+   * @param {String} target url target
+   * @return {String} completed url
+   */
   url(target) {
     if (eventsEndpointMatcher.test(target)) {
       return `${this.urls.events}${target}`;
