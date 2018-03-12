@@ -35,6 +35,7 @@ const NodeStorageFactory = context => {
         // 2- Stop sending data to Redis and instance using empty in memory implementation
         destroy() {
           redis.disconnect();
+          redis.off();
 
           this.splits = new SplitCacheInMemory;
           this.segments = new SegmentCacheInMemory(keys);
