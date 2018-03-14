@@ -48,7 +48,6 @@ tape('NodeJS Redis', function (assert) {
   
   initializeRedisServer()
     .then(async (server) => {
-      console.log('init sdk and test');
       const sdk = SplitFactory(config);
       const client = sdk.client();
 
@@ -106,7 +105,7 @@ tape('NodeJS Redis / Connection Error', async function (assert) {
           client.destroy();
 
           assert.end();
-        }, 1000);
+        }, 4000);
       });      
     });
 });
