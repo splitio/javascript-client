@@ -3,6 +3,8 @@ import RedisServer from 'redis-server';
 import { exec } from 'child_process';
 import { SplitFactory } from '../';
 
+const redisPort = '6385';
+
 const config = {
   core: {
     authorizationKey: 'uoj4sb69bjv7d4d027f7ukkitd53ek6a9ai9'
@@ -14,7 +16,10 @@ const config = {
   mode: 'consumer',
   storage: {
     type: 'REDIS',
-    prefix: 'REDIS_NODE_UT'
+    prefix: 'REDIS_NODE_UT',
+    options: {
+      url: `redis://localhost:${redisPort}/0`
+    }
   }
 };
 
@@ -23,13 +28,13 @@ const config = {
  */
 const initializeRedisServer = () => {
   // Simply pass the port that you want a Redis server to listen on.  
-  const server = new RedisServer(6379);
+  const server = new RedisServer(redisPort);
 
   const promise = new Promise((resolve, reject) => {
     server
       .open()
       .then(() => {
-        exec('cat ./src/__tests__/mocks/redis_mock.json | ./node_modules/redis-dump/bin/cli/redis-dump --convert | redis-cli', (err, stdout, stderr) => {
+        exec(`cat ./src/__tests__/mocks/redis_mock.json | ./node_modules/redis-dump/bin/cli/redis-dump -p ${redisPort} --convert | redis-cli -p ${redisPort}` , (err, stdout, stderr) => {
           if (err) {
             reject(server);
             // node couldn't execute the command
@@ -47,10 +52,10 @@ const initializeRedisServer = () => {
 tape('NodeJS Redis', function (assert) {
   
   initializeRedisServer()
-    .then(async (server) => {
+    .then(async (server) => {      
       const sdk = SplitFactory(config);
       const client = sdk.client();
-
+      
       assert.equal(await client.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT'), 'on');
       assert.equal(await client.getTreatment('other', 'UT_IN_SEGMENT'), 'off');
 
@@ -105,7 +110,7 @@ tape('NodeJS Redis / Connection Error', async function (assert) {
           client.destroy();
 
           assert.end();
-        }, 4000);
+        }, 1000);
       });      
     });
 });
