@@ -97,12 +97,24 @@ tape('NodeJS Redis / Connection Error', async function (assert) {
       const sdk = SplitFactory(config);
       const client = sdk.client();
 
+      assert.equal(await client.getTreatment('UT_Segment_member', 'UT_NOT_SET_MATCHER', {
+        permissions: ['create']
+      }), 'off');
+      assert.equal(await client.getTreatment('UT_Segment_member', 'UT_NOT_SET_MATCHER', {
+        permissions: ['not_matching']
+      }), 'on');
       assert.equal(await client.getTreatment('UT_Segment_member', 'always-on'), 'on');
 
       // close server connection      
       server.close().then(() => {
         // we need to add a delay before doing a getTreatment
-        const id = setTimeout(async () => {        
+        const id = setTimeout(async () => {
+          assert.equal(await client.getTreatment('UT_Segment_member', 'UT_NOT_SET_MATCHER', {
+            permissions: ['create']
+          }), 'control');
+          assert.equal(await client.getTreatment('UT_Segment_member', 'UT_NOT_SET_MATCHER', {
+            permissions: ['not_matching']
+          }), 'control');
           assert.equal(await client.getTreatment('UT_Segment_member', 'always-on'), 'control');
           
           clearTimeout(id);
