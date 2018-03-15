@@ -59,8 +59,11 @@ class ImpressionsCacheInRedis {
     return this.state();
   }
 
+  /**
+   * We are returning true because the go syncronizer push the impressions from redis.
+   */
   isEmpty() {
-    return this.scanKeys().then(els => els.length === 0);
+    return true;
   }
 }
 

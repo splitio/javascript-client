@@ -1,3 +1,6 @@
+import logFactory from '../../utils/logger';
+const log = logFactory('splitio-storage:redis');
+
 /**
  * Discard errors for an answer of multiple operations.
  */
@@ -12,6 +15,15 @@ class SplitCacheInRedis {
   constructor(keys, redis) {
     this.redis = redis;
     this.keys = keys;
+    this.redisError = false;
+
+    this.redis.on('error', (e) => {
+      this.redisError = e;
+    });
+
+    this.redis.on('connect', () => {
+      this.redisError = false;
+    });
   }
 
   addSplit(splitName, split) {
@@ -57,6 +69,12 @@ class SplitCacheInRedis {
    * Get split definition or null if it's not defined.
    */
   getSplit(splitName) {
+    if (this.redisError) {
+      log.error(this.redisError);
+
+      throw this.redisError;
+    }
+
     return this.redis.get(this.keys.buildSplitKey(splitName));
   }
 

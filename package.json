@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio",
-  "version": "10.1.0",
+  "version": "10.1.1",
   "description": "Split SDK",
   "files": [
     "README.md",
@@ -50,6 +50,7 @@
     "karma-tap": "3.0.1",
     "karma-webpack": "2.0.4",
     "redis-dump": "0.1.10",
+    "redis-server": "1.2.0",
     "rimraf": "2.5.4",
     "sinon": "4.4.2",
     "tape": "4.8.0",
@@ -64,6 +65,7 @@
     "build-umd": "cross-env NODE_ENV=development webpack",
     "build-min": "cross-env NODE_ENV=production webpack -p",
     "rebuild": "rimraf lib umd es && npm run build-cjs && npm run build-es && npm run build-umd && npm run build-min",
+    "rebuild:npm": "rimraf lib es && npm run build-cjs && npm run build-es",
     "lint": "eslint src",
     "test-browser-local": "cross-env NODE_ENV=test karma start karma/local.karma.conf.js",
     "test-browser-e2e-local": "cross-env NODE_ENV=test karma start karma/e2e.local.karma.conf.js",
@@ -76,7 +78,6 @@
     "test-node": "cross-env NODE_ENV=test tape -r babel-register \"src/*/__tests__/**/!(browser).spec.js\"",
     "test-node-e2e": "cross-env NODE_ENV=test tape -r babel-register src/__tests__/destroy/node.spec.js",
     "test-node-offline": "cross-env NODE_ENV=test tape -r babel-register src/__tests__/offline/node.spec.js",
-    "pretest-node-redis": "cat ./src/__tests__/mocks/redis_mock.json | ./node_modules/redis-dump/bin/cli/redis-dump --convert | redis-cli",
     "test-node-redis": "cross-env NODE_ENV=test tape -r babel-register \"src/__tests__/node_redis.spec.js\"",
     "pretest-ts-decls": "npm run build-es && npm run build-cjs && npm link",
     "test-ts-decls": "./scripts/ts-tests.sh",

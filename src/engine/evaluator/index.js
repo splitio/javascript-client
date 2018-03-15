@@ -24,7 +24,18 @@ function splitEvaluator(
   attributes,
   storage
 ) {
-  const splitObject = storage.splits.getSplit(splitName);
+  let splitObject;
+
+  try {
+    splitObject = storage.splits.getSplit(splitName);
+  } catch (e) {
+    // the only scenario where getSplit can throw an error is when the storage
+    // is redis and there is a connection issue
+    return Promise.resolve({
+      treatment: 'control',
+      label: LabelsConstants.EXCEPTION
+    });
+  }
 
   if (thenable(splitObject)) {
     return splitObject.then((result) => getEvaluation(
