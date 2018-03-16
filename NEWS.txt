@@ -1,8 +1,9 @@
 ## 10.1.1 (March 16, 2018)
 
-* Bugfixing - Issue with the sdk with REDIS storage, if there is a redis server error the sdk method getTreatment
-  remain idle. Instead to freeze the getTreatment call now the sdk return treatment 'control' and will register
-  a impressions with label 'exception'.
+* Bugfixing - SDK with REDIS storage issue. Previously, if there was a Redis Error, 
+  the SDK method 'getTreatment' (promise will never resolve). With the fix, now 
+  'getTreatment' call will  return treatment 'control' and will register a 
+  impressions with label 'exception'.
 
 ## 10.1.0 (March 8, 2018)
 
