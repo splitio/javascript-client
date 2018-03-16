@@ -18,13 +18,14 @@ import findIndex from 'core-js/library/fn/array/find-index';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-engine:combiner');
 import thenable from '../../utils/promise/thenable';
+import LabelsConstants from '../../utils/labels';
 
 function unexpectedInputHandler() {
   log.error('Invalid Split provided, no valid conditions found');
 
   return {
     treatment: 'control',
-    label: 'exception'
+    label: LabelsConstants.EXCEPTION
   };
 }
 
