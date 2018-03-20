@@ -1,4 +1,4 @@
-## 10.1.1 (March 16, 2018)
+## 10.1.1 (March 20, 2018)
 
 * Bugfixing - SDK with REDIS storage issue. Previously, if there was a Redis Error, 
   the SDK method 'getTreatment' (promise will never resolve). With the fix, now 
