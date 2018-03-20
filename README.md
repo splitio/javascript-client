@@ -1,4 +1,6 @@
 # Split Javascript SDK
+
+[![Greenkeeper badge](https://badges.greenkeeper.io/splitio/javascript-client.svg)](https://greenkeeper.io/)
 [![npm version](https://badge.fury.io/js/%40splitsoftware%2Fsplitio.svg)](https://badge.fury.io/js/%40splitsoftware%2Fsplitio)
 
 This SDK is designed to work with [Split](https://www.split.io), the platform for controlled rollouts, serving features to your users via the Split feature flag to manage your complete customer experience.
@@ -29,6 +31,7 @@ Split has built and maintains a SDKs for:
 * PHP [Github](https://github.com/splitio/php-client) [Docs](http://docs.split.io/docs/php-sdk-overview)
 * Python [Github](https://github.com/splitio/python-client) [Docs](http://docs.split.io/docs/python-sdk-overview)
 * GO [Github](https://github.com/splitio/go-client) [Docs](http://docs.split.io/docs/go-sdk-overview)
+* Android [Github](https://github.com/splitio/android-client) [Docs](https://docs.split.io/v1/docs/android-sdk-overview)
 
 For a comprehensive list of opensource projects visit our [Github page](https://github.com/splitio?utf8=%E2%9C%93&query=%20only%3Apublic%20).
 
