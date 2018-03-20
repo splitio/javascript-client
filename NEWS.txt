@@ -1,3 +1,10 @@
+## 10.1.1 (March 20, 2018)
+
+* Bugfixing - SDK with REDIS storage issue. Previously, if there was a Redis Error, 
+  the SDK method 'getTreatment' would never resolve or reject. With the fix, now 
+  'getTreatment' call will  return treatment 'control' and will register a 
+  impressions with label 'exception'.
+
 ## 10.1.0 (March 8, 2018)
 
 * Replaced isomorphic-fetch with axios.

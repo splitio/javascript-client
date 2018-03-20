@@ -1,3 +1,8 @@
+## 10.1.1 (March 20, 2018)
+
+* Bugfixing - getTreatment will return 'control' and the impression registered 
+  will have label 'exception' when there is a Redis Exception.
+
 ## 10.1.0 (March 8, 2018)
 
 * Replaced isomorphic-fetch with axios.
