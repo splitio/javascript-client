@@ -52,7 +52,7 @@
     "redis-dump": "0.1.10",
     "redis-server": "1.2.0",
     "rimraf": "2.5.4",
-    "sinon": "4.4.2",
+    "sinon": "4.4.7",
     "tape": "4.8.0",
     "tape-catch": "1.0.6",
     "webpack": "3.5.5"
