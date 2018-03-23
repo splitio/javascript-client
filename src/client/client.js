@@ -1,5 +1,3 @@
-import 'core-js/es6/promise';
-
 import isFinite from 'lodash/isFinite';
 import logFactory from '../utils/logger';
 const log = logFactory('splitio-client');
@@ -9,6 +7,7 @@ import tracker from '../utils/timeTracker';
 import keyParser from '../utils/key/parser';
 import thenable from '../utils/promise/thenable';
 import { matching, bucketing } from '../utils/key/factory';
+import Promise from 'core-js/fn/promise';
 
 function getTreatmentAvailable(
   evaluation,

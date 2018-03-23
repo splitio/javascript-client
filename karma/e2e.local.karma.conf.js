@@ -8,16 +8,16 @@ module.exports = function(config) {
     files: [
       // Test using the CDN version of the SDK
       // 'https://cdn.split.io/sdk/split-9.1.0.min.js',
-      '../src/__tests__/**/browser.spec.js'
-      // '../src/__tests__/shared-instantiation/browser.spec.js'
-      // '../src/storage/__tests__/**/*.spec.js'
+      '__tests__/**/browser.spec.js'
+      // '__tests__/shared-instantiation/browser.spec.js'
+      // 'storage/__tests__/**/*.spec.js'
     ],
 
     // prepare code for the browser using webpack
     preprocessors: {
-      '../src/__tests__/**/browser.spec.js': ['webpack']
-      // '../src/__tests__/shared-instantiation/browser.spec.js': ['webpack']
-      // '../src/storage/__tests__/**/*.spec.js': ['webpack']
+      '__tests__/**/browser.spec.js': ['webpack']
+      // '__tests__/shared-instantiation/browser.spec.js': ['webpack']
+      // 'storage/__tests__/**/*.spec.js': ['webpack']
     },
 
     // level of logging

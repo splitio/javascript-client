@@ -1,5 +1,6 @@
 import EventEmitter from 'events';
 import tracker from '../utils/timeTracker';
+import { setTimeout } from 'core-js/library/web/timers';
 
 const SPLITS_READY = 2;
 const SEGMENTS_READY = 4;
