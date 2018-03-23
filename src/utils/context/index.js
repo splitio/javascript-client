@@ -16,6 +16,7 @@ limitations under the License.
 import thenable from '../promise/thenable';
 
 import constants from './constants';
+import Promise from 'core-js/fn/promise';
 
 class Context {
   constructor() {

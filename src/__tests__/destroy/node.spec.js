@@ -4,6 +4,7 @@ import map from 'lodash/map';
 import pick from 'lodash/pick';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
+import Promise from 'core-js/fn/promise';
 
 // This sets the mock adapter on the default instance
 const mock = new MockAdapter(axios);
