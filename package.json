@@ -55,8 +55,7 @@
     "tape": "4.9.0",
     "redis-server": "1.2.0",
     "tape-catch": "1.0.6",
-    "webpack": "3.5.5",
-    "babel-runtime": "6.26.0"
+    "webpack": "3.5.5"
   },
   "scripts": {
     "build-es": "rimraf es && cross-env NODE_ENV=es babel ./src -d es --ignore '__tests__'",
@@ -91,6 +90,7 @@
   "dependencies": {
     "@types/node": "9.4.7",
     "axios": "0.18.0",
+    "babel-runtime": "6.26.0",
     "core-js": "2.5.3",
     "ip": "1.1.5",
     "lodash": "4.17.5",
