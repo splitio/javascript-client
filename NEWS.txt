@@ -1,3 +1,29 @@
+## 10.1.2 (March 28, 2018)
+
+* Added greenkeeper configuration within package.json.
+* Updated several libraries versions:
+  . babel-loader
+  . babel-plugin-istanbul
+  . babel-plugin-transform-runtime
+  . babel-preset-env
+  . copyfiles
+  . cross-env
+  . eslint
+  . karma-firefox-launcher
+  . karma-phantomjs-launcher
+  . rimraf
+  . sinon
+  . tape
+  . types/node
+  . axios
+  . core-js
+  . ip
+  . lodash
+  . ioredis
+
+* Removed global Promise polyfill. Instead we start using local scope polyfills, 
+  to avoid pollute the global variables.
+
 ## 10.1.1 (March 20, 2018)
 
 * Bugfixing - SDK with REDIS storage issue. Previously, if there was a Redis Error, 
