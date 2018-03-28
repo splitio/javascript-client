@@ -7,7 +7,7 @@ import tracker from '../utils/timeTracker';
 import keyParser from '../utils/key/parser';
 import thenable from '../utils/promise/thenable';
 import { matching, bucketing } from '../utils/key/factory';
-import Promise from 'core-js/fn/promise';
+import Promise from 'core-js/library/fn/promise';
 
 function getTreatmentAvailable(
   evaluation,

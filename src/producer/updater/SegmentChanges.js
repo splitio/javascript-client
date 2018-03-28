@@ -18,7 +18,7 @@ import logFactory from '../../utils/logger';
 const log = logFactory('splitio-producer:segment-changes');
 import segmentChangesFetcher from '../fetcher/SegmentChanges';
 import findIndex from 'core-js/library/fn/array/find-index';
-import Promise from 'core-js/fn/promise';
+import Promise from 'core-js/library/fn/promise';
 
 const SegmentChangesUpdaterFactory = (context) => {
   const {

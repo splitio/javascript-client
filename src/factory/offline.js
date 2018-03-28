@@ -1,6 +1,6 @@
 import ClientFactory from '../client';
 import OfflineProducerFactory from '../producer/offline';
-import Promise from 'core-js/fn/promise';
+import Promise from 'core-js/library/fn/promise';
 
 //
 // Create SDK instance for offline mode.

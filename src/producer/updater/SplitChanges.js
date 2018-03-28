@@ -18,7 +18,7 @@ import logFactory from '../../utils/logger';
 const log = logFactory('splitio-producer:split-changes');
 import splitChangesFetcher from '../fetcher/SplitChanges';
 import parseSegments from '../../engine/parser/segments';
-import Promise from 'core-js/fn/promise';
+import Promise from 'core-js/library/fn/promise';
 
 function computeSplitsMutation(entries) {
   const computed = entries.reduce((accum, split) => {

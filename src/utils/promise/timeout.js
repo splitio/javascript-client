@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-import Promise from 'core-js/fn/promise';
+import Promise from 'core-js/library/fn/promise';
 import { setTimeout } from 'core-js/library/web/timers';
 
 function timeout(ms, promise) {

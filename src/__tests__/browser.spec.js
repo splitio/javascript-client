@@ -1,3 +1,5 @@
+import 'core-js/fn/promise';
+
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import evaluationsSuite from './browserSuites/evaluations.spec';
@@ -7,7 +9,7 @@ import {
   bindingTT
 } from './browserSuites/events.spec';
 import sharedInstantiationSuite from './browserSuites/shared-instantiation.spec';
-import tape from 'tape';
+import tape from 'tape-catch';
 import SettingsFactory from '../utils/settings';
 const settings = SettingsFactory({
   core: {

@@ -1,3 +1,5 @@
+import 'core-js/fn/promise';
+
 import { SplitFactory } from '../../';
 import tape from 'tape';
 import map from 'lodash/map';

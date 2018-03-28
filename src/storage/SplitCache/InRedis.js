@@ -1,6 +1,6 @@
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-storage:redis');
-import Promise from 'core-js/fn/promise';
+import Promise from 'core-js/library/fn/promise';
 
 /**
  * Discard errors for an answer of multiple operations.

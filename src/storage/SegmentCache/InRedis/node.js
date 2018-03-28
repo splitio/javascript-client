@@ -1,4 +1,4 @@
-import Promise from 'core-js/fn/promise';
+import Promise from 'core-js/library/fn/promise';
 
 class SegmentCacheInRedis {
 
