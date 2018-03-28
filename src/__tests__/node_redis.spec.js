@@ -34,7 +34,7 @@ const initializeRedisServer = () => {
     server
       .open()
       .then(() => {
-        exec(`cat ./src/__tests__/mocks/redis_mock.json | ./node_modules/redis-dump/bin/cli/redis-dump -p ${redisPort} --convert | redis-cli -p ${redisPort}` , (err, stdout, stderr) => {
+        exec(`cat ./src/__tests__/mocks/redis_mock.json | ./node_modules/redis-dump/bin/cli/redis-dump -p ${redisPort} --convert | redis-cli -p ${redisPort}` , err => {
           if (err) {
             reject(server);
             // node couldn't execute the command
@@ -47,7 +47,7 @@ const initializeRedisServer = () => {
   });
 
   return promise;
-}
+};
 
 tape('NodeJS Redis', function (assert) {
   

@@ -18,6 +18,7 @@ import findIndex from 'core-js/library/fn/array/find-index';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-engine:combiner');
 import thenable from '../../utils/promise/thenable';
+import Promise from 'core-js/fn/promise';
 
 function andResults(results) {
   let i = 0;

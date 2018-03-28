@@ -1,11 +1,11 @@
 import { setTimeout } from 'core-js/library/web/timers';
-
 import logFactory from '../utils/logger';
 const log = logFactory('splitio-events');
 import tracker from '../utils/timeTracker';
 import repeat from '../utils/fn/repeat';
 import eventsService from '../services/events';
 import eventsBulkRequest from '../services/events/bulk';
+import Promise from 'core-js/fn/promise';
 
 const EventsFactory = context => {
   const settings = context.get(context.constants.SETTINGS);
