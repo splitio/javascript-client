@@ -17,7 +17,6 @@ limitations under the License.
 import Engine from '../';
 import thenable from '../../utils/promise/thenable';
 import LabelsConstants from '../../utils/labels';
-import Promise from 'core-js/library/fn/promise';
 
 function splitEvaluator(
   key,

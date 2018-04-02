@@ -35,7 +35,6 @@ import {
   MySegmentsCollector,
   SDKCollector
 } from './Collectors';
-import Promise from 'core-js/library/fn/promise';
 
 const log = logFactory('splitio-metrics');
 

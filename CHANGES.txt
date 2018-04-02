@@ -2,7 +2,7 @@
 
 * Added greenkeeper configuration within package.json.
 * Updated several libraries versions.
-* Removed global polyfills, instead use local scope polyfills.
+* Removed global polyfills.
 
 ## 10.1.1 (March 20, 2018)
 

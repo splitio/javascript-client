@@ -4,7 +4,6 @@ import PartialProducerFactory from '../producer/browser/Partial';
 import MetricsFactory from '../metrics';
 import EventsFactory from '../events';
 import { STANDALONE_MODE, PRODUCER_MODE, CONSUMER_MODE } from '../utils/constants';
-import Promise from 'core-js/library/fn/promise';
 
 //
 // Create SDK instance based on the provided configurations

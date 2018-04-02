@@ -14,12 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-import findIndex from 'core-js/library/fn/array/find-index';
+import findIndex from 'lodash/findIndex';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-engine:combiner');
 import thenable from '../../utils/promise/thenable';
 import LabelsConstants from '../../utils/labels';
-import Promise from 'core-js/library/fn/promise';
 
 function unexpectedInputHandler() {
   log.error('Invalid Split provided, no valid conditions found');

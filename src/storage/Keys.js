@@ -1,4 +1,4 @@
-import startsWith from 'core-js/library/fn/string/starts-with';
+import startsWith from 'lodash/startsWith';
 
 const everythingAtTheEnd = /[^.]+$/;
 const everythingAfterCount = /count\.([^/]+)$/;

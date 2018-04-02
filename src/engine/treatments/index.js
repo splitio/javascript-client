@@ -14,12 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-//
-// [1] Transpilation process is not doing a good job infering which "polyfills"
-// are required at runtime, so we end doing this kind of lodash style expressions
-// using core-js.
-//
-import findIndex from 'core-js/library/fn/array/find-index';
+import findIndex from 'lodash/findIndex';
 
 function Treatments(ranges, treatments) {
   if (!(this instanceof Treatments)) {

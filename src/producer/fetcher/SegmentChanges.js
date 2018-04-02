@@ -18,7 +18,6 @@ import segmentChangesService from '../../services/segmentChanges';
 import segmentChangesRequest from '../../services/segmentChanges/get';
 import tracker from '../../utils/timeTracker';
 import startsWith from 'lodash/startsWith';
-import Promise from 'core-js/library/fn/promise';
 
 function greedyFetch(settings, lastSinceValue, segmentName, metricCollectors) {
   return tracker.start(tracker.TaskNames.SEGMENTS_FETCH, metricCollectors, segmentChangesService(segmentChangesRequest(settings, {
