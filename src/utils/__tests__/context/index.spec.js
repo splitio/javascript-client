@@ -16,7 +16,6 @@ limitations under the License.
 import tape from 'tape-catch';
 import Context from '../../context';
 import ContextConsts from '../../context/constants';
-import Promise from 'core-js/fn/promise';
 
 tape('CONTEXT / Should have an API for storing and retrieving items', assert => {
   assert.equal(typeof Context, 'function', 'It should be a class.');

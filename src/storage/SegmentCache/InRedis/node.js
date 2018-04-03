@@ -1,5 +1,3 @@
-import Promise from 'core-js/fn/promise';
-
 class SegmentCacheInRedis {
 
   constructor(keys, redis) {

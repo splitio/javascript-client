@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio",
-  "version": "10.1.2",
+  "version": "10.2.0",
   "description": "Split SDK",
   "files": [
     "README.md",
@@ -37,6 +37,7 @@
     "babel-plugin-transform-runtime": "6.23.0",
     "babel-preset-env": "1.6.1",
     "copyfiles": "2.0.0",
+    "core-js": "2.5.3",
     "cross-env": "5.1.4",
     "csv-streamify": "3.0.4",
     "eslint": "4.18.2",
@@ -84,6 +85,7 @@
     "posttest-ts-decls": "npm unlink && npm install",
     "browser-test-suite": "npm run test-browser-local && npm run test-browser-ci && npm run test-browser-e2e-ci && npm run test-browser-offline && npm run test-browser-destroy",
     "node-test-suite": "npm run test-node && npm run test-node-e2e && npm run test-node-offline && npm run test-node-redis",
+    "test": "npm run browser-test-suite && npm run node-test-suite",
     "canary": "npm run rebuild && npm publish --tag canary",
     "stable": "npm run rebuild && npm publish"
   },
@@ -91,7 +93,6 @@
     "@types/node": "9.4.7",
     "axios": "0.18.0",
     "babel-runtime": "6.26.0",
-    "core-js": "2.5.3",
     "ip": "1.1.5",
     "lodash": "4.17.5",
     "logplease": "github:NicoZelaya/logplease#1.3.0",

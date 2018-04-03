@@ -45,6 +45,7 @@
     "test": {
       "presets": [
         ["env", {
+          "useBuiltIns": true,
           "modules": "commonjs"
         }]
       ],
