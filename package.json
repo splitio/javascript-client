@@ -56,7 +56,7 @@
     "tape": "4.9.0",
     "redis-server": "1.2.0",
     "tape-catch": "1.0.6",
-    "webpack": "3.5.5"
+    "webpack": "4.2.0"
   },
   "scripts": {
     "build-es": "rimraf es && cross-env NODE_ENV=es babel ./src -d es --ignore '__tests__'",
