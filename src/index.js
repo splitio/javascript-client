@@ -14,6 +14,7 @@ import { LOCALHOST_MODE } from './utils/constants';
 export function SplitFactory(config) {
   // Cache instances created per factory.
   const instances = {};
+  
   // Tracking times. We need to do it here because we need the storage created.
   const readyLatencyTrackers = {
     splitsReadyTracker: tracker.start(tracker.TaskNames.SPLITS_READY),
@@ -21,14 +22,17 @@ export function SplitFactory(config) {
     sdkReadyTracker: tracker.start(tracker.TaskNames.SDK_READY)
   };
   const context = new Context();
+
+  // Put settings config within context
   const settings = SettingsFactory(config);
   context.put(context.constants.SETTINGS, settings);
 
+  // Put storage config within context
   const storage = StorageFactory(context);
   const gateFactory = ReadinessGateFacade();
-
   context.put(context.constants.STORAGE, storage);
 
+  // Define which type of factory to use
   const splitFactory = settings.mode === LOCALHOST_MODE ? SplitFactoryOffline : SplitFactoryOnline;
 
   const {
@@ -59,7 +63,7 @@ export function SplitFactory(config) {
 
       if (!instances[instanceId]) {
         const sharedSettings = settings.overrideKeyAndTT(key, trafficType);
-        const sharedContext = new Context;
+        const sharedContext = new Context();
         sharedContext.put(context.constants.SETTINGS, sharedSettings);
         sharedContext.put(context.constants.STORAGE, storage.shared(sharedSettings));
         // As shared clients reuse all the storage information, we don't need to check here if we

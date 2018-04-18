@@ -19,6 +19,8 @@ import parser from './parser';
 import keyParser from '../utils/key/parser';
 import thenable from '../utils/promise/thenable';
 import LabelsConstants from '../utils/labels';
+import logFactory from '../utils/logger';
+const log = logFactory('splitio-client');
 
 function defaults(inst) {
   // in case we don't have a default treatment in the instanciation, use
@@ -74,6 +76,8 @@ Split.prototype.getTreatment = function getTreatment(key, attributes, splitEvalu
   try {
     parsedKey = keyParser(key);
   } catch (e) {
+    log.error(`Error on key parser, current key is ${key} and typeof key ${typeof key}`);
+
     return {
       treatment: 'control',
       label: LabelsConstants.EXCEPTION

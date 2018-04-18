@@ -26,15 +26,19 @@ function getTreatmentAvailable(
     log.warn(`Split ${splitName} doesn't exist`);
   }
 
-  impressionsTracker({
-    feature: splitName,
-    keyName: matchingKey,
-    treatment,
-    time: Date.now(),
-    bucketingKey,
-    label,
-    changeNumber
-  });
+  if (matchingKey !== false) {
+    impressionsTracker({
+      feature: splitName,
+      keyName: matchingKey,
+      treatment,
+      time: Date.now(),
+      bucketingKey,
+      label,
+      changeNumber
+    });
+  } else {
+    log.warn('Impression not collected since matchingKey is not a valid key');
+  }
 
   stopLatencyTracker();
 
