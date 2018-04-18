@@ -131,13 +131,21 @@ tape('FACTORY KEY PARSER / should fail if a invalid key is passed as a param', a
   assert.end();
 });
 
-tape('FACTORY KEY PARSER / should fail if a key isn\'t passed as a param', assert => {
+tape('FACTORY KEY PARSER / should return false if a key isn\'t passed as a param', assert => {
 
-  try {
-    matching(undefined);
-  } catch(e) {
-    assert.ok(e, 'key parsed should throw an exception if undefined is passed within params');
-  }
+  const keyParsed = matching(undefined);
+
+  assert.equal(keyParsed, false, 'key parsed should be false if undefined is passed within params');
+
+  assert.end();
+});
+
+tape('FACTORY KEY PARSER / if a number is passed as a param it should return a string', assert => {
+
+  const key = 123456789;
+  const keyParsed = matching(key);
+
+  assert.equal(typeof keyParsed, 'string', 'key parsed should be a string');
 
   assert.end();
 });

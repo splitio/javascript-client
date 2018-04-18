@@ -12,8 +12,9 @@ function SplitFactoryOnline(context, gateFactory, readyTrackers, mainClientMetri
   const sharedInstance = !!mainClientMetricCollectors;
   const settings = context.get(context.constants.SETTINGS);
   const storage = context.get(context.constants.STORAGE);
-  const readiness = gateFactory(settings.startup.readyTimeout);
 
+  // Put readiness config within context  
+  const readiness = gateFactory(settings.startup.readyTimeout);
   context.put(context.constants.READINESS, readiness);
 
   // We are only interested in exposable EventEmitter
@@ -26,8 +27,10 @@ function SplitFactoryOnline(context, gateFactory, readyTrackers, mainClientMetri
     SDK_READY_TIMED_OUT
   } = gate;
 
-  const metrics = sharedInstance ? undefined : MetricsFactory(context); // Shared instances use parent metrics collectors
-  const events = sharedInstance ? undefined : EventsFactory(context); // Shared instances use parent events queue
+  // Shared instances use parent metrics collectors
+  const metrics = sharedInstance ? undefined : MetricsFactory(context); 
+  // Shared instances use parent events queue
+  const events = sharedInstance ? undefined : EventsFactory(context); 
   let producer;
 
   switch(settings.mode) {

@@ -30,7 +30,8 @@ function splitEvaluator(
     splitObject = storage.splits.getSplit(splitName);
   } catch (e) {
     // the only scenario where getSplit can throw an error is when the storage
-    // is redis and there is a connection issue
+    // is redis and there is a connection issue and we can't retrieve the split
+    // to be evaluated
     return Promise.resolve({
       treatment: 'control',
       label: LabelsConstants.EXCEPTION

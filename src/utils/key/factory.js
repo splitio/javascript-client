@@ -1,5 +1,7 @@
 import isString from 'lodash/isString';
 import isObject from 'lodash/isObject';
+import isFinite from 'lodash/isFinite';
+import toString from 'lodash/toString';
 
 /**
  * Verify type of key and return the set key property
@@ -13,6 +15,10 @@ function KeyFactory(keyProperty, shouldReturnUndefined = false) {
       return shouldReturnUndefined ? undefined : key;
     }
 
+    if (isFinite(key)) {
+      return toString(key);
+    }
+
     if (isObject(key)) {
       if (!key[keyProperty]) {
         throw `key should has property ${keyProperty}`;
@@ -20,6 +26,8 @@ function KeyFactory(keyProperty, shouldReturnUndefined = false) {
 
       return key[keyProperty];
     }
+
+    return false;
   };
 }
 

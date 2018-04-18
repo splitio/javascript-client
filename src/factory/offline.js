@@ -8,8 +8,9 @@ function SplitFactoryOffline(context, gateFactory, sharedTrackers) {
   const sharedInstance = !sharedTrackers;
   const settings = context.get(context.constants.SETTINGS);
   const storage = context.get(context.constants.STORAGE);
-  const readiness = gateFactory(settings.startup.readyTimeout);
 
+  // Put readiness config within context    
+  const readiness = gateFactory(settings.startup.readyTimeout);
   context.put(context.constants.READINESS, readiness);
 
   // We are only interested in exposable EventEmitter
