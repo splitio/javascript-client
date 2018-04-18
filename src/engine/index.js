@@ -76,7 +76,7 @@ Split.prototype.getTreatment = function getTreatment(key, attributes, splitEvalu
   try {
     parsedKey = keyParser(key);
   } catch (e) {
-    log.error(`Error on key parser typeof key: ${typeof key}`);
+    log.error(`Error on key parser, current key is ${key} and typeof key ${typeof key}`);
 
     return {
       treatment: 'control',
