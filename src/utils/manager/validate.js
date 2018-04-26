@@ -14,15 +14,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 import isString from 'lodash/isString';
-import isFinite from 'lodash/isFinite';
-import toString from 'lodash/toString';
+import logFactory from '../logger';
+const log = logFactory('splitio-client');
 
-function sanatizeKey(key) {
-  if (isString(key) || isFinite(key)) {
-    return toString(key);
+function managerValidate(splitName) {
+  if (splitName === null || splitName === undefined) {
+    log.error('split: split_name cannot be null');
+    return false;
   }
 
-  return false;
-} 
+  if (!isString(splitName)) {
+    log.error('split: split_name X must be a string');
+    return false;
+  }
 
-export default sanatizeKey;
+  return true;
+}
+
+export default managerValidate;
