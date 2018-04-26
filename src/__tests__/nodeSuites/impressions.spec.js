@@ -63,5 +63,5 @@ export default async function(key, mock, assert) {
 
   // depends on hierarchical_dep_hierarchical which depends on hierarchical_dep_always_on
   assert.equal(client.getTreatment(key, 'hierarchical_splits_test'), 'on', 'We should get an evaluation as always.');
-  assert.equal(client.getTreatment(false, 'hierarchical_splits_test'), 'control', 'We should control with a invalid key.');
+  assert.equal(client.getTreatment(false, 'hierarchical_splits_test'), 'control', 'We should return control with a invalid key.');
 }

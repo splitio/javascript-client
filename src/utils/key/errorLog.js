@@ -1,7 +1,7 @@
 import isObject from 'lodash/isObject';
 import isFinite from 'lodash/isFinite';
 import sanatize from './sanatize';
-import logFactory from '../utils/logger';
+import logFactory from '../logger';
 const log = logFactory('splitio-client');
 
 function errorLog(prefix, key) {
