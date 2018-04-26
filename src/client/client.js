@@ -1,13 +1,12 @@
-import isFinite from 'lodash/isFinite';
 import logFactory from '../utils/logger';
 const log = logFactory('splitio-client');
 import evaluator from '../engine/evaluator';
 import PassTracker from '../tracker/PassThrough';
 import tracker from '../utils/timeTracker';
-import keyParser from '../utils/key/parser';
-import keyErrorLog from '../utils/key/errorLog';
 import thenable from '../utils/promise/thenable';
+import keyParser from '../utils/key/parser';
 import { matching, bucketing } from '../utils/key/factory';
+import validateTrackArguments from '../utils/track/validate';
 
 function getTreatmentAvailable(
   evaluation,
@@ -95,30 +94,24 @@ function ClientFactory(context) {
       }
     },
     track(key, trafficTypeName, eventTypeId, eventValue) {
-      const parsedKey = keyParser(key);
-      if (parsedKey === false) {
-        keyErrorLog('track', key);
-        return false; // If the key is invalid, return false.
+      const areValidTrackArguments = validateTrackArguments(key, trafficTypeName, eventTypeId, eventValue);
+
+      if (!areValidTrackArguments) {
+        return false;
       }
 
-      if (typeof trafficTypeName !== 'string' || typeof eventTypeId !== 'string') {
-        log.warn('Attempting to track event but Traffic Type and/or Event Type are invalid. Event will be discarded.');
-        return false; // If the trafficType or eventType are invalid, return false.
-      }
-
+      const matchingKey =  keyParser(key).matchingKey;
       const timestamp = Date.now();
-      // Values that are no doubles should be taken as 0 (@Pato's)
-      const value = isFinite(eventValue) ? eventValue : 0;
 
       storage.events.track({
         eventTypeId,
         trafficTypeName,
-        value,
+        value: eventValue,
         timestamp,
-        key: parsedKey.matchingKey,
+        key: matchingKey,
       });
 
-      log.info(`Successfully qeued event of type "${eventTypeId}" for traffic type "${trafficTypeName}". Key: ${parsedKey.matchingKey}. Value: ${value}. Timestamp: ${timestamp}.`);
+      log.info(`Successfully qeued event of type "${eventTypeId}" for traffic type "${trafficTypeName}". Key: ${matchingKey}. Value: ${eventValue}. Timestamp: ${timestamp}.`);
 
       return true;
     }

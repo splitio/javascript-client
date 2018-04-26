@@ -4,7 +4,7 @@ import sanatize from './sanatize';
 import logFactory from '../logger';
 const log = logFactory('splitio-client');
 
-function errorLog(prefix, key) {
+function keyLogError(prefix, key) {
   if (key === null || key === undefined) {
     log.error(`${prefix}: key cannot be null`);
   }
@@ -24,4 +24,4 @@ function errorLog(prefix, key) {
   }
 }
 
-export default errorLog;
+export default keyLogError;
