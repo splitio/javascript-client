@@ -1,33 +1,24 @@
-import isString from 'lodash/isString';
 import isObject from 'lodash/isObject';
-import isFinite from 'lodash/isFinite';
-import toString from 'lodash/toString';
+import sanatize from './sanatize';
 
 /**
  * Verify type of key and return the set key property
- * If shouldReturnUndefined === true will return undefined only if typeof key
- * is a string.
+ * If shouldReturnUndefined === true will return undefined
  * Use case: impressions tracker need matching key or bucketing key.
  */
 function KeyFactory(keyProperty, shouldReturnUndefined = false) {
   return function getKeyProperty(key) {
-    if (isString(key)) {
-      return shouldReturnUndefined ? undefined : key;
-    }
-
-    if (isFinite(key)) {
-      return toString(key);
-    }
-
     if (isObject(key)) {
-      if (!key[keyProperty]) {
-        throw `key should has property ${keyProperty}`;
-      }
+      const sanatizedProperty = sanatize(key[keyProperty]);
 
-      return key[keyProperty];
+      if (sanatizedProperty !== false) {
+        return sanatizedProperty;
+      } else {
+        return false;
+      }
     }
 
-    return false;
+    return shouldReturnUndefined ? undefined : sanatize(key);
   };
 }
 

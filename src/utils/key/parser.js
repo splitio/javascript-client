@@ -1,7 +1,5 @@
-import toString from 'lodash/toString';
 import isObject from 'lodash/isObject';
-import isString from 'lodash/isString';
-import isFinite from 'lodash/isFinite';
+import sanatize from './sanatize';
 
 /**
  * Verify type of key and return a valid object key used for get treatment for a
@@ -9,34 +7,29 @@ import isFinite from 'lodash/isFinite';
  */
 export default (key) => {
   if (isObject(key)) {
-    // If we've received an object, we will convert to string the matchingKey 
-    // and bucketingKey properties
+    // If we've received an object, we will sanatizes the value of each property
     const keyObject = {
-      matchingKey: toString(key.matchingKey),
-      bucketingKey: toString(key.bucketingKey)
+      matchingKey: sanatize(key.matchingKey),
+      bucketingKey: sanatize(key.bucketingKey)      
     };
-    // and if they've resulted on an empty string, we throw an error.
-    if (!keyObject.bucketingKey.length || !keyObject.matchingKey.length) {
-      throw 'Key object should have properties bucketingKey and matchingKey.';
+
+    // and if they've resulted on a invalid type of key we will return false
+    if (keyObject.bucketingKey === false || keyObject.matchingKey === false) {
+      return false;
     }
 
     return keyObject;
   }
 
-
-  if (isString(key) || isFinite(key)) {
-    // In case we don't have an object, we will try to coerce the value to a 
-    // string, and use it for matchingKey & bucketingKey, if the coercion 
-    // results on an empty string, it was an invalid value.
-    const keyString = toString(key);
-    
-    if (keyString.length) {
-      return {
-        matchingKey: keyString,
-        bucketingKey: keyString
-      };
-    }
+  const sanatizedKey = sanatize(key);
+  
+  // sanatize would return false if the key is invalid
+  if (sanatizedKey !== false) {
+    return {
+      matchingKey: sanatizedKey,
+      bucketingKey: sanatizedKey
+    };
   }
 
-  throw 'Key should be a valid string value or number or an object with bucketingKey and matchingKey with valid string properties.';
+  return false;
 };

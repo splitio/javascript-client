@@ -5,6 +5,7 @@ import evaluator from '../engine/evaluator';
 import PassTracker from '../tracker/PassThrough';
 import tracker from '../utils/timeTracker';
 import keyParser from '../utils/key/parser';
+import keyErrorLog from '../utils/key/errorLog';
 import thenable from '../utils/promise/thenable';
 import { matching, bucketing } from '../utils/key/factory';
 
@@ -22,10 +23,11 @@ function getTreatmentAvailable(
 
   if (treatment !== 'control') {
     log.info(`Split: ${splitName}. Key: ${matchingKey}. Evaluation: ${treatment}`);
-  } else {
+  } else if (matchingKey !== false) {
     log.warn(`Split ${splitName} doesn't exist`);
   }
 
+  /** Not push impressions if matchingKey is invalid */
   if (matchingKey !== false) {
     impressionsTracker({
       feature: splitName,
@@ -93,11 +95,9 @@ function ClientFactory(context) {
       }
     },
     track(key, trafficTypeName, eventTypeId, eventValue) {
-      let matchingKey;
-      try {
-        matchingKey = keyParser(key).matchingKey;
-      } catch (e) {
-        log.warn('Attempting to track event with invalid key. Event will be discarded.');
+      const parsedKey = keyParser(key);
+      if (parsedKey === false) {
+        keyErrorLog('track', key);
         return false; // If the key is invalid, return false.
       }
 
@@ -115,10 +115,10 @@ function ClientFactory(context) {
         trafficTypeName,
         value,
         timestamp,
-        key: matchingKey,
+        key: parsedKey.matchingKey,
       });
 
-      log.info(`Successfully qeued event of type "${eventTypeId}" for traffic type "${trafficTypeName}". Key: ${matchingKey}. Value: ${value}. Timestamp: ${timestamp}.`);
+      log.info(`Successfully qeued event of type "${eventTypeId}" for traffic type "${trafficTypeName}". Key: ${parsedKey.matchingKey}. Value: ${value}. Timestamp: ${timestamp}.`);
 
       return true;
     }
