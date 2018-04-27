@@ -17,10 +17,9 @@ limitations under the License.
 import get from 'lodash/get';
 import parser from './parser';
 import keyParser from '../utils/key/parser';
+import keyLogError from '../utils/key/logError';
 import thenable from '../utils/promise/thenable';
 import LabelsConstants from '../utils/labels';
-import logFactory from '../utils/logger';
-const log = logFactory('splitio-client');
 
 function defaults(inst) {
   // in case we don't have a default treatment in the instanciation, use
@@ -73,11 +72,10 @@ Split.prototype.getTreatment = function getTreatment(key, attributes, splitEvalu
   let treatment;
   let label;
 
-  try {
-    parsedKey = keyParser(key);
-  } catch (e) {
-    log.error(`Error on key parser, current key is ${key} and typeof key ${typeof key}`);
+  parsedKey = keyParser(key);
 
+  if (parsedKey === false) {
+    keyLogError('getTreatment', key);
     return {
       treatment: 'control',
       label: LabelsConstants.EXCEPTION

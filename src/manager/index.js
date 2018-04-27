@@ -1,5 +1,6 @@
 import thenable from '../utils/promise/thenable';
 import find from 'lodash/find';
+import validateManagerSplit from '../utils/manager/validate';
 
 const collectTreatments = (conditions) => {
   // Rollout conditions are supposed to have the entire partitions list, so we find the first one.
@@ -43,6 +44,11 @@ const SplitManagerFactory = (splits) => {
 
   return {
     split(splitName) {
+      const isSplitNameValid = validateManagerSplit(splitName);
+      if (!isSplitNameValid) {
+        return null; // error was logged in validateManagerSplit
+      }
+
       const split = splits.getSplit(splitName);
 
       if (thenable(split)) return split.then(result => ObjectToView(result));

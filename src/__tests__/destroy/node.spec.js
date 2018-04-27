@@ -47,22 +47,19 @@ tape('SDK destroy for NodeJS', async function (assert) {
   });
 
   // Events tracking do not need to wait for ready.
-  client.track('nicolas.zelaya@split.io','tt', 'eventType' /* Invalid value is stored as 0 */);
-  client.track('nicolas.zelaya@gmail.com','tt', 'otherEventType', 1);
+  client.track('nicolas.zelaya@split.io','tt', 'invalidEventType' /* Invalid values are not tracked */);
+  client.track('nicolas.zelaya@gmail.com','tt', 'validEventType', 1);
 
   // Assert we are sending the events while doing the destroy
   mock.onPost(settings.url('/events/bulk')).replyOnce(request => {
     const events = JSON.parse(request.data);
 
-    assert.equal(events.length, 2, 'Should flush all events on destroy.');
+    assert.equal(events.length, 1, 'Should flush all events on destroy.');
 
     const firstEvent = events[0];
-    const secondEvent = events[1];
 
-    assert.equal(firstEvent.key, 'nicolas.zelaya@split.io', 'The flushed events should match the events on the queue.');
-    assert.equal(firstEvent.eventTypeId, 'eventType', 'The flushed events should match the events on the queue.');
-    assert.equal(secondEvent.key, 'nicolas.zelaya@gmail.com', 'The flushed events should match the events on the queue.');
-    assert.equal(secondEvent.eventTypeId, 'otherEventType', 'The flushed events should match the events on the queue.');
+    assert.equal(firstEvent.key, 'nicolas.zelaya@gmail.com', 'The flushed events should match the events on the queue.');
+    assert.equal(firstEvent.eventTypeId, 'validEventType', 'The flushed events should match the events on the queue.');
 
     return [200];
   });

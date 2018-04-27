@@ -59,6 +59,10 @@ export function SplitFactory(config) {
       }
 
       const parsedkey = keyParser(key);
+      if (parsedkey === false) {
+        throw 'Shared Client needs a valid key string value or an object with bucketingKey and matchingKey with valid string properties';
+      }
+
       const instanceId = `${parsedkey.matchingKey}-${parsedkey.bucketingKey}-${trafficType !== undefined ? trafficType : ''}`;
 
       if (!instances[instanceId]) {
