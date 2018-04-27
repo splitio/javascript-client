@@ -102,16 +102,19 @@ function ClientFactory(context) {
 
       const matchingKey =  keyParser(key).matchingKey;
       const timestamp = Date.now();
+      // if eventValye is undefiend we convert it to null so the BE can handle
+      // a non existence value
+      const value = eventValue === undefined ? null : eventValue;
 
       storage.events.track({
         eventTypeId,
         trafficTypeName,
-        value: eventValue,
+        value,
         timestamp,
         key: matchingKey,
       });
 
-      log.info(`Successfully qeued event of type "${eventTypeId}" for traffic type "${trafficTypeName}". Key: ${matchingKey}. Value: ${eventValue}. Timestamp: ${timestamp}.`);
+      log.info(`Successfully qeued event of type "${eventTypeId}" for traffic type "${trafficTypeName}". Key: ${matchingKey}. Value: ${value}. Timestamp: ${timestamp}.`);
 
       return true;
     }

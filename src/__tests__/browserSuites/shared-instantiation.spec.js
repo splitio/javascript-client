@@ -86,7 +86,7 @@ export default function(startWithTT, mock, assert) {
     // Shared instance with TT on instantiation
     assert.true(nicolasClient.track('nicoEvent', 10), 'If a shared client was created passing both key and TT, the latter gets binded to it so it is not necessary to provide the traffic type to client.track()');
     // Shared instance without TT on instantiation
-    assert.false(marcioClient.track('marcioEvent', 10), 'If a shared client was created passing only key, no traffic type is binded so we need to provide one for client.track()');
+    assert.false(marcioClient.track('marcioEvent'), 'If a shared client was created passing only key, no traffic type is binded so we need to provide one for client.track()');
     assert.true(marcioClient.track('marcio_tt', 'marcioEvent', 10), 'If a shared client was created passing only key, no traffic type is binded so we need to provide one for client.track()');
   };
 

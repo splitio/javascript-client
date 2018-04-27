@@ -29,6 +29,18 @@ tape('TRACK VALIDATE / if valid arguments are passed should return true', assert
   assert.end();
 });
 
+tape('TRACK VALIDATE / if valid arguments are passed should return true either value is undefined', assert => {
+  const key = 'some_key';
+  const eventTypeId = 'event_type';
+  const trafficTypeName = 'traffic_type';
+
+  const areValidTrackArguments = validate(key, trafficTypeName, eventTypeId);
+
+  assert.true(areValidTrackArguments, 'track validate will return true if all params are valids');
+  
+  assert.end();
+});
+
 tape('TRACK VALIDATE / if a invalid key is passed should return false', assert => {
   const key = null;
   const eventTypeId = 'event_type';
@@ -68,11 +80,11 @@ tape('TRACK VALIDATE / if a invalid trafficTypeName is passed should return fals
   assert.end();
 });
 
-tape('TRACK VALIDATE / if a invalid trafficTypeName is passed should return false', assert => {
+tape('TRACK VALIDATE / if a invalid value is passed should return false', assert => {
   const key = 'some_key';
   const eventTypeId = 'event_type';
   const trafficTypeName = 'traffic_type';
-  const value = undefined;
+  const value = 'invalid value';
 
   const areValidTrackArguments = validate(key, trafficTypeName, eventTypeId, value);
 

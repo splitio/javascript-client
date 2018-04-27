@@ -45,7 +45,7 @@ tape('SDK destroy for BrowserJS', async function (assert) {
   const manager = factory.manager();
 
   // Events are shared between shared instances.
-  assert.ok(client.track('tt', 'eventType' /* Invalid values are not tracked */) === false);
+  assert.ok(client.track('tt', 'eventType', 'invalid value' /* Invalid values are not tracked */) === false);
   client.track('tt2', 'eventType', 1);
   client2.track('tt', 'eventType', 2);
   client3.track('tt2', 'otherEventType', 3);

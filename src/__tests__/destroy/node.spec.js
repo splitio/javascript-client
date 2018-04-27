@@ -47,7 +47,7 @@ tape('SDK destroy for NodeJS', async function (assert) {
   });
 
   // Events tracking do not need to wait for ready.
-  client.track('nicolas.zelaya@split.io','tt', 'invalidEventType' /* Invalid values are not tracked */);
+  client.track('nicolas.zelaya@split.io','tt', 'invalidEventType', 'invalid value' /* Invalid values are not tracked */);
   client.track('nicolas.zelaya@gmail.com','tt', 'validEventType', 1);
 
   // Assert we are sending the events while doing the destroy

@@ -40,7 +40,7 @@ function validateTrackArguments(key, trafficTypeName, eventTypeId, value) {
     return false;
   }
 
-  if (value !== null && (value === undefined || !isFinite(value))) {
+  if (value !== null && value !== undefined && !isFinite(value)) {
     log.error('track: value must be a number');
     return false;
   }
