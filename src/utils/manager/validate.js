@@ -19,12 +19,12 @@ const log = logFactory('splitio-client');
 
 function managerValidate(splitName) {
   if (splitName === null || splitName === undefined) {
-    log.error('split: split_name cannot be null');
+    log.error('manager.split: split_name cannot be null');
     return false;
   }
 
   if (!isString(splitName)) {
-    log.error('split: split_name X must be a string');
+    log.error('manager.split: split_name X must be a string');
     return false;
   }
 

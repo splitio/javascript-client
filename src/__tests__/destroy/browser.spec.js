@@ -65,7 +65,7 @@ tape('SDK destroy for BrowserJS', async function (assert) {
   mock.onPost(settings.url('/events/bulk')).replyOnce(request => {
     const events = JSON.parse(request.data);
 
-    /* 4 events were pushed */
+    /* 3 events were pushed */
     assert.equal(events.length, 3, 'Should flush all events on destroy.');
 
     const firstEvent = events[0];

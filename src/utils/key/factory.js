@@ -24,13 +24,7 @@ import sanatize from './sanatize';
 function KeyFactory(keyProperty, shouldReturnUndefined = false) {
   return function getKeyProperty(key) {
     if (isObject(key)) {
-      const sanatizedProperty = sanatize(key[keyProperty]);
-
-      if (sanatizedProperty !== false) {
-        return sanatizedProperty;
-      } else {
-        return false;
-      }
+      return sanatize(key[keyProperty]);
     }
 
     return shouldReturnUndefined ? undefined : sanatize(key);
