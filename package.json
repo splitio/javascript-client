@@ -43,7 +43,7 @@
     "eslint": "4.18.2",
     "karma": "1.7.1",
     "karma-chrome-launcher": "2.2.0",
-    "karma-coverage": "1.1.1",
+    "karma-coverage": "1.1.2",
     "karma-firefox-launcher": "1.1.0",
     "karma-phantomjs-launcher": "1.0.4",
     "karma-safari-launcher": "1.0.0",
