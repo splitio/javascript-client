@@ -1,17 +1,18 @@
 ## 10.3.0 (May 2, 2018)
 
-* Input and output validations. Improved how the sdk validate, log erros and 
+* Input and output validations. Improved how the sdk validate, log erros and
   parse key property, validate and log errors on .getTreatment, .track and
-  .manager methods.  
+  .manager methods.
 * GetTreatment method will return 'control' and label exception if key is invalid.
   Also it will log a nice error to help in the debugging and will not push any
   impressions to the BE.
-* Track method and Manager method will return false if any of it's arguments are 
+* Track method and Manager method will return false if any of it's arguments are
   invalid, logging a nice and descriptive error.
-* Fixed memory leak on events factory, there were a setTimeout that was never 
+* Fixed memory leak on events factory, there were a setTimeout that was never
   removed from the stack.
-* Improved bunchs of UTs for the node sdk, still we need to continue improving 
+* Improved bunchs of UTs for the node sdk, still we need to continue improving
   unit tests for this.
+* TS declarations now accept boolean properties on Attributes.
 
 ## 10.2.0 (April 3, 2018)
 
@@ -40,9 +41,9 @@
 
 ## 10.1.1 (March 20, 2018)
 
-* Bugfixing - SDK with REDIS storage issue. Previously, if there was a Redis Error, 
-  the SDK method 'getTreatment' would never resolve or reject. With the fix, now 
-  'getTreatment' call will  return treatment 'control' and will register a 
+* Bugfixing - SDK with REDIS storage issue. Previously, if there was a Redis Error,
+  the SDK method 'getTreatment' would never resolve or reject. With the fix, now
+  'getTreatment' call will  return treatment 'control' and will register a
   impressions with label 'exception'.
 
 ## 10.1.0 (March 8, 2018)

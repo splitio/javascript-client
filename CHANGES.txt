@@ -5,6 +5,7 @@
 * Not push impressions if matchingKey is invalid.
 * Fixed memory leak on events factory.
 * Improved UT for the node sdk.
+* TS declarations now accept boolean properties on Attributes.
 
 ## 10.2.0 (April 3, 2018)
 
@@ -14,7 +15,7 @@
 
 ## 10.1.1 (March 20, 2018)
 
-* Bugfixing - getTreatment will return 'control' and the impression registered 
+* Bugfixing - getTreatment will return 'control' and the impression registered
   will have label 'exception' when there is a Redis Exception.
 
 ## 10.1.0 (March 8, 2018)
