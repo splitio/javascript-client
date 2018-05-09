@@ -38,7 +38,7 @@
     "babel-preset-env": "1.6.1",
     "copyfiles": "2.0.0",
     "core-js": "2.5.3",
-    "cross-env": "5.1.4",
+    "cross-env": "5.1.5",
     "csv-streamify": "3.0.4",
     "eslint": "4.18.2",
     "karma": "1.7.1",
