@@ -1,4 +1,4 @@
-## 10.3.0 (May 2, 2018)
+## 10.3.0 (May 10, 2018)
 
 * Input and output validations.
 * Improved how the sdk parse the key.
