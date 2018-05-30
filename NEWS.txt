@@ -1,3 +1,8 @@
+## 10.3.1 (Jun XX, 2018)
+
+* Added events npm package as a dependency, since when building on top of
+  non-Node environments, the native node events module is not available.
+
 ## 10.3.0 (May 10, 2018)
 
 * Input and output validations. Improved how the sdk validate, log erros and
