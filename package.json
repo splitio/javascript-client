@@ -52,7 +52,7 @@
     "karma-webpack": "2.0.4",
     "redis-dump": "0.1.10",
     "rimraf": "2.6.2",
-    "sinon": "4.4.3",
+    "sinon": "5.1.1",
     "tape": "4.9.0",
     "redis-server": "1.2.0",
     "tape-catch": "1.0.6",
