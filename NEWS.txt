@@ -1,4 +1,4 @@
-## 10.3.2 (Jun XX, 2018)
+## 10.3.2 (Jun 19, 2018)
 
 * Updating logging utility check for Node environments
 
