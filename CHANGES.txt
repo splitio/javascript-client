@@ -1,3 +1,7 @@
+## 10.3.2 (Jun 19, 2018)
+
+* Updating logging utility check for Node environments.
+
 ## 10.3.1 (Jun 4, 2018)
 
 * Added events npm package as a dependency.
