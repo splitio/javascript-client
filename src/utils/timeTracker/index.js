@@ -15,7 +15,7 @@ limitations under the License.
 **/
 
 import uniqueId from 'lodash/uniqueId';
-import Logger from 'logplease';
+import Logger from 'logplease-es5';
 import timer from './timer';
 import thenable from '../promise/thenable';
 
