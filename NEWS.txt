@@ -1,4 +1,4 @@
-## 10.3.3 (Aug 3, 2018)
+## 10.3.3 (Aug 8, 2018)
 
 * Removing logplease dependency hosted on GitHub.
 
