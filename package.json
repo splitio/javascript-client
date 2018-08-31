@@ -54,7 +54,7 @@
     "rimraf": "2.6.2",
     "sinon": "4.4.3",
     "tape": "4.9.0",
-    "redis-server": "1.2.0",
+    "redis-server": "1.2.1",
     "tape-catch": "1.0.6",
     "webpack": "3.5.5"
   },
