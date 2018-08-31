@@ -1,6 +1,5 @@
 import get from 'lodash/get';
 import ClientFactory from './client';
-import keyParser from '../utils/key/parser';
 import { LOCALHOST_MODE } from '../utils/constants';
 
 function FixKey(context) {
@@ -10,8 +9,6 @@ function FixKey(context) {
 
   if (settings.mode === LOCALHOST_MODE && key === undefined) {
     settings.core.key = 'localhost_key';
-  } else {
-    keyParser(key);
   }
 
   const client = ClientFactory(context);

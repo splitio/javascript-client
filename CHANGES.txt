@@ -1,3 +1,24 @@
+## 10.3.3 (Aug 8, 2018)
+
+* Removing logplease dependency hosted on GitHub.
+
+## 10.3.2 (Jun 19, 2018)
+
+* Updating logging utility check for Node environments.
+
+## 10.3.1 (Jun 4, 2018)
+
+* Added events npm package as a dependency.
+
+## 10.3.0 (May 10, 2018)
+
+* Input and output validations.
+* Improved how the sdk parse the key.
+* Not push impressions if matchingKey is invalid.
+* Fixed memory leak on events factory.
+* Improved UT for the node sdk.
+* TS declarations now accept boolean properties on Attributes.
+
 ## 10.2.0 (April 3, 2018)
 
 * Added greenkeeper configuration within package.json.
@@ -6,7 +27,7 @@
 
 ## 10.1.1 (March 20, 2018)
 
-* Bugfixing - getTreatment will return 'control' and the impression registered 
+* Bugfixing - getTreatment will return 'control' and the impression registered
   will have label 'exception' when there is a Redis Exception.
 
 ## 10.1.0 (March 8, 2018)

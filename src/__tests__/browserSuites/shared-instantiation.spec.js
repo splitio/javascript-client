@@ -77,17 +77,17 @@ export default function(startWithTT, mock, assert) {
     });
 
     if (startWithTT) {
-      assert.true(mainClient.track('myEvent'), 'If we specified the TT via settings, we should be able to track events without passing it as param');
+      assert.true(mainClient.track('myEvent', 10), 'If we specified the TT via settings, we should be able to track events without passing it as param');
     } else {
       assert.false(mainClient.track('myEvent'), 'If we have not specified TT via settings, it should be required on client.track()');
-      assert.true(mainClient.track('main_tt', 'myEvent'), 'If we have not specified TT via settings, it should be required on client.track()');
+      assert.true(mainClient.track('main_tt', 'myEvent', 10), 'If we have not specified TT via settings, it should be required on client.track()');
     }
 
     // Shared instance with TT on instantiation
-    assert.true(nicolasClient.track('nicoEvent'), 'If a shared client was created passing both key and TT, the latter gets binded to it so it is not necessary to provide the traffic type to client.track()');
+    assert.true(nicolasClient.track('nicoEvent', 10), 'If a shared client was created passing both key and TT, the latter gets binded to it so it is not necessary to provide the traffic type to client.track()');
     // Shared instance without TT on instantiation
     assert.false(marcioClient.track('marcioEvent'), 'If a shared client was created passing only key, no traffic type is binded so we need to provide one for client.track()');
-    assert.true(marcioClient.track('marcio_tt', 'marcioEvent'), 'If a shared client was created passing only key, no traffic type is binded so we need to provide one for client.track()');
+    assert.true(marcioClient.track('marcio_tt', 'marcioEvent', 10), 'If a shared client was created passing only key, no traffic type is binded so we need to provide one for client.track()');
   };
 
   /* Assert initial state */
