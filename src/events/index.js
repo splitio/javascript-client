@@ -1,5 +1,3 @@
-import { setTimeout } from 'core-js/library/web/timers';
-
 import logFactory from '../utils/logger';
 const log = logFactory('splitio-events');
 import tracker from '../utils/timeTracker';
@@ -24,6 +22,7 @@ const EventsFactory = context => {
     })).then(() => latencyTrackerStop());
   };
 
+  let stopEventPublisherTimeout = false;
   let stopEventsPublisher = false;
   const startEventsPublisher = () =>
     stopEventsPublisher = repeat(
@@ -35,7 +34,7 @@ const EventsFactory = context => {
     start() {
       // On the browser there may be a wish to wait an specific amount of seconds before the first push.
       if (settings.startup.eventsFirstPushWindow > 0) {
-        setTimeout(startEventsPublisher, settings.startup.eventsFirstPushWindow);
+        stopEventPublisherTimeout = setTimeout(startEventsPublisher, settings.startup.eventsFirstPushWindow);
       } else {
         startEventsPublisher();
       }
@@ -46,6 +45,7 @@ const EventsFactory = context => {
     },
 
     stop() {
+      stopEventPublisherTimeout && clearTimeout(stopEventPublisherTimeout);
       stopEventsPublisher && stopEventsPublisher();
     },
 

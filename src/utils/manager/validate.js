@@ -13,22 +13,22 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+import isString from 'lodash/isString';
+import logFactory from '../logger';
+const log = logFactory('splitio-client');
 
-function timeout(ms, promise) {
-  return new Promise((resolve, reject) => {
-    const tid = setTimeout(() => {
-      reject('timeout');
-    }, ms);
+function managerValidate(splitName) {
+  if (splitName === null || splitName === undefined) {
+    log.error('manager.split: split_name cannot be null');
+    return false;
+  }
 
-    promise.then((res) => {
-      clearTimeout(tid);
-      resolve(res);
-    },
-    (err) => {
-      clearTimeout(tid);
-      reject(err);
-    });
-  });
+  if (!isString(splitName)) {
+    log.error('manager.split: split_name X must be a string');
+    return false;
+  }
+
+  return true;
 }
 
-export default timeout;
+export default managerValidate;

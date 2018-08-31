@@ -34,8 +34,8 @@ export function withoutBindingTT(mock, assert) {
 
     // We will test the first and last item in detail.
     const firstEvent = resp[0];
-    const lastEvent = resp[5];
-    assert.equal(resp.length, 6, 'We had pushed 6 valid events, so we should post 6 items.');
+    const lastEvent = resp[3];
+    assert.equal(resp.length, 4, 'We had pushed 4 valid events, so we should post 4 items.');
 
     assert.equal(firstEvent.key, 'facundo@split.io', 'Key should match received value.');
     assert.equal(firstEvent.eventTypeId, 'someEvent', 'EventTypeId should match received value.');
@@ -46,7 +46,7 @@ export function withoutBindingTT(mock, assert) {
     assert.equal(lastEvent.key, 'facundo@split.io', 'Key should match received value.');
     assert.equal(lastEvent.eventTypeId, 'my.checkout.event', 'EventTypeId should match received value.');
     assert.equal(lastEvent.trafficTypeName, 'otherTraffictype', 'TrafficTypeName should match received value.');
-    assert.equal(lastEvent.value, 0, 'Should have 0 as value because the value was invalid on the last event.');
+    assert.equal(lastEvent.value, null, 'Should have null as value.');
     assert.equal(typeof lastEvent.timestamp, 'number', 'The timestamp should be a number.');
 
     client.destroy();
@@ -60,17 +60,15 @@ export function withoutBindingTT(mock, assert) {
 
   // Key binded as with getTreatment.
   assert.ok(client.track('someTrafficType', 'someEvent', 10), 'client.track returns true if an event is added to the queue.');
-  assert.ok(client.track('someTrafficType', 'someEvent', 25), 'client.track returns true if an event is added to the queue.');
+  assert.ok(client.track('otherTraffictype', 'genericEvent',  25), 'client.track returns true if event value is null and is added to the queue.');
+  assert.ok(client.track('otherTraffictype', 'my.click.event'), 'client.track returns true if an event is added to the queue.');
+  assert.ok(client.track('otherTraffictype', 'my.checkout.event', null), 'client.track returns true if an event is added to the queue.');
 
-  // Invalid values will become a zero.
-  assert.ok(client.track('otherTraffictype', 'anotherEvent', 'invalid value'), 'client.track returns true if an event is added to the queue, but if the value was invalid stores a 0.');
-  assert.ok(client.track('otherTraffictype', 'randomEvent'), 'client.track returns true if an event is added to the queue, but if the value was invalid stores a 0.');
-  assert.ok(client.track('otherTraffictype', 'genericEvent', null), 'client.track returns true if an event is added to the queue, but if the value was invalid stores a 0.');
-  assert.ok(client.track('otherTraffictype', 'my.checkout.event', ['some', 'stuff']), 'client.track returns true if an event is added to the queue, but if the value was invalid stores a 0.');
-
-  /* So far we've tracked 6 valid events */
+  /* So far we've tracked 4 valid events */
 
   // Invalid events will not be queued.
+  assert.notOk(client.track('otherTraffictype', 'anotherEvent', 'invalid value'), 'client.track returns false if event value is invalid and it could not be added to the queue.');
+  assert.notOk(client.track('otherTraffictype', 'my.checkout.event', ['some', 'stuff']), 'client.track returns false if event value is invalid and it could not be added to the queue.');
   assert.notOk(client.track(), 'client.track returns false if an event data was incorrect and it could not be added to the queue.');
   assert.notOk(client.track('someEvent'), 'client.track returns false if an event data was incorrect and it could not be added to the queue.');
   assert.notOk(client.track(10, 'someTrafficType', 'someEvent'), 'client.track returns false if an event data was incorrect and it could not be added to the queue.');
@@ -88,8 +86,8 @@ export function bindingTT(mock, assert) {
 
     // We will test the first and last item in detail.
     const firstEvent = resp[0];
-    const lastEvent = resp[5];
-    assert.equal(resp.length, 6, 'We had pushed 6 valid events, so we should post 6 items.');
+    const lastEvent = resp[3];
+    assert.equal(resp.length, 4, 'We had pushed 4 valid events, so we should post 4 items.');
 
     assert.equal(firstEvent.key, 'facundo@split.io', 'Key should match received value.');
     assert.equal(firstEvent.eventTypeId, 'someEvent', 'EventTypeId should match received value.');
@@ -100,7 +98,7 @@ export function bindingTT(mock, assert) {
     assert.equal(lastEvent.key, 'facundo@split.io', 'Key should match received value.');
     assert.equal(lastEvent.eventTypeId, 'my.checkout.event', 'EventTypeId should match received value.');
     assert.equal(lastEvent.trafficTypeName, 'binded_tt', 'TrafficTypeName should match the binded value.');
-    assert.equal(lastEvent.value, 0, 'Should have 0 as value because the value was invalid on the last event.');
+    assert.equal(lastEvent.value, null, 'Should have null as value.');
     assert.equal(typeof lastEvent.timestamp, 'number', 'The timestamp should be a number.');
 
     client.destroy();
@@ -114,17 +112,16 @@ export function bindingTT(mock, assert) {
 
   // Key binded as with getTreatment.
   assert.ok(client.track('someEvent', 10), 'client.track returns true if an event is added to the queue.');
-  assert.ok(client.track('someEvent', 25), 'client.track returns true if an event is added to the queue.');
+  assert.ok(client.track('genericEvent', 25), 'client.track returns true if an event is added to the queue');
+  assert.ok(client.track('my.click.event'), 'client.track returns true if an event is added to the queue.');
+  assert.ok(client.track('my.checkout.event', null), 'client.track returns true if an event is added to the queue.');
 
-  // Invalid values will become a zero.
-  assert.ok(client.track('anotherEvent', 'invalid value'), 'client.track returns true if an event is added to the queue, but if the value was invalid stores a 0.');
-  assert.ok(client.track('randomEvent'), 'client.track returns true if an event is added to the queue, but if the value was invalid stores a 0.');
-  assert.ok(client.track('genericEvent', null), 'client.track returns true if an event is added to the queue, but if the value was invalid stores a 0.');
-  assert.ok(client.track('my.checkout.event', ['some', 'stuff']), 'client.track returns true if an event is added to the queue, but if the value was invalid stores a 0.');
-
-  /* So far we've tracked 6 valid events */
+  /* So far we've tracked 4 valid events */
 
   // Invalid events will not be queued.
   assert.notOk(client.track(), 'client.track returns false if an event data was incorrect and it could not be added to the queue.');
   assert.notOk(client.track(10, 'someTrafficType', 'someEvent'), 'client.track returns false if an event data was incorrect and it could not be added to the queue.');
+  assert.notOk(client.track('anotherEvent', 'invalid value'), 'client.track returns false if event value is invalid and it could not be added to the queue.');
+  assert.notOk(client.track('randomEvent', 'invalid value'), 'client.track returns false if event value is invalid and it could not be added to the queue.');
+  assert.notOk(client.track('my.checkout.event', ['some', 'stuff']), 'client.track returns false if event value is invalid and it could not be added to the queue.');
 }

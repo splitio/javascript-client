@@ -1,4 +1,4 @@
-import startsWith from 'core-js/library/fn/string/starts-with';
+import startsWith from 'lodash/startsWith';
 import KeyBuilder from './Keys';
 import { matching } from '../utils/key/factory';
 

@@ -22,7 +22,8 @@ import utils from '../../../engine/murmur3';
   'murmur3-sample-v4.csv',
   'murmur3-sample-v3.csv',
   'murmur3-sample-data-v2.csv',
-  'murmur3-sample-data-non-alpha-numeric-v2.csv'
+  'murmur3-sample-data-non-alpha-numeric-v2.csv',
+  'murmur3-sample-double-treatment-users.csv'
 ].forEach(filename => {
 
   tape('MURMUR3 / validate hashing behavior using sample data', assert => {

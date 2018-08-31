@@ -1,3 +1,5 @@
+import 'core-js/fn/promise';
+
 import { SplitFactory } from '../../';
 import tape from 'tape';
 import map from 'lodash/map';
@@ -43,7 +45,7 @@ tape('SDK destroy for BrowserJS', async function (assert) {
   const manager = factory.manager();
 
   // Events are shared between shared instances.
-  assert.true(client.track('tt', 'eventType' /* Invalid value is stored as 0 */));
+  assert.ok(client.track('tt', 'eventType', 'invalid value' /* Invalid values are not tracked */) === false);
   client.track('tt2', 'eventType', 1);
   client2.track('tt', 'eventType', 2);
   client3.track('tt2', 'otherEventType', 3);
@@ -63,26 +65,22 @@ tape('SDK destroy for BrowserJS', async function (assert) {
   mock.onPost(settings.url('/events/bulk')).replyOnce(request => {
     const events = JSON.parse(request.data);
 
-    /* 4 events were pushed */
-    assert.equal(events.length, 4, 'Should flush all events on destroy.');
+    /* 3 events were pushed */
+    assert.equal(events.length, 3, 'Should flush all events on destroy.');
 
     const firstEvent = events[0];
     const secondEvent = events[1];
     const thirdEvent = events[2];
-    const fourthEvent = events[3];
 
-    assert.equal(firstEvent.trafficTypeName, 'tt', 'The flushed events should match the events on the queue.');
+    assert.equal(firstEvent.trafficTypeName, 'tt2', 'The flushed events should match the events on the queue.');
     assert.equal(firstEvent.eventTypeId, 'eventType', 'The flushed events should match the events on the queue.');
-    assert.equal(firstEvent.value, 0, 'The flushed events should match the events on the queue.');
-    assert.equal(secondEvent.trafficTypeName, 'tt2', 'The flushed events should match the events on the queue.');
+    assert.equal(firstEvent.value, 1, 'The flushed events should match the events on the queue.');
+    assert.equal(secondEvent.trafficTypeName, 'tt', 'The flushed events should match the events on the queue.');
     assert.equal(secondEvent.eventTypeId, 'eventType', 'The flushed events should match the events on the queue.');
-    assert.equal(secondEvent.value, 1, 'The flushed events should match the events on the queue.');
-    assert.equal(thirdEvent.trafficTypeName, 'tt', 'The flushed events should match the events on the queue.');
-    assert.equal(thirdEvent.eventTypeId, 'eventType', 'The flushed events should match the events on the queue.');
-    assert.equal(thirdEvent.value, 2, 'The flushed events should match the events on the queue.');
-    assert.equal(fourthEvent.trafficTypeName, 'tt2', 'The flushed events should match the events on the queue.');
-    assert.equal(fourthEvent.eventTypeId, 'otherEventType', 'The flushed events should match the events on the queue.');
-    assert.equal(fourthEvent.value, 3, 'The flushed events should match the events on the queue.');
+    assert.equal(secondEvent.value, 2, 'The flushed events should match the events on the queue.');
+    assert.equal(thirdEvent.trafficTypeName, 'tt2', 'The flushed events should match the events on the queue.');
+    assert.equal(thirdEvent.eventTypeId, 'otherEventType', 'The flushed events should match the events on the queue.');
+    assert.equal(thirdEvent.value, 3, 'The flushed events should match the events on the queue.');
 
     return [200];
   });

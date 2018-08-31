@@ -13,22 +13,16 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+import isString from 'lodash/isString';
+import isFinite from 'lodash/isFinite';
+import toString from 'lodash/toString';
 
-function timeout(ms, promise) {
-  return new Promise((resolve, reject) => {
-    const tid = setTimeout(() => {
-      reject('timeout');
-    }, ms);
+function sanatizeKey(key) {
+  if (isString(key) || isFinite(key)) {
+    return toString(key);
+  }
 
-    promise.then((res) => {
-      clearTimeout(tid);
-      resolve(res);
-    },
-    (err) => {
-      clearTimeout(tid);
-      reject(err);
-    });
-  });
-}
+  return false;
+} 
 
-export default timeout;
+export default sanatizeKey;

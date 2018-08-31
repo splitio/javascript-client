@@ -17,6 +17,9 @@ limitations under the License.
 import Engine from '../';
 import thenable from '../../utils/promise/thenable';
 import LabelsConstants from '../../utils/labels';
+import isString from 'lodash/isString';
+import logFactory from '../../utils/logger';
+const log = logFactory('splitio-client');
 
 function splitEvaluator(
   key,
@@ -25,12 +28,31 @@ function splitEvaluator(
   storage
 ) {
   let splitObject;
+  let isSplitNameUnexistence = splitName === null || splitName === undefined;
+
+  /**
+   * If split name is null or undefined or is not a string return control and 
+   * label exception and log the error.
+   */
+  if (isSplitNameUnexistence || !isString(splitName)) {
+    if (isSplitNameUnexistence) {
+      log.error('getTreatment: split_name cannot be null');
+    } else {
+      log.error('getTreatment: split_name must be a string');
+    }
+
+    return {
+      treatment: 'control',
+      label: LabelsConstants.EXCEPTION
+    };
+  }
 
   try {
     splitObject = storage.splits.getSplit(splitName);
   } catch (e) {
     // the only scenario where getSplit can throw an error is when the storage
-    // is redis and there is a connection issue
+    // is redis and there is a connection issue and we can't retrieve the split
+    // to be evaluated
     return Promise.resolve({
       treatment: 'control',
       label: LabelsConstants.EXCEPTION

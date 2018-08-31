@@ -17,6 +17,7 @@ limitations under the License.
 import get from 'lodash/get';
 import parser from './parser';
 import keyParser from '../utils/key/parser';
+import keyLogError from '../utils/key/logError';
 import thenable from '../utils/promise/thenable';
 import LabelsConstants from '../utils/labels';
 
@@ -71,9 +72,10 @@ Split.prototype.getTreatment = function getTreatment(key, attributes, splitEvalu
   let treatment;
   let label;
 
-  try {
-    parsedKey = keyParser(key);
-  } catch (e) {
+  parsedKey = keyParser(key);
+
+  if (parsedKey === false) {
+    keyLogError('getTreatment', key);
     return {
       treatment: 'control',
       label: LabelsConstants.EXCEPTION

@@ -1,14 +1,12 @@
-import 'core-js/es6/promise';
-
-import isFinite from 'lodash/isFinite';
 import logFactory from '../utils/logger';
 const log = logFactory('splitio-client');
 import evaluator from '../engine/evaluator';
 import PassTracker from '../tracker/PassThrough';
 import tracker from '../utils/timeTracker';
-import keyParser from '../utils/key/parser';
 import thenable from '../utils/promise/thenable';
+import keyParser from '../utils/key/parser';
 import { matching, bucketing } from '../utils/key/factory';
+import validateTrackArguments from '../utils/track/validate';
 
 function getTreatmentAvailable(
   evaluation,
@@ -24,19 +22,24 @@ function getTreatmentAvailable(
 
   if (treatment !== 'control') {
     log.info(`Split: ${splitName}. Key: ${matchingKey}. Evaluation: ${treatment}`);
-  } else {
+  } else if (matchingKey !== false) {
     log.warn(`Split ${splitName} doesn't exist`);
   }
 
-  impressionsTracker({
-    feature: splitName,
-    keyName: matchingKey,
-    treatment,
-    time: Date.now(),
-    bucketingKey,
-    label,
-    changeNumber
-  });
+  /** Not push impressions if matchingKey is invalid */
+  if (matchingKey !== false) {
+    impressionsTracker({
+      feature: splitName,
+      keyName: matchingKey,
+      treatment,
+      time: Date.now(),
+      bucketingKey,
+      label,
+      changeNumber
+    });
+  } else {
+    log.warn('Impression not collected since matchingKey is not a valid key');
+  }
 
   stopLatencyTracker();
 
@@ -91,22 +94,17 @@ function ClientFactory(context) {
       }
     },
     track(key, trafficTypeName, eventTypeId, eventValue) {
-      let matchingKey;
-      try {
-        matchingKey = keyParser(key).matchingKey;
-      } catch (e) {
-        log.warn('Attempting to track event with invalid key. Event will be discarded.');
-        return false; // If the key is invalid, return false.
+      const areValidTrackArguments = validateTrackArguments(key, trafficTypeName, eventTypeId, eventValue);
+
+      if (!areValidTrackArguments) {
+        return false;
       }
 
-      if (typeof trafficTypeName !== 'string' || typeof eventTypeId !== 'string') {
-        log.warn('Attempting to track event but Traffic Type and/or Event Type are invalid. Event will be discarded.');
-        return false; // If the trafficType or eventType are invalid, return false.
-      }
-
+      const matchingKey =  keyParser(key).matchingKey;
       const timestamp = Date.now();
-      // Values that are no doubles should be taken as 0 (@Pato's)
-      const value = isFinite(eventValue) ? eventValue : 0;
+      // if eventValye is undefiend we convert it to null so the BE can handle
+      // a non existence value
+      const value = eventValue === undefined ? null : eventValue;
 
       storage.events.track({
         eventTypeId,

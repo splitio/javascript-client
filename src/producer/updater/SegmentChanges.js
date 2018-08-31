@@ -17,7 +17,7 @@ limitations under the License.
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-producer:segment-changes');
 import segmentChangesFetcher from '../fetcher/SegmentChanges';
-import findIndex from 'core-js/library/fn/array/find-index';
+import findIndex from 'lodash/findIndex';
 
 const SegmentChangesUpdaterFactory = (context) => {
   const {

@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-import Logger from 'logplease';
+import Logger from 'logplease-es5';
 import isLocalStorageAvailable from '../localstorage/isAvailable';
 
 const defaultOptions = {
@@ -24,8 +24,12 @@ const defaultOptions = {
 
 const LS_KEY = 'splitio_debug';
 const ENV_VAR_KEY = 'SPLITIO_DEBUG';
+let isNode = false;
 
-const isNode = Boolean(process && process.version);
+// We check for version truthiness since most shims will have that as empty string.
+if (typeof process !== 'undefined' && typeof process.version !== 'undefined' && !!process.version) {
+  isNode = true;
+}
 
 const initialState = String(
   isNode ?

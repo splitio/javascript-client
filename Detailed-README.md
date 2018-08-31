@@ -43,6 +43,11 @@ And finally, the **UMD** build is also available in our **CDN**:
 
 You can find the library on `window.splitio`.
 
+### Promise
+
+Split sdk depends on a native ES6 Promise implementation to be supported. If 
+your environment doesn't support ES6 Promises, you can [polyfill](https://github.com/stefanpenner/es6-promise).
+
 #### Migration v9 to v10
 
 We migrated our source code to ESM and exposed

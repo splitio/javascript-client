@@ -17,13 +17,21 @@ import tape from 'tape-catch';
 import evaluator from '../../evaluator';
 import LabelsConstants from '../../../utils/labels';
 
-const mockStorage = {
+const mockErrorStorage = {
   splits: {
     getSplit() {
       throw 'Error';
     }
   }
-}
+};
+
+const mockStorage = {
+  splits: {
+    getSplit() {
+      return 'split_name';
+    }
+  }
+};
 
 const expectedOutput = {
   treatment: 'control',
@@ -34,6 +42,54 @@ tape('EVALUATOR / should return label exception and treatment control on error',
   const evaluationPromise = evaluator(
     'fake-key',
     'split-name',
+    null,
+    mockErrorStorage
+  );
+
+  const evaluation = await evaluationPromise;
+
+  assert.equal(evaluation.treatment, expectedOutput.treatment);
+  assert.equal(evaluation.label, expectedOutput.label);
+  
+  assert.end();
+});
+
+tape('EVALUATOR / should return label exception and treatment control on error if split name is null', async function (assert) {
+  const evaluationPromise = evaluator(
+    'fake-key',
+    null,
+    null,
+    mockStorage
+  );
+
+  const evaluation = await evaluationPromise;
+
+  assert.equal(evaluation.treatment, expectedOutput.treatment);
+  assert.equal(evaluation.label, expectedOutput.label);
+  
+  assert.end();
+});
+
+tape('EVALUATOR / should return label exception and treatment control on error if split name is undefined', async function (assert) {
+  const evaluationPromise = evaluator(
+    'fake-key',
+    undefined,
+    null,
+    mockStorage
+  );
+
+  const evaluation = await evaluationPromise;
+
+  assert.equal(evaluation.treatment, expectedOutput.treatment);
+  assert.equal(evaluation.label, expectedOutput.label);
+  
+  assert.end();
+});
+
+tape('EVALUATOR / should return label exception and treatment control on error if split name is not a string', async function (assert) {
+  const evaluationPromise = evaluator(
+    'fake-key',
+    12345,
     null,
     mockStorage
   );

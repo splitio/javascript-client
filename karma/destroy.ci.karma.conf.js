@@ -11,11 +11,11 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      '../src/__tests__/destroy/browser.spec.js'
+      '__tests__/destroy/browser.spec.js'
     ],
     // prepare code for the browser using webpack
     preprocessors: {
-      '../src/__tests__/destroy/browser.spec.js': ['webpack']
+      '__tests__/destroy/browser.spec.js': ['webpack']
     },
 
     // level of logging

@@ -1,8 +1,62 @@
+## 10.3.3 (Aug 8, 2018)
+
+* Removing logplease dependency hosted on GitHub.
+
+## 10.3.2 (Jun 19, 2018)
+
+* Updating logging utility check for Node environments
+
+## 10.3.1 (Jun 4, 2018)
+
+* Added events npm package as a dependency, since when building on top of
+  non-Node environments, the native node events module is not available.
+
+## 10.3.0 (May 10, 2018)
+
+* Input and output validations. Improved how the sdk validate, log erros and
+  parse key property, validate and log errors on .getTreatment, .track and
+  .manager methods.
+* GetTreatment method will return 'control' and label exception if key is invalid.
+  Also it will log a nice error to help in the debugging and will not push any
+  impressions to the BE.
+* Track method and Manager method will return false if any of it's arguments are
+  invalid, logging a nice and descriptive error.
+* Fixed memory leak on events factory, there were a setTimeout that was never
+  removed from the stack.
+* Improved bunchs of UTs for the node sdk, still we need to continue improving
+  unit tests for this.
+* TS declarations now accept boolean properties on Attributes.
+
+## 10.2.0 (April 3, 2018)
+
+* Added greenkeeper configuration within package.json.
+* Updated several libraries versions:
+  . babel-loader
+  . babel-plugin-istanbul
+  . babel-plugin-transform-runtime
+  . babel-preset-env
+  . copyfiles
+  . cross-env
+  . eslint
+  . karma-firefox-launcher
+  . karma-phantomjs-launcher
+  . rimraf
+  . sinon
+  . tape
+  . types/node
+  . axios
+  . core-js
+  . ip
+  . lodash
+  . ioredis
+
+* Removed global Promise polyfill.
+
 ## 10.1.1 (March 20, 2018)
 
-* Bugfixing - SDK with REDIS storage issue. Previously, if there was a Redis Error, 
-  the SDK method 'getTreatment' would never resolve or reject. With the fix, now 
-  'getTreatment' call will  return treatment 'control' and will register a 
+* Bugfixing - SDK with REDIS storage issue. Previously, if there was a Redis Error,
+  the SDK method 'getTreatment' would never resolve or reject. With the fix, now
+  'getTreatment' call will  return treatment 'control' and will register a
   impressions with label 'exception'.
 
 ## 10.1.0 (March 8, 2018)
