@@ -39,7 +39,7 @@
     "copyfiles": "2.0.0",
     "core-js": "2.5.3",
     "cross-env": "5.1.4",
-    "csv-streamify": "3.0.4",
+    "csv-streamify": "4.0.0",
     "eslint": "5.0.1",
     "karma": "1.7.1",
     "karma-chrome-launcher": "2.2.0",
