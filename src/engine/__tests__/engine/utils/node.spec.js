@@ -19,7 +19,7 @@ import csv from 'csv-streamify';
 import fs from 'fs';
 
 tape('ENGINE / validate hashing behavior using sample data', assert => {
-  let parser = csv();
+  let parser = csv({ objectMode: false });
 
   parser.on('data', line => {
     let [seed, key, hash, bucket] = JSON.parse(line.toString('utf8').trim());
