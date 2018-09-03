@@ -48,7 +48,6 @@
     "karma-phantomjs-launcher": "1.0.4",
     "karma-safari-launcher": "1.0.0",
     "karma-sauce-launcher": "1.2.0",
-    "karma-tap": "3.0.1",
     "karma-webpack": "3.0.2",
     "redis-dump": "0.1.10",
     "redis-server": "1.2.2",
