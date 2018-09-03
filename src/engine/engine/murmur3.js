@@ -1,3 +1,4 @@
+/* eslint-disable no-fallthrough */
 import utfx from 'utfx';
 
 const stringSource = utfx.stringSource;
