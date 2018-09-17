@@ -72,6 +72,11 @@ interface ISettings {
   }
 }
 /**
+ * Log levels.
+ * @typedef {string} LogLevel
+ */
+type LogLevel = 'DEBUG' | 'INFO' | 'WARN' | 'ERROR' | 'NONE';
+/**
  * Logger API
  * @interface ILoggerAPI
  */
@@ -87,7 +92,19 @@ interface ILoggerAPI {
    * @function disable
    * @returns {void}
    */
-  disable(): void
+  disable(): void,
+  /**
+   * Sets a log level for the SDK logs.
+   * @function setLogLevel
+   * @returns {void}
+   */
+  setLogLevel(logLevel: LogLevel): void,
+  /**
+   * Log level constants. Use this to pass them to setLogLevel function.
+   */
+  LogLevel: {
+    [level: string]: LogLevel
+  }
 }
 /**
  * Common settings between Browser and NodeJS settings interface.
