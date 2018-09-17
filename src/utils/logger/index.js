@@ -16,10 +16,12 @@ limitations under the License.
 
 import * as Logger from './LoggerFactory';
 import isLocalStorageAvailable from '../localstorage/isAvailable';
+import find from 'lodash/find';
+
+const isLogLevelString = str => !!find(Logger.LogLevels, lvl => str === lvl);
 
 const defaultOptions = {
-  useColors: false,
-  showTimestamp: false
+  showLevel: true
 };
 
 const LS_KEY = 'splitio_debug';
@@ -38,20 +40,45 @@ const initialState = String(
       localStorage.getItem(LS_KEY) : ''
 );
 
+const createLog = namespace => Logger.create(namespace, defaultOptions);
+
+const ownLog = createLog('splitio-utils:logger');
+
+/**
+ * The public Logger utility API.
+ */
 export const API = {
+  /**
+   * Enables all the logs.
+   */
   enable() {
     Logger.setLogLevel(Logger.LogLevels.DEBUG);
   },
+  /**
+   * Sets a custom log Level for the SDK.
+   * @param {string} logLevel - Custom LogLevel value.
+   */
+  setLogLevel(logLevel) {
+    if (isLogLevelString(logLevel)) {
+      Logger.setLogLevel(logLevel);
+    } else {
+      ownLog.error('Invalid Log Level - No changes to the logs will be applied.');
+    }
+  },
+  /**
+   * Disables all the log levels.
+   */
   disable() {
+    // Disabling is equal logLevel none
     Logger.setLogLevel(Logger.LogLevels.NONE);
   }
 };
 
-const createLog = namespace => Logger.create(namespace, defaultOptions);
-
-// "enable", "enabled" and "on" are acceptable values
+// "enable", "enabled" and "on", are synonims with 'DEBUG' loglevel
 if (/^(enabled?|on)/i.test(initialState)) {
-  API.enable();
+  API.enable(Logger.LogLevels.DEBUG);
+} else if (isLogLevelString(initialState)) {
+  API.setLogLevel(initialState);
 } else {
   // By default it starts disabled.
   API.disable();
