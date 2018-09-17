@@ -9,10 +9,11 @@ export const LogLevels = {
   'DEBUG': 'DEBUG',
   'INFO':  'INFO',
   'WARN':  'WARN',
-  'ERROR': 'ERROR'
+  'ERROR': 'ERROR',
+  'NONE': 'NONE'
 };
 
-// Global log level ?
+// DEBUG is the default for the factory.
 let GlobalLogLevel = LogLevels.DEBUG;
 
 const defaultOptions = {
@@ -28,11 +29,6 @@ class Logger {
   debug() {
     if(this._shouldLog(LogLevels.DEBUG))
       this._write(LogLevels.DEBUG, format.apply(null, arguments));
-  }
-
-  log() {
-    if(this._shouldLog(LogLevels.DEBUG))
-      this.debug.apply(this, arguments);
   }
 
   info() {
@@ -53,28 +49,29 @@ class Logger {
   _write(level, text) {
     let formattedText = this._createLogMessage(level, text);
     const method = level === LogLevels.ERROR && !isNode ? 'error' : 'log';
+
     console[method](formattedText);
   }
 
   _createLogMessage(level, text) {
-    const textFormat = ' => ';
+    const textPre = ' => ';
     let result = '';
 
     if(this.options.showLevel) {
       result += '[' + level +']' + (level === LogLevels.INFO || level === LogLevels.WARN ? ' ' : '') + ' ';
     }
 
-    result += this.category + textFormat + text;
+    result += this.category + textPre + text;
 
     return result;
   }
 
   _shouldLog(level) {
-    /* Read the log level from a globally available place ? */
     const logLevel = GlobalLogLevel;
-    const levels   = Object.keys(LogLevels).map((f) => LogLevels[f]);
-    const index    = levels.indexOf(level); // What's the index of what it's trying to check if it should log
+    const levels = Object.keys(LogLevels).map(f => LogLevels[f]);
+    const index = levels.indexOf(level); // What's the index of what it's trying to check if it should log
     const levelIdx = levels.indexOf(logLevel); // What's the current log level index.
+
     return index >= levelIdx;
   }
 }
