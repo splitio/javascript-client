@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-import Logger from 'logplease-es5';
+import * as Logger from './LoggerFactory';
 import isLocalStorageAvailable from '../localstorage/isAvailable';
 
 const defaultOptions = {

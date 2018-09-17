@@ -15,16 +15,15 @@ limitations under the License.
 **/
 
 import uniqueId from 'lodash/uniqueId';
-import Logger from 'logplease-es5';
+import * as Logger from '../logger/LoggerFactory';
 import timer from './timer';
 import thenable from '../promise/thenable';
 
 // logger to be used on this module
 const logger = Logger.create('[TIME TRACKER]', {
-  showTimestamp: false,
-  showLevel: false,
-  useColors: false
+  showLevel: false
 });
+
 // Map we will use for storing timers data
 const timers = {};
 // Tasks constants
