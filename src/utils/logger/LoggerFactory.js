@@ -32,32 +32,32 @@ export class Logger {
 
   debug() {
     if(this._shouldLog(LogLevels.DEBUG))
-      this._write(LogLevels.DEBUG, format.apply(null, arguments));
+      this._log(LogLevels.DEBUG, format.apply(null, arguments));
   }
 
   info() {
     if(this._shouldLog(LogLevels.INFO))
-      this._write(LogLevels.INFO, format.apply(null, arguments));
+      this._log(LogLevels.INFO, format.apply(null, arguments));
   }
 
   warn() {
     if(this._shouldLog(LogLevels.WARN))
-      this._write(LogLevels.WARN, format.apply(null, arguments));
+      this._log(LogLevels.WARN, format.apply(null, arguments));
   }
 
   error() {
     if(this._shouldLog(LogLevels.ERROR))
-      this._write(LogLevels.ERROR, format.apply(null, arguments));
+      this._log(LogLevels.ERROR, format.apply(null, arguments));
   }
 
-  _write(level, text) {
-    let formattedText = this._createLogMessage(level, text);
+  _log(level, text) {
+    let formattedText = this._generateLogMessage(level, text);
     const method = level === LogLevels.ERROR && !isNode ? 'error' : 'log';
 
     console[method](formattedText);
   }
 
-  _createLogMessage(level, text) {
+  _generateLogMessage(level, text) {
     const textPre = ' => ';
     let result = '';
 
