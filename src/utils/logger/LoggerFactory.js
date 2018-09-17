@@ -13,14 +13,18 @@ export const LogLevels = {
   'NONE': 'NONE'
 };
 
-// DEBUG is the default for the factory.
+// DEBUG is the default. The log level is not specific to an SDK instance.
 let GlobalLogLevel = LogLevels.DEBUG;
+
+export const setLogLevel = (level) => {
+  GlobalLogLevel = level;
+};
 
 const defaultOptions = {
   showLevel: true
 };
 
-class Logger {
+export class Logger {
   constructor(category, options) {
     this.category = category;
     this.options = Object.assign({}, defaultOptions, options);
@@ -75,11 +79,3 @@ class Logger {
     return index >= levelIdx;
   }
 }
-
-export const setLogLevel = (level) => {
-  GlobalLogLevel = level;
-};
-
-export const create = (category, options) => {
-  return new Logger(category, options);
-};
