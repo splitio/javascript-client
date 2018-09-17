@@ -15,12 +15,12 @@ limitations under the License.
 **/
 
 import uniqueId from 'lodash/uniqueId';
-import * as Logger from '../logger/LoggerFactory';
+import { Logger } from '../logger/LoggerFactory';
 import timer from './timer';
 import thenable from '../promise/thenable';
 
 // logger to be used on this module
-const logger = Logger.create('[TIME TRACKER]', {
+const logger = new Logger('[TIME TRACKER]', {
   showLevel: false
 });
 
