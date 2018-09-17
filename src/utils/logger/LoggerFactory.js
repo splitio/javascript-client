@@ -9,12 +9,11 @@ export const LogLevels = {
   'DEBUG': 'DEBUG',
   'INFO':  'INFO',
   'WARN':  'WARN',
-  'ERROR': 'ERROR',
-  'NONE':  'NONE',
+  'ERROR': 'ERROR'
 };
 
 // Global log level ?
-let GlobalLogLevel = ;
+let GlobalLogLevel = LogLevels.DEBUG;
 
 const defaultOptions = {
   showLevel: true
