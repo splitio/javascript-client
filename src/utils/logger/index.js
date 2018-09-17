@@ -71,7 +71,11 @@ export const API = {
   disable() {
     // Disabling is equal logLevel none
     Logger.setLogLevel(Logger.LogLevels.NONE);
-  }
+  },
+  /**
+   * Exposed for usage with setLogLevel
+   */
+  LogLevel: Logger.LogLevels
 };
 
 // "enable", "enabled" and "on", are synonims with 'DEBUG' loglevel
