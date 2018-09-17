@@ -52,7 +52,7 @@ class Logger {
 
   _write(level, text) {
     let formattedText = this._createLogMessage(level, text);
-    const method = level === LogLevels.ERROR && !isNodejs ? 'error' : 'log';
+    const method = level === LogLevels.ERROR && !isNode ? 'error' : 'log';
     console[method](formattedText);
   }
 
