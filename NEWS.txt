@@ -1,3 +1,12 @@
+## 10.4.0 (XXX X, 2018)
+
+* Added automatic cleanup and data flush for NodeJS on SIGTERM signals,
+  in an attempt to collaborate with graceful shutdown.
+* Updated dependency versions:
+  . @types/node
+  . lodash
+  . and several devDependencies
+
 ## 10.3.3 (Aug 8, 2018)
 
 * Removing logplease dependency hosted on GitHub.
