@@ -45,8 +45,88 @@ You can find the library on `window.splitio`.
 
 ### Promise
 
-Split sdk depends on a native ES6 Promise implementation to be supported. If 
+Split sdk depends on a native ES6 Promise implementation to be supported. If
 your environment doesn't support ES6 Promises, you can [polyfill](https://github.com/stefanpenner/es6-promise).
+
+### Logging
+
+Our SDK offers some logs that will help you and our support team in debugging different situations.
+Those logs can be enabled or disabled (default is disabled) but you can also set the log level.
+
+We offer five log levels: **DEBUG, INFO, WARN, ERROR** and **NONE**.
+
+_**DEBUG** is the log level you get when you just enable the logs, every log is shown._
+_**NONE** is the log level you get when disabling the logs, no log is shown._
+
+We have three ways for interacting with the logger, which you can find below. Choose the one that fits better on your code and use case.
+
+### LocalStorage (Browser) or ENV Variable (Node)
+
+Depending on where your code is running, you can set a global value for the SDK. Both options accept the same values.
+
+For enabling the logs (DEBUG log level):
+- 'on'
+- 'enable'
+- 'enabled'
+
+For setting a custom log level:
+- 'DEBUG'
+- 'INFO'
+- 'WARN'
+- 'ERROR'
+- 'NONE'
+
+**if you're on the browser**, you need to set the `splitio_debug` value on your localStorage. Easiest way would be to execute the following
+sentence on your console, of course using the value of choice:
+
+```js
+localStorage.setItem('splitio_debug', 'on');
+```
+
+**if you're on node**, you need to set the `SPLITIO_DEBUG` environment variable. Depending on your setup there are a lot of ways, but if you are
+executing your script and want some logs, you can just set that up on the command line:
+
+```bash
+SPLITIO_DEBUG='on' node myApp.js
+```
+
+#### Via settings
+
+When you specify the debug flag of your settings:
+
+```js
+var sdk = SplitFactory({
+  core: {
+    authorizationKey: 'YOUR_API_KEY',
+    key: 'CUSTOMER_ID'
+  },
+  debug: true
+});
+```
+
+The **debug** property can either be a boolean (true/false) or the string of one of the Log Levels.
+
+#### Programatically
+
+The instantiated factory offers three methods, `enable`, `disable` and `setLogLevel`. The names are self explanatory.
+
+```js
+var sdk = SplitFactory({
+  core: {
+    authorizationKey: 'YOUR_API_KEY',
+    key: 'CUSTOMER_ID'
+  }
+});
+// To enable all the logs, would set DEBUG log level.
+sdk.Logger.enable();
+// To disable all the logs, would set NONE log level.
+sdk.Logger.disable();
+// Or you can set the desired log level
+sdk.Logger.setLogLevel('DEBUG');
+sdk.Logger.setLogLevel('INFO');
+sdk.Logger.setLogLevel('WARN');
+sdk.Logger.setLogLevel('ERROR');
+```
 
 #### Migration v9 to v10
 
