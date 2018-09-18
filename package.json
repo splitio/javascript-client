@@ -86,7 +86,7 @@
     "stable": "npm run rebuild && npm publish"
   },
   "dependencies": {
-    "@types/node": "10.9.4",
+    "@types/node": "10.10.0",
     "axios": "0.18.0",
     "babel-runtime": "6.26.0",
     "events": "3.0.0",
