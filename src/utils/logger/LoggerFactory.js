@@ -51,7 +51,7 @@ export class Logger {
   }
 
   _log(level, text) {
-    let formattedText = this._generateLogMessage(level, text);
+    const formattedText = this._generateLogMessage(level, text);
     const method = level === LogLevels.ERROR && !isNode ? 'error' : 'log';
 
     console[method](formattedText);
