@@ -1,5 +1,7 @@
 ## 10.4.0 (XXX X, 2018)
 
+* Removed dependency for logging library.
+* Added log level support for SDK logs using our own Logger.
 * Added automatic cleanup and data flush for NodeJS on SIGTERM signals.
 * Updated dependency versions.
 

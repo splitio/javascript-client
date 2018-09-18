@@ -42,7 +42,8 @@ module.exports = {
 
   node: {
     fs: 'empty',
-    module: 'empty'
+    module: 'empty',
+    console: false
   },
 
   plugins: [
