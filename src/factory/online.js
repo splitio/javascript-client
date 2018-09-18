@@ -3,6 +3,7 @@ import FullProducerFactory from '../producer';
 import PartialProducerFactory from '../producer/browser/Partial';
 import MetricsFactory from '../metrics';
 import EventsFactory from '../events';
+import SignalsListener from '../listeners';
 import { STANDALONE_MODE, PRODUCER_MODE, CONSUMER_MODE } from '../utils/constants';
 
 //
@@ -13,7 +14,7 @@ function SplitFactoryOnline(context, gateFactory, readyTrackers, mainClientMetri
   const settings = context.get(context.constants.SETTINGS);
   const storage = context.get(context.constants.STORAGE);
 
-  // Put readiness config within context  
+  // Put readiness config within context
   const readiness = gateFactory(settings.startup.readyTimeout);
   context.put(context.constants.READINESS, readiness);
 
@@ -28,9 +29,12 @@ function SplitFactoryOnline(context, gateFactory, readyTrackers, mainClientMetri
   } = gate;
 
   // Shared instances use parent metrics collectors
-  const metrics = sharedInstance ? undefined : MetricsFactory(context); 
+  const metrics = sharedInstance ? undefined : MetricsFactory(context);
   // Shared instances use parent events queue
-  const events = sharedInstance ? undefined : EventsFactory(context); 
+  const events = sharedInstance ? undefined : EventsFactory(context);
+  // Signal listener only needed for main instances
+  const signalsListener = sharedInstance ? undefined : new SignalsListener(context);
+
   let producer;
 
   switch(settings.mode) {
@@ -109,12 +113,17 @@ function SplitFactoryOnline(context, gateFactory, readyTrackers, mainClientMetri
 
         // Cleanup event listeners
         readiness.destroy();
+        signalsListener && signalsListener.stop();
 
         // Cleanup storage
         storage.destroy && storage.destroy();
       }
     }
   );
+
+  // We'll start the signals listener if the client is not a shared instance.
+  // For now, we will only call destroy.
+  !sharedInstance && signalsListener.start(api.destroy);
 
   return {
     api,

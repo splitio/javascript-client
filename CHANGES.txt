@@ -1,3 +1,8 @@
+## 10.4.0 (XXX X, 2018)
+
+* Added automatic cleanup and data flush for NodeJS on SIGTERM signals.
+* Updated dependency versions.
+
 ## 10.3.3 (Aug 8, 2018)
 
 * Removing logplease dependency hosted on GitHub.
