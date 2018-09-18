@@ -1,5 +1,14 @@
 ## 10.4.0 (XXX X, 2018)
 
+* Removed dependency for logging library.
+* Added log level support for SDK logs using our own Logger implementation. Now besides just enable/disable,
+  you can set the log level as a string (more information on our docs or on Detailed-README.md).
+  We now support the following log levels:
+  . DEBUG
+  . INFO
+  . WARN
+  . ERROR
+  . NONE
 * Added automatic cleanup and data flush for NodeJS on SIGTERM signals,
   in an attempt to collaborate with graceful shutdown.
 * Updated dependency versions:
