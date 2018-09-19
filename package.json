@@ -58,6 +58,7 @@
   "scripts": {
     "build-es": "rimraf es && cross-env NODE_ENV=es babel ./src -d es --ignore '__tests__'",
     "postbuild-es": "cross-env NODE_ENV=es node scripts/copy.packages.json.js",
+    "build-umd:stats": "webpack --progress --env production --json > ./stats/stat_results.json",
     "build-cjs": "rimraf lib && cross-env NODE_ENV=cjs babel ./src -d lib --ignore '__tests__'",
     "postbuild-cjs": "cross-env NODE_ENV=cjs node scripts/copy.packages.json.js",
     "build-umd": "cross-env NODE_ENV=development webpack",
