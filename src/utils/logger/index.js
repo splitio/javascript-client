@@ -16,7 +16,7 @@ limitations under the License.
 
 import { Logger, LogLevels, setLogLevel } from './LoggerFactory';
 import isLocalStorageAvailable from '../localstorage/isAvailable';
-import find from 'lodash/find';
+import { find } from '../lang';
 
 const isLogLevelString = str => !!find(LogLevels, lvl => str === lvl);
 

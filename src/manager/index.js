@@ -1,5 +1,5 @@
 import thenable from '../utils/promise/thenable';
-import find from 'lodash/find';
+import { find } from '../utils/lang';
 import validateManagerSplit from '../utils/manager/validate';
 
 const collectTreatments = (conditions) => {
