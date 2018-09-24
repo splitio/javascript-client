@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-import merge from 'lodash/merge';
+import { merge } from '../lang';
 import language from './language';
 import { ip, hostname } from './runtime';
 import overridesPerPlatform from './defaults';

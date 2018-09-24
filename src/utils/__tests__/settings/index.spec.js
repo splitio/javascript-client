@@ -52,7 +52,8 @@ tape('SETTINGS / key and traffic type should be overwritable', assert => {
     ...settings,
     core: {
       ...settings.core,
-      key: 'second_key'
+      key: 'second_key',
+      trafficType: undefined
     }
   }, settings2, 'Of course, the new instance should match with the origin settings on every property but the overriden key.');
 
