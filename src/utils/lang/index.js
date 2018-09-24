@@ -43,7 +43,7 @@ export function uniqueId() {
 }
 
 export function isObject(obj) {
-  return typeof obj === 'object' && obj.constructor === Object;
+  return obj && typeof obj === 'object' && obj.constructor === Object;
 }
 
 /**
@@ -71,4 +71,11 @@ export function merge(target, source, ...rest) {
   }
 
   return res;
+}
+
+export function uniq(arr) {
+  const seen = {};
+  return Array.filter(arr, function(item) {
+    return seen.hasOwnProperty(item) ? false : seen[item] = true;
+  });
 }
