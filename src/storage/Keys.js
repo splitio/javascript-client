@@ -1,4 +1,4 @@
-import startsWith from 'lodash/startsWith';
+import { startsWith } from '../utils/lang';
 
 const everythingAtTheEnd = /[^.]+$/;
 const everythingAfterCount = /count\.([^/]+)$/;

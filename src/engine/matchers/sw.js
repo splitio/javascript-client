@@ -16,7 +16,7 @@ limitations under the License.
 
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-engine:matcher');
-import startsWith from 'lodash/startsWith';
+import { startsWith } from '../../utils/lang';
 
 function startsWithMatcherContext(ruleAttr /*: array */) /*: Function */ {
   return function startsWithMatcher(runtimeAttr /*: string */) /*: boolean */ {

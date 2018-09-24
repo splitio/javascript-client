@@ -1,4 +1,4 @@
-import startsWith from 'lodash/startsWith';
+import { startsWith } from '../utils/lang';
 import KeyBuilder from './Keys';
 import { matching } from '../utils/key/factory';
 
