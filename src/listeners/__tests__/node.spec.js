@@ -149,7 +149,7 @@ tape('Node JS / Signal Listener SIGTERM callback with async handler that throws 
       rej();
     }, 0);
   });
-  const clock = sinon.useFakeTimers()
+  const clock = sinon.useFakeTimers();
   const handlerMock = sinon.stub().returns(fakePromise);
 
   // Stub stop function since we don't want side effects on test.
