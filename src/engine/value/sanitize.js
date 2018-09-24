@@ -16,10 +16,7 @@ limitations under the License.
 
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-engine:sanitize');
-import isObject from 'lodash/isObject';
-import uniq from 'lodash/uniq';
-import toString from 'lodash/toString';
-import toNumber from 'lodash/toNumber';
+import { isObject, uniq, toString, toNumber } from '../../utils/lang';
 import { zeroSinceHH, zeroSinceSS } from '../convertions';
 import {
   types as matcherTypes,
