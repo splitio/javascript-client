@@ -17,7 +17,7 @@ limitations under the License.
 import Engine from '../';
 import thenable from '../../utils/promise/thenable';
 import LabelsConstants from '../../utils/labels';
-import isString from 'lodash/isString';
+import { isString } from '../../utils/lang';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-client');
 
@@ -31,7 +31,7 @@ function splitEvaluator(
   let isSplitNameUnexistence = splitName === null || splitName === undefined;
 
   /**
-   * If split name is null or undefined or is not a string return control and 
+   * If split name is null or undefined or is not a string return control and
    * label exception and log the error.
    */
   if (isSplitNameUnexistence || !isString(splitName)) {

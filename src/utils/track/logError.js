@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-import isString from 'lodash/isString';
+import { isString } from '../../utils/lang';
 import logFactory from '../logger';
 const log = logFactory('splitio-client');
 

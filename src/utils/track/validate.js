@@ -1,4 +1,4 @@
-import isString from 'lodash/isString';
+import { isString } from '../../utils/lang';
 /**
 Copyright 2016 Split Software
 
@@ -14,7 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-import isFinite from 'lodash/isFinite';
+import { isFinite } from '../lang';
 import keyParser from '../key/parser';
 import keyLogError from '../key/logError';
 import logError from './logError';
@@ -28,15 +28,15 @@ function validateTrackArguments(key, trafficTypeName, eventTypeId, value) {
     return false;
   }
 
-  if (trafficTypeName === null || trafficTypeName === undefined 
-    || !isString(trafficTypeName) 
+  if (trafficTypeName === null || trafficTypeName === undefined
+    || !isString(trafficTypeName)
     || (isString(trafficTypeName) && !trafficTypeName.length)) {
     logError(trafficTypeName, 'traffic_type_name', false);
     return false;
   }
 
   if (eventTypeId === null || eventTypeId === undefined || !isString(trafficTypeName)) {
-    logError(eventTypeId, 'event_name');    
+    logError(eventTypeId, 'event_name');
     return false;
   }
 

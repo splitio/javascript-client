@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 import isObject from 'lodash/isObject';
-import isFinite from 'lodash/isFinite';
+import { isFinite } from '../lang';
 import sanatize from './sanatize';
 import logFactory from '../logger';
 const log = logFactory('splitio-client');
