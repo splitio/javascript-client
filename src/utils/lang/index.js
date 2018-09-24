@@ -73,9 +73,21 @@ export function merge(target, source, ...rest) {
   return res;
 }
 
+/**
+ * Removes duplicate items on an array of strings.
+ */
 export function uniq(arr) {
   const seen = {};
   return Array.filter(arr, function(item) {
     return seen.hasOwnProperty(item) ? false : seen[item] = true;
   });
+}
+
+export function toString(val) {
+  if (val == null) return '';
+  if (typeof val === 'string') return val;
+  if (Array.isArray(val)) return val.map(val => isString(val) ? val : '') + '';
+
+  let result = val + '';
+  return (result === '0' && (1 / val) === Number.NEGATIVE_INFINITY) ? '-0' : result;
 }
