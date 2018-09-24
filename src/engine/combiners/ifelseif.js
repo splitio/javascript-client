@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-import findIndex from 'lodash/findIndex';
+import { findIndex } from '../../utils/lang';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-engine:combiner');
 import thenable from '../../utils/promise/thenable';
