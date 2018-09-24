@@ -28,6 +28,28 @@ export function findIndex(target, iteratee) {
   return -1;
 }
 
+export function find(source, iteratee) {
+  let res;
+
+  if (isObject(source)) {
+    const keys = Object.keys(source);
+    for (let i = 0; i < keys.length && !res; i++) {
+      const key = keys[i];
+      const iterateeResult = iteratee(source[key], key, source);
+
+      if (iterateeResult) res = source[key];
+    }
+  } else if (Array.isArray(source)) {
+    for (let i = 0; i < source.length && !res; i++) {
+      const iterateeResult = iteratee(source[i], i, source);
+
+      if (iterateeResult) res = source[i];
+    }
+  }
+
+  return res;
+}
+
 export function isString(obj) {
   return typeof obj === 'string' || obj instanceof String;
 }
