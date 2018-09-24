@@ -108,3 +108,11 @@ export function toNumber(val) {
 
   return +val;
 }
+
+export function forOwn(obj, iteratee) {
+  const keys = Object.keys(obj);
+
+  keys.forEach(key => iteratee(obj[key], key, obj));
+
+  return obj;
+}
