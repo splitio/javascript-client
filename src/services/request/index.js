@@ -14,7 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 import options from './options';
-import isEmpty from 'lodash/isEmpty';
 
 function RequestFactory(settings, relativeUrl, params) {
   const token = settings.core.authorizationKey;
@@ -28,8 +27,8 @@ function RequestFactory(settings, relativeUrl, params) {
   headers['Authorization'] = `Bearer ${token}`;
   headers['SplitSDKVersion'] = version;
 
-  if (!isEmpty(ip)) headers['SplitSDKMachineIP'] = ip;
-  if (!isEmpty(hostname)) headers['SplitSDKMachineName'] = hostname;
+  if (ip) headers['SplitSDKMachineIP'] = ip;
+  if (hostname) headers['SplitSDKMachineName'] = hostname;
 
   return {
     headers,
