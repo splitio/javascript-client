@@ -16,7 +16,6 @@ limitations under the License.
 
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-engine:sanitize');
-import isArray from 'lodash/isArray';
 import isObject from 'lodash/isObject';
 import uniq from 'lodash/uniq';
 import toString from 'lodash/toString';
@@ -47,7 +46,7 @@ function sanitizeString(val) {
 }
 
 function sanitizeArray(val) {
-  const arr = isArray(val) ? uniq(val.map(e => e + '')) : [];
+  const arr = Array.isArray(val) ? uniq(val.map(e => e + '')) : [];
   return arr.length ? arr : undefined;
 }
 
