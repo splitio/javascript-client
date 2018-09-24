@@ -91,3 +91,20 @@ export function toString(val) {
   let result = val + '';
   return (result === '0' && (1 / val) === Number.NEGATIVE_INFINITY) ? '-0' : result;
 }
+
+export function toNumber(val) {
+  if (typeof val === 'number') return val;
+
+  if (isObject(val) && typeof val.valueOf === 'function') {
+    let valOf = val.valueOf();
+    val = isObject(valOf) ? valOf + '' : valOf;
+  }
+
+  if (typeof val !== 'string') {
+    return val === 0 ? val : +val;
+  }
+  // Remove trailing whitespaces.
+  val = val.replace(/^\s+|\s+$/g, '');
+
+  return +val;
+}
