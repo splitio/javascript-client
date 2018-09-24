@@ -1,5 +1,5 @@
 import tape from 'tape-catch';
-import { merge } from '../../lang';
+import { merge, uniq } from '../../lang';
 
 tape('LANG UTILS / merge', function(assert) {
   let obj1 = {};
@@ -122,6 +122,15 @@ tape('LANG UTILS / merge', function(assert) {
   res1 = {};
   assert.ok(merge(res1, obj1) === res1, 'Always returns the modified target.');
   assert.deepEqual(res1, obj1, 'If target is an empty object, it will be a clone of the source on that one.');
+
+  assert.end();
+});
+
+tape('LANG UTILS / uniq', function(assert) {
+  assert.deepEqual(uniq(['1', '2', '1', '3', '3', '4', '3']), ['1', '2', '3', '4'], 'uniq should remove all duplicate strings from array.');
+  assert.deepEqual(uniq(['2', '2']), ['2'], 'uniq should remove all duplicate strings from array.');
+  assert.deepEqual(uniq(['2', '3']), ['2', '3'], 'uniq should remove all duplicate strings from array.');
+  assert.deepEqual(uniq(['3', '2', '3']), ['3', '2'], 'uniq should remove all duplicate strings from array.');
 
   assert.end();
 });
