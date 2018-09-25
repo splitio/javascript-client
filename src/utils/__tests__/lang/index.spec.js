@@ -1,5 +1,5 @@
 import tape from 'tape-catch';
-import { merge, uniq } from '../../lang';
+import { merge, uniq, groupBy } from '../../lang';
 
 tape('LANG UTILS / merge', function(assert) {
   let obj1 = {};
@@ -131,6 +131,42 @@ tape('LANG UTILS / uniq', function(assert) {
   assert.deepEqual(uniq(['2', '2']), ['2'], 'uniq should remove all duplicate strings from array.');
   assert.deepEqual(uniq(['2', '3']), ['2', '3'], 'uniq should remove all duplicate strings from array.');
   assert.deepEqual(uniq(['3', '2', '3']), ['3', '2'], 'uniq should remove all duplicate strings from array.');
+
+  assert.end();
+});
+
+tape('LANG UTILS / groupBy', function(assert) {
+  let arr = [{
+    team: 'SDK',
+    name: 'Nico',
+    ex: 'glb'
+  }, {
+    team: 'SDK',
+    name: 'Martin'
+  }, {
+    team: 'QA',
+    name: 'Adrian',
+    ex: 'glb'
+  }];
+
+  assert.deepEqual(groupBy(arr, 'team'), {
+    SDK: [{ team: 'SDK', name: 'Nico', ex: 'glb' }, { team: 'SDK', name: 'Martin' }],
+    QA: [{ team: 'QA', name: 'Adrian', ex: 'glb' }]
+  }, 'Should group by the property specified respecting the order of appearance.');
+  assert.deepEqual(groupBy(arr, 'not_exist'), {}, 'If the property specified does not exist on the elements the map will be empty.');
+  assert.deepEqual(groupBy(arr, 'ex'), {
+    glb: [{ team: 'SDK', name: 'Nico', ex: 'glb' }, { team: 'QA', name: 'Adrian', ex: 'glb' }]
+  }, 'If the property specified does not exist on all the elements the ones without it will be skipped.');
+
+
+  assert.deepEqual(groupBy([], 'team'), {}, 'If the input is empty or wrong type, it will return an empty object.');
+  assert.deepEqual(groupBy(null, 'team'), {}, 'If the input is empty or wrong type, it will return an empty object.');
+  assert.deepEqual(groupBy(undefined, 'team'), {}, 'If the input is empty or wrong type, it will return an empty object.');
+  assert.deepEqual(groupBy(true, 'team'), {}, 'If the input is empty or wrong type, it will return an empty object.');
+  assert.deepEqual(groupBy('string', 'team'), {}, 'If the input is empty or wrong type, it will return an empty object.');
+  assert.deepEqual(groupBy({}, 'team'), {}, 'If the input is empty or wrong type, it will return an empty object.');
+  assert.deepEqual(groupBy({ something: 1 }, null), {}, 'If the input is empty or wrong type, it will return an empty object.');
+  assert.deepEqual(groupBy({ something: 1 }), {}, 'If the input is empty or wrong type, it will return an empty object.');
 
   assert.end();
 });
