@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio",
-  "version": "10.4.0-canary.0",
+  "version": "10.4.0-canary.1",
   "description": "Split SDK",
   "files": [
     "README.md",
@@ -49,6 +49,7 @@
     "karma-webpack": "3.0.2",
     "redis-dump": "0.1.10",
     "redis-server": "1.2.2",
+    "lodash": "4.17.11",
     "rimraf": "2.6.2",
     "sinon": "5.1.1",
     "tape": "4.9.1",
@@ -92,7 +93,6 @@
     "babel-runtime": "6.26.0",
     "events": "3.0.0",
     "ip": "1.1.5",
-    "lodash": "4.17.11",
     "utfx": "1.0.1"
   },
   "optionalDependencies": {
