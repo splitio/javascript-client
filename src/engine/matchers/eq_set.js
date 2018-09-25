@@ -16,12 +16,17 @@ limitations under the License.
 
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-engine:matcher');
-import difference from 'lodash/difference';
+import { findIndex } from '../../utils/lang';
 
 function equalToSetMatcherContext(ruleAttr /*: array */) /*: Function */ {
   return function equalToSetMatcher(runtimeAttr /*: array */) /*: boolean */ {
-    let isEqual = runtimeAttr.length === ruleAttr.length &&
-                  difference(ruleAttr, runtimeAttr).length === 0;
+    // Length being the same is the first condition.
+    let isEqual = runtimeAttr.length === ruleAttr.length;
+
+    for (let i = 0; i < runtimeAttr.length && isEqual; i++) {
+      // if length is the same we check that all elements are present in the other collection.
+      if (findIndex(ruleAttr, e => e === runtimeAttr[i]) < 0) isEqual = false;
+    }
 
     log.debug(`[equalToSetMatcher] is ${runtimeAttr} equal to set ${ruleAttr}? ${isEqual}`);
 
