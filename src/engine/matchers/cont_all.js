@@ -16,15 +16,19 @@ limitations under the License.
 
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-engine:matcher');
-import intersection from 'lodash/intersection';
+import { findIndex } from '../../utils/lang';
 
 function containsAllMatcherContext(ruleAttr /*: array */) /*: Function */ {
   return function containsAllMatcher(runtimeAttr /*: array */) /*: boolean */ {
-    let containsAll = false;
+    let containsAll = true;
 
-    // If runtimeAttr has less elements than whitelist, there is now way that it contains all the whitelist elems.
-    if (runtimeAttr.length >= ruleAttr.length) {
-      containsAll = intersection(runtimeAttr, ruleAttr).length === ruleAttr.length;
+    if (runtimeAttr.length < ruleAttr.length) {
+      containsAll = false;
+    } else {
+      for (let i = 0; i < ruleAttr.length && containsAll; i++) {
+        if (findIndex(runtimeAttr, e => e === ruleAttr[i]) < 0)
+          containsAll = false;
+      }
     }
 
     log.debug(`[containsAllMatcher] ${runtimeAttr} contains all elements of ${ruleAttr}? ${containsAll}`);
