@@ -138,3 +138,22 @@ export function forOwn(obj, iteratee) {
 
   return obj;
 }
+
+export function groupBy(source, prop) {
+  const map = {};
+
+  if (Array.isArray(source) && isString(prop)) {
+    for(let i = 0; i < source.length; i++) {
+      const key = source[i][prop];
+
+      // Skip the element if the key is not a string.
+      if (isString(key)) {
+        if (!map[key]) map[key] = [];
+
+        map[key].push(source[i]);
+      }
+    }
+  }
+
+  return map;
+}
