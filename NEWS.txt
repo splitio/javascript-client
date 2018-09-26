@@ -1,6 +1,7 @@
 ## 10.4.0 (XXX X, 2018)
 
 * Removed dependency for logging library.
+* Removed dependency on lodash.
 * Added log level support for SDK logs using our own Logger implementation. Now besides just enable/disable,
   you can set the log level as a string (more information on our docs or on Detailed-README.md).
   We now support the following log levels:
