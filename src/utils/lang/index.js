@@ -77,12 +77,21 @@ export function find(source, iteratee) {
   return res;
 }
 
-export function isString(obj) {
-  return typeof obj === 'string' || obj instanceof String;
+/**
+ * Checks if a given value is a string.
+ */
+export function isString(val) {
+  return typeof val === 'string' || val instanceof String;
 }
 
+/**
+ * Checks if a given value is a finite number.
+ */
 export function isFinite(val) {
-  return typeof val == 'number' && Number.isFinite(val);
+  if (typeof val === 'number') return Number.isFinite(val);
+  if (val instanceof Number) return Number.isFinite(val.valueOf());
+
+  return false;
 }
 
 let uniqueIdCounter = -1;
