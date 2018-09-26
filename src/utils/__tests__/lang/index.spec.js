@@ -11,6 +11,8 @@ import {
   uniqueId,
   merge,
   uniq,
+  toString,
+  toNumber,
   groupBy
 } from '../../lang';
 
@@ -304,6 +306,24 @@ tape('LANG UTILS / uniq', function(assert) {
   assert.deepEqual(uniq(['2', '2']), ['2'], 'uniq should remove all duplicate strings from array.');
   assert.deepEqual(uniq(['2', '3']), ['2', '3'], 'uniq should remove all duplicate strings from array.');
   assert.deepEqual(uniq(['3', '2', '3']), ['3', '2'], 'uniq should remove all duplicate strings from array.');
+
+  assert.end();
+});
+
+tape('LANG UTILS / toString', function(assert) {
+  assert.equal(typeof toString(), 'string', 'It should ALWAYS return a string.');
+  assert.equal(typeof toString(null), 'string', 'It should ALWAYS return a string.');
+  assert.equal(typeof toString(250), 'string', 'It should ALWAYS return a string.');
+  assert.equal(typeof toString('asdad'), 'string', 'It should ALWAYS return a string.');
+  assert.equal(typeof toString(/regex/), 'string', 'It should ALWAYS return a string.');
+
+  assert.equal(toString(), '', 'And the returned string should be correct');
+  assert.equal(toString('it is just me'), 'it is just me', 'And the returned string should be correct');
+  assert.equal(toString(5), '5', 'And the returned string should be correct');
+  assert.equal(toString(['str', /not_str/, 'secondStr']), 'str,,secondStr', 'And the returned string should be correct');
+  assert.equal(toString(0), '0', 'And the returned string should be correct');
+  assert.equal(toString(-0), '-0', 'And the returned string should be correct');
+  assert.equal(toString(-Infinity), '-Infinity', 'And the returned string should be correct');
 
   assert.end();
 });
