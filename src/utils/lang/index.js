@@ -1,29 +1,46 @@
+/**
+ * Checks if the target string starts with the sub string.
+ */
 export function startsWith(target, sub) {
+  if (!(isString(target) && isString(sub))) {
+    return false;
+  }
   return target.slice(0, sub.length) === sub;
 }
 
+/**
+ * Checks if the target string ends with the sub string.
+ */
 export function endsWith(target, sub) {
+  if (!(isString(target) && isString(sub))) {
+    return false;
+  }
   return target.slice(target.length - sub.length) === sub;
 }
 
+/**
+ * Safely retrieve the specified prop from obj. If we can't retrieve
+ * that property value, we return the default value.
+ */
 export function get(obj, prop, val) {
   let res = val;
 
-  try {
+  try { // No risks nor lots of checks.
     const pathPieces = prop.split('.');
     let partial = obj;
     pathPieces.forEach(pathPiece => partial = partial[pathPiece]);
 
     res = partial;
   } catch (e) {
-    // noop;
+    // noop
   }
   return res;
 }
 
 export function findIndex(target, iteratee) {
-  if (Array.isArray(target) && typeof iteratee === 'function')
+  if (Array.isArray(target) && typeof iteratee === 'function') {
     return target.findIndex(iteratee);
+  }
 
   return -1;
 }
