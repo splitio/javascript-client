@@ -30,16 +30,20 @@ export function get(obj, prop, val) {
     let partial = obj;
     pathPieces.forEach(pathPiece => partial = partial[pathPiece]);
 
-    res = partial;
+    if (typeof partial !== 'undefined') res = partial;
   } catch (e) {
     // noop
   }
   return res;
 }
 
-export function findIndex(target, iteratee) {
-  if (Array.isArray(target) && typeof iteratee === 'function') {
-    return target.findIndex(iteratee);
+/**
+ * Evaluates iteratee for each element of the source array. Returns the index of the first element
+ * for which iteratee returns truthy. If no element is found or there's an issue with the params it returns -1.
+ */
+export function findIndex(source, iteratee) {
+  if (Array.isArray(source) && typeof iteratee === 'function') {
+    return source.findIndex(iteratee);
   }
 
   return -1;
