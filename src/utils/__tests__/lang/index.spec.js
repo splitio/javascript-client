@@ -8,6 +8,7 @@ import {
   find,
   isString,
   isFinite,
+  uniqueId,
   merge,
   uniq,
   groupBy
@@ -156,6 +157,19 @@ tape('LANG UTILS / isFinite', function(assert) {
   assert.notOk(isFinite({}), 'Should return false for anything that is not a finite number.');
   assert.notOk(isFinite(/regex/), 'Should return false for anything that is not a finite number.');
   assert.notOk(isFinite('5'), 'Should return false for anything that is not a finite number.');
+
+  assert.end();
+});
+
+tape('LANG UTILS / uniqueId', function(assert) {
+  let currId = -100;
+  let prevId = -100;
+
+  for(let i = 0; i < 10; i++) {
+    currId = uniqueId();
+    assert.ok(prevId < currId, 'Each time we call the function, the new ID should be different (greater than) the previous one.');
+    prevId = currId;
+  }
 
   assert.end();
 });

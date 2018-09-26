@@ -96,6 +96,9 @@ export function isFinite(val) {
 
 let uniqueIdCounter = -1;
 
+/**
+ * Returns a number to be used as ID, which will be unique.
+ */
 export function uniqueId() {
   return uniqueIdCounter++;
 }
