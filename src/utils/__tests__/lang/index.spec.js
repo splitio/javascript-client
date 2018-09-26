@@ -1,9 +1,11 @@
 import tape from 'tape-catch';
+import sinon from 'sinon';
 import {
   startsWith,
   endsWith,
   get,
   findIndex,
+  find,
   merge,
   uniq,
   groupBy
@@ -87,6 +89,38 @@ tape('LANG UTILS / findIndex', function(assert) {
   assert.equal(findIndex(arr, e => e === 3), 2, 'It should return the index of the first element that causes iteratee to return truthy.');
 
   /* Not testing the params received by iteratee because we know that Array.prototype.findIndex works ok */
+
+  assert.end();
+});
+
+tape('LANG UTILS / find', function(assert) {
+  assert.equal(find(), undefined, 'We cant find the element if the collection is wrong type, so we return undefined.');
+  assert.equal(find(null, () => true), undefined, 'We cant find the element if the collection is wrong type, so we return undefined.');
+
+  assert.equal(find([], () => true), undefined, 'If the collection is empty there is no element to be found, so we return undefined.');
+  assert.equal(find({}, () => true), undefined, 'If the collection is empty there is no element to be found, so we return undefined.');
+
+  const spy = sinon.spy();
+  const obj = { myKey: 'myVal', myOtherKey: 'myOtherVal' };
+
+  find(obj, spy);
+  assert.ok(spy.calledTwice, 'The iteratee should be called as many times as elements we have on the collection.');
+  assert.ok(spy.firstCall.calledWithExactly('myVal', 'myKey', obj), 'When iterating on an object the iteratee should be called with (val, key, collection)');
+  assert.ok(spy.secondCall.calledWithExactly('myOtherVal', 'myOtherKey', obj), 'When iterating on an object the iteratee should be called with (val, key, collection)');
+
+  const arr = ['one', 'two'];
+  spy.resetHistory();
+
+  find(arr, spy);
+  assert.ok(spy.calledTwice, 'The iteratee should be called as many times as elements we have on the collection.');
+  assert.ok(spy.firstCall.calledWithExactly('one', 0, arr), 'When iterating on an array the iteratee should be called with (val, index, collection)');
+  assert.ok(spy.secondCall.calledWithExactly('two', 1, arr), 'When iterating on an array the iteratee should be called with (val, index, collection)');
+
+  assert.equal(find({
+    val1: '1',
+    val2: '2'
+  }, e => e === '2'), '2', 'If an element causes iteratee to return a truthy value, that value is returned.');
+  assert.equal(find(['uno', 'dos'], e => e === 'uno'), 'uno', 'If an element causes iteratee to return a truthy value, that value is returned.');
 
   assert.end();
 });

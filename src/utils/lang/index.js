@@ -49,6 +49,12 @@ export function findIndex(source, iteratee) {
   return -1;
 }
 
+/**
+ * Loops through a source collection (an object or an array) running iteratee
+ * against each element. It returns the first element for which iteratee returned
+ * a truthy value and stops the loop.
+ * Iteratee receives three arguments (element, key/index, collection)
+ */
 export function find(source, iteratee) {
   let res;
 
