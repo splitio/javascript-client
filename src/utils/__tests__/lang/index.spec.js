@@ -13,6 +13,7 @@ import {
   uniq,
   toString,
   toNumber,
+  forOwn,
   groupBy
 } from '../../lang';
 
@@ -346,6 +347,18 @@ tape('LANG UTILS / toNumber', function(assert) {
   assert.equal(toNumber(null), 0, 'The returned number (if it can be converted) should be correct');
   assert.equal(toNumber(15), 15, 'The returned number (if it can be converted) should be correct');
   assert.equal(toNumber(''), 0, 'The returned number (if it can be converted) should be correct');
+
+  assert.end();
+});
+
+tape('LANG UTILS / forOwn', function(assert) {
+  const spy = sinon.spy();
+  const obj = { myKey: 'myVal', myOtherKey: 'myOtherVal' };
+
+  forOwn(obj, spy);
+  assert.ok(spy.calledTwice, 'The iteratee should be called as many times as elements we have on the object.');
+  assert.ok(spy.firstCall.calledWithExactly('myVal', 'myKey', obj), 'When iterating on an object the iteratee should be called with (val, key, collection)');
+  assert.ok(spy.secondCall.calledWithExactly('myOtherVal', 'myOtherKey', obj), 'When iterating on an object the iteratee should be called with (val, key, collection)');
 
   assert.end();
 });

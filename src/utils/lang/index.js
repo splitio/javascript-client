@@ -178,6 +178,9 @@ export function toNumber(val) {
   return +val;
 }
 
+/**
+ * Executes iteratee for given obj own props.
+ */
 export function forOwn(obj, iteratee) {
   const keys = Object.keys(obj);
 
@@ -186,6 +189,9 @@ export function forOwn(obj, iteratee) {
   return obj;
 }
 
+/**
+ * Parses an array into a map of different arrays, grouping by the specified prop value.
+ */
 export function groupBy(source, prop) {
   const map = {};
 
