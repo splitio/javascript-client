@@ -328,6 +328,28 @@ tape('LANG UTILS / toString', function(assert) {
   assert.end();
 });
 
+tape('LANG UTILS / toNumber', function(assert) {
+  assert.equal(typeof toNumber(NaN), 'number', 'It should ALWAYS return a number.');
+  assert.equal(typeof toNumber(null), 'number', 'It should ALWAYS return a number.');
+  assert.equal(typeof toNumber(250), 'number', 'It should ALWAYS return a number.');
+  assert.equal(typeof toNumber('asdad'), 'number', 'It should ALWAYS return a number.');
+  assert.equal(typeof toNumber(/regex/), 'number', 'It should ALWAYS return a number.');
+
+  assert.ok(Number.isNaN(toNumber()), 'The returned number should be NaN for values that cannot be converted');
+  assert.ok(Number.isNaN(toNumber(/regex/)), 'The returned number should be NaN for values that cannot be converted');
+  assert.ok(Number.isNaN(toNumber({})), 'The returned number should be NaN for values that cannot be converted');
+  assert.ok(Number.isNaN(toNumber({})), 'The returned number should be NaN for values that cannot be converted');
+  assert.ok(Number.isNaN(toNumber('1.2.3')), 'The returned number should be NaN for values that cannot be converted');
+
+  assert.equal(toNumber('1.2124'), 1.2124, 'The returned number (if it can be converted) should be correct');
+  assert.equal(toNumber('238'), 238, 'The returned number (if it can be converted) should be correct');
+  assert.equal(toNumber(null), 0, 'The returned number (if it can be converted) should be correct');
+  assert.equal(toNumber(15), 15, 'The returned number (if it can be converted) should be correct');
+  assert.equal(toNumber(''), 0, 'The returned number (if it can be converted) should be correct');
+
+  assert.end();
+});
+
 tape('LANG UTILS / groupBy', function(assert) {
   let arr = [{
     team: 'SDK',

@@ -144,6 +144,9 @@ export function uniq(arr) {
   });
 }
 
+/**
+ * Transforms a value into it's string representation.
+ */
 export function toString(val) {
   if (val == null) return '';
   if (typeof val === 'string') return val;
@@ -153,6 +156,10 @@ export function toString(val) {
   return (result === '0' && (1 / val) === Number.NEGATIVE_INFINITY) ? '-0' : result;
 }
 
+/**
+ * Transforms a value into a number.
+ * Note: We're not expecting anything fancy here. If we are at some point, add more type checks.
+ */
 export function toNumber(val) {
   if (typeof val === 'number') return val;
 
@@ -164,6 +171,7 @@ export function toNumber(val) {
   if (typeof val !== 'string') {
     return val === 0 ? val : +val;
   }
+
   // Remove trailing whitespaces.
   val = val.replace(/^\s+|\s+$/g, '');
 
