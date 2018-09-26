@@ -3,6 +3,7 @@ import {
   startsWith,
   endsWith,
   get,
+  findIndex,
   merge,
   uniq,
   groupBy
@@ -38,9 +39,57 @@ tape('LANG UTILS / endsWith', function(assert) {
   assert.end();
 });
 
-// tape('LANG UTILS / get', function(assert) {
+tape('LANG UTILS / get', function(assert) {
+  const obj = {
+    simple: 'simple',
+    undef: undefined,
+    deepProp: {
+      sample: 'sample',
+      deeperProp: {
+        deeper: true
+      }
+    }
+  };
 
-// });
+  // negative
+  assert.equal(get(obj, 'not_exists', 'default'), 'default', 'If the property path does not match a property of the source, return the default value.');
+  assert.equal(get(obj, 'undef', 'default'), 'default', 'If the property is found but the value is undefined, return the default value.');
+  assert.equal(get(obj, 'undef.crap', 'default'), 'default', 'If the property path is incorrect and could cause an error, return the default value.');
+  assert.equal(get(obj, null, 'default'), 'default', 'If the property path is of wrong type, return the default value.');
+  assert.equal(get(obj, /regex/, 'default'), 'default', 'If the property path is of wrong type, return the default value.');
+  assert.equal(get(null, 'simple', 'default'), 'default', 'If the source is of wrong type, return the default value.');
+  assert.equal(get(/regex/, 'simple', 'default'), 'default', 'If the source is of wrong type, return the default value.');
+
+  // positive
+  assert.equal(get(obj, 'simple', 'default'), 'simple', 'If the property path (regardless of how "deep") matches a defined property of the object, returns that value instead of default.');
+  assert.equal(get(obj, 'deepProp.sample', 'default'), 'sample', 'If the property path (regardless of how "deep") matches a defined property of the object, returns that value instead of default.');
+  assert.equal(get(obj, 'deepProp.deeperProp.deeper', 'default'), true, 'If the property path (regardless of how "deep") matches a defined property of the object, returns that value instead of default.');
+  assert.deepEqual(get(obj, 'deepProp.deeperProp', 'default'), {
+    deeper: true
+  }, 'If the property path (regardless of how "deep") matches a defined property of the object, returns that value (regardless of the type) instead of default.');
+
+  assert.end();
+});
+
+tape('LANG UTILS / findIndex', function(assert) {
+  const arr = [1,2,3,4,3];
+
+  assert.equal(findIndex(), -1, 'If the parameters for findIndex are wrong it returns -1.');
+  assert.equal(findIndex(null, () => {}), -1, 'If the parameters for findIndex are wrong it returns -1.');
+  assert.equal(findIndex({}, () => {}), -1, 'If the parameters for findIndex are wrong it returns -1.');
+  assert.equal(findIndex({}, false), -1, 'If the parameters for findIndex are wrong it returns -1.');
+
+  assert.equal(findIndex(arr, () => false), -1, 'If no element causes iteratee to return truthy, it returns -1.');
+  assert.equal(findIndex(arr, e => e === 5), -1, 'If no element causes iteratee to return truthy, it returns -1.');
+
+  assert.equal(findIndex(arr, e => e === 1), 0, 'It should return the index of the first element that causes iteratee to return truthy.');
+  assert.equal(findIndex(arr, e => e === 2), 1, 'It should return the index of the first element that causes iteratee to return truthy.');
+  assert.equal(findIndex(arr, e => e === 3), 2, 'It should return the index of the first element that causes iteratee to return truthy.');
+
+  /* Not testing the params received by iteratee because we know that Array.prototype.findIndex works ok */
+
+  assert.end();
+});
 
 tape('LANG UTILS / merge', function(assert) {
   let obj1 = {};
