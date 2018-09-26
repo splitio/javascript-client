@@ -1,5 +1,46 @@
 import tape from 'tape-catch';
-import { merge, uniq, groupBy } from '../../lang';
+import {
+  startsWith,
+  endsWith,
+  get,
+  merge,
+  uniq,
+  groupBy
+} from '../../lang';
+
+tape('LANG UTILS / startsWith', function(assert) {
+  assert.ok(startsWith('myStr', 'myS'));
+  assert.ok(startsWith('this is something', 'this is'));
+
+  assert.notOk(startsWith('myStr', 'yS'));
+  assert.notOk(startsWith(' myStr', 'yS'));
+  assert.notOk(startsWith('myStr', ' yS'));
+  assert.notOk(startsWith('myStr', null));
+  assert.notOk(startsWith(false, null));
+  assert.notOk(startsWith());
+  assert.notOk(startsWith(null, 'ys'));
+
+  assert.end();
+});
+
+tape('LANG UTILS / endsWith', function(assert) {
+  assert.ok(endsWith('myStr', 'Str'));
+  assert.ok(endsWith('is a str', ' str'));
+
+  assert.notOk(endsWith('myStr', 'Sr'));
+  assert.notOk(endsWith('myStr ', 'tr'));
+  assert.notOk(endsWith('myStr', 'tr '));
+  assert.notOk(endsWith('myStr', null));
+  assert.notOk(endsWith(false, null));
+  assert.notOk(endsWith());
+  assert.notOk(endsWith(null, 'ys'));
+
+  assert.end();
+});
+
+// tape('LANG UTILS / get', function(assert) {
+
+// });
 
 tape('LANG UTILS / merge', function(assert) {
   let obj1 = {};
