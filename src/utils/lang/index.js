@@ -164,7 +164,7 @@ export function toNumber(val) {
   if (typeof val === 'number') return val;
 
   if (isObject(val) && typeof val.valueOf === 'function') {
-    let valOf = val.valueOf();
+    const valOf = val.valueOf();
     val = isObject(valOf) ? valOf + '' : valOf;
   }
 

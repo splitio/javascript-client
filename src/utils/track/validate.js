@@ -28,14 +28,12 @@ function validateTrackArguments(key, trafficTypeName, eventTypeId, value) {
     return false;
   }
 
-  if (trafficTypeName === null || trafficTypeName === undefined
-    || !isString(trafficTypeName)
-    || (isString(trafficTypeName) && !trafficTypeName.length)) {
+  if (!trafficTypeName || !isString(trafficTypeName)) {
     logError(trafficTypeName, 'traffic_type_name', false);
     return false;
   }
 
-  if (eventTypeId === null || eventTypeId === undefined || !isString(trafficTypeName)) {
+  if (eventTypeId === null || eventTypeId === undefined || !isString(eventTypeId)) {
     logError(eventTypeId, 'event_name');
     return false;
   }
