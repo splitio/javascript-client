@@ -14,5 +14,5 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-export const ip = {};
-export const hostname = {};
+export const ip = false;
+export const hostname = false;

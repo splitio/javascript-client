@@ -13,9 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-import isString from 'lodash/isString';
-import isFinite from 'lodash/isFinite';
-import toString from 'lodash/toString';
+import { isFinite, toString, isString } from '../lang';
 
 function sanatizeKey(key) {
   if (isString(key) || isFinite(key)) {
@@ -23,6 +21,6 @@ function sanatizeKey(key) {
   }
 
   return false;
-} 
+}
 
 export default sanatizeKey;

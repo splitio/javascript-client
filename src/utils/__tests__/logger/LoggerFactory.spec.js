@@ -5,6 +5,8 @@ import sinon from 'sinon';
 import { Logger, LogLevels, setLogLevel } from '../../logger/LoggerFactory';
 import { LOG_LEVELS } from './index.spec.js';
 
+const isNode = typeof process !== 'undefined' && process.version ? true : false;
+
 tape('SPLIT LOGGER FACTORY / setLogLevel utility function', assert => {
   assert.equal(typeof setLogLevel, 'function', 'setLogLevel should be a function');
   assert.doesNotThrow(setLogLevel, 'Calling setLogLevel should not throw an error.');
@@ -55,13 +57,14 @@ function testLogLevels(levelToTest, assert) {
     LOG_LEVELS_IN_ORDER.forEach((logLevel, i) => {
       const logMsg = `Test log for level ${levelToTest} with showLevel: ${showLevel} ${logLevelLogsCounter}`;
       const expectedMessage = buildExpectedMessage(levelToTest, logCategory, logMsg, showLevel);
+      const consoleMethodToUse = !isNode && levelToTest === LOG_LEVELS.ERROR ? 'error' : 'log';
 
       // Set the logLevel for this iteration.
       setLogLevel(LogLevels[logLevel]);
       // Call the method
       instance[logMethod](logMsg);
       // Assert if console.log was called.
-      assert[testForNoLog ? 'notOk' : 'ok'](console.log.calledWith(expectedMessage), `Calling ${logMethod} method should ${testForNoLog ? 'NOT ' : ''}log with ${logLevel} log level.`);
+      assert[testForNoLog ? 'notOk' : 'ok'](console[consoleMethodToUse].calledWith(expectedMessage), `Calling ${logMethod} method should ${testForNoLog ? 'NOT ' : ''}log with ${logLevel} log level.`);
 
       if (LOG_LEVELS_IN_ORDER.indexOf(levelToTest) <= i) {
         testForNoLog = true;
@@ -70,8 +73,9 @@ function testLogLevels(levelToTest, assert) {
     });
   };
 
-  // Stub console.log
+  // Stub console.log & error
   sinon.spy(console, 'log');
+  console.error && sinon.spy(console, 'error');
 
   // Show logLevel
   runTests(true);
@@ -80,6 +84,7 @@ function testLogLevels(levelToTest, assert) {
 
   // Restore stub.
   console.log.restore();
+  console.error && console.error.restore && console.error.restore();
 }
 
 tape('SPLIT LOGGER FACTORY / Logger class public methods behaviour - instance.debug', assert => {

@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-import isObject from 'lodash/isObject';
+import { isObject } from '../lang';
 import sanatize from './sanatize';
 
 /**
@@ -25,7 +25,7 @@ export default (key) => {
     // If we've received an object, we will sanatizes the value of each property
     const keyObject = {
       matchingKey: sanatize(key.matchingKey),
-      bucketingKey: sanatize(key.bucketingKey)      
+      bucketingKey: sanatize(key.bucketingKey)
     };
 
     // and if they've resulted on a invalid type of key we will return false
@@ -37,7 +37,7 @@ export default (key) => {
   }
 
   const sanatizedKey = sanatize(key);
-  
+
   // sanatize would return false if the key is invalid
   if (sanatizedKey !== false) {
     return {

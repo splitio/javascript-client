@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-import uniqueId from 'lodash/uniqueId';
+import { uniqueId } from '../lang';
 import { Logger } from '../logger/LoggerFactory';
 import timer from './timer';
 import thenable from '../promise/thenable';
