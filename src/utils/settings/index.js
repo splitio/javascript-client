@@ -71,7 +71,7 @@ const base = {
   },
 
   // Defines if the logs are enabled, SDK wide.
-  debug: false,
+  debug: undefined,
 
   // Instance version.
   version: `${language}-${version}`
