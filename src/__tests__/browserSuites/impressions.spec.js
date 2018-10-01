@@ -47,13 +47,13 @@ export default function(mock, assert) {
   mock.onPost(settings.url('/testImpressions/bulk'))
     .replyOnce(req => {
       assertPayload(req);
-      assert.comment('First call will fail, so data will be tested again on retry.');
+      assert.comment('After a failure, Impressions will keep the data for the next call.');
       return [400];
     })
     // Attach again to catch the retry.
     .onPost(settings.url('/testImpressions/bulk'))
     .replyOnce(req => {
-      assert.comment('After a failure, Impressions will keep the date for a next call.');
+      assert.comment('We do one retry, so after a failed impressions post we will try once more.');
       assertPayload(req);
 
       client.destroy();
