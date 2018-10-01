@@ -214,3 +214,12 @@ export function groupBy(source, prop) {
 
   return map;
 }
+
+/**
+ * Returns the name of a given function.
+ */
+export function getFnName(fn) {
+  if (fn.name) return fn.name;
+
+  return (fn.toString().match(/function (.+?)\(/)||['',''])[1];
+}
