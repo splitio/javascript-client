@@ -6,6 +6,7 @@
 * Added automatic cleanup and data flush for NodeJS on SIGTERM signals.
 * Updated dependency versions.
 * Bugfixing - Capturing uncaught exception on some http and network errors.
+* Bugfixing - IE - Producer names logged as undefined.
 
 ## 10.3.3 (Aug 8, 2018)
 

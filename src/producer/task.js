@@ -17,20 +17,22 @@ limitations under the License.
 import logFactory from '../utils/logger';
 const log = logFactory('splitio-producer:task');
 import repeat from '../utils/fn/repeat';
+import { getFnName } from '../utils/lang';
 
 /**
  * Startable task factory.
  */
 const TaskFactory = (updater, period) => {
+  const updaterName = getFnName(updater);
   let stopUpdater;
 
   return {
     start() {
-      log.debug(`Starting ${updater.name} refreshing each ${period}`);
+      log.debug(`Starting ${updaterName} refreshing each ${period}`);
 
       stopUpdater = repeat(
         reschedule => {
-          log.debug(`Running ${updater.name}`);
+          log.debug(`Running ${updaterName}`);
           updater().then(() => reschedule());
         },
         period
@@ -38,7 +40,7 @@ const TaskFactory = (updater, period) => {
     },
 
     stop() {
-      log.debug(`Stopping ${updater.name}`);
+      log.debug(`Stopping ${updaterName}`);
 
       stopUpdater && stopUpdater();
     }
