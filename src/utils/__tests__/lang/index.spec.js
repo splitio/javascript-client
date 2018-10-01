@@ -14,7 +14,8 @@ import {
   toString,
   toNumber,
   forOwn,
-  groupBy
+  groupBy,
+  getFnName
 } from '../../lang';
 
 tape('LANG UTILS / startsWith', function(assert) {
@@ -395,6 +396,15 @@ tape('LANG UTILS / groupBy', function(assert) {
   assert.deepEqual(groupBy({}, 'team'), {}, 'If the input is empty or wrong type, it will return an empty object.');
   assert.deepEqual(groupBy({ something: 1 }, null), {}, 'If the input is empty or wrong type, it will return an empty object.');
   assert.deepEqual(groupBy({ something: 1 }), {}, 'If the input is empty or wrong type, it will return an empty object.');
+
+  assert.end();
+});
+
+tape('LANG UTILS / getFnName', function(assert) {
+  function name1() {}
+
+  assert.equal(getFnName(name1), 'name1', 'Should retrieve the function name.');
+  assert.equal(getFnName(Array.prototype.push), 'push', 'Should retrieve the function name.');
 
   assert.end();
 });
