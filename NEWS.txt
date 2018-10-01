@@ -16,6 +16,7 @@
   . @types/node
   . lodash
   . and several devDependencies
+* Bugfixing - Capturing uncaught exception on some http and network errors.
 
 ## 10.3.3 (Aug 8, 2018)
 

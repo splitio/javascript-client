@@ -22,7 +22,7 @@ import mySegmentsRequest from '../../services/mySegments/get';
 const mySegmentsFetcher = (settings, startingUp = false, metricCollectors) => {
   let mySegmentsPromise = mySegmentsService(mySegmentsRequest(settings));
 
-  tracker.start(tracker.TaskNames.MY_SEGMENTS_FETCH, startingUp ? metricCollectors : false, mySegmentsPromise);
+  mySegmentsPromise = tracker.start(tracker.TaskNames.MY_SEGMENTS_FETCH, startingUp ? metricCollectors : false, mySegmentsPromise);
 
   // Decorate with the timeout functionality if required
   if (startingUp) {
