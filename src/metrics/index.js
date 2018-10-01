@@ -39,6 +39,7 @@ import {
 const log = logFactory('splitio-metrics');
 
 const MetricsFactory = context => {
+  let impressionsRetries = 0;
   const settings = context.get(context.constants.SETTINGS);
   const storage = context.get(context.constants.STORAGE);
 
@@ -73,18 +74,29 @@ const MetricsFactory = context => {
 
   const pushImpressions = () => {
     if (storage.impressions.isEmpty()) return Promise.resolve();
+    const imprCount = storage.impressions.queue.length;
 
-    log.info(`Pushing ${storage.impressions.queue.length} impressions`);
+    log.info(`Pushing ${imprCount} impressions`);
     const latencyTrackerStop = tracker.start(tracker.TaskNames.IMPRESSIONS_PUSH);
 
     return impressionsService(impressionsBulkRequest(settings, {
       data: JSON.stringify(fromImpressionsCollector(storage.impressions, settings))
     }))
       .then(() => {
-        latencyTrackerStop();
-        return storage.impressions.clear();
+        impressionsRetries = 0;
+        storage.impressions.clear();
       })
-      .catch(() => storage.impressions.clear());
+      .catch(err => {
+        if (impressionsRetries) { // For now we retry only once.
+          log.warn(`Droping ${imprCount} impressions after retry. Reason ${err}.`);
+          impressionsRetries = 0;
+          storage.impressions.clear();
+        } else {
+          impressionsRetries++;
+          log.warn(`Failed to push ${imprCount} impressions, keeping data to retry on next iteration. Reason ${err}.`);
+        }
+      })
+      .then(() => latencyTrackerStop());
   };
 
   let stopImpressionsPublisher = false;
