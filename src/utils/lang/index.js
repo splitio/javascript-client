@@ -43,7 +43,11 @@ export function get(obj, prop, val) {
  */
 export function findIndex(source, iteratee) {
   if (Array.isArray(source) && typeof iteratee === 'function') {
-    return source.findIndex(iteratee);
+    for (let i = 0; i < source.length; i++) {
+      if (iteratee(source[i], i, source) === true) {
+        return i;
+      }
+    }
   }
 
   return -1;
