@@ -17,6 +17,7 @@
   . lodash
   . and several devDependencies
 * Bugfixing - Capturing uncaught exception on some http and network errors.
+* Bugfixing - IE - Producer names logged as undefined because of no support for Function.name.
 
 ## 10.3.3 (Aug 8, 2018)
 
