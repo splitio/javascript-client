@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-import get from 'lodash/get';
+import { get } from '../utils/lang';
 import parser from './parser';
 import keyParser from '../utils/key/parser';
 import keyLogError from '../utils/key/logError';

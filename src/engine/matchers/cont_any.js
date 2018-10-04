@@ -16,11 +16,15 @@ limitations under the License.
 
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-engine:matcher');
-import intersection from 'lodash/intersection';
+import { findIndex } from '../../utils/lang';
 
 function containsAnyMatcherContext(ruleAttr /*: array */) /*: Function */ {
   return function containsAnyMatcher(runtimeAttr /*: array */) /*: boolean */ {
-    const containsAny = intersection(runtimeAttr, ruleAttr).length > 0;
+    let containsAny = false;
+
+    for (let i = 0; i < ruleAttr.length && !containsAny; i++) {
+      if (findIndex(runtimeAttr, e => e === ruleAttr[i]) >= 0) containsAny = true;
+    }
 
     log.debug(`[containsAnyMatcher] ${runtimeAttr} contains at least an element of ${ruleAttr}? ${containsAny}`);
 

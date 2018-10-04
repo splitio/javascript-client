@@ -8,27 +8,24 @@ const settings = SettingsFactory({
 });
 
 export default function(mock, assert) {
-
   const splitio = SplitFactory({
     core: {
       authorizationKey: '<some-token>',
       key: 'facundo@split.io'
     },
     scheduler: {
-      featuresRefreshRate: 1,
-      segmentsRefreshRate: 1,
+      featuresRefreshRate: 0.5,
+      segmentsRefreshRate: 0.5,
       metricsRefreshRate: 3000,
-      impressionsRefreshRate: 1
+      impressionsRefreshRate: 0.5
     },
     startup: {
       eventsFirstPushWindow: 3000
     }
   });
   const client = splitio.client();
-
-  mock.onPost(settings.url('/testImpressions/bulk')).replyOnce(req => {
+  const assertPayload = req => {
     const resp = JSON.parse(req.data);
-
     const dependencyChildImpr = resp.filter(e => e.testName === 'hierarchical_splits_test')[0];
 
     assert.true(dependencyChildImpr, 'Split we wanted to evaluate should be present on the impressions.');
@@ -45,12 +42,25 @@ export default function(mock, assert) {
     // The label present on the mock.
     assert.equal(label, 'expected label', 'Present impression should have the correct label.');
     assert.equal(treatment, 'on', 'Present impression should have the correct treatment.');
+  };
 
-    client.destroy();
-    assert.end();
+  mock.onPost(settings.url('/testImpressions/bulk'))
+    .replyOnce(req => {
+      assertPayload(req);
+      assert.comment('After a failure, Impressions will keep the data for the next call.');
+      return [400];
+    })
+    // Attach again to catch the retry.
+    .onPost(settings.url('/testImpressions/bulk'))
+    .replyOnce(req => {
+      assert.comment('We do one retry, so after a failed impressions post we will try once more.');
+      assertPayload(req);
 
-    return [200];
-  });
+      client.destroy();
+      assert.end();
+
+      return [200];
+    });
 
   client.ready().then(() => {
     // depends on hierarchical_dep_hierarchical which depends on hierarchical_dep_always_on

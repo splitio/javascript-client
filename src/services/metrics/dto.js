@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-import forOwn from 'lodash/forOwn';
+import { forOwn } from '../../utils/lang';
 
 export function fromLatenciesCollector(latenciesCollector) {
   const result = [];

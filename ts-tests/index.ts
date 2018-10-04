@@ -162,9 +162,19 @@ asyncManager = AsyncSDK.manager();
 
 // Logger
 SDK.Logger.enable();
+SDK.Logger.setLogLevel(SDK.Logger.LogLevel.DEBUG);
+SDK.Logger.setLogLevel(SDK.Logger.LogLevel.INFO);
+SDK.Logger.setLogLevel(SDK.Logger.LogLevel.WARN);
+SDK.Logger.setLogLevel(SDK.Logger.LogLevel.ERROR);
+SDK.Logger.setLogLevel(SDK.Logger.LogLevel.NONE);
 SDK.Logger.disable();
 
 AsyncSDK.Logger.enable();
+AsyncSDK.Logger.setLogLevel(AsyncSDK.Logger.LogLevel.DEBUG);
+AsyncSDK.Logger.setLogLevel(AsyncSDK.Logger.LogLevel.INFO);
+AsyncSDK.Logger.setLogLevel(AsyncSDK.Logger.LogLevel.WARN);
+AsyncSDK.Logger.setLogLevel(AsyncSDK.Logger.LogLevel.ERROR);
+AsyncSDK.Logger.setLogLevel(AsyncSDK.Logger.LogLevel.NONE);
 AsyncSDK.Logger.disable();
 
 /**** Tests for IClient interface ****/

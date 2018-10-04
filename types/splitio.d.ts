@@ -72,6 +72,11 @@ interface ISettings {
   }
 }
 /**
+ * Log levels.
+ * @typedef {string} LogLevel
+ */
+type LogLevel = 'DEBUG' | 'INFO' | 'WARN' | 'ERROR' | 'NONE';
+/**
  * Logger API
  * @interface ILoggerAPI
  */
@@ -87,7 +92,19 @@ interface ILoggerAPI {
    * @function disable
    * @returns {void}
    */
-  disable(): void
+  disable(): void,
+  /**
+   * Sets a log level for the SDK logs.
+   * @function setLogLevel
+   * @returns {void}
+   */
+  setLogLevel(logLevel: LogLevel): void,
+  /**
+   * Log level constants. Use this to pass them to setLogLevel function.
+   */
+  LogLevel: {
+    [level: string]: LogLevel
+  }
 }
 /**
  * Common settings between Browser and NodeJS settings interface.
@@ -475,7 +492,7 @@ declare namespace SplitIO {
       /**
        * Time to wait for a request before the SDK is ready. If this time expires, JS Sdk will retry 'retriesOnFailureBeforeReady' times before notifying its failure to be 'ready'.
        * @property {number} requestTimeoutBeforeReady
-       * @default 0.8
+       * @default 1.5
        */
       requestTimeoutBeforeReady?: number,
       /**

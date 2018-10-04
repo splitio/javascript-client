@@ -15,11 +15,12 @@ const EventsFactory = context => {
     log.info(`Pushing ${storage.events.state().length} queued events.`);
     const latencyTrackerStop = tracker.start(tracker.TaskNames.EVENTS_PUSH);
     const json = JSON.stringify(storage.events.toJSON());
+    const wrapUpCb = () => latencyTrackerStop();
     storage.events.clear(); // we always clear the queue.
 
     return eventsService(eventsBulkRequest(settings, {
       data: json
-    })).then(() => latencyTrackerStop());
+    })).then(wrapUpCb).catch(wrapUpCb);
   };
 
   let stopEventPublisherTimeout = false;

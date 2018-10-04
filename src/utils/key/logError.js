@@ -13,8 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-import isObject from 'lodash/isObject';
-import isFinite from 'lodash/isFinite';
+import { isObject, isFinite } from '../lang';
 import sanatize from './sanatize';
 import logFactory from '../logger';
 const log = logFactory('splitio-client');

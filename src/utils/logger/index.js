@@ -14,12 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-import Logger from 'logplease-es5';
+import { Logger, LogLevels, setLogLevel } from './LoggerFactory';
 import isLocalStorageAvailable from '../localstorage/isAvailable';
+import { find } from '../lang';
+
+const isLogLevelString = str => !!find(LogLevels, lvl => str === lvl);
 
 const defaultOptions = {
-  useColors: false,
-  showTimestamp: false
+  showLevel: true
 };
 
 const LS_KEY = 'splitio_debug';
@@ -38,20 +40,49 @@ const initialState = String(
       localStorage.getItem(LS_KEY) : ''
 );
 
+const createLog = namespace => new Logger(namespace, defaultOptions);
+
+const ownLog = createLog('splitio-utils:logger');
+
+/**
+ * The public Logger utility API.
+ */
 export const API = {
+  /**
+   * Enables all the logs.
+   */
   enable() {
-    Logger.setLogLevel(Logger.LogLevels.DEBUG);
+    setLogLevel(LogLevels.DEBUG);
   },
+  /**
+   * Sets a custom log Level for the SDK.
+   * @param {string} logLevel - Custom LogLevel value.
+   */
+  setLogLevel(logLevel) {
+    if (isLogLevelString(logLevel)) {
+      setLogLevel(logLevel);
+    } else {
+      ownLog.error('Invalid Log Level - No changes to the logs will be applied.');
+    }
+  },
+  /**
+   * Disables all the log levels.
+   */
   disable() {
-    Logger.setLogLevel(Logger.LogLevels.NONE);
-  }
+    // Disabling is equal logLevel none
+    setLogLevel(LogLevels.NONE);
+  },
+  /**
+   * Exposed for usage with setLogLevel
+   */
+  LogLevel: LogLevels
 };
 
-const createLog = namespace => Logger.create(namespace, defaultOptions);
-
-// "enable", "enabled" and "on" are acceptable values
+// "enable", "enabled" and "on", are synonims with 'DEBUG' loglevel
 if (/^(enabled?|on)/i.test(initialState)) {
-  API.enable();
+  API.enable(LogLevels.DEBUG);
+} else if (isLogLevelString(initialState)) {
+  API.setLogLevel(initialState);
 } else {
   // By default it starts disabled.
   API.disable();

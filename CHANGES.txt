@@ -1,3 +1,14 @@
+## 10.4.0 (Oct 4, 2018)
+
+* Removed dependency for logging library.
+* Removed dependency on lodash.
+* Added log level support for SDK logs using our own Logger.
+* Added automatic cleanup and data flush for NodeJS on SIGTERM signals.
+* Updated default value for startup.requestTimeoutBeforeReady on the Browser from 0.8 seconds to 1.5 seconds to match startup.readyTimeout.
+* Updated dependency versions.
+* Bugfixing - Capturing uncaught exception on some http and network errors.
+* Bugfixing - IE - Producer names logged as undefined.
+
 ## 10.3.3 (Aug 8, 2018)
 
 * Removing logplease dependency hosted on GitHub.

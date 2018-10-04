@@ -19,23 +19,26 @@ const log = logFactory('splitio-services:service');
 
 export default function Fetcher(request) {
   return axios(request)
-    .then(resp => {
-      if (resp.status >= 200 && resp.status < 300) {
-        return resp;
-      } else {
-        let message = '';
+    .catch(error => {
+      const resp = error.response;
+      const config = error.config;
+      let msg = '';
+
+      if (resp) { // An HTTP error
         switch (resp.status) {
-          case 403: message = 'Forbidden operation. Check API key permissions.';
+          case 403: msg = 'Forbidden operation. Check API key permissions.';
             break;
-          case 404: message = 'Invalid API key or resource not found.';
+          case 404: msg = 'Invalid API key or resource not found.';
             break;
-          default: message = resp.statusText;
+          default: msg = resp.statusText;
             break;
         }
-
-        log.error(`Response status is not OK. Status: ${resp.status}. URL: ${resp.config.url}. Message: ${message}`);
-
-        throw Error(`${resp.status} - ${message}`);
+      } else { // Something else, either an error making the request or a Network error.
+        msg = error.message;
       }
+
+      log.error(`Response status is not OK. Status: ${resp ? resp.status : 'NO_STATUS'}. URL: ${config.url}. Message: ${msg}`);
+
+      throw Error(`${resp ? `${resp.status} - ` : ''}${msg}`);
     });
 }

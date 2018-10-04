@@ -14,15 +14,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
+import { isString } from '../../utils/lang';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-engine:matcher');
-import includes from 'lodash/includes';
 
 function containsStringMatcherContext(ruleAttr /*: array */) /*: Function */ {
   return function containsStringMatcher(runtimeAttr /*: string */) /*: boolean */ {
-    let contains = ruleAttr.some(e => includes(runtimeAttr, e));
+    let contains = ruleAttr.some(e => isString(runtimeAttr) && runtimeAttr.indexOf(e) > -1);
 
-    log.debug(`[containsStringMatcher] ${runtimeAttr} ends with ${ruleAttr}? ${contains}`);
+    log.debug(`[containsStringMatcher] ${runtimeAttr} contains ${ruleAttr}? ${contains}`);
 
     return contains;
   };

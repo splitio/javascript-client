@@ -1,4 +1,4 @@
-import get from 'lodash/get';
+import { get } from '../utils/lang';
 import ClientFactory from './client';
 import { LOCALHOST_MODE } from '../utils/constants';
 

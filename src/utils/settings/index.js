@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-import merge from 'lodash/merge';
+import { merge } from '../lang';
 import language from './language';
 import { ip, hostname } from './runtime';
 import overridesPerPlatform from './defaults';
@@ -71,7 +71,7 @@ const base = {
   },
 
   // Defines if the logs are enabled, SDK wide.
-  debug: false,
+  debug: undefined,
 
   // Instance version.
   version: `${language}-${version}`
@@ -81,9 +81,15 @@ function fromSecondsToMillis(n) {
   return Math.round(n * 1000);
 }
 
-function setupLogger(enable) {
-  if (enable) {
-    API.enable();
+function setupLogger(debugValue) {
+  if (typeof debugValue === 'boolean') {
+    if (debugValue) {
+      API.enable();
+    } else {
+      API.disable();
+    }
+  } else if (typeof debugValue === 'string') {
+    API.setLogLevel(debugValue);
   }
 }
 

@@ -17,7 +17,7 @@ limitations under the License.
 import segmentChangesService from '../../services/segmentChanges';
 import segmentChangesRequest from '../../services/segmentChanges/get';
 import tracker from '../../utils/timeTracker';
-import startsWith from 'lodash/startsWith';
+import { startsWith } from '../../utils/lang';
 
 function greedyFetch(settings, lastSinceValue, segmentName, metricCollectors) {
   return tracker.start(tracker.TaskNames.SEGMENTS_FETCH, metricCollectors, segmentChangesService(segmentChangesRequest(settings, {
