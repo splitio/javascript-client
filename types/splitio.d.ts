@@ -492,7 +492,7 @@ declare namespace SplitIO {
       /**
        * Time to wait for a request before the SDK is ready. If this time expires, JS Sdk will retry 'retriesOnFailureBeforeReady' times before notifying its failure to be 'ready'.
        * @property {number} requestTimeoutBeforeReady
-       * @default 0.8
+       * @default 1.5
        */
       requestTimeoutBeforeReady?: number,
       /**

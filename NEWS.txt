@@ -12,6 +12,7 @@
   . NONE
 * Added automatic cleanup and data flush for NodeJS on SIGTERM signals,
   in an attempt to collaborate with graceful shutdown.
+* Updated default value for startup.requestTimeoutBeforeReady on the Browser from 0.8 seconds to 1.5 seconds to match startup.readyTimeout.
 * Updated dependency versions:
   . @types/node
   . lodash
