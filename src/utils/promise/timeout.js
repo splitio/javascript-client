@@ -17,7 +17,7 @@ limitations under the License.
 function timeout(ms, promise) {
   return new Promise((resolve, reject) => {
     const tid = setTimeout(() => {
-      reject('timeout');
+      reject(`Operation timed out because it exceeded the configured time limit of ${ms}ms.`);
     }, ms);
 
     promise.then((res) => {
