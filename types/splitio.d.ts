@@ -166,7 +166,14 @@ interface ISharedSettings {
    * @property {Boolean} debug
    * @default false
    */
-  debug?: boolean
+  debug?: boolean,
+  /**
+   * The impression listener, which is optional. Whatever you provide here needs to comply with the SplitIO.IImpressionListener interface,
+   * which will check for the logImpression method.
+   * @property {IImpressionListener} impressionListener
+   * @default undefined
+   */
+  impressionListener?: SplitIO.IImpressionListener,
 }
 /**
  * Common settings interface for SDK instances on NodeJS.
@@ -407,6 +414,26 @@ declare namespace SplitIO {
     [featureName: string]: string
   };
   /**
+   * Object with information about an impression. It contains the generated impression DTO as well as
+   * complementary information around where and how it was generated in that way.
+   * @typedef {Object} ImpressionData
+   */
+  type ImpressionData = {
+    impression: {
+      feature: string,
+      keyName: string,
+      treatment: string,
+      time: number,
+      bucketingKey?: string,
+      label: string,
+      changeNumber: number
+    },
+    attributes?: SplitIO.Attributes,
+    ip: string,
+    hostname: string,
+    sdkLanguageVersion: string
+  };
+  /**
    * Data corresponding to one Split view.
    * @typedef {Object} SplitView
    */
@@ -471,6 +498,15 @@ declare namespace SplitIO {
    * @typedef {string} BrowserStorage
    */
   type BrowserStorage = 'MEMORY' | 'LOCALSTORAGE';
+  /**
+   * Impression listener interface. This is the interface that needs to be implemented
+   * by the element you provide to the SDK as impression listener.
+   * @interface IImpressionListener
+   * @see {@link https://docs.split.io/docs/nodejs-sdk-overview#section-listener}
+   */
+  interface IImpressionListener {
+    logImpression(data: SplitIO.ImpressionData): void
+  }
   /**
    * Settings interface for SDK instances created on the browser
    * @interface IBrowserSettings
