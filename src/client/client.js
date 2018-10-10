@@ -1,7 +1,7 @@
 import logFactory from '../utils/logger';
 const log = logFactory('splitio-client');
 import evaluator from '../engine/evaluator';
-import PassTracker from '../tracker/PassThrough';
+import ImpressionsTracker from '../trackers/impressions';
 import tracker from '../utils/timeTracker';
 import thenable from '../utils/promise/thenable';
 import keyParser from '../utils/key/parser';
@@ -12,6 +12,7 @@ function getTreatmentAvailable(
   evaluation,
   splitName,
   key,
+  attributes,
   stopLatencyTracker,
   impressionsTracker
 ) {
@@ -26,7 +27,7 @@ function getTreatmentAvailable(
     log.warn(`Split ${splitName} doesn't exist`);
   }
 
-  /** Not push impressions if matchingKey is invalid */
+  /** Don't push impressions if matchingKey is invalid */
   if (matchingKey !== false) {
     impressionsTracker({
       feature: splitName,
@@ -36,7 +37,7 @@ function getTreatmentAvailable(
       bucketingKey,
       label,
       changeNumber
-    });
+    }, attributes);
   } else {
     log.warn('Impression not collected since matchingKey is not a valid key');
   }
@@ -49,7 +50,7 @@ function getTreatmentAvailable(
 function ClientFactory(context) {
   const storage = context.get(context.constants.STORAGE);
   const metricCollectors = context.get(context.constants.COLLECTORS);
-  const impressionsTracker = PassTracker(storage.impressions);
+  const impressionsTracker = ImpressionsTracker(context);
 
   return {
     getTreatment(key, splitName, attributes) {
@@ -57,9 +58,9 @@ function ClientFactory(context) {
       const evaluation = evaluator(key, splitName, attributes, storage);
 
       if (thenable(evaluation)) {
-        return evaluation.then(res => getTreatmentAvailable(res, splitName, key, stopLatencyTracker, impressionsTracker));
+        return evaluation.then(res => getTreatmentAvailable(res, splitName, key, attributes, stopLatencyTracker, impressionsTracker));
       } else {
-        return getTreatmentAvailable(evaluation, splitName, key, stopLatencyTracker, impressionsTracker);
+        return getTreatmentAvailable(evaluation, splitName, key, attributes, stopLatencyTracker, impressionsTracker);
       }
     },
     getTreatments(key, splitNames, attributes) {
@@ -102,8 +103,7 @@ function ClientFactory(context) {
 
       const matchingKey =  keyParser(key).matchingKey;
       const timestamp = Date.now();
-      // if eventValye is undefiend we convert it to null so the BE can handle
-      // a non existence value
+      // if eventValue is undefined we convert it to null so the BE can handle a non existence value
       const value = eventValue === undefined ? null : eventValue;
 
       storage.events.track({
