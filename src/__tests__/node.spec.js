@@ -48,7 +48,7 @@ tape('## Node JS - E2E CI Tests ##', async function (assert) {
 
   /* Check impressions */
   assert.test('E2E / Impressions', impressionsSuite.bind(null, key, mock));
-  assert.test('E2E / Impressions listener', impressionsListenerSuite.bind(null));
+  assert.test('E2E / Impressions listener', impressionsListenerSuite);
 
   // TODO: add events
 });
