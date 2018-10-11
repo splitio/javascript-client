@@ -5,6 +5,7 @@ import SettingsFactory from '../utils/settings';
 
 import evaluationsSuite from './nodeSuites/evaluations.spec';
 import impressionsSuite from './nodeSuites/impressions.spec';
+import impressionsListenerSuite from './nodeSuites/impressions-listener.spec';
 
 import splitChangesMock1 from './mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from './mocks/splitchanges.since.1457552620999.json';
@@ -39,14 +40,15 @@ mock.onGet(settings.url('/splitChanges?since=-1')).reply(200, splitChangesMock1)
 mock.onGet(settings.url('/splitChanges?since=1457552620999')).reply(200, splitChangesMock2);
 mock.onGet(settings.url('/mySegments/facundo@split.io')).reply(200, mySegmentsFacundo);
 mock.onGet(settings.url('/mySegments/nicolas@split.io')).reply(200, mySegmentsNicolas);
-mock.onGet(settings.url('/mySegments/marcio@split.io')).reply(200, mySegmentsMarcio);  
+mock.onGet(settings.url('/mySegments/marcio@split.io')).reply(200, mySegmentsMarcio);
 
 tape('## Node JS - E2E CI Tests ##', async function (assert) {
-  /* Check client evaluations. */  
+  /* Check client evaluations. */
   assert.test('E2E / In Memory', evaluationsSuite.bind(null, config, key));
 
   /* Check impressions */
   assert.test('E2E / Impressions', impressionsSuite.bind(null, key, mock));
+  assert.test('E2E / Impressions listener', impressionsListenerSuite);
 
-  // TODO: add events and shared instantiation e2e tests
+  // TODO: add events
 });

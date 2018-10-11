@@ -32,6 +32,8 @@ let client: SplitIO.IClient;
 let manager: SplitIO.IManager;
 let asyncClient: SplitIO.IAsyncClient;
 let asyncManager: SplitIO.IAsyncManager;
+// Utility interfaces
+let impressionListener: SplitIO.IImpressionListener;
 
 /**** Custom Types ****/
 
@@ -69,6 +71,8 @@ let splitViews: SplitIO.SplitViews;
 let splitNames: SplitIO.SplitNames;
 let splitViewAsync: SplitIO.SplitViewAsync;
 let splitViewsAsync: SplitIO.SplitViewsAsync;
+// Impression data
+let impressionData: SplitIO.ImpressionData;
 // Storages
 let nodeStorage: SplitIO.NodeSyncStorage;
 let nodeAsyncStorage: SplitIO.NodeAsyncStorage;
@@ -219,7 +223,7 @@ tracked = client.track(splitKey, 'myTrafficType', 'myEventType', 10);
 tracked = client.track('myTrafficType', 'myEventType', 10);
 tracked = client.track('myEventType', 10);
 
-/*** Repeating tests for Async Client...  */
+/*** Repeating tests for Async Client ***/
 
 // Events constants we get (same as for sync client, just for interface checking)
 const eventConstsAsymc: {[key: string]: SplitIO.Event} = client.Event;
@@ -267,11 +271,28 @@ splitNames = manager.names();
 splitView = manager.split('mySplit');
 splitViews = manager.splits();
 
-/*** Repeating tests for Async Manager...  */
+/*** Repeating tests for Async Manager ***/
 
 splitNames = asyncManager.names(); // Split names are the same.
 splitViewAsync = asyncManager.split('mySplit');
 splitViewsAsync = asyncManager.splits();
+
+/*** Tests for IImpressionListener interface ***/
+class MyImprListener implements SplitIO.IImpressionListener {
+  logImpression(data: SplitIO.ImpressionData) {
+    impressionData = data;
+  }
+}
+
+const MyImprListenerMap: SplitIO.IImpressionListener = {
+  logImpression: (data: SplitIO.ImpressionData) => {
+    impressionData = data;
+  }
+};
+
+impressionListener = MyImprListenerMap;
+impressionListener = new MyImprListener();
+impressionListener.logImpression(impressionData);
 
 /**** Tests for fully crowded settings interfaces ****/
 
@@ -302,6 +323,7 @@ let fullBrowserSettings: SplitIO.IBrowserSettings = {
     type: 'LOCALSTORAGE',
     prefix: 'PREFIX'
   },
+  impressionListener: impressionListener,
   debug: true
 };
 fullBrowserSettings.storage.type = 'MEMORY';
@@ -330,6 +352,7 @@ let fullNodeSettings: SplitIO.INodeSettings = {
     type: 'LOCALSTORAGE',
     prefix: 'PREFIX'
   },
+  impressionListener: impressionListener,
   mode: 'standalone',
   debug: false
 };
@@ -363,6 +386,7 @@ let fullAsyncSettings: SplitIO.INodeAsyncSettings = {
     },
     prefix: 'PREFIX'
   },
+  impressionListener: impressionListener,
   mode: 'standalone',
   debug: true
 };

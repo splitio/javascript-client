@@ -1,0 +1,94 @@
+import sinon from 'sinon';
+
+import { SplitFactory } from '../../';
+import SettingsFactory from '../../utils/settings';
+const settings = SettingsFactory({
+  core: {
+    key: '<fake id>'
+  }
+});
+
+const listener = {
+  logImpression: sinon.stub()
+};
+
+const config = {
+  core: {
+    authorizationKey: '<fake-token-3>',
+    key: 'nicolas@split.io'
+  },
+  scheduler: {
+    featuresRefreshRate: 1,
+    segmentsRefreshRate: 1,
+    metricsRefreshRate: 3000,
+    impressionsRefreshRate: 3000
+  },
+  startup: {
+    eventsFirstPushWindow: 3000
+  },
+  impressionListener: listener
+};
+
+export default function(assert) {
+  assert.comment('bla bla bla');
+  const splitio = SplitFactory(config);
+  const client = splitio.client();
+  const client2 = splitio.client({ matchingKey: 'marcio@split.io', bucketingKey: 'impr_bucketing_2' });
+  const client3 = splitio.client('facundo@split.io');
+
+  return client.ready().then(() => {
+    const metaData = {
+      ip: settings.runtime.ip,
+      hostname: settings.runtime.hostname,
+      sdkLanguageVersion: settings.version
+    };
+    const testAttrs = { is_test: true };
+
+    // Impression listener is shared across all client instances.
+    client.getTreatment('hierarchical_splits_test');
+    client2.getTreatment('qc_team');
+    client3.getTreatment('qc_team', testAttrs);
+
+    setTimeout(() => {
+      assert.true(listener.logImpression.calledThrice, 'Impression listener logImpression method should be called after we call client.getTreatment, once per each impression generated.');
+      assert.true(listener.logImpression.getCall(0).calledWithMatch({
+        impression: {
+          feature: 'hierarchical_splits_test',
+          keyName: 'nicolas@split.io',
+          treatment: 'on',
+          bucketingKey: undefined,
+          label: 'expected label'
+        },
+        attributes: undefined,
+        ...metaData
+      }));
+      assert.true(listener.logImpression.getCall(1).calledWithMatch({
+        impression: {
+          feature: 'qc_team',
+          keyName: 'marcio@split.io',
+          treatment: 'no',
+          bucketingKey: 'impr_bucketing_2',
+          label: 'default rule'
+        },
+        attributes: undefined,
+        ...metaData
+      }));
+      assert.true(listener.logImpression.getCall(2).calledWithMatch({
+        impression: {
+          feature: 'qc_team',
+          keyName: 'facundo@split.io',
+          treatment: 'no',
+          bucketingKey: undefined,
+          label: 'default rule'
+        },
+        attributes: testAttrs,
+        ...metaData
+      }));
+
+      client3.destroy();
+      client2.destroy();
+      client.destroy();
+      assert.end();
+    }, 0);
+  });
+}

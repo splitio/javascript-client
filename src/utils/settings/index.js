@@ -73,6 +73,9 @@ const base = {
   // Defines if the logs are enabled, SDK wide.
   debug: undefined,
 
+  // Defines the impression listener, but will only be used on NodeJS.
+  impressionListener: undefined,
+
   // Instance version.
   version: `${language}-${version}`
 };
