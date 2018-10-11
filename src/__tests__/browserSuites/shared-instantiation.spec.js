@@ -19,6 +19,7 @@ export default function(startWithTT, mock, assert) {
   });
   let mainClient = factory.client();
   assert.equal(mainClient, factory.client(), 'If we call factory.client() (no params) more than once, it is just a get of the main client.');
+  assert.equal(mainClient, factory.client('facundo@split.io', startWithTT ? 'start_tt' : undefined), 'If we call factory.client() with params matching what was passed on the configuration, it is just a get of the main client still.');
 
   let nicolasClient = factory.client('nicolas@split.io', 'nico_tt');
   let marcioClient = factory.client('marcio@split.io');
