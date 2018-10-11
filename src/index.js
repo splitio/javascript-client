@@ -11,10 +11,12 @@ import SplitFactoryOnline from './factory/online';
 import SplitFactoryOffline from './factory/offline';
 import { LOCALHOST_MODE } from './utils/constants';
 
+const buildInstanceId = (key, trafficType) => `${key.matchingKey}-${key.bucketingKey}-${trafficType !== undefined ? trafficType : ''}`;
+
 export function SplitFactory(config) {
   // Cache instances created per factory.
   const instances = {};
-  
+
   // Tracking times. We need to do it here because we need the storage created.
   const readyLatencyTrackers = {
     splitsReadyTracker: tracker.start(tracker.TaskNames.SPLITS_READY),
@@ -40,6 +42,10 @@ export function SplitFactory(config) {
     metricCollectors: mainClientMetricCollectors
   } = splitFactory(context, gateFactory, readyLatencyTrackers);
 
+  const parsedDefaultKey = keyParser(settings.core.key);
+  const defaultInstanceId = buildInstanceId(parsedDefaultKey, settings.core.trafficType);
+  instances[defaultInstanceId] = defaultInstance;
+
   log.info('New Split SDK instance created.');
 
   return {
@@ -63,7 +69,7 @@ export function SplitFactory(config) {
         throw 'Shared Client needs a valid key string value or an object with bucketingKey and matchingKey with valid string properties';
       }
 
-      const instanceId = `${parsedkey.matchingKey}-${parsedkey.bucketingKey}-${trafficType !== undefined ? trafficType : ''}`;
+      const instanceId = buildInstanceId(parsedkey, trafficType);
 
       if (!instances[instanceId]) {
         const sharedSettings = settings.overrideKeyAndTT(key, trafficType);
