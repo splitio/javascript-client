@@ -1,5 +1,6 @@
 ## 10.4.1 (XXX X, 2018)
 
+* Added custom impression listener feature.
 * Bugfixing - Calling factory.client on the browser with the same key used on configuration created a new unnecessary instance.
 
 ## 10.4.0 (Oct 4, 2018)
