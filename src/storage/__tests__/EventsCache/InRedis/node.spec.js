@@ -12,7 +12,7 @@ const settings = SettingsFactory({
   }
 });
 
-tape('EVENTS CACHE IN REDIS / should incrementally store values', async function(assert) {
+tape('EVENTS CACHE IN REDIS / should incrementally store values in redis', async function(assert) {
   const connection = new Redis(settings.storage.options);
   // This piece is being tested elsewhere.
   const keys = new KeyBuilder(settings);
@@ -54,12 +54,12 @@ tape('EVENTS CACHE IN REDIS / should incrementally store values', async function
   const foundEv1 = findMatchingElem(fakeEvent1);
   const foundEv2 = findMatchingElem(fakeEvent2);
   const foundEv3 = findMatchingElem(fakeEvent3);
-  assert.true(foundEv1);
-  assert.true(foundEv2);
-  assert.true(foundEv3);
+  assert.true(foundEv1, 'Events stored on redis matched the values we are expecting.');
+  assert.true(foundEv2, 'Events stored on redis matched the values we are expecting.');
+  assert.true(foundEv3, 'Events stored on redis matched the values we are expecting.');
 
   // Clean up then end.
   await connection.del(key);
-  connection.quit();
+  await connection.quit();
   assert.end();
 });
