@@ -103,6 +103,31 @@ tape('KEYS / impressions', function (assert) {
   assert.end();
 });
 
+tape('KEYS / events', function (assert) {
+  const fakeSettings1 = {
+    storage: {
+      prefix: 'test-prefix-1'
+    }
+  };
+  const fakeSettings2 = {
+    storage: {
+      prefix: 'testPrefix2'
+    }
+  };
+
+  let builder = new Keys(fakeSettings1);
+
+  assert.equal(builder.buildEventsKey(), 'test-prefix-1.events', 'Events key should only vary because of the storage prefix and return the same value on multiple invocations.');
+  assert.equal(builder.buildEventsKey(), 'test-prefix-1.events', 'Events key should only vary because of the storage prefix and return the same value on multiple invocations.');
+
+  builder = new Keys(fakeSettings2);
+
+  assert.equal(builder.buildEventsKey(), 'testPrefix2.events', 'Events key should only vary because of the storage prefix and return the same value on multiple invocations.');
+  assert.equal(builder.buildEventsKey(), 'testPrefix2.events', 'Events key should only vary because of the storage prefix and return the same value on multiple invocations.');
+
+  assert.end();
+});
+
 tape('KEYS / latency keys', function (assert) {
   const prefix = 'SPLITIO';
   const settings = SettingsFactory({
