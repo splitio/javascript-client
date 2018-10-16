@@ -3,6 +3,8 @@
 * Added custom impression listener feature, so customers can receive all the impressions data on a callback to handle as they place.
   Completely optional, the only requirement is that the element being set as impression listener should have a method called `logImpression`
   where they'll receive all the data. Read more in our docs!
+* Added Redis support for track events. Now if you're running the `split-synchronizer` and the Node SDK on `consumer mode`, your track events
+  will go to Redis and be sent to Split by the synchronizer.
 * Bugfixing - Calling factory.client on the browser with the same key used on configuration created a new unnecessary instance.
 
 ## 10.4.0 (Oct 4, 2018)
