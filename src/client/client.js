@@ -7,6 +7,7 @@ import thenable from '../utils/promise/thenable';
 import keyParser from '../utils/key/parser';
 import { matching, bucketing } from '../utils/key/factory';
 import validateTrackArguments from '../utils/track/validate';
+import { STORAGE_REDIS } from '../utils/constants';
 
 function getTreatmentAvailable(
   evaluation,
@@ -62,6 +63,7 @@ function queueEventsCallback({
 }
 
 function ClientFactory(context) {
+  const settings = context.get(context.constants.SETTINGS);
   const storage = context.get(context.constants.STORAGE);
   const metricCollectors = context.get(context.constants.COLLECTORS);
   const impressionsTracker = ImpressionsTracker(context);
@@ -113,7 +115,12 @@ function ClientFactory(context) {
 
       // If the arguments are invalid, return right away.
       if (!areValidTrackArguments) {
-        return false;
+        // This will be improved when working on the Redis integration polishing (to be prioritized)
+        if (settings.storage.type === STORAGE_REDIS) {
+          return Promise.resolve(false);
+        } else {
+          return false;
+        }
       }
 
       const matchingKey =  keyParser(key).matchingKey;

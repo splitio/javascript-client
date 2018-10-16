@@ -27,7 +27,7 @@ const config = {
  * Initialize redis server and run a cli bash command to load redis with data to do the proper tests/
  */
 const initializeRedisServer = () => {
-  // Simply pass the port that you want a Redis server to listen on.  
+  // Simply pass the port that you want a Redis server to listen on.
   const server = new RedisServer(redisPort);
 
   const promise = new Promise((resolve, reject) => {
@@ -42,7 +42,7 @@ const initializeRedisServer = () => {
           }
 
           resolve(server);
-        });      
+        });
       });
   });
 
@@ -50,12 +50,12 @@ const initializeRedisServer = () => {
 };
 
 tape('NodeJS Redis', function (assert) {
-  
+
   initializeRedisServer()
-    .then(async (server) => {      
+    .then(async (server) => {
       const sdk = SplitFactory(config);
       const client = sdk.client();
-      
+
       assert.equal(await client.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT'), 'on');
       assert.equal(await client.getTreatment('other', 'UT_IN_SEGMENT'), 'off');
 
@@ -84,6 +84,12 @@ tape('NodeJS Redis', function (assert) {
       assert.equal(await client.getTreatment('UT_Segment_member', 'hierarchical_splits_testing_off'), 'off');
       assert.equal(await client.getTreatment('UT_Segment_member', 'hierarchical_splits_testing_on_negated'), 'off');
 
+      assert.equal(typeof client.track('nicolas@split.io', 'user', 'test.redis.event', 18).then, 'function', 'Track calls should always return a promise on Redis mode.');
+      assert.equal(typeof client.track().then, 'function', 'Track calls should always return a promise on Redis mode, even when parameters are incorrect.');
+
+      assert.true(await client.track('nicolas@split.io', 'user', 'test.redis.event', 18), 'If the event was succesfully queued the promise will resolve to true');
+      assert.false(await client.track(), 'If the event was NOT succesfully queued the promise will resolve to false');
+
       client.destroy();
 
       // close server connection
@@ -105,7 +111,9 @@ tape('NodeJS Redis / Connection Error', async function (assert) {
       }), 'on');
       assert.equal(await client.getTreatment('UT_Segment_member', 'always-on'), 'on');
 
-      // close server connection      
+      assert.true(await client.track('nicolas@split.io', 'user', 'test.redis.event', 18));
+
+      // close server connection
       server.close().then(() => {
         // we need to add a delay before doing a getTreatment
         const id = setTimeout(async () => {
@@ -116,13 +124,13 @@ tape('NodeJS Redis / Connection Error', async function (assert) {
             permissions: ['not_matching']
           }), 'control');
           assert.equal(await client.getTreatment('UT_Segment_member', 'always-on'), 'control');
-          
+
           clearTimeout(id);
 
           client.destroy();
 
           assert.end();
         }, 1000);
-      });      
+      });
     });
 });
