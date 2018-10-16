@@ -17,6 +17,7 @@ let stringPromise: Promise<string>;
 let splitViewPromise: Promise<SplitIO.SplitView>;
 let splitViewsPromise: Promise<SplitIO.SplitViews>;
 let treatmentsPromise: Promise<SplitIO.Treatments>;
+let trackPromise: Promise<boolean>;
 
 /**** Interfaces ****/
 
@@ -256,14 +257,10 @@ asyncTreatments = asyncClient.getTreatments(['mySplit']);
 asyncTreatments = asyncClient.getTreatments(splitKey, ['mySplit'], attributes);
 asyncTreatments = asyncClient.getTreatments(['mySplit'], attributes);
 
-// We can call track with or without a key.
-tracked = asyncClient.track(splitKey, 'myTrafficType', 'myEventType'); // all params
-tracked = asyncClient.track('myTrafficType', 'myEventType'); // key binded, tt provided.
-tracked = asyncClient.track('myEventType'); // key and tt binded.
-// Value parameter is optional on both signatures.
-tracked = asyncClient.track(splitKey, 'myTrafficType', 'myEventType', 10);
-tracked = asyncClient.track('myTrafficType', 'myEventType', 10);
-tracked = asyncClient.track('myEventType', 10);
+// We can call track only with a key.
+trackPromise = asyncClient.track(splitKey, 'myTrafficType', 'myEventType'); // all params
+// Value parameter is optional.
+trackPromise = asyncClient.track(splitKey, 'myTrafficType', 'myEventType', 10);
 
 /**** Tests for IManager interface ****/
 

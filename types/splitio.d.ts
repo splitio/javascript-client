@@ -271,36 +271,6 @@ interface IBasicClient extends NodeJS.Events {
    */
   Event: EventConsts,
   /**
-   * Tracks an event to be fed to the results product on Split Webconsole.
-   * For usage on NodeJS as we don't have only one key.
-   * @function track
-   * @param {SplitKey} key - The key that identifies the entity related to this event.
-   * @param {string} trafficType - The traffic type of the entity related to this event.
-   * @param {string} eventType - The event type corresponding to this event.
-   * @param {number=} value - The value of this event.
-   * @returns {boolean} Wether the event was added to the queue succesfully or not.
-   */
-  track(key: SplitIO.SplitKey, trafficType: string, eventType: string, value?: number): boolean,
-  /**
-   * Tracks an event to be fed to the results product on Split Webconsole.
-   * For usage on the Browser as we defined the key on the settings.
-   * @function track
-   * @param {string} trafficType - The traffic type of the entity related to this event.
-   * @param {string} eventType - The event type corresponding to this event.
-   * @param {number=} value - The value of this event.
-   * @returns {boolean} Wether the event was added to the queue succesfully or not.
-   */
-  track(trafficType: string, eventType: string, value?: number): boolean,
-  /**
-   * Tracks an event to be fed to the results product on Split Webconsole.
-   * For usage on the Browser if we defined the key and also the trafficType on the settings.
-   * @function track
-   * @param {string} eventType - The event type corresponding to this event.
-   * @param {number=} value - The value of this event.
-   * @returns {boolean} Wether the event was added to the queue succesfully or not.
-   */
-  track(eventType: string, value?: number): boolean,
-  /**
    * Returns a promise that will be resolved once the SDK has finished loading.
    * @function ready
    * @deprecated Use on(sdk.Event.SDK_READY, callback: () => void) instead.
@@ -745,7 +715,37 @@ declare namespace SplitIO {
      * @param {Attributes=} attributes - An object of type Attributes defining the attributes for the given key.
      * @returns {Treatments} The treatments or treatments promise which will resolve to the treatments object.
      */
-    getTreatments(splitNames: string[], attributes?: Attributes): Treatments
+    getTreatments(splitNames: string[], attributes?: Attributes): Treatments,
+    /**
+     * Tracks an event to be fed to the results product on Split Webconsole.
+     * For usage on NodeJS as we don't have only one key.
+     * @function track
+     * @param {SplitKey} key - The key that identifies the entity related to this event.
+     * @param {string} trafficType - The traffic type of the entity related to this event.
+     * @param {string} eventType - The event type corresponding to this event.
+     * @param {number=} value - The value of this event.
+     * @returns {boolean} Wether the event was added to the queue succesfully or not.
+     */
+    track(key: SplitIO.SplitKey, trafficType: string, eventType: string, value?: number): boolean,
+    /**
+     * Tracks an event to be fed to the results product on Split Webconsole.
+     * For usage on the Browser as we defined the key on the settings.
+     * @function track
+     * @param {string} trafficType - The traffic type of the entity related to this event.
+     * @param {string} eventType - The event type corresponding to this event.
+     * @param {number=} value - The value of this event.
+     * @returns {boolean} Wether the event was added to the queue succesfully or not.
+     */
+    track(trafficType: string, eventType: string, value?: number): boolean,
+    /**
+     * Tracks an event to be fed to the results product on Split Webconsole.
+     * For usage on the Browser if we defined the key and also the trafficType on the settings.
+     * @function track
+     * @param {string} eventType - The event type corresponding to this event.
+     * @param {number=} value - The value of this event.
+     * @returns {boolean} Wether the event was added to the queue succesfully or not.
+     */
+    track(eventType: string, value?: number): boolean
   }
   /**
    * This represents the interface for the Client instance with asynchronous storage.
@@ -761,7 +761,7 @@ declare namespace SplitIO {
      * @param {string} key - The string key representing the consumer.
      * @param {string} splitName - The string that represents the split we wan't to get the treatment.
      * @param {Attributes=} attributes - An object of type Attributes defining the attributes for the given key.
-     * @returns {Treatment} The treatment or treatment promise which will resolve to the treatment string.
+     * @returns {AsyncTreatment} Treatment promise which will resolve to the treatment string.
      */
     getTreatment(key: SplitKey, splitName: string, attributes?: Attributes): AsyncTreatment,
     /**
@@ -771,7 +771,7 @@ declare namespace SplitIO {
      * @function getTreatment
      * @param {string} splitName - The string that represents the split we wan't to get the treatment.
      * @param {Attributes=} attributes - An object of type Attributes defining the attributes for the given key.
-     * @returns {Treatment} The treatment or treatment promise which will resolve to the treatment string.
+     * @returns {AsyncTreatment} Treatment promise which will resolve to the treatment string.
      */
     getTreatment(splitName: string, attributes?: Attributes): AsyncTreatment,
     /**
@@ -781,7 +781,7 @@ declare namespace SplitIO {
      * @param {string} key - The string key representing the consumer.
      * @param {Array<string>} splitNames - An array of the split names we wan't to get the treatments.
      * @param {Attributes=} attributes - An object of type Attributes defining the attributes for the given key.
-     * @returns {Treatments} The treatments or treatments promise which will resolve to the treatments object.
+     * @returns {AsyncTreatments} Treatments promise which will resolve to the treatments object.
      */
     getTreatments(key: SplitKey, splitNames: string[], attributes?: Attributes): AsyncTreatments,
     /**
@@ -790,9 +790,19 @@ declare namespace SplitIO {
      * @function getTreatments
      * @param {Array<string>} splitNames - An array of the split names we wan't to get the treatments.
      * @param {Attributes=} attributes - An object of type Attributes defining the attributes for the given key.
-     * @returns {Treatments} The treatments or treatments promise which will resolve to the treatments object.
+     * @returns {AsyncTreatments} Treatments promise which will resolve to the treatments object.
      */
-    getTreatments(splitNames: string[], attributes?: Attributes): AsyncTreatments
+    getTreatments(splitNames: string[], attributes?: Attributes): AsyncTreatments,
+    /**
+     * Tracks an event to be fed to the results product on Split Webconsole and returns a promise to signal when the event was successfully queued (or not).
+     * @function track
+     * @param {SplitKey} key - The key that identifies the entity related to this event.
+     * @param {string} trafficType - The traffic type of the entity related to this event.
+     * @param {string} eventType - The event type corresponding to this event.
+     * @param {number=} value - The value of this event.
+     * @returns {Promise<boolean>} A promise that resolves to a boolean indicating if the event was added to the queue succesfully or not.
+     */
+    track(key: SplitIO.SplitKey, trafficType: string, eventType: string, value?: number): Promise<boolean>,
   }
   /**
    * Representation of a manager instance with synchronous storage of the SDK.
