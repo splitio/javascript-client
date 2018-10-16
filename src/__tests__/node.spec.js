@@ -4,6 +4,7 @@ import MockAdapter from 'axios-mock-adapter';
 import SettingsFactory from '../utils/settings';
 
 import evaluationsSuite from './nodeSuites/evaluations.spec';
+import eventsSuite from './nodeSuites/events.spec';
 import impressionsSuite from './nodeSuites/impressions.spec';
 import impressionsListenerSuite from './nodeSuites/impressions-listener.spec';
 
@@ -50,5 +51,6 @@ tape('## Node JS - E2E CI Tests ##', async function (assert) {
   assert.test('E2E / Impressions', impressionsSuite.bind(null, key, mock));
   assert.test('E2E / Impressions listener', impressionsListenerSuite);
 
-  // TODO: add events
+  /* Check events in memory */
+  assert.test('E2E / Events', eventsSuite.bind(null, mock));
 });
