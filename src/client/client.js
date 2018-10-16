@@ -7,6 +7,7 @@ import thenable from '../utils/promise/thenable';
 import keyParser from '../utils/key/parser';
 import { matching, bucketing } from '../utils/key/factory';
 import validateTrackArguments from '../utils/track/validate';
+import { STORAGE_REDIS } from '../utils/constants';
 
 function getTreatmentAvailable(
   evaluation,
@@ -47,7 +48,22 @@ function getTreatmentAvailable(
   return evaluation.treatment;
 }
 
+function queueEventsCallback({
+  eventTypeId, trafficTypeName, key, value, timestamp
+}, tracked) {
+  const msg = `event of type "${eventTypeId}" for traffic type "${trafficTypeName}". Key: ${key}. Value: ${value}. Timestamp: ${timestamp}.`;
+
+  if (tracked) {
+    log.info(`Successfully qeued ${msg}`);
+  } else {
+    log.warn(`Failed to queue ${msg}`);
+  }
+
+  return tracked;
+}
+
 function ClientFactory(context) {
+  const settings = context.get(context.constants.SETTINGS);
   const storage = context.get(context.constants.STORAGE);
   const metricCollectors = context.get(context.constants.COLLECTORS);
   const impressionsTracker = ImpressionsTracker(context);
@@ -97,26 +113,34 @@ function ClientFactory(context) {
     track(key, trafficTypeName, eventTypeId, eventValue) {
       const areValidTrackArguments = validateTrackArguments(key, trafficTypeName, eventTypeId, eventValue);
 
+      // If the arguments are invalid, return right away.
       if (!areValidTrackArguments) {
-        return false;
+        // This will be improved when working on the Redis integration polishing (to be prioritized)
+        if (settings.storage.type === STORAGE_REDIS) {
+          return Promise.resolve(false);
+        } else {
+          return false;
+        }
       }
 
       const matchingKey =  keyParser(key).matchingKey;
       const timestamp = Date.now();
       // if eventValue is undefined we convert it to null so the BE can handle a non existence value
       const value = eventValue === undefined ? null : eventValue;
-
-      storage.events.track({
+      const eventData = {
         eventTypeId,
         trafficTypeName,
         value,
         timestamp,
         key: matchingKey,
-      });
+      };
+      const tracked = storage.events.track(eventData);
 
-      log.info(`Successfully qeued event of type "${eventTypeId}" for traffic type "${trafficTypeName}". Key: ${matchingKey}. Value: ${value}. Timestamp: ${timestamp}.`);
-
-      return true;
+      if (thenable(tracked)) {
+        return tracked.then(queueEventsCallback.bind(null, eventData));
+      } else {
+        return queueEventsCallback(eventData, tracked);
+      }
     }
   };
 }

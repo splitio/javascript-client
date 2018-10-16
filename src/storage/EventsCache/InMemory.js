@@ -51,7 +51,7 @@ class EventsCache {
 
     this._checkQueueSize();
 
-    return this;
+    return true;
   }
 
   /**

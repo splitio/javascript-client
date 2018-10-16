@@ -53,6 +53,10 @@ class KeyBuilder {
     return `${this.buildImpressionsKeyPrefix()}.${splitName}`;
   }
 
+  buildEventsKey() {
+    return `${this.settings.storage.prefix}.events`;
+  }
+
   buildLatencyKeyPrefix() {
     return `${this.buildVersionablePrefix()}/latency`;
   }
