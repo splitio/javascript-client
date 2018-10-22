@@ -30,7 +30,6 @@ const config = {
 };
 
 export default function(assert) {
-  assert.comment('bla bla bla');
   const splitio = SplitFactory(config);
   const client = splitio.client();
   const client2 = splitio.client({ matchingKey: 'marcio@split.io', bucketingKey: 'impr_bucketing_2' });
