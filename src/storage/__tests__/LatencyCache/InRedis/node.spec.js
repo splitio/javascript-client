@@ -20,7 +20,8 @@ import LatencyCacheInRedis from '../../../LatencyCache/InRedis';
 import SettingsFactory from '../../../../utils/settings';
 const settings = SettingsFactory({
   storage: {
-    type: 'REDIS'
+    type: 'REDIS',
+    prefix: 'latency_cache_UT'
   }
 });
 
@@ -29,54 +30,35 @@ tape('METRICS CACHE IN REDIS / should count based on ranges', async function (as
   const keys = new KeyBuilder(settings);
   const cache = new LatencyCacheInRedis(keys, connection);
   const metricName = 'testing';
-  let state;
 
-  await cache.clear();
+  assert.true(cache.isEmpty(), 'Is empty always returns true, just there to respect the interface.');
+  assert.notEqual(typeof cache.clear, 'undefined', 'Clear method should be there to respect interface.');
 
   await cache.track(metricName, 1);
   await cache.track(metricName, 1.2);
   await cache.track(metricName, 1.4);
-  state = await cache.state();
 
-  assert.true(state[metricName][0] === 3, 'the bucket #0 should have 3');
+  assert.equal(await connection.get(keys.buildLatencyKey(metricName, 0)), '3', 'the bucket #0 should have 3');
 
   await cache.track(metricName, 1.5);
-  state = await cache.state();
 
-  assert.true(state[metricName][1] === 1, 'the bucket #1 should have 1');
+  assert.equal(await connection.get(keys.buildLatencyKey(metricName, 1)), '1', 'the bucket #1 should have 1');
 
   await cache.track(metricName, 2.25);
   await cache.track(metricName, 2.26);
   await cache.track(metricName, 2.265);
-  state = await cache.state();
 
-  assert.true(state[metricName][2] === 3, 'the bucket #3 should have 1');
+  assert.equal(await connection.get(keys.buildLatencyKey(metricName, 2)), '3', 'the bucket #2 should have 3');
 
   await cache.track(metricName, 985251);
-  state = await cache.state();
 
-  assert.true(state[metricName][22] === 1, 'the bucket #22 should have 1');
+  assert.true(cache.isEmpty(), 'Is empty always returns true, just there to respect the interface.');
 
-  connection.quit();
-  assert.end();
-});
+  assert.equal(await connection.get(keys.buildLatencyKey(metricName, 22)), '1', 'the bucket #22 should have 1');
 
-tape('METRICS CACHE IN REDIS / clear', async function (assert) {
-  const connection = new Redis(settings.storage.options);
-  const keys = new KeyBuilder(settings);
-  const cache = new LatencyCacheInRedis(keys, connection);
-  const metricName = 'testing';
-
-  await Promise.all([
-    cache.track(metricName, 1),
-    cache.track(metricName, 1000)
-  ]);
-
-  await cache.clear();
-
-  let isEmpty = await cache.isEmpty();
-
-  assert.true(isEmpty, 'after call clear, the cache should be empty');
+  // Clean up post-test
+  const keysToClean = await connection.keys('latency_cache_UT.*');
+  await connection.del(keysToClean);
 
   connection.quit();
   assert.end();
