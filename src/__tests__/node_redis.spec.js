@@ -56,33 +56,33 @@ tape('NodeJS Redis', function (assert) {
       const sdk = SplitFactory(config);
       const client = sdk.client();
 
-      assert.equal(await client.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT'), 'on');
-      assert.equal(await client.getTreatment('other', 'UT_IN_SEGMENT'), 'off');
+      assert.equal(await client.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT'), 'on', 'Evaluations using Redis storage should be correct.');
+      assert.equal(await client.getTreatment('other', 'UT_IN_SEGMENT'), 'off', 'Evaluations using Redis storage should be correct.');
 
-      assert.equal(await client.getTreatment('UT_Segment_member', 'UT_NOT_IN_SEGMENT'), 'off');
-      assert.equal(await client.getTreatment('other', 'UT_NOT_IN_SEGMENT'), 'on');
+      assert.equal(await client.getTreatment('UT_Segment_member', 'UT_NOT_IN_SEGMENT'), 'off', 'Evaluations using Redis storage should be correct.');
+      assert.equal(await client.getTreatment('other', 'UT_NOT_IN_SEGMENT'), 'on', 'Evaluations using Redis storage should be correct.');
 
       assert.equal(await client.getTreatment('UT_Segment_member', 'UT_SET_MATCHER', {
         permissions: ['admin']
-      }), 'on');
+      }), 'on', 'Evaluations using Redis storage should be correct.');
       assert.equal(await client.getTreatment('UT_Segment_member', 'UT_SET_MATCHER', {
         permissions: ['not_matching']
-      }), 'off');
+      }), 'off', 'Evaluations using Redis storage should be correct.');
 
       assert.equal(await client.getTreatment('UT_Segment_member', 'UT_NOT_SET_MATCHER', {
         permissions: ['create']
-      }), 'off');
+      }), 'off', 'Evaluations using Redis storage should be correct.');
       assert.equal(await client.getTreatment('UT_Segment_member', 'UT_NOT_SET_MATCHER', {
         permissions: ['not_matching']
-      }), 'on');
+      }), 'on', 'Evaluations using Redis storage should be correct.');
 
-      assert.equal(await client.getTreatment('UT_Segment_member', 'always-on'), 'on');
+      assert.equal(await client.getTreatment('UT_Segment_member', 'always-on'), 'on', 'Evaluations using Redis storage should be correct.');
 
       // Below splits were added manually to the redis_mock.json file.
       // They are all_keys (always evaluate to on) which depend from always-on split. the _on/off is what treatment they are expecting there.
-      assert.equal(await client.getTreatment('UT_Segment_member', 'hierarchical_splits_testing_on'), 'on');
-      assert.equal(await client.getTreatment('UT_Segment_member', 'hierarchical_splits_testing_off'), 'off');
-      assert.equal(await client.getTreatment('UT_Segment_member', 'hierarchical_splits_testing_on_negated'), 'off');
+      assert.equal(await client.getTreatment('UT_Segment_member', 'hierarchical_splits_testing_on'), 'on', 'Evaluations using Redis storage should be correct.');
+      assert.equal(await client.getTreatment('UT_Segment_member', 'hierarchical_splits_testing_off'), 'off', 'Evaluations using Redis storage should be correct.');
+      assert.equal(await client.getTreatment('UT_Segment_member', 'hierarchical_splits_testing_on_negated'), 'off', 'Evaluations using Redis storage should be correct.');
 
       assert.equal(typeof client.track('nicolas@split.io', 'user', 'test.redis.event', 18).then, 'function', 'Track calls should always return a promise on Redis mode.');
       assert.equal(typeof client.track().then, 'function', 'Track calls should always return a promise on Redis mode, even when parameters are incorrect.');
@@ -105,13 +105,15 @@ tape('NodeJS Redis / Connection Error', async function (assert) {
 
       assert.equal(await client.getTreatment('UT_Segment_member', 'UT_NOT_SET_MATCHER', {
         permissions: ['create']
-      }), 'off');
+      }), 'off', 'Control assertion - Everything working as expected.');
       assert.equal(await client.getTreatment('UT_Segment_member', 'UT_NOT_SET_MATCHER', {
         permissions: ['not_matching']
-      }), 'on');
-      assert.equal(await client.getTreatment('UT_Segment_member', 'always-on'), 'on');
+      }), 'on', 'Control assertion - Everything working as expected.');
+      assert.equal(await client.getTreatment('UT_Segment_member', 'always-on'), 'on', 'Control assertion - Everything working as expected.');
 
-      assert.true(await client.track('nicolas@split.io', 'user', 'test.redis.event', 18));
+      assert.true(await client.track('nicolas@split.io', 'user', 'test.redis.event', 18), 'Control assertion - Everything working as expected.');
+
+      assert.notEqual(await client.track(), 'Control assertion - Everything working as expected.');
 
       // close server connection
       server.close().then(() => {
@@ -119,11 +121,13 @@ tape('NodeJS Redis / Connection Error', async function (assert) {
         const id = setTimeout(async () => {
           assert.equal(await client.getTreatment('UT_Segment_member', 'UT_NOT_SET_MATCHER', {
             permissions: ['create']
-          }), 'control');
+          }), 'control', 'In the event of a Redis error like a disconnection, getTreatments should not hang but resolve to "control".');
           assert.equal(await client.getTreatment('UT_Segment_member', 'UT_NOT_SET_MATCHER', {
             permissions: ['not_matching']
-          }), 'control');
-          assert.equal(await client.getTreatment('UT_Segment_member', 'always-on'), 'control');
+          }), 'control', 'In the event of a Redis error like a disconnection, getTreatments should not hang but resolve to "control".');
+          assert.equal(await client.getTreatment('UT_Segment_member', 'always-on'), 'control', 'In the event of a Redis error like a disconnection, getTreatments should not hang but resolve to "control".');
+
+          assert.false(await client.track('nicolas@split.io', 'user', 'test.redis.event', 18), 'In the event of a Redis error like a disconnection, track should resolve to false.');
 
           clearTimeout(id);
 
