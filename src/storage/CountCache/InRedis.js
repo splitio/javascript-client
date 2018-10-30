@@ -23,7 +23,9 @@ class CountCacheInRedis extends BaseMetricsAsyncCache {
   }
 
   track(metricName) {
-    return this.redis.incr(this.keys.buildCountKey(metricName));
+    return this.redis.incr(this.keys.buildCountKey(metricName)).catch(() => {
+      // noop, for telemetry metrics there's no need to throw.
+    });
   }
 }
 

@@ -26,7 +26,9 @@ class LatencyCacheInRedis extends BaseMetricsAsyncCache {
   track(metricName, latency) {
     const bucketNumber = findIndex(latency);
 
-    return this.redis.incr(this.keys.buildLatencyKey(metricName, bucketNumber));
+    return this.redis.incr(this.keys.buildLatencyKey(metricName, bucketNumber)).catch(() => {
+      // noop, for telemetry metrics there's no need to throw.
+    });
   }
 }
 
