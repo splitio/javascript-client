@@ -58,7 +58,7 @@ const ParseStorageSettings = (settings) => {
 
       if (url) return {
         type,
-        options: url,
+        options: { url },
         prefix
       };
 
