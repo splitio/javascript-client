@@ -300,6 +300,28 @@ tape('LANG UTILS / merge', function(assert) {
   assert.ok(merge(res1, obj1) === res1, 'Always returns the modified target.');
   assert.deepEqual(res1, obj1, 'If target is an empty object, it will be a clone of the source on that one.');
 
+  const one = {};
+  const two = {
+    prop: 'val'
+  };
+  const three = {
+    otherProp: 'val',
+    objProp: { innerProp: true, innerObj: { deeperProp: 'test' }}
+  };
+  const four = {
+    prop: 'val4'
+  };
+
+  const returnedObj = merge(one, two, three, four);
+
+  assert.equal(one, returnedObj, 'The target object should be modified.');
+  assert.deepEqual(two, { prop: 'val' }, 'But no other objects sents as source should be modified.');
+  assert.deepEqual(three, { otherProp: 'val', objProp: { innerProp: true, innerObj: { deeperProp: 'test' }}}, 'But no other objects sents as source should be modified.');
+  assert.deepEqual(four, { prop: 'val4' }, 'But no other objects sents as source should be modified.');
+
+  assert.notEqual(returnedObj.objProp, three.objProp, 'Object properties should be clones of the value we had on source, not a reference.');
+  assert.notEqual(returnedObj.objProp.innerObj, three.objProp.innerObj, 'Object properties should be clones of the value we had on source, not a reference.');
+
   assert.end();
 });
 
