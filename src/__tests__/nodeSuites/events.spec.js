@@ -24,7 +24,7 @@ const baseSettings = {
   }
 };
 
-export function withoutBindingTT(mock, assert) {
+export default function trackAssertions(mock, assert) {
   const splitio = SplitFactory(baseSettings);
   const client = splitio.client();
 
