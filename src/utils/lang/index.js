@@ -121,13 +121,15 @@ export function merge(target, source, ...rest) {
   isObject(source) && Object.keys(source).forEach(key => {
     let val = source[key];
 
-    if (isObject(val) && res[key] && isObject(res[key])) {
-      val = merge({}, res[key], val);
+    if (isObject(val)) {
+      if (res[key] && isObject(res[key])) { // If both are objects, merge into a new one.
+        val = merge({}, res[key], val);
+      } else { // else make a copy.
+        val = merge({}, val);
+      }
     }
-
-    if (val !== undefined) {
-      res[key] = val;
-    }
+    // We skip undefined values.
+    if (val !== undefined) res[key] = val;
   });
 
   if (rest && rest.length) {
