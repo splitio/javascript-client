@@ -47,9 +47,7 @@ export default class RedisAdapter extends ioredis {
       // After the SDK is ready for the first time we'll stop queueing commands. This is just so we can keep handling BUR for them.
       this._commandsQueue = false;
     });
-    // @TODO: Handle timeout on connection? What to do? Stop the queue, stop reconnecting, or what? Shall I just
-    // stop queueing any reads ?
-    this.on('close', () => {
+    this.once('close', () => {
       log.warn('Redis connection closed.');
     });
   }
@@ -117,7 +115,7 @@ export default class RedisAdapter extends ioredis {
   }
 
   /**
-   * Parses the options into what we need to feed to ioredis.
+   * Parses the options into what we care about.
    */
   static _defineOptions({ connectionTimeout, commandTimeout, url, host, port, db, pass }) {
     const parsedOptions = {
