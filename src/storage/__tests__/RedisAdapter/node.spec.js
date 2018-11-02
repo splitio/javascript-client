@@ -1,11 +1,12 @@
 import proxyquire from 'proxyquire';
 import tape from 'tape-catch';
 import sinon from 'sinon';
+import forEach from 'lodash/forEach';
 import merge from 'lodash/merge';
 import reduce from 'lodash/reduce';
 
 // The list of methods we're wrapping on a promise (for timeout) on the adapter.
-const METHODS_TO_PROMISE_WRAP = ['set', 'exec', 'del', 'get', 'keys', 'sadd', 'srem', 'sismember', 'smembers', 'incr', 'rpush', 'pipeline', 'exec'];
+const METHODS_TO_PROMISE_WRAP = ['set', 'exec', 'del', 'get', 'keys', 'sadd', 'srem', 'sismember', 'smembers', 'incr', 'rpush', 'pipeline'];
 
 const ioredisMock = reduce(METHODS_TO_PROMISE_WRAP, (acc, methodName) => {
   acc[methodName] = sinon.stub().resolves(methodName);
@@ -31,10 +32,25 @@ function LogFactory() {
   return loggerMock;
 }
 
+let timeoutPromiseResolvers = [];
+
+const timeout = sinon.spy(function timeout() {
+  const resolvers = {};
+  const promise = new Promise((res, rej) => {
+    resolvers.res = res;
+    resolvers.rej = rej;
+  });
+
+  timeoutPromiseResolvers.unshift(resolvers);
+
+  return promise;
+});
+
 // Mocking deps ¯\_(ツ)_/¯
 const RedisAdapter = proxyquire('../../RedisAdapter', {
   'ioredis': ioredis,
-  '../utils/logger': { default: LogFactory }
+  '../utils/logger': { default: LogFactory },
+  '../utils/promise/timeout': timeout
 });
 
 tape('STORAGE Redis Adapter / Class', assert => {
@@ -213,4 +229,54 @@ tape('STORAGE Redis Adapter / instance methods - _listenToEvents', assert => {
 
     assert.end();
   }, 5);
+});
+
+tape('STORAGE Redis Adapter / instance methods - _setTimeoutWrappers and queueing commands', assert => {
+  sinon.resetHistory();
+
+  const instance = new RedisAdapter({
+    url: 'redis://localhost:6379/0'
+  });
+
+  forEach(METHODS_TO_PROMISE_WRAP, methodName => {
+    assert.notEqual(instance[methodName], ioredisMock[methodName], `Method "${methodName}" from redis library should be wrapped.`);
+    assert.false(instance[methodName].called || ioredisMock[methodName].called, 'Checking that neither the method nor the wrapper were called yet.');
+
+    const startingQueueLength = instance._commandsQueue.length;
+
+    // We do have the commands queue on this state, so a call for this methods will queue the command.
+    const wrapperResult = instance[methodName](methodName);
+    assert.true(wrapperResult instanceof Promise, 'The result is a promise since we are queueing commands on this state.');
+
+    assert.equal(instance._commandsQueue.length, startingQueueLength + 1, 'The queue should have one more item.');
+    const queuedCommand = instance._commandsQueue[0];
+
+    assert.equal(typeof queuedCommand.resolve, 'function', 'The queued item should have the correct form.');
+    assert.equal(typeof queuedCommand.reject, 'function', 'The queued item should have the correct form.');
+    assert.equal(typeof queuedCommand.command, 'function', 'The queued item should have the correct form.');
+    assert.equal(queuedCommand.name, methodName.toUpperCase(), 'The queued item should have the correct form.');
+  });
+
+  instance._commandsQueue = false; // Remove the queue.
+  loggerMock.error.resetHistory;
+
+  forEach(METHODS_TO_PROMISE_WRAP, methodName => {
+    // We do NOT have the commands queue on this state, so a call for this methods will execute the command.
+    assert.false(ioredisMock[methodName].called, `Control assertion - Original method (${methodName}) was not yet called`);
+
+    const previousTimeoutCalls = timeout.callCount;
+    instance[methodName](methodName).catch(() => {}); // Swallow exception so it's not spread to logs.
+    assert.true(ioredisMock[methodName].called, `Original method (${methodName}) is called right away (through wrapper) when we are not queueing anymore.`);
+    assert.equal(timeout.callCount, previousTimeoutCalls + 1, 'The promise returned by the original method should have a timeout wrapper.');
+
+    // As we do not have specific handling for the success case here, we'll only check failures for now.
+    timeoutPromiseResolvers[0].rej('test');
+    setTimeout(() => {
+      assert.true(loggerMock.error.calledWithExactly(`Redis ${methodName} operation exceeded configured timeout of 5000ms setting. Error: test`), 'The log error method should be called with the corresponding messages, depending on the method, error and commandTimeout.');
+    }, 0);
+  });
+
+  setTimeout(() => {
+    assert.end();
+  }, 200);
 });
