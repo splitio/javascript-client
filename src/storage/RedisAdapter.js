@@ -12,7 +12,7 @@ const METHODS_TO_PROMISE_WRAP = ['set', 'exec', 'del', 'get', 'keys', 'sadd', 's
 // Not part of the settings since it'll vary on each storage. We should be removing storage specific logic from elsewhere.
 const DEFAULT_OPTIONS = {
   connectionTimeout: 10000,
-  commandTimeout: 5000
+  operationTimeout: 5000
 };
 // Library specifics.
 const DEFAULT_LIBRARY_OPTIONS = {
@@ -66,8 +66,8 @@ export default class RedisAdapter extends ioredis {
           const result = originalMethod.apply(instance, params);
 
           if (thenable(result)) {
-            return timeout(instance._options.commandTimeout, result).catch(err => {
-              log.error(`Redis ${method} operation exceeded configured timeout of ${instance._options.commandTimeout}ms setting. Error: ${err}`);
+            return timeout(instance._options.operationTimeout, result).catch(err => {
+              log.error(`Redis ${method} operation exceeded configured timeout of ${instance._options.operationTimeout}ms setting. Error: ${err}`);
               // Handling is not the adapter responsibility.
               throw err;
             });
@@ -117,9 +117,9 @@ export default class RedisAdapter extends ioredis {
   /**
    * Parses the options into what we care about.
    */
-  static _defineOptions({ connectionTimeout, commandTimeout, url, host, port, db, pass }) {
+  static _defineOptions({ connectionTimeout, operationTimeout, url, host, port, db, pass }) {
     const parsedOptions = {
-      connectionTimeout, commandTimeout, url, host, port, db, pass
+      connectionTimeout, operationTimeout, url, host, port, db, pass
     };
 
     return merge({}, DEFAULT_OPTIONS, parsedOptions);

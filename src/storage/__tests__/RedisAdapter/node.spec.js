@@ -59,7 +59,7 @@ tape('STORAGE Redis Adapter / Class', assert => {
   const instance = new RedisAdapter({
     url: 'redis://localhost:6379/0',
     connectionTimeout: 10000,
-    commandTimeout: 10000
+    operationTimeout: 10000
   });
 
   assert.true(instance instanceof RedisAdapter, 'Of course created instance should be an instance of the adapter.');
@@ -80,7 +80,7 @@ tape('STORAGE Redis Adapter / ioredis constructor params and static method _defi
   new RedisAdapter({
     url: redisUrl,
     connectionTimeout: 123,
-    commandTimeout: 124
+    operationTimeout: 124
   });
   // Keep in mind we're storing the arguments object, not a true array.
   assert.equal(constructorParams.length, 2, 'In this signature, the constructor receives two params.');
@@ -90,7 +90,7 @@ tape('STORAGE Redis Adapter / ioredis constructor params and static method _defi
   new RedisAdapter({
     ...redisParams,
     connectionTimeout: 123,
-    commandTimeout: 124
+    operationTimeout: 124
   });
 
   assert.equal(constructorParams.length, 1, 'In this signature, the constructor receives one param.');
@@ -101,7 +101,7 @@ tape('STORAGE Redis Adapter / ioredis constructor params and static method _defi
     ...redisParams,
     url: redisUrl,
     connectionTimeout: 123,
-    commandTimeout: 124
+    operationTimeout: 124
   });
 
   assert.equal(constructorParams.length, 2, 'In this signature, the constructor receives two params.');
@@ -114,7 +114,7 @@ tape('STORAGE Redis Adapter / ioredis constructor params and static method _defi
 tape('STORAGE Redis Adapter / static method - _defineOptions', assert => {
   const defaultOptions = {
     connectionTimeout: 10000,
-    commandTimeout: 5000
+    operationTimeout: 5000
   };
 
   assert.deepEqual(RedisAdapter._defineOptions({}), defaultOptions, 'We get the default options if we use an empty object.');
@@ -123,7 +123,7 @@ tape('STORAGE Redis Adapter / static method - _defineOptions', assert => {
     url: 'redis_url'
   }), {
     connectionTimeout: 10000,
-    commandTimeout: 5000,
+    operationTimeout: 5000,
     url: 'redis_url'
   }, 'We get the merge of the provided and the default options.');
 
@@ -272,7 +272,7 @@ tape('STORAGE Redis Adapter / instance methods - _setTimeoutWrappers and queuein
     // As we do not have specific handling for the success case here, we'll only check failures for now.
     timeoutPromiseResolvers[0].rej('test');
     setTimeout(() => {
-      assert.true(loggerMock.error.calledWithExactly(`Redis ${methodName} operation exceeded configured timeout of 5000ms setting. Error: test`), 'The log error method should be called with the corresponding messages, depending on the method, error and commandTimeout.');
+      assert.true(loggerMock.error.calledWithExactly(`Redis ${methodName} operation exceeded configured timeout of 5000ms setting. Error: test`), 'The log error method should be called with the corresponding messages, depending on the method, error and operationTimeout.');
     }, 0);
   });
 
