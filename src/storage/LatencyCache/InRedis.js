@@ -14,60 +14,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 import findIndex from './findIndex';
+import BaseMetricsAsyncCache from '../BaseMetricsAsyncCache';
 
-class LatencyCacheInRedis {
-
+class LatencyCacheInRedis extends BaseMetricsAsyncCache {
   constructor(keys, redis) {
+    super();
     this.keys = keys;
     this.redis = redis;
-  }
-
-  scanKeys() {
-    return this.redis.keys(this.keys.searchPatternForLatency());
   }
 
   track(metricName, latency) {
     const bucketNumber = findIndex(latency);
 
-    return this.redis.incr(this.keys.buildLatencyKey(metricName, bucketNumber));
-  }
-
-  async clear() {
-    const currentKeys = await this.scanKeys();
-
-    if (currentKeys.length)
-      return this.redis.del(currentKeys);
-
-    return 0;
-  }
-
-  async state() {
-    const results = {};
-    const currentKeys = await this.scanKeys();
-    const currentCounters = await this.redis.pipeline(currentKeys.map(k => ['get', k])).exec();
-
-    const counters = currentCounters.map(([err, value]) => (err === null) ? parseInt(value, 10) : -1);
-
-    for (const entryIndex in currentKeys) {
-      const { metricName, bucketNumber } = this.keys.extractLatencyMetricNameAndBucket(currentKeys[entryIndex]);
-      const counter = counters[entryIndex];
-
-      if (counter > 0) {
-        if (results[metricName] === undefined) {
-          results[metricName] = [
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-          ];
-        }
-
-        results[metricName][bucketNumber] = counter;
-      }
-    }
-
-    return results;
-  }
-
-  isEmpty() {
-    return this.scanKeys().then(els => els.length === 0);
+    return this.redis.incr(this.keys.buildLatencyKey(metricName, bucketNumber)).catch(() => {
+      // noop, for telemetry metrics there's no need to throw.
+    });
   }
 }
 

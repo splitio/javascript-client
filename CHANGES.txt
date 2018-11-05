@@ -2,6 +2,8 @@
 
 * Added custom impression listener feature.
 * Added Redis support for track events.
+* Added a wrapper on top of ioredis to better handle operations and reduce unwanted library effects.
+* Removed unnecessary keys/scans on Redis.
 * Bugfixing - Calling factory.client on the browser with the same key used on configuration created a new unnecessary instance.
 * Bugfixing - Fixing multiple instances of the client without specific scheduler configurations cause overflow on timeout values.
 

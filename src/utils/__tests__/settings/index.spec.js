@@ -157,3 +157,47 @@ tape('SETTINGS / required properties should be always present', assert => {
 
   assert.end();
 });
+
+tape('SETTINGS / Redis options hould be properly parsed', assert => {
+  const settingsWithUrl = SettingsFactory({
+    core: {
+      authorizationKey: 'dummy token'
+    },
+    storage: {
+      type: 'REDIS',
+      options: {
+        url: 'test_url',
+        host: 'h', port: 'p', db: 'bla', pass: 'nope',
+        randomProp: 'I will not be present',
+        connectionTimeout: 11,
+        operationTimeout: 22
+      },
+      prefix: 'test_prefix'
+    }
+  });
+  const settingsWithoutUrl = SettingsFactory({
+    core: {
+      authorizationKey: 'dummy token'
+    },
+    storage: {
+      type: 'REDIS',
+      options: {
+        host: 'host', port: 'port', pass: 'pass', db: 'db',
+        randomProp: 'I will not be present',
+        connectionTimeout: 33,
+        operationTimeout: 44
+      },
+      prefix: 'test_prefix'
+    }
+  });
+
+  assert.deepEqual(settingsWithUrl.storage, {
+    type: 'REDIS', prefix: 'test_prefix.SPLITIO', options: { url: 'test_url', connectionTimeout: 11, operationTimeout: 22 }
+  }, 'Redis storage settings and options should be passed correctly, url settings takes precedence when we are pointing to Redis.');
+
+  assert.deepEqual(settingsWithoutUrl.storage, {
+    type: 'REDIS', prefix: 'test_prefix.SPLITIO', options: { host: 'host', port: 'port', pass: 'pass', db: 'db', connectionTimeout: 33, operationTimeout: 44 }
+  }, 'Redis storage settings and options should be passed correctly, url settings takes precedence when we are pointing to Redis.');
+
+  assert.end();
+});

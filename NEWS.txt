@@ -5,6 +5,8 @@
   where they'll receive all the data. Read more in our docs!
 * Added Redis support for track events. Now if you're running the `split-synchronizer` and the Node SDK on `consumer mode`, your track events
   will go to Redis and be sent to Split by the synchronizer.
+* Added a wrapper on top of ioredis to better handle operations and reduce unwanted library effects.
+* Removed unnecessary keys/scans on Redis.
 * Bugfixing - Calling factory.client on the browser with the same key used on configuration created a new unnecessary instance.
 * Bugfixing - Fixing multiple instances of the client without specific scheduler configurations cause overflow on timeout values,
   there was an issue with an internal object merge function that was keeping a reference instead of a clone for internal object properties.

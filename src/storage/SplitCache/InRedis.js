@@ -11,7 +11,6 @@ const processPipelineAnswer = (results) =>
   }, []);
 
 class SplitCacheInRedis {
-
   constructor(keys, redis) {
     this.redis = redis;
     this.keys = keys;

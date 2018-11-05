@@ -1,4 +1,4 @@
-import Redis from 'ioredis';
+import RedisAdapter from './RedisAdapter';
 import SplitCacheInMemory from './SplitCache/InMemory';
 import SplitCacheInRedis from './SplitCache/InRedis';
 import SegmentCacheInMemory from './SegmentCache/InMemory';
@@ -22,7 +22,7 @@ const NodeStorageFactory = context => {
 
   switch (storage.type) {
     case STORAGE_REDIS: {
-      const redis = new Redis(storage.options);
+      const redis = new RedisAdapter(storage.options);
       const meta = MetaBuilder(settings);
 
       return {

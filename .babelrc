@@ -8,7 +8,7 @@
   "plugins": [
     "syntax-object-rest-spread",
     "transform-object-rest-spread",
-    "transform-runtime"    
+    "transform-runtime"
   ],
 
   "env": {
@@ -50,6 +50,7 @@
         }]
       ],
       "plugins": [
+        "add-module-exports",
         ["istanbul", {
           "exclude": [
             "**/*.spec.js",

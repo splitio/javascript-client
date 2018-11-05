@@ -15,6 +15,7 @@ limitations under the License.
 **/
 
 import logFactory from '../utils/logger';
+import thenable from '../utils/promise/thenable';
 const log = logFactory('splitio-client:impression-tracker');
 
 function ImpressionsTrackerContext(context) {
@@ -25,7 +26,13 @@ function ImpressionsTrackerContext(context) {
   const sdkLanguageVersion = settings.version;
 
   return function(impression, attributes) {
-    collector.track(impression);
+    const res = collector.track(impression);
+
+    // If we're on an async storage, handle error and log it.
+    if (thenable(res)) res.catch(err => {
+      log.error(`Could not store impression. Error: ${err}`);
+    });
+
     // Wrap in a timeout because we don't want it to be blocking.
     listener && setTimeout(() => {
       try { // An exception on the listener should not break the SDK.
