@@ -43,33 +43,41 @@ const ParseStorageSettings = (settings) => {
       let {
         host,
         port,
+        db,
         pass,
-        url
+        url,
+        connectionTimeout,
+        operationTimeout
       } = options;
 
       if (process.env.REDIS_HOST)
         host = process.env.REDIS_HOST;
       if (process.env.REDIS_PORT)
         port = process.env.REDIS_PORT;
+      if (process.env.REDIS_DB)
+        db = process.env.REDIS_DB;
       if (process.env.REDIS_PASS)
         pass = process.env.REDIS_PASS;
       if (process.env.REDIS_URL)
         url = process.env.REDIS_URL;
 
-      if (url) return {
-        type,
-        options: { url },
-        prefix
+      const newOpts = {
+        connectionTimeout, operationTimeout
       };
+
+      if (url) {
+        newOpts.url = url;
+      } else {
+        newOpts.host = host;
+        newOpts.port = port;
+        newOpts.db = db;
+        newOpts.pass = pass;
+      }
 
       return {
         type,
-        options: {
-          host,
-          port,
-          pass
-        },
-        prefix
+        prefix,
+        options: newOpts
       };
     }
 
