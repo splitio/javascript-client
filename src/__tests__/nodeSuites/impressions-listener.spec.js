@@ -1,0 +1,88 @@
+import sinon from 'sinon';
+
+import { SplitFactory } from '../../';
+import SettingsFactory from '../../utils/settings';
+const settings = SettingsFactory({
+  core: {
+    key: '<fake id>'
+  }
+});
+
+const listener = {
+  logImpression: sinon.stub()
+};
+
+const config = {
+  core: {
+    authorizationKey: '<fake-token-3>'
+  },
+  scheduler: {
+    featuresRefreshRate: 1,
+    segmentsRefreshRate: 1,
+    metricsRefreshRate: 3000,
+    impressionsRefreshRate: 3000
+  },
+  startup: {
+    eventsFirstPushWindow: 3000
+  },
+  impressionListener: listener
+};
+
+export default function(assert) {
+  const splitio = SplitFactory(config);
+  const client = splitio.client();
+
+  return client.ready().then(() => {
+    const metaData = {
+      ip: settings.runtime.ip,
+      hostname: settings.runtime.hostname,
+      sdkLanguageVersion: settings.version
+    };
+    const testAttrs = { is_test: true };
+
+    // Generate one impression, depends on hierarchical_dep_hierarchical which depends on hierarchical_dep_always_on
+    client.getTreatment('nicolas@split.io', 'hierarchical_splits_test');
+    client.getTreatment({ matchingKey: 'marcio@split.io', bucketingKey: 'impr_bucketing_2' }, 'qc_team');
+    client.getTreatment('facundo@split.io', 'qc_team', testAttrs);
+
+    setTimeout(() => {
+      assert.true(listener.logImpression.calledThrice, 'Impression listener logImpression method should be called after we call client.getTreatment, once per each impression generated.');
+      assert.true(listener.logImpression.getCall(0).calledWithMatch({
+        impression: {
+          feature: 'hierarchical_splits_test',
+          keyName: 'nicolas@split.io',
+          treatment: 'on',
+          bucketingKey: undefined,
+          label: 'expected label'
+        },
+        attributes: undefined,
+        ...metaData
+      }));
+      assert.true(listener.logImpression.getCall(1).calledWithMatch({
+        impression: {
+          feature: 'qc_team',
+          keyName: 'marcio@split.io',
+          treatment: 'no',
+          bucketingKey: 'impr_bucketing_2',
+          label: 'default rule'
+        },
+        attributes: undefined,
+        ...metaData
+      }));
+      assert.true(listener.logImpression.getCall(2).calledWithMatch({
+        impression: {
+          feature: 'qc_team',
+          keyName: 'facundo@split.io',
+          treatment: 'no',
+          bucketingKey: undefined,
+          label: 'default rule'
+        },
+        attributes: testAttrs,
+        ...metaData
+      }));
+
+      client.destroy();
+      assert.end();
+    }, 0);
+  });
+}

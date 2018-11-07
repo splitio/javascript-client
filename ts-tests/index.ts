@@ -17,6 +17,7 @@ let stringPromise: Promise<string>;
 let splitViewPromise: Promise<SplitIO.SplitView>;
 let splitViewsPromise: Promise<SplitIO.SplitViews>;
 let treatmentsPromise: Promise<SplitIO.Treatments>;
+let trackPromise: Promise<boolean>;
 
 /**** Interfaces ****/
 
@@ -32,6 +33,8 @@ let client: SplitIO.IClient;
 let manager: SplitIO.IManager;
 let asyncClient: SplitIO.IAsyncClient;
 let asyncManager: SplitIO.IAsyncManager;
+// Utility interfaces
+let impressionListener: SplitIO.IImpressionListener;
 
 /**** Custom Types ****/
 
@@ -69,6 +72,8 @@ let splitViews: SplitIO.SplitViews;
 let splitNames: SplitIO.SplitNames;
 let splitViewAsync: SplitIO.SplitViewAsync;
 let splitViewsAsync: SplitIO.SplitViewsAsync;
+// Impression data
+let impressionData: SplitIO.ImpressionData;
 // Storages
 let nodeStorage: SplitIO.NodeSyncStorage;
 let nodeAsyncStorage: SplitIO.NodeAsyncStorage;
@@ -219,7 +224,7 @@ tracked = client.track(splitKey, 'myTrafficType', 'myEventType', 10);
 tracked = client.track('myTrafficType', 'myEventType', 10);
 tracked = client.track('myEventType', 10);
 
-/*** Repeating tests for Async Client...  */
+/*** Repeating tests for Async Client ***/
 
 // Events constants we get (same as for sync client, just for interface checking)
 const eventConstsAsymc: {[key: string]: SplitIO.Event} = client.Event;
@@ -252,14 +257,10 @@ asyncTreatments = asyncClient.getTreatments(['mySplit']);
 asyncTreatments = asyncClient.getTreatments(splitKey, ['mySplit'], attributes);
 asyncTreatments = asyncClient.getTreatments(['mySplit'], attributes);
 
-// We can call track with or without a key.
-tracked = asyncClient.track(splitKey, 'myTrafficType', 'myEventType'); // all params
-tracked = asyncClient.track('myTrafficType', 'myEventType'); // key binded, tt provided.
-tracked = asyncClient.track('myEventType'); // key and tt binded.
-// Value parameter is optional on both signatures.
-tracked = asyncClient.track(splitKey, 'myTrafficType', 'myEventType', 10);
-tracked = asyncClient.track('myTrafficType', 'myEventType', 10);
-tracked = asyncClient.track('myEventType', 10);
+// We can call track only with a key.
+trackPromise = asyncClient.track(splitKey, 'myTrafficType', 'myEventType'); // all params
+// Value parameter is optional.
+trackPromise = asyncClient.track(splitKey, 'myTrafficType', 'myEventType', 10);
 
 /**** Tests for IManager interface ****/
 
@@ -267,11 +268,28 @@ splitNames = manager.names();
 splitView = manager.split('mySplit');
 splitViews = manager.splits();
 
-/*** Repeating tests for Async Manager...  */
+/*** Repeating tests for Async Manager ***/
 
 splitNames = asyncManager.names(); // Split names are the same.
 splitViewAsync = asyncManager.split('mySplit');
 splitViewsAsync = asyncManager.splits();
+
+/*** Tests for IImpressionListener interface ***/
+class MyImprListener implements SplitIO.IImpressionListener {
+  logImpression(data: SplitIO.ImpressionData) {
+    impressionData = data;
+  }
+}
+
+const MyImprListenerMap: SplitIO.IImpressionListener = {
+  logImpression: (data: SplitIO.ImpressionData) => {
+    impressionData = data;
+  }
+};
+
+impressionListener = MyImprListenerMap;
+impressionListener = new MyImprListener();
+impressionListener.logImpression(impressionData);
 
 /**** Tests for fully crowded settings interfaces ****/
 
@@ -302,6 +320,7 @@ let fullBrowserSettings: SplitIO.IBrowserSettings = {
     type: 'LOCALSTORAGE',
     prefix: 'PREFIX'
   },
+  impressionListener: impressionListener,
   debug: true
 };
 fullBrowserSettings.storage.type = 'MEMORY';
@@ -330,6 +349,7 @@ let fullNodeSettings: SplitIO.INodeSettings = {
     type: 'LOCALSTORAGE',
     prefix: 'PREFIX'
   },
+  impressionListener: impressionListener,
   mode: 'standalone',
   debug: false
 };
@@ -363,6 +383,7 @@ let fullAsyncSettings: SplitIO.INodeAsyncSettings = {
     },
     prefix: 'PREFIX'
   },
+  impressionListener: impressionListener,
   mode: 'standalone',
   debug: true
 };

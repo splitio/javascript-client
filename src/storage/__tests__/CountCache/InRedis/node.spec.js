@@ -20,7 +20,8 @@ import CountCacheInRedis from '../../../CountCache/InRedis';
 import SettingsFactory from '../../../../utils/settings';
 const settings = SettingsFactory({
   storage: {
-    type: 'REDIS'
+    type: 'REDIS',
+    prefix: 'count_cache_UT'
   }
 });
 
@@ -28,23 +29,32 @@ tape('COUNT CACHE IN REDIS / cover basic behavior', async function(assert) {
   const connection = new Redis(settings.storage.options);
   const keys = new KeyBuilder(settings);
   const cache = new CountCacheInRedis(keys, connection);
-  let state;
 
-  await cache.clear();
+  assert.true(cache.isEmpty(), 'isEmpty always returns true, just there to respect the interface.');
+  assert.notEqual(typeof cache.clear, 'undefined', 'Clear method should be there to respect interface.');
 
   await cache.track('counted-metric-one');
   await cache.track('counted-metric-one');
 
-  state = await cache.state();
+  const keyOne = keys.buildCountKey('counted-metric-one');
+  const keyTwo = keys.buildCountKey('counted-metric-two');
 
-  assert.equal(state['counted-metric-one'], 2);
+  let metricOneValue = await connection.get(keyOne);
+  assert.equal(metricOneValue, '2');
 
   await cache.track('counted-metric-two');
 
-  state = await cache.state();
+  metricOneValue = await connection.get(keyOne);
+  let metricTwoValue = await connection.get(keyTwo);
 
-  assert.equal(state['counted-metric-one'], 2);
-  assert.equal(state['counted-metric-two'], 1);
+  assert.equal(metricOneValue, '2');
+  assert.equal(metricTwoValue, '1');
+
+  assert.true(cache.isEmpty(), 'isEmpty always returns true, just there to respect the interface.');
+
+  // Clean up
+  const keysToClean = await connection.keys('count_cache_UT.*');
+  if (keysToClean.length) await connection.del(keysToClean);
 
   connection.quit();
   assert.end();

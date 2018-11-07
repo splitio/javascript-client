@@ -1,4 +1,4 @@
-import Redis from 'ioredis';
+import RedisAdapter from './RedisAdapter';
 import SplitCacheInMemory from './SplitCache/InMemory';
 import SplitCacheInRedis from './SplitCache/InRedis';
 import SegmentCacheInMemory from './SegmentCache/InMemory';
@@ -10,7 +10,9 @@ import LatencyCacheInRedis from './LatencyCache/InRedis';
 import CountCacheInMemory from './CountCache/InMemory';
 import CountCacheInRedis from './CountCache/InRedis';
 import EventsCacheInMemory from './EventsCache/InMemory';
+import EventsCacheInRedis from './EventsCache/InRedis';
 import KeyBuilder from './Keys';
+import MetaBuilder from './Meta';
 import { STORAGE_MEMORY, STORAGE_REDIS } from '../utils/constants';
 
 const NodeStorageFactory = context => {
@@ -20,7 +22,8 @@ const NodeStorageFactory = context => {
 
   switch (storage.type) {
     case STORAGE_REDIS: {
-      const redis = new Redis(storage.options);
+      const redis = new RedisAdapter(storage.options);
+      const meta = MetaBuilder(settings);
 
       return {
         splits: new SplitCacheInRedis(keys, redis),
@@ -28,7 +31,7 @@ const NodeStorageFactory = context => {
         impressions: new ImpressionsCacheInRedis(keys, redis),
         metrics: new LatencyCacheInRedis(keys, redis),
         count: new CountCacheInRedis(keys, redis),
-        events: new EventsCacheInMemory(context),
+        events: new EventsCacheInRedis(keys, redis, meta),
 
         // When using REDIS we should:
         // 1- Disconnect from the storage

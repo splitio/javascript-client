@@ -13,50 +13,19 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+import BaseMetricsAsyncCache from '../BaseMetricsAsyncCache';
 
-class CountCacheInRedis {
+class CountCacheInRedis extends BaseMetricsAsyncCache {
   constructor(keys, redis) {
+    super();
     this.keys = keys;
     this.redis = redis;
   }
 
-  scanKeys() {
-    return this.redis.keys(this.keys.searchPatternForCountKeys());
-  }
-
   track(metricName) {
-    return this.redis.incr(this.keys.buildCountKey(metricName));
-  }
-
-  async clear() {
-    const currentKeys = await this.scanKeys();
-
-    if (currentKeys.length)
-      return this.redis.del(currentKeys);
-
-    return 0;
-  }
-
-  async state() {
-    const results = {};
-
-    const currentKeys = await this.scanKeys();
-    const currentCounters = await this.redis.pipeline(currentKeys.map(k => ['get', k])).exec();
-
-    let counters = currentCounters.map(([err, value]) => (err === null) ? parseInt(value, 10) : -1);
-
-    for (const entryIndex in currentKeys) {
-      const counterName = this.keys.extractCounterName(currentKeys[entryIndex]);
-      const counter = counters[entryIndex];
-
-      if (counter > 0) results[counterName] = counter;
-    }
-
-    return results;
-  }
-
-  isEmpty() {
-    return this.scanKeys().then(els => els.length === 0);
+    return this.redis.incr(this.keys.buildCountKey(metricName)).catch(() => {
+      // noop, for telemetry metrics there's no need to throw.
+    });
   }
 }
 
