@@ -1,4 +1,4 @@
-## 10.4.1 (XXX XX, 2018)
+## 10.5.0 (Nov 7, 2018)
 
 * Added custom impression listener feature.
 * Added Redis support for track events.

@@ -1,4 +1,4 @@
-## 10.4.1 (XXX XX, 2018)
+## 10.5.0 (Nov 7, 2018)
 
 * Added custom impression listener feature, so customers can receive all the impressions data on a callback to handle as they place.
   Completely optional, the only requirement is that the element being set as impression listener should have a method called `logImpression`
