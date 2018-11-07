@@ -31,10 +31,19 @@ tape('EVENTS CACHE IN REDIS / should incrementally store values in redis', async
   assert.equal(redisValues.length, 0, 'control assertion, there are no events previously queued.');
 
   const cache = new EventsCacheInRedis(keys, connection, fakeMeta);
+  // I'll use a "bad" instance so I can force an issue with the rpush command. I'll store an integer and will make the cache try to use rpush there.
+  await connection.set('non-list-key', 10);
+  const faultyCache = new EventsCacheInRedis({
+    buildEventsKey: () => 'non-list-key'
+  }, connection, fakeMeta);
 
-  await cache.track(fakeEvent1);
-  await cache.track(fakeEvent2);
-  await cache.track(fakeEvent3);
+  assert.true(await cache.track(fakeEvent1), 'If the queueing operation was successful, it should resolve the returned promise with "true"');
+  assert.true(await cache.track(fakeEvent2), 'If the queueing operation was successful, it should resolve the returned promise with "true"');
+  assert.true(await cache.track(fakeEvent3), 'If the queueing operation was successful, it should resolve the returned promise with "true"');
+
+  assert.false(await faultyCache.track(fakeEvent1), 'If the queueing operation was NOT successful, it should resolve the returned promise with "false" instead of rejecting it.');
+  assert.false(await faultyCache.track(fakeEvent2), 'If the queueing operation was NOT successful, it should resolve the returned promise with "false" instead of rejecting it.');
+  assert.false(await faultyCache.track(fakeEvent3), 'If the queueing operation was NOT successful, it should resolve the returned promise with "false" instead of rejecting it.');
 
   redisValues = await connection.lrange(key, 0, -1);
 
