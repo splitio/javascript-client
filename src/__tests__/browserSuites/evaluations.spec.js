@@ -6,7 +6,7 @@ export default function(config, assert) {
   let i = 0, tested = 0;
   const wBucketing = !!config.core.key.bucketingKey;
 
-  const getTreatmentTests = client => {
+  const getTreatmentTests = (client, TAClient) => {
     assert.equal(client.getTreatment('blacklist'), 'not_allowed');
     assert.equal(client.getTreatment('whitelist'), 'allowed');
     assert.equal(client.getTreatment('splitters'), 'on');
@@ -182,6 +182,10 @@ export default function(config, assert) {
 
     // This split depends on Split hierarchical_dep_hierarchical which depends on a split that always retuns 'on'
     assert.equal(client.getTreatment('hierarchical_splits_test'), 'on');
+
+    // This split has a traffic allocation of 1 (lowest) and the key we're using also returns the lowest bucket for TA (1)
+    // As the only matcher is a segment_all, we should get the treatment from the condition, not the default one (default_treatment)
+    assert.equal(TAClient.getTreatment('ta_bucket1_test'), 'rollout_treatment');
   };
 
   const getTreatmentsTests = client => {
@@ -251,11 +255,14 @@ export default function(config, assert) {
   for(i; i < SDK_INSTANCES_TO_TEST; i++) {
     let splitio = SplitFactory(config);
 
+    // on TA tests, this is going to return one against the mocked seed.
+    let clientTABucket1 = splitio.client('aaaaaaklmnbv');
     let client = splitio.client();
 
     client.ready().then(() => {
-      getTreatmentTests(client);
+      getTreatmentTests(client, clientTABucket1);
       getTreatmentsTests(client);
+      clientTABucket1.destroy();
       client.destroy();
       tested++;
 

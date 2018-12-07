@@ -158,11 +158,15 @@ export default async function(config, key, assert) {
 
     // This split depends on Split hierarchical_dep_hierarchical which depends on a split that always retuns 'on'
     assert.equal(client.getTreatment(key, 'hierarchical_splits_test'), 'on');
+
+    // This split has a traffic allocation of 1 (lowest) and the key we're using also returns the lowest bucket for TA (1)
+    // As the only matcher is a segment_all, we should get the treatment from the condition, not the default one (default_treatment)
+    assert.equal(client.getTreatment('aaaaaaklmnbv', 'ta_bucket1_test'), 'rollout_treatment');
   };
 
   const getTreatmentsTests = (client, sdkInstance) => {
     assert.comment(`Get Treatments Tests - Sdk Instance ${sdkInstance}`);
-    
+
     assert.deepEqual(client.getTreatments(key, [
       // Treatments List
       'whitelist',
