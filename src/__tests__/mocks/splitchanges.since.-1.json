@@ -1307,6 +1307,47 @@
           ]
         }
       ]
+    },
+    {
+      "orgId": null,
+      "environment": null,
+      "trafficTypeId": null,
+      "trafficTypeName": null,
+      "name": "ta_bucket1_test",
+      "algo": 2,
+      "seed": -1222652054,
+      "trafficAllocation": 1,
+      "trafficAllocationSeed": -1611935741,
+      "status": "ACTIVE",
+      "killed": false,
+      "defaultTreatment": "default_treatment",
+      "conditions": [
+        {
+          "matcherGroup": {
+            "combiner": "AND",
+            "matchers": [
+              {
+                "keySelector": {
+                  "trafficType": "user",
+                  "attribute": null
+                },
+                "matcherType": "ALL_KEYS",
+                "negate": false,
+                "userDefinedSegmentMatcherData": null,
+                "whitelistMatcherData": null,
+                "unaryNumericMatcherData": null,
+                "betweenMatcherData": null
+              }
+            ]
+          },
+          "partitions": [
+            {
+              "treatment": "rollout_treatment",
+              "size": 100
+            }
+          ]
+        }
+      ]
     }
   ],
   "since": -1,

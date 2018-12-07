@@ -52,7 +52,7 @@ const engine = {
     if (trafficAllocation < 100) {
       const bucket = getBucketAlgo(algoId)(key, trafficAllocationSeed);
 
-      if (bucket >= trafficAllocation) {
+      if (bucket > trafficAllocation) {
         return false;
       }
     }
