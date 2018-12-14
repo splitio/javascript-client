@@ -28,9 +28,10 @@ const processPipelineAnswer = (results) =>
 
 class ImpressionsCacheInRedis {
 
-  constructor(keys, redis) {
+  constructor(keys, redis, meta) {
     this.keys = keys;
     this.redis = redis;
+    this.meta = meta;
   }
 
   scanKeys() {
@@ -42,10 +43,15 @@ class ImpressionsCacheInRedis {
   }
 
   track(impression) {
-    return this.redis.sadd(
-      this.keys.buildImpressionsKey(impression.feature),
-      JSON.stringify(impression)
-    );
+    return this.redis.rpush(
+      this.keys.buildImpressionsKey(),
+      this.toJSON(impression)
+    ).then(queuedCount => {
+      // If this is the creation of the key on Redis, set the expiration for it in 1hr.
+      if (queuedCount === 1) {
+        this.redis.expire(this.keys.buildImpressionsKey(), 3600);
+      }
+    });
   }
 
   clear() {
@@ -55,8 +61,23 @@ class ImpressionsCacheInRedis {
     });
   }
 
-  toJSON() {
-    return this.state();
+  toJSON(impression) {
+    const {
+      keyName, bucketingKey, feature, treatment, label, time, changeNumber
+    } = impression;
+
+    return JSON.stringify({
+      m: this.meta,
+      i: {
+        k: keyName,
+        b: bucketingKey,
+        f: feature,
+        t: treatment,
+        r: label,
+        c: changeNumber,
+        m: time
+      }
+    });
   }
 
   /**
