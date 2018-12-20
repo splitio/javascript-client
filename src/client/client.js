@@ -1,6 +1,7 @@
 import logFactory from '../utils/logger';
 const log = logFactory('splitio-client');
 import evaluator from '../engine/evaluator';
+import ImpressionTracker from '../trackers/impression';
 import ImpressionsTracker from '../trackers/impressions';
 import tracker from '../utils/timeTracker';
 import thenable from '../utils/promise/thenable';
@@ -14,7 +15,7 @@ function getTreatmentAvailable(
   splitName,
   key,
   attributes,
-  stopLatencyTracker,
+  stopLatencyTracker = false,
   impressionsTracker
 ) {
   const matchingKey = matching(key);
@@ -43,7 +44,7 @@ function getTreatmentAvailable(
     log.warn('Impression not collected since matchingKey is not a valid key');
   }
 
-  stopLatencyTracker();
+  stopLatencyTracker && stopLatencyTracker();
 
   return evaluation.treatment;
 }
@@ -66,6 +67,7 @@ function ClientFactory(context) {
   const settings = context.get(context.constants.SETTINGS);
   const storage = context.get(context.constants.STORAGE);
   const metricCollectors = context.get(context.constants.COLLECTORS);
+  const impressionTracker = ImpressionTracker(context);
   const impressionsTracker = ImpressionsTracker(context);
 
   return {
@@ -74,40 +76,44 @@ function ClientFactory(context) {
       const evaluation = evaluator(key, splitName, attributes, storage);
 
       if (thenable(evaluation)) {
-        return evaluation.then(res => getTreatmentAvailable(res, splitName, key, attributes, stopLatencyTracker, impressionsTracker));
+        return evaluation.then(res => getTreatmentAvailable(res, splitName, key, attributes, stopLatencyTracker, impressionTracker.track));
       } else {
-        return getTreatmentAvailable(evaluation, splitName, key, attributes, stopLatencyTracker, impressionsTracker);
+        return getTreatmentAvailable(evaluation, splitName, key, attributes, stopLatencyTracker, impressionTracker.track);
       }
     },
     getTreatments(key, splitNames, attributes) {
-      let results = {};
-      let thenables = [];
+      const stopLatencyTracker = tracker.start(tracker.TaskNames.SDK_GET_TREATMENTS, metricCollectors);
+      const results = {};
+      const thenables = [];
       let i;
 
       for (i = 0; i < splitNames.length; i ++) {
-        const name = splitNames[i];
-        // If we are on the browser, key was binded to the getTreatment method.
-        const treatment = this.isBrowserClient ? this.getTreatment(name, attributes) : this.getTreatment(key, name, attributes);
+        const splitName = splitNames[i];
+        const evaluation = evaluator(key, splitName, attributes, storage);
 
-        if (thenable(treatment)) {
+        if (thenable(evaluation)) {
           // If treatment returns a promise as it is being evaluated, save promise for progress tracking.
-          thenables.push(treatment);
-          treatment.then((res) => {
+          thenables.push(evaluation);
+          evaluation.then((res) => {
             // set the treatment on the cb;
-            results[name] = res;
+            results[splitName] = getTreatmentAvailable(res, splitName, key, attributes, false, impressionsTracker.queue);
           });
         } else {
-          results[name] = treatment;
+          results[splitName] = getTreatmentAvailable(evaluation, splitName, key, attributes, false, impressionsTracker.queue);
         }
       }
 
-      if (thenables.length) {
-        return Promise.all(thenables).then(() => {
-          // After all treatments are resolved, we return the mapping object.
-          return results;
-        });
-      } else {
+      const wrapUp = () => {
+        impressionsTracker.track();
+        stopLatencyTracker();
+        // After all treatments are resolved, we return the mapping object.
         return results;
+      };
+
+      if (thenables.length) {
+        return Promise.all(thenables).then(wrapUp);
+      } else {
+        return wrapUp();
       }
     },
     track(key, trafficTypeName, eventTypeId, eventValue) {
