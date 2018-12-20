@@ -96,7 +96,7 @@ tape('KEYS / impressions', function (assert) {
   const builder = new Keys(settings);
 
   const splitName = 'split_name__for_testing';
-  const expectedImpressionKey = `${prefix}.SPLITIO/${settings.version}/${settings.runtime.ip}/impressions.${splitName}`;
+  const expectedImpressionKey = `${prefix}.SPLITIO.impressions`;
 
   assert.true(builder.buildImpressionsKey(splitName) === expectedImpressionKey);
 

@@ -77,10 +77,6 @@ class KeyBuilder {
     return `${this.settings.storage.prefix}.split.*`;
   }
 
-  searchPatternForImpressions() {
-    return `${this.buildImpressionsKeyPrefix()}.*`;
-  }
-
   searchPatternForLatency() {
     return `${this.buildLatencyKeyPrefix()}.*`;
   }
