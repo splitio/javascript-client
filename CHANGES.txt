@@ -1,3 +1,7 @@
+## 10.5.1 (Dec 20, 2018)
+
+* Bugfixing - Fixing an issue where a Split with Traffic Allocation set to one would return the default treatment for 100% of the traffic (instead of 99%).
+
 ## 10.5.0 (Nov 7, 2018)
 
 * Added custom impression listener feature.

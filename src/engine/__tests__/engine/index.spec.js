@@ -82,6 +82,14 @@ tape('ENGINE / shouldApplyRollout - algo 1 (legacy) | trafficAllocation 80 | buc
   assert.end();
 });
 
+tape('ENGINE / shouldApplyRollout - algo 1 (legacy) | trafficAllocation 1 | bucket 1', assert => {
+
+  const shouldApplyRollout = engine.shouldApplyRollout(1, 'zo', -1667452163, 1);
+
+  assert.ok(shouldApplyRollout, 'Should return true as bucket is higher or equal than trafficAllocation.');
+  assert.end();
+});
+
 tape('ENGINE / shouldApplyRollout - algo 2 (murmur) | trafficAllocation 53 | bucket 51', assert => {
 
   const shouldApplyRollout = engine.shouldApplyRollout(53, 'a', 29, 2);
@@ -95,5 +103,13 @@ tape('ENGINE / shouldApplyRollout - algo 2 (murmur) | trafficAllocation 53 | buc
   const shouldApplyRollout = engine.shouldApplyRollout(53, 'a', 31, 2);
 
   assert.notOk(shouldApplyRollout, 'Should return false as bucket is higher than trafficAllocation.');
+  assert.end();
+});
+
+tape('ENGINE / shouldApplyRollout - algo 2 (murmur) | trafficAllocation 1 | bucket 1', assert => {
+
+  const shouldApplyRollout = engine.shouldApplyRollout(1, 'aaaaaaklmnbv', -1667452163, 2);
+
+  assert.ok(shouldApplyRollout, 'Should return true as bucket is higher or equal than trafficAllocation.');
   assert.end();
 });
