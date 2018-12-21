@@ -1317,12 +1317,13 @@
       "algo": 2,
       "seed": -1222652054,
       "trafficAllocation": 1,
-      "trafficAllocationSeed": -1611935741,
+      "trafficAllocationSeed": -1667452163,
       "status": "ACTIVE",
       "killed": false,
       "defaultTreatment": "default_treatment",
       "conditions": [
         {
+          "conditionType": "ROLLOUT",
           "matcherGroup": {
             "combiner": "AND",
             "matchers": [

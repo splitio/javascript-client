@@ -162,6 +162,8 @@ export default async function(config, key, assert) {
     // This split has a traffic allocation of 1 (lowest) and the key we're using also returns the lowest bucket for TA (1)
     // As the only matcher is a segment_all, we should get the treatment from the condition, not the default one (default_treatment)
     assert.equal(client.getTreatment('aaaaaaklmnbv', 'ta_bucket1_test'), 'rollout_treatment');
+    // With a higher bucket it's ok to get default treatment
+    assert.equal(client.getTreatment('nico_test', 'ta_bucket1_test'), 'default_treatment');
   };
 
   const getTreatmentsTests = (client, sdkInstance) => {
