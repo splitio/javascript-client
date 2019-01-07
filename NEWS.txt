@@ -2,6 +2,7 @@
 
 * Updated impressions cache for Redis storage to reduce the amount of Redis operations by using a single queue on which we push multiple values on the same RPUSH operation.
 * Updated getTreatments to have it's own latency metric for the whole operation, instead of one per each feature evaluation. Now getTreatments is not just a for loop anymore!
+* Bugfixing - Preventing "Uncaught in promise (undefined)" error for .ready() promise when no error handlers are attached to it.
 
 ## 10.5.1 (Dec 20, 2018)
 
