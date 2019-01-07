@@ -30,6 +30,7 @@ const timers = {};
 const CONSTANTS = {
   SDK_READY: 'Getting ready - Split SDK',
   SDK_GET_TREATMENT: 'SDK - Get Treatment',
+  SDK_GET_TREATMENTS: 'SDK - Get Treatments',
   SPLITS_READY: 'Getting ready - Splits',
   SEGMENTS_READY: 'Getting ready - Segments',
   METRICS_PUSH: 'Pushing - Metrics',
@@ -46,6 +47,10 @@ const CALLBACKS = {
     method: 'ready'
   },
   [CONSTANTS.SDK_GET_TREATMENT]: {
+    collector: 'SDK',
+    method: 'latency'
+  },
+  [CONSTANTS.SDK_GET_TREATMENTS]: {
     collector: 'SDK',
     method: 'latency'
   },

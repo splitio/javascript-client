@@ -15,24 +15,26 @@ limitations under the License.
 **/
 import Redis from 'ioredis';
 import tape from 'tape-catch';
-import find from 'lodash/find';
 import KeyBuilder from '../../../Keys';
 import ImpressionsCacheInRedis from '../../../ImpressionsCache/InRedis';
 import SettingsFactory from '../../../../utils/settings';
 const settings = SettingsFactory({
   storage: {
-    type: 'REDIS'
+    type: 'REDIS',
+    prefix: 'ut_impr_cache'
   }
 });
 
 tape('IMPRESSIONS CACHE IN REDIS / should incrementally store values', async function(assert) {
+  const impressionsKey = 'ut_impr_cache.SPLITIO.impressions';
+  const testMeta = { thisIsTheMeta: true };
   const connection = new Redis(settings.storage.options);
   const keys = new KeyBuilder(settings);
-  const c = new ImpressionsCacheInRedis(keys, connection);
+  const c = new ImpressionsCacheInRedis(keys, connection, testMeta);
 
   const o1 = {
     feature: 'test1',
-    key: 'facundo@split.io',
+    keyName: 'facundo@split.io',
     treatment: 'on',
     time: Date.now(),
     changeNumber: 1
@@ -40,7 +42,7 @@ tape('IMPRESSIONS CACHE IN REDIS / should incrementally store values', async fun
 
   const o2 = {
     feature: 'test2',
-    key: 'pepep@split.io',
+    keyName: 'pepep@split.io',
     treatment: 'A',
     time: Date.now(),
     bucketingKey: '1234-5678',
@@ -50,23 +52,31 @@ tape('IMPRESSIONS CACHE IN REDIS / should incrementally store values', async fun
 
   const o3 = {
     feature: 'test3',
-    key: 'pipiip@split.io',
+    keyName: 'pipiip@split.io',
     treatment: 'B',
     time: Date.now(),
     changeNumber: 1
   };
 
-  await c.clear();
+  // cleanup
+  await connection.del(impressionsKey);
 
-  await c.track(o1);
-  await c.track(o2);
-  await c.track(o3);
-
-  const state = await c.state();
-
-  assert.true(find(state, o1));
-  assert.true(find(state, o2));
-  assert.true(find(state, o3));
+  await c.track([o1]);
+  await c.track([o2, o3]);
+  const state = await connection.lrange(impressionsKey, 0, -1);
+  // This is testing both the track and the toJSON method.
+  assert.deepEqual(state[0], JSON.stringify({
+    m: testMeta,
+    i: { k: o1.keyName, f: o1.feature, t: o1.treatment, c: o1.changeNumber, m: o1.time }
+  }));
+  assert.deepEqual(state[1], JSON.stringify({
+    m: testMeta,
+    i: { k: o2.keyName, b: o2.bucketingKey, f: o2.feature, t: o2.treatment, r: o2.label,c: o2.changeNumber, m: o2.time }
+  }));
+  assert.deepEqual(state[2], JSON.stringify({
+    m: testMeta,
+    i: { k: o3.keyName, f: o3.feature, t: o3.treatment, c: o3.changeNumber, m: o3.time }
+  }));
 
   connection.quit();
   assert.end();

@@ -33,12 +33,12 @@ import { SplitFactory } = require('@splitsoftware/splitio');
 
 Using [bower](https://bower.io):
 
-    $ bower install splitio=https://cdn.split.io/sdk/split-9.3.6.min.js
+    $ bower install splitio=https://cdn.split.io/sdk/split-{version}.min.js
 
 And finally, the **UMD** build is also available in our **CDN**:
 
 ```html
-<script src="//cdn.split.io/sdk/split-9.3.6.min.js"></script>
+<script src="//cdn.split.io/sdk/split-{version}.min.js"></script>
 ```
 
 You can find the library on `window.splitio`.
@@ -200,86 +200,3 @@ const splitio = require('@splitsoftware/splitio/migration');
 ### Release documentation
 - [Changes](CHANGES.txt)
 - [News](NEWS.txt)
-
-
-### How to release
-
-#### Versioning
-
-Update the package.json with the correct value using semver.
-
-    1.0.0-canary.0 => First candidate to be fully verified.
-    1.0.0-canary.1 => Second candidate to be fully verified.
-    1.0.0-canary.2 => Third candidate to be fully verified.
-    1.0.0          => Stable release
-
-#### Publishing into NPM
-
-1. Use `npm run canary`   => release canary version.
-1. Use `npm run stable`   => release the stable version.
-
-#### Building
-
-1. `npm run build-es`   => ES5 version of the code with es modules.
-1. `npm run build-cjs`  => ES5 version of the code with commonjs modules.
-1. `npm run build-umd`  => UMD version of the code (development).
-1. `npm run build-min`  => UMD version of the code but minified.
-1. `npm run rebuild`    => All of the above (complete build).
-
-### Updating Redis mocks for UT
-
-For generating and consuming JSON files with Redis instances data, we use redis-dump package.
-
-Requirements: Have a redis instance running with default config.
-
-To regenerate the mock, run on the root of the project:
-> ./node_modules/redis-dump/bin/cli/redis-dump --json > src/__tests__/mocks/redis_mock.json
-
-Then just run the test (you need a redis instance running of course):
-> npm run test-node-redis
-
-### CI
-
-> use latest LTS version of NodeJS
-
-`nvm install v8`
-
-`nvm use v8`
-
-> Upgrade to latest npm
-
-`npm install -g npm@latest`
-
-> Install dependencies
-
-`npm install`
-
-> Add binaries to the PATH
-
-`export PATH=$(npm bin):$PATH`
-
-> Add localhost file for tests!!!
-
-`printf "%s\n" '# this a comment' 'my_new_feature on' '# another comment' > $HOME/.split`
-
-> Expose package globally for TypeScript validations
-
-`npm link`
-
-> Tests steps
-
-`npm run test-ts-decls`
-
-> TypeScript installation could affect the package so we unlink and install again to keep consistency with the dependencies
-
-`npm unlink`
-
-`npm run test-browser-ci`
-
-`npm run test-browser-e2e-ci`
-
-`npm run test-node`
-
-`npm run test-node-redis`
-
-`npm run rebuild`

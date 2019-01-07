@@ -16,7 +16,7 @@ limitations under the License.
 
 import logFactory from '../utils/logger';
 import thenable from '../utils/promise/thenable';
-const log = logFactory('splitio-client:impression-tracker');
+const log = logFactory('splitio-client:impressions-tracker');
 
 function ImpressionsTrackerContext(context) {
   const collector = context.get(context.constants.STORAGE).impressions;
@@ -24,29 +24,45 @@ function ImpressionsTrackerContext(context) {
   const listener = settings.impressionListener;
   const { ip, hostname } = settings.runtime;
   const sdkLanguageVersion = settings.version;
+  const queue = [];
 
-  return function(impression, attributes) {
-    const res = collector.track(impression);
+  return {
+    queue: function(impression, attributes) {
+      queue.push({
+        impression,
+        attributes
+      });
+    },
+    track: function () {
+      const impressionsCount = queue.length;
+      const slice = queue.splice(0, impressionsCount);
+      const res = collector.track(slice.map(({ impression }) => impression));
 
-    // If we're on an async storage, handle error and log it.
-    if (thenable(res)) res.catch(err => {
-      log.error(`Could not store impression. Error: ${err}`);
-    });
-
-    // Wrap in a timeout because we don't want it to be blocking.
-    listener && setTimeout(() => {
-      try { // An exception on the listener should not break the SDK.
-        listener.logImpression({
-          impression,
-          attributes,
-          ip,
-          hostname,
-          sdkLanguageVersion
+      // If we're on an async storage, handle error and log it.
+      if (thenable(res)) {
+        res.then(() => {
+          log.debug(`Successfully stored ${impressionsCount} impression${impressionsCount === 1 ? '' : 's'}.`);
+        }).catch(err => {
+          log.error(`Could not store impressions bulk with ${impressionsCount} impression${impressionsCount === 1 ? '' : 's'}. Error: ${err}`);
         });
-      } catch (err) {
-        log.error(`Impression listener logImpression method threw: ${err}.`);
       }
-    }, 0);
+      // Wrap in a timeout because we don't want it to be blocking.
+      for (let i = 0; i < impressionsCount; i++) {
+        listener && setTimeout(() => {
+          try { // An exception on the listener should not break the SDK.
+            listener.logImpression({
+              impression: slice[i].impression,
+              attributes: slice[i].attributes,
+              ip,
+              hostname,
+              sdkLanguageVersion
+            });
+          } catch (err) {
+            log.error(`Impression listener logImpression method threw: ${err}.`);
+          }
+        }, 0);
+      }
+    }
   };
 }
 

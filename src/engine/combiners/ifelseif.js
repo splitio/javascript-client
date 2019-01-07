@@ -36,13 +36,13 @@ function computeTreatment(predicateResults) {
     const evaluation = predicateResults[i];
 
     if (evaluation !== undefined) {
-      log.debug(`treatment found: ${evaluation.treatment}`);
+      log.debug(`Treatment found: ${evaluation.treatment}`);
 
       return evaluation;
     }
   }
 
-  log.debug('all predicates evaluted, no treatment available');
+  log.debug('All predicates evaluated, no treatment found.');
   return undefined;
 }
 

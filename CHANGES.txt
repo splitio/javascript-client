@@ -1,3 +1,9 @@
+## 10.6.0 (Jan XX, 2019)
+
+* Updated impressions cache for Redis storage to reduce the amount of Redis operations by using a single queue.
+* Updated getTreatments to have it's own latency metric for the whole operation, instead of one per each feature evaluation.
+* Bugfixing - Preventing "Uncaught in promise (undefined)" error for .ready() promise when no error handlers are attached to it.
+
 ## 10.5.1 (Dec 20, 2018)
 
 * Bugfixing - Fixing an issue where a Split with Traffic Allocation set to one would return the default treatment for 100% of the traffic (instead of 99%).

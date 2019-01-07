@@ -15,7 +15,6 @@ limitations under the License.
 **/
 
 class ImpressionsCacheInMemory {
-
   constructor() {
     this.queue = [];
   }
@@ -28,10 +27,10 @@ class ImpressionsCacheInMemory {
   }
 
   /**
-   * Store object in sequential order
+   * Store objects in sequential order
    */
   track(data) {
-    this.queue.push(data);
+    this.queue.push(...data);
 
     return this;
   }
