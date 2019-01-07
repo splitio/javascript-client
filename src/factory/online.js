@@ -5,6 +5,8 @@ import MetricsFactory from '../metrics';
 import EventsFactory from '../events';
 import SignalsListener from '../listeners';
 import { STANDALONE_MODE, PRODUCER_MODE, CONSUMER_MODE } from '../utils/constants';
+import logFactory from '../utils/logger';
+const log = logFactory('splitio-factory');
 
 //
 // Create SDK instance based on the provided configurations
@@ -69,12 +71,31 @@ function SplitFactoryOnline(context, gateFactory, readyTrackers, mainClientMetri
   metrics && metrics.start();
   events && context.put(context.constants.EVENTS, events) && events.start();
 
-  // Ready promise
-  const readyFlag = sharedInstance ? Promise.resolve() :
-    new Promise((resolve, reject) => {
+  function generateReadyPromise() {
+    let hasCatch = false;
+    const promise = new Promise((resolve, reject) => {
       gate.on(SDK_READY, resolve);
       gate.on(SDK_READY_TIMED_OUT, reject);
+    }).catch(function(err) {
+      // If the promise has a custom error handler, just propagate
+      if (hasCatch) throw err;
+      // If not handle the error to prevent unhandled promise exception.
+      log.error(err);
     });
+    const originalThen = promise.then;
+
+    // Using .catch(fn) is the same than using .then(null, fn)
+    promise.then = function () {
+      if (arguments.length > 1 && typeof arguments[1] === 'function')
+        hasCatch = true;
+      return originalThen.apply(this, arguments);
+    };
+
+    return promise;
+  }
+
+  // Ready promise
+  const readyFlag = sharedInstance ? Promise.resolve() : generateReadyPromise();
 
   // If no collectors are stored we are on a shared instance, save main one.
   context.put(context.constants.COLLECTORS, mainClientMetricCollectors);
