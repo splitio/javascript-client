@@ -82,15 +82,9 @@ function SplitFactoryOnline(context, gateFactory, readyTrackers, mainClientMetri
       // If not handle the error to prevent unhandled promise exception.
       log.error(err);
     });
-
-    const originalCatch = promise.catch;
     const originalThen = promise.then;
 
-    promise.catch = function () {
-      if (arguments.length > 0 && typeof arguments[0] === 'function')
-        hasCatch = true;
-      return originalCatch.apply(this, arguments);
-    };
+    // Using .catch(fn) is the same than using .then(null, fn)
     promise.then = function () {
       if (arguments.length > 1 && typeof arguments[1] === 'function')
         hasCatch = true;
