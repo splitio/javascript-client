@@ -342,7 +342,8 @@ let fullNodeSettings: SplitIO.INodeSettings = {
   startup: {
     readyTimeout: 1,
     requestTimeoutBeforeReady: 1,
-    retriesOnFailureBeforeReady: 1
+    retriesOnFailureBeforeReady: 1,
+    eventsFirstPushWindow: 1
   },
   features: mockedFeaturesPath,
   storage: {

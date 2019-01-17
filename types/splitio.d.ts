@@ -189,7 +189,7 @@ interface INodeBasicSettings extends ISharedSettings {
     /**
      * Maximum amount of time used before notify a timeout.
      * @property {number} readyTimeout
-     * @default 0
+     * @default 15
      */
     readyTimeout?: number,
     /**
@@ -201,9 +201,17 @@ interface INodeBasicSettings extends ISharedSettings {
     /**
      * How many quick retries we will do while starting up the SDK.
      * @property {number} retriesOnFailureBeforeReady
+     * @default 1
+     */
+    retriesOnFailureBeforeReady?: number,
+    /**
+     * For SDK posts the queued events data in bulks with a given rate, but the first push window is defined separately,
+     * to better control on browsers. This number defines that window before the first events push.
+     *
+     * @property {number} eventsFirstPushWindow
      * @default 0
      */
-    retriesOnFailureBeforeReady?: number
+    eventsFirstPushWindow?: number,
   },
   /**
    * SDK Core settings for NodeJS.
