@@ -21,7 +21,8 @@ export const setLogLevel = (level) => {
 };
 
 const defaultOptions = {
-  showLevel: true
+  showLevel: true,
+  displayAllErrors: false
 };
 
 export class Logger {
@@ -46,7 +47,7 @@ export class Logger {
   }
 
   error() {
-    if(this._shouldLog(LogLevels.ERROR))
+    if(this.options.displayAllErrors || this._shouldLog(LogLevels.ERROR))
       this._log(LogLevels.ERROR, format.apply(null, arguments));
   }
 
@@ -65,9 +66,11 @@ export class Logger {
       result += '[' + level +']' + (level === LogLevels.INFO || level === LogLevels.WARN ? ' ' : '') + ' ';
     }
 
-    result += this.category + textPre + text;
+    if (this.category) {
+      result += this.category + textPre;
+    }
 
-    return result;
+    return result += text;
   }
 
   _shouldLog(level) {

@@ -16,12 +16,13 @@ limitations under the License.
 
 import { Logger, LogLevels, setLogLevel } from './LoggerFactory';
 import isLocalStorageAvailable from '../localstorage/isAvailable';
-import { find } from '../lang';
+import { find, merge } from '../lang';
 
 const isLogLevelString = str => !!find(LogLevels, lvl => str === lvl);
 
 const defaultOptions = {
-  showLevel: true
+  showLevel: true,
+  forceDisplayErrors: false
 };
 
 const LS_KEY = 'splitio_debug';
@@ -40,7 +41,7 @@ const initialState = String(
       localStorage.getItem(LS_KEY) : ''
 );
 
-const createLog = namespace => new Logger(namespace, defaultOptions);
+const createLog = (namespace, options = {}) => new Logger(namespace, merge(options, defaultOptions));
 
 const ownLog = createLog('splitio-utils:logger');
 
