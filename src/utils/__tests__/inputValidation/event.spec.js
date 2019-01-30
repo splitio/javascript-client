@@ -1,9 +1,24 @@
-/* eslint-disable no-console */
 import tape from 'tape-catch';
 import sinon from 'sinon';
-import validateEventType from '../../inputValidation/event';
+import proxyquire from 'proxyquire';
+const proxyquireStrict = proxyquire.noCallThru();
 
-const isNode = typeof process !== 'undefined' && process.version ? true : false;
+const loggerMock = {
+  warn: sinon.stub(),
+  error: sinon.stub()
+};
+function LogFactoryMock() {
+  return loggerMock;
+}
+const validateEventType = proxyquireStrict('../../inputValidation/event', {
+  '../logger': LogFactoryMock
+});
+
+/* We'll reset the history for the next test */
+function resetStubs() {
+  loggerMock.warn.resetHistory();
+  loggerMock.error.resetHistory();
+}
 
 const errorMsgs = {
   NULL_EVENT: () => 'you passed a null or undefined event_type, event_type must be a non-empty string.',
@@ -36,38 +51,30 @@ const invalidEvents = [
 
 tape('INPUT VALIDATION for Event types', t => {
   t.test('Should return the provided event type if it is a valid string without logging any errors', assert => {
-    const consoleMethod = !isNode ? 'error' : 'log';
-    // Spy on the console method that will be used.
-    console[consoleMethod] && sinon.spy(console, consoleMethod);
 
     assert.equal(validateEventType('valid:Too', 'some_method_eventType'), 'valid:Too', 'It should return the provided string if it is valid.');
-    assert.notOk(console[consoleMethod].calledWithMatch('[ERROR] some_method_eventType'), 'Should not log any errors.');
+    assert.notOk(loggerMock.error.called, 'Should not log any errors.');
     assert.equal(validateEventType('I.am.valid-string_ValUe', 'some_method_eventType'), 'I.am.valid-string_ValUe', 'It should return the provided string if it is valid.');
-    assert.notOk(console[consoleMethod].calledWithMatch('[ERROR] some_method_eventType'), 'Should not log any errors.');
+    assert.notOk(loggerMock.error.called, 'Should not log any errors.');
     assert.equal(validateEventType('a', 'some_method_eventType'), 'a', 'It should return the provided string if it is valid.');
-    assert.notOk(console[consoleMethod].calledWithMatch('[ERROR] some_method_eventType'), 'Should not log any errors.');
+    assert.notOk(loggerMock.error.called, 'Should not log any errors.');
 
-    console[consoleMethod].restore();
-
+    resetStubs();
     assert.end();
   });
 
   t.test('Should return false and log error if event type is not a valid string', assert => {
-    const consoleMethod = !isNode ? 'error' : 'log';
-    console[consoleMethod] && sinon.spy(console, consoleMethod);
-
     for (let i = 0; i < invalidEvents.length; i++) {
       const invalidValue = invalidEvents[i]['event'];
       const expectedLog = invalidEvents[i]['msg'](invalidValue);
 
       assert.equal(validateEventType(invalidValue, 'test_method'), false, 'Invalid event types should always return false.');
-      assert.ok(console[consoleMethod].calledWithMatch(`[ERROR] test_method: ${expectedLog}`), 'Should log the error for the invalid event type.');
+      assert.ok(loggerMock.error.calledWithMatch(`test_method: ${expectedLog}`), 'Should log the error for the invalid event type.');
 
-      console[consoleMethod].resetHistory();
+      loggerMock.error.resetHistory();
     }
 
-    console[consoleMethod].restore();
-
+    resetStubs();
     assert.end();
   });
 });

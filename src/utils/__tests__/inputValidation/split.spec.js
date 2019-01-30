@@ -1,10 +1,24 @@
-/* eslint-disable no-console */
 import tape from 'tape-catch';
 import sinon from 'sinon';
-import validateSplit from '../../inputValidation/split';
-import { API as LoggerAPI } from '../../logger';
+import proxyquire from 'proxyquire';
+const proxyquireStrict = proxyquire.noCallThru();
 
-const isNode = typeof process !== 'undefined' && process.version ? true : false;
+const loggerMock = {
+  warn: sinon.stub(),
+  error: sinon.stub()
+};
+function LogFactoryMock() {
+  return loggerMock;
+}
+const validateSplit = proxyquireStrict('../../inputValidation/split', {
+  '../logger': LogFactoryMock
+});
+
+/* We'll reset the history for the next test */
+function resetStubs() {
+  loggerMock.warn.resetHistory();
+  loggerMock.error.resetHistory();
+}
 
 const errorMsgs = {
   NULL_SPLIT: () => 'you passed a null or undefined split name, split name must be a non-empty string.',
@@ -39,56 +53,42 @@ const trimmableSplits = [
 
 tape('INPUT VALIDATION for Split names', t => {
   t.test('Should return the provided split name if it is a valid string without logging any errors', assert => {
-    const consoleMethod = !isNode ? 'error' : 'log';
-    // Spy on the console method that will be used.
-    console[consoleMethod] && sinon.spy(console, consoleMethod);
-
     assert.equal(validateSplit('splitName', 'some_method_splitName'), 'splitName', 'It should return the provided string if it is valid.');
-    assert.notOk(console[consoleMethod].calledWithMatch('[ERROR] some_method_splitName'), 'Should not log any errors.');
+    assert.notOk(loggerMock.error.calledWithExactly('some_method_splitName'), 'Should not log any errors.');
     assert.equal(validateSplit('split_name', 'some_method_splitName'), 'split_name', 'It should return the provided string if it is valid.');
-    assert.notOk(console[consoleMethod].calledWithMatch('[ERROR] some_method_splitName'), 'Should not log any errors.');
+    assert.notOk(loggerMock.error.calledWithExactly('some_method_splitName'), 'Should not log any errors.');
     assert.equal(validateSplit('A_split-name_29', 'some_method_splitName'), 'A_split-name_29', 'It should return the provided string if it is valid.');
-    assert.notOk(console[consoleMethod].calledWithMatch('[ERROR] some_method_splitName'), 'Should not log any errors.');
+    assert.notOk(loggerMock.error.calledWithExactly('some_method_splitName'), 'Should not log any errors.');
 
-    console[consoleMethod].restore();
-
+    resetStubs();
     assert.end();
   });
 
   t.test('Should trim split name if it is a valid string with trimmable spaces and log a warning (if those are enabled)', assert => {
-    sinon.spy(console, 'log');
-
-    // Enable warning logs
-    LoggerAPI.setLogLevel(LoggerAPI.LogLevel.WARN);
-
     for (let i = 0; i < trimmableSplits.length; i++) {
       const trimmableSplit = trimmableSplits[i];
       assert.equal(validateSplit(trimmableSplit, 'some_method_splitName'), trimmableSplit.trim(), 'It should return the trimmed version of the split name received.');
-      assert.ok(console.log.calledWithMatch(`[WARN]  some_method_splitName: ${errorMsgs.TRIMMABLE_SPLIT(trimmableSplit)}`), 'Should log a warning if those are enabled');
+      assert.ok(loggerMock.warn.calledWithExactly(`some_method_splitName: ${errorMsgs.TRIMMABLE_SPLIT(trimmableSplit)}`), 'Should log a warning if those are enabled.');
+
+      loggerMock.warn.resetHistory();
     }
 
-    LoggerAPI.disable();
-    console.log.restore();
-
+    resetStubs();
     assert.end();
   });
 
   t.test('Should return false and log error if split name is not a valid string', assert => {
-    const consoleMethod = !isNode ? 'error' : 'log';
-    console[consoleMethod] && sinon.spy(console, consoleMethod);
-
     for (let i = 0; i < invalidSplits.length; i++) {
       const invalidValue = invalidSplits[i]['split'];
       const expectedLog = invalidSplits[i]['msg'](invalidValue);
 
       assert.equal(validateSplit(invalidValue, 'test_method'), false, 'Invalid event types should always return false.');
-      assert.ok(console[consoleMethod].calledWithMatch(`[ERROR] test_method: ${expectedLog}`), 'Should log the error for the invalid event type.');
+      assert.ok(loggerMock.error.calledWithExactly(`test_method: ${expectedLog}`), 'Should log the error for the invalid event type.');
 
-      console[consoleMethod].resetHistory();
+      loggerMock.error.resetHistory();
     }
 
-    console[consoleMethod].restore();
-
+    resetStubs();
     assert.end();
   });
 });

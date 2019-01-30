@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import proxyquire from 'proxyquire';
 import tape from 'tape-catch';
 import sinon from 'sinon';
@@ -6,22 +5,23 @@ import uniq from 'lodash/uniq';
 import startsWith from 'lodash/startsWith';
 const proxyquireStrict = proxyquire.noCallThru();
 
-const splitsLoggerMock = {
+const loggerMock = {
   warn: sinon.stub(),
   error: sinon.stub()
 };
 function LogFactoryMock() {
-  return splitsLoggerMock;
+  return loggerMock;
 }
 const validateSplitValue = sinon.stub().returnsArg(0);
-let validateSplits = proxyquireStrict('../../inputValidation/splits', {
+const validateSplits = proxyquireStrict('../../inputValidation/splits', {
   '../logger': LogFactoryMock,
   './split': validateSplitValue
 });
 
+/* We'll reset the history for the next test */
 function resetStubs() {
-  splitsLoggerMock.warn.resetHistory();
-  splitsLoggerMock.error.resetHistory();
+  loggerMock.warn.resetHistory();
+  loggerMock.error.resetHistory();
   validateSplitValue.resetHistory();
 }
 
@@ -49,7 +49,7 @@ tape('INPUT VALIDATION for Split names', t => {
 
     assert.deepEqual(validateSplits(validArr, 'some_method_splits'), validArr, 'It should return the provided array without changes if it is valid.');
     assert.equal(validateSplitValue.callCount, validArr.length, 'Should have validated each value independently.');
-    assert.notOk(splitsLoggerMock.error.called, 'Should not log any errors on the collection.');
+    assert.notOk(loggerMock.error.called, 'Should not log any errors on the collection.');
 
     resetStubs();
     assert.end();
@@ -60,7 +60,7 @@ tape('INPUT VALIDATION for Split names', t => {
 
     assert.deepEqual(validateSplits(validArr, 'some_method_splits'), uniq(validArr), 'It should return the provided array without changes if it is valid.');
     assert.equal(validateSplitValue.callCount, validArr.length, 'Should have validated each value independently.');
-    assert.notOk(splitsLoggerMock.error.called, 'Should not log any errors on the collection.');
+    assert.notOk(loggerMock.error.called, 'Should not log any errors on the collection.');
 
     resetStubs();
     assert.end();
@@ -69,10 +69,10 @@ tape('INPUT VALIDATION for Split names', t => {
   t.test('Should return false and log an error for the array if it is invalid', assert => {
     for (let i = 0; i < invalidSplits.length; i++) {
       assert.false(validateSplits(invalidSplits[i], 'test_method'), 'It will return false as the array is of an incorrect type.');
-      assert.ok(splitsLoggerMock.error.calledOnceWithExactly('test_method: split_names must be a non-empty array.'), 'Should log the error for the collection.');
+      assert.ok(loggerMock.error.calledOnceWithExactly('test_method: split_names must be a non-empty array.'), 'Should log the error for the collection.');
       assert.false(validateSplitValue.called, 'Should not try to validate any inner value if there is no valid array.');
 
-      splitsLoggerMock.error.resetHistory();
+      loggerMock.error.resetHistory();
     }
 
     resetStubs();
@@ -91,7 +91,7 @@ tape('INPUT VALIDATION for Split names', t => {
       assert.true(validateSplitValue.calledWithExactly(myArr[i]), 'Should validate any inner value independently.');
     }
 
-    assert.false(splitsLoggerMock.error.called, 'Should not log any error for the collection.');
+    assert.false(loggerMock.error.called, 'Should not log any error for the collection.');
 
     resetStubs();
     assert.end();
