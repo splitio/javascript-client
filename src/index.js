@@ -74,6 +74,7 @@ export function SplitFactory(config) {
       if (!instances[instanceId]) {
         const sharedSettings = settings.overrideKeyAndTT(key, trafficType);
         const sharedContext = new Context();
+
         sharedContext.put(context.constants.SETTINGS, sharedSettings);
         sharedContext.put(context.constants.STORAGE, storage.shared(sharedSettings));
         // As shared clients reuse all the storage information, we don't need to check here if we
@@ -93,7 +94,7 @@ export function SplitFactory(config) {
     // Manager API to explore available information
     manager() {
       log.info('New manager instance created.');
-      return ManagerFactory(storage.splits);
+      return ManagerFactory(storage.splits, context);
     },
 
     // Logger wrapper API
