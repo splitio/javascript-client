@@ -6,7 +6,7 @@ const log = logFactory('', {
 // include BOM and nbsp
 const TRIMMABLE_SPACES_REGEX = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/;
 
-export default function validateSplit(maybeSplit, method) {
+export function validateSplit(maybeSplit, method) {
   if (maybeSplit == undefined) { // eslint-disable-line eqeqeq
     log.error(`${method}: you passed a null or undefined split name, split name must be a non-empty string.`);
   } else if (!isString(maybeSplit)) {

@@ -6,7 +6,7 @@ const log = logFactory('', {
 
 const EVENT_TYPE_REGEX = /^[a-zA-Z0-9][-_.:a-zA-Z0-9]{0,79}$/;
 
-export default function validateEvent(maybeEvent, method) {
+export function validateEvent(maybeEvent, method) {
   if (maybeEvent == undefined) { // eslint-disable-line eqeqeq
     log.error(`${method}: you passed a null or undefined event_type, event_type must be a non-empty string.`);
   } else if (!isString(maybeEvent)) {

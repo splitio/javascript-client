@@ -35,7 +35,7 @@ function validateKeyValue(maybeKey, method, type) {
   return false;
 }
 
-export default function validateKey(maybeKey, method) {
+export function validateKey(maybeKey, method) {
   if (isObject(maybeKey)) {
     // Validate key object
     const matchingKey = validateKeyValue(maybeKey.matchingKey, method, 'matchingKey');

@@ -4,7 +4,7 @@ const log = logFactory('', {
   displayAllErrors: true
 });
 
-export default function validateApiKey(maybeApiKey) {
+export function validateApiKey(maybeApiKey) {
   if (maybeApiKey == undefined) { // eslint-disable-line eqeqeq
     log.error('Factory instantiation: you passed a null or undefined api_key, api_key must be a non-empty string.');
   } else if (isString(maybeApiKey)) {

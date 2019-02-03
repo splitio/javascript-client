@@ -1,16 +1,16 @@
 import { uniq } from '../lang';
 import logFactory from '../logger';
-import validateSplitValue from './split';
+import { validateSplit } from './split';
 const log = logFactory('', {
   displayAllErrors: true
 });
 
-export default function validateSplits(maybeSplits, method) {
+export function validateSplits(maybeSplits, method) {
   if (Array.isArray(maybeSplits) && maybeSplits.length > 0) {
     let validatedArray = [];
     // Remove invalid values
     maybeSplits.forEach(maybeSplit => {
-      const splitName = validateSplitValue(maybeSplit);
+      const splitName = validateSplit(maybeSplit);
       if (splitName) validatedArray.push(splitName);
     });
 

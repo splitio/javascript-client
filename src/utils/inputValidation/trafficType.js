@@ -6,7 +6,7 @@ const log = logFactory('', {
 
 const CAPITAL_LETTERS_REGEX = /[A-Z]/;
 
-export default function validateTrafficType(maybeTT, method) {
+export function validateTrafficType(maybeTT, method) {
   if (maybeTT == undefined) { // eslint-disable-line eqeqeq
     log.error(`${method}: you passed a null or undefined traffic_type_name, traffic_type_name must be a non-empty string.`);
   } else if (!isString(maybeTT)) {
