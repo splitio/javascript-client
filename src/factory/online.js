@@ -103,7 +103,7 @@ function SplitFactoryOnline(context, gateFactory, readyTrackers, mainClientMetri
   const api = Object.assign(
     // Proto linkage of the EventEmitter to prevent any change
     Object.create(gate),
-    // GetTreatment/s
+    // getTreatment/s & track
     ClientFactory(context),
     // Utilities
     {
@@ -138,6 +138,8 @@ function SplitFactoryOnline(context, gateFactory, readyTrackers, mainClientMetri
 
         // Cleanup storage
         storage.destroy && storage.destroy();
+
+        context.put(context.constants.DESTROYED, true);
       }
     }
   );
