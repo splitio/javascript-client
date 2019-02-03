@@ -13,9 +13,9 @@ function LogFactoryMock() {
   return loggerMock;
 }
 const validateSplitValue = sinon.stub().returnsArg(0);
-const validateSplits = proxyquireStrict('../../inputValidation/splits', {
+const { validateSplits } = proxyquireStrict('../../inputValidation/splits', {
   '../logger': LogFactoryMock,
-  './split': validateSplitValue
+  './split': { validateSplit: validateSplitValue }
 });
 
 /* We'll reset the history for the next test */

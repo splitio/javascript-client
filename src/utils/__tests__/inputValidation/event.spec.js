@@ -10,7 +10,7 @@ const loggerMock = {
 function LogFactoryMock() {
   return loggerMock;
 }
-const validateEventType = proxyquireStrict('../../inputValidation/event', {
+const { validateEvent } = proxyquireStrict('../../inputValidation/event', {
   '../logger': LogFactoryMock
 });
 
@@ -52,11 +52,11 @@ const invalidEvents = [
 tape('INPUT VALIDATION for Event types', t => {
   t.test('Should return the provided event type if it is a valid string without logging any errors', assert => {
 
-    assert.equal(validateEventType('valid:Too', 'some_method_eventType'), 'valid:Too', 'It should return the provided string if it is valid.');
+    assert.equal(validateEvent('valid:Too', 'some_method_eventType'), 'valid:Too', 'It should return the provided string if it is valid.');
     assert.notOk(loggerMock.error.called, 'Should not log any errors.');
-    assert.equal(validateEventType('I.am.valid-string_ValUe', 'some_method_eventType'), 'I.am.valid-string_ValUe', 'It should return the provided string if it is valid.');
+    assert.equal(validateEvent('I.am.valid-string_ValUe', 'some_method_eventType'), 'I.am.valid-string_ValUe', 'It should return the provided string if it is valid.');
     assert.notOk(loggerMock.error.called, 'Should not log any errors.');
-    assert.equal(validateEventType('a', 'some_method_eventType'), 'a', 'It should return the provided string if it is valid.');
+    assert.equal(validateEvent('a', 'some_method_eventType'), 'a', 'It should return the provided string if it is valid.');
     assert.notOk(loggerMock.error.called, 'Should not log any errors.');
 
     resetStubs();
@@ -68,7 +68,7 @@ tape('INPUT VALIDATION for Event types', t => {
       const invalidValue = invalidEvents[i]['event'];
       const expectedLog = invalidEvents[i]['msg'](invalidValue);
 
-      assert.equal(validateEventType(invalidValue, 'test_method'), false, 'Invalid event types should always return false.');
+      assert.equal(validateEvent(invalidValue, 'test_method'), false, 'Invalid event types should always return false.');
       assert.ok(loggerMock.error.calledWithMatch(`test_method: ${expectedLog}`), 'Should log the error for the invalid event type.');
 
       loggerMock.error.resetHistory();

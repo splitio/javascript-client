@@ -10,7 +10,7 @@ const loggerMock = {
 function LogFactoryMock() {
   return loggerMock;
 }
-const validateSplit = proxyquireStrict('../../inputValidation/split', {
+const { validateSplit } = proxyquireStrict('../../inputValidation/split', {
   '../logger': LogFactoryMock
 });
 

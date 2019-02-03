@@ -10,7 +10,7 @@ const loggerMock = {
 function LogFactoryMock() {
   return loggerMock;
 }
-const validateTrafficType = proxyquireStrict('../../inputValidation/trafficType', {
+const { validateTrafficType } = proxyquireStrict('../../inputValidation/trafficType', {
   '../logger': LogFactoryMock
 });
 

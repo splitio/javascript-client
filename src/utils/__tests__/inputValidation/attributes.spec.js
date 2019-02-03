@@ -11,7 +11,7 @@ const loggerMock = {
 function LogFactoryMock() {
   return loggerMock;
 }
-const validateAttributes = proxyquireStrict('../../inputValidation/attributes', {
+const { validateAttributes } = proxyquireStrict('../../inputValidation/attributes', {
   '../logger': LogFactoryMock
 });
 
