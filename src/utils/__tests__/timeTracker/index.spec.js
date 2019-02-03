@@ -24,8 +24,8 @@ tape('TIMER / should count the time between two tasks', assert => {
   setTimeout(() => {
     const elapsedTime = stopTimer();
 
-    assert.true(elapsedTime >= timerDuration - 10, 'Timer should return correct difference (calculations made with +-10ms)');
-    assert.true(elapsedTime <= timerDuration + 10, 'Timer should return correct difference (calculations made with +-10ms)');
+    assert.true(elapsedTime >= timerDuration - 15, 'Timer should return correct difference (calculations made with +-15ms)');
+    assert.true(elapsedTime <= timerDuration + 15, 'Timer should return correct difference (calculations made with +-15ms)');
     assert.end();
   }, timerDuration);
 });
