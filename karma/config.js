@@ -34,7 +34,8 @@ module.exports = {
   // list of files / patterns to exclude
   exclude: [
     '*/__tests__/**/node.spec.js',
-    '*/__tests__/**/node_redis.spec.js'
+    '*/__tests__/**/node_redis.spec.js',
+    '*/__tests__/**/inputValidation/*.spec.js'
   ],
 
   // prepare code for the browser using webpack
