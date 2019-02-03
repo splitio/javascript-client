@@ -138,7 +138,7 @@ function SplitFactoryOnline(context, gateFactory, readyTrackers, mainClientMetri
 
         // Cleanup storage
         storage.destroy && storage.destroy();
-
+        // Mark the factory as destroyed.
         context.put(context.constants.DESTROYED, true);
       }
     }

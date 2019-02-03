@@ -9,7 +9,7 @@ function SplitFactoryOffline(context, gateFactory, sharedTrackers) {
   const settings = context.get(context.constants.SETTINGS);
   const storage = context.get(context.constants.STORAGE);
 
-  // Put readiness config within context    
+  // Put readiness config within context
   const readiness = gateFactory(settings.startup.readyTimeout);
   context.put(context.constants.READINESS, readiness);
 
@@ -63,6 +63,8 @@ function SplitFactoryOffline(context, gateFactory, sharedTrackers) {
         readiness.destroy();
         // Cleanup storage
         storage.destroy && storage.destroy();
+        // Mark the factory as destroyed.
+        context.put(context.constants.DESTROYED, true);
       }
     }
   );
