@@ -17,6 +17,7 @@ limitations under the License.
 import Engine from '../';
 import thenable from '../../utils/promise/thenable';
 import LabelsConstants from '../../utils/labels';
+import { CONTROL } from '../../utils/constants';
 import { isString } from '../../utils/lang';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-client');
@@ -42,7 +43,7 @@ function splitEvaluator(
     }
 
     return {
-      treatment: 'control',
+      treatment: CONTROL,
       label: LabelsConstants.EXCEPTION
     };
   }
@@ -54,7 +55,7 @@ function splitEvaluator(
     // is redis and there is a connection issue and we can't retrieve the split
     // to be evaluated
     return Promise.resolve({
-      treatment: 'control',
+      treatment: CONTROL,
       label: LabelsConstants.EXCEPTION
     });
   }
@@ -83,7 +84,7 @@ function getEvaluation(
   storage
 ) {
   let evaluation = {
-    treatment: 'control',
+    treatment: CONTROL,
     label: LabelsConstants.SPLIT_NOT_FOUND
   };
 

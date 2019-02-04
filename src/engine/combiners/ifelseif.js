@@ -19,12 +19,13 @@ import logFactory from '../../utils/logger';
 const log = logFactory('splitio-engine:combiner');
 import thenable from '../../utils/promise/thenable';
 import LabelsConstants from '../../utils/labels';
+import { CONTROL } from '../../utils/constants';
 
 function unexpectedInputHandler() {
   log.error('Invalid Split provided, no valid conditions found');
 
   return {
-    treatment: 'control',
+    treatment: CONTROL,
     label: LabelsConstants.EXCEPTION
   };
 }
