@@ -32,8 +32,6 @@ const invalidAttributes = [
   -Infinity,
   new Promise(res => res),
   Symbol('asd'),
-  null,
-  undefined,
   NaN
 ];
 
@@ -42,6 +40,16 @@ tape('INPUT VALIDATION for Attributes', t => {
     const validAttributes = { amIvalid: 'yes', 'are_you_sure': true, howMuch: 10 };
 
     assert.deepEqual(validateAttributes(validAttributes, 'some_method_attrs'), validAttributes, 'It should return the passed map if it is valid.');
+    assert.notOk(loggerMock.error.called, 'Should not log any errors.');
+    assert.notOk(loggerMock.warn.called, 'It should have not logged any warnings.');
+
+    resetStubs();
+    assert.end();
+  });
+
+  t.test('Should return the passed value if it is null or undefined (since attributes are optional) without logging any errors', assert => {
+    assert.equal(validateAttributes(null, 'some_method_attrs'), null, 'It should return the passed null.');
+    assert.equal(validateAttributes(undefined, 'some_method_attrs'), undefined, 'It should return the passed undefined.');
     assert.notOk(loggerMock.error.called, 'Should not log any errors.');
     assert.notOk(loggerMock.warn.called, 'It should have not logged any warnings.');
 

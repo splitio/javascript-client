@@ -5,7 +5,9 @@ const log = logFactory('', {
 });
 
 export function validateAttributes(maybeAttrs, method) {
-  if (isObject(maybeAttrs)) return maybeAttrs;
+  // Attributes are optional
+  if (isObject(maybeAttrs) || maybeAttrs == undefined) // eslint-disable-line eqeqeq
+    return maybeAttrs;
 
   log.error(`${method}: attributes must be a plain object.`);
   return false;

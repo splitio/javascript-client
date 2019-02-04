@@ -32,9 +32,7 @@ const invalidValues = [
   -Infinity,
   Infinity,
   new Promise(res => res),
-  Symbol('asd'),
-  null,
-  undefined
+  Symbol('asd')
 ];
 
 tape('INPUT VALIDATION for Event Values', t => {
@@ -42,6 +40,18 @@ tape('INPUT VALIDATION for Event Values', t => {
     assert.equal(validateEventValue(50, 'some_method_eventValue'), 50, 'It should return the passed number if it is valid.');
     assert.notOk(loggerMock.error.called, 'Should not log any errors.');
     assert.equal(validateEventValue(-50, 'some_method_eventValue'), -50, 'It should return the passed number if it is valid.');
+    assert.notOk(loggerMock.error.called, 'Should not log any errors.');
+
+    assert.notOk(loggerMock.warn.called, 'It should have not logged any warnings.');
+
+    resetStubs();
+    assert.end();
+  });
+
+  t.test('Should return the passed value if it is a null or undefined (since it is optional) without logging any errors', assert => {
+    assert.equal(validateEventValue(null, 'some_method_eventValue'), null, 'It should return the passed number if it is valid.');
+    assert.notOk(loggerMock.error.called, 'Should not log any errors.');
+    assert.equal(validateEventValue(undefined, 'some_method_eventValue'), undefined, 'It should return the passed number if it is valid.');
     assert.notOk(loggerMock.error.called, 'Should not log any errors.');
 
     assert.notOk(loggerMock.warn.called, 'It should have not logged any warnings.');
