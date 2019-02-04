@@ -51,6 +51,8 @@ tape('INPUT VALIDATION for Split names', t => {
     assert.equal(validateSplitValue.callCount, validArr.length, 'Should have validated each value independently.');
     assert.notOk(loggerMock.error.called, 'Should not log any errors on the collection.');
 
+    assert.notOk(loggerMock.warn.called, 'It should have not logged any warnings.');
+
     resetStubs();
     assert.end();
   });
@@ -61,6 +63,8 @@ tape('INPUT VALIDATION for Split names', t => {
     assert.deepEqual(validateSplits(validArr, 'some_method_splits'), uniq(validArr), 'It should return the provided array without changes if it is valid.');
     assert.equal(validateSplitValue.callCount, validArr.length, 'Should have validated each value independently.');
     assert.notOk(loggerMock.error.called, 'Should not log any errors on the collection.');
+
+    assert.notOk(loggerMock.warn.called, 'It should have not logged any warnings.');
 
     resetStubs();
     assert.end();
@@ -74,6 +78,8 @@ tape('INPUT VALIDATION for Split names', t => {
 
       loggerMock.error.resetHistory();
     }
+
+    assert.notOk(loggerMock.warn.called, 'It should have not logged any warnings.');
 
     resetStubs();
     assert.end();
@@ -92,6 +98,7 @@ tape('INPUT VALIDATION for Split names', t => {
     }
 
     assert.false(loggerMock.error.called, 'Should not log any error for the collection.');
+    assert.notOk(loggerMock.warn.called, 'It should have not logged any warnings for the collection.');
 
     resetStubs();
     assert.end();

@@ -44,6 +44,8 @@ tape('INPUT VALIDATION for Event Values', t => {
     assert.equal(validateEventValue(-50, 'some_method_eventValue'), -50, 'It should return the passed number if it is valid.');
     assert.notOk(loggerMock.error.called, 'Should not log any errors.');
 
+    assert.notOk(loggerMock.warn.called, 'It should have not logged any warnings.');
+
     resetStubs();
     assert.end();
   });
@@ -57,6 +59,8 @@ tape('INPUT VALIDATION for Event Values', t => {
 
       loggerMock.error.resetHistory();
     }
+
+    assert.notOk(loggerMock.warn.called, 'It should have not logged any warnings.');
 
     resetStubs();
     assert.end();

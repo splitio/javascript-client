@@ -47,7 +47,7 @@ tape('INPUT VALIDATION for Api Keys', t => {
     const validApiKey = 'qjok3snti4dgsticade5hfphmlucarsflv14';
 
     assert.equal(validateApiKey(validApiKey), validApiKey, 'It should return the passed string if it is valid.');
-    assert.notOk(loggerMock.called, 'Should not log any errors.');
+    assert.notOk(loggerMock.error.called, 'Should not log any errors.');
 
     resetStubs();
     assert.end();

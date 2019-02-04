@@ -71,6 +71,8 @@ tape('INPUT VALIDATION for Key', t => {
     assert.deepEqual(validateKey(validObjKey, 'some_method_keys'), validObjKey, 'It will return the valid key.');
     assert.notOk(loggerMock.error.called, 'No errors should be logged.');
 
+    assert.notOk(loggerMock.warn.called, 'It should have not logged any warnings.');
+
     resetStubs();
     assert.end();
   });
@@ -85,6 +87,8 @@ tape('INPUT VALIDATION for Key', t => {
 
       loggerMock.error.resetHistory();
     }
+
+    assert.notOk(loggerMock.warn.called, 'It should have not logged any warnings.');
 
     resetStubs();
     assert.end();
@@ -101,6 +105,8 @@ tape('INPUT VALIDATION for Key', t => {
       loggerMock.warn.resetHistory();
     }
 
+    assert.notOk(loggerMock.error.called, 'It should have not logged any errors.');
+
     resetStubs();
     assert.end();
   });
@@ -113,6 +119,8 @@ tape('INPUT VALIDATION for Key', t => {
 
       loggerMock.error.resetHistory();
     }
+
+    assert.notOk(loggerMock.warn.called, 'It should have not logged any warnings.');
 
     resetStubs();
     // Test invalid matchingKey
@@ -128,6 +136,9 @@ tape('INPUT VALIDATION for Key', t => {
 
       loggerMock.error.resetHistory();
     }
+
+    assert.notOk(loggerMock.warn.called, 'It should have not logged any warnings.');
+
     resetStubs();
 
     // Test invalid bucketingKey
@@ -143,6 +154,9 @@ tape('INPUT VALIDATION for Key', t => {
 
       loggerMock.error.resetHistory();
     }
+
+    assert.notOk(loggerMock.warn.called, 'It should have not logged any warnings.');
+
     resetStubs();
 
     // Just one test that if both are invalid we get the log for both.
@@ -156,6 +170,8 @@ tape('INPUT VALIDATION for Key', t => {
     assert.equal(validateKey(invalidKey, 'test_method'), false, 'Invalid keys should return false.');
     assert.ok(loggerMock.error.calledWithExactly(`test_method: ${expectedLogMK}`), 'The error should be logged for the invalid key property.');
     assert.ok(loggerMock.error.calledWithMatch(`test_method: ${expectedLogBK}`), 'The error should be logged for the invalid key property.');
+
+    assert.notOk(loggerMock.warn.called, 'It should have not logged any warnings.');
 
     resetStubs();
     assert.end();
@@ -176,6 +192,8 @@ tape('INPUT VALIDATION for Key', t => {
     assert.deepEqual(validateKey(invalidKey, 'test_method'), expectedKey, 'If a key object had stringifyable values, those will be stringified and Key returned.');
     assert.ok(loggerMock.warn.calledWithExactly(`test_method: ${expectedLogMK}`), 'The warning should be logged for the stringified prop if warnings are enabled.');
     assert.ok(loggerMock.warn.calledWithExactly(`test_method: ${expectedLogBK}`), 'The warning should be logged for the stringified prop if warnings are enabled.');
+
+    assert.notOk(loggerMock.error.called, 'It should have not logged any errors.');
 
     resetStubs();
     assert.end();

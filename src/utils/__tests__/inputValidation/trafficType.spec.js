@@ -60,6 +60,8 @@ tape('INPUT VALIDATION for Traffic Types', t => {
     assert.equal(validateTrafficType('traffic-type-23', 'some_method_trafficType'), 'traffic-type-23', 'It should return the provided string if it is valid.');
     assert.notOk(loggerMock.error.called, 'Should not log any errors.');
 
+    assert.notOk(loggerMock.warn.called, 'It should have not logged any warnings.');
+
     resetStubs();
     assert.end();
   });
@@ -72,6 +74,8 @@ tape('INPUT VALIDATION for Traffic Types', t => {
       assert.equal(validateTrafficType(convertibleTrafficType, 'some_method_trafficType'), convertibleTrafficType.toLowerCase(), 'It should return the lowercase version of the traffic type received.');
       assert.ok(loggerMock.warn.calledWithExactly(`some_method_trafficType: ${errorMsgs.LOWERCASE_TRAFFIC_TYPE}`), 'Should log a warning.');
     }
+
+    assert.notOk(loggerMock.error.called, 'It should have not logged any errors.');
 
     resetStubs();
     assert.end();
@@ -87,6 +91,8 @@ tape('INPUT VALIDATION for Traffic Types', t => {
 
       loggerMock.error.resetHistory();
     }
+
+    assert.notOk(loggerMock.warn.called, 'It should have not logged any warnings.');
 
     resetStubs();
     assert.end();

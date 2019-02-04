@@ -42,7 +42,8 @@ tape('INPUT VALIDATION for Attributes', t => {
     const validAttributes = { amIvalid: 'yes', 'are_you_sure': true, howMuch: 10 };
 
     assert.deepEqual(validateAttributes(validAttributes, 'some_method_attrs'), validAttributes, 'It should return the passed map if it is valid.');
-    assert.notOk(loggerMock.called, 'Should not log any errors.');
+    assert.notOk(loggerMock.error.called, 'Should not log any errors.');
+    assert.notOk(loggerMock.warn.called, 'It should have not logged any warnings.');
 
     resetStubs();
     assert.end();
@@ -57,6 +58,8 @@ tape('INPUT VALIDATION for Attributes', t => {
 
       loggerMock.error.resetHistory();
     }
+
+    assert.notOk(loggerMock.warn.called, 'It should have not logged any warnings.');
 
     resetStubs();
     assert.end();
