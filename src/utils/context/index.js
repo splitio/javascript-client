@@ -22,11 +22,11 @@ class Context {
     this.constants = constants;
   }
   /**
-   * Gets an item in the context instance or a promise if the item is not yet stored.
+   * Gets an item in the context instance or a promise if the item is not yet stored and we are not doing a one time check.
    * @param {String} name - The name of the item we want to get
    * @return {Any} The item we want to get.
    */
-  get(name) {
+  get(name, flagCheck = false) {
     if (typeof name !== 'string' || typeof name === 'string' && !name.length) return; // Wrong usage, don't generate item promise.
 
     const item = this._map[name];
@@ -34,7 +34,7 @@ class Context {
     // If we have the item, return it.
     if (item !== undefined) {
       return item;
-    } else { // If we don't, return a promise that we will resolve once we receive the item.
+    } else if (!flagCheck) { // If we don't and it's not a flag check, return a promise that we will resolve once we receive the item.
       let resolve;
       const promise = new Promise(res => resolve = res);
       promise.manualResolve = resolve;

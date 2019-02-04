@@ -67,7 +67,26 @@ tape('CONTEXT / An instance should be able to retrieve stored items', assert => 
   assert.end();
 });
 
-tape('CONTEXT / An instance should return a promise if we try to get something we don\'t have stored.', assert => {
+tape('CONTEXT / An instance should return undefined until we have the item if we are performing a flag check.', assert => {
+  const myContext = new Context();
+  let value = myContext.get('test', true);
+
+  assert.notOk(value instanceof Promise, 'If we try to check a flag but the value is not there, we just get undefined.');
+  assert.equal(value, undefined, 'If we try to check a flag but the value is not there, we just get undefined.');
+
+  value = myContext.get('test', true);
+  assert.equal(value, undefined, 'The same happens for multiple attempts.');
+
+  myContext.put('test', 'TeSt');
+
+  value = myContext.get('test', 'TeSt');
+  assert.equal(value, 'TeSt', 'Until the value is there and is returned.');
+  assert.equal(myContext.get('test', true), 'TeSt', 'same thing happens multiple times.');
+
+  assert.end();
+});
+
+tape('CONTEXT / An instance should return a promise if we try to get something we don\'t have stored unless we just want to check a flag.', assert => {
   const myContext = new Context();
   const itemPromise = myContext.get('test');
 
