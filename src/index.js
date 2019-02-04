@@ -10,6 +10,7 @@ import tracker from './utils/timeTracker';
 import SplitFactoryOnline from './factory/online';
 import SplitFactoryOffline from './factory/offline';
 import { LOCALHOST_MODE } from './utils/constants';
+import { validateApiKey } from './utils/inputValidation';
 
 const buildInstanceId = (key, trafficType) => `${key.matchingKey}-${key.bucketingKey}-${trafficType !== undefined ? trafficType : ''}`;
 
@@ -28,6 +29,9 @@ export function SplitFactory(config) {
   // Put settings config within context
   const settings = SettingsFactory(config);
   context.put(context.constants.SETTINGS, settings);
+
+  // We will just log and allow for the SDK to end up throwing an SDK_TIMEOUT event for devs to handle.
+  validateApiKey(settings.core.authorizationKey);
 
   // Put storage config within context
   const storage = StorageFactory(context);
