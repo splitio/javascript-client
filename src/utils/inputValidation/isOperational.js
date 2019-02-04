@@ -4,7 +4,7 @@ const log = logFactory('', {
 });
 
 export function validateIfOperational(context) {
-  if (!context.get(context.constants.DESTROYED)) return true;
+  if (!context.get(context.constants.DESTROYED, true)) return true;
 
   log.error('Client has already been destroyed - no calls possible.');
   return false;
