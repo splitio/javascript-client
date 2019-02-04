@@ -26,8 +26,6 @@ export default function Fetcher(request) {
 
       if (resp) { // An HTTP error
         switch (resp.status) {
-          case 403: msg = 'Forbidden operation. Check API key permissions.';
-            break;
           case 404: msg = 'Invalid API key or resource not found.';
             break;
           default: msg = resp.statusText;
@@ -37,7 +35,8 @@ export default function Fetcher(request) {
         msg = error.message;
       }
 
-      log.error(`Response status is not OK. Status: ${resp ? resp.status : 'NO_STATUS'}. URL: ${config.url}. Message: ${msg}`);
+      if (!resp || resp.status !== 403) // 403's log we'll be handled somewhere else.
+        log.error(`Response status is not OK. Status: ${resp ? resp.status : 'NO_STATUS'}. URL: ${config.url}. Message: ${msg}`);
 
       throw Error(`${resp ? `${resp.status} - ` : ''}${msg}`);
     });

@@ -36,7 +36,7 @@ function greedyFetch(settings, lastSinceValue, segmentName, metricCollectors) {
       }
     })
     .catch(err => {
-    // If the operation is forbidden it may be due to permissions, don't recover.
+      // If the operation is forbidden it may be due to permissions, don't recover and propagate the error.
       if (startsWith(err.message, '403')) throw err;
       // if something goes wrong with the request to the server, we are going to
       // stop requesting information till the next round of downloading
