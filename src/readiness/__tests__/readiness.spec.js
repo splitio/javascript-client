@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-import tape from 'tape';
+import tape from 'tape-catch';
 import ReadinessGate from '../';
 
 tape('READINESS GATE / Share splits but segments (without timeout enabled)', function (assert) {

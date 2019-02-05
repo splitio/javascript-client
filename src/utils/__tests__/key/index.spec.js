@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-import tape from 'tape';
+import tape from 'tape-catch';
 import keyParser from '../../key/parser';
 import { matching, bucketing } from '../../key/factory';
 import sanatize from '../../key/sanatize';
@@ -50,8 +50,8 @@ tape('KEY PARSER / should return a valid string if a number is passed as a param
   const someNumber = 1234;
   const keyParsed = keyParser(someNumber);
 
-  assert.equal(typeof keyParsed, 'object', 'key parsed should be a object');  
-  assert.true(keyParsed.matchingKey && keyParsed.bucketingKey, 'key parsed should has two properties');  
+  assert.equal(typeof keyParsed, 'object', 'key parsed should be a object');
+  assert.true(keyParsed.matchingKey && keyParsed.bucketingKey, 'key parsed should has two properties');
   assert.equal(keyParsed.matchingKey, someNumber.toString(), 'matching key should be equal to some number to string');
   assert.equal(keyParsed.bucketingKey, someNumber.toString(), 'bucketing key should be equal to some number to string');
 
@@ -72,7 +72,7 @@ tape('KEY PARSER / should return false if a invalid key is passed as a param', a
   const parsedKey = keyParser({
     matchingKey: 'some key'
   });
-  
+
   assert.equal(parsedKey, false, 'key parsed should return false if a invalid key is passed within params');
 
   assert.end();
@@ -131,7 +131,7 @@ tape('FACTORY KEY PARSER / should return false if a invalid key is passed as a p
   const keyParsed = matching({
     bucketingKey: '100%:on'
   });
-  
+
   assert.equal(keyParsed, false,'key parsed should return false if a invalid key is passed within params');
 
   assert.end();

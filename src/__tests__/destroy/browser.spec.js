@@ -1,7 +1,7 @@
 import 'core-js/fn/promise';
 
 import { SplitFactory } from '../../';
-import tape from 'tape';
+import tape from 'tape-catch';
 import map from 'lodash/map';
 import pick from 'lodash/pick';
 import axios from 'axios';

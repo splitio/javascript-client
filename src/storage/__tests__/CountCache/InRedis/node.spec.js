@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 import Redis from 'ioredis';
-import tape from 'tape';
+import tape from 'tape-catch';
 import KeyBuilder from '../../../Keys';
 import CountCacheInRedis from '../../../CountCache/InRedis';
 import SettingsFactory from '../../../../utils/settings';
