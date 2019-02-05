@@ -1,22 +1,10 @@
 // This file is just here for easier consumption of the validators.
-import { validateApiKey } from './apiKey';
-import { validateAttributes } from './attributes';
-import { validateEvent } from './event';
-import { validateEventValue } from './eventValue';
-import { validateKey } from './key';
-import { validateSplit } from './split';
-import { validateSplits } from './splits';
-import { validateTrafficType } from './trafficType';
-import { validateIfOperational } from './isOperational';
-
-export default {
-  validateApiKey,
-  validateAttributes,
-  validateEvent,
-  validateEventValue,
-  validateKey,
-  validateSplit,
-  validateSplits,
-  validateTrafficType,
-  validateIfOperational
-};
+export { validateApiKey } from './apiKey';
+export { validateAttributes } from './attributes';
+export { validateEvent } from './event';
+export { validateEventValue } from './eventValue';
+export { validateKey } from './key';
+export { validateSplit } from './split';
+export { validateSplits } from './splits';
+export { validateTrafficType } from './trafficType';
+export { validateIfOperational } from './isOperational';
