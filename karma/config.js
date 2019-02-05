@@ -1,4 +1,7 @@
 'use strict';
+// Comment the next two lines if you want to run with Chrome instead of Chromium
+const puppeteer = require('puppeteer');
+process.env.CHROME_BIN = puppeteer.executablePath();
 
 const webpack = require('webpack');
 
@@ -9,6 +12,11 @@ module.exports = {
   // load tap integration
   frameworks: [
     'tap'
+  ],
+
+  // Run on Chrome Headless
+  browsers: [
+    'ChromeHeadless'
   ],
 
   // list of files / patterns to load in the browser
@@ -89,14 +97,6 @@ module.exports = {
     value: 'text/plain'
   }],
 
-  // Enable debugging in PhantomJS
-  customLaunchers: {
-    'PhantomJS_custom': {
-      base: 'PhantomJS',
-      debug: true
-    }
-  },
-
   // Which plugins to enable
   plugins: [
     'karma-*'
@@ -110,12 +110,9 @@ module.exports = {
 
   /**
    * @WARNING in local mode, murmur verification takes forever (chrome tested),
-   *          so I keep this only to be used by PhantomJS.
-   *
-   * @INFO If you want to see how Chrome perform, just run the code and verify the
-   *       devTools / console output.
+   *          so I keep this only to be used by Chrome Headless.
    */
   browserDisconnectTolerance: 1,
   browserNoActivityTimeout: 60 * 60 * 1000,
-  reportSlowerThan: 15
+  reportSlowerThan: 15,
 };

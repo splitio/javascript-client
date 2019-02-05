@@ -1,5 +1,3 @@
-import 'core-js/fn/promise';
-
 import { SplitFactory } from '../../';
 import tape from 'tape-catch';
 import map from 'lodash/map';
@@ -22,19 +20,20 @@ import splitChangesMock2 from './splitChanges.since.1500492097547.json';
 import mySegmentsMock from './mySegments.json';
 import impressionsMock from './impressions.json';
 
-mock.onGet(settings.url('/splitChanges?since=-1')).reply(200, splitChangesMock1);
-mock.onGet(settings.url('/splitChanges?since=-1500492097547')).reply(200, splitChangesMock2);
+mock.onGet(settings.url('/splitChanges?since=-1')).replyOnce(200, splitChangesMock1);
+mock.onGet(settings.url('/splitChanges?since=-1500492097547')).replyOnce(200, splitChangesMock2);
 
-mock.onGet(settings.url('/mySegments/ut1')).reply(200, mySegmentsMock);
-mock.onGet(settings.url('/mySegments/ut2')).reply(200, mySegmentsMock);
-mock.onGet(settings.url('/mySegments/ut3')).reply(200, mySegmentsMock);
+mock.onGet(settings.url('/mySegments/ut1')).replyOnce(200, mySegmentsMock);
+mock.onGet(settings.url('/mySegments/ut2')).replyOnce(200, mySegmentsMock);
+mock.onGet(settings.url('/mySegments/ut3')).replyOnce(200, mySegmentsMock);
 
 tape('SDK destroy for BrowserJS', async function (assert) {
   const config = {
     core: {
       authorizationKey: 'fake-key',
       key: 'ut1'
-    }
+    },
+    debug: true
   };
 
   const factory = SplitFactory(config);
@@ -107,6 +106,8 @@ tape('SDK destroy for BrowserJS', async function (assert) {
   assert.notOk(client2.track('tt', 'eventType', 2),  'After destroy, track calls return false.');
 
   await client.destroy();
+  mock.restore();
+
   assert.equal(client.getTreatment('Single_Test'), 'control', 'After destroy, getTreatment returns control for every destroyed client.');
   assert.deepEqual(client.getTreatments(['Single_Test']), { 'Single_Test': 'control' }, 'After destroy, getTreatments returns map of controls for every destroyed client.');
   assert.notOk(client2.track('tt2', 'eventType', 1),  'After destroy, track calls return false.');
