@@ -1,5 +1,6 @@
 ## 10.6.0 (Jan XX, 2019)
 
+* Added stricter validations to the input of the SDK api to provide better and faster feedback in case of missuse.
 * Updated impressions cache for Redis storage to reduce the amount of Redis operations by using a single queue.
 * Updated getTreatments to have it's own latency metric for the whole operation, instead of one per each feature evaluation.
 * Updated default values on configuration for NodeJS.
