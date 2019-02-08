@@ -18,6 +18,7 @@ import logFactory from '../../utils/logger';
 const log = logFactory('splitio-producer:split-changes');
 import splitChangesFetcher from '../fetcher/SplitChanges';
 import parseSegments from '../../engine/parser/segments';
+import SplitNetworkError from '../../services/transport/SplitNetworkError';
 
 function computeSplitsMutation(entries) {
   const computed = entries.reduce((accum, split) => {
@@ -83,17 +84,19 @@ function SplitChangesUpdaterFactory(context, isNode = false) {
       });
     })
       .catch(error => {
-        log.error(`Error while doing fetch of Splits ${error}`);
+        if (error instanceof SplitNetworkError) {
+          log.error(`Error while doing fetch of Splits ${error}`);
 
-        if (startingUp && settings.startup.retriesOnFailureBeforeReady > retry) {
-          retry += 1;
-          log.warn(`Retrying download of splits #${retry}. Reason: ${error}`);
-          return SplitChangesUpdater(retry);
-        } else {
-          startingUp = false;
-        }
+          if (startingUp && settings.startup.retriesOnFailureBeforeReady > retry) {
+            retry += 1;
+            log.warn(`Retrying download of splits #${retry}. Reason: ${error}`);
+            return SplitChangesUpdater(retry);
+          } else {
+            startingUp = false;
+          }
 
-        return false;
+          return false;
+        } else throw error;
       });
   };
 }

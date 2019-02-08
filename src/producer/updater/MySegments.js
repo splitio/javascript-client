@@ -15,6 +15,7 @@ limitations under the License.
 **/
 
 import logFactory from '../../utils/logger';
+import SplitNetworkError from '../../services/transport/SplitNetworkError';
 const log = logFactory('splitio-producer:my-segments');
 import mySegmentsFetcher from '../fetcher/MySegments';
 
@@ -48,15 +49,17 @@ function MySegmentsUpdaterFactory(context) {
       }
     })
       .catch(error => {
-        if (startingUp && settings.startup.retriesOnFailureBeforeReady > retry) {
-          retry += 1;
-          log.warn(`Retrying download of segments #${retry}. Reason: ${error}`);
-          return MySegmentsUpdater(retry);
-        } else {
-          startingUp = false;
-        }
+        if (error instanceof SplitNetworkError) {
+          if (startingUp && settings.startup.retriesOnFailureBeforeReady > retry) {
+            retry += 1;
+            log.warn(`Retrying download of segments #${retry}. Reason: ${error}`);
+            return MySegmentsUpdater(retry);
+          } else {
+            startingUp = false;
+          }
 
-        return false; // shouldUpdate = false
+          return false; // shouldUpdate = false
+        } else throw error;
       });
   };
 

@@ -19,6 +19,7 @@ const log = logFactory('splitio-producer:segment-changes');
 const inputValidationLog = logFactory('', { displayAllErrors: true });
 import segmentChangesFetcher from '../fetcher/SegmentChanges';
 import { findIndex, startsWith } from '../../utils/lang';
+import SplitNetworkError from '../../services/transport/SplitNetworkError';
 
 const SegmentChangesUpdaterFactory = context => {
   const {
@@ -72,12 +73,14 @@ const SegmentChangesUpdaterFactory = context => {
         readyOnAlreadyExistentState = false;
         segmentsEventEmitter.emit(segmentsEventEmitter.SDK_SEGMENTS_ARRIVED);
       }
-    }).catch(err => {
-      // We catch here to account for all requests. If there's a 403, they would all be 403's
-      if (startsWith(err.message, '403')) {
-        context.put(context.constants.DESTROYED);
-        inputValidationLog.error('Factory instantiation: you passed a Browser type authorizationKey, please grab an Api Key from the Split web console that is of type SDK.');
-      }
+    }).catch(error => {
+      if (error instanceof SplitNetworkError) {
+        // We catch here to account for all requests. If there's a 403, they would all be 403's
+        if (startsWith(error.message, '403')) {
+          context.put(context.constants.DESTROYED);
+          inputValidationLog.error('Factory instantiation: you passed a Browser type authorizationKey, please grab an Api Key from the Split web console that is of type SDK.');
+        }
+      } else throw error;
     });
   };
 
