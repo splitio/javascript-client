@@ -8,6 +8,7 @@
 ** startup.readyTimeout default value went up from 0s (no timeout limit) to 15s.
 ** startup.retriesOnFailureBeforeReady default value went up from 0 (no retries) to 1.
 * Bugfixing - Preventing "Uncaught in promise (undefined)" error for .ready() promise when no error handlers are attached to it.
+* Bugfixing - Always throw JS errors inside callbacks attached to the SDK, so developers don't miss them.
 
 ## 10.5.1 (Dec 20, 2018)
 
