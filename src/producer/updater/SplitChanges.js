@@ -84,19 +84,22 @@ function SplitChangesUpdaterFactory(context, isNode = false) {
       });
     })
       .catch(error => {
-        if (error instanceof SplitNetworkError) {
-          log.error(`Error while doing fetch of Splits ${error}`);
+        if (!(error instanceof SplitNetworkError)) {
+          setTimeout(() => {throw error;}, 0);
+          startingUp = false; // Stop retrying.
+        }
 
-          if (startingUp && settings.startup.retriesOnFailureBeforeReady > retry) {
-            retry += 1;
-            log.warn(`Retrying download of splits #${retry}. Reason: ${error}`);
-            return SplitChangesUpdater(retry);
-          } else {
-            startingUp = false;
-          }
+        log.error(`Error while doing fetch of Splits ${error}`);
 
-          return false;
-        } else throw error;
+        if (startingUp && settings.startup.retriesOnFailureBeforeReady > retry) {
+          retry += 1;
+          log.warn(`Retrying download of splits #${retry}. Reason: ${error}`);
+          return SplitChangesUpdater(retry);
+        } else {
+          startingUp = false;
+        }
+
+        return false;
       });
   };
 }

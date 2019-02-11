@@ -49,17 +49,17 @@ function MySegmentsUpdaterFactory(context) {
       }
     })
       .catch(error => {
-        if (error instanceof SplitNetworkError) {
-          if (startingUp && settings.startup.retriesOnFailureBeforeReady > retry) {
-            retry += 1;
-            log.warn(`Retrying download of segments #${retry}. Reason: ${error}`);
-            return MySegmentsUpdater(retry);
-          } else {
-            startingUp = false;
-          }
+        if (!(error instanceof SplitNetworkError)) setTimeout(() => {throw error;}, 0);
 
-          return false; // shouldUpdate = false
-        } else throw error;
+        if (startingUp && settings.startup.retriesOnFailureBeforeReady > retry) {
+          retry += 1;
+          log.warn(`Retrying download of segments #${retry}. Reason: ${error}`);
+          return MySegmentsUpdater(retry);
+        } else {
+          startingUp = false;
+        }
+
+        return false; // shouldUpdate = false
       });
   };
 

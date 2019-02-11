@@ -74,13 +74,12 @@ const SegmentChangesUpdaterFactory = context => {
         segmentsEventEmitter.emit(segmentsEventEmitter.SDK_SEGMENTS_ARRIVED);
       }
     }).catch(error => {
-      if (error instanceof SplitNetworkError) {
-        // We catch here to account for all requests. If there's a 403, they would all be 403's
-        if (startsWith(error.message, '403')) {
-          context.put(context.constants.DESTROYED);
-          inputValidationLog.error('Factory instantiation: you passed a Browser type authorizationKey, please grab an Api Key from the Split web console that is of type SDK.');
-        }
-      } else throw error;
+      if (!(error instanceof SplitNetworkError)) setTimeout(() => {throw error;}, 0);
+
+      if (startsWith(error.message, '403')) {
+        context.put(context.constants.DESTROYED);
+        inputValidationLog.error('Factory instantiation: you passed a Browser type authorizationKey, please grab an Api Key from the Split web console that is of type SDK.');
+      }
     });
   };
 
