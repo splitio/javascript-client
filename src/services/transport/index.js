@@ -24,6 +24,6 @@ export default function Fetcher(request) {
       if (!resp || resp.status !== 403) // 403's log we'll be handled somewhere else.
         log.error(`Response status is not OK. Status: ${resp ? resp.status : 'NO_STATUS'}. URL: ${config.url}. Message: ${msg}`);
 
-      throw new SplitNetworkError(msg, resp ? resp.status : 'NO_STATUS');// Error(`${resp ? `${resp.status} - ` : ''}${msg}`);
+      throw new SplitNetworkError(msg, resp ? resp.status : 'NO_STATUS');
     });
 }
