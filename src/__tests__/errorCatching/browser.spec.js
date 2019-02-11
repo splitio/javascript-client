@@ -3,10 +3,10 @@ import tape from 'tape';
 import axios from 'axios';
 import includes from 'lodash/includes';
 import MockAdapter from 'axios-mock-adapter';
-import splitChangesMock1 from './splitchanges.since.-1.json';
+import splitChangesMock1 from './splitChanges.since.-1.json';
 import mySegmentsMock from './mySegments.nico@split.io.json';
-import splitChangesMock2 from './splitchanges.since.1500492097547.json';
-import splitChangesMock3 from './splitchanges.since.1500492297547.json';
+import splitChangesMock2 from './splitChanges.since.1500492097547.json';
+import splitChangesMock3 from './splitChanges.since.1500492297547.json';
 
 // Set the mock adapter on the default instance with a delay of 1.5 seconds.
 const mock = new MockAdapter(axios, { delayResponse: 1500 });
