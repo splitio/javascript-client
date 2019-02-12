@@ -1,4 +1,4 @@
-## 10.6.0 (Jan XX, 2019)
+## 10.6.0 (Feb 12, 2019)
 
 * Added stricter validations to the input of the SDK api to provide better and faster feedback in case of missuse.
 * Updated impressions cache for Redis storage to reduce the amount of Redis operations by using a single queue.

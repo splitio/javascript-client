@@ -1,4 +1,4 @@
-## 10.6.0 (Jan XX, 2018)
+## 10.6.0 (Feb 12, 2019)
 
 * Added stricter validations to the input of the SDK api to provide better and faster feedback in case of missuse. We want our users to be able to diagnose issues sooner,
   instead of when you can't find the data you're looking for. As part of this, some error logs (just logs) will be visible even with the SDK Logger disabled.
