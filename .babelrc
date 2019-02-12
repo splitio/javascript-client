@@ -10,7 +10,7 @@
     "transform-object-rest-spread",
     "transform-runtime",
     ["babel-plugin-transform-builtin-extend", {
-      "globals": ["Error", "Array"],
+      "globals": ["Error"],
       "approximate": true
     }]
   ],
