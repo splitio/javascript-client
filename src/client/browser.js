@@ -8,8 +8,8 @@ import {
 
 function BrowserClientFactory(context) {
   const settings = context.get(context.constants.SETTINGS);
-  let maybeKey = get(settings, 'core.key', undefined);
-  let maybeTT = get(settings, 'core.trafficType', undefined);
+  const maybeKey = get(settings, 'core.key', undefined);
+  const maybeTT = get(settings, 'core.trafficType', undefined);
 
   if (settings.mode === LOCALHOST_MODE && maybeKey === undefined) {
     settings.core.key = 'localhost_key';
