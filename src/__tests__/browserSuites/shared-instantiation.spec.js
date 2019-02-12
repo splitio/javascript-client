@@ -24,6 +24,11 @@ export default function(startWithTT, mock, assert) {
   let nicolasClient = factory.client('nicolas@split.io', 'nico_tt');
   let marcioClient = factory.client('marcio@split.io');
 
+  assert.throws(factory.client.bind(factory, null), 'Calling factory.client() with a key parameter that is not a valid key should throw.');
+  assert.throws(factory.client.bind(factory, {}), 'Calling factory.client() with a key parameter that is not a valid key should throw.');
+  assert.throws(factory.client.bind(factory, 'validKey', null), 'Calling factory.client() with a traffic type parameter that is not a valid should throw.');
+  assert.throws(factory.client.bind(factory, 'validKey', []), 'Calling factory.client() with a traffic type parameter that is not a valid should throw.');
+
   // Used for wrapping up test when we should
   const finished = (function* f() {
     yield;

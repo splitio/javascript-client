@@ -10,9 +10,9 @@ import tracker from './utils/timeTracker';
 import SplitFactoryOnline from './factory/online';
 import SplitFactoryOffline from './factory/offline';
 import { LOCALHOST_MODE } from './utils/constants';
-import { validateApiKey } from './utils/inputValidation';
+import { validateApiKey, validateKey, validateTrafficType } from './utils/inputValidation';
 
-const buildInstanceId = (key, trafficType) => `${key.matchingKey}-${key.bucketingKey}-${trafficType !== undefined ? trafficType : ''}`;
+const buildInstanceId = (key, trafficType) => `${key.matchingKey ? key.matchingKey : key}-${key.bucketingKey ? key.bucketingKey : key}-${trafficType !== undefined ? trafficType : ''}`;
 
 export function SplitFactory(config) {
   // Cache instances created per factory.
@@ -55,7 +55,7 @@ export function SplitFactory(config) {
   return {
     // Split evaluation and event tracking engine
     client(key, trafficType) {
-      if (!key) {
+      if (key === undefined) {
         log.debug('Retrieving default SDK client.');
         return defaultInstance;
       }
@@ -64,19 +64,23 @@ export function SplitFactory(config) {
         throw 'Shared Client not supported by the storage mechanism. Create isolated instances instead.';
       }
 
-      if (trafficType !== undefined && typeof trafficType !== 'string') {
-        throw 'Traffic Type should be a string. Either use a valid Traffic Type or no Traffic Type at all.';
+      // Validate the key value
+      const validKey = validateKey(key, 'Shared Client instantiation');
+      if (validKey === false) {
+        throw 'Shared Client needs a valid key.';
       }
 
-      const parsedkey = keyParser(key);
-      if (parsedkey === false) {
-        throw 'Shared Client needs a valid key string value or an object with bucketingKey and matchingKey with valid string properties';
+      let validTrafficType;
+      if (trafficType !== undefined) {
+        validTrafficType = validateTrafficType(trafficType, 'Shared Client instantiation');
+        if (validTrafficType === false) {
+          throw 'Shared Client needs a valid traffic type or no traffic type at all.';
+        }
       }
-
-      const instanceId = buildInstanceId(parsedkey, trafficType);
+      const instanceId = buildInstanceId(validKey, validTrafficType);
 
       if (!instances[instanceId]) {
-        const sharedSettings = settings.overrideKeyAndTT(key, trafficType);
+        const sharedSettings = settings.overrideKeyAndTT(validKey, validTrafficType);
         const sharedContext = new Context();
 
         sharedContext.put(context.constants.SETTINGS, sharedSettings);
