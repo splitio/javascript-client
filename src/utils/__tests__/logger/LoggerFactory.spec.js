@@ -45,26 +45,29 @@ function testLogLevels(levelToTest, assert) {
     return res;
   };
   // Runs the suite with the given value for showLevel option.
-  const runTests = showLevel => {
+  const runTests = (showLevel, displayAllErrors) => {
     let logLevelLogsCounter = 0;
     let testForNoLog = false;
     const logMethod = levelToTest.toLowerCase();
-    const logCategory = `test-category-${logMethod}`;
+    const logCategory = `test-category-${logMethod}${displayAllErrors ? 'displayAllErrors' : ''}`;
     const instance = new Logger(logCategory, {
-      showLevel
+      showLevel, displayAllErrors
     });
 
     LOG_LEVELS_IN_ORDER.forEach((logLevel, i) => {
-      const logMsg = `Test log for level ${levelToTest} with showLevel: ${showLevel} ${logLevelLogsCounter}`;
+      const logMsg = `Test log for level ${levelToTest} (${displayAllErrors ? 'But all errors are configured to display' : 'Errors not forced to display'}) with showLevel: ${showLevel} ${logLevelLogsCounter}`;
       const expectedMessage = buildExpectedMessage(levelToTest, logCategory, logMsg, showLevel);
       const consoleMethodToUse = !isNode && levelToTest === LOG_LEVELS.ERROR ? 'error' : 'log';
+
+      // Log error should always be visible.
+      if (logMethod === LOG_LEVELS.ERROR.toLowerCase() && displayAllErrors) testForNoLog = false;
 
       // Set the logLevel for this iteration.
       setLogLevel(LogLevels[logLevel]);
       // Call the method
       instance[logMethod](logMsg);
       // Assert if console.log was called.
-      assert[testForNoLog ? 'notOk' : 'ok'](console[consoleMethodToUse].calledWith(expectedMessage), `Calling ${logMethod} method should ${testForNoLog ? 'NOT ' : ''}log with ${logLevel} log level.`);
+      assert[testForNoLog ? 'notOk' : 'ok'](console[consoleMethodToUse].calledWith(expectedMessage), `Calling ${logMethod} method should ${testForNoLog ? 'NOT ' : ''}log with ${logLevel} log level. ${displayAllErrors ? 'But all errors are configured to display.' : ''}`);
 
       if (LOG_LEVELS_IN_ORDER.indexOf(levelToTest) <= i) {
         testForNoLog = true;
@@ -79,8 +82,10 @@ function testLogLevels(levelToTest, assert) {
 
   // Show logLevel
   runTests(true);
+  runTests(true, true);
   // Hide logLevel
   runTests(false);
+  runTests(false, true);
 
   // Restore stub.
   console.log.restore();
@@ -106,7 +111,7 @@ tape('SPLIT LOGGER FACTORY / Logger class public methods behaviour - instance.wa
 });
 
 tape('SPLIT LOGGER FACTORY / Logger class public methods behaviour - instance.error', assert => {
-  testLogLevels(LogLevels.ERROR, assert);
+  testLogLevels(LogLevels.ERROR, assert, true);
 
   assert.end();
 });

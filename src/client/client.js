@@ -5,10 +5,8 @@ import ImpressionTracker from '../trackers/impression';
 import ImpressionsTracker from '../trackers/impressions';
 import tracker from '../utils/timeTracker';
 import thenable from '../utils/promise/thenable';
-import keyParser from '../utils/key/parser';
 import { matching, bucketing } from '../utils/key/factory';
-import validateTrackArguments from '../utils/track/validate';
-import { STORAGE_REDIS } from '../utils/constants';
+import { CONTROL } from '../utils/constants';
 
 function getTreatmentAvailable(
   evaluation,
@@ -23,26 +21,21 @@ function getTreatmentAvailable(
 
   const { treatment, label , changeNumber } = evaluation;
 
-  if (treatment !== 'control') {
+  if (treatment !== CONTROL) {
     log.info(`Split: ${splitName}. Key: ${matchingKey}. Evaluation: ${treatment}`);
   } else if (matchingKey !== false) {
     log.warn(`Split ${splitName} doesn't exist`);
   }
 
-  /** Don't push impressions if matchingKey is invalid */
-  if (matchingKey !== false) {
-    impressionsTracker({
-      feature: splitName,
-      keyName: matchingKey,
-      treatment,
-      time: Date.now(),
-      bucketingKey,
-      label,
-      changeNumber
-    }, attributes);
-  } else {
-    log.warn('Impression not collected since matchingKey is not a valid key');
-  }
+  impressionsTracker({
+    feature: splitName,
+    keyName: matchingKey,
+    treatment,
+    time: Date.now(),
+    bucketingKey,
+    label,
+    changeNumber
+  }, attributes);
 
   stopLatencyTracker && stopLatencyTracker();
 
@@ -64,7 +57,6 @@ function queueEventsCallback({
 }
 
 function ClientFactory(context) {
-  const settings = context.get(context.constants.SETTINGS);
   const storage = context.get(context.constants.STORAGE);
   const metricCollectors = context.get(context.constants.COLLECTORS);
   const impressionTracker = ImpressionTracker(context);
@@ -117,19 +109,7 @@ function ClientFactory(context) {
       }
     },
     track(key, trafficTypeName, eventTypeId, eventValue) {
-      const areValidTrackArguments = validateTrackArguments(key, trafficTypeName, eventTypeId, eventValue);
-
-      // If the arguments are invalid, return right away.
-      if (!areValidTrackArguments) {
-        // This will be improved when working on the Redis integration polishing (to be prioritized)
-        if (settings.storage.type === STORAGE_REDIS) {
-          return Promise.resolve(false);
-        } else {
-          return false;
-        }
-      }
-
-      const matchingKey =  keyParser(key).matchingKey;
+      const matchingKey = matching(key);
       const timestamp = Date.now();
       // if eventValue is undefined we convert it to null so the BE can handle a non existence value
       const value = eventValue === undefined ? null : eventValue;

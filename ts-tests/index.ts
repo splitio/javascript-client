@@ -14,6 +14,7 @@
 import { SplitFactory } from '@splitsoftware/splitio';
 
 let stringPromise: Promise<string>;
+let splitNamesPromise: Promise<SplitIO.SplitNames>;
 let splitViewPromise: Promise<SplitIO.SplitView>;
 let splitViewsPromise: Promise<SplitIO.SplitViews>;
 let treatmentsPromise: Promise<SplitIO.Treatments>;
@@ -70,6 +71,7 @@ let mockedFeaturesMap: SplitIO.MockedFeaturesMap;
 let splitView: SplitIO.SplitView;
 let splitViews: SplitIO.SplitViews;
 let splitNames: SplitIO.SplitNames;
+let splitNamesAsync: SplitIO.SplitNamesAsync;
 let splitViewAsync: SplitIO.SplitViewAsync;
 let splitViewsAsync: SplitIO.SplitViewsAsync;
 // Impression data
@@ -100,6 +102,7 @@ splitView = {
 splitViews = [splitView];
 
 splitViewAsync = splitViewPromise;
+splitNamesAsync = splitNamesPromise;
 splitViewsAsync = splitViewsPromise;
 
 // Split key could be a split key object or a string
@@ -270,7 +273,7 @@ splitViews = manager.splits();
 
 /*** Repeating tests for Async Manager ***/
 
-splitNames = asyncManager.names(); // Split names are the same.
+splitNamesAsync = asyncManager.names();
 splitViewAsync = asyncManager.split('mySplit');
 splitViewsAsync = asyncManager.splits();
 

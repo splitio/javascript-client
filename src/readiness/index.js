@@ -34,9 +34,7 @@ function GateContext() {
 
     if (timeout > 0) {
       setTimeout(() => {
-
         if (status < SDK_FIRE_READY) gate.emit(Events.SDK_READY_TIMED_OUT, 'Split SDK emitted SDK_READY_TIMED_OUT event.');
-
       }, timeout);
     }
 

@@ -1,4 +1,4 @@
-import tape from 'tape';
+import tape from 'tape-catch';
 import SplitCacheInLocalStorage from '../../../SplitCache/InLocalStorage';
 import KeyBuilder from '../../../Keys';
 import SettingsFactory from '../../../../utils/settings';

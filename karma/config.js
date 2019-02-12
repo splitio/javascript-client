@@ -1,4 +1,7 @@
 'use strict';
+// Comment the next two lines if you want to run with Chrome instead of Chromium
+const puppeteer = require('puppeteer');
+process.env.CHROME_BIN = puppeteer.executablePath();
 
 const webpack = require('webpack');
 
@@ -9,6 +12,11 @@ module.exports = {
   // load tap integration
   frameworks: [
     'tap'
+  ],
+
+  // Run on Chrome Headless
+  browsers: [
+    'ChromeHeadless'
   ],
 
   // list of files / patterns to load in the browser
@@ -34,7 +42,8 @@ module.exports = {
   // list of files / patterns to exclude
   exclude: [
     '*/__tests__/**/node.spec.js',
-    '*/__tests__/**/node_redis.spec.js'
+    '*/__tests__/**/node_redis.spec.js',
+    '*/__tests__/**/inputValidation/*.spec.js'
   ],
 
   // prepare code for the browser using webpack
@@ -88,18 +97,14 @@ module.exports = {
     value: 'text/plain'
   }],
 
-  // Enable debugging in PhantomJS
-  customLaunchers: {
-    'PhantomJS_custom': {
-      base: 'PhantomJS',
-      debug: true
-    }
-  },
-
   // Which plugins to enable
   plugins: [
     'karma-*'
   ],
+
+  browserConsoleLogOptions: {
+    terminal: false
+  },
 
   // Continuous Integration mode
   // if true, it capture browsers, run tests and exit
@@ -109,12 +114,9 @@ module.exports = {
 
   /**
    * @WARNING in local mode, murmur verification takes forever (chrome tested),
-   *          so I keep this only to be used by PhantomJS.
-   *
-   * @INFO If you want to see how Chrome perform, just run the code and verify the
-   *       devTools / console output.
+   *          so I keep this only to be used by Chrome Headless.
    */
   browserDisconnectTolerance: 1,
   browserNoActivityTimeout: 60 * 60 * 1000,
-  reportSlowerThan: 15
+  reportSlowerThan: 15,
 };

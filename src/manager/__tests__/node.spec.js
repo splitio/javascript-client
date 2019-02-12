@@ -6,17 +6,24 @@ import Manager from '../';
 import SplitCacheInRedis from '../../storage/SplitCache/InRedis';
 import KeyBuilder from '../../storage/Keys';
 import SettingsFactory from '../../utils/settings';
+import sinon from 'sinon';
 const settings = SettingsFactory({
   storage: {
     type: 'REDIS'
   }
 });
+const contextMock = {
+  get: sinon.stub().returns(false),
+  constants: {
+    DESTROYED: 'is_destroyed'
+  }
+};
 
 tape('MANAGER API / In Redis', async function(assert) {
   const connection = new Redis(settings.storage.options);
   const keys = new KeyBuilder(settings);
   const cache = new SplitCacheInRedis(keys, connection);
-  const manager = new Manager(cache);
+  const manager = new Manager(cache, contextMock);
 
   await cache.flush();
 

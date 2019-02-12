@@ -3,5 +3,6 @@ export default {
   STORAGE: 'storage',
   READINESS: 'readiness_gate',
   COLLECTORS: 'metrics_collectors',
-  EVENTS: 'events_publisher'
+  EVENTS: 'events_publisher',
+  DESTROYED: 'is_destroyed'
 };

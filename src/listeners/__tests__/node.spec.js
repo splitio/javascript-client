@@ -1,4 +1,4 @@
-import tape from 'tape';
+import tape from 'tape-catch';
 import sinon from 'sinon';
 
 const processOnSpy = sinon.spy();

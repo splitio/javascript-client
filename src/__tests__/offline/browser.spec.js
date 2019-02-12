@@ -1,4 +1,4 @@
-import tape from 'tape';
+import tape from 'tape-catch';
 import { SplitFactory } from '../../';
 import SettingsFactory from '../../utils/settings';
 import axios from 'axios';

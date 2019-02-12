@@ -1,11 +1,13 @@
 ## 10.6.0 (Jan XX, 2019)
 
+* Added stricter validations to the input of the SDK api to provide better and faster feedback in case of missuse.
 * Updated impressions cache for Redis storage to reduce the amount of Redis operations by using a single queue.
 * Updated getTreatments to have it's own latency metric for the whole operation, instead of one per each feature evaluation.
 * Updated default values on configuration for NodeJS.
 ** startup.readyTimeout default value went up from 0s (no timeout limit) to 15s.
 ** startup.retriesOnFailureBeforeReady default value went up from 0 (no retries) to 1.
 * Bugfixing - Preventing "Uncaught in promise (undefined)" error for .ready() promise when no error handlers are attached to it.
+* Bugfixing - Always throw JS errors inside callbacks attached to the SDK.
 
 ## 10.5.1 (Dec 20, 2018)
 

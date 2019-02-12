@@ -1,6 +1,6 @@
 import thenable from '../utils/promise/thenable';
 import { find } from '../utils/lang';
-import validateManagerSplit from '../utils/manager/validate';
+import { validateSplit, validateIfOperational } from '../utils/inputValidation';
 
 const collectTreatments = (conditions) => {
   // Rollout conditions are supposed to have the entire partitions list, so we find the first one.
@@ -40,13 +40,12 @@ const ObjectsToViews = (jsons) => {
   return views;
 };
 
-const SplitManagerFactory = (splits) => {
-
+const SplitManagerFactory = (splits, context) => {
   return {
-    split(splitName) {
-      const isSplitNameValid = validateManagerSplit(splitName);
-      if (!isSplitNameValid) {
-        return null; // error was logged in validateManagerSplit
+    split(maybeSplitName) {
+      const splitName = validateSplit(maybeSplitName, 'split');
+      if (!validateIfOperational(context) || !splitName) {
+        return null;
       }
 
       const split = splits.getSplit(splitName);
@@ -56,6 +55,9 @@ const SplitManagerFactory = (splits) => {
     },
 
     splits() {
+      if (!validateIfOperational(context)) {
+        return [];
+      }
       const currentSplits = splits.getAll();
 
       if (thenable(currentSplits)) return currentSplits.then(ObjectsToViews);
@@ -63,6 +65,9 @@ const SplitManagerFactory = (splits) => {
     },
 
     names() {
+      if (!validateIfOperational(context)) {
+        return [];
+      }
       return splits.getKeys();
     }
   };

@@ -1,31 +1,39 @@
 import { get } from '../utils/lang';
-import ClientFactory from './client';
+import ClientWithInputValidationLayer from './inputValidation';
 import { LOCALHOST_MODE } from '../utils/constants';
+import {
+  validateKey,
+  validateTrafficType,
+} from '../utils/inputValidation';
 
-function FixKey(context) {
+function BrowserClientFactory(context) {
   const settings = context.get(context.constants.SETTINGS);
-  let key = get(settings, 'core.key', undefined);
-  let tt = get(settings, 'core.trafficType', undefined);
+  let maybeKey = get(settings, 'core.key', undefined);
+  let maybeTT = get(settings, 'core.trafficType', undefined);
 
-  if (settings.mode === LOCALHOST_MODE && key === undefined) {
+  if (settings.mode === LOCALHOST_MODE && maybeKey === undefined) {
     settings.core.key = 'localhost_key';
+  } else {
+    settings.core.key = validateKey(maybeKey, 'Client instantiation');
   }
-
-  const client = ClientFactory(context);
-  client.isBrowserClient = true;
-
-  // In the browser land, the key is required on the settings, so we can bind it to getTretment/s
-  client.getTreatment = client.getTreatment.bind(client, settings.core.key);
-  client.getTreatments = client.getTreatments.bind(client, settings.core.key);
 
   // Key is also binded to the .track method. Same thing happens with trafficType but only if present on configs. (not required)
   const trackBindings = [settings.core.key];
-  if (tt) {
+  if (maybeTT !== undefined) {
+    const tt = validateTrafficType(maybeTT, 'Client instantiation');
+    settings.core.trafficType = tt;
     trackBindings.push(tt);
   }
+
+  const client = ClientWithInputValidationLayer(context, true, trackBindings.length > 1);
+  client.isBrowserClient = true;
+
+  // In the browser land, we can bind the key and the traffic type (if provided)
+  client.getTreatment = client.getTreatment.bind(client, settings.core.key);
+  client.getTreatments = client.getTreatments.bind(client, settings.core.key);
   client.track = client.track.bind(client, ...trackBindings);
 
   return client;
 }
 
-export default FixKey;
+export default BrowserClientFactory;
