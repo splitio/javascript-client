@@ -5,7 +5,6 @@ import ImpressionTracker from '../trackers/impression';
 import ImpressionsTracker from '../trackers/impressions';
 import tracker from '../utils/timeTracker';
 import thenable from '../utils/promise/thenable';
-import keyParser from '../utils/key/parser';
 import { matching, bucketing } from '../utils/key/factory';
 import { CONTROL } from '../utils/constants';
 
@@ -110,7 +109,7 @@ function ClientFactory(context) {
       }
     },
     track(key, trafficTypeName, eventTypeId, eventValue) {
-      const matchingKey =  keyParser(key).matchingKey;
+      const matchingKey = matching(key);
       const timestamp = Date.now();
       // if eventValue is undefined we convert it to null so the BE can handle a non existence value
       const value = eventValue === undefined ? null : eventValue;
