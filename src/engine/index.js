@@ -17,7 +17,6 @@ limitations under the License.
 import { get } from '../utils/lang';
 import parser from './parser';
 import keyParser from '../utils/key/parser';
-import keyLogError from '../utils/key/logError';
 import thenable from '../utils/promise/thenable';
 import LabelsConstants from '../utils/labels';
 import { CONTROL } from '../utils/constants';
@@ -67,15 +66,13 @@ Split.prototype.getTreatment = function getTreatment(key, attributes, splitEvalu
     trafficAllocationSeed,
     algo
   } = this.baseInfo;
-
   let parsedKey;
   let treatment;
   let label;
 
-  parsedKey = keyParser(key);
-
-  if (parsedKey === false) {
-    keyLogError('getTreatment', key);
+  try {
+    parsedKey = keyParser(key);
+  } catch (err) {
     return {
       treatment: CONTROL,
       label: LabelsConstants.EXCEPTION
