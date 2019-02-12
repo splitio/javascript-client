@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-import tape from 'tape';
+import tape from 'tape-catch';
 import fs from 'fs';
 import rl from 'readline';
 import utils from '../../../engine/murmur3';

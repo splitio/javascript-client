@@ -19,7 +19,7 @@ import ImpressionsCacheInMemory from '../../ImpressionsCache/InMemory';
 tape('IMPRESSIONS CACHE IN MEMORY / should incrementally store values', assert => {
   const c = new ImpressionsCacheInMemory;
 
-  c.track(0).track(1).track(2);
+  c.track([0]).track([1, 2]).track([3]);
 
   assert.true(
     c.state().reduce((accum, e, k) => accum += e - k, 0) === 0,

@@ -1,4 +1,4 @@
-import tape from 'tape';
+import tape from 'tape-catch';
 import EventsCache from '../../EventsCache/InMemory';
 import Context from '../../../utils/context'; // Has it's own unit test.
 

@@ -1,5 +1,3 @@
-import 'core-js/fn/promise';
-
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import evaluationsSuite from './browserSuites/evaluations.spec';

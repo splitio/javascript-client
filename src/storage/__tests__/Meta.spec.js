@@ -1,4 +1,4 @@
-import tape from 'tape';
+import tape from 'tape-catch';
 import Meta from '../Meta';
 
 tape('META / Meta object creation', assert => {

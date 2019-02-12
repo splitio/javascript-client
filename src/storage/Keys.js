@@ -45,12 +45,8 @@ class KeyBuilder {
     return `${this.settings.storage.prefix}/${this.settings.version}/${this.settings.runtime.ip}`;
   }
 
-  buildImpressionsKeyPrefix() {
-    return `${this.buildVersionablePrefix()}/impressions`;
-  }
-
-  buildImpressionsKey(splitName) {
-    return `${this.buildImpressionsKeyPrefix()}.${splitName}`;
+  buildImpressionsKey() {
+    return `${this.settings.storage.prefix}.impressions`;
   }
 
   buildEventsKey() {
@@ -79,10 +75,6 @@ class KeyBuilder {
 
   searchPatternForSplitKeys() {
     return `${this.settings.storage.prefix}.split.*`;
-  }
-
-  searchPatternForImpressions() {
-    return `${this.buildImpressionsKeyPrefix()}.*`;
   }
 
   searchPatternForLatency() {

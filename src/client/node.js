@@ -1,3 +1,8 @@
-import ClientFactory from './client';
+import ClientWithInputValidationLayer from './inputValidation';
 
-export default ClientFactory;
+export default function NodeClientFactory(context) {
+  const client = ClientWithInputValidationLayer(context);
+  client.isBrowserClient = false;
+
+  return client;
+}

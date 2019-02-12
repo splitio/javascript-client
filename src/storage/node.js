@@ -28,7 +28,7 @@ const NodeStorageFactory = context => {
       return {
         splits: new SplitCacheInRedis(keys, redis),
         segments: new SegmentCacheInRedis(keys, redis),
-        impressions: new ImpressionsCacheInRedis(keys, redis),
+        impressions: new ImpressionsCacheInRedis(keys, redis, meta),
         metrics: new LatencyCacheInRedis(keys, redis),
         count: new CountCacheInRedis(keys, redis),
         events: new EventsCacheInRedis(keys, redis, meta),

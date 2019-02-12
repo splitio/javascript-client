@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 import axios from 'axios';
-import tape from 'tape';
+import tape from 'tape-catch';
 import { types as matcherTypes } from '../../../matchers/types';
 import matcherFactory from '../../../matchers';
 

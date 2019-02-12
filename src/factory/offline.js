@@ -1,5 +1,6 @@
 import ClientFactory from '../client';
 import OfflineProducerFactory from '../producer/offline';
+import callbackHandler from '../readiness/callbacksHandler';
 
 //
 // Create SDK instance for offline mode.
@@ -9,7 +10,7 @@ function SplitFactoryOffline(context, gateFactory, sharedTrackers) {
   const settings = context.get(context.constants.SETTINGS);
   const storage = context.get(context.constants.STORAGE);
 
-  // Put readiness config within context    
+  // Put readiness config within context
   const readiness = gateFactory(settings.startup.readyTimeout);
   context.put(context.constants.READINESS, readiness);
 
@@ -23,18 +24,14 @@ function SplitFactoryOffline(context, gateFactory, sharedTrackers) {
     SDK_READY_TIMED_OUT
   } = gate;
 
+  // Ready promise
+  const readyFlag = callbackHandler(gate)(sharedInstance);
+
+  // Producer
   const producer = sharedInstance ? undefined : OfflineProducerFactory(context);
 
   // Start background task for flag updates
   producer && producer.start();
-
-  // Ready promise
-  const readyFlag = sharedInstance ? Promise.resolve() :
-    new Promise(resolve => {
-      gate.on(SDK_READY, resolve);
-      // No timeout because we use fs.readFileSync. If we revisit that when refactoring
-      // and use an asynchronous method, we may want to reject on timeout event.
-    });
 
   const api = Object.assign(
     // Proto linkage of the EventEmitter to prevent any change
@@ -63,6 +60,8 @@ function SplitFactoryOffline(context, gateFactory, sharedTrackers) {
         readiness.destroy();
         // Cleanup storage
         storage.destroy && storage.destroy();
+        // Mark the factory as destroyed.
+        context.put(context.constants.DESTROYED, true);
       }
     }
   );

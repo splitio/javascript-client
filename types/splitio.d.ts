@@ -189,7 +189,7 @@ interface INodeBasicSettings extends ISharedSettings {
     /**
      * Maximum amount of time used before notify a timeout.
      * @property {number} readyTimeout
-     * @default 0
+     * @default 15
      */
     readyTimeout?: number,
     /**
@@ -201,9 +201,17 @@ interface INodeBasicSettings extends ISharedSettings {
     /**
      * How many quick retries we will do while starting up the SDK.
      * @property {number} retriesOnFailureBeforeReady
+     * @default 1
+     */
+    retriesOnFailureBeforeReady?: number,
+    /**
+     * For SDK posts the queued events data in bulks with a given rate, but the first push window is defined separately,
+     * to better control on browsers. This number defines that window before the first events push.
+     *
+     * @property {number} eventsFirstPushWindow
      * @default 0
      */
-    retriesOnFailureBeforeReady?: number
+    eventsFirstPushWindow?: number,
   },
   /**
    * SDK Core settings for NodeJS.
@@ -283,18 +291,6 @@ interface IBasicClient extends NodeJS.Events {
    * @returns {Promise<void>}
    */
   destroy(): Promise<void>
-}
-/**
- * Common definitions between managers for different environments interface.
- * @interface IBasicManager
- */
-interface IBasicManager {
-  /**
-   * Returns the available split names in an array.
-   * @function names
-   * @returns {SplitNames} The array of split names or the promise that will be resolved with the array.
-   */
-  names(): SplitIO.SplitNames;
 }
 /**
  * Common definitions between SDK instances for different environments interface.
@@ -453,6 +449,11 @@ declare namespace SplitIO {
    * @typedef {Array<string>} SplitNames
    */
   type SplitNames = Array<string>;
+  /**
+   * A promise that will be resolved with an array of split names.
+   * @typedef {Promise<SplitNames>} SplitNamesAsync
+   */
+  type SplitNamesAsync = Promise<SplitNames>;
   /**
    * Synchronous storage valid types for NodeJS.
    * @typedef {string} NodeSyncStorage
@@ -807,9 +808,14 @@ declare namespace SplitIO {
   /**
    * Representation of a manager instance with synchronous storage of the SDK.
    * @interface IManager
-   * @extends IBasicManager
    */
-  interface IManager extends IBasicManager {
+  interface IManager {
+    /**
+     * Get the array of Split names.
+     * @function names
+     * @returns {SplitNames} The lists of Split names.
+     */
+    names(): SplitNames;
     /**
      * Get the array of splits data in SplitView format.
      * @function splits
@@ -829,7 +835,13 @@ declare namespace SplitIO {
    * @interface IAsyncManager
    * @extends IBasicManager
    */
-  interface IAsyncManager extends IBasicManager {
+  interface IAsyncManager {
+    /**
+     * Get the array of Split names.
+     * @function names
+     * @returns {SplitNamesAsync} A promise that will resolve to the array of Splitio.SplitNames.
+     */
+    names(): SplitNamesAsync;
     /**
      * Get the array of splits data in SplitView format.
      * @function splits

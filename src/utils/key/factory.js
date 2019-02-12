@@ -14,22 +14,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 import { isObject } from '../lang';
-import sanatize from './sanatize';
 
 /**
  * Verify type of key and return the set key property
- * If shouldReturnUndefined === true will return undefined
- * Use case: impressions tracker need matching key or bucketing key.
+ * If undefinedIfNotObj === true, it means that unless explicitly defined (using the Key object)
+ * we will return undefined. (if it was a string, there's no bucketingKey)
  */
-function KeyFactory(keyProperty, shouldReturnUndefined = false) {
+function KeyGetterFactory(keyProperty, undefinedIfNotObj = false) {
   return function getKeyProperty(key) {
     if (isObject(key)) {
-      return sanatize(key[keyProperty]);
+      return key[keyProperty];
     }
 
-    return shouldReturnUndefined ? undefined : sanatize(key);
+    return undefinedIfNotObj ? undefined : key;
   };
 }
 
-export const matching = KeyFactory('matchingKey');
-export const bucketing = KeyFactory('bucketingKey', true);
+export const matching = KeyGetterFactory('matchingKey');
+export const bucketing = KeyGetterFactory('bucketingKey', true);

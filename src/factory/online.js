@@ -5,6 +5,7 @@ import MetricsFactory from '../metrics';
 import EventsFactory from '../events';
 import SignalsListener from '../listeners';
 import { STANDALONE_MODE, PRODUCER_MODE, CONSUMER_MODE } from '../utils/constants';
+import callbackHandler from '../readiness/callbacksHandler';
 
 //
 // Create SDK instance based on the provided configurations
@@ -27,6 +28,9 @@ function SplitFactoryOnline(context, gateFactory, readyTrackers, mainClientMetri
     SDK_UPDATE,
     SDK_READY_TIMED_OUT
   } = gate;
+
+  // Ready promise
+  const readyFlag = callbackHandler(gate)(sharedInstance);
 
   // Shared instances use parent metrics collectors
   const metrics = sharedInstance ? undefined : MetricsFactory(context);
@@ -69,20 +73,13 @@ function SplitFactoryOnline(context, gateFactory, readyTrackers, mainClientMetri
   metrics && metrics.start();
   events && context.put(context.constants.EVENTS, events) && events.start();
 
-  // Ready promise
-  const readyFlag = sharedInstance ? Promise.resolve() :
-    new Promise((resolve, reject) => {
-      gate.on(SDK_READY, resolve);
-      gate.on(SDK_READY_TIMED_OUT, reject);
-    });
-
   // If no collectors are stored we are on a shared instance, save main one.
   context.put(context.constants.COLLECTORS, mainClientMetricCollectors);
 
   const api = Object.assign(
     // Proto linkage of the EventEmitter to prevent any change
     Object.create(gate),
-    // GetTreatment/s
+    // getTreatment/s & track
     ClientFactory(context),
     // Utilities
     {
@@ -117,6 +114,8 @@ function SplitFactoryOnline(context, gateFactory, readyTrackers, mainClientMetri
 
         // Cleanup storage
         storage.destroy && storage.destroy();
+        // Mark the factory as destroyed.
+        context.put(context.constants.DESTROYED, true);
       }
     }
   );
