@@ -43,7 +43,7 @@ const ObjectsToViews = (jsons) => {
 const SplitManagerFactory = (splits, context) => {
   return {
     split(maybeSplitName) {
-      const splitName = validateSplit(maybeSplitName);
+      const splitName = validateSplit(maybeSplitName, 'split');
       if (!validateIfOperational(context) || !splitName) {
         return null;
       }
