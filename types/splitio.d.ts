@@ -293,18 +293,6 @@ interface IBasicClient extends NodeJS.Events {
   destroy(): Promise<void>
 }
 /**
- * Common definitions between managers for different environments interface.
- * @interface IBasicManager
- */
-interface IBasicManager {
-  /**
-   * Returns the available split names in an array.
-   * @function names
-   * @returns {SplitNames} The array of split names or the promise that will be resolved with the array.
-   */
-  names(): SplitIO.SplitNames;
-}
-/**
  * Common definitions between SDK instances for different environments interface.
  * @interface IBasicSDK
  */
@@ -461,6 +449,11 @@ declare namespace SplitIO {
    * @typedef {Array<string>} SplitNames
    */
   type SplitNames = Array<string>;
+  /**
+   * A promise that will be resolved with an array of split names.
+   * @typedef {Promise<SplitNames>} SplitNamesAsync
+   */
+  type SplitNamesAsync = Promise<SplitNames>;
   /**
    * Synchronous storage valid types for NodeJS.
    * @typedef {string} NodeSyncStorage
@@ -815,9 +808,14 @@ declare namespace SplitIO {
   /**
    * Representation of a manager instance with synchronous storage of the SDK.
    * @interface IManager
-   * @extends IBasicManager
    */
-  interface IManager extends IBasicManager {
+  interface IManager {
+    /**
+     * Get the array of Split names.
+     * @function names
+     * @returns {SplitNames} The lists of Split names.
+     */
+    names(): SplitNames;
     /**
      * Get the array of splits data in SplitView format.
      * @function splits
@@ -837,7 +835,13 @@ declare namespace SplitIO {
    * @interface IAsyncManager
    * @extends IBasicManager
    */
-  interface IAsyncManager extends IBasicManager {
+  interface IAsyncManager {
+    /**
+     * Get the array of Split names.
+     * @function names
+     * @returns {SplitNamesAsync} A promise that will resolve to the array of Splitio.SplitNames.
+     */
+    names(): SplitNamesAsync;
     /**
      * Get the array of splits data in SplitView format.
      * @function splits
