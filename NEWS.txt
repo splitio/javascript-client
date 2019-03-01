@@ -1,8 +1,8 @@
 ## 10.6.0 (Feb 12, 2019)
 
+* BREAKING CHANGE: Updated impressions cache for Redis storage to reduce the amount of Redis operations by using a single queue on which we push multiple values on the same RPUSH operation (Must use Synchronizer 2.x or above with this or newer SDK versions).
 * Added stricter validations to the input of the SDK api to provide better and faster feedback in case of missuse. We want our users to be able to diagnose issues sooner,
   instead of when you can't find the data you're looking for. As part of this, some error logs (just logs) will be visible even with the SDK Logger disabled.
-* Updated impressions cache for Redis storage to reduce the amount of Redis operations by using a single queue on which we push multiple values on the same RPUSH operation (breaking change - must use Synchronizer 2.x with this version).
 * Updated getTreatments to have it's own latency metric for the whole operation, instead of one per each feature evaluation. Now getTreatments is not just a for loop anymore!
 * Updated default values on configuration for NodeJS.
 ** startup.readyTimeout default value went up from 0s (no timeout limit) to 15s.
