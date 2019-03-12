@@ -7,6 +7,7 @@ import evaluationsSuite from './nodeSuites/evaluations.spec';
 import eventsSuite from './nodeSuites/events.spec';
 import impressionsSuite from './nodeSuites/impressions.spec';
 import impressionsListenerSuite from './nodeSuites/impressions-listener.spec';
+import expectedTreatmentsSuite from './nodeSuites/expected-treatments.spec';
 
 import splitChangesMock1 from './mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from './mocks/splitchanges.since.1457552620999.json';
@@ -53,4 +54,7 @@ tape('## Node JS - E2E CI Tests ##', async function (assert) {
 
   /* Check events in memory */
   assert.test('E2E / Events', eventsSuite.bind(null, mock));
+
+  /* Check that a treatment is the expected one for the key */
+  assert.test('E2E / Expected Treatments by key', expectedTreatmentsSuite.bind(null, config, settings, mock));
 });
