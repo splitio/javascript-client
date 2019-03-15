@@ -112,56 +112,6 @@ interface ILoggerAPI {
  */
 interface ISharedSettings {
   /**
-   * SDK scheduler settings.
-   * @property {Object} scheduler
-   */
-  scheduler?: {
-    /**
-     * The SDK polls Split servers for changes to feature roll-out plans. This parameter controls this polling period in seconds.
-     * @property {number} featuresRefreshRate
-     * @default 30
-     */
-    featuresRefreshRate?: number,
-    /**
-     * The SDK sends information on who got what treatment at what time back to Split servers to power analytics. This parameter controls how often this data is sent to Split servers. The parameter should be in seconds.
-     * @property {number} impressionsRefreshRate
-     * @default 60
-     */
-    impressionsRefreshRate?: number,
-    /**
-     * The SDK sends diagnostic metrics to Split servers. This parameters controls this metric flush period in seconds.
-     * @property {number} metricsRefreshRate
-     * @default 60
-     */
-    metricsRefreshRate?: number,
-    /**
-     * The SDK polls Split servers for changes to segment definitions. This parameter controls this polling period in seconds.
-     * @property {number} segmentsRefreshRate
-     * @default 60
-     */
-    segmentsRefreshRate?: number,
-    /**
-     * The SDK posts the queued events data in bulks. This parameter controls the posting rate in seconds.
-     * @property {number} eventsPushRate
-     * @default 60
-     */
-    eventsPushRate?: number,
-    /**
-     * The maximum number of event items we want to queue. If we queue more values, it will trigger a flush and reset the timer.
-     * If you use a 0 here, the queue will have no maximum size.
-     * @property {number} eventsQueueSize
-     * @default 500
-     */
-    eventsQueueSize?: number,
-    /**
-     * For mocking/testing only. The SDK will refresh the features mocked data when mode is set to "localhost" by defining the key.
-     * For more information @see {@link http://docs.split.io/docs/nodejs-sdk-overview#section-running-the-sdk-in-off-the-grid-mode}
-     * @property {number} offlineRefreshRate
-     * @default 15
-     */
-    offlineRefreshRate?: number
-  },
-  /**
    * Wether the logger should be enabled or disabled by default.
    * @property {Boolean} debug
    * @default false
@@ -212,6 +162,56 @@ interface INodeBasicSettings extends ISharedSettings {
      * @default 0
      */
     eventsFirstPushWindow?: number,
+  },
+  /**
+   * SDK scheduler settings.
+   * @property {Object} scheduler
+   */
+  scheduler?: {
+    /**
+     * The SDK polls Split servers for changes to feature roll-out plans. This parameter controls this polling period in seconds.
+     * @property {number} featuresRefreshRate
+     * @default 5
+     */
+    featuresRefreshRate?: number,
+    /**
+     * The SDK sends information on who got what treatment at what time back to Split servers to power analytics. This parameter controls how often this data is sent to Split servers. The parameter should be in seconds.
+     * @property {number} impressionsRefreshRate
+     * @default 60
+     */
+    impressionsRefreshRate?: number,
+    /**
+     * The SDK sends diagnostic metrics to Split servers. This parameters controls this metric flush period in seconds.
+     * @property {number} metricsRefreshRate
+     * @default 60
+     */
+    metricsRefreshRate?: number,
+    /**
+     * The SDK polls Split servers for changes to segment definitions. This parameter controls this polling period in seconds.
+     * @property {number} segmentsRefreshRate
+     * @default 60
+     */
+    segmentsRefreshRate?: number,
+    /**
+     * The SDK posts the queued events data in bulks. This parameter controls the posting rate in seconds.
+     * @property {number} eventsPushRate
+     * @default 60
+     */
+    eventsPushRate?: number,
+    /**
+     * The maximum number of event items we want to queue. If we queue more values, it will trigger a flush and reset the timer.
+     * If you use a 0 here, the queue will have no maximum size.
+     * @property {number} eventsQueueSize
+     * @default 500
+     */
+    eventsQueueSize?: number,
+    /**
+     * For mocking/testing only. The SDK will refresh the features mocked data when mode is set to "localhost" by defining the key.
+     * For more information @see {@link http://docs.split.io/docs/nodejs-sdk-overview#section-running-the-sdk-in-off-the-grid-mode}
+     * @property {number} offlineRefreshRate
+     * @default 15
+     */
+    offlineRefreshRate?: number
   },
   /**
    * SDK Core settings for NodeJS.
@@ -516,6 +516,56 @@ declare namespace SplitIO {
        * @default 10
        */
       eventsFirstPushWindow?: number,
+    },
+    /**
+     * SDK scheduler settings.
+     * @property {Object} scheduler
+     */
+    scheduler?: {
+      /**
+       * The SDK polls Split servers for changes to feature roll-out plans. This parameter controls this polling period in seconds.
+       * @property {number} featuresRefreshRate
+       * @default 30
+       */
+      featuresRefreshRate?: number,
+      /**
+       * The SDK sends information on who got what treatment at what time back to Split servers to power analytics. This parameter controls how often this data is sent to Split servers. The parameter should be in seconds.
+       * @property {number} impressionsRefreshRate
+       * @default 60
+       */
+      impressionsRefreshRate?: number,
+      /**
+       * The SDK sends diagnostic metrics to Split servers. This parameters controls this metric flush period in seconds.
+       * @property {number} metricsRefreshRate
+       * @default 60
+       */
+      metricsRefreshRate?: number,
+      /**
+       * The SDK polls Split servers for changes to segment definitions. This parameter controls this polling period in seconds.
+       * @property {number} segmentsRefreshRate
+       * @default 60
+       */
+      segmentsRefreshRate?: number,
+      /**
+       * The SDK posts the queued events data in bulks. This parameter controls the posting rate in seconds.
+       * @property {number} eventsPushRate
+       * @default 60
+       */
+      eventsPushRate?: number,
+      /**
+       * The maximum number of event items we want to queue. If we queue more values, it will trigger a flush and reset the timer.
+       * If you use a 0 here, the queue will have no maximum size.
+       * @property {number} eventsQueueSize
+       * @default 500
+       */
+      eventsQueueSize?: number,
+      /**
+       * For mocking/testing only. The SDK will refresh the features mocked data when mode is set to "localhost" by defining the key.
+       * For more information @see {@link http://docs.split.io/docs/nodejs-sdk-overview#section-running-the-sdk-in-off-the-grid-mode}
+       * @property {number} offlineRefreshRate
+       * @default 15
+       */
+      offlineRefreshRate?: number
     },
     /**
      * SDK Core settings for the browser.
