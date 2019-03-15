@@ -9,6 +9,7 @@ const log = logFactory('splitio');
 import tracker from './utils/timeTracker';
 import SplitFactoryOnline from './factory/online';
 import SplitFactoryOffline from './factory/offline';
+import sdkStatusManager from './readiness/statusManager';
 import { LOCALHOST_MODE } from './utils/constants';
 import { validateApiKey, validateKey, validateTrafficType } from './utils/inputValidation';
 
@@ -41,10 +42,19 @@ export function SplitFactory(config) {
   // Define which type of factory to use
   const splitFactory = settings.mode === LOCALHOST_MODE ? SplitFactoryOffline : SplitFactoryOnline;
 
+  // Put readiness config within context
+  const readiness = gateFactory(settings.startup.readyTimeout);
+  context.put(context.constants.READINESS, readiness);
+  const statusManager = sdkStatusManager(readiness.gate);
+  context.put(context.constants.STATUS_MANAGER, statusManager);
+
   const {
     api: defaultInstance,
     metricCollectors: mainClientMetricCollectors
-  } = splitFactory(context, gateFactory, readyLatencyTrackers);
+  } = splitFactory(context, readyLatencyTrackers);
+
+  // It makes no sense to have multiple instances.
+  const managerInstance = ManagerFactory(storage.splits, context);
 
   const parsedDefaultKey = keyParser(settings.core.key);
   const defaultInstanceId = buildInstanceId(parsedDefaultKey, settings.core.trafficType);
@@ -83,11 +93,16 @@ export function SplitFactory(config) {
         const sharedSettings = settings.overrideKeyAndTT(validKey, validTrafficType);
         const sharedContext = new Context();
 
+        // Put readiness and status manager within context
+        const readiness = gateFactory(sharedSettings.startup.readyTimeout);
+        sharedContext.put(context.constants.READINESS, readiness);
+        sharedContext.put(sharedContext.constants.STATUS_MANAGER, sdkStatusManager(readiness.gate, true));
         sharedContext.put(context.constants.SETTINGS, sharedSettings);
         sharedContext.put(context.constants.STORAGE, storage.shared(sharedSettings));
+
         // As shared clients reuse all the storage information, we don't need to check here if we
         // will use offline or online mode. We should stick with the original decision.
-        instances[instanceId] = splitFactory(sharedContext, gateFactory, false, mainClientMetricCollectors).api;
+        instances[instanceId] = splitFactory(sharedContext, false, mainClientMetricCollectors).api;
         // The readiness should depend on the readiness of the parent, instead of showing ready by default.
         instances[instanceId].ready = defaultInstance.ready;
 
@@ -101,8 +116,8 @@ export function SplitFactory(config) {
 
     // Manager API to explore available information
     manager() {
-      log.info('New manager instance created.');
-      return ManagerFactory(storage.splits, context);
+      log.info('Manager instance retrieved.');
+      return managerInstance;
     },
 
     // Logger wrapper API
