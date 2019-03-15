@@ -1,4 +1,4 @@
-## 10.X.X (Mar XX, 2019)
+## 10.6.1 (Mar 15, 2019)
 
 * Updated default value for scheduler.featuresRefreshRate on NodeJS. New default is 5 seconds.
 
