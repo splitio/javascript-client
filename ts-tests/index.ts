@@ -271,11 +271,43 @@ splitNames = manager.names();
 splitView = manager.split('mySplit');
 splitViews = manager.splits();
 
+// Manager implements ready promise.
+const managerReadyPromise: Promise<void> = manager.ready();
+
+// Manager implements methods from NodeJS.Events. Testing a few.
+manager = manager.on(splitEvent, () => {});
+const aa: boolean = manager.emit(splitEvent);
+manager = manager.removeAllListeners(splitEvent);
+manager = manager.removeAllListeners();
+const bb: number = manager.listenerCount(splitEvent);
+
+// manager exposes Event constants too
+const managerEventConsts: {[key: string]: SplitIO.Event} = manager.Event;
+splitEvent = manager.Event.SDK_READY;
+splitEvent = manager.Event.SDK_READY_TIMED_OUT;
+splitEvent = manager.Event.SDK_UPDATE;
+
 /*** Repeating tests for Async Manager ***/
 
 splitNamesAsync = asyncManager.names();
 splitViewAsync = asyncManager.split('mySplit');
 splitViewsAsync = asyncManager.splits();
+
+// asyncManager implements ready promise.
+const asyncManagerReadyPromise: Promise<void> = asyncManager.ready();
+
+// asyncManager implements methods from NodeJS.Events. Testing a few.
+asyncManager = asyncManager.on(splitEvent, () => {});
+const aaa: boolean = asyncManager.emit(splitEvent);
+asyncManager = asyncManager.removeAllListeners(splitEvent);
+asyncManager = asyncManager.removeAllListeners();
+const bbb: number = asyncManager.listenerCount(splitEvent);
+
+// asyncManager exposes Event constants too
+const asyncManagerEventConsts: {[key: string]: SplitIO.Event} = asyncManager.Event;
+splitEvent = asyncManager.Event.SDK_READY;
+splitEvent = asyncManager.Event.SDK_READY_TIMED_OUT;
+splitEvent = asyncManager.Event.SDK_UPDATE;
 
 /*** Tests for IImpressionListener interface ***/
 class MyImprListener implements SplitIO.IImpressionListener {

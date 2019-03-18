@@ -8,6 +8,7 @@ import eventsSuite from './nodeSuites/events.spec';
 import impressionsSuite from './nodeSuites/impressions.spec';
 import impressionsListenerSuite from './nodeSuites/impressions-listener.spec';
 import expectedTreatmentsSuite from './nodeSuites/expected-treatments.spec';
+import managerSuite from './nodeSuites/manager.spec';
 
 import splitChangesMock1 from './mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from './mocks/splitchanges.since.1457552620999.json';
@@ -57,4 +58,7 @@ tape('## Node JS - E2E CI Tests ##', async function (assert) {
 
   /* Check that a treatment is the expected one for the key */
   assert.test('E2E / Expected Treatments by key', expectedTreatmentsSuite.bind(null, config, settings, mock));
+
+  /* Manager basic tests */
+  assert.test('E2E / Manager basics', managerSuite.bind(null, settings, mock));
 });

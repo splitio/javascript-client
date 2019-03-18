@@ -268,11 +268,11 @@ interface INodeBasicSettings extends ISharedSettings {
   features?: SplitIO.MockedFeaturesFilePath
 }
 /**
- * Common definitions between clients for different environments interface.
- * @interface IBasicClient
+ * Common API for entities that expose status handlers.
+ * @interface IStatusInterface
  * @extends NodeJS.Events
  */
-interface IBasicClient extends NodeJS.Events {
+interface IStatusInterface extends NodeJS.Events {
   /**
    * Constant object containing the SDK events for you to use.
    * @property {EventConsts} Event
@@ -284,7 +284,14 @@ interface IBasicClient extends NodeJS.Events {
    * @deprecated Use on(sdk.Event.SDK_READY, callback: () => void) instead.
    * @returns {Promise<void>}
    */
-  ready(): Promise<void>,
+  ready(): Promise<void>
+}
+/**
+ * Common definitions between clients for different environments interface.
+ * @interface IBasicClient
+ * @extends IStatusInterface
+ */
+interface IBasicClient extends IStatusInterface {
   /**
    * Destroy the client instance.
    * @function destroy
@@ -858,8 +865,9 @@ declare namespace SplitIO {
   /**
    * Representation of a manager instance with synchronous storage of the SDK.
    * @interface IManager
+   * @extends IStatusInterface
    */
-  interface IManager {
+  interface IManager extends IStatusInterface {
     /**
      * Get the array of Split names.
      * @function names
@@ -883,9 +891,9 @@ declare namespace SplitIO {
   /**
    * Representation of a manager instance with asynchronous storage of the SDK.
    * @interface IAsyncManager
-   * @extends IBasicManager
+   * @extends IStatusInterface
    */
-  interface IAsyncManager {
+  interface IAsyncManager extends IStatusInterface {
     /**
      * Get the array of Split names.
      * @function names

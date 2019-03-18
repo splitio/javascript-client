@@ -1,3 +1,8 @@
+## 10.6.2 (Mar XX, 2019)
+
+* Added Block Until Ready functionality to the manager, shared with the main client. Now you can subscribe to SDK events or use the .ready() promise from the manager as well.
+* Updated manager method to avoid creating more than one instance.
+
 ## 10.6.1 (Mar 15, 2019)
 
 * Updated default value for scheduler.featuresRefreshRate on NodeJS. New default is 5 seconds.

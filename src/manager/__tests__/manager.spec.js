@@ -6,9 +6,14 @@ import SplitCacheInMemory from '../../storage/SplitCache/InMemory';
 import sinon from 'sinon';
 
 const contextMock = {
-  get: sinon.stub().returns(false),
+  get: sinon.stub().callsFake(entityName => {
+    if (entityName === 'is_destroyed') return false;
+
+    return { hasStatusManagerExtension: true };
+  }),
   constants: {
-    DESTROYED: 'is_destroyed'
+    DESTROYED: 'is_destroyed',
+    STATUS_MANAGER: 'status_manager'
   }
 };
 

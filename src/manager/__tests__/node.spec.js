@@ -13,9 +13,14 @@ const settings = SettingsFactory({
   }
 });
 const contextMock = {
-  get: sinon.stub().returns(false),
+  get: sinon.stub().callsFake(entityName => {
+    if (entityName === 'is_destroyed') return false;
+
+    return { hasStatusManagerExtension: true };
+  }),
   constants: {
-    DESTROYED: 'is_destroyed'
+    DESTROYED: 'is_destroyed',
+    STATUS_MANAGER: 'status_manager'
   }
 };
 
@@ -34,5 +39,6 @@ tape('MANAGER API / In Redis', async function(assert) {
   assert.deepEqual( views[0] , splitView );
 
   connection.quit();
+
   assert.end();
 });

@@ -5,32 +5,22 @@ import MetricsFactory from '../metrics';
 import EventsFactory from '../events';
 import SignalsListener from '../listeners';
 import { STANDALONE_MODE, PRODUCER_MODE, CONSUMER_MODE } from '../utils/constants';
-import callbackHandler from '../readiness/callbacksHandler';
 
 //
 // Create SDK instance based on the provided configurations
 //
-function SplitFactoryOnline(context, gateFactory, readyTrackers, mainClientMetricCollectors) {
+function SplitFactoryOnline(context, readyTrackers, mainClientMetricCollectors) {
   const sharedInstance = !!mainClientMetricCollectors;
   const settings = context.get(context.constants.SETTINGS);
+  const readiness = context.get(context.constants.READINESS);
   const storage = context.get(context.constants.STORAGE);
-
-  // Put readiness config within context
-  const readiness = gateFactory(settings.startup.readyTimeout);
-  context.put(context.constants.READINESS, readiness);
+  const statusManager = context.get(context.constants.STATUS_MANAGER);
 
   // We are only interested in exposable EventEmitter
   const { gate, splits, segments } = readiness;
 
   // Events name
-  const {
-    SDK_READY,
-    SDK_UPDATE,
-    SDK_READY_TIMED_OUT
-  } = gate;
-
-  // Ready promise
-  const readyFlag = callbackHandler(gate)(sharedInstance);
+  const { SDK_READY } = gate;
 
   // Shared instances use parent metrics collectors
   const metrics = sharedInstance ? undefined : MetricsFactory(context);
@@ -78,23 +68,11 @@ function SplitFactoryOnline(context, gateFactory, readyTrackers, mainClientMetri
 
   const api = Object.assign(
     // Proto linkage of the EventEmitter to prevent any change
-    Object.create(gate),
+    Object.create(statusManager),
     // getTreatment/s & track
     ClientFactory(context),
     // Utilities
     {
-      // Ready promise
-      ready() {
-        return readyFlag;
-      },
-
-      // Events contants
-      Event: {
-        SDK_READY,
-        SDK_UPDATE,
-        SDK_READY_TIMED_OUT
-      },
-
       // Destroy instance
       async destroy() {
         // Stop background jobs
