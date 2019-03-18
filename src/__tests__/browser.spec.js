@@ -8,6 +8,8 @@ import {
   bindingTT
 } from './browserSuites/events.spec';
 import sharedInstantiationSuite from './browserSuites/shared-instantiation.spec';
+import managerSuite from './browserSuites/manager.spec';
+
 import tape from 'tape-catch';
 import SettingsFactory from '../utils/settings';
 const settings = SettingsFactory({
@@ -92,6 +94,8 @@ tape('## E2E CI Tests ##', function(assert) {
   /* Check shared clients */
   assert.test('E2E / Shared instances', sharedInstantiationSuite.bind(null, false, mock));
   assert.test('E2E / Shared instances with Traffic Type on factory settings', sharedInstantiationSuite.bind(null, true, mock));
+  /* Check basic manager functionality */
+  assert.test('E2E / Manager API', managerSuite.bind(null, settings, mock));
 
   //If we change the mocks, we need to clear localstorage. Cleaning up after testing ensures "fresh data".
   localStorage.clear();
