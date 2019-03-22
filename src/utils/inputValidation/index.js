@@ -1,5 +1,5 @@
 // This file is just here for easier consumption of the validators.
-export { validateApiKey } from './apiKey';
+export { validateApiKey, releaseApiKey } from './apiKey';
 export { validateAttributes } from './attributes';
 export { validateEvent } from './event';
 export { validateEventValue } from './eventValue';
