@@ -5,6 +5,7 @@ import MetricsFactory from '../metrics';
 import EventsFactory from '../events';
 import SignalsListener from '../listeners';
 import { STANDALONE_MODE, PRODUCER_MODE, CONSUMER_MODE } from '../utils/constants';
+import { releaseApiKey } from '../utils/inputValidation';
 
 //
 // Create SDK instance based on the provided configurations
@@ -98,6 +99,8 @@ function SplitFactoryOnline(context, readyTrackers, mainClientMetricCollectors) 
         storage.destroy && storage.destroy();
         // Mark the factory as destroyed.
         context.put(context.constants.DESTROYED, true);
+        // And release the API Key
+        !sharedInstance && releaseApiKey(settings.core.authorizationKey);
       }
     }
   );
