@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-import tape from 'tape-catch';
+import tape from 'tape';
 import evaluator from '../../evaluator';
 import LabelsConstants from '../../../utils/labels';
 
@@ -24,13 +24,29 @@ const mockErrorStorage = {
     }
   }
 };
+const mockWorkingStorage = {
+  splits: {
+    getSplit(name) {
+      if (name === 'not_existent_split') return null;
 
-const expectedOutput = {
-  treatment: 'control',
-  label: LabelsConstants.EXCEPTION
+      return '{"changeNumber":1487277320548,"trafficTypeName":"user","name":"always-on","seed":1684183541,"configurations":{"on":"{color:\'black\'}"},"status":"ACTIVE","killed":false,"defaultTreatment":"off","conditions":[{"matcherGroup":{"combiner":"AND","matchers":[{"keySelector":{"trafficType":"user","attribute":""},"matcherType":"ALL_KEYS","negate":false,"userDefinedSegmentMatcherData":{"segmentName":""},"unaryNumericMatcherData":{"dataType":"","value":0},"whitelistMatcherData":{"whitelist":null},"betweenMatcherData":{"dataType":"","start":0,"end":0}}]},"partitions":[{"treatment":"on","size":100},{"treatment":"off","size":0}],"label":"in segment all"}]}';
+    }
+  }
+};
+const mockWorkingStorageWithoutConfig = {
+  splits: {
+    getSplit() {
+      return '{"changeNumber":1487277320548,"trafficTypeName":"user","name":"always-on","seed":1684183541,"status":"ACTIVE","killed":false,"defaultTreatment":"off","conditions":[{"matcherGroup":{"combiner":"AND","matchers":[{"keySelector":{"trafficType":"user","attribute":""},"matcherType":"ALL_KEYS","negate":false,"userDefinedSegmentMatcherData":{"segmentName":""},"unaryNumericMatcherData":{"dataType":"","value":0},"whitelistMatcherData":{"whitelist":null},"betweenMatcherData":{"dataType":"","start":0,"end":0}}]},"partitions":[{"treatment":"on","size":100},{"treatment":"off","size":0}],"label":"in segment all"}]}';
+    }
+  }
 };
 
-tape('EVALUATOR / should return label exception and treatment control on error', async function (assert) {
+tape('EVALUATOR / should return label exception, treatment control and config null on error', async function (assert) {
+  const expectedOutput = {
+    treatment: 'control',
+    label: LabelsConstants.EXCEPTION,
+    config: null
+  };
   const evaluationPromise = evaluator(
     'fake-key',
     'split-name',
@@ -40,8 +56,49 @@ tape('EVALUATOR / should return label exception and treatment control on error',
 
   const evaluation = await evaluationPromise;
 
-  assert.equal(evaluation.treatment, expectedOutput.treatment);
-  assert.equal(evaluation.label, expectedOutput.label);
+  assert.deepEqual(evaluation, expectedOutput, 'If there was an error on the getSplits we should get the results for exception.');
+
+  assert.end();
+});
+
+
+tape('EVALUATOR / should return right label, treatment and config if storage returns without errors.', async function (assert) {
+  const expectedOutput = {
+    treatment: 'on', label: 'in segment all',
+    config: '{color:\'black\'}', changeNumber: 1487277320548
+  };
+  const expectedOutputNotFound = {
+    treatment: 'control', label: 'definition not found', config: null
+  };
+  const evaluationPromise = evaluator(
+    'fake-key',
+    'split-name',
+    null,
+    mockWorkingStorage
+  );
+  const evaluation = await evaluationPromise;
+
+  assert.deepEqual(evaluation, expectedOutput, 'If the split is retrieved successfully we should get the right evaluation result, label and config.');
+
+  const evaluationPromise2 = evaluator(
+    'fake-key',
+    'not_existent_split',
+    null,
+    mockWorkingStorage
+  );
+
+  assert.deepEqual(evaluationPromise2, expectedOutputNotFound, 'If the split is not retrieved successfully because it does not exist, we should get the right evaluation result, label and config.');
+
+  const evaluationPromiseWithoutConfig = evaluator(
+    'fake-key',
+    'split-name',
+    null,
+    mockWorkingStorageWithoutConfig
+  );
+
+  const evaluationWithoutConfig = await evaluationPromiseWithoutConfig;
+
+  assert.deepEqual(evaluationWithoutConfig, { ...expectedOutput, config: null }, 'If the split is retrieved successfully we should get the right evaluation result, label and config. If Split has no config it should have config equal null.');
 
   assert.end();
 });
