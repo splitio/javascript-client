@@ -13,7 +13,7 @@ script:
   - npm run test-browser-offline
   - npm run test-browser-destroy
   - npm run test-browser-errors
-  - npm run test-node
+  - 'npm run test-node | grep -e "# Summary" -e "fail: [^0]"'
   - npm run test-node-e2e
   - npm run test-node-redis
   - npm run test-node-offline
