@@ -16,11 +16,11 @@ script:
   - npm run test-browser-offline
   - npm run test-browser-destroy
   - npm run test-browser-errors
-  - 'npm run test-node -- --no-progress
-  - npm run test-node-e2e -- --no-progress
-  - npm run test-node-redis -- --no-progress
-  - npm run test-node-offline -- --no-progress
-  - npm run test-node-destroy -- --no-progress
+  - 'npm run test-node -- --no-progress'
+  - 'npm run test-node-e2e -- --no-progress'
+  - 'npm run test-node-redis -- --no-progress'
+  - 'npm run test-node-offline -- --no-progress'
+  - 'npm run test-node-destroy -- --no-progress'
   - npm run test-node-errors
   - npm run lint
   - npm run rebuild
