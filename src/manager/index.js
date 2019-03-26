@@ -25,7 +25,8 @@ const ObjectToView = (json) => {
     trafficType: splitObject.trafficTypeName || null,
     killed: splitObject.killed,
     changeNumber: splitObject.changeNumber || 0,
-    treatments: collectTreatments(splitObject.conditions)
+    treatments: collectTreatments(splitObject.conditions),
+    configurations: splitObject.configurations || {}
   };
 };
 
