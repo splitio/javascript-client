@@ -30,7 +30,9 @@ function BrowserClientFactory(context) {
 
   // In the browser land, we can bind the key and the traffic type (if provided)
   client.getTreatment = client.getTreatment.bind(client, settings.core.key);
+  client.getTreatmentWithConfig = client.getTreatmentWithConfig.bind(client, settings.core.key);
   client.getTreatments = client.getTreatments.bind(client, settings.core.key);
+  client.getTreatmentsWithConfig = client.getTreatmentsWithConfig.bind(client, settings.core.key);
   client.track = client.track.bind(client, ...trackBindings);
 
   return client;
