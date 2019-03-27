@@ -6,6 +6,8 @@ node_js:
 services:
   - redis-server
 
+cache: npm
+
 before_script:
   - npm run test-ts-decls
   - npm install
@@ -24,3 +26,29 @@ script:
   - npm run test-node-errors
   - npm run lint
   - npm run rebuild
+
+deploy:
+  - provider: s3
+    access_key_id: ${AWS_ACCESS_KEY_ID_STAGE}
+    secret_access_key: ${AWS_SECRET_ACCESS_KEY_STAGE}
+    bucket: aws-development-split-public
+    region: us-east-1
+    local_dir: ${TRAVIS_BUILD_DIR}/umd
+    upload-dir: sdk
+    skip_cleanup: true
+    acl: public_read
+    cache_control: "max-age=31536000, public"
+    on:
+      branch: travis-INFRA-1044
+  - provider: s3
+    access_key_id: ${AWS_ACCESS_KEY_ID_PROD}
+    secret_access_key: ${AWS_SECRET_ACCESS_PROD}
+    bucket: split-public
+    region: us-east-1
+    local_dir: ${TRAVIS_BUILD_DIR}/umd
+    upload-dir: sdk
+    skip_cleanup: true
+    acl: public_read
+    cache_control: "max-age=31536000, public"
+    on:
+      branch: master
