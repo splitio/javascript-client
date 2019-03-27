@@ -71,7 +71,8 @@ function ClientFactory(context) {
   const impressionsTracker = ImpressionsTracker(context);
 
   function getTreatment(key, splitName, attributes, withConfig = false) {
-    const stopLatencyTracker = tracker.start(tracker.TaskNames.SDK_GET_TREATMENT, metricCollectors);
+    const taskToBeTracked = tracker.TaskNames[withConfig ? 'SDK_GET_TREATMENT_WITH_CONFIG' : 'SDK_GET_TREATMENT'];
+    const stopLatencyTracker = tracker.start(taskToBeTracked, metricCollectors);
     const evaluation = evaluator(key, splitName, attributes, storage);
 
     if (thenable(evaluation)) {
@@ -86,7 +87,8 @@ function ClientFactory(context) {
   }
 
   function getTreatments(key, splitNames, attributes, withConfig = false) {
-    const stopLatencyTracker = tracker.start(tracker.TaskNames.SDK_GET_TREATMENTS, metricCollectors);
+    const taskToBeTracked = tracker.TaskNames[withConfig ? 'SDK_GET_TREATMENTS_WITH_CONFIG' : 'SDK_GET_TREATMENTS'];
+    const stopLatencyTracker = tracker.start(taskToBeTracked, metricCollectors);
     const results = {};
     const thenables = [];
     let i;
