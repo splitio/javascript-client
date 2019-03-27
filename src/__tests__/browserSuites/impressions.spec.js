@@ -27,10 +27,14 @@ export default function(mock, assert) {
   const assertPayload = req => {
     const resp = JSON.parse(req.data);
     const dependencyChildImpr = resp.filter(e => e.testName === 'hierarchical_splits_test')[0];
+    const alwaysOnWithConfigImpr = resp.filter(e => e.testName === 'split_with_config')[0];
 
     assert.true(dependencyChildImpr, 'Split we wanted to evaluate should be present on the impressions.');
     assert.false(resp.some(e => e.testName === 'hierarchical_dep_always_on'), 'Parent split evaluations should not result in impressions.');
     assert.false(resp.some(e => e.testName === 'hierarchical_dep_hierarchical'), 'No matter how deep is the chain.');
+    assert.true(alwaysOnWithConfigImpr, 'Split evaluated with config should have generated an impression too.');
+    assert.false(alwaysOnWithConfigImpr.keyImpressions[0].hasOwnProperty('configuration'), 'Impressions do not change with configuration evaluations.');
+    assert.false(alwaysOnWithConfigImpr.keyImpressions[0].hasOwnProperty('config'), 'Impressions do not change with configuration evaluations.');
 
     const {
       keyName,
@@ -65,5 +69,9 @@ export default function(mock, assert) {
   client.ready().then(() => {
     // depends on hierarchical_dep_hierarchical which depends on hierarchical_dep_always_on
     assert.equal(client.getTreatment('hierarchical_splits_test'), 'on', 'We should get an evaluation as always.');
+    assert.deepEqual(client.getTreatmentWithConfig('split_with_config'), {
+      treatment: 'on',
+      config: null
+    }, 'We should get an evaluation as always.');
   });
 }

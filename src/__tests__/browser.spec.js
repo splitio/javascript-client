@@ -74,6 +74,9 @@ const settingsInLocalStorage = {
 };
 
 tape('## E2E CI Tests ##', function(assert) {
+  //If we change the mocks, we need to clear localstorage. Cleaning up after testing ensures "fresh data".
+  localStorage.clear();
+
   mock.onGet(settings.url('/splitChanges?since=-1')).reply(200, splitChangesMock1);
   mock.onGet(settings.url('/splitChanges?since=1457552620999')).reply(200, splitChangesMock2);
   mock.onGet(settings.url('/mySegments/facundo@split.io')).reply(200, mySegmentsFacundo);
