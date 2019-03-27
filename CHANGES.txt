@@ -1,6 +1,9 @@
-## 10.6.2 (Mar XX, 2019)
+## 10.7.0 (Apr XX, 2019)
 
 * Added Block Until Ready functionality to the manager, shared with the main client.
+* Added Dynamic Configurations support through two new methods that mimick the regular ones, changing the type of what is returned.
+** getTreatmentWithConfig: Same as getTreatment, but instead of a string it returns a map with treatment and config as a stringified JSON.
+** getTreatmentWithConfig: Same as getTreatments, but instead of a map of string it returns a map of objects with treatment and config as a stringified JSON.
 * Updated manager method to avoid creating more than one instance.
 
 ## 10.6.1 (Mar 15, 2019)
