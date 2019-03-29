@@ -329,7 +329,7 @@ declare namespace SplitIO {
   type Treatment = string;
   /**
    * Split treatment promise that will resolve to actual treatment value.
-   * @typedef {Promise<string>} Treatment
+   * @typedef {Promise<string>} AsyncTreatment
    */
   type AsyncTreatment = Promise<string>;
   /**
@@ -338,18 +338,50 @@ declare namespace SplitIO {
    *     feature1: 'on',
    *     feature2: 'off
    *   }
-   * @typedef {Object.<string>} Treatments
+   * @typedef {Object.<Treatment>} Treatments
    */
   type Treatments = {
-    [featureName: string]: string
+    [featureName: string]: Treatment
   };
   /**
    * Split treatments promise that will resolve to the actual SplitIO.Treatments object.
-   * @typedef {Promise<Treatments>} Treatments
+   * @typedef {Promise<Treatments>} AsyncTreatments
    */
   type AsyncTreatments = Promise<Treatments>;
   /**
-   * Possible split events.
+   * Split evaluation result with treatment and configuration, returned by getTreatmentWithConfig.
+   * @typedef {Object} TreatmentWithConfig
+   * @property {string} treatment The treatment result
+   * @property {string | null} config The stringified version of the JSON config defined for that treatment, null if there is no config for the resulting treatment.
+   */
+  type TreatmentWithConfig = {
+    treatment: string,
+    config: string | null
+  };
+  /**
+   * Split treatment promise that will resolve to actual treatment with config value.
+   * @typedef {Promise<TreatmentWithConfig>} AsyncTreatmentWithConfig
+   */
+  type AsyncTreatmentWithConfig = Promise<TreatmentWithConfig>;
+  /**
+   * An object with the treatments with configs for a bulk of splits, returned by getTreatmentsWithConfig.
+   * Each existing configuration is a stringified version of the JSON you defined on the Split web console. For example:
+   *   {
+   *     feature1: { treatment: 'on', config: null }
+   *     feature2: { treatment: 'off', config: '{"bannerText":"Click here."}' }
+   *   }
+   * @typedef {Object.<TreatmentWithConfig>} Treatments
+   */
+  type TreatmentsWithConfig = {
+    [featureName: string]: TreatmentWithConfig
+  };
+  /**
+   * Split treatments promise that will resolve to the actual SplitIO.TreatmentsWithConfig object.
+   * @typedef {Promise<TreatmentsWithConfig>} AsyncTreatmentsWithConfig
+   */
+  type AsyncTreatmentsWithConfig = Promise<TreatmentsWithConfig>;
+  /**
+   * Possible Split SDK events.
    * @typedef {string} Event
    */
   type Event = 'init::timeout' | 'init::ready' | 'state::update';
@@ -435,7 +467,15 @@ declare namespace SplitIO {
      * Current change number of the split.
      * @property {number} changeNumber
      */
-    changeNumber: number
+    changeNumber: number,
+    /**
+     * Map of configurations per treatment.
+     * Each existing configuration is a stringified version of the JSON you defined on the Split web console.
+     * @property {Object.<string>} configurations
+     */
+    configurations: {
+      [treatmentName: string]: string
+    }
   };
   /**
    * A promise that will be resolved with that SplitView.
@@ -735,7 +775,6 @@ declare namespace SplitIO {
     /**
      * Returns a Treatment value, which will be (or eventually be) the treatment string for the given feature.
      * For usage on NodeJS as we don't have only one key.
-     * NOTE: Treatment will be a promise only in async storages, like REDIS.
      * @function getTreatment
      * @param {string} key - The string key representing the consumer.
      * @param {string} splitName - The string that represents the split we wan't to get the treatment.
@@ -744,15 +783,34 @@ declare namespace SplitIO {
      */
     getTreatment(key: SplitKey, splitName: string, attributes?: Attributes): Treatment,
     /**
-     * Returns a Treatment value, which will be (or eventually be) the treatment string for the given feature.
+     * Returns a Treatment value, which will be the treatment string for the given feature.
      * For usage on the Browser as we defined the key on the settings.
-     * NOTE: Treatment will be a promise only in async storages, like REDIS.
      * @function getTreatment
      * @param {string} splitName - The string that represents the split we wan't to get the treatment.
      * @param {Attributes=} attributes - An object of type Attributes defining the attributes for the given key.
-     * @returns {Treatment} The treatment or treatment promise which will resolve to the treatment string.
+     * @returns {Treatment} The treatment result.
      */
     getTreatment(splitName: string, attributes?: Attributes): Treatment,
+     /**
+     * Returns a TreatmentWithConfig value (a map of treatment and config), which will be (or eventually be) the map with treatment and config for the given feature.
+     * For usage on NodeJS as we don't have only one key.
+     * @function getTreatmentWithConfig
+     * @param {string} key - The string key representing the consumer.
+     * @param {string} splitName - The string that represents the split we wan't to get the treatment.
+     * @param {Attributes=} attributes - An object of type Attributes defining the attributes for the given key.
+     * @returns {TreatmentWithConfig} The TreatmentWithConfig or TreatmentWithConfig promise which will resolve to the map containing
+     *                                the treatment and the configuration stringified JSON (or null if there was no config for that treatment).
+     */
+    getTreatmentWithConfig(key: SplitKey, splitName: string, attributes?: Attributes): TreatmentWithConfig,
+    /**
+     * Returns a TreatmentWithConfig value, which will be a map of treatment and the config for that treatment.
+     * For usage on the Browser as we defined the key on the settings.
+     * @function getTreatment
+     * @param {string} splitName - The string that represents the split we wan't to get the treatment.
+     * @param {Attributes=} attributes - An object of type Attributes defining the attributes for the given key.
+     * @returns {TreatmentWithConfig} The treatment or treatment promise which will resolve to the treatment string.
+     */
+    getTreatmentWithConfig(splitName: string, attributes?: Attributes): TreatmentWithConfig,
     /**
      * Returns a Treatments value, whick will be (or eventually be) an object with the treatments for the given features.
      * For usage on NodeJS as we don't have only one key.
@@ -774,6 +832,25 @@ declare namespace SplitIO {
      * @returns {Treatments} The treatments or treatments promise which will resolve to the treatments object.
      */
     getTreatments(splitNames: string[], attributes?: Attributes): Treatments,
+    /**
+     * Returns a TreatmentsWithConfig value, whick will be an object with the TreatmentWithConfig (a map with both treatment and config string) for the given features.
+     * For usage on NodeJS as we don't have only one key.
+     * @function getTreatmentsWithConfig
+     * @param {string} key - The string key representing the consumer.
+     * @param {Array<string>} splitNames - An array of the split names we wan't to get the treatments.
+     * @param {Attributes=} attributes - An object of type Attributes defining the attributes for the given key.
+     * @returns {TreatmentsWithConfig} The map with all the TreatmentWithConfig objects
+     */
+    getTreatmentsWithConfig(key: SplitKey, splitNames: string[], attributes?: Attributes): TreatmentsWithConfig,
+    /**
+     * Returns a TreatmentsWithConfig value, whick will be an object with the TreatmentWithConfig (a map with both treatment and config string) for the given features.
+     * For usage on the Browser as we defined the key on the settings.
+     * @function getTreatmentsWithConfig
+     * @param {Array<string>} splitNames - An array of the split names we wan't to get the treatments.
+     * @param {Attributes=} attributes - An object of type Attributes defining the attributes for the given key.
+     * @returns {TreatmentsWithConfig} The map with all the TreatmentWithConfig objects
+     */
+    getTreatmentsWithConfig(splitNames: string[], attributes?: Attributes): TreatmentsWithConfig,
     /**
      * Tracks an event to be fed to the results product on Split Webconsole.
      * For usage on NodeJS as we don't have only one key.
@@ -823,15 +900,16 @@ declare namespace SplitIO {
      */
     getTreatment(key: SplitKey, splitName: string, attributes?: Attributes): AsyncTreatment,
     /**
-     * Returns a Treatment value, which will be (or eventually be) the treatment string for the given feature.
-     * For usage on the Browser as we defined the key on the settings.
+     * Returns a TreatmentWithConfig value, which will be (or eventually be) a map with both treatment and config string for the given feature.
+     * For usage on NodeJS as we don't have only one key.
      * NOTE: Treatment will be a promise only in async storages, like REDIS.
-     * @function getTreatment
+     * @function getTreatmentWithConfig
+     * @param {string} key - The string key representing the consumer.
      * @param {string} splitName - The string that represents the split we wan't to get the treatment.
      * @param {Attributes=} attributes - An object of type Attributes defining the attributes for the given key.
-     * @returns {AsyncTreatment} Treatment promise which will resolve to the treatment string.
+     * @returns {AsyncTreatmentWithConfig} TreatmentWithConfig promise which will resolve to the TreatmentWithConfig object.
      */
-    getTreatment(splitName: string, attributes?: Attributes): AsyncTreatment,
+    getTreatmentWithConfig(key: SplitKey, splitName: string, attributes?: Attributes): AsyncTreatmentWithConfig,
     /**
      * Returns a Treatments value, whick will be (or eventually be) an object with the treatments for the given features.
      * For usage on NodeJS as we don't have only one key.
@@ -843,14 +921,15 @@ declare namespace SplitIO {
      */
     getTreatments(key: SplitKey, splitNames: string[], attributes?: Attributes): AsyncTreatments,
     /**
-     * Returns a Treatments value, whick will be (or eventually be) an object with the treatments for the given features.
-     * For usage on the Browser as we defined the key on the settings.
-     * @function getTreatments
+     * Returns a Treatments value, whick will be (or eventually be) an object with all the maps of treatment and config string for the given features.
+     * For usage on NodeJS as we don't have only one key.
+     * @function getTreatmentsWithConfig
+     * @param {string} key - The string key representing the consumer.
      * @param {Array<string>} splitNames - An array of the split names we wan't to get the treatments.
      * @param {Attributes=} attributes - An object of type Attributes defining the attributes for the given key.
-     * @returns {AsyncTreatments} Treatments promise which will resolve to the treatments object.
+     * @returns {AsyncTreatmentsWithConfig} TreatmentsWithConfig promise which will resolve to the map of TreatmentsWithConfig objects.
      */
-    getTreatments(splitNames: string[], attributes?: Attributes): AsyncTreatments,
+    getTreatmentsWithConfig(key: SplitKey, splitNames: string[], attributes?: Attributes): AsyncTreatmentsWithConfig,
     /**
      * Tracks an event to be fed to the results product on Split Webconsole and returns a promise to signal when the event was successfully queued (or not).
      * @function track

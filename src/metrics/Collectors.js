@@ -1,4 +1,4 @@
-class MetricsCollector {
+class ProducerMetricsCollector {
   constructor(storage) {
     this.storage = storage;
 
@@ -20,7 +20,7 @@ class MetricsCollector {
   }
 }
 
-export class SegmentChangesCollector extends MetricsCollector {
+export class SegmentChangesCollector extends ProducerMetricsCollector {
   constructor(storage) {
     super(storage);
 
@@ -28,7 +28,7 @@ export class SegmentChangesCollector extends MetricsCollector {
   }
 }
 
-export class SplitChangesCollector extends MetricsCollector {
+export class SplitChangesCollector extends ProducerMetricsCollector {
   constructor(storage) {
     super(storage);
 
@@ -36,7 +36,7 @@ export class SplitChangesCollector extends MetricsCollector {
   }
 }
 
-export class MySegmentsCollector extends MetricsCollector {
+export class MySegmentsCollector extends ProducerMetricsCollector {
   constructor(storage) {
     super(storage);
 
@@ -44,19 +44,34 @@ export class MySegmentsCollector extends MetricsCollector {
   }
 }
 
-export class SDKCollector {
+export class ClientCollector {
   constructor(storage) {
     this.storage = storage;
 
     this.ready = this.ready.bind(this);
-    this.latency = this.latency.bind(this);
+    this.getTreatment = this.getTreatment.bind(this);
+    this.getTreatments = this.getTreatments.bind(this);
+    this.getTreatmentWithConfig = this.getTreatmentWithConfig.bind(this);
+    this.getTreatmentsWithConfig = this.getTreatmentsWithConfig.bind(this);
   }
 
   ready(ms) {
     this.storage.metrics.track('sdk.ready', ms);
   }
 
-  latency(ms) {
+  getTreatment(ms) {
     this.storage.metrics.track('sdk.getTreatment', ms);
+  }
+
+  getTreatments(ms) {
+    this.storage.metrics.track('sdk.getTreatments', ms);
+  }
+
+  getTreatmentWithConfig(ms) {
+    this.storage.metrics.track('sdk.getTreatmentWithConfig', ms);
+  }
+
+  getTreatmentsWithConfig(ms) {
+    this.storage.metrics.track('sdk.getTreatmentsWithConfig', ms);
   }
 }

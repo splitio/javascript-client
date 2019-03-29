@@ -17,6 +17,7 @@ limitations under the License.
 import Engine from '../';
 import thenable from '../../utils/promise/thenable';
 import LabelsConstants from '../../utils/labels';
+import { get } from '../../utils/lang';
 import { CONTROL } from '../../utils/constants';
 
 function splitEvaluator(
@@ -25,22 +26,23 @@ function splitEvaluator(
   attributes,
   storage
 ) {
-  let splitObject;
+  let stringifiedSplit;
 
   try {
-    splitObject = storage.splits.getSplit(splitName);
+    stringifiedSplit = storage.splits.getSplit(splitName);
   } catch (e) {
     // the only scenario where getSplit can throw an error is when the storage
     // is redis and there is a connection issue and we can't retrieve the split
     // to be evaluated
     return Promise.resolve({
       treatment: CONTROL,
-      label: LabelsConstants.EXCEPTION
+      label: LabelsConstants.EXCEPTION,
+      config: null
     });
   }
 
-  if (thenable(splitObject)) {
-    return splitObject.then((result) => getEvaluation(
+  if (thenable(stringifiedSplit)) {
+    return stringifiedSplit.then((result) => getEvaluation(
       result,
       key,
       attributes,
@@ -49,7 +51,7 @@ function splitEvaluator(
   }
 
   return getEvaluation(
-    splitObject,
+    stringifiedSplit,
     key,
     attributes,
     storage
@@ -57,31 +59,33 @@ function splitEvaluator(
 }
 
 function getEvaluation(
-  splitObject,
+  stringifiedSplit,
   key,
   attributes,
   storage
 ) {
   let evaluation = {
     treatment: CONTROL,
-    label: LabelsConstants.SPLIT_NOT_FOUND
+    label: LabelsConstants.SPLIT_NOT_FOUND,
+    config: null
   };
 
-  if (splitObject) {
-    const split = Engine.parse(JSON.parse(splitObject), storage);
-
+  if (stringifiedSplit) {
+    const splitJSON = JSON.parse(stringifiedSplit);
+    const split = Engine.parse(splitJSON, storage);
     evaluation = split.getTreatment(key, attributes, splitEvaluator);
 
-    // If the storage is async, evaluation and changeNumber will return a
-    // thenable
+    // If the storage is async, evaluation and changeNumber will return a thenable
     if (thenable(evaluation)) {
       return evaluation.then(result => {
         result.changeNumber = split.getChangeNumber();
+        result.config = get(splitJSON, `configurations.${result.treatment}`, null);
 
         return result;
       });
     } else {
       evaluation.changeNumber = split.getChangeNumber(); // Always sync and optional
+      evaluation.config = get(splitJSON, `configurations.${evaluation.treatment}`, null);
     }
   }
 

@@ -14,12 +14,13 @@ function getTreatmentAvailable(
   key,
   attributes,
   stopLatencyTracker = false,
-  impressionsTracker
+  impressionsTracker,
+  withConfig
 ) {
   const matchingKey = matching(key);
   const bucketingKey = bucketing(key);
 
-  const { treatment, label , changeNumber } = evaluation;
+  const { treatment, label , changeNumber, config = null } = evaluation;
 
   if (treatment !== CONTROL) {
     log.info(`Split: ${splitName}. Key: ${matchingKey}. Evaluation: ${treatment}`);
@@ -39,7 +40,14 @@ function getTreatmentAvailable(
 
   stopLatencyTracker && stopLatencyTracker();
 
-  return evaluation.treatment;
+  if (withConfig) {
+    return {
+      treatment,
+      config
+    };
+  }
+
+  return treatment;
 }
 
 function queueEventsCallback({
@@ -62,72 +70,88 @@ function ClientFactory(context) {
   const impressionTracker = ImpressionTracker(context);
   const impressionsTracker = ImpressionsTracker(context);
 
-  return {
-    getTreatment(key, splitName, attributes) {
-      const stopLatencyTracker = tracker.start(tracker.TaskNames.SDK_GET_TREATMENT, metricCollectors);
+  function getTreatment(key, splitName, attributes, withConfig = false) {
+    const taskToBeTracked = tracker.TaskNames[withConfig ? 'SDK_GET_TREATMENT_WITH_CONFIG' : 'SDK_GET_TREATMENT'];
+    const stopLatencyTracker = tracker.start(taskToBeTracked, metricCollectors);
+    const evaluation = evaluator(key, splitName, attributes, storage);
+
+    if (thenable(evaluation)) {
+      return evaluation.then(res => getTreatmentAvailable(res, splitName, key, attributes, stopLatencyTracker, impressionTracker.track, withConfig));
+    } else {
+      return getTreatmentAvailable(evaluation, splitName, key, attributes, stopLatencyTracker, impressionTracker.track, withConfig);
+    }
+  }
+
+  function getTreatmentWithConfig(key, splitName, attributes) {
+    return getTreatment(key, splitName, attributes, true);
+  }
+
+  function getTreatments(key, splitNames, attributes, withConfig = false) {
+    const taskToBeTracked = tracker.TaskNames[withConfig ? 'SDK_GET_TREATMENTS_WITH_CONFIG' : 'SDK_GET_TREATMENTS'];
+    const stopLatencyTracker = tracker.start(taskToBeTracked, metricCollectors);
+    const results = {};
+    const thenables = [];
+    let i;
+
+    for (i = 0; i < splitNames.length; i ++) {
+      const splitName = splitNames[i];
       const evaluation = evaluator(key, splitName, attributes, storage);
 
       if (thenable(evaluation)) {
-        return evaluation.then(res => getTreatmentAvailable(res, splitName, key, attributes, stopLatencyTracker, impressionTracker.track));
+        // If treatment returns a promise as it is being evaluated, save promise for progress tracking.
+        thenables.push(evaluation);
+        evaluation.then((res) => {
+          // set the treatment on the cb;
+          results[splitName] = getTreatmentAvailable(res, splitName, key, attributes, false, impressionsTracker.queue, withConfig);
+        });
       } else {
-        return getTreatmentAvailable(evaluation, splitName, key, attributes, stopLatencyTracker, impressionTracker.track);
-      }
-    },
-    getTreatments(key, splitNames, attributes) {
-      const stopLatencyTracker = tracker.start(tracker.TaskNames.SDK_GET_TREATMENTS, metricCollectors);
-      const results = {};
-      const thenables = [];
-      let i;
-
-      for (i = 0; i < splitNames.length; i ++) {
-        const splitName = splitNames[i];
-        const evaluation = evaluator(key, splitName, attributes, storage);
-
-        if (thenable(evaluation)) {
-          // If treatment returns a promise as it is being evaluated, save promise for progress tracking.
-          thenables.push(evaluation);
-          evaluation.then((res) => {
-            // set the treatment on the cb;
-            results[splitName] = getTreatmentAvailable(res, splitName, key, attributes, false, impressionsTracker.queue);
-          });
-        } else {
-          results[splitName] = getTreatmentAvailable(evaluation, splitName, key, attributes, false, impressionsTracker.queue);
-        }
-      }
-
-      const wrapUp = () => {
-        impressionsTracker.track();
-        stopLatencyTracker();
-        // After all treatments are resolved, we return the mapping object.
-        return results;
-      };
-
-      if (thenables.length) {
-        return Promise.all(thenables).then(wrapUp);
-      } else {
-        return wrapUp();
-      }
-    },
-    track(key, trafficTypeName, eventTypeId, eventValue) {
-      const matchingKey = matching(key);
-      const timestamp = Date.now();
-      // if eventValue is undefined we convert it to null so the BE can handle a non existence value
-      const value = eventValue === undefined ? null : eventValue;
-      const eventData = {
-        eventTypeId,
-        trafficTypeName,
-        value,
-        timestamp,
-        key: matchingKey,
-      };
-      const tracked = storage.events.track(eventData);
-
-      if (thenable(tracked)) {
-        return tracked.then(queueEventsCallback.bind(null, eventData));
-      } else {
-        return queueEventsCallback(eventData, tracked);
+        results[splitName] = getTreatmentAvailable(evaluation, splitName, key, attributes, false, impressionsTracker.queue, withConfig);
       }
     }
+
+    const wrapUp = () => {
+      impressionsTracker.track();
+      stopLatencyTracker();
+      // After all treatments are resolved, we return the mapping object.
+      return results;
+    };
+
+    if (thenables.length) {
+      return Promise.all(thenables).then(wrapUp);
+    } else {
+      return wrapUp();
+    }
+  }
+
+  function getTreatmentsWithConfig(key, splitNames, attributes) {
+    return getTreatments(key, splitNames, attributes, true);
+  }
+
+  function track(key, trafficTypeName, eventTypeId, eventValue) {
+    const matchingKey = matching(key);
+    const timestamp = Date.now();
+    // if eventValue is undefined we convert it to null so the BE can handle a non existent value
+    const value = eventValue === undefined ? null : eventValue;
+    const eventData = {
+      eventTypeId,
+      trafficTypeName,
+      value,
+      timestamp,
+      key: matchingKey,
+    };
+    const tracked = storage.events.track(eventData);
+
+    if (thenable(tracked)) {
+      return tracked.then(queueEventsCallback.bind(null, eventData));
+    } else {
+      return queueEventsCallback(eventData, tracked);
+    }
+  }
+
+  return {
+    getTreatment, getTreatmentWithConfig,
+    getTreatments, getTreatmentsWithConfig,
+    track
   };
 }
 

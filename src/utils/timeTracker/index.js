@@ -31,6 +31,8 @@ const CONSTANTS = {
   SDK_READY: 'Getting ready - Split SDK',
   SDK_GET_TREATMENT: 'SDK - Get Treatment',
   SDK_GET_TREATMENTS: 'SDK - Get Treatments',
+  SDK_GET_TREATMENT_WITH_CONFIG: 'SDK - Get Treatment with config',
+  SDK_GET_TREATMENTS_WITH_CONFIG: 'SDK - Get Treatments with config',
   SPLITS_READY: 'Getting ready - Splits',
   SEGMENTS_READY: 'Getting ready - Segments',
   METRICS_PUSH: 'Pushing - Metrics',
@@ -43,16 +45,24 @@ const CONSTANTS = {
 // Tasks callbacks, if any
 const CALLBACKS = {
   [CONSTANTS.SDK_READY]: {
-    collector: 'SDK',
+    collector: 'client',
     method: 'ready'
   },
   [CONSTANTS.SDK_GET_TREATMENT]: {
-    collector: 'SDK',
-    method: 'latency'
+    collector: 'client',
+    method: 'getTreatment'
   },
   [CONSTANTS.SDK_GET_TREATMENTS]: {
-    collector: 'SDK',
-    method: 'latency'
+    collector: 'client',
+    method: 'getTreatments'
+  },
+  [CONSTANTS.SDK_GET_TREATMENT_WITH_CONFIG]: {
+    collector: 'client',
+    method: 'getTreatmentWithConfig'
+  },
+  [CONSTANTS.SDK_GET_TREATMENTS_WITH_CONFIG]: {
+    collector: 'client',
+    method: 'getTreatmentsWithConfig'
   },
   [CONSTANTS.MY_SEGMENTS_FETCH]: {
     collector: 'mySegments',

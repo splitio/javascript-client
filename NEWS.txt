@@ -1,6 +1,19 @@
-## 10.6.2 (Mar XX, 2019)
+## 10.7.0 (Apr XX, 2019)
 
 * Added Block Until Ready functionality to the manager, shared with the main client. Now you can subscribe to SDK events or use the .ready() promise from the manager as well.
+* Added Dynamic Configurations support through two new methods that mimick the regular ones, changing the type of what is returned.
+  Instead of the string you were used to get, these return a map with the following format:
+  ```js
+    // Treatment string we get from the old methods.
+    var treatment = 'on';
+    // Treatment with config as retrieved by the new methods.
+    var treatmentWithConfig = {
+      treatment: 'on',
+      config: '{"color":"blue","dimensions":"{\"height\":20,\"width\":40}"}'
+    }
+  ```
+** getTreatmentWithConfig: Same as getTreatment but returning the treatment with config.
+** getTreatmentWithConfig: Same as getTreatments, but instead of a map of string it returns a map of treatments with config.
 * Updated manager method to avoid creating more than one instance.
 
 ## 10.6.1 (Mar 15, 2019)

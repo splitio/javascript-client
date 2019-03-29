@@ -30,20 +30,22 @@ export default async function(settings, mock, assert) {
   assert.deepEqual(splitNames, map(mockSplits.splits, split => split.name), 'The manager.splits() method should return all split names on the factory storage.');
 
   const splitObj = manager.split(splitNames[0]);
-  const expectedSplitObj = {
-    'trafficType': mockSplits.splits[0].trafficTypeName,
-    'name': mockSplits.splits[0].name,
-    'killed': mockSplits.splits[0].killed,
-    'changeNumber': mockSplits.splits[0].changeNumber,
-    'treatments': map(mockSplits.splits[0].conditions[0].partitions, partition => partition.treatment)
-  };
+  const expectedSplitObj = index => ({
+    'trafficType': mockSplits.splits[index].trafficTypeName,
+    'name': mockSplits.splits[index].name,
+    'killed': mockSplits.splits[index].killed,
+    'changeNumber': mockSplits.splits[index].changeNumber,
+    'treatments': map(mockSplits.splits[index].conditions[0].partitions, partition => partition.treatment),
+    'configurations': mockSplits.splits[index].configurations || null
+  });
 
   assert.equal(manager.split('non_existent'), null, 'Trying to get a manager.split() of a Split that does not exist returns null.');
-  assert.deepEqual(splitObj, expectedSplitObj, 'If we ask for an existent one we receive the expected split view.');
+  assert.deepEqual(splitObj, expectedSplitObj(0), 'If we ask for an existent one we receive the expected split view.');
 
   const splitObjects = manager.splits();
   assert.equal(splitObjects.length, mockSplits.splits.length, 'The manager.splits() returns the full collection of split views.');
-  assert.deepEqual(splitObjects[0], expectedSplitObj, 'And the split views should match the items of the collection in split view format.');
+  assert.deepEqual(splitObjects[0], expectedSplitObj(0), 'And the split views should match the items of the collection in split view format.');
+  assert.deepEqual(splitObjects[1], expectedSplitObj(1), 'And the split views should match the items of the collection in split view format.');
 
   client.destroy();
   assert.end();

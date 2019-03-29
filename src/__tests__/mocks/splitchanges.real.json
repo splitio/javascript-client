@@ -46,7 +46,59 @@
           ],
           "label": "default rule"
         }
-      ]
+      ],
+      "configurations": {}
+    },
+    {
+      "trafficTypeName": "user",
+      "name": "real_split_2",
+      "trafficAllocation": 100,
+      "trafficAllocationSeed": -1427479928,
+      "seed": 769174959,
+      "status": "ACTIVE",
+      "killed": false,
+      "defaultTreatment": "on",
+      "changeNumber": 1550099287990,
+      "algo": 2,
+      "conditions": [
+        {
+          "conditionType": "ROLLOUT",
+          "matcherGroup": {
+            "combiner": "AND",
+            "matchers": [
+              {
+                "keySelector": {
+                  "trafficType": "user",
+                  "attribute": null
+                },
+                "matcherType": "ALL_KEYS",
+                "negate": false,
+                "userDefinedSegmentMatcherData": null,
+                "whitelistMatcherData": null,
+                "unaryNumericMatcherData": null,
+                "betweenMatcherData": null,
+                "booleanMatcherData": null,
+                "dependencyMatcherData": null,
+                "stringMatcherData": null
+              }
+            ]
+          },
+          "partitions": [
+            {
+              "treatment": "on",
+              "size": 100
+            },
+            {
+              "treatment": "off",
+              "size": 0
+            }
+          ],
+          "label": "default rule"
+        }
+      ],
+      "configurations": {
+        "on": "{\"color\":\"brown\",\"dimensions\":{\"height\":12,\"width\":14},\"text\":{\"inner\":\"click me\"}}"
+      }
     }
   ],
   "since": -1,
