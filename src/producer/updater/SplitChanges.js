@@ -18,7 +18,7 @@ import logFactory from '../../utils/logger';
 const log = logFactory('splitio-producer:split-changes');
 import splitChangesFetcher from '../fetcher/SplitChanges';
 import parseSegments from '../../engine/parser/segments';
-import SplitNetworkError from '../../services/transport/SplitNetworkError';
+import { SplitError } from '../../utils/lang/Errors';
 
 function computeSplitsMutation(entries) {
   const computed = entries.reduce((accum, split) => {
@@ -84,7 +84,7 @@ function SplitChangesUpdaterFactory(context, isNode = false) {
       });
     })
       .catch(error => {
-        if (!(error instanceof SplitNetworkError)) {
+        if (!(error instanceof SplitError)) {
           setTimeout(() => {throw error;}, 0);
           startingUp = false; // Stop retrying.
         }
