@@ -14,10 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
+import { SplitTimeoutError } from '../lang/Errors';
+
 function timeout(ms, promise) {
+  if (ms < 1) return promise;
+
   return new Promise((resolve, reject) => {
     const tid = setTimeout(() => {
-      reject(`Operation timed out because it exceeded the configured time limit of ${ms}ms.`);
+      reject(new SplitTimeoutError(`Operation timed out because it exceeded the configured time limit of ${ms}ms.`));
     }, ms);
 
     promise.then((res) => {
