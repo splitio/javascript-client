@@ -70,7 +70,6 @@ tape('Browser offline mode', function (assert) {
     // Check the information through the client original instance
     assert.equal(client.getTreatment('testing_split'), 'on');
     assert.equal(client.getTreatment('testing_split_2'), 'control');
-
     assert.deepEqual(client.getTreatments([
       'testing_split',
       'testing_split_2'
@@ -78,16 +77,34 @@ tape('Browser offline mode', function (assert) {
       testing_split: 'on',
       testing_split_2: 'control'
     });
+    // with config
+    assert.deepEqual(client.getTreatmentWithConfig('testing_split'), { treatment: 'on', config: null });
+    assert.deepEqual(client.getTreatmentsWithConfig([
+      'testing_split',
+      'testing_split_2'
+    ]), {
+      testing_split: { treatment: 'on', config: null },
+      testing_split_2: { treatment: 'control', config: null }
+    });
+
     // And then through the shared instance.
     assert.equal(sharedClient.getTreatment('testing_split'), 'on');
     assert.equal(sharedClient.getTreatment('testing_split_2'), 'control');
-
     assert.deepEqual(sharedClient.getTreatments([
       'testing_split',
       'testing_split_2'
     ]), {
       testing_split: 'on',
       testing_split_2: 'control'
+    });
+    // with config
+    assert.deepEqual(sharedClient.getTreatmentWithConfig('testing_split'), { treatment: 'on', config: null });
+    assert.deepEqual(sharedClient.getTreatmentsWithConfig([
+      'testing_split',
+      'testing_split_2'
+    ]), {
+      testing_split: { treatment: 'on', config: null },
+      testing_split_2: { treatment: 'control', config: null }
     });
 
     // Update the features.
@@ -100,6 +117,7 @@ tape('Browser offline mode', function (assert) {
     setTimeout(function () {
       assert.equal(client.getTreatment('testing_split_2'), 'off');
       assert.equal(client.getTreatment('testing_split_3'), 'custom_treatment');
+      assert.deepEqual(client.getTreatmentWithConfig('testing_split_3'), { treatment: 'custom_treatment', config: null });
 
       assert.deepEqual(client.getTreatments([
         'testing_split',
@@ -112,9 +130,18 @@ tape('Browser offline mode', function (assert) {
         testing_split_3: 'custom_treatment',
         testing_not_exist: 'control'
       });
+      assert.deepEqual(client.getTreatmentsWithConfig([
+        'testing_split_2',
+        'testing_split_3'
+      ]), {
+        testing_split_2: { treatment: 'off', config: null },
+        testing_split_3: { treatment: 'custom_treatment', config: null }
+      });
+
       // Test shared client for the same data
       assert.equal(sharedClient.getTreatment('testing_split_2'), 'off');
       assert.equal(sharedClient.getTreatment('testing_split_3'), 'custom_treatment');
+      assert.deepEqual(sharedClient.getTreatmentWithConfig('testing_split_3'), { treatment: 'custom_treatment', config: null });
 
       assert.deepEqual(sharedClient.getTreatments([
         'testing_split',
@@ -126,6 +153,13 @@ tape('Browser offline mode', function (assert) {
         testing_split_2: 'off',
         testing_split_3: 'custom_treatment',
         testing_not_exist: 'control'
+      });
+      assert.deepEqual(sharedClient.getTreatmentsWithConfig([
+        'testing_split_3',
+        'testing_not_exist'
+      ]), {
+        testing_split_3: { treatment: 'custom_treatment', config: null },
+        testing_not_exist: { treatment: 'control', config: null }
       });
 
       const sharedClientDestroyPromise = sharedClient.destroy();

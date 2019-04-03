@@ -62,11 +62,13 @@ tape('NodeJS Offline mode', function (assert) {
   client.track('a_key', 'a_tt', 'an_ev_id');
   client.track('another_key', 'another_tt', 'another_ev_id', 25);
 
-  client.on(client.Event.SDK_READY, async function () {
-    assert.equal(await client.getTreatment('qa-user', 'testing_split'), 'on');
-    assert.equal(await client.getTreatment('qa-user', 'testing_split_2'), 'control');
+  client.on(client.Event.SDK_READY, function () {
+    assert.equal(client.getTreatment('qa-user', 'testing_split'), 'on');
+    assert.equal(client.getTreatment('qa-user', 'testing_split_2'), 'control');
+    assert.deepEqual(client.getTreatmentWithConfig('qa-user', 'testing_split'), { treatment: 'on', config: null });
+    assert.deepEqual(client.getTreatmentWithConfig('qa-user', 'testing_split_2'), { treatment: 'control', config: null });
 
-    assert.deepEqual(await client.getTreatments('qa-user', [
+    assert.deepEqual(client.getTreatments('qa-user', [
       'testing_split',
       'testing_split2',
       'testing_split3',
@@ -76,6 +78,17 @@ tape('NodeJS Offline mode', function (assert) {
       testing_split2: 'off',
       testing_split3: 'custom_treatment',
       testing_not_exist: 'control'
+    });
+    assert.deepEqual(client.getTreatmentsWithConfig('qa-user', [
+      'testing_split',
+      'testing_split2',
+      'testing_split3',
+      'testing_not_exist'
+    ]), {
+      testing_split: { treatment: 'on', config: null },
+      testing_split2: { treatment: 'off', config: null },
+      testing_split3: { treatment: 'custom_treatment', config: null },
+      testing_not_exist: { treatment: 'control', config: null }
     });
 
     client.destroy().then(() => {

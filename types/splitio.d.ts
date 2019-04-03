@@ -471,9 +471,9 @@ declare namespace SplitIO {
     /**
      * Map of configurations per treatment.
      * Each existing configuration is a stringified version of the JSON you defined on the Split web console.
-     * @property {Object.<string>} configurations
+     * @property {Object.<string>} configs
      */
-    configurations: {
+    configs: {
       [treatmentName: string]: string
     }
   };

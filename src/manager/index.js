@@ -26,7 +26,7 @@ const ObjectToView = (json) => {
     killed: splitObject.killed,
     changeNumber: splitObject.changeNumber || 0,
     treatments: collectTreatments(splitObject.conditions),
-    configurations: splitObject.configurations || {}
+    configs: splitObject.configurations || {}
   };
 };
 

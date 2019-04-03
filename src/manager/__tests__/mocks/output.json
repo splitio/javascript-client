@@ -4,7 +4,7 @@
   "killed": false,
   "changeNumber": 1478881219393,
   "treatments": ["on", "off"],
-  "configurations": {
+  "configs": {
     "on": "\"color\": \"green\""
   }
 }
