@@ -112,7 +112,7 @@ splitView = {
   trafficType: 'user',
   treatments: ['on', 'off'],
   changeNumber: 18294,
-  configurations: {
+  configs: {
     off: '{"dimensions":"{\"height\":20,\"width\":40}"}'
   }
 };

@@ -14,6 +14,7 @@
   ```
 ** getTreatmentWithConfig: Same as getTreatment but returning the treatment with config.
 ** getTreatmentWithConfig: Same as getTreatments, but instead of a map of string it returns a map of treatments with config.
+* Added configs to SplitViews returned by the manager module.
 * Updated manager method to avoid creating more than one instance.
 * Updated how we handle timeout per request, so now if you set a startup.requestTimeoutBeforeReady smaller than 1, there is no timeout.
 
