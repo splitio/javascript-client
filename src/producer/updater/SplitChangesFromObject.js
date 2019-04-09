@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-
+import { forOwn } from '../../utils/lang';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-producer:offline');
 
@@ -26,23 +26,25 @@ function FromObjectUpdaterFactory(Fetcher, context) {
 
   return async function ObjectUpdater() {
     const splits = [];
-    const configs = Fetcher(settings);
+    const splitsMock = Fetcher(settings);
 
     log.debug('Splits data:');
-    log.debug(JSON.stringify(configs));
+    log.debug(JSON.stringify(splitsMock));
 
-    // Make use of the killed behavior to prevent loading all the information
-    // for a given Split.
-    for (let name in configs) splits.push([
-      name,
-      JSON.stringify({
+    forOwn(splitsMock, function(val, name) {
+      splits.push([
         name,
-        status: 'ACTIVE',
-        killed: true,
-        defaultTreatment: configs[name],
-        conditions: []
-      })
-    ]);
+        JSON.stringify({
+          name,
+          status: 'ACTIVE',
+          killed: false,
+          trafficAllocation: 100,
+          defaultTreatment: 'control',
+          conditions: val.conditions || [],
+          configurations: val.configurations,
+        })
+      ]);
+    });
 
     await storage.splits.flush();
     await storage.splits.addSplits(splits);
