@@ -20,7 +20,7 @@ import yaml from 'js-yaml';
 import logFactory from '../../../utils/logger';
 import { isString, endsWith, find, forOwn, uniq, } from '../../../utils/lang';
 import parseCondition from './parseCondition';
-const log = logFactory('splitio:offline');
+const log = logFactory('splitio-offline:splits-fetcher');
 
 const DEFAULT_FILENAME = '.split';
 
@@ -165,6 +165,7 @@ function getSplitConfigForFile(settings) {
 
   // If we have a filePath, it means the extension is correct, choose the parser.
   if (endsWith(filePath, '.split')) {
+    log.warn('.split mocks will be deprecated soon in favor of YAML files, which provide more targeting power. Take a look in our documentation.');
     mockData = readSplitConfigFile(filePath);
   } else {
     mockData = readYAMLConfigFile(filePath);
