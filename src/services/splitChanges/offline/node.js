@@ -16,42 +16,52 @@ limitations under the License.
 
 import fs from 'fs';
 import path from 'path';
+import yaml from 'js-yaml';
 import logFactory from '../../../utils/logger';
+import { isString, endsWith, find, forOwn, uniq, } from '../../../utils/lang';
+import parseCondition from './parseCondition';
 const log = logFactory('splitio:offline');
 
-const FILENAME = '.split';
+const DEFAULT_FILENAME = '.split';
 
-// Lookup for `.split` in process.env.SPLIT_CONFIG_ROOT or process.env.HOME as
-// fallback.
 function configFilesPath(config = {}) {
-  let root = process.env.HOME;
+  let configFilePath = config.features;
 
-  if (process.env.SPLIT_CONFIG_ROOT) root = process.env.SPLIT_CONFIG_ROOT;
+  if (configFilePath === DEFAULT_FILENAME || !isString(configFilePath)) {
+    let root = process.env.HOME;
 
-  if (!root) throw 'Missing split configuration root';
+    if (process.env.SPLIT_CONFIG_ROOT) root = process.env.SPLIT_CONFIG_ROOT;
 
-  let configFilePath = path.join(root, FILENAME);
+    if (!root) throw 'Missing split mock configuration root.';
 
-  if (typeof config.features === 'string') configFilePath = config.features;
+    configFilePath = path.join(root, DEFAULT_FILENAME);
+  }
 
-  if (!fs.existsSync(configFilePath)) throw `Split configuration not found in ${configFilePath}`;
+  // Validate the extensions
+  if (!(endsWith(configFilePath, '.yaml') || endsWith(configFilePath, '.yml') || endsWith(configFilePath, '.split')))
+    throw `Invalid extension specified for Splits mock file. Accepted extensions are ".split", ".yml" and ".yaml". Your specified file is ${configFilePath}`;
+
+  if (!fs.existsSync(configFilePath))
+    throw `Split configuration not found in ${configFilePath} - Please review your Split file location.`;
 
   return configFilePath;
 }
 
 // Parse `.split` configuration file and return an array of split => treatments
-function readSplitConfigFile(path) {
+function readSplitConfigFile(filePath) {
+  const SPLIT_POSITION = 0;
+  const TREATMENT_POSITION = 1;
   let data;
 
   try {
-    data = fs.readFileSync(path, 'utf-8');
+    data = fs.readFileSync(filePath, 'utf-8');
   } catch (e) {
     log.error(e.message);
 
     return [];
   }
 
-  let validLines = data.split(/\r?\n/).reduce((accum, line, index) => {
+  const splitObjects = data.split(/\r?\n/).reduce((accum, line, index) => {
     let tuple = line.trim();
 
     if (tuple === '' || tuple.charAt(0) === '#') {
@@ -62,29 +72,104 @@ function readSplitConfigFile(path) {
       if (tuple.length !== 2) {
         log.debug(`Ignoring line since it does not have exactly two columns #${index}`);
       } else {
-        accum.push(tuple);
+        const splitName = tuple[SPLIT_POSITION];
+        const condition = parseCondition({ treatment: tuple[TREATMENT_POSITION] });
+        accum[splitName] = { conditions: [condition], configurations: {} };
       }
     }
 
     return accum;
-  }, []);
+  }, {});
 
-  return validLines;
+  return splitObjects;
 }
 
-// Array to Object conversion
-function makeUpReadOnlySettings(lines) {
-  const SPLIT = 0;
-  const TREATMENT = 1;
+function readYAMLConfigFile(filePath) {
+  let yamldoc = null;
 
-  return lines.reduce((accum, line) => {
-    return accum[line[SPLIT]] = line[TREATMENT], accum;
+  try {
+    yamldoc = yaml.safeLoad(fs.readFileSync(filePath, 'utf8'));
+  } catch (e) {
+    log.error(e);
+
+    return {};
+  }
+
+  // Each entry will be mapped to a condition, but we'll also keep the configurations map.
+  const mocksData = yamldoc.reduce((accum, splitEntry) => {
+    const splitName = Object.keys(splitEntry)[0];
+
+    if (!splitName || !isString(splitEntry[splitName].treatment))
+      log.error('Ignoring entry on YAML since the format is incorrect.');
+
+    const mockData = splitEntry[splitName];
+
+    // "Template" for each split accumulated data
+    if (!accum[splitName]) {
+      accum[splitName] = {
+        configurations: {}, conditions: [], treatments: []
+      };
+    }
+
+    // Assign the config if there is one on the mock
+    if (mockData.config) accum[splitName].configurations[mockData.treatment] = mockData.config;
+    // Parse the condition from the entry.
+    const condition = parseCondition(mockData);
+    accum[splitName].conditions[condition.conditionType === 'ROLLOUT' ? 'push' : 'unshift'](condition);
+    // Also keep track of the treatments, will be useful for manager functionality.
+    accum[splitName].treatments.push(mockData.treatment);
+
+    return accum;
   }, {});
+
+  arrangeConditions(mocksData);
+
+  return mocksData;
+}
+
+// This function is not pure nor meant to be.
+function arrangeConditions(mocksData) {
+  // Iterate through each Split data
+  forOwn(mocksData, data => {
+    const conditions = data.conditions;
+
+    // On the manager, as the split jsons come with all treatments on the partitions prop,
+    // we'll add all the treatments to the first condition.
+    const firstRolloutCondition = find(conditions, cond => cond.conditionType === 'ROLLOUT');
+    // Malformed mocks may have
+    const treatments = uniq(data.treatments);
+
+    // If they're only specifying a whitelist we add the treatments there.
+    const allTreatmentsCondition = firstRolloutCondition ? firstRolloutCondition : conditions[0];
+
+    const fullyAllocatedTreatment = allTreatmentsCondition.partitions[0].treatment;
+
+    treatments.forEach(treatment => {
+      if (treatment !== fullyAllocatedTreatment) {
+        allTreatmentsCondition.partitions.push({
+          treatment, size: 0
+        });
+      }
+    });
+
+    // Don't need these anymore
+    delete data.treatments;
+  });
 }
 
 // Load the content of a configuration file into an Object
 function getSplitConfigForFile(settings) {
-  return makeUpReadOnlySettings(readSplitConfigFile(configFilesPath(settings)));
+  const filePath = configFilesPath(settings);
+  let mockData = null;
+
+  // If we have a filePath, it means the extension is correct, choose the parser.
+  if (endsWith(filePath, '.split')) {
+    mockData = readSplitConfigFile(filePath);
+  } else {
+    mockData = readYAMLConfigFile(filePath);
+  }
+
+  return mockData;
 }
 
 export default getSplitConfigForFile;
