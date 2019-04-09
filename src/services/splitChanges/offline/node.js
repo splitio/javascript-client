@@ -47,7 +47,7 @@ function configFilesPath(config = {}) {
   return configFilePath;
 }
 
-// Parse `.split` configuration file and return an array of split => treatments
+// Parse `.split` configuration file and return a map of "Split Objects"
 function readSplitConfigFile(filePath) {
   const SPLIT_POSITION = 0;
   const TREATMENT_POSITION = 1;
@@ -84,6 +84,7 @@ function readSplitConfigFile(filePath) {
   return splitObjects;
 }
 
+// Parse `.yml` or `.yaml` configuration files and return a map of "Split Objects"
 function readYAMLConfigFile(filePath) {
   let yamldoc = null;
 
@@ -127,7 +128,8 @@ function readYAMLConfigFile(filePath) {
   return mocksData;
 }
 
-// This function is not pure nor meant to be.
+// This function is not pure nor meant to be. Here we apply modifications to cover
+//  for behaviour that's ensured by the BE.
 function arrangeConditions(mocksData) {
   // Iterate through each Split data
   forOwn(mocksData, data => {
@@ -138,7 +140,6 @@ function arrangeConditions(mocksData) {
     const firstRolloutCondition = find(conditions, cond => cond.conditionType === 'ROLLOUT');
     // Malformed mocks may have
     const treatments = uniq(data.treatments);
-
     // If they're only specifying a whitelist we add the treatments there.
     const allTreatmentsCondition = firstRolloutCondition ? firstRolloutCondition : conditions[0];
 
