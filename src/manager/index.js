@@ -2,11 +2,14 @@ import thenable from '../utils/promise/thenable';
 import { find } from '../utils/lang';
 import { validateSplit, validateIfOperational } from '../utils/inputValidation';
 
-const collectTreatments = (conditions) => {
+const collectTreatments = (splitObject) => {
+  const conditions = splitObject.conditions;
   // Rollout conditions are supposed to have the entire partitions list, so we find the first one.
-  const firstRolloutCondition = find(conditions, (cond) => cond.conditionType === 'ROLLOUT');
+  let allTreatmentsCondition = find(conditions, (cond) => cond.conditionType === 'ROLLOUT');
+  // Localstorage mode could fall into a no rollout conditions state. Take the first condition in that case.
+  if (!allTreatmentsCondition) allTreatmentsCondition = conditions[0];
   // Then extract the treatments from the partitions
-  return firstRolloutCondition ? firstRolloutCondition.partitions.map(v => v.treatment) : [];
+  return allTreatmentsCondition ? allTreatmentsCondition.partitions.map(v => v.treatment) : [];
 };
 
 const ObjectToView = (json) => {
@@ -25,7 +28,7 @@ const ObjectToView = (json) => {
     trafficType: splitObject.trafficTypeName || null,
     killed: splitObject.killed,
     changeNumber: splitObject.changeNumber || 0,
-    treatments: collectTreatments(splitObject.conditions),
+    treatments: collectTreatments(splitObject),
     configs: splitObject.configurations || {}
   };
 };
