@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio",
-  "version": "10.7.0-canary.1",
+  "version": "10.7.0-canary.2",
   "description": "Split SDK",
   "files": [
     "README.md",
@@ -97,6 +97,7 @@
     "axios": "0.18.0",
     "babel-runtime": "6.26.0",
     "ip": "1.1.5",
+    "js-yaml": "3.13.1",
     "utfx": "1.0.1"
   },
   "optionalDependencies": {

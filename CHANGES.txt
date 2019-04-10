@@ -5,6 +5,7 @@
 ** getTreatmentWithConfig: Same as getTreatment, but instead of a string it returns a map with treatment and config as a stringified JSON.
 ** getTreatmentWithConfig: Same as getTreatments, but instead of a map of string it returns a map of objects with treatment and config as a stringified JSON.
 * Added configs to SplitViews returned by the manager module.
+* Updated localhost mode. Now besides supporting the old text files with `.split` extension (to be deprecated soon), we support YAML (.yaml/.yml) files with more options. Read more in our docs!
 * Updated manager method to avoid creating more than one instance.
 * Updated how we handle timeout per request, setting startup.requestTimeoutBeforeReady to less than 1 applies no timeout per request.
 
