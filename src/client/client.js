@@ -7,48 +7,7 @@ import tracker from '../utils/timeTracker';
 import thenable from '../utils/promise/thenable';
 import { matching, bucketing } from '../utils/key/factory';
 import { CONTROL } from '../utils/constants';
-
-function getTreatmentAvailable(
-  evaluation,
-  splitName,
-  key,
-  attributes,
-  stopLatencyTracker = false,
-  impressionsTracker,
-  withConfig
-) {
-  const matchingKey = matching(key);
-  const bucketingKey = bucketing(key);
-
-  const { treatment, label , changeNumber, config = null } = evaluation;
-
-  if (treatment !== CONTROL) {
-    log.info(`Split: ${splitName}. Key: ${matchingKey}. Evaluation: ${treatment}`);
-  } else if (matchingKey !== false) {
-    log.warn(`Split ${splitName} doesn't exist`);
-  }
-
-  impressionsTracker({
-    feature: splitName,
-    keyName: matchingKey,
-    treatment,
-    time: Date.now(),
-    bucketingKey,
-    label,
-    changeNumber
-  }, attributes);
-
-  stopLatencyTracker && stopLatencyTracker();
-
-  if (withConfig) {
-    return {
-      treatment,
-      config
-    };
-  }
-
-  return treatment;
-}
+import { validateSplitExistance } from '../utils/inputValidation';
 
 function queueEventsCallback({
   eventTypeId, trafficTypeName, key, value, timestamp
@@ -76,9 +35,9 @@ function ClientFactory(context) {
     const evaluation = evaluator(key, splitName, attributes, storage);
 
     if (thenable(evaluation)) {
-      return evaluation.then(res => getTreatmentAvailable(res, splitName, key, attributes, stopLatencyTracker, impressionTracker.track, withConfig));
+      return evaluation.then(res => getTreatmentAvailable(res, splitName, key, attributes, stopLatencyTracker, impressionTracker.track, withConfig, `getTreatment${withConfig ? 'withConfig' : ''}`));
     } else {
-      return getTreatmentAvailable(evaluation, splitName, key, attributes, stopLatencyTracker, impressionTracker.track, withConfig);
+      return getTreatmentAvailable(evaluation, splitName, key, attributes, stopLatencyTracker, impressionTracker.track, withConfig, `getTreatment${withConfig ? 'withConfig' : ''}`);
     }
   }
 
@@ -102,10 +61,10 @@ function ClientFactory(context) {
         thenables.push(evaluation);
         evaluation.then((res) => {
           // set the treatment on the cb;
-          results[splitName] = getTreatmentAvailable(res, splitName, key, attributes, false, impressionsTracker.queue, withConfig);
+          results[splitName] = getTreatmentAvailable(res, splitName, key, attributes, false, impressionsTracker.queue, withConfig, `getTreatments${withConfig ? 'withConfig' : ''}`);
         });
       } else {
-        results[splitName] = getTreatmentAvailable(evaluation, splitName, key, attributes, false, impressionsTracker.queue, withConfig);
+        results[splitName] = getTreatmentAvailable(evaluation, splitName, key, attributes, false, impressionsTracker.queue, withConfig, `getTreatments${withConfig ? 'withConfig' : ''}`);
       }
     }
 
@@ -125,6 +84,49 @@ function ClientFactory(context) {
 
   function getTreatmentsWithConfig(key, splitNames, attributes) {
     return getTreatments(key, splitNames, attributes, true);
+  }
+
+  // Internal function
+  function getTreatmentAvailable(
+    evaluation,
+    splitName,
+    key,
+    attributes,
+    stopLatencyTracker = false,
+    impressionsTracker,
+    withConfig,
+    invokingMethodName
+  ) {
+    const matchingKey = matching(key);
+    const bucketingKey = bucketing(key);
+
+    const { treatment, label , changeNumber, config = null } = evaluation;
+
+    if (treatment !== CONTROL) {
+      log.info(`Split: ${splitName}. Key: ${matchingKey}. Evaluation: ${treatment}`);
+    }
+
+    if (validateSplitExistance(context, splitName, label, invokingMethodName))
+      impressionsTracker({
+        feature: splitName,
+        keyName: matchingKey,
+        treatment,
+        time: Date.now(),
+        bucketingKey,
+        label,
+        changeNumber
+      }, attributes);
+
+    stopLatencyTracker && stopLatencyTracker();
+
+    if (withConfig) {
+      return {
+        treatment,
+        config
+      };
+    }
+
+    return treatment;
   }
 
   function track(key, trafficTypeName, eventTypeId, eventValue) {
