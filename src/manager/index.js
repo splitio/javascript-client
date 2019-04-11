@@ -1,6 +1,6 @@
 import thenable from '../utils/promise/thenable';
 import { find } from '../utils/lang';
-import { validateSplit, validateIfOperational } from '../utils/inputValidation';
+import { validateSplit, validateSplitExistance, validateIfOperational } from '../utils/inputValidation';
 
 const collectTreatments = (splitObject) => {
   const conditions = splitObject.conditions;
@@ -62,7 +62,15 @@ const SplitManagerFactory = (splits, context) => {
 
         const split = splits.getSplit(splitName);
 
-        if (thenable(split)) return split.then(result => ObjectToView(result));
+        if (thenable(split)) {
+          return split.then(result => {
+            validateSplitExistance(context, splitName, result, 'split');
+            return ObjectToView(result);
+          });
+        }
+
+        validateSplitExistance(context, splitName, split, 'split');
+
         return ObjectToView(split);
       },
       /**
