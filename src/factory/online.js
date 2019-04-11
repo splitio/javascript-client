@@ -37,9 +37,7 @@ function SplitFactoryOnline(context, readyTrackers, mainClientMetricCollectors) 
     case STANDALONE_MODE: {
       context.put(context.constants.COLLECTORS, metrics && metrics.collectors);
       // We don't fully instantiate producer if we are creating a shared instance.
-      producer = sharedInstance ?
-        PartialProducerFactory(context) :
-        FullProducerFactory(context);
+      producer = sharedInstance ? PartialProducerFactory(context) : FullProducerFactory(context);
       break;
     }
     case CONSUMER_MODE:
