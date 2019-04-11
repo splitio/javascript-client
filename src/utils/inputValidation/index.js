@@ -4,7 +4,7 @@ export { validateAttributes } from './attributes';
 export { validateEvent } from './event';
 export { validateEventValue } from './eventValue';
 export { validateKey } from './key';
-export { validateSplit } from './split';
+export { validateSplit, validateSplitExistance } from './split';
 export { validateSplits } from './splits';
 export { validateTrafficType } from './trafficType';
 export { validateIfOperational } from './isOperational';
