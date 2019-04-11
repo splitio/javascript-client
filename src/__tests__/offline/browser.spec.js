@@ -111,6 +111,7 @@ tape('Browser offline mode', function (assert) {
     assert.deepEqual(manager.names(), ['testing_split', 'testing_split_with_config']);
     assert.deepEqual(manager.split('testing_split'), expectedSplitView1);
     assert.deepEqual(manager.split('testing_split_with_config'), expectedSplitView2);
+    assert.deepEqual(manager.split('not_existent'), null);
     assert.deepEqual(manager.splits(), [expectedSplitView1, expectedSplitView2]);
 
     // And then through the shared instance.
@@ -183,6 +184,7 @@ tape('Browser offline mode', function (assert) {
       };
       assert.deepEqual(manager.names(), ['testing_split', 'testing_split_2', 'testing_split_3', 'testing_split_with_config']);
       assert.deepEqual(manager.split('testing_split'), expectedSplitView1);
+      assert.deepEqual(manager.split('not_existent'), null);
       assert.deepEqual(manager.split('testing_split_with_config'), expectedSplitView3);
       assert.deepEqual(manager.splits(), [
         expectedSplitView1,
