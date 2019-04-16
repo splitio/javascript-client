@@ -1,4 +1,4 @@
-## 10.7.0 (Apr XX, 2019)
+## 10.7.0 (Apr 16, 2019)
 
 * Added Block Until Ready functionality to the manager, shared with the main client. Now you can subscribe to SDK events or use the .ready() promise from the manager as well.
 * Added Dynamic Configurations support through two new methods that mimick the regular ones, changing the type of what is returned.
