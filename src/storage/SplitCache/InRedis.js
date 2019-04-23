@@ -1,3 +1,4 @@
+import { isFinite } from '../../utils/lang';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-storage:redis');
 
@@ -11,6 +12,7 @@ const processPipelineAnswer = (results) =>
   }, []);
 
 class SplitCacheInRedis {
+
   constructor(keys, redis) {
     this.redis = redis;
     this.keys = keys;
@@ -115,6 +117,31 @@ class SplitCacheInRedis {
     return this.redis.keys(this.keys.searchPatternForSplitKeys()).then(
       (listOfKeys) => listOfKeys.map(this.keys.extractKey)
     );
+  }
+
+  trafficTypeExists(trafficType) {
+    if (this.redisError) {
+      log.error(this.redisError);
+
+      throw this.redisError;
+    }
+
+    // If there is a number there should be > 0, otherwise the TT is considered as not existent.
+    return this.redis.get(this.keys.buildTrafficTypeKey(trafficType))
+      .then(ttCount => {
+        ttCount = parseInt(ttCount, 10);
+        if (!isFinite(ttCount) || ttCount < 0) {
+          log.info(`Could not validate traffic type existance of ${trafficType} due to data corruption of some sorts.`);
+          return false;
+        }
+
+        return ttCount > 0;
+      })
+      .catch(e => {
+        log.error(`Could not validate traffic type existance of ${trafficType} due to an error: ${e}.`);
+        // If there is an error, bypass the validation so the event can get tracked.
+        return true;
+      });
   }
 
   /**
