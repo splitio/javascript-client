@@ -7,7 +7,8 @@ import tracker from '../utils/timeTracker';
 import thenable from '../utils/promise/thenable';
 import { matching, bucketing } from '../utils/key/factory';
 import { CONTROL } from '../utils/constants';
-import { validateSplitExistance } from '../utils/inputValidation';
+/* asynchronous validations that live on the client. */
+import { validateSplitExistance, validateTrafficTypeExistance } from '../utils/inputValidation';
 
 function queueEventsCallback({
   eventTypeId, trafficTypeName, key, value, timestamp
@@ -141,6 +142,10 @@ function ClientFactory(context) {
       timestamp,
       key: matchingKey,
     };
+
+    // This may be async but we only warn, we don't actually care if it is valid or not in terms of queueing the event.
+    validateTrafficTypeExistance(trafficTypeName, context, 'track');
+
     const tracked = storage.events.track(eventData);
 
     if (thenable(tracked)) {

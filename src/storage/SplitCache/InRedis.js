@@ -120,12 +120,6 @@ class SplitCacheInRedis {
   }
 
   trafficTypeExists(trafficType) {
-    if (this.redisError) {
-      log.error(this.redisError);
-
-      throw this.redisError;
-    }
-
     // If there is a number there should be > 0, otherwise the TT is considered as not existent.
     return this.redis.get(this.keys.buildTrafficTypeKey(trafficType))
       .then(ttCount => {

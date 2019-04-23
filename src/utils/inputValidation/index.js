@@ -6,5 +6,5 @@ export { validateEventValue } from './eventValue';
 export { validateKey } from './key';
 export { validateSplit, validateSplitExistance } from './split';
 export { validateSplits } from './splits';
-export { validateTrafficType } from './trafficType';
+export { validateTrafficType, validateTrafficTypeExistance } from './trafficType';
 export { validateIfOperational } from './isOperational';
