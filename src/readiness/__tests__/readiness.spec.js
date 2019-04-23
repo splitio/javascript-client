@@ -17,40 +17,51 @@ limitations under the License.
 import tape from 'tape-catch';
 import ReadinessGate from '../';
 
-tape('READINESS GATE / Share splits but segments (without timeout enabled)', function (assert) {
-  assert.plan(2);
+tape(
+  'READINESS GATE / Share splits but segments (without timeout enabled)',
+  function(assert) {
+    assert.plan(2);
 
-  const ReadinessGateFactory = ReadinessGate();
-  const readinessGate1 = ReadinessGateFactory();
-  const readinessGate2 = ReadinessGateFactory();
+    const ReadinessGateFactory = ReadinessGate();
+    const readinessGate1 = ReadinessGateFactory();
+    const readinessGate2 = ReadinessGateFactory();
 
-  readinessGate1.gate.on(readinessGate1.gate.SDK_READY, () => {
-    assert.pass('should be called');
-  }).on(readinessGate1.gate.SDK_UPDATE, () => {
-    assert.fail('should be called');
-    assert.end();
-  });
+    readinessGate1.gate
+      .on(readinessGate1.gate.SDK_READY, () => {
+        assert.pass('should be called');
+      })
+      .on(readinessGate1.gate.SDK_UPDATE, () => {
+        assert.fail('should be called');
+        assert.end();
+      });
 
-  readinessGate2.gate.on(readinessGate2.gate.SDK_READY, () => {
-    assert.pass('should be called');
-  }).on(readinessGate2.gate.SDK_UPDATE, () => {
-    assert.fail('should not be called');
-    assert.end();
-  });
+    readinessGate2.gate
+      .on(readinessGate2.gate.SDK_READY, () => {
+        assert.pass('should be called');
+      })
+      .on(readinessGate2.gate.SDK_UPDATE, () => {
+        assert.fail('should not be called');
+        assert.end();
+      });
 
-  // Simulate state transitions
-  setTimeout(() => {
-    readinessGate1.splits.emit(readinessGate1.splits.SDK_SPLITS_ARRIVED);
-  }, 1000 * Math.random());
-  setTimeout(() => {
-    readinessGate1.segments.emit(readinessGate1.segments.SDK_SEGMENTS_ARRIVED);
-  }, 1000 * Math.random());
-  setTimeout(() => {
-    readinessGate2.segments.emit(readinessGate2.segments.SDK_SEGMENTS_ARRIVED);
-  }, 1000 * Math.random());
-});
+    // Simulate state transitions
+    setTimeout(() => {
+      readinessGate1.splits.emit(readinessGate1.splits.SDK_SPLITS_ARRIVED);
+    }, 1000 * Math.random());
+    setTimeout(() => {
+      readinessGate1.segments.emit(
+        readinessGate1.segments.SDK_SEGMENTS_ARRIVED
+      );
+    }, 1000 * Math.random());
+    setTimeout(() => {
+      readinessGate2.segments.emit(
+        readinessGate2.segments.SDK_SEGMENTS_ARRIVED
+      );
+    }, 1000 * Math.random());
+  }
+);
 
-tape('READINESS GATE / Ready event should be fired once', function (assert) {
+tape('READINESS GATE / Ready event should be fired once', function(assert) {
   const ReadinessGateFactory = ReadinessGate();
   const readinessGate = ReadinessGateFactory();
   let counter = 0;
@@ -70,34 +81,39 @@ tape('READINESS GATE / Ready event should be fired once', function (assert) {
   assert.end();
 });
 
-tape('READINESS GATE / Update event should be fired after the Ready event', function (assert) {
-  const ReadinessGateFactory = ReadinessGate();
-  const readinessGate = ReadinessGateFactory();
-  let isReady = false;
-  let counter = 0;
+tape(
+  'READINESS GATE / Update event should be fired after the Ready event',
+  function(assert) {
+    const ReadinessGateFactory = ReadinessGate();
+    const readinessGate = ReadinessGateFactory();
+    let isReady = false;
+    let counter = 0;
 
-  readinessGate.gate.on(readinessGate.gate.SDK_READY, () => {
-    counter++;
-    isReady = true;
-  });
+    readinessGate.gate.on(readinessGate.gate.SDK_READY, () => {
+      counter++;
+      isReady = true;
+    });
 
-  readinessGate.gate.on(readinessGate.gate.SDK_UPDATE, () => {
-    isReady && counter++;
-  });
+    readinessGate.gate.on(readinessGate.gate.SDK_UPDATE, () => {
+      isReady && counter++;
+    });
 
-  readinessGate.splits.emit(readinessGate.splits.SDK_SPLITS_ARRIVED);
-  readinessGate.segments.emit(readinessGate.segments.SDK_SEGMENTS_ARRIVED);
+    readinessGate.splits.emit(readinessGate.splits.SDK_SPLITS_ARRIVED);
+    readinessGate.segments.emit(readinessGate.segments.SDK_SEGMENTS_ARRIVED);
 
-  readinessGate.splits.emit(readinessGate.splits.SDK_SPLITS_ARRIVED);
-  readinessGate.segments.emit(readinessGate.segments.SDK_SEGMENTS_ARRIVED);
-  readinessGate.splits.emit(readinessGate.splits.SDK_SPLITS_ARRIVED);
-  readinessGate.segments.emit(readinessGate.segments.SDK_SEGMENTS_ARRIVED);
+    readinessGate.splits.emit(readinessGate.splits.SDK_SPLITS_ARRIVED);
+    readinessGate.segments.emit(readinessGate.segments.SDK_SEGMENTS_ARRIVED);
+    readinessGate.splits.emit(readinessGate.splits.SDK_SPLITS_ARRIVED);
+    readinessGate.segments.emit(readinessGate.segments.SDK_SEGMENTS_ARRIVED);
 
-  assert.equal(counter, 5, 'should count 1 ready plus 4 updates');
-  assert.end();
-});
+    assert.equal(counter, 5, 'should count 1 ready plus 4 updates');
+    assert.end();
+  }
+);
 
-tape('READINESS GATE / Segment updates should not be propagated', function (assert) {
+tape('READINESS GATE / Segment updates should not be propagated', function(
+  assert
+) {
   assert.plan(2);
 
   const ReadinessGateFactory = ReadinessGate();
@@ -118,7 +134,7 @@ tape('READINESS GATE / Segment updates should not be propagated', function (asse
   readinessGate2.segments.emit(readinessGate2.segments.SDK_SEGMENTS_ARRIVED);
 });
 
-tape('READINESS GATE / Timeout ready event', function (assert) {
+tape('READINESS GATE / Timeout ready event', function(assert) {
   assert.plan(1);
 
   const ReadinessGateFactory = ReadinessGate();
@@ -133,7 +149,11 @@ tape('READINESS GATE / Timeout ready event', function (assert) {
 
   readiness.gate.on(readiness.gate.SDK_READY, () => {
     isReady = true;
-    assert.equal(timeoutCounter, 1, 'Timeout was scheduled to be fired quickly');
+    assert.equal(
+      timeoutCounter,
+      1,
+      'Timeout was scheduled to be fired quickly'
+    );
   });
 
   setTimeout(() => {
@@ -142,7 +162,7 @@ tape('READINESS GATE / Timeout ready event', function (assert) {
   }, 50);
 });
 
-tape('READINESS GATE / Cancel timeout if ready fired', function (assert) {
+tape('READINESS GATE / Cancel timeout if ready fired', function(assert) {
   assert.plan(1);
 
   const ReadinessGateFactory = ReadinessGate();
@@ -163,7 +183,7 @@ tape('READINESS GATE / Cancel timeout if ready fired', function (assert) {
   readiness.segments.emit(readiness.segments.SDK_SEGMENTS_ARRIVED);
 });
 
-tape('READINESS GATE / Destroy', function (assert) {
+tape('READINESS GATE / Destroy', function(assert) {
   assert.plan(1);
 
   const ReadinessGateFactory = ReadinessGate();
@@ -188,4 +208,33 @@ tape('READINESS GATE / Destroy', function (assert) {
   readiness.segments.emit(readiness.segments.SDK_SEGMENTS_ARRIVED); // fires an update
 
   assert.equal(counter, 1, 'Second update event should be discarded');
+});
+
+tape('READINESS GATE / Destroy should cancel timeout', function(assert) {
+  assert.plan(2);
+
+  const ReadinessGateFactory = ReadinessGate();
+  const readiness = ReadinessGateFactory(10);
+
+  let timeoutCounter = 0;
+  let counter = 0;
+
+  readiness.gate.on(readiness.gate.SDK_UPDATE, () => {
+    counter++;
+  });
+
+  readiness.destroy(); // remove all the listeners
+
+  readiness.gate.on(readiness.gate.SDK_READY_TIMED_OUT, () => {
+    assert.fail('Timeout should not be called');
+    timeoutCounter++;
+  });
+
+  readiness.segments.emit(readiness.segments.SDK_SPLITS_ARRIVED); // fires an update
+  readiness.segments.emit(readiness.segments.SDK_SEGMENTS_ARRIVED); // fires an update
+
+  setTimeout(() => {
+    assert.equal(timeoutCounter, 0, 'Timeout should not be called');
+    assert.equal(counter, 0, 'Update events should be discarded');
+  }, 50);
 });

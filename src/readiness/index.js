@@ -13,7 +13,8 @@ const Events = {
   SDK_SPLITS_ARRIVED: 'state::splits-arrived',
   SDK_SEGMENTS_ARRIVED: 'state::segments-arrived',
   SDK_UPDATE: 'state::update',
-  READINESS_GATE_CHECK_STATE: 'state::check'
+  READINESS_GATE_CHECK_STATE: 'state::check',
+  READINESS_GATE_DESTROY: 'state::destroy'
 };
 
 /**
@@ -31,15 +32,27 @@ function GateContext() {
     const gate = new EventEmitter();
     let segmentsStatus = 0;
     let status = 0;
+    let readinessTimeout;
 
     if (timeout > 0) {
-      setTimeout(() => {
-        if (status < SDK_FIRE_READY) gate.emit(Events.SDK_READY_TIMED_OUT, 'Split SDK emitted SDK_READY_TIMED_OUT event.');
+      readinessTimeout = setTimeout(() => {
+        if (status < SDK_FIRE_READY)
+          gate.emit(
+            Events.SDK_READY_TIMED_OUT,
+            'Split SDK emitted SDK_READY_TIMED_OUT event.'
+          );
       }, timeout);
     }
 
+    gate.on(Events.READINESS_GATE_DESTROY, () => {
+      clearTimeout(readinessTimeout);
+    });
+
     gate.on(Events.READINESS_GATE_CHECK_STATE, () => {
-      if (status !== SDK_FIRE_UPDATE && splitsStatus + segmentsStatus === SDK_FIRE_READY) {
+      if (
+        status !== SDK_FIRE_UPDATE &&
+        splitsStatus + segmentsStatus === SDK_FIRE_READY
+      ) {
         status = SDK_FIRE_UPDATE;
         gate.emit(Events.SDK_READY);
       } else if (status === SDK_FIRE_UPDATE) {
@@ -88,6 +101,7 @@ function GateContext() {
       gate,
       // Cleanup listeners
       destroy() {
+        gate.emit(Events.READINESS_GATE_DESTROY);
         segments.removeAllListeners();
         gate.removeAllListeners();
 
