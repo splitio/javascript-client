@@ -67,9 +67,10 @@ tape('Browser offline mode', function (assert) {
   const sharedClient = factory.client('nicolas.zelaya@split.io');
 
   // Tracking some events to test they are not flushed.
-  client.track('a_key', 'a_tt', 'an_ev_id');
-  client.track('another_key', 'another_tt', 'another_ev_id', 25);
-  sharedClient.track('another_key', 'a_tt', 'another_ev_id', 10);
+  assert.true(client.track('a_tt', 'an_ev_id'));
+  assert.true(client.track('another_tt', 'another_ev_id', 25));
+  assert.false(client.track({}, [], 'invalid_stuff'));
+  assert.true(sharedClient.track('a_tt', 'another_ev_id', 10));
 
   assert.equal(client.getTreatment('testing_split'), 'control');
   assert.equal(manager.splits().length, 0);

@@ -162,8 +162,9 @@ function DotYAMLTests (mockFileName, assert) {
   const factory = SplitFactory(config);
   const client = factory.client();
   // Tracking some events to test they are not flushed.
-  client.track('a_key', 'a_tt', 'an_ev_id');
-  client.track('another_key', 'another_tt', 'another_ev_id', 25);
+  assert.true(client.track('a_key', 'a_tt', 'an_ev_id'));
+  assert.true(client.track('another_key', 'another_tt', 'another_ev_id', 25));
+  assert.false(client.track('wasa', {}, [], 'invalid_stuff'));
 
   client.on(client.Event.SDK_READY, function () {
     assert.equal(client.getTreatment('qa-user', 'testing_split_on'), 'on');
