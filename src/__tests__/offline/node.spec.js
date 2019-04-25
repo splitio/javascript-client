@@ -65,12 +65,12 @@ const settingsGenerator = mockFileName => {
 tape('NodeJS Offline Mode', function (t) {
 
   t.test('Old format evaluations - .split', DotSplitTests);
-  t.test('New format evaluations - .yaml extension (testing case insensitive check)', DotYAMLTests.bind(null, 'split.YAML'));
+  t.test('New format evaluations - .yaml extension', DotYAMLTests.bind(null, 'split.yaml'));
   t.test('New format evaluations - .yml extension', DotYAMLTests.bind(null, 'split2.yml'));
 
   t.test('Old format manager - .split extension', ManagerDotSplitTests);
   t.test('New format manager - .yaml extension', ManagerDotYamlTests.bind(null, 'split.yaml'));
-  t.test('New format manager - .yml extension (testing case insensitive check)', ManagerDotYamlTests.bind(null, 'split2.yMl'));
+  t.test('New format manager - .yml extension', ManagerDotYamlTests.bind(null, 'split2.yml'));
 
   t.test('Trying to specify an invalid extension it will timeout', assert => {
     const config = settingsGenerator('.forbidden');
