@@ -38,8 +38,8 @@ function configFilesPath(config = {}) {
   }
 
   // Validate the extensions
-  if (!(endsWith(configFilePath, '.yaml') || endsWith(configFilePath, '.yml') || endsWith(configFilePath, '.split')))
-    throw `Invalid extension specified for Splits mock file. Accepted extensions are ".split", ".yml" and ".yaml". Your specified file is ${configFilePath}`;
+  if (!(endsWith(configFilePath, '.yaml', true) || endsWith(configFilePath, '.yml', true) || endsWith(configFilePath, '.split', true)))
+    throw `Invalid extension specified for Splits mock file. Accepted extensions are ".yml" and ".yaml". Your specified file is ${configFilePath}`;
 
   if (!fs.existsSync(configFilePath))
     throw `Split configuration not found in ${configFilePath} - Please review your Split file location.`;
