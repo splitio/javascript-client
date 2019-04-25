@@ -7,4 +7,4 @@ export { validateKey } from './key';
 export { validateSplit, validateSplitExistance } from './split';
 export { validateSplits } from './splits';
 export { validateTrafficType, validateTrafficTypeExistance } from './trafficType';
-export { validateIfOperational } from './isOperational';
+export { validateIfDestroyed, validateIfReady } from './isOperational';

@@ -33,7 +33,7 @@ export function validateSplit(maybeSplit, method) {
  * But it's not going to run on the input validation layer. In any case, the most compeling reason to use it as we do is to avoid going to Redis and get a split twice.
  */
 export function validateSplitExistance(context, splitName, labelOrSplitObj, method) {
-  if (context.get(context.constants.READY)) { // Only if it's ready we validate this, otherwise it may just be that the SDK is not ready yet.
+  if (context.get(context.constants.READY, true)) { // Only if it's ready we validate this, otherwise it may just be that the SDK is not ready yet.
     if (labelOrSplitObj === SPLIT_NOT_FOUND || labelOrSplitObj == null) {
       log.error(`${method}: you passed "${splitName}" that does not exist in this environment, please double check what Splits exist in the web console.`);
       return false;

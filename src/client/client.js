@@ -6,7 +6,7 @@ import ImpressionsTracker from '../trackers/impressions';
 import tracker from '../utils/timeTracker';
 import thenable from '../utils/promise/thenable';
 import { matching, bucketing } from '../utils/key/factory';
-import { CONTROL } from '../utils/constants';
+import { SPLIT_NOT_FOUND, SDK_NOT_READY } from '../utils/labels';
 /* asynchronous validations that live on the client. */
 import { validateSplitExistance, validateTrafficTypeExistance } from '../utils/inputValidation';
 
@@ -98,16 +98,21 @@ function ClientFactory(context) {
     withConfig,
     invokingMethodName
   ) {
+    const isSdkReady = context.get(context.constants.READY, true);
     const matchingKey = matching(key);
     const bucketingKey = bucketing(key);
 
-    const { treatment, label , changeNumber, config = null } = evaluation;
+    const { treatment, changeNumber, config = null } = evaluation;
+    let { label } = evaluation;
 
-    if (treatment !== CONTROL) {
-      log.info(`Split: ${splitName}. Key: ${matchingKey}. Evaluation: ${treatment}`);
+    if (label === SPLIT_NOT_FOUND && !isSdkReady) {
+      label = SDK_NOT_READY;
     }
 
-    if (validateSplitExistance(context, splitName, label, invokingMethodName))
+    log.info(`Split: ${splitName}. Key: ${matchingKey}. Evaluation: ${treatment}. Label: ${label}`);
+
+    if (validateSplitExistance(context, splitName, label, invokingMethodName)) {
+      log.info('Queueing corresponding impression.');
       impressionsTracker({
         feature: splitName,
         keyName: matchingKey,
@@ -117,6 +122,7 @@ function ClientFactory(context) {
         label,
         changeNumber
       }, attributes);
+    }
 
     stopLatencyTracker && stopLatencyTracker();
 

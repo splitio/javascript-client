@@ -1,5 +1,6 @@
 import { SplitFactory } from '../../';
 import SettingsFactory from '../../utils/settings';
+import { SPLIT_NOT_FOUND, SDK_NOT_READY } from '../../utils/labels';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
 
@@ -23,7 +24,7 @@ const config = {
     featuresRefreshRate: 1,
     segmentsRefreshRate: 1,
     metricsRefreshRate: 3000,
-    impressionsRefreshRate: 1
+    impressionsRefreshRate: 5
   },
   urls: baseUrls,
   startup: {
@@ -34,17 +35,26 @@ const config = {
 export default async function(key, mock, assert) {
   // Mocking this specific route to make sure we only get the items we want to test from the handlers.
   mock.onGet(settings.url('/splitChanges?since=-1')).replyOnce(200, splitChangesMock1);
-  mock.onGet(settings.url('/splitChanges?since=1457552620999')).replyOnce(200, splitChangesMock2);
+  mock.onGet(settings.url('/splitChanges?since=1457552620999')).reply(200, splitChangesMock2);
+  mock.onGet(new RegExp(`${settings.url('/segmentChanges/')}.*`)).reply(200, {since:10, till:10, name: 'segmentName', added: [], removed: []});
+
   const splitio = SplitFactory(config);
   const client = splitio.client();
+  let evaluationsStart = 0, readyEvaluationsStart = 0, evaluationsEnd = 0;
 
   mock.onPost(settings.url('/testImpressions/bulk')).replyOnce(req => {
     const data = JSON.parse(req.data);
 
-    assert.equal(data.length, 2, 'We performed two correct evaluations so we should have 2 impressions.');
+    assert.equal(data.length, 3, 'We performed evaluations for three splits, so we should have 3 items total.');
 
+    // finding these validate the feature names collection too
     const dependencyChildImpr = data.filter(e => e.testName === 'hierarchical_splits_test')[0];
     const alwaysOnWithConfigImpr = data.filter(e => e.testName === 'split_with_config')[0];
+    const notExistentSplitImpr = data.filter(e => e.testName === 'not_existent_split')[0];
+
+    assert.equal(notExistentSplitImpr.keyImpressions.length, 1); // Only one, the split not found is filtered by the non existent Split check.
+    assert.equal(alwaysOnWithConfigImpr.keyImpressions.length, 1);
+    assert.equal(dependencyChildImpr.keyImpressions.length, 1);
 
     assert.true(dependencyChildImpr, 'Split we wanted to evaluate should be present on the impressions.');
     assert.false(data.some(e => e.testName === 'hierarchical_dep_always_on'), 'Parent split evaluations should not result in impressions.');
@@ -53,16 +63,27 @@ export default async function(key, mock, assert) {
     assert.false(alwaysOnWithConfigImpr.keyImpressions[0].hasOwnProperty('configuration'), 'Impressions do not change with configuration evaluations.');
     assert.false(alwaysOnWithConfigImpr.keyImpressions[0].hasOwnProperty('config'), 'Impressions do not change with configuration evaluations.');
 
-    const {
-      keyName,
-      label,
-      treatment
-    } = dependencyChildImpr.keyImpressions[0];
+    function validateImpressionData(output, expected, performedWhenReady = true) {
+      assert.equal(output.keyName, expected.keyName, 'Present impressions should have the correct key.');
+      assert.equal(output.bucketingKey, expected.bucketingKey, 'Present impressions should have the correct bucketingKey.');
+      assert.equal(output.treatment, expected.treatment, 'Present impressions should have the correct treatment.');
+      assert.equal(output.label, expected.label, 'Present impressions should have the correct label.');
+      assert.equal(output.changeNumber, expected.changeNumber, 'Present impressions should have the correct changeNumber.');
+      assert.true(output.time >= (performedWhenReady ? readyEvaluationsStart : evaluationsStart) && output.time <= evaluationsEnd, 'Present impressions should have the correct timestamp (test with error margin).');
+    }
 
-    assert.equal(keyName, 'facundo@split.io', 'Present impression should have the correct key.');
-    // The label present on the mock.
-    assert.equal(label, 'expected label', 'Present impression should have the correct label.');
-    assert.equal(treatment, 'on', 'Present impression should have the correct treatment.');
+    validateImpressionData(notExistentSplitImpr.keyImpressions[0], {
+      keyName: 'facundo@split.io', label: SDK_NOT_READY, treatment: 'control',
+      bucketingKey: undefined, changeNumber: undefined
+    }, false);
+    validateImpressionData(dependencyChildImpr.keyImpressions[0], {
+      keyName: 'facundo@split.io', label: 'expected label', treatment: 'on',
+      bucketingKey: undefined, changeNumber: 2828282828
+    });
+    validateImpressionData(alwaysOnWithConfigImpr.keyImpressions[0], {
+      keyName: 'facundo@split.io', label: 'another expected label', treatment: 'on',
+      bucketingKey: 'test_buck_key', changeNumber: 828282828282
+    });
 
     // Not push impressions with a invalid key (aka matching key)
     assert.true(
@@ -76,13 +97,26 @@ export default async function(key, mock, assert) {
     return [200];
   });
 
+  splitio.Logger.enable();
+  evaluationsStart = Date.now();
+
+  assert.equal(client.getTreatment(key, 'not_existent_split'), 'control', `If we try to get an evaluation BEFORE the client is ready, we expect ${SDK_NOT_READY} label on the impression.`);
+
   await client.ready();
 
+  readyEvaluationsStart = Date.now();
+
   // depends on hierarchical_dep_hierarchical which depends on hierarchical_dep_always_on
+  assert.equal(client.getTreatment(key, 'not_existent_split'), 'control', 'If we try to get an evaluation for a non existent split AFTER the client is ready, it won\'t log an impression.');
   assert.equal(client.getTreatment(key, 'hierarchical_splits_test'), 'on', 'We should get an evaluation as always.');
-  assert.equal(client.getTreatment(false, 'hierarchical_splits_test'), 'control', 'We should return control with a invalid key.');
-  assert.deepEqual(client.getTreatmentWithConfig(key, 'split_with_config'), {
+  assert.equal(client.getTreatment(false, 'hierarchical_splits_test'), 'control', 'We should return control with a invalid key and that impression is not tracked.');
+  assert.deepEqual(client.getTreatmentWithConfig({
+    matchingKey: key, bucketingKey: 'test_buck_key'
+  }, 'split_with_config'), { // I'll run this one with bucketing key.
     treatment: 'on',
     config: '{"color":"brown","dimensions":{"height":12,"width":14},"text":{"inner":"click me"}}'
   }, 'We should get an evaluation as always.');
+  splitio.Logger.disable();
+
+  evaluationsEnd = Date.now();
 }
