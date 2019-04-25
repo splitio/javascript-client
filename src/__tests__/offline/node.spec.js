@@ -151,7 +151,7 @@ function DotSplitTests (assert) {
     });
 
     networkAssertions(client, assert).then(() => {
-      assert.end();
+      client.destroy().then(assert.end);
     });
   });
 }
@@ -214,7 +214,7 @@ function DotYAMLTests (mockFileName, assert) {
     });
 
     networkAssertions(client, assert).then(() => {
-      assert.end();
+      client.destroy().then(assert.end);
     });
   });
 }
