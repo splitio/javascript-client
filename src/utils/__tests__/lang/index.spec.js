@@ -36,11 +36,19 @@ tape('LANG UTILS / startsWith', function(assert) {
 
 tape('LANG UTILS / endsWith', function(assert) {
   assert.ok(endsWith('myStr', 'Str'));
-  assert.ok(endsWith('is a str', ' str'));
+  assert.ok(endsWith('myStr2', 'r2'));
+  assert.ok(endsWith('is a str', ' str', false));
+
+  // can be case insensitive too
+  assert.ok(endsWith('myStr', 'str', true));
+  assert.ok(endsWith('myStr', 'str', true));
+  assert.ok(endsWith('myStr', 'Str', true));
 
   assert.notOk(endsWith('myStr', 'Sr'));
   assert.notOk(endsWith('myStr ', 'tr'));
   assert.notOk(endsWith('myStr', 'tr '));
+  assert.notOk(endsWith('myStr', 'str'));
+  assert.notOk(endsWith('myStr', 'str', false));
   assert.notOk(endsWith('myStr', null));
   assert.notOk(endsWith(false, null));
   assert.notOk(endsWith());
