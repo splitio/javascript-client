@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+
 import tape from 'tape-catch';
 import { SplitFactory } from '../../';
 import path from 'path';
@@ -51,7 +53,9 @@ const settingsGenerator = mockFileName => {
       offlineRefreshRate: 3
     },
     startup: {
-      eventsFirstPushWindow: 0
+      eventsFirstPushWindow: 0,
+      readyTimeout: 3,
+      retriesOnFailureBeforeReady: 0
     },
     features: path.join(__dirname, mockFileName)
   };
@@ -67,6 +71,31 @@ tape('NodeJS Offline Mode', function (t) {
   t.test('Old format manager - .split extension', ManagerDotSplitTests);
   t.test('New format manager - .yaml extension', ManagerDotYamlTests.bind(null, 'split.yaml'));
   t.test('New format manager - .yml extension', ManagerDotYamlTests.bind(null, 'split2.yml'));
+
+  t.test('Trying to specify an invalid extension it will timeout', assert => {
+    const config = settingsGenerator('.forbidden');
+
+    sinon.spy(console, 'log');
+
+    const factory = SplitFactory({...config, debug: 'ERROR'}); // enable error level logs to check the message.
+    const client = factory.client();
+
+    client.on(client.Event.SDK_READY, () => {
+      assert.fail('If tried to load a file with invalid extension, we should not get SDK_READY.');
+
+      client.destroy();
+      assert.end();
+    });
+    client.on(client.Event.SDK_READY_TIMED_OUT, () => {
+      assert.pass('If tried to load a file with invalid extension, we should emit SDK_READY_TIMED_OUT.');
+
+      assert.ok(console.log.calledWithMatch(`[ERROR] splitio-producer:offline => There was an issue loading the mock Splits data, no changes will be applied to the current cache. Invalid extension specified for Splits mock file. Accepted extensions are ".yml" and ".yaml". Your specified file is ${config.features}`));
+
+      console.log.restore();
+      client.destroy();
+      assert.end();
+    });
+  });
 });
 
 function networkAssertions(client, assert) {
@@ -122,7 +151,7 @@ function DotSplitTests (assert) {
     });
 
     networkAssertions(client, assert).then(() => {
-      assert.end();
+      client.destroy().then(assert.end);
     });
   });
 }
@@ -185,7 +214,7 @@ function DotYAMLTests (mockFileName, assert) {
     });
 
     networkAssertions(client, assert).then(() => {
-      assert.end();
+      client.destroy().then(assert.end);
     });
   });
 }
