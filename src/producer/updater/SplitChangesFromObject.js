@@ -26,33 +26,41 @@ function FromObjectUpdaterFactory(Fetcher, context) {
 
   return async function ObjectUpdater() {
     const splits = [];
-    const splitsMock = Fetcher(settings);
+    let loadError = null;
+    let splitsMock = {};
+    try {
+      splitsMock = Fetcher(settings);
+    } catch (err) {
+      loadError = err;
+      log.error(`There was an issue loading the mock Splits data, no changes will be applied to the current cache. ${err}`);
+    }
 
-    log.debug('Splits data:');
-    log.debug(JSON.stringify(splitsMock));
+    if (!loadError) {
+      log.debug('Splits data:');
+      log.debug(JSON.stringify(splitsMock));
 
-    forOwn(splitsMock, function(val, name) {
-      splits.push([
-        name,
-        JSON.stringify({
+      forOwn(splitsMock, function(val, name) {
+        splits.push([
           name,
-          status: 'ACTIVE',
-          killed: false,
-          trafficAllocation: 100,
-          defaultTreatment: 'control',
-          conditions: val.conditions || [],
-          configurations: val.configurations,
-        })
-      ]);
-    });
+          JSON.stringify({
+            name,
+            status: 'ACTIVE',
+            killed: false,
+            trafficAllocation: 100,
+            defaultTreatment: 'control',
+            conditions: val.conditions || [],
+            configurations: val.configurations,
+          })
+        ]);
+      });
 
-    await storage.splits.flush();
-    await storage.splits.addSplits(splits);
+      await storage.splits.flush();
+      await storage.splits.addSplits(splits);
 
-    readiness.splits.emit(readiness.splits.SDK_SPLITS_ARRIVED);
-    readiness.segments.emit(readiness.segments.SDK_SEGMENTS_ARRIVED);
+      readiness.splits.emit(readiness.splits.SDK_SPLITS_ARRIVED);
+      readiness.segments.emit(readiness.segments.SDK_SEGMENTS_ARRIVED);
+    }
   };
-
 }
 
 export default FromObjectUpdaterFactory;
