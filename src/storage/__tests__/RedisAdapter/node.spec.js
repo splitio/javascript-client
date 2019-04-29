@@ -6,9 +6,9 @@ import merge from 'lodash/merge';
 import reduce from 'lodash/reduce';
 
 // The list of methods we're wrapping on a promise (for timeout) on the adapter.
-const METHODS_TO_PROMISE_WRAP = ['set', 'exec', 'del', 'get', 'keys', 'sadd', 'srem', 'sismember', 'smembers', 'incr', 'rpush', 'pipeline'];
+const METHODS_TO_PROMISE_WRAP = ['set', 'exec', 'del', 'get', 'keys', 'sadd', 'srem', 'sismember', 'smembers', 'incr', 'rpush', 'pipeline', 'expire'];
 
-const ioredisMock = reduce(METHODS_TO_PROMISE_WRAP, (acc, methodName) => {
+const ioredisMock = reduce([...METHODS_TO_PROMISE_WRAP, 'disconnect'], (acc, methodName) => {
   acc[methodName] = sinon.stub().resolves(methodName);
   return acc;
 }, {
@@ -16,6 +16,7 @@ const ioredisMock = reduce(METHODS_TO_PROMISE_WRAP, (acc, methodName) => {
 });
 
 const loggerMock = {
+  debug: sinon.stub(),
   info: sinon.stub(),
   warn: sinon.stub(),
   error: sinon.stub()
@@ -34,11 +35,12 @@ function LogFactory() {
 
 let timeoutPromiseResolvers = [];
 
-const timeout = sinon.spy(function timeout() {
+const timeout = sinon.spy(function timeout(ms, originalPromise) {
   const resolvers = {};
   const promise = new Promise((res, rej) => {
     resolvers.res = res;
     resolvers.rej = rej;
+    resolvers.originalPromise = originalPromise;
   });
 
   timeoutPromiseResolvers.unshift(resolvers);
@@ -53,6 +55,9 @@ const RedisAdapter = proxyquire('../../RedisAdapter', {
   '../utils/promise/timeout': timeout
 });
 
+/**
+ * Logs here won't be changing much, so we could validate those. It's not important the exact message but what do they represent.
+ */
 tape('STORAGE Redis Adapter / Class', assert => {
   assert.equal(RedisAdapter.__proto__, ioredis, 'The returned class extends from the library of choice (ioredis).');
 
@@ -66,7 +71,8 @@ tape('STORAGE Redis Adapter / Class', assert => {
   assert.true(instance instanceof ioredis, 'And as the class extends from the library, the instance is an instance of the library as well.');
 
   assert.true(typeof instance._options === 'object', 'The instance will have an options object.');
-  assert.true(Array.isArray(instance._commandsQueue), 'The instance will have an array as the _commandsQueue property.');
+  assert.true(Array.isArray(instance._notReadyCommandsQueue), 'The instance will have an array as the _notReadyCommandsQueue property.');
+  assert.true(instance._runningCommands instanceof Set, 'The instance will have a set as the _runningCommands property.');
 
   assert.end();
 });
@@ -181,18 +187,19 @@ tape('STORAGE Redis Adapter / instance methods - _listenToEvents', assert => {
   assert.false(loggerMock.warn.called, 'Control assertion');
   secondCall.args[1](); // Execute the callback for "close"
 
-  assert.true(loggerMock.warn.called, 'The callback for the "close" event will only warn the user about what is going on.');
-  assert.true(loggerMock.warn.calledWithExactly('Redis connection closed.'), 'The callback for the "close" event will only warn the user about what is going on.');
+  assert.true(loggerMock.info.calledOnce, 'The callback for the "close" event will only log info to the user about what is going on.');
+  assert.true(loggerMock.info.calledWithExactly('Redis connection closed.'), 'The callback for the "close" event will only log info to the user about what is going on.');
 
+  loggerMock.info.resetHistory();
   assert.false(loggerMock.info.called, 'Control assertion');
-  assert.true(Array.isArray(instance._commandsQueue), 'Control assertion');
+  assert.true(Array.isArray(instance._notReadyCommandsQueue), 'Control assertion');
 
   // Without any offline commands queued, execute the callback for "ready"
   firstCall.args[1]();
 
   assert.true(loggerMock.info.called, 'The callback for the "ready" event will inform the user about the trigger.');
   assert.true(loggerMock.info.calledWithExactly('Redis connection established. Queued commands: 0.'), 'The callback for the "ready" event will inform the user about the trigger.');
-  assert.equal(instance._commandsQueue, false, 'After the DB is ready, it will clean up the offline commands queue so we do not queue commands anymore.');
+  assert.equal(instance._notReadyCommandsQueue, false, 'After the DB is ready, it will clean up the offline commands queue so we do not queue commands anymore.');
 
   // Don't do this at home
   const queuedGetCommand = {
@@ -207,7 +214,7 @@ tape('STORAGE Redis Adapter / instance methods - _listenToEvents', assert => {
     resolve: sinon.stub(),
     reject: sinon.stub()
   };
-  instance._commandsQueue = [queuedGetCommand, queuedSetCommand];
+  instance._notReadyCommandsQueue = [queuedGetCommand, queuedSetCommand];
   loggerMock.info.resetHistory();
 
   // execute the callback for "ready" once more
@@ -215,8 +222,8 @@ tape('STORAGE Redis Adapter / instance methods - _listenToEvents', assert => {
 
   assert.true(loggerMock.info.calledThrice, 'If we had queued commands, it will log the event (1 call) as well as each executed command (n calls).');
   assert.true(loggerMock.info.calledWithExactly('Redis connection established. Queued commands: 2.'), 'The callback for the "ready" event will inform the user about the trigger and the amount of queued commands.');
-  assert.true(loggerMock.info.calledWithExactly('Executing Redis GET command.'), 'If we had queued commands, it will log the event as well as each executed command.');
-  assert.true(loggerMock.info.calledWithExactly('Executing Redis SET command.'), 'If we had queued commands, it will log the event as well as each executed command.');
+  assert.true(loggerMock.info.calledWithExactly('Executing queued GET command.'), 'If we had queued, it will log the event as well as each executed command.');
+  assert.true(loggerMock.info.calledWithExactly('Executing queued SET command.'), 'If we had queued commands, it will log the event as well as each executed command.');
 
   assert.true(queuedGetCommand.command.calledOnce, 'It will execute each queued command.');
   assert.true(queuedSetCommand.command.calledOnce, 'It will execute each queued command.');
@@ -231,7 +238,7 @@ tape('STORAGE Redis Adapter / instance methods - _listenToEvents', assert => {
   }, 5);
 });
 
-tape('STORAGE Redis Adapter / instance methods - _setTimeoutWrappers and queueing commands', assert => {
+tape('STORAGE Redis Adapter / instance methods - _setTimeoutWrappers and queueing commands 1/2 - Error path', assert => {
   sinon.resetHistory();
 
   const instance = new RedisAdapter({
@@ -242,14 +249,14 @@ tape('STORAGE Redis Adapter / instance methods - _setTimeoutWrappers and queuein
     assert.notEqual(instance[methodName], ioredisMock[methodName], `Method "${methodName}" from redis library should be wrapped.`);
     assert.false(instance[methodName].called || ioredisMock[methodName].called, 'Checking that neither the method nor the wrapper were called yet.');
 
-    const startingQueueLength = instance._commandsQueue.length;
+    const startingQueueLength = instance._notReadyCommandsQueue.length;
 
     // We do have the commands queue on this state, so a call for this methods will queue the command.
     const wrapperResult = instance[methodName](methodName);
     assert.true(wrapperResult instanceof Promise, 'The result is a promise since we are queueing commands on this state.');
 
-    assert.equal(instance._commandsQueue.length, startingQueueLength + 1, 'The queue should have one more item.');
-    const queuedCommand = instance._commandsQueue[0];
+    assert.equal(instance._notReadyCommandsQueue.length, startingQueueLength + 1, 'The queue should have one more item.');
+    const queuedCommand = instance._notReadyCommandsQueue[0];
 
     assert.equal(typeof queuedCommand.resolve, 'function', 'The queued item should have the correct form.');
     assert.equal(typeof queuedCommand.reject, 'function', 'The queued item should have the correct form.');
@@ -257,7 +264,7 @@ tape('STORAGE Redis Adapter / instance methods - _setTimeoutWrappers and queuein
     assert.equal(queuedCommand.name, methodName.toUpperCase(), 'The queued item should have the correct form.');
   });
 
-  instance._commandsQueue = false; // Remove the queue.
+  instance._notReadyCommandsQueue = false; // Remove the queue.
   loggerMock.error.resetHistory;
 
   forEach(METHODS_TO_PROMISE_WRAP, methodName => {
@@ -265,18 +272,121 @@ tape('STORAGE Redis Adapter / instance methods - _setTimeoutWrappers and queuein
     assert.false(ioredisMock[methodName].called, `Control assertion - Original method (${methodName}) was not yet called`);
 
     const previousTimeoutCalls = timeout.callCount;
+    let previousRunningCommandsSize = instance._runningCommands.size;
     instance[methodName](methodName).catch(() => {}); // Swallow exception so it's not spread to logs.
     assert.true(ioredisMock[methodName].called, `Original method (${methodName}) is called right away (through wrapper) when we are not queueing anymore.`);
+    assert.equal(instance._runningCommands.size, previousRunningCommandsSize + 1, 'If the result of the operation was a thenable it will add the item to the running commands queue.');
+
     assert.equal(timeout.callCount, previousTimeoutCalls + 1, 'The promise returned by the original method should have a timeout wrapper.');
 
-    // As we do not have specific handling for the success case here, we'll only check failures for now.
-    timeoutPromiseResolvers[0].rej('test');
-    setTimeout(() => {
-      assert.true(loggerMock.error.calledWithExactly(`Redis ${methodName} operation exceeded configured timeout of 5000ms setting. Error: test`), 'The log error method should be called with the corresponding messages, depending on the method, error and operationTimeout.');
+    // Get the original promise (the one passed to timeout)
+    const commandTimeoutResolver = timeoutPromiseResolvers[0];
+
+    assert.true(timeout.calledWithExactly(5000, commandTimeoutResolver.originalPromise), 'Timeout function should have received the correct ms amount and the right promise.');
+    assert.true(instance._runningCommands.has(commandTimeoutResolver.originalPromise), 'Correct promise should be the one on the _runningCommands queue.');
+
+    commandTimeoutResolver.rej('test');
+    setTimeout(() => { // Allow the promises to tick.
+      assert.false(instance._runningCommands.has(commandTimeoutResolver.originalPromise), 'After a command finishes with error, it\'s promise is removed from the instance._runningCommands queue.');
+      assert.true(loggerMock.error.calledWithExactly(`${methodName} operation threw an error or exceeded configured timeout of 5000ms. Message: test`), 'The log error method should be called with the corresponding messages, depending on the method, error and operationTimeout.');
     }, 0);
   });
 
   setTimeout(() => {
     assert.end();
   }, 200);
+});
+
+tape('STORAGE Redis Adapter / instance methods - _setTimeoutWrappers and queueing commands 2/2 - Success path', assert => {
+  sinon.resetHistory();
+
+  const instance = new RedisAdapter({
+    url: 'redis://localhost:6379/0'
+  });
+
+  instance._notReadyCommandsQueue = false; // Connection is "ready"
+
+  forEach(METHODS_TO_PROMISE_WRAP, methodName => {
+    // Just call the wrapped method, we don't care about all the paths tested on the previous case, just how it behaves when the command is resolved.
+    instance[methodName](methodName);
+    // Get the original promise (the one passed to timeout)
+    const commandTimeoutResolver = timeoutPromiseResolvers[0];
+
+    commandTimeoutResolver.res('test');
+    setTimeout(() => { // Allow the promises to tick.
+      assert.false(loggerMock.error.called, 'No error should be logged');
+      assert.false(instance._runningCommands.has(commandTimeoutResolver.originalPromise), 'After a command finishes successfully, it\'s promise is removed from the instance._runningCommands queue.');
+    }, 0);
+  });
+
+  setTimeout(() => {
+    assert.end();
+  }, 200);
+});
+
+tape('STORAGE Redis Adapter / instance methods - _setDisconnectWrapper', assert => {
+  sinon.resetHistory();
+
+  const instance = new RedisAdapter({
+    url: 'redis://localhost:6379/0'
+  });
+
+  assert.notEqual(instance.disconnect, ioredisMock.disconnect, 'disconnect() method from redis library should be wrapped.');
+
+  // Call the method.
+  // Note that there are no commands on the queue for this first run.
+  instance.disconnect();
+  assert.false(ioredisMock.disconnect.called, 'Original method should not be called right away.');
+
+  setTimeout(() => { // o queued commands timeout wrapper.
+    assert.true(loggerMock.debug.calledOnceWithExactly('No commands pending execution, disconnect.'));
+    assert.true(ioredisMock.disconnect.calledOnce, 'Original method should have been called once, asynchronously');
+    loggerMock.debug.resetHistory();
+    ioredisMock.disconnect.resetHistory();
+
+    // Second run, two pending commands, one will fail.
+    instance._runningCommands.add(Promise.resolve());
+    instance.disconnect();
+    const rejectedPromise = Promise.reject('test-error');
+    instance._runningCommands.add(rejectedPromise);
+    rejectedPromise.catch(() => {}); // Swallow the unhandled to avoid unhandledRejection warns
+
+    setTimeout(() => { // queued with rejection timeout wrapper
+      assert.true(loggerMock.info.calledOnceWithExactly('Attempting to disconnect but there are 2 commands still waiting for resolution. Defering disconnection until those finish.'));
+
+      Promise.all(instance._runningCommands.values()).catch(e => {
+        setImmediate(() => { // Allow the callback to execute before checking.
+          assert.true(loggerMock.warn.calledWithExactly(`Pending commands finished with error: ${e}. Proceeding with disconnection.`), 'Should warn about the error but tell user that will disconnect anyways.');
+          assert.true(ioredisMock.disconnect.calledOnce, 'Original method should have been called once, asynchronously');
+
+          loggerMock.info.resetHistory();
+          loggerMock.warn.resetHistory();
+          ioredisMock.disconnect.resetHistory();
+
+          // Third run, pending commands all successful
+          instance._runningCommands.clear();
+          instance._runningCommands.add(Promise.resolve());
+          instance._runningCommands.add(Promise.resolve());
+          instance.disconnect();
+          instance._runningCommands.add(Promise.resolve());
+          instance._runningCommands.add(Promise.resolve());
+
+          setTimeout(() => {
+            assert.true(loggerMock.info.calledOnceWithExactly('Attempting to disconnect but there are 4 commands still waiting for resolution. Defering disconnection until those finish.'));
+
+            Promise.all(instance._runningCommands.values()).then(() => { // This one will go through success path
+              setImmediate(() => {
+                assert.true(loggerMock.debug.calledOnceWithExactly('Pending commands finished successfully, disconnecting.'));
+                assert.true(ioredisMock.disconnect.calledOnce, 'Original method should have been called once, asynchronously');
+              });
+            });
+          } ,10);
+        });
+      });
+    },10);
+  }, 10);
+
+  setTimeout(() => {
+    assert.end();
+  }, 400);
 });
