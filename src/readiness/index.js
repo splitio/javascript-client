@@ -1,5 +1,4 @@
 import EventEmitter from 'events';
-import tracker from '../utils/timeTracker';
 
 const SPLITS_READY = 2;
 const SEGMENTS_READY = 4;
@@ -31,16 +30,18 @@ function GateContext() {
     const gate = new EventEmitter();
     let segmentsStatus = 0;
     let status = 0;
+    let readinessTimeoutId = 0;
 
     if (timeout > 0) {
-      setTimeout(() => {
-        if (status < SDK_FIRE_READY) gate.emit(Events.SDK_READY_TIMED_OUT, 'Split SDK emitted SDK_READY_TIMED_OUT event.');
+      readinessTimeoutId = setTimeout(() => {
+        gate.emit(Events.SDK_READY_TIMED_OUT, 'Split SDK emitted SDK_READY_TIMED_OUT event.');
       }, timeout);
     }
 
     gate.on(Events.READINESS_GATE_CHECK_STATE, () => {
       if (status !== SDK_FIRE_UPDATE && splitsStatus + segmentsStatus === SDK_FIRE_READY) {
         status = SDK_FIRE_UPDATE;
+        clearTimeout(readinessTimeoutId);
         gate.emit(Events.SDK_READY);
       } else if (status === SDK_FIRE_UPDATE) {
         gate.emit(Events.SDK_UPDATE);
@@ -48,13 +49,11 @@ function GateContext() {
     });
 
     splits.on(Events.SDK_SPLITS_ARRIVED, () => {
-      tracker.stop(tracker.TaskNames.SPLITS_READY);
       splitsStatus = SPLITS_READY;
       gate.emit(Events.READINESS_GATE_CHECK_STATE);
     });
 
     segments.on(Events.SDK_SEGMENTS_ARRIVED, () => {
-      tracker.stop(tracker.TaskNames.SEGMENTS_READY);
       segmentsStatus = SEGMENTS_READY;
       gate.emit(Events.READINESS_GATE_CHECK_STATE);
     });
