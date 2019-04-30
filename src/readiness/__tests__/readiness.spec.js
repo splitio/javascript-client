@@ -143,24 +143,23 @@ tape('READINESS GATE / Timeout ready event', function (assert) {
 });
 
 tape('READINESS GATE / Cancel timeout if ready fired', function (assert) {
-  assert.plan(1);
+  assert.plan(2);
+  const timeoutMs = 100;
 
   const ReadinessGateFactory = ReadinessGate();
-  const readiness = ReadinessGateFactory(10);
+  const readiness = ReadinessGateFactory(timeoutMs);
 
-  let timeoutCounter = 0;
+  readiness.gate.on(readiness.gate.SDK_READY_TIMED_OUT, assert.fail.bind(assert, 'SDK_READY_TIMED_OUT should have not been emitted.'));
+  readiness.gate.once(readiness.gate.SDK_READY, assert.pass);
 
-  readiness.gate.on(readiness.gate.SDK_READY_TIMED_OUT, () => {
-    assert.fail('Timeout should not be called');
-    timeoutCounter++;
-  });
+  setTimeout(() => {
+    assert.pass('After a considerably longer time than the timeout, the timeout event never fired (otherwise assert.fail was invoked).');
+  }, timeoutMs * 3);
 
-  readiness.gate.on(readiness.gate.SDK_READY, () => {
-    assert.equal(timeoutCounter, 0, 'Timeout should not be called');
-  });
-
-  readiness.splits.emit(readiness.splits.SDK_SPLITS_ARRIVED);
-  readiness.segments.emit(readiness.segments.SDK_SEGMENTS_ARRIVED);
+  setTimeout(() => {
+    readiness.splits.emit(readiness.splits.SDK_SPLITS_ARRIVED);
+    readiness.segments.emit(readiness.segments.SDK_SEGMENTS_ARRIVED);
+  }, timeoutMs * 0.8);
 });
 
 tape('READINESS GATE / Destroy', function (assert) {
