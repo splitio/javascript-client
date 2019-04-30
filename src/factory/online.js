@@ -42,10 +42,14 @@ function SplitFactoryOnline(context, readyTrackers, mainClientMetricCollectors) 
       break;
     }
     case CONSUMER_MODE:
+      setTimeout(() => {
+        splits.emit(splits.SDK_SPLITS_ARRIVED, false);
+        segments.emit(segments.SDK_SEGMENTS_ARRIVED, false);
+      }, 0);
       break;
   }
 
-  if (readyTrackers && !sharedInstance) { // Only track ready events for non-shared clients
+  if (readyTrackers && producer && !sharedInstance) { // Only track ready events for non-shared and non-consumer clients
     const {
       sdkReadyTracker, splitsReadyTracker, segmentsReadyTracker
     } = readyTrackers;
