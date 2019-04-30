@@ -19,7 +19,7 @@ const log = logFactory('splitio-producer:segment-changes');
 const inputValidationLog = logFactory('', { displayAllErrors: true });
 import segmentChangesFetcher from '../fetcher/SegmentChanges';
 import { findIndex, startsWith } from '../../utils/lang';
-import SplitNetworkError from '../../services/transport/SplitNetworkError';
+import { SplitError } from '../../utils/lang/Errors';
 
 const SegmentChangesUpdaterFactory = context => {
   const {
@@ -74,7 +74,7 @@ const SegmentChangesUpdaterFactory = context => {
         segmentsEventEmitter.emit(segmentsEventEmitter.SDK_SEGMENTS_ARRIVED);
       }
     }).catch(error => {
-      if (!(error instanceof SplitNetworkError)) setTimeout(() => {throw error;}, 0);
+      if (!(error instanceof SplitError)) setTimeout(() => {throw error;}, 0);
 
       if (startsWith(error.message, '403')) {
         context.put(context.constants.DESTROYED);

@@ -43,13 +43,22 @@ export default function(assert) {
     };
     const testAttrs = { is_test: true };
 
-    // Impression listener is shared across all client instances.
+    // Impression listener is shared across all client instances and does not get affected by configurations.
     client.getTreatment('hierarchical_splits_test');
     client2.getTreatment('qc_team');
+    client2.getTreatmentWithConfig('qc_team'); // Validate that the impression is the same.
     client3.getTreatment('qc_team', testAttrs);
 
     setTimeout(() => {
-      assert.true(listener.logImpression.calledThrice, 'Impression listener logImpression method should be called after we call client.getTreatment, once per each impression generated.');
+      const secondImpression = {
+        feature: 'qc_team',
+        keyName: 'marcio@split.io',
+        treatment: 'no',
+        bucketingKey: 'impr_bucketing_2',
+        label: 'default rule'
+      };
+
+      assert.equal(listener.logImpression.callCount, 4, 'Impression listener logImpression method should be called after we call client.getTreatment, once per each impression generated.');
       assert.true(listener.logImpression.getCall(0).calledWithMatch({
         impression: {
           feature: 'hierarchical_splits_test',
@@ -62,17 +71,16 @@ export default function(assert) {
         ...metaData
       }));
       assert.true(listener.logImpression.getCall(1).calledWithMatch({
-        impression: {
-          feature: 'qc_team',
-          keyName: 'marcio@split.io',
-          treatment: 'no',
-          bucketingKey: 'impr_bucketing_2',
-          label: 'default rule'
-        },
+        impression: secondImpression,
         attributes: undefined,
         ...metaData
       }));
       assert.true(listener.logImpression.getCall(2).calledWithMatch({
+        impression: secondImpression,
+        attributes: undefined,
+        ...metaData
+      }));
+      assert.true(listener.logImpression.getCall(3).calledWithMatch({
         impression: {
           feature: 'qc_team',
           keyName: 'facundo@split.io',

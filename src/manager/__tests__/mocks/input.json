@@ -37,5 +37,8 @@
         }
       ]
     }
-  ]
+  ],
+  "configurations": {
+    "on": "\"color\": \"green\""
+  }
 }

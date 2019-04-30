@@ -2,11 +2,14 @@ import thenable from '../utils/promise/thenable';
 import { find } from '../utils/lang';
 import { validateSplit, validateIfOperational } from '../utils/inputValidation';
 
-const collectTreatments = (conditions) => {
+const collectTreatments = (splitObject) => {
+  const conditions = splitObject.conditions;
   // Rollout conditions are supposed to have the entire partitions list, so we find the first one.
-  const firstRolloutCondition = find(conditions, (cond) => cond.conditionType === 'ROLLOUT');
+  let allTreatmentsCondition = find(conditions, (cond) => cond.conditionType === 'ROLLOUT');
+  // Localstorage mode could fall into a no rollout conditions state. Take the first condition in that case.
+  if (!allTreatmentsCondition) allTreatmentsCondition = conditions[0];
   // Then extract the treatments from the partitions
-  return firstRolloutCondition ? firstRolloutCondition.partitions.map(v => v.treatment) : [];
+  return allTreatmentsCondition ? allTreatmentsCondition.partitions.map(v => v.treatment) : [];
 };
 
 const ObjectToView = (json) => {
@@ -25,7 +28,8 @@ const ObjectToView = (json) => {
     trafficType: splitObject.trafficTypeName || null,
     killed: splitObject.killed,
     changeNumber: splitObject.changeNumber || 0,
-    treatments: collectTreatments(splitObject.conditions)
+    treatments: collectTreatments(splitObject),
+    configs: splitObject.configurations || {}
   };
 };
 
@@ -41,37 +45,49 @@ const ObjectsToViews = (jsons) => {
 };
 
 const SplitManagerFactory = (splits, context) => {
-  return {
-    split(maybeSplitName) {
-      const splitName = validateSplit(maybeSplitName, 'split');
-      if (!validateIfOperational(context) || !splitName) {
-        return null;
+  const statusManager = context.get(context.constants.STATUS_MANAGER);
+
+  return Object.assign(
+    // Proto-linkage of the readiness Event Emitter
+    Object.create(statusManager),
+    {
+      /**
+       * Get the Split object corresponding to the given split name if valid
+       */
+      split(maybeSplitName) {
+        const splitName = validateSplit(maybeSplitName, 'split');
+        if (!validateIfOperational(context) || !splitName) {
+          return null;
+        }
+
+        const split = splits.getSplit(splitName);
+
+        if (thenable(split)) return split.then(result => ObjectToView(result));
+        return ObjectToView(split);
+      },
+      /**
+       * Get the Split objects present on the factory storage
+       */
+      splits() {
+        if (!validateIfOperational(context)) {
+          return [];
+        }
+        const currentSplits = splits.getAll();
+
+        if (thenable(currentSplits)) return currentSplits.then(ObjectsToViews);
+        return ObjectsToViews(currentSplits);
+      },
+      /**
+       * Get the Split names present on the factory storage
+       */
+      names() {
+        if (!validateIfOperational(context)) {
+          return [];
+        }
+        return splits.getKeys();
       }
-
-      const split = splits.getSplit(splitName);
-
-      if (thenable(split)) return split.then(result => ObjectToView(result));
-      return ObjectToView(split);
-    },
-
-    splits() {
-      if (!validateIfOperational(context)) {
-        return [];
-      }
-      const currentSplits = splits.getAll();
-
-      if (thenable(currentSplits)) return currentSplits.then(ObjectsToViews);
-      return ObjectsToViews(currentSplits);
-    },
-
-    names() {
-      if (!validateIfOperational(context)) {
-        return [];
-      }
-      return splits.getKeys();
     }
-  };
-
+  );
 };
 
 export default SplitManagerFactory;

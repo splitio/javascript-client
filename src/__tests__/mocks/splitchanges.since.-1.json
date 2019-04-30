@@ -70,7 +70,8 @@
             }
           ]
         }
-      ]
+      ],
+      "configurations": {}
     },
     {
       "orgId": null,
@@ -1185,7 +1186,8 @@
           ],
           "label": "hierarchical dependency label"
         }
-      ]
+      ],
+      "configurations": {}
     },
     {
       "orgId": null,
@@ -1349,6 +1351,86 @@
           ]
         }
       ]
+    },
+    {
+      "trafficTypeName": null,
+      "name": "split_with_config",
+      "algo": 2,
+      "seed": -1222652064,
+      "trafficAllocation": 100,
+      "trafficAllocationSeed": -1667492163,
+      "status": "ACTIVE",
+      "killed": false,
+      "defaultTreatment": "on",
+      "conditions": [
+        {
+          "conditionType": "ROLLOUT",
+          "matcherGroup": {
+            "combiner": "AND",
+            "matchers": [
+              {
+                "keySelector": {
+                  "trafficType": "user",
+                  "attribute": "group"
+                },
+                "matcherType": "WHITELIST",
+                "negate": false,
+                "userDefinedSegmentMatcherData": null,
+                "whitelistMatcherData": {
+                  "whitelist": [
+                    "value_without_config"
+                  ]
+                },
+                "unaryNumericMatcherData": null,
+                "betweenMatcherData": null
+              }
+            ]
+          },
+          "partitions": [
+            {
+              "treatment": "on",
+              "size": 0
+            },
+            {
+              "treatment": "off",
+              "size": 100
+            }
+          ]
+        },
+        {
+          "conditionType": "ROLLOUT",
+          "matcherGroup": {
+            "combiner": "AND",
+            "matchers": [
+              {
+                "keySelector": {
+                  "trafficType": "user",
+                  "attribute": null
+                },
+                "matcherType": "ALL_KEYS",
+                "negate": false,
+                "userDefinedSegmentMatcherData": null,
+                "whitelistMatcherData": null,
+                "unaryNumericMatcherData": null,
+                "betweenMatcherData": null
+              }
+            ]
+          },
+          "partitions": [
+            {
+              "treatment": "on",
+              "size": 100
+            },
+            {
+              "treatment": "off",
+              "size": 0
+            }
+          ]
+        }
+      ],
+      "configurations": {
+        "on": "{\"color\":\"brown\",\"dimensions\":{\"height\":12,\"width\":14},\"text\":{\"inner\":\"click me\"}}"
+      }
     }
   ],
   "since": -1,

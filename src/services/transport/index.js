@@ -1,5 +1,5 @@
 import axios from 'axios';
-import SplitNetworkError from './SplitNetworkError';
+import { SplitNetworkError } from '../../utils/lang/Errors';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-services:service');
 

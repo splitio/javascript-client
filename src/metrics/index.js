@@ -33,7 +33,7 @@ import {
   SegmentChangesCollector,
   SplitChangesCollector,
   MySegmentsCollector,
-  SDKCollector
+  ClientCollector
 } from './Collectors';
 
 const log = logFactory('splitio-metrics');
@@ -129,7 +129,7 @@ const MetricsFactory = context => {
       segmentChanges: new SegmentChangesCollector(storage),
       splitChanges: new SplitChangesCollector(storage),
       mySegments: new MySegmentsCollector(storage),
-      SDK: new SDKCollector(storage)
+      client: new ClientCollector(storage)
     }
   };
 };

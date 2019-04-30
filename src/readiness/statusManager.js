@@ -4,25 +4,31 @@ const log = logFactory('', { displayAllErrors: true });
 const NEW_LISTENER_EVENT = 'newListener';
 const REMOVE_LISTENER_EVENT = 'removeListener';
 
-export default function callbackHandlerContext(gate) {
+export default function callbackHandlerContext(gate, forSharedClient = false) {
   let readyCbCount = 0;
   let isReady = false;
+  const {
+    SDK_READY,
+    SDK_UPDATE,
+    SDK_READY_TIMED_OUT
+  } = gate;
+  const readyPromise = getReadyPromise();
 
-  gate.once(gate.SDK_READY, () => {
+  gate.once(SDK_READY, () => {
     if (readyCbCount === 0) log.warn('No listeners for SDK Readiness detected. Incorrect control treatments could have been logged if you called getTreatment/s while the SDK was not yet ready.');
 
     isReady = true;
   });
 
   gate.on(REMOVE_LISTENER_EVENT, event => {
-    if (event === gate.SDK_READY) readyCbCount--;
+    if (event === SDK_READY) readyCbCount--;
   });
 
   gate.on(NEW_LISTENER_EVENT, event => {
-    if (event === gate.SDK_READY || event === gate.SDK_READY_TIMED_OUT) {
+    if (event === SDK_READY || event === SDK_READY_TIMED_OUT) {
       if (isReady) {
-        log.error(`A listener was added for ${event === gate.SDK_READY ? 'SDK_READY' : 'SDK_READY_TIMED_OUT'} on the SDK, which has already fired and won't be emitted again. The callback won't be executed.`);
-      } else if (event === gate.SDK_READY) {
+        log.error(`A listener was added for ${event === SDK_READY ? 'SDK_READY' : 'SDK_READY_TIMED_OUT'} on the SDK, which has already fired and won't be emitted again. The callback won't be executed.`);
+      } else if (event === SDK_READY) {
         readyCbCount++;
       }
     }
@@ -31,8 +37,8 @@ export default function callbackHandlerContext(gate) {
   function generateReadyPromise() {
     let hasCatch = false;
     const promise = new Promise((resolve, reject) => {
-      gate.once(gate.SDK_READY, resolve);
-      gate.once(gate.SDK_READY_TIMED_OUT, reject);
+      gate.once(SDK_READY, resolve);
+      gate.once(SDK_READY_TIMED_OUT, reject);
     }).catch(function(err) {
       // If the promise has a custom error handler, just propagate
       if (hasCatch) throw err;
@@ -54,7 +60,7 @@ export default function callbackHandlerContext(gate) {
     return promise;
   }
 
-  function getReadyPromise(forSharedClient) {
+  function getReadyPromise() {
     if (forSharedClient) {
       return Promise.resolve();
     }
@@ -63,6 +69,21 @@ export default function callbackHandlerContext(gate) {
     return generateReadyPromise();
   }
 
-  return getReadyPromise;
+  return Object.assign(
+    // Expose Event Emitter functionality
+    Object.create(gate),
+    {
+      // Expose the event constants without changing the interface
+      Event: {
+        SDK_READY,
+        SDK_UPDATE,
+        SDK_READY_TIMED_OUT,
+      },
+      // Expose the ready promise flag
+      ready: () => {
+        return readyPromise;
+      }
+    }
+  );
 }
 

@@ -24,7 +24,7 @@ const config = {
 };
 
 /**
- * Initialize redis server and run a cli bash command to load redis with data to do the proper tests/
+ * Initialize redis server and run a cli bash command to load redis with data to do the proper tests
  */
 const initializeRedisServer = () => {
   // Simply pass the port that you want a Redis server to listen on.
@@ -34,7 +34,7 @@ const initializeRedisServer = () => {
     server
       .open()
       .then(() => {
-        exec(`cat ./src/__tests__/mocks/redis_mock.json | ./node_modules/redis-dump/bin/cli/redis-dump -p ${redisPort} --convert | redis-cli -p ${redisPort}` , err => {
+        exec(`cat ./src/__tests__/mocks/redis-commands.txt | redis-cli -p ${redisPort}`, err => {
           if (err) {
             reject(server);
             // node couldn't execute the command
@@ -53,6 +53,7 @@ tape('NodeJS Redis', function (assert) {
 
   initializeRedisServer()
     .then(async (server) => {
+      const expectedConfig = '{"color":"brown"}';
       const sdk = SplitFactory(config);
       const client = sdk.client();
 
@@ -75,6 +76,16 @@ tape('NodeJS Redis', function (assert) {
       assert.equal(await client.getTreatment('UT_Segment_member', 'UT_NOT_SET_MATCHER', {
         permissions: ['not_matching']
       }), 'on', 'Evaluations using Redis storage should be correct.');
+      assert.deepEqual(await client.getTreatmentWithConfig('UT_Segment_member', 'UT_NOT_SET_MATCHER', {
+        permissions: ['not_matching']
+      }), {
+        treatment: 'on',
+        config: null
+      }, 'Evaluations using Redis storage should be correct, including configs.');
+      assert.deepEqual(await client.getTreatmentWithConfig('UT_Segment_member', 'always-on-with-config'), {
+        treatment: 'on',
+        config: expectedConfig
+      }, 'Evaluations using Redis storage should be correct, including configs.');
 
       assert.equal(await client.getTreatment('UT_Segment_member', 'always-on'), 'on', 'Evaluations using Redis storage should be correct.');
 

@@ -11,5 +11,6 @@ export default {
   },
   scheduler: {
     featuresRefreshRate: 5
-  }
+  },
+  features: '.split'
 };
