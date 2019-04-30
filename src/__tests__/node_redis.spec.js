@@ -117,40 +117,44 @@ tape('NodeJS Redis', function (t) {
 
   t.test('Connection error', assert => {
     initializeRedisServer()
-      .then(async (server) => {
+      .then((server) => {
         const sdk = SplitFactory(config);
         const client = sdk.client();
 
-        assert.equal(await client.getTreatment('UT_Segment_member', 'UT_NOT_SET_MATCHER', {
-          permissions: ['create']
-        }), 'off', 'Control assertion - Everything working as expected.');
-        assert.equal(await client.getTreatment('UT_Segment_member', 'UT_NOT_SET_MATCHER', {
-          permissions: ['not_matching']
-        }), 'on', 'Control assertion - Everything working as expected.');
-        assert.equal(await client.getTreatment('UT_Segment_member', 'always-on'), 'on', 'Control assertion - Everything working as expected.');
+        client.once(client.Event.SDK_READY_TIMED_OUT, assert.fail);
 
-        assert.true(await client.track('nicolas@split.io', 'user', 'test.redis.event', 18), 'Control assertion - Everything working as expected.');
+        client.once(client.Event.SDK_READY, async () => { // Use SDK_READY event.
+          assert.equal(await client.getTreatment('UT_Segment_member', 'UT_NOT_SET_MATCHER', {
+            permissions: ['create']
+          }), 'off', 'Control assertion - Everything working as expected.');
+          assert.equal(await client.getTreatment('UT_Segment_member', 'UT_NOT_SET_MATCHER', {
+            permissions: ['not_matching']
+          }), 'on', 'Control assertion - Everything working as expected.');
+          assert.equal(await client.getTreatment('UT_Segment_member', 'always-on'), 'on', 'Control assertion - Everything working as expected.');
 
-        assert.notEqual(await client.track(), 'Control assertion - Everything working as expected.');
+          assert.true(await client.track('nicolas@split.io', 'user', 'test.redis.event', 18), 'Control assertion - Everything working as expected.');
 
-        // close server connection
-        server.close().then(() => {
-          // we need to add a delay before doing a getTreatment
-          setTimeout(async () => {
-            assert.equal(await client.getTreatment('UT_Segment_member', 'UT_NOT_SET_MATCHER', {
-              permissions: ['create']
-            }), 'control', 'In the event of a Redis error like a disconnection, getTreatments should not hang but resolve to "control".');
-            assert.equal(await client.getTreatment('UT_Segment_member', 'UT_NOT_SET_MATCHER', {
-              permissions: ['not_matching']
-            }), 'control', 'In the event of a Redis error like a disconnection, getTreatments should not hang but resolve to "control".');
-            assert.equal(await client.getTreatment('UT_Segment_member', 'always-on'), 'control', 'In the event of a Redis error like a disconnection, getTreatments should not hang but resolve to "control".');
+          assert.notEqual(await client.track(), 'Control assertion - Everything working as expected.');
 
-            assert.false(await client.track('nicolas@split.io', 'user', 'test.redis.event', 18), 'In the event of a Redis error like a disconnection, track should resolve to false.');
+          // close server connection
+          server.close().then(() => {
+            // we need to add a delay before doing a getTreatment
+            setTimeout(async () => {
+              assert.equal(await client.getTreatment('UT_Segment_member', 'UT_NOT_SET_MATCHER', {
+                permissions: ['create']
+              }), 'control', 'In the event of a Redis error like a disconnection, getTreatments should not hang but resolve to "control".');
+              assert.equal(await client.getTreatment('UT_Segment_member', 'UT_NOT_SET_MATCHER', {
+                permissions: ['not_matching']
+              }), 'control', 'In the event of a Redis error like a disconnection, getTreatments should not hang but resolve to "control".');
+              assert.equal(await client.getTreatment('UT_Segment_member', 'always-on'), 'control', 'In the event of a Redis error like a disconnection, getTreatments should not hang but resolve to "control".');
 
-            await client.destroy();
+              assert.false(await client.track('nicolas@split.io', 'user', 'test.redis.event', 18), 'In the event of a Redis error like a disconnection, track should resolve to false.');
 
-            assert.end();
-          }, 1000);
+              await client.destroy();
+
+              assert.end();
+            }, 1000);
+          });
         });
       });
   });
@@ -163,6 +167,12 @@ tape('NodeJS Redis', function (t) {
           debug: 'WARN' // we want to see the error/warning logs calling the actual log method (if there's any)
         });
         const client = sdk.client();
+
+        try {
+          await client.ready(); // Validate ready promise.
+        } catch (e) {
+          assert.fail(e);
+        }
 
         process.on('unhandledRejection', assert.fail);
         process.on('uncaughtException', assert.fail);
