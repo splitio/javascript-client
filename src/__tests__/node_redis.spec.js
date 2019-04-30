@@ -23,6 +23,9 @@ const config = {
     options: {
       url: `redis://localhost:${redisPort}/0`
     }
+  },
+  startup: {
+    readyTimeout: 36000 // 10hs
   }
 };
 
@@ -133,7 +136,7 @@ tape('NodeJS Redis', function (t) {
         // close server connection
         server.close().then(() => {
           // we need to add a delay before doing a getTreatment
-          const id = setTimeout(async () => {
+          setTimeout(async () => {
             assert.equal(await client.getTreatment('UT_Segment_member', 'UT_NOT_SET_MATCHER', {
               permissions: ['create']
             }), 'control', 'In the event of a Redis error like a disconnection, getTreatments should not hang but resolve to "control".');
@@ -143,8 +146,6 @@ tape('NodeJS Redis', function (t) {
             assert.equal(await client.getTreatment('UT_Segment_member', 'always-on'), 'control', 'In the event of a Redis error like a disconnection, getTreatments should not hang but resolve to "control".');
 
             assert.false(await client.track('nicolas@split.io', 'user', 'test.redis.event', 18), 'In the event of a Redis error like a disconnection, track should resolve to false.');
-
-            clearTimeout(id);
 
             await client.destroy();
 
