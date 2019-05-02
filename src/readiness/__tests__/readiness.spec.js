@@ -162,11 +162,11 @@ tape('READINESS GATE / Cancel timeout if ready fired', function (assert) {
   }, timeoutMs * 0.8);
 });
 
-tape('READINESS GATE / Destroy', function (assert) {
+tape('READINESS GATE / Destroy after it was ready', function (assert) {
   assert.plan(1);
 
   const ReadinessGateFactory = ReadinessGate();
-  const readiness = ReadinessGateFactory(10);
+  const readiness = ReadinessGateFactory(20000);
 
   let counter = 0;
 
@@ -179,7 +179,7 @@ tape('READINESS GATE / Destroy', function (assert) {
 
   readiness.segments.emit(readiness.segments.SDK_SEGMENTS_ARRIVED); // fires an update
 
-  readiness.destroy(); // remove all the listeners
+  readiness.destroy(); // Destroy the gate, removing all the listeners and clearing the ready timeout.
   readiness.destroy(); // no-op
   readiness.destroy(); // no-op
 
@@ -187,4 +187,17 @@ tape('READINESS GATE / Destroy', function (assert) {
   readiness.segments.emit(readiness.segments.SDK_SEGMENTS_ARRIVED); // fires an update
 
   assert.equal(counter, 1, 'Second update event should be discarded');
+});
+
+tape('READINESS GATE / Destroy before it was ready', function (assert) {
+  assert.plan(1);
+
+  const ReadinessGateFactory = ReadinessGate();
+  const readiness = ReadinessGateFactory(360000000); // 100hrs, test would time out if it does not work as expcted
+
+  setTimeout(() => {
+    assert.pass('Calling destroy should have removed the readyTimeout and the test should end now.');
+  }, 2000); // 2s
+
+  readiness.destroy(); // Destroy the gate, removing all the listeners and clearing the ready timeout.
 });
