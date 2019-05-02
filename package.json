@@ -31,7 +31,7 @@
     "babel-core": "6.26.3",
     "babel-loader": "7.1.5",
     "babel-plugin-add-module-exports": "1.0.0",
-    "babel-plugin-istanbul": "5.0.1",
+    "babel-plugin-istanbul": "5.1.4",
     "babel-plugin-syntax-object-rest-spread": "6.13.0",
     "babel-plugin-transform-builtin-extend": "1.1.2",
     "babel-plugin-transform-object-rest-spread": "6.26.0",
