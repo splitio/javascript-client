@@ -42,7 +42,7 @@ function SplitFactoryOnline(context, readyTrackers, mainClientMetricCollectors) 
       break;
     }
     case CONSUMER_MODE:
-      setTimeout(() => {
+      setTimeout(() => { // Allow for the sync statements to run so client is returned before this point.
         splits.emit(splits.SDK_SPLITS_ARRIVED, false);
         segments.emit(segments.SDK_SEGMENTS_ARRIVED, false);
       }, 0);

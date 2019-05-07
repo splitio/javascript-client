@@ -73,7 +73,7 @@ function GateContext() {
         gate.emit(Events.SDK_READY_TIMED_OUT, 'Split SDK emitted SDK_READY_TIMED_OUT event.');
       }, timeout);
       // Clear it if the SDK get's ready.
-      gate.on(Events.SDK_READY, () => clearTimeout(readinessTimeoutId));
+      gate.once(Events.SDK_READY, () => clearTimeout(readinessTimeoutId));
     }
 
     gate.SDK_READY = Events.SDK_READY;
