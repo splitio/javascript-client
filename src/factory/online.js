@@ -5,30 +5,22 @@ import MetricsFactory from '../metrics';
 import EventsFactory from '../events';
 import SignalsListener from '../listeners';
 import { STANDALONE_MODE, PRODUCER_MODE, CONSUMER_MODE } from '../utils/constants';
-import logFactory from '../utils/logger';
-const log = logFactory('splitio-factory');
 
 //
 // Create SDK instance based on the provided configurations
 //
-function SplitFactoryOnline(context, gateFactory, readyTrackers, mainClientMetricCollectors) {
+function SplitFactoryOnline(context, readyTrackers, mainClientMetricCollectors) {
   const sharedInstance = !!mainClientMetricCollectors;
   const settings = context.get(context.constants.SETTINGS);
+  const readiness = context.get(context.constants.READINESS);
   const storage = context.get(context.constants.STORAGE);
-
-  // Put readiness config within context
-  const readiness = gateFactory(settings.startup.readyTimeout);
-  context.put(context.constants.READINESS, readiness);
+  const statusManager = context.get(context.constants.STATUS_MANAGER);
 
   // We are only interested in exposable EventEmitter
   const { gate, splits, segments } = readiness;
 
   // Events name
-  const {
-    SDK_READY,
-    SDK_UPDATE,
-    SDK_READY_TIMED_OUT
-  } = gate;
+  const { SDK_READY } = gate;
 
   // Shared instances use parent metrics collectors
   const metrics = sharedInstance ? undefined : MetricsFactory(context);
@@ -50,10 +42,14 @@ function SplitFactoryOnline(context, gateFactory, readyTrackers, mainClientMetri
       break;
     }
     case CONSUMER_MODE:
+      setTimeout(() => { // Allow for the sync statements to run so client is returned before these are emitted.
+        splits.emit(splits.SDK_SPLITS_ARRIVED, false);
+        segments.emit(segments.SDK_SEGMENTS_ARRIVED, false);
+      }, 0);
       break;
   }
 
-  if (readyTrackers && !sharedInstance) { // Only track ready events for non-shared clients
+  if (readyTrackers && producer && !sharedInstance) { // Only track ready events for non-shared and non-consumer clients
     const {
       sdkReadyTracker, splitsReadyTracker, segmentsReadyTracker
     } = readyTrackers;
@@ -71,54 +67,16 @@ function SplitFactoryOnline(context, gateFactory, readyTrackers, mainClientMetri
   metrics && metrics.start();
   events && context.put(context.constants.EVENTS, events) && events.start();
 
-  function generateReadyPromise() {
-    let hasCatch = false;
-    const promise = new Promise((resolve, reject) => {
-      gate.on(SDK_READY, resolve);
-      gate.on(SDK_READY_TIMED_OUT, reject);
-    }).catch(function(err) {
-      // If the promise has a custom error handler, just propagate
-      if (hasCatch) throw err;
-      // If not handle the error to prevent unhandled promise exception.
-      log.error(err);
-    });
-    const originalThen = promise.then;
-
-    // Using .catch(fn) is the same than using .then(null, fn)
-    promise.then = function () {
-      if (arguments.length > 1 && typeof arguments[1] === 'function')
-        hasCatch = true;
-      return originalThen.apply(this, arguments);
-    };
-
-    return promise;
-  }
-
-  // Ready promise
-  const readyFlag = sharedInstance ? Promise.resolve() : generateReadyPromise();
-
   // If no collectors are stored we are on a shared instance, save main one.
   context.put(context.constants.COLLECTORS, mainClientMetricCollectors);
 
   const api = Object.assign(
     // Proto linkage of the EventEmitter to prevent any change
-    Object.create(gate),
-    // GetTreatment/s
+    Object.create(statusManager),
+    // getTreatment/s & track
     ClientFactory(context),
     // Utilities
     {
-      // Ready promise
-      ready() {
-        return readyFlag;
-      },
-
-      // Events contants
-      Event: {
-        SDK_READY,
-        SDK_UPDATE,
-        SDK_READY_TIMED_OUT
-      },
-
       // Destroy instance
       async destroy() {
         // Stop background jobs
@@ -138,6 +96,8 @@ function SplitFactoryOnline(context, gateFactory, readyTrackers, mainClientMetri
 
         // Cleanup storage
         storage.destroy && storage.destroy();
+        // Mark the factory as destroyed.
+        context.put(context.constants.DESTROYED, true);
       }
     }
   );

@@ -1,9 +1,9 @@
-import { SplitFactory } from '../../';
-import tape from 'tape';
+import tape from 'tape-catch';
 import map from 'lodash/map';
 import pick from 'lodash/pick';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
+import { SplitFactory } from '../../';
 
 // This sets the mock adapter on the default instance
 const mock = new MockAdapter(axios);
@@ -76,11 +76,14 @@ tape('SDK destroy for NodeJS', async function (assert) {
 
   await destroyPromise;
 
-  assert.equal( client.getTreatment('ut1', 'Single_Test'), 'control' );
-
-  assert.equal( manager.splits().length , 0 );
-  assert.equal( manager.names().length ,  0 );
-  assert.equal( manager.split('Single_Test') , null );
+  assert.equal( client.getTreatment('ut1', 'Single_Test'), 'control', 'After destroy, getTreatment returns control.');
+  assert.deepEqual( client.getTreatments('ut1', ['Single_Test', 'another_split']), {
+    Single_Test: 'control', another_split: 'control'
+  }, 'After destroy, getTreatments returns a map of control.');
+  assert.notOk( client.track('key', 'tt', 'event'),  'After destroy, track calls return false.');
+  assert.equal( manager.splits().length , 0 , 'After destroy, manager.splits returns empty array.');
+  assert.equal( manager.names().length ,  0 , 'After destroy, manager.names returns empty array.');
+  assert.equal( manager.split('Single_Test') , null , 'After destroy, manager.split returns null.');
 
   assert.end();
 });

@@ -17,9 +17,8 @@ limitations under the License.
 import Engine from '../';
 import thenable from '../../utils/promise/thenable';
 import LabelsConstants from '../../utils/labels';
-import { isString } from '../../utils/lang';
-import logFactory from '../../utils/logger';
-const log = logFactory('splitio-client');
+import { get } from '../../utils/lang';
+import { CONTROL } from '../../utils/constants';
 
 function splitEvaluator(
   key,
@@ -27,40 +26,23 @@ function splitEvaluator(
   attributes,
   storage
 ) {
-  let splitObject;
-  let isSplitNameUnexistence = splitName === null || splitName === undefined;
-
-  /**
-   * If split name is null or undefined or is not a string return control and
-   * label exception and log the error.
-   */
-  if (isSplitNameUnexistence || !isString(splitName)) {
-    if (isSplitNameUnexistence) {
-      log.error('getTreatment: split_name cannot be null');
-    } else {
-      log.error('getTreatment: split_name must be a string');
-    }
-
-    return {
-      treatment: 'control',
-      label: LabelsConstants.EXCEPTION
-    };
-  }
+  let stringifiedSplit;
 
   try {
-    splitObject = storage.splits.getSplit(splitName);
+    stringifiedSplit = storage.splits.getSplit(splitName);
   } catch (e) {
     // the only scenario where getSplit can throw an error is when the storage
     // is redis and there is a connection issue and we can't retrieve the split
     // to be evaluated
     return Promise.resolve({
-      treatment: 'control',
-      label: LabelsConstants.EXCEPTION
+      treatment: CONTROL,
+      label: LabelsConstants.EXCEPTION,
+      config: null
     });
   }
 
-  if (thenable(splitObject)) {
-    return splitObject.then((result) => getEvaluation(
+  if (thenable(stringifiedSplit)) {
+    return stringifiedSplit.then((result) => getEvaluation(
       result,
       key,
       attributes,
@@ -69,7 +51,7 @@ function splitEvaluator(
   }
 
   return getEvaluation(
-    splitObject,
+    stringifiedSplit,
     key,
     attributes,
     storage
@@ -77,31 +59,33 @@ function splitEvaluator(
 }
 
 function getEvaluation(
-  splitObject,
+  stringifiedSplit,
   key,
   attributes,
   storage
 ) {
   let evaluation = {
-    treatment: 'control',
-    label: LabelsConstants.SPLIT_NOT_FOUND
+    treatment: CONTROL,
+    label: LabelsConstants.SPLIT_NOT_FOUND,
+    config: null
   };
 
-  if (splitObject) {
-    const split = Engine.parse(JSON.parse(splitObject), storage);
-
+  if (stringifiedSplit) {
+    const splitJSON = JSON.parse(stringifiedSplit);
+    const split = Engine.parse(splitJSON, storage);
     evaluation = split.getTreatment(key, attributes, splitEvaluator);
 
-    // If the storage is async, evaluation and changeNumber will return a
-    // thenable
+    // If the storage is async, evaluation and changeNumber will return a thenable
     if (thenable(evaluation)) {
       return evaluation.then(result => {
         result.changeNumber = split.getChangeNumber();
+        result.config = get(splitJSON, `configurations.${result.treatment}`, null);
 
         return result;
       });
     } else {
       evaluation.changeNumber = split.getChangeNumber(); // Always sync and optional
+      evaluation.config = get(splitJSON, `configurations.${evaluation.treatment}`, null);
     }
   }
 

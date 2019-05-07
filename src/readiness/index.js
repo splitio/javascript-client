@@ -1,5 +1,4 @@
 import EventEmitter from 'events';
-import tracker from '../utils/timeTracker';
 
 const SPLITS_READY = 2;
 const SEGMENTS_READY = 4;
@@ -27,18 +26,10 @@ function GateContext() {
   // references counter: how many
   let refCount = 0;
 
-  function ReadinessGateFactory(splits, segments, timeout) {
+  function ReadinessGateFactory(splits, segments) {
     const gate = new EventEmitter();
     let segmentsStatus = 0;
     let status = 0;
-
-    if (timeout > 0) {
-      setTimeout(() => {
-
-        if (status < SDK_FIRE_READY) gate.emit(Events.SDK_READY_TIMED_OUT, 'Split SDK emitted SDK_READY_TIMED_OUT event.');
-
-      }, timeout);
-    }
 
     gate.on(Events.READINESS_GATE_CHECK_STATE, () => {
       if (status !== SDK_FIRE_UPDATE && splitsStatus + segmentsStatus === SDK_FIRE_READY) {
@@ -50,13 +41,11 @@ function GateContext() {
     });
 
     splits.on(Events.SDK_SPLITS_ARRIVED, () => {
-      tracker.stop(tracker.TaskNames.SPLITS_READY);
       splitsStatus = SPLITS_READY;
       gate.emit(Events.READINESS_GATE_CHECK_STATE);
     });
 
     segments.on(Events.SDK_SEGMENTS_ARRIVED, () => {
-      tracker.stop(tracker.TaskNames.SEGMENTS_READY);
       segmentsStatus = SEGMENTS_READY;
       gate.emit(Events.READINESS_GATE_CHECK_STATE);
     });
@@ -72,10 +61,21 @@ function GateContext() {
    * instance.
    */
   function SDKReadinessGateFactory(timeout = 0) {
+    let readinessTimeoutId = 0;
     const segments = new EventEmitter();
     segments.SDK_SEGMENTS_ARRIVED = Events.SDK_SEGMENTS_ARRIVED;
 
     const gate = ReadinessGateFactory(splits, segments, timeout);
+
+    if (timeout > 0) {
+      // Add the timeout.
+      readinessTimeoutId = setTimeout(() => {
+        gate.emit(Events.SDK_READY_TIMED_OUT, 'Split SDK emitted SDK_READY_TIMED_OUT event.');
+      }, timeout);
+      // Clear it if the SDK get's ready.
+      gate.once(Events.SDK_READY, () => clearTimeout(readinessTimeoutId));
+    }
+
     gate.SDK_READY = Events.SDK_READY;
     gate.SDK_UPDATE = Events.SDK_UPDATE;
     gate.SDK_READY_TIMED_OUT = Events.SDK_READY_TIMED_OUT;
@@ -92,6 +92,7 @@ function GateContext() {
       destroy() {
         segments.removeAllListeners();
         gate.removeAllListeners();
+        clearTimeout(readinessTimeoutId);
 
         if (refCount > 0) refCount--;
         if (refCount === 0) splits.removeAllListeners();

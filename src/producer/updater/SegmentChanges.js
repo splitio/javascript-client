@@ -16,10 +16,12 @@ limitations under the License.
 
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-producer:segment-changes');
+const inputValidationLog = logFactory('', { displayAllErrors: true });
 import segmentChangesFetcher from '../fetcher/SegmentChanges';
-import { findIndex } from '../../utils/lang';
+import { findIndex, startsWith } from '../../utils/lang';
+import { SplitError } from '../../utils/lang/Errors';
 
-const SegmentChangesUpdaterFactory = (context) => {
+const SegmentChangesUpdaterFactory = context => {
   const {
     [context.constants.SETTINGS]: settings,
     [context.constants.READINESS]: readiness,
@@ -70,6 +72,13 @@ const SegmentChangesUpdaterFactory = (context) => {
       if (findIndex(shouldUpdateFlags, v => v !== -1) !== -1 || readyOnAlreadyExistentState) {
         readyOnAlreadyExistentState = false;
         segmentsEventEmitter.emit(segmentsEventEmitter.SDK_SEGMENTS_ARRIVED);
+      }
+    }).catch(error => {
+      if (!(error instanceof SplitError)) setTimeout(() => {throw error;}, 0);
+
+      if (startsWith(error.message, '403')) {
+        context.put(context.constants.DESTROYED);
+        inputValidationLog.error('Factory instantiation: you passed a Browser type authorizationKey, please grab an Api Key from the Split web console that is of type SDK.');
       }
     });
   };

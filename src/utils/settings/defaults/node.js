@@ -8,5 +8,9 @@ export default {
     readyTimeout: 15,
     // Don't wait a specific time for first flush on Node, no page load here.
     eventsFirstPushWindow: 0
-  }
+  },
+  scheduler: {
+    featuresRefreshRate: 5
+  },
+  features: '.split'
 };

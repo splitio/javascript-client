@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 import axios from 'axios';
-import tape from 'tape';
+import tape from 'tape-catch';
 import utils from '../../../engine/murmur3';
 
 tape('MURMUR3', function (t) {

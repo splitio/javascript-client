@@ -14,37 +14,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 import { isObject } from '../lang';
-import sanatize from './sanatize';
 
 /**
  * Verify type of key and return a valid object key used for get treatment for a
  * specific split.
  */
-export default (key) => {
+export default key => {
   if (isObject(key)) {
-    // If we've received an object, we will sanatizes the value of each property
-    const keyObject = {
-      matchingKey: sanatize(key.matchingKey),
-      bucketingKey: sanatize(key.bucketingKey)
-    };
-
-    // and if they've resulted on a invalid type of key we will return false
-    if (keyObject.bucketingKey === false || keyObject.matchingKey === false) {
-      return false;
-    }
-
-    return keyObject;
-  }
-
-  const sanatizedKey = sanatize(key);
-
-  // sanatize would return false if the key is invalid
-  if (sanatizedKey !== false) {
     return {
-      matchingKey: sanatizedKey,
-      bucketingKey: sanatizedKey
+      matchingKey: key.matchingKey,
+      bucketingKey: key.bucketingKey
+    };
+  } else {
+    return {
+      matchingKey: key,
+      bucketingKey: key
     };
   }
-
-  return false;
 };

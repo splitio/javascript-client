@@ -5,8 +5,8 @@ const VERSION = pkg.version;
 const IS_PROD = process.env.NODE_ENV === 'production';
 
 const IS_CI = process.env.CI === 'true';
-const CI_COMMIT_ID = IS_CI ? process.env.CI_COMMIT_ID : '';
-const CI_BRANCH = process.env.CI_BRANCH;
+const CI_COMMIT_ID = IS_CI ? process.env.TRAVIS_COMMIT : '';
+const CI_BRANCH = process.env.TRAVIS_BRANCH;
 
 const IS_MASTER_BRANCH = IS_CI && CI_BRANCH === 'master';
 

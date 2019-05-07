@@ -15,6 +15,7 @@ limitations under the License.
 **/
 
 import logFactory from '../../utils/logger';
+import { SplitError } from '../../utils/lang/Errors';
 const log = logFactory('splitio-producer:my-segments');
 import mySegmentsFetcher from '../fetcher/MySegments';
 
@@ -48,6 +49,8 @@ function MySegmentsUpdaterFactory(context) {
       }
     })
       .catch(error => {
+        if (!(error instanceof SplitError)) setTimeout(() => {throw error;}, 0);
+
         if (startingUp && settings.startup.retriesOnFailureBeforeReady > retry) {
           retry += 1;
           log.warn(`Retrying download of segments #${retry}. Reason: ${error}`);

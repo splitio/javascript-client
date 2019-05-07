@@ -5,10 +5,14 @@
     }]
   ],
 
-  "plugins": [
+  "plugins": [ // es6 build
     "syntax-object-rest-spread",
     "transform-object-rest-spread",
-    "transform-runtime"
+    "transform-runtime",
+    ["babel-plugin-transform-builtin-extend", {
+      "globals": ["Error"],
+      "approximate": true
+    }]
   ],
 
   "env": {
@@ -19,7 +23,11 @@
         }]
       ],
       "plugins": [
-        "add-module-exports"
+        "add-module-exports",
+        ["babel-plugin-transform-builtin-extend", {
+          "globals": ["Error"],
+          "approximate": true
+        }]
       ]
     },
     "development": {
@@ -29,7 +37,11 @@
         }]
       ],
       "plugins": [
-        "add-module-exports"
+        "add-module-exports",
+        ["babel-plugin-transform-builtin-extend", {
+          "globals": ["Error"],
+          "approximate": true
+        }]
       ]
     },
     "production": {
@@ -39,7 +51,11 @@
         }]
       ],
       "plugins": [
-        "add-module-exports"
+        "add-module-exports",
+        ["babel-plugin-transform-builtin-extend", {
+          "globals": ["Error"],
+          "approximate": true
+        }]
       ]
     },
     "test": {
@@ -51,6 +67,10 @@
       ],
       "plugins": [
         "add-module-exports",
+        ["babel-plugin-transform-builtin-extend", {
+          "globals": ["Error"],
+          "approximate": true
+        }],
         ["istanbul", {
           "exclude": [
             "**/*.spec.js",

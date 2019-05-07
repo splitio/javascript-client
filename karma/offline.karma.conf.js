@@ -4,9 +4,6 @@ module.exports = function(config) {
   'use strict';
 
   config.set(assign({}, require('./config'), {
-    browsers: [
-      'PhantomJS'
-    ],
     // list of files / patterns to load in the browser
     files: [
       '__tests__/offline/browser.spec.js'
@@ -19,6 +16,6 @@ module.exports = function(config) {
 
     // level of logging
     // possible values: LOG_DISABLE || LOG_ERROR || LOG_WARN || LOG_INFO || LOG_DEBUG
-    logLevel: config.LOG_DEBUG
+    logLevel: config.LOG_WARN
   }));
 };

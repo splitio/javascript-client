@@ -17,15 +17,14 @@ limitations under the License.
 import { get } from '../utils/lang';
 import parser from './parser';
 import keyParser from '../utils/key/parser';
-import keyLogError from '../utils/key/logError';
 import thenable from '../utils/promise/thenable';
 import LabelsConstants from '../utils/labels';
+import { CONTROL } from '../utils/constants';
 
 function defaults(inst) {
-  // in case we don't have a default treatment in the instanciation, use
-  // 'control'
+  // in case we don't have a default treatment in the instanciation, use 'control'
   if (typeof inst.baseInfo.defaultTreatment !== 'string') {
-    inst.baseInfo.defaultTreatment = 'control';
+    inst.baseInfo.defaultTreatment = CONTROL;
   }
 }
 
@@ -67,23 +66,21 @@ Split.prototype.getTreatment = function getTreatment(key, attributes, splitEvalu
     trafficAllocationSeed,
     algo
   } = this.baseInfo;
-
   let parsedKey;
   let treatment;
   let label;
 
-  parsedKey = keyParser(key);
-
-  if (parsedKey === false) {
-    keyLogError('getTreatment', key);
+  try {
+    parsedKey = keyParser(key);
+  } catch (err) {
     return {
-      treatment: 'control',
+      treatment: CONTROL,
       label: LabelsConstants.EXCEPTION
     };
   }
 
   if (this.isGarbage()) {
-    treatment = 'control';
+    treatment = CONTROL;
     label = LabelsConstants.SPLIT_ARCHIVED;
   } else if (killed) {
     treatment = defaultTreatment;

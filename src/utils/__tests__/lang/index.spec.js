@@ -8,6 +8,7 @@ import {
   find,
   isString,
   isFinite,
+  isObject,
   uniqueId,
   merge,
   uniq,
@@ -15,7 +16,7 @@ import {
   toNumber,
   forOwn,
   groupBy,
-  getFnName
+  getFnName,
 } from '../../lang';
 
 tape('LANG UTILS / startsWith', function(assert) {
@@ -35,11 +36,19 @@ tape('LANG UTILS / startsWith', function(assert) {
 
 tape('LANG UTILS / endsWith', function(assert) {
   assert.ok(endsWith('myStr', 'Str'));
-  assert.ok(endsWith('is a str', ' str'));
+  assert.ok(endsWith('myStr2', 'r2'));
+  assert.ok(endsWith('is a str', ' str', false));
+
+  // can be case insensitive too
+  assert.ok(endsWith('myStr', 'str', true));
+  assert.ok(endsWith('myStr', 'str', true));
+  assert.ok(endsWith('myStr', 'Str', true));
 
   assert.notOk(endsWith('myStr', 'Sr'));
   assert.notOk(endsWith('myStr ', 'tr'));
   assert.notOk(endsWith('myStr', 'tr '));
+  assert.notOk(endsWith('myStr', 'str'));
+  assert.notOk(endsWith('myStr', 'str', false));
   assert.notOk(endsWith('myStr', null));
   assert.notOk(endsWith(false, null));
   assert.notOk(endsWith());
@@ -161,6 +170,29 @@ tape('LANG UTILS / isFinite', function(assert) {
   assert.notOk(isFinite({}), 'Should return false for anything that is not a finite number.');
   assert.notOk(isFinite(/regex/), 'Should return false for anything that is not a finite number.');
   assert.notOk(isFinite('5'), 'Should return false for anything that is not a finite number.');
+
+  assert.end();
+});
+
+tape('LANG UTILS / isObject', function(assert) {
+  assert.ok(isObject({}), 'Should return true for map objects.');
+  assert.ok(isObject({ a: true }), 'Should return true for map objects.');
+  assert.ok(isObject(new Object()), 'Should return true for map objects.');
+  assert.ok(isObject(Object.create({})), 'Should return true for map objects.');
+
+  assert.notOk(isObject([]), 'Should return false for anything that is not a map object.');
+  assert.notOk(isObject(() => {}), 'Should return false for anything that is not a map object.');
+  assert.notOk(isObject(true), 'Should return false for anything that is not a map object.');
+  assert.notOk(isObject(false), 'Should return false for anything that is not a map object.');
+  assert.notOk(isObject(null), 'Should return false for anything that is not a map object.');
+  assert.notOk(isObject(undefined), 'Should return false for anything that is not a map object.');
+  assert.notOk(isObject(1), 'Should return false for anything that is not a map object.');
+  assert.notOk(isObject('asd'), 'Should return false for anything that is not a map object.');
+  assert.notOk(isObject(function() {}), 'Should return false for anything that is not a map object.');
+  assert.notOk(isObject(Symbol('test')), 'Should return false for anything that is not a map object.');
+  assert.notOk(isObject(new Promise(res => res())), 'Should return false for anything that is not a map object.');
+  // Object.create(null) creates an object with no prototype which may be tricky to handle. Filtering that out too.
+  assert.notOk(isObject(Object.create(null)), 'Should return false for anything that is not a map object.');
 
   assert.end();
 });

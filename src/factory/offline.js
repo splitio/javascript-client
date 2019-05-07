@@ -4,57 +4,25 @@ import OfflineProducerFactory from '../producer/offline';
 //
 // Create SDK instance for offline mode.
 //
-function SplitFactoryOffline(context, gateFactory, sharedTrackers) {
+function SplitFactoryOffline(context, sharedTrackers) {
   const sharedInstance = !sharedTrackers;
-  const settings = context.get(context.constants.SETTINGS);
+  const readiness = context.get(context.constants.READINESS);
   const storage = context.get(context.constants.STORAGE);
+  const statusManager = context.get(context.constants.STATUS_MANAGER);
 
-  // Put readiness config within context    
-  const readiness = gateFactory(settings.startup.readyTimeout);
-  context.put(context.constants.READINESS, readiness);
-
-  // We are only interested in exposable EventEmitter
-  const { gate } = readiness;
-
-  // Events name
-  const {
-    SDK_READY,
-    SDK_UPDATE,
-    SDK_READY_TIMED_OUT
-  } = gate;
-
+  // Producer
   const producer = sharedInstance ? undefined : OfflineProducerFactory(context);
 
   // Start background task for flag updates
   producer && producer.start();
 
-  // Ready promise
-  const readyFlag = sharedInstance ? Promise.resolve() :
-    new Promise(resolve => {
-      gate.on(SDK_READY, resolve);
-      // No timeout because we use fs.readFileSync. If we revisit that when refactoring
-      // and use an asynchronous method, we may want to reject on timeout event.
-    });
-
   const api = Object.assign(
     // Proto linkage of the EventEmitter to prevent any change
-    Object.create(gate),
+    Object.create(statusManager),
     // GetTreatment/s
     ClientFactory(context),
     // Utilities
     {
-      // Ready promise
-      ready() {
-        return readyFlag;
-      },
-
-      // Events contants
-      Event: {
-        SDK_READY,
-        SDK_UPDATE,
-        SDK_READY_TIMED_OUT
-      },
-
       // Destroy instance. Async so we respect the online api.
       async destroy() {
         // Stop background jobs
@@ -63,6 +31,8 @@ function SplitFactoryOffline(context, gateFactory, sharedTrackers) {
         readiness.destroy();
         // Cleanup storage
         storage.destroy && storage.destroy();
+        // Mark the factory as destroyed.
+        context.put(context.constants.DESTROYED, true);
       }
     }
   );

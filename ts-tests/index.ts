@@ -14,9 +14,12 @@
 import { SplitFactory } from '@splitsoftware/splitio';
 
 let stringPromise: Promise<string>;
+let splitNamesPromise: Promise<SplitIO.SplitNames>;
 let splitViewPromise: Promise<SplitIO.SplitView>;
 let splitViewsPromise: Promise<SplitIO.SplitViews>;
 let treatmentsPromise: Promise<SplitIO.Treatments>;
+let treatmentWithConfigPromise: Promise<SplitIO.TreatmentWithConfig>;
+let treatmentsWithConfigPromise: Promise<SplitIO.TreatmentsWithConfig>;
 let trackPromise: Promise<boolean>;
 
 /**** Interfaces ****/
@@ -40,14 +43,26 @@ let impressionListener: SplitIO.IImpressionListener;
 
 // Common
 let treatment: SplitIO.Treatment = 'on';
+let treatmentWithConfig: SplitIO.TreatmentWithConfig = {
+  treatment: 'control',
+  config: null
+};
+treatmentWithConfig = { treatment: 'off', config: '{}' };
 let asyncTreatment: SplitIO.AsyncTreatment = stringPromise;
+let asyncTreatmentWithConfig: SplitIO.AsyncTreatmentWithConfig = treatmentWithConfigPromise;
 let tracked: boolean;
 let treatmentsMap: SplitIO.Treatments = {
   feature1: 'on',
   feature2: 'control'
 };
+let treatmentsWithConfigMap: SplitIO.TreatmentsWithConfig = {
+  feature1: { treatment: 'control', config: null },
+  feature2: { treatment: 'off', config: '{"color":"blue"}' }
+};
 let treatments: SplitIO.Treatments = treatmentsMap;
+let treatmentsWithConfig: SplitIO.TreatmentsWithConfig = treatmentsWithConfigMap;
 let asyncTreatments: SplitIO.AsyncTreatments = treatmentsPromise;
+let asyncTreatmentsWithConfig: SplitIO.AsyncTreatmentsWithConfig = treatmentsWithConfigPromise;
 let splitEvent: SplitIO.Event;
 const attributes: SplitIO.Attributes = {
   attr1: 1,
@@ -70,6 +85,7 @@ let mockedFeaturesMap: SplitIO.MockedFeaturesMap;
 let splitView: SplitIO.SplitView;
 let splitViews: SplitIO.SplitViews;
 let splitNames: SplitIO.SplitNames;
+let splitNamesAsync: SplitIO.SplitNamesAsync;
 let splitViewAsync: SplitIO.SplitViewAsync;
 let splitViewsAsync: SplitIO.SplitViewsAsync;
 // Impression data
@@ -95,11 +111,15 @@ splitView = {
   killed: false,
   trafficType: 'user',
   treatments: ['on', 'off'],
-  changeNumber: 18294
+  changeNumber: 18294,
+  configs: {
+    off: '{"dimensions":"{\"height\":20,\"width\":40}"}'
+  }
 };
 splitViews = [splitView];
 
 splitViewAsync = splitViewPromise;
+splitNamesAsync = splitNamesPromise;
 splitViewsAsync = splitViewsPromise;
 
 // Split key could be a split key object or a string
@@ -215,6 +235,20 @@ treatments = client.getTreatments(['mySplit']);
 treatments = client.getTreatments(splitKey, ['mySplit'], attributes);
 treatments = client.getTreatments(['mySplit'], attributes);
 
+// We can call getTreatmentWithConfig with or without a key.
+treatmentWithConfig = client.getTreatmentWithConfig(splitKey, 'mySplit');
+treatmentWithConfig = client.getTreatmentWithConfig('mySplit');
+// Attributes parameter is optional on both signatures.
+treatmentWithConfig = client.getTreatmentWithConfig(splitKey, 'mySplit', attributes);
+treatmentWithConfig = client.getTreatmentWithConfig('mySplit', attributes);
+
+// We can call getTreatmentsWithConfig with or without a key.
+treatmentsWithConfig = client.getTreatmentsWithConfig(splitKey, ['mySplit']);
+treatmentsWithConfig = client.getTreatmentsWithConfig(['mySplit']);
+// Attributes parameter is optional on both signatures.
+treatmentsWithConfig = client.getTreatmentsWithConfig(splitKey, ['mySplit'], attributes);
+treatmentsWithConfig = client.getTreatmentsWithConfig(['mySplit'], attributes);
+
 // We can call track with or without a key. Traffic type can also be binded to the client.
 tracked = client.track(splitKey, 'myTrafficType', 'myEventType'); // all params
 tracked = client.track('myTrafficType', 'myEventType'); // key binded, tt provided.
@@ -243,19 +277,25 @@ const b1: number = client.listenerCount(splitEvent);
 const readyPromise1: Promise<void> = client.ready();
 client.destroy();
 
-// We can call getTreatment with or without a key.
+// We can call getTreatment but always with a key.
 asyncTreatment = asyncClient.getTreatment(splitKey, 'mySplit');
-asyncTreatment = asyncClient.getTreatment('mySplit');
-// Attributes parameter is optional on both signatures.
+// Attributes parameter is optional
 asyncTreatment = asyncClient.getTreatment(splitKey, 'mySplit', attributes);
-asyncTreatment = asyncClient.getTreatment('mySplit', attributes);
 
-// We can call getTreatments with or without a key.
+// We can call getTreatments but always with a key.
 asyncTreatments = asyncClient.getTreatments(splitKey, ['mySplit']);
-asyncTreatments = asyncClient.getTreatments(['mySplit']);
-// Attributes parameter is optional on both signatures.
+// Attributes parameter is optional
 asyncTreatments = asyncClient.getTreatments(splitKey, ['mySplit'], attributes);
-asyncTreatments = asyncClient.getTreatments(['mySplit'], attributes);
+
+// We can call getTreatmentWithConfig but always with a key.
+asyncTreatmentWithConfig = asyncClient.getTreatmentWithConfig(splitKey, 'mySplit');
+// Attributes parameter is optional
+asyncTreatmentWithConfig = asyncClient.getTreatmentWithConfig(splitKey, 'mySplit', attributes);
+
+// We can call getTreatments but always with a key.
+asyncTreatmentsWithConfig = asyncClient.getTreatmentsWithConfig(splitKey, ['mySplit']);
+// Attributes parameter is optional
+asyncTreatmentsWithConfig = asyncClient.getTreatmentsWithConfig(splitKey, ['mySplit'], attributes);
 
 // We can call track only with a key.
 trackPromise = asyncClient.track(splitKey, 'myTrafficType', 'myEventType'); // all params
@@ -268,11 +308,43 @@ splitNames = manager.names();
 splitView = manager.split('mySplit');
 splitViews = manager.splits();
 
+// Manager implements ready promise.
+const managerReadyPromise: Promise<void> = manager.ready();
+
+// Manager implements methods from NodeJS.Events. Testing a few.
+manager = manager.on(splitEvent, () => {});
+const aa: boolean = manager.emit(splitEvent);
+manager = manager.removeAllListeners(splitEvent);
+manager = manager.removeAllListeners();
+const bb: number = manager.listenerCount(splitEvent);
+
+// manager exposes Event constants too
+const managerEventConsts: {[key: string]: SplitIO.Event} = manager.Event;
+splitEvent = manager.Event.SDK_READY;
+splitEvent = manager.Event.SDK_READY_TIMED_OUT;
+splitEvent = manager.Event.SDK_UPDATE;
+
 /*** Repeating tests for Async Manager ***/
 
-splitNames = asyncManager.names(); // Split names are the same.
+splitNamesAsync = asyncManager.names();
 splitViewAsync = asyncManager.split('mySplit');
 splitViewsAsync = asyncManager.splits();
+
+// asyncManager implements ready promise.
+const asyncManagerReadyPromise: Promise<void> = asyncManager.ready();
+
+// asyncManager implements methods from NodeJS.Events. Testing a few.
+asyncManager = asyncManager.on(splitEvent, () => {});
+const aaa: boolean = asyncManager.emit(splitEvent);
+asyncManager = asyncManager.removeAllListeners(splitEvent);
+asyncManager = asyncManager.removeAllListeners();
+const bbb: number = asyncManager.listenerCount(splitEvent);
+
+// asyncManager exposes Event constants too
+const asyncManagerEventConsts: {[key: string]: SplitIO.Event} = asyncManager.Event;
+splitEvent = asyncManager.Event.SDK_READY;
+splitEvent = asyncManager.Event.SDK_READY_TIMED_OUT;
+splitEvent = asyncManager.Event.SDK_UPDATE;
 
 /*** Tests for IImpressionListener interface ***/
 class MyImprListener implements SplitIO.IImpressionListener {
@@ -347,8 +419,7 @@ let fullNodeSettings: SplitIO.INodeSettings = {
   },
   features: mockedFeaturesPath,
   storage: {
-    type: 'LOCALSTORAGE',
-    prefix: 'PREFIX'
+    type: 'MEMORY'
   },
   impressionListener: impressionListener,
   mode: 'standalone',

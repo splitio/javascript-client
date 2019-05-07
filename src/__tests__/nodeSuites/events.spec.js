@@ -38,13 +38,13 @@ export default function trackAssertions(mock, assert) {
 
     assert.equal(firstEvent.key, 'nicolas@split.io', 'Key should match received value.');
     assert.equal(firstEvent.eventTypeId, 'someEvent', 'EventTypeId should match received value.');
-    assert.equal(firstEvent.trafficTypeName, 'someTrafficType', 'TrafficTypeName should match received value.');
+    assert.equal(firstEvent.trafficTypeName, 'sometraffictype', 'TrafficTypeName should match received value in lowercases.');
     assert.equal(firstEvent.value, 10, 'Value should match the value received on the .track() function.');
     assert.equal(typeof firstEvent.timestamp, 'number', 'The timestamp should be a number.');
 
     assert.equal(lastEvent.key, 'marcio@split.io', 'Key should match received value.');
     assert.equal(lastEvent.eventTypeId, 'my.checkout.event', 'EventTypeId should match received value.');
-    assert.equal(lastEvent.trafficTypeName, 'otherTraffictype', 'TrafficTypeName should match received value.');
+    assert.equal(lastEvent.trafficTypeName, 'othertraffictype', 'TrafficTypeName should match received value in lowercases.');
     assert.equal(lastEvent.value, null, 'Should have null as value.');
     assert.equal(typeof lastEvent.timestamp, 'number', 'The timestamp should be a number.');
 
@@ -58,18 +58,18 @@ export default function trackAssertions(mock, assert) {
   assert.equal(typeof client.track, 'function', 'client.track should be a function.');
 
   // Key binded as with getTreatment.
-  assert.ok(client.track('nicolas@split.io', 'someTrafficType', 'someEvent', 10), 'client.track returns true if an event is added to the queue.');
-  assert.ok(client.track('nicolas@split.io', 'otherTraffictype', 'genericEvent',  25), 'client.track returns true if event value is null and is added to the queue.');
-  assert.ok(client.track('nicolas@split.io', 'otherTraffictype', 'my.click.event'), 'client.track returns true if an event is added to the queue.');
-  assert.ok(client.track('marcio@split.io', 'otherTraffictype', 'my.checkout.event', null), 'client.track returns true if an event is added to the queue.');
+  assert.ok(client.track('nicolas@split.io', 'sometraffictype', 'someEvent', 10), 'client.track returns true if an event is added to the queue.');
+  assert.ok(client.track('nicolas@split.io', 'othertraffictype', 'genericEvent',  25), 'client.track returns true if event value is null and is added to the queue.');
+  assert.ok(client.track('nicolas@split.io', 'othertraffictype', 'my.click.event'), 'client.track returns true if an event is added to the queue.');
+  assert.ok(client.track('marcio@split.io', 'othertraffictype', 'my.checkout.event', null), 'client.track returns true if an event is added to the queue.');
 
   /* So far we've tracked 4 valid events */
 
   // Invalid events will not be queued.
-  assert.notOk(client.track('facundo@split.io', 'otherTraffictype', 'anotherEvent', 'invalid value'), 'client.track returns false if event value is invalid and it could not be added to the queue.');
-  assert.notOk(client.track('facundo@split.io', 'otherTraffictype', 'my.checkout.event', ['some', 'stuff']), 'client.track returns false if event value is invalid and it could not be added to the queue.');
+  assert.notOk(client.track('facundo@split.io', 'othertraffictype', 'anotherEvent', 'invalid value'), 'client.track returns false if event value is invalid and it could not be added to the queue.');
+  assert.notOk(client.track('facundo@split.io', 'othertraffictype', 'my.checkout.event', ['some', 'stuff']), 'client.track returns false if event value is invalid and it could not be added to the queue.');
   assert.notOk(client.track(), 'client.track returns false if an event data was incorrect and it could not be added to the queue.');
   assert.notOk(client.track('facundo@split.io', 'someEvent'), 'client.track returns false if an event data was incorrect and it could not be added to the queue.');
-  assert.notOk(client.track('facundo@split.io', 10, 'someTrafficType', 'someEvent'), 'client.track returns false if an event data was incorrect and it could not be added to the queue.');
+  assert.notOk(client.track('facundo@split.io', 10, 'sometraffictype', 'someEvent'), 'client.track returns false if an event data was incorrect and it could not be added to the queue.');
   assert.notOk(client.track('facundo@split.io', 'asd', 20, 'trafficType'), 'client.track returns false if an event data was incorrect and it could not be added to the queue.');
 }

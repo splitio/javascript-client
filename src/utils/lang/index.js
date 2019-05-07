@@ -11,9 +11,13 @@ export function startsWith(target, sub) {
 /**
  * Checks if the target string ends with the sub string.
  */
-export function endsWith(target, sub) {
+export function endsWith(target, sub, caseInsensitive = false) {
   if (!(isString(target) && isString(sub))) {
     return false;
+  }
+  if (caseInsensitive) {
+    target = target.toLowerCase();
+    sub = sub.toLowerCase();
   }
   return target.slice(target.length - sub.length) === sub;
 }
@@ -107,6 +111,9 @@ export function uniqueId() {
   return uniqueIdCounter++;
 }
 
+/**
+ * Validates if a value is an object.
+ */
 export function isObject(obj) {
   return obj && typeof obj === 'object' && obj.constructor === Object;
 }
