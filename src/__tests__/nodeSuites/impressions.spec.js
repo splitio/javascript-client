@@ -1,6 +1,6 @@
 import { SplitFactory } from '../../';
 import SettingsFactory from '../../utils/settings';
-import { SPLIT_NOT_FOUND, SDK_NOT_READY } from '../../utils/labels';
+import { SDK_NOT_READY } from '../../utils/labels';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
 
