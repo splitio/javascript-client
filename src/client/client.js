@@ -6,9 +6,10 @@ import ImpressionsTracker from '../trackers/impressions';
 import tracker from '../utils/timeTracker';
 import thenable from '../utils/promise/thenable';
 import { matching, bucketing } from '../utils/key/factory';
-import { SPLIT_NOT_FOUND, SDK_NOT_READY } from '../utils/labels';
 /* asynchronous validations that live on the client. */
 import { validateSplitExistance, validateTrafficTypeExistance } from '../utils/inputValidation';
+import { SDK_NOT_READY } from '../utils/labels';
+import { CONTROL } from '../utils/constants';
 
 function queueEventsCallback({
   eventTypeId, trafficTypeName, key, value, timestamp
@@ -36,9 +37,9 @@ function ClientFactory(context) {
     const evaluation = evaluator(key, splitName, attributes, storage);
 
     if (thenable(evaluation)) {
-      return evaluation.then(res => getTreatmentAvailable(res, splitName, key, attributes, stopLatencyTracker, impressionTracker.track, withConfig, `getTreatment${withConfig ? 'withConfig' : ''}`));
+      return evaluation.then(res => processEvaluation(res, splitName, key, attributes, stopLatencyTracker, impressionTracker.track, withConfig, `getTreatment${withConfig ? 'withConfig' : ''}`));
     } else {
-      return getTreatmentAvailable(evaluation, splitName, key, attributes, stopLatencyTracker, impressionTracker.track, withConfig, `getTreatment${withConfig ? 'withConfig' : ''}`);
+      return processEvaluation(evaluation, splitName, key, attributes, stopLatencyTracker, impressionTracker.track, withConfig, `getTreatment${withConfig ? 'withConfig' : ''}`);
     }
   }
 
@@ -62,10 +63,10 @@ function ClientFactory(context) {
         thenables.push(evaluation);
         evaluation.then((res) => {
           // set the treatment on the cb;
-          results[splitName] = getTreatmentAvailable(res, splitName, key, attributes, false, impressionsTracker.queue, withConfig, `getTreatments${withConfig ? 'withConfig' : ''}`);
+          results[splitName] = processEvaluation(res, splitName, key, attributes, false, impressionsTracker.queue, withConfig, `getTreatments${withConfig ? 'withConfig' : ''}`);
         });
       } else {
-        results[splitName] = getTreatmentAvailable(evaluation, splitName, key, attributes, false, impressionsTracker.queue, withConfig, `getTreatments${withConfig ? 'withConfig' : ''}`);
+        results[splitName] = processEvaluation(evaluation, splitName, key, attributes, false, impressionsTracker.queue, withConfig, `getTreatments${withConfig ? 'withConfig' : ''}`);
       }
     }
 
@@ -88,7 +89,7 @@ function ClientFactory(context) {
   }
 
   // Internal function
-  function getTreatmentAvailable(
+  function processEvaluation(
     evaluation,
     splitName,
     key,
@@ -102,13 +103,12 @@ function ClientFactory(context) {
     const matchingKey = matching(key);
     const bucketingKey = bucketing(key);
 
-    const { treatment, changeNumber, config = null } = evaluation;
-    let { label } = evaluation;
-
-    if (label === SPLIT_NOT_FOUND && !isSdkReady) {
-      label = SDK_NOT_READY;
+    // If the SDK was not ready, treatment may be incorrect due to having Splits but not segments data.
+    if (!isSdkReady) {
+      evaluation = { treatment: CONTROL, label: SDK_NOT_READY };
     }
 
+    const { treatment, label, changeNumber, config = null } = evaluation;
     log.info(`Split: ${splitName}. Key: ${matchingKey}. Evaluation: ${treatment}. Label: ${label}`);
 
     if (validateSplitExistance(context, splitName, label, invokingMethodName)) {
