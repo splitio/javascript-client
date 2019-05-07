@@ -4,7 +4,7 @@
 * Updated the SDK Redis adapter to handle pending commands when disconnecting from the Redis server.
 * Bugfixing - Clearing up readyTimeout after we don't need it anymore.
 
-## 10.7.0 (Apr 16, 2019)
+## 10.7.0 (Apr 30, 2019)
 
 * Added Block Until Ready functionality to the manager, shared with the main client.
 * Added Dynamic Configurations support through two new methods that mimick the regular ones, changing the type of what is returned.
