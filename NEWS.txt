@@ -1,8 +1,9 @@
-## 10.7.1 (May 8, 2019)
+## 10.7.1 (May 9, 2019)
 
 * Added Block Until Ready functionality support for consumer clients (Redis mode on Node) to make integration code work the same between modes.
+* Added more Input and Usage Validation rules, including an extra label for impressions when the SDK is not ready.
 * Updated the SDK Redis adapter to handle pending commands when disconnecting from the Redis server.
-* Bugfixing - Clearing up readyTimeout after we don't need it anymore.
+* Bugfixing - Clearing up readyTimeout after we don't need it anymore. It also fixes the missleading SDK_READY_TIMED_OUT error log when using Redis.
 
 ## 10.7.0 (Apr 30, 2019)
 
