@@ -40,12 +40,14 @@ function SplitFactoryOnline(context, readyTrackers, mainClientMetricCollectors) 
       producer = sharedInstance ? PartialProducerFactory(context) : FullProducerFactory(context);
       break;
     }
-    case CONSUMER_MODE:
-      setTimeout(() => { // Allow for the sync statements to run so client is returned before these are emitted.
+    case CONSUMER_MODE: {
+      context.put(context.constants.READY, true); // For SDK inner workings it's supposed to be ready.
+      setTimeout(() => { // Allow for the sync statements to run so client is returned before these are emitted and callbacks executed.
         splits.emit(splits.SDK_SPLITS_ARRIVED, false);
         segments.emit(segments.SDK_SEGMENTS_ARRIVED, false);
       }, 0);
       break;
+    }
   }
 
   if (readyTrackers && producer && !sharedInstance) { // Only track ready events for non-shared and non-consumer clients
