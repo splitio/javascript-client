@@ -61,3 +61,36 @@ tape('SPLIT CACHE / LocalStorage / Add Splits', assert => {
   assert.true(cache.getSplit('lol2') == null);
   assert.end();
 });
+
+tape('SPLIT CACHE / LocalStorage / trafficTypeExists and ttcache tests', assert => {
+  const cache = new SplitCacheInLocalStorage();
+
+  cache.addSplits([ // loop of addSplit
+    ['split1', { trafficTypeName: 'user_tt' }],
+    ['split2', { trafficTypeName: 'account_tt' }],
+    ['split3', { trafficTypeName: 'user_tt' }],
+    ['malformed', {}]
+  ]);
+  cache.addSplit('split4', { trafficTypeName: 'user_tt' });
+
+  assert.true(cache.trafficTypeExists('user_tt'));
+  assert.true(cache.trafficTypeExists('account_tt'));
+  assert.false(cache.trafficTypeExists('not_existent_tt'));
+
+  cache.removeSplit('split4');
+
+  assert.true(cache.trafficTypeExists('user_tt'));
+  assert.true(cache.trafficTypeExists('account_tt'));
+
+  cache.removeSplits(['split3', 'split2']); // it'll invoke a loop of removeSplit
+
+  assert.true(cache.trafficTypeExists('user_tt'));
+  assert.false(cache.trafficTypeExists('account_tt'));
+
+  cache.removeSplit('split1');
+
+  assert.false(cache.trafficTypeExists('user_tt'));
+  assert.false(cache.trafficTypeExists('account_tt'));
+
+  assert.end();
+});

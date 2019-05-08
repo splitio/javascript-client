@@ -1,4 +1,6 @@
 import { isString } from '../lang';
+import thenable from '../promise/thenable';
+import { LOCALHOST_MODE } from '../constants';
 import logFactory from '../logger';
 const log = logFactory('', {
   displayAllErrors: true
@@ -27,7 +29,32 @@ export function validateTrafficType(maybeTT, method) {
   return false;
 }
 
+function logTTExistanceWarning(method, ttName) {
+  log.warn(`${method}: Traffic Type ${ttName} does not have any corresponding Splits in this environment, make sure you're tracking your events to a valid traffic type defined in the Split console.`);
+}
 
+/**
+ * Separated from the previous method since on some cases it'll be async.
+ */
+export function validateTrafficTypeExistance(maybeTT, context, method) {
+  const isReady = context.get(context.constants.READY, true);
+  const settings = context.get(context.constants.SETTINGS);
+  const splitsStorage = context.get(context.constants.STORAGE).splits;
 
+  // If not ready or in localhost mode, we won't run the validation
+  if (!isReady || settings.mode === LOCALHOST_MODE) return true;
 
+  const res = splitsStorage.trafficTypeExists(maybeTT);
 
+  if (thenable(res)) {
+    res.then(function(isValid) {
+      if (!isValid) logTTExistanceWarning(method, maybeTT);
+
+      return isValid; // propagate result
+    });
+  } else {
+    if (!res) logTTExistanceWarning(method, maybeTT);
+  }
+
+  return res;
+}

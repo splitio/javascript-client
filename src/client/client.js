@@ -6,8 +6,10 @@ import ImpressionsTracker from '../trackers/impressions';
 import tracker from '../utils/timeTracker';
 import thenable from '../utils/promise/thenable';
 import { matching, bucketing } from '../utils/key/factory';
+/* asynchronous validations that live on the client. */
+import { validateSplitExistance, validateTrafficTypeExistance } from '../utils/inputValidation';
+import { SDK_NOT_READY } from '../utils/labels';
 import { CONTROL } from '../utils/constants';
-import { validateSplitExistance } from '../utils/inputValidation';
 
 function queueEventsCallback({
   eventTypeId, trafficTypeName, key, value, timestamp
@@ -35,9 +37,9 @@ function ClientFactory(context) {
     const evaluation = evaluator(key, splitName, attributes, storage);
 
     if (thenable(evaluation)) {
-      return evaluation.then(res => getTreatmentAvailable(res, splitName, key, attributes, stopLatencyTracker, impressionTracker.track, withConfig, `getTreatment${withConfig ? 'withConfig' : ''}`));
+      return evaluation.then(res => processEvaluation(res, splitName, key, attributes, stopLatencyTracker, impressionTracker.track, withConfig, `getTreatment${withConfig ? 'withConfig' : ''}`));
     } else {
-      return getTreatmentAvailable(evaluation, splitName, key, attributes, stopLatencyTracker, impressionTracker.track, withConfig, `getTreatment${withConfig ? 'withConfig' : ''}`);
+      return processEvaluation(evaluation, splitName, key, attributes, stopLatencyTracker, impressionTracker.track, withConfig, `getTreatment${withConfig ? 'withConfig' : ''}`);
     }
   }
 
@@ -61,10 +63,10 @@ function ClientFactory(context) {
         thenables.push(evaluation);
         evaluation.then((res) => {
           // set the treatment on the cb;
-          results[splitName] = getTreatmentAvailable(res, splitName, key, attributes, false, impressionsTracker.queue, withConfig, `getTreatments${withConfig ? 'withConfig' : ''}`);
+          results[splitName] = processEvaluation(res, splitName, key, attributes, false, impressionsTracker.queue, withConfig, `getTreatments${withConfig ? 'withConfig' : ''}`);
         });
       } else {
-        results[splitName] = getTreatmentAvailable(evaluation, splitName, key, attributes, false, impressionsTracker.queue, withConfig, `getTreatments${withConfig ? 'withConfig' : ''}`);
+        results[splitName] = processEvaluation(evaluation, splitName, key, attributes, false, impressionsTracker.queue, withConfig, `getTreatments${withConfig ? 'withConfig' : ''}`);
       }
     }
 
@@ -87,7 +89,7 @@ function ClientFactory(context) {
   }
 
   // Internal function
-  function getTreatmentAvailable(
+  function processEvaluation(
     evaluation,
     splitName,
     key,
@@ -97,16 +99,20 @@ function ClientFactory(context) {
     withConfig,
     invokingMethodName
   ) {
+    const isSdkReady = context.get(context.constants.READY, true);
     const matchingKey = matching(key);
     const bucketingKey = bucketing(key);
 
-    const { treatment, label , changeNumber, config = null } = evaluation;
-
-    if (treatment !== CONTROL) {
-      log.info(`Split: ${splitName}. Key: ${matchingKey}. Evaluation: ${treatment}`);
+    // If the SDK was not ready, treatment may be incorrect due to having Splits but not segments data.
+    if (!isSdkReady) {
+      evaluation = { treatment: CONTROL, label: SDK_NOT_READY };
     }
 
-    if (validateSplitExistance(context, splitName, label, invokingMethodName))
+    const { treatment, label, changeNumber, config = null } = evaluation;
+    log.info(`Split: ${splitName}. Key: ${matchingKey}. Evaluation: ${treatment}. Label: ${label}`);
+
+    if (validateSplitExistance(context, splitName, label, invokingMethodName)) {
+      log.info('Queueing corresponding impression.');
       impressionsTracker({
         feature: splitName,
         keyName: matchingKey,
@@ -116,6 +122,7 @@ function ClientFactory(context) {
         label,
         changeNumber
       }, attributes);
+    }
 
     stopLatencyTracker && stopLatencyTracker();
 
@@ -141,6 +148,10 @@ function ClientFactory(context) {
       timestamp,
       key: matchingKey,
     };
+
+    // This may be async but we only warn, we don't actually care if it is valid or not in terms of queueing the event.
+    validateTrafficTypeExistance(trafficTypeName, context, 'track');
+
     const tracked = storage.events.track(eventData);
 
     if (thenable(tracked)) {
