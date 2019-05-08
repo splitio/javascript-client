@@ -77,7 +77,7 @@ const SegmentChangesUpdaterFactory = context => {
       if (!(error instanceof SplitError)) setTimeout(() => {throw error;}, 0);
 
       if (startsWith(error.message, '403')) {
-        context.put(context.constants.DESTROYED);
+        context.put(context.constants.DESTROYED, true);
         inputValidationLog.error('Factory instantiation: you passed a Browser type authorizationKey, please grab an Api Key from the Split web console that is of type SDK.');
       }
     });

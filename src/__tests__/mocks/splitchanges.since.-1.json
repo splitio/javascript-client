@@ -1196,6 +1196,7 @@
       "trafficTypeName": null,
       "name": "hierarchical_splits_test",
       "seed": 1276793945,
+      "changeNumber": 2828282828,
       "status": "ACTIVE",
       "killed": false,
       "defaultTreatment": "off",
@@ -1358,6 +1359,7 @@
       "algo": 2,
       "seed": -1222652064,
       "trafficAllocation": 100,
+      "changeNumber": 828282828282,
       "trafficAllocationSeed": -1667492163,
       "status": "ACTIVE",
       "killed": false,
@@ -1425,7 +1427,8 @@
               "treatment": "off",
               "size": 0
             }
-          ]
+          ],
+          "label": "another expected label"
         }
       ],
       "configurations": {

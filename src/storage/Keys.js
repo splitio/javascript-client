@@ -13,6 +13,10 @@ class KeyBuilder {
     return `${this.settings.storage.prefix}.split.${splitName}`;
   }
 
+  buildTrafficTypeKey(trafficType) {
+    return `${this.settings.storage.prefix}.trafficType.${trafficType}`;
+  }
+
   buildSplitsTillKey() {
     return `${this.settings.storage.prefix}.splits.till`;
   }

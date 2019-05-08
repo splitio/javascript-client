@@ -1,5 +1,6 @@
 import ClientFactory from '../client';
 import OfflineProducerFactory from '../producer/offline';
+import { releaseApiKey } from '../utils/inputValidation';
 
 //
 // Create SDK instance for offline mode.
@@ -33,6 +34,7 @@ function SplitFactoryOffline(context, sharedTrackers) {
         storage.destroy && storage.destroy();
         // Mark the factory as destroyed.
         context.put(context.constants.DESTROYED, true);
+        !sharedInstance && releaseApiKey();
       }
     }
   );

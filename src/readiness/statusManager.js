@@ -4,7 +4,8 @@ const log = logFactory('', { displayAllErrors: true });
 const NEW_LISTENER_EVENT = 'newListener';
 const REMOVE_LISTENER_EVENT = 'removeListener';
 
-export default function callbackHandlerContext(gate, forSharedClient = false) {
+export default function callbackHandlerContext(context, forSharedClient = false) {
+  const gate = context.get(context.constants.READINESS).gate;
   let readyCbCount = 0;
   let isReady = false;
   const {
@@ -16,6 +17,8 @@ export default function callbackHandlerContext(gate, forSharedClient = false) {
 
   gate.once(SDK_READY, () => {
     if (readyCbCount === 0) log.warn('No listeners for SDK Readiness detected. Incorrect control treatments could have been logged if you called getTreatment/s while the SDK was not yet ready.');
+
+    context.put(context.constants.READY, true);
 
     isReady = true;
   });

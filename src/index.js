@@ -17,7 +17,7 @@ const buildInstanceId = (key, trafficType) => `${key.matchingKey ? key.matchingK
 
 export function SplitFactory(config) {
   // Cache instances created per factory.
-  const instances = {};
+  const clientInstances = {};
 
   // Tracking times. We need to do it here because we need the storage created.
   const readyLatencyTrackers = {
@@ -45,20 +45,20 @@ export function SplitFactory(config) {
   // Put readiness config within context
   const readiness = gateFactory(settings.startup.readyTimeout);
   context.put(context.constants.READINESS, readiness);
-  const statusManager = sdkStatusManager(readiness.gate);
+  const statusManager = sdkStatusManager(context);
   context.put(context.constants.STATUS_MANAGER, statusManager);
 
   const {
-    api: defaultInstance,
+    api: mainClientInstance,
     metricCollectors: mainClientMetricCollectors
   } = splitFactory(context, readyLatencyTrackers);
 
-  // It makes no sense to have multiple instances.
+  // It makes no sense to have multiple instances of the manager.
   const managerInstance = ManagerFactory(storage.splits, context);
 
   const parsedDefaultKey = keyParser(settings.core.key);
   const defaultInstanceId = buildInstanceId(parsedDefaultKey, settings.core.trafficType);
-  instances[defaultInstanceId] = defaultInstance;
+  clientInstances[defaultInstanceId] = mainClientInstance;
 
   log.info('New Split SDK instance created.');
 
@@ -67,7 +67,7 @@ export function SplitFactory(config) {
     client(key, trafficType) {
       if (key === undefined) {
         log.debug('Retrieving default SDK client.');
-        return defaultInstance;
+        return mainClientInstance;
       }
 
       if (typeof storage.shared != 'function') {
@@ -89,29 +89,29 @@ export function SplitFactory(config) {
       }
       const instanceId = buildInstanceId(validKey, validTrafficType);
 
-      if (!instances[instanceId]) {
+      if (!clientInstances[instanceId]) {
         const sharedSettings = settings.overrideKeyAndTT(validKey, validTrafficType);
         const sharedContext = new Context();
 
-        // Put readiness and status manager within context
+        sharedContext.put(context.constants.READY, true); // For SDK inner workings it's supposed to be ready.
         const readiness = gateFactory(sharedSettings.startup.readyTimeout);
         sharedContext.put(context.constants.READINESS, readiness);
-        sharedContext.put(sharedContext.constants.STATUS_MANAGER, sdkStatusManager(readiness.gate, true));
+        sharedContext.put(sharedContext.constants.STATUS_MANAGER, sdkStatusManager(sharedContext, true));
         sharedContext.put(context.constants.SETTINGS, sharedSettings);
         sharedContext.put(context.constants.STORAGE, storage.shared(sharedSettings));
 
         // As shared clients reuse all the storage information, we don't need to check here if we
         // will use offline or online mode. We should stick with the original decision.
-        instances[instanceId] = splitFactory(sharedContext, false, mainClientMetricCollectors).api;
+        clientInstances[instanceId] = splitFactory(sharedContext, false, mainClientMetricCollectors).api;
         // The readiness should depend on the readiness of the parent, instead of showing ready by default.
-        instances[instanceId].ready = defaultInstance.ready;
+        clientInstances[instanceId].ready = mainClientInstance.ready;
 
         log.info('New shared client instance created.');
       } else {
         log.debug('Retrieving existing SDK client.');
       }
 
-      return instances[instanceId];
+      return clientInstances[instanceId];
     },
 
     // Manager API to explore available information

@@ -7,7 +7,8 @@ import {
   validateSplit,
   validateSplits,
   validateTrafficType,
-  validateIfOperational
+  validateIfDestroyed,
+  validateIfReady
 } from '../utils/inputValidation';
 import { startsWith } from '../utils/lang';
 import { STORAGE_REDIS, CONTROL, CONTROL_WITH_CONFIG } from '../utils/constants';
@@ -36,7 +37,9 @@ function ClientInputValidationLayer(context, isKeyBinded, isTTBinded) {
     const key = isKeyBinded ? maybeKey : validateKey(maybeKey, methodName);
     const splitOrSplits = multi ? validateSplits(maybeSplitOrSplits, methodName) : validateSplit(maybeSplitOrSplits, methodName);
     const attributes = validateAttributes(maybeAttributes, methodName);
-    const isOperational = validateIfOperational(context);
+    const isOperational = validateIfDestroyed(context);
+
+    validateIfReady(context, methodName);
 
     const valid = isOperational && key && splitOrSplits && attributes !== false;
 
@@ -107,7 +110,7 @@ function ClientInputValidationLayer(context, isKeyBinded, isTTBinded) {
     const tt = isTTBinded ? maybeTT : validateTrafficType(maybeTT, 'track');
     const event = validateEvent(maybeEvent, 'track');
     const eventValue = validateEventValue(maybeEventValue, 'track');
-    const isOperational = validateIfOperational(context);
+    const isOperational = validateIfDestroyed(context);
 
     if (isOperational && key && tt && event && eventValue !== false) {
       return clientTrack(key, tt, event, eventValue);

@@ -26,7 +26,16 @@ tape('Readiness Callbacks handler - Event emitter and returned handler', t => {
     SDK_READY_TIMED_OUT: 'sdk_ready_timeout_event',
     SDK_UPDATE: 'sdk_update',
   };
+  const contextMock = {
+    put: sinon.stub(),
+    get: entityName => entityName === 'readiness_gate' ? { gate: gateMock } : null,
+    constants: {
+      READINESS: 'readiness_gate',
+      READY: 'is_ready'
+    }
+  };
   function resetStubs() {
+    contextMock.put.resetHistory();
     gateMock.on.resetHistory();
     gateMock.once.resetHistory();
     loggerMock.warn.resetHistory();
@@ -36,7 +45,7 @@ tape('Readiness Callbacks handler - Event emitter and returned handler', t => {
   t.test('Providing the gate object to get the SDK status interface that manages events', assert => {
     assert.equal(typeof statusManager, 'function', 'The module exposes a function.');
 
-    const statusInterface = statusManager(gateMock);
+    const statusInterface = statusManager(contextMock);
     assert.equal(typeof statusInterface, 'object', 'The function receives the readiness gate and outputs a map.');
     Object.keys(gateMock).forEach(propName => {
       assert.true(statusInterface[propName], 'The map exposes all gate functionality.');
@@ -71,7 +80,7 @@ tape('Readiness Callbacks handler - Event emitter and returned handler', t => {
   });
 
   t.test('The event callbacks should work as expected - SDK_READY emits with no callbacks', assert => {
-    statusManager(gateMock);
+    statusManager(contextMock);
 
     // Get the callbacks
     const readyEventCB = gateMock.once.getCall(2).args[1];
@@ -80,6 +89,7 @@ tape('Readiness Callbacks handler - Event emitter and returned handler', t => {
     readyEventCB();
     assert.true(loggerMock.warn.calledOnce, 'If the SDK_READY event fires and we have no callbacks for it (neither event nor ready promise) we get a warning.');
     assert.true(loggerMock.warn.calledWithExactly('No listeners for SDK Readiness detected. Incorrect control treatments could have been logged if you called getTreatment/s while the SDK was not yet ready.'), 'Telling us there were no listeners and evaluations before this point may have been incorrect.');
+    assert.true(contextMock.put.calledOnceWithExactly(contextMock.constants.READY, true), 'It also takes care of marking the SDK ');
 
     // Now it's marked as ready.
     addListenerCB('this event we do not care');
@@ -97,7 +107,7 @@ tape('Readiness Callbacks handler - Event emitter and returned handler', t => {
   });
 
   t.test('The event callbacks should work as expected - SDK_READY emits with callbacks', assert => {
-    statusManager(gateMock);
+    statusManager(contextMock);
 
     // Get the callbacks
     const readyEventCB = gateMock.once.getCall(2).args[1];
@@ -116,7 +126,7 @@ tape('Readiness Callbacks handler - Event emitter and returned handler', t => {
   });
 
   t.test('The event callbacks should work as expected - If we end up removing the listeners for SDK_READY, it behaves as if it had none', assert => {
-    statusManager(gateMock);
+    statusManager(contextMock);
 
     // Get the callbacks
     const readyEventCB = gateMock.once.getCall(2).args[1];
@@ -139,7 +149,7 @@ tape('Readiness Callbacks handler - Event emitter and returned handler', t => {
   });
 
   t.test('The event callbacks should work as expected - If we end up removing the listeners for SDK_READY, it behaves as if it had none', assert => {
-    statusManager(gateMock);
+    statusManager(contextMock);
 
     // Get the callbacks
     const readyEventCB = gateMock.once.getCall(2).args[1];
@@ -171,7 +181,15 @@ tape('Readiness Callbacks handler - Ready promise', t => {
     SDK_READY_TIMED_OUT: 'sdk_ready_timeout_event',
     SDK_UPDATE: 'sdk_update',
   };
+  const contextMock = {
+    put: sinon.stub(),
+    get: entityName => entityName === 'readiness_gate' ? { gate: gateMock } : null,
+    constants: {
+      READINESS: 'readiness_gate'
+    }
+  };
   function resetStubs() {
+    contextMock.put.resetHistory();
     gateMock.on.resetHistory();
     gateMock.once.resetHistory();
     loggerMock.warn.resetHistory();
@@ -179,7 +197,7 @@ tape('Readiness Callbacks handler - Ready promise', t => {
   }
 
   t.test('.ready() promise behaviour for shared clients', async assert => {
-    const statusInterfaceForShared = statusManager(gateMock, true);
+    const statusInterfaceForShared = statusManager(contextMock, true);
     const readyForShared = statusInterfaceForShared.ready();
 
     assert.true(readyForShared instanceof Promise, 'It should return a promise.');
@@ -195,7 +213,7 @@ tape('Readiness Callbacks handler - Ready promise', t => {
   });
 
   t.test('.ready() promise behaviour for main clients', async assert => {
-    const statusInterface = statusManager(gateMock); // Default is regular clients, no bool flag
+    const statusInterface = statusManager(contextMock); // Default is regular clients, no bool flag
     const ready = statusInterface.ready();
 
     assert.true(ready instanceof Promise, 'It should return a promise.');
@@ -218,7 +236,7 @@ tape('Readiness Callbacks handler - Ready promise', t => {
     // control assertion. stubs already reset.
     assert.true(testPassed);
 
-    const statusInterfaceForTimedout = statusManager(gateMock); // Default is regular clients, no bool flag
+    const statusInterfaceForTimedout = statusManager(contextMock); // Default is regular clients, no bool flag
 
     // Get the callback
     const timedoutEventCB = gateMock.once.getCall(1).args[1];
@@ -238,7 +256,7 @@ tape('Readiness Callbacks handler - Ready promise', t => {
   });
 
   t.test('Full blown ready promise count as a callback and resolves on SDK_READY', assert => {
-    const statusInterface = statusManager(gateMock);
+    const statusInterface = statusManager(contextMock);
     const readyPromise = statusInterface.ready();
     const sdkReadyCallback = gateMock.once.getCall(2).args[1];
     const readyEventCB = gateMock.once.getCall(0).args[1];
