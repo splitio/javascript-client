@@ -162,8 +162,9 @@ function DotYAMLTests (mockFileName, assert) {
   const factory = SplitFactory(config);
   const client = factory.client();
   // Tracking some events to test they are not flushed.
-  client.track('a_key', 'a_tt', 'an_ev_id');
-  client.track('another_key', 'another_tt', 'another_ev_id', 25);
+  assert.true(client.track('a_key', 'a_tt', 'an_ev_id'));
+  assert.true(client.track('another_key', 'another_tt', 'another_ev_id', 25));
+  assert.false(client.track('wasa', {}, [], 'invalid_stuff'));
 
   client.on(client.Event.SDK_READY, function () {
     assert.equal(client.getTreatment('qa-user', 'testing_split_on'), 'on');
@@ -229,30 +230,25 @@ function ManagerDotSplitTests(assert) {
   manager.on(manager.Event.SDK_READY, function () {
     assert.deepEqual(manager.names(), ['testing_split', 'testing_split2', 'testing_split3']);
 
-    assert.deepEqual(manager.split('testing_split'), {
-      name: 'testing_split',
-      changeNumber: 0,
-      killed: false,
-      trafficType: null,
-      treatments: ['on'],
-      configs: {}
-    });
-    assert.deepEqual(manager.split('testing_split2'), {
-      name: 'testing_split2',
-      changeNumber: 0,
-      killed: false,
-      trafficType: null,
-      treatments: ['off'],
-      configs: {}
-    });
-    assert.deepEqual(manager.split('testing_split3'), {
-      name: 'testing_split3',
-      changeNumber: 0,
-      killed: false,
-      trafficType: null,
-      treatments: ['custom_treatment'],
-      configs: {}
-    });
+    const expectedView1 = {
+      name: 'testing_split', changeNumber: 0, killed: false, trafficType: null,
+      treatments: ['on'], configs: {}
+    };
+    const expectedView2 = {
+      name: 'testing_split2', changeNumber: 0, killed: false, trafficType: null,
+      treatments: ['off'], configs: {}
+    };
+    const expectedView3 = {
+      name: 'testing_split3', changeNumber: 0, killed: false, trafficType: null,
+      treatments: ['custom_treatment'], configs: {}
+    };
+
+    assert.deepEqual(manager.split('testing_split'), expectedView1);
+    assert.deepEqual(manager.split('testing_split2'), expectedView2);
+    assert.deepEqual(manager.split('testing_split3'), expectedView3);
+    assert.equal(manager.split('split_not_existent'), null);
+
+    assert.deepEqual(manager.splits(), [expectedView1, expectedView2, expectedView3]);
 
     client.destroy().then(assert.end);
   });
@@ -268,23 +264,23 @@ function ManagerDotYamlTests(mockFileName, assert) {
   manager.on(manager.Event.SDK_READY, function () {
     assert.deepEqual(manager.names(), ['testing_split_on', 'testing_split_only_wl', 'testing_split_with_wl', 'testing_split_off_with_config']);
 
-    assert.deepEqual(manager.split('testing_split_on'), {
+    const expectedView1 = {
       name: 'testing_split_on',
       changeNumber: 0,
       killed: false,
       trafficType: null,
       treatments: ['on'],
       configs: {}
-    });
-    assert.deepEqual(manager.split('testing_split_only_wl'), {
+    };
+    const expectedView2 = {
       name: 'testing_split_only_wl',
       changeNumber: 0,
       killed: false,
       trafficType: null,
       treatments: ['whitelisted'],
       configs: {}
-    });
-    assert.deepEqual(manager.split('testing_split_with_wl'), {
+    };
+    const expectedView3 = {
       name: 'testing_split_with_wl',
       changeNumber: 0,
       killed: false,
@@ -294,17 +290,21 @@ function ManagerDotYamlTests(mockFileName, assert) {
         not_in_whitelist: '{"color": "green"}',
         multi_key_wl: '{"color": "brown"}'
       }
-    });
-    assert.deepEqual(manager.split('testing_split_off_with_config'), {
-      name: 'testing_split_off_with_config',
-      changeNumber: 0,
-      killed: false,
-      trafficType: null,
-      treatments: ['off'],
-      configs: {
+    };
+    const expectedView4 = {
+      name: 'testing_split_off_with_config', changeNumber: 0, killed: false, trafficType: null,
+      treatments: ['off'], configs: {
         off: '{"color": "green"}'
       }
-    });
+    };
+
+    assert.deepEqual(manager.split('testing_split_on'), expectedView1);
+    assert.deepEqual(manager.split('testing_split_only_wl'), expectedView2);
+    assert.deepEqual(manager.split('testing_split_with_wl'), expectedView3);
+    assert.deepEqual(manager.split('testing_split_off_with_config'), expectedView4);
+    assert.equal(manager.split('not_existent'), null);
+
+    assert.deepEqual(manager.splits(), [expectedView1, expectedView2, expectedView3, expectedView4]);
 
     client.destroy().then(assert.end);
   });

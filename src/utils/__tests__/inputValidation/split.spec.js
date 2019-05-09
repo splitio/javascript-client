@@ -2,6 +2,7 @@ import tape from 'tape-catch';
 import sinon from 'sinon';
 import proxyquire from 'proxyquire';
 const proxyquireStrict = proxyquire.noCallThru();
+import LabelConstants from '../../labels';
 
 const loggerMock = {
   warn: sinon.stub(),
@@ -10,7 +11,7 @@ const loggerMock = {
 function LogFactoryMock() {
   return loggerMock;
 }
-const { validateSplit } = proxyquireStrict('../../inputValidation/split', {
+const { validateSplit, validateSplitExistance } = proxyquireStrict('../../inputValidation/split', {
   '../logger': LogFactoryMock
 });
 
@@ -24,7 +25,8 @@ const errorMsgs = {
   NULL_SPLIT: () => 'you passed a null or undefined split name, split name must be a non-empty string.',
   WRONG_TYPE_SPLIT: () => 'you passed an invalid split name, split name must be a non-empty string.',
   EMPTY_SPLIT: () => 'you passed an empty split name, split name must be a non-empty string.',
-  TRIMMABLE_SPLIT: splitName => `split name "${splitName}" has extra whitespace, trimming.`
+  TRIMMABLE_SPLIT: splitName => `split name "${splitName}" has extra whitespace, trimming.`,
+  NOT_EXISTENT_SPLIT: splitName => `you passed "${splitName}" that does not exist in this environment, please double check what Splits exist in the web console.`
 };
 
 const invalidSplits = [
@@ -51,7 +53,7 @@ const trimmableSplits = [
   ' split_name3'
 ];
 
-tape('INPUT VALIDATION for Split names', t => {
+tape('INPUT VALIDATION for Split name and Split existance (special case)', t => {
   t.test('Should return the provided split name if it is a valid string without logging any errors', assert => {
     assert.equal(validateSplit('splitName', 'some_method_splitName'), 'splitName', 'It should return the provided string if it is valid.');
     assert.notOk(loggerMock.error.calledWithExactly('some_method_splitName'), 'Should not log any errors.');
@@ -93,6 +95,45 @@ tape('INPUT VALIDATION for Split names', t => {
     }
 
     assert.notOk(loggerMock.warn.called, 'It should have not logged any warnings.');
+
+    resetStubs();
+    assert.end();
+  });
+
+  t.test('Should return a boolean indicating if the SDK was ready and there was no Split object or "definition not found" label', assert => {
+    const contextMock = {
+      get: sinon.stub().returns(false), // Fake the signal for the non ready SDK
+      constants: {
+        READY: 'is_ready'
+      }
+    };
+
+    assert.true(validateSplitExistance(contextMock, 'some_split', {}, 'test_method'), 'Should always return true when the SDK is not ready.');
+    assert.true(validateSplitExistance(contextMock, 'some_split', null, 'test_method'), 'Should always return true when the SDK is not ready.');
+    assert.true(validateSplitExistance(contextMock, 'some_split', undefined, 'test_method'), 'Should always return true when the SDK is not ready.');
+    assert.true(validateSplitExistance(contextMock, 'some_split', 'a label', 'test_method'), 'Should always return true when the SDK is not ready.');
+    assert.true(validateSplitExistance(contextMock, 'some_split', LabelConstants.SPLIT_NOT_FOUND, 'test_method'), 'Should always return true when the SDK is not ready.');
+
+    assert.false(loggerMock.warn.called, 'There should have been no warning logs since the SDK was not ready yet.');
+    assert.false(loggerMock.error.called, 'There should have been no error logs since the SDK was not ready yet.');
+
+    // Prepare the mock to fake that the SDK is ready now.
+    contextMock.get.returns(true);
+
+    assert.true(validateSplitExistance(contextMock, 'other_split', {}, 'other_method'), 'Should return true if it receives a Split Object instead of null (when the object is not found, for manager).');
+    assert.true(validateSplitExistance(contextMock, 'other_split', 'a label', 'other_method'), 'Should return true if it receives a Label and it is not split not found (when the Split was not found on the storage, for client).');
+
+    assert.false(loggerMock.warn.called, 'There should have been no warning logs since the values we used so far were considered valid.');
+    assert.false(loggerMock.error.called, 'There should have been no error logs since the values we used so far were considered valid.');
+
+    assert.false(validateSplitExistance(contextMock, 'other_split', null, 'other_method'), 'Should return false if it receives a non-truthy value as a split object or label');
+    assert.false(validateSplitExistance(contextMock, 'other_split', undefined, 'other_method'), 'Should return false if it receives a non-truthy value as a split object or label');
+    assert.false(validateSplitExistance(contextMock, 'other_split', LabelConstants.SPLIT_NOT_FOUND, 'other_method'), 'Should return false if it receives a label but it is the split not found one.');
+
+    assert.equal(loggerMock.error.callCount, 3, 'It should have logged 3 errors, one per each time we called it');
+    assert.true(loggerMock.error.alwaysCalledWithExactly(`other_method: ${errorMsgs.NOT_EXISTENT_SPLIT('other_split')}`), 'Error logs should have the correct message.');
+
+    assert.false(loggerMock.warn.called, 'We log errors, no warnings.');
 
     resetStubs();
     assert.end();

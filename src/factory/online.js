@@ -5,6 +5,7 @@ import MetricsFactory from '../metrics';
 import EventsFactory from '../events';
 import SignalsListener from '../listeners';
 import { STANDALONE_MODE, PRODUCER_MODE, CONSUMER_MODE } from '../utils/constants';
+import { releaseApiKey } from '../utils/inputValidation';
 
 //
 // Create SDK instance based on the provided configurations
@@ -36,16 +37,20 @@ function SplitFactoryOnline(context, readyTrackers, mainClientMetricCollectors) 
     case STANDALONE_MODE: {
       context.put(context.constants.COLLECTORS, metrics && metrics.collectors);
       // We don't fully instantiate producer if we are creating a shared instance.
-      producer = sharedInstance ?
-        PartialProducerFactory(context) :
-        FullProducerFactory(context);
+      producer = sharedInstance ? PartialProducerFactory(context) : FullProducerFactory(context);
       break;
     }
-    case CONSUMER_MODE:
+    case CONSUMER_MODE: {
+      context.put(context.constants.READY, true); // For SDK inner workings it's supposed to be ready.
+      setTimeout(() => { // Allow for the sync statements to run so client is returned before these are emitted and callbacks executed.
+        splits.emit(splits.SDK_SPLITS_ARRIVED, false);
+        segments.emit(segments.SDK_SEGMENTS_ARRIVED, false);
+      }, 0);
       break;
+    }
   }
 
-  if (readyTrackers && !sharedInstance) { // Only track ready events for non-shared clients
+  if (readyTrackers && producer && !sharedInstance) { // Only track ready events for non-shared and non-consumer clients
     const {
       sdkReadyTracker, splitsReadyTracker, segmentsReadyTracker
     } = readyTrackers;
@@ -94,6 +99,8 @@ function SplitFactoryOnline(context, readyTrackers, mainClientMetricCollectors) 
         storage.destroy && storage.destroy();
         // Mark the factory as destroyed.
         context.put(context.constants.DESTROYED, true);
+        // And release the API Key
+        !sharedInstance && releaseApiKey(settings.core.authorizationKey);
       }
     }
   );
