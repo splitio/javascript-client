@@ -9,7 +9,7 @@ class SplitCacheInMemory {
   addSplit(splitName , split) {
     this.splitCache.set(splitName, split);
 
-    const ttName = split.trafficTypeName;
+    const ttName = split && split.trafficTypeName;
     if (ttName) { // safeguard
       if (!this.ttCache[ttName]) this.ttCache[ttName] = 0;
       this.ttCache[ttName]++;
@@ -30,7 +30,7 @@ class SplitCacheInMemory {
 
   removeSplit(splitName) {
     const split = this.getSplit(splitName);
-    const ttName = split.trafficTypeName;
+    const ttName = split && split.trafficTypeName;
 
     this.splitCache.delete(splitName);
 
