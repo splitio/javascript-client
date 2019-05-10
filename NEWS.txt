@@ -1,4 +1,4 @@
-## 10.7.1 (May 9, 2019)
+## 10.7.1 (May 10, 2019)
 
 * Added Block Until Ready functionality support for consumer clients (Redis mode on Node) to make integration code work the same between modes.
 * Added more Input and Usage Validation rules, including an extra label for impressions when the SDK is not ready.
