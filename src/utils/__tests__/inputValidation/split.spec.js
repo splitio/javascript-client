@@ -2,7 +2,7 @@ import tape from 'tape-catch';
 import sinon from 'sinon';
 import proxyquire from 'proxyquire';
 const proxyquireStrict = proxyquire.noCallThru();
-import LabelConstants from '../../labels';
+import * as LabelConstants from '../../labels';
 
 const loggerMock = {
   warn: sinon.stub(),

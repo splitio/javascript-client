@@ -16,7 +16,7 @@ limitations under the License.
 
 import Engine from '../';
 import thenable from '../../utils/promise/thenable';
-import LabelsConstants from '../../utils/labels';
+import * as LabelsConstants from '../../utils/labels';
 import { get } from '../../utils/lang';
 import { CONTROL } from '../../utils/constants';
 
