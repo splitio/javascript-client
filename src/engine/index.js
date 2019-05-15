@@ -18,7 +18,7 @@ import { get } from '../utils/lang';
 import parser from './parser';
 import keyParser from '../utils/key/parser';
 import thenable from '../utils/promise/thenable';
-import LabelsConstants from '../utils/labels';
+import * as LabelsConstants from '../utils/labels';
 import { CONTROL } from '../utils/constants';
 
 function defaults(inst) {

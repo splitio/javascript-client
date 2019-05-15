@@ -16,7 +16,7 @@ limitations under the License.
 
 import engine from '../engine';
 import thenable from '../../utils/promise/thenable';
-import LabelsConstants from '../../utils/labels';
+import * as LabelsConstants from '../../utils/labels';
 
 // Build Evaluation object if and only if matchingResult is true
 function match(matchingResult, bucketingKey, seed, treatments, label, algo) {

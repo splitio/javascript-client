@@ -18,7 +18,7 @@ import { findIndex } from '../../utils/lang';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-engine:combiner');
 import thenable from '../../utils/promise/thenable';
-import LabelsConstants from '../../utils/labels';
+import * as LabelsConstants from '../../utils/labels';
 import { CONTROL } from '../../utils/constants';
 
 function unexpectedInputHandler() {
