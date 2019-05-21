@@ -479,7 +479,7 @@ tape('LANG UTILS / shallowClone', function(assert) {
 
   assert.deepEqual(clone, toClone, 'The structure of the shallow clone should be the same since references are copied too.');
   assert.notEqual(clone, toClone, 'But the reference to the object itself is differente since it is a clone');
-  assert.equal(clone.innerObj, toClone.innerObj, 'Internal references are just copied as references, since the clone is shallow.')
+  assert.equal(clone.innerObj, toClone.innerObj, 'Internal references are just copied as references, since the clone is shallow.');
 
   assert.end();
 });
