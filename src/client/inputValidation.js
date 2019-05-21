@@ -3,6 +3,7 @@ import {
   validateAttributes,
   validateEvent,
   validateEventValue,
+  validateEventProperties,
   validateKey,
   validateSplit,
   validateSplits,
@@ -105,15 +106,16 @@ function ClientInputValidationLayer(context, isKeyBinded, isTTBinded) {
     }
   };
 
-  client.track = function track(maybeKey, maybeTT, maybeEvent, maybeEventValue) {
+  client.track = function track(maybeKey, maybeTT, maybeEvent, maybeEventValue, maybeProperties) {
     const key = isKeyBinded ? maybeKey : validateKey(maybeKey, 'track');
     const tt = isTTBinded ? maybeTT : validateTrafficType(maybeTT, 'track');
     const event = validateEvent(maybeEvent, 'track');
     const eventValue = validateEventValue(maybeEventValue, 'track');
+    const { properties, size } = validateEventProperties(maybeProperties);
     const isOperational = validateIfDestroyed(context);
 
-    if (isOperational && key && tt && event && eventValue !== false) {
-      return clientTrack(key, tt, event, eventValue);
+    if (isOperational && key && tt && event && eventValue !== false && properties !== false) {
+      return clientTrack(key, tt, event, eventValue, properties, size);
     } else {
       if (isStorageSync) return false;
 

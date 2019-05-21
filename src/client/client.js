@@ -136,23 +136,22 @@ function ClientFactory(context) {
     return treatment;
   }
 
-  function track(key, trafficTypeName, eventTypeId, eventValue) {
+  function track(key, trafficTypeName, eventTypeId, value = null, properties = null, size = 1024) {
     const matchingKey = matching(key);
     const timestamp = Date.now();
-    // if eventValue is undefined we convert it to null so the BE can handle a non existent value
-    const value = eventValue === undefined ? null : eventValue;
     const eventData = {
       eventTypeId,
       trafficTypeName,
       value,
       timestamp,
       key: matchingKey,
+      properties
     };
 
     // This may be async but we only warn, we don't actually care if it is valid or not in terms of queueing the event.
     validateTrafficTypeExistance(trafficTypeName, context, 'track');
 
-    const tracked = storage.events.track(eventData);
+    const tracked = storage.events.track(eventData, size);
 
     if (thenable(tracked)) {
       return tracked.then(queueEventsCallback.bind(null, eventData));
