@@ -101,7 +101,7 @@
     "utfx": "1.0.1"
   },
   "optionalDependencies": {
-    "ioredis": "3.2.2"
+    "ioredis": "4.9.5"
   },
   "greenkeeper": {
     "ignore": [
