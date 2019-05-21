@@ -12,9 +12,10 @@ import { SDK_NOT_READY } from '../utils/labels';
 import { CONTROL } from '../utils/constants';
 
 function queueEventsCallback({
-  eventTypeId, trafficTypeName, key, value, timestamp
+  eventTypeId, trafficTypeName, key, value, timestamp, properties
 }, tracked) {
-  const msg = `event of type "${eventTypeId}" for traffic type "${trafficTypeName}". Key: ${key}. Value: ${value}. Timestamp: ${timestamp}.`;
+  // Logging every prop would be too much.
+  const msg = `event of type "${eventTypeId}" for traffic type "${trafficTypeName}". Key: ${key}. Value: ${value}. Timestamp: ${timestamp}. ${properties ? 'With properties.' : 'With no properties.'}`;
 
   if (tracked) {
     log.info(`Successfully qeued ${msg}`);
