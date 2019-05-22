@@ -36,13 +36,14 @@ tape('EVENTS CACHE / Should be able to add items sequentially and retrieve the q
   assert.end();
 });
 
-tape('EVENTS CACHE / Should be able to clear the queue', assert => {
+tape('EVENTS CACHE / Should be able to clear the queue and accumulated byte size', assert => {
   const cache = new EventsCache(CONTEXT);
 
-  cache.track('test1');
+  cache.track('test1', 2019);
   cache.clear();
 
   assert.deepEqual(cache.state(), [], 'The queue should be clear.');
+  assert.equal(cache.queueByteSize, 0, 'The accumulated byte size should had been cleared.');
   assert.end();
 });
 
@@ -76,7 +77,7 @@ tape('EVENTS CACHE / Should be able to return the DTO we will send to BE', asser
   assert.end();
 });
 
-tape('EVENTS CACHE / Should call the "flushAndResetTimer" of the events module if the queue is full and the events module is present for this instance.', assert => {
+tape('EVENTS CACHE / Should call the "flushAndResetTimer" of the events module if the queue is full (count wise) and the events module is present for this instance.', assert => {
   // That it doesn't throw without events being ready is covered on the previous tests.
   const ctx = new Context;
   ctx.put(ctx.constants.SETTINGS, {
@@ -117,7 +118,43 @@ tape('EVENTS CACHE / Should call the "flushAndResetTimer" of the events module i
   });
 });
 
-tape('EVENTS CACHE / Should not call the "flushAndResetTimer" of the events module if the queue never gets full.', assert => {
+tape('EVENTS CACHE / Should call the "flushAndResetTimer" of the events module if the queue is full (size wise) and the events module is present for this instance.', assert => {
+  const ctx = new Context;
+  ctx.put(ctx.constants.SETTINGS, {
+    scheduler: {
+      eventsQueueSize: 99999999 // big number, would never be reached
+    }
+  });
+  let cbCalled = 0;
+  const cache = new EventsCache(ctx);
+  // Once the events module is ready on the context
+  ctx.get(ctx.constants.EVENTS).then(() => {
+    assert.equal(cbCalled, 1, 'Once events is ready, if we had the queue full, it should flush events.');
+    cache.track(1, 5 * 1024 * 1024);
+    assert.equal(cbCalled, 1, 'After that, while the queue is below max size, it should not try to flush it.');
+    cache.track(2, 1); // exceed by one byte again
+    assert.equal(cbCalled, 2, 'Once we get to the max size again, it should try to flush it.');
+    cache.track(3, 3 * 1024 * 1024);
+    assert.equal(cbCalled, 2, 'And it should not flush again,');
+    cache.track(3, 1.5 * 1024 * 1024);
+    assert.equal(cbCalled, 2, 'And it should not flush again,');
+    cache.track(6, 0.6 * 1024 * 1024); // exceed the limit
+    assert.equal(cbCalled, 3, 'Until the queue is filled with events again.');
+
+    assert.end();
+  });
+  // The track method receives the size, which calculation is validated elsewhere.
+  // Set the size on the upper limit, one byte over the limit.
+  cache.track(0, 5 * 1024 * 1024 + 1);
+
+  assert.equal(cbCalled, 0, 'Of course, until events is not ready, it will not be able to run the callback.');
+
+  ctx.put(ctx.constants.EVENTS, {
+    flushAndResetTimer: () => { cbCalled++; cache.clear(); }
+  });
+});
+
+tape('EVENTS CACHE / Should not call the "flushAndResetTimer" of the events module if the queue never gets full (count wise).', assert => {
   const ctx = new Context;
   ctx.put(ctx.constants.SETTINGS, {
     scheduler: {
@@ -145,7 +182,39 @@ tape('EVENTS CACHE / Should not call the "flushAndResetTimer" of the events modu
   });
 });
 
-tape('EVENTS CACHE / Should call the "flushAndResetTimer" of the events module if the queue is full and the events module is present for this instance.', assert => {
+tape('EVENTS CACHE / Should not call the "flushAndResetTimer" of the events module if the queue never gets full (size wise).', assert => {
+  const ctx = new Context;
+  ctx.put(ctx.constants.SETTINGS, {
+    scheduler: {
+      eventsQueueSize: 99999999
+    }
+  });
+  let cbCalled = 0;
+  const cache = new EventsCache(ctx);
+  // Once the events module is ready on the context
+  ctx.get(ctx.constants.EVENTS).then(() => {
+    assert.equal(cbCalled, 0, 'Events is ready but queue is not on max capacity, should not flush.');
+    cache.track(1, 1 * 1024 * 1024);
+    cache.track(1, 1 * 1024 * 1024);
+    cache.track(1, 1 * 1024 * 1024);
+    cache.track(1, 512 * 1024);
+
+    assert.equal(cbCalled, 0, 'Still under the max size, no flush.');
+
+    assert.end();
+  });
+
+  // Added just one light item
+  cache.track(0, 256 * 1024);
+
+  assert.equal(cbCalled, 0, 'Of course, until events is not ready, it will not be able to run the callback.');
+
+  ctx.put(ctx.constants.EVENTS, {
+    flushAndResetTimer: () => { cbCalled++; cache.clear(); }
+  });
+});
+
+tape('EVENTS CACHE / Should call the "flushAndResetTimer" of the events module if the queue is full (count wise) and the events module is present early for this instance.', assert => {
   const ctx = new Context;
   ctx.put(ctx.constants.SETTINGS, {
     scheduler: {
@@ -169,7 +238,31 @@ tape('EVENTS CACHE / Should call the "flushAndResetTimer" of the events module i
   assert.end();
 });
 
-tape('EVENTS CACHE / Should call the "flushAndResetTimer" of the events module if the queue is full and the events module is present for this instance.', assert => {
+tape('EVENTS CACHE / Should call the "flushAndResetTimer" of the events module if the queue is full (size wise) and the events module is present early for this instance.', assert => {
+  const ctx = new Context;
+  ctx.put(ctx.constants.SETTINGS, {
+    scheduler: {
+      eventsQueueSize: 99999999
+    }
+  });
+  let cbCalled = 0;
+  let cache;
+  // Context is ready before creating the cache.
+  ctx.put(ctx.constants.EVENTS, {
+    flushAndResetTimer: () => { cbCalled++; cache.clear(); }
+  });
+  cache = new EventsCache(ctx);
+
+  cache.track(0, 2 * 1024 * 1024);
+  cache.track(1, 2 * 1024 * 1024);
+  assert.equal(cbCalled, 0, 'Cache still not full.');
+  cache.track(2, 1 * 1024 * 1024 + 1);
+  assert.equal(cbCalled, 1, 'But once it is full, as the events module was ready before creating, there is no need to wait for flush.');
+
+  assert.end();
+});
+
+tape('EVENTS CACHE / Should not throw if the events module does not have the "flushAndResetTimer" method.', assert => {
   const ctx = new Context;
   ctx.put(ctx.constants.SETTINGS, {
     scheduler: {
@@ -184,8 +277,8 @@ tape('EVENTS CACHE / Should call the "flushAndResetTimer" of the events module i
   });
   cache = new EventsCache(ctx);
 
-  cache.track(0);
-  cache.track(1);
+  cache.track(0, 2048);
+  cache.track(1, 1024);
   assert.equal(cbCalled, 0, 'Cache still not full,');
   assert.doesNotThrow(cache.track.bind(cache, 2), 'but when it is full, as the events module does not have the function we need, nothing happens but no exceptions are thrown.');
   assert.doesNotThrow(cache.track.bind(cache, 3), 'but when it is full, as the events module does not have the function we need, nothing happens but no exceptions are thrown.');

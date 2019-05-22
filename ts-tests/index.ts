@@ -257,6 +257,10 @@ tracked = client.track('myEventType'); // key and tt binded.
 tracked = client.track(splitKey, 'myTrafficType', 'myEventType', 10);
 tracked = client.track('myTrafficType', 'myEventType', 10);
 tracked = client.track('myEventType', 10);
+// Properties parameter is optional on all signatures.
+tracked = client.track(splitKey, 'myTrafficType', 'myEventType', 10, { prop1: 1, prop2: '2', prop3: false, prop4: null });
+tracked = client.track('myTrafficType', 'myEventType', null, { prop1: 1, prop2: '2', prop3: false, prop4: null });
+tracked = client.track('myEventType', undefined, { prop1: 1, prop2: '2', prop3: false, prop4: null });
 
 /*** Repeating tests for Async Client ***/
 
@@ -298,9 +302,11 @@ asyncTreatmentsWithConfig = asyncClient.getTreatmentsWithConfig(splitKey, ['mySp
 asyncTreatmentsWithConfig = asyncClient.getTreatmentsWithConfig(splitKey, ['mySplit'], attributes);
 
 // We can call track only with a key.
-trackPromise = asyncClient.track(splitKey, 'myTrafficType', 'myEventType'); // all params
+trackPromise = asyncClient.track(splitKey, 'myTrafficType', 'myEventType'); // all required params
 // Value parameter is optional.
 trackPromise = asyncClient.track(splitKey, 'myTrafficType', 'myEventType', 10);
+// Properties parameter is optional
+trackPromise = asyncClient.track(splitKey, 'myTrafficType', 'myEventType', 10, { prop1: 1, prop2: '2', prop3: true, prop4: null });
 
 /**** Tests for IManager interface ****/
 
