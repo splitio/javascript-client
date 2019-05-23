@@ -232,3 +232,21 @@ export function getFnName(fn) {
 
   return (fn.toString().match(/function (.+?)\(/)||['',''])[1];
 }
+
+/**
+ * Shallow clone an object
+ */
+export function shallowClone(obj) {
+  const keys = Object.keys(obj);
+  const output = {};
+
+  for (let i = 0; i < keys.length; i++) {
+    output[keys[i]] = obj[keys[i]];
+  }
+
+  return output;
+}
+
+export function isBoolean(val) {
+  return val === true || val === false;
+}

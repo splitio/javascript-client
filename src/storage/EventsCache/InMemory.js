@@ -16,6 +16,8 @@ limitations under the License.
 
 import thenable from '../../utils/promise/thenable';
 
+const MAX_QUEUE_BYTE_SIZE = 5 * 1024 * 1024; // 5M
+
 class EventsCache {
 
   constructor(context) {
@@ -25,11 +27,12 @@ class EventsCache {
     this.onFullQueue = false;
     this.maxQueue = settings.scheduler.eventsQueueSize;
     this.queue = [];
+    this.queueByteSize = 0;
 
     if (thenable(eventsModule)) {
       eventsModule.then(events => {
         this.onFullQueue = events.flushAndResetTimer;
-        this._checkQueueSize(); // Events is ready, check the queue.
+        this._checkForFlush(); // Events is ready, check the queue.
       });
     } else if (typeof eventsModule.flushAndResetTimer === 'function') {
       this.onFullQueue = eventsModule.flushAndResetTimer;
@@ -46,10 +49,11 @@ class EventsCache {
   /**
    * Add a new event object at the end of the queue.
    */
-  track(data) {
+  track(data, size = 0) {
+    this.queueByteSize += size;
     this.queue.push(data);
 
-    this._checkQueueSize();
+    this._checkForFlush();
 
     return true;
   }
@@ -59,6 +63,7 @@ class EventsCache {
    */
   clear() {
     this.queue = [];
+    this.queueByteSize = 0;
 
     return this;
   }
@@ -80,9 +85,12 @@ class EventsCache {
   /**
    * Check if the cache queue is full and we need to flush it.
    */
-  _checkQueueSize() {
-    // 0 means no maximum value, in case we want to avoid this being triggered.
-    if (this.maxQueue > 0 && this.queue.length >= this.maxQueue) {
+  _checkForFlush() {
+    if (
+      (this.queueByteSize > MAX_QUEUE_BYTE_SIZE) ||
+      // 0 means no maximum value, in case we want to avoid this being triggered. Size limit is not affected by it.
+      (this.maxQueue > 0 && this.queue.length >= this.maxQueue)
+    ) {
       this.onFullQueue && this.onFullQueue();
     }
   }

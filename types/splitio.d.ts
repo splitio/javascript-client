@@ -388,10 +388,18 @@ declare namespace SplitIO {
   /**
    * Split attributes should be on object with values of type string or number (dates should be sent as millis since epoch).
    * @typedef {Object.<number, string, boolean, string[], number[]>} Attributes
-   * @see {@link http://docs.split.io/docs/javascript-sdk-overview#section-using-attributes-in-sdk}
+   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#attribute-syntax}
    */
   type Attributes = {
     [attributeName: string]: string | number | boolean | Array<string | number>
+  };
+  /**
+   * Split properties should be an object with values of type string, number, boolean or null. Size limit of ~31kb.
+   * @typedef {Object.<number, string, boolean, null>} Attributes
+   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#track
+   */
+  type Properties = {
+    [propertyName: string]: string | number | boolean | null
   };
   /**
    * The SplitKey object format.
@@ -859,9 +867,10 @@ declare namespace SplitIO {
      * @param {string} trafficType - The traffic type of the entity related to this event.
      * @param {string} eventType - The event type corresponding to this event.
      * @param {number=} value - The value of this event.
+     * @param {Properties=} properties - The properties of this event. Values can be string, number, boolean or null.
      * @returns {boolean} Wether the event was added to the queue succesfully or not.
      */
-    track(key: SplitIO.SplitKey, trafficType: string, eventType: string, value?: number): boolean,
+    track(key: SplitIO.SplitKey, trafficType: string, eventType: string, value?: number, properties?: Properties): boolean,
     /**
      * Tracks an event to be fed to the results product on Split Webconsole.
      * For usage on the Browser as we defined the key on the settings.
@@ -869,18 +878,20 @@ declare namespace SplitIO {
      * @param {string} trafficType - The traffic type of the entity related to this event.
      * @param {string} eventType - The event type corresponding to this event.
      * @param {number=} value - The value of this event.
+     * @param {Properties=} properties - The properties of this event. Values can be string, number, boolean or null.
      * @returns {boolean} Wether the event was added to the queue succesfully or not.
      */
-    track(trafficType: string, eventType: string, value?: number): boolean,
+    track(trafficType: string, eventType: string, value?: number, properties?: Properties): boolean,
     /**
      * Tracks an event to be fed to the results product on Split Webconsole.
      * For usage on the Browser if we defined the key and also the trafficType on the settings.
      * @function track
      * @param {string} eventType - The event type corresponding to this event.
      * @param {number=} value - The value of this event.
+     * @param {Properties=} properties - The properties of this event. Values can be string, number, boolean or null.
      * @returns {boolean} Wether the event was added to the queue succesfully or not.
      */
-    track(eventType: string, value?: number): boolean
+    track(eventType: string, value?: number, properties?: Properties): boolean
   }
   /**
    * This represents the interface for the Client instance with asynchronous storage.
@@ -937,9 +948,10 @@ declare namespace SplitIO {
      * @param {string} trafficType - The traffic type of the entity related to this event.
      * @param {string} eventType - The event type corresponding to this event.
      * @param {number=} value - The value of this event.
+     * @param {Properties=} properties - The properties of this event. Values can be string, number, boolean or null.
      * @returns {Promise<boolean>} A promise that resolves to a boolean indicating if the event was added to the queue succesfully or not.
      */
-    track(key: SplitIO.SplitKey, trafficType: string, eventType: string, value?: number): Promise<boolean>,
+    track(key: SplitIO.SplitKey, trafficType: string, eventType: string, value?: number, properties?: Properties): Promise<boolean>
   }
   /**
    * Representation of a manager instance with synchronous storage of the SDK.

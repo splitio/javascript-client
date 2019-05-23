@@ -17,6 +17,8 @@ import {
   forOwn,
   groupBy,
   getFnName,
+  shallowClone,
+  isBoolean
 } from '../../lang';
 
 tape('LANG UTILS / startsWith', function(assert) {
@@ -462,3 +464,36 @@ tape('LANG UTILS / getFnName', function(assert) {
 
   assert.end();
 });
+
+tape('LANG UTILS / shallowClone', function(assert) {
+  const toClone = {
+    aProperty: 1,
+    another: 'two',
+    more: null,
+    keys: [undefined, {}],
+    innerObj: { test: true, deeper: { key: 'value' }},
+    bool: true
+  };
+
+  const clone = shallowClone(toClone);
+
+  assert.deepEqual(clone, toClone, 'The structure of the shallow clone should be the same since references are copied too.');
+  assert.notEqual(clone, toClone, 'But the reference to the object itself is differente since it is a clone');
+  assert.equal(clone.innerObj, toClone.innerObj, 'Internal references are just copied as references, since the clone is shallow.');
+
+  assert.end();
+});
+
+tape('LANG UTILS / isBoolean', function(assert) {
+  const notBool = [
+    null, undefined, 0, 1, NaN, Infinity, function() {}, new Promise(() => {}), [], {}, 'true', 'false'
+  ];
+
+  // negatives
+  notBool.forEach(val => assert.false(isBoolean(val)));
+  // positives
+  [true, false].forEach(val => assert.true(isBoolean(val)));
+
+  assert.end();
+});
+
