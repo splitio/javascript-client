@@ -1,3 +1,7 @@
+## 10.8.1 (May 31, 2019)
+
+* Updated axios version to 0.19.0 to remove a DoS vulnerability.
+
 ## 10.8.0 (May 23, 2019)
 
 * Added support for optional event properties via our client.track() method.
