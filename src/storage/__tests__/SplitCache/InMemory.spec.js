@@ -71,10 +71,10 @@ tape('SPLIT CACHE / In Memory / trafficTypeExists and ttcache tests', assert => 
   assert.false(cache.trafficTypeExists('user_tt'));
   assert.false(cache.trafficTypeExists('account_tt'));
 
-  cache.addSplit('split1', '{ "trafficTypeName": "user_tt" }')
+  cache.addSplit('split1', '{ "trafficTypeName": "user_tt" }');
   assert.true(cache.trafficTypeExists('user_tt'));
 
-  cache.addSplit('split1', '{ "trafficTypeName": "account_tt" }')
+  cache.addSplit('split1', '{ "trafficTypeName": "account_tt" }');
   assert.true(cache.trafficTypeExists('account_tt'));
   assert.false(cache.trafficTypeExists('user_tt'));
 
