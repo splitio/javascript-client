@@ -39,7 +39,7 @@ class SplitCacheInMemory {
 
   removeSplit(splitName) {
     const split = this.getSplit(splitName);
-    const parsedSplit = JSON.parse(split);
+    const parsedSplit = split ? JSON.parse(split) : null;
     const ttName = parsedSplit && parsedSplit.trafficTypeName;
 
     this.splitCache.delete(splitName);

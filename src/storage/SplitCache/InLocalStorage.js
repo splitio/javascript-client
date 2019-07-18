@@ -8,13 +8,32 @@ class SplitCacheLocalStorage {
     this.keys = keys;
   }
 
+  decrementTrafficType(split) {
+    try {
+      if (split && split.trafficTypeName) {
+        const ttKey = this.keys.buildTrafficTypeKey(split.trafficTypeName);
+        localStorage.setItem(ttKey, Number(localStorage.getItem(ttKey)) - 1);
+        if (!Number(localStorage.getItem(ttKey))) delete localStorage[ttKey];
+      }
+    } catch (e) {
+      log.error(e);
+      return;
+    }
+  }
+
   addSplit(splitName , split) {
     try {
-      localStorage.setItem(this.keys.buildSplitKey(splitName), split);
+      const splitKey = this.keys.buildSplitKey(splitName);
+      const splitFromLocalStorage = localStorage.getItem(splitKey);
+      const previousSplit = splitFromLocalStorage ? JSON.parse(splitFromLocalStorage) : null;
+      this.decrementTrafficType(previousSplit);
 
-      if (split.trafficTypeName) {
-        const ttKey = this.keys.buildTrafficTypeKey(split.trafficTypeName);
-        localStorage.setItem(ttKey, localStorage.getItem(ttKey) + 1);
+      localStorage.setItem(splitKey, split);
+
+      const parsedSplit = split ? JSON.parse(split) : null;
+      if (parsedSplit && parsedSplit.trafficTypeName) {
+        const ttKey = this.keys.buildTrafficTypeKey(parsedSplit.trafficTypeName);
+        localStorage.setItem(ttKey, Number(localStorage.getItem(ttKey)) + 1);
       }
 
       return true;
@@ -39,10 +58,8 @@ class SplitCacheLocalStorage {
       const split = this.getSplit(splitName);
       localStorage.removeItem(this.keys.buildSplitKey(splitName));
 
-      if (split.trafficTypeName) {
-        const ttKey = this.keys.buildTrafficTypeKey(split.trafficTypeName);
-        localStorage.setItem(ttKey, localStorage.getItem(ttKey) - 1);
-      }
+      const parsedSplit = JSON.parse(split);
+      this.decrementTrafficType(parsedSplit);
 
       return 1;
     } catch(e) {
@@ -129,7 +146,7 @@ class SplitCacheLocalStorage {
   }
 
   trafficTypeExists(trafficType) {
-    const ttCount = localStorage.getItem(this.keys.buildTrafficTypeKey(trafficType));
+    const ttCount = Number(localStorage.getItem(this.keys.buildTrafficTypeKey(trafficType)));
     return isFinite(ttCount) && ttCount > 0;
   }
 
