@@ -1,6 +1,6 @@
 ## 10.8.2 (Jul , 2019)
 
-* Fixed trafficType Storage counter when a Split is updated for inMemory mode.
+* Fixed trafficType Storage counter when a Split is updated for inMemory and LocalStorage mode.
 
 ## 10.8.1 (May 31, 2019)
 
