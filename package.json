@@ -47,7 +47,7 @@
     "karma-coverage": "1.1.2",
     "karma-tap": "4.1.4",
     "karma-webpack": "3.0.2",
-    "lodash": "4.17.11",
+    "lodash": "4.17.15",
     "proxyquire": "2.1.0",
     "puppeteer": "1.15.0",
     "redis-dump": "0.1.10",
