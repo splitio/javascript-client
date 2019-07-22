@@ -6,7 +6,7 @@ npm install ## Install dependencies
 echo "Dependencies installed, linking the package."
 npm link @splitsoftware/splitio ## Link to the cloned code
 echo "Running tsc compiler."
-tsc ## Run typescript compiler. No need for flags as we have a tsconfig.json file
+./node_modules/.bin/tsc ## Run typescript compiler. No need for flags as we have a tsconfig.json file
 
 if [ $? -eq 0 ]
 then
