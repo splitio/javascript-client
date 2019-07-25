@@ -1,6 +1,7 @@
-import { isFinite } from '../../utils/lang';
+import { isFinite, toNumber } from '../../utils/lang';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-storage:localstorage');
+
 
 class SplitCacheLocalStorage {
 
@@ -12,13 +13,12 @@ class SplitCacheLocalStorage {
     try {
       if (split && split.trafficTypeName) {
         const ttKey = this.keys.buildTrafficTypeKey(split.trafficTypeName);
-        const count = Number(localStorage.getItem(ttKey)) - 1;
+        const count = toNumber(localStorage.getItem(ttKey)) - 1;
         if (count > 0) localStorage.setItem(ttKey, count);
         else localStorage.removeItem(ttKey);
       }
     } catch (e) {
       log.error(e);
-      return;
     }
   }
 
@@ -34,7 +34,7 @@ class SplitCacheLocalStorage {
       const parsedSplit = split ? JSON.parse(split) : null;
       if (parsedSplit && parsedSplit.trafficTypeName) {
         const ttKey = this.keys.buildTrafficTypeKey(parsedSplit.trafficTypeName);
-        localStorage.setItem(ttKey, Number(localStorage.getItem(ttKey)) + 1);
+        localStorage.setItem(ttKey, toNumber(localStorage.getItem(ttKey)) + 1);
       }
 
       return true;
@@ -147,7 +147,7 @@ class SplitCacheLocalStorage {
   }
 
   trafficTypeExists(trafficType) {
-    const ttCount = Number(localStorage.getItem(this.keys.buildTrafficTypeKey(trafficType)));
+    const ttCount = toNumber(localStorage.getItem(this.keys.buildTrafficTypeKey(trafficType)));
     return isFinite(ttCount) && ttCount > 0;
   }
 
