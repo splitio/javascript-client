@@ -2,7 +2,6 @@ import { isFinite, toNumber } from '../../utils/lang';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-storage:localstorage');
 
-
 class SplitCacheLocalStorage {
 
   constructor(keys) {
