@@ -12,8 +12,9 @@ class SplitCacheLocalStorage {
     try {
       if (split && split.trafficTypeName) {
         const ttKey = this.keys.buildTrafficTypeKey(split.trafficTypeName);
-        localStorage.setItem(ttKey, Number(localStorage.getItem(ttKey)) - 1);
-        if (!Number(localStorage.getItem(ttKey))) delete localStorage[ttKey];
+        const count = Number(localStorage.getItem(ttKey)) - 1;
+        if (count > 0) localStorage.setItem(ttKey, count);
+        else localStorage.removeItem(ttKey);
       }
     } catch (e) {
       log.error(e);
