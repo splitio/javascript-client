@@ -4,23 +4,23 @@ import SplitCacheInMemory from '../../SplitCache/InMemory';
 tape('SPLIT CACHE / In Memory', assert => {
   const cache = new SplitCacheInMemory();
 
-  cache.addSplit('lol1', 'something');
-  cache.addSplit('lol2', 'something else');
+  cache.addSplit('lol1', '{ "name": "something"}');
+  cache.addSplit('lol2', '{ "name": "something else"}');
 
   let values = cache.getAll();
 
-  assert.ok( values.indexOf('something') !== -1 );
-  assert.ok( values.indexOf('something else') !== -1 );
+  assert.ok( values.indexOf('{ "name": "something"}') !== -1 );
+  assert.ok( values.indexOf('{ "name": "something else"}') !== -1 );
 
   cache.removeSplit('lol1');
 
   values = cache.getAll();
 
-  assert.ok( values.indexOf('something') === -1 );
-  assert.ok( values.indexOf('something else') !== -1 );
+  assert.ok( values.indexOf('{ "name": "something"}') === -1 );
+  assert.ok( values.indexOf('{ "name": "something else"}') !== -1 );
 
   assert.ok( cache.getSplit('lol1') == null );
-  assert.ok( cache.getSplit('lol2') === 'something else' );
+  assert.ok( cache.getSplit('lol2') === '{ "name": "something else"}' );
 
   cache.setChangeNumber(123);
   assert.ok( cache.getChangeNumber() === 123 );
@@ -31,8 +31,8 @@ tape('SPLIT CACHE / In Memory', assert => {
 tape('SPLIT CACHE / In Memory / Get Keys', assert => {
   const cache = new SplitCacheInMemory();
 
-  cache.addSplit('lol1', 'something');
-  cache.addSplit('lol2', 'something else');
+  cache.addSplit('lol1', '{ "name": "something"}');
+  cache.addSplit('lol2', '{ "name": "something else"}');
 
   let keys = cache.getKeys();
 
@@ -45,12 +45,12 @@ tape('SPLIT CACHE / In Memory / trafficTypeExists and ttcache tests', assert => 
   const cache = new SplitCacheInMemory();
 
   cache.addSplits([ // loop of addSplit
-    ['split1', { trafficTypeName: 'user_tt' }],
-    ['split2', { trafficTypeName: 'account_tt' }],
-    ['split3', { trafficTypeName: 'user_tt' }],
-    ['malformed', {}]
+    ['split1', '{ "trafficTypeName": "user_tt" }'],
+    ['split2', '{ "trafficTypeName": "account_tt" }'],
+    ['split3', '{ "trafficTypeName": "user_tt" }'],
+    ['malformed', '{}']
   ]);
-  cache.addSplit('split4', { trafficTypeName: 'user_tt' });
+  cache.addSplit('split4', '{ "trafficTypeName": "user_tt" }');
 
   assert.true(cache.trafficTypeExists('user_tt'));
   assert.true(cache.trafficTypeExists('account_tt'));
@@ -70,6 +70,13 @@ tape('SPLIT CACHE / In Memory / trafficTypeExists and ttcache tests', assert => 
 
   assert.false(cache.trafficTypeExists('user_tt'));
   assert.false(cache.trafficTypeExists('account_tt'));
+
+  cache.addSplit('split1', '{ "trafficTypeName": "user_tt" }');
+  assert.true(cache.trafficTypeExists('user_tt'));
+
+  cache.addSplit('split1', '{ "trafficTypeName": "account_tt" }');
+  assert.true(cache.trafficTypeExists('account_tt'));
+  assert.false(cache.trafficTypeExists('user_tt'));
 
   assert.end();
 });

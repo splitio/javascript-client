@@ -7,9 +7,18 @@ class SplitCacheInMemory {
   }
 
   addSplit(splitName , split) {
+    const splitFromMemory = this.getSplit(splitName);
+    const previousSplit = splitFromMemory ? JSON.parse(splitFromMemory) : null;
+    if (previousSplit && previousSplit.trafficTypeName) {
+      const previousTtName = previousSplit.trafficTypeName;
+      this.ttCache[previousTtName]--;
+      if (!this.ttCache[previousTtName]) delete this.ttCache[previousTtName];
+    }
+
     this.splitCache.set(splitName, split);
 
-    const ttName = split && split.trafficTypeName;
+    const parsedSplit = JSON.parse(split);
+    const ttName = parsedSplit && parsedSplit.trafficTypeName;
     if (ttName) { // safeguard
       if (!this.ttCache[ttName]) this.ttCache[ttName] = 0;
       this.ttCache[ttName]++;
@@ -30,7 +39,8 @@ class SplitCacheInMemory {
 
   removeSplit(splitName) {
     const split = this.getSplit(splitName);
-    const ttName = split && split.trafficTypeName;
+    const parsedSplit = split ? JSON.parse(split) : null;
+    const ttName = parsedSplit && parsedSplit.trafficTypeName;
 
     this.splitCache.delete(splitName);
 
