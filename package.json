@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio",
-  "version": "10.8.2-canary.1",
+  "version": "10.8.2-canary.2",
   "description": "Split SDK",
   "files": [
     "README.md",
@@ -56,7 +56,7 @@
     "rimraf": "2.6.3",
     "sinon": "7.3.2",
     "tap-summary": "4.0.0",
-    "tape": "4.10.1",
+    "tape": "4.11.0",
     "tape-catch": "1.0.6",
     "webpack": "3.5.5"
   },

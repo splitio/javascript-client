@@ -63,15 +63,15 @@ tape('SPLIT CACHE / LocalStorage / Add Splits', assert => {
 });
 
 tape('SPLIT CACHE / LocalStorage / trafficTypeExists and ttcache tests', assert => {
-  const cache = new SplitCacheInLocalStorage();
+  const cache = new SplitCacheInLocalStorage(new KeyBuilder(SettingsFactory()));
 
   cache.addSplits([ // loop of addSplit
-    ['split1', { trafficTypeName: 'user_tt' }],
-    ['split2', { trafficTypeName: 'account_tt' }],
-    ['split3', { trafficTypeName: 'user_tt' }],
-    ['malformed', {}]
+    ['split1', '{ "trafficTypeName": "user_tt" }'],
+    ['split2', '{ "trafficTypeName": "account_tt" }'],
+    ['split3', '{ "trafficTypeName": "user_tt" }'],
+    ['malformed', '{}']
   ]);
-  cache.addSplit('split4', { trafficTypeName: 'user_tt' });
+  cache.addSplit('split4', '{ "trafficTypeName": "user_tt" }');
 
   assert.true(cache.trafficTypeExists('user_tt'));
   assert.true(cache.trafficTypeExists('account_tt'));
@@ -91,6 +91,13 @@ tape('SPLIT CACHE / LocalStorage / trafficTypeExists and ttcache tests', assert 
 
   assert.false(cache.trafficTypeExists('user_tt'));
   assert.false(cache.trafficTypeExists('account_tt'));
+
+  cache.addSplit('split1', '{ "trafficTypeName": "user_tt" }');
+  assert.true(cache.trafficTypeExists('user_tt'));
+
+  cache.addSplit('split1', '{ "trafficTypeName": "account_tt" }');
+  assert.true(cache.trafficTypeExists('account_tt'));
+  assert.false(cache.trafficTypeExists('user_tt'));
 
   assert.end();
 });
