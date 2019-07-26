@@ -424,7 +424,7 @@ declare namespace SplitIO {
    * @typedef {Object} MockedFeaturesMap
    */
   type MockedFeaturesMap = {
-    [featureName: string]: string
+    [featureName: string]: string | TreatmentWithConfig
   };
   /**
    * Object with information about an impression. It contains the generated impression DTO as well as

@@ -1,4 +1,4 @@
-import { isFinite } from '../../utils/lang';
+import { isFinite, toNumber } from '../../utils/lang';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-storage:localstorage');
 
@@ -8,13 +8,32 @@ class SplitCacheLocalStorage {
     this.keys = keys;
   }
 
+  decrementTrafficType(split) {
+    try {
+      if (split && split.trafficTypeName) {
+        const ttKey = this.keys.buildTrafficTypeKey(split.trafficTypeName);
+        const count = toNumber(localStorage.getItem(ttKey)) - 1;
+        if (count > 0) localStorage.setItem(ttKey, count);
+        else localStorage.removeItem(ttKey);
+      }
+    } catch (e) {
+      log.error(e);
+    }
+  }
+
   addSplit(splitName , split) {
     try {
-      localStorage.setItem(this.keys.buildSplitKey(splitName), split);
+      const splitKey = this.keys.buildSplitKey(splitName);
+      const splitFromLocalStorage = localStorage.getItem(splitKey);
+      const previousSplit = splitFromLocalStorage ? JSON.parse(splitFromLocalStorage) : null;
+      this.decrementTrafficType(previousSplit);
 
-      if (split.trafficTypeName) {
-        const ttKey = this.keys.buildTrafficTypeKey(split.trafficTypeName);
-        localStorage.setItem(ttKey, localStorage.getItem(ttKey) + 1);
+      localStorage.setItem(splitKey, split);
+
+      const parsedSplit = split ? JSON.parse(split) : null;
+      if (parsedSplit && parsedSplit.trafficTypeName) {
+        const ttKey = this.keys.buildTrafficTypeKey(parsedSplit.trafficTypeName);
+        localStorage.setItem(ttKey, toNumber(localStorage.getItem(ttKey)) + 1);
       }
 
       return true;
@@ -39,10 +58,8 @@ class SplitCacheLocalStorage {
       const split = this.getSplit(splitName);
       localStorage.removeItem(this.keys.buildSplitKey(splitName));
 
-      if (split.trafficTypeName) {
-        const ttKey = this.keys.buildTrafficTypeKey(split.trafficTypeName);
-        localStorage.setItem(ttKey, localStorage.getItem(ttKey) - 1);
-      }
+      const parsedSplit = JSON.parse(split);
+      this.decrementTrafficType(parsedSplit);
 
       return 1;
     } catch(e) {
@@ -129,7 +146,7 @@ class SplitCacheLocalStorage {
   }
 
   trafficTypeExists(trafficType) {
-    const ttCount = localStorage.getItem(this.keys.buildTrafficTypeKey(trafficType));
+    const ttCount = toNumber(localStorage.getItem(this.keys.buildTrafficTypeKey(trafficType)));
     return isFinite(ttCount) && ttCount > 0;
   }
 

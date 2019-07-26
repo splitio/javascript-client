@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio",
-  "version": "10.8.1",
+  "version": "10.8.2",
   "description": "Split SDK",
   "files": [
     "README.md",
@@ -8,7 +8,8 @@
     "CHANGES.txt",
     "lib",
     "types/*.d.ts",
-    "es"
+    "es",
+    "src"
   ],
   "repository": "splitio/javascript-client",
   "homepage": "https://github.com/splitio/javascript-client#readme",
@@ -47,7 +48,7 @@
     "karma-coverage": "1.1.2",
     "karma-tap": "4.1.4",
     "karma-webpack": "3.0.2",
-    "lodash": "4.17.11",
+    "lodash": "4.17.15",
     "proxyquire": "2.1.0",
     "puppeteer": "1.15.0",
     "redis-dump": "0.1.10",
@@ -55,7 +56,7 @@
     "rimraf": "2.6.3",
     "sinon": "7.3.2",
     "tap-summary": "4.0.0",
-    "tape": "4.10.1",
+    "tape": "4.11.0",
     "tape-catch": "1.0.6",
     "webpack": "3.5.5"
   },

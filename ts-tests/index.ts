@@ -95,6 +95,13 @@ let nodeStorage: SplitIO.NodeSyncStorage;
 let nodeAsyncStorage: SplitIO.NodeAsyncStorage;
 let browserStorage: SplitIO.BrowserStorage;
 
+mockedFeaturesPath = 'path/to/file';
+mockedFeaturesMap = {
+  feature1: 'treatment',
+  feature2: { treatment: 'treatment2', config: "{ 'prop': 'value'}" },
+  feature3: { treatment: 'treatment3', config: null }
+};
+
 // Treatment can be the string or the promise which will resolve to treatment string
 treatment = 'some treatment';  // Sync case
 asyncTreatment = stringPromise;  // Async case
