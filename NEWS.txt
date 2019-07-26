@@ -1,4 +1,4 @@
-## 10.8.2 (Jul XX, 2019)
+## 10.8.2 (Jul 26, 2019)
 
 * Added `/src` folder to the npm package distribution for users that needs to transpile the package themselves.
 * Bugfixing - Incorrect warnings caused by TrafficType storage counter when a Split is updated for inMemory and LocalStorage mode.
