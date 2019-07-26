@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio",
-  "version": "10.8.2-canary.0",
+  "version": "10.8.2-canary.2",
   "description": "Split SDK",
   "files": [
     "README.md",
@@ -8,7 +8,8 @@
     "CHANGES.txt",
     "lib",
     "types/*.d.ts",
-    "es"
+    "es",
+    "src"
   ],
   "repository": "splitio/javascript-client",
   "homepage": "https://github.com/splitio/javascript-client#readme",
