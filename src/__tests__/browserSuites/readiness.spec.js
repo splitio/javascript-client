@@ -1,13 +1,8 @@
-import sinon from 'sinon';
-
 import { SplitFactory } from '../../';
-import SettingsFactory from '../../utils/settings';
 
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
-import mySegmentsFacundo from '../mocks/mysegments.facundo@split.io.json';
 import mySegmentsNicolas from '../mocks/mysegments.nicolas@split.io.json';
-import mySegmentsMarcio from '../mocks/mysegments.marcio@split.io.json';
 
 const baseUrls1 = {
   sdk: 'https://sdk.baseurl/readinessSuite1',
