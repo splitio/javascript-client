@@ -45,7 +45,7 @@
     "eslint": "5.16.0",
     "karma": "4.1.0",
     "karma-chrome-launcher": "2.2.0",
-    "karma-coverage": "1.1.2",
+    "karma-coverage": "2.0.0",
     "karma-tap": "4.1.4",
     "karma-webpack": "3.0.2",
     "lodash": "4.17.15",
