@@ -22,7 +22,7 @@ export default async function(settings, mock, assert) {
   assert.equal(manager.once, client.once, 'And it shares all readiness methods with the main client.');
   assert.equal(manager.Event, client.Event, 'And it shares all readiness constants with the main client.');
 
-  await client.ready();
+  await manager.ready();
 
   const splitNames = manager.names();
 
