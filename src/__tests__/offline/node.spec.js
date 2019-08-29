@@ -268,7 +268,7 @@ function ManagerDotYamlTests(mockFileName, assert) {
       name: 'testing_split_on',
       changeNumber: 0,
       killed: false,
-      trafficType: null,
+      trafficType: 'localhost',
       treatments: ['on'],
       configs: {}
     };
@@ -276,7 +276,7 @@ function ManagerDotYamlTests(mockFileName, assert) {
       name: 'testing_split_only_wl',
       changeNumber: 0,
       killed: false,
-      trafficType: null,
+      trafficType: 'localhost',
       treatments: ['whitelisted'],
       configs: {}
     };
@@ -284,7 +284,7 @@ function ManagerDotYamlTests(mockFileName, assert) {
       name: 'testing_split_with_wl',
       changeNumber: 0,
       killed: false,
-      trafficType: null,
+      trafficType: 'localhost',
       treatments: ['not_in_whitelist', 'one_key_wl', 'multi_key_wl'],
       configs: {
         not_in_whitelist: '{"color": "green"}',
@@ -292,7 +292,7 @@ function ManagerDotYamlTests(mockFileName, assert) {
       }
     };
     const expectedView4 = {
-      name: 'testing_split_off_with_config', changeNumber: 0, killed: false, trafficType: null,
+      name: 'testing_split_off_with_config', changeNumber: 0, killed: false, trafficType: 'localhost',
       treatments: ['off'], configs: {
         off: '{"color": "green"}'
       }
