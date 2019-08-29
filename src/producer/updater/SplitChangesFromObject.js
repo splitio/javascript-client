@@ -50,7 +50,7 @@ function FromObjectUpdaterFactory(Fetcher, context) {
             defaultTreatment: 'control',
             conditions: val.conditions || [],
             configurations: val.configurations,
-            trafficTypeName: val.trafficTypeName,
+            trafficTypeName: val.trafficTypeName
           })
         ]);
       });
