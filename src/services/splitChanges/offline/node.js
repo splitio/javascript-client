@@ -108,7 +108,7 @@ function readYAMLConfigFile(filePath) {
     // "Template" for each split accumulated data
     if (!accum[splitName]) {
       accum[splitName] = {
-        configurations: {}, conditions: [], treatments: []
+        configurations: {}, conditions: [], treatments: [], trafficTypeName: 'localhost',
       };
     }
 
