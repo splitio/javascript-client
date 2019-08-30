@@ -3,6 +3,8 @@
 * Updated two default values on startup configuration for Browsers:
 ** startup.readyTimeout default value went up from 1.5s to 10s.
 ** startup.retriesOnFailureBeforeReady default value went up from 1.5s to 5s.
+* Updated trafficType from manager to 'localhost' when the SDK is running in localhost mode.
+* Updated polling logic to stop and restart mySegments data synchronization (on browsers) when not currently used on Splits.
 
 ## 10.8.2 (Jul 26, 2019)
 
