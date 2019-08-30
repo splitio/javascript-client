@@ -22,8 +22,32 @@ import MySegmentsUpdater from '../updater/MySegments';
  */
 const PartialBrowserProducer = (context) => {
   const settings = context.get(context.constants.SETTINGS);
+  const {
+    splits: splitsEventEmitter,
+    segments: segmentsEventEmitter
+  } = context.get(context.constants.READINESS);
+  const splitsStorage = context.get(context.constants.STORAGE).splits;
+  
   const segmentsUpdater = MySegmentsUpdater(context);
   const segmentsUpdaterTask = TaskFactory(segmentsUpdater, settings.scheduler.segmentsRefreshRate);
+  
+  let syncingSegments = true;
+
+  splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, function() {
+    const splitsHaveSegments = splitsStorage.usesSegments();
+
+    if (splitsHaveSegments !== syncingSegments) {
+      syncingSegments = splitsHaveSegments;
+      
+      if (splitsHaveSegments) {
+        segmentsUpdaterTask.start();
+      } else {
+        const isReady = context.get(context.constants.READY, true);
+        if (!isReady) segmentsEventEmitter.emit(segmentsEventEmitter.SDK_SEGMENTS_ARRIVED);
+        segmentsUpdaterTask.stop();
+      }
+    }
+  });
 
   return segmentsUpdaterTask;
 };
