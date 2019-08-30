@@ -59,8 +59,8 @@ function SplitFactoryOnline(context, readyTrackers, mainClientMetricCollectors) 
     sdkReadyTracker.setCollectorForTask(metrics.collectors);
 
     gate.on(SDK_READY, sdkReadyTracker);
-    splits.on(splits.SDK_SPLITS_ARRIVED, splitsReadyTracker);
-    segments.on(segments.SDK_SEGMENTS_ARRIVED, segmentsReadyTracker);
+    splits.once(splits.SDK_SPLITS_ARRIVED, splitsReadyTracker);
+    segments.once(segments.SDK_SEGMENTS_ARRIVED, segmentsReadyTracker);
   }
 
   // Start background jobs tasks
