@@ -25,11 +25,37 @@ import MySegmentsUpdater from '../updater/MySegments';
  */
 const FullBrowserProducer = (context) => {
   const splitsUpdater = SplitChangesUpdater(context);
+  
   const segmentsUpdater = MySegmentsUpdater(context);
   const settings = context.get(context.constants.SETTINGS);
-
+  const {
+    splits: splitsEventEmitter,
+    segments: segmentsEventEmitter
+  } = context.get(context.constants.READINESS);
+  const splitsStorage = context.get(context.constants.STORAGE).splits;
+  
   const splitsUpdaterTask = TaskFactory(splitsUpdater, settings.scheduler.featuresRefreshRate);
   const segmentsUpdaterTask = TaskFactory(segmentsUpdater, settings.scheduler.segmentsRefreshRate);
+  
+  let syncingSegments = true;
+  
+  splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, function() {
+    const splitsHaveSegments = splitsStorage.usesSegments();
+
+    if (splitsHaveSegments !== syncingSegments) {
+      syncingSegments = splitsHaveSegments;
+      log.info(`Turning segments data polling ${splitsHaveSegments ? 'ON' : 'OFF'}.`);
+
+      if (splitsHaveSegments) {
+        segmentsUpdaterTask.start();
+      } else {
+        const isReady = context.get(context.constants.READY, true);
+
+        if (!isReady) segmentsEventEmitter.emit(segmentsEventEmitter.SDK_SEGMENTS_ARRIVED);
+        segmentsUpdaterTask.stop();
+      }
+    }
+  });
 
   return {
     start() {
@@ -43,7 +69,7 @@ const FullBrowserProducer = (context) => {
       log.info('Stopping BROWSER producer');
 
       splitsUpdaterTask.stop();
-      segmentsUpdaterTask.stop();
+      segmentsUpdaterTask && segmentsUpdaterTask.stop();
     }
   };
 };
