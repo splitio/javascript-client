@@ -9,23 +9,24 @@ class SplitCacheLocalStorage {
     this.keys = keys;
   }
 
+  decrementCount(key) {
+    const count = toNumber(localStorage.getItem(key)) - 1;
+
+    if (count > 0) localStorage.setItem(key, count);
+    else localStorage.removeItem(key);
+  }
+
   decrementCounts(split) {
     try {
       if (split) {
         if (split.trafficTypeName) {
           const ttKey = this.keys.buildTrafficTypeKey(split.trafficTypeName);
-          const count = toNumber(localStorage.getItem(ttKey)) - 1;
-
-          if (count > 0) localStorage.setItem(ttKey, count);
-          else localStorage.removeItem(ttKey);
+          this.decrementCount(ttKey);
         }
 
         if (usesSegments(split.conditions)) {
           const segmentsCountKey = this.keys.buildSplitsWithSegmentCountKey();
-          const count = toNumber(localStorage.getItem(segmentsCountKey)) - 1;
-
-          if (count > 0) localStorage.setItem(segmentsCountKey, count);
-          else localStorage.removeItem(segmentsCountKey);
+          this.decrementCount(segmentsCountKey);
         }
       }
     } catch (e) {
