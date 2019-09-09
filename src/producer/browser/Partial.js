@@ -16,38 +16,21 @@ limitations under the License.
 
 import TaskFactory from '../task';
 import MySegmentsUpdater from '../updater/MySegments';
+import onSplitsArrivedFactory from './onSplitsArrivedFactory';
 
 /**
  * Incremental updater to be used to share data in the browser.
  */
 const PartialBrowserProducer = (context) => {
   const settings = context.get(context.constants.SETTINGS);
-  const {
-    splits: splitsEventEmitter,
-    segments: segmentsEventEmitter
-  } = context.get(context.constants.READINESS);
-  const splitsStorage = context.get(context.constants.STORAGE).splits;
+  const { splits: splitsEventEmitter } = context.get(context.constants.READINESS);
   
   const segmentsUpdater = MySegmentsUpdater(context);
   const segmentsUpdaterTask = TaskFactory(segmentsUpdater, settings.scheduler.segmentsRefreshRate);
+
+  const onSplitsArrived = onSplitsArrivedFactory(segmentsUpdaterTask, context);
   
-  let syncingSegments = true;
-
-  splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, function() {
-    const splitsHaveSegments = splitsStorage.usesSegments();
-
-    if (splitsHaveSegments !== syncingSegments) {
-      syncingSegments = splitsHaveSegments;
-      
-      if (splitsHaveSegments) {
-        segmentsUpdaterTask.start();
-      } else {
-        const isReady = context.get(context.constants.READY, true);
-        if (!isReady) segmentsEventEmitter.emit(segmentsEventEmitter.SDK_SEGMENTS_ARRIVED);
-        segmentsUpdaterTask.stop();
-      }
-    }
-  });
+  splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, onSplitsArrived);
 
   return segmentsUpdaterTask;
 };

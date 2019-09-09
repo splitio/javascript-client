@@ -15,47 +15,29 @@ limitations under the License.
 **/
 
 import logFactory from '../../utils/logger';
-const log = logFactory('splitio-producer:updater');
 import TaskFactory from '../task';
 import SplitChangesUpdater from '../updater/SplitChanges';
 import MySegmentsUpdater from '../updater/MySegments';
+import onSplitsArrivedFactory from './onSplitsArrivedFactory';
+
+const log = logFactory('splitio-producer:updater');
 
 /**
  * Startup all the background jobs required for a Browser SDK instance.
  */
 const FullBrowserProducer = (context) => {
   const splitsUpdater = SplitChangesUpdater(context);
-  
   const segmentsUpdater = MySegmentsUpdater(context);
+
   const settings = context.get(context.constants.SETTINGS);
-  const {
-    splits: splitsEventEmitter,
-    segments: segmentsEventEmitter
-  } = context.get(context.constants.READINESS);
-  const splitsStorage = context.get(context.constants.STORAGE).splits;
+  const { splits: splitsEventEmitter } = context.get(context.constants.READINESS);
   
   const splitsUpdaterTask = TaskFactory(splitsUpdater, settings.scheduler.featuresRefreshRate);
   const segmentsUpdaterTask = TaskFactory(segmentsUpdater, settings.scheduler.segmentsRefreshRate);
+
+  const onSplitsArrived = onSplitsArrivedFactory(segmentsUpdaterTask, context);
   
-  let syncingSegments = true;
-  
-  splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, function() {
-    const splitsHaveSegments = splitsStorage.usesSegments();
-
-    if (splitsHaveSegments !== syncingSegments) {
-      syncingSegments = splitsHaveSegments;
-      log.info(`Turning segments data polling ${splitsHaveSegments ? 'ON' : 'OFF'}.`);
-
-      if (splitsHaveSegments) {
-        segmentsUpdaterTask.start();
-      } else {
-        const isReady = context.get(context.constants.READY, true);
-
-        if (!isReady) segmentsEventEmitter.emit(segmentsEventEmitter.SDK_SEGMENTS_ARRIVED);
-        segmentsUpdaterTask.stop();
-      }
-    }
-  });
+  splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, onSplitsArrived);
 
   return {
     start() {
