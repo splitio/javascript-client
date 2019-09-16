@@ -16,14 +16,21 @@ limitations under the License.
 
 import TaskFactory from '../task';
 import MySegmentsUpdater from '../updater/MySegments';
+import onSplitsArrivedFactory from './onSplitsArrivedFactory';
 
 /**
  * Incremental updater to be used to share data in the browser.
  */
 const PartialBrowserProducer = (context) => {
   const settings = context.get(context.constants.SETTINGS);
+  const { splits: splitsEventEmitter } = context.get(context.constants.READINESS);
+  
   const segmentsUpdater = MySegmentsUpdater(context);
   const segmentsUpdaterTask = TaskFactory(segmentsUpdater, settings.scheduler.segmentsRefreshRate);
+
+  const onSplitsArrived = onSplitsArrivedFactory(segmentsUpdaterTask, context);
+  
+  splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, onSplitsArrived);
 
   return segmentsUpdaterTask;
 };

@@ -1,4 +1,5 @@
 import { isFinite } from '../../utils/lang';
+import usesSegments from '../../utils/splits/usesSegments';
 
 class SplitCacheInMemory {
 
@@ -6,25 +7,41 @@ class SplitCacheInMemory {
     this.flush();
   }
 
-  addSplit(splitName , split) {
+  addSplit(splitName, split) {
     const splitFromMemory = this.getSplit(splitName);
-    const previousSplit = splitFromMemory ? JSON.parse(splitFromMemory) : null;
-    if (previousSplit && previousSplit.trafficTypeName) {
-      const previousTtName = previousSplit.trafficTypeName;
-      this.ttCache[previousTtName]--;
-      if (!this.ttCache[previousTtName]) delete this.ttCache[previousTtName];
-    }
+    if (splitFromMemory) { // We had this Split already
+      const previousSplit = JSON.parse(splitFromMemory);
 
-    this.splitCache.set(splitName, split);
+      if (previousSplit.trafficTypeName) {
+        const previousTtName = previousSplit.trafficTypeName;
+        this.ttCache[previousTtName]--;
+        if (!this.ttCache[previousTtName]) delete this.ttCache[previousTtName];
+      }
+
+      if (usesSegments(previousSplit.conditions)) { // Substract from segments count for the previous version of this Split.
+        this.splitsWithSegmentsCount--;
+      }
+    }
 
     const parsedSplit = JSON.parse(split);
-    const ttName = parsedSplit && parsedSplit.trafficTypeName;
-    if (ttName) { // safeguard
-      if (!this.ttCache[ttName]) this.ttCache[ttName] = 0;
-      this.ttCache[ttName]++;
+    
+    if (parsedSplit) {
+      // Store the Split.
+      this.splitCache.set(splitName, split);
+      // Update TT cache
+      const ttName = parsedSplit.trafficTypeName;
+      if (ttName) { // safeguard
+        if (!this.ttCache[ttName]) this.ttCache[ttName] = 0;
+        this.ttCache[ttName]++;
+      }
+  
+      // Add to segments count for the new version of the Split
+      if (usesSegments(parsedSplit.conditions)) this.splitsWithSegmentsCount++;
+  
+      return true;
+    } else {
+      return false;
     }
-
-    return true;
   }
 
   addSplits(entries) {
@@ -36,20 +53,28 @@ class SplitCacheInMemory {
 
     return results;
   }
-
+  
   removeSplit(splitName) {
     const split = this.getSplit(splitName);
-    const parsedSplit = split ? JSON.parse(split) : null;
-    const ttName = parsedSplit && parsedSplit.trafficTypeName;
+    if (split) {
+      // Delete the Split
+      this.splitCache.delete(splitName);
 
-    this.splitCache.delete(splitName);
-
-    if (ttName) { // safeguard
-      this.ttCache[ttName]--;
-      if (!this.ttCache[ttName]) delete this.ttCache[ttName];
+      const parsedSplit = JSON.parse(split);
+      const ttName = parsedSplit.trafficTypeName;
+      
+      if (ttName) { // safeguard
+        this.ttCache[ttName]--; // Update tt cache
+        if (!this.ttCache[ttName]) delete this.ttCache[ttName];
+      }
+      
+      // Update the segments count.
+      if (usesSegments(parsedSplit.conditions)) this.splitsWithSegmentsCount--;
+      
+      return 1;
+    } else {
+      return 0;
     }
-
-    return 1;
   }
 
   removeSplits(splitNames) {
@@ -84,10 +109,15 @@ class SplitCacheInMemory {
     return isFinite(this.ttCache[trafficType]) && this.ttCache[trafficType] > 0;
   }
 
+  usesSegments() {
+    return this.getChangeNumber() === -1 || this.splitsWithSegmentsCount > 0;
+  }
+
   flush() {
     this.splitCache = new Map;
     this.ttCache = {};
     this.changeNumber = -1;
+    this.splitsWithSegmentsCount = 0;
   }
 }
 

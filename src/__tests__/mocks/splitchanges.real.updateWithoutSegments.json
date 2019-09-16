@@ -1,16 +1,16 @@
 {
   "splits": [
     {
-      "trafficTypeName": "account",
-      "name": "Single_Test",
+      "trafficTypeName": "user",
+      "name": "real_split",
       "trafficAllocation": 100,
-      "trafficAllocationSeed": -1012499566,
-      "seed": -88385793,
-      "status": "ACTIVE",
+      "trafficAllocationSeed": -1757484928,
+      "seed": 764645059,
+      "status": "ARCHIVED",
       "killed": false,
-      "defaultTreatment": "off",
-      "changeNumber": 1492734008466,
-      "algo": null,
+      "defaultTreatment": "on",
+      "changeNumber": 1550099287313,
+      "algo": 2,
       "conditions": [
         {
           "conditionType": "ROLLOUT",
@@ -19,7 +19,7 @@
             "matchers": [
               {
                 "keySelector": {
-                  "trafficType": "account",
+                  "trafficType": "user",
                   "attribute": null
                 },
                 "matcherType": "ALL_KEYS",
@@ -29,25 +29,28 @@
                 "unaryNumericMatcherData": null,
                 "betweenMatcherData": null,
                 "booleanMatcherData": null,
-                "dependencyMatcherData": null
+                "dependencyMatcherData": null,
+                "stringMatcherData": null
               }
             ]
           },
           "partitions": [
             {
               "treatment": "on",
-              "size": 0
+              "size": 50
             },
             {
               "treatment": "off",
-              "size": 100
+              "size": 50
             }
           ],
-          "label": "in segment all"
+          "label": "default rule"
         }
-      ]
+      ],
+      "configurations": {}
     }
   ],
-  "since": 1500492097547,
-  "till": 1500492297547
+  "since": 1457552649999,
+  "till": 1457552669999
 }
+

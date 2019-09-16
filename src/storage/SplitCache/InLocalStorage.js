@@ -1,4 +1,5 @@
 import { isFinite, toNumber } from '../../utils/lang';
+import usesSegments from '../../utils/splits/usesSegments';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-storage:localstorage');
 
@@ -8,14 +9,44 @@ class SplitCacheLocalStorage {
     this.keys = keys;
   }
 
-  decrementTrafficType(split) {
+  decrementCount(key) {
+    const count = toNumber(localStorage.getItem(key)) - 1;
+
+    if (count > 0) localStorage.setItem(key, count);
+    else localStorage.removeItem(key);
+  }
+
+  decrementCounts(split) {
     try {
-      if (split && split.trafficTypeName) {
-        const ttKey = this.keys.buildTrafficTypeKey(split.trafficTypeName);
-        const count = toNumber(localStorage.getItem(ttKey)) - 1;
-        if (count > 0) localStorage.setItem(ttKey, count);
-        else localStorage.removeItem(ttKey);
+      if (split) {
+        if (split.trafficTypeName) {
+          const ttKey = this.keys.buildTrafficTypeKey(split.trafficTypeName);
+          this.decrementCount(ttKey);
+        }
+
+        if (usesSegments(split.conditions)) {
+          const segmentsCountKey = this.keys.buildSplitsWithSegmentCountKey();
+          this.decrementCount(segmentsCountKey);
+        }
       }
+    } catch (e) {
+      log.error(e);
+    }
+  }
+
+  incrementCounts(split) {
+    try {
+      if (split) {
+        if (split.trafficTypeName) {
+          const ttKey = this.keys.buildTrafficTypeKey(split.trafficTypeName);
+          localStorage.setItem(ttKey, toNumber(localStorage.getItem(ttKey)) + 1);
+        }
+
+        if (usesSegments(split.conditions)) {
+          const segmentsCountKey = this.keys.buildSplitsWithSegmentCountKey();
+          localStorage.setItem(segmentsCountKey, toNumber(localStorage.getItem(segmentsCountKey)) + 1);
+        }
+      }      
     } catch (e) {
       log.error(e);
     }
@@ -26,16 +57,14 @@ class SplitCacheLocalStorage {
       const splitKey = this.keys.buildSplitKey(splitName);
       const splitFromLocalStorage = localStorage.getItem(splitKey);
       const previousSplit = splitFromLocalStorage ? JSON.parse(splitFromLocalStorage) : null;
-      this.decrementTrafficType(previousSplit);
+      this.decrementCounts(previousSplit);
 
       localStorage.setItem(splitKey, split);
 
       const parsedSplit = split ? JSON.parse(split) : null;
-      if (parsedSplit && parsedSplit.trafficTypeName) {
-        const ttKey = this.keys.buildTrafficTypeKey(parsedSplit.trafficTypeName);
-        localStorage.setItem(ttKey, toNumber(localStorage.getItem(ttKey)) + 1);
-      }
 
+      this.incrementCounts(parsedSplit);
+      
       return true;
     } catch (e) {
       log.error(e);
@@ -59,7 +88,7 @@ class SplitCacheLocalStorage {
       localStorage.removeItem(this.keys.buildSplitKey(splitName));
 
       const parsedSplit = JSON.parse(split);
-      this.decrementTrafficType(parsedSplit);
+      this.decrementCounts(parsedSplit);
 
       return 1;
     } catch(e) {
@@ -148,6 +177,20 @@ class SplitCacheLocalStorage {
   trafficTypeExists(trafficType) {
     const ttCount = toNumber(localStorage.getItem(this.keys.buildTrafficTypeKey(trafficType)));
     return isFinite(ttCount) && ttCount > 0;
+  }
+
+  usesSegments() {
+    // If there are no splits in the cache yet, assume we need them.
+    if (this.getChangeNumber() === -1) return true;
+
+    const storedCount = localStorage.getItem(this.keys.buildSplitsWithSegmentCountKey());
+    const splitsWithSegmentsCount = storedCount === null ? 0 : toNumber(storedCount);
+    
+    if (isFinite(splitsWithSegmentsCount)) {
+      return splitsWithSegmentsCount > 0;
+    } else {
+      return true;
+    }
   }
 
   flush() {

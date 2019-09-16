@@ -20,7 +20,7 @@ import matcherFactory from '../../../matchers';
 tape('MATCHER SEGMENT / should return true ONLY when the segment is defined inside the segment storage', async function (assert) {
   const segment = 'employees';
 
-  const matcher = matcherFactory({
+  const matcherTrue = matcherFactory({
     type: matcherTypes.SEGMENT,
     value: segment
   }, {
@@ -31,6 +31,18 @@ tape('MATCHER SEGMENT / should return true ONLY when the segment is defined insi
     }
   });
 
-  assert.true(await matcher(), 'segment found in mySegments list');
+  const matcherFalse = matcherFactory({
+    type: matcherTypes.SEGMENT,
+    value: segment + 'asd'
+  }, {
+    segments: {
+      isInSegment(segmentName) {
+        return segment === segmentName;
+      }
+    }
+  });
+
+  assert.true(await matcherTrue(), 'segment found in mySegments list');
+  assert.false(await matcherFalse(), 'segment not found in mySegments list');
   assert.end();
 });

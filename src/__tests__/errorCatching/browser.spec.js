@@ -8,8 +8,7 @@ import mySegmentsMock from './mySegments.nico@split.io.json';
 import splitChangesMock2 from './splitChanges.since.1500492097547.json';
 import splitChangesMock3 from './splitChanges.since.1500492297547.json';
 
-// Set the mock adapter on the default instance with a delay of 1.5 seconds.
-const mock = new MockAdapter(axios, { delayResponse: 1500 });
+const mock = new MockAdapter(axios);
 
 import SettingsFactory from '../../utils/settings';
 const settings = SettingsFactory({
@@ -18,10 +17,13 @@ const settings = SettingsFactory({
   }
 });
 
-mock.onGet(settings.url('/splitChanges?since=-1')).reply(200, splitChangesMock1);
+mock.onGet(settings.url('/splitChanges?since=-1')).reply(function() {
+  return new Promise((res) => { setTimeout(() => res([200, splitChangesMock1]), 1000);});
+});
 mock.onGet(settings.url('/splitChanges?since=1500492097547')).reply(200, splitChangesMock2);
 mock.onGet(settings.url('/splitChanges?since=1500492297547')).reply(200, splitChangesMock3);
 mock.onGet(settings.url('/mySegments/nico@split.io')).reply(200, mySegmentsMock);
+mock.onPost().reply(200);
 
 import { SplitFactory } from '../../';
 const assertionsPlanned = 3;
@@ -33,11 +35,11 @@ const factory = SplitFactory({
   },
   startup: {
     eventsFirstPushWindow: 100000,
-    readyTimeout: 1.4,
+    readyTimeout: 0.5,
     requestTimeoutBeforeReady: 100000
   },
   scheduler: {
-    featuresRefreshRate: 3,
+    featuresRefreshRate: 1.5,
     segmentsRefreshRate: 100000,
     metricsRefreshRate: 100000,
     impressionsRefreshRate: 100000,
@@ -46,20 +48,8 @@ const factory = SplitFactory({
 });
 
 tape('Error catching on callbacks - Browsers', assert => {
+  let previousErrorHandler = window.onerror || null;
   const client = factory.client();
-
-  client.on(client.Event.SDK_READY_TIMED_OUT, () => {
-    null.willThrowForTimedOut();
-  });
-
-  client.once(client.Event.SDK_READY, () => {
-    null.willThrowForReady();
-  });
-
-  client.once(client.Event.SDK_UPDATE, () => {
-    null.willThrowForUpdate();
-  });
-  const previousErrorHandler = window.onerror || null;
 
   const exceptionHandler = err => {
     if (includes(err, 'willThrowFor')) {
@@ -67,16 +57,41 @@ tape('Error catching on callbacks - Browsers', assert => {
       assert.pass(`But this should be loud, all should throw as Uncaught Exception: ${err}`);
 
       if (errCount === assertionsPlanned) {
-        client.destroy();
-        window.onerror = previousErrorHandler;
+        const wrapUp = () => {
+          window.onerror = previousErrorHandler;
+          mock.restore();
+          assert.end();
+        };
 
-        assert.end();
+        client.destroy().then(wrapUp).catch(wrapUp);
       }
       return true;
     }
     assert.fail(err);
     return false;
   };
+  // Karma is missbehaving and overwriting our custom error handler on some scenarios.
+  function attachErrorHandlerIfApplicable() {
+    if (window.onerror !== exceptionHandler) {
+      previousErrorHandler = window.onerror;
+      window.onerror = exceptionHandler;
+    } 
+  }
 
-  window.onerror = exceptionHandler;
+  client.on(client.Event.SDK_READY_TIMED_OUT, () => {
+    attachErrorHandlerIfApplicable();
+    null.willThrowForTimedOut();
+  });
+
+  client.once(client.Event.SDK_READY, () => {
+    attachErrorHandlerIfApplicable();
+    null.willThrowForReady();
+  });
+
+  client.once(client.Event.SDK_UPDATE, () => {
+    attachErrorHandlerIfApplicable();
+    null.willThrowForUpdate();
+  });
+  
+  attachErrorHandlerIfApplicable();
 });
