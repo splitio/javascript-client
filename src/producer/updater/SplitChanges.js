@@ -89,11 +89,11 @@ function SplitChangesUpdaterFactory(context, isNode = false) {
           startingUp = false; // Stop retrying.
         }
 
-        log.error(`Error while doing fetch of Splits ${error}`);
+        log.warn(`Error while doing fetch of Splits ${error}`);
 
         if (startingUp && settings.startup.retriesOnFailureBeforeReady > retry) {
           retry += 1;
-          log.warn(`Retrying download of splits #${retry}. Reason: ${error}`);
+          log.info(`Retrying download of splits #${retry}. Reason: ${error}`);
           return SplitChangesUpdater(retry);
         } else {
           startingUp = false;

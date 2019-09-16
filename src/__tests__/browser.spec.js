@@ -4,6 +4,7 @@ import evaluationsSuite from './browserSuites/evaluations.spec';
 import impressionsSuite from './browserSuites/impressions.spec';
 import metricsSuite from './browserSuites/metrics.spec';
 import impressionsListenerSuite from './browserSuites/impressions-listener.spec';
+import readinessSuite from './browserSuites/readiness.spec';
 import {
   withoutBindingTT,
   bindingTT
@@ -102,6 +103,8 @@ tape('## E2E CI Tests ##', function(assert) {
   assert.test('E2E / Shared instances with Traffic Type on factory settings', sharedInstantiationSuite.bind(null, true, mock));
   /* Check basic manager functionality */
   assert.test('E2E / Manager API', managerSuite.bind(null, settings, mock));
+  /* Validate readiness */
+  assert.test('E2E / Readiness', readinessSuite.bind(null, mock));
 
   //If we change the mocks, we need to clear localstorage. Cleaning up after testing ensures "fresh data".
   localStorage.clear();

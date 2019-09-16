@@ -15,10 +15,12 @@ limitations under the License.
 **/
 
 import logFactory from '../../utils/logger';
-const log = logFactory('splitio-producer:updater');
 import TaskFactory from '../task';
 import SplitChangesUpdater from '../updater/SplitChanges';
 import MySegmentsUpdater from '../updater/MySegments';
+import onSplitsArrivedFactory from './onSplitsArrivedFactory';
+
+const log = logFactory('splitio-producer:updater');
 
 /**
  * Startup all the background jobs required for a Browser SDK instance.
@@ -26,10 +28,16 @@ import MySegmentsUpdater from '../updater/MySegments';
 const FullBrowserProducer = (context) => {
   const splitsUpdater = SplitChangesUpdater(context);
   const segmentsUpdater = MySegmentsUpdater(context);
-  const settings = context.get(context.constants.SETTINGS);
 
+  const settings = context.get(context.constants.SETTINGS);
+  const { splits: splitsEventEmitter } = context.get(context.constants.READINESS);
+  
   const splitsUpdaterTask = TaskFactory(splitsUpdater, settings.scheduler.featuresRefreshRate);
   const segmentsUpdaterTask = TaskFactory(segmentsUpdater, settings.scheduler.segmentsRefreshRate);
+
+  const onSplitsArrived = onSplitsArrivedFactory(segmentsUpdaterTask, context);
+  
+  splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, onSplitsArrived);
 
   return {
     start() {
@@ -43,7 +51,7 @@ const FullBrowserProducer = (context) => {
       log.info('Stopping BROWSER producer');
 
       splitsUpdaterTask.stop();
-      segmentsUpdaterTask.stop();
+      segmentsUpdaterTask && segmentsUpdaterTask.stop();
     }
   };
 };

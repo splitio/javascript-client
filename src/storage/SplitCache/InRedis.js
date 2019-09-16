@@ -138,6 +138,11 @@ class SplitCacheInRedis {
       });
   }
 
+  // noop, just keeping the interface. This is used by client-side implementations only.
+  usesSegments() {
+    return true;
+  }
+
   /**
    * Delete everything in the current database.
    *

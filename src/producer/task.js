@@ -24,25 +24,28 @@ import { getFnName } from '../utils/lang';
  */
 const TaskFactory = (updater, period) => {
   const updaterName = getFnName(updater);
-  let stopUpdater;
+  let stopUpdater = false;
 
   return {
     start() {
-      log.debug(`Starting ${updaterName} refreshing each ${period}`);
+      if (!stopUpdater) {
+        log.debug(`Starting ${updaterName} refreshing each ${period}`);
 
-      stopUpdater = repeat(
-        reschedule => {
-          log.debug(`Running ${updaterName}`);
-          updater().then(() => reschedule());
-        },
-        period
-      );
+        stopUpdater = repeat(
+          reschedule => {
+            log.debug(`Running ${updaterName}`);
+            updater().then(() => reschedule());
+          },
+          period
+        );
+      }
     },
 
     stop() {
       log.debug(`Stopping ${updaterName}`);
 
       stopUpdater && stopUpdater();
+      stopUpdater = false;
     }
   };
 };

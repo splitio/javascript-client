@@ -43,7 +43,7 @@ function MySegmentsUpdaterFactory(context) {
       const shouldNotifyUpdate = storage.segments.resetSegments(segments);
 
       // Notify update if required
-      if (shouldNotifyUpdate || readyOnAlreadyExistentState) {
+      if (storage.splits.usesSegments() && (shouldNotifyUpdate || readyOnAlreadyExistentState)) {
         readyOnAlreadyExistentState = false;
         segmentsEventEmitter.emit(segmentsEventEmitter.SDK_SEGMENTS_ARRIVED);
       }

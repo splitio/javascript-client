@@ -39,6 +39,13 @@ const mock = new MockAdapter(axios);
 
 mock.onGet(settings.url('/splitChanges?since=-1')).reply(200, splitChangesMock1);
 mock.onGet(settings.url('/splitChanges?since=1457552620999')).reply(200, splitChangesMock2);
+mock.onGet(new RegExp(`${settings.url('/segmentChanges')}/*`)).reply(200, {
+  'name': 'segment',
+  'added': [],
+  'removed': [],
+  'since': 1,
+  'till': 1
+});
 
 tape('## Node JS - E2E CI Tests ##', async function (assert) {
   /* Check client evaluations. */
@@ -59,4 +66,6 @@ tape('## Node JS - E2E CI Tests ##', async function (assert) {
 
   /* Manager basic tests */
   assert.test('E2E / Manager basics', managerSuite.bind(null, settings, mock));
+
+  assert.end();
 });
