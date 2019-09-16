@@ -118,5 +118,5 @@ module.exports = {
    */
   browserDisconnectTolerance: 1,
   browserNoActivityTimeout: 60 * 60 * 1000,
-  reportSlowerThan: 15,
+  reportSlowerThan: 30,
 };
