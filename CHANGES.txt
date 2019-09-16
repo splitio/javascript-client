@@ -1,4 +1,4 @@
-## 10.8.3 (Sep XX, 2019)
+## 10.8.3 (Sep 16, 2019)
 
 * Updated two default values on startup configuration for Browsers:
 ** startup.readyTimeout default value went up from 1.5s to 10s.
