@@ -1,3 +1,7 @@
+## 10.8.4 (Sep XX, 2019)
+
+* Updated transport module to use a local axios instance.
+
 ## 10.8.3 (Sep 16, 2019)
 
 * Updated two default values on startup configuration for Browsers:
