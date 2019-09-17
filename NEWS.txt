@@ -1,5 +1,6 @@
 ## 10.8.4 (Sep XX, 2019)
 
+* Added two small optional dependencies to simplify integration on React Native.
 * Updated transport module to use a local axios instance instead of the global one, to avoid polluting the shared one.
 
 ## 10.8.3 (Sep 16, 2019)
