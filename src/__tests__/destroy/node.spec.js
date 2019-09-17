@@ -1,14 +1,11 @@
 import tape from 'tape-catch';
 import map from 'lodash/map';
 import pick from 'lodash/pick';
-import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import { SplitFactory } from '../../';
-
-// This sets the mock adapter on the default instance
-const mock = new MockAdapter(axios);
-
 import SettingsFactory from '../../utils/settings';
+import { __getAxiosInstance } from '../../services/transport';
+
 const settings = SettingsFactory({
   core: {
     key: 'facundo@split.io'
@@ -18,6 +15,9 @@ const settings = SettingsFactory({
 import splitChangesMock1 from './splitChanges.since.-1.json';
 import splitChangesMock2 from './splitChanges.since.1500492097547.json';
 import impressionsMock from './impressions.json';
+
+// Set the mock adapter on the current axios instance
+const mock = new MockAdapter(__getAxiosInstance());
 
 mock.onGet(settings.url('/splitChanges?since=-1')).reply(200, splitChangesMock1);
 mock.onGet(settings.url('/splitChanges?since=-1500492097547')).reply(200, splitChangesMock2);

@@ -1,15 +1,14 @@
 /* eslint-disable no-console */
-
-import tape from 'tape-catch';
-import { SplitFactory } from '../../';
 import path from 'path';
-import SettingsFactory from '../../utils/settings';
-import axios from 'axios';
-import MockAdapter from 'axios-mock-adapter';
+import tape from 'tape-catch';
 import sinon from 'sinon';
+import MockAdapter from 'axios-mock-adapter';
+import { SplitFactory } from '../../';
+import SettingsFactory from '../../utils/settings';
+import { __getAxiosInstance } from '../../services/transport';
 
-// Set the mock adapter on the default instance
-const mock = new MockAdapter(axios);
+// Set the mock adapter on the current axios instance
+const mock = new MockAdapter(__getAxiosInstance());
 
 const settings = SettingsFactory({ core: { key: 'facundo@split.io' }});
 

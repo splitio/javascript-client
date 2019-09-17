@@ -1,5 +1,4 @@
 import tape from 'tape-catch';
-import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import SettingsFactory from '../utils/settings';
 
@@ -10,6 +9,8 @@ import metricsSuite from './nodeSuites/metrics.spec';
 import impressionsListenerSuite from './nodeSuites/impressions-listener.spec';
 import expectedTreatmentsSuite from './nodeSuites/expected-treatments.spec';
 import managerSuite from './nodeSuites/manager.spec';
+
+import { __getAxiosInstance } from '../services/transport';
 
 import splitChangesMock1 from './mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from './mocks/splitchanges.since.1457552620999.json';
@@ -34,8 +35,8 @@ const config = {
 
 const key = 'facundo@split.io';
 
-// Set the mock adapter on the default instance
-const mock = new MockAdapter(axios);
+// Set the mock adapter on the current axios instance
+const mock = new MockAdapter(__getAxiosInstance());
 
 mock.onGet(settings.url('/splitChanges?since=-1')).reply(200, splitChangesMock1);
 mock.onGet(settings.url('/splitChanges?since=1457552620999')).reply(200, splitChangesMock2);

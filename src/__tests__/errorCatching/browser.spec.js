@@ -1,16 +1,18 @@
 // Here we are testing exceptions and the handler should be ours, we need to avoid tape-catch
 import tape from 'tape';
-import axios from 'axios';
 import includes from 'lodash/includes';
 import MockAdapter from 'axios-mock-adapter';
 import splitChangesMock1 from './splitChanges.since.-1.json';
 import mySegmentsMock from './mySegments.nico@split.io.json';
 import splitChangesMock2 from './splitChanges.since.1500492097547.json';
 import splitChangesMock3 from './splitChanges.since.1500492297547.json';
-
-const mock = new MockAdapter(axios);
-
+import { SplitFactory } from '../../';
 import SettingsFactory from '../../utils/settings';
+import { __getAxiosInstance } from '../../services/transport';
+
+// Set the mock adapter on the current axios instance
+const mock = new MockAdapter(__getAxiosInstance());
+
 const settings = SettingsFactory({
   core: {
     authorizationKey: '<fake-token>'
@@ -25,7 +27,6 @@ mock.onGet(settings.url('/splitChanges?since=1500492297547')).reply(200, splitCh
 mock.onGet(settings.url('/mySegments/nico@split.io')).reply(200, mySegmentsMock);
 mock.onPost().reply(200);
 
-import { SplitFactory } from '../../';
 const assertionsPlanned = 3;
 let errCount = 0;
 const factory = SplitFactory({

@@ -1,16 +1,19 @@
 // Here we are testing exceptions and the handler should be ours, we need to avoid tape-catch
 import tape from 'tape';
-import axios from 'axios';
 import includes from 'lodash/includes';
 import MockAdapter from 'axios-mock-adapter';
+
+import { SplitFactory } from '../../';
+import SettingsFactory from '../../utils/settings';
+import { __getAxiosInstance } from '../../services/transport';
+
 import splitChangesMock1 from './splitChanges.since.-1.json';
 import splitChangesMock2 from './splitChanges.since.1500492097547.json';
 import splitChangesMock3 from './splitChanges.since.1500492297547.json';
 
-// Set the mock adapter on the default instance with a delay of 1.5 seconds.
-const mock = new MockAdapter(axios, { delayResponse: 1500 });
+// Set the mock adapter on the current axios instance with a delay of 1.5 seconds.
+const mock = new MockAdapter(__getAxiosInstance(), { delayResponse: 1500 });
 
-import SettingsFactory from '../../utils/settings';
 const settings = SettingsFactory({
   core: {
     authorizationKey: '<fake-token>'
@@ -21,7 +24,6 @@ mock.onGet(settings.url('/splitChanges?since=-1')).reply(200, splitChangesMock1)
 mock.onGet(settings.url('/splitChanges?since=1500492097547')).reply(200, splitChangesMock2);
 mock.onGet(settings.url('/splitChanges?since=1500492297547')).reply(200, splitChangesMock3);
 
-import { SplitFactory } from '../../';
 
 tape('Error catching on callbacks', assert => {
   const assertionsPlanned = 3;
