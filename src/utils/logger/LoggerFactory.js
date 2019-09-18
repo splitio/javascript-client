@@ -1,8 +1,6 @@
 /* eslint-disable no-console */
 'use strict';
 
-const format = require('util').format;
-
 let isNode = typeof process !== 'undefined' && process.version ? true : false;
 
 export const LogLevels = {
@@ -31,24 +29,24 @@ export class Logger {
     this.options = Object.assign({}, defaultOptions, options);
   }
 
-  debug() {
+  debug(msg) {
     if(this._shouldLog(LogLevels.DEBUG))
-      this._log(LogLevels.DEBUG, format.apply(null, arguments));
+      this._log(LogLevels.DEBUG, msg);
   }
 
-  info() {
+  info(msg) {
     if(this._shouldLog(LogLevels.INFO))
-      this._log(LogLevels.INFO, format.apply(null, arguments));
+      this._log(LogLevels.INFO, msg);
   }
 
-  warn() {
+  warn(msg) {
     if(this._shouldLog(LogLevels.WARN))
-      this._log(LogLevels.WARN, format.apply(null, arguments));
+      this._log(LogLevels.WARN, msg);
   }
 
-  error() {
+  error(msg) {
     if(this.options.displayAllErrors || this._shouldLog(LogLevels.ERROR))
-      this._log(LogLevels.ERROR, format.apply(null, arguments));
+      this._log(LogLevels.ERROR, msg);
   }
 
   _log(level, text) {
