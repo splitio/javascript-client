@@ -3,6 +3,7 @@
 * Added module "events" as optional dependency.
 * Removed dependency on "util" module.
 * Updated transport module to use a local axios instance instead of the global one, to avoid polluting the shared one.
+* Updated input validation log when trying to get data of a non-existent split to have level WARN instead of ERROR.
 
 ## 10.8.3 (Sep 16, 2019)
 
