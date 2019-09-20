@@ -1,4 +1,4 @@
-import axios from 'axios';
+import tape from 'tape-catch';
 import MockAdapter from 'axios-mock-adapter';
 import evaluationsSuite from './browserSuites/evaluations.spec';
 import impressionsSuite from './browserSuites/impressions.spec';
@@ -12,13 +12,8 @@ import {
 import sharedInstantiationSuite from './browserSuites/shared-instantiation.spec';
 import managerSuite from './browserSuites/manager.spec';
 
-import tape from 'tape-catch';
+import { __getAxiosInstance } from '../services/transport';
 import SettingsFactory from '../utils/settings';
-const settings = SettingsFactory({
-  core: {
-    key: 'facundo@split.io'
-  }
-});
 
 import splitChangesMock1 from './mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from './mocks/splitchanges.since.1457552620999.json';
@@ -26,8 +21,14 @@ import mySegmentsFacundo from './mocks/mysegments.facundo@split.io.json';
 import mySegmentsNicolas from './mocks/mysegments.nicolas@split.io.json';
 import mySegmentsMarcio from './mocks/mysegments.marcio@split.io.json';
 
-// Set the mock adapter on the default instance
-const mock = new MockAdapter(axios);
+// Set the mock adapter on the current axios instance
+const mock = new MockAdapter(__getAxiosInstance());
+
+const settings = SettingsFactory({
+  core: {
+    key: 'facundo@split.io'
+  }
+});
 
 const settingsInMemory = {
   core: {

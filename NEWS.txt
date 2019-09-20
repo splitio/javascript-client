@@ -1,3 +1,9 @@
+## 10.8.4 (Sep XX, 2019)
+
+* Added module "events" as optional dependency.
+* Removed dependency on "util" module.
+* Updated transport module to use a local axios instance instead of the global one, to avoid polluting the shared one.
+
 ## 10.8.3 (Sep 16, 2019)
 
 * Updated two default values on startup configuration for Browsers:

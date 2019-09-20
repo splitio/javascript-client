@@ -3,8 +3,10 @@ import { SplitNetworkError } from '../../utils/lang/Errors';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-services:service');
 
+const _axiosInstance = axios.create();
+
 export default function Fetcher(request) {
-  return axios(request)
+  return _axiosInstance.request(request)
     .catch(error => {
       const resp = error.response;
       const config = error.config;
@@ -26,4 +28,9 @@ export default function Fetcher(request) {
 
       throw new SplitNetworkError(msg, resp ? resp.status : 'NO_STATUS');
     });
+}
+
+// This function is only exposed for unit testing purposses.
+export function __getAxiosInstance() {
+  return _axiosInstance;
 }

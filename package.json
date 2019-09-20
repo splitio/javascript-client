@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio",
-  "version": "10.8.3",
+  "version": "10.8.4-canary.2",
   "description": "Split SDK",
   "files": [
     "README.md",
@@ -102,6 +102,7 @@
     "utfx": "1.0.1"
   },
   "optionalDependencies": {
+    "events": "3.0.0",
     "ioredis": "3.2.2"
   },
   "greenkeeper": {
