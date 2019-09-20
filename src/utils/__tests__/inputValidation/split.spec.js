@@ -130,10 +130,10 @@ tape('INPUT VALIDATION for Split name and Split existance (special case)', t => 
     assert.false(validateSplitExistance(contextMock, 'other_split', undefined, 'other_method'), 'Should return false if it receives a non-truthy value as a split object or label');
     assert.false(validateSplitExistance(contextMock, 'other_split', LabelConstants.SPLIT_NOT_FOUND, 'other_method'), 'Should return false if it receives a label but it is the split not found one.');
 
-    assert.equal(loggerMock.error.callCount, 3, 'It should have logged 3 errors, one per each time we called it');
-    assert.true(loggerMock.error.alwaysCalledWithExactly(`other_method: ${errorMsgs.NOT_EXISTENT_SPLIT('other_split')}`), 'Error logs should have the correct message.');
+    assert.equal(loggerMock.warn.callCount, 3, 'It should have logged 3 warnings, one per each time we called it');
+    assert.true(loggerMock.warn.alwaysCalledWithExactly(`other_method: ${errorMsgs.NOT_EXISTENT_SPLIT('other_split')}`), 'Warning logs should have the correct message.');
 
-    assert.false(loggerMock.warn.called, 'We log errors, no warnings.');
+    assert.false(loggerMock.error.called, 'We log warnings, not errors.');
 
     resetStubs();
     assert.end();
