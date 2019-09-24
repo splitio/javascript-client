@@ -1,203 +1,175 @@
-## 10.8.4 (Sep 24, 2019)
+10.8.4 (Sep 24, 2019)
+ - Added module "events" as optional dependency.
+ - Removed dependency on "util" module.
+ - Updated transport module to use a local axios instance instead of the global one, to avoid polluting the shared one..
+ - Updated input validation log when trying to get data of a non-existent split to have level WARN instead of ERROR.
 
-* Added module "events" as optional dependency.
-* Removed dependency on "util" module.
-* Updated transport module to use a local axios instance.
-* Updated input validation log when trying to get data of a non-existent split to have level WARN instead of ERROR.
+10.8.3 (Sep 16, 2019)
+ - Updated two default values on startup configuration for Browsers:
+   - startup.readyTimeout default value went up from 1.5s to 10s.
+   - startup.retriesOnFailureBeforeReady default value went up from 1.5s to 5s.
+ - Updated trafficType from manager to 'localhost' when the SDK is running in localhost mode.
+ - Updated polling logic to stop and restart mySegments data synchronization (on browsers) when not currently used on Splits.
 
-## 10.8.3 (Sep 16, 2019)
+10.8.2 (Jul 26, 2019)
+ - Added `/src` folder to the npm package distribution for users that needs to transpile the package themselves.
+ - Bugfixing - Incorrect warnings caused by TrafficType storage counter when a Split is updated for inMemory and LocalStorage mode.
+ - Updated three dev dependencies to remove vulnerability warnings when running npm audit (lodash, set-value, mixin-deep).
 
-* Updated two default values on startup configuration for Browsers:
-** startup.readyTimeout default value went up from 1.5s to 10s.
-** startup.retriesOnFailureBeforeReady default value went up from 1.5s to 5s.
-* Updated trafficType from manager to 'localhost' when the SDK is running in localhost mode.
-* Updated polling logic to stop and restart mySegments data synchronization (on browsers) when not currently used on Splits.
+10.8.1 (May 31, 2019)
+ - Updated axios version to 0.19.0 to remove a DoS vulnerability (not affecting the SDK but worth updating).
 
-## 10.8.2 (Jul 26, 2019)
+10.8.0 (May 23, 2019)
+ - Added support for optional event properties via our client.track() method. Read more in our docs!
 
-* Added `/src` folder to the npm package distribution.
-* Bugfixing - Incorrect warnings caused by TrafficType storage counter when a Split is updated for inMemory and LocalStorage mode.
-* Updated three dev dependencies to remove vulnerability warnings (lodash, set-value, mixin-deep).
+10.7.2 (May 15, 2019)
+ - Bugfixing - Fixing ES6 import syntax for LabelConstants module.
 
-## 10.8.1 (May 31, 2019)
+10.7.1 (May 10, 2019)
+ - Added Block Until Ready functionality support for consumer clients (Redis mode on Node) to make integration code work the same between modes.
+ - Added more Input and Usage Validation rules, including an extra label for impressions when the SDK is not ready.
+ - Updated the SDK Redis adapter to handle pending commands when disconnecting from the Redis server.
+ - Bugfixing - Clearing up readyTimeout after we don't need it anymore. It also fixes the missleading SDK_READY_TIMED_OUT error log when using Redis.
 
-* Updated axios version to 0.19.0 to remove a DoS vulnerability.
+10.7.0 (Apr 30, 2019)
+ - Added Block Until Ready functionality to the manager, shared with the main client. Now you can subscribe to SDK events or use the .ready() promise from the manager as well.
+ - Added Dynamic Configurations support through two new methods that mimick the regular ones, changing the type of what is returned.
+   - getTreatmentWithConfig: Same as getTreatment, but instead of a string it returns a map with treatment and config as a stringified JSON.
+   - getTreatmentWithConfig: Same as getTreatments, but instead of a map of string it returns a map of objects with treatment and config as a stringified JSON.
+ - Added configs to SplitViews returned by the manager module.
+ - Updated localhost mode. Now besides supporting the old text files with `.split` extension (to be deprecated soon), we support YAML (.yaml/.yml) files where you can
+  define configurations for your treatments and also whitelisted keys. Read more in our docs!
+ - Updated manager method to avoid creating more than one instance.
+ - Updated how we handle timeout per request, setting startup.requestTimeoutBeforeReady to less than 1 applies no timeout per request.
 
-## 10.8.0 (May 23, 2019)
+10.6.1 (Mar 15, 2019)
+ - Updated default value for scheduler.featuresRefreshRate on NodeJS. New default is 5 seconds.
 
-* Added support for optional event properties via our client.track() method.
+10.6.0 (Feb 12, 2019)
+ - BREAKING CHANGE: Updated impressions cache for Redis storage to reduce the amount of Redis operations by using a single queue (Must use Synchronizer 2.x or above with this or newer SDK versions).
+ - Added stricter validations to the input of the SDK api to provide better and faster feedback in case of missuse. We want our users to be able to diagnose issues sooner,
+  instead of when you can't find the data you're looking for. As part of this, some error logs (just logs) will be visible even with the SDK Logger disabled.
+ - Updated getTreatments to have it's own latency metric for the whole operation, instead of one per each feature evaluation.
+ - Updated default values on configuration for NodeJS.
+   - startup.readyTimeout default value went up from 0s (no timeout limit) to 15s.
+   - startup.retriesOnFailureBeforeReady default value went up from 0 (no retries) to 1.
+ - Bugfixing - Preventing "Uncaught in promise (undefined)" error for .ready() promise when no error handlers are attached to it.
+ - Bugfixing - Always throw JS errors inside callbacks attached to the SDK, so developers don't miss them.
 
-## 10.7.2 (May 15, 2019)
+10.5.1 (Dec 20, 2018)
+ - Bugfixing - Fixing an issue where a Split with Traffic Allocation set to one would return the default treatment for 100% of the traffic (instead of 99%).
 
-* Bugfixing - Fixing ES6 import syntax for LabelConstants module.
+10.5.0 (Nov 7, 2018)
+ - Added custom impression listener feature, so customers can receive all the impressions data on a callback to handle as they place.
+  Completely optional, the only requirement is that the element being set as impression listener should have a method called `logImpression`
+  where they'll receive all the data. Read more in our docs!
+ - Added Redis support for track events. Now if you're running the `split-synchronizer` and the Node SDK on `consumer mode`, your track events
+  will go to Redis and be sent to Split by the synchronizer.
+ - Added a wrapper on top of ioredis to better handle operations and reduce unwanted library effects.
+ - Removed unnecessary keys/scans on Redis.
+ - Bugfixing - Calling factory.client on the browser with the same key used on configuration created a new unnecessary instance.
+ - Bugfixing - Fixing multiple instances of the client without specific scheduler configurations cause overflow on timeout values.
 
-## 10.7.1 (May 10, 2019)
+10.4.0 (Oct 4, 2018)
+ - Removed dependency for logging library.
+ - Removed dependency on lodash.
+ - Added log level support for SDK logs using our own Logger implementation. Now besides just enable/disable,
+  you can set the log level as a string (more information on our docs or on Detailed-README.md).
+ - Added automatic cleanup and data flush for NodeJS on SIGTERM signals.
+ - Updated default value for startup.requestTimeoutBeforeReady on the Browser from 0.8 seconds to 1.5 seconds to match startup.readyTimeout.
+ - Updated dependency versions.
+ - Bugfixing - Capturing uncaught exception on some http and network errors.
+ - Bugfixing - IE - Producer names logged as undefined.
 
-* Added Block Until Ready functionality support for consumer clients (Redis mode on Node) to make integration code work the same between modes.
-* Added more Input and Usage Validation rules, including an extra label for impressions when the SDK is not ready.
-* Updated the SDK Redis adapter to handle pending commands when disconnecting from the Redis server.
-* Bugfixing - Clearing up readyTimeout after we don't need it anymore. It also fixes the missleading SDK_READY_TIMED_OUT error log when using Redis.
+10.3.3 (Aug 8, 2018)
+ - Removing logplease dependency hosted on GitHub.
 
-## 10.7.0 (Apr 30, 2019)
+10.3.2 (Jun 19, 2018)
+ - Updating logging utility check for Node environments.
 
-* Added Block Until Ready functionality to the manager, shared with the main client.
-* Added Dynamic Configurations support through two new methods that mimick the regular ones, changing the type of what is returned.
-** getTreatmentWithConfig: Same as getTreatment, but instead of a string it returns a map with treatment and config as a stringified JSON.
-** getTreatmentWithConfig: Same as getTreatments, but instead of a map of string it returns a map of objects with treatment and config as a stringified JSON.
-* Added configs to SplitViews returned by the manager module.
-* Updated localhost mode. Now besides supporting the old text files with `.split` extension (to be deprecated soon), we support YAML (.yaml/.yml) files with more options. Read more in our docs!
-* Updated manager method to avoid creating more than one instance.
-* Updated how we handle timeout per request, setting startup.requestTimeoutBeforeReady to less than 1 applies no timeout per request.
+10.3.1 (Jun 4, 2018)
+ - Added events npm package as a dependency.
 
-## 10.6.1 (Mar 15, 2019)
+10.3.0 (May 10, 2018)
+ - Input and output validations.
+ - Improved how the sdk parse the key.
+ - Not push impressions if matchingKey is invalid.
+ - Fixed memory leak on events factory.
+ - Improved UT for the node sdk.
+ - TS declarations now accept boolean properties on Attributes.
 
-* Updated default value for scheduler.featuresRefreshRate on NodeJS. New default is 5 seconds.
+10.2.0 (April 3, 2018)
+ - Added greenkeeper configuration within package.json.
+ - Updated several libraries versions.
+ - Removed global polyfills.
 
-## 10.6.0 (Feb 12, 2019)
-
-* BREAKING CHANGE: Updated impressions cache for Redis storage to reduce the amount of Redis operations by using a single queue (Must use Synchronizer 2.x or above with this or newer SDK versions).
-* Added stricter validations to the input of the SDK api to provide better and faster feedback in case of missuse.
-* Updated getTreatments to have it's own latency metric for the whole operation, instead of one per each feature evaluation.
-* Updated default values on configuration for NodeJS.
-** startup.readyTimeout default value went up from 0s (no timeout limit) to 15s.
-** startup.retriesOnFailureBeforeReady default value went up from 0 (no retries) to 1.
-* Bugfixing - Preventing "Uncaught in promise (undefined)" error for .ready() promise when no error handlers are attached to it.
-* Bugfixing - Always throw JS errors inside callbacks attached to the SDK.
-
-## 10.5.1 (Dec 20, 2018)
-
-* Bugfixing - Fixing an issue where a Split with Traffic Allocation set to one would return the default treatment for 100% of the traffic (instead of 99%).
-
-## 10.5.0 (Nov 7, 2018)
-
-* Added custom impression listener feature.
-* Added Redis support for track events.
-* Added a wrapper on top of ioredis to better handle operations and reduce unwanted library effects.
-* Removed unnecessary keys/scans on Redis.
-* Bugfixing - Calling factory.client on the browser with the same key used on configuration created a new unnecessary instance.
-* Bugfixing - Fixing multiple instances of the client without specific scheduler configurations cause overflow on timeout values.
-
-## 10.4.0 (Oct 4, 2018)
-
-* Removed dependency for logging library.
-* Removed dependency on lodash.
-* Added log level support for SDK logs using our own Logger.
-* Added automatic cleanup and data flush for NodeJS on SIGTERM signals.
-* Updated default value for startup.requestTimeoutBeforeReady on the Browser from 0.8 seconds to 1.5 seconds to match startup.readyTimeout.
-* Updated dependency versions.
-* Bugfixing - Capturing uncaught exception on some http and network errors.
-* Bugfixing - IE - Producer names logged as undefined.
-
-## 10.3.3 (Aug 8, 2018)
-
-* Removing logplease dependency hosted on GitHub.
-
-## 10.3.2 (Jun 19, 2018)
-
-* Updating logging utility check for Node environments.
-
-## 10.3.1 (Jun 4, 2018)
-
-* Added events npm package as a dependency.
-
-## 10.3.0 (May 10, 2018)
-
-* Input and output validations.
-* Improved how the sdk parse the key.
-* Not push impressions if matchingKey is invalid.
-* Fixed memory leak on events factory.
-* Improved UT for the node sdk.
-* TS declarations now accept boolean properties on Attributes.
-
-## 10.2.0 (April 3, 2018)
-
-* Added greenkeeper configuration within package.json.
-* Updated several libraries versions.
-* Removed global polyfills.
-
-## 10.1.1 (March 20, 2018)
-
-* Bugfixing - getTreatment will return 'control' and the impression registered
+10.1.1 (March 20, 2018)
+ - Bugfixing - getTreatment will return 'control' and the impression registered
   will have label 'exception' when there is a Redis Exception.
 
-## 10.1.0 (March 8, 2018)
+10.1.0 (March 8, 2018)
+ - Replaced isomorphic-fetch with axios.
 
-* Replaced isomorphic-fetch with axios.
+10.0.0 (Feb 26, 2018)
+ - Migrated source code to es modules.
+ - Localhost mode uses fewer dependencies now.
+ - Removed flowtype since it was not used anymore.
+ - Udpated to last node LTS.
+ - Added package-lock.json.
+ - Fixed eslint configuration.
 
-## 10.0.0 (Feb 26, 2018)
+9.4.0 (Jan 12, 2018)
+ - Adding support for client.track method, for tracking custom events.
+ - Adding trafficType as an optional core setting. If provided on the browser it will be binded to the client as the key.
+ - TypeScript declarations polishing.
+ - Updated SDK labels.
+ - Bugfixing - Shared clients (browser) were ready even if the main client was not.
+ - Bugfixing - Shared clients (browser) from different SDK instances should be separate.
+ - Bugfixing - When using API key with wrong permissions, Node was throwing a false ready event (without segments).
+ - Bugfixing - Localhost mode was trying to flush impressions when client.destroy was invoked.
 
-* Migrated source code to es modules.
-* Localhost mode uses fewer dependencies now.
-* Removed flowtype since it was not used anymore.
-* Udpated to last node LTS.
-* Added package-lock.json.
-* Fixed eslint configuration.
+9.3.7 (Dec 22, 2017)
+ - Updated SDK labels.
 
-## 9.4.0 (Jan 12, 2018)
+9.3.6 (Oct 12, 2017)
+ - Fixed an issue that was not rejecting client.ready() on SDK_READY_TIMED_OUT event.
+ - Fixed an issue where the SDK required a key even on localhost mode.
+ - Added custom message for 404 errors.
+ - Updated TypeScript declaration files for exposing startup settings on NodeJS.
 
-* Adding support for client.track method, for tracking custom events.
-* Adding trafficType as an optional core setting. If provided on the browser it will be binded to the client as the key.
-* TypeScript declarations polishing.
-* Updated SDK labels.
-* Bugfixing - Shared clients (browser) were ready even if the main client was not.
-* Bugfixing - Shared clients (browser) from different SDK instances should be separate.
-* Bugfixing - When using API key with wrong permissions, Node was throwing a false ready event (without segments).
-* Bugfixing - Localhost mode was trying to flush impressions when client.destroy was invoked.
+9.3.5 (Sep 13, 2017)
+ - Internal context module added.
+ - Removed /src folder and some misc files from NPM package.
+ - Dependencies update & cleanup.
 
-## 9.3.7 (Dec 22, 2017)
+9.3.4 (Aug 23, 2017)
+ - Removed FullStory integration
 
-* Updated SDK labels.
+9.3.3 (Aug 15, 2017)
+ - Improved metrics collection.
 
-## 9.3.6 (Oct 12, 2017)
+9.3.2 (Aug 9, 2017)
+ - Adding support for Node v0.10.X
 
-* Fixed an issue that was not rejecting client.ready() on SDK_READY_TIMED_OUT event.
-* Fixed an issue where the SDK required a key even on localhost mode.
-* Added custom message for 404 errors.
-* Updated TypeScript declaration files for exposing startup settings on NodeJS.
+9.3.1 (Jul 28, 2017)
+ - Bugfixing - Fixed a bug on Manager API which was not retrieving the right treatments for a Split on some cases.
 
-## 9.3.5 (Sep 13, 2017)
+9.3.0 (Jul 25, 2017)
+ - Several new matchers have been released:
+   - Dependency Matchers
+   - Boolean Matchers
+   - Regex Matchers
 
-* Internal context module added.
-* Removed /src folder and some misc files from NPM package.
-* Dependencies update & cleanup.
+9.2.2 (Jul 20, 2017)
+ - Bugfixing - Added support into the SDK to flush impressions before destroy the instance.
 
-## 9.3.4 (Aug 23, 2017)
-
-* Removed FullStory integration
-
-## 9.3.3 (Aug 15, 2017)
-
-* Improved metrics collection.
-
-## 9.3.2 (Aug 9, 2017)
-
-* Adding support for Node v0.10.X
-
-## 9.3.1 (Jul 28, 2017)
-
-* Bugfixing - Fixed a bug on Manager API which was not retrieving the right treatments for a Split on some cases.
-
-## 9.3.0 (Jul 25, 2017)
-
-Several new matchers have been released:
-
-  * Dependency Matchers
-  * Boolean Matchers
-  * Regex Matchers
-
-## 9.2.2 (Jul 20, 2017)
-
-* Bugfixing - Added support into the SDK to flush impressions before destroy the instance.
-
-## 9.2.1 (May 19, 2017)
-
-* Bugfixing - Issue with dependency that exposes untranspiled code through cjs require, causes
+9.2.1 (May 19, 2017)
+ - Bugfixing - Issue with dependency that exposes untranspiled code through cjs require, causes
   problems on IE and Node 3.
 
-## 9.2.0 (May 11, 2017)
-
-* Dropped migration build. Migration packages will no longer receive updates.
-* Updated logging functionality. SDK will handle logging with a minimalistic enable/disable approach.
+9.2.0 (May 11, 2017)
+ - Dropped migration build. Migration packages will no longer receive updates.
+ - Updated logging functionality. SDK will handle logging with a minimalistic enable/disable approach.
   Now you have three ways to enable/disable SDK logging:
 
   1. By setting the localStorage.splitio_debug (browser) or SPLITIO_DEBUG environment var (node)
@@ -236,35 +208,31 @@ Several new matchers have been released:
     sdk.Logger.disable();
     ```
 
-* Added Time Tracker logs. When logs are enabled, we log how much time takes to complete
+ - Added Time Tracker logs. When logs are enabled, we log how much time takes to complete
   SDK important tasks, like getting ready, downloading important information or pushing
   metrics and impressions to Split.
-* Bugfixing - Return correct label when consulted Split is not found.
+ - Bugfixing - Return correct label when consulted Split is not found.
 
-## 9.1.1 (May 03, 2017)
-
-* Bugfixing - Fixed invalid behaviour when using native Fetch API and comparing statusText
+9.1.1 (May 03, 2017)
+ - Bugfixing - Fixed invalid behaviour when using native Fetch API and comparing statusText
   instead of resp.ok
 
-## 9.1.0 (April 21, 2017)
+9.1.0 (April 21, 2017)
+ - Adding support for STRING matchers.
+ - client.destroy() will disconnect from Redis instance, if you are using that storage.
+ - Improved support for multiple SDK instances working at the same time.
+ - Improved attribute values type coercion.
+ - No API changes.
 
-* Adding support for STRING matchers.
-* client.destroy() will disconnect from Redis instance, if you are using that storage.
-* Improved support for multiple SDK instances working at the same time.
-* Improved attribute values type coercion.
-* No API changes.
+9.0.0 (April 17, 2017)
+ - Adding support for SET matchers.
+ - Added some type coercion for attribute values, in case we don't receive a value of the expected type.
+ - No API changes.
 
-## 9.0.0 (April 17, 2017)
-
-* Adding support for SET matchers.
-* Added some type coercion for attribute values, in case we don't receive a value of the expected type.
-* No API changes.
-
-## 8.2.0 (April 12, 2017)
-
-* Adding traffic allocation support.
-* Adding support for murmur hashing algorithm.
-* Adding getTreatments method to client API. For example:
+8.2.0 (April 12, 2017)
+ - Adding traffic allocation support.
+ - Adding support for murmur hashing algorithm.
+ - Adding getTreatments method to client API. For example:
 
 ```js
 var treatmentsMap = client.getTreatments('CUSTOMER_KEY', ['Split_1', 'Split_2']);
@@ -278,24 +246,20 @@ var treatmentsMap = client.getTreatments('CUSTOMER_KEY', ['Split_1', 'Split_2'])
 */
 ```
 
-* Bugfixing on manager API for localhost.
+ - Bugfixing on manager API for localhost.
 
-## 8.1.3 (April 11, 2017)
+8.1.3 (April 11, 2017)
+ - No API changes. Bug fixing release.
 
-* No API changes. Bug fixing release.
+8.1.2 (April 6, 2017)
+ - Bug fixing release to improve startup performance.
 
-## 8.1.2 (April 6, 2017)
+8.1.1 (March 31, 2017)
+ - Small fix on declaration files.
 
-* Bug fixing release to improve startup performance.
-
-## 8.1.1 (March 31, 2017)
-
-* Small fix on declaration files.
-
-## 8.1.0 (March 30, 2017)
-
-* No API changes.
-* Added typescript support. SplitSDK custom types live on the SplitIO namespace.
+8.1.0 (March 30, 2017)
+ - No API changes.
+ - Added typescript support. SplitSDK custom types live on the SplitIO namespace.
 
   For example:
 
@@ -304,9 +268,8 @@ var treatmentsMap = client.getTreatments('CUSTOMER_KEY', ['Split_1', 'Split_2'])
   const myBrowserSettings: SplitIO.IBrowserSettings;
   ```
 
-## 8.0.0 (March 10, 2017)
-
-* New API to improve development experience. We added a migration layer so you
+8.0.0 (March 10, 2017)
+ - New API to improve development experience. We added a migration layer so you
   could use the new version of the SDK and make the migration when you have
   time.
 
@@ -334,7 +297,7 @@ var treatmentsMap = client.getTreatments('CUSTOMER_KEY', ['Split_1', 'Split_2'])
   var sdk = require('@splitsoftware/splitio/migration');
   ```
 
-* NodeJS now added support for Redis to keep consistency across multiple SDK
+ - NodeJS now added support for Redis to keep consistency across multiple SDK
   instances.
 
   We have added a new setting parameter to control which storage use, and how
@@ -367,10 +330,10 @@ var treatmentsMap = client.getTreatments('CUSTOMER_KEY', ['Split_1', 'Split_2'])
   });
   ```
 
-* Added Manager API to query the state of the SDK. Please check the official
+ - Added Manager API to query the state of the SDK. Please check the official
   documenation for details.
 
-* In Browser land, we can now enable localStorage as backend so we can reload
+ - In Browser land, we can now enable localStorage as backend so we can reload
   the SDK quickly without downloading all the data again.
 
   This should improve the ready event significantly when you have a good amount
@@ -393,7 +356,7 @@ var treatmentsMap = client.getTreatments('CUSTOMER_KEY', ['Split_1', 'Split_2'])
   const treatment = client.getTreatment('my-feature-comming-from-localstorage');
   ```
 
-* Added support for offline changes release to improve development experience,
+ - Added support for offline changes release to improve development experience,
   specially in NodeJS where we used to have a server running and spin it up each
   time we change a treatment is a headache.
 
@@ -423,35 +386,28 @@ var treatmentsMap = client.getTreatments('CUSTOMER_KEY', ['Split_1', 'Split_2'])
   client.getTreatment('my_feature') === 'off'; // Some time after you will be able to verify this
   ```
 
-## 7.4.0 (January 23, 2017)
+7.4.0 (January 23, 2017)
+ - None API changes. Bug fixing release.
 
-* None API changes. Bug fixing release.
+7.3.0 (January 19, 2017)
+ - Small addition to SDK configurations so you can inject bucketing key and labels.
 
-## 7.3.0 (January 19, 2017)
+7.1.1 (November 16, 2016)
+ - None API changes. Bug fixing release.
 
-- Small addition to SDK configurations so you can inject bucketing key and labels.
+7.1.0 (November 15, 2016)
+ - None API changes. Bug fixing release.
 
-## 7.1.1 (November 16, 2016)
-
-* None API changes. Bug fixing release.
-
-## 7.1.0 (November 15, 2016)
-
-* None API changes. Bug fixing release.
-
-## 7.0.1 (September 16, 2016)
-
-* Huge project refactoring, specially focus on simplicity. We have replaced the
+7.0.1 (September 16, 2016)
+ - Huge project refactoring, specially focus on simplicity. We have replaced the
   library building system to get more power while we generate the release.
-* Improved documentation.
+ - Improved documentation.
 
-## 6.0.1 (June 24, 2016)
+6.0.1 (June 24, 2016)
+ - Critical bug fixed which prevent ready state of the SDK.
 
-* Critical bug fixed which prevent ready state of the SDK.
-
-## 6.0.0 (June 24, 2016)
-
-* In the browser land we allow quick retries before start using the refresh
+6.0.0 (June 24, 2016)
+ - In the browser land we allow quick retries before start using the refresh
   rates defined for segments and splits, plus the possibility of receive an
   event when the SDK is taking to much time to startup.
 
@@ -489,17 +445,14 @@ var treatmentsMap = client.getTreatments('CUSTOMER_KEY', ['Split_1', 'Split_2'])
   </script>
   ```
 
-## 5.1.1 (June 13, 2016)
+5.1.1 (June 13, 2016)
+ - None API changes. Bug fixing release.
 
-* None API changes. Bug fixing release.
+5.1.0 (June 9, 2016)
+ - Bug fixing release.
 
-## 5.1.0 (June 9, 2016)
-
-* Bug fixing release.
-
-## 5.0.0 (June 6, 2016)
-
-* Added support for multiple instances.
+5.0.0 (June 6, 2016)
+ - Added support for multiple instances.
 
   ```html
   <script src="//cdn.split.io/sdk/split-5.0.0.min.js"></script>
@@ -533,7 +486,7 @@ var treatmentsMap = client.getTreatments('CUSTOMER_KEY', ['Split_1', 'Split_2'])
   </script>
   ```
 
-* SDK instances inherit from EventEmitter.
+ - SDK instances inherit from EventEmitter.
 
   ```html
   <script src="//cdn.split.io/sdk/split-5.0.0.min.js"></script>
@@ -555,11 +508,10 @@ var treatmentsMap = client.getTreatments('CUSTOMER_KEY', ['Split_1', 'Split_2'])
   </script>
   ```
 
-## 4.0.0 (April 13, 2016)
+4.0.0 (April 13, 2016)
+ - No more url changes required to switch to development mode.
 
-* No more url changes required to switch to development mode.
-
-  ### Before (3.0.0 or earlier)
+  - Before (3.0.0 or earlier)
   ```html
   <script src="https://cdn.split.io/sdk/offline-3.0.0.js"></script>
   <script>
@@ -573,7 +525,7 @@ var treatmentsMap = client.getTreatments('CUSTOMER_KEY', ['Split_1', 'Split_2'])
   </script>
   ```
 
-  ### After (4+)
+  - After (4+)
   ```html
   <script src="https://cdn.split.io/sdk/split-4.0.0.js"></script>
   <script>
@@ -593,9 +545,8 @@ var treatmentsMap = client.getTreatments('CUSTOMER_KEY', ['Split_1', 'Split_2'])
   Now you can forget the switch between urls, everything is bundled into the same
   package!
 
-## 3.0.0 (April 10, 2016)
-
-* Added support for attributes.
+3.0.0 (April 10, 2016)
+ - Added support for attributes.
 
 ```js
 var sdk = splitio({
@@ -612,20 +563,18 @@ var treatment = sdk.getTreatment('my_feature', {
 });
 ```
 
-* Minor bug fixes and code clean up.
+ - Minor bug fixes and code clean up.
 
-## 2.1.0 (March 29, 2016)
-
-* Added better handling of possible error situations when:
+2.1.0 (March 29, 2016)
+ - Added better handling of possible error situations when:
 
   1. If there is none defaultTreatment present, use 'control' treatment.
   2. Unexpected matcher structures should produce a 'control' treatment.
 
-## 2.0.0 (March 21, 2016)
+2.0.0 (March 21, 2016)
+ - Breaking Changes
 
-### Breaking Changes
-
-* If you are using custom refresh rates, please change them from milliseconds to
+  - If you are using custom refresh rates, please change them from milliseconds to
 seconds:
 
 ```js
@@ -643,9 +592,9 @@ var sdk = splitio({
 });
 ```
 
-### New features
+ - New features
 
-* Based on users feedback, the new recommended values for all the refresh rates are:
+  - Based on users feedback, the new recommended values for all the refresh rates are:
 
 ```js
 scheduler: {
@@ -656,10 +605,8 @@ scheduler: {
 }
 ```
 
-## 1.0.1 (March 16, 2016)
+1.0.1 (March 16, 2016)
+ - Make it public in npm
 
-* Make it public in npm
-
-## 1.0.0 (March 15, 2016)
-
-* Initial public release
+1.0.0 (March 15, 2016)
+ - Initial public release
