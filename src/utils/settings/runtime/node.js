@@ -17,5 +17,17 @@ limitations under the License.
 import osFunction from 'os';
 import ipFunction from 'ip';
 
-export const ip = ipFunction.address();
-export const hostname = osFunction.hostname();
+import { UNKNOWN, NA } from '../../constants';
+
+export default function(IPAddressesEnabled) {
+  if(IPAddressesEnabled) {
+    return {
+      ip: ipFunction.address() || UNKNOWN,
+      hostname: osFunction.hostname() || UNKNOWN
+    };
+  }
+  return {
+    ip: NA,
+    hostname: NA
+  };
+}

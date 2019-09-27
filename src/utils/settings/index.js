@@ -16,7 +16,7 @@ limitations under the License.
 
 import { merge } from '../lang';
 import language from './language';
-import { ip, hostname } from './runtime';
+import getIpAndHostName from './runtime';
 import overridesPerPlatform from './defaults';
 import storage from './storage';
 import mode from './mode';
@@ -120,6 +120,9 @@ function defaults(custom) {
 
   setupLogger(withDefaults.debug);
 
+  // Current ip/hostname information
+  withDefaults.runtime = getIpAndHostName(withDefaults.core.IPAddressesEnabled);
+
   return withDefaults;
 }
 
@@ -154,12 +157,6 @@ const proto = {
         }
       }
     );
-  },
-
-  // Current ip/hostname information (if available)
-  runtime: {
-    ip,
-    hostname
   }
 };
 

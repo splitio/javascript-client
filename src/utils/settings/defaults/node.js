@@ -1,4 +1,8 @@
 export default {
+  core: {
+    // Toggle sendind (true) or not sending (false) IP and Host Name with impressions and events.
+    IPAddressesEnabled: true
+  },
   startup: {
     // Stress the request time used while starting up the SDK.
     requestTimeoutBeforeReady: 15,

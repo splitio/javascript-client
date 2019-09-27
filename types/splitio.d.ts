@@ -229,6 +229,12 @@ interface INodeBasicSettings extends ISharedSettings {
      * @default true
      */
     labelsEnabled?: boolean
+    /**
+     * Disable machine IP and Name from being sent to Split backend.
+     * @property {boolean} IPAddressesEnabled
+     * @default true
+     */
+    IPAddressesEnabled?: boolean
   },
   /**
    * Defines which kind of storage we should instanciate.
