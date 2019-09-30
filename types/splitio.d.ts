@@ -38,7 +38,8 @@ interface ISettings {
     authorizationKey: string,
     key: SplitIO.SplitKey,
     trafficType: string,
-    labelsEnabled: boolean
+    labelsEnabled: boolean,
+    IPAddressesEnabled: boolean
   },
   readonly mode: SDKMode,
   readonly scheduler: {

@@ -1,6 +1,6 @@
 export default {
   core: {
-    // Toggle sendind (true) or not sending (false) IP and Host Name with impressions and events.
+    // Default is true.
     IPAddressesEnabled: true
   },
   startup: {
