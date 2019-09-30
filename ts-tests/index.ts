@@ -166,6 +166,7 @@ AsyncSDK = SplitFactory(asyncSettings);
 const instantiatedSettingsCore: {
   authorizationKey: string,
   key: SplitIO.SplitKey,
+  trafficType: string,
   labelsEnabled: boolean
 } = SDK.settings.core;
 const instantiatedSettingsMode: ('standalone' | 'consumer') = SDK.settings.mode;
@@ -413,7 +414,8 @@ fullBrowserSettings.storage.type = 'MEMORY';
 let fullNodeSettings: SplitIO.INodeSettings = {
   core: {
     authorizationKey: 'asd',
-    labelsEnabled: false
+    labelsEnabled: false,
+    IPAddressesEnabled: false
   },
   scheduler: {
     featuresRefreshRate: 1,
@@ -444,7 +446,8 @@ fullNodeSettings.mode = 'consumer';
 let fullAsyncSettings: SplitIO.INodeAsyncSettings = {
   core: {
     authorizationKey: 'asd',
-    labelsEnabled: false
+    labelsEnabled: false,
+    IPAddressesEnabled: false
   },
   scheduler: {
     featuresRefreshRate: 1,

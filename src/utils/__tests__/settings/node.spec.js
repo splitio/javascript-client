@@ -15,8 +15,10 @@ limitations under the License.
 **/
 import tape from 'tape-catch';
 import SettingsFactory from '../../settings';
+import { NA } from '../../constants';
+import runtime from '../../settings/runtime';
 
-tape('SETTINGS / Redis options hould be properly parsed', assert => {
+tape('SETTINGS / Redis options should be properly parsed', assert => {
   const settingsWithUrl = SettingsFactory({
     core: {
       authorizationKey: 'dummy token'
@@ -56,6 +58,32 @@ tape('SETTINGS / Redis options hould be properly parsed', assert => {
   assert.deepEqual(settingsWithoutUrl.storage, {
     type: 'REDIS', prefix: 'test_prefix.SPLITIO', options: { host: 'host', port: 'port', pass: 'pass', db: 'db', connectionTimeout: 33, operationTimeout: 44 }
   }, 'Redis storage settings and options should be passed correctly, url settings takes precedence when we are pointing to Redis.');
+
+  assert.end();
+});
+
+tape('SETTINGS / IPAddressesEnabled should be overwritable and true by default', assert => {
+  const settingsWithIPAddressDisabled = SettingsFactory({
+    core: {
+      authorizationKey: 'dummy token',
+      IPAddressesEnabled: false
+    }
+  });
+  const settingsWithIPAddressEnabled = SettingsFactory({
+    core: {
+      authorizationKey: 'dummy token'
+    }
+  });
+
+  assert.equal(settingsWithIPAddressDisabled.core.IPAddressesEnabled, false, 'When creating a setting instance, it will have the provided value for IPAddressesEnabled');
+  assert.equal(settingsWithIPAddressEnabled.core.IPAddressesEnabled, true, 'and if no IPAddressesEnabled was provided, it will be true.');
+
+  assert.deepEqual({
+    ip: NA,
+    hostname: NA
+  }, settingsWithIPAddressDisabled.runtime, 'When IP address is disabled, the runtime setting properties (ip and hostname) will have a default value of "NA".');
+
+  assert.deepEqual(runtime(), settingsWithIPAddressDisabled.runtime, 'When IP address is enabled, the runtime setting will have the current ip and hostname values.');
 
   assert.end();
 });
