@@ -27,18 +27,26 @@
   "main": "lib/index.js",
   "module": "es/index.js",
   "types": "types",
+  "dependencies": {
+    "@babel/runtime": "^7.6.2",
+    "@types/node": "10.9.4",
+    "axios": "0.19.0",
+    "ip": "1.1.5",
+    "js-yaml": "3.13.1",
+    "utfx": "1.0.1"
+  },
+  "optionalDependencies": {
+    "events": "3.0.0",
+    "ioredis": "3.2.2"
+  },
   "devDependencies": {
+    "@babel/cli": "^7.0.0",
+    "@babel/core": "^7.0.0",
+    "@babel/plugin-proposal-object-rest-spread": "^7.6.2",
+    "@babel/plugin-transform-runtime": "^7.0.0",
+    "@babel/preset-env": "^7.0.0",
     "axios-mock-adapter": "1.16.0",
-    "babel-cli": "6.26.0",
-    "babel-core": "6.26.3",
-    "babel-loader": "7.1.5",
-    "babel-plugin-add-module-exports": "1.0.0",
-    "babel-plugin-istanbul": "5.0.1",
-    "babel-plugin-syntax-object-rest-spread": "6.13.0",
-    "babel-plugin-transform-builtin-extend": "1.1.2",
-    "babel-plugin-transform-object-rest-spread": "6.26.0",
-    "babel-plugin-transform-runtime": "6.23.0",
-    "babel-preset-env": "1.7.0",
+    "babel-loader": "^8.0.0",
     "copyfiles": "2.1.0",
     "core-js": "2.6.0",
     "cross-env": "5.2.0",
@@ -93,18 +101,6 @@
     "test": "npm run browser-test-suite && npm run node-test-suite",
     "canary": "npm run rebuild && npm publish --tag canary",
     "stable": "npm run rebuild && npm publish"
-  },
-  "dependencies": {
-    "@types/node": "10.9.4",
-    "axios": "0.19.0",
-    "babel-runtime": "6.26.0",
-    "ip": "1.1.5",
-    "js-yaml": "3.13.1",
-    "utfx": "1.0.1"
-  },
-  "optionalDependencies": {
-    "events": "3.0.0",
-    "ioredis": "3.2.2"
   },
   "greenkeeper": {
     "ignore": [

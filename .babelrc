@@ -1,82 +1,64 @@
 {
   "presets": [
-    ["env", {
+    ["@babel/env", {
       "modules": false
     }]
   ],
 
   "plugins": [ // es6 build
-    "syntax-object-rest-spread",
-    "transform-object-rest-spread",
-    "transform-runtime",
-    ["babel-plugin-transform-builtin-extend", {
-      "globals": ["Error"],
-      "approximate": true
+    // "@babel/syntax-object-rest-spread",
+    "@babel/plugin-proposal-object-rest-spread",
+    ["@babel/transform-runtime", {
+      "useESModules": true
     }]
   ],
 
   "env": {
     "cjs": {
       "presets": [
-        ["env", {
+        ["@babel/env", {
           "modules": "commonjs"
         }]
       ],
       "plugins": [
-        "add-module-exports",
-        ["babel-plugin-transform-builtin-extend", {
-          "globals": ["Error"],
-          "approximate": true
-        }]
+        // "add-module-exports"
       ]
     },
     "development": {
       "presets": [
-        ["env", {
+        ["@babel/env", {
           "modules": "commonjs"
         }]
       ],
       "plugins": [
-        "add-module-exports",
-        ["babel-plugin-transform-builtin-extend", {
-          "globals": ["Error"],
-          "approximate": true
-        }]
+        // "add-module-exports"
       ]
     },
     "production": {
       "presets": [
-        ["env", {
+        ["@babel/env", {
           "modules": "commonjs"
         }]
       ],
       "plugins": [
-        "add-module-exports",
-        ["babel-plugin-transform-builtin-extend", {
-          "globals": ["Error"],
-          "approximate": true
-        }]
+        // "add-module-exports"
       ]
     },
     "test": {
       "presets": [
-        ["env", {
+        ["@babel/env", {
           "useBuiltIns": true,
           "modules": "commonjs"
         }]
       ],
       "plugins": [
-        "add-module-exports",
-        ["babel-plugin-transform-builtin-extend", {
-          "globals": ["Error"],
-          "approximate": true
-        }],
-        ["istanbul", {
-          "exclude": [
-            "**/*.spec.js",
-            "**/node.js"
-          ]
-        }]
+        // "add-module-exports",
+        // ["istanbul", {
+        //   "exclude": [
+        //     "**/*.spec.js",
+        //     "**/node.js"
+        //   ]
+        // }]
       ]
     }
   }
