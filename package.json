@@ -4,6 +4,7 @@
   "description": "Split SDK",
   "files": [
     "README.md",
+    "CONTRIBUTORS-GUIDE.md",
     "LICENSE",
     "CHANGES.txt",
     "lib",
