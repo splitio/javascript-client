@@ -1,16 +1,10 @@
-import osFunction from 'os';
-import ipFunction from 'ip';
-import { SplitFactory } from '../../';
+import { SplitFactory } from '../..';
 import SettingsFactory from '../../utils/settings';
-import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
-import { STANDALONE_MODE, CONSUMER_MODE } from '../../../lib/utils/constants';
+import splitChangesMock from '../mocks/splitchanges.since.-1.json';
 
 // Header keys and expected values. Expected values are obtained with the runtime function evaluated with IPAddressesEnabled in true.
 const HEADER_SPLITSDKMACHINEIP = 'SplitSDKMachineIP';
 const HEADER_SPLITSDKMACHINENAME = 'SplitSDKMachineName';
-const IP_VALUE = ipFunction.address();
-const HOSTNAME_VALUE = osFunction.hostname();
-const NA = 'NA';
 
 // Refresh rates are set to 1 second to finish the test quickly. Otherwise, it would finish in 1 minute (60 seconds is the default value)
 const scheduler = {
@@ -70,7 +64,7 @@ const postEndpoints = [
   '/metrics/counters'
 ];
 
-export default function ipAddressesSettingAssertions(mock, assert) {
+export default function(mock, assert) {
 
   // Generator to synchronize the call of assert.end() when all Splitio configurations are run.
   const finish = (function*() {
@@ -81,29 +75,23 @@ export default function ipAddressesSettingAssertions(mock, assert) {
     assert.end();
   })();
 
-  // Assert properties in impressions
-  function assertImpression(IPAddressesEnabled, Mode, impression) {
-    assert.equal(impression.ip, IPAddressesEnabled ? IP_VALUE : Mode === STANDALONE_MODE ? false : NA, `If IPAddressesEnabled, "ip" property in impressions must be equal to the machine ip. If not, it must be equal to "${NA}" for "${CONSUMER_MODE}" mode" or false for "${STANDALONE_MODE}" mode.`);
-    assert.equal(impression.hostname, IPAddressesEnabled ? HOSTNAME_VALUE : Mode === STANDALONE_MODE ? false : NA, `If IPAddressesEnabled, "hostname" property in impressions must be equal to the machine hostname. If not, it must be equal to "${NA}" for "${CONSUMER_MODE}" mode" or false for "${STANDALONE_MODE}" mode.`);
-  }
-
   // Assert request headers
   function assertHeaders(IPAddressesEnabled, req) {
-    assert.equal(HEADER_SPLITSDKMACHINEIP in req.headers, IPAddressesEnabled, `Request must ${IPAddressesEnabled ? '' : 'NOT '} include ${HEADER_SPLITSDKMACHINEIP} header if IPAddressesEnabled is ${IPAddressesEnabled}.`);
-    assert.equal(HEADER_SPLITSDKMACHINENAME in req.headers, IPAddressesEnabled, `Request must ${IPAddressesEnabled ? '' : 'NOT '} include ${HEADER_SPLITSDKMACHINENAME} header if IPAddressesEnabled is ${IPAddressesEnabled}.`);
-    if (IPAddressesEnabled) {
-      assert.equal(req.headers[HEADER_SPLITSDKMACHINEIP], IP_VALUE, `If present, ${HEADER_SPLITSDKMACHINEIP} header must be equal to the machine ip.`);
-      assert.equal(req.headers[HEADER_SPLITSDKMACHINENAME], HOSTNAME_VALUE, `If present, ${HEADER_SPLITSDKMACHINENAME} header must be equal to the machine name.`);
-    }
+    assert.false(HEADER_SPLITSDKMACHINEIP in req.headers, `Request must not include ${HEADER_SPLITSDKMACHINEIP} header, no matters the value of IPAddressesEnabled.`);
+    assert.false(HEADER_SPLITSDKMACHINENAME in req.headers, `Request must not include ${HEADER_SPLITSDKMACHINENAME} header, no matters the value of IPAddressesEnabled.`);
   }
 
   function mockAndAssertIPAddressesEnabled(config) {
 
+    // Assert properties in impressions logged to impression listener
     config.impressionListener = {
       logImpression: function(impression) {
-        assertImpression( config.core.IPAddressesEnabled === undefined ? true : config.core.IPAddressesEnabled, config.mode === undefined ? STANDALONE_MODE : config.mode , impression );
+        assert.false(impression.ip, '"ip" property in impressions must be false, no matters the value of IPAddressesEnabled.');
+        assert.false(impression.hostname, '"hostname" property in impressions must be false, no matters the value of IPAddressesEnabled.');
       }
     };
+
+    // Init Split client
     const splitio = SplitFactory(config);
     const client = splitio.client();
     const settings = SettingsFactory(config);
@@ -119,7 +107,7 @@ export default function ipAddressesSettingAssertions(mock, assert) {
     })();
 
     // Mock GET endpoints to run client normally
-    mock.onGet(settings.url('/splitChanges?since=-1')).reply(200, splitChangesMock1);
+    mock.onGet(settings.url('/splitChanges?since=-1')).reply(200, splitChangesMock);
     mock.onGet(new RegExp(`${settings.url('/segmentChanges/')}.*`)).reply(200, {since:10, till:10, name: 'segmentName', added: [], removed: []});
     
     // Mock and assert POST endpoints
@@ -136,12 +124,10 @@ export default function ipAddressesSettingAssertions(mock, assert) {
       client.getTreatment('nicolas@split.io', 'hierarchical_splits_test');
       client.track('nicolas@split.io', 'sometraffictype', 'someEvent', 10);
     });
-    
   }
 
-  configSamples.forEach( 
+  configSamples.forEach(
     configSample => mockAndAssertIPAddressesEnabled(configSample)
   );
 
 }
-  

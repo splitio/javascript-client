@@ -27,11 +27,8 @@ function RequestFactory(settings, relativeUrl, params) {
   headers['Authorization'] = `Bearer ${token}`;
   headers['SplitSDKVersion'] = version;
 
-  // IP and MachineName headers are sent only if the setting IPAddressesEnabled is true, even if the values are 'unknown'.  
-  if (settings.core.IPAddressesEnabled) {
-    headers['SplitSDKMachineIP'] = ip;
-    headers['SplitSDKMachineName'] = hostname;
-  }
+  if (ip) headers['SplitSDKMachineIP'] = ip;
+  if (hostname) headers['SplitSDKMachineName'] = hostname;
 
   return {
     headers,

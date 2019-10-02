@@ -17,17 +17,23 @@ limitations under the License.
 import osFunction from 'os';
 import ipFunction from 'ip';
 
-import { UNKNOWN, NA } from '../../constants';
+import { UNKNOWN, NA, CONSUMER_MODE } from '../../constants';
 
-export default function(IPAddressesEnabled) {
-  if (IPAddressesEnabled) {
-    return {
-      ip: ipFunction.address() || UNKNOWN,
-      hostname: osFunction.hostname() || UNKNOWN
-    };
+export default function(settings) {
+  if (settings.core.IPAddressesEnabled) {
+    let ip = ipFunction.address();
+    let hostname = osFunction.hostname();
+    // IPAddressesEnabled && CONSUMER_MODE: return valid ip or 'unknown'
+    if (settings.mode === CONSUMER_MODE) {
+      return { ip: ip || UNKNOWN, hostname: hostname || UNKNOWN };
+    }
+    // IPAddressesEnabled && !CONSUMER_MODE: return valid ip or undefined (falsy)
+    return { ip, hostname };
   }
-  return {
-    ip: NA,
-    hostname: NA
-  };
+  // !IPAddressesEnabled && CONSUMER_MODE: return 'NA'
+  if (settings.mode === CONSUMER_MODE) {
+    return { ip: NA, hostname: NA };
+  }
+  // !IPAddressesEnabled && !CONSUMER_MODE: return false
+  return { ip: false, hostname: false };
 }

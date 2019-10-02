@@ -14,9 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 import tape from 'tape-catch';
+import osFunction from 'os';
+import ipFunction from 'ip';
 import SettingsFactory from '../../settings';
 import { NA } from '../../constants';
-import runtime from '../../settings/runtime';
+import { CONSUMER_MODE } from '../../../../lib/utils/constants';
+
+const IP_VALUE = ipFunction.address();
+const HOSTNAME_VALUE = osFunction.hostname();
 
 tape('SETTINGS / Redis options should be properly parsed', assert => {
   const settingsWithUrl = SettingsFactory({
@@ -74,16 +79,28 @@ tape('SETTINGS / IPAddressesEnabled should be overwritable and true by default',
       authorizationKey: 'dummy token'
     }
   });
+  const settingsWithIPAddressDisabledAndConsumerMode = SettingsFactory({
+    core: {
+      authorizationKey: 'dummy token',
+      IPAddressesEnabled: false
+    },
+    mode: CONSUMER_MODE
+  });
+  const settingsWithIPAddressEnabledAndConsumerMode = SettingsFactory({
+    core: {
+      authorizationKey: 'dummy token'
+    },
+    mode: CONSUMER_MODE
+  });  
 
   assert.equal(settingsWithIPAddressDisabled.core.IPAddressesEnabled, false, 'When creating a setting instance, it will have the provided value for IPAddressesEnabled');
   assert.equal(settingsWithIPAddressEnabled.core.IPAddressesEnabled, true, 'and if no IPAddressesEnabled was provided, it will be true.');
 
-  assert.deepEqual({
-    ip: NA,
-    hostname: NA
-  }, settingsWithIPAddressDisabled.runtime, 'When IP address is disabled, the runtime setting properties (ip and hostname) will have a default value of "NA".');
+  assert.deepEqual({ ip: false, hostname: false }, settingsWithIPAddressDisabled.runtime, 'When IP address is disabled in standalone mode, the runtime setting properties (ip and hostname) have to be false, to avoid be added as request headers.');
+  assert.deepEqual({ ip: NA, hostname: NA }, settingsWithIPAddressDisabledAndConsumerMode.runtime, 'When IP address is disabled in consumer mode, the runtime setting properties (ip and hostname) will have a value of "NA".');
 
-  assert.deepEqual(runtime(), settingsWithIPAddressDisabled.runtime, 'When IP address is enabled, the runtime setting will have the current ip and hostname values.');
+  assert.deepEqual({ ip: IP_VALUE, hostname: HOSTNAME_VALUE }, settingsWithIPAddressEnabled.runtime, 'When IP address is enabled, the runtime setting will have the current ip and hostname values.');
+  assert.deepEqual({ ip: IP_VALUE, hostname: HOSTNAME_VALUE }, settingsWithIPAddressEnabledAndConsumerMode.runtime, 'When IP address is enabled, the runtime setting will have the current ip and hostname values.');
 
   assert.end();
 });

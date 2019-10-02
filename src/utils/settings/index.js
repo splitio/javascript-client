@@ -123,7 +123,7 @@ function defaults(custom) {
   setupLogger(withDefaults.debug);
 
   // Current ip/hostname information
-  withDefaults.runtime = runtime(withDefaults.core.IPAddressesEnabled);
+  withDefaults.runtime = runtime(withDefaults);
 
   return withDefaults;
 }

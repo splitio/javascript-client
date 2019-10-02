@@ -1,5 +1,7 @@
 /* eslint-disable no-console */
 
+import osFunction from 'os';
+import ipFunction from 'ip';
 import tape from 'tape';
 import sinon from 'sinon';
 import RedisServer from 'redis-server';
@@ -9,9 +11,9 @@ import { SplitFactory } from '../';
 import { merge } from '../utils/lang';
 import KeyBuilder from '../storage/Keys';
 import SettingsFactory from '../utils/settings';
-import runtime from '../utils/settings/runtime';
 
-const { ip, hostname } = runtime(true);
+const IP_VALUE = ipFunction.address();
+const HOSTNAME_VALUE = osFunction.hostname();
 const NA = 'NA';
 
 const redisPort = '6385';
@@ -239,15 +241,15 @@ tape('NodeJS Redis', function (t) {
           let redisImpressions = await connection.lrange(eventKey, 0, -1);
           assert.equal(redisImpressions.length, 1, 'After getting a treatment, we should have one impression on Redis.');
           const parsedImpression = JSON.parse(redisImpressions[0]);
-          assert.equal(parsedImpression.m.i, setting.core.IPAddressesEnabled? ip : NA, `If IPAddressesEnabled is true, the property .m.i of the impression object must be equal to the machine ip, or "${NA}" otherwise.`);
-          assert.equal(parsedImpression.m.n, setting.core.IPAddressesEnabled? hostname : NA, `If IPAddressesEnabled is true, the property .m.n of the impression object must be equal to the machine hostname, or "${NA}" otherwise.`);
+          assert.equal(parsedImpression.m.i, setting.core.IPAddressesEnabled? IP_VALUE : NA, `If IPAddressesEnabled is true, the property .m.i of the impression object must be equal to the machine ip, or "${NA}" otherwise.`);
+          assert.equal(parsedImpression.m.n, setting.core.IPAddressesEnabled? HOSTNAME_VALUE : NA, `If IPAddressesEnabled is true, the property .m.n of the impression object must be equal to the machine hostname, or "${NA}" otherwise.`);
 
           // Assert if the event object was stored properly
           let redisEvents = await connection.lrange(eventKey, 0, -1);
           assert.equal(redisEvents.length, 1, 'After tracking an event, we should have one event on Redis.');
           const parsedEvent = JSON.parse(redisEvents[0]);
-          assert.equal(parsedEvent.m.i, setting.core.IPAddressesEnabled? ip : NA, `If IPAddressesEnabled is true, the property .m.i of the event object must be equal to the machine ip, or "${NA}" otherwise.`);
-          assert.equal(parsedEvent.m.n, setting.core.IPAddressesEnabled? hostname : NA, `If IPAddressesEnabled is true, the property .m.n of the event object must be equal to the machine hostname, or "${NA}" otherwise.`);
+          assert.equal(parsedEvent.m.i, setting.core.IPAddressesEnabled? IP_VALUE : NA, `If IPAddressesEnabled is true, the property .m.i of the event object must be equal to the machine ip, or "${NA}" otherwise.`);
+          assert.equal(parsedEvent.m.n, setting.core.IPAddressesEnabled? HOSTNAME_VALUE : NA, `If IPAddressesEnabled is true, the property .m.n of the event object must be equal to the machine hostname, or "${NA}" otherwise.`);
 
           // Deallocate Split and Redis clients
           await client.destroy();
