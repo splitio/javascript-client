@@ -17,6 +17,7 @@ const scheduler = {
 const configWithIPAddressesDisabled = {
   core: {
     authorizationKey: '<fake-token>',
+    key: 'nicolas@split.io',
     IPAddressesEnabled: false
   },
   urls: {
@@ -30,6 +31,7 @@ const configWithIPAddressesDisabled = {
 const configWithIPAddressesEnabled = {
   core: {
     authorizationKey: '<fake-token>',
+    key: 'nicolas@split.io',
     IPAddressesEnabled: true
   },
   urls: {
@@ -42,7 +44,8 @@ const configWithIPAddressesEnabled = {
 // Config with default IPAddressesEnabled (true)
 const configWithIPAddressesDefault = {
   core: {
-    authorizationKey: '<fake-token>'
+    authorizationKey: '<fake-token>',
+    key: 'nicolas@split.io'
   },
   urls: {
     sdk: 'https://sdk.split-ipdefault.io/api',
@@ -106,10 +109,6 @@ export default function(mock, assert) {
       finish.next();
     })();
 
-    // Mock GET endpoints to run client normally
-    mock.onGet(settings.url('/splitChanges?since=-1')).reply(200, splitChangesMock);
-    mock.onGet(new RegExp(`${settings.url('/segmentChanges/')}.*`)).reply(200, {since:10, till:10, name: 'segmentName', added: [], removed: []});
-    
     // Mock and assert POST endpoints
     postEndpoints.forEach( postEndpoint => {
       mock.onPost(settings.url(postEndpoint)).replyOnce(req => {
@@ -120,9 +119,9 @@ export default function(mock, assert) {
     });
     
     // Run normal client flow 
-    client.on(client.Event.SDK_READY, () => {
-      client.getTreatment('nicolas@split.io', 'hierarchical_splits_test');
-      client.track('nicolas@split.io', 'sometraffictype', 'someEvent', 10);
+    client.ready().then(() => {
+      client.getTreatment('hierarchical_splits_test');
+      client.track('sometraffictype', 'someEvent', 10);
     });
   }
 
