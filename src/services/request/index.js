@@ -28,7 +28,7 @@ function RequestFactory(settings, relativeUrl, params) {
   headers['SplitSDKVersion'] = version;
 
   // IP and MachineName headers are sent only if the setting IPAddressesEnabled is true, even if the values are 'unknown'.  
-  if(settings.core.IPAddressesEnabled){
+  if (settings.core.IPAddressesEnabled) {
     headers['SplitSDKMachineIP'] = ip;
     headers['SplitSDKMachineName'] = hostname;
   }

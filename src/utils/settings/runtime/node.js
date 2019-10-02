@@ -20,7 +20,7 @@ import ipFunction from 'ip';
 import { UNKNOWN, NA } from '../../constants';
 
 export default function(IPAddressesEnabled) {
-  if(IPAddressesEnabled) {
+  if (IPAddressesEnabled) {
     return {
       ip: ipFunction.address() || UNKNOWN,
       hostname: osFunction.hostname() || UNKNOWN

@@ -167,7 +167,8 @@ const instantiatedSettingsCore: {
   authorizationKey: string,
   key: SplitIO.SplitKey,
   trafficType: string,
-  labelsEnabled: boolean
+  labelsEnabled: boolean,
+  IPAddressesEnabled: boolean
 } = SDK.settings.core;
 const instantiatedSettingsMode: ('standalone' | 'consumer') = SDK.settings.mode;
 const instantiatedSettingsScheduler: {[key: string]: number} = SDK.settings.scheduler;
