@@ -1,10 +1,20 @@
 /* eslint-disable no-console */
 
+import osFunction from 'os';
+import ipFunction from 'ip';
 import tape from 'tape';
 import sinon from 'sinon';
 import RedisServer from 'redis-server';
+import RedisClient from 'ioredis';
 import { exec } from 'child_process';
 import { SplitFactory } from '../';
+import { merge } from '../utils/lang';
+import KeyBuilder from '../storage/Keys';
+import SettingsFactory from '../utils/settings';
+
+const IP_VALUE = ipFunction.address();
+const HOSTNAME_VALUE = osFunction.hostname();
+const NA = 'NA';
 
 const redisPort = '6385';
 
@@ -193,6 +203,61 @@ tape('NodeJS Redis', function (t) {
           // close server connection and wrap up.
           server.close().then(assert.end);
         }, 2000);
+      });
+  });
+
+  t.test('Check IP and Hostname in Redis', assert => {
+    initializeRedisServer()
+      .then(async (server) => {
+        
+        const configs = [
+          config,
+          merge({ }, config, { core: { IPAddressesEnabled: true } }),
+          merge({ }, config, { core: { IPAddressesEnabled: false } })
+        ];
+
+        for (let config of configs) {
+
+          // Redis client and keys required to check Redis store.
+          const setting = SettingsFactory(config);  
+          const connection = new RedisClient(setting.storage.options.url);
+          const keys = new KeyBuilder(setting);
+          const eventKey = keys.buildEventsKey();
+          const impressionsKey = keys.buildImpressionsKey();
+
+          // Clean up list of events and impressions.
+          connection.del(eventKey);
+          connection.del(impressionsKey);
+
+          // Init Split client for current config
+          const sdk = SplitFactory(config);
+          const client = sdk.client();
+
+          // Perform client actions to store a single event and impression objects into Redis
+          await client.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT');
+          await client.track('nicolas@split.io', 'user', 'test.redis.event', 18);
+
+          // Assert if the impression object was stored properly
+          let redisImpressions = await connection.lrange(eventKey, 0, -1);
+          assert.equal(redisImpressions.length, 1, 'After getting a treatment, we should have one impression on Redis.');
+          const parsedImpression = JSON.parse(redisImpressions[0]);
+          assert.equal(parsedImpression.m.i, setting.core.IPAddressesEnabled? IP_VALUE : NA, `If IPAddressesEnabled is true, the property .m.i of the impression object must be equal to the machine ip, or "${NA}" otherwise.`);
+          assert.equal(parsedImpression.m.n, setting.core.IPAddressesEnabled? HOSTNAME_VALUE : NA, `If IPAddressesEnabled is true, the property .m.n of the impression object must be equal to the machine hostname, or "${NA}" otherwise.`);
+
+          // Assert if the event object was stored properly
+          let redisEvents = await connection.lrange(eventKey, 0, -1);
+          assert.equal(redisEvents.length, 1, 'After tracking an event, we should have one event on Redis.');
+          const parsedEvent = JSON.parse(redisEvents[0]);
+          assert.equal(parsedEvent.m.i, setting.core.IPAddressesEnabled? IP_VALUE : NA, `If IPAddressesEnabled is true, the property .m.i of the event object must be equal to the machine ip, or "${NA}" otherwise.`);
+          assert.equal(parsedEvent.m.n, setting.core.IPAddressesEnabled? HOSTNAME_VALUE : NA, `If IPAddressesEnabled is true, the property .m.n of the event object must be equal to the machine hostname, or "${NA}" otherwise.`);
+
+          // Deallocate Split and Redis clients
+          await client.destroy();
+          await connection.quit();
+        }
+
+        // close server connection
+        server.close().then(assert.end);
       });
   });
 });

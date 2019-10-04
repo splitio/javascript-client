@@ -13,3 +13,6 @@ export const CONTROL_WITH_CONFIG = {
   treatment: CONTROL,
   config: null
 };
+// Constants for unknown and not-applicable values
+export const UNKNOWN = 'unknown';
+export const NA = 'NA';

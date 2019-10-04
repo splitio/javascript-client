@@ -11,6 +11,7 @@ import {
 } from './browserSuites/events.spec';
 import sharedInstantiationSuite from './browserSuites/shared-instantiation.spec';
 import managerSuite from './browserSuites/manager.spec';
+import ignoreIpAddressesSettingSuite from './browserSuites/ignore-ip-addresses-setting.spec';
 
 import { __getAxiosInstance } from '../services/transport';
 import SettingsFactory from '../utils/settings';
@@ -106,6 +107,8 @@ tape('## E2E CI Tests ##', function(assert) {
   assert.test('E2E / Manager API', managerSuite.bind(null, settings, mock));
   /* Validate readiness */
   assert.test('E2E / Readiness', readinessSuite.bind(null, mock));
+  /* Validate headers for ip and hostname are not sended with requests (ignore setting IPAddressesEnabled) */
+  assert.test('E2E / Ignore setting IPAddressesEnabled', ignoreIpAddressesSettingSuite.bind(null, mock));
 
   //If we change the mocks, we need to clear localstorage. Cleaning up after testing ensures "fresh data".
   localStorage.clear();

@@ -14,5 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-export const ip = false;
-export const hostname = false;
+export default function() {
+  return {
+    ip: false,
+    hostname: false
+  };
+}

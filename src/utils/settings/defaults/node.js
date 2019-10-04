@@ -1,4 +1,8 @@
 export default {
+  core: {
+    // Default is true.
+    IPAddressesEnabled: true
+  },
   startup: {
     // Stress the request time used while starting up the SDK.
     requestTimeoutBeforeReady: 15,
