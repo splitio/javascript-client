@@ -208,7 +208,7 @@ interface INodeBasicSettings extends ISharedSettings {
     eventsQueueSize?: number,
     /**
      * For mocking/testing only. The SDK will refresh the features mocked data when mode is set to "localhost" by defining the key.
-     * For more information @see {@link http://docs.split.io/docs/nodejs-sdk-overview#section-running-the-sdk-in-off-the-grid-mode}
+     * For more information @see {@link https://help.split.io/hc/en-us/articles/360020564931-Node-js-SDK#localhost-mode}
      * @property {number} offlineRefreshRate
      * @default 15
      */
@@ -220,7 +220,7 @@ interface INodeBasicSettings extends ISharedSettings {
    */
   core: {
     /**
-     * Your API key. More information: @see {@link http://docs.split.io/docs/understanding-api-keys}
+     * Your API key. More information: @see {@link https://help.split.io/hc/en-us/articles/360019916211-API-keys}
      * @property {string} authorizationKey
      */
     authorizationKey: string,
@@ -268,7 +268,7 @@ interface INodeBasicSettings extends ISharedSettings {
   mode?: SDKMode,
   /**
    * Mocked features file path. For testing purposses only. For using this you should specify "localhost" as authorizationKey on core settings.
-   * @see {@link http://docs.split.io/docs/nodejs-sdk-overview#section-running-the-sdk-in-off-the-grid-mode}
+   * @see {@link https://help.split.io/hc/en-us/articles/360020564931-Node-js-SDK#localhost-mode}
    * @property {MockedFeaturesFilePath} features
    * @default $HOME/.split
    */
@@ -520,7 +520,7 @@ declare namespace SplitIO {
    * Synchronous storage valid types for NodeJS.
    * @typedef {string} NodeSyncStorage
    */
-  type NodeSyncStorage = 'MEMORY' | 'LOCALSTORAGE';
+  type NodeSyncStorage = 'MEMORY';
   /**
    * Asynchronous storages valid types for NodeJS.
    * @typedef {string} NodeAsyncStorage
@@ -535,7 +535,7 @@ declare namespace SplitIO {
    * Impression listener interface. This is the interface that needs to be implemented
    * by the element you provide to the SDK as impression listener.
    * @interface IImpressionListener
-   * @see {@link https://docs.split.io/docs/nodejs-sdk-overview#section-listener}
+   * @see {@link https://help.split.io/hc/en-us/articles/360020564931-Node-js-SDK#listener}
    */
   interface IImpressionListener {
     logImpression(data: SplitIO.ImpressionData): void
@@ -544,7 +544,7 @@ declare namespace SplitIO {
    * Settings interface for SDK instances created on the browser
    * @interface IBrowserSettings
    * @extends ISharedSettings
-   * @see {@link http://docs.split.io/docs/javascript-sdk-overview#section-advanced-configuration-of-the-sdk}
+   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#configuration}
    */
   interface IBrowserSettings extends ISharedSettings {
     /**
@@ -623,7 +623,7 @@ declare namespace SplitIO {
       eventsQueueSize?: number,
       /**
        * For mocking/testing only. The SDK will refresh the features mocked data when mode is set to "localhost" by defining the key.
-       * For more information @see {@link http://docs.split.io/docs/nodejs-sdk-overview#section-running-the-sdk-in-off-the-grid-mode}
+       * For more information @see {@link https://help.split.io/hc/en-us/articles/360020564931-Node-js-SDK#localhost-mode}
        * @property {number} offlineRefreshRate
        * @default 15
        */
@@ -635,17 +635,17 @@ declare namespace SplitIO {
      */
     core: {
       /**
-       * Your API key. More information: @see {@link http://docs.split.io/docs/understanding-api-keys}
+       * Your API key. More information: @see {@link https://help.split.io/hc/en-us/articles/360019916211-API-keys}
        * @property {string} authorizationKey
        */
       authorizationKey: string,
       /**
-       * Customer identifier. Whatever this means to you. @see {@link http://docs.split.io/docs/selecting-the-traffic-type}
+       * Customer identifier. Whatever this means to you. @see {@link https://help.split.io/hc/en-us/articles/360019916311-Traffic-type}
        * @property {SplitKey} key
        */
       key: SplitKey,
       /**
-       * Traffic type associated with the customer identifier. @see {@link http://docs.split.io/docs/selecting-the-traffic-type}
+       * Traffic type associated with the customer identifier. @see {@link https://help.split.io/hc/en-us/articles/360019916311-Traffic-type}
        * If no provided as a setting it will be required on the client.track() calls.
        * @property {string} trafficType
        */
@@ -659,7 +659,7 @@ declare namespace SplitIO {
     },
     /**
      * Mocked features map. For testing purposses only. For using this you should specify "localhost" as authorizationKey on core settings.
-     * @see {@link http://docs.split.io/docs/javascript-sdk-overview#section-running-the-sdk-in-off-the-grid-mode}
+     * @see {@link https://help.split.io/hc/en-us/articles/360020564931-Node-js-SDK#localhost-mode}
      */
     features?: MockedFeaturesMap,
     /**
@@ -686,7 +686,7 @@ declare namespace SplitIO {
    * If your storage is asynchronous (Redis for example) use SplitIO.INodeAsyncSettings instead.
    * @interface INodeSettings
    * @extends INodeBasicSettings
-   * @see {@link http://docs.split.io/docs/nodejs-sdk-overview#section-advanced-configuration-of-the-sdk}
+   * @see {@link https://help.split.io/hc/en-us/articles/360020564931-Node-js-SDK#configuration}
    */
   interface INodeSettings extends INodeBasicSettings {
     /**
@@ -713,7 +713,7 @@ declare namespace SplitIO {
    * If your storage is synchronous (by defaut we use memory, which is sync) use SplitIO.INodeSyncSettings instead.
    * @interface INodeAsyncSettings
    * @extends INodeBasicSettings
-   * @see {@link http://docs.split.io/docs/nodejs-sdk-overview#section-advanced-configuration-of-the-sdk}
+   * @see {@link https://help.split.io/hc/en-us/articles/360020564931-Node-js-SDK#configuration}
    */
   interface INodeAsyncSettings extends INodeBasicSettings {
     storage: {
