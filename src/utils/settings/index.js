@@ -21,7 +21,7 @@ import overridesPerPlatform from './defaults';
 import storage from './storage';
 import mode from './mode';
 import { API } from '../../utils/logger';
-import { STANDALONE_MODE, STORAGE_MEMORY } from '../../utils/constants';
+import { STANDALONE_MODE, STORAGE_MEMORY, CONSUMER_MODE } from '../../utils/constants';
 import { version } from '../../../package.json';
 
 const eventsEndpointMatcher = /\/(testImpressions|metrics|events)/;
@@ -123,7 +123,7 @@ function defaults(custom) {
   setupLogger(withDefaults.debug);
 
   // Current ip/hostname information
-  withDefaults.runtime = runtime(withDefaults);
+  withDefaults.runtime = runtime(withDefaults.core.IPAddressesEnabled,withDefaults.mode === CONSUMER_MODE);
 
   return withDefaults;
 }

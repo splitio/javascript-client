@@ -17,23 +17,18 @@ limitations under the License.
 import osFunction from 'os';
 import ipFunction from 'ip';
 
-import { UNKNOWN, NA, CONSUMER_MODE } from '../../constants';
+import { UNKNOWN, NA } from '../../constants';
 
-export default function(settings) {
-  if (settings.core.IPAddressesEnabled) {
-    let ip = ipFunction.address();
-    let hostname = osFunction.hostname();
-    // IPAddressesEnabled && CONSUMER_MODE: return valid ip or 'unknown'
-    if (settings.mode === CONSUMER_MODE) {
-      return { ip: ip || UNKNOWN, hostname: hostname || UNKNOWN };
-    }
-    // IPAddressesEnabled && !CONSUMER_MODE: return valid ip or undefined (falsy)
-    return { ip, hostname };
+export default function(isIPAddressesEnabled, isConsumerMode) {
+  // If the values are not available, default to false (for standalone) or "unknown" (for consumer mode, to be used on Redis keys)
+  let ip = ipFunction.address() || (isConsumerMode ? UNKNOWN : false);
+  let hostname = osFunction.hostname() || (isConsumerMode ? UNKNOWN : false);
+  
+  if (!isIPAddressesEnabled) { // If IPAddresses setting is not enabled, set as false (for standalone) or "NA" (for consumer mode, to  be used on Redis keys)
+    ip = hostname = isConsumerMode ? NA : false;
   }
-  // !IPAddressesEnabled && CONSUMER_MODE: return 'NA'
-  if (settings.mode === CONSUMER_MODE) {
-    return { ip: NA, hostname: NA };
-  }
-  // !IPAddressesEnabled && !CONSUMER_MODE: return false
-  return { ip: false, hostname: false };
+  
+  return {
+    ip, hostname
+  };
 }
