@@ -1,4 +1,4 @@
-# GO SDK
+# JS SDK
 
 ## What did you accomplish?
 
