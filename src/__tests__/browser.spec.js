@@ -12,6 +12,7 @@ import {
 import sharedInstantiationSuite from './browserSuites/shared-instantiation.spec';
 import managerSuite from './browserSuites/manager.spec';
 import ignoreIpAddressesSettingSuite from './browserSuites/ignore-ip-addresses-setting.spec';
+import useBeaconApiSuite from './browserSuites/use-beacon-api.spec';
 
 import { __getAxiosInstance } from '../services/transport';
 import SettingsFactory from '../utils/settings';
@@ -109,6 +110,8 @@ tape('## E2E CI Tests ##', function(assert) {
   assert.test('E2E / Readiness', readinessSuite.bind(null, mock));
   /* Validate headers for ip and hostname are not sended with requests (ignore setting IPAddressesEnabled) */
   assert.test('E2E / Ignore setting IPAddressesEnabled', ignoreIpAddressesSettingSuite.bind(null, mock));
+  /* Check that impressions and events are sended to backend via Beacon API or XHR when page unload is triggered. */
+  assert.test('E2E / Use Beacon API (or XHR if not available) to send remaining impressions and events when browser page is unload', useBeaconApiSuite.bind(null, mock));
 
   //If we change the mocks, we need to clear localstorage. Cleaning up after testing ensures "fresh data".
   localStorage.clear();
