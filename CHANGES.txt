@@ -1,3 +1,7 @@
+## 10.8.5 (Oct XX, 2019)
+
+* Fetch multiple splits at once on getTreatments/getTreatmentsWithConfig.
+
 ## 10.8.4 (Sep 24, 2019)
 
 * Added module "events" as optional dependency.

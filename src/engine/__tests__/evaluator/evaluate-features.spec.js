@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 import tape from 'tape';
-import evaluator from '../../evaluator';
+import { evaluateFeatures } from '../../evaluator';
 import * as LabelsConstants from '../../../utils/labels';
 
 const splitsMock = {
@@ -35,19 +35,30 @@ const mockStorage = {
       if (splitsMock[name]) return splitsMock[name];
 
       return null;
+    },
+    fetchMany(names) {
+      const splits = new Map;
+      names.forEach(name => {
+        splits.set(name, this.getSplit(name));
+      });
+      
+      return splits;
     }
   }
 };
 
-tape('EVALUATOR / should return label exception, treatment control and config null on error', async function (assert) {
+tape('EVALUATOR - Multiple evaluations at once  / should return label exception, treatment control and config null on error', async function (assert) {
   const expectedOutput = {
-    treatment: 'control',
-    label: LabelsConstants.EXCEPTION,
-    config: null
+    throw_exception: {
+      treatment: 'control',
+      label: LabelsConstants.EXCEPTION,
+      config: null
+    }
   };
-  const evaluationPromise = evaluator(
+
+  const evaluationPromise = evaluateFeatures(
     'fake-key',
-    'throw_exception',
+    ['throw_exception'],
     null,
     mockStorage
   );
@@ -55,111 +66,65 @@ tape('EVALUATOR / should return label exception, treatment control and config nu
   // This validation is async because the only exception possible when retrieving a Split would happen with Async storages.
   const evaluation = await evaluationPromise;
 
-  assert.deepEqual(evaluation, expectedOutput, 'If there was an error on the getSplits we should get the results for exception.');
+  assert.deepEqual(evaluation, expectedOutput, 'If there was an error on the fetchMany we should get the results for exception.');
 
   assert.end();
 });
 
 
-tape('EVALUATOR / should return right label, treatment and config if storage returns without errors.', async function (assert) {
+tape('EVALUATOR - Multiple evaluations at once / should return right labels, treatments and configs if storage returns without errors.', async function (assert) {
   const expectedOutput = {
-    treatment: 'on', label: 'in segment all',
-    config: '{color:\'black\'}', changeNumber: 1487277320548
+    config: {
+      treatment: 'on', label: 'in segment all',
+      config: '{color:\'black\'}', changeNumber: 1487277320548
+    },
+    not_existent_split: {
+      treatment: 'control', label: LabelsConstants.SPLIT_NOT_FOUND, config: null
+    },
   };
-  const expectedOutputControl = {
-    treatment: 'control', label: LabelsConstants.SPLIT_NOT_FOUND, config: null
-  };
 
-  const evaluationWithConfig = evaluator(
+  const multipleEvaluationAtOnce = await evaluateFeatures(
     'fake-key',
-    'config',
+    ['config', 'not_existent_split', 'regular', 'killed', 'archived', 'trafficAlocation1', 'killedWithConfig', 'archivedWithConfig', 'trafficAlocation1WithConfig'],
     null,
     mockStorage
   );
-  assert.deepEqual(evaluationWithConfig, expectedOutput, 'If the split is retrieved successfully we should get the right evaluation result, label and config.');
-
-  const evaluationNotFound = evaluator(
-    'fake-key',
-    'not_existent_split',
-    null,
-    mockStorage
-  );
-  assert.deepEqual(evaluationNotFound, expectedOutputControl, 'If the split is not retrieved successfully because it does not exist, we should get the right evaluation result, label and config.');
-
-  const evaluation = evaluator(
-    'fake-key',
-    'regular',
-    null,
-    mockStorage
-  );
-  assert.deepEqual(evaluation, { ...expectedOutput, config: null }, 'If the split is retrieved successfully we should get the right evaluation result, label and config. If Split has no config it should have config equal null.');
-
-  const evaluationKilled = evaluator(
-    'fake-key',
-    'killed',
-    null,
-    mockStorage
-  );
-  assert.deepEqual(evaluationKilled,
-    { ...expectedOutput, treatment: 'off', config: null, label: LabelsConstants.SPLIT_KILLED },
+  // assert evaluationWithConfig
+  assert.deepEqual(multipleEvaluationAtOnce['config'], expectedOutput['config'], 'If the split is retrieved successfully we should get the right evaluation result, label and config.');
+  // assert evaluationNotFound
+  assert.deepEqual(multipleEvaluationAtOnce['not_existent_split'], expectedOutput['not_existent_split'], 'If the split is not retrieved successfully because it does not exist, we should get the right evaluation result, label and config.');
+  // assert regular
+  assert.deepEqual(multipleEvaluationAtOnce['regular'], { ...expectedOutput['config'], config: null }, 'If the split is retrieved successfully we should get the right evaluation result, label and config. If Split has no config it should have config equal null.');
+  // assert killed
+  assert.deepEqual(multipleEvaluationAtOnce['killed'],
+    { ...expectedOutput['config'], treatment: 'off', config: null, label: LabelsConstants.SPLIT_KILLED },
     'If the split is retrieved but is killed, we should get the right evaluation result, label and config.'
   );
-
-  const evaluationArchived = evaluator(
-    'fake-key',
-    'archived',
-    null,
-    mockStorage
-  );
-  assert.deepEqual(evaluationArchived,
-    { ...expectedOutput, treatment: 'control', label: LabelsConstants.SPLIT_ARCHIVED, config: null },
+  // assert archived
+  assert.deepEqual(multipleEvaluationAtOnce['archived'],
+    { ...expectedOutput['config'], treatment: 'control', label: LabelsConstants.SPLIT_ARCHIVED, config: null },
     'If the split is retrieved but is archived, we should get the right evaluation result, label and config.'
   );
-
-  const evaluationtrafficAlocation1 = evaluator(
-    'fake-key',
-    'trafficAlocation1',
-    null,
-    mockStorage
-  );
-  assert.deepEqual(evaluationtrafficAlocation1,
-    { ...expectedOutput, label: LabelsConstants.NOT_IN_SPLIT, config: null, treatment: 'off' },
+  // assert trafficAllocation1
+  assert.deepEqual(multipleEvaluationAtOnce['trafficAlocation1'],
+    { ...expectedOutput['config'], label: LabelsConstants.NOT_IN_SPLIT, config: null, treatment: 'off' },
     'If the split is retrieved but is not in split (out of Traffic Allocation), we should get the right evaluation result, label and config.'
   );
-
-  const evaluationKilledWithConfig = evaluator(
-    'fake-key',
-    'killedWithConfig',
-    null,
-    mockStorage
-  );
-  assert.deepEqual(evaluationKilledWithConfig,
-    { ...expectedOutput, treatment: 'off', label: LabelsConstants.SPLIT_KILLED },
+  // assert killedWithConfig
+  assert.deepEqual(multipleEvaluationAtOnce['killedWithConfig'],
+    { ...expectedOutput['config'], treatment: 'off', label: LabelsConstants.SPLIT_KILLED },
     'If the split is retrieved but is killed, we should get the right evaluation result, label and config.'
   );
-
-  const evaluationArchivedWithConfig = evaluator(
-    'fake-key',
-    'archivedWithConfig',
-    null,
-    mockStorage
-  );
-  assert.deepEqual(evaluationArchivedWithConfig,
-    { ...expectedOutput, treatment: 'control', label: LabelsConstants.SPLIT_ARCHIVED, config: null },
+  // assert archivedWithConfig
+  assert.deepEqual(multipleEvaluationAtOnce['archivedWithConfig'],
+    { ...expectedOutput['config'], treatment: 'control', label: LabelsConstants.SPLIT_ARCHIVED, config: null },
     'If the split is retrieved but is archived, we should get the right evaluation result, label and config.'
   );
-
-  const evaluationtrafficAlocation1WithConfig = evaluator(
-    'fake-key',
-    'trafficAlocation1WithConfig',
-    null,
-    mockStorage
-  );
-  assert.deepEqual(evaluationtrafficAlocation1WithConfig,
-    { ...expectedOutput, label: LabelsConstants.NOT_IN_SPLIT, treatment: 'off' },
+  // assert trafficAlocation1WithConfig
+  assert.deepEqual(multipleEvaluationAtOnce['trafficAlocation1WithConfig'],
+    { ...expectedOutput['config'], label: LabelsConstants.NOT_IN_SPLIT, treatment: 'off' },
     'If the split is retrieved but is not in split (out of Traffic Allocation), we should get the right evaluation result, label and config.'
   );
-
 
   assert.end();
 });

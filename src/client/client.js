@@ -1,6 +1,6 @@
 import logFactory from '../utils/logger';
 const log = logFactory('splitio-client');
-import evaluator from '../engine/evaluator';
+import { evaluateFeature, evaluateFeatures } from '../engine/evaluator';
 import ImpressionTracker from '../trackers/impression';
 import ImpressionsTracker from '../trackers/impressions';
 import tracker from '../utils/timeTracker';
@@ -35,7 +35,7 @@ function ClientFactory(context) {
   function getTreatment(key, splitName, attributes, withConfig = false) {
     const taskToBeTracked = tracker.TaskNames[withConfig ? 'SDK_GET_TREATMENT_WITH_CONFIG' : 'SDK_GET_TREATMENT'];
     const stopLatencyTracker = tracker.start(taskToBeTracked, metricCollectors);
-    const evaluation = evaluator(key, splitName, attributes, storage);
+    const evaluation = evaluateFeature(key, splitName, attributes, storage);
 
     if (thenable(evaluation)) {
       return evaluation.then(res => processEvaluation(res, splitName, key, attributes, stopLatencyTracker, impressionTracker.track, withConfig, `getTreatment${withConfig ? 'withConfig' : ''}`));
@@ -52,37 +52,19 @@ function ClientFactory(context) {
     const taskToBeTracked = tracker.TaskNames[withConfig ? 'SDK_GET_TREATMENTS_WITH_CONFIG' : 'SDK_GET_TREATMENTS'];
     const stopLatencyTracker = tracker.start(taskToBeTracked, metricCollectors);
     const results = {};
-    const thenables = [];
-    let i;
 
-    for (i = 0; i < splitNames.length; i ++) {
-      const splitName = splitNames[i];
-      const evaluation = evaluator(key, splitName, attributes, storage);
-
-      if (thenable(evaluation)) {
-        // If treatment returns a promise as it is being evaluated, save promise for progress tracking.
-        thenables.push(evaluation);
-        evaluation.then((res) => {
-          // set the treatment on the cb;
-          results[splitName] = processEvaluation(res, splitName, key, attributes, false, impressionsTracker.queue, withConfig, `getTreatments${withConfig ? 'withConfig' : ''}`);
-        });
-      } else {
-        results[splitName] = processEvaluation(evaluation, splitName, key, attributes, false, impressionsTracker.queue, withConfig, `getTreatments${withConfig ? 'withConfig' : ''}`);
-      }
-    }
-
-    const wrapUp = () => {
+    const wrapUp = (evaluationResults) => {
+      Object.keys(evaluationResults).forEach(splitName => {
+        results[splitName] = processEvaluation(evaluationResults[splitName], splitName, key, attributes, false, impressionsTracker.queue, withConfig, `getTreatments${withConfig ? 'withConfig' : ''}`);
+      });
       impressionsTracker.track();
       stopLatencyTracker();
-      // After all treatments are resolved, we return the mapping object.
       return results;
     };
 
-    if (thenables.length) {
-      return Promise.all(thenables).then(wrapUp);
-    } else {
-      return wrapUp();
-    }
+    const evaluations = evaluateFeatures(key, splitNames, attributes, storage);
+
+    return (thenable(evaluations)) ? evaluations.then((res) => wrapUp(res)) : wrapUp(evaluations);
   }
 
   function getTreatmentsWithConfig(key, splitNames, attributes) {

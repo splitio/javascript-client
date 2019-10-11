@@ -119,6 +119,18 @@ class SplitCacheInMemory {
     this.changeNumber = -1;
     this.splitsWithSegmentsCount = 0;
   }
+
+  /**
+   * Fetches multiple splits definitions.
+   */
+  fetchMany(splitNames) {
+    const splits = new Map();
+    for (let i = 0; i < splitNames.length; i++) {
+      const splitName = splitNames[i];
+      splits.set(splitName, this.splitCache.get(splitName) || null);
+    }
+    return splits;
+  }
 }
 
 export default SplitCacheInMemory;

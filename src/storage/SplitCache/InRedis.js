@@ -151,6 +151,30 @@ class SplitCacheInRedis {
   flush() {
     return this.redis.flushdb().then(status => status === 'OK');
   }
+
+  /**
+   * Fetches multiple splits definitions.
+   */
+  fetchMany(splitNames) {
+    if (this.redisError) {
+      log.error(this.redisError);
+
+      throw this.redisError;
+    }
+    const splits = new Map();
+    const keys = splitNames.map(splitName => this.keys.buildSplitKey(splitName));
+    return this.redis.mget(...keys)
+      .then(splitDefinitions => {
+        for (let i = 0; i < splitNames.length; i++) {
+          splits.set(splitNames[i], splitDefinitions[i]);
+        }
+        return Promise.resolve(splits);
+      })
+      .catch(e => {
+        log.error(`Could not grab splits due to an error: ${e}.`);
+        return Promise.reject(e);
+      });
+  }
 }
 
 export default SplitCacheInRedis;
