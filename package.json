@@ -1,9 +1,10 @@
 {
   "name": "@splitsoftware/splitio",
-  "version": "10.8.5-rc1",
+  "version": "10.9.1-rc1",
   "description": "Split SDK",
   "files": [
     "README.md",
+    "CONTRIBUTORS-GUIDE.md",
     "LICENSE",
     "CHANGES.txt",
     "lib",
