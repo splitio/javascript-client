@@ -39,6 +39,7 @@ const assertEventSent = (assert, event) => {
 };
 
 const assertCallsToBeaconAPI = (assert, sendBeaconSpy) => {
+  // The first call is for flushing impressions
   const impressionsCallArgs = sendBeaconSpy.firstCall.args;
   assert.equal(impressionsCallArgs[0], settings.url('/testImpressions/beacon'), 'assert correct url');
   let parsedPayload = JSON.parse(impressionsCallArgs[1]);
@@ -46,6 +47,7 @@ const assertCallsToBeaconAPI = (assert, sendBeaconSpy) => {
   assert.equal(parsedPayload.sdk, settings.version, 'assert correct sdk version');
   assertImpressionSent(assert, parsedPayload.entries[0]);
 
+  // The second call is for flushing events
   const eventsCallArgs = sendBeaconSpy.secondCall.args;
   assert.equal(eventsCallArgs[0], settings.url('/events/beacon'), 'assert correct url');
   parsedPayload = JSON.parse(eventsCallArgs[1]);

@@ -5,18 +5,22 @@ import impressionsService from '../services/impressions';
 import { fromImpressionsCollector } from '../services/impressions/dto';
 import { STORAGE, SETTINGS } from '../utils/context/constants';
 import logFactory from '../utils/logger';
+
 const log = logFactory('splitio-client:cleanup');
+
+// 'unload' event is used instead of 'beforeunload', since 'unload' is not a cancelable event, so no other listeners can stop the event from occurring.
+const UNLOAD_DOM_EVENT = 'unload';
 
 /**
  * We'll listen for 'unload' event over the window object, since it's the standard way to listen page reload and close.
  *
  */
 export default class BrowserSignalListener {
+  
   constructor(context) {
     this.storage = context.get(STORAGE);
     this.settings = context.get(SETTINGS);
-    this._flushEventsAndImpressions = this._flushEventsAndImpressions.bind(this);
-    // this._sendBeacon = this._sendBeacon.bind(this); // not need of binding _sendBeacon
+    this.flushData = this.flushData.bind(this);
   }
 
   /**
@@ -27,7 +31,7 @@ export default class BrowserSignalListener {
   start() {
     log.debug('Registering flush handler when unload page event is triggered.');
     if (window && window.addEventListener) {
-      window.addEventListener('unload', this._flushEventsAndImpressions);
+      window.addEventListener(UNLOAD_DOM_EVENT, this.flushData);
     }  
   }
 
@@ -40,16 +44,21 @@ export default class BrowserSignalListener {
   stop() {
     log.debug('Deregistering flush handler when unload page event is triggered.');
     if (window && window.addEventListener) {
-      window.removeEventListener('unload', this._flushEventsAndImpressions);
+      window.removeEventListener(UNLOAD_DOM_EVENT, this._flushEventsAndImpressions);
     } 
   }
 
   /**
-   * _flushEventsAndImpressions method. 
+   * _flushData method. 
    * Called when unload event is triggered. It flushed remaining impressions and events to the backend, 
    * using beacon API if possible, or falling back to XHR.
    */ 
-  _flushEventsAndImpressions() {
+  flushData() {
+    this._flushImpressions();
+    this._flushEvents();
+  }
+
+  _flushImpressions() {
     // if there are impressions in storage, send them to backend
     if (!this.storage.impressions.isEmpty()) {
       const url = this.settings.url('/testImpressions/beacon');
@@ -58,7 +67,9 @@ export default class BrowserSignalListener {
         impressionsService(impressionsBulkRequest(this.settings, { data: JSON.stringify(impressions) }));
       this.storage.impressions.clear();
     }
-    
+  }
+
+  _flushEvents(){
     // if there are events in storage, send them to backend
     if (!this.storage.events.isEmpty()) {
       const url = this.settings.url('/events/beacon');
