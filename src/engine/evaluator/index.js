@@ -75,8 +75,8 @@ export function evaluateFeatures(
     // the only scenario where fetchMany can throw an error is when the storage
     // is redis and there is a connection issue and we can't retrieve the split
     // to be evaluated
-    for (let i = 0; i < splitNames.length; i++) {
-      evaluations[splitNames[i]] = treatmentException;
+    for (const splitName in splitNames) {
+      evaluations[splitName] = treatmentException;
     }
     return Promise.resolve(evaluations);
   }
