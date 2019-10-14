@@ -165,9 +165,9 @@ class SplitCacheInRedis {
     const keys = splitNames.map(splitName => this.keys.buildSplitKey(splitName));
     return this.redis.mget(...keys)
       .then(splitDefinitions => {
-        for (let i = 0; i < splitNames.length; i++) {
-          splits.set(splitNames[i], splitDefinitions[i]);
-        }
+        splitNames.forEach((splitName, idx) => {
+          splits.set(splitName, splitDefinitions[idx]);
+        });
         return Promise.resolve(splits);
       })
       .catch(e => {

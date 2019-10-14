@@ -56,15 +56,13 @@ tape('EVALUATOR - Multiple evaluations at once  / should return label exception,
     }
   };
 
-  const evaluationPromise = evaluateFeatures(
+  // This validation is async because the only exception possible when retrieving a Split would happen with Async storages.
+  const evaluation = await evaluateFeatures(
     'fake-key',
     ['throw_exception'],
     null,
     mockStorage
   );
-
-  // This validation is async because the only exception possible when retrieving a Split would happen with Async storages.
-  const evaluation = await evaluationPromise;
 
   assert.deepEqual(evaluation, expectedOutput, 'If there was an error on the fetchMany we should get the results for exception.');
 

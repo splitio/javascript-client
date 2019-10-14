@@ -125,9 +125,9 @@ class SplitCacheInMemory {
    */
   fetchMany(splitNames) {
     const splits = new Map();
-    for (const splitName in splitNames) {
+    splitNames.forEach(splitName => {
       splits.set(splitName, this.splitCache.get(splitName) || null);
-    }
+    });
     return splits;
   }
 }

@@ -203,9 +203,9 @@ class SplitCacheLocalStorage {
    */
   fetchMany(splitNames) {
     const splits = new Map();
-    for (const splitName in splitNames) {
+    splitNames.forEach(splitName => {
       splits.set(splitName, localStorage.getItem(this.keys.buildSplitKey(splitName)));
-    }
+    });
     return splits;
   }
 }
