@@ -1,4 +1,4 @@
-## 10.9.1 (Oct XX, 2019)
+10.9.1 (Oct XX, 2019)
  - Fetch multiple splits at once on getTreatments/getTreatmentsWithConfig.
 
 10.9.0 (Oct XX, 2019)
