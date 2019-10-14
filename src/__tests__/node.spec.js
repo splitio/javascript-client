@@ -10,6 +10,7 @@ import impressionsListenerSuite from './nodeSuites/impressions-listener.spec';
 import expectedTreatmentsSuite from './nodeSuites/expected-treatments.spec';
 import managerSuite from './nodeSuites/manager.spec';
 import ipAddressesSetting from './nodeSuites/ip-addresses-setting.spec';
+import readinessReadySuite from './nodeSuites/readiness-ready.spec';
 
 import { __getAxiosInstance } from '../services/transport';
 
@@ -71,6 +72,9 @@ tape('## Node JS - E2E CI Tests ##', async function (assert) {
 
   /* Check IP address and Machine name headers when IP address setting is enabled and disabled */
   assert.test('E2E / IP Addresses Setting', ipAddressesSetting.bind(null, mock));
+
+  /* Validate readiness with ready promises */
+  assert.test('E2E / Readiness ready', readinessReadySuite.bind(null, mock));
 
   assert.end();
 });
