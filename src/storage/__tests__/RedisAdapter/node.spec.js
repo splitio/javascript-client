@@ -52,8 +52,8 @@ const timeout = sinon.spy(function timeout(ms, originalPromise) {
 const RedisAdapter = proxyquire('../../RedisAdapter', {
   'ioredis': ioredis,
   '../utils/logger': { default: LogFactory },
-  '../utils/promise/timeout': timeout
-});
+  '../utils/promise/timeout': { default: timeout }
+}).default;
 
 /**
  * Logs here won't be changing much, so we could validate those. It's not important the exact message but what do they represent.

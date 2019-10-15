@@ -1,6 +1,6 @@
 {
   "presets": [
-    ["@babel/env", {
+    ["@babel/preset-env", {
       "modules": false
     }]
   ],
@@ -16,7 +16,7 @@
   "env": {
     "cjs": {
       "presets": [
-        ["@babel/env", {
+        ["@babel/preset-env", {
           "modules": "commonjs"
         }]
       ],
@@ -26,7 +26,7 @@
     },
     "development": {
       "presets": [
-        ["@babel/env", {
+        ["@babel/preset-env", {
           "modules": "commonjs"
         }]
       ],
@@ -36,7 +36,7 @@
     },
     "production": {
       "presets": [
-        ["@babel/env", {
+        ["@babel/preset-env", {
           "modules": "commonjs"
         }]
       ],
@@ -46,12 +46,18 @@
     },
     "test": {
       "presets": [
-        ["@babel/env", {
-          "useBuiltIns": true,
-          "modules": "commonjs"
+        ["@babel/preset-env", {
+          "useBuiltIns": "entry",
+          "modules": "cjs",
+          "corejs": "2",
+          "targets": {
+            "ie": "10",
+            "node": true
+          }
         }]
       ],
       "plugins": [
+          "@babel/transform-runtime"
         // "add-module-exports",
         // ["istanbul", {
         //   "exclude": [
