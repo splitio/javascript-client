@@ -9,13 +9,6 @@ module.exports = function (api) {
     case 'cjs':
     case 'development':
     case 'production':
-      presets.push(
-        ['@babel/preset-env', {
-          'modules': 'commonjs'
-        }]
-      );
-      break;
-
     case 'test':
       presets.push(['@babel/preset-env', {
         'useBuiltIns': 'usage',
