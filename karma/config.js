@@ -51,6 +51,7 @@ module.exports = {
   },
 
   webpack: {
+    mode: 'production',
     module: {
       rules: [
         {
