@@ -43,8 +43,8 @@ export default class BrowserSignalListener {
    */ 
   stop() {
     log.debug('Deregistering flush handler when unload page event is triggered.');
-    if (window && window.addEventListener) {
-      window.removeEventListener(UNLOAD_DOM_EVENT, this._flushEventsAndImpressions);
+    if (window && window.removeEventListener) {
+      window.removeEventListener(UNLOAD_DOM_EVENT, this.flushData);
     } 
   }
 
@@ -59,24 +59,28 @@ export default class BrowserSignalListener {
   }
 
   _flushImpressions() {
+    const impressions = this.storage.impressions;
     // if there are impressions in storage, send them to backend
-    if (!this.storage.impressions.isEmpty()) {
+    if (!impressions.isEmpty()) {
       const url = this.settings.url('/testImpressions/beacon');
-      const impressions = fromImpressionsCollector(this.storage.impressions, this.settings);
-      if (!this._sendBeacon(url, impressions))
-        impressionsService(impressionsBulkRequest(this.settings, { data: JSON.stringify(impressions) }));
-      this.storage.impressions.clear();
+      const impressionsPayload = fromImpressionsCollector(impressions, this.settings);
+      if (!this._sendBeacon(url, impressionsPayload)) {
+        impressionsService(impressionsBulkRequest(this.settings, { data: JSON.stringify(impressionsPayload) }));
+      }
+      impressions.clear();
     }
   }
 
   _flushEvents(){
+    const events = this.storage.events;
     // if there are events in storage, send them to backend
-    if (!this.storage.events.isEmpty()) {
+    if (!events.isEmpty()) {
       const url = this.settings.url('/events/beacon');
-      const events = this.storage.events.toJSON();
-      if (!this._sendBeacon(url, events))
-        eventsService(eventsBulkRequest(this.settings, { data: JSON.stringify(events) }));
-      this.storage.events.clear();
+      const eventsPayload = events.toJSON();
+      if (!this._sendBeacon(url, eventsPayload)) {
+        eventsService(eventsBulkRequest(this.settings, { data: JSON.stringify(eventsPayload) }));
+      }
+      events.clear();
     }
   }
 
