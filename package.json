@@ -77,7 +77,7 @@
     "build-umd:stats": "webpack --progress --env production --json > ./stats/stat_results.json",
     "build-cjs": "rimraf lib && cross-env NODE_ENV=cjs babel ./src -d lib --ignore '__tests__'",
     "postbuild-cjs": "cross-env NODE_ENV=cjs node scripts/copy.packages.json.js",
-    "build-umd:ci": "webpack --config webpack.ci.dev.js && webpack --config webpack.ci.prod.js",
+    "build-umd:ci": "webpack --config webpack.ci.dev.js --env.branch=$BUILD_BRANCH --env.commit_hash=$BUILD_COMMIT && webpack --config webpack.ci.prod.js --env.branch=$BUILD_BRANCH --env.commit_hash=$BUILD_COMMIT",
     "build-umd": "webpack --config webpack.dev.js && webpack --config webpack.prod.js",
     "rebuild": "rimraf lib umd es && npm run build-cjs && npm run build-es && npm run build-umd",
     "rebuild:npm": "rimraf lib es && npm run build-cjs && npm run build-es",

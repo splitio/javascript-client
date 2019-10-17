@@ -25,7 +25,7 @@ script:
   - 'npm run test-node-destroy -- --no-progress'
   - npm run test-node-errors
   - npm run lint
-  - npm run rebuild:ci -- --env.branch=$TRAVIS_BRANCH --env.commit_hash=$TRAVIS_COMMIT
+  - BUILD_BRANCH=$TRAVIS_BRANCH BUILD_COMMIT=$TRAVIS_COMMIT npm run rebuild:ci
 
 deploy:
   - provider: s3
