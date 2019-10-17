@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 import tape from 'tape';
-import evaluator from '../../evaluator';
+import { evaluateFeature } from '../../evaluator';
 import * as LabelsConstants from '../../../utils/labels';
 
 const splitsMock = {
@@ -45,7 +45,7 @@ tape('EVALUATOR / should return label exception, treatment control and config nu
     label: LabelsConstants.EXCEPTION,
     config: null
   };
-  const evaluationPromise = evaluator(
+  const evaluationPromise = evaluateFeature(
     'fake-key',
     'throw_exception',
     null,
@@ -70,7 +70,7 @@ tape('EVALUATOR / should return right label, treatment and config if storage ret
     treatment: 'control', label: LabelsConstants.SPLIT_NOT_FOUND, config: null
   };
 
-  const evaluationWithConfig = evaluator(
+  const evaluationWithConfig = evaluateFeature(
     'fake-key',
     'config',
     null,
@@ -78,7 +78,7 @@ tape('EVALUATOR / should return right label, treatment and config if storage ret
   );
   assert.deepEqual(evaluationWithConfig, expectedOutput, 'If the split is retrieved successfully we should get the right evaluation result, label and config.');
 
-  const evaluationNotFound = evaluator(
+  const evaluationNotFound = evaluateFeature(
     'fake-key',
     'not_existent_split',
     null,
@@ -86,7 +86,7 @@ tape('EVALUATOR / should return right label, treatment and config if storage ret
   );
   assert.deepEqual(evaluationNotFound, expectedOutputControl, 'If the split is not retrieved successfully because it does not exist, we should get the right evaluation result, label and config.');
 
-  const evaluation = evaluator(
+  const evaluation = evaluateFeature(
     'fake-key',
     'regular',
     null,
@@ -94,7 +94,7 @@ tape('EVALUATOR / should return right label, treatment and config if storage ret
   );
   assert.deepEqual(evaluation, { ...expectedOutput, config: null }, 'If the split is retrieved successfully we should get the right evaluation result, label and config. If Split has no config it should have config equal null.');
 
-  const evaluationKilled = evaluator(
+  const evaluationKilled = evaluateFeature(
     'fake-key',
     'killed',
     null,
@@ -105,7 +105,7 @@ tape('EVALUATOR / should return right label, treatment and config if storage ret
     'If the split is retrieved but is killed, we should get the right evaluation result, label and config.'
   );
 
-  const evaluationArchived = evaluator(
+  const evaluationArchived = evaluateFeature(
     'fake-key',
     'archived',
     null,
@@ -116,7 +116,7 @@ tape('EVALUATOR / should return right label, treatment and config if storage ret
     'If the split is retrieved but is archived, we should get the right evaluation result, label and config.'
   );
 
-  const evaluationtrafficAlocation1 = evaluator(
+  const evaluationtrafficAlocation1 = evaluateFeature(
     'fake-key',
     'trafficAlocation1',
     null,
@@ -127,7 +127,7 @@ tape('EVALUATOR / should return right label, treatment and config if storage ret
     'If the split is retrieved but is not in split (out of Traffic Allocation), we should get the right evaluation result, label and config.'
   );
 
-  const evaluationKilledWithConfig = evaluator(
+  const evaluationKilledWithConfig = evaluateFeature(
     'fake-key',
     'killedWithConfig',
     null,
@@ -138,7 +138,7 @@ tape('EVALUATOR / should return right label, treatment and config if storage ret
     'If the split is retrieved but is killed, we should get the right evaluation result, label and config.'
   );
 
-  const evaluationArchivedWithConfig = evaluator(
+  const evaluationArchivedWithConfig = evaluateFeature(
     'fake-key',
     'archivedWithConfig',
     null,
@@ -149,7 +149,7 @@ tape('EVALUATOR / should return right label, treatment and config if storage ret
     'If the split is retrieved but is archived, we should get the right evaluation result, label and config.'
   );
 
-  const evaluationtrafficAlocation1WithConfig = evaluator(
+  const evaluationtrafficAlocation1WithConfig = evaluateFeature(
     'fake-key',
     'trafficAlocation1WithConfig',
     null,

@@ -20,7 +20,13 @@ import * as LabelsConstants from '../../utils/labels';
 import { get } from '../../utils/lang';
 import { CONTROL } from '../../utils/constants';
 
-function splitEvaluator(
+const treatmentException = {
+  treatment: CONTROL,
+  label: LabelsConstants.EXCEPTION,
+  config: null
+};
+
+export function evaluateFeature(
   key,
   splitName,
   attributes,
@@ -34,11 +40,7 @@ function splitEvaluator(
     // the only scenario where getSplit can throw an error is when the storage
     // is redis and there is a connection issue and we can't retrieve the split
     // to be evaluated
-    return Promise.resolve({
-      treatment: CONTROL,
-      label: LabelsConstants.EXCEPTION,
-      config: null
-    });
+    return Promise.resolve(treatmentException);
   }
 
   if (thenable(stringifiedSplit)) {
@@ -58,6 +60,45 @@ function splitEvaluator(
   );
 }
 
+export function evaluateFeatures(
+  key,
+  splitNames,
+  attributes,
+  storage
+) {
+  let stringifiedSplits;
+  const evaluations = {};
+
+  try {
+    stringifiedSplits = storage.splits.fetchMany(splitNames);
+  } catch (e) {
+    // the only scenario where fetchMany can throw an error is when the storage
+    // is redis and there is a connection issue and we can't retrieve the split
+    // to be evaluated
+    splitNames.forEach(splitName => {
+      evaluations[splitName] = treatmentException;
+    });
+    return Promise.resolve(evaluations);
+  }
+
+  const results = {};
+
+  const getEvaluations = (splitNames, splits) => {
+    splitNames.forEach((splitName) => {
+      results[splitName] = getEvaluation(
+        splits.get(splitName),
+        key,
+        attributes,
+        storage
+      );
+    });
+    return results;
+  };
+
+  return (thenable(stringifiedSplits)) ?
+    stringifiedSplits.then(splits => getEvaluations(splitNames, splits)) : getEvaluations(splitNames, stringifiedSplits);
+}
+
 function getEvaluation(
   stringifiedSplit,
   key,
@@ -73,7 +114,7 @@ function getEvaluation(
   if (stringifiedSplit) {
     const splitJSON = JSON.parse(stringifiedSplit);
     const split = Engine.parse(splitJSON, storage);
-    evaluation = split.getTreatment(key, attributes, splitEvaluator);
+    evaluation = split.getTreatment(key, attributes, evaluateFeature);
 
     // If the storage is async, evaluation and changeNumber will return a thenable
     if (thenable(evaluation)) {
@@ -91,5 +132,3 @@ function getEvaluation(
 
   return evaluation;
 }
-
-export default splitEvaluator;
