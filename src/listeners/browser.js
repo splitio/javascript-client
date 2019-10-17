@@ -3,7 +3,6 @@ import eventsService from '../services/events';
 import impressionsBulkRequest from '../services/impressions/bulk';
 import impressionsService from '../services/impressions';
 import { fromImpressionsCollector } from '../services/impressions/dto';
-import { STORAGE, SETTINGS } from '../utils/context/constants';
 import logFactory from '../utils/logger';
 
 const log = logFactory('splitio-client:cleanup');
@@ -16,10 +15,10 @@ const UNLOAD_DOM_EVENT = 'unload';
  *
  */
 export default class BrowserSignalListener {
-  
+
   constructor(context) {
-    this.storage = context.get(STORAGE);
-    this.settings = context.get(SETTINGS);
+    this.storage = context.get(context.constants.STORAGE);
+    this.settings = context.get(context.constants.SETTINGS);
     this.flushData = this.flushData.bind(this);
   }
 
@@ -27,7 +26,7 @@ export default class BrowserSignalListener {
    * start method. 
    * Called when SplitFactory is initialized. 
    * We add a handler on unload events. The handler flushes remaining impressions and events to the backend.
-   */ 
+   */
   start() {
     log.debug('Registering flush handler when unload page event is triggered.');
     if (window && window.addEventListener) {
@@ -45,7 +44,7 @@ export default class BrowserSignalListener {
     log.debug('Deregistering flush handler when unload page event is triggered.');
     if (window && window.removeEventListener) {
       window.removeEventListener(UNLOAD_DOM_EVENT, this.flushData);
-    } 
+    }
   }
 
   /**
@@ -85,9 +84,9 @@ export default class BrowserSignalListener {
   }
 
   /**
-   * _sendBeacon method. 
+   * _sendBeacon method.
    * Util method that check if beacon API is available, build the payload and send it.
-   */ 
+   */
   _sendBeacon(url, data) {
     if (navigator && navigator.sendBeacon) {
       const payload = JSON.stringify({
