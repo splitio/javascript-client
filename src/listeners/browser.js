@@ -28,8 +28,8 @@ export default class BrowserSignalListener {
    * We add a handler on unload events. The handler flushes remaining impressions and events to the backend.
    */
   start() {
-    log.debug('Registering flush handler when unload page event is triggered.');
     if (window && window.addEventListener) {
+      log.debug('Registering flush handler when unload page event is triggered.');
       window.addEventListener(UNLOAD_DOM_EVENT, this.flushData);
     }  
   }
@@ -41,8 +41,8 @@ export default class BrowserSignalListener {
    * We need to remove the handler for unload events, since it can break if called when Split context was destroyed.
    */ 
   stop() {
-    log.debug('Deregistering flush handler when unload page event is triggered.');
     if (window && window.removeEventListener) {
+      log.debug('Deregistering flush handler when unload page event is triggered.');
       window.removeEventListener(UNLOAD_DOM_EVENT, this.flushData);
     }
   }
