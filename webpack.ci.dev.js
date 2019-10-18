@@ -7,6 +7,6 @@ const VERSION = pkg.version;
 module.exports = env => merge(common, {
   mode: 'development',
   output: {
-    filename: `[name]${env.branch !== 'master' ? ('-' + env.commit_hash) : `-${VERSION}`}.js`
+    filename: `[name]${env.branch !== 'master' ? `-${env.commit_hash}` : `-${VERSION}`}.js`
   }
 });
