@@ -6,7 +6,8 @@ module.exports = {
   output: {
     path: __dirname + '/umd',
     library: 'splitio',
-    libraryTarget: 'umd'
+    libraryTarget: 'umd',
+    libraryExport: 'default'
   },
 
   module: {
