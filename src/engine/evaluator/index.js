@@ -81,22 +81,9 @@ export function evaluateFeatures(
     return Promise.resolve(evaluations);
   }
 
-  const results = {};
-
-  const getEvaluations = (splitNames, splits) => {
-    splitNames.forEach((splitName) => {
-      results[splitName] = getEvaluation(
-        splits.get(splitName),
-        key,
-        attributes,
-        storage
-      );
-    });
-    return results;
-  };
-
   return (thenable(stringifiedSplits)) ?
-    stringifiedSplits.then(splits => getEvaluations(splitNames, splits)) : getEvaluations(splitNames, stringifiedSplits);
+    stringifiedSplits.then(splits => getEvaluations(splitNames, splits, key, attributes, storage)) :
+    getEvaluations(splitNames, stringifiedSplits, key, attributes, storage);
 }
 
 function getEvaluation(
@@ -131,4 +118,33 @@ function getEvaluation(
   }
 
   return evaluation;
+}
+
+function getEvaluations(
+  splitNames,
+  splits,
+  key,
+  attributes,
+  storage
+) {
+  const result = {};
+  const thenables = [];
+  splitNames.forEach(splitName => {
+    const evaluation = getEvaluation(
+      splits.get(splitName),
+      key,
+      attributes,
+      storage
+    );
+    if (thenable(evaluation)) {
+      thenables.push(evaluation);
+      evaluation.then(res => {
+        result[splitName] = res;
+      });
+    } else {
+      result[splitName] = evaluation;
+    }
+  });
+
+  return thenables.length > 0 ? Promise.all(thenables).then(() => result) : result;
 }
