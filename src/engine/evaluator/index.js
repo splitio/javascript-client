@@ -137,10 +137,9 @@ function getEvaluations(
       storage
     );
     if (thenable(evaluation)) {
-      thenables.push(evaluation);
-      evaluation.then(res => {
+      thenables.push(evaluation.then(res => {
         result[splitName] = res;
-      });
+      }));
     } else {
       result[splitName] = evaluation;
     }
