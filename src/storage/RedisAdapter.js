@@ -7,7 +7,7 @@ import LogFactory from '../utils/logger';
 const log = LogFactory('splitio-storage:redis-adapter');
 
 // If we ever decide to fully wrap every method, there's a Commander.getBuiltinCommands from ioredis.
-const METHODS_TO_PROMISE_WRAP = ['set', 'exec', 'del', 'get', 'keys', 'sadd', 'srem', 'sismember', 'smembers', 'incr', 'rpush', 'pipeline', 'expire'];
+const METHODS_TO_PROMISE_WRAP = ['set', 'exec', 'del', 'get', 'keys', 'sadd', 'srem', 'sismember', 'smembers', 'incr', 'rpush', 'pipeline', 'expire', 'mget'];
 
 // Not part of the settings since it'll vary on each storage. We should be removing storage specific logic from elsewhere.
 const DEFAULT_OPTIONS = {
