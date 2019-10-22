@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio",
-  "version": "10.9.0-canary.11",
+  "version": "10.9.0-canary.12",
   "description": "Split SDK",
   "files": [
     "README.md",
@@ -29,7 +29,7 @@
   "types": "types",
   "engines": {
     "npm": ">=3",
-    "node": ">=4"
+    "node": ">=6"
   },
   "dependencies": {
     "@babel/runtime-corejs3": "^7.6.3",
