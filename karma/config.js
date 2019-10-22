@@ -62,7 +62,6 @@ module.exports = {
             options: {
               presets: [['@babel/preset-env', {
                 'useBuiltIns': 'usage',
-                'modules': 'commonjs',
                 'corejs': '3',
                 'targets': {
                   'ie': '10',
@@ -76,7 +75,8 @@ module.exports = {
                     'absoluteRuntime': false,
                     'corejs': 3,
                     'regenerator': true,
-                    'useESModules': false
+                    'useESModules': false,
+                    'helpers': true
                   }
                 ]
               ]
