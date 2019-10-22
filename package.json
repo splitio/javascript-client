@@ -27,6 +27,10 @@
   "main": "lib/index.js",
   "module": "es/index.js",
   "types": "types",
+  "engines": {
+    "npm": ">=3",
+    "node": ">=4"
+  },
   "dependencies": {
     "@babel/runtime-corejs3": "^7.6.3",
     "@types/node": "10.9.4",
