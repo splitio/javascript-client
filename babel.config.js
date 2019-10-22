@@ -6,8 +6,8 @@ module.exports = function (api) {
   const plugins = [];
 
   switch (env) {
-    case 'cjs':
     case 'development':
+    case 'cjs':
     case 'production':
     case 'test':
       presets.push(['@babel/preset-env', {
@@ -20,6 +20,7 @@ module.exports = function (api) {
         }
       }]);
       plugins.push('@babel/transform-runtime');
+      plugins.push('@babel/plugin-transform-object-assign');
       break;
 
     default: // es6 build
