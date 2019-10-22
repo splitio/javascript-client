@@ -65,7 +65,7 @@ module.exports = {
                 'corejs': '3',
                 'targets': {
                   'ie': '10',
-                  'node': '4'
+                  'node': '6'
                 },
               }]],
               plugins: [
