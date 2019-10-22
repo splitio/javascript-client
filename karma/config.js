@@ -57,7 +57,31 @@ module.exports = {
         {
           test: /\.js$/,
           exclude: /node_modules/,
-          loader: 'babel-loader'
+          use: {
+            loader: 'babel-loader',
+            options: {
+              presets: [['@babel/preset-env', {
+                'useBuiltIns': 'usage',
+                'modules': 'commonjs',
+                'corejs': '3',
+                'targets': {
+                  'ie': '10',
+                  'node': '4'
+                },
+              }]],
+              plugins: [
+                [
+                  '@babel/plugin-transform-runtime',
+                  {
+                    'absoluteRuntime': false,
+                    'corejs': 3,
+                    'regenerator': true,
+                    'useESModules': false
+                  }
+                ]
+              ]
+            }
+          }
         }
       ]
     },

@@ -19,8 +19,10 @@ module.exports = function (api) {
           'node': '4'
         }
       }]);
-      plugins.push('@babel/transform-runtime');
-      plugins.push('@babel/plugin-transform-object-assign');
+      plugins.push(['@babel/transform-runtime', {
+        'useESModules': false,
+        'corejs': 3
+      }]);
       break;
 
     default: // es6 build
@@ -30,7 +32,8 @@ module.exports = function (api) {
       plugins.push(
         '@babel/plugin-proposal-object-rest-spread',
         ['@babel/transform-runtime', {
-          'useESModules': true
+          'useESModules': true,
+          'corejs': 3
         }]
       );
       break;
