@@ -17,7 +17,10 @@ module.exports = function (api) {
         'targets': {
           'ie': '10',
           'node': '4'
-        }
+        },
+        exclude: [
+          'es.promise'
+        ]
       }]);
       plugins.push(['@babel/transform-runtime', {
         'useESModules': false,

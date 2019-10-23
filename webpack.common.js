@@ -24,7 +24,10 @@ module.exports = {
               'targets': {
                 'ie': '10',
                 'node': '6'
-              }
+              },
+              exclude: [
+                'es.promise'
+              ]
             }]],
             plugins: [
               [
