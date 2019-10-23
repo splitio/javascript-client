@@ -9,7 +9,7 @@ export default function Fetcher(request) {
   return _axiosInstance.request(request)
     .catch(error => {
       const resp = error.response;
-      const config = error.config;
+      const url = error.config ? error.config.url : 'unknown';
       let msg = '';
 
       if (resp) { // An HTTP error
@@ -24,7 +24,7 @@ export default function Fetcher(request) {
       }
 
       if (!resp || resp.status !== 403) // 403's log we'll be handled somewhere else.
-        log.error(`Response status is not OK. Status: ${resp ? resp.status : 'NO_STATUS'}. URL: ${config.url}. Message: ${msg}`);
+        log.error(`Response status is not OK. Status: ${resp ? resp.status : 'NO_STATUS'}. URL: ${url}. Message: ${msg}`);
 
       throw new SplitNetworkError(msg, resp ? resp.status : 'NO_STATUS');
     });
