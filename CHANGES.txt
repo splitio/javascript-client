@@ -1,7 +1,7 @@
 10.9.0 (Oct XX, 2019)
  - Added setting core.IPAddressesEnabled to disable reporting IP Addresses and Machine name back to Split cloud.
  - Updated Redis storage to fetch multiple splits at once for getTreatments/getTreatmentsWithConfig.
- - Updated development dependencies for Babel, Karma and Webpack.
+ - Updated most dependencies to their latest versions. Biggest change is babel (from 6 to 7), Webpack 3 to 4, Karma and ioredis.
 
 10.8.4 (Sep 24, 2019)
  - Added module "events" as optional dependency.
