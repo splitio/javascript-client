@@ -277,9 +277,9 @@ interface INodeBasicSettings extends ISharedSettings {
 /**
  * Common API for entities that expose status handlers.
  * @interface IStatusInterface
- * @extends NodeJS.Events
+ * @extends NodeJS.EventEmitter
  */
-interface IStatusInterface extends NodeJS.Events {
+interface IStatusInterface extends NodeJS.EventEmitter {
   /**
    * Constant object containing the SDK events for you to use.
    * @property {EventConsts} Event

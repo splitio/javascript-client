@@ -18,7 +18,7 @@ import osFunction from 'os';
 import ipFunction from 'ip';
 import SettingsFactory from '../../settings';
 import { NA } from '../../constants';
-import { CONSUMER_MODE } from '../../../../lib/utils/constants';
+import { CONSUMER_MODE } from '../../../utils/constants';
 
 const IP_VALUE = ipFunction.address();
 const HOSTNAME_VALUE = osFunction.hostname();

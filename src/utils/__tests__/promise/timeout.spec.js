@@ -29,7 +29,7 @@ tape('Promise utils / timeout - What happens in the event of a timeout or no tim
     assert.fail('Should not execute');
   } catch (error) {
     // The promise was rejected not resolved. Give it an error margin of 10ms since it's not predictable
-    assert.ok((Date.now() - ts) < baseTimeoutInMs + 10, 'The timeout should have rejected the promise.');
+    assert.ok((Date.now() - ts) < baseTimeoutInMs + 20, 'The timeout should have rejected the promise.');
     assert.ok(error instanceof SplitTimeoutError, 'The timeout should have rejected the promise with a Split Timeout Error.');
     assert.end();
   }
