@@ -153,7 +153,7 @@ export function merge(target, source, ...rest) {
 export function uniq(arr) {
   const seen = {};
   return arr.filter(function(item) {
-    return seen.hasOwnProperty(item) ? false : seen[item] = true;
+    return Object.prototype.hasOwnProperty.call(seen, item) ? false : seen[item] = true;
   });
 }
 
