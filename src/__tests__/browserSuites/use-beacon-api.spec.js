@@ -17,6 +17,9 @@ const config = {
 
 const settings = SettingsFactory(config);
 
+// Spy calls to Beacon API method
+const sendBeaconSpy = sinon.spy(window.navigator,'sendBeacon');
+
 // util method to trigger 'unload' event
 function triggerUnloadEvent() {
   const event = document.createEvent('HTMLEvents');
@@ -38,7 +41,9 @@ const assertEventSent = (assert, event) => {
   assert.equal(event.trafficTypeName, 'sometraffictype', 'TrafficTypeName should match the binded value.');
 };
 
-const assertCallsToBeaconAPI = (assert, sendBeaconSpy) => {
+const assertCallsToBeaconAPI = (assert) => {
+  assert.ok(sendBeaconSpy.calledTwice, 'sendBeacon should have been called twice');
+
   // The first call is for flushing impressions
   const impressionsCallArgs = sendBeaconSpy.firstCall.args;
   assert.equal(impressionsCallArgs[0], settings.url('/testImpressions/beacon'), 'assert correct url');
@@ -56,15 +61,35 @@ const assertCallsToBeaconAPI = (assert, sendBeaconSpy) => {
   assertEventSent(assert, parsedPayload.entries[0]);
 };
 
-// This E2E test checks that impressions and events are sent to backend via Beacon API when page unload is triggered.
-function beaconApiTest(mock, assert) {
+// This E2E test checks that Beacon API is not called when page unload is triggered and there are not events or impressions to send.
+function beaconApiNotSendTest(mock, assert) {
 
   // Mocking this specific route to make sure we only get the items we want to test from the handlers.
   mock.onGet(settings.url('/splitChanges?since=-1')).reply(200, splitChangesMock1);
   mock.onGet(settings.url('/mySegments/facundo@split.io')).reply(200, mySegmentsFacundo);
 
-  // Spy calls to Beacon API
-  const sendBeaconSpy = sinon.spy(window.navigator,'sendBeacon');
+  // Init and run Split client
+  const splitio = SplitFactory(config);
+  const client = splitio.client();
+  client.on(client.Event.SDK_READY, () => {
+
+    // trigger unload event, without tracked events and impressions
+    triggerUnloadEvent();
+
+    // queue the assertion of the Beacon requests, destruction of client and execution of the second E2E test named beaconApiSendTest
+    setTimeout(() => {
+      assert.ok(sendBeaconSpy.notCalled, 'sendBeacon should not be called if there are not events and impressions to track');
+      sendBeaconSpy.resetHistory();
+
+      client.destroy().then(()=>{
+        beaconApiSendTest(mock,assert);
+      });
+    }, 0);
+  });
+}
+
+// This E2E test checks that impressions and events are sent to backend via Beacon API when page unload is triggered.
+function beaconApiSendTest(mock, assert) {
 
   // Init and run Split client
   const splitio = SplitFactory(config);
@@ -76,10 +101,11 @@ function beaconApiTest(mock, assert) {
     // trigger unload event inmmediatly, before scheduled push of events and impressions
     triggerUnloadEvent();
 
-    // queue the assertion of the Beacon requests, destruction of client and execution of the second E2E test named assertFallbacl
+    // queue the assertion of the Beacon requests, destruction of client and execution of the second E2E test named fallbackTest
     setTimeout(() => {
       
-      assertCallsToBeaconAPI(assert, sendBeaconSpy);
+      assertCallsToBeaconAPI(assert);
+      sendBeaconSpy.resetHistory();
       client.destroy().then(()=>{
         fallbackTest(mock,assert);
       });
@@ -128,4 +154,4 @@ function fallbackTest(mock, assert) {
   });
 }
 
-export default beaconApiTest;
+export default beaconApiNotSendTest;
