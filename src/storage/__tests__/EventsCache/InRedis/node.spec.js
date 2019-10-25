@@ -1,3 +1,4 @@
+/*eslint-disable require-atomic-updates*/
 import Redis from 'ioredis';
 import tape from 'tape-catch';
 import find from 'lodash/find';

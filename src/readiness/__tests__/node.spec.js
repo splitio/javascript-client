@@ -16,7 +16,7 @@ function LogFactoryMock() {
 // Import the module mocking the logger.
 const statusManager = proxyquireStrict('../statusManager', {
   '../utils/logger': LogFactoryMock
-});
+}).default;
 
 tape('Readiness Callbacks handler - Event emitter and returned handler', t => {
   const gateMock = {

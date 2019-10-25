@@ -60,8 +60,8 @@ export default async function(key, mock, assert) {
     assert.false(data.some(e => e.testName === 'hierarchical_dep_always_on'), 'Parent split evaluations should not result in impressions.');
     assert.false(data.some(e => e.testName === 'hierarchical_dep_hierarchical'), 'No matter how deep is the chain.');
     assert.true(alwaysOnWithConfigImpr, 'Split evaluated with config should have generated an impression too.');
-    assert.false(alwaysOnWithConfigImpr.keyImpressions[0].hasOwnProperty('configuration'), 'Impressions do not change with configuration evaluations.');
-    assert.false(alwaysOnWithConfigImpr.keyImpressions[0].hasOwnProperty('config'), 'Impressions do not change with configuration evaluations.');
+    assert.false(Object.prototype.hasOwnProperty.call(alwaysOnWithConfigImpr.keyImpressions[0], 'configuration'), 'Impressions do not change with configuration evaluations.');
+    assert.false(Object.prototype.hasOwnProperty.call(alwaysOnWithConfigImpr.keyImpressions[0], 'config'), 'Impressions do not change with configuration evaluations.');
 
     function validateImpressionData(output, expected, performedWhenReady = true) {
       assert.equal(output.keyName, expected.keyName, 'Present impressions should have the correct key.');

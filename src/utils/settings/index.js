@@ -16,12 +16,12 @@ limitations under the License.
 
 import { merge } from '../lang';
 import language from './language';
-import { ip, hostname } from './runtime';
+import runtime from './runtime';
 import overridesPerPlatform from './defaults';
 import storage from './storage';
 import mode from './mode';
 import { API } from '../../utils/logger';
-import { STANDALONE_MODE, STORAGE_MEMORY } from '../../utils/constants';
+import { STANDALONE_MODE, STORAGE_MEMORY, CONSUMER_MODE } from '../../utils/constants';
 import { version } from '../../../package.json';
 
 const eventsEndpointMatcher = /\/(testImpressions|metrics|events)/;
@@ -38,7 +38,9 @@ const base = {
     // traffic type for the given key (only used on browser version)
     trafficType: undefined,
     // toggle impressions tracking of labels
-    labelsEnabled: true
+    labelsEnabled: true,
+    // toggle sendind (true) or not sending (false) IP and Host Name with impressions, events, and telemetries requests (only used on nodejs version)
+    IPAddressesEnabled: undefined
   },
 
   scheduler: {
@@ -120,6 +122,9 @@ function defaults(custom) {
 
   setupLogger(withDefaults.debug);
 
+  // Current ip/hostname information
+  withDefaults.runtime = runtime(withDefaults.core.IPAddressesEnabled,withDefaults.mode === CONSUMER_MODE);
+
   return withDefaults;
 }
 
@@ -154,12 +159,6 @@ const proto = {
         }
       }
     );
-  },
-
-  // Current ip/hostname information (if available)
-  runtime: {
-    ip,
-    hostname
   }
 };
 

@@ -197,6 +197,17 @@ class SplitCacheLocalStorage {
     log.info('Flushing localStorage');
     localStorage.clear();
   }
+
+  /**
+   * Fetches multiple splits definitions.
+   */
+  fetchMany(splitNames) {
+    const splits = new Map();
+    splitNames.forEach(splitName => {
+      splits.set(splitName, localStorage.getItem(this.keys.buildSplitKey(splitName)));
+    });
+    return splits;
+  }
 }
 
 export default SplitCacheLocalStorage;

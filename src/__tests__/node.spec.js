@@ -9,6 +9,7 @@ import metricsSuite from './nodeSuites/metrics.spec';
 import impressionsListenerSuite from './nodeSuites/impressions-listener.spec';
 import expectedTreatmentsSuite from './nodeSuites/expected-treatments.spec';
 import managerSuite from './nodeSuites/manager.spec';
+import ipAddressesSetting from './nodeSuites/ip-addresses-setting.spec';
 
 import { __getAxiosInstance } from '../services/transport';
 
@@ -67,6 +68,9 @@ tape('## Node JS - E2E CI Tests ##', async function (assert) {
 
   /* Manager basic tests */
   assert.test('E2E / Manager basics', managerSuite.bind(null, settings, mock));
+
+  /* Check IP address and Machine name headers when IP address setting is enabled and disabled */
+  assert.test('E2E / IP Addresses Setting', ipAddressesSetting.bind(null, mock));
 
   assert.end();
 });

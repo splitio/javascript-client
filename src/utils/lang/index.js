@@ -152,8 +152,8 @@ export function merge(target, source, ...rest) {
  */
 export function uniq(arr) {
   const seen = {};
-  return Array.filter(arr, function(item) {
-    return seen.hasOwnProperty(item) ? false : seen[item] = true;
+  return arr.filter(function(item) {
+    return Object.prototype.hasOwnProperty.call(seen, item) ? false : seen[item] = true;
   });
 }
 

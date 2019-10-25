@@ -6,7 +6,7 @@ import merge from 'lodash/merge';
 import reduce from 'lodash/reduce';
 
 // The list of methods we're wrapping on a promise (for timeout) on the adapter.
-const METHODS_TO_PROMISE_WRAP = ['set', 'exec', 'del', 'get', 'keys', 'sadd', 'srem', 'sismember', 'smembers', 'incr', 'rpush', 'pipeline', 'expire'];
+const METHODS_TO_PROMISE_WRAP = ['set', 'exec', 'del', 'get', 'keys', 'sadd', 'srem', 'sismember', 'smembers', 'incr', 'rpush', 'pipeline', 'expire', 'mget'];
 
 const ioredisMock = reduce([...METHODS_TO_PROMISE_WRAP, 'disconnect'], (acc, methodName) => {
   acc[methodName] = sinon.stub().resolves(methodName);
@@ -52,8 +52,8 @@ const timeout = sinon.spy(function timeout(ms, originalPromise) {
 const RedisAdapter = proxyquire('../../RedisAdapter', {
   'ioredis': ioredis,
   '../utils/logger': { default: LogFactory },
-  '../utils/promise/timeout': timeout
-});
+  '../utils/promise/timeout': { default: timeout }
+}).default;
 
 /**
  * Logs here won't be changing much, so we could validate those. It's not important the exact message but what do they represent.

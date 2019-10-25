@@ -14,6 +14,10 @@ tape('SPLIT CACHE / In Memory', assert => {
 
   cache.removeSplit('lol1');
 
+  const splits = cache.fetchMany(['lol1', 'lol2']);
+  assert.true(splits.get('lol1') === null);
+  assert.true(splits.get('lol2') === '{ "name": "something else"}');
+
   values = cache.getAll();
 
   assert.ok( values.indexOf('{ "name": "something"}') === -1 );

@@ -51,17 +51,38 @@ module.exports = {
   },
 
   webpack: {
+    mode: 'production',
     module: {
       rules: [
         {
           test: /\.js$/,
           exclude: /node_modules/,
-          loader: 'babel-loader'
-        },
-        {
-          test: /\.json$/,
-          exclude: /node_modules/,
-          loader: 'json-loader'
+          use: {
+            loader: 'babel-loader',
+            options: {
+              presets: [['@babel/preset-env', {
+                'useBuiltIns': 'usage',
+                'corejs': '3',
+                'targets': {
+                  'ie': '10',
+                  'node': '6'
+                },
+                exclude: ['es.promise']
+              }]],
+              plugins: [
+                [
+                  '@babel/plugin-transform-runtime',
+                  {
+                    'absoluteRuntime': false,
+                    'corejs': 3,
+                    'regenerator': true,
+                    'useESModules': false,
+                    'helpers': true
+                  }
+                ]
+              ]
+            }
+          }
         }
       ]
     },
