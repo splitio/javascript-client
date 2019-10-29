@@ -8,7 +8,7 @@ sonar_scanner() {
     -Dsonar.login="$SONAR_TOKEN" \
     -Dsonar.ws.timeout='300' \
     -Dsonar.sources='src' \
-    -Dsonar.exclusions='**/__tests__/**/*.*' \
+    -Dsonar.exclusions='**/__tests__/**' \
     -Dsonar.projectName='javascript-client' \
     -Dsonar.projectKey='javascript-client' \
     -Dsonar.links.ci='https://travis-ci.com/splitio/javascript-client' \
