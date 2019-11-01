@@ -16,7 +16,7 @@ module.exports = function (api) {
         'corejs': '3',
         'targets': {
           'ie': '10',
-          'node': '4'
+          'node': '6'
         },
         exclude: [
           'es.promise'
@@ -30,7 +30,10 @@ module.exports = function (api) {
 
     default: // es6 build
       presets.push(['@babel/preset-env', {
-        'modules': false
+        'modules': false,
+        'targets': {
+          'node': '6'
+        },
       }]);
       plugins.push(
         '@babel/plugin-proposal-object-rest-spread',
