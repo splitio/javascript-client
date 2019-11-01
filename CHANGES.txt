@@ -1,3 +1,6 @@
+10.9.1 (Oct XX, 2019)
+ - Updated our babel configuration for ES6 + ESM build to result in a lighter build when being bundled.
+
 10.9.0 (Oct 24, 2019)
  - Added listener for 'unload' DOM events to push remaining impressions and events when the browser page is closed or reloaded. 
  - Added setting core.IPAddressesEnabled to disable reporting IP Addresses and Machine name back to Split cloud.
