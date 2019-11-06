@@ -24,7 +24,7 @@ import { API } from '../../utils/logger';
 import { STANDALONE_MODE, STORAGE_MEMORY, CONSUMER_MODE } from '../../utils/constants';
 import { version } from '../../../package.json';
 
-const eventsEndpointMatcher = /\/(testImpressions|metrics|events)/;
+const eventsEndpointMatcher = /^\/(testImpressions|metrics|events)/;
 
 const base = {
   // Define which kind of object you want to retrieve from SplitFactory
