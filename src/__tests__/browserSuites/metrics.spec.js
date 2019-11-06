@@ -1,5 +1,4 @@
 import { SplitFactory } from '../../';
-import SettingsFactory from '../../utils/settings';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
 
@@ -7,13 +6,6 @@ const baseUrls = {
   sdk: 'https://sdk.baseurl/metricsSuite',
   events: 'https://events.baseurl/metricsSuite'
 };
-
-const settings = SettingsFactory({
-  core: {
-    key: '<fake id>'
-  },
-  urls: baseUrls
-});
 
 const config = {
   core: {
@@ -33,12 +25,12 @@ const config = {
 };
 
 export default async function metricsBrowserSuite(mock, assert) {
-  mock.onGet(settings.url('/splitChanges?since=-1')).replyOnce(500)
-    .onGet(settings.url('/splitChanges?since=-1')).reply(200, splitChangesMock1);
-  mock.onGet(settings.url('/mySegments/metrics-browser-tests-key')).replyOnce(500)
-    .onGet(settings.url('/mySegments/metrics-browser-tests-key')).reply(200, { 'mySegments': [] });
+  mock.onGet(baseUrls.sdk + '/splitChanges?since=-1').replyOnce(500)
+    .onGet(baseUrls.sdk + '/splitChanges?since=-1').reply(200, splitChangesMock1);
+  mock.onGet(baseUrls.sdk + '/mySegments/metrics-browser-tests-key').replyOnce(500)
+    .onGet(baseUrls.sdk +  '/mySegments/metrics-browser-tests-key').reply(200, { 'mySegments': [] });
   // Should not execute but adding just in case.
-  mock.onGet(settings.url('/splitChanges?since=1457552620999')).reply(200, splitChangesMock2);
+  mock.onGet(baseUrls.sdk + '/splitChanges?since=1457552620999').reply(200, splitChangesMock2);
 
   const splitio = SplitFactory(config);
   const client = splitio.client();
@@ -49,7 +41,7 @@ export default async function metricsBrowserSuite(mock, assert) {
     assert.end();
   })();
 
-  mock.onPost(settings.url('/metrics/times')).replyOnce(req => {
+  mock.onPost(baseUrls.events + '/metrics/times').replyOnce(req => {
     const data = JSON.parse(req.data);
 
     assert.equal(data.length, 7, 'We performed 4 correct evaluation requests (one per method) plus ready, splits and segments, so we should have 7 latency metrics.');
@@ -84,7 +76,7 @@ export default async function metricsBrowserSuite(mock, assert) {
     return [200];
   });
 
-  mock.onPost(settings.url('/metrics/counters')).replyOnce(req => {
+  mock.onPost(baseUrls.events + '/metrics/counters').replyOnce(req => {
     const data = JSON.parse(req.data);
 
     assert.equal(data.length, 4, 'Based on the mock setup, we should have four items.');
