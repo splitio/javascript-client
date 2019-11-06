@@ -157,3 +157,45 @@ tape('SETTINGS / required properties should be always present', assert => {
 
   assert.end();
 });
+
+tape('SETTINGS / urls should be correctly assigned', assert => {
+  const settings = SettingsFactory({
+    core: {
+      authorizationKey: 'dummy token'
+    }
+  });
+  const baseSdkUrl = 'https://sdk.split.io/api';
+  const baseEventsUrl = 'https://events.split.io/api';
+
+  [
+    '/mySegments/nico',
+    '/mySegments/events@split',
+    '/mySegments/metrics@split',
+    '/mySegments/testImpressions@split',
+    '/mySegments/testImpressions',
+    '/mySegments/events',
+    '/mySegments/metrics',
+    '/splitChanges?since=-1',
+    '/splitChanges?since=100',
+    '/segmentChanges/segment1?since=100',
+    '/segmentChanges/events?since=100',
+    '/segmentChanges/beacon?since=100',
+    '/segmentChanges/metrics?since=100',
+    '/segmentChanges/testImpressions?since=100'
+  ].forEach(relativeUrl => {
+    assert.equal(settings.url(relativeUrl), `${baseSdkUrl}${relativeUrl}`, `Our settings URL function should use ${baseSdkUrl} as base for ${relativeUrl}`);
+  });
+
+  [
+    '/metrics/times',
+    '/metrics/counters',
+    '/events/bulk',
+    '/events/beacon',
+    '/testImpressions/bulk',
+    '/testImpressions/beacon'
+  ].forEach(relativeUrl => {
+    assert.equal(settings.url(relativeUrl), `${baseEventsUrl}${relativeUrl}`, `Our settings URL function should use ${baseEventsUrl} as base for ${relativeUrl}`);
+  });
+
+  assert.end();
+});
