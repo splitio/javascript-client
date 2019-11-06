@@ -74,7 +74,7 @@ tape('## Node JS - E2E CI Tests ##', async function (assert) {
   assert.test('E2E / IP Addresses Setting', ipAddressesSetting.bind(null, mock));
 
   /* Validate readiness with ready promises */
-  assert.test('E2E / Readiness ready', readinessReadySuite.bind(null, mock));
+  assert.test('E2E / Readiness ready', readinessReadySuite.bind(null, key, mock));
 
   assert.end();
 });

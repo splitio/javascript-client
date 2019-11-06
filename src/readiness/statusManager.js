@@ -8,24 +8,11 @@ export default function callbackHandlerContext(context, forSharedClient = false)
   const gate = context.get(context.constants.READINESS).gate;
   let readyCbCount = 0;
   let isReady = false;
-  let isTimedout = false;
   const {
     SDK_READY,
     SDK_UPDATE,
     SDK_READY_TIMED_OUT
   } = gate;
-
-  gate.once(SDK_READY, () => {
-    if (readyCbCount === 0) log.warn('No listeners for SDK Readiness detected. Incorrect control treatments could have been logged if you called getTreatment/s while the SDK was not yet ready.');
-
-    context.put(context.constants.READY, true);
-
-    isReady = true;
-  });
-
-  gate.once(SDK_READY_TIMED_OUT, () => {
-    isTimedout = true;
-  });
 
   gate.on(REMOVE_LISTENER_EVENT, event => {
     if (event === SDK_READY) readyCbCount--;
@@ -41,19 +28,24 @@ export default function callbackHandlerContext(context, forSharedClient = false)
     }
   });
 
+  let readyPromise = getReadyPromise();
+
+  gate.once(SDK_READY, () => {
+    if (readyCbCount === 0) log.warn('No listeners for SDK Readiness detected. Incorrect control treatments could have been logged if you called getTreatment/s while the SDK was not yet ready.');
+
+    context.put(context.constants.READY, true);
+
+    isReady = true;
+
+    // Once the state is ready, the readyPromise is a resolved promise
+    readyPromise = Promise.resolve();
+  });
+
   function generateReadyPromise() {
     let hasCatch = false;
     const promise = new Promise((resolve, reject) => {
-      if (isReady) {
-        resolve();
-      } else {
-        if (isTimedout) {
-          reject();
-        } else {
-          gate.once(SDK_READY, resolve);
-          gate.once(SDK_READY_TIMED_OUT, reject);
-        }
-      }
+      gate.once(SDK_READY, resolve);
+      gate.once(SDK_READY_TIMED_OUT, reject);
     }).catch(function(err) {
       // If the promise has a custom error handler, just propagate
       if (hasCatch) throw err;
@@ -69,6 +61,7 @@ export default function callbackHandlerContext(context, forSharedClient = false)
       if (arguments.length > 1 && typeof arguments[1] === 'function')
         hasCatch = true;
 
+      // workaround to allow a proper promises chaining.
       const promiseToReturn = originalThen.apply(this, arguments);
       promiseToReturn.then = promise.then;
       return promiseToReturn;
@@ -98,7 +91,7 @@ export default function callbackHandlerContext(context, forSharedClient = false)
       },
       // Expose the ready promise flag
       ready: () => {
-        return getReadyPromise();
+        return readyPromise;
       }
     }
   );
