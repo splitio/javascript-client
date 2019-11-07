@@ -1,3 +1,7 @@
+10.9.1 (Nov 7, 2019)
+ - Bugfixing - Avoid certain keys (containing one of three keywords) on the browser to generate a request to the wrong endpoint.
+ - Added SonarQube integration.
+
 10.9.0 (Oct 24, 2019)
  - Added listener for 'unload' DOM events to push remaining impressions and events when the browser page is closed or reloaded. 
  - Added setting core.IPAddressesEnabled to disable reporting IP Addresses and Machine name back to Split cloud.

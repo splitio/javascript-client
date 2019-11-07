@@ -3,10 +3,16 @@ language: node_js
 node_js:
   - "lts/*"
 
+cache: npm
+
 services:
   - redis-server
 
-cache: npm
+addons:
+  sonarqube: true
+
+git:
+  depth: false
 
 before_script:
   - npm run test-ts-decls
@@ -26,6 +32,9 @@ script:
   - npm run test-node-errors
   - npm run lint
   - BUILD_BRANCH=$TRAVIS_BRANCH BUILD_COMMIT=$TRAVIS_COMMIT npm run rebuild:ci
+
+after_success:
+  - bash sonar-scanner.sh
 
 deploy:
   - provider: s3
