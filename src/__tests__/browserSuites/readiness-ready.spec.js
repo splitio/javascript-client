@@ -17,17 +17,17 @@ const baseConfig = {
   }
 };
 
-function assertGetTreatmentWhenReady(assert, client){
+function assertGetTreatmentWhenReady(assert, client) {
   assert.equal(client.getTreatment('hierarchical_splits_test'), 'on', 'We should get an evaluation if client is ready.');
 }
 
-function assertGetTreatmentControlNotReady(assert, client){
+function assertGetTreatmentControlNotReady(assert, client) {
   consoleSpy.log.resetHistory();
   assert.equal(client.getTreatment('hierarchical_splits_test'), 'control', 'We should get control if client is not ready.');
   assert.true(consoleSpy.log.calledWithExactly('[WARN]  getTreatment: the SDK is not ready, results may be incorrect. Make sure to wait for SDK readiness before using this method.'), 'Telling us that calling getTreatment would return CONTROL since SDK is not ready at this point.');
 }
 
-function assertGetTreatmentControlNotReadyOnDestroy(assert, client){
+function assertGetTreatmentControlNotReadyOnDestroy(assert, client) {
   consoleSpy.log.resetHistory();
   assert.equal(client.getTreatment('hierarchical_splits_test'), 'control', 'We should get control if client has been destroyed.');
   assert.true(consoleSpy.error.calledWithExactly('[ERROR] Client has already been destroyed - no calls possible.'), 'Telling us that client has been destroyed. Calling getTreatment would return CONTROL.');
@@ -79,7 +79,7 @@ export default function readyPromiseAssertions(mock, assert) {
         t.pass('### SDK TIMED OUT - Request tooks longer than we allowed per requestTimeoutBeforeReady, timed out.');
         assertGetTreatmentControlNotReady(t, client);
 
-        client.destroy().then(()=>{
+        client.destroy().then(() => {
           client.ready()
             .then(() => {
               t.fail('### SDK IS READY - It should not in this scenario.');
@@ -128,7 +128,7 @@ export default function readyPromiseAssertions(mock, assert) {
         t.pass('### SDK IS READY as it should, request is under the limits.');
         assertGetTreatmentWhenReady(t, client);
 
-        client.destroy().then(()=>{
+        client.destroy().then(() => {
           client.ready()
             .then(() => {
               t.pass('### SDK IS READY - the promise remains resolved after client destruction.');
@@ -186,7 +186,7 @@ export default function readyPromiseAssertions(mock, assert) {
         t.pass('### SDK TIMED OUT - Requests took longer than we allowed per requestTimeoutBeforeReady on both attempts, timed out.');
         assertGetTreatmentControlNotReady(t, client);
 
-        client.destroy().then(()=>{
+        client.destroy().then(() => {
           client.ready()
             .then(() => {
               t.fail('### SDK IS READY - It should not in this scenario.');
@@ -238,7 +238,7 @@ export default function readyPromiseAssertions(mock, assert) {
         t.pass('### SDK IS READY - the retry request is under the limits.');
         assertGetTreatmentWhenReady(t, client);
 
-        client.destroy().then(()=>{
+        client.destroy().then(() => {
           client.ready()
             .then(() => {
               t.pass('### SDK IS READY - the promise remains resolved after client destruction.');
@@ -302,7 +302,7 @@ export default function readyPromiseAssertions(mock, assert) {
               t.pass('### SDK IS READY - retry attempt finishes before the requestTimeoutBeforeReady limit');
               assertGetTreatmentWhenReady(t, client);
 
-              client.destroy().then(()=>{
+              client.destroy().then(() => {
                 client.ready()
                   .then(() => {
                     t.pass('### SDK IS READY - the promise remains resolved after client destruction.');
@@ -376,7 +376,7 @@ export default function readyPromiseAssertions(mock, assert) {
               t.pass('### SDK IS READY - the scheduled refresh changes the client state into "is ready"');
               assertGetTreatmentWhenReady(t, client);
 
-              client.destroy().then(()=>{
+              client.destroy().then(() => {
                 client.ready()
                   .then(() => {
                     t.pass('### SDK IS READY - the promise remains resolved after client destruction.');
@@ -437,7 +437,7 @@ export default function readyPromiseAssertions(mock, assert) {
       })
       .catch((error) => {
         t.equal(error,'error','### Handled thrown exception on onRejected callback.');
-        client.destroy().then(()=>{
+        client.destroy().then(() => {
           client.ready()
             .then(() => {
               t.fail('### SDK IS READY - It should not in this scenario.');
@@ -490,7 +490,7 @@ export default function readyPromiseAssertions(mock, assert) {
       })
       .catch((error) => {
         t.equal(error,'error','### Handled thrown exception on onRejected callback.');
-        client.destroy().then(()=>{
+        client.destroy().then(() => {
           client.ready()
             .then(() => {
               t.pass('### SDK IS READY - the promise remains resolved after client destruction.');
@@ -587,8 +587,8 @@ export default function readyPromiseAssertions(mock, assert) {
           t.fail('### SDK TIMED OUT - It should not in this scenario');
           return Promise.resolve();
         })
-        .then(()=>{
-          client.destroy().then(()=>{
+        .then(() => {
+          client.destroy().then(() => {
             client.ready()
               .then(() => {
                 t.pass('### SDK IS READY - the promise remains resolved after client destruction.');
@@ -640,13 +640,13 @@ export default function readyPromiseAssertions(mock, assert) {
 
     client.ready();
     
-    const onReadycallback = function(){};
+    const onReadycallback = function() {};
     client.ready();
     client.on(client.Event.SDK_READY, onReadycallback);
     client.off(client.Event.SDK_READY, onReadycallback);
 
     consoleSpy.log.resetHistory();
-    setTimeout(()=>{
+    setTimeout(() => {
       client.ready();
       
       assertGetTreatmentWhenReady(t, client);
@@ -661,7 +661,7 @@ export default function readyPromiseAssertions(mock, assert) {
       t.true(consoleSpy.error.calledWithExactly('[ERROR] A listener was added for SDK_READY_TIMED_OUT on the SDK, which has already fired and won\'t be emitted again. The callback won\'t be executed.'),
         'Logging error that a listeners for SDK_READY_TIMED_OUT event was added after triggered');
 
-      client.destroy().then(()=>{
+      client.destroy().then(() => {
         client.ready()
           .then(() => {
             t.pass('### SDK IS READY - the promise remains resolved after client destruction.');
