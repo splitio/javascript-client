@@ -221,7 +221,7 @@ tape('Readiness Callbacks handler - Ready promise', t => {
     // Get the callback
     const readyEventCB = gateMock.once.getCall(0).args[1];
 
-    readyEventCB(); // make the SDK "ready"
+    readyEventCB(); // make the SDK "ready", to assert that ready promise is resolved
 
     let testPassed = false;
     await ready.then(
@@ -240,18 +240,30 @@ tape('Readiness Callbacks handler - Ready promise', t => {
 
     // Get the callback
     const timedoutEventCB = gateMock.once.getCall(1).args[1];
+    const sdkReadyEventCB = gateMock.once.getCall(2).args[1];
 
     const readyForTimeout = statusInterfaceForTimedout.ready();
 
-    timedoutEventCB(); // make the SDK "timed out"
+    timedoutEventCB(); // make the SDK "timed out", to assert that ready promise is rejected
 
     await readyForTimeout.then(
       () => assert.fail('It should be a promise that was rejected on SDK_READY_TIMED_OUT, not resolved.'),
       () => {
         assert.pass('It should be a promise that will be rejected when the SDK is timed out.');
+      }
+    );
+
+    sdkReadyEventCB(); // make the SDK "ready" after "timed out", to assert that ready promise is now resolved
+
+    const readyForSdkReady = statusInterfaceForTimedout.ready();  
+
+    await readyForSdkReady.then(
+      () => {
+        assert.pass('It should be a promise that is inmediatelly resolved, since the SDK is ready.');
         resetStubs();
         assert.end();
-      }
+      },
+      () => assert.fail('It should be resolved on ready event, not rejected.')
     );
   });
 
