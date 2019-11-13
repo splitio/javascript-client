@@ -1,5 +1,5 @@
 10.9.2 (Nov XX, 2019)
- - The state of client.ready() promise updates to reflect the true state of the SDK: pending during SDK startup, rejected when SDK_READY_TIMED_OUT, and resolved when SDK_READY.
+ - Updated client.ready() function to be consumed on demand and return a promise reflecting the current status of the SDK at the time the method was invoked.
 
 10.9.1 (Nov 7, 2019)
  - Bugfixing - Avoid certain keys (containing one of three keywords) on the browser to generate a request to the wrong endpoint.

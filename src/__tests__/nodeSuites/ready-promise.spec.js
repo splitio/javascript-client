@@ -1,5 +1,9 @@
 import sinon from 'sinon';
 
+function fromSecondsToMillis(n) {
+  return Math.round(n * 1000);
+}
+
 const consoleSpy = {
   log: sinon.spy(console, 'log'),
 };
@@ -11,7 +15,8 @@ import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 const baseConfig = {
   core: {
     authorizationKey: '<fake-token-3>'
-  }
+  },
+  debug: 'WARN'
 };
 
 function assertGetTreatmentWhenReady(assert, client, key) {
@@ -30,114 +35,10 @@ function assertGetTreatmentControlNotReadyOnDestroy(assert, client, key) {
   assert.true(consoleSpy.log.calledWithExactly('[ERROR] Client has already been destroyed - no calls possible.'), 'Telling us that client has been destroyed. Calling getTreatment would return CONTROL.');
 }
 
+/* Validate readiness state transitions, warning and error messages when using ready promises. */
 export default function readyPromiseAssertions(key, mock, assert) {
 
-  /* Validate Readiness state transitions */
-
-  // Basic time out path: startup without retries on failure and response taking more than 'requestTimeoutBeforeReady'.
-  assert.test(t => {
-    const config = {
-      ...baseConfig,
-      urls: {
-        sdk: 'https://sdk.baseurl/readinessSuite1',
-        events: 'https://events.baseurl/readinessSuite1'
-      },
-      scheduler: {
-        featuresRefreshRate: 3000,
-        segmentsRefreshRate: 3000,
-      },
-      startup: {
-        readyTimeout: 2, // We use a short ready timeout to don't extend to much the test
-        requestTimeoutBeforeReady: 1,
-        retriesOnFailureBeforeReady: 0
-      },
-      debug: true
-    };
-    mock
-      .onGet(config.urls.sdk + '/splitChanges?since=-1').reply(function() {
-        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, config.startup.requestTimeoutBeforeReady*1000+100); });
-      }); // /splitChanges takes longer than 'requestTimeoutBeforeReady'
-
-    const splitio = SplitFactory(config);
-    const client = splitio.client();
-
-    // Assert getTreatment return CONTROL and trigger warning when SDK is not ready yet
-    assertGetTreatmentControlNotReady(t, client, key);
-    
-    client.ready()
-      .then(() => {
-        t.fail('### SDK IS READY - not TIMED OUT when it should.');
-        client.destroy().then(() => { t.end(); });
-      })
-      .catch(() => {
-        t.pass('### SDK TIMED OUT - Request tooks longer than we allowed per requestTimeoutBeforeReady, timed out.');
-        assertGetTreatmentControlNotReady(t, client, key);
-
-        client.destroy().then(() => {
-          client.ready()
-            .then(() => {
-              t.fail('### SDK IS READY - It should not in this scenario.');
-              t.end();
-            })
-            .catch(() => {
-              t.pass('### SDK TIME OUT - the promise remains rejected after client destruction.');
-              assertGetTreatmentControlNotReadyOnDestroy(t, client, key);
-              t.end();
-            });
-        });
-      });
-  }, 'Basic "time out" test. We have no retries and response takes longer than we allowed per requestTimeoutBeforeReady');
-
-  // Basic is ready path: startup without retries on failure and response taking less than 'requestTimeoutBeforeReady'.
-  assert.test(t => {
-    const config = {
-      ...baseConfig,
-      urls: {
-        sdk: 'https://sdk.baseurl/readinessSuite2',
-        events: 'https://events.baseurl/readinessSuite2'
-      },
-      scheduler: {
-        featuresRefreshRate: 3000,
-        segmentsRefreshRate: 3000,
-      },
-      startup: {
-        readyTimeout: 2,
-        requestTimeoutBeforeReady: 1,
-        retriesOnFailureBeforeReady: 0
-      }
-    };
-    mock
-      .onGet(config.urls.sdk + '/splitChanges?since=-1').reply(function() {
-        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, config.startup.requestTimeoutBeforeReady*1000-100); });
-      }); // /splitChanges takes less than 'requestTimeoutBeforeReady'
-
-    const splitio = SplitFactory(config);
-    const client = splitio.client();
-
-    client.ready()
-      .then(() => {
-        t.pass('### SDK IS READY as it should, request is under the limits.');
-        assertGetTreatmentWhenReady(t, client, key);
-
-        client.destroy().then(() => {
-          client.ready()
-            .then(() => {
-              t.pass('### SDK IS READY - the promise remains resolved after client destruction.');
-              assertGetTreatmentControlNotReadyOnDestroy(t, client, key);
-              t.end();
-            })
-            .catch(() => {
-              t.fail('### SDK TIMED OUT - It should not in this scenario.');
-              t.end();
-            });
-        });
-      })
-      .catch(() => {
-        t.fail('### SDK TIMED OUT - It should not in this scenario');
-      });
-  }, 'Basic "is ready" test. Responses are below than allowed per requestTimeoutBeforeReady');
-
-  // Timeout with retry attempt. Timeout is triggered even when it is longer than the request time, since the first and retry requests take more than the limit.
+  // Timeout with retry attempt. Timeout is triggered even when it is longer than the request time, since the first and retry requests take more than the 'requestTimeoutBeforeReady' limit.
   assert.test(t => {
     const config = {
       ...baseConfig,
@@ -145,22 +46,18 @@ export default function readyPromiseAssertions(key, mock, assert) {
         sdk: 'https://sdk.baseurl/readinessSuite3',
         events: 'https://events.baseurl/readinessSuite3'
       },
-      scheduler: {
-        featuresRefreshRate: 3000,
-        segmentsRefreshRate: 3000,
-      },
       startup: {
-        readyTimeout: 3,
-        requestTimeoutBeforeReady: 1,
+        readyTimeout: 0.15,
+        requestTimeoutBeforeReady: 0.05,
         retriesOnFailureBeforeReady: 1
       }
     };
     mock
       .onGet(config.urls.sdk + '/splitChanges?since=-1').replyOnce(function() {
-        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, config.startup.requestTimeoutBeforeReady*1000+100); });
+        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20); });
       })
       .onGet(config.urls.sdk + '/splitChanges?since=-1').replyOnce(function() {
-        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, config.startup.requestTimeoutBeforeReady*1000+100); });
+        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20); });
       });
 
     const splitio = SplitFactory(config);
@@ -189,7 +86,7 @@ export default function readyPromiseAssertions(key, mock, assert) {
       });
   }, 'Timeout with a retry attempt');
 
-  // Ready with retry attempt. The retry attempt is below the limit.
+  // Ready with retry attempt. The retry attempt is below the 'requestTimeoutBeforeReady' limit.
   assert.test(t => {
     const config = {
       ...baseConfig,
@@ -197,28 +94,26 @@ export default function readyPromiseAssertions(key, mock, assert) {
         sdk: 'https://sdk.baseurl/readinessSuite4',
         events: 'https://events.baseurl/readinessSuite4'
       },
-      scheduler: {
-        featuresRefreshRate: 3000,
-        segmentsRefreshRate: 3000,
-      },
       startup: {
-        readyTimeout: 3,
-        requestTimeoutBeforeReady: 1,
+        readyTimeout: 0.15,
+        requestTimeoutBeforeReady: 0.05,
         retriesOnFailureBeforeReady: 1
       }
     };
     mock
       .onGet(config.urls.sdk + '/splitChanges?since=-1').replyOnce(function() {
-        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, config.startup.requestTimeoutBeforeReady*1000+100); });
+        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20); });
       })
       .onGet(config.urls.sdk + '/splitChanges?since=-1').replyOnce(function() {
-        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, config.startup.requestTimeoutBeforeReady*1000-100); });
+        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20); });
       });
 
     const splitio = SplitFactory(config);
     const client = splitio.client();
+    // In this case, we use the manager instead of the client to get the ready promise
+    const manager = splitio.manager();
 
-    client.ready()
+    manager.ready()
       .then(() => {
         t.pass('### SDK IS READY - the retry request is under the limits.');
         assertGetTreatmentWhenReady(t, client, key);
@@ -241,7 +136,7 @@ export default function readyPromiseAssertions(key, mock, assert) {
       });
   }, 'Ready with retry attempt. The retry attempt is below the limit.');
 
-  // Time out and then ready after retry attempt. Time out is triggered, but the retry attempt is below the limit.
+  // Time out and then ready after retry attempt. Time out is triggered, but the retry attempt is below the 'requestTimeoutBeforeReady' limit.
   assert.test(t => {
     const config = {
       ...baseConfig,
@@ -249,22 +144,18 @@ export default function readyPromiseAssertions(key, mock, assert) {
         sdk: 'https://sdk.baseurl/readinessSuite5',
         events: 'https://events.baseurl/readinessSuite5'
       },
-      scheduler: {
-        featuresRefreshRate: 3000,
-        segmentsRefreshRate: 3000,
-      },
       startup: {
-        readyTimeout: 3,
-        requestTimeoutBeforeReady: 2,
+        readyTimeout: 0.15,
+        requestTimeoutBeforeReady: 0.1,
         retriesOnFailureBeforeReady: 1
       }
     };
     mock
       .onGet(config.urls.sdk + '/splitChanges?since=-1').replyOnce(function() {
-        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, config.startup.requestTimeoutBeforeReady*1000+100); });
+        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20); });
       })
       .onGet(config.urls.sdk + '/splitChanges?since=-1').replyOnce(function() {
-        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, config.startup.requestTimeoutBeforeReady*1000-100); });
+        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20); });
       });
 
     const splitio = SplitFactory(config);
@@ -299,7 +190,7 @@ export default function readyPromiseAssertions(key, mock, assert) {
             },() => {
               t.fail('### SDK TIMED OUT - It should not in this scenario');
             });
-        }, 1000);
+        }, fromSecondsToMillis(0.1) );
       });
   }, 'Time out and then ready after retry attempt');
 
@@ -312,27 +203,29 @@ export default function readyPromiseAssertions(key, mock, assert) {
         events: 'https://events.baseurl/readinessSuite6'
       },
       scheduler: {
-        featuresRefreshRate: 5,
-        segmentsRefreshRate: 5,
+        featuresRefreshRate: 0.25,
+        segmentsRefreshRate: 0.25,
       },
       startup: {
-        readyTimeout: 4,
-        requestTimeoutBeforeReady: 2,
+        readyTimeout: 0.2,
+        requestTimeoutBeforeReady: 0.1,
         retriesOnFailureBeforeReady: 1
       }
     };
 
     // time of the 3rd request (in milliseconds)
-    const refreshTimeMillis = 1900;
+    const refreshTimeMillis = 50;
     // time difference between TIME OUT and IS READY events (in milliseconds)
-    const diffTimeoutAndIsReady = ((config.startup.requestTimeoutBeforeReady*(config.startup.retriesOnFailureBeforeReady+1)+config.scheduler.featuresRefreshRate)-config.startup.readyTimeout)*1000+refreshTimeMillis;
+    const diffTimeoutAndIsReady = fromSecondsToMillis(
+      (config.startup.requestTimeoutBeforeReady * (config.startup.retriesOnFailureBeforeReady + 1) +
+      config.scheduler.featuresRefreshRate) - config.startup.readyTimeout) + refreshTimeMillis;
 
     mock
       .onGet(config.urls.sdk + '/splitChanges?since=-1').replyOnce(function() {
-        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, config.startup.requestTimeoutBeforeReady*1000+100); });
+        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20); });
       })
       .onGet(config.urls.sdk + '/splitChanges?since=-1').replyOnce(function() {
-        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, config.startup.requestTimeoutBeforeReady*1000+100); });
+        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20); });
       })
       .onGet(config.urls.sdk + '/splitChanges?since=-1').replyOnce(function() {
         return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, refreshTimeMillis); });
@@ -370,13 +263,11 @@ export default function readyPromiseAssertions(key, mock, assert) {
             },() => {
               t.fail('### SDK TIMED OUT - It should not in this scenario');
             });
-        }, diffTimeoutAndIsReady + 100 );
+        }, diffTimeoutAndIsReady + 20 );
       });
   }, 'Time out and then ready after scheduled refresh');
 
-  /* Validate fallback to 'catch' callback when exception is thrown on 'then' callbacks */
-
-  // Basic "time out" test with exception on onRejected callback.
+  // Validate fallback to 'catch' callback when exception is thrown on 'then' onRejected callback.
   assert.test(t => {
     const config = {
       ...baseConfig,
@@ -384,19 +275,15 @@ export default function readyPromiseAssertions(key, mock, assert) {
         sdk: 'https://sdk.baseurl/readinessSuite7',
         events: 'https://events.baseurl/readinessSuite7'
       },
-      scheduler: {
-        featuresRefreshRate: 3000,
-        segmentsRefreshRate: 3000,
-      },
       startup: {
-        readyTimeout: 2, // We use a short ready timeout to don't extend to much the test
-        requestTimeoutBeforeReady: 1,
+        readyTimeout: 0.1,
+        requestTimeoutBeforeReady: 0.05,
         retriesOnFailureBeforeReady: 0
       }
     };
     mock
       .onGet(config.urls.sdk + '/splitChanges?since=-1').reply(function() {
-        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, config.startup.requestTimeoutBeforeReady*1000+100); });
+        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20); });
       }); // /splitChanges takes longer than 'requestTimeoutBeforeReady'
 
     const splitio = SplitFactory(config);
@@ -428,7 +315,7 @@ export default function readyPromiseAssertions(key, mock, assert) {
       });
   }, 'Basic "time out" test with exception on onRejected callback.');
 
-  // Basic "is ready" test with exception on onResolved callback.
+  // Validate fallback to 'catch' callback when exception is thrown on 'then' onResolved callback.
   assert.test(t => {
     const config = {
       ...baseConfig,
@@ -436,19 +323,15 @@ export default function readyPromiseAssertions(key, mock, assert) {
         sdk: 'https://sdk.baseurl/readinessSuite8',
         events: 'https://events.baseurl/readinessSuite8'
       },
-      scheduler: {
-        featuresRefreshRate: 3000,
-        segmentsRefreshRate: 3000,
-      },
       startup: {
-        readyTimeout: 2,
-        requestTimeoutBeforeReady: 1,
+        readyTimeout: 0.1,
+        requestTimeoutBeforeReady: 0.05,
         retriesOnFailureBeforeReady: 0
       }
     };
     mock
       .onGet(config.urls.sdk + '/splitChanges?since=-1').reply(function() {
-        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, config.startup.requestTimeoutBeforeReady*1000-100); });
+        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20); });
       }); // /splitChanges takes less than 'requestTimeoutBeforeReady'
 
     const splitio = SplitFactory(config);
@@ -459,7 +342,6 @@ export default function readyPromiseAssertions(key, mock, assert) {
         t.pass('### SDK IS READY as it should, request is under the limits.');
         assertGetTreatmentWhenReady(t, client, key);
         throw 'error';
-
       })
       .catch((error) => {
         t.equal(error,'error','### Handled thrown exception on onRejected callback.');
@@ -478,8 +360,7 @@ export default function readyPromiseAssertions(key, mock, assert) {
       });
   }, 'Basic "is ready" test with exception on onResolved callback');
 
-  /* Validate that multiple promises are resolved/rejected on expected times. */
-
+  // Validate that multiple promises are resolved/rejected on expected times.
   assert.test(t => {
     const config = {
       ...baseConfig,
@@ -487,29 +368,26 @@ export default function readyPromiseAssertions(key, mock, assert) {
         sdk: 'https://sdk.baseurl/readinessSuite9',
         events: 'https://events.baseurl/readinessSuite9'
       },
-      scheduler: {
-        featuresRefreshRate: 3000,
-        segmentsRefreshRate: 3000,
-      },
       startup: {
-        readyTimeout: 3,
-        requestTimeoutBeforeReady: 2,
+        readyTimeout: 0.15,
+        requestTimeoutBeforeReady: 0.1,
         retriesOnFailureBeforeReady: 1
-      },
-      debug: true,
+      }
     };
     mock
       .onGet(config.urls.sdk + '/splitChanges?since=-1').replyOnce(function() {
-        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, config.startup.requestTimeoutBeforeReady*1000+100); });
+        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20); });
       })
       .onGet(config.urls.sdk + '/splitChanges?since=-1').replyOnce(function() {
-        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, config.startup.requestTimeoutBeforeReady*1000-100); });
+        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20); });
       });
 
     const splitio = SplitFactory(config);
     const client = splitio.client();
+    // We also use the manager to get some of the promises
+    const manager = splitio.manager();
 
-    // promise1 is handled inmediately. Thus, the 'reject' callback is expected to be called in 3 seconds aprox.
+    // promise1 is handled inmediately. Thus, the 'reject' callback is expected to be called in 0.15 seconds aprox.
     setTimeout(() => {
       const promise1 = client.ready();
       const tStart = Date.now();
@@ -521,13 +399,13 @@ export default function readyPromiseAssertions(key, mock, assert) {
           t.pass('### SDK TIMED OUT - time out is triggered before retry attempt finishes');
           assertGetTreatmentControlNotReady(t, client, key);
           const tDelta = Date.now() - tStart;
-          assert.ok( tDelta < config.startup.readyTimeout * 1000 + 20 && tDelta > config.startup.readyTimeout * 1000 - 20, 'The "reject" callback is expected to be called in 3 seconds aprox');
+          assert.ok( tDelta < fromSecondsToMillis(config.startup.readyTimeout) + 20 && tDelta > fromSecondsToMillis(config.startup.readyTimeout) - 20, 'The "reject" callback is expected to be called in 0.15 seconds aprox');
         });
     }, 0);
 
-    // promise2 is handled in 3 seconds, when the promise is just rejected. Thus, the 'reject' callback is expected to be called inmediately (0 seconds aprox).
+    // promise2 is handled in 0.15 seconds, when the promise is just rejected. Thus, the 'reject' callback is expected to be called inmediately (0 seconds aprox).
     setTimeout(() => {
-      const promise2 = client.ready();
+      const promise2 = manager.ready();
       const tStart = Date.now();
       promise2
         .then(() => {
@@ -535,15 +413,15 @@ export default function readyPromiseAssertions(key, mock, assert) {
         })
         .catch(() => {
           t.pass('### SDK TIMED OUT - time out is triggered before retry attempt finishes');
-          //assertGetTreatmentControlNotReady(t, client, key);
+          assertGetTreatmentControlNotReady(t, client, key);
           const tDelta = Date.now() - tStart;
           assert.ok( tDelta < 20, 'The "reject" callback is expected to be called inmediately (0 seconds aprox).');
         });
-    }, 3000);
+    }, fromSecondsToMillis(0.15) );
 
-    // promise3 is handled in 4 seconds, when the promise is just resolved. Thus, the 'resolve' callback is expected to be called inmediately (0 seconds aprox).
+    // promise3 is handled in 0.2 seconds, when the promise is just resolved. Thus, the 'resolve' callback is expected to be called inmediately (0 seconds aprox).
     setTimeout(() => {
-      const promise3 = client.ready();
+      const promise3 = manager.ready();
       const tStart = Date.now();
       promise3
         .then(() => {
@@ -571,11 +449,10 @@ export default function readyPromiseAssertions(key, mock, assert) {
               });
           });
         });
-    }, 4000 );
+    }, fromSecondsToMillis(0.2) );
   }, 'Evaluate that multiple promises are resolved/rejected on expected times.');
 
-  /* Validate that warning messages are properly sent */
-
+  // Validate that warning messages are properly sent.
   assert.test(t => {
     const config = {
       ...baseConfig,
@@ -583,34 +460,34 @@ export default function readyPromiseAssertions(key, mock, assert) {
         sdk: 'https://sdk.baseurl/readinessSuite10',
         events: 'https://events.baseurl/readinessSuite10'
       },
-      scheduler: {
-        featuresRefreshRate: 3000,
-        segmentsRefreshRate: 3000,
-      },
       startup: {
-        readyTimeout: 3,
-        requestTimeoutBeforeReady: 2,
+        readyTimeout: 0.15,
+        requestTimeoutBeforeReady: 0.1,
         retriesOnFailureBeforeReady: 1
-      },
-      debug: true,
+      }
     };
     mock
       .onGet(config.urls.sdk + '/splitChanges?since=-1').replyOnce(function() {
-        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, config.startup.requestTimeoutBeforeReady*1000+100); });
+        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20); });
       })
       .onGet(config.urls.sdk + '/splitChanges?since=-1').replyOnce(function() {
-        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, config.startup.requestTimeoutBeforeReady*1000-100); });
+        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20); });
       });
 
     const splitio = SplitFactory(config);
-    const client = splitio.client();
-
-    client.ready();
     
     const onReadycallback = function() {};
+
+    // We invoke the ready method and also add and remove SDK_READY event listeners using the client and manager instances
+    const client = splitio.client();
     client.ready();
     client.on(client.Event.SDK_READY, onReadycallback);
     client.off(client.Event.SDK_READY, onReadycallback);
+
+    const manager = splitio.manager();
+    manager.ready();
+    manager.on(manager.Event.SDK_READY, onReadycallback);
+    manager.off(manager.Event.SDK_READY, onReadycallback);
 
     consoleSpy.log.resetHistory();
     setTimeout(() => {
@@ -640,11 +517,13 @@ export default function readyPromiseAssertions(key, mock, assert) {
             t.end();
           });
       });  
-    }, 4500);
+    }, fromSecondsToMillis(0.2) );
 
   }, 'Validate that warning messages are properly sent');
 
   // Other possible tests:
-  //  * Ready with retry attempts and refresh
-  //  * Ready after timeout with retry attempts and refresh
+  //  * Basic time out path: startup without retries on failure and response taking more than 'requestTimeoutBeforeReady'. 
+  //  * Basic is ready path: startup without retries on failure and response taking less than 'requestTimeoutBeforeReady'.
+  //  * Ready with retry attempts and refresh.
+  //  * Ready after timeout with retry attempts and refresh.
 }

@@ -5,7 +5,7 @@ import impressionsSuite from './browserSuites/impressions.spec';
 import metricsSuite from './browserSuites/metrics.spec';
 import impressionsListenerSuite from './browserSuites/impressions-listener.spec';
 import readinessSuite from './browserSuites/readiness.spec';
-import readinessReadySuite from './browserSuites/readiness-ready.spec';
+import readyPromiseSuite from './browserSuites/ready-promise.spec';
 import {
   withoutBindingTT,
   bindingTT
@@ -110,7 +110,7 @@ tape('## E2E CI Tests ##', function(assert) {
   /* Validate readiness */
   assert.test('E2E / Readiness', readinessSuite.bind(null, mock));
   /* Validate readiness with ready promises */
-  assert.test('E2E / Readiness ready', readinessReadySuite.bind(null, mock));
+  assert.test('E2E / Ready promise', readyPromiseSuite.bind(null, mock));
   /* Validate headers for ip and hostname are not sended with requests (ignore setting IPAddressesEnabled) */
   assert.test('E2E / Ignore setting IPAddressesEnabled', ignoreIpAddressesSettingSuite.bind(null, mock));
   /* Check that impressions and events are sended to backend via Beacon API or XHR when page unload is triggered. */
