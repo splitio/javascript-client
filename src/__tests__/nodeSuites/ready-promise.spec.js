@@ -521,6 +521,40 @@ export default function readyPromiseAssertions(key, mock, assert) {
 
   }, 'Validate that warning messages are properly sent');
 
+
+  // Time out event is not handled. Ready promise should not be resolved.
+  assert.test(t => {
+    const config = {
+      ...baseConfig,
+      urls: {
+        sdk: 'https://sdk.baseurl/readinessSuite11',
+        events: 'https://events.baseurl/readinessSuite11'
+      },
+      startup: {
+        readyTimeout: 0.1, // We use a short ready timeout to don't extend to much the test
+        requestTimeoutBeforeReady: 0.05,
+        retriesOnFailureBeforeReady: 0
+      }
+    };
+    mock
+      .onGet(config.urls.sdk + '/splitChanges?since=-1').reply(function() {
+        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20); });
+      }); // /splitChanges takes longer than 'requestTimeoutBeforeReady'
+
+    const splitio = SplitFactory(config);
+    const client = splitio.client();
+
+    // Assert getTreatment return CONTROL and trigger warning when SDK is not ready yet
+    assertGetTreatmentControlNotReady(t, client, key);
+  
+    client.ready()
+      .then(() => {
+        t.fail('### SDK IS READY - not TIMED OUT when it should.');
+        client.destroy().then(() => { t.end(); });
+      });
+    
+  }, 'Time out event is not handled. Ready promise should not be resolved');
+
   // Other possible tests:
   //  * Basic time out path: startup without retries on failure and response taking more than 'requestTimeoutBeforeReady'. 
   //  * Basic is ready path: startup without retries on failure and response taking less than 'requestTimeoutBeforeReady'.
