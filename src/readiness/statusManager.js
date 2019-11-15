@@ -8,6 +8,7 @@ export default function callbackHandlerContext(context, forSharedClient = false)
   const gate = context.get(context.constants.READINESS).gate;
   let readyCbCount = 0;
   let isReady = false;
+
   const {
     SDK_READY,
     SDK_UPDATE,
@@ -35,8 +36,6 @@ export default function callbackHandlerContext(context, forSharedClient = false)
 
     context.put(context.constants.READY, true);
 
-    isReady = true;
-
     // Once the state is ready, the readyPromise is a resolved promise
     readyPromise = Promise.resolve();
   });
@@ -44,7 +43,7 @@ export default function callbackHandlerContext(context, forSharedClient = false)
   function generateReadyPromise() {
     let hasCatch = false;
     const promise = new Promise((resolve, reject) => {
-      gate.once(SDK_READY, resolve);
+      gate.once(SDK_READY, () => { isReady = true; resolve(); });
       gate.once(SDK_READY_TIMED_OUT, reject);
     }).catch(function(err) {
       // If the promise has a custom error handler, just propagate
@@ -56,15 +55,17 @@ export default function callbackHandlerContext(context, forSharedClient = false)
 
     // Using .catch(fn) is the same than using .then(null, fn)
     promise.then = function () {
-      if (arguments.length > 0 && typeof arguments[0] === 'function')
+      if (arguments.length > 0 && typeof arguments[0] === 'function') {
+        const succCb = arguments[0];
         readyCbCount++;
+        arguments[0] = function() {
+          if (isReady) succCb();
+        };
+      }
       if (arguments.length > 1 && typeof arguments[1] === 'function')
         hasCatch = true;
 
-      // workaround to allow a proper promises chaining.
-      const promiseToReturn = originalThen.apply(this, arguments);
-      promiseToReturn.then = promise.then;
-      return promiseToReturn;
+      return originalThen.apply(this, arguments);
     };
 
     return promise;
