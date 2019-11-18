@@ -28,7 +28,7 @@ class ImpressionsCacheInRedis {
     ).then(queuedCount => {
       // If this is the creation of the key on Redis, set the expiration for it in 1hr.
       if (queuedCount === 1) {
-        this.redis.expire(this.keys.buildImpressionsKey(), 3600);
+        return this.redis.expire(this.keys.buildImpressionsKey(), 3600);
       }
     });
   }
