@@ -10,7 +10,7 @@ You may obtain a copy of the License at
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the spe cific language governing permissions and
+See the License for the specific language governing permissions and
 limitations under the License.
 **/
 import Redis from '../../../RedisAdapter';
@@ -118,7 +118,6 @@ tape('IMPRESSIONS CACHE IN REDIS / should not resolve track before calling expir
   
   c.track([i1, i2]).then(() => {
     redis.quit(); // Try to disconnect right away.
-    console.log('####### CALLBACK');
     assert.ok(spy1.called, 'Redis rpush was called once before executing external callback.');
     // Following assertion fails if the expire takes place after disconnected and throws unhandledPromiseRejection
     assert.ok(spy2.called, 'Redis expire was called once before executing external callback.');
