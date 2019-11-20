@@ -65,7 +65,7 @@ function GateContext() {
     const segments = new EventEmitter();
     segments.SDK_SEGMENTS_ARRIVED = Events.SDK_SEGMENTS_ARRIVED;
 
-    const gate = ReadinessGateFactory(splits, segments, timeout);
+    const gate = ReadinessGateFactory(splits, segments);
 
     if (timeout > 0) {
       // Add the timeout.

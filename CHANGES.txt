@@ -1,5 +1,6 @@
 10.9.2 (Nov 20, 2019)
  - Bugfixing - When using Redis, return expire result to avoid race condition with redis disconnection due to a client destroy.
+ - Sonar - Removed extra parameter from function invocation to remove the only bug highlighted by Sonar.
 
 10.9.1 (Nov 7, 2019)
  - Bugfixing - Avoid certain keys (containing one of three keywords) on the browser to generate a request to the wrong endpoint.
