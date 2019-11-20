@@ -1,4 +1,4 @@
-10.9.2 (Nov 19, 2019)
+10.9.2 (Nov 20, 2019)
  - Bugfixing - When using Redis, return expire result to avoid race condition with redis disconnection due to a client destroy.
 
 10.9.1 (Nov 7, 2019)
