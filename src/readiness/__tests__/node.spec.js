@@ -23,6 +23,7 @@ tape('Readiness Callbacks handler - Event emitter and returned handler', t => {
     on: sinon.stub(),
     once: sinon.stub(),
     SDK_READY: 'sdk_ready_event',
+    SDK_READY_FROM_CACHE: 'sdk_ready_from_cache_event',
     SDK_READY_TIMED_OUT: 'sdk_ready_timeout_event',
     SDK_UPDATE: 'sdk_update',
   };
@@ -55,6 +56,7 @@ tape('Readiness Callbacks handler - Event emitter and returned handler', t => {
 
     assert.equal(typeof statusInterface.Event, 'object', 'It also exposes the Event map,');
     assert.equal(statusInterface.Event.SDK_READY, gateMock.SDK_READY, 'which contains the constants for the events, for backwards compatibility.');
+    assert.equal(statusInterface.Event.SDK_READY_FROM_CACHE, gateMock.SDK_READY_FROM_CACHE, 'which contains the constants for the events, for backwards compatibility.');
     assert.equal(statusInterface.Event.SDK_READY_TIMED_OUT, gateMock.SDK_READY_TIMED_OUT, 'which contains the constants for the events, for backwards compatibility.');
     assert.equal(statusInterface.Event.SDK_UPDATE, gateMock.SDK_UPDATE, 'which contains the constants for the events, for backwards compatibility.');
 
