@@ -5,6 +5,7 @@ import impressionsSuite from './browserSuites/impressions.spec';
 import metricsSuite from './browserSuites/metrics.spec';
 import impressionsListenerSuite from './browserSuites/impressions-listener.spec';
 import readinessSuite from './browserSuites/readiness.spec';
+import readyFromCache from './browserSuites/ready-from-cache.spec';
 import {
   withoutBindingTT,
   bindingTT
@@ -112,6 +113,8 @@ tape('## E2E CI Tests ##', function(assert) {
   assert.test('E2E / Ignore setting IPAddressesEnabled', ignoreIpAddressesSettingSuite.bind(null, mock));
   /* Check that impressions and events are sended to backend via Beacon API or XHR when page unload is triggered. */
   assert.test('E2E / Use Beacon API (or XHR if not available) to send remaining impressions and events when browser page is unload', useBeaconApiSuite.bind(null, mock));
+  /* Validate ready from cache behaviour (might be merged into another suite if we end up having simple behavior around it as expected) */
+  assert.test('E2E / Readiness from cache', readyFromCache.bind(null, mock));
 
   //If we change the mocks, we need to clear localstorage. Cleaning up after testing ensures "fresh data".
   localStorage.clear();
