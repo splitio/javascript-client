@@ -24,6 +24,12 @@ export default function callbackHandlerContext(context, forSharedClient = false)
     isReady = true;
   });
 
+  gate.once(SDK_READY_FROM_CACHE, () => {
+    log.info('Split SDK is ready from cache.');
+
+    context.put(context.constants.READY_FROM_CACHE, true);
+  });
+
   gate.on(REMOVE_LISTENER_EVENT, event => {
     if (event === SDK_READY) readyCbCount--;
   });
