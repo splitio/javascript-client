@@ -208,6 +208,14 @@ class SplitCacheLocalStorage {
     });
     return splits;
   }
+
+  /**
+   * Check if the splits information is already stored in cache.
+   * In this function we could add more code to check if the data is valid.
+   */
+  checkCache() {
+    return this.getChangeNumber() > -1;
+  }
 }
 
 export default SplitCacheLocalStorage;
