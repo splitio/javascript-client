@@ -35,7 +35,7 @@
     "@babel/runtime-corejs3": "^7.6.3",
     "@types/node": "^12.11.7",
     "axios": "0.19.1",
-    "core-js": "3.3.3",
+    "core-js": "3.6.1",
     "ip": "1.1.5",
     "js-yaml": "3.13.1",
     "utfx": "1.0.1"
