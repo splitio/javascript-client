@@ -70,6 +70,31 @@ tape('READINESS GATE / Ready event should be fired once', function (assert) {
   assert.end();
 });
 
+tape('READINESS GATE / Ready event should be fired once', function (assert) {
+  const ReadinessGateFactory = ReadinessGate();
+  const readinessGate = ReadinessGateFactory();
+  let counter = 0;
+
+  readinessGate.gate.on(readinessGate.gate.SDK_READY_FROM_CACHE, () => {
+    counter++;
+  });
+
+  readinessGate.splits.emit(readinessGate.splits.SDK_SPLITS_CACHE_LOADED);
+  readinessGate.splits.emit(readinessGate.splits.SDK_SPLITS_CACHE_LOADED);
+  setTimeout(() => {
+    readinessGate.splits.emit(readinessGate.splits.SDK_SPLITS_CACHE_LOADED);
+  }, 0);
+  readinessGate.splits.emit(readinessGate.splits.SDK_SPLITS_CACHE_LOADED);
+  readinessGate.splits.emit(readinessGate.splits.SDK_SPLITS_CACHE_LOADED);
+  readinessGate.splits.emit(readinessGate.splits.SDK_SPLITS_CACHE_LOADED);
+  readinessGate.splits.emit(readinessGate.splits.SDK_SPLITS_CACHE_LOADED);
+
+  setTimeout(() => {
+    assert.equal(counter, 1, 'should be called only once');
+    assert.end();
+  }, 20);
+});
+
 tape('READINESS GATE / Update event should be fired after the Ready event', function (assert) {
   const ReadinessGateFactory = ReadinessGate();
   const readinessGate = ReadinessGateFactory();

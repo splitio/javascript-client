@@ -130,6 +130,13 @@ class SplitCacheInMemory {
     });
     return splits;
   }
+
+  /**
+   * Check if the splits information is already stored in cache. In memory there is no cache to check.
+   */
+  checkCache() {
+    return false;
+  }
 }
 
 export default SplitCacheInMemory;
