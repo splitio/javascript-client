@@ -30,9 +30,16 @@ tape('SPLIT CACHE / LocalStorage', assert => {
   assert.ok( cache.getSplit('lol1') == null );
   assert.ok( cache.getSplit('lol2') === 'something else' );
 
+  assert.false( cache.checkCache(), 'checkCache should return false until localstorage has data.' );
+
   assert.ok( cache.getChangeNumber() === -1 );
 
+  assert.false( cache.checkCache(), 'checkCache should return false until localstorage has data.' );
+
   cache.setChangeNumber(123);
+
+  assert.true( cache.checkCache(), 'checkCache should return true once localstorage has data.' );
+
   assert.ok( cache.getChangeNumber() === 123 );
 
   assert.end();
