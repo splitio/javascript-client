@@ -5,7 +5,7 @@ const proxyquireStrict = proxyquire.noCallThru();
 
 const contextMock = {
   get: sinon.stub(),
-  constants: { DESTROYED: 'is_destroyed', READY: 'is_ready' }
+  constants: { DESTROYED: 'is_destroyed', READY: 'is_ready', READY_FROM_CACHE: 'is_ready_from_cache' }
 };
 const loggerMock = {
   warn: sinon.stub(),
@@ -20,7 +20,7 @@ const { validateIfDestroyed, validateIfReady } = proxyquireStrict('../../inputVa
 
 /* We'll reset the history for the next test */
 function resetStubs() {
-  contextMock.get.resetHistory();
+  contextMock.get.reset();
   loggerMock.warn.resetHistory();
   loggerMock.error.resetHistory();
 }
@@ -51,7 +51,8 @@ tape('INPUT VALIDATION for the state of the client/factory', t => {
   });
 
   t.test('validateIfReady - Should return true and log nothing if the SDK was ready.', assert => {
-    contextMock.get.returns(true);
+    contextMock.get.withArgs(contextMock.constants.READY).returns(true);
+    contextMock.get.withArgs(contextMock.constants.READY_FROM_CACHE).returns(false);
 
     assert.true(validateIfReady(contextMock, 'test_method'), 'It should return true if SDK was ready.');
     assert.true(contextMock.get.calledOnceWithExactly(contextMock.constants.READY, true), 'It checks for readiness status using the context.');
@@ -62,11 +63,27 @@ tape('INPUT VALIDATION for the state of the client/factory', t => {
     assert.end();
   });
 
-  t.test('validateIfReady - Should return false and log a warning if the SDK was ready.', assert => {
+  t.test('validateIfReady - Should return true and log nothing if the SDK was ready from cache.', assert => {
+    contextMock.get.withArgs(contextMock.constants.READY).returns(false);
+    contextMock.get.withArgs(contextMock.constants.READY_FROM_CACHE).returns(true);
+
+    assert.true(validateIfReady(contextMock, 'test_method'), 'It should return true if SDK was ready.');
+    assert.true(contextMock.get.calledTwice, 'It checks for readiness status using the context.');
+    assert.true(contextMock.get.calledWithExactly(contextMock.constants.READY, true), 'It checks for SDK_READY status.');
+    assert.true(contextMock.get.calledWithExactly(contextMock.constants.READY_FROM_CACHE, true), 'It checks for SDK_READY_FROM_CACHE status.');    assert.notOk(loggerMock.warn.called, 'But it should not log any warnings.');
+    assert.notOk(loggerMock.error.called, 'But it should not log any errors.');
+
+    resetStubs();
+    assert.end();
+  });
+
+  t.test('validateIfReady - Should return false and log a warning if the SDK was not ready.', assert => {
     contextMock.get.returns(false);
 
     assert.false(validateIfReady(contextMock, 'test_method'), 'It should return true if SDK was ready.');
-    assert.true(contextMock.get.calledOnceWithExactly(contextMock.constants.READY, true), 'It checks for readiness status using the context.');
+    assert.true(contextMock.get.calledTwice, 'It checks for readiness status using the context.');
+    assert.true(contextMock.get.calledWithExactly(contextMock.constants.READY, true), 'It checks for SDK_READY status.');
+    assert.true(contextMock.get.calledWithExactly(contextMock.constants.READY_FROM_CACHE, true), 'It checks for SDK_READY_FROM_CACHE status.');
     assert.ok(loggerMock.warn.calledOnceWithExactly('test_method: the SDK is not ready, results may be incorrect. Make sure to wait for SDK readiness before using this method.'), 'It should log the expected warning.');
     assert.notOk(loggerMock.error.called, 'But it should not log any errors.');
 
