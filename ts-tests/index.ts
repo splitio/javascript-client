@@ -216,6 +216,7 @@ AsyncSDK.Logger.disable();
 // Events constants we get
 const eventConsts: {[key: string]: SplitIO.Event} = client.Event;
 splitEvent = client.Event.SDK_READY;
+splitEvent = client.Event.SDK_READY_FROM_CACHE;
 splitEvent = client.Event.SDK_READY_TIMED_OUT;
 splitEvent = client.Event.SDK_UPDATE;
 
@@ -276,6 +277,7 @@ tracked = client.track('myEventType', undefined, { prop1: 1, prop2: '2', prop3: 
 // Events constants we get (same as for sync client, just for interface checking)
 const eventConstsAsymc: {[key: string]: SplitIO.Event} = client.Event;
 splitEvent = client.Event.SDK_READY;
+splitEvent = client.Event.SDK_READY_FROM_CACHE;
 splitEvent = client.Event.SDK_READY_TIMED_OUT;
 splitEvent = client.Event.SDK_UPDATE;
 
@@ -336,6 +338,7 @@ const bb: number = manager.listenerCount(splitEvent);
 // manager exposes Event constants too
 const managerEventConsts: {[key: string]: SplitIO.Event} = manager.Event;
 splitEvent = manager.Event.SDK_READY;
+splitEvent = manager.Event.SDK_READY_FROM_CACHE;
 splitEvent = manager.Event.SDK_READY_TIMED_OUT;
 splitEvent = manager.Event.SDK_UPDATE;
 
@@ -358,6 +361,7 @@ const bbb: number = asyncManager.listenerCount(splitEvent);
 // asyncManager exposes Event constants too
 const asyncManagerEventConsts: {[key: string]: SplitIO.Event} = asyncManager.Event;
 splitEvent = asyncManager.Event.SDK_READY;
+splitEvent = asyncManager.Event.SDK_READY_FROM_CACHE;
 splitEvent = asyncManager.Event.SDK_READY_TIMED_OUT;
 splitEvent = asyncManager.Event.SDK_UPDATE;
 

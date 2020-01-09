@@ -10,6 +10,7 @@ export default function callbackHandlerContext(context, forSharedClient = false)
   let isReady = false;
   const {
     SDK_READY,
+    SDK_READY_FROM_CACHE,
     SDK_UPDATE,
     SDK_READY_TIMED_OUT
   } = gate;
@@ -21,6 +22,12 @@ export default function callbackHandlerContext(context, forSharedClient = false)
     context.put(context.constants.READY, true);
 
     isReady = true;
+  });
+
+  gate.once(SDK_READY_FROM_CACHE, () => {
+    log.info('Split SDK is ready from cache.');
+
+    context.put(context.constants.READY_FROM_CACHE, true);
   });
 
   gate.on(REMOVE_LISTENER_EVENT, event => {
@@ -79,6 +86,7 @@ export default function callbackHandlerContext(context, forSharedClient = false)
       // Expose the event constants without changing the interface
       Event: {
         SDK_READY,
+        SDK_READY_FROM_CACHE,
         SDK_UPDATE,
         SDK_READY_TIMED_OUT,
       },
