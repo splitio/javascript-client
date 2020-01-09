@@ -175,6 +175,13 @@ class SplitCacheInRedis {
         return Promise.reject(e);
       });
   }
+
+  /**
+   * Check if the splits information is already stored in cache. Redis would actually be the cache.
+   */
+  checkCache() {
+    return false;
+  }
 }
 
 export default SplitCacheInRedis;

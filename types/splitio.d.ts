@@ -10,11 +10,13 @@ export = SplitIO;
 /**
  * @typedef {Object} EventConsts
  * @property {string} SDK_READY The ready event.
+ * @property {string} SDK_READY_FROM_CACHE The ready event when fired with cached data.
  * @property {string} SDK_READY_TIMED_OUT The timeout event.
  * @property {string} SDK_UPDATE The update event.
  */
 type EventConsts = {
   SDK_READY: 'init::ready',
+  SDK_READY_FROM_CACHE: 'init::cache-ready',
   SDK_READY_TIMED_OUT: 'init::timeout',
   SDK_UPDATE: 'state::update'
 };
@@ -391,7 +393,7 @@ declare namespace SplitIO {
    * Possible Split SDK events.
    * @typedef {string} Event
    */
-  type Event = 'init::timeout' | 'init::ready' | 'state::update';
+  type Event = 'init::timeout' | 'init::ready' | 'init::cache-ready' | 'state::update';
   /**
    * Split attributes should be on object with values of type string or number (dates should be sent as millis since epoch).
    * @typedef {Object.<number, string, boolean, string[], number[]>} Attributes
