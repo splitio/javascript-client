@@ -61,28 +61,29 @@ function SplitChangesUpdaterFactory(context, isNode = false) {
 
     log.debug(`Spin up split update using since = ${since}`);
 
-    return splitChangesFetcher(settings, since, startingUp, metricCollectors, isNode).then(splitChanges => {
-      startingUp = false;
+    const fetcherPromise = splitChangesFetcher(settings, since, startingUp, metricCollectors, isNode)
+      .then(splitChanges => {
+        startingUp = false;
 
-      const mutation = computeSplitsMutation(splitChanges.splits);
+        const mutation = computeSplitsMutation(splitChanges.splits);
 
-      log.debug(`New splits ${mutation.added.length}`);
-      log.debug(`Removed splits ${mutation.removed.length}`);
-      log.debug(`Segment names collected ${mutation.segments}`);
+        log.debug(`New splits ${mutation.added.length}`);
+        log.debug(`Removed splits ${mutation.removed.length}`);
+        log.debug(`Segment names collected ${mutation.segments}`);
 
-      // Write into storage
-      return Promise.all([
-        storage.splits.addSplits(mutation.added),
-        storage.splits.removeSplits(mutation.removed),
-        storage.splits.setChangeNumber(splitChanges.till),
-        storage.segments.registerSegments(mutation.segments)
-      ]).then(() => {
-        if (since !== splitChanges.till || readyOnAlreadyExistentState) {
-          readyOnAlreadyExistentState = false;
-          splitsEventEmitter.emit(splitsEventEmitter.SDK_SPLITS_ARRIVED);
-        }
-      });
-    })
+        // Write into storage
+        return Promise.all([
+          storage.splits.addSplits(mutation.added),
+          storage.splits.removeSplits(mutation.removed),
+          storage.splits.setChangeNumber(splitChanges.till),
+          storage.segments.registerSegments(mutation.segments)
+        ]).then(() => {
+          if (since !== splitChanges.till || readyOnAlreadyExistentState) {
+            readyOnAlreadyExistentState = false;
+            splitsEventEmitter.emit(splitsEventEmitter.SDK_SPLITS_ARRIVED);
+          }
+        });
+      })
       .catch(error => {
         if (!(error instanceof SplitError)) {
           setTimeout(() => {throw error;}, 0);
@@ -101,6 +102,11 @@ function SplitChangesUpdaterFactory(context, isNode = false) {
 
         return false;
       });
+
+    // After triggering the requests, if we have cached splits information let's notify that.
+    if (startingUp && storage.splits.checkCache()) splitsEventEmitter.emit(splitsEventEmitter.SDK_SPLITS_CACHE_LOADED);
+
+    return fetcherPromise;
   };
 }
 
