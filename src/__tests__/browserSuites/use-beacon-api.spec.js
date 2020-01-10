@@ -10,8 +10,8 @@ const config = {
     key: 'facundo@split.io'
   },
   urls: {
-    sdk: 'https://sdk.baseurl',
-    events: 'https://sdk.baseurl'
+    sdk: 'https://sdk.baseurlbeacon',
+    events: 'https://sdk.baseurlbeacon'
   }
 };
 

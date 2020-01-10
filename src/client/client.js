@@ -82,7 +82,7 @@ function ClientFactory(context) {
     withConfig,
     invokingMethodName
   ) {
-    const isSdkReady = context.get(context.constants.READY, true);
+    const isSdkReady = context.get(context.constants.READY, true) || context.get(context.constants.READY_FROM_CACHE, true);
     const matchingKey = matching(key);
     const bucketingKey = bucketing(key);
 

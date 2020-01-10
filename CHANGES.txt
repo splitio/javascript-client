@@ -1,3 +1,8 @@
+10.10.0 (Jan 10, 2020)
+ - Added SDK_READY_FROM_CACHE event, which will be emitted in LocalStorage mode when the SDK finds split cache in the storage of the browser.
+ - Updated a dependency to fix a vulnerability (serialize-javascript).
+ - Updated multiple dependencies and dev dependencies (@types/node, axios, core-js, events, sinon, tape and the babel cli, core, preset-env, register and plugin-transform-runtime)
+
 10.9.2 (Nov 20, 2019)
  - Bugfixing - When using Redis, return expire result to avoid race condition with redis disconnection due to a client destroy.
  - Sonar - Removed extra parameter from function invocation to remove the only bug highlighted by Sonar.

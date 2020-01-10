@@ -9,7 +9,7 @@ export function validateIfDestroyed(context) {
 }
 
 export function validateIfReady(context, method) {
-  if (context.get(context.constants.READY, true)) return true;
+  if (context.get(context.constants.READY, true) || context.get(context.constants.READY_FROM_CACHE, true)) return true;
 
   log.warn(`${method}: the SDK is not ready, results may be incorrect. Make sure to wait for SDK readiness before using this method.`);
   return false;
