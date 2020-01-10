@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio",
-  "version": "10.10.0-canary.1",
+  "version": "10.10.0",
   "description": "Split SDK",
   "files": [
     "README.md",
@@ -110,7 +110,6 @@
   },
   "greenkeeper": {
     "ignore": [
-      "webpack",
       "karma",
       "karma-tap",
       "karma-webpack"
