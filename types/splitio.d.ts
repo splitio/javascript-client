@@ -549,6 +549,11 @@ declare namespace SplitIO {
    * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#configuration}
    */
   interface IBrowserSettings extends ISharedSettings {
+
+    ga?: {
+      providePlugin?: boolean,
+    }
+
     /**
      * SDK Startup settings for the Browser.
      * @property {Object} startup

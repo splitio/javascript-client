@@ -12,6 +12,7 @@ import SplitFactoryOffline from './factory/offline';
 import sdkStatusManager from './readiness/statusManager';
 import { LOCALHOST_MODE } from './utils/constants';
 import { validateApiKey, validateKey, validateTrafficType } from './utils/inputValidation';
+import { providePlugin, splitPlugin } from './ga';
 
 const buildInstanceId = (key, trafficType) => `${key.matchingKey ? key.matchingKey : key}-${key.bucketingKey ? key.bucketingKey : key}-${trafficType !== undefined ? trafficType : ''}`;
 
@@ -62,7 +63,7 @@ export function SplitFactory(config) {
 
   log.info('New Split SDK instance created.');
 
-  return {
+  const factory = {
     // Split evaluation and event tracking engine
     client(key, trafficType) {
       if (key === undefined) {
@@ -126,4 +127,13 @@ export function SplitFactory(config) {
     // Expose SDK settings
     settings
   };
+
+  if (config.ga) {
+    factory.splitPlugin = splitPlugin;
+    if (config.ga.providePlugin) {
+      providePlugin('splitPlugin', splitPlugin);
+    }
+  }
+
+  return factory;
 }
