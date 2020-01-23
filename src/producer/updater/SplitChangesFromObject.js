@@ -35,8 +35,8 @@ function FromObjectUpdaterFactory(Fetcher, context) {
       log.error(`There was an issue loading the mock Splits data, no changes will be applied to the current cache. ${err}`);
     }
 
-    if (!loadError) {
-      log.debug('Splits data:');
+    if (!loadError && splitsMock) {
+      log.debug('Splits data: ');
       log.debug(JSON.stringify(splitsMock));
 
       forOwn(splitsMock, function(val, name) {
