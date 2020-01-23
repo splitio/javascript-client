@@ -40,6 +40,14 @@ const configMocks = () => {
 
 tape('Browser offline mode', function (assert) {
   configMocks();
+  const originalFeaturesMap = {
+    testing_split: 'on',
+    testing_split_with_config: {
+      treatment: 'off',
+      config: '{ "color": "blue" }'
+    }
+  };
+
   const config = {
     core: {
       authorizationKey: 'localhost'
@@ -48,18 +56,12 @@ tape('Browser offline mode', function (assert) {
       impressionsRefreshRate: 0.01,
       eventsPushRate: 0.01,
       metricsRefreshRate: 0.01,
-      offlineRefreshRate: 3
+      offlineRefreshRate: 0.19
     },
     startup: {
       eventsFirstPushWindow: 0
     },
-    features: {
-      testing_split: 'on',
-      testing_split_with_config: {
-        treatment: 'off',
-        config: '{ "color": "blue" }'
-      }
-    }
+    features: originalFeaturesMap
   };
   const factory = SplitFactory(config);
   const manager = factory.manager();
@@ -75,7 +77,9 @@ tape('Browser offline mode', function (assert) {
   assert.equal(client.getTreatment('testing_split'), 'control');
   assert.equal(manager.splits().length, 0);
 
-  client.on(client.Event.SDK_READY, function () {
+  client.once(client.Event.SDK_READY, function () {
+    const readyTimestamp = Date.now();
+
     // Check the information through the client original instance
     assert.equal(client.getTreatment('testing_split'), 'on');
     assert.equal(client.getTreatment('testing_split_2'), 'control');
@@ -139,18 +143,28 @@ tape('Browser offline mode', function (assert) {
       testing_split_with_config: { treatment: 'off', config: '{ "color": "blue" }' }
     });
 
-    // Update the features.
-    factory.settings.features = {
-      testing_split: 'on',
-      testing_split_2: 'off',
-      testing_split_3: 'custom_treatment',
-      testing_split_with_config: {
-        treatment: 'nope',
-        config: null
-      }
-    };
-    // We allow the SDK to process the feature changes and then test again..
-    setTimeout(function () {
+    setTimeout(() => {
+      // Update the features.
+      factory.settings.features = {
+        testing_split: 'on',
+        testing_split_2: 'off',
+        testing_split_3: 'custom_treatment',
+        testing_split_with_config: {
+          treatment: 'nope',
+          config: null
+        }
+      };
+    }, 1000);
+
+    setTimeout(() => { factory.settings.features = originalFeaturesMap; }, 200);
+    setTimeout(() => { factory.settings.features = { testing_split: 'on', testing_split_with_config: { treatment: 'off', config: '{ "color": "blue" }' }};}, 400);
+    setTimeout(() => { factory.settings.features = originalFeaturesMap; }, 600);
+    setTimeout(() => { factory.settings.features = { testing_split: 'on', testing_split_with_config: { treatment: 'off', config: '{ "color": "blue" }' }};}, 750);
+
+    // once updated, test again.
+    client.once(client.Event.SDK_UPDATE, function () {
+      assert.true((Date.now() - readyTimestamp) > 1000, 'Should only emit SDK_UPDATE after a real update.');
+
       assert.equal(client.getTreatment('testing_split_2'), 'off');
       assert.equal(client.getTreatment('testing_split_3'), 'custom_treatment');
       assert.deepEqual(client.getTreatmentWithConfig('testing_split_3'), { treatment: 'custom_treatment', config: null });
