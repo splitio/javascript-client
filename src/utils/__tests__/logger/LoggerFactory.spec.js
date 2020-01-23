@@ -5,8 +5,6 @@ import sinon from 'sinon';
 import { Logger, LogLevels, setLogLevel } from '../../logger/LoggerFactory';
 import { LOG_LEVELS } from './index.spec.js';
 
-const isNode = typeof process !== 'undefined' && process.version ? true : false;
-
 tape('SPLIT LOGGER FACTORY / setLogLevel utility function', assert => {
   assert.equal(typeof setLogLevel, 'function', 'setLogLevel should be a function');
   assert.doesNotThrow(setLogLevel, 'Calling setLogLevel should not throw an error.');
