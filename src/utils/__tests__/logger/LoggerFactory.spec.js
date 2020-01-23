@@ -57,7 +57,6 @@ function testLogLevels(levelToTest, assert) {
     LOG_LEVELS_IN_ORDER.forEach((logLevel, i) => {
       const logMsg = `Test log for level ${levelToTest} (${displayAllErrors ? 'But all errors are configured to display' : 'Errors not forced to display'}) with showLevel: ${showLevel} ${logLevelLogsCounter}`;
       const expectedMessage = buildExpectedMessage(levelToTest, logCategory, logMsg, showLevel);
-      const consoleMethodToUse = !isNode && levelToTest === LOG_LEVELS.ERROR ? 'error' : 'log';
 
       // Log error should always be visible.
       if (logMethod === LOG_LEVELS.ERROR.toLowerCase() && displayAllErrors) testForNoLog = false;
@@ -67,7 +66,7 @@ function testLogLevels(levelToTest, assert) {
       // Call the method
       instance[logMethod](logMsg);
       // Assert if console.log was called.
-      assert[testForNoLog ? 'notOk' : 'ok'](console[consoleMethodToUse].calledWith(expectedMessage), `Calling ${logMethod} method should ${testForNoLog ? 'NOT ' : ''}log with ${logLevel} log level. ${displayAllErrors ? 'But all errors are configured to display.' : ''}`);
+      assert[testForNoLog ? 'notOk' : 'ok'](console.log.calledWith(expectedMessage), `Calling ${logMethod} method should ${testForNoLog ? 'NOT ' : ''}log with ${logLevel} log level. ${displayAllErrors ? 'But all errors are configured to display.' : ''}`);
 
       if (LOG_LEVELS_IN_ORDER.indexOf(levelToTest) <= i) {
         testForNoLog = true;
@@ -76,9 +75,8 @@ function testLogLevels(levelToTest, assert) {
     });
   };
 
-  // Stub console.log & error
+  // Spy console.log
   sinon.spy(console, 'log');
-  console.error && sinon.spy(console, 'error');
 
   // Show logLevel
   runTests(true);
@@ -89,7 +87,6 @@ function testLogLevels(levelToTest, assert) {
 
   // Restore stub.
   console.log.restore();
-  console.error && console.error.restore && console.error.restore();
 }
 
 tape('SPLIT LOGGER FACTORY / Logger class public methods behaviour - instance.debug', assert => {
