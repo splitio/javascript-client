@@ -1,5 +1,5 @@
 import logFactory from '../utils/logger';
-const log = logFactory('', { displayAllErrors: true });
+const log = logFactory('');
 
 const NEW_LISTENER_EVENT = 'newListener';
 const REMOVE_LISTENER_EVENT = 'removeListener';
