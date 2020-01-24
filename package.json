@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio",
-  "version": "10.10.0",
+  "version": "10.10.1-canary.0",
   "description": "Split SDK",
   "files": [
     "README.md",
@@ -32,9 +32,9 @@
     "node": ">=6"
   },
   "dependencies": {
-    "@babel/runtime-corejs3": "^7.6.3",
-    "@types/node": "^13.1.6",
-    "axios": "0.19.1",
+    "@babel/runtime-corejs3": "^7.8.3",
+    "@types/node": "^13.1.8",
+    "axios": "0.19.2",
     "core-js": "3.6.1",
     "ip": "1.1.5",
     "js-yaml": "3.13.1",
@@ -45,17 +45,17 @@
     "ioredis": "^4.14.1"
   },
   "devDependencies": {
-    "@babel/cli": "^7.7.7",
-    "@babel/core": "^7.7.7",
-    "@babel/plugin-transform-runtime": "^7.7.6",
-    "@babel/preset-env": "^7.7.7",
-    "@babel/register": "^7.7.7",
+    "@babel/cli": "^7.8.3",
+    "@babel/core": "^7.8.3",
+    "@babel/plugin-transform-runtime": "^7.8.3",
+    "@babel/preset-env": "^7.8.3",
+    "@babel/register": "^7.8.3",
     "axios-mock-adapter": "^1.17.0",
     "babel-loader": "^8.0.6",
-    "copyfiles": "^2.1.1",
+    "copyfiles": "^2.2.0",
     "cross-env": "^6.0.3",
     "csv-streamify": "4.0.0",
-    "eslint": "^6.5.1",
+    "eslint": "^6.8.0",
     "karma": "^4.4.1",
     "karma-chrome-launcher": "^3.1.0",
     "karma-tap": "4.1.4",
@@ -66,12 +66,12 @@
     "redis-dump": "0.1.10",
     "redis-server": "1.2.2",
     "rimraf": "^3.0.0",
-    "sinon": "^8.0.2",
+    "sinon": "^8.1.1",
     "tap-summary": "4.0.0",
     "tape": "4.13.0",
     "tape-catch": "1.0.6",
-    "webpack": "^4.41.2",
-    "webpack-cli": "^3.3.9",
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.10",
     "webpack-merge": "^4.2.2"
   },
   "scripts": {

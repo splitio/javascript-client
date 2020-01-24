@@ -1,8 +1,6 @@
 import { isObject } from '../lang';
 import logFactory from '../logger';
-const log = logFactory('', {
-  displayAllErrors: true
-});
+const log = logFactory('');
 
 export function validateAttributes(maybeAttrs, method) {
   // Attributes are optional
