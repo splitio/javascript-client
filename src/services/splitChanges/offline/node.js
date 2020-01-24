@@ -24,7 +24,7 @@ const log = logFactory('splitio-offline:splits-fetcher');
 
 const DEFAULT_FILENAME = '.split';
 
-let previousMock = '~~~~~';
+let previousMock = 'NO_MOCK_LOADED';
 
 function configFilesPath(config = {}) {
   let configFilePath = config.features;
