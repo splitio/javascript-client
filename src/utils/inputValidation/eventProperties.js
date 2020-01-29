@@ -1,8 +1,6 @@
 import { isObject, shallowClone, isString, isFinite, isBoolean } from '../lang';
 import logFactory from '../logger';
-const log = logFactory('', {
-  displayAllErrors: true
-});
+const log = logFactory('');
 
 const ECMA_SIZES = {
   NULL: 0,       // While on the JSON it's going to occupy more space, we'll take it as 0 for the approximation.

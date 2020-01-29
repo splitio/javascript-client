@@ -3,9 +3,7 @@ import {
   toString
 } from '../lang';
 import logFactory from '../logger';
-const log = logFactory('', {
-  displayAllErrors: true
-});
+const log = logFactory('');
 
 const KEY_MAX_LENGTH = 250;
 

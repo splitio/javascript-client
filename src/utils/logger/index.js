@@ -22,7 +22,7 @@ const isLogLevelString = str => !!find(LogLevels, lvl => str === lvl);
 
 const defaultOptions = {
   showLevel: true,
-  forceDisplayErrors: false
+  displayAllErrors: false
 };
 
 const LS_KEY = 'splitio_debug';
