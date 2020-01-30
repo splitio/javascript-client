@@ -12,7 +12,7 @@ import SplitFactoryOffline from './factory/offline';
 import sdkStatusManager from './readiness/statusManager';
 import { LOCALHOST_MODE } from './utils/constants';
 import { validateApiKey, validateKey, validateTrafficType } from './utils/inputValidation';
-import { providePlugin, SplitTracker } from './integrations/ga/splitTracker';
+import { providePlugin, SplitTracker, defaultOptions } from './integrations/ga/splitTracker';
 
 const buildInstanceId = (key, trafficType) => `${key.matchingKey ? key.matchingKey : key}-${key.bucketingKey ? key.bucketingKey : key}-${trafficType !== undefined ? trafficType : ''}`;
 
@@ -130,6 +130,9 @@ export function SplitFactory(config) {
 
   if (config.integrations) {
     if (config.integrations.ga_to_split) {
+      defaultOptions.eventHandler = function(event) {
+        storage.events.track(event);
+      };
       // Register the plugin.
       providePlugin('splitTracker', SplitTracker);
     }

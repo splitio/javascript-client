@@ -112,7 +112,9 @@ function xhrPost(url, payload) {
   return true;
 }
 
-function defaultEventHandler(authorizationKey, sdk = 'ga', eventsUrl = 'https://events.split.io/api/events/beacon') {
+// `sendEvent` returns a eventHandler that perform beacon/xhr requests to send events, given an `authorizationKey`, and optional `sdk` name and `eventsUrl` URL
+// This is usefull to use the plugin standalone.
+export function sendEvent(authorizationKey, sdk = 'ga', eventsUrl = 'https://events.split.io/api/events/beacon') {
   // There's nothing to fallback for. Thus, we return a noop function as eventHandler
   if (!(navigator && navigator.sendBeacon) && (!XMLHttpRequest || typeof XDomainRequest !== 'undefined'))
     return function () { };
@@ -127,16 +129,16 @@ function defaultEventHandler(authorizationKey, sdk = 'ga', eventsUrl = 'https://
   };
 }
 
+export const defaultOptions = {
+  hitFilter: defaultHitFilter,
+  hitMapper: defaultHitMapper(),
+  eventHandler: undefined,
+};
+
 /**
  * Constructor for the SplitTracker plugin.
  */
 export function SplitTracker(tracker, options) {
-  
-  var defaultOptions = {
-    hitFilter: defaultHitFilter,
-    hitMapper: defaultHitMapper(),
-    eventHandler: defaultEventHandler(options.authorizationKey, options.sdk, options.eventsUrl),
-  };
 
   const opts = assign(defaultOptions, options);
 

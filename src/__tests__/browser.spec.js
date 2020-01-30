@@ -14,6 +14,7 @@ import sharedInstantiationSuite from './browserSuites/shared-instantiation.spec'
 import managerSuite from './browserSuites/manager.spec';
 import ignoreIpAddressesSettingSuite from './browserSuites/ignore-ip-addresses-setting.spec';
 import useBeaconApiSuite from './browserSuites/use-beacon-api.spec';
+import { defaultBehavior } from './browserSuites/ga-to-split.spec';
 
 import { __getAxiosInstance } from '../services/transport';
 import SettingsFactory from '../utils/settings';
@@ -115,6 +116,9 @@ tape('## E2E CI Tests ##', function(assert) {
   assert.test('E2E / Use Beacon API (or XHR if not available) to send remaining impressions and events when browser page is unload', useBeaconApiSuite.bind(null, mock));
   /* Validate ready from cache behaviour (might be merged into another suite if we end up having simple behavior around it as expected) */
   assert.test('E2E / Readiness from cache', readyFromCache.bind(null, mock));
+
+  /* Validate GA integration */
+  assert.test('E2E / GA-to-Split', defaultBehavior.bind(null, mock));
 
   //If we change the mocks, we need to clear localstorage. Cleaning up after testing ensures "fresh data".
   localStorage.clear();
