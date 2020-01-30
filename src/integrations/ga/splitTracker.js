@@ -1,5 +1,3 @@
-// (function () {
-
 // CHECK provide.js at autotrack
 export function requirePlugin(pluginName, pluginOptions = {}, trackerNames = ['auto']) {
   var ga = window[window['GoogleAnalyticsObject'] || 'ga'];
@@ -18,18 +16,6 @@ export function providePlugin(pluginName, pluginConstructor) {
     ga('provide', pluginName, pluginConstructor);
   }
 }
-
-var assign = Object.assign || function (target, ...sources) {
-  for (let i = 0, len = sources.length; i < len; i++) {
-    var source = Object(sources[i]);
-    for (let key in source) {
-      if (Object.prototype.hasOwnProperty.call(source, key)) {
-        target[key] = source[key];
-      }
-    }
-  }
-  return target;
-};
 
 function defaultHitFilter() {
   return true;
@@ -64,11 +50,11 @@ function defaultHitMapper(options) {
       timing: ['timingCategory', 'timingLabel'],
     }
   };
-  const opts = assign(defaultOptions, options);
+  const opts = Object.assign(defaultOptions, options);
 
   return function (model) {
 
-    var hitType = model.get('hitType')
+    var hitType = model.get('hitType');
     var eventTypeId =
       (opts.eventTypeIdPrefix[hitType] || 'ga') + '.' +
       (model.get(opts.eventTypeId[hitType]) || '');
@@ -140,7 +126,7 @@ export const defaultOptions = {
  */
 export function SplitTracker(tracker, options) {
 
-  const opts = assign(defaultOptions, options);
+  const opts = Object.assign(defaultOptions, options);
 
   this.tracker = tracker;
 
@@ -157,8 +143,3 @@ export function SplitTracker(tracker, options) {
     }
   });
 }
-
-// Register the plugin.
-// providePlugin('splitTracker', SplitTracker);
-
-// })();
