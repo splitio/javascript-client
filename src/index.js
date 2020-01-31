@@ -12,7 +12,7 @@ import SplitFactoryOffline from './factory/offline';
 import sdkStatusManager from './readiness/statusManager';
 import { LOCALHOST_MODE } from './utils/constants';
 import { validateApiKey, validateKey, validateTrafficType } from './utils/inputValidation';
-import { providePlugin, SplitTracker, defaultOptions } from './integrations/ga/splitTracker';
+import { providePlugin, SplitTracker, sdkOptions } from './integrations/ga/splitTracker';
 
 const buildInstanceId = (key, trafficType) => `${key.matchingKey ? key.matchingKey : key}-${key.bucketingKey ? key.bucketingKey : key}-${trafficType !== undefined ? trafficType : ''}`;
 
@@ -129,12 +129,23 @@ export function SplitFactory(config) {
   };
 
   if (config.integrations) {
-    if (config.integrations.ga_to_split) {
-      defaultOptions.eventHandler = function(event) {
+    if (config.integrations.ga2split) {
+      sdkOptions.eventHandler = function (event) {
         storage.events.track(event);
       };
-      // Register the plugin.
-      providePlugin('splitTracker', SplitTracker);
+      if (settings.core.trafficType)
+        sdkOptions.identities = [{ key: settings.core.key, trafficType: settings.core.trafficType }];
+
+      if (typeof config.integrations.ga2split === 'object')
+        Object.assign(sdkOptions, config.integrations.ga2split);
+
+      // @TODO review error condition and message
+      if (!sdkOptions.identities || sdkOptions.identities.length === 0) {
+        log.error('A traffic type is required for tracking GA hits as Split events');
+      } else {
+        // Register the plugin.
+        providePlugin('splitTracker', SplitTracker);
+      }
     }
   }
 

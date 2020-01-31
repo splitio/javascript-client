@@ -50,7 +50,7 @@ const settings = SettingsFactory({
     key: 'facundo@split.io'
   },
   integrations: {
-    ga_to_split: true,
+    ga2split: true,
   },
   scheduler: {
     eventsQueueSize: 2,
@@ -82,6 +82,7 @@ export function defaultBehavior(mock, assert) {
   };
   window.ga('send', 'pageview');
 
+  // eslint-disable-next-line no-unused-vars
   const factory = SplitFactory(settings);
 
 }

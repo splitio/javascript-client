@@ -50,7 +50,7 @@ function defaultHitMapper(options) {
       timing: ['timingCategory', 'timingLabel'],
     }
   };
-  const opts = Object.assign(defaultOptions, options);
+  const opts = Object.assign({}, defaultOptions, options);
 
   return function (model) {
 
@@ -115,18 +115,20 @@ export function sendEvent(authorizationKey, sdk = 'ga', eventsUrl = 'https://eve
   };
 }
 
-export const defaultOptions = {
+const defaultOptions = {
   hitFilter: defaultHitFilter,
   hitMapper: defaultHitMapper(),
-  eventHandler: undefined,
+  identities: [],
 };
+
+export const sdkOptions = {};
 
 /**
  * Constructor for the SplitTracker plugin.
  */
 export function SplitTracker(tracker, options) {
 
-  const opts = Object.assign(defaultOptions, options);
+  const opts = Object.assign({}, defaultOptions, options, sdkOptions);
 
   this.tracker = tracker;
 
@@ -138,8 +140,18 @@ export function SplitTracker(tracker, options) {
   this.tracker.set('sendHitTask', function (model) {
     originalSendHitTask(model);
     if (opts.hitFilter(model)) {
-      const event = opts.hitMapper(model);
-      opts.eventHandler(event, model);
+      const eventData = opts.hitMapper(model);
+      if (opts.eventHandler) {
+        for (let i = 0; i < opts.identities.length; i++) {
+          const identity = opts.identities[i];
+          const event = Object.assign({
+            key: identity.key,
+            trafficTypeName: identity.trafficType,
+            timestamp: Date.now(),
+          }, eventData);
+          opts.eventHandler(event, model);
+        }
+      }
     }
   });
 }

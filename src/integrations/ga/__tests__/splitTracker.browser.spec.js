@@ -1,6 +1,10 @@
+/**
+ * -SplitTracker tests:
+ */
+
 import tape from 'tape-catch';
 import sinon from 'sinon';
-import { SplitTracker, defaultOptions } from '../splitTracker';
+import { SplitTracker, sdkOptions } from '../splitTracker';
 
 
 function generateGaAndTrackerMock() {
@@ -39,7 +43,8 @@ function generateGaAndTrackerMock() {
 tape('splitTracker overwrites sendHitTask but calls original one', function (assert) {
   const { ga, tracker } = generateGaAndTrackerMock();
 
-  defaultOptions.eventHandler = sinon.spy();
+  sdkOptions.eventHandler = sinon.spy();
+  sdkOptions.identities = [{key: 'key', trafficType: 'tt'}];
 
   new SplitTracker(tracker);
 
@@ -48,7 +53,7 @@ tape('splitTracker overwrites sendHitTask but calls original one', function (ass
     ga('send');
 
   assert.equal(tracker.__originalSendHitTask.callCount, numberOfHitsToSend, `original sendHitTask must be invoked ${numberOfHitsToSend} times`);
-  assert.equal(defaultOptions.eventHandler.callCount, numberOfHitsToSend, `eventHandler must be invoked ${numberOfHitsToSend} times`);
+  assert.equal(sdkOptions.eventHandler.callCount, numberOfHitsToSend * sdkOptions.identities.length, `eventHandler must be invoked ${numberOfHitsToSend} times`);
 
   assert.end();
 

@@ -542,6 +542,27 @@ declare namespace SplitIO {
   interface IImpressionListener {
     logImpression(data: SplitIO.ImpressionData): void
   }
+  type Identity = {
+    key: string;
+    trafficType: string;
+  };
+  type EventData = {
+    eventTypeId: string;
+    value?: number;
+    properties?: Properties;
+  };
+  /**
+   * Options object for configuring `splitTracker` GA plugin.
+   * @interface {Object} ISplitTrackerOptions
+   * @property {function} hitFilter
+   * @property {function} hitMapper
+   * @property {Identity[]} identities
+   */
+  interface ISplitTrackerOptions {
+    hitFilter?: (model) => boolean,
+    hitMapper?: (model) => EventData,
+    identities?: Identity[],
+  }
   /**
    * Settings interface for SDK instances created on the browser
    * @interface IBrowserSettings
@@ -549,11 +570,6 @@ declare namespace SplitIO {
    * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#configuration}
    */
   interface IBrowserSettings extends ISharedSettings {
-
-    ga?: {
-      providePlugin?: boolean,
-    }
-
     /**
      * SDK Startup settings for the Browser.
      * @property {Object} startup
@@ -687,6 +703,19 @@ declare namespace SplitIO {
        */
       prefix?: string
     }
+    /**
+     * SDK integration settings for the Browser.
+     * @property {Object} integrations
+     */
+    integrations?: {
+      /**
+       * Enable `splitTracker` GA plugin to track GA hits as Split events.
+       * @property {boolean | ISplitTrackerOptions} ga2split boolean to provide `splitTracker` plugin, or optional `options` object used for configuring the plugin.
+       * @default false
+       * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#ga-to-split-integration}
+       */
+      ga2split?: boolean | ISplitTrackerOptions,
+    }
   }
   /**
    * Settings interface for SDK instances created on NodeJS.
@@ -813,7 +842,7 @@ declare namespace SplitIO {
      * @returns {Treatment} The treatment result.
      */
     getTreatment(splitName: string, attributes?: Attributes): Treatment,
-     /**
+    /**
      * Returns a TreatmentWithConfig value (a map of treatment and config), which will be (or eventually be) the map with treatment and config for the given feature.
      * For usage on NodeJS as we don't have only one key.
      * @function getTreatmentWithConfig
