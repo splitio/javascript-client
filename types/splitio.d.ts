@@ -551,6 +551,11 @@ declare namespace SplitIO {
     value?: number;
     properties?: Properties;
   };
+  interface GAModel {
+    get(fieldName: string): any;
+    set(fieldName: string, fieldValue: any, temporary?: boolean): void;
+    set(fields: {}, fieldValue?: null, temporary?: boolean): void;
+  }
   /**
    * Options object for configuring `splitTracker` GA plugin.
    * @interface {Object} ISplitTrackerOptions
@@ -559,8 +564,8 @@ declare namespace SplitIO {
    * @property {Identity[]} identities
    */
   interface ISplitTrackerOptions {
-    hitFilter?: (model) => boolean,
-    hitMapper?: (model) => EventData,
+    hitFilter?: (model: GAModel) => boolean,
+    hitMapper?: (model: GAModel) => EventData,
     identities?: Identity[],
   }
   /**

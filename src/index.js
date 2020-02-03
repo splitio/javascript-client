@@ -142,10 +142,9 @@ export function SplitFactory(config) {
       // @TODO review error condition and message
       if (!sdkOptions.identities || sdkOptions.identities.length === 0) {
         log.error('A traffic type is required for tracking GA hits as Split events');
-      } else {
-        // Register the plugin.
-        providePlugin('splitTracker', SplitTracker);
       }
+      // Register the plugin, even if config is invalid, since, if not provided, it will block `ga` command queue.
+      providePlugin('splitTracker', SplitTracker);
     }
   }
 

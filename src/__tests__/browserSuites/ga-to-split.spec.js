@@ -1,38 +1,47 @@
+/**
+ * -ga-to-split tests:
+ *  - Default behavior
+ *  - Configs
+ *    - Several identities
+ *    - Custom hitFilter
+ *    - Custom hitMapper
+ *  - Corner cases
+ *    - Provide plugin even if Split factory fails to initiate or have a bad config
+ *    - Split factory instantiated before than GA tag
+ *    - GA tag not included, but Split config configured for GA 
+ */
+
 import { SplitFactory } from '../../';
 import SettingsFactory from '../../utils/settings';
 
-function gaSpy() {
+function gaSpy(trackerName) {
   window.gaSpy = (function () {
 
     const hits = [];
 
-    function getHits() {
-      return hits;
-    }
-
-    function init(trackerName) {
-      console.log('gaSpy::init');
-      var ga = window[window['GoogleAnalyticsObject'] || 'ga'];
-      if (typeof ga == 'function') {
-        ga(function (tracker) {
-          const trackerToSniff = trackerName ? ga.getByName(trackerName) : tracker;
-          var originalSendHitTask = trackerToSniff.get('sendHitTask');
-          trackerToSniff.set('sendHitTask', function (model) {
-            originalSendHitTask(model);
-            hits.push({ hitType: model.get('hitType') });
-          });
+    console.log('gaSpy::init');
+    var ga = window[window['GoogleAnalyticsObject'] || 'ga'];
+    if (typeof ga == 'function') {
+      ga(function (tracker) {
+        const trackerToSniff = trackerName ? ga.getByName(trackerName) : tracker;
+        var originalSendHitTask = trackerToSniff.get('sendHitTask');
+        trackerToSniff.set('sendHitTask', function (model) {
+          originalSendHitTask(model);
+          hits.push({ hitType: model.get('hitType') });
         });
-      } else {
-        console.error('GA command queue was not found');
-      }
+      });
+    } else {
+      console.error('GA command queue was not found');
     }
 
     return {
-      init,
-      getHits
+      getHits: function () {
+        return hits;
+      }
     };
-
   })();
+
+  return window.gaSpy;
 }
 
 function gaTag() {
@@ -40,14 +49,15 @@ function gaTag() {
     i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
       (i[r].q = i[r].q || []).push(arguments);
     }, i[r].l = 1 * new Date(); a = s.createElement(o),
-    m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m);
+      m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m);
   })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
 }
 
 
 const settings = SettingsFactory({
   core: {
-    key: 'facundo@split.io'
+    key: 'facundo@split.io',
+    trafficType: 'user',
   },
   integrations: {
     ga2split: true,
@@ -57,32 +67,30 @@ const settings = SettingsFactory({
   },
 });
 
-export function defaultBehavior(mock, assert) {
+export default function (mock, assert) {
 
-  mock.onPost(settings.url('/events/bulk')).replyOnce(req => {
-    const resp = JSON.parse(req.data);
+  // test default behavior 
+  assert.test(t => {
+    mock.onPost(settings.url('/events/bulk')).replyOnce(req => {
+      const resp = JSON.parse(req.data);
 
-    assert.equal(resp.length, window.gaSpy.getHits().length, 'Number of sent hits must be equal to sent events');
+      t.equal(resp.length, window.gaSpy.getHits().length, 'Number of sent hits must be equal to sent events');
 
-    assert.end();
-    return [200];
+      t.end();
+      return [200];
+    });
+
+    gaTag();
+
+    window.ga('create', 'UA-00000000-1', 'auto', { sampleRate: 100, siteSpeedSampleRate: 100 });
+
+    gaSpy();
+
+    window.ga('require', 'splitTracker');
+    window.ga('send', 'pageview');
+
+    SplitFactory(settings);
+
   });
-
-  gaTag();
-  gaSpy();
-
-
-  window.ga('create', 'UA-16697845-1', 'auto', { sampleRate: 100, siteSpeedSampleRate: 100 });
-  window.gaSpy.init();
-  window.ga('require', 'splitTracker'), {
-    hitFilter: function (model) {
-      console.log('hit: ' + model.get('hitType'));
-      return true;
-    },
-  };
-  window.ga('send', 'pageview');
-
-  // eslint-disable-next-line no-unused-vars
-  const factory = SplitFactory(settings);
 
 }
