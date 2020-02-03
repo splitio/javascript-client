@@ -1,29 +1,50 @@
 /**
  * -ga-to-split tests:
  *  - Default behavior
+ *    DONE- On default tracker
+ *    DONE- On named tracker
+ * 
  *  - Configs
- *    - Several identities
+ *    DONE- Several identities
+ *      DONE- as plugin options
+ *      DONE- as SDK options
  *    - Custom hitFilter
+ *      - as plugin options
+ *      - as SDK options
  *    - Custom hitMapper
- *  - Corner cases
- *    - Provide plugin even if Split factory fails to initiate or have a bad config
- *    - Split factory instantiated before than GA tag
- *    - GA tag not included, but Split config configured for GA 
+ *      - as plugin options
+ *      - as SDK options
+ * 
+ *  - Error/Corner cases
+ *    -SDK errors. We must provide the plugin anyway, to not block ga command queue
+ *      DONE- No identities or TT in SDK config
+ *      - invalid identities
+ *      - invalid hitFilter
+ *      - invalid hitMapper
+ *    - SDK factory instantiated before than GA tag
+ *    - GA tag not included, but SDK configured for GA 
+ * 
  */
 
+import sinon from 'sinon';
 import { SplitFactory } from '../../';
 import SettingsFactory from '../../utils/settings';
 
+/**
+ * Spy ga hits per tracker.
+ * 
+ * @param {string} trackerName name of the tracker to spy. If not provided, it spy the default tracker. i.e., `gaSpy()` is equivalent to `gaSpy('t0')`
+ */
 function gaSpy(trackerName) {
   window.gaSpy = (function () {
 
     const hits = [];
 
-    console.log('gaSpy::init');
+    console.log(`gaSpy[${trackerName || 't0'}]::init`);
     var ga = window[window['GoogleAnalyticsObject'] || 'ga'];
     if (typeof ga == 'function') {
       ga(function (tracker) {
-        const trackerToSniff = trackerName ? ga.getByName(trackerName) : tracker;
+        const trackerToSniff = trackerName && trackerName !== 't0' ? ga.getByName(trackerName) : tracker;
         var originalSendHitTask = trackerToSniff.get('sendHitTask');
         trackerToSniff.set('sendHitTask', function (model) {
           originalSendHitTask(model);
@@ -62,18 +83,21 @@ const settings = SettingsFactory({
     ga2split: true,
   },
   scheduler: {
-    eventsQueueSize: 2,
+    eventsQueueSize: 1,
   },
 });
 
 export default function (mock, assert) {
 
-  // test default behavior 
+  // test default behavior on default tracker
   assert.test(t => {
     mock.onPost(settings.url('/events/bulk')).replyOnce(req => {
       const resp = JSON.parse(req.data);
+      const sentEvents = window.gaSpy.getHits();
 
-      t.equal(resp.length, window.gaSpy.getHits().length, 'Number of sent hits must be equal to sent events');
+      t.equal(resp.length, sentEvents.length, `Number of sent hits must be equal to sent events: (${sentEvents.length})`);
+      t.equal(resp[0].key, settings.core.key, 'Event key is same that SDK config key');
+      t.equal(resp[0].trafficTypeName, settings.core.trafficType, 'Event trafficTypeName is same that SDK config key');
 
       t.end();
       return [200];
@@ -81,14 +105,162 @@ export default function (mock, assert) {
 
     gaTag();
 
-    window.ga('create', 'UA-00000000-1', 'auto', { sampleRate: 100, siteSpeedSampleRate: 100 });
+    // siteSpeedSampleRate set to 0 to never send a site speed timing hit
+    window.ga('create', 'UA-00000000-1', 'auto', { siteSpeedSampleRate: 0 });
 
-    gaSpy();
+    gaSpy('t0');
 
     window.ga('require', 'splitTracker');
     window.ga('send', 'pageview');
 
     SplitFactory(settings);
+
+  });
+
+  // test default behavior on named tracker, tracking N events
+  assert.test(t => {
+    const numberOfCustomEvents = 5;
+
+    mock.onPost(settings.url('/events/bulk')).replyOnce(req => {
+      const resp = JSON.parse(req.data);
+      const sentEvents = window.gaSpy.getHits();
+
+      t.equal(resp.length, sentEvents.length, `Number of sent hits must be equal to sent events: (${sentEvents.length})`);
+      t.equal(resp[0].key, settings.core.key, 'Event key is same that SDK config key');
+      t.equal(resp[0].trafficTypeName, settings.core.trafficType, 'Event trafficTypeName is same that SDK config key');
+
+      t.end();
+      return [200];
+    });
+
+    // gaTag();
+
+    // siteSpeedSampleRate set to 0 to never send a site speed timing hit
+    window.ga('create', 'UA-00000001-1', 'example.com', 'myTracker', { siteSpeedSampleRate: 0 });
+
+    gaSpy('myTracker');
+
+    SplitFactory({
+      ...settings, scheduler: {
+        eventsQueueSize: numberOfCustomEvents,
+      }
+    });
+
+    window.ga('myTracker.require', 'splitTracker');
+    for (let i = 0; i < numberOfCustomEvents; i++)
+      window.ga('myTracker.send', 'pageview');
+
+  });
+
+  // test error: no TT in SDK config
+  assert.test(t => {
+    const numberOfCustomEvents = 5;
+    const logSpy = sinon.spy(console, 'log');
+
+    // mock.onPost(settings.url('/events/bulk')).replyOnce(() => {
+    //   t.fail('Event endpoint should not be called if the plugin was not initialized properly');
+    //   t.end();
+    //   return [200];
+    // });
+
+    gaTag();
+
+    // siteSpeedSampleRate set to 0 to never send a site speed timing hit
+    window.ga('create', 'UA-00000002-1', 'example.com', 'myTracker2', { siteSpeedSampleRate: 0 });
+
+    gaSpy('myTracker2');
+
+    const factory = SplitFactory({
+      ...settings, core: { key: settings.core.key }, debug: true, scheduler: {
+        eventsQueueSize: 1,
+      }
+    });
+
+    window.ga('myTracker2.require', 'splitTracker');
+    for (let i = 0; i < numberOfCustomEvents; i++)
+      window.ga('myTracker2.send', 'pageview');
+
+    t.ok(logSpy.calledWith('[ERROR] splitio: GA integration => A traffic type is required for tracking GA hits as Split events'));
+    t.equal(window.gaSpy.getHits().length, numberOfCustomEvents, `Number of sent hits must be equal to ${numberOfCustomEvents}`);
+
+    factory.client().destroy();
+
+    t.end();
+  });
+
+  // test default behavior, providing a list of identities as SDK options
+  assert.test(t => {
+    const numberOfCustomEvents = 3;
+    const identities = [{ key: 'user1', trafficType: 'user' }, { key: 'user2', trafficType: 'user' }];
+
+    mock.onPost(settings.url('/events/bulk')).replyOnce(req => {
+      const resp = JSON.parse(req.data);
+      const sentEvents = window.gaSpy.getHits();
+
+      t.equal(sentEvents.length, numberOfCustomEvents, `Number of sent hits must be equal to sent custom events: (${numberOfCustomEvents})`);
+      t.equal(resp.length, numberOfCustomEvents * identities.length, 'The number of sent events must be equal to the number of sent hits multiply by the number of identities');
+
+      t.end();
+      return [200];
+    });
+
+    gaTag();
+
+    // siteSpeedSampleRate set to 0 to never send a site speed timing hit
+    window.ga('create', 'UA-00000003-1', 'example.com', 'myTracker3', { siteSpeedSampleRate: 0 });
+
+    gaSpy('myTracker3');
+
+    SplitFactory({
+      ...settings, core: { key: settings.core.key },
+      scheduler: {
+        eventsQueueSize: numberOfCustomEvents * identities.length,
+      },
+      integrations: {
+        ga2split: { identities },
+      },
+    });
+
+    window.ga('myTracker3.require', 'splitTracker');
+    for (let i = 0; i < numberOfCustomEvents; i++)
+      window.ga('myTracker3.send', 'pageview');
+
+  });
+
+
+  // test default behavior, providing a list of identities as plugin options
+  assert.test(t => {
+    const numberOfCustomEvents = 3;
+    const identities = [{ key: 'user1', trafficType: 'user' }, { key: 'user2', trafficType: 'user' }];
+
+    mock.onPost(settings.url('/events/bulk')).replyOnce(req => {
+      const resp = JSON.parse(req.data);
+      const sentEvents = window.gaSpy.getHits();
+
+      t.equal(sentEvents.length, numberOfCustomEvents, `Number of sent hits must be equal to sent custom events: (${numberOfCustomEvents})`);
+      t.equal(resp.length, numberOfCustomEvents * identities.length, 'The number of sent events must be equal to the number of sent hits multiply by the number of identities');
+
+      t.end();
+      return [200];
+    });
+
+    gaTag();
+
+    // siteSpeedSampleRate set to 0 to never send a site speed timing hit
+    window.ga('create', 'UA-00000004-1', 'example.com', 'myTracker4', { siteSpeedSampleRate: 0 });
+
+    gaSpy('myTracker4');
+
+    SplitFactory({
+      ...settings, core: { key: settings.core.key },
+      scheduler: {
+        eventsQueueSize: numberOfCustomEvents * identities.length,
+      },
+    });
+
+    window.ga('myTracker4.require', 'splitTracker', { identities });
+    for (let i = 0; i < numberOfCustomEvents; i++)
+      window.ga('myTracker4.send', 'pageview');
 
   });
 

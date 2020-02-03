@@ -1,6 +1,6 @@
 
 import logFactory from '../../utils/logger';
-const log = logFactory('splitio');
+const log = logFactory('splitio: GA integration');
 
 export default class SplitTrackerManager {
 
@@ -68,22 +68,32 @@ export default class SplitTrackerManager {
     };
   }
 
-  constructor(sdkOptions) {
-    // Constructor for the SplitTracker plugin.
+  static isEmptyOrHasUndefinedTTs(identities) {
+    if(!identities || !(identities.length > 0))
+      return true;
+    for(let i=0;i<identities.length;i++)
+      if(!identities[i].trafficType)
+        return true;
+    return false;
+  }
 
+  constructor(sdkOptions) {
+    
+    // Constructor for the SplitTracker plugin.
     function SplitTracker(tracker, pluginOptions) {
 
       const opts = Object.assign({
         hitFilter: SplitTrackerManager.defaultHitFilter,
         hitMapper: SplitTrackerManager.defaultHitMapper(),
-      }, pluginOptions, sdkOptions);
+      }, sdkOptions, pluginOptions);
 
       this.tracker = tracker;
 
       // @TODO review error condition and message
-      if (!opts.identities || sdkOptions.identities.length === 0) {
+      if (SplitTrackerManager.isEmptyOrHasUndefinedTTs(opts.identities)) {
         log.error('A traffic type is required for tracking GA hits as Split events');
-      }      
+        return;
+      }
 
       // Overwrite sendHitTask to perform plugin tasks:
       // 1) filter hits
