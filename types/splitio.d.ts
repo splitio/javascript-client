@@ -3,6 +3,7 @@
 // Definitions by: Nico Zelaya <https://github.com/NicoZelaya/>
 
 /// <reference types="node" />
+/// <reference types="google.analytics" />
 
 export as namespace SplitIO;
 export = SplitIO;
@@ -551,11 +552,6 @@ declare namespace SplitIO {
     value?: number;
     properties?: Properties;
   };
-  interface GAModel {
-    get(fieldName: string): any;
-    set(fieldName: string, fieldValue: any, temporary?: boolean): void;
-    set(fields: {}, fieldValue?: null, temporary?: boolean): void;
-  }
   /**
    * Options object for configuring `splitTracker` GA plugin.
    * @interface {Object} ISplitTrackerOptions
@@ -564,8 +560,8 @@ declare namespace SplitIO {
    * @property {Identity[]} identities
    */
   interface ISplitTrackerOptions {
-    hitFilter?: (model: GAModel) => boolean,
-    hitMapper?: (model: GAModel) => EventData,
+    hitFilter?: (model: UniversalAnalytics.Model) => boolean,
+    hitMapper?: (model: UniversalAnalytics.Model) => EventData,
     identities?: Identity[],
   }
   /**
