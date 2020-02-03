@@ -12,7 +12,7 @@ import SplitFactoryOffline from './factory/offline';
 import sdkStatusManager from './readiness/statusManager';
 import { LOCALHOST_MODE } from './utils/constants';
 import { validateApiKey, validateKey, validateTrafficType } from './utils/inputValidation';
-import { providePlugin, SplitTracker, sdkOptions } from './integrations/ga/splitTracker';
+import setupIntegrations from './integrations';
 
 const buildInstanceId = (key, trafficType) => `${key.matchingKey ? key.matchingKey : key}-${key.bucketingKey ? key.bucketingKey : key}-${trafficType !== undefined ? trafficType : ''}`;
 
@@ -61,9 +61,12 @@ export function SplitFactory(config) {
   const defaultInstanceId = buildInstanceId(parsedDefaultKey, settings.core.trafficType);
   clientInstances[defaultInstanceId] = mainClientInstance;
 
+  // Setup integrations
+  setupIntegrations(context);
+
   log.info('New Split SDK instance created.');
 
-  const factory = {
+  return {
     // Split evaluation and event tracking engine
     client(key, trafficType) {
       if (key === undefined) {
@@ -127,26 +130,4 @@ export function SplitFactory(config) {
     // Expose SDK settings
     settings
   };
-
-  if (config.integrations) {
-    if (config.integrations.ga2split) {
-      sdkOptions.eventHandler = function (event) {
-        storage.events.track(event);
-      };
-      if (settings.core.trafficType)
-        sdkOptions.identities = [{ key: settings.core.key, trafficType: settings.core.trafficType }];
-
-      if (typeof config.integrations.ga2split === 'object')
-        Object.assign(sdkOptions, config.integrations.ga2split);
-
-      // @TODO review error condition and message
-      if (!sdkOptions.identities || sdkOptions.identities.length === 0) {
-        log.error('A traffic type is required for tracking GA hits as Split events');
-      }
-      // Register the plugin, even if config is invalid, since, if not provided, it will block `ga` command queue.
-      providePlugin('splitTracker', SplitTracker);
-    }
-  }
-
-  return factory;
 }

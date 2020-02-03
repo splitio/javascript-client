@@ -1,15 +1,4 @@
 // CHECK provide.js at autotrack
-export function requirePlugin(pluginName, pluginOptions = {}, trackerNames = ['auto']) {
-  var ga = window[window['GoogleAnalyticsObject'] || 'ga'];
-  if (typeof ga == 'function') {
-    for (let index = 0; index < trackerNames.length; index++) {
-      ga(trackerNames[index] + '.require', pluginName, pluginOptions);
-    }
-  } else {
-    // TODO: log warning 'ga Command Queue not found'
-  }
-}
-
 export function providePlugin(pluginName, pluginConstructor) {
   var ga = window[window['GoogleAnalyticsObject'] || 'ga'];
   if (typeof ga == 'function') {
