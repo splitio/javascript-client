@@ -22,12 +22,13 @@ function ImpressionsTrackerContext(context) {
   const collector = context.get(context.constants.STORAGE).impressions;
   const settings = context.get(context.constants.SETTINGS);
   const listener = settings.impressionListener;
+  const internalListener = context.get(context.constants.INTERNAL_IMPRESSION_LISTENER);
   const { ip, hostname } = settings.runtime;
   const sdkLanguageVersion = settings.version;
   const queue = [];
 
   return {
-    queue: function(impression, attributes) {
+    queue: function (impression, attributes) {
       queue.push({
         impression,
         attributes
@@ -46,21 +47,26 @@ function ImpressionsTrackerContext(context) {
           log.error(`Could not store impressions bulk with ${impressionsCount} impression${impressionsCount === 1 ? '' : 's'}. Error: ${err}`);
         });
       }
-      // Wrap in a timeout because we don't want it to be blocking.
-      for (let i = 0; i < impressionsCount; i++) {
-        listener && setTimeout(() => {
-          try { // An exception on the listener should not break the SDK.
-            listener.logImpression({
-              impression: slice[i].impression,
-              attributes: slice[i].attributes,
-              ip,
-              hostname,
-              sdkLanguageVersion
-            });
-          } catch (err) {
-            log.error(`Impression listener logImpression method threw: ${err}.`);
-          }
-        }, 0);
+
+      if (listener || internalListener) {
+        for (let i = 0; i < impressionsCount; i++) {
+          const impressionData = {
+            impression: slice[i].impression,
+            attributes: slice[i].attributes,
+            ip,
+            hostname,
+            sdkLanguageVersion
+          };
+          // Wrap in a timeout because we don't want it to be blocking.
+          setTimeout(() => {
+            try { // An exception on the listener should not break the SDK.
+              if (listener) listener.logImpression(impressionData);
+              if (internalListener) internalListener.logImpression(impressionData);
+            } catch (err) {
+              log.error(`Impression listener logImpression method threw: ${err}.`);
+            }
+          }, 0);
+        }
       }
     }
   };

@@ -7,7 +7,8 @@ export const READY_FROM_CACHE = 'is_ready_from_cache';
 export const SETTINGS = 'settings';
 export const STATUS_MANAGER = 'status_manager';
 export const STORAGE = 'storage';
+export const INTERNAL_IMPRESSION_LISTENER = 'internal_impression_listener';
 
 export default {
-  COLLECTORS, DESTROYED, EVENTS, READINESS, READY, READY_FROM_CACHE, SETTINGS, STATUS_MANAGER, STORAGE
+  COLLECTORS, DESTROYED, EVENTS, READINESS, READY, READY_FROM_CACHE, SETTINGS, STATUS_MANAGER, STORAGE, INTERNAL_IMPRESSION_LISTENER
 };
