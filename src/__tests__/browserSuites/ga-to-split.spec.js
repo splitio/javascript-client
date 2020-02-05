@@ -23,7 +23,10 @@
  *      - invalid hitMapper
  *    - SDK factory instantiated before than GA tag
  *    - GA tag not included, but SDK configured for GA 
- * 
+ *    - GA in another global variable
+ *  
+ *  - Node:
+ *    - Should do nothing
  */
 
 import sinon from 'sinon';
@@ -89,6 +92,8 @@ const settings = SettingsFactory({
 
 export default function (mock, assert) {
 
+  let client;
+
   // test default behavior on default tracker
   assert.test(t => {
     mock.onPost(settings.url('/events/bulk')).replyOnce(req => {
@@ -99,6 +104,7 @@ export default function (mock, assert) {
       t.equal(resp[0].key, settings.core.key, 'Event key is same that SDK config key');
       t.equal(resp[0].trafficTypeName, settings.core.trafficType, 'Event trafficTypeName is same that SDK config key');
 
+      client.destroy();
       t.end();
       return [200];
     });
@@ -113,13 +119,15 @@ export default function (mock, assert) {
     window.ga('require', 'splitTracker');
     window.ga('send', 'pageview');
 
-    SplitFactory(settings);
+    const factory = SplitFactory(settings);
+    client = factory.client();
 
   });
 
   // test default behavior on named tracker, tracking N events
   assert.test(t => {
     const numberOfCustomEvents = 5;
+    let client;
 
     mock.onPost(settings.url('/events/bulk')).replyOnce(req => {
       const resp = JSON.parse(req.data);
@@ -129,6 +137,7 @@ export default function (mock, assert) {
       t.equal(resp[0].key, settings.core.key, 'Event key is same that SDK config key');
       t.equal(resp[0].trafficTypeName, settings.core.trafficType, 'Event trafficTypeName is same that SDK config key');
 
+      client.destroy();
       t.end();
       return [200];
     });
@@ -140,11 +149,12 @@ export default function (mock, assert) {
 
     gaSpy('myTracker');
 
-    SplitFactory({
+    const factory = SplitFactory({
       ...settings, scheduler: {
         eventsQueueSize: numberOfCustomEvents,
       }
     });
+    client = factory.client();
 
     window.ga('myTracker.require', 'splitTracker');
     for (let i = 0; i < numberOfCustomEvents; i++)
@@ -192,6 +202,7 @@ export default function (mock, assert) {
   assert.test(t => {
     const numberOfCustomEvents = 3;
     const identities = [{ key: 'user1', trafficType: 'user' }, { key: 'user2', trafficType: 'user' }];
+    let client;
 
     mock.onPost(settings.url('/events/bulk')).replyOnce(req => {
       const resp = JSON.parse(req.data);
@@ -200,6 +211,7 @@ export default function (mock, assert) {
       t.equal(sentEvents.length, numberOfCustomEvents, `Number of sent hits must be equal to sent custom events: (${numberOfCustomEvents})`);
       t.equal(resp.length, numberOfCustomEvents * identities.length, 'The number of sent events must be equal to the number of sent hits multiply by the number of identities');
 
+      client.destroy();
       t.end();
       return [200];
     });
@@ -211,7 +223,7 @@ export default function (mock, assert) {
 
     gaSpy('myTracker3');
 
-    SplitFactory({
+    const factory = SplitFactory({
       ...settings, core: { key: settings.core.key },
       scheduler: {
         eventsQueueSize: numberOfCustomEvents * identities.length,
@@ -220,6 +232,7 @@ export default function (mock, assert) {
         ga2split: { identities },
       },
     });
+    client = factory.client();
 
     window.ga('myTracker3.require', 'splitTracker');
     for (let i = 0; i < numberOfCustomEvents; i++)
@@ -232,6 +245,7 @@ export default function (mock, assert) {
   assert.test(t => {
     const numberOfCustomEvents = 3;
     const identities = [{ key: 'user1', trafficType: 'user' }, { key: 'user2', trafficType: 'user' }];
+    let client;
 
     mock.onPost(settings.url('/events/bulk')).replyOnce(req => {
       const resp = JSON.parse(req.data);
@@ -240,6 +254,7 @@ export default function (mock, assert) {
       t.equal(sentEvents.length, numberOfCustomEvents, `Number of sent hits must be equal to sent custom events: (${numberOfCustomEvents})`);
       t.equal(resp.length, numberOfCustomEvents * identities.length, 'The number of sent events must be equal to the number of sent hits multiply by the number of identities');
 
+      client.destroy();
       t.end();
       return [200];
     });
@@ -251,12 +266,13 @@ export default function (mock, assert) {
 
     gaSpy('myTracker4');
 
-    SplitFactory({
+    const factory = SplitFactory({
       ...settings, core: { key: settings.core.key },
       scheduler: {
         eventsQueueSize: numberOfCustomEvents * identities.length,
       },
     });
+    client = factory.client();
 
     window.ga('myTracker4.require', 'splitTracker', { identities });
     for (let i = 0; i < numberOfCustomEvents; i++)

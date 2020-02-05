@@ -560,30 +560,50 @@ declare namespace SplitIO {
    * @property {Identity[]} identities
    */
   interface ISplitTrackerOptions {
+    /**
+     * Optional hitFilter to use instead of default, which always return true, 
+     * meaning that all GA hits are tracked as Split events. 
+     */
     hitFilter?: (model: UniversalAnalytics.Model) => boolean,
+    /**
+     * Optional hitMapper to use instead of default. 
+     * This function receives a GA model instance, and returns a EventData instance.
+     * The default EventData value depends on the hitType:
+     *  - for event hitType:
+     *  `{
+     *    eventTypeId: model.get('eventAction'),
+     *    value: model.get('eventValue'),
+     *    properties: {
+     *      eventCategory: model.get('eventCategory'),
+     *      eventLabel: model.get('eventLabel'),
+     *    }
+     *  }`
+     *  ...
+     */
     hitMapper?: (model: UniversalAnalytics.Model) => EventData,
+    /**
+     * List of Split identities (key & traffic type pairs) used to track events.
+     * If not provided, events are sent using the key and traffic type provided at SDK config
+     */
     identities?: Identity[],
   }
   interface ISplit2GaOptions {
     /**
-     * If set, a custom dimension at the index provided is sent with the impression label.
-     * This option is ignored if `impressionMapper` is set.
+     * Optional impressionFilter to use instead of default, which always return true, 
+     * meaning that all impressions are tracked as GA hits. 
      */
-    labelDimensionIndex?: number,
-    /**
-     * If set, it overwrites `nonInteraction` field, which is `true` by default.
-     * This option is ignored if `impressionMapper` is set.
-     */
-    nonInteraction?: boolean,
+    impressionFilter?: (impression: SplitIO.ImpressionData) => boolean,
     /**
      * Optional impressionMapper to use instead of default. 
-     * This function accepts an impression data object, and returns a GA FieldsObject.
-     * Default field values:
-     *  - hitType: 'event',
-     *  - eventCategory: 'split-impression',
-     *  - eventAction: impressionData.feature,
-     *  - eventLabel: impressionData.treatment,
-     *  - nonInteraction: true,
+     * This function accepts an impression data instance, and returns a GA FieldsObject instance.
+     * Default FieldsObject value:
+     *  `{
+     *    hitType: 'event',
+     *    eventCategory: 'split-impression',
+     *    eventAction: impressionData.impression.feature,
+     *    eventLabel: impressionData.impression.treatment,
+     *    nonInteraction: true,
+     *  }`
      */
     impressionMapper?: (impression: SplitIO.ImpressionData) => UniversalAnalytics.FieldsObject,
     /**

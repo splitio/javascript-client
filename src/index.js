@@ -40,6 +40,11 @@ export function SplitFactory(config) {
   const gateFactory = ReadinessGateFacade();
   context.put(context.constants.STORAGE, storage);
 
+  // Setup integrations. 
+  // @TODO review location. For now, it is located here since `ga2split` needs to access the storage from the context,
+  // and `split2ga` adds an item to the context (a impression listener) that is required by `ImpressionsTrackerContext` in `SplitFactoryOffline/Online`
+  setupIntegrations(context);
+
   // Define which type of factory to use
   const splitFactory = settings.mode === LOCALHOST_MODE ? SplitFactoryOffline : SplitFactoryOnline;
 
@@ -60,9 +65,6 @@ export function SplitFactory(config) {
   const parsedDefaultKey = keyParser(settings.core.key);
   const defaultInstanceId = buildInstanceId(parsedDefaultKey, settings.core.trafficType);
   clientInstances[defaultInstanceId] = mainClientInstance;
-
-  // Setup integrations
-  setupIntegrations(context);
 
   log.info('New Split SDK instance created.');
 
