@@ -46,8 +46,9 @@ function ImpressionsTrackerContext(context) {
         // Wrap in a timeout because we don't want it to be blocking.
         setTimeout(() => {
           try { // An exception on the listener should not break the SDK.
-            if (listener) listener.logImpression(impressionData);
+            // InternalListener (used for split2ga integration) is exception free, thus we put it first
             if (internalListener) internalListener.logImpression(impressionData);
+            if (listener) listener.logImpression(impressionData);
           } catch (err) {
             log.error(`Impression listener logImpression method threw: ${err}.`);
           }

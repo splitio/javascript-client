@@ -3,6 +3,7 @@
  *  - Default behavior
  *    DONE- On default tracker
  *    DONE- On named tracker
+ *    -ga require on multiple trackers, with different options
  * 
  *  - Configs
  *    DONE- Several identities
@@ -21,6 +22,7 @@
  *      - invalid identities
  *      - invalid hitFilter
  *      - invalid hitMapper
+ *    - ga require command added repeatedly
  *    - SDK factory instantiated before than GA tag
  *    - GA tag not included, but SDK configured for GA 
  *    - GA in another global variable

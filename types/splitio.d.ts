@@ -766,11 +766,11 @@ declare namespace SplitIO {
       ga2split?: boolean | ISplitTrackerOptions,
       /**
        * Enable Split-to-GA integration, to track Split impressions as GA hits.
-       * @property {boolean | ISplit2GaOptions} split2ga boolean to enable Split-to-GA integration, or optional config object used for configuring the integration.
+       * @property {boolean | ISplit2GaOptions[]} split2ga boolean to enable Split-to-GA integration, or optional config object used for configuring the integration.
        * @default false
        * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#ga-to-split-integration}
        */
-      split2ga?: boolean | ISplit2GaOptions,
+      split2ga?: boolean | ISplit2GaOptions[],
     }
   }
   /**
