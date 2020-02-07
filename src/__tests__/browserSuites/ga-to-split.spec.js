@@ -34,52 +34,9 @@
 import sinon from 'sinon';
 import { SplitFactory } from '../../';
 import SettingsFactory from '../../utils/settings';
+import { gaSpy, gaTag } from '../utils/gaTestUtils';
 
-/**
- * Spy ga hits per tracker.
- * 
- * @param {string} trackerName name of the tracker to spy. If not provided, it spy the default tracker. i.e., `gaSpy()` is equivalent to `gaSpy('t0')`
- */
-function gaSpy(trackerName) {
-  window.gaSpy = (function () {
-
-    const hits = [];
-
-    console.log(`gaSpy[${trackerName || 't0'}]::init`);
-    var ga = window[window['GoogleAnalyticsObject'] || 'ga'];
-    if (typeof ga == 'function') {
-      ga(function (tracker) {
-        const trackerToSniff = trackerName && trackerName !== 't0' ? ga.getByName(trackerName) : tracker;
-        var originalSendHitTask = trackerToSniff.get('sendHitTask');
-        trackerToSniff.set('sendHitTask', function (model) {
-          originalSendHitTask(model);
-          hits.push({ hitType: model.get('hitType') });
-        });
-      });
-    } else {
-      console.error('GA command queue was not found');
-    }
-
-    return {
-      getHits: function () {
-        return hits;
-      }
-    };
-  })();
-
-  return window.gaSpy;
-}
-
-function gaTag() {
-  (function (i, s, o, g, r, a, m) {
-    i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
-      (i[r].q = i[r].q || []).push(arguments);
-    }, i[r].l = 1 * new Date(); a = s.createElement(o), m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m);
-  })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
-}
-
-
-const settings = SettingsFactory({
+const config = {
   core: {
     key: 'facundo@split.io',
     trafficType: 'user',
@@ -90,7 +47,8 @@ const settings = SettingsFactory({
   scheduler: {
     eventsQueueSize: 1,
   },
-});
+};
+const settings = SettingsFactory(config);
 
 export default function (mock, assert) {
 
@@ -106,8 +64,10 @@ export default function (mock, assert) {
       t.equal(resp[0].key, settings.core.key, 'Event key is same that SDK config key');
       t.equal(resp[0].trafficTypeName, settings.core.trafficType, 'Event trafficTypeName is same that SDK config key');
 
-      client.destroy();
-      t.end();
+      setTimeout(() => {
+        client.destroy();
+        t.end();
+      });
       return [200];
     });
 
@@ -116,12 +76,12 @@ export default function (mock, assert) {
     // siteSpeedSampleRate set to 0 to never send a site speed timing hit
     window.ga('create', 'UA-00000000-1', 'auto', { siteSpeedSampleRate: 0 });
 
-    gaSpy('t0');
+    gaSpy();
 
     window.ga('require', 'splitTracker');
     window.ga('send', 'pageview');
 
-    const factory = SplitFactory(settings);
+    const factory = SplitFactory(config);
     client = factory.client();
 
   });
@@ -133,26 +93,29 @@ export default function (mock, assert) {
 
     mock.onPost(settings.url('/events/bulk')).replyOnce(req => {
       const resp = JSON.parse(req.data);
-      const sentEvents = window.gaSpy.getHits();
+      const sentEvents = window.gaSpy.getHits('myTracker');
 
       t.equal(resp.length, sentEvents.length, `Number of sent hits must be equal to sent events: (${sentEvents.length})`);
       t.equal(resp[0].key, settings.core.key, 'Event key is same that SDK config key');
       t.equal(resp[0].trafficTypeName, settings.core.trafficType, 'Event trafficTypeName is same that SDK config key');
 
-      client.destroy();
-      t.end();
+      setTimeout(() => {
+        client.destroy();
+        t.end();
+      });
       return [200];
     });
 
-    // gaTag();
+    gaTag();
 
     // siteSpeedSampleRate set to 0 to never send a site speed timing hit
     window.ga('create', 'UA-00000001-1', 'example.com', 'myTracker', { siteSpeedSampleRate: 0 });
 
-    gaSpy('myTracker');
+    gaSpy(['myTracker']);
 
     const factory = SplitFactory({
-      ...settings, scheduler: {
+      ...config,
+      scheduler: {
         eventsQueueSize: numberOfCustomEvents,
       }
     });
@@ -169,23 +132,17 @@ export default function (mock, assert) {
     const numberOfCustomEvents = 5;
     const logSpy = sinon.spy(console, 'log');
 
-    // mock.onPost(settings.url('/events/bulk')).replyOnce(() => {
-    //   t.fail('Event endpoint should not be called if the plugin was not initialized properly');
-    //   t.end();
-    //   return [200];
-    // });
-
     gaTag();
 
     // siteSpeedSampleRate set to 0 to never send a site speed timing hit
     window.ga('create', 'UA-00000002-1', 'example.com', 'myTracker2', { siteSpeedSampleRate: 0 });
 
-    gaSpy('myTracker2');
+    gaSpy(['myTracker2']);
 
     const factory = SplitFactory({
-      ...settings, core: { key: settings.core.key }, debug: true, scheduler: {
-        eventsQueueSize: 1,
-      }
+      ...config,
+      core: { key: config.core.key },
+      debug: true,
     });
 
     window.ga('myTracker2.require', 'splitTracker');
@@ -193,7 +150,7 @@ export default function (mock, assert) {
       window.ga('myTracker2.send', 'pageview');
 
     t.ok(logSpy.calledWith('[ERROR] splitio: GA integration => A traffic type is required for tracking GA hits as Split events'));
-    t.equal(window.gaSpy.getHits().length, numberOfCustomEvents, `Number of sent hits must be equal to ${numberOfCustomEvents}`);
+    t.equal(window.gaSpy.getHits('myTracker2').length, numberOfCustomEvents, `Number of sent hits must be equal to ${numberOfCustomEvents}`);
 
     factory.client().destroy();
 
@@ -208,13 +165,15 @@ export default function (mock, assert) {
 
     mock.onPost(settings.url('/events/bulk')).replyOnce(req => {
       const resp = JSON.parse(req.data);
-      const sentEvents = window.gaSpy.getHits();
+      const sentEvents = window.gaSpy.getHits('myTracker3');
 
       t.equal(sentEvents.length, numberOfCustomEvents, `Number of sent hits must be equal to sent custom events: (${numberOfCustomEvents})`);
       t.equal(resp.length, numberOfCustomEvents * identities.length, 'The number of sent events must be equal to the number of sent hits multiply by the number of identities');
 
-      client.destroy();
-      t.end();
+      setTimeout(() => {
+        client.destroy();
+        t.end();
+      });
       return [200];
     });
 
@@ -223,10 +182,11 @@ export default function (mock, assert) {
     // siteSpeedSampleRate set to 0 to never send a site speed timing hit
     window.ga('create', 'UA-00000003-1', 'example.com', 'myTracker3', { siteSpeedSampleRate: 0 });
 
-    gaSpy('myTracker3');
+    gaSpy(['myTracker3']);
 
     const factory = SplitFactory({
-      ...settings, core: { key: settings.core.key },
+      ...config,
+      core: { key: config.core.key },
       scheduler: {
         eventsQueueSize: numberOfCustomEvents * identities.length,
       },
@@ -251,13 +211,15 @@ export default function (mock, assert) {
 
     mock.onPost(settings.url('/events/bulk')).replyOnce(req => {
       const resp = JSON.parse(req.data);
-      const sentEvents = window.gaSpy.getHits();
+      const sentEvents = window.gaSpy.getHits('myTracker4');
 
       t.equal(sentEvents.length, numberOfCustomEvents, `Number of sent hits must be equal to sent custom events: (${numberOfCustomEvents})`);
       t.equal(resp.length, numberOfCustomEvents * identities.length, 'The number of sent events must be equal to the number of sent hits multiply by the number of identities');
 
-      client.destroy();
-      t.end();
+      setTimeout(() => {
+        client.destroy();
+        t.end();
+      });
       return [200];
     });
 
@@ -266,10 +228,11 @@ export default function (mock, assert) {
     // siteSpeedSampleRate set to 0 to never send a site speed timing hit
     window.ga('create', 'UA-00000004-1', 'example.com', 'myTracker4', { siteSpeedSampleRate: 0 });
 
-    gaSpy('myTracker4');
+    gaSpy(['myTracker4']);
 
     const factory = SplitFactory({
-      ...settings, core: { key: settings.core.key },
+      ...config,
+      core: { key: config.core.key },
       scheduler: {
         eventsQueueSize: numberOfCustomEvents * identities.length,
       },

@@ -22,7 +22,7 @@ function ImpressionsTrackerContext(context) {
   const collector = context.get(context.constants.STORAGE).impressions;
   const settings = context.get(context.constants.SETTINGS);
   const listener = settings.impressionListener;
-  const internalListener = context.get(context.constants.INTERNAL_IMPRESSION_LISTENER);
+  const internalListener = context.get(context.constants.INTERNAL_IMPRESSION_LISTENER, true);
   const { ip, hostname } = settings.runtime;
   const sdkLanguageVersion = settings.version;
 
@@ -46,7 +46,7 @@ function ImpressionsTrackerContext(context) {
         // Wrap in a timeout because we don't want it to be blocking.
         setTimeout(() => {
           try { // An exception on the listener should not break the SDK.
-            // InternalListener (used for split2ga integration) is exception free, thus we put it first
+            // InternalListener (used for split2ga integration) does not throw errors, thus we put it first
             if (internalListener) internalListener.logImpression(impressionData);
             if (listener) listener.logImpression(impressionData);
           } catch (err) {

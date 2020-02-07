@@ -30,56 +30,10 @@ import { SplitFactory } from '../../';
 import SettingsFactory from '../../utils/settings';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import mySegmentsFacundo from '../mocks/mysegments.facundo@split.io.json';
+import { gaSpy, gaTag } from '../utils/gaTestUtils';
 
-const DEFAULT_TRACKER = 't0';
-/**
- * Spy ga hits per tracker.
- * 
- * @param {string[]} trackerNames names of the trackers to spy. If not provided, it spy the default tracker. i.e., `gaSpy()` is equivalent to `gaSpy(['t0'])`
- */
-function gaSpy(trackerNames = [DEFAULT_TRACKER]) {
 
-  window.gaSpy = (function () {
 
-    const hits = {};
-
-    // console.log(`gaSpy[${trackerName || 't0'}]::init`);
-    var ga = window[window['GoogleAnalyticsObject'] || 'ga'];
-
-    if (typeof ga == 'function') {
-      ga(function (tracker) {
-        trackerNames.forEach(trackerName => {
-          const trackerToSniff = trackerName && trackerName !== DEFAULT_TRACKER ? ga.getByName(trackerName) : tracker;
-          hits[trackerName] = [];
-          var originalSendHitTask = trackerToSniff.get('sendHitTask');
-          trackerToSniff.set('sendHitTask', function (model) {
-            originalSendHitTask(model);
-            // @TODO parse more fields
-            hits[trackerName].push({ hitType: model.get('hitType') });
-          });
-        });
-      });
-    } else {
-      console.error('GA command queue was not found');
-    }
-
-    return {
-      getHits: function (trackerName = DEFAULT_TRACKER) {
-        return hits[trackerName];
-      }
-    };
-  })();
-
-  return window.gaSpy;
-}
-
-function gaTag() {
-  (function (i, s, o, g, r, a, m) {
-    i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
-      (i[r].q = i[r].q || []).push(arguments);
-    }, i[r].l = 1 * new Date(); a = s.createElement(o), m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m);
-  })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
-}
 
 function countImpressions(parsedImpressionsBulkPayload) {
   return parsedImpressionsBulkPayload
@@ -113,14 +67,20 @@ export default function (mock, assert) {
     let client;
 
     mock.onPost(settings.url('/testImpressions/bulk')).replyOnce(req => {
-      const resp = JSON.parse(req.data);
-      const sentImpressions = countImpressions(resp);
-      const sentHits = window.gaSpy.getHits();
+      // we can assert payload and ga hits, once ga is ready.
+      window.ga(() => {
+        const resp = JSON.parse(req.data);
+        const sentImpressions = countImpressions(resp);
+        const sentHits = window.gaSpy.getHits();
 
-      t.equal(sentImpressions + 1, sentHits.length, `Number of sent hits must be equal to the number of impressions plus 1 for the initial pageview (${resp.length + 1})`);
+        t.equal(sentImpressions, 1, 'Number of impressions');
+        t.equal(sentImpressions + 1, sentHits.length, `Number of sent hits must be equal to the number of impressions plus 1 for the initial pageview (${resp.length + 1})`);
 
-      client.destroy();
-      t.end();
+        setTimeout(() => {
+          client.destroy();
+          t.end();
+        });
+      });
       return [200];
     });
 
@@ -137,7 +97,60 @@ export default function (mock, assert) {
     client = factory.client();
     client.ready().then(() => {
       client.getTreatment('hierarchical_splits_test');
-      client.getTreatmentWithConfig('split_with_config');
+    });
+
+  });
+
+  // test default behavior in multiple trackers
+  assert.test(t => {
+
+    let client;
+
+    mock.onPost(settings.url('/testImpressions/bulk')).replyOnce(req => {
+      // we can assert payload and ga hits, once ga is ready.
+      // window.ga(() => {
+      const resp = JSON.parse(req.data);
+      const sentImpressions = countImpressions(resp);
+      const sentHitsTracker1 = window.gaSpy.getHits('myTracker1');
+      const sentHitsTracker2 = window.gaSpy.getHits('myTracker2');
+
+      t.equal(sentImpressions, 1, 'Number of impressions');
+      t.equal(sentImpressions, sentHitsTracker1.length, 'Number of sent hits must be equal to the number of impressions');
+      t.equal(sentImpressions, sentHitsTracker2.length, 'Number of sent hits must be equal to the number of impressions');
+
+      setTimeout(() => {
+        client.destroy();
+        t.end();
+      });
+      // });
+      return [200];
+    });
+
+    gaTag();
+
+    window.ga('create', 'UA-00000000-1', 'auto', { siteSpeedSampleRate: 0 });
+    window.ga('create', 'UA-00000001-1', 'example1.com', 'myTracker1', { siteSpeedSampleRate: 0 });
+    window.ga('create', 'UA-00000002-1', 'example2.com', 'myTracker2', { siteSpeedSampleRate: 0 });
+
+    gaSpy(['myTracker1', 'myTracker2']);
+
+    const factory = SplitFactory({
+      ...config,
+      core: {
+        ...config.core,
+        authorizationKey: '<some-token-2>',
+      },
+      integrations: {
+        split2ga: [{
+          trackerNames: ['myTracker1'],
+        }, {
+          trackerNames: ['myTracker2'],
+        }],
+      },
+    });
+    client = factory.client();
+    client.ready().then(() => {
+      client.getTreatment('split_with_config');
     });
 
   });
