@@ -41,9 +41,9 @@ const config = {
     key: 'facundo@split.io',
     trafficType: 'user',
   },
-  integrations: {
-    ga2split: true,
-  },
+  integrations: [{
+    type: 'GA_TO_SPLIT',
+  }],
   scheduler: {
     eventsQueueSize: 1,
   },
@@ -190,9 +190,10 @@ export default function (mock, assert) {
       scheduler: {
         eventsQueueSize: numberOfCustomEvents * identities.length,
       },
-      integrations: {
-        ga2split: { identities },
-      },
+      integrations: [{
+        type: 'GA_TO_SPLIT',
+        identities: identities,
+      }],
     });
     client = factory.client();
 

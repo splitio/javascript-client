@@ -54,25 +54,8 @@ const baseConfigWithTT = {
   }
 };
 
-tape('if config.integrations.ga2split is undefined, then do not provide `splitTracker`', function (assert) {
+tape('if config.integrations.ga2split is not provided, then do not provide `splitTracker`', function (assert) {
   const config = Object.assign({}, baseConfig);
-
-  // eslint-disable-next-line no-unused-vars
-  const factory = SplitFactory(config);
-  factory.client().destroy();
-
-  assert.ok(splitTrackerModuleMock.providePlugin.notCalled);
-
-  resetStubs();
-  assert.end();
-});
-
-tape('if config.integrations.ga2split is false, then do not provide `splitTracker`', function (assert) {
-  const config = Object.assign({}, baseConfig, {
-    integrations: {
-      ga2split: false
-    }
-  });
 
   // eslint-disable-next-line no-unused-vars
   const factory = SplitFactory(config);
@@ -87,7 +70,7 @@ tape('if config.integrations.ga2split is false, then do not provide `splitTracke
 tape('if config.integrations.ga2split is true and config.core.trafficType is defined, then provide `splitTracker`', function (assert) {
   const config = Object.assign({}, baseConfigWithTT, {
     integrations: {
-      ga2split: true
+      type: 'GA_TO_SPLIT',
     }
   });
 
@@ -101,10 +84,11 @@ tape('if config.integrations.ga2split is true and config.core.trafficType is def
   assert.end();
 });
 
+// @TODO we must provide `splitTracker` even if the config is invalid
 tape('if config.integrations.ga2split is true and config.core.trafficType is undefined, then do not provide `splitTracker` and log error', function (assert) {
   const config = Object.assign({}, baseConfig, {
     integrations: {
-      ga2split: true
+      type: 'GA_TO_SPLIT',
     },
   });
 

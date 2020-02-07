@@ -46,9 +46,9 @@ const config = {
     key: 'facundo@split.io',
     trafficType: 'user',
   },
-  integrations: {
-    split2ga: true,
-  },
+  integrations: [{
+    type: 'SPLIT_TO_GA',
+  }],
   scheduler: {
     impressionsRefreshRate: 0.5,
   },
@@ -140,13 +140,13 @@ export default function (mock, assert) {
         ...config.core,
         authorizationKey: '<some-token-2>',
       },
-      integrations: {
-        split2ga: [{
-          trackerNames: ['myTracker1'],
-        }, {
-          trackerNames: ['myTracker2'],
-        }],
-      },
+      integrations: [{
+        type: 'SPLIT_TO_GA',
+        trackerNames: ['myTracker1'],
+      }, {
+        type: 'SPLIT_TO_GA',
+        trackerNames: ['myTracker2'],
+      }],
     });
     client = factory.client();
     client.ready().then(() => {

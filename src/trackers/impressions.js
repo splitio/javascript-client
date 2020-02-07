@@ -57,10 +57,12 @@ function ImpressionsTrackerContext(context) {
             hostname,
             sdkLanguageVersion
           };
+          // integrationsManager.handleImpression does not throw errors
+          // @TODO should we put it inside setTimeout to not block?
+          if (integrationsManager) integrationsManager.handleImpression(impressionData);
+
           // Wrap in a timeout because we don't want it to be blocking.
           setTimeout(() => {
-            // integrationsManager.handleImpression (used by split2ga integration for the moment) does not throw errors
-            if (integrationsManager) integrationsManager.handleImpression(impressionData);
             try { // An exception on the listeners should not break the SDK.
               if (listener) listener.logImpression(impressionData);
             } catch (err) {

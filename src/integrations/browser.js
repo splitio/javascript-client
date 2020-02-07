@@ -1,6 +1,7 @@
 import GaSplitTrackerManager from './ga/splitTracker';
 import buildSplitToGaImpressionListener from './ga/splitToGa';
-import { isObject } from '../utils/lang';
+import { GA_TO_SPLIT, SPLIT_TO_GA } from '../utils/constants';
+import { groupBy } from '../utils/lang';
 
 const integrationsManagerFactory = context => {
   const settings = context.get(context.constants.SETTINGS);
@@ -8,27 +9,49 @@ const integrationsManagerFactory = context => {
   if (!settings.integrations)
     return;
 
-  // GA-to-Split integration
-  if (settings.integrations.ga2split) {
+  const groupedByIntegrations = groupBy(settings.integrations, 'type');
+  const impressionListeners = [];
+  const eventListeners = [];
 
-    const storage = context.get(context.constants.STORAGE);
-    const ga2split = settings.integrations.ga2split;
+  for (let name in groupedByIntegrations) {
+    const options = groupedByIntegrations[name];
+    console.log('grouped options: ' + name);
+    console.dir(options);
 
-    const gaSdkOptions = Object.assign(
-      {
-        eventHandler: function (event) {
-          storage.events.track(event);
+    // GA-to-Split integration
+    if (name === GA_TO_SPLIT) {
+      const storage = context.get(context.constants.STORAGE);
+      const gaSdkOptions = Object.assign(
+        {
+          eventHandler: function (event) {
+            storage.events.track(event);
+          },
+          identities: [{ key: settings.core.key, trafficType: settings.core.trafficType }]
         },
-        identities: [{ key: settings.core.key, trafficType: settings.core.trafficType }]
-      },
-      isObject(ga2split) ? ga2split : {});
-    new GaSplitTrackerManager(gaSdkOptions);
+        options[0]);
+      // @TODO review next sentence. Should we store it somewhere?
+      new GaSplitTrackerManager(gaSdkOptions);
+      continue;
+    }
+
+    // Split-to-GA integration
+    if (name === SPLIT_TO_GA) {
+      const impressionListener = buildSplitToGaImpressionListener(options);
+      impressionListeners.push(impressionListener);
+      continue;
+    }
   }
 
-  // Split-to-GA integration
-  if (settings.integrations.split2ga) {
-    return buildSplitToGaImpressionListener(settings.integrations.split2ga);
-  }
+  // Each integration listener is responsable for handling errors
+  if (impressionListeners.length > 0)
+    return {
+      handleImpression: function (impressionData) {
+        impressionListeners.forEach(impressionListener => impressionListener.handleImpression(impressionData));
+      },
+      handleEvent: function(eventData) {
+        eventListeners.forEach(eventListener => eventListener.handleEvent(eventData));
+      }
+    };
 
 };
 

@@ -553,22 +553,23 @@ declare namespace SplitIO {
     properties?: Properties;
   };
   /**
-   * Options object for configuring `splitTracker` GA plugin.
+   * Options object used for configuring `splitTracker` GA plugin.
+   * 
    * @interface {Object} ISplitTrackerOptions
-   * @property {function} hitFilter
-   * @property {function} hitMapper
+   * @property {function} filter
+   * @property {function} mapper
    * @property {Identity[]} identities
    */
   interface ISplitTrackerOptions {
     /**
-     * Optional hitFilter to use instead of default, which always return true, 
+     * Optional filter to use instead of the default one, which always returns true, 
      * meaning that all GA hits are tracked as Split events. 
      */
-    hitFilter?: (model: UniversalAnalytics.Model) => boolean,
+    filter?: (model: UniversalAnalytics.Model) => boolean,
     /**
-     * Optional hitMapper to use instead of default. 
+     * Optional mapper to use instead of the default one. 
      * This function receives a GA model instance, and returns a EventData instance.
-     * The default EventData value depends on the hitType:
+     * The default mapper returns an EventData value depending on the hitType:
      *  - for event hitType:
      *  `{
      *    eventTypeId: model.get('eventAction'),
@@ -580,19 +581,36 @@ declare namespace SplitIO {
      *  }`
      *  ...
      */
-    hitMapper?: (model: UniversalAnalytics.Model) => EventData,
+    mapper?: (model: UniversalAnalytics.Model) => EventData,
     /**
      * List of Split identities (key & traffic type pairs) used to track events.
      * If not provided, events are sent using the key and traffic type provided at SDK config
      */
     identities?: Identity[],
   }
-  interface ISplit2GaOptions {
+  /**
+   * Enable Ga-to-Split integration, to track GA hits as Split events.
+   * Enabling this option, the SDK provides the `splitTracker` GA plugin.
+   *
+   * @TODO update the following link
+   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#ga-to-split-integration}
+   */
+  interface GaToSplitIntegration extends ISplitTrackerOptions {
+    type: 'GA_TO_SPLIT',
+  }
+  /**
+   * Enable Split-to-GA integration, to track Split impressions as GA hits.
+   *
+   * @TODO update the following link
+   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#split-to-ga-integration}
+   */
+  interface SplitToGaIntegration {
+    type: 'SPLIT_TO_GA',
     /**
      * Optional impressionFilter to use instead of default, which always return true, 
      * meaning that all impressions are tracked as GA hits. 
      */
-    impressionFilter?: (impression: SplitIO.ImpressionData) => boolean,
+    filter?: (impression: SplitIO.ImpressionData) => boolean,
     /**
      * Optional impressionMapper to use instead of default. 
      * This function accepts an impression data instance, and returns a GA FieldsObject instance.
@@ -605,13 +623,14 @@ declare namespace SplitIO {
      *    nonInteraction: true,
      *  }`
      */
-    impressionMapper?: (impression: SplitIO.ImpressionData) => UniversalAnalytics.FieldsObject,
+    mapper?: (impression: SplitIO.ImpressionData) => UniversalAnalytics.FieldsObject,
     /**
      * List of tracker names to send the hit. An empty string represents the default tracker.
      * If not provided, hits are only sent to default tracker.
      */
     trackerNames?: string[],
   }
+  type BrowserIntegration = SplitToGaIntegration | GaToSplitIntegration;
   /**
    * Settings interface for SDK instances created on the browser
    * @interface IBrowserSettings
@@ -756,22 +775,7 @@ declare namespace SplitIO {
      * SDK integration settings for the Browser.
      * @property {Object} integrations
      */
-    integrations?: {
-      /**
-       * Enable `splitTracker` GA plugin to track GA hits as Split events.
-       * @property {boolean | ISplitTrackerOptions} ga2split boolean to provide `splitTracker` plugin, or optional config object used for configuring the plugin.
-       * @default false
-       * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#ga-to-split-integration}
-       */
-      ga2split?: boolean | ISplitTrackerOptions,
-      /**
-       * Enable Split-to-GA integration, to track Split impressions as GA hits.
-       * @property {boolean | ISplit2GaOptions[]} split2ga boolean to enable Split-to-GA integration, or optional config object used for configuring the integration.
-       * @default false
-       * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#ga-to-split-integration}
-       */
-      split2ga?: boolean | ISplit2GaOptions[],
-    }
+    integrations?: BrowserIntegration[]
   }
   /**
    * Settings interface for SDK instances created on NodeJS.
