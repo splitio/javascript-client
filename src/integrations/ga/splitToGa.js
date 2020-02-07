@@ -68,7 +68,7 @@ export default function (configObject) {
   }
 
   return {
-    logImpression: function (impressionData) {
+    handleImpression: function (impressionData) {
       const ga = getGa();
       configs.forEach(config => {
         if (!config.impressionFilter(impressionData))

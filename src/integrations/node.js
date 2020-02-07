@@ -1,4 +1,4 @@
-const nodeSetupIntegrations = () => {
+const integrationsManagerFactory = () => {
 };
 
-export default nodeSetupIntegrations;
+export default integrationsManagerFactory;

@@ -12,7 +12,7 @@ import SplitFactoryOffline from './factory/offline';
 import sdkStatusManager from './readiness/statusManager';
 import { LOCALHOST_MODE } from './utils/constants';
 import { validateApiKey, validateKey, validateTrafficType } from './utils/inputValidation';
-import setupIntegrations from './integrations';
+import IntegrationsManagerFactory from './integrations';
 
 const buildInstanceId = (key, trafficType) => `${key.matchingKey ? key.matchingKey : key}-${key.bucketingKey ? key.bucketingKey : key}-${trafficType !== undefined ? trafficType : ''}`;
 
@@ -40,10 +40,11 @@ export function SplitFactory(config) {
   const gateFactory = ReadinessGateFacade();
   context.put(context.constants.STORAGE, storage);
 
-  // Setup integrations. 
-  // @TODO review location. For now, it is located here since `ga2split` needs to access the storage from the context,
-  // and `split2ga` adds an item to the context (a impression listener) that is required by `ImpressionsTrackerContext` in `SplitFactoryOffline/Online`
-  setupIntegrations(context);
+  // IntegrationsManagerFactory. 
+  // @TODO review location. For now, it is located here since `ga2split` integration needs to access the storage from the context,
+  // and `split2ga` integration needs to listen impressions sent by `ImpressionsTrackerContext` in `SplitFactoryOffline/Online`
+  const integrationsManager = IntegrationsManagerFactory(context);
+  context.put(context.constants.INTEGRATIONS_MANAGER, integrationsManager);
 
   // Define which type of factory to use
   const splitFactory = settings.mode === LOCALHOST_MODE ? SplitFactoryOffline : SplitFactoryOnline;

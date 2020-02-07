@@ -22,7 +22,7 @@ function ImpressionsTrackerContext(context) {
   const collector = context.get(context.constants.STORAGE).impressions;
   const settings = context.get(context.constants.SETTINGS);
   const listener = settings.impressionListener;
-  const internalListener = context.get(context.constants.INTERNAL_IMPRESSION_LISTENER, true);
+  const integrationsManager = context.get(context.constants.INTEGRATIONS_MANAGER, true);
   const { ip, hostname } = settings.runtime;
   const sdkLanguageVersion = settings.version;
 
@@ -35,7 +35,7 @@ function ImpressionsTrackerContext(context) {
         log.error(`Could not store impression. Error: ${err}`);
       });
 
-      if (listener || internalListener) {
+      if (listener || integrationsManager) {
         const impressionData = {
           impression,
           attributes,
@@ -45,9 +45,9 @@ function ImpressionsTrackerContext(context) {
         };
         // Wrap in a timeout because we don't want it to be blocking.
         setTimeout(() => {
+          // integrationsManager.handleImpression (used by split2ga integration for the moment) does not throw errors
+          if (integrationsManager) integrationsManager.handleImpression(impressionData);
           try { // An exception on the listener should not break the SDK.
-            // InternalListener (used for split2ga integration) does not throw errors, thus we put it first
-            if (internalListener) internalListener.logImpression(impressionData);
             if (listener) listener.logImpression(impressionData);
           } catch (err) {
             log.error(`Impression listener logImpression method threw: ${err}.`);
