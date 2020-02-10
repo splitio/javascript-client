@@ -1,6 +1,6 @@
 import tape from 'tape-catch';
 import sinon from 'sinon';
-import ImpressionsTracker from '../impression';
+import ImpressionTracker from '../impression';
 
 /* Mocks start */
 const generateContextMocks = () => {
@@ -49,11 +49,11 @@ class ContextMock {
 
 tape('Impression Tracker', t => {
   t.test('Tracker API', assert => {
-    assert.equal(typeof ImpressionsTracker, 'function', 'The module should return a function which acts as a factory.');
+    assert.equal(typeof ImpressionTracker, 'function', 'The module should return a function which acts as a factory.');
 
     const { fakeStorage, fakeSettings } = generateContextMocks();
     const contextMock = new ContextMock(fakeStorage, fakeSettings);
-    const instance = ImpressionsTracker(contextMock);
+    const instance = ImpressionTracker(contextMock);
 
     assert.equal(typeof instance.track, 'function', 'The instance should implement the track method.');
     assert.end();
@@ -62,7 +62,7 @@ tape('Impression Tracker', t => {
   t.test('Propagate the value as a collection into the collector', assert => {
     const { fakeStorage, fakeSettings } = generateContextMocks();
     const contextMock = new ContextMock(fakeStorage, fakeSettings);
-    const tracker = ImpressionsTracker(contextMock);
+    const tracker = ImpressionTracker(contextMock);
 
     tracker.track(10);
 
@@ -79,7 +79,7 @@ tape('Impression Tracker', t => {
     };
     const { fakeStorage, fakeSettings } = generateContextMocks();
     const contextMock = new ContextMock(fakeStorage, fakeSettings);
-    const tracker = ImpressionsTracker(contextMock);
+    const tracker = ImpressionTracker(contextMock);
 
     tracker.track(fakeImpression, fakeAttributes);
 

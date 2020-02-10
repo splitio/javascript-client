@@ -18,7 +18,7 @@ import logFactory from '../utils/logger';
 import thenable from '../utils/promise/thenable';
 const log = logFactory('splitio-client:impression-tracker');
 
-function ImpressionsTrackerContext(context) {
+function ImpressionTracker(context) {
   const collector = context.get(context.constants.STORAGE).impressions;
   const settings = context.get(context.constants.SETTINGS);
   const listener = settings.impressionListener;
@@ -26,7 +26,7 @@ function ImpressionsTrackerContext(context) {
   const sdkLanguageVersion = settings.version;
 
   return {
-    track: function(impression, attributes) {
+    track: function (impression, attributes) {
       const res = collector.track([impression]);
 
       // If we're on an async storage, handle error and log it.
@@ -52,4 +52,4 @@ function ImpressionsTrackerContext(context) {
   };
 }
 
-export default ImpressionsTrackerContext;
+export default ImpressionTracker;

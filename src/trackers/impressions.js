@@ -18,7 +18,7 @@ import logFactory from '../utils/logger';
 import thenable from '../utils/promise/thenable';
 const log = logFactory('splitio-client:impressions-tracker');
 
-function ImpressionsTrackerContext(context) {
+function ImpressionsTracker(context) {
   const collector = context.get(context.constants.STORAGE).impressions;
   const settings = context.get(context.constants.SETTINGS);
   const listener = settings.impressionListener;
@@ -27,7 +27,7 @@ function ImpressionsTrackerContext(context) {
   const queue = [];
 
   return {
-    queue: function(impression, attributes) {
+    queue: function (impression, attributes) {
       queue.push({
         impression,
         attributes
@@ -66,4 +66,4 @@ function ImpressionsTrackerContext(context) {
   };
 }
 
-export default ImpressionsTrackerContext;
+export default ImpressionsTracker;
