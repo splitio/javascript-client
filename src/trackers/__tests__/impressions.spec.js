@@ -1,6 +1,7 @@
 import tape from 'tape-catch';
 import sinon from 'sinon';
 import ImpressionsTracker from '../impressions';
+import { STORAGE, SETTINGS, INTEGRATIONS_MANAGER } from '../../utils/context/constants';
 
 /* Mocks start */
 const generateContextMocks = () => {
@@ -17,29 +18,36 @@ const generateContextMocks = () => {
       track: sinon.stub()
     }
   };
+  const fakeIntegrationsManager = {
+    handleImpression: sinon.stub()
+  };
 
   return {
-    fakeSettings, fakeStorage
+    fakeSettings, fakeStorage, fakeIntegrationsManager
   };
 };
 
 class ContextMock {
-  constructor(fakeStorage, fakeSettings) {
+  constructor(fakeStorage, fakeSettings, fakeIntegrationsManager) {
     this.constants = {
-      STORAGE: 'storage',
-      SETTINGS: 'settings'
+      STORAGE,
+      SETTINGS,
+      INTEGRATIONS_MANAGER,
     };
 
     this.fakeStorage = fakeStorage;
     this.fakeSettings = fakeSettings;
+    this.fakeIntegrationsManager = fakeIntegrationsManager;
   }
 
   get(target) {
     switch (target) {
-      case 'storage':
+      case STORAGE:
         return this.fakeStorage;
-      case 'settings':
+      case SETTINGS:
         return this.fakeSettings;
+      case INTEGRATIONS_MANAGER:
+        return this.fakeIntegrationsManager;
       default:
         break;
     }
@@ -77,16 +85,17 @@ tape('Impressions Tracker', t => {
     assert.end();
   });
 
+  const fakeImpression = {
+    fake: 'impression'
+  };
+  const fakeImpression2 = {
+    fake: 'impression_2'
+  };
+  const fakeAttributes = {
+    fake: 'attributes'
+  };
+
   t.test('Queued impressions should be sent to impression listener when we invoke .track()', assert => {
-    const fakeImpression = {
-      fake: 'impression'
-    };
-    const fakeImpression2 = {
-      fake: 'impression_2'
-    };
-    const fakeAttributes = {
-      fake: 'attributes'
-    };
     const { fakeStorage, fakeSettings } = generateContextMocks();
     const contextMock = new ContextMock(fakeStorage, fakeSettings);
     const tracker = ImpressionsTracker(contextMock);
@@ -117,5 +126,32 @@ tape('Impressions Tracker', t => {
         assert.end();
       }, 0);
     }, 0);
+  });
+
+  t.test('Queued impressions should be sent to integrations manager when we invoke .track()', assert => {
+    const { fakeStorage, fakeSettings, fakeIntegrationsManager } = generateContextMocks();
+    const contextMock = new ContextMock(fakeStorage, fakeSettings, fakeIntegrationsManager);
+    const tracker = ImpressionsTracker(contextMock);
+
+    tracker.queue(fakeImpression, fakeAttributes);
+    tracker.queue(fakeImpression2, fakeAttributes);
+
+    assert.false(fakeStorage.impressions.track.called, 'The storage should not be invoked while we are queueing impressions.');
+    assert.false(fakeIntegrationsManager.handleImpression.called, 'The integrations manager handleImpression method should not be invoked while we are queueing impressions.');
+
+    // We signal that we actually want to track the queued impressions.
+    tracker.track();
+    assert.true(fakeStorage.impressions.track.calledWithMatch([fakeImpression, fakeImpression2]), 'Impression should be present in the collector sequence and sent to the storage');
+    assert.true(fakeIntegrationsManager.handleImpression.calledTwice, 'The integrations manager handleImpression method should be executed once per each impression quued.');
+
+    assert.deepEqual(fakeIntegrationsManager.handleImpression.getCall(0).args[0],
+      { impression: fakeImpression, attributes: fakeAttributes, sdkLanguageVersion: fakeSettings.version, ...fakeSettings.runtime },
+      'The integration manager handleImpression method should be executed with the corresponding map for each of the impressions.');
+    assert.deepEqual(fakeIntegrationsManager.handleImpression.getCall(1).args[0],
+      { impression: fakeImpression2, attributes: fakeAttributes, sdkLanguageVersion: fakeSettings.version, ...fakeSettings.runtime },
+      'The integration manager handleImpression method should be executed with the corresponding map for each of the impressions.');
+
+    assert.end();
+
   });
 });

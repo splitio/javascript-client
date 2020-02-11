@@ -1,6 +1,7 @@
 import tape from 'tape-catch';
 import sinon from 'sinon';
 import ImpressionTracker from '../impression';
+import { STORAGE, SETTINGS, INTEGRATIONS_MANAGER } from '../../utils/context/constants';
 
 /* Mocks start */
 const generateContextMocks = () => {
@@ -17,29 +18,36 @@ const generateContextMocks = () => {
       track: sinon.stub()
     }
   };
+  const fakeIntegrationsManager = {
+    handleImpression: sinon.stub()
+  };
 
   return {
-    fakeSettings, fakeStorage
+    fakeSettings, fakeStorage, fakeIntegrationsManager
   };
 };
 
 class ContextMock {
-  constructor(fakeStorage, fakeSettings) {
+  constructor(fakeStorage, fakeSettings, fakeIntegrationsManager) {
     this.constants = {
-      STORAGE: 'storage',
-      SETTINGS: 'settings'
+      STORAGE,
+      SETTINGS,
+      INTEGRATIONS_MANAGER,
     };
 
     this.fakeStorage = fakeStorage;
     this.fakeSettings = fakeSettings;
+    this.fakeIntegrationsManager = fakeIntegrationsManager;
   }
 
   get(target) {
     switch (target) {
-      case 'storage':
+      case STORAGE:
         return this.fakeStorage;
-      case 'settings':
+      case SETTINGS:
         return this.fakeSettings;
+      case INTEGRATIONS_MANAGER:
+        return this.fakeIntegrationsManager;
       default:
         break;
     }
@@ -70,13 +78,14 @@ tape('Impression Tracker', t => {
     assert.end();
   });
 
+  const fakeImpression = {
+    fake: 'impression'
+  };
+  const fakeAttributes = {
+    fake: 'attributes'
+  };
+
   t.test('Transparently propagate the impression and attributes into a listener if provided', assert => {
-    const fakeImpression = {
-      fake: 'impression'
-    };
-    const fakeAttributes = {
-      fake: 'attributes'
-    };
     const { fakeStorage, fakeSettings } = generateContextMocks();
     const contextMock = new ContextMock(fakeStorage, fakeSettings);
     const tracker = ImpressionTracker(contextMock);
@@ -94,5 +103,20 @@ tape('Impression Tracker', t => {
         'The listener should be executed with the corresponding map.');
       assert.end();
     }, 0);
+  });
+
+  t.test('Propagate the impression and attributes into integration manager if provided', assert => {
+    const { fakeStorage, fakeSettings, fakeIntegrationsManager } = generateContextMocks();
+    const contextMock = new ContextMock(fakeStorage, fakeSettings, fakeIntegrationsManager);
+    const tracker = ImpressionTracker(contextMock);
+
+    tracker.track(fakeImpression, fakeAttributes);
+
+    assert.true(fakeStorage.impressions.track.calledWithMatch([fakeImpression]), 'Even with an integration manager, impression should be present in the collector sequence');
+    assert.true(fakeIntegrationsManager.handleImpression.calledOnce, 'The integration manager handleImpression method should be executed.');
+    assert.deepEqual(fakeIntegrationsManager.handleImpression.getCall(0).args[0],
+      { impression: fakeImpression, attributes: fakeAttributes, sdkLanguageVersion: fakeSettings.version, ...fakeSettings.runtime },
+      'The integration manager handleImpression method should be executed with the corresponding map.');
+    assert.end();
   });
 });
