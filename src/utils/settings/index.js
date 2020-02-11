@@ -23,6 +23,7 @@ import mode from './mode';
 import { API } from '../../utils/logger';
 import { STANDALONE_MODE, STORAGE_MEMORY, CONSUMER_MODE } from '../../utils/constants';
 import { version } from '../../../package.json';
+import integrations from './integrations';
 
 const eventsEndpointMatcher = /^\/(testImpressions|metrics|events)/;
 
@@ -79,7 +80,10 @@ const base = {
   impressionListener: undefined,
 
   // Instance version.
-  version: `${language}-${version}`
+  version: `${language}-${version}`,
+
+  // List of integrations. 
+  integrations: undefined,
 };
 
 function fromSecondsToMillis(n) {
@@ -123,7 +127,10 @@ function defaults(custom) {
   setupLogger(withDefaults.debug);
 
   // Current ip/hostname information
-  withDefaults.runtime = runtime(withDefaults.core.IPAddressesEnabled,withDefaults.mode === CONSUMER_MODE);
+  withDefaults.runtime = runtime(withDefaults.core.IPAddressesEnabled, withDefaults.mode === CONSUMER_MODE);
+
+  // ensure a valid list of integrations.
+  withDefaults.integrations = integrations(withDefaults);
 
   return withDefaults;
 }

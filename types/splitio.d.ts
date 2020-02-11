@@ -543,6 +543,25 @@ declare namespace SplitIO {
     logImpression(data: SplitIO.ImpressionData): void
   }
   /**
+   * Enable Ga-to-Split integration, to track GA hits as Split events.
+   *
+   * @TODO update the following link
+   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#ga-to-split-integration}
+   */
+  interface GaToSplitIntegration {
+    type: 'GA_TO_SPLIT',
+  }
+  /**
+   * Enable Split-to-GA integration, to track Split impressions and events as GA hits.
+   *
+   * @TODO update the following link
+   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#split-to-ga-integration}
+   */
+  interface SplitToGaIntegration {
+    type: 'SPLIT_TO_GA',
+  }
+  type BrowserIntegration = SplitToGaIntegration | GaToSplitIntegration;
+  /**
    * Settings interface for SDK instances created on the browser
    * @interface IBrowserSettings
    * @extends ISharedSettings
@@ -682,6 +701,11 @@ declare namespace SplitIO {
        */
       prefix?: string
     }
+    /**
+     * SDK integration settings for the Browser.
+     * @property {Object} integrations
+     */
+    integrations?: BrowserIntegration[]
   }
   /**
    * Settings interface for SDK instances created on NodeJS.
@@ -808,7 +832,7 @@ declare namespace SplitIO {
      * @returns {Treatment} The treatment result.
      */
     getTreatment(splitName: string, attributes?: Attributes): Treatment,
-     /**
+    /**
      * Returns a TreatmentWithConfig value (a map of treatment and config), which will be (or eventually be) the map with treatment and config for the given feature.
      * For usage on NodeJS as we don't have only one key.
      * @function getTreatmentWithConfig
