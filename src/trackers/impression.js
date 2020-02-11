@@ -22,6 +22,7 @@ function ImpressionTracker(context) {
   const collector = context.get(context.constants.STORAGE).impressions;
   const settings = context.get(context.constants.SETTINGS);
   const listener = settings.impressionListener;
+  const integrationsManager = context.get(context.constants.INTEGRATIONS_MANAGER, true);
   const { ip, hostname } = settings.runtime;
   const sdkLanguageVersion = settings.version;
 
@@ -34,20 +35,28 @@ function ImpressionTracker(context) {
         log.error(`Could not store impression. Error: ${err}`);
       });
 
-      // Wrap in a timeout because we don't want it to be blocking.
-      listener && setTimeout(() => {
-        try { // An exception on the listener should not break the SDK.
-          listener.logImpression({
-            impression,
-            attributes,
-            ip,
-            hostname,
-            sdkLanguageVersion
-          });
-        } catch (err) {
-          log.error(`Impression listener logImpression method threw: ${err}.`);
-        }
-      }, 0);
+      if (listener || integrationsManager) {
+        const impressionData = {
+          impression,
+          attributes,
+          ip,
+          hostname,
+          sdkLanguageVersion
+        };
+
+        // integrationsManager does not throw errors (they are internally handled by each integration module)
+        // @TODO should we put it inside setTimeout to not block?
+        if (integrationsManager) integrationsManager.handleImpression(impressionData);
+
+        // Wrap in a timeout because we don't want it to be blocking.
+        setTimeout(() => {
+          try { // An exception on the listener should not break the SDK.
+            if (listener) listener.logImpression(impressionData);
+          } catch (err) {
+            log.error(`Impression listener logImpression method threw: ${err}.`);
+          }
+        }, 0);
+      }
     }
   };
 }

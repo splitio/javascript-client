@@ -2,7 +2,7 @@ import logFactory from '../../../utils/logger';
 const log = logFactory('splitio-settings');
 
 const validateIntegrationsSettings = (settings, validIntegrationTypes = []) => {
-  const { integrations } = settings.integrations;
+  const { integrations } = settings;
 
   // If integrations is not an array or an empty array, we return undefined (no integrations).
   if(!Array.isArray(integrations) || integrations.length === 0)

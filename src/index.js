@@ -12,6 +12,7 @@ import SplitFactoryOffline from './factory/offline';
 import sdkStatusManager from './readiness/statusManager';
 import { LOCALHOST_MODE } from './utils/constants';
 import { validateApiKey, validateKey, validateTrafficType } from './utils/inputValidation';
+import IntegrationsManagerFactory from './integrations';
 
 const buildInstanceId = (key, trafficType) => `${key.matchingKey ? key.matchingKey : key}-${key.bucketingKey ? key.bucketingKey : key}-${trafficType !== undefined ? trafficType : ''}`;
 
@@ -38,6 +39,12 @@ export function SplitFactory(config) {
   const storage = StorageFactory(context);
   const gateFactory = ReadinessGateFacade();
   context.put(context.constants.STORAGE, storage);
+
+  // Put integrationsManager within context.
+  // It is done here since integrations need to access the storage from the context,
+  // and listen impressions sent by `ImpressionsTracker` in `SplitFactory[Offline|Online]`
+  const integrationsManager = IntegrationsManagerFactory(context);
+  context.put(context.constants.INTEGRATIONS_MANAGER, integrationsManager);
 
   // Define which type of factory to use
   const splitFactory = settings.mode === LOCALHOST_MODE ? SplitFactoryOffline : SplitFactoryOnline;
