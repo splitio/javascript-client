@@ -2,7 +2,8 @@
 // eslint-disable-next-line no-unused-vars
 function SplitToGaFactory(options) {
   return {
-    queueImpression: function () {/* noop for now */ }
+    // eslint-disable-next-line no-unused-vars
+    queue: function (data, type) {/* noop for now */ }
   };
 }
 

@@ -1,6 +1,6 @@
 import GaToSplit from './ga/GaToSplit';
 import SplitToGa from './ga/SplitToGa';
-import { GA_TO_SPLIT, SPLIT_TO_GA } from '../utils/constants';
+import { GA_TO_SPLIT, SPLIT_TO_GA, SPLIT_IMPRESSION, SPLIT_EVENT } from '../utils/constants';
 
 /**
  * Factory function for browser IntegrationsManager.
@@ -17,37 +17,37 @@ const integrationsManagerFactory = context => {
   if (!settings.integrations)
     return;
 
-  const impressionListeners = [];
-  const eventListeners = [];
+  const listeners = [];
 
   for (const integrationOptions of settings.integrations) {
     const { type } = integrationOptions;
     let integration;
 
     switch (type) {
-      case GA_TO_SPLIT:
-        var storage = context.get(context.constants.STORAGE);
-        var coreSettings = settings.core;
+      case GA_TO_SPLIT: {
+        const storage = context.get(context.constants.STORAGE);
+        const coreSettings = settings.core;
         integration = GaToSplit(integrationOptions, storage, coreSettings);
         break;
+      }
 
-      case SPLIT_TO_GA:
+      case SPLIT_TO_GA: {
         integration = SplitToGa(integrationOptions);
+        break;
+      }
     }
 
-    if (integration) {
-      if (integration.queueImpression) impressionListeners.push(integration);
-      if (integration.queueEvent) eventListeners.push(integration);
-    }
+    if (integration && integration.queue)
+      listeners.push(integration);
   }
 
   // Exception safe methods: each integration module is responsable for handling errors
   return {
     handleImpression: function (impressionData) {
-      impressionListeners.forEach(impressionListener => impressionListener.queueImpression(impressionData));
+      listeners.forEach(listener => listener.queue(impressionData, SPLIT_IMPRESSION));
     },
     handleEvent: function (eventData) {
-      eventListeners.forEach(eventListener => eventListener.queueEvent(eventData));
+      listeners.forEach(listener => listener.queue(eventData, SPLIT_EVENT));
     }
   };
 

@@ -5,19 +5,20 @@ import tape from 'tape';
 import sinon from 'sinon';
 import proxyquire from 'proxyquire';
 import { GA_TO_SPLIT, SPLIT_TO_GA } from '../../../lib/utils/constants';
+import { SPLIT_IMPRESSION, SPLIT_EVENT } from '../../utils/constants';
 const proxyquireStrict = proxyquire.noCallThru();
 
 const GaToSplitMock = sinon.stub();
-const SplitToGaQueueImpression = sinon.stub();
+const SplitToGaQueueMethod = sinon.stub();
 const SplitToGaMock = sinon.stub().callsFake(() => {
   return {
-    queueImpression: SplitToGaQueueImpression
+    queue: SplitToGaQueueMethod
   };
 });
 
 function resetStubs() {
   GaToSplitMock.resetHistory();
-  SplitToGaQueueImpression.resetHistory();
+  SplitToGaQueueMethod.resetHistory();
   SplitToGaMock.resetHistory();
 }
 
@@ -102,7 +103,13 @@ tape('IntegrationsManagerFactory for browser', t => {
 
     const fakeImpression = 'fake';
     instance.handleImpression(fakeImpression);
-    assert.true(SplitToGaQueueImpression.calledOnceWith(fakeImpression), 'Invokes SplitToGa.queueImpression method with tracked impression');
+    assert.true(SplitToGaQueueMethod.calledOnceWith(fakeImpression, SPLIT_IMPRESSION), 'Invokes SplitToGa.queue method with tracked impression');
+
+    resetStubs();
+
+    const fakeEvent = 'fake';
+    instance.handleEvent(fakeEvent);
+    assert.true(SplitToGaQueueMethod.calledOnceWith(fakeEvent, SPLIT_EVENT), 'Invokes SplitToGa.queue method with tracked event');
 
     resetStubs();
     assert.end();

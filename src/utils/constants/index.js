@@ -19,3 +19,6 @@ export const NA = 'NA';
 // Integration types
 export const GA_TO_SPLIT = 'GA_TO_SPLIT';
 export const SPLIT_TO_GA = 'SPLIT_TO_GA';
+// Integration data types
+export const SPLIT_IMPRESSION = 'IMPRESSION';
+export const SPLIT_EVENT = 'EVENT';
