@@ -93,6 +93,13 @@ export function isString(val) {
 }
 
 /**
+ * Checks if a given value is a string.
+ */
+export function isNumber(val) {
+  return typeof val === 'number' || val instanceof Number;
+}
+
+/**
  * Checks if a given value is a finite number.
  */
 export function isFinite(val) {
@@ -154,6 +161,18 @@ export function uniq(arr) {
   const seen = {};
   return arr.filter(function(item) {
     return Object.prototype.hasOwnProperty.call(seen, item) ? false : seen[item] = true;
+  });
+}
+
+/**
+ * Removes duplicate items on an array of objects using an optional `stringify` function as equality criteria.
+ * It uses JSON.stringify as default criteria.
+ */
+export function uniqO(arr, stringify = JSON.stringify) {
+  const seen = {};
+  return arr.filter(function(item) {
+    const itemString = stringify(item);
+    return Object.prototype.hasOwnProperty.call(seen, itemString) ? false : seen[itemString] = true;
   });
 }
 

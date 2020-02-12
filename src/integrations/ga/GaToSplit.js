@@ -1,4 +1,4 @@
-import { isString, isNumber } from '../../utils/lang';
+import { isString, isNumber, uniqO } from '../../utils/lang';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-integrations:ga-to-split');
 
@@ -85,17 +85,20 @@ const mapperBuilder = function (mapping) {
 };
 
 /**
- * Return a new list of identities removing invalid ones.
- * The result may be an empty array if `identities` is not an array or all its items are invalid
+ * Return a new list of identities removing invalid and duplicated ones.
  * 
  * @param {Array} identities list of identities
+ * @returns list of valid and unique identities, or undefined if `identities` is not an array.
  */
 const validateIdentities = function (identities) {
   if (!Array.isArray(identities))
-    return [];
+    return undefined;
+
+  // Remove duplicated identities  
+  const uniqueIdentities = uniqO(identities);
 
   // Filter based on rum-agent identities validator
-  return identities.filter(identity => {
+  return uniqueIdentities.filter(identity => {
     if (!identity)
       return false;
 
@@ -143,15 +146,15 @@ function GaToSplitFactory(sdkOptions, storage, coreSettings) {
 
     // Validate identities
     const validIdentities = validateIdentities(opts.identities);
-    if (validIdentities.length === 0) {
-      // @TODO review the following warning messages
-      log.warn('A valid identity (<key, traffic type> pair) is required for tracking GA hits as Split events.');
+
+    if(!validIdentities || validIdentities.length === 0) {
+      log.warn('No valid identities were provided. Please check that you are passing a valid list of identities or providing a traffic type at the SDK configuration.');
       return;
     }
+
     const invalids = validIdentities.length - opts.identities.length;
     if (invalids) {
-      // @TODO review the following warning messages
-      log.warn('Invalid identities were removed. Identities must be an array of objects with key and trafficType.');
+      log.warn(`${invalids} identities were discarded because they are invalid or duplicated. Identities must be an array of objects with key and trafficType.`);
     }
     opts.identities = validIdentities;
 

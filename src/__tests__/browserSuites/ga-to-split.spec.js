@@ -148,7 +148,7 @@ export default function (mock, assert) {
     for (let i = 0; i < numberOfCustomEvents; i++)
       window.ga('myTracker2.send', 'pageview');
 
-    t.ok(logSpy.calledWith('[WARN]  splitio-integrations:ga-to-split => A valid identity (<key, traffic type> pair) is required for tracking GA hits as Split events.'));
+    t.ok(logSpy.calledWith('[WARN]  splitio-integrations:ga-to-split => No valid identities were provided. Please check that you are passing a valid list of identities or providing a traffic type at the SDK configuration.'));
     t.equal(window.gaSpy.getHits('myTracker2').length, numberOfCustomEvents, `Number of sent hits must be equal to ${numberOfCustomEvents}`);
 
     factory.client().destroy();
