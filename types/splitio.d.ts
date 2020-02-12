@@ -3,6 +3,7 @@
 // Definitions by: Nico Zelaya <https://github.com/NicoZelaya/>
 
 /// <reference types="node" />
+/// <reference types="google.analytics" />
 
 export as namespace SplitIO;
 export = SplitIO;
@@ -542,6 +543,14 @@ declare namespace SplitIO {
   interface IImpressionListener {
     logImpression(data: SplitIO.ImpressionData): void
   }
+  type EventData = {
+    eventTypeId: string;
+    value?: number;
+    properties?: Properties;
+    trafficTypeName: string;
+    key: string;
+    timestamp: number;
+  };
   /**
    * Enable Ga-to-Split integration, to track GA hits as Split events.
    *
@@ -551,6 +560,8 @@ declare namespace SplitIO {
   interface GaToSplitIntegration {
     type: 'GA_TO_SPLIT',
   }
+  type SPLIT_IMPRESSION = 'IMPRESSION';
+  type SPLIT_EVENT = 'EVENT';
   /**
    * Enable Split-to-GA integration, to track Split impressions and events as GA hits.
    *
@@ -559,6 +570,39 @@ declare namespace SplitIO {
    */
   interface SplitToGaIntegration {
     type: 'SPLIT_TO_GA',
+    /**
+     * Optional filter to use instead of default, which always return true, 
+     * meaning that all impressions and events are tracked as GA hits. 
+     */
+    filter?: (data: SplitIO.ImpressionData | SplitIO.EventData, type: SPLIT_IMPRESSION | SPLIT_EVENT) => boolean,
+    /**
+     * Optional mapper to use instead of default. 
+     * This function accepts an impression or event data instance, 
+     * and returns a GA FieldsObject instance used to invoke `ga('[tracker.]send', fieldObject)`.
+     *
+     * Default FieldsObject value for impressions:
+     *  `{
+     *    hitType: 'event',
+     *    eventCategory: 'split-impression',
+     *    eventAction: data.impression.feature,
+     *    eventLabel: data.impression.treatment,
+     *    nonInteraction: true,
+     *  }`
+     * Default FieldsObject value for events:
+     *  `{
+     *    hitType: 'event',
+     *    eventCategory: 'split-event',
+     *    eventAction: data.eventTypeId,
+     *    eventValue: data.value,
+     *    nonInteraction: true,
+     *  }`
+     */
+    mapper?: (data: SplitIO.ImpressionData | SplitIO.EventData, type: SPLIT_IMPRESSION | SPLIT_EVENT) => UniversalAnalytics.FieldsObject,
+    /**
+     * List of tracker names to send the hit. An empty string represents the default tracker.
+     * If not provided, hits are only sent to default tracker.
+     */
+    trackerNames?: string[],
   }
   type BrowserIntegration = SplitToGaIntegration | GaToSplitIntegration;
   /**
