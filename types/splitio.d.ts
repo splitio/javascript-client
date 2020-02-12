@@ -543,10 +543,16 @@ declare namespace SplitIO {
   interface IImpressionListener {
     logImpression(data: SplitIO.ImpressionData): void
   }
-  type EventData = {
+  type Identity = {
+    key: string;
+    trafficType: string;
+  };
+  type EventContent = {
     eventTypeId: string;
     value?: number;
     properties?: Properties;
+  };
+  type EventData = EventContent & {
     trafficTypeName: string;
     key: string;
     timestamp: number;
@@ -559,6 +565,32 @@ declare namespace SplitIO {
    */
   interface GaToSplitIntegration {
     type: 'GA_TO_SPLIT',
+    /**
+     * Optional filter to use instead of the default one, which always returns true, 
+     * meaning that all GA hits are tracked as Split events. 
+     */
+    filter?: (model: UniversalAnalytics.Model) => boolean,
+    /**
+     * Optional mapper to use instead of the default one. 
+     * This function receives a GA model instance, and returns a Event instance.
+     * The default mapper returns an Event instance depending on the hitType:
+     *  - for event hitType:
+     *  `{
+     *    eventTypeId: model.get('eventAction'),
+     *    value: model.get('eventValue'),
+     *    properties: {
+     *      eventCategory: model.get('eventCategory'),
+     *      eventLabel: model.get('eventLabel'),
+     *    }
+     *  }`
+     *  - @TODO add mappings for other hit types.
+     */
+    mapper?: (model: UniversalAnalytics.Model) => EventContent,
+    /**
+     * List of Split identities (key & traffic type pairs) used to track events.
+     * If not provided, events are sent using the key and traffic type provided at SDK config
+     */
+    identities?: Identity[],
   }
   type SPLIT_IMPRESSION = 'IMPRESSION';
   type SPLIT_EVENT = 'EVENT';
