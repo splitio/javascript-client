@@ -79,3 +79,7 @@ export function gaTag(delayTagInsertionInMillis = -1) {
     }
   })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
 }
+
+export function gaTagRemove() {
+  window[window['GoogleAnalyticsObject'] || 'ga'] = undefined;
+}

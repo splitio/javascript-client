@@ -28,6 +28,8 @@
  *    - GA tag not included, but SDK configured for GA 
  *    - GA in another global variable
  *  
+ *  -Test ga-to-split and split-to-ga together
+ * 
  *  - Node:
  *    - Should do nothing
  */
@@ -35,7 +37,7 @@
 import sinon from 'sinon';
 import { SplitFactory } from '../../';
 import SettingsFactory from '../../utils/settings';
-import { gaSpy, gaTag } from '../utils/gaTestUtils';
+import { gaSpy, gaTag, gaTagRemove } from '../utils/gaTestUtils';
 
 const config = {
   core: {
@@ -52,6 +54,9 @@ const config = {
 const settings = SettingsFactory(config);
 
 export default function (mock, assert) {
+
+  // Remove ga tag, in case a previous suite test uses it.
+  gaTagRemove();
 
   let client;
 
