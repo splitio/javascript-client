@@ -44,6 +44,7 @@ export function gaSpy(trackerNames = [DEFAULT_TRACKER], fieldNames = [...HIT_FIE
   }
 
   window.gaSpy = {
+    // getHits may return `undefined` if `ga` is not ready or `trackerName` is not in the list of `trackerNames` 
     getHits: function (trackerName = DEFAULT_TRACKER) {
       const trackerHits = hits[trackerName];
       return trackerHits;
@@ -54,12 +55,17 @@ export function gaSpy(trackerNames = [DEFAULT_TRACKER], fieldNames = [...HIT_FIE
 }
 
 /**
- * Google Analytics tag
+ * Add Google Analytics tag, removing previous one if exists.
  * @see {@link https://developers.google.com/analytics/devguides/collection/analyticsjs#the_google_analytics_tag}
  * 
  * @param {nuber} delayTagInsertionInMillis number of milliseconds to delay the tag insertion using a `setTimeout`
  */
 export function gaTag(delayTagInsertionInMillis = -1) {
+  
+  // remove GA tag, in case a previous test has set it.
+  window[window['GoogleAnalyticsObject'] || 'ga'] = undefined;
+
+  // Add GA tag
   (function (i, s, o, g, r, a, m) {
     i['GoogleAnalyticsObject'] = r;
     i[r] = i[r] || function () {
@@ -78,8 +84,4 @@ export function gaTag(delayTagInsertionInMillis = -1) {
       m.parentNode.insertBefore(a, m);
     }
   })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
-}
-
-export function gaTagRemove() {
-  window[window['GoogleAnalyticsObject'] || 'ga'] = undefined;
 }

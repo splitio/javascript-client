@@ -30,7 +30,7 @@ import { SplitFactory } from '../../';
 import SettingsFactory from '../../utils/settings';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import mySegmentsFacundo from '../mocks/mysegments.facundo@split.io.json';
-import { gaSpy, gaTag, gaTagRemove } from '../utils/gaTestUtils';
+import { gaSpy, gaTag } from '../utils/gaTestUtils';
 import { SPLIT_IMPRESSION, SPLIT_EVENT } from '../../utils/constants';
 
 function countImpressions(parsedImpressionsBulkPayload) {
@@ -56,9 +56,6 @@ const config = {
 const settings = SettingsFactory(config);
 
 export default function (mock, assert) {
-
-  // Remove ga tag, in case a previous suite test uses it.
-  gaTagRemove();
 
   mock.onGet(settings.url('/splitChanges?since=-1')).reply(200, splitChangesMock1);
   mock.onGet(settings.url('/mySegments/facundo@split.io')).reply(200, mySegmentsFacundo);

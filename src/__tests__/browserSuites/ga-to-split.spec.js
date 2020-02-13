@@ -25,6 +25,7 @@
  *    - Exception in filter or mapper, should not block sending the hit to GA
  *    - ga require command added repeatedly
  *    - SDK factory instantiated before than GA tag
+ *    - SDK factory destroyed and GA keep sending hits
  *    - GA tag not included, but SDK configured for GA 
  *    - GA in another global variable
  *  
@@ -37,7 +38,7 @@
 import sinon from 'sinon';
 import { SplitFactory } from '../../';
 import SettingsFactory from '../../utils/settings';
-import { gaSpy, gaTag, gaTagRemove } from '../utils/gaTestUtils';
+import { gaSpy, gaTag } from '../utils/gaTestUtils';
 
 const config = {
   core: {
@@ -54,9 +55,6 @@ const config = {
 const settings = SettingsFactory(config);
 
 export default function (mock, assert) {
-
-  // Remove ga tag, in case a previous suite test uses it.
-  gaTagRemove();
 
   let client;
 
@@ -114,7 +112,7 @@ export default function (mock, assert) {
 
     gaTag();
 
-    window.ga('create', 'UA-00000001-1', 'example.com', 'myTracker', { siteSpeedSampleRate: 0 });
+    window.ga('create', 'UA-00000001-1', 'example1.com', 'myTracker', { siteSpeedSampleRate: 0 });
 
     gaSpy(['myTracker']);
 
@@ -139,9 +137,9 @@ export default function (mock, assert) {
 
     gaTag();
 
-    window.ga('create', 'UA-00000002-1', 'example.com', 'myTracker2', { siteSpeedSampleRate: 0 });
+    window.ga('create', 'UA-00000000-1', 'auto', { siteSpeedSampleRate: 0 });
 
-    gaSpy(['myTracker2']);
+    gaSpy();
 
     const factory = SplitFactory({
       ...config,
@@ -149,16 +147,19 @@ export default function (mock, assert) {
       debug: true,
     });
 
-    window.ga('myTracker2.require', 'splitTracker');
+    window.ga('require', 'splitTracker');
     for (let i = 0; i < numberOfCustomEvents; i++)
-      window.ga('myTracker2.send', 'pageview');
+      window.ga('send', 'pageview');
 
-    t.ok(logSpy.calledWith('[WARN]  splitio-integrations:ga-to-split => No valid identities were provided. Please check that you are passing a valid list of identities or providing a traffic type at the SDK configuration.'));
-    t.equal(window.gaSpy.getHits('myTracker2').length, numberOfCustomEvents, `Number of sent hits must be equal to ${numberOfCustomEvents}`);
+    // We must wait until ga is ready to get SplitTracker required and invoked, and to assert the test
+    window.ga(() => {
+      t.ok(logSpy.calledWith('[WARN]  splitio-integrations:ga-to-split => No valid identities were provided. Please check that you are passing a valid list of identities or providing a traffic type at the SDK configuration.'));
+      t.equal(window.gaSpy.getHits().length, numberOfCustomEvents, `Number of sent hits must be equal to ${numberOfCustomEvents}`);
+      t.end();
+    });
 
     factory.client().destroy();
 
-    t.end();
   });
 
   // test default behavior, providing a list of identities as SDK options
@@ -183,7 +184,7 @@ export default function (mock, assert) {
 
     gaTag();
 
-    window.ga('create', 'UA-00000003-1', 'example.com', 'myTracker3', { siteSpeedSampleRate: 0 });
+    window.ga('create', 'UA-00000003-1', 'example3.com', 'myTracker3', { siteSpeedSampleRate: 0 });
 
     gaSpy(['myTracker3']);
 
@@ -229,7 +230,7 @@ export default function (mock, assert) {
 
     gaTag();
 
-    window.ga('create', 'UA-00000004-1', 'example.com', 'myTracker4', { siteSpeedSampleRate: 0 });
+    window.ga('create', 'UA-00000004-1', 'example4.com', 'myTracker4', { siteSpeedSampleRate: 0 });
 
     gaSpy(['myTracker4']);
 
