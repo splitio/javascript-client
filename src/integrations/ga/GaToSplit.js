@@ -1,6 +1,11 @@
 import { isString, isNumber, uniqO } from '../../utils/lang';
 import logFactory from '../../utils/logger';
-const log = logFactory('splitio-integrations:ga-to-split');
+import {
+  validateEvent,
+  validateEventValue,
+  validateEventProperties,
+} from '../../utils/inputValidation';
+const log = logFactory('splitio-ga-to-split');
 
 /**
  * Provides a plugin to use with analytics.js, accounting for the possibility
@@ -25,7 +30,8 @@ const providePlugin = function (pluginName, pluginConstructor) {
 // Default filter: accepts all hits
 const defaultFilter = function () { return true; };
 
-// Default mapping: object used for building the defautl mapper from hits to Split events
+// Default mapping: object used for building the default mapper from hits to Split events
+// @TODO review default mapping. 
 const defaultMapping = {
   eventTypeIdPrefix: {
     pageview: 'ga-pageview',
@@ -38,20 +44,22 @@ const defaultMapping = {
     exception: 'ga-exception',
   },
   eventTypeId: {
-    pageview: 'page',
-    screenview: 'screenName',
+    // pageview: 'page',
+    // screenview: 'screenName',
     event: 'eventAction',
     social: 'socialAction',
-    timing: 'timingVar',
+    // timing: 'timingVar',
   },
   eventValue: {
     event: 'eventValue',
     timing: 'timingValue',
   },
   eventProperties: {
+    pageview: ['page'],
+    screenview: ['screenName'],
     event: ['eventCategory', 'eventLabel'],
     social: ['socialNetwork', 'socialTarget'],
-    timing: ['timingCategory', 'timingLabel'],
+    timing: ['timingCategory', 'timingVar', 'timingLabel'],
   }
 };
 
@@ -60,7 +68,7 @@ const defaultMapping = {
  * 
  * @param {object} mapping 
  */
-const mapperBuilder = function (mapping) {
+function mapperBuilder(mapping) {
   return function (model) {
     var hitType = model.get('hitType');
     var eventTypeId =
@@ -82,7 +90,9 @@ const mapperBuilder = function (mapping) {
       properties: properties
     };
   };
-};
+}
+
+const defaultMapper = mapperBuilder(defaultMapping);
 
 /**
  * Return a new list of identities removing invalid and duplicated ones.
@@ -90,7 +100,7 @@ const mapperBuilder = function (mapping) {
  * @param {Array} identities list of identities
  * @returns list of valid and unique identities, or undefined if `identities` is not an array.
  */
-const validateIdentities = function (identities) {
+function validateIdentities(identities) {
   if (!Array.isArray(identities))
     return undefined;
 
@@ -112,20 +122,34 @@ const validateIdentities = function (identities) {
 
     return true;
   });
-};
+}
 
 /**
- * GaToSplit factory
+ * Validates a given event data instance.
+ * 
+ * @param {EventData} data event data instance. Precondition: data != undefined 
+ */
+function isValidEventData(data) {
+  const event = validateEvent(data.eventTypeId, 'splitio-ga-to-split:mapper');
+  const eventValue = validateEventValue(data.value, 'splitio-ga-to-split:mapper');
+  const { properties } = validateEventProperties(data.properties, 'splitio-ga-to-split:mapper');
+
+  return (event && eventValue !== false && properties !== false);
+}
+
+/**
+ * GaToSplit integration.
+ * This function provides the SplitTracker plugin to ga command queue.
  * 
  * @param {object} sdkOptions options passed at the SDK integrations settings
  * @param {object} storage SDK storage passed to track events
  * @param {object} coreSettings core settings used to define an identity if no one provided as SDK or plugin options
  */
-function GaToSplitFactory(sdkOptions, storage, coreSettings) {
+function GaToSplit(sdkOptions, storage, coreSettings) {
 
   const defaultOptions = {
     filter: defaultFilter,
-    mapper: mapperBuilder(defaultMapping),
+    mapper: defaultMapper,
     // Default eventHandler stores event
     eventHandler: function (event) {
       storage.events.track(event);
@@ -136,56 +160,62 @@ function GaToSplitFactory(sdkOptions, storage, coreSettings) {
       undefined
   };
 
-  // Constructor for the SplitTracker plugin.
-  function SplitTracker(tracker, pluginOptions) {
+  class SplitTracker {
 
-    // precedence of options: SDK options (config.integrations) overwrite pluginOptions (`ga('require', 'splitTracker', pluginOptions)`)
-    const opts = Object.assign({}, defaultOptions, pluginOptions, sdkOptions);
+    // Constructor for the SplitTracker plugin.
+    constructor(tracker, pluginOptions) {
 
-    this.tracker = tracker;
+      // precedence of options: SDK options (config.integrations) overwrite pluginOptions (`ga('require', 'splitTracker', pluginOptions)`)
+      const opts = Object.assign({}, defaultOptions, pluginOptions, sdkOptions);
 
-    // Validate identities
-    const validIdentities = validateIdentities(opts.identities);
+      this.tracker = tracker;
 
-    if(!validIdentities || validIdentities.length === 0) {
-      log.warn('No valid identities were provided. Please check that you are passing a valid list of identities or providing a traffic type at the SDK configuration.');
-      return;
-    }
+      // Validate identities
+      const validIdentities = validateIdentities(opts.identities);
 
-    const invalids = validIdentities.length - opts.identities.length;
-    if (invalids) {
-      log.warn(`${invalids} identities were discarded because they are invalid or duplicated. Identities must be an array of objects with key and trafficType.`);
-    }
-    opts.identities = validIdentities;
-
-    // Overwrite sendHitTask to perform plugin tasks:
-    // 1) filter hits
-    // 2) map hits to Split events
-    // 3) handle events, i.e., send them to Split BE
-    const originalSendHitTask = tracker.get('sendHitTask');
-    tracker.set('sendHitTask', function (model) {
-      originalSendHitTask(model);
-
-      // filter and map hits into an EventContent instance
-      const eventContent = opts.filter(model) && opts.mapper(model);
-      if (!eventContent)
+      if (!validIdentities || validIdentities.length === 0) {
+        log.warn('No valid identities were provided. Please check that you are passing a valid list of identities or providing a traffic type at the SDK configuration.');
         return;
+      }
 
-      // Store an event (eventHandler) for each Key-TrafficType pair (identities) 
-      const timestamp = Date.now();
-      opts.identities.forEach(identity => {
-        const event = Object.assign({
-          key: identity.key,
-          trafficTypeName: identity.trafficType,
-          timestamp,
-        }, eventContent);
-        opts.eventHandler(event, model);
+      const invalids = validIdentities.length - opts.identities.length;
+      if (invalids) {
+        log.warn(`${invalids} identities were discarded because they are invalid or duplicated. Identities must be an array of objects with key and trafficType.`);
+      }
+      opts.identities = validIdentities;
+
+      // Overwrite sendHitTask to perform plugin tasks:
+      // 1) filter hits
+      // 2) map hits to Split events
+      // 3) handle events, i.e., send them to Split BE
+      const originalSendHitTask = tracker.get('sendHitTask');
+      tracker.set('sendHitTask', function (model) {
+        originalSendHitTask(model);
+
+        // filter and map hits into an EventContent instance
+        const eventContent = opts.filter(model) && opts.mapper(model);
+
+        // don't send the event if it is falsy or invalid when generated by a custom mapper
+        if (!eventContent || (opts.mapper !== defaultMapper && !isValidEventData(eventContent)))
+          return;
+
+        // Store an event (eventHandler) for each Key-TrafficType pair (identities) 
+        const timestamp = Date.now();
+        opts.identities.forEach(identity => {
+          const event = Object.assign({
+            key: identity.key,
+            trafficTypeName: identity.trafficType,
+            timestamp,
+          }, eventContent);
+          opts.eventHandler(event, model);
+        });
       });
-    });
+    }
+
   }
 
   // Register the plugin, even if config is invalid, since, if not provided, it will block `ga` command queue.
   providePlugin('splitTracker', SplitTracker);
 }
 
-export default GaToSplitFactory;
+export default GaToSplit;

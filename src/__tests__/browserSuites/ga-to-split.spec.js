@@ -153,7 +153,7 @@ export default function (mock, assert) {
 
     // We must wait until ga is ready to get SplitTracker required and invoked, and to assert the test
     window.ga(() => {
-      t.ok(logSpy.calledWith('[WARN]  splitio-integrations:ga-to-split => No valid identities were provided. Please check that you are passing a valid list of identities or providing a traffic type at the SDK configuration.'));
+      t.ok(logSpy.calledWith('[WARN]  splitio-ga-to-split => No valid identities were provided. Please check that you are passing a valid list of identities or providing a traffic type at the SDK configuration.'));
       t.equal(window.gaSpy.getHits().length, numberOfCustomEvents, `Number of sent hits must be equal to ${numberOfCustomEvents}`);
       t.end();
     });
