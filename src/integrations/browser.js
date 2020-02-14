@@ -44,10 +44,10 @@ const integrationsManagerFactory = context => {
   // Exception safe methods: each integration module is responsable for handling errors
   return {
     handleImpression: function (impressionData) {
-      listeners.forEach(listener => listener.queue(impressionData, SPLIT_IMPRESSION));
+      listeners.forEach(listener => listener.queue({ type: SPLIT_IMPRESSION, payload: impressionData }));
     },
     handleEvent: function (eventData) {
-      listeners.forEach(listener => listener.queue(eventData, SPLIT_EVENT));
+      listeners.forEach(listener => listener.queue({ type: SPLIT_EVENT, payload: eventData }));
     }
   };
 

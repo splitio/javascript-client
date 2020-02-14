@@ -7,22 +7,22 @@ class SplitToGa {
 
   static defaultFilter() { return true; }
 
-  static defaultMapper(data, type) {
+  static defaultMapper({ type, payload }) {
     switch (type) {
       case SPLIT_IMPRESSION:
         return {
           hitType: 'event',
           eventCategory: 'split-impression',
-          eventAction: data.impression.feature,
-          eventLabel: data.impression.treatment,
+          eventAction: payload.impression.feature,
+          eventLabel: payload.impression.treatment,
           nonInteraction: true,
         };
       case SPLIT_EVENT:
         return {
           hitType: 'event',
           eventCategory: 'split-event',
-          eventAction: data.eventTypeId,
-          eventValue: data.value,
+          eventAction: payload.eventTypeId,
+          eventValue: payload.value,
           nonInteraction: true,
         };
     }
@@ -62,9 +62,9 @@ class SplitToGa {
       SplitToGa.defaultTrackerNames;
   }
 
-  queue(data, type) {
+  queue(data) {
     try {
-      const fieldsObject = this.filter(data, type) && this.mapper(data, type);
+      const fieldsObject = this.filter(data) && this.mapper(data);
       if (!fieldsObject)
         return;
 

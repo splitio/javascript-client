@@ -230,10 +230,10 @@ export default function (mock, assert) {
 
     gaSpy(['myTracker3', 'myTracker4']);
 
-    const onlyImpressionsFilter = (data, type) => type === SPLIT_IMPRESSION;
-    const onlyEventsMapper = function (data, type) {
+    const onlyImpressionsFilter = ({ type }) => type === SPLIT_IMPRESSION;
+    const onlyEventsMapper = function ({ payload, type }) {
       return type === SPLIT_EVENT ?
-        { hitType: 'event', eventCategory: 'mycategory', eventAction: data.eventTypeId } :
+        { hitType: 'event', eventCategory: 'mycategory', eventAction: payload.eventTypeId } :
         undefined;
     };
     const factory = SplitFactory({
