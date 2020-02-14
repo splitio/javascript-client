@@ -32,7 +32,7 @@ const integrationsManagerFactory = context => {
       }
 
       case SPLIT_TO_GA: {
-        integration = SplitToGa(integrationOptions);
+        integration = new SplitToGa(integrationOptions);
         break;
       }
     }
