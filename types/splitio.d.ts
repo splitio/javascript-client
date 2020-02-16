@@ -116,7 +116,7 @@ interface ILoggerAPI {
  */
 interface ISharedSettings {
   /**
-   * Wether the logger should be enabled or disabled by default.
+   * Whether the logger should be enabled or disabled by default.
    * @property {Boolean} debug
    * @default false
    */
@@ -946,7 +946,7 @@ declare namespace SplitIO {
      * @param {string} eventType - The event type corresponding to this event.
      * @param {number=} value - The value of this event.
      * @param {Properties=} properties - The properties of this event. Values can be string, number, boolean or null.
-     * @returns {boolean} Wether the event was added to the queue succesfully or not.
+     * @returns {boolean} Whether the event was added to the queue succesfully or not.
      */
     track(key: SplitIO.SplitKey, trafficType: string, eventType: string, value?: number, properties?: Properties): boolean,
     /**
@@ -957,7 +957,7 @@ declare namespace SplitIO {
      * @param {string} eventType - The event type corresponding to this event.
      * @param {number=} value - The value of this event.
      * @param {Properties=} properties - The properties of this event. Values can be string, number, boolean or null.
-     * @returns {boolean} Wether the event was added to the queue succesfully or not.
+     * @returns {boolean} Whether the event was added to the queue succesfully or not.
      */
     track(trafficType: string, eventType: string, value?: number, properties?: Properties): boolean,
     /**
@@ -967,7 +967,7 @@ declare namespace SplitIO {
      * @param {string} eventType - The event type corresponding to this event.
      * @param {number=} value - The value of this event.
      * @param {Properties=} properties - The properties of this event. Values can be string, number, boolean or null.
-     * @returns {boolean} Wether the event was added to the queue succesfully or not.
+     * @returns {boolean} Whether the event was added to the queue succesfully or not.
      */
     track(eventType: string, value?: number, properties?: Properties): boolean
   }
