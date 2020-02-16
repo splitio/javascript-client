@@ -26,11 +26,11 @@
  *    - Should do nothing
  */
 
-import { SplitFactory } from '../../';
+import { SplitFactory } from '../..';
 import SettingsFactory from '../../utils/settings';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import mySegmentsFacundo from '../mocks/mysegments.facundo@split.io.json';
-import { gaSpy, gaTag } from '../utils/gaTestUtils';
+import { gaSpy, gaTag } from './gaTestUtils';
 import { SPLIT_IMPRESSION, SPLIT_EVENT } from '../../utils/constants';
 
 function countImpressions(parsedImpressionsBulkPayload) {
