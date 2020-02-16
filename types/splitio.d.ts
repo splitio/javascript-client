@@ -116,7 +116,7 @@ interface ILoggerAPI {
  */
 interface ISharedSettings {
   /**
-   * Wether the logger should be enabled or disabled by default.
+   * Whether the logger should be enabled or disabled by default.
    * @property {Boolean} debug
    * @default false
    */
@@ -594,6 +594,7 @@ declare namespace SplitIO {
   }
   type SPLIT_IMPRESSION = 'IMPRESSION';
   type SPLIT_EVENT = 'EVENT';
+  type Data = { type: SPLIT_IMPRESSION, payload: SplitIO.ImpressionData } | { type: SPLIT_EVENT, payload: SplitIO.EventData };
   /**
    * Enable Split-to-GA integration, to track Split impressions and events as GA hits.
    *
@@ -606,30 +607,30 @@ declare namespace SplitIO {
      * Optional filter to use instead of default, which always return true, 
      * meaning that all impressions and events are tracked as GA hits. 
      */
-    filter?: (data: SplitIO.ImpressionData | SplitIO.EventData, type: SPLIT_IMPRESSION | SPLIT_EVENT) => boolean,
+    filter?: (data: SplitIO.Data) => boolean,
     /**
      * Optional mapper to use instead of default. 
      * This function accepts an impression or event data instance, 
      * and returns a GA FieldsObject instance used to invoke `ga('[tracker.]send', fieldObject)`.
      *
-     * Default FieldsObject value for impressions:
+     * Default FieldsObject value for data.type === SPLIT_IMPRESSION:
      *  `{
      *    hitType: 'event',
      *    eventCategory: 'split-impression',
-     *    eventAction: data.impression.feature,
-     *    eventLabel: data.impression.treatment,
+     *    eventAction: data.payload.impression.feature,
+     *    eventLabel: data.payload.impression.treatment,
      *    nonInteraction: true,
      *  }`
-     * Default FieldsObject value for events:
+     * Default FieldsObject value for data.type === SPLIT_EVENT:
      *  `{
      *    hitType: 'event',
      *    eventCategory: 'split-event',
-     *    eventAction: data.eventTypeId,
-     *    eventValue: data.value,
+     *    eventAction: data.payload.eventTypeId,
+     *    eventValue: data.payload.value,
      *    nonInteraction: true,
      *  }`
      */
-    mapper?: (data: SplitIO.ImpressionData | SplitIO.EventData, type: SPLIT_IMPRESSION | SPLIT_EVENT) => UniversalAnalytics.FieldsObject,
+    mapper?: (data: SplitIO.Data) => UniversalAnalytics.FieldsObject,
     /**
      * List of tracker names to send the hit. An empty string represents the default tracker.
      * If not provided, hits are only sent to default tracker.
@@ -977,7 +978,7 @@ declare namespace SplitIO {
      * @param {string} eventType - The event type corresponding to this event.
      * @param {number=} value - The value of this event.
      * @param {Properties=} properties - The properties of this event. Values can be string, number, boolean or null.
-     * @returns {boolean} Wether the event was added to the queue succesfully or not.
+     * @returns {boolean} Whether the event was added to the queue succesfully or not.
      */
     track(key: SplitIO.SplitKey, trafficType: string, eventType: string, value?: number, properties?: Properties): boolean,
     /**
@@ -988,7 +989,7 @@ declare namespace SplitIO {
      * @param {string} eventType - The event type corresponding to this event.
      * @param {number=} value - The value of this event.
      * @param {Properties=} properties - The properties of this event. Values can be string, number, boolean or null.
-     * @returns {boolean} Wether the event was added to the queue succesfully or not.
+     * @returns {boolean} Whether the event was added to the queue succesfully or not.
      */
     track(trafficType: string, eventType: string, value?: number, properties?: Properties): boolean,
     /**
@@ -998,7 +999,7 @@ declare namespace SplitIO {
      * @param {string} eventType - The event type corresponding to this event.
      * @param {number=} value - The value of this event.
      * @param {Properties=} properties - The properties of this event. Values can be string, number, boolean or null.
-     * @returns {boolean} Wether the event was added to the queue succesfully or not.
+     * @returns {boolean} Whether the event was added to the queue succesfully or not.
      */
     track(eventType: string, value?: number, properties?: Properties): boolean
   }

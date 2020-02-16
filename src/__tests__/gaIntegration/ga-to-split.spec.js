@@ -36,9 +36,9 @@
  */
 
 import sinon from 'sinon';
-import { SplitFactory } from '../../';
+import { SplitFactory } from '../..';
 import SettingsFactory from '../../utils/settings';
-import { gaSpy, gaTag } from '../utils/gaTestUtils';
+import { gaSpy, gaTag } from './gaTestUtils';
 
 const config = {
   core: {
