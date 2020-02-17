@@ -85,38 +85,31 @@ tape('Impression Tracker', t => {
     fake: 'attributes'
   };
 
-  t.test('Transparently propagate the impression and attributes into a listener if provided', assert => {
-    const { fakeStorage, fakeSettings } = generateContextMocks();
-    const contextMock = new ContextMock(fakeStorage, fakeSettings);
-    const tracker = ImpressionTracker(contextMock);
-
-    tracker.track(fakeImpression, fakeAttributes);
-
-    assert.true(fakeStorage.impressions.track.calledWithMatch([fakeImpression]), 'Even with a listener, impression should be present in the collector sequence');
-    assert.true(!fakeSettings.impressionListener.logImpression.calledOnce, 'The listener should not be executed synchronously');
-
-    setTimeout(() => {
-      assert.true(fakeSettings.impressionListener.logImpression.calledOnce, 'The listener should be executed after the timeout wrapping make it to the queue stack.');
-
-      assert.deepEqual(fakeSettings.impressionListener.logImpression.getCall(0).args[0],
-        { impression: fakeImpression, attributes: fakeAttributes, sdkLanguageVersion: fakeSettings.version, ...fakeSettings.runtime },
-        'The listener should be executed with the corresponding map.');
-      assert.end();
-    }, 0);
-  });
-
-  t.test('Propagate the impression and attributes into integration manager if provided', assert => {
+  t.test('Transparently propagate the impression and attributes into a listener and integration manager if provided', assert => {
     const { fakeStorage, fakeSettings, fakeIntegrationsManager } = generateContextMocks();
     const contextMock = new ContextMock(fakeStorage, fakeSettings, fakeIntegrationsManager);
     const tracker = ImpressionTracker(contextMock);
 
     tracker.track(fakeImpression, fakeAttributes);
 
-    assert.true(fakeStorage.impressions.track.calledWithMatch([fakeImpression]), 'Even with an integration manager, impression should be present in the collector sequence');
-    assert.true(fakeIntegrationsManager.handleImpression.calledOnce, 'The integration manager handleImpression method should be executed.');
-    assert.deepEqual(fakeIntegrationsManager.handleImpression.getCall(0).args[0],
-      { impression: fakeImpression, attributes: fakeAttributes, sdkLanguageVersion: fakeSettings.version, ...fakeSettings.runtime },
-      'The integration manager handleImpression method should be executed with the corresponding map.');
-    assert.end();
+    assert.true(fakeStorage.impressions.track.calledWithMatch([fakeImpression]), 'Even with a listener, impression should be present in the collector sequence');
+    assert.true(!fakeSettings.impressionListener.logImpression.calledOnce, 'The listener should not be executed synchronously');
+    assert.true(!fakeIntegrationsManager.handleImpression.calledOnce, 'The integration manager handleImpression method should not be executed synchronously.');
+
+    setTimeout(() => {
+      assert.true(fakeSettings.impressionListener.logImpression.calledOnce, 'The listener should be executed after the timeout wrapping make it to the queue stack.');
+      assert.true(fakeIntegrationsManager.handleImpression.calledOnce, 'The integration manager handleImpression method should be executed after the timeout wrapping make it to the queue stack.');
+
+      const impressionData = { impression: fakeImpression, attributes: fakeAttributes, sdkLanguageVersion: fakeSettings.version, ...fakeSettings.runtime };
+      assert.deepEqual(fakeSettings.impressionListener.logImpression.getCall(0).args[0],
+        impressionData,
+        'The listener should be executed with the corresponding map.');
+      assert.deepEqual(fakeIntegrationsManager.handleImpression.getCall(0).args[0],
+        impressionData,
+        'The integration manager handleImpression method should be executed with the corresponding map.');
+
+      assert.end();
+    }, 0);
   });
+
 });

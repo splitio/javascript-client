@@ -13,8 +13,11 @@ function EventTracker(context) {
 
     if (tracked) {
       log.info(`Successfully qeued ${msg}`);
-      // integrationsManager does not throw errors (they are internally handled by each integration module)
-      if (integrationsManager) integrationsManager.handleEvent(eventData);
+      // Wrap in a timeout because we don't want it to be blocking.
+      setTimeout(() => {
+        // integrationsManager does not throw errors (they are internally handled by each integration module)
+        if (integrationsManager) integrationsManager.handleEvent(eventData);
+      }, 0);
     } else {
       log.warn(`Failed to queue ${msg}`);
     }
