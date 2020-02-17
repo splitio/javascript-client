@@ -28,7 +28,7 @@ function providePlugin(pluginName, pluginConstructor) {
 }
 
 // Default filter: accepts all hits
-function defaultFilter() { return true; }
+export function defaultFilter() { return true; }
 
 // Default mapping: object used for building the default mapper from hits to Split events
 // @TODO review default mapping. 
@@ -43,7 +43,7 @@ const defaultMapping = {
     item: 'ga-item',
     exception: 'ga-exception',
   },
-  eventTypeId: {
+  eventTypeIdSuffix: {
     // pageview: 'page',
     // screenview: 'screenName',
     event: 'eventAction',
@@ -70,29 +70,32 @@ const defaultMapping = {
  */
 function mapperBuilder(mapping) {
   return function (model) {
-    var hitType = model.get('hitType');
-    var eventTypeId =
-      (mapping.eventTypeIdPrefix[hitType] || 'ga') + '.' +
-      (model.get(mapping.eventTypeId[hitType]) || '');
-    var value = model.get(mapping.eventValue[hitType]);
-    var properties = {};
-    var fields = mapping.eventProperties[hitType];
+    const hitType = model.get('hitType');
+
+    let eventTypeId = (mapping.eventTypeIdPrefix[hitType] || 'ga');
+    const suffix = model.get(mapping.eventTypeIdSuffix[hitType]);
+    if (suffix)
+      eventTypeId += '.' + suffix;
+
+    const value = model.get(mapping.eventValue[hitType]);
+
+    const properties = {};
+    const fields = mapping.eventProperties[hitType];
     if (fields) {
-      var length = fields.length;
-      for (var i = 0; i < length; i++) {
+      for (let i = 0; i < fields.length; i++) {
         properties[fields[i]] = model.get(fields[i]);
       }
     }
 
     return {
-      eventTypeId: eventTypeId,
-      value: value,
-      properties: properties
+      eventTypeId,
+      value,
+      properties,
     };
   };
 }
 
-const defaultMapper = mapperBuilder(defaultMapping);
+export const defaultMapper = mapperBuilder(defaultMapping);
 
 /**
  * Return a new list of identities removing invalid and duplicated ones.
@@ -100,7 +103,7 @@ const defaultMapper = mapperBuilder(defaultMapping);
  * @param {Array} identities list of identities
  * @returns list of valid and unique identities, or undefined if `identities` is not an array.
  */
-function validateIdentities(identities) {
+export function validateIdentities(identities) {
   if (!Array.isArray(identities))
     return undefined;
 
@@ -189,7 +192,7 @@ function GaToSplit(sdkOptions, storage, coreSettings) {
       // Overwrite sendHitTask to perform plugin tasks:
       // 1) filter hits
       // 2) map hits to Split events
-      // 3) handle events, i.e., send them to Split BE
+      // 3) handle events, i.e., validate and send them to Split BE
       const originalSendHitTask = tracker.get('sendHitTask');
       tracker.set('sendHitTask', function (model) {
         originalSendHitTask(model);

@@ -25,7 +25,7 @@ export function gaSpy(trackerNames = [DEFAULT_TRACKER], fieldNames = [...HIT_FIE
         trackerNames.forEach(trackerName => {
           const trackerToSniff = window.ga.getByName(trackerName);
           hits[trackerName] = [];
-          var originalSendHitTask = trackerToSniff.get('sendHitTask');
+          const originalSendHitTask = trackerToSniff.get('sendHitTask');
           trackerToSniff.set('sendHitTask', function (model) {
             originalSendHitTask(model);
             const hit = {};
