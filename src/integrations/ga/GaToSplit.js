@@ -201,6 +201,9 @@ function GaToSplit(sdkOptions, storage, coreSettings) {
         if (!eventContent || (opts.mapper !== defaultMapper && !validateEventData(eventContent)))
           return;
 
+        // Add prefix
+        eventContent.eventTypeId = opts.prefix + eventContent.eventTypeId;
+
         // Store an event (eventHandler) for each Key-TrafficType pair (identities) 
         const timestamp = Date.now();
         opts.identities.forEach(identity => {

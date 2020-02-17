@@ -587,6 +587,12 @@ declare namespace SplitIO {
      */
     mapper?: (model: UniversalAnalytics.Model) => EventContent,
     /**
+     * Optional prefix for EventTypeId, to prevent any kind of data collision between events.
+     * @property {string} prefix
+     * @default '' (empty string)
+     */
+    prefix?: string,
+    /**
      * List of Split identities (key & traffic type pairs) used to track events.
      * If not provided, events are sent using the key and traffic type provided at SDK config
      */
