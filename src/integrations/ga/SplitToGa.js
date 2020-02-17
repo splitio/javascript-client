@@ -36,7 +36,7 @@ class SplitToGa {
   /**
    * Validates if a given object is a UniversalAnalytics.FieldsObject instance, and logs a warning if not.
    * 
-   * @param {EventData} fieldsObject object to validate.
+   * @param {UniversalAnalytics.FieldsObject} fieldsObject object to validate.
    * @returns {boolean} Whether the data instance is a valid FieldsObject or not.
    */
   static validateFieldsObject(fieldsObject) {
