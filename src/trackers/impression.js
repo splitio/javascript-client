@@ -44,12 +44,11 @@ function ImpressionTracker(context) {
           sdkLanguageVersion
         };
 
-        // integrationsManager does not throw errors (they are internally handled by each integration module)
-        // @TODO should we put it inside setTimeout to not block?
-        if (integrationsManager) integrationsManager.handleImpression(impressionData);
-
         // Wrap in a timeout because we don't want it to be blocking.
         setTimeout(() => {
+          // integrationsManager does not throw errors (they are internally handled by each integration module)
+          if (integrationsManager) integrationsManager.handleImpression(impressionData);
+
           try { // An exception on the listener should not break the SDK.
             if (listener) listener.logImpression(impressionData);
           } catch (err) {

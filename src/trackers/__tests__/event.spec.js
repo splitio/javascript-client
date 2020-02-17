@@ -59,34 +59,48 @@ tape('Event Tracker', t => {
 
   t.test('Propagate the event into the event cache and integrations manager, and return its result (boolean, or promise that resolves to boolean)', assert => {
     const { fakeStorage, fakeIntegrationsManager } = generateContextMocks();
-    fakeStorage.events.track.withArgs('firstEvent', 1).returns(true);
-    fakeStorage.events.track.withArgs('secondEvent', 2).returns(Promise.resolve(false));
-    fakeStorage.events.track.withArgs('thirdEvent', 3).returns(Promise.resolve(true));
+    fakeStorage.events.track.withArgs('tracked', 1).returns(true);
+    fakeStorage.events.track.withArgs('promiseUntracked', 2).returns(Promise.resolve(false));
+    fakeStorage.events.track.withArgs('promiseTracked', 3).returns(Promise.resolve(true));
     const contextMock = new ContextMock(fakeStorage, fakeIntegrationsManager);
 
     const tracker = EventTracker(contextMock);
+    const result1 = tracker.track('tracked', 1);
 
-    const result1 = tracker.track('firstEvent', 1);
-
-    assert.true(fakeStorage.events.track.calledWithMatch('firstEvent', 1), 'Should be present in the event cache.');
-    assert.true(fakeIntegrationsManager.handleEvent.calledOnceWith('firstEvent'), 'Tracked event should be sent to integration manager.');
+    assert.true(fakeStorage.events.track.calledWithMatch('tracked', 1), 'Should be present in the event cache.');
+    assert.true(!fakeIntegrationsManager.handleEvent.calledOnce, 'The integration manager handleEvent method should not be executed synchronously.');
     assert.true(result1, true, 'Should return the value of the event cache.');
 
-    const result2 = tracker.track('secondEvent', 2);
+    setTimeout(() => {
+      assert.true(fakeIntegrationsManager.handleEvent.calledOnceWithExactly('tracked'), 'Tracked event should be sent to integration manager after the timeout wrapping make it to the queue stack.');
 
-    assert.true(fakeStorage.events.track.calledWithMatch('secondEvent', 2), 'Should be present in the event cache.');
-    result2.then(tracked => {
-      assert.true(fakeIntegrationsManager.handleEvent.calledOnce, 'Untracked event should not be sent to integration manager.');
-      assert.equal(tracked, false, 'Should return the value of the event cache resolved promise.');
+      const result2 = tracker.track('promiseUntracked', 2);
 
-      const result3 = tracker.track('thirdEvent', 3);
+      assert.true(fakeStorage.events.track.calledWithMatch('promiseUntracked', 2), 'Should be present in the event cache.');
 
-      assert.true(fakeStorage.events.track.calledWithMatch('thirdEvent', 3), 'Should be present in the event cache.');
-      result3.then(tracked => {
-        assert.true(fakeIntegrationsManager.handleEvent.calledTwice, 'Tracked event should be sent to integration manager.');
-        assert.equal(tracked, true, 'Should return the value of the event cache resolved promise.');
+      result2.then(tracked => {
+        assert.equal(tracked, false, 'Should return the value of the event cache resolved promise.');
+
+        setTimeout(() => {
+          assert.true(fakeIntegrationsManager.handleEvent.calledOnce, 'Untracked event should not be sent to integration manager.');
+
+          const result3 = tracker.track('promiseTracked', 3);
+
+          assert.true(fakeStorage.events.track.calledWithMatch('promiseTracked', 3), 'Should be present in the event cache.');
+
+          result3.then(tracked => {
+            assert.false(fakeIntegrationsManager.handleEvent.calledTwice, 'Tracked event should not be sent to integration manager synchronously');
+            assert.equal(tracked, true, 'Should return the value of the event cache resolved promise.');
+
+            setTimeout(() => {
+              assert.true(fakeIntegrationsManager.handleEvent.getCalls()[1].calledWithExactly('promiseTracked'), 'Tracked event should be sent to integration manager after the timeout wrapping make it to the queue stack.');
+              assert.end();
+            }, 0);
+          });
+
+        }, 0);
       });
-      assert.end();
-    });
+    }, 0);
   });
+
 });
