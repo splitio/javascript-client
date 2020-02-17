@@ -61,7 +61,7 @@ export function gaSpy(trackerNames = [DEFAULT_TRACKER], fieldNames = [...HIT_FIE
  * @param {nuber} delayTagInsertionInMillis number of milliseconds to delay the tag insertion using a `setTimeout`
  */
 export function gaTag(delayTagInsertionInMillis = -1) {
-  
+
   // remove GA tag, in case a previous test has set it.
   window[window['GoogleAnalyticsObject'] || 'ga'] = undefined;
 
