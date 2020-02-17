@@ -30,13 +30,13 @@ class SplitToGa {
   }
 
   static getGa() {
-    return window[window['GoogleAnalyticsObject'] || 'ga'];
+    return typeof window !== 'undefined' ? window[window['GoogleAnalyticsObject'] || 'ga'] : undefined;
   }
 
   /**
    * Validates if a given object is a UniversalAnalytics.FieldsObject instance, and logs a warning if not.
    * 
-   * @param {EventData} fieldsObject object to validate.
+   * @param {UniversalAnalytics.FieldsObject} fieldsObject object to validate.
    * @returns {boolean} Whether the data instance is a valid FieldsObject or not.
    */
   static validateFieldsObject(fieldsObject) {
@@ -58,17 +58,17 @@ class SplitToGa {
       return {};
     }
 
-    this.filter = typeof (options.filter) === 'function' ?
+    this.filter = options && typeof (options.filter) === 'function' ?
       options.filter :
       SplitToGa.defaultFilter;
 
     // @TODO Should we check something else about `configObject.impressionMapper`? 
     // It doesn't matter, because if the returned object is not a GA fieldsObject or string, ga send command will do nothing.
-    this.mapper = typeof (options.mapper) === 'function' ?
+    this.mapper = options && typeof (options.mapper) === 'function' ?
       options.mapper :
       SplitToGa.defaultMapper;
 
-    this.trackerNames = Array.isArray(options.trackerNames) ?
+    this.trackerNames = options && Array.isArray(options.trackerNames) ?
       // We strip off duplicated values if we received a `trackerNames` param. 
       // We don't warn if a tracker does not exist, since the user might create it after the SDK is initialized.
       // Note: GA allows to create and get trackers using a string or number as tracker name, and does nothing if other types are used.
