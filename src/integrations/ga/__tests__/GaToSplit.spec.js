@@ -8,8 +8,18 @@
 
 import tape from 'tape';
 import sinon from 'sinon';
-import GaToSplit, { validateIdentities, defaultFilter, defaultMapper } from '../GaToSplit';
+import GaToSplit, { validateIdentities, defaultFilter, defaultMapper, validateEventData } from '../GaToSplit';
 import { gaMock, gaRemove, modelMock } from './gaMock';
+
+const hitSample = {
+  hitType: 'pageview',
+  page: '/path',
+};
+const eventDataSample = {
+  eventTypeId: 'ga-pageview',
+  value: undefined,
+  properties: { page: hitSample.page },
+};
 
 tape('validateIdentities', assert => {
   assert.equal(validateIdentities(undefined), undefined);
@@ -51,15 +61,31 @@ tape('validateIdentities', assert => {
   assert.end();
 });
 
-const hitSample = {
-  hitType: 'pageview',
-  page: '/path',
-};
-const eventDataSample = {
-  eventTypeId: 'ga-pageview',
-  value: undefined,
-  properties: { page: hitSample.page },
-};
+tape('validateEventData', assert => {
+  assert.throws(() => { validateEventData(undefined); }, 'throws exception if passed object is undefined');
+  assert.throws(() => { validateEventData(null); }, 'throws exception if passed object is null');
+
+  assert.equal(validateEventData({}), false, 'event must have a valid eventTypeId');
+  assert.equal(validateEventData({ eventTypeId: 'type' }), true, 'event must have a valid eventTypeId');
+  assert.equal(validateEventData({ eventTypeId: 123 }), false, 'event must have a valid eventTypeId');
+
+  assert.equal(validateEventData({ eventTypeId: 'type', value: 'value' }), false, 'event must have a valid value if present');
+  assert.equal(validateEventData({ eventTypeId: 'type', value: 0 }), true, 'event must have a valid value if present');
+
+  assert.equal(validateEventData({ eventTypeId: 'type', properties: ['prop1'] }), false, 'event must have valid properties if present');
+  assert.equal(validateEventData({ eventTypeId: 'type', properties: { prop1: 'prop1' } }), true, 'event must have valid properties if present');
+
+  assert.equal(validateEventData({ eventTypeId: 'type', timestamp: true }), false, 'event must have a valid timestamp if present');
+  assert.equal(validateEventData({ eventTypeId: 'type', timestamp: Date.now() }), true, 'event must have a valid timestamp if present');
+
+  assert.equal(validateEventData({ eventTypeId: 'type', key: true }), false, 'event must have a valid key if present');
+  assert.equal(validateEventData({ eventTypeId: 'type', key: 'key' }), true, 'event must have a valid key if present');
+
+  assert.equal(validateEventData({ eventTypeId: 'type', trafficTypeName: true }), false, 'event must have a valid trafficTypeName if present');
+  assert.equal(validateEventData({ eventTypeId: 'type', trafficTypeName: 'tt' }), true, 'event must have a valid trafficTypeName if present');
+
+  assert.end();
+});
 
 tape('defaultFilter', assert => {
   assert.equal(defaultFilter(modelMock({})), true, 'should return true for any hitType');

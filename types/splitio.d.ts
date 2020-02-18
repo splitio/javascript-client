@@ -547,15 +547,13 @@ declare namespace SplitIO {
     key: string;
     trafficType: string;
   };
-  type EventContent = {
+  type EventData = {
     eventTypeId: string;
     value?: number;
     properties?: Properties;
-  };
-  type EventData = EventContent & {
-    trafficTypeName: string;
-    key: string;
-    timestamp: number;
+    trafficTypeName?: string;
+    key?: string;
+    timestamp?: number;
   };
   /**
    * Enable Ga-to-Split integration, to track GA hits as Split events.
@@ -585,7 +583,7 @@ declare namespace SplitIO {
      *  }`
      *  - @TODO add mappings for other hit types.
      */
-    mapper?: (model: UniversalAnalytics.Model) => EventContent,
+    mapper?: (model: UniversalAnalytics.Model) => EventData,
     /**
      * Optional prefix for EventTypeId, to prevent any kind of data collision between events.
      * @property {string} prefix
