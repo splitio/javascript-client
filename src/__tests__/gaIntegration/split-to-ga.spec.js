@@ -76,30 +76,34 @@ export default function (mock, assert) {
     })();
 
     mock.onPost(settings.url('/testImpressions/bulk')).replyOnce(req => {
-      // we can assert payload and ga hits, once ga is ready.
-      window.ga(() => {
-        const resp = JSON.parse(req.data);
-        const sentImpressions = countImpressions(resp);
-        const sentImpressionHits = window.gaSpy.getHits().filter(hit => hit.eventCategory === 'split-impression');
+      // we can assert payload and ga hits, once ga is ready and after `SplitToGa.queue`, that is timeout wrapped, make to the queue stack.
+      setTimeout(() => {
+        window.ga(() => {
+          const resp = JSON.parse(req.data);
+          const sentImpressions = countImpressions(resp);
+          const sentImpressionHits = window.gaSpy.getHits().filter(hit => hit.eventCategory === 'split-impression');
 
-        t.equal(sentImpressions, 1, 'Number of impressions');
-        t.equal(sentImpressions, sentImpressionHits.length, `Number of sent impression hits must be equal to the number of impressions (${sentImpressions})`);
+          t.equal(sentImpressions, 1, 'Number of impressions');
+          t.equal(sentImpressions, sentImpressionHits.length, `Number of sent impression hits must be equal to the number of impressions (${sentImpressions})`);
 
-        finish.next();
+          finish.next();
+        });
       });
       return [200];
     });
 
     mock.onPost(settings.url('/events/bulk')).replyOnce(req => {
-      window.ga(() => {
-        const resp = JSON.parse(req.data);
-        const sentEvents = resp.length;
-        const sentEventHits = window.gaSpy.getHits().filter(hit => hit.eventCategory === 'split-event');
+      setTimeout(() => {
+        window.ga(() => {
+          const resp = JSON.parse(req.data);
+          const sentEvents = resp.length;
+          const sentEventHits = window.gaSpy.getHits().filter(hit => hit.eventCategory === 'split-event');
 
-        t.equal(sentEvents, 1, 'Number of events');
-        t.equal(sentEvents, sentEventHits.length, `Number of sent event hits must be equal to sent events: (${sentEvents})`);
+          t.equal(sentEvents, 1, 'Number of events');
+          t.equal(sentEvents, sentEventHits.length, `Number of sent event hits must be equal to sent events: (${sentEvents})`);
 
-        finish.next();
+          finish.next();
+        });
       });
       return [200];
     });
@@ -129,19 +133,21 @@ export default function (mock, assert) {
     const numOfEvaluations = 4;
 
     mock.onPost(settings.url('/testImpressions/bulk')).replyOnce(req => {
-      window.ga(() => {
-        const resp = JSON.parse(req.data);
-        const sentImpressions = countImpressions(resp);
-        const sentHitsTracker1 = window.gaSpy.getHits('myTracker1');
-        const sentHitsTracker2 = window.gaSpy.getHits('myTracker2');
+      setTimeout(() => {
+        window.ga(() => {
+          const resp = JSON.parse(req.data);
+          const sentImpressions = countImpressions(resp);
+          const sentHitsTracker1 = window.gaSpy.getHits('myTracker1');
+          const sentHitsTracker2 = window.gaSpy.getHits('myTracker2');
 
-        t.equal(sentImpressions, numOfEvaluations, 'Number of impressions equals the number of evaluations');
-        t.equal(sentImpressions, sentHitsTracker1.length, 'Number of sent hits must be equal to the number of impressions');
-        t.equal(sentImpressions, sentHitsTracker2.length, 'Number of sent hits must be equal to the number of impressions');
+          t.equal(sentImpressions, numOfEvaluations, 'Number of impressions equals the number of evaluations');
+          t.equal(sentImpressions, sentHitsTracker1.length, 'Number of sent hits must be equal to the number of impressions');
+          t.equal(sentImpressions, sentHitsTracker2.length, 'Number of sent hits must be equal to the number of impressions');
 
-        setTimeout(() => {
-          client.destroy();
-          t.end();
+          setTimeout(() => {
+            client.destroy();
+            t.end();
+          });
         });
       });
       return [200];
@@ -194,31 +200,35 @@ export default function (mock, assert) {
     })();
 
     mock.onPost(settings.url('/testImpressions/bulk')).replyOnce(req => {
-      window.ga(() => {
-        const resp = JSON.parse(req.data);
-        const sentImpressions = countImpressions(resp);
-        const sentImpressionHitsTracker3 = window.gaSpy.getHits('myTracker3').filter(hit => hit.eventCategory === 'split-impression');
-        const sentImpressionHitsTracker4 = window.gaSpy.getHits('myTracker4').filter(hit => hit.eventCategory === 'split-impression');
+      setTimeout(() => {
+        window.ga(() => {
+          const resp = JSON.parse(req.data);
+          const sentImpressions = countImpressions(resp);
+          const sentImpressionHitsTracker3 = window.gaSpy.getHits('myTracker3').filter(hit => hit.eventCategory === 'split-impression');
+          const sentImpressionHitsTracker4 = window.gaSpy.getHits('myTracker4').filter(hit => hit.eventCategory === 'split-impression');
 
-        t.equal(sentImpressionHitsTracker3.length, sentImpressions, 'For tracker3, no impressions are filtered');
-        t.equal(sentImpressionHitsTracker4.length, 0, 'For tracker4, all impressions are filtered');
+          t.equal(sentImpressionHitsTracker3.length, sentImpressions, 'For tracker3, no impressions are filtered');
+          t.equal(sentImpressionHitsTracker4.length, 0, 'For tracker4, all impressions are filtered');
 
-        finish.next();
+          finish.next();
+        });
       });
       return [200];
     });
 
     mock.onPost(settings.url('/events/bulk')).replyOnce(req => {
-      window.ga(() => {
-        const resp = JSON.parse(req.data);
-        const sentEvents = resp.length;
-        const sentEventHitsTracker3 = window.gaSpy.getHits('myTracker3').filter(hit => hit.eventCategory === 'mycategory');
-        const sentEventHitsTracker4 = window.gaSpy.getHits('myTracker4').filter(hit => hit.eventCategory === 'mycategory');
+      setTimeout(() => {
+        window.ga(() => {
+          const resp = JSON.parse(req.data);
+          const sentEvents = resp.length;
+          const sentEventHitsTracker3 = window.gaSpy.getHits('myTracker3').filter(hit => hit.eventCategory === 'mycategory');
+          const sentEventHitsTracker4 = window.gaSpy.getHits('myTracker4').filter(hit => hit.eventCategory === 'mycategory');
 
-        t.equal(sentEventHitsTracker3.length, 0, 'For tracker3, all events are filtered');
-        t.equal(sentEventHitsTracker4.length, sentEvents, 'For tracker4, no events are filtered');
+          t.equal(sentEventHitsTracker3.length, 0, 'For tracker3, all events are filtered');
+          t.equal(sentEventHitsTracker4.length, sentEvents, 'For tracker4, no events are filtered');
 
-        finish.next();
+          finish.next();
+        });
       });
       return [200];
     });
