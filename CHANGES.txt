@@ -1,4 +1,4 @@
-10.10.1 (Jan 24, 2020)
+10.10.1 (Feb 18, 2020)
  - Updated logging logic to avoid calling console.error in the client side.
  - Updated logging error messages priority to significantly reduce the amount of error level logs that can't be silenced.
  - Updated axios to 0.19.2 and few other minor updates on dev dependencies.
