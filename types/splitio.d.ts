@@ -186,7 +186,7 @@ interface INodeBasicSettings extends ISharedSettings {
     /**
      * The SDK sends diagnostic metrics to Split servers. This parameters controls this metric flush period in seconds.
      * @property {number} metricsRefreshRate
-     * @default 60
+     * @default 120
      */
     metricsRefreshRate?: number,
     /**
@@ -601,7 +601,7 @@ declare namespace SplitIO {
       /**
        * The SDK sends diagnostic metrics to Split servers. This parameters controls this metric flush period in seconds.
        * @property {number} metricsRefreshRate
-       * @default 60
+       * @default 120
        */
       metricsRefreshRate?: number,
       /**
