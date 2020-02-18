@@ -5,25 +5,27 @@ const EVENT_FIELDS = ['eventCategory', 'eventAction', 'eventLabel', 'eventValue'
 
 /**
  * Spy ga hits per tracker.
- * 
+ *
  * @param {string[]} trackerNames names of the trackers to spy. If not provided, it spies the default tracker. i.e., `gaSpy()` is equivalent to `gaSpy(['t0'])`.
  * @param {string[]} fieldNames names of the hit fields to spy. If not provided, it spies hit and event related fields. i.e., 'hitType', 'nonInteraction',
  * 'eventCategory', 'eventAction', 'eventLabel', and 'eventValue', which are the ones set by default SplitToGa mapper.
- * 
+ *
  * @see {@link https://developers.google.com/analytics/devguides/collection/analyticsjs/field-reference}
  */
 export function gaSpy(trackerNames = [DEFAULT_TRACKER], fieldNames = [...HIT_FIELDS, ...EVENT_FIELDS]) {
 
   const hits = {};
 
-  window.ga = window[window['GoogleAnalyticsObject'] || 'ga'];
+  // access ga via its gaAlias, accounting for the possibility that the global command queue 
+  // has been renamed or not yet defined (analytics.js mutates window[gaAlias] reference)
+  const gaAlias = window['GoogleAnalyticsObject'] || 'ga';
 
-  if (typeof window.ga == 'function') {
-    window.ga(function () {
+  if (typeof window[gaAlias] === 'function') {
+    window[gaAlias](function () {
       // We try-catch the following code, since errors are catched by `ga` and thus cannot be traced for debugging.
       try {
         trackerNames.forEach(trackerName => {
-          const trackerToSniff = window.ga.getByName(trackerName);
+          const trackerToSniff = window[gaAlias].getByName(trackerName);
           hits[trackerName] = [];
           const originalSendHitTask = trackerToSniff.get('sendHitTask');
           trackerToSniff.set('sendHitTask', function (model) {
@@ -56,11 +58,10 @@ export function gaSpy(trackerNames = [DEFAULT_TRACKER], fieldNames = [...HIT_FIE
 
 /**
  * Add Google Analytics tag, removing previous one if exists.
+ *
  * @see {@link https://developers.google.com/analytics/devguides/collection/analyticsjs#the_google_analytics_tag}
- * 
- * @param {nuber} delayTagInsertionInMillis number of milliseconds to delay the tag insertion using a `setTimeout`
  */
-export function gaTag(delayTagInsertionInMillis = -1) {
+export function gaTag() {
 
   // remove GA tag, in case a previous test has set it.
   window[window['GoogleAnalyticsObject'] || 'ga'] = undefined;
@@ -76,12 +77,6 @@ export function gaTag(delayTagInsertionInMillis = -1) {
     m = s.getElementsByTagName(o)[0];
     a.async = 1;
     a.src = g;
-    if (delayTagInsertionInMillis >= 0) {
-      setTimeout(() => {
-        m.parentNode.insertBefore(a, m);
-      }, 2000);
-    } else {
-      m.parentNode.insertBefore(a, m);
-    }
+    m.parentNode.insertBefore(a, m);
   })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
 }

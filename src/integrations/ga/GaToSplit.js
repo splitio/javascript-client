@@ -33,7 +33,7 @@ function providePlugin(pluginName, pluginConstructor) {
 export function defaultFilter() { return true; }
 
 // Default mapping: object used for building the default mapper from hits to Split events
-// @TODO review default mapping. 
+// @TODO review default mapping.
 const defaultMapping = {
   eventTypeIdPrefix: {
     pageview: 'ga-pageview',
@@ -67,7 +67,7 @@ const defaultMapping = {
 
 /**
  * Build a mapper function based on a mapping object
- * 
+ *
  * @param {object} mapping 
  */
 function mapperBuilder(mapping) {
@@ -101,7 +101,7 @@ export const defaultMapper = mapperBuilder(defaultMapping);
 
 /**
  * Return a new list of identities removing invalid and duplicated ones.
- * 
+ *
  * @param {Array} identities list of identities
  * @returns list of valid and unique identities, or undefined if `identities` is not an array.
  */
@@ -131,7 +131,7 @@ export function validateIdentities(identities) {
 
 /**
  * Validates if a given object is a EventData instance, and logs corresponding warnings.
- * 
+ *
  * @param {EventData} data event data instance to validate. Precondition: data != undefined
  * @returns {boolean} Whether the data instance is a valid EventData or not.
  */
@@ -161,7 +161,7 @@ export function validateEventData(data) {
 /**
  * GaToSplit integration.
  * This function provides the SplitTracker plugin to ga command queue.
- * 
+ *
  * @param {object} sdkOptions options passed at the SDK integrations settings
  * @param {object} storage SDK storage passed to track events
  * @param {object} coreSettings core settings used to define an identity if no one provided as SDK or plugin options

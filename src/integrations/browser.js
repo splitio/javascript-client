@@ -5,9 +5,9 @@ import { GA_TO_SPLIT, SPLIT_TO_GA, SPLIT_IMPRESSION, SPLIT_EVENT } from '../util
 /**
  * Factory function for browser IntegrationsManager.
  * The integrations manager instantiates integration modules, and bypass tracked events and impressions to them. 
- * 
+ *
  * @param {Context} context SplitFactory context
- * 
+ *
  * @returns integration manager or null if `integrations` are not present in settings.
  */
 const integrationsManagerFactory = context => {

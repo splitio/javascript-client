@@ -35,7 +35,7 @@ class SplitToGa {
 
   /**
    * Validates if a given object is a UniversalAnalytics.FieldsObject instance, and logs a warning if not.
-   * 
+   *
    * @param {UniversalAnalytics.FieldsObject} fieldsObject object to validate.
    * @returns {boolean} Whether the data instance is a valid FieldsObject or not.
    */
@@ -50,8 +50,7 @@ class SplitToGa {
   constructor(options) {
 
     // Check if `ga` object is available
-    this.ga = SplitToGa.getGa();
-    if (typeof this.ga !== 'function') {
+    if (typeof SplitToGa.getGa() !== 'function') {
       // @TODO review the following warning message
       log.warn('`ga` command queue not found. No hits will be sent.');
       // Return an empty object to avoid creating a SplitToGa instance 
@@ -88,7 +87,9 @@ class SplitToGa {
       // send the hit
       this.trackerNames.forEach(trackerName => {
         const sendCommand = trackerName ? `${trackerName}.send` : 'send';
-        this.ga(sendCommand, fieldsObject);
+        // access ga command queue via `getGa` method, accounting for the possibility that 
+        // the global `ga` reference was not yet mutated by analytics.js.
+        SplitToGa.getGa()(sendCommand, fieldsObject);
       });
     } catch (err) {
       log.warn(`SplitToGa queue method threw: ${err}. No hit was sent.`);

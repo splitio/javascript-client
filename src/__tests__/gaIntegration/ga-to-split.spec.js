@@ -4,7 +4,7 @@
  *    DONE- On default tracker
  *    DONE- On named tracker
  *    -ga require on multiple trackers, with different options
- * 
+ *
  *  - Configs
  *    DONE- Several identities
  *      DONE- as plugin options
@@ -15,7 +15,7 @@
  *    - Custom hitMapper
  *      - as plugin options
  *      - as SDK options
- * 
+ *
  *  - Error/Corner cases
  *    -SDK errors. We must provide the plugin anyway, to not block ga command queue
  *      DONE- No identities or TT in SDK config
@@ -26,11 +26,11 @@
  *    - ga require command added repeatedly
  *    - SDK factory instantiated before than GA tag
  *    - SDK factory destroyed and GA keep sending hits
- *    - GA tag not included, but SDK configured for GA 
+ *    - GA tag not included, but SDK configured for GA
  *    - GA in another global variable
- *  
+ *
  *  -Test ga-to-split and split-to-ga together
- * 
+ *
  *  - Node:
  *    - Should do nothing
  */
