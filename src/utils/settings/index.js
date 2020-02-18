@@ -48,7 +48,7 @@ const base = {
     featuresRefreshRate: 30,
     // fetch segments updates each 60 sec
     segmentsRefreshRate: 60,
-    // publish metrics each 60 sec
+    // publish metrics each 120 sec
     metricsRefreshRate: 120,
     // publish evaluations each 60 sec
     impressionsRefreshRate: 60,
