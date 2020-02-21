@@ -1,36 +1,38 @@
 /**
  * -split-to-ga tests:
- *  - Default behavior
+ *  DONE- Default behavior
  *    DONE- No hits are sent if no getTreatment is invoked
  *    DONE- N hits are sent if getTreatment called N times
  *
- *  - Configs
+ *  DONE- Configs
  *    DONE- Several tracker names with the same filter and mapper
  *    DONE- Several tracker names with different filters and mappers
  *    DONE- Custom filter
  *    DONE- Custom mapper
+ *    - Special use case: custom mapper returning an event instance with key and TT override `identities` param.
  *
  *  - Error/Corner cases
- *    -SDK errors.
+ *    DONE-SDK errors.
  *      NO NEED: IGNORED BY GA- invalid trackerNames
- *      - filter or mapper with exception or invalid: log warning ERROR IN QUEUE
- *    
+ *      DONE- filter or mapper with exception or invalid result: log warning
+ *
  *    - SDK factory instantiated before than
- *      - GA tag: log warning
+ *      DONE- GA tag: log warning
  *      - a new tracker is created: check that some hits are missed
- *    - GA tag not included, but SDK configured for Split-to-GA: log warning NO GA FOUND
- *    ?- GA in another global variable
- *    - SDK loaded, evaluated and destroyed before GA loaded: log warning NO GA FOUND
- *    
+ *      REDUNDANT- GA tag not included, but SDK configured for Split-to-GA: log warning NO GA FOUND
+ *      REDUNDANT- SDK loaded, evaluated and destroyed before GA loaded: log warning NO GA FOUND
+ *    DONE- GA in another global variable
+ *
  *  - Node:
  *    - Should do nothing
  */
 
+import sinon from 'sinon';
 import { SplitFactory } from '../..';
 import SettingsFactory from '../../utils/settings';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import mySegmentsFacundo from '../mocks/mysegments.facundo@split.io.json';
-import { gaSpy, gaTag } from './gaTestUtils';
+import { gaSpy, gaTag, removeGaTag, addGaTag } from './gaTestUtils';
 import { SPLIT_IMPRESSION, SPLIT_EVENT } from '../../utils/constants';
 
 function countImpressions(parsedImpressionsBulkPayload) {
@@ -48,7 +50,7 @@ const config = {
     type: 'SPLIT_TO_GA',
   }],
   scheduler: {
-    impressionsRefreshRate: 0.5,
+    impressionsRefreshRate: 0.2,
     eventsQueueSize: 1,
   },
 };
@@ -126,7 +128,7 @@ export default function (mock, assert) {
 
   });
 
-  // test default behavior in multiple trackers and multiple impressions
+  // test default behavior in multiple trackers, with multiple impressions, and GA in a different global variable
   assert.test(t => {
 
     let client;
@@ -134,7 +136,7 @@ export default function (mock, assert) {
 
     mock.onPost(settings.url('/testImpressions/bulk')).replyOnce(req => {
       setTimeout(() => {
-        window.ga(() => {
+        window.other_location_for_ga(() => {
           const resp = JSON.parse(req.data);
           const sentImpressions = countImpressions(resp);
           const sentHitsTracker1 = window.gaSpy.getHits('myTracker1');
@@ -153,11 +155,11 @@ export default function (mock, assert) {
       return [200];
     });
 
-    gaTag();
+    gaTag('other_location_for_ga');
 
-    window.ga('create', 'UA-00000000-1', 'auto', { siteSpeedSampleRate: 0 });
-    window.ga('create', 'UA-00000001-1', 'example1.com', 'myTracker1', { siteSpeedSampleRate: 0 });
-    window.ga('create', 'UA-00000002-1', 'example2.com', 'myTracker2', { siteSpeedSampleRate: 0 });
+    window.other_location_for_ga('create', 'UA-00000000-1', 'auto', { siteSpeedSampleRate: 0 });
+    window.other_location_for_ga('create', 'UA-00000001-1', 'example1.com', 'myTracker1', { siteSpeedSampleRate: 0 });
+    window.other_location_for_ga('create', 'UA-00000002-1', 'example2.com', 'myTracker2', { siteSpeedSampleRate: 0 });
 
     gaSpy(['myTracker1', 'myTracker2']);
 
@@ -253,7 +255,7 @@ export default function (mock, assert) {
         authorizationKey: '<some-token-2>',
       },
       scheduler: {
-        impressionsRefreshRate: 0.5,
+        impressionsRefreshRate: 0.2,
         eventsQueueSize: numOfEvents,
       },
       integrations: [{
@@ -277,4 +279,119 @@ export default function (mock, assert) {
     });
 
   });
+
+  // exception in custom mapper or invalid mapper result must not send a hit
+  assert.test(t => {
+
+    const logSpy = sinon.spy(console, 'log');
+    const error = 'some error';
+    let client;
+    const numOfEvaluations = 1;
+
+    mock.onPost(settings.url('/testImpressions/bulk')).replyOnce(req => {
+      setTimeout(() => {
+        window.ga(() => {
+          const resp = JSON.parse(req.data);
+          const sentImpressions = countImpressions(resp);
+          const sentHitsDefault = window.gaSpy.getHits();
+          const sentHitsTracker1 = window.gaSpy.getHits('myTracker1');
+          const sentHitsTracker2 = window.gaSpy.getHits('myTracker2');
+
+          t.equal(sentImpressions, numOfEvaluations, 'Number of impressions equals the number of evaluations');
+          t.equal(sentHitsDefault.length, 0, 'No hits sent if custom mapper throws error');
+          t.equal(sentHitsTracker1.length, 0, 'No hits sent if custom mapper returns invalid result');
+          t.equal(sentHitsTracker2.length, numOfEvaluations, 'Number of sent hits must be equal to the number of impressions');
+
+          setTimeout(() => {
+            t.ok(logSpy.calledWith(`[WARN]  splitio-split-to-ga => SplitToGa queue method threw: ${error}. No hit was sent.`));
+            t.ok(logSpy.calledWith('[WARN]  splitio-split-to-ga => your custom mapper returned an invalid FieldsObject instance. It must be an object with at least a `hitType` field.'));
+            client.destroy();
+            logSpy.restore();
+            t.end();
+          });
+        });
+      });
+      return [200];
+    });
+
+    gaTag();
+
+    window.ga('create', 'UA-00000000-1', 'auto', { siteSpeedSampleRate: 0 });
+    window.ga('create', 'UA-00000001-1', 'example1.com', 'myTracker1', { siteSpeedSampleRate: 0 });
+    window.ga('create', 'UA-00000002-1', 'example2.com', 'myTracker2', { siteSpeedSampleRate: 0 });
+
+    gaSpy(['t0', 'myTracker1', 'myTracker2']);
+
+    const factory = SplitFactory({
+      ...config,
+      debug: true,
+      integrations: [{
+        type: 'SPLIT_TO_GA',
+        mapper: function () { throw error; },
+      }, {
+        type: 'SPLIT_TO_GA',
+        trackerNames: ['myTracker1'],
+        mapper: function () { return {}; },
+      }, {
+        type: 'SPLIT_TO_GA',
+        trackerNames: ['myTracker2'],
+        mapper: function () { return { hitType: 'event', eventCategory: 'my-split-impression', eventAction: 'some-action' }; },
+      }],
+    });
+    client = factory.client();
+    client.ready().then(() => {
+      for (let i = 0; i < numOfEvaluations; i++)
+        client.getTreatment('split_with_config');
+    });
+
+  });
+
+  // Split ready before GA initialized
+  assert.test(t => {
+
+    const logSpy = sinon.spy(console, 'log');
+    let client;
+    const numOfEvaluations = 1;
+
+    mock.onPost(settings.url('/testImpressions/bulk')).replyOnce(req => {
+      setTimeout(() => {
+        window.ga(() => {
+          const resp = JSON.parse(req.data);
+          const sentImpressions = countImpressions(resp);
+          const sentHitsDefault = window.gaSpy.getHits();
+
+          t.equal(sentImpressions, numOfEvaluations, 'Number of impressions equals the number of evaluations');
+          t.equal(sentHitsDefault.length, 0, 'No hits sent if ga initialized after Split');
+
+          setTimeout(() => {
+            t.ok(logSpy.calledWith('[WARN]  splitio-split-to-ga => `ga` command queue not found. No hits will be sent.'));
+            client.destroy();
+            logSpy.restore();
+            t.end();
+          });
+        });
+      });
+      return [200];
+    });
+
+    removeGaTag();
+
+    const factory = SplitFactory({
+      ...config,
+      debug: true,
+    });
+    client = factory.client();
+    client.ready().then(() => {
+      for (let i = 0; i < numOfEvaluations; i++)
+        client.getTreatment('split_with_config');
+    });
+
+    addGaTag();
+
+    window.ga('create', 'UA-00000000-1', 'auto', { siteSpeedSampleRate: 0 });
+
+    gaSpy();
+
+  });
+
 }

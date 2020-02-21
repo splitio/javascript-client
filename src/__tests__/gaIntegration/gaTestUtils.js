@@ -16,7 +16,7 @@ export function gaSpy(trackerNames = [DEFAULT_TRACKER], fieldNames = [...HIT_FIE
 
   const hits = {};
 
-  // access ga via its gaAlias, accounting for the possibility that the global command queue 
+  // access ga via its gaAlias, accounting for the possibility that the global command queue
   // has been renamed or not yet defined (analytics.js mutates window[gaAlias] reference)
   const gaAlias = window['GoogleAnalyticsObject'] || 'ga';
 
@@ -46,7 +46,7 @@ export function gaSpy(trackerNames = [DEFAULT_TRACKER], fieldNames = [...HIT_FIE
   }
 
   window.gaSpy = {
-    // getHits may return `undefined` if `ga` is not ready or `trackerName` is not in the list of `trackerNames` 
+    // getHits may return `undefined` if `ga` is not ready or `trackerName` is not in the list of `trackerNames`
     getHits: function (trackerName = DEFAULT_TRACKER) {
       const trackerHits = hits[trackerName];
       return trackerHits;
@@ -61,12 +61,15 @@ export function gaSpy(trackerNames = [DEFAULT_TRACKER], fieldNames = [...HIT_FIE
  *
  * @see {@link https://developers.google.com/analytics/devguides/collection/analyticsjs#the_google_analytics_tag}
  */
-export function gaTag() {
+export function gaTag(gaAlias = 'ga') {
+  removeGaTag(gaAlias);
+  addGaTag(gaAlias);
+}
 
-  // remove GA tag, in case a previous test has set it.
-  window[window['GoogleAnalyticsObject'] || 'ga'] = undefined;
-
-  // Add GA tag
+/**
+ * Add Google Analytics tag.
+ */
+export function addGaTag(gaAlias = 'ga') {
   (function (i, s, o, g, r, a, m) {
     i['GoogleAnalyticsObject'] = r;
     i[r] = i[r] || function () {
@@ -78,5 +81,12 @@ export function gaTag() {
     a.async = 1;
     a.src = g;
     m.parentNode.insertBefore(a, m);
-  })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
+  })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', gaAlias);
+}
+
+/**
+ * Remove Google Analytics command queue.
+ */
+export function removeGaTag(gaAlias = 'ga') {
+  window[window['GoogleAnalyticsObject'] || gaAlias] = undefined;
 }
