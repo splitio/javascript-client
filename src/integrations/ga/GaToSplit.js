@@ -68,7 +68,7 @@ const defaultMapping = {
 /**
  * Build a mapper function based on a mapping object
  *
- * @param {object} mapping 
+ * @param {object} mapping
  */
 function mapperBuilder(mapping) {
   return function (model) {
@@ -109,7 +109,7 @@ export function validateIdentities(identities) {
   if (!Array.isArray(identities))
     return undefined;
 
-  // Remove duplicated identities  
+  // Remove duplicated identities
   const uniqueIdentities = uniqO(identities);
 
   // Filter based on rum-agent identities validator
@@ -139,20 +139,20 @@ export function validateEventData(data) {
   if (!validateEvent(data.eventTypeId, 'splitio-ga-to-split:mapper'))
     return false;
 
-  if(validateEventValue(data.value, 'splitio-ga-to-split:mapper') === false)
+  if (validateEventValue(data.value, 'splitio-ga-to-split:mapper') === false)
     return false;
 
   const { properties } = validateEventProperties(data.properties, 'splitio-ga-to-split:mapper');
-  if(properties === false)
+  if (properties === false)
     return false;
 
-  if(data.timestamp && !isNumber(data.timestamp))
+  if (data.timestamp && !isNumber(data.timestamp))
     return false;
 
-  if(data.key && validateKey(data.key, 'splitio-ga-to-split:mapper') === false)
+  if (data.key && validateKey(data.key, 'splitio-ga-to-split:mapper') === false)
     return false;
 
-  if(data.trafficTypeName && validateTrafficType(data.trafficTypeName, 'splitio-ga-to-split:mapper') === false)
+  if (data.trafficTypeName && validateTrafficType(data.trafficTypeName, 'splitio-ga-to-split:mapper') === false)
     return false;
 
   return true;
@@ -187,7 +187,7 @@ function GaToSplit(sdkOptions, storage, coreSettings) {
     constructor(tracker, pluginOptions) {
 
       // precedence of options: SDK options (config.integrations) overwrite pluginOptions (`ga('require', 'splitTracker', pluginOptions)`)
-      const opts = Object.assign({}, defaultOptions, pluginOptions, sdkOptions);
+      const opts = Object.assign({}, defaultOptions, sdkOptions, pluginOptions);
 
       this.tracker = tracker;
 
@@ -207,7 +207,7 @@ function GaToSplit(sdkOptions, storage, coreSettings) {
 
       // Validate prefix
       // @TODO Improve the prefix validation using the same REGEX than eventTypeId
-      if(opts.prefix && !isString(opts.prefix)) {
+      if (opts.prefix && !isString(opts.prefix)) {
         log.warn('The provided `prefix` was ignored since it is invalid. Please check that you are passing a string object as `prefix`.');
         opts.prefix = undefined;
       }
