@@ -62,8 +62,8 @@ tape('SplitToGa', t => {
     assert.equal(SplitToGa.validateFieldsObject(function () { }), false);
 
     assert.equal(SplitToGa.validateFieldsObject({}), false, 'An empty object is an invalid FieldsObject instance');
-    assert.equal(SplitToGa.validateFieldsObject({ hitType: 10 }), false, 'HitType must not be other than a string object');
-    assert.equal(SplitToGa.validateFieldsObject({ hitType: 'event' }), true, 'HitType must be a string object');
+    assert.equal(SplitToGa.validateFieldsObject({ hitType: 10 }), true, 'A fields object instance must have a HitType');
+    assert.equal(SplitToGa.validateFieldsObject({ hitType: 'event', ignoredProp: 'ignoredProp' }), true, 'A fields object instance must have a HitType');
 
     assert.end();
   });

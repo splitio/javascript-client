@@ -1,5 +1,5 @@
 import logFactory from '../../utils/logger';
-import { uniq, isObject, isString } from '../../utils/lang';
+import { uniq } from '../../utils/lang';
 import { SPLIT_IMPRESSION, SPLIT_EVENT } from '../../utils/constants';
 const log = logFactory('splitio-split-to-ga');
 
@@ -35,12 +35,16 @@ class SplitToGa {
 
   /**
    * Validates if a given object is a UniversalAnalytics.FieldsObject instance, and logs a warning if not.
-   * 
+   * It checks that the object contains a `hitType`, since it is the minimal field required to send the hit
+   * and avoid the GA error `No hit type specified. Aborting hit.`.
+   * Other validations (e.g., an `event` hitType must have a `eventCategory` and `eventAction`) are handled
+   * and logged (as warnings or errors depending the case) by GA debugger, but the hit is sent anyway.
+   *
    * @param {UniversalAnalytics.FieldsObject} fieldsObject object to validate.
    * @returns {boolean} Whether the data instance is a valid FieldsObject or not.
    */
   static validateFieldsObject(fieldsObject) {
-    if (isObject(fieldsObject) && isString(fieldsObject.hitType))
+    if (fieldsObject && fieldsObject.hitType)
       return true;
 
     log.warn('your custom mapper returned an invalid FieldsObject instance. It must be an object with at least a `hitType` field.');
@@ -53,7 +57,7 @@ class SplitToGa {
     if (typeof SplitToGa.getGa() !== 'function') {
       // @TODO review the following warning message
       log.warn('`ga` command queue not found. No hits will be sent.');
-      // Return an empty object to avoid creating a SplitToGa instance 
+      // Return an empty object to avoid creating a SplitToGa instance
       return {};
     }
 
@@ -61,14 +65,14 @@ class SplitToGa {
       options.filter :
       SplitToGa.defaultFilter;
 
-    // @TODO Should we check something else about `configObject.impressionMapper`? 
+    // @TODO Should we check something else about `configObject.impressionMapper`?
     // It doesn't matter, because if the returned object is not a GA fieldsObject or string, ga send command will do nothing.
     this.mapper = options && typeof (options.mapper) === 'function' ?
       options.mapper :
       SplitToGa.defaultMapper;
 
     this.trackerNames = options && Array.isArray(options.trackerNames) ?
-      // We strip off duplicated values if we received a `trackerNames` param. 
+      // We strip off duplicated values if we received a `trackerNames` param.
       // We don't warn if a tracker does not exist, since the user might create it after the SDK is initialized.
       // Note: GA allows to create and get trackers using a string or number as tracker name, and does nothing if other types are used.
       uniq(options.trackerNames) :
@@ -87,7 +91,7 @@ class SplitToGa {
       // send the hit
       this.trackerNames.forEach(trackerName => {
         const sendCommand = trackerName ? `${trackerName}.send` : 'send';
-        // access ga command queue via `getGa` method, accounting for the possibility that 
+        // access ga command queue via `getGa` method, accounting for the possibility that
         // the global `ga` reference was not yet mutated by analytics.js.
         SplitToGa.getGa()(sendCommand, fieldsObject);
       });
