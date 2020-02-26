@@ -1,5 +1,6 @@
 import SplitCacheInMemory from './SplitCache/InMemory';
 import SplitCacheInLocalStorage from './SplitCache/InLocalStorage';
+import SplitCacheInCloudflareKV from './SplitCache/InCloudflareKV';
 import SegmentCacheInMemory from './SegmentCache/InMemory';
 import SegmentCacheInLocalStorage from './SegmentCache/InLocalStorage';
 import ImpressionsCacheInMemory from './ImpressionsCache/InMemory';
@@ -8,13 +9,37 @@ import CountCacheInMemory from './CountCache/InMemory';
 import EventsCacheInMemory from './EventsCache/InMemory';
 import KeyBuilder from './Keys';
 import KeyBuilderLocalStorage from './KeysLocalStorage';
-import { STORAGE_MEMORY, STORAGE_LOCALSTORAGE } from '../utils/constants';
+import { STORAGE_MEMORY, STORAGE_LOCALSTORAGE, STORAGE_CLOUDFLARE_KV } from '../utils/constants';
 
 const BrowserStorageFactory = context => {
   const settings = context.get(context.constants.SETTINGS);
   const { storage } = settings;
 
+  console.log('Selected storage type', storage.type)
   switch (storage.type) {
+    case STORAGE_CLOUDFLARE_KV: {
+      const keys = new KeyBuilder(settings);
+
+      return {
+        splits: new SplitCacheInCloudflareKV(storage.options.binding),
+        // TODO: Replace these in memory implementations with a KV implementation
+        segments: new SegmentCacheInMemory(keys),
+        impressions: new ImpressionsCacheInMemory,
+        metrics: new LatencyCacheInMemory,
+        count: new CountCacheInMemory,
+        events: new EventsCacheInMemory(context),
+
+        destroy() {
+          this.splits.flush();
+          this.segments.flush();
+          this.impressions.clear();
+          this.metrics.clear();
+          this.count.clear();
+          this.events.clear();
+        }
+      };
+    }
+
     case STORAGE_MEMORY: {
       const keys = new KeyBuilder(settings);
 
