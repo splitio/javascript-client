@@ -35,7 +35,7 @@ class SplitCacheInCloudflareKV {
 
     if (parsedSplit) {
       // Store the Split.
-      this.splitCache.set(splitName, split);
+      await this._client.put(splitName, split);
       // Update TT cache
       const ttName = parsedSplit.trafficTypeName;
       if (ttName) { // safeguard
@@ -54,21 +54,24 @@ class SplitCacheInCloudflareKV {
 
   async addSplits(entries) {
     log['debug'](`addSplits(${entries})`);
-    let results = [];
+    let promises = [];
 
     for (const [key, value] of entries) {
-      results.push(this.addSplit(key, value));
+      promises.push(this.addSplit(key, value));
     }
 
-    return results;
+    return await Promise.all(promises);
   }
 
   async removeSplit(splitName) {
     log['debug'](`removeSplit(${splitName})`);
     const split = await this.getSplit(splitName);
+    // TODO: Fetching the split is eventually consistent
+    // We might get false positives here and re-delete keys
+    // is that a problem?
     if (split) {
       // Delete the Split
-      this.splitCache.delete(splitName);
+      await this._client.delete(splitName);
 
       const parsedSplit = JSON.parse(split);
       const ttName = parsedSplit.trafficTypeName;
@@ -96,7 +99,7 @@ class SplitCacheInCloudflareKV {
 
   async getSplit(splitName) {
     log['debug'](`getSplit(${splitName})`);
-    return this.splitCache.get(splitName);
+    return await this._client.get(splitName);
   }
 
   async setChangeNumber(changeNumber) {
@@ -113,12 +116,15 @@ class SplitCacheInCloudflareKV {
 
   async getAll() {
     log['debug'](`getAll()`);
-    return [...this.splitCache.values()];
+    const keys = await this.getKeys();
+    return await Promise.all(keys.map(key => this._client.get(key)))
   }
 
   async getKeys() {
     log['debug'](`getKeys()`);
-    return [...this.splitCache.keys()];
+    // TODO: Handle pagination
+    const page = await this._client.list();
+    return page.keys.map(result => result.name);
   }
 
   async trafficTypeExists(trafficType) {
@@ -133,7 +139,6 @@ class SplitCacheInCloudflareKV {
 
   async flush() {
     log['debug'](`flush()`);
-    this.splitCache = new Map;
     this.ttCache = {};
     this.changeNumber = -1;
     this.splitsWithSegmentsCount = 0;
@@ -145,9 +150,12 @@ class SplitCacheInCloudflareKV {
   async fetchMany(splitNames) {
     log['debug'](`fetchMany(${splitNames})`);
     const splits = new Map();
-    splitNames.forEach(splitName => {
-      splits.set(splitName, this.splitCache.get(splitName) || null);
-    });
+    // TODO: Run this in parallel rather than series
+    for (var i = 0; i < splitNames.length; i++) {
+      const splitName = splitNames[i]
+      const value = await this._client.get(splitName)
+      splits.set(splitName, value || null);
+    }
     return splits;
   }
 
