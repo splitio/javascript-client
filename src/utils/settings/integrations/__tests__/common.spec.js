@@ -5,17 +5,18 @@ import validateIntegrationsSettings from '../common';
 tape('validateIntegrationsSettings', t => {
 
   // Check different types, since `integrations` param is defined by the user
-  t.test('Return undefined if not a non-empty array as `integrations`', assert => {
-    assert.equal(validateIntegrationsSettings({ integrations: undefined }, ['INT_TYPE']), undefined);
-    assert.equal(validateIntegrationsSettings({ integrations: true }, ['INT_TYPE']), undefined);
-    assert.equal(validateIntegrationsSettings({ integrations: 123 }, ['INT_TYPE']), undefined);
-    assert.equal(validateIntegrationsSettings({ integrations: 'string' }, ['INT_TYPE']), undefined);
-    assert.equal(validateIntegrationsSettings({ integrations: {} }, ['INT_TYPE']), undefined);
-    assert.equal(validateIntegrationsSettings({ integrations: [] }, ['INT_TYPE']), undefined);
+  t.test('Returns an empty array if `integrations` is an invalid object', assert => {
+    assert.deepEqual(validateIntegrationsSettings({ integrations: undefined }, ['INT_TYPE']), []);
+    assert.deepEqual(validateIntegrationsSettings({ integrations: true }, ['INT_TYPE']), []);
+    assert.deepEqual(validateIntegrationsSettings({ integrations: 123 }, ['INT_TYPE']), []);
+    assert.deepEqual(validateIntegrationsSettings({ integrations: 'string' }, ['INT_TYPE']), []);
+    assert.deepEqual(validateIntegrationsSettings({ integrations: {} }, ['INT_TYPE']), []);
+    assert.deepEqual(validateIntegrationsSettings({ integrations: [] }, ['INT_TYPE']), []);
+    assert.deepEqual(validateIntegrationsSettings({ integrations: [false, 0, Infinity, new Error(), () => { }, []] }, ['INT_TYPE']), []);
     assert.end();
   });
 
-  t.test('Filter invalid integrations from `integrations` array', assert => {
+  t.test('Filters invalid integrations from `integrations` array', assert => {
     const valid = {
       type: 'INT1',
     };
@@ -34,16 +35,16 @@ tape('validateIntegrationsSettings', t => {
     };
 
     assert.deepEqual(validateIntegrationsSettings(
-      { integrations: [valid, validWithOptions, invalid] }), undefined,
+      { integrations: [valid, validWithOptions, invalid] }), [],
     'All integrations are removed if no `validIntegrationTypes` array is passed');
     assert.deepEqual(validateIntegrationsSettings(
       { integrations: [valid, validWithOptions, otherValidWithOptions, invalid] }, ['INT1']),
     [valid, validWithOptions],
-    'Integrations that not have the passed types are removed');
+    'Integrations that do not have the passed types are removed');
     assert.deepEqual(validateIntegrationsSettings(
-      { integrations: [invalid, valid, validWithOptions, otherValidWithOptions, invalid] }, ['INT1', 'INT2']),
+      { integrations: [invalid, valid, false, 0, validWithOptions, Infinity, new Error(), otherValidWithOptions, () => { }, [], invalid] }, ['INT1', 'INT2']),
     [valid, validWithOptions, otherValidWithOptions],
-    'Integrations that not have the passed types are removed');
+    'Integrations that do not have the passed types or are invalid objects are removed');
     assert.end();
   });
 

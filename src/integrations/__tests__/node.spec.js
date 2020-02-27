@@ -1,4 +1,4 @@
-// Although we are testing integrations/browser.js, this is a "node" test suite 
+// Although we are testing integrations/browser.js, this is a "node" test suite
 // because we need proxyquire to mock SplitToGa and GaToSplit.
 
 import tape from 'tape';
@@ -54,20 +54,26 @@ class ContextMock {
 tape('IntegrationsManagerFactory for browser', t => {
 
   t.test('API', assert => {
-    console.log('callCount: ' + GaToSplitMock.callCount);
-
     assert.equal(typeof browserIMF, 'function', 'The module should return a function which acts as a factory.');
 
-    const contextMock1 = new ContextMock(null, { integrations: undefined });
+    const contextMock1 = new ContextMock(null, { integrations: [] });
     const instance1 = browserIMF(contextMock1);
-    assert.equal(instance1, undefined, 'The instance should be undefined if settings.integrations is undefined.');
+    assert.equal(instance1, undefined, 'The instance should be undefined if settings.integrations does not contain integrations that register a listener.');
 
     const contextMock2 = new ContextMock(null, { integrations: [{ type: GA_TO_SPLIT }, { type: SPLIT_TO_GA }] });
     const instance2 = browserIMF(contextMock2);
     assert.true(GaToSplitMock.calledOnce, 'GaToSplit invoked once');
     assert.true(SplitToGaMock.calledOnce, 'SplitToGa invoked once');
-    assert.equal(typeof instance2.handleImpression, 'function', 'The instance should implement the handleImpression method if settings.integrations has items.');
-    assert.equal(typeof instance2.handleEvent, 'function', 'The instance should implement the handleEvent method if settings.integrations has items.');
+    assert.equal(typeof instance2.handleImpression, 'function', 'The instance should implement the handleImpression method if settings.integrations has items that register a listener.');
+    assert.equal(typeof instance2.handleEvent, 'function', 'The instance should implement the handleEvent method if settings.integrations has items that register a listener.');
+
+    resetStubs();
+
+    const contextMock3 = new ContextMock(null, { integrations:
+      [{ type: GA_TO_SPLIT }, { type: SPLIT_TO_GA }, { type: GA_TO_SPLIT }, { type: SPLIT_TO_GA }, { type: SPLIT_TO_GA }] });
+    browserIMF(contextMock3);
+    assert.true(GaToSplitMock.calledTwice, 'GaToSplit invoked twice');
+    assert.true(SplitToGaMock.calledThrice, 'SplitToGa invoked thrice');
 
     resetStubs();
     assert.end();
@@ -90,7 +96,7 @@ tape('IntegrationsManagerFactory for browser', t => {
     assert.end();
   });
 
-  t.test('Interaction with GaToSplit integration module', assert => {
+  t.test('Interaction with SplitToGa integration module', assert => {
     const splitToGaOptions = {
       type: 'SPLIT_TO_GA',
       param1: 'param1',

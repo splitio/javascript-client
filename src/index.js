@@ -41,8 +41,7 @@ export function SplitFactory(config) {
   context.put(context.constants.STORAGE, storage);
 
   // Put integrationsManager within context.
-  // It is done here since integrations need to access the storage from the context,
-  // and listen impressions sent by `ImpressionsTracker` in `SplitFactory[Offline|Online]`
+  // It needs to access the storage, settings and potentially other pieces, so it's registered after them.
   const integrationsManager = IntegrationsManagerFactory(context);
   context.put(context.constants.INTEGRATIONS_MANAGER, integrationsManager);
 

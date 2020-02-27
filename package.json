@@ -95,7 +95,7 @@
     "test-browser-destroy": "cross-env NODE_ENV=test karma start karma/destroy.ci.karma.conf.js",
     "test-browser-errors": "cross-env NODE_ENV=test karma start karma/errors.ci.karma.conf.js",
     "test-browser-gaintegration": "cross-env NODE_ENV=test karma start karma/gaintegration.ci.karma.conf.js",
-    "test-node": "cross-env NODE_ENV=test tape -r @babel/register \"src/*/__tests__/**/!(browser).spec.js\" | tap-summary",
+    "test-node": "cross-env NODE_ENV=test tape -r @babel/register \"src/*/**/__tests__/**/!(browser).spec.js\" | tap-summary",
     "test-node-e2e": "cross-env NODE_ENV=test tape -r @babel/register src/__tests__/node.spec.js | tap-summary",
     "test-node-destroy": "cross-env NODE_ENV=test tape -r @babel/register src/__tests__/destroy/node.spec.js | tap-summary",
     "test-node-errors": "cross-env NODE_ENV=test tape -r @babel/register src/__tests__/errorCatching/node.spec.js | tap-summary",
