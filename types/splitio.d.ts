@@ -562,7 +562,7 @@ declare namespace SplitIO {
   }
   type SPLIT_IMPRESSION = 'IMPRESSION';
   type SPLIT_EVENT = 'EVENT';
-  type Data = { type: SPLIT_IMPRESSION, payload: SplitIO.ImpressionData } | { type: SPLIT_EVENT, payload: SplitIO.EventData };
+  type IntegrationData = { type: SPLIT_IMPRESSION, payload: SplitIO.ImpressionData } | { type: SPLIT_EVENT, payload: SplitIO.EventData };
   /**
    * Enable Split-to-GA integration, to track Split impressions and events as GA hits.
    *
@@ -572,13 +572,13 @@ declare namespace SplitIO {
   interface SplitToGaIntegration {
     type: 'SPLIT_TO_GA',
     /**
-     * Optional filter to use instead of default, which always return true, 
-     * meaning that all impressions and events are tracked as GA hits. 
+     * Optional filter to use instead of default, which always return true,
+     * meaning that all impressions and events are tracked as GA hits.
      */
-    filter?: (data: SplitIO.Data) => boolean,
+    filter?: (data: SplitIO.IntegrationData) => boolean,
     /**
-     * Optional mapper to use instead of default. 
-     * This function accepts an impression or event data instance, 
+     * Optional mapper to use instead of default.
+     * This function accepts an impression or event data instance,
      * and returns a GA FieldsObject instance used to invoke `ga('[tracker.]send', fieldObject)`.
      *
      * Default FieldsObject value for data.type === SPLIT_IMPRESSION:
@@ -598,7 +598,7 @@ declare namespace SplitIO {
      *    nonInteraction: true,
      *  }`
      */
-    mapper?: (data: SplitIO.Data) => UniversalAnalytics.FieldsObject,
+    mapper?: (data: SplitIO.IntegrationData) => UniversalAnalytics.FieldsObject,
     /**
      * List of tracker names to send the hit. An empty string represents the default tracker.
      * If not provided, hits are only sent to default tracker.
