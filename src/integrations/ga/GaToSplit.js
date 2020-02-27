@@ -1,4 +1,4 @@
-import { isString, isNumber, uniqO } from '../../utils/lang';
+import { isString, isFinite, unicAsStrings } from '../../utils/lang';
 import logFactory from '../../utils/logger';
 import {
   validateEvent,
@@ -16,6 +16,7 @@ const log = logFactory('splitio-ga-to-split');
  * @param {Function} pluginConstructor The plugin constructor function.
  */
 function providePlugin(pluginName, pluginConstructor) {
+  // get reference to global command queue. Init it if not defined yet.
   const gaAlias = window.GoogleAnalyticsObject || 'ga';
   window[gaAlias] = window[gaAlias] || function (...args) {
     (window[gaAlias].q = window[gaAlias].q || []).push(args);
@@ -23,10 +24,6 @@ function providePlugin(pluginName, pluginConstructor) {
 
   // provides the plugin for use with analytics.js.
   window[gaAlias]('provide', pluginName, pluginConstructor);
-
-  // @TODO should we registers the plugin on the global gaplugins object?
-  // window.gaplugins = window.gaplugins || {};
-  // window.gaplugins[capitalize(pluginName)] = pluginConstructor;
 }
 
 // Default filter: accepts all hits
@@ -35,21 +32,11 @@ export function defaultFilter() { return true; }
 // Default mapping: object used for building the default mapper from hits to Split events
 // @TODO review default mapping.
 const defaultMapping = {
-  eventTypeIdPrefix: {
-    pageview: 'ga-pageview',
-    screenview: 'ga-screenview',
-    event: 'ga-event',
-    social: 'ga-social',
-    timing: 'ga-timing',
-    transaction: 'ga-transaction',
-    item: 'ga-item',
-    exception: 'ga-exception',
-  },
-  eventTypeIdSuffix: {
+  eventTypeId: {
     // pageview: 'page',
     // screenview: 'screenName',
-    event: 'eventAction',
-    social: 'socialAction',
+    // event: 'eventAction',
+    // social: 'socialAction',
     // timing: 'timingVar',
   },
   eventValue: {
@@ -59,8 +46,8 @@ const defaultMapping = {
   eventProperties: {
     pageview: ['page'],
     screenview: ['screenName'],
-    event: ['eventCategory', 'eventLabel'],
-    social: ['socialNetwork', 'socialTarget'],
+    event: ['eventCategory', 'eventAction', 'eventLabel'],
+    social: ['socialNetwork', 'socialAction', 'socialTarget'],
     timing: ['timingCategory', 'timingVar', 'timingLabel'],
   }
 };
@@ -74,10 +61,7 @@ function mapperBuilder(mapping) {
   return function (model) {
     const hitType = model.get('hitType');
 
-    let eventTypeId = (mapping.eventTypeIdPrefix[hitType] || 'ga');
-    const suffix = model.get(mapping.eventTypeIdSuffix[hitType]);
-    if (suffix)
-      eventTypeId += '.' + suffix;
+    const eventTypeId = model.get(mapping.eventTypeId[hitType] || 'hitType');
 
     const value = model.get(mapping.eventValue[hitType]);
 
@@ -99,6 +83,8 @@ function mapperBuilder(mapping) {
 
 export const defaultMapper = mapperBuilder(defaultMapping);
 
+export const defaultPrefix = 'ga';
+
 /**
  * Return a new list of identities removing invalid and duplicated ones.
  *
@@ -110,7 +96,7 @@ export function validateIdentities(identities) {
     return undefined;
 
   // Remove duplicated identities
-  const uniqueIdentities = uniqO(identities);
+  const uniqueIdentities = unicAsStrings(identities);
 
   // Filter based on rum-agent identities validator
   return uniqueIdentities.filter(identity => {
@@ -120,7 +106,7 @@ export function validateIdentities(identities) {
     const maybeKey = identity.key;
     const maybeTT = identity.trafficType;
 
-    if (!isString(maybeKey) && !isNumber(maybeKey))
+    if (!isString(maybeKey) && !isFinite(maybeKey))
       return false;
     if (!isString(maybeTT))
       return false;
@@ -146,7 +132,7 @@ export function validateEventData(data) {
   if (properties === false)
     return false;
 
-  if (data.timestamp && !isNumber(data.timestamp))
+  if (data.timestamp && !isFinite(data.timestamp))
     return false;
 
   if (data.key && validateKey(data.key, 'splitio-ga-to-split:mapper') === false)
@@ -171,10 +157,7 @@ function GaToSplit(sdkOptions, storage, coreSettings) {
   const defaultOptions = {
     filter: defaultFilter,
     mapper: defaultMapper,
-    // Default eventHandler stores event
-    eventHandler: function (event) {
-      storage.events.track(event);
-    },
+    prefix: defaultPrefix,
     // We set default identities if key and TT are present in settings.core
     identities: (coreSettings.key && coreSettings.trafficType) ?
       [{ key: coreSettings.key, trafficType: coreSettings.trafficType }] :
@@ -207,7 +190,7 @@ function GaToSplit(sdkOptions, storage, coreSettings) {
 
       // Validate prefix
       // @TODO Improve the prefix validation using the same REGEX than eventTypeId
-      if (opts.prefix && !isString(opts.prefix)) {
+      if (!isString(opts.prefix)) {
         log.warn('The provided `prefix` was ignored since it is invalid. Please check that you are passing a string object as `prefix`.');
         opts.prefix = undefined;
       }
@@ -227,22 +210,22 @@ function GaToSplit(sdkOptions, storage, coreSettings) {
         if (!eventData || (opts.mapper !== defaultMapper && !validateEventData(eventData)))
           return;
 
-        // Add prefix
-        if (opts.prefix) eventData.eventTypeId = opts.prefix + eventData.eventTypeId;
+        // Add prefix (with a falsy prefix, such as undefined or '', nothing is appended)
+        if (opts.prefix) eventData.eventTypeId = `${opts.prefix}.${eventData.eventTypeId}`;
 
         // Add timestamp if not present
         if (!eventData.timestamp) eventData.timestamp = Date.now();
 
         // Store the event
         if (eventData.key && eventData.trafficTypeName) {
-          opts.eventHandler(event);
+          storage.events.track(event);
         } else { // Store the event for each Key-TT pair (identities), if key and TT is not present in eventData
           opts.identities.forEach(identity => {
             const event = Object.assign({
               key: identity.key,
               trafficTypeName: identity.trafficType,
             }, eventData);
-            opts.eventHandler(event);
+            storage.events.track(event);
           });
         }
       });

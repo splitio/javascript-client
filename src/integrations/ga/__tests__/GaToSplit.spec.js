@@ -1,22 +1,15 @@
-/**
- * Unit tests:
- *  DONE-validateIdentities
- *  DONE-defaultFilter
- *  DONE-defaultBuilder
- *  DONE-GaToSplitFactory & SplitTracker: requires GA mock
- */
-
 import tape from 'tape';
 import sinon from 'sinon';
 import GaToSplit, { validateIdentities, defaultFilter, defaultMapper, validateEventData } from '../GaToSplit';
 import { gaMock, gaRemove, modelMock } from './gaMock';
 
+const defaultPrefix = 'ga';
 const hitSample = {
   hitType: 'pageview',
   page: '/path',
 };
-const eventDataSample = {
-  eventTypeId: 'ga-pageview',
+const eventDataSampleFromDefaultMapper = {
+  eventTypeId: 'pageview',
   value: undefined,
   properties: { page: hitSample.page },
 };
@@ -95,7 +88,7 @@ tape('defaultFilter', assert => {
 
 tape('defaultMapper', assert => {
   assert.deepEqual(defaultMapper(modelMock(hitSample)),
-    eventDataSample,
+    eventDataSampleFromDefaultMapper,
     'should return the corresponding event data instance for a given pageview hit');
 
   // @TODO test default mapping for other hitTypes
@@ -146,7 +139,8 @@ tape('GaToSplit', assert => {
   let event = fakeStorage.events.track.lastCall.args[0];
   assert.deepEqual(event,
     {
-      ...eventDataSample,
+      ...eventDataSampleFromDefaultMapper,
+      eventTypeId: defaultPrefix + '.' + eventDataSampleFromDefaultMapper.eventTypeId,
       key: coreSettings.key,
       trafficTypeName: coreSettings.trafficType,
       timestamp: event.timestamp,
@@ -155,7 +149,7 @@ tape('GaToSplit', assert => {
   /** Custom behavior: plugin options */
 
   // init plugin with custom options
-  new SplitTracker(tracker, { mapper: customMapper, filter: customFilter, identities: customIdentities });
+  new SplitTracker(tracker, { mapper: customMapper, filter: customFilter, identities: customIdentities, prefix: '' });
 
   // send hit and assert that it was properly tracked as a Split event
   window.ga('send', hitSample);
@@ -163,6 +157,7 @@ tape('GaToSplit', assert => {
   assert.deepEqual(event,
     {
       ...customMapper(),
+
       key: customIdentities[0].key,
       trafficTypeName: customIdentities[0].trafficType,
       timestamp: event.timestamp,
@@ -172,7 +167,7 @@ tape('GaToSplit', assert => {
 
   // provide a new SplitTracker plugin with custom SDK options
   GaToSplit({
-    type: 'GA_TO_SPLIT', mapper: customMapper2, filter: customFilter, identities: customIdentities
+    type: 'GA_TO_SPLIT', mapper: customMapper2, filter: customFilter, identities: customIdentities, prefix: ''
   }, fakeStorage, coreSettings);
   assert.true(ga.lastCall.calledWith('provide', 'splitTracker'));
   SplitTracker = ga.lastCall.args[2];

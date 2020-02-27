@@ -278,8 +278,8 @@ export default function (mock, assert) {
     mock.onPost(settings.url('/events/bulk')).replyOnce(req => {
       const resp = JSON.parse(req.data);
       t.equal(resp.length, gaSendIterations * 2, 'The number of sent Split events must be equal to the number of no filtered sent hits');
-      t.equal(resp.filter(event => event.eventTypeId === prefixSdkOpts + 'mapperSdkOpts').length, gaSendIterations, 'Custom Split events');
-      t.equal(resp.filter(event => event.eventTypeId === prefixPluginOpts + 'mapperPluginOpts').length, gaSendIterations, 'Custom Split events');
+      t.equal(resp.filter(event => event.eventTypeId === prefixSdkOpts + '.mapperSdkOpts').length, gaSendIterations, 'Custom Split events');
+      t.equal(resp.filter(event => event.eventTypeId === prefixPluginOpts + '.mapperPluginOpts').length, gaSendIterations, 'Custom Split events');
 
       const sentHitsTracker4 = window.gaSpy.getHits('myTracker4');
       const sentHitsTracker5 = window.gaSpy.getHits('myTracker5');
