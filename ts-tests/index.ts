@@ -404,8 +404,8 @@ let customGaToSplitIntegration: SplitIO.GaToSplitIntegration = {
 };
 let customSplitToGaIntegration: SplitIO.SplitToGaIntegration = {
   type: 'SPLIT_TO_GA',
-  filter: function (model: SplitIO.Data): boolean { return true; },
-  mapper: function (model: SplitIO.Data): UniversalAnalytics.FieldsObject { return fieldsObjectSample; },
+  filter: function (model: SplitIO.IntegrationData): boolean { return true; },
+  mapper: function (model: SplitIO.IntegrationData): UniversalAnalytics.FieldsObject { return fieldsObjectSample; },
   trackerNames: ['t0', 'myTracker'],
 }
 
