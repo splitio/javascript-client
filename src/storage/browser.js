@@ -3,12 +3,15 @@ import SplitCacheInLocalStorage from './SplitCache/InLocalStorage';
 import SplitCacheInCloudflareKV from './SplitCache/InCloudflareKV';
 import SegmentCacheInMemory from './SegmentCache/InMemory';
 import SegmentCacheInLocalStorage from './SegmentCache/InLocalStorage';
+import SegmentCacheInCloudflareKV from './SegmentCache/InCloudflareKV';
 import ImpressionsCacheInMemory from './ImpressionsCache/InMemory';
+import ImpressionsCacheInCloudflareKV from './ImpressionsCache/InCloudflareKV';
 import LatencyCacheInMemory from './LatencyCache/InMemory';
 import CountCacheInMemory from './CountCache/InMemory';
 import EventsCacheInMemory from './EventsCache/InMemory';
 import KeyBuilder from './Keys';
 import KeyBuilderLocalStorage from './KeysLocalStorage';
+import KeyBuilderForCloudflareKV from './KeysCloudflareKV';
 import { STORAGE_MEMORY, STORAGE_LOCALSTORAGE, STORAGE_CLOUDFLARE_KV } from '../utils/constants';
 
 const BrowserStorageFactory = context => {
@@ -18,13 +21,13 @@ const BrowserStorageFactory = context => {
   console.log('Selected storage type', storage.type)
   switch (storage.type) {
     case STORAGE_CLOUDFLARE_KV: {
-      const keys = new KeyBuilder(settings);
-
+      const keys = new KeyBuilderForCloudflareKV(settings);
       return {
-        splits: new SplitCacheInCloudflareKV(storage.options.binding),
+        // TODO: Pass keys to all of these storage adapters
+        splits: new SplitCacheInCloudflareKV(storage.options.binding, keys),
+        segments: new SegmentCacheInCloudflareKV(storage.options.binding),
+        impressions: new ImpressionsCacheInCloudflareKV(storage.options.binding, keys),
         // TODO: Replace these in memory implementations with a KV implementation
-        segments: new SegmentCacheInMemory(keys),
-        impressions: new ImpressionsCacheInMemory,
         metrics: new LatencyCacheInMemory,
         count: new CountCacheInMemory,
         events: new EventsCacheInMemory(context),

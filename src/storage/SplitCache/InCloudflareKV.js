@@ -3,14 +3,13 @@ import usesSegments from '../../utils/splits/usesSegments';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-storage:cloudflarekv');
 
-// TODO: This is essentially just a copy of in memory
-// we need to modify this to read / write to Cloudflare KV
 class SplitCacheInCloudflareKV {
 
-  constructor(binding) {
+  constructor(binding, keys) {
     log['debug'](`Constructing SplitCacheInCloudflareKV with binding: ${JSON.stringify(binding)}`)
     // The KV binding that will be used to talk to CloudFlare KV
     this._client = binding;
+    this._keys = keys;
     this.flush();
   }
 
@@ -35,7 +34,7 @@ class SplitCacheInCloudflareKV {
 
     if (parsedSplit) {
       // Store the Split.
-      await this._client.put(splitName, split);
+      await this._client.put(this._keys.buildSplitKey(splitName), split);
       // Update TT cache
       const ttName = parsedSplit.trafficTypeName;
       if (ttName) { // safeguard
@@ -71,7 +70,7 @@ class SplitCacheInCloudflareKV {
     // is that a problem?
     if (split) {
       // Delete the Split
-      await this._client.delete(splitName);
+      await this._client.delete(this._keys.buildSplitKey(splitName));
 
       const parsedSplit = JSON.parse(split);
       const ttName = parsedSplit.trafficTypeName;
@@ -99,7 +98,7 @@ class SplitCacheInCloudflareKV {
 
   async getSplit(splitName) {
     log['debug'](`getSplit(${splitName})`);
-    return await this._client.get(splitName);
+    return await this._client.get(this._keys.buildSplitKey(splitName));
   }
 
   async setChangeNumber(changeNumber) {
@@ -117,14 +116,14 @@ class SplitCacheInCloudflareKV {
   async getAll() {
     log['debug'](`getAll()`);
     const keys = await this.getKeys();
-    return await Promise.all(keys.map(key => this._client.get(key)))
+    return await Promise.all(keys.map(key => this._client.get(this._keys.buildSplitKey(key))))
   }
 
   async getKeys() {
     log['debug'](`getKeys()`);
     // TODO: Handle pagination
-    const page = await this._client.list();
-    return page.keys.map(result => result.name);
+    const page = await this._client.list({ prefix: this._keys.searchPatternForSplitKeys() });
+    return page.keys.map(result => this._keys.extractKey(result.name));
   }
 
   async trafficTypeExists(trafficType) {
@@ -153,7 +152,7 @@ class SplitCacheInCloudflareKV {
     // TODO: Run this in parallel rather than series
     for (var i = 0; i < splitNames.length; i++) {
       const splitName = splitNames[i]
-      const value = await this._client.get(splitName)
+      const value = await this._client.get(this._keys.buildSplitKey(splitName))
       splits.set(splitName, value || null);
     }
     return splits;
