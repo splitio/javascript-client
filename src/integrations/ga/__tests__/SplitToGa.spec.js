@@ -1,13 +1,3 @@
-/**
- * Unit tests:
- *  DONE- SplitToGa.validateFieldsObject
- *  DONE- SplitToGa.defaultFilter
- *  DONE- SplitToGa.defaultMapper
- *  DONE- SplitToGa.getGa
- *  DONE- SplitToGa.prototype.constructor
- *  DONE- SplitToGa.prototype.queue
- */
-
 import tape from 'tape';
 import SplitToGa from '../SplitToGa';
 import { SPLIT_IMPRESSION, SPLIT_EVENT } from '../../../../lib/utils/constants';

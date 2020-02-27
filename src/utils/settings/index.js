@@ -82,7 +82,7 @@ const base = {
   // Instance version.
   version: `${language}-${version}`,
 
-  // List of integrations. 
+  // List of integrations.
   integrations: undefined,
 };
 
@@ -130,7 +130,7 @@ function defaults(custom) {
   withDefaults.runtime = runtime(withDefaults.core.IPAddressesEnabled, withDefaults.mode === CONSUMER_MODE);
 
   // ensure a valid list of integrations.
-  // `integrations` returns `undefined` or a non-empty array of valid integration items.
+  // `integrations` returns an array of valid integration items.
   withDefaults.integrations = integrations(withDefaults);
 
   return withDefaults;

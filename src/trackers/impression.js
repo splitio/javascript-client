@@ -37,7 +37,8 @@ function ImpressionTracker(context) {
 
       if (listener || integrationsManager) {
         const impressionData = {
-          impression,
+          // copy of impression, to avoid unexpected behaviour if modified by integrations or impressionListener
+          impression: { ...impression },
           attributes,
           ip,
           hostname,
@@ -45,7 +46,7 @@ function ImpressionTracker(context) {
         };
 
         // Wrap in a timeout because we don't want it to be blocking.
-        setTimeout(() => {
+        setTimeout(function () {
           // integrationsManager does not throw errors (they are internally handled by each integration module)
           if (integrationsManager) integrationsManager.handleImpression(impressionData);
 

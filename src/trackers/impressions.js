@@ -51,7 +51,8 @@ function ImpressionsTracker(context) {
       if (listener || integrationsManager) {
         for (let i = 0; i < impressionsCount; i++) {
           const impressionData = {
-            impression: slice[i].impression,
+            // copy of impression, to avoid unexpected behaviour if modified by integrations or impressionListener
+            impression: { ...slice[i].impression },
             attributes: slice[i].attributes,
             ip,
             hostname,
@@ -59,7 +60,7 @@ function ImpressionsTracker(context) {
           };
 
           // Wrap in a timeout because we don't want it to be blocking.
-          setTimeout(() => {
+          setTimeout(function () {
             // integrationsManager.handleImpression does not throw errors
             if (integrationsManager) integrationsManager.handleImpression(impressionData);
 
