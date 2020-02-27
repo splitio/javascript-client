@@ -4,22 +4,19 @@ import { GA_TO_SPLIT, SPLIT_TO_GA, SPLIT_IMPRESSION, SPLIT_EVENT } from '../util
 
 /**
  * Factory function for browser IntegrationsManager.
- * The integrations manager instantiates integration modules, and bypass tracked events and impressions to them. 
- * 
+ * The integrations manager instantiates integration modules, and bypass tracked events and impressions to them.
+ *
  * @param {Context} context SplitFactory context
- * 
+ *
  * @returns integration manager or null if `integrations` are not present in settings.
  */
 const integrationsManagerFactory = context => {
   const settings = context.get(context.constants.SETTINGS);
 
-  // If no integrations settings, not return a integration manager
-  if (!settings.integrations)
-    return;
-
   const listeners = [];
 
-  for (const integrationOptions of settings.integrations) {
+  // No need to check if `settings.integrations` is an array. It was already validated in settings validation
+  settings.integrations.forEach(integrationOptions => {
     const { type } = integrationOptions;
     let integration;
 
@@ -39,7 +36,11 @@ const integrationsManagerFactory = context => {
 
     if (integration && integration.queue)
       listeners.push(integration);
-  }
+  });
+
+  // If `listeners` is empty, not return a integration manager
+  if (listeners.length === 0)
+    return;
 
   // Exception safe methods: each integration module is responsable for handling errors
   return {

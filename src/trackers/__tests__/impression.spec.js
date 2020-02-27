@@ -104,10 +104,15 @@ tape('Impression Tracker', t => {
       assert.deepEqual(fakeSettings.impressionListener.logImpression.getCall(0).args[0],
         impressionData,
         'The listener should be executed with the corresponding map.');
+      assert.notEqual(fakeSettings.impressionListener.logImpression.getCall(0).args[0].impression,
+        fakeImpression,
+        'but impression should be a copy');
       assert.deepEqual(fakeIntegrationsManager.handleImpression.getCall(0).args[0],
         impressionData,
         'The integration manager handleImpression method should be executed with the corresponding map.');
-
+      assert.notEqual(fakeIntegrationsManager.handleImpression.getCall(0).args[0].impression,
+        fakeImpression,
+        'but impression should be a copy');
       assert.end();
     }, 0);
   });
