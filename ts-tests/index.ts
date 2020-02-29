@@ -398,14 +398,14 @@ let splitToGaIntegration: SplitIO.SplitToGaIntegration = {
 let customGaToSplitIntegration: SplitIO.GaToSplitIntegration = {
   type: 'GA_TO_SPLIT',
   filter: function (model: UniversalAnalytics.Model): boolean { return true; },
-  mapper: function (model: UniversalAnalytics.Model): SplitIO.EventData { return eventDataSample; },
+  mapper: function (model: UniversalAnalytics.Model, defaultMapping: SplitIO.EventData): SplitIO.EventData { return eventDataSample; },
   prefix: 'PREFIX',
   identities: [{ key: 'key1', trafficType: 'tt1'}, { key: 'key2', trafficType: 'tt2'}],
 };
 let customSplitToGaIntegration: SplitIO.SplitToGaIntegration = {
   type: 'SPLIT_TO_GA',
   filter: function (model: SplitIO.IntegrationData): boolean { return true; },
-  mapper: function (model: SplitIO.IntegrationData): UniversalAnalytics.FieldsObject { return fieldsObjectSample; },
+  mapper: function (model: SplitIO.IntegrationData, defaultMapping: UniversalAnalytics.FieldsObject): UniversalAnalytics.FieldsObject { return fieldsObjectSample; },
   trackerNames: ['t0', 'myTracker'],
 }
 

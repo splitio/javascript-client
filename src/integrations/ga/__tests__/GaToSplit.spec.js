@@ -1,28 +1,29 @@
 import tape from 'tape';
 import sinon from 'sinon';
-import GaToSplit, { validateIdentities, defaultFilter, defaultMapper, validateEventData } from '../GaToSplit';
+import GaToSplit, { validateIdentities, defaultPrefix, defaultMapper, validateEventData, fixEventTypeId } from '../GaToSplit';
 import { gaMock, gaRemove, modelMock } from './gaMock';
 
-const defaultPrefix = 'ga';
 const hitSample = {
   hitType: 'pageview',
   page: '/path',
 };
-const eventDataSampleFromDefaultMapper = {
+const modelSample = modelMock(hitSample);
+const expectedDefaultEvent = {
   eventTypeId: 'pageview',
   value: undefined,
   properties: { page: hitSample.page },
+  timestamp: 0,
 };
 
 tape('validateIdentities', assert => {
-  assert.equal(validateIdentities(undefined), undefined);
-  assert.equal(validateIdentities(null), undefined);
-  assert.equal(validateIdentities(123), undefined);
-  assert.equal(validateIdentities(true), undefined);
-  assert.equal(validateIdentities('something'), undefined);
-  assert.equal(validateIdentities({}), undefined);
-  assert.equal(validateIdentities(/asd/ig), undefined);
-  assert.equal(validateIdentities(function () { }), undefined);
+  assert.deepEqual(validateIdentities(undefined), []);
+  assert.deepEqual(validateIdentities(null), []);
+  assert.deepEqual(validateIdentities(123), []);
+  assert.deepEqual(validateIdentities(true), []);
+  assert.deepEqual(validateIdentities('something'), []);
+  assert.deepEqual(validateIdentities({}), []);
+  assert.deepEqual(validateIdentities(/asd/ig), []);
+  assert.deepEqual(validateIdentities(function () { }), []);
 
   assert.deepEqual(validateIdentities([]), []);
   assert.deepEqual(validateIdentities([undefined, /asd/ig, function () { }]), []);
@@ -58,9 +59,9 @@ tape('validateEventData', assert => {
   assert.throws(() => { validateEventData(undefined); }, 'throws exception if passed object is undefined');
   assert.throws(() => { validateEventData(null); }, 'throws exception if passed object is null');
 
-  assert.equal(validateEventData({}), false, 'event must have a valid eventTypeId');
-  assert.equal(validateEventData({ eventTypeId: 'type' }), true, 'event must have a valid eventTypeId');
-  assert.equal(validateEventData({ eventTypeId: 123 }), false, 'event must have a valid eventTypeId');
+  assert.equal(validateEventData({}), true, 'does not validates eventTypeId');
+  assert.equal(validateEventData({ eventTypeId: 'type' }), true, 'does not validates eventTypeId');
+  assert.equal(validateEventData({ eventTypeId: 123 }), true, 'does not validates eventTypeId');
 
   assert.equal(validateEventData({ eventTypeId: 'type', value: 'value' }), false, 'event must have a valid value if present');
   assert.equal(validateEventData({ eventTypeId: 'type', value: 0 }), true, 'event must have a valid value if present');
@@ -80,18 +81,26 @@ tape('validateEventData', assert => {
   assert.end();
 });
 
-tape('defaultFilter', assert => {
-  assert.equal(defaultFilter(modelMock({})), true, 'should return true for any hitType');
-  assert.equal(defaultFilter(modelMock(hitSample)), true, 'should return true for any hitType');
+tape('fixEventTypeId', assert => {
+  const DEFAULT_EVENT_TYPE = 'event';
+  assert.equal(fixEventTypeId(undefined), DEFAULT_EVENT_TYPE);
+  assert.equal(fixEventTypeId(111), DEFAULT_EVENT_TYPE);
+  assert.equal(fixEventTypeId(''), DEFAULT_EVENT_TYPE);
+  assert.equal(fixEventTypeId('()'), DEFAULT_EVENT_TYPE);
+  assert.equal(fixEventTypeId('()+_'), DEFAULT_EVENT_TYPE);
+  assert.equal(fixEventTypeId('  some   event '), 'some_event_');
+  assert.equal(fixEventTypeId('  -*- some  -.%^ event =+ '), 'some_-._event_');
   assert.end();
 });
 
 tape('defaultMapper', assert => {
-  assert.deepEqual(defaultMapper(modelMock(hitSample)),
-    eventDataSampleFromDefaultMapper,
-    'should return the corresponding event data instance for a given pageview hit');
+  const initTimestamp = Date.now();
+  const defaultEvent = defaultMapper(modelSample);
 
-  // @TODO test default mapping for other hitTypes
+  assert.equal(defaultEvent.eventTypeId, expectedDefaultEvent.eventTypeId, 'should return the corresponding default event instance for a given pageview hit');
+  assert.equal(defaultEvent.value, expectedDefaultEvent.value);
+  assert.deepEqual(defaultEvent.properties, expectedDefaultEvent.properties);
+  assert.true(initTimestamp <= defaultEvent.timestamp && defaultEvent.timestamp <= Date.now());
 
   assert.end();
 });
@@ -108,11 +117,14 @@ const fakeStorage = {
     track: sinon.stub()
   }
 };
-function customMapper() {
-  return { eventTypeId: 'eventType', value: 1, properties: { someProp: 'someProp' } };
+// Returns a new event by copying defaultEvent
+function customMapper(model, defaultEvent) {
+  return { ...defaultEvent, properties: { ...defaultEvent.properties, someProp: 'someProp' } };
 }
-function customMapper2() {
-  return { eventTypeId: 'eventType2', value: 2, properties: { someProp2: 'someProp2' } };
+// Updates defaultEvent
+function customMapper2(model, defaultEvent) {
+  defaultEvent.properties.someProp2 = 'someProp2';
+  return defaultEvent;
 }
 function customFilter() {
   return true;
@@ -139,8 +151,8 @@ tape('GaToSplit', assert => {
   let event = fakeStorage.events.track.lastCall.args[0];
   assert.deepEqual(event,
     {
-      ...eventDataSampleFromDefaultMapper,
-      eventTypeId: defaultPrefix + '.' + eventDataSampleFromDefaultMapper.eventTypeId,
+      ...expectedDefaultEvent,
+      eventTypeId: defaultPrefix + '.' + expectedDefaultEvent.eventTypeId,
       key: coreSettings.key,
       trafficTypeName: coreSettings.trafficType,
       timestamp: event.timestamp,
@@ -156,8 +168,7 @@ tape('GaToSplit', assert => {
   event = fakeStorage.events.track.lastCall.args[0];
   assert.deepEqual(event,
     {
-      ...customMapper(),
-
+      ...customMapper(modelSample, defaultMapper(modelSample)),
       key: customIdentities[0].key,
       trafficTypeName: customIdentities[0].trafficType,
       timestamp: event.timestamp,
@@ -181,7 +192,7 @@ tape('GaToSplit', assert => {
   event = fakeStorage.events.track.lastCall.args[0];
   assert.deepEqual(event,
     {
-      ...customMapper2(),
+      ...customMapper2(modelSample, defaultMapper(modelSample)),
       key: customIdentities[0].key,
       trafficTypeName: customIdentities[0].trafficType,
       timestamp: event.timestamp,

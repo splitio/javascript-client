@@ -22,7 +22,6 @@ const validateIntegrationsSettings = (settings, validIntegrationTypes = []) => {
     return integration && isString(integration.type) && validIntegrationTypes.includes(integration.type);
   });
 
-  // @TODO review the following message. We can provide a messege per each invalid integration item, instead of a general one.
   const invalids = integrations.length - validIntegrations.length;
   if (invalids)
     log.warn(`${invalids} integration ${invalids === 1 ? 'item' : 'items'} at settings ${invalids === 1 ? 'is' : 'are'} invalid: integration items must have a valid 'type' value`);

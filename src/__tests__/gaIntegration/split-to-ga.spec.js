@@ -1,32 +1,3 @@
-/**
- * -split-to-ga tests:
- *  DONE- Default behavior
- *    DONE- No hits are sent if no getTreatment is invoked
- *    DONE- N hits are sent if getTreatment called N times
- *
- *  DONE- Configs
- *    DONE- Several tracker names with the same filter and mapper
- *    DONE- Several tracker names with different filters and mappers
- *    DONE- Custom filter
- *    DONE- Custom mapper
- *    - Special use case: custom mapper returning an event instance with key and TT override `identities` param.
- *
- *  - Error/Corner cases
- *    DONE-SDK errors.
- *      NO NEED: IGNORED BY GA- invalid trackerNames
- *      DONE- filter or mapper with exception or invalid result: log warning
- *
- *    - SDK factory instantiated before than
- *      DONE- GA tag: log warning
- *      - a new tracker is created: check that some hits are missed
- *      REDUNDANT- GA tag not included, but SDK configured for Split-to-GA: log warning NO GA FOUND
- *      REDUNDANT- SDK loaded, evaluated and destroyed before GA loaded: log warning NO GA FOUND
- *    DONE- GA in another global variable
- *
- *  - Node:
- *    - Should do nothing
- */
-
 import sinon from 'sinon';
 import { SplitFactory } from '../..';
 import SettingsFactory from '../../utils/settings';

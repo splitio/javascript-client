@@ -1,43 +1,3 @@
-/**
- * -ga-to-split tests:
- *  - Default behavior
- *    DONE- On default tracker
- *    DONE- On named tracker
- *    DONE- ga require on multiple trackers, with different options
- *
- *  - Configs
- *    DONE- Several identities
- *      DONE- as plugin options
- *      DONE- as SDK options
- *    DONE- Custom hitFilter
- *      DONE- as plugin options
- *      DONE- as SDK options
- *    DONE- Custom hitMapper
- *      DONE- as plugin options
- *      DONE- as SDK options
- *    DONE- Custom prefix
- *      DONE- as plugin options
- *      DONE- as SDK options
- *
- *  - Error/Corner cases
- *    - SDK errors. We must provide the plugin anyway, to not block ga command queue
- *      DONE- No identities or TT in SDK config
- *      - invalid identities
- *      - invalid hitFilter
- *      DONE- invalid hitMapper
- *    DONE- Exception in filter or mapper, should not block sending the hit to GA
- *    DONE- require command executed more than once for the same tracker
- *    DONE- SDK factory instantiated before than GA tag
- *      IDEM- GA tag not included, but SDK configured for GA
- *    DONE- SDK factory destroyed and GA keep sending hits
- *    DONE- GA in another global variable (i.e., a different ga alias)
- *
- *  -Test ga-to-split and split-to-ga together
- *
- *  - Node:
- *    - Should do nothing
- */
-
 import sinon from 'sinon';
 import { SplitFactory } from '../..';
 import SettingsFactory from '../../utils/settings';
@@ -306,7 +266,7 @@ export default function (mock, assert) {
       integrations: [{
         type: 'GA_TO_SPLIT',
         filter: model => model.get('hitType') === 'pageview', // accepts only pageviews
-        mapper: () => ({ eventTypeId: 'mapperSdkOpts' }), // return a fixed EventData
+        mapper: () => ({ eventTypeId: 'mapperSdkOpts' }), // return a fixed event instance
         prefix: prefixSdkOpts,
       }],
     });
@@ -314,7 +274,7 @@ export default function (mock, assert) {
 
     window.ga('myTracker4.require', 'splitTracker', {
       filter: model => model.get('hitType') === 'event', // accepts only events
-      mapper: () => ({ eventTypeId: 'mapperPluginOpts' }), // return a fixed EventData
+      mapper: (model, defaultEvent) => ({ ...defaultEvent, eventTypeId: 'mapperPluginOpts' }), // updates the eventTypeId of default event
       prefix: prefixPluginOpts,
     });
     window.ga('myTracker5.require', 'splitTracker');
@@ -345,10 +305,10 @@ export default function (mock, assert) {
     gaSpy(['t0', 'myTracker']);
 
     window.ga('require', 'splitTracker', { mapper: function () { throw 'error'; } });
-    // this second 'require' is not applied (does not overwrite previous command)
+    // this second 'require' is not applied (it does not overwrite previous command)
     window.ga('require', 'splitTracker');
 
-    window.ga('myTracker.require', 'splitTracker', { mapper: function () { return {}; } });
+    window.ga('myTracker.require', 'splitTracker', { mapper: function () { return { value: 'invalid value' }; } });
 
     const logSpy = sinon.spy(console, 'log');
 
@@ -363,8 +323,8 @@ export default function (mock, assert) {
       const sentHitsT0 = window.gaSpy.getHits('t0');
       const sentHitsMyTracker = window.gaSpy.getHits('myTracker');
       t.equal(sentHitsT0.length, 1, 'Hits must be sent even if a custom mapper throw an exception');
-      t.equal(sentHitsMyTracker.length, 1, 'Hits must be sent even if a custom mapper return an invalid event type');
-      t.ok(logSpy.calledWith('[ERROR] splitio-ga-to-split:mapper: you passed a null or undefined event_type, event_type must be a non-empty string.'));
+      t.equal(sentHitsMyTracker.length, 1, 'Hits must be sent even if a custom mapper return an invalid event instance');
+      t.ok(logSpy.calledWith('[ERROR] splitio-ga-to-split:mapper: value must be a finite number.'));
       client.destroy();
       logSpy.restore();
       t.end();

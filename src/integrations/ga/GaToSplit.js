@@ -1,7 +1,6 @@
 import { isString, isFinite, unicAsStrings } from '../../utils/lang';
 import logFactory from '../../utils/logger';
 import {
-  validateEvent,
   validateEventValue,
   validateEventProperties,
   validateKey,
@@ -26,18 +25,11 @@ function providePlugin(pluginName, pluginConstructor) {
   window[gaAlias]('provide', pluginName, pluginConstructor);
 }
 
-// Default filter: accepts all hits
-export function defaultFilter() { return true; }
-
 // Default mapping: object used for building the default mapper from hits to Split events
-// @TODO review default mapping.
 const defaultMapping = {
   eventTypeId: {
-    // pageview: 'page',
-    // screenview: 'screenName',
-    // event: 'eventAction',
-    // social: 'socialAction',
-    // timing: 'timingVar',
+    event: 'eventAction',
+    social: 'socialAction',
   },
   eventValue: {
     event: 'eventValue',
@@ -46,9 +38,10 @@ const defaultMapping = {
   eventProperties: {
     pageview: ['page'],
     screenview: ['screenName'],
-    event: ['eventCategory', 'eventAction', 'eventLabel'],
-    social: ['socialNetwork', 'socialAction', 'socialTarget'],
+    event: ['eventCategory', 'eventLabel'],
+    social: ['socialNetwork', 'socialTarget'],
     timing: ['timingCategory', 'timingVar', 'timingLabel'],
+    exception: ['exDescription', 'exFatal'],
   }
 };
 
@@ -77,10 +70,12 @@ function mapperBuilder(mapping) {
       eventTypeId,
       value,
       properties,
+      timestamp: Date.now(),
     };
   };
 }
 
+// exposed for unit testing purposses.
 export const defaultMapper = mapperBuilder(defaultMapping);
 
 export const defaultPrefix = 'ga';
@@ -89,11 +84,11 @@ export const defaultPrefix = 'ga';
  * Return a new list of identities removing invalid and duplicated ones.
  *
  * @param {Array} identities list of identities
- * @returns list of valid and unique identities, or undefined if `identities` is not an array.
+ * @returns list of valid and unique identities. The list might be empty if `identities` is not an array or all its elements are invalid.
  */
 export function validateIdentities(identities) {
   if (!Array.isArray(identities))
-    return undefined;
+    return [];
 
   // Remove duplicated identities
   const uniqueIdentities = unicAsStrings(identities);
@@ -116,32 +111,54 @@ export function validateIdentities(identities) {
 }
 
 /**
- * Validates if a given object is a EventData instance, and logs corresponding warnings.
+ * Checks if EventData fields (except EventTypeId) are valid, and logs corresponding warnings.
+ * EventTypeId is validated separately.
  *
  * @param {EventData} data event data instance to validate. Precondition: data != undefined
  * @returns {boolean} Whether the data instance is a valid EventData or not.
  */
-export function validateEventData(data) {
-  if (!validateEvent(data.eventTypeId, 'splitio-ga-to-split:mapper'))
+export function validateEventData(eventData) {
+  if (validateEventValue(eventData.value, 'splitio-ga-to-split:mapper') === false)
     return false;
 
-  if (validateEventValue(data.value, 'splitio-ga-to-split:mapper') === false)
-    return false;
-
-  const { properties } = validateEventProperties(data.properties, 'splitio-ga-to-split:mapper');
+  const { properties } = validateEventProperties(eventData.properties, 'splitio-ga-to-split:mapper');
   if (properties === false)
     return false;
 
-  if (data.timestamp && !isFinite(data.timestamp))
+  if (eventData.timestamp && !isFinite(eventData.timestamp))
     return false;
 
-  if (data.key && validateKey(data.key, 'splitio-ga-to-split:mapper') === false)
+  if (eventData.key && validateKey(eventData.key, 'splitio-ga-to-split:mapper') === false)
     return false;
 
-  if (data.trafficTypeName && validateTrafficType(data.trafficTypeName, 'splitio-ga-to-split:mapper') === false)
+  if (eventData.trafficTypeName && validateTrafficType(eventData.trafficTypeName, 'splitio-ga-to-split:mapper') === false)
     return false;
 
   return true;
+}
+
+const DEFAULT_EVENT_TYPE = 'event';
+const INVALID_PREFIX_REGEX = /^[^a-zA-Z0-9]+/;
+const INVALID_SUBSTRING_REGEX = /[^-_.:a-zA-Z0-9]+/g;
+/**
+ * Fixes the passed string value to comply with EventTypeId format, by removing invalid characters and truncating if necessary.
+ *
+ * @param {string} eventTypeId string value to fix.
+ * @returns {string} Fixed version of `eventTypeId`.
+ */
+export function fixEventTypeId(eventTypeId) {
+  // set a default eventTypeId if it is not a string or is an empty one.
+  if (!isString(eventTypeId) || eventTypeId.length === 0) {
+    return DEFAULT_EVENT_TYPE;
+  }
+
+  // replace invalid substrings and truncate
+  const fixed = eventTypeId
+    .replace(INVALID_PREFIX_REGEX, '')
+    .replace(INVALID_SUBSTRING_REGEX, '_')
+    .slice(0, 80);
+  // return DEFAULT_EVENT_TYPE if fixed string is empty
+  return fixed ? fixed : DEFAULT_EVENT_TYPE;
 }
 
 /**
@@ -155,8 +172,6 @@ export function validateEventData(data) {
 function GaToSplit(sdkOptions, storage, coreSettings) {
 
   const defaultOptions = {
-    filter: defaultFilter,
-    mapper: defaultMapper,
     prefix: defaultPrefix,
     // We set default identities if key and TT are present in settings.core
     identities: (coreSettings.key && coreSettings.trafficType) ?
@@ -177,7 +192,7 @@ function GaToSplit(sdkOptions, storage, coreSettings) {
       // Validate identities
       const validIdentities = validateIdentities(opts.identities);
 
-      if (!validIdentities || validIdentities.length === 0) {
+      if (validIdentities.length === 0) {
         log.warn('No valid identities were provided. Please check that you are passing a valid list of identities or providing a traffic type at the SDK configuration.');
         return;
       }
@@ -189,7 +204,6 @@ function GaToSplit(sdkOptions, storage, coreSettings) {
       opts.identities = validIdentities;
 
       // Validate prefix
-      // @TODO Improve the prefix validation using the same REGEX than eventTypeId
       if (!isString(opts.prefix)) {
         log.warn('The provided `prefix` was ignored since it is invalid. Please check that you are passing a string object as `prefix`.');
         opts.prefix = undefined;
@@ -203,18 +217,23 @@ function GaToSplit(sdkOptions, storage, coreSettings) {
       tracker.set('sendHitTask', function (model) {
         originalSendHitTask(model);
 
-        // filter and map hits into an EventData instance
-        const eventData = opts.filter(model) && opts.mapper(model);
-
-        // don't send the event if it is falsy or invalid when generated by a custom mapper
-        if (!eventData || (opts.mapper !== defaultMapper && !validateEventData(eventData)))
+        // filter
+        if (opts.filter && !opts.filter(model))
           return;
 
-        // Add prefix (with a falsy prefix, such as undefined or '', nothing is appended)
+        // map hit into an EventData instance
+        let eventData = defaultMapper(model);
+        if (opts.mapper) {
+          eventData = opts.mapper(model, eventData);
+          // don't send the custom event if it is falsy or invalid
+          if (!eventData || !validateEventData(eventData))
+            return;
+        }
+
+        // Add prefix. Nothing is appended if the prefix is falsy, e.g. undefined or ''.
         if (opts.prefix) eventData.eventTypeId = `${opts.prefix}.${eventData.eventTypeId}`;
 
-        // Add timestamp if not present
-        if (!eventData.timestamp) eventData.timestamp = Date.now();
+        eventData.eventTypeId = fixEventTypeId(eventData.eventTypeId);
 
         // Store the event
         if (eventData.key && eventData.trafficTypeName) {
@@ -229,6 +248,8 @@ function GaToSplit(sdkOptions, storage, coreSettings) {
           });
         }
       });
+
+      log.info('Started GA-to-Split integration');
     }
 
   }
