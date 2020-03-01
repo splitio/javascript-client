@@ -24,7 +24,6 @@ script:
   - npm run test-browser-offline
   - npm run test-browser-destroy
   - npm run test-browser-errors
-  - npm run test-browser-gaintegration
   - 'npm run test-node -- --no-progress'
   - 'npm run test-node-e2e -- --no-progress'
   - 'npm run test-node-redis -- --no-progress'
@@ -49,7 +48,7 @@ deploy:
     acl: public_read
     cache_control: "max-age=31536000, public"
     on:
-      branch: ga_to_split
+      branch: development
   - provider: s3
     access_key_id: ${AWS_ACCESS_KEY_ID_PROD}
     secret_access_key: ${AWS_SECRET_ACCESS_PROD}
