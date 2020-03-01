@@ -15,7 +15,6 @@ class SplitToGa {
           eventAction: 'Evaluate ' + payload.impression.feature,
           eventLabel: 'Treatment: ' + payload.impression.treatment + '. Targeting rule: ' + payload.impression.label + '.',
           nonInteraction: true,
-          splitHit: true,
         };
       case SPLIT_EVENT:
         return {
@@ -24,7 +23,6 @@ class SplitToGa {
           eventAction: payload.eventTypeId,
           eventValue: payload.value,
           nonInteraction: true,
-          splitHit: true,
         };
     }
     return null;
@@ -103,8 +101,9 @@ class SplitToGa {
       // send the hit
       this.trackerNames.forEach(trackerName => {
         const sendCommand = trackerName ? `${trackerName}.send` : 'send';
-        // access ga command queue via `getGa` method, accounting for the possibility that
-        // the global `ga` reference was not yet mutated by analytics.js.
+        // mark the hit as a Split one to avoid the loop.
+        fieldsObject.splitHit = true;
+        // Send to GA using our reference to the GA object.
         ga(sendCommand, fieldsObject);
       });
     }
