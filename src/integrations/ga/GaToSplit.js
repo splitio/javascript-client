@@ -217,8 +217,8 @@ function GaToSplit(sdkOptions, storage, coreSettings) {
       tracker.set('sendHitTask', function (model) {
         originalSendHitTask(model);
 
-        // filter
-        if (opts.filter && !opts.filter(model))
+        // filter hit if it comes from Split-to-GA integration or if it is rejected by custom filter
+        if (model.get('splitHit') || (opts.filter && !opts.filter(model)))
           return;
 
         // map hit into an EventData instance

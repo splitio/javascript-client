@@ -599,9 +599,7 @@ declare namespace SplitIO {
      */
     identities?: Identity[],
   }
-  type SPLIT_IMPRESSION = 'IMPRESSION';
-  type SPLIT_EVENT = 'EVENT';
-  type IntegrationData = { type: SPLIT_IMPRESSION, payload: SplitIO.ImpressionData } | { type: SPLIT_EVENT, payload: SplitIO.EventData };
+  type IntegrationData = { type: 'IMPRESSION', payload: SplitIO.ImpressionData } | { type: 'EVENT', payload: SplitIO.EventData };
   /**
    * Enable Split-to-GA integration, to track Split impressions and events as GA hits.
    *
@@ -630,7 +628,7 @@ declare namespace SplitIO {
      *      return defaultMapping;
      *  }`
      *
-     * Default FieldsObject instance for data.type === SPLIT_IMPRESSION:
+     * Default FieldsObject instance for data.type === 'IMPRESSION':
      *  `{
      *    hitType: 'event',
      *    eventCategory: 'split-impression',
@@ -638,7 +636,7 @@ declare namespace SplitIO {
      *    eventLabel: 'Treatment ' + data.payload.impression.treatment + ' Label ' + data.payload.impression.label,
      *    nonInteraction: true,
      *  }`
-     * Default FieldsObject instance for data.type === SPLIT_EVENT:
+     * Default FieldsObject instance for data.type === 'EVENT':
      *  `{
      *    hitType: 'event',
      *    eventCategory: 'split-event',

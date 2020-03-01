@@ -20,8 +20,9 @@ const fakeImpressionFieldsObject = {
   hitType: 'event',
   eventCategory: 'split-impression',
   eventAction: 'Evaluate ' + fakeImpressionPayload.impression.feature,
-  eventLabel: 'Treatment ' + fakeImpressionPayload.impression.treatment + ' Label ' + fakeImpressionPayload.impression.label,
+  eventLabel: 'Treatment: ' + fakeImpressionPayload.impression.treatment + '. Targeting rule: ' + fakeImpressionPayload.impression.label + '.',
   nonInteraction: true,
+  splitHit: true,
 };
 
 const fakeEventPayload = {
@@ -38,6 +39,7 @@ const fakeEventFieldsObject = {
   eventAction: fakeEventPayload.eventTypeId,
   eventValue: fakeEventPayload.value,
   nonInteraction: true,
+  splitHit: true,
 };
 
 tape('SplitToGa', t => {

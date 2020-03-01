@@ -13,8 +13,9 @@ class SplitToGa {
           hitType: 'event',
           eventCategory: 'split-impression',
           eventAction: 'Evaluate ' + payload.impression.feature,
-          eventLabel: 'Treatment ' + payload.impression.treatment + ' Label ' + payload.impression.label,
+          eventLabel: 'Treatment: ' + payload.impression.treatment + '. Targeting rule: ' + payload.impression.label + '.',
           nonInteraction: true,
+          splitHit: true,
         };
       case SPLIT_EVENT:
         return {
@@ -23,6 +24,7 @@ class SplitToGa {
           eventAction: payload.eventTypeId,
           eventValue: payload.value,
           nonInteraction: true,
+          splitHit: true,
         };
     }
     return null;

@@ -24,11 +24,6 @@ const config = {
 };
 const settings = SettingsFactory(config);
 
-function filterSplitToGaHits(model) {
-  const eventCategory = model.get('eventCategory');
-  return !eventCategory || !eventCategory.startsWith('split-');
-}
-
 export default function (mock, assert) {
 
   let client;
@@ -108,7 +103,7 @@ export default function (mock, assert) {
 
     gaSpy();
 
-    window.ga('require', 'splitTracker', { filter: filterSplitToGaHits });
+    window.ga('require', 'splitTracker');
     customHits.forEach(hit => {
       setTimeout(() => {
         window.ga('send', hit);
