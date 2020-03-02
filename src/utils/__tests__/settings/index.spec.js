@@ -145,7 +145,7 @@ tape('SETTINGS / required properties should be always present', assert => {
 
   assert.ok(locatorSchedulerFeaturesRefreshRate(settings) !== undefined, 'scheduler.featuresRefreshRate should be present');
   assert.ok(locatorSchedulerSegmentsRefreshRate(settings) !== undefined, 'scheduler.segmentsRefreshRate should be present');
-  assert.ok(locatorSchedulerMetricsRefreshRate(settings) !== undefined, 'scheduler.metricsRefreshRate should be present');
+  assert.equal(locatorSchedulerMetricsRefreshRate(settings), 120 * 1000, 'scheduler.metricsRefreshRate should be present');
   assert.ok(locatorSchedulerImpressionsRefreshRate(settings) !== undefined, 'scheduler.impressionsRefreshRate should be present');
 
   assert.ok(locatorUrlsSDK(settings) !== undefined, 'urls.sdk should be present');

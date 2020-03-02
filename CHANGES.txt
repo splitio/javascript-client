@@ -1,7 +1,9 @@
-10.10.1 (Jan 24, 2020)
+10.11.0 (Mar XXX, 2020)
+ - Added support for Google Analytics on browsers.
  - Updated logging logic to avoid calling console.error in the client side.
  - Updated logging error messages priority to significantly reduce the amount of error level logs that can't be silenced.
  - Updated axios to 0.19.2 and few other minor updates on dev dependencies.
+ - Updated default metricsRefreshRate from 60s to 120s and reduced the log level from ERROR to INFO for telemetry post failures.
  - Bugfixing - Emit SDK_UPDATE in localhost only when mock was actually updated.
 
 10.10.0 (Jan 10, 2020)
@@ -18,7 +20,7 @@
  - Added SonarQube integration.
 
 10.9.0 (Oct 24, 2019)
- - Added listener for 'unload' DOM events to push remaining impressions and events when the browser page is closed or reloaded. 
+ - Added listener for 'unload' DOM events to push remaining impressions and events when the browser page is closed or reloaded.
  - Added setting core.IPAddressesEnabled to disable reporting IP Addresses and Machine name back to Split cloud.
  - Updated Redis storage to fetch multiple splits at once for getTreatments/getTreatmentsWithConfig.
  - Updated most dependencies to their latest versions. Biggest change is babel (from 6 to 7), Webpack 3 to 4, Karma and ioredis.
