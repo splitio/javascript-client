@@ -75,7 +75,8 @@ class SplitToGa {
   }
 
   queue(data) {
-
+    // access ga command queue via `getGa` method, accounting for the possibility that
+    // the global `ga` reference was not yet mutated by analytics.js.
     const ga = SplitToGa.getGa();
     if (ga) {
 
