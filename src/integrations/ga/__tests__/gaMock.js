@@ -1,10 +1,20 @@
 import sinon from 'sinon';
 
-export function gaMock() {
-
-  const model = {
-    get: sinon.fake(function () { return undefined; })
+export function modelMock(fieldsObject) {
+  return {
+    get: function (fieldName) {
+      return fieldsObject[fieldName];
+    },
+    set: function (fieldNameOrObject, fieldValue) {
+      if (typeof fieldNameOrObject === 'object')
+        fieldsObject = { ...fieldsObject, ...fieldNameOrObject };
+      else
+        fieldsObject[fieldNameOrObject] = fieldValue;
+    }
   };
+}
+
+export function gaMock() {
 
   const __originalSendHitTask = sinon.spy();
   const __tasks = {
@@ -12,7 +22,8 @@ export function gaMock() {
   };
   const ga = sinon.stub().callsFake(function (command) {
     if (command === 'send') {
-      __tasks.sendHitTask(model);
+      const fieldsObject = arguments[1];
+      __tasks.sendHitTask(modelMock(fieldsObject));
     }
   });
 

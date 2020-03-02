@@ -1,6 +1,8 @@
 import tape from 'tape-catch';
 import MockAdapter from 'axios-mock-adapter';
+import gaToSplitSuite from './ga-to-split.spec';
 import splitToGaSuite from './split-to-ga.spec';
+import bothIntegrationsSuite from './both-integrations.spec';
 
 import { __getAxiosInstance } from '../../services/transport';
 import SettingsFactory from '../../utils/settings';
@@ -23,7 +25,9 @@ tape('## E2E CI Tests ##', function(assert) {
   mock.onGet(settings.url('/mySegments/facundo@split.io')).reply(200, mySegmentsFacundo);
 
   /* Validate GA integration */
+  assert.test('E2E / GA-to-Split', gaToSplitSuite.bind(null, mock));
   assert.test('E2E / Split-to-GA', splitToGaSuite.bind(null, mock));
+  assert.test('E2E / Both GA integrations', bothIntegrationsSuite.bind(null, mock));
 
   assert.end();
 });

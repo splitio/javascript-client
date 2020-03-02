@@ -543,13 +543,17 @@ declare namespace SplitIO {
   interface IImpressionListener {
     logImpression(data: SplitIO.ImpressionData): void
   }
+  type Identity = {
+    key: string;
+    trafficType: string;
+  };
   type EventData = {
     eventTypeId: string;
     value?: number;
     properties?: Properties;
-    trafficTypeName: string;
-    key: string;
-    timestamp: number;
+    trafficTypeName?: string;
+    key?: string;
+    timestamp?: number;
   };
   /**
    * Enable Ga-to-Split integration, to track GA hits as Split events.
@@ -559,10 +563,43 @@ declare namespace SplitIO {
    */
   interface GaToSplitIntegration {
     type: 'GA_TO_SPLIT',
+    /**
+     * Optional predicate used to filter GA hits from being tracked as Split events.
+     * For example, the following filter allows to track only 'event' hits:
+     *  `(model) => model.get('hitType') === 'event'`
+     * By default, all hits are tracked as Split events.
+     */
+    filter?: (model: UniversalAnalytics.Model) => boolean,
+    /**
+     * Optional function useful when you need to modify the Split event before tracking it.
+     * This function is invoked with two arguments:
+     * 1. the GA model object representing the hit.
+     * 2. the default format of the mapped Split event instance.
+     * The return value must be a Split event, that can be the second argument or a new object.
+     *
+     * For example, the following mapper adds a custom property to events:
+     *  `(model, defaultMapping) => {
+     *      defaultMapping.properties.someProperty = SOME_VALUE;
+     *      return defaultMapping;
+     *  }`
+     *
+     * @TODO update the following link
+     * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#split-to-ga-integration} for details of the default event mapping.
+     */
+    mapper?: (model: UniversalAnalytics.Model, defaultMapping: SplitIO.EventData) => SplitIO.EventData,
+    /**
+     * Optional prefix for EventTypeId, to prevent any kind of data collision between events.
+     * @property {string} prefix
+     * @default '' (empty string)
+     */
+    prefix?: string,
+    /**
+     * List of Split identities (key & traffic type pairs) used to track events.
+     * If not provided, events are sent using the key and traffic type provided at SDK config
+     */
+    identities?: Identity[],
   }
-  type SPLIT_IMPRESSION = 'IMPRESSION';
-  type SPLIT_EVENT = 'EVENT';
-  type IntegrationData = { type: SPLIT_IMPRESSION, payload: SplitIO.ImpressionData } | { type: SPLIT_EVENT, payload: SplitIO.EventData };
+  type IntegrationData = { type: 'IMPRESSION', payload: SplitIO.ImpressionData } | { type: 'EVENT', payload: SplitIO.EventData };
   /**
    * Enable Split-to-GA integration, to track Split impressions and events as GA hits.
    *
@@ -572,24 +609,34 @@ declare namespace SplitIO {
   interface SplitToGaIntegration {
     type: 'SPLIT_TO_GA',
     /**
-     * Optional filter to use instead of default, which always return true,
-     * meaning that all impressions and events are tracked as GA hits.
+     * Optional predicate used to filter data instances (Split events and impressions) from being tracked as GA hits.
+     * For example, the following filter allows to track only impressions:
+     *  `(data) => data.type === 'IMPRESSION'`
+     * By default, all impressions and events are tracked as GA hits.
      */
     filter?: (data: SplitIO.IntegrationData) => boolean,
     /**
-     * Optional mapper to use instead of default.
-     * This function accepts an impression or event data instance,
-     * and returns a GA FieldsObject instance used to invoke `ga('[tracker.]send', fieldObject)`.
+     * Optional function useful when you need to modify the GA hit before sending it.
+     * This function is invoked with two arguments:
+     * 1. the input data (Split event or impression).
+     * 2. the default format of the mapped FieldsObject instance (GA hit).
+     * The return value must be a FieldsObject, that can be the second argument or a new object.
      *
-     * Default FieldsObject value for data.type === SPLIT_IMPRESSION:
+     * For example, the following mapper adds a custom dimension to hits:
+     *  `(data, defaultMapping) => {
+     *      defaultMapping.dimension1 = SOME_VALUE;
+     *      return defaultMapping;
+     *  }`
+     *
+     * Default FieldsObject instance for data.type === 'IMPRESSION':
      *  `{
      *    hitType: 'event',
      *    eventCategory: 'split-impression',
-     *    eventAction: data.payload.impression.feature,
-     *    eventLabel: data.payload.impression.treatment,
+     *    eventAction: 'Evaluate ' + data.payload.impression.feature,
+     *    eventLabel: 'Treatment ' + data.payload.impression.treatment + ' Label ' + data.payload.impression.label,
      *    nonInteraction: true,
      *  }`
-     * Default FieldsObject value for data.type === SPLIT_EVENT:
+     * Default FieldsObject instance for data.type === 'EVENT':
      *  `{
      *    hitType: 'event',
      *    eventCategory: 'split-event',
@@ -598,7 +645,7 @@ declare namespace SplitIO {
      *    nonInteraction: true,
      *  }`
      */
-    mapper?: (data: SplitIO.IntegrationData) => UniversalAnalytics.FieldsObject,
+    mapper?: (data: SplitIO.IntegrationData, defaultMapping: UniversalAnalytics.FieldsObject) => UniversalAnalytics.FieldsObject,
     /**
      * List of tracker names to send the hit. An empty string represents the default tracker.
      * If not provided, hits are only sent to default tracker.

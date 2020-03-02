@@ -16,12 +16,16 @@ const fakeImpressionPayload = {
   hostname: 'hostname',
   sdkLanguageVersion: 'version',
 };
-const fakeImpressionFieldsObject = {
+const fakeImpression = {
+  type: SPLIT_IMPRESSION,
+  payload: fakeImpressionPayload,
+};
+const defaultImpressionFieldsObject = {
   hitType: 'event',
   eventCategory: 'split-impression',
   eventAction: 'Evaluate ' + fakeImpressionPayload.impression.feature,
-  eventLabel: 'Treatment ' + fakeImpressionPayload.impression.treatment + ' Label ' + fakeImpressionPayload.impression.label,
-  nonInteraction: true,
+  eventLabel: 'Treatment: ' + fakeImpressionPayload.impression.treatment + '. Targeting rule: ' + fakeImpressionPayload.impression.label + '.',
+  nonInteraction: true
 };
 
 const fakeEventPayload = {
@@ -32,12 +36,16 @@ const fakeEventPayload = {
   key: 'key',
   properties: undefined,
 };
-const fakeEventFieldsObject = {
+const fakeEvent = {
+  type: SPLIT_EVENT,
+  payload: fakeEventPayload,
+};
+const defaultEventFieldsObject = {
   hitType: 'event',
   eventCategory: 'split-event',
   eventAction: fakeEventPayload.eventTypeId,
   eventValue: fakeEventPayload.value,
-  nonInteraction: true,
+  nonInteraction: true
 };
 
 tape('SplitToGa', t => {
@@ -59,11 +67,11 @@ tape('SplitToGa', t => {
   });
 
   t.test('SplitToGa.defaultMapper', assert => {
-    assert.deepEqual(SplitToGa.defaultMapper({ payload: fakeImpressionPayload, type: SPLIT_IMPRESSION }),
-      fakeImpressionFieldsObject,
+    assert.deepEqual(SplitToGa.defaultMapper(fakeImpression),
+      defaultImpressionFieldsObject,
       'should return the corresponding FieldsObject for a given impression');
-    assert.deepEqual(SplitToGa.defaultMapper({ payload: fakeEventPayload, type: SPLIT_EVENT }),
-      fakeEventFieldsObject,
+    assert.deepEqual(SplitToGa.defaultMapper(fakeEvent),
+      defaultEventFieldsObject,
       'should return the corresponding FieldsObject for a given event');
 
     assert.end();
@@ -86,13 +94,13 @@ tape('SplitToGa', t => {
 
     /** Default behaviour **/
     const instance = new SplitToGa();
-    instance.queue({ payload: fakeImpressionPayload, type: SPLIT_IMPRESSION });
-    assert.true(ga.lastCall.calledWithExactly('send', SplitToGa.defaultMapper({ payload: fakeImpressionPayload, type: SPLIT_IMPRESSION })),
-      'should queue `ga send` with the default mapped FieldsObject for impressions');
+    instance.queue(fakeImpression);
+    assert.true(ga.lastCall.calledWithExactly('send', { ...defaultImpressionFieldsObject, splitHit: true }),
+      'should queue `ga send` with the default mapped FieldsObject for impressions, appended with `splitHit` field');
 
-    instance.queue({ payload: fakeEventPayload, type: SPLIT_EVENT });
-    assert.true(ga.lastCall.calledWithExactly('send', SplitToGa.defaultMapper({ payload: fakeEventPayload, type: SPLIT_EVENT })),
-      'should queue `ga send` with the default mapped FieldsObject for events');
+    instance.queue(fakeEvent);
+    assert.true(ga.lastCall.calledWithExactly('send', { ...defaultEventFieldsObject, splitHit: true }),
+      'should queue `ga send` with the default mapped FieldsObject for events, appended with `splitHit` field');
 
     assert.equal(ga.callCount, 2);
 
@@ -115,14 +123,14 @@ tape('SplitToGa', t => {
       trackerNames,
     });
     ga.resetHistory();
-    instance2.queue({ payload: fakeImpressionPayload, type: SPLIT_IMPRESSION });
+    instance2.queue(fakeImpression);
     assert.true(ga.notCalled, 'shouldn\'t queue `ga send` if a Split data (impression or event) is filtered');
 
-    instance2.queue({ payload: fakeEventPayload, type: SPLIT_EVENT });
-    assert.true(ga.calledWithExactly('send', customMapper({ payload: fakeEventPayload, type: SPLIT_EVENT })),
-      'should queue `ga send` with the custom trackerName and FieldsObject from customMapper');
-    assert.true(ga.calledWithExactly(`${trackerNames[1]}.send`, customMapper({ payload: fakeEventPayload, type: SPLIT_EVENT })),
-      'should queue `ga send` with the custom trackerName and FieldsObject from customMapper');
+    instance2.queue(fakeEvent);
+    assert.true(ga.calledWithExactly('send', { ...customMapper(fakeImpression, defaultImpressionFieldsObject), splitHit: true }),
+      'should queue `ga send` with the custom trackerName and FieldsObject from customMapper, appended with `splitHit` field');
+    assert.true(ga.calledWithExactly(`${trackerNames[1]}.send`, { ...customMapper(fakeEvent, defaultEventFieldsObject), splitHit: true }),
+      'should queue `ga send` with the custom trackerName and FieldsObject from customMapper, appended with `splitHit` field');
 
     assert.equal(ga.callCount, 2);
 
@@ -134,9 +142,9 @@ tape('SplitToGa', t => {
       mapper: customMapper2,
     });
     ga.resetHistory();
-    instance3.queue({ payload: fakeImpressionPayload, type: SPLIT_IMPRESSION });
-    assert.true(ga.lastCall.calledWithExactly('send', SplitToGa.defaultMapper({ payload: fakeImpressionPayload, type: SPLIT_IMPRESSION })),
-      'should queue `ga send` with the custom FieldsObject from customMapper2');
+    instance3.queue(fakeImpression);
+    assert.true(ga.lastCall.calledWithExactly('send', { ...customMapper2(fakeImpression, defaultImpressionFieldsObject), splitHit: true }),
+      'should queue `ga send` with the custom FieldsObject from customMapper2, appended with `splitHit` field');
 
     assert.equal(ga.callCount, 1);
 
@@ -148,7 +156,7 @@ tape('SplitToGa', t => {
       mapper: customMapper3,
     });
     ga.resetHistory();
-    instance4.queue({ payload: fakeImpressionPayload, type: SPLIT_IMPRESSION });
+    instance4.queue(fakeImpression);
     assert.true(ga.notCalled, 'shouldn\'t queue `ga send` if a custom mapper throw an exception');
 
     gaRemove();
