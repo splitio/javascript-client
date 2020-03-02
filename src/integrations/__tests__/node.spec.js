@@ -109,13 +109,13 @@ tape('IntegrationsManagerFactory for browser', t => {
 
     const fakeImpression = 'fake';
     instance.handleImpression(fakeImpression);
-    assert.true(SplitToGaQueueMethod.calledOnceWith(fakeImpression, SPLIT_IMPRESSION), 'Invokes SplitToGa.queue method with tracked impression');
+    assert.true(SplitToGaQueueMethod.calledOnceWith({ payload: fakeImpression, type: SPLIT_IMPRESSION }), 'Invokes SplitToGa.queue method with tracked impression');
 
     resetStubs();
 
     const fakeEvent = 'fake';
     instance.handleEvent(fakeEvent);
-    assert.true(SplitToGaQueueMethod.calledOnceWith(fakeEvent, SPLIT_EVENT), 'Invokes SplitToGa.queue method with tracked event');
+    assert.true(SplitToGaQueueMethod.calledOnceWith({ payload: fakeEvent, type: SPLIT_EVENT }), 'Invokes SplitToGa.queue method with tracked event');
 
     resetStubs();
     assert.end();
