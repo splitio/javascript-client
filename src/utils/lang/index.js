@@ -158,6 +158,18 @@ export function uniq(arr) {
 }
 
 /**
+ * Removes duplicate items on an array of objects using an optional `stringify` function as equality criteria.
+ * It uses JSON.stringify as default criteria.
+ */
+export function unicAsStrings(arr, stringify = JSON.stringify) {
+  const seen = {};
+  return arr.filter(function(item) {
+    const itemString = stringify(item);
+    return Object.prototype.hasOwnProperty.call(seen, itemString) ? false : seen[itemString] = true;
+  });
+}
+
+/**
  * Transforms a value into it's string representation.
  */
 export function toString(val) {
