@@ -217,14 +217,24 @@ function GaToSplit(sdkOptions, storage, coreSettings) {
       tracker.set('sendHitTask', function (model) {
         originalSendHitTask(model);
 
-        // filter hit if it comes from Split-to-GA integration or if it is rejected by custom filter
-        if (model.get('splitHit') || (opts.filter && !opts.filter(model)))
+        // filter hit if it comes from Split-to-GA integration
+        if (model.get('splitHit')) return;
+        try {
+          if (opts.filter && !opts.filter(model)) return;
+        } catch (err) {
+          log.warn(`GaToSplit custom filter threw: ${err}`);
           return;
+        }
 
         // map hit into an EventData instance
         let eventData = defaultMapper(model);
         if (opts.mapper) {
-          eventData = opts.mapper(model, eventData);
+          try {
+            eventData = opts.mapper(model, eventData);
+          } catch (err) {
+            log.warn(`GaToSplit custom mapper threw: ${err}`);
+            return;
+          }
           // don't send the custom event if it is falsy or invalid
           if (!eventData || !validateEventData(eventData))
             return;
