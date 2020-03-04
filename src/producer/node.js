@@ -78,6 +78,18 @@ const NodeUpdater = (context) => {
 
       stopSplitsUpdate && stopSplitsUpdate();
       stopSegmentsUpdate && stopSegmentsUpdate();
+    },
+
+    // Synchronous call to SplitsUpdater and MySegmentsUpdater, used in PUSH mode by queues/workers.
+    callSplitsUpdater() {
+      splitsUpdater().then(() => {
+        // Mark splits as ready (track first successfull call to start downloading segments)
+        splitFetchCompleted = true;
+      });
+    },
+
+    callSegmentsUpdater() {
+      segmentsUpdater();
     }
   };
 };

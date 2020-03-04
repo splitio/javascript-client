@@ -24,15 +24,23 @@ import onSplitsArrivedFactory from './onSplitsArrivedFactory';
 const PartialBrowserProducer = (context) => {
   const settings = context.get(context.constants.SETTINGS);
   const { splits: splitsEventEmitter } = context.get(context.constants.READINESS);
-  
+
   const segmentsUpdater = MySegmentsUpdater(context);
   const segmentsUpdaterTask = TaskFactory(segmentsUpdater, settings.scheduler.segmentsRefreshRate);
 
   const onSplitsArrived = onSplitsArrivedFactory(segmentsUpdaterTask, context);
-  
+
   splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, onSplitsArrived);
 
-  return segmentsUpdaterTask;
+  return {
+    start: segmentsUpdaterTask.start,
+    stop: segmentsUpdaterTask.stop,
+
+    // Synchronous call to MySegmentsUpdater, used in PUSH mode by queues/workers.
+    callMySegmentsUpdater() {
+      segmentsUpdater();
+    }
+  };
 };
 
 export default PartialBrowserProducer;

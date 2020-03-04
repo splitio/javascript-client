@@ -16,6 +16,7 @@ function SplitFactoryOnline(context, readyTrackers, mainClientMetricCollectors) 
   const readiness = context.get(context.constants.READINESS);
   const storage = context.get(context.constants.STORAGE);
   const statusManager = context.get(context.constants.STATUS_MANAGER);
+  const syncManager = context.get(context.constants.SYNC_MANAGER);
 
   // We are only interested in exposable EventEmitter
   const { gate, splits, segments } = readiness;
@@ -32,7 +33,7 @@ function SplitFactoryOnline(context, readyTrackers, mainClientMetricCollectors) 
 
   let producer;
 
-  switch(settings.mode) {
+  switch (settings.mode) {
     case PRODUCER_MODE:
     case STANDALONE_MODE: {
       context.put(context.constants.COLLECTORS, metrics && metrics.collectors);
@@ -64,7 +65,12 @@ function SplitFactoryOnline(context, readyTrackers, mainClientMetricCollectors) 
   }
 
   // Start background jobs tasks
-  producer && producer.start();
+  if (producer) {
+    if (sharedInstance)
+      syncManager.startPartialProducer(producer, context);
+    else
+      syncManager.startFullProducer(producer);
+  }
   metrics && metrics.start();
   events && context.put(context.constants.EVENTS, events) && events.start();
 
@@ -81,7 +87,12 @@ function SplitFactoryOnline(context, readyTrackers, mainClientMetricCollectors) 
       // Destroy instance
       async destroy() {
         // Stop background jobs
-        producer && producer.stop();
+        if (producer) {
+          if (sharedInstance)
+            syncManager.stopPartialProducer(producer);
+          else
+            syncManager.stopFullProducer(producer);
+        }
         metrics && metrics.stop();
         events && events.stop();
 

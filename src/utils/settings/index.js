@@ -84,6 +84,9 @@ const base = {
 
   // List of integrations.
   integrations: undefined,
+
+  // toggle using (true) or not using (false) Server-Side Events for synchronizing storage
+  streamingEnabled: false,
 };
 
 function fromSecondsToMillis(n) {

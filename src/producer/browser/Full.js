@@ -31,12 +31,12 @@ const FullBrowserProducer = (context) => {
 
   const settings = context.get(context.constants.SETTINGS);
   const { splits: splitsEventEmitter } = context.get(context.constants.READINESS);
-  
+
   const splitsUpdaterTask = TaskFactory(splitsUpdater, settings.scheduler.featuresRefreshRate);
   const segmentsUpdaterTask = TaskFactory(segmentsUpdater, settings.scheduler.segmentsRefreshRate);
 
   const onSplitsArrived = onSplitsArrivedFactory(segmentsUpdaterTask, context);
-  
+
   splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, onSplitsArrived);
 
   return {
@@ -52,6 +52,15 @@ const FullBrowserProducer = (context) => {
 
       splitsUpdaterTask.stop();
       segmentsUpdaterTask && segmentsUpdaterTask.stop();
+    },
+
+    // Synchronous call to SplitsUpdater and MySegmentsUpdater, used in PUSH mode by queues/workers.
+    callSplitsUpdater() {
+      splitsUpdater();
+    },
+
+    callMySegmentsUpdater() {
+      segmentsUpdater();
     }
   };
 };
