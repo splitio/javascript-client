@@ -1,11 +1,24 @@
+import PushManagerFactory from './pushmanager';
+
 export default function NodeSyncManagerFactory(context) {
-  context;
+  const settings = context.get(context.constants.SETTINGS);
+
+  let pushManager = undefined;
+  if (settings.streamingEnabled)
+    pushManager = PushManagerFactory(context);
+
   return {
     startFullProducer(producer) {
-      producer.start();
+      if (pushManager)
+        pushManager.startFullProducer(producer);
+      else
+        producer.start();
     },
     stopFullProducer(producer) {
-      producer.stop();
+      if (pushManager)
+        pushManager.stopFullProducer(producer);
+      else
+        producer.stop();
     },
   };
 }

@@ -31,6 +31,7 @@ const NodeUpdater = (context) => {
   let stopSplitsUpdate = false;
   let stopSegmentsUpdate = false;
   let splitFetchCompleted = false;
+  let isRunning = false;
 
   return {
     start() {
@@ -71,6 +72,8 @@ const NodeUpdater = (context) => {
         },
         settings.scheduler.featuresRefreshRate
       );
+
+      isRunning = true;
     },
 
     stop() {
@@ -78,6 +81,13 @@ const NodeUpdater = (context) => {
 
       stopSplitsUpdate && stopSplitsUpdate();
       stopSegmentsUpdate && stopSegmentsUpdate();
+
+      isRunning = false;
+    },
+
+    // Used by SyncManager to know if running in polling mode.
+    isRunning() {
+      return isRunning;
     },
 
     // Synchronous call to SplitsUpdater and MySegmentsUpdater, used in PUSH mode by queues/workers.

@@ -54,6 +54,9 @@ const FullBrowserProducer = (context) => {
       segmentsUpdaterTask && segmentsUpdaterTask.stop();
     },
 
+    // Used by SyncManager to know if running in polling mode.
+    isRunning: splitsUpdaterTask.isRunning,
+
     // Synchronous call to SplitsUpdater and MySegmentsUpdater, used in PUSH mode by queues/workers.
     callSplitsUpdater() {
       splitsUpdater();

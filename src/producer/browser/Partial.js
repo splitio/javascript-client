@@ -35,6 +35,8 @@ const PartialBrowserProducer = (context) => {
   return {
     start: segmentsUpdaterTask.start,
     stop: segmentsUpdaterTask.stop,
+    // Used by SyncManager to know if running in polling mode.
+    isRunning: segmentsUpdaterTask.isRunning,
 
     // Synchronous call to MySegmentsUpdater, used in PUSH mode by queues/workers.
     callMySegmentsUpdater() {
