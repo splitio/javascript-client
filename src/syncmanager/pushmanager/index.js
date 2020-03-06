@@ -5,7 +5,7 @@ import NotificationProcessorFactory from '../notificationprocessor';
 import logFactory from './utils/logger';
 const log = logFactory('splitio-pushmanager');
 
-export default function NodePushManagerFactory(context, producer) {
+export default function PushManagerFactory(settings, producer, producerWithMySegmentsUpdater = false) {
 
   // @REVIEW we can also do `const sseClient = new SSEClient();` inside a try-catch
   // in case the constructor cannot build an instance (when EventSource is not available)
@@ -42,8 +42,13 @@ export default function NodePushManagerFactory(context, producer) {
     }, delay);
   }
 
+  const splitKeys = {};
+  if (producerWithMySegmentsUpdater) {
+    splitKeys[settings.core.key] = true;
+  }
+
   function connect() {
-    authClient.authenticate(context.core.authorizationKey).then(
+    authClient.authenticate(settings.core.authorizationKey, splitKeys).then(
       function (token) {
         sseClient.open(token.jwt, token.channels);
         scheduleNextTokenRefresh(token.ttl);
@@ -75,6 +80,19 @@ export default function NodePushManagerFactory(context, producer) {
       // remove listener, so that when connection is closed, polling mode is not started.
       sseClient.setListener(undefined);
       sseClient.close();
+
+      if (producer.isRunning())
+        producer.stop();
+    },
+
+    // User by SyncManager for browser
+    addProducerWithMySegmentsUpdater(splitKey, producer) {
+      feedbackLoop.addProducerWithMySegmentsUpdater(splitKey, producer);
+      splitKeys[splitKey] = true;
+    },
+    removeProducerWithMySegmentsUpdater(splitKey, producer) {
+      feedbackLoop.removeProducerWithMySegmentsUpdater(splitKey, producer);
+      delete splitKeys[splitKey];
 
       if (producer.isRunning())
         producer.stop();

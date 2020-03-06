@@ -67,7 +67,7 @@ function SplitFactoryOnline(context, readyTrackers, mainClientMetricCollectors) 
   // Start background jobs tasks
   if (producer) {
     if (sharedInstance)
-      syncManager.startPartialProducer(producer, context);
+      syncManager.startPartialProducer(producer, settings);
     else
       syncManager.startFullProducer(producer);
   }
@@ -89,7 +89,7 @@ function SplitFactoryOnline(context, readyTrackers, mainClientMetricCollectors) 
         // Stop background jobs
         if (producer) {
           if (sharedInstance)
-            syncManager.stopPartialProducer(producer);
+            syncManager.stopPartialProducer(producer, settings);
           else
             syncManager.stopFullProducer(producer);
         }

@@ -10,9 +10,10 @@ export default class AuthClient {
     // @TODO implement the real function
   }
 
-  authenticate(authorizationKey) {
+  authenticate(authorizationKey, splitKeys) {
     // @TODO implement the real function
     authorizationKey;
+    splitKeys;
     return Promise.resolve({ jwt: 'jwt', channels: 'channels', ttl: 1 });
   }
 }

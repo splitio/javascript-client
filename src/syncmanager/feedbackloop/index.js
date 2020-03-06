@@ -1,5 +1,16 @@
-export default function NodeFeedbackLoopFactory(producer, connectCallback) {
+export default function FeedbackLoopFactory(producer, connectCallback) {
+
+  const producersWithMySegmentsUpdater = {};
+
   return {
+    addProducerWithMySegmentsUpdater(splitKey, producer) {
+      producersWithMySegmentsUpdater[splitKey] = producer;
+    },
+    // eslint-disable-next-line no-unused-vars
+    removeProducerWithMySegmentsUpdater(splitKey, producer) {
+      delete producersWithMySegmentsUpdater[splitKey];
+    },
+
     startPolling() {
       if (!producer.isRunning())
         producer.start();
@@ -24,14 +35,20 @@ export default function NodeFeedbackLoopFactory(producer, connectCallback) {
       producer.callKillSplit(changeNumber, splitName, defaultTreatment);
     },
 
-    queueSyncSplits(changeNumber){
+    queueSyncSplits(changeNumber) {
       // @TODO use queue
       producer.callSplitsUpdater(changeNumber);
     },
 
-    queueSyncSegments(changeNumber){
+    queueSyncSegments(changeNumber) {
       // @TODO use queue
       producer.callSegmentsUpdater(changeNumber);
+    },
+
+    queueSyncMySegments(changeNumber, splitKey) {
+      // @TODO use queue
+      if (producersWithMySegmentsUpdater[splitKey])
+        producersWithMySegmentsUpdater[splitKey].callMySegmentsUpdater(changeNumber);
     },
   };
 }

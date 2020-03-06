@@ -1,14 +1,13 @@
 import PushManagerFactory from './pushmanager';
 
-export default function NodeSyncManagerFactory(context) {
-  const settings = context.get(context.constants.SETTINGS);
+export default function NodeSyncManagerFactory(settings) {
 
   let pushManager = undefined;
 
   return {
     startFullProducer(producer) {
       if (settings.streamingEnabled)
-        pushManager = PushManagerFactory(context, producer);
+        pushManager = PushManagerFactory(settings, producer);
       if (!pushManager)
         producer.start();
     },
