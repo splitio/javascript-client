@@ -1,4 +1,4 @@
-export default function NodeFeedbackLoopFactory(producer) {
+export default function NodeFeedbackLoopFactory(producer, connectCallback) {
   return {
     startPolling() {
       if (!producer.isRunning())
@@ -13,15 +13,24 @@ export default function NodeFeedbackLoopFactory(producer) {
       producer.callSegmentsUpdater();
     },
 
-    killSplit(changeNumber, splitName, defaultTreatment) {
+    // @REVIEW maybe this method is not necessary, at least that NotificationProcessor have to reconnect
+    // (i.e., authenticate and open de SSE connection) for some events
+    reconnectPush() {
+      connectCallback();
+    },
+
+    queueKillSplit(changeNumber, splitName, defaultTreatment) {
+      // @TODO use queue
       producer.callKillSplit(changeNumber, splitName, defaultTreatment);
     },
 
-    syncSplits(changeNumber){
+    queueSyncSplits(changeNumber){
+      // @TODO use queue
       producer.callSplitsUpdater(changeNumber);
     },
 
-    syncSegments(changeNumber){
+    queueSyncSegments(changeNumber){
+      // @TODO use queue
       producer.callSegmentsUpdater(changeNumber);
     },
   };

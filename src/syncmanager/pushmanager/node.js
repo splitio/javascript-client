@@ -19,30 +19,30 @@ export default function NodePushManagerFactory(context, producer) {
 
   const authClient = new AuthClient();
 
-  // @REVIEW FeedbackLoopFactory and NotificationProcessorFactory can be JS classes
-  const feedbackLoop = FeedbackLoopFactory(producer);
-  const notificationProcessor = NotificationProcessorFactory(feedbackLoop);
-  sseClient.setEventListener(notificationProcessor);
-
-  // @REVIEW do we have the need of implementing a 'undoScheduleNextTokenRefresh' ?
   function scheduleNextTokenRefresh(ttl) {
     // @TODO calculate delay
     const delay = ttl;
-
-    setTimeout(() => {
-      initialization();
-    }, delay);
+    scheduleReconnect(delay);
   }
   function scheduleNextReauth() {
     // @TODO calculate delay
     const delay = 100000;
+    scheduleReconnect(delay);
+  }
 
-    setTimeout(() => {
-      initialization();
+  let timeoutID = 0;
+  function scheduleReconnect(delay) {
+    // @REVIEW is there some scenario where `clearScheduledReconnect` must be explicitly called?
+    // cancel a scheduled reconnect if previously established, since `scheduleReconnect` is invoked on different scenarios:
+    // - initial connect
+    // - scheduled connects for refresh token, auth errors and sse errors.
+    if (timeoutID) clearTimeout(timeoutID);
+    timeoutID = setTimeout(() => {
+      connect();
     }, delay);
   }
 
-  function initialization() {
+  function connect() {
     authClient.authenticate(context.core.authorizationKey).then(
       function (token) {
         sseClient.open(token.jwt, token.channels);
@@ -52,7 +52,7 @@ export default function NodePushManagerFactory(context, producer) {
       function (error) {
         // @TODO: review:
         //  log messages for invalid token, 'streaming not enabled for this org', http errors, etc.
-        //  should we re-schedule a initialization call when 'streaming not enabled for this org'
+        //  should we re-schedule a connect call when 'streaming not enabled for this org'
         //  (in case streaming is enabled for that call) or http errors?
         log.error(error);
 
@@ -62,8 +62,13 @@ export default function NodePushManagerFactory(context, producer) {
     );
   }
 
+  // @REVIEW FeedbackLoopFactory and NotificationProcessorFactory can be JS classes
+  const feedbackLoop = FeedbackLoopFactory(producer, connect);
+  const notificationProcessor = NotificationProcessorFactory(feedbackLoop);
+  sseClient.setEventListener(notificationProcessor);
+
   // Perform initialization phase
-  initialization();
+  connect();
 
   return {
     stopFullProducer(producer) { // same producer passed to NodePushManagerFactory
