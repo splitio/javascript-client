@@ -91,15 +91,34 @@ const NodeUpdater = (context) => {
     },
 
     // Synchronous call to SplitsUpdater and MySegmentsUpdater, used in PUSH mode by queues/workers.
-    callSplitsUpdater() {
+    callSplitsUpdater(changeNumber) {
+      if(changeNumber) {
+        // @TODO check if changeNumber is older
+        return;
+      }
+
       splitsUpdater().then(() => {
         // Mark splits as ready (track first successfull call to start downloading segments)
         splitFetchCompleted = true;
       });
     },
 
-    callSegmentsUpdater() {
+    callSegmentsUpdater(changeNumber) {
+      if(changeNumber) {
+        // @TODO check if changeNumber is older
+        return;
+      }
+
       segmentsUpdater();
+    },
+
+    callKillSplit(changeNumber, splitName, defaultTreatment) {
+      if(changeNumber) {
+        // @TODO check if changeNumber is older
+        return;
+      }
+
+      splitName, defaultTreatment;
     }
   };
 };

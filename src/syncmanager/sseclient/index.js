@@ -1,9 +1,13 @@
 import getEventSource from '../../services/sse/getEventSource';
 
+// const CONNECTING = 0;
+// const OPEN = 1;
+const CLOSED = 2;
+
 export default class SSEClient {
   static getInstance() {
     const EventSource = getEventSource();
-    if(EventSource)
+    if (EventSource)
       return new SSEClient(EventSource);
   }
 
@@ -15,18 +19,30 @@ export default class SSEClient {
     this.EventSource = EventSource;
   }
 
+  setEventListener(listener) {
+    this.listener = listener;
+  }
+
   open(jwt, channels) {
+    // @REVIEW we can maybe remove next line, if we are properly calling sseClient.close() from Push manager
+    this.close();
+
     // @TODO set url and options.
     const url = jwt + channels;
     const options = {};
-
-    // @REVIEW the following wouldn't be necessary if we do things right in Push manager, i.e., if we properly close connections
-    this.close();
     this.connection = new this.EventSource(url, options);
-    return this.connection;
+
+    if (this.listener) { // no need to check if SSEClient is used only by PushManager
+      this.connection.onopen = this.listener.handleOpen;
+      this.connection.onmessage = this.listener.handleMessage;
+      this.connection.onerror = this.listener.handleError;
+    }
   }
 
   close() {
-    if (this.connection) this.connection.close();
+    if (this.connection && this.connection.readyState === CLOSED) {
+      this.connection.close();
+      if (this.listener) this.listener.handleClose();
+    }
   }
 }

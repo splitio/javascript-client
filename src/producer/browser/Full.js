@@ -58,12 +58,31 @@ const FullBrowserProducer = (context) => {
     isRunning: splitsUpdaterTask.isRunning,
 
     // Synchronous call to SplitsUpdater and MySegmentsUpdater, used in PUSH mode by queues/workers.
-    callSplitsUpdater() {
+    callSplitsUpdater(changeNumber) {
+      if(changeNumber) {
+        // @TODO check if changeNumber is older
+        return;
+      }
+
       splitsUpdater();
     },
 
-    callMySegmentsUpdater() {
+    callMySegmentsUpdater(changeNumber) {
+      if(changeNumber) {
+        // @TODO check if changeNumber is older
+        return;
+      }
+
       segmentsUpdater();
+    },
+
+    callKillSplit(changeNumber, splitName, defaultTreatment) {
+      if(changeNumber) {
+        // @TODO check if changeNumber is older
+        return;
+      }
+
+      splitName, defaultTreatment;
     }
   };
 };

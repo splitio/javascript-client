@@ -39,7 +39,12 @@ const PartialBrowserProducer = (context) => {
     isRunning: segmentsUpdaterTask.isRunning,
 
     // Synchronous call to MySegmentsUpdater, used in PUSH mode by queues/workers.
-    callMySegmentsUpdater() {
+    callMySegmentsUpdater(changeNumber) {
+      if(changeNumber) {
+        // @TODO check if changeNumber is older
+        return;
+      }
+
       segmentsUpdater();
     }
   };

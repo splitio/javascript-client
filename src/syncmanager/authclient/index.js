@@ -7,11 +7,12 @@ export default class AuthClient {
   // - Properties:
 
   constructor() {
-
+    // @TODO implement the real function
   }
 
   authenticate(authorizationKey) {
     // @TODO implement the real function
-    return Promise.resolve({ jwt: 'jwt', channels: 'channels', ttl: 1, authorizationKey });
+    authorizationKey;
+    return Promise.resolve({ jwt: 'jwt', channels: 'channels', ttl: 1 });
   }
 }
