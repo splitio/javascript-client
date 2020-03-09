@@ -103,12 +103,14 @@ const NodeUpdater = (context) => {
       });
     },
 
-    callSegmentsUpdater(changeNumber) {
+    callSegmentsUpdater(changeNumber, segmentName) {
       if(changeNumber) {
         // @TODO check if changeNumber is older
         return;
       }
 
+      // @TODO
+      segmentName;
       segmentsUpdater();
     },
 
@@ -118,6 +120,7 @@ const NodeUpdater = (context) => {
         return;
       }
 
+      // @TODO
       splitName, defaultTreatment;
     }
   };

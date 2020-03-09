@@ -4,6 +4,9 @@ import getEventSource from '../../services/sse/getEventSource';
 // const OPEN = 1;
 const CLOSED = 2;
 
+const BASE_URL = 'https://realtime.ably.io/event-stream';
+const VERSION = '1.1';
+
 export default class SSEClient {
   static getInstance() {
     const EventSource = getEventSource();
@@ -23,12 +26,18 @@ export default class SSEClient {
     this.listener = listener;
   }
 
-  open(jwt, channels) {
+  open({ token, decodedToken }) {
     // @REVIEW we can maybe remove next line, if we are properly calling sseClient.close() from Push manager
     this.close();
 
-    // @TODO set url and options.
-    const url = jwt + channels;
+    // @TODO test and add error handling
+    const channels = JSON.parse(decodedToken['x-ably-capability']);
+    const channelsQueryParam = Object.keys(channels).join(',');
+    const url = `${BASE_URL}?channels=${channelsQueryParam}&accessToken=${token}&v=${VERSION}`;
+    // url for testing
+    // const url = `${BASE_URL}?channels=${channels}&key=${jwt}&v=${VERSION}`;
+
+    // @TOTO set options
     const options = {};
     this.connection = new this.EventSource(url, options);
 

@@ -152,7 +152,7 @@ export function merge(target, source, ...rest) {
  */
 export function uniq(arr) {
   const seen = {};
-  return arr.filter(function(item) {
+  return arr.filter(function (item) {
     return Object.prototype.hasOwnProperty.call(seen, item) ? false : seen[item] = true;
   });
 }
@@ -163,7 +163,7 @@ export function uniq(arr) {
  */
 export function unicAsStrings(arr, stringify = JSON.stringify) {
   const seen = {};
-  return arr.filter(function(item) {
+  return arr.filter(function (item) {
     const itemString = stringify(item);
     return Object.prototype.hasOwnProperty.call(seen, itemString) ? false : seen[itemString] = true;
   });
@@ -221,7 +221,7 @@ export function groupBy(source, prop) {
   const map = {};
 
   if (Array.isArray(source) && isString(prop)) {
-    for(let i = 0; i < source.length; i++) {
+    for (let i = 0; i < source.length; i++) {
       const key = source[i][prop];
 
       // Skip the element if the key is not a string.
@@ -242,7 +242,7 @@ export function groupBy(source, prop) {
 export function getFnName(fn) {
   if (fn.name) return fn.name;
 
-  return (fn.toString().match(/function (.+?)\(/)||['',''])[1];
+  return (fn.toString().match(/function (.+?)\(/) || ['', ''])[1];
 }
 
 /**
@@ -261,4 +261,18 @@ export function shallowClone(obj) {
 
 export function isBoolean(val) {
   return val === true || val === false;
+}
+
+/**
+ * Decode a JWT token
+ */
+// @TODO test availability of `decodeURIComponent` in different environments (RN, older versions of Node and Browsers)
+export function decodeJWTtoken(token) {
+  var base64Url = token.split('.')[1];
+  var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+  var jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
+    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+  }).join(''));
+
+  return JSON.parse(jsonPayload);
 }

@@ -1,7 +1,7 @@
 export const Types = {
   SPLIT_UPDATE: 'SPLIT_UPDATE',
   SEGMENT_UPDATE: 'SEGMENT_UPDATE',
-  MYSEGMENT_UPDATE: 'MY_SEGMENT_UPDATE',
+  MY_SEGMENTS_UPDATE: 'MY_SEGMENTS_UPDATE',
   SPLIT_KILL: 'SPLIT_KILL',
   STREAMING_DOWN: 'STREAMING_DOWN',
   STREAMING_UP: 'STREAMING_UP',
@@ -9,13 +9,11 @@ export const Types = {
 };
 
 export function errorParser(error) {
-  // @TODO
-  error;
-  return { type: Types.STREAMING_DOWN };
+  const data = JSON.parse(error.data);
+  return data;
 }
 
 export function messageParser(message) {
-  // @TODO
-  message;
-  return { type: Types.SPLIT_UPDATE, changeNumber: 111111 };
+  const data = JSON.parse(message.data);
+  return data;
 }

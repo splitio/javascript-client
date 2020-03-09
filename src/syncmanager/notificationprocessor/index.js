@@ -14,29 +14,40 @@ export default function NotificationProcessorFactory(feedbackLoop) {
     },
 
     handleError(error) {
-      const parsedError = errorParser(error);
-      this.handleEvent(parsedError);
+      const errorData = errorParser(error);
+      // @TODO logic of NotificationManagerKeeper
+      this.handleEvent(errorData);
     },
 
     handleMessage(message) {
-      const parsedMessage = messageParser(message);
+      const messageData = messageParser(message);
       // @TODO logic of NotificationManagerKeeper
-      this.handleEvent(parsedMessage);
+      this.handleEvent(messageData);
     },
 
-    handleEvent(parsedEvent) {
-      switch (parsedEvent.type) {
+    handleEvent(eventData) {
+      switch (eventData.type) {
         case Types.SPLIT_UPDATE:
-          feedbackLoop.queueSyncSplits(parsedEvent.changeNumber);
+          feedbackLoop.queueSyncSplits(
+            eventData.changeNumber);
           break;
         case Types.SEGMENT_UPDATE:
-          feedbackLoop.queueSyncSegments(parsedEvent.changeNumber);
+          feedbackLoop.queueSyncSegments(
+            eventData.changeNumber,
+            eventData.segmentName);
           break;
-        case Types.MYSEGMENT_UPDATE:
-          feedbackLoop.queueSyncMySegments(parsedEvent.changeNumber, parsedEvent.splitKey);
+        case Types.MY_SEGMENTS_UPDATE:
+          feedbackLoop.queueSyncMySegments(
+            eventData.changeNumber,
+            // @TODO get splitKey from somewhere else
+            eventData.splitKey,
+            eventData.includesPayload ? eventData.segmentList : undefined);
           break;
         case Types.SPLIT_KILL:
-          feedbackLoop.queueKillSplit(parsedEvent.changeNumber, parsedEvent.splitName, parsedEvent.defaultTreatment);
+          feedbackLoop.queueKillSplit(
+            eventData.changeNumber,
+            eventData.splitName,
+            eventData.defaultTreatment);
           break;
         // @REVIEW do we need to close the connection if STREAMING_DOWN?
         case Types.STREAMING_DOWN:
