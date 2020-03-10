@@ -2,8 +2,16 @@ import SSEClient from '../sseclient';
 import authenticate from '../authclient';
 import FeedbackLoopFactory from '../feedbackloop';
 import NotificationProcessorFactory from '../notificationprocessor';
-import logFactory from './utils/logger';
+import logFactory from '../../utils/logger';
 const log = logFactory('splitio-pushmanager');
+
+import murmur from '../../engine/engine/murmur3';
+import { encodeToBase64 } from '../../utils/lang';
+
+function hashSplitKey(splitKey) {
+  // @REVIEW add some validation for splitKey?
+  return encodeToBase64(murmur.hash(splitKey, 0).toString());
+}
 
 export default function PushManagerFactory(settings, producer, producerWithMySegmentsUpdater = false) {
 
@@ -40,9 +48,15 @@ export default function PushManagerFactory(settings, producer, producerWithMySeg
     }, delayInMillis);
   }
 
+  // splitKeys contain the set of keys used for authentication on client-side.
+  // The object stay empty in server-side
   const splitKeys = {};
+  // splitKeyHashes contain the list of key hashes used by NotificationProcessor to map MY_SEGMENTS_UPDATE channels to splitKey
+  const splitKeyHashes = {};
   if (producerWithMySegmentsUpdater) {
-    splitKeys[settings.core.key] = true;
+    const hash = hashSplitKey(settings.core.key);
+    splitKeys[settings.core.key] = hash;
+    splitKeyHashes[hash] = settings.core.key;
   }
 
   function connect() {
@@ -72,7 +86,7 @@ export default function PushManagerFactory(settings, producer, producerWithMySeg
 
   // @REVIEW FeedbackLoopFactory and NotificationProcessorFactory can be JS classes
   const feedbackLoop = FeedbackLoopFactory(producer, connect);
-  const notificationProcessor = NotificationProcessorFactory(feedbackLoop);
+  const notificationProcessor = NotificationProcessorFactory(feedbackLoop, splitKeyHashes);
   sseClient.setEventListener(notificationProcessor);
 
   // Perform initialization phase
@@ -91,10 +105,15 @@ export default function PushManagerFactory(settings, producer, producerWithMySeg
     // User by SyncManager for browser
     addProducerWithMySegmentsUpdater(splitKey, producer) {
       feedbackLoop.addProducerWithMySegmentsUpdater(splitKey, producer);
-      splitKeys[splitKey] = true;
+
+      const hash = hashSplitKey(splitKey);
+      splitKeys[splitKey] = hash;
+      splitKeyHashes[hash] = splitKey;
     },
     removeProducerWithMySegmentsUpdater(splitKey, producer) {
       feedbackLoop.removeProducerWithMySegmentsUpdater(splitKey, producer);
+
+      delete splitKeyHashes[splitKeys[splitKey]];
       delete splitKeys[splitKey];
 
       if (producer.isRunning())

@@ -1,7 +1,7 @@
 import { Types, errorParser, messageParser } from './notificationparser';
 
 // @TODO logging
-export default function NotificationProcessorFactory(feedbackLoop) {
+export default function NotificationProcessorFactory(feedbackLoop, splitKeyHashes) {
   return {
     handleOpen() {
       // @REVIEW: call handleEvent({type: Types.STREAMING_UP}); // or Types.STREAMING_RECONNECTED according to spec
@@ -22,10 +22,10 @@ export default function NotificationProcessorFactory(feedbackLoop) {
     handleMessage(message) {
       const messageData = messageParser(message);
       // @TODO logic of NotificationManagerKeeper
-      this.handleEvent(messageData);
+      this.handleEvent(messageData, message.channel);
     },
 
-    handleEvent(eventData) {
+    handleEvent(eventData, channel) {
       switch (eventData.type) {
         case Types.SPLIT_UPDATE:
           feedbackLoop.queueSyncSplits(
@@ -36,13 +36,16 @@ export default function NotificationProcessorFactory(feedbackLoop) {
             eventData.changeNumber,
             eventData.segmentName);
           break;
-        case Types.MY_SEGMENTS_UPDATE:
+        case Types.MY_SEGMENTS_UPDATE: {
+          // @TODO test the following way to get the splitKey from the channel hash
+          const splitKeyHash = channel.split('_')[2];
+          const splitKey = splitKeyHashes[splitKeyHash];
           feedbackLoop.queueSyncMySegments(
             eventData.changeNumber,
-            // @TODO get splitKey from somewhere else
-            eventData.splitKey,
+            splitKey,
             eventData.includesPayload ? eventData.segmentList : undefined);
           break;
+        }
         case Types.SPLIT_KILL:
           feedbackLoop.queueKillSplit(
             eventData.changeNumber,
