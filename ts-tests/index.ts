@@ -397,6 +397,7 @@ let splitToGaIntegration: SplitIO.SplitToGaIntegration = {
 
 let customGaToSplitIntegration: SplitIO.GaToSplitIntegration = {
   type: 'GA_TO_SPLIT',
+  trackEvents: false,
   filter: function (model: UniversalAnalytics.Model): boolean { return true; },
   mapper: function (model: UniversalAnalytics.Model, defaultMapping: SplitIO.EventData): SplitIO.EventData { return eventDataSample; },
   prefix: 'PREFIX',

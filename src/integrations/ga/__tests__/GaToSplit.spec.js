@@ -133,6 +133,7 @@ const customIdentities = [{ key: 'key2', trafficType: 'tt2' }];
 
 tape('GaToSplit', assert => {
 
+  // test setup
   const { ga, tracker } = gaMock();
 
   // provide SplitTracker plugin
@@ -178,7 +179,7 @@ tape('GaToSplit', assert => {
 
   // provide a new SplitTracker plugin with custom SDK options
   GaToSplit({
-    type: 'GA_TO_SPLIT', mapper: customMapper2, filter: customFilter, identities: customIdentities, prefix: ''
+    type: 'GA_TO_SPLIT', mapper: customMapper2, filter: customFilter, identities: customIdentities, prefix: '', trackEvents: true
   }, fakeStorage, coreSettings);
   assert.true(ga.lastCall.calledWith('provide', 'splitTracker'));
   SplitTracker = ga.lastCall.args[2];
@@ -198,7 +199,27 @@ tape('GaToSplit', assert => {
       timestamp: event.timestamp,
     }, 'should track the event using a custom mapper and identity from the SDK options');
 
+  // test teardown
   gaRemove();
+  assert.end();
+});
 
+tape('GaToSplit: `trackEvents` flag param', assert => {
+
+  // test setup
+  const { ga, tracker } = gaMock();
+  GaToSplit(sdkOptions, fakeStorage, coreSettings);
+  let SplitTracker = ga.lastCall.args[2];
+
+  // init plugin with custom options
+  new SplitTracker(tracker, { trackEvents: false });
+
+  // send hit and assert that it was not tracked as a Split event
+  fakeStorage.events.track.resetHistory();
+  window.ga('send', hitSample);
+  assert.true(fakeStorage.events.track.notCalled);
+
+  // test teardown
+  gaRemove();
   assert.end();
 });

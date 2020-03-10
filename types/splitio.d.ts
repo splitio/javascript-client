@@ -564,7 +564,13 @@ declare namespace SplitIO {
   interface GaToSplitIntegration {
     type: 'GA_TO_SPLIT',
     /**
-     * Optional predicate used to filter GA hits from being tracked as Split events.
+     * Optional flag to filter GA hits from being tracked as Split events.
+     * @property {boolean} trackEvents
+     * @default true
+     */
+    trackEvents?: boolean,
+    /**
+     * Optional predicate used to define a custom filter for tracking GA hits as Split events.
      * For example, the following filter allows to track only 'event' hits:
      *  `(model) => model.get('hitType') === 'event'`
      * By default, all hits are tracked as Split events.
