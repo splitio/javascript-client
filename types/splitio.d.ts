@@ -609,10 +609,21 @@ declare namespace SplitIO {
   interface SplitToGaIntegration {
     type: 'SPLIT_TO_GA',
     /**
-     * Optional predicate used to filter data instances (Split events and impressions) from being tracked as GA hits.
-     * For example, the following filter allows to track only impressions:
+     * Optional flag to filter Split impressions from being tracked as GA hits.
+     * @property {boolean} trackImpressions
+     * @default true
+     */
+    trackImpressions?: boolean,
+    /**
+     * Optional flag to filter Split events from being tracked as GA hits.
+     * @property {boolean} trackEvents
+     * @default true
+     */
+    trackEvents?: boolean,
+    /**
+     * Optional predicate used to define a custom filter for tracking Split data (events and impressions) as GA hits.
+     * For example, the following filter allows to track only impressions, equivalent to setting `trackEvents` to `false`:
      *  `(data) => data.type === 'IMPRESSION'`
-     * By default, all impressions and events are tracked as GA hits.
      */
     filter?: (data: SplitIO.IntegrationData) => boolean,
     /**
