@@ -149,16 +149,18 @@ const INVALID_SUBSTRING_REGEX = /[^-_.:a-zA-Z0-9]+/g;
 export function fixEventTypeId(eventTypeId) {
   // set a default eventTypeId if it is not a string or is an empty one.
   if (!isString(eventTypeId) || eventTypeId.length === 0) {
+    log.warn('EventTypeId was assigned `event` value because it must be a non-empty string.');
     return DEFAULT_EVENT_TYPE;
   }
 
   // replace invalid substrings and truncate
   const fixed = eventTypeId
     .replace(INVALID_PREFIX_REGEX, '')
-    .replace(INVALID_SUBSTRING_REGEX, '_')
-    .slice(0, 80);
+    .replace(INVALID_SUBSTRING_REGEX, '_');
+  const truncated = fixed.slice(0, 80);
+  if (truncated.length < fixed.length) log.warn('EventTypeId was truncated because it cannot be more than 80 characters long.');
   // return DEFAULT_EVENT_TYPE if fixed string is empty
-  return fixed ? fixed : DEFAULT_EVENT_TYPE;
+  return truncated ? truncated : DEFAULT_EVENT_TYPE;
 }
 
 /**
