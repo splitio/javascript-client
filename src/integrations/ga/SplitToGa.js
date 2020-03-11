@@ -70,9 +70,9 @@ class SplitToGa {
       // Note: GA allows to create and get trackers using a string or number as tracker name, and does nothing if other types are used.
       if (Array.isArray(options.trackerNames)) this.trackerNames = uniq(options.trackerNames);
 
-      // No need to validate `trackImpressions` and `trackEvents` flags. Any other value than `false` is ignored.
-      this.trackImpressions = options.trackImpressions;
-      this.trackEvents = options.trackEvents;
+      // No need to validate `impressions` and `events` flags. Any other value than `false` is ignored.
+      this.impressions = options.impressions;
+      this.events = options.events;
     }
 
     log.info('Started Split-to-GA integration');
@@ -84,8 +84,8 @@ class SplitToGa {
     const ga = SplitToGa.getGa();
     if (ga) {
 
-      if(this.trackImpressions === false && data.type === SPLIT_IMPRESSION) return;
-      if(this.trackEvents === false && data.type === SPLIT_EVENT) return;
+      if(this.impressions === false && data.type === SPLIT_IMPRESSION) return;
+      if(this.events === false && data.type === SPLIT_EVENT) return;
 
       let fieldsObject;
       try { // only try/catch filter and mapper, which might be defined by the user

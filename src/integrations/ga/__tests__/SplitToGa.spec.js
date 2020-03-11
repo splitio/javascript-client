@@ -160,21 +160,21 @@ tape('SplitToGa', t => {
     instance4.queue(fakeImpression);
     assert.true(ga.notCalled, 'shouldn\'t queue `ga send` if a custom mapper throw an exception');
 
-    // `trackImpressions` flags
+    // `impressions` flags
     const instance5 = new SplitToGa({
-      trackImpressions: false,
+      impressions: false,
     });
     ga.resetHistory();
     instance5.queue(fakeImpression);
-    assert.true(ga.notCalled, 'shouldn\'t queue `ga send` for an impression if `trackImpressions` flag is false');
+    assert.true(ga.notCalled, 'shouldn\'t queue `ga send` for an impression if `impressions` flag is false');
 
-    // `trackImpressions` flags
+    // `impressions` flags
     const instance6 = new SplitToGa({
-      trackEvents: false,
+      events: false,
     });
     ga.resetHistory();
     instance6.queue(fakeEvent);
-    assert.true(ga.notCalled, 'shouldn\'t queue `ga send` for a event if `trackEvents` flag is false');
+    assert.true(ga.notCalled, 'shouldn\'t queue `ga send` for a event if `events` flag is false');
 
     // test teardown
     gaRemove();

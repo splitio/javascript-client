@@ -18,7 +18,7 @@ const config = {
     trafficType: 'user',
   },
   integrations: [{
-    type: 'SPLIT_TO_GA',
+    type: 'SPLIT_TO_GOOGLE_ANALYTICS',
   }],
   scheduler: {
     impressionsRefreshRate: 0.2,
@@ -141,10 +141,10 @@ export default function (mock, assert) {
         authorizationKey: '<some-token-2>',
       },
       integrations: [{
-        type: 'SPLIT_TO_GA',
+        type: 'SPLIT_TO_GOOGLE_ANALYTICS',
         trackerNames: ['myTracker1'],
       }, {
-        type: 'SPLIT_TO_GA',
+        type: 'SPLIT_TO_GOOGLE_ANALYTICS',
         trackerNames: ['myTracker2'],
       }],
     });
@@ -230,11 +230,11 @@ export default function (mock, assert) {
         eventsQueueSize: numOfEvents,
       },
       integrations: [{
-        type: 'SPLIT_TO_GA',
+        type: 'SPLIT_TO_GOOGLE_ANALYTICS',
         trackerNames: ['myTracker3'],
         filter: onlyImpressionsFilter,
       }, {
-        type: 'SPLIT_TO_GA',
+        type: 'SPLIT_TO_GOOGLE_ANALYTICS',
         trackerNames: ['myTracker4'],
         mapper: onlyEventsMapper,
       }],
@@ -297,14 +297,14 @@ export default function (mock, assert) {
       ...config,
       debug: true,
       integrations: [{
-        type: 'SPLIT_TO_GA',
+        type: 'SPLIT_TO_GOOGLE_ANALYTICS',
         mapper: function () { throw error; },
       }, {
-        type: 'SPLIT_TO_GA',
+        type: 'SPLIT_TO_GOOGLE_ANALYTICS',
         trackerNames: ['myTracker1'],
         mapper: function () { return {}; },
       }, {
-        type: 'SPLIT_TO_GA',
+        type: 'SPLIT_TO_GOOGLE_ANALYTICS',
         trackerNames: ['myTracker2'],
         mapper: function () { return { hitType: 'event', eventCategory: 'my-split-impression', eventAction: 'some-action' }; },
       }],
