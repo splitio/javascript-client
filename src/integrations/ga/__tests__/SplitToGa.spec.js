@@ -1,6 +1,6 @@
 import tape from 'tape';
 import SplitToGa from '../SplitToGa';
-import { SPLIT_IMPRESSION, SPLIT_EVENT } from '../../../../lib/utils/constants';
+import { SPLIT_IMPRESSION, SPLIT_EVENT } from '../../../utils/constants';
 import { gaMock, gaRemove } from './gaMock';
 
 const fakeImpressionPayload = {

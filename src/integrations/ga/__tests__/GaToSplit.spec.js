@@ -59,9 +59,9 @@ tape('validateEventData', assert => {
   assert.throws(() => { validateEventData(undefined); }, 'throws exception if passed object is undefined');
   assert.throws(() => { validateEventData(null); }, 'throws exception if passed object is null');
 
-  assert.equal(validateEventData({}), true, 'does not validates eventTypeId');
-  assert.equal(validateEventData({ eventTypeId: 'type' }), true, 'does not validates eventTypeId');
-  assert.equal(validateEventData({ eventTypeId: 123 }), true, 'does not validates eventTypeId');
+  assert.equal(validateEventData({}), false, 'event must have a valid eventTypeId');
+  assert.equal(validateEventData({ eventTypeId: 'type' }), true, 'event must have a valid eventTypeId');
+  assert.equal(validateEventData({ eventTypeId: 123 }), false, 'event must have a valid eventTypeId');
 
   assert.equal(validateEventData({ eventTypeId: 'type', value: 'value' }), false, 'event must have a valid value if present');
   assert.equal(validateEventData({ eventTypeId: 'type', value: 0 }), true, 'event must have a valid value if present');
@@ -82,12 +82,11 @@ tape('validateEventData', assert => {
 });
 
 tape('fixEventTypeId', assert => {
-  const DEFAULT_EVENT_TYPE = 'event';
-  assert.equal(fixEventTypeId(undefined), DEFAULT_EVENT_TYPE);
-  assert.equal(fixEventTypeId(111), DEFAULT_EVENT_TYPE);
-  assert.equal(fixEventTypeId(''), DEFAULT_EVENT_TYPE);
-  assert.equal(fixEventTypeId('()'), DEFAULT_EVENT_TYPE);
-  assert.equal(fixEventTypeId('()+_'), DEFAULT_EVENT_TYPE);
+  assert.equal(fixEventTypeId(undefined), undefined);
+  assert.equal(fixEventTypeId(111), 111);
+  assert.equal(fixEventTypeId(''), '');
+  assert.equal(fixEventTypeId('()'), '');
+  assert.equal(fixEventTypeId('()+_'), '');
   assert.equal(fixEventTypeId('  some   event '), 'some_event_');
   assert.equal(fixEventTypeId('  -*- some  -.%^ event =+ '), 'some_-._event_');
   assert.end();
