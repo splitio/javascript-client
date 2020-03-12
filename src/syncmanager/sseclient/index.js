@@ -17,6 +17,7 @@ export default class SSEClient {
   // - Properties:
   // EventSource: EventSource constructor;
   // connection: EventSource | undefined;
+  // listener: EventHandler for errors, messages and open events.
 
   constructor(EventSource) {
     this.EventSource = EventSource;
