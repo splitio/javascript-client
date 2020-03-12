@@ -263,6 +263,8 @@ export function isBoolean(val) {
   return val === true || val === false;
 }
 
+const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+
 /**
  * Encode a given string value to Base64 format
  *
