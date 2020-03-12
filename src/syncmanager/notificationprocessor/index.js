@@ -1,7 +1,7 @@
 import { Types, errorParser, messageParser } from './notificationparser';
 
 // @TODO logging
-export default function NotificationProcessorFactory(feedbackLoop) {
+export default function NotificationProcessorFactory(feedbackLoop, splitKeyHashes) {
   return {
     handleOpen() {
       // @REVIEW: call handleEvent({type: Types.STREAMING_UP}); // or Types.STREAMING_RECONNECTED according to spec
@@ -14,29 +14,43 @@ export default function NotificationProcessorFactory(feedbackLoop) {
     },
 
     handleError(error) {
-      const parsedError = errorParser(error);
-      this.handleEvent(parsedError);
+      const errorData = errorParser(error);
+      // @TODO logic of NotificationManagerKeeper
+      this.handleEvent(errorData);
     },
 
     handleMessage(message) {
-      const parsedMessage = messageParser(message);
+      const messageData = messageParser(message);
       // @TODO logic of NotificationManagerKeeper
-      this.handleEvent(parsedMessage);
+      this.handleEvent(messageData, message.channel);
     },
 
-    handleEvent(parsedEvent) {
-      switch (parsedEvent.type) {
+    handleEvent(eventData, channel) {
+      switch (eventData.type) {
         case Types.SPLIT_UPDATE:
-          feedbackLoop.queueSyncSplits(parsedEvent.changeNumber);
+          feedbackLoop.queueSyncSplits(
+            eventData.changeNumber);
           break;
         case Types.SEGMENT_UPDATE:
-          feedbackLoop.queueSyncSegments(parsedEvent.changeNumber);
+          feedbackLoop.queueSyncSegments(
+            eventData.changeNumber,
+            eventData.segmentName);
           break;
-        case Types.MYSEGMENT_UPDATE:
-          feedbackLoop.queueSyncMySegments(parsedEvent.changeNumber, parsedEvent.splitKey);
+        case Types.MY_SEGMENTS_UPDATE: {
+          // @TODO test the following way to get the splitKey from the channel hash
+          const splitKeyHash = channel.split('_')[2];
+          const splitKey = splitKeyHashes[splitKeyHash];
+          feedbackLoop.queueSyncMySegments(
+            eventData.changeNumber,
+            splitKey,
+            eventData.includesPayload ? eventData.segmentList : undefined);
           break;
+        }
         case Types.SPLIT_KILL:
-          feedbackLoop.queueKillSplit(parsedEvent.changeNumber, parsedEvent.splitName, parsedEvent.defaultTreatment);
+          feedbackLoop.queueKillSplit(
+            eventData.changeNumber,
+            eventData.splitName,
+            eventData.defaultTreatment);
           break;
         // @REVIEW do we need to close the connection if STREAMING_DOWN?
         case Types.STREAMING_DOWN:

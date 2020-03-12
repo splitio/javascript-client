@@ -1,9 +1,17 @@
 import SSEClient from '../sseclient';
-import AuthClient from '../authclient';
+import authenticate from '../authclient';
 import FeedbackLoopFactory from '../feedbackloop';
 import NotificationProcessorFactory from '../notificationprocessor';
-import logFactory from './utils/logger';
+import logFactory from '../../utils/logger';
 const log = logFactory('splitio-pushmanager');
+
+import murmur from '../../engine/engine/murmur3';
+import { encodeToBase64 } from '../../utils/lang';
+
+function hashSplitKey(splitKey) {
+  // @REVIEW add some validation for splitKey?
+  return encodeToBase64(murmur.hash(splitKey, 0).toString());
+}
 
 export default function PushManagerFactory(settings, producer, producerWithMySegmentsUpdater = false) {
 
@@ -17,21 +25,19 @@ export default function PushManagerFactory(settings, producer, producerWithMySeg
     return undefined;
   }
 
-  const authClient = new AuthClient();
-
-  function scheduleNextTokenRefresh(ttl) {
-    // @TODO calculate delay
-    const delay = ttl;
-    scheduleReconnect(delay);
+  function scheduleNextTokenRefresh(issuedAt, expirationTime) {
+    // @REVIEW calculate delay. Currently set one minute less than delta.
+    const delayInSeconds = expirationTime - issuedAt - 60;
+    scheduleReconnect(delayInSeconds * 1000);
   }
   function scheduleNextReauth() {
     // @TODO calculate delay
-    const delay = 100000;
-    scheduleReconnect(delay);
+    const delayInSeconds = 60;
+    scheduleReconnect(delayInSeconds);
   }
 
   let timeoutID = 0;
-  function scheduleReconnect(delay) {
+  function scheduleReconnect(delayInMillis) {
     // @REVIEW is there some scenario where `clearScheduledReconnect` must be explicitly called?
     // cancel a scheduled reconnect if previously established, since `scheduleReconnect` is invoked on different scenarios:
     // - initial connect
@@ -39,26 +45,37 @@ export default function PushManagerFactory(settings, producer, producerWithMySeg
     if (timeoutID) clearTimeout(timeoutID);
     timeoutID = setTimeout(() => {
       connect();
-    }, delay);
+    }, delayInMillis);
   }
 
+  // splitKeys contain the set of keys used for authentication on client-side.
+  // The object stay empty in server-side
   const splitKeys = {};
+  // splitKeyHashes contain the list of key hashes used by NotificationProcessor to map MY_SEGMENTS_UPDATE channels to splitKey
+  const splitKeyHashes = {};
   if (producerWithMySegmentsUpdater) {
-    splitKeys[settings.core.key] = true;
+    const hash = hashSplitKey(settings.core.key);
+    splitKeys[settings.core.key] = hash;
+    splitKeyHashes[hash] = settings.core.key;
   }
 
   function connect() {
-    authClient.authenticate(settings.core.authorizationKey, splitKeys).then(
-      function (token) {
-        sseClient.open(token.jwt, token.channels);
-        scheduleNextTokenRefresh(token.ttl);
+    authenticate(settings, splitKeys).then(
+      function (authData) {
+        if (!authData.pushEnabled)
+          throw new Error('Streaming is not enabled for the organization');
+
+        // Connect to SSE and schedule refresh token
+        const decodedToken = authData.decodedToken;
+        sseClient.open(authData);
+        scheduleNextTokenRefresh(decodedToken.iat, decodedToken.exp);
       }
     ).catch(
       function (error) {
         // @TODO: review:
-        //  log messages for invalid token, 'streaming not enabled for this org', http errors, etc.
-        //  should we re-schedule a connect call when 'streaming not enabled for this org'
-        //  (in case streaming is enabled for that call) or http errors?
+        //  log messages for invalid token, 'Streaming is not enabled for the organization', http errors, etc.
+        //  should we re-schedule a connect call when http errors or 'Streaming is not enabled for the organization'
+        //  (in case push is enabled for that call)?
         log.error(error);
 
         sseClient.close();
@@ -69,7 +86,7 @@ export default function PushManagerFactory(settings, producer, producerWithMySeg
 
   // @REVIEW FeedbackLoopFactory and NotificationProcessorFactory can be JS classes
   const feedbackLoop = FeedbackLoopFactory(producer, connect);
-  const notificationProcessor = NotificationProcessorFactory(feedbackLoop);
+  const notificationProcessor = NotificationProcessorFactory(feedbackLoop, splitKeyHashes);
   sseClient.setEventListener(notificationProcessor);
 
   // Perform initialization phase
@@ -88,10 +105,15 @@ export default function PushManagerFactory(settings, producer, producerWithMySeg
     // User by SyncManager for browser
     addProducerWithMySegmentsUpdater(splitKey, producer) {
       feedbackLoop.addProducerWithMySegmentsUpdater(splitKey, producer);
-      splitKeys[splitKey] = true;
+
+      const hash = hashSplitKey(splitKey);
+      splitKeys[splitKey] = hash;
+      splitKeyHashes[hash] = splitKey;
     },
     removeProducerWithMySegmentsUpdater(splitKey, producer) {
       feedbackLoop.removeProducerWithMySegmentsUpdater(splitKey, producer);
+
+      delete splitKeyHashes[splitKeys[splitKey]];
       delete splitKeys[splitKey];
 
       if (producer.isRunning())

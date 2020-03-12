@@ -67,12 +67,14 @@ const FullBrowserProducer = (context) => {
       splitsUpdater();
     },
 
-    callMySegmentsUpdater(changeNumber) {
+    callMySegmentsUpdater(changeNumber, segmentList) {
       if(changeNumber) {
         // @TODO check if changeNumber is older
         return;
       }
 
+      // @TODO
+      segmentList;
       segmentsUpdater();
     },
 
@@ -82,6 +84,7 @@ const FullBrowserProducer = (context) => {
         return;
       }
 
+      // @TODO
       splitName, defaultTreatment;
     }
   };
