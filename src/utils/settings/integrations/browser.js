@@ -1,8 +1,8 @@
-import { GA_TO_SPLIT, SPLIT_TO_GA } from '../../../utils/constants';
+import { GOOGLE_ANALYTICS_TO_SPLIT, SPLIT_TO_GOOGLE_ANALYTICS } from '../../../utils/constants';
 import validateIntegrationsSettings from './common';
 
 const validateBrowserIntegrationsSettings = settings => {
-  return validateIntegrationsSettings(settings, [GA_TO_SPLIT, SPLIT_TO_GA]);
+  return validateIntegrationsSettings(settings, [GOOGLE_ANALYTICS_TO_SPLIT, SPLIT_TO_GOOGLE_ANALYTICS]);
 };
 
 export default validateBrowserIntegrationsSettings;

@@ -1,6 +1,6 @@
 import tape from 'tape';
 import SplitToGa from '../SplitToGa';
-import { SPLIT_IMPRESSION, SPLIT_EVENT } from '../../../../lib/utils/constants';
+import { SPLIT_IMPRESSION, SPLIT_EVENT } from '../../../utils/constants';
 import { gaMock, gaRemove } from './gaMock';
 
 const fakeImpressionPayload = {
@@ -90,6 +90,7 @@ tape('SplitToGa', t => {
 
   t.test('SplitToGa (constructor and queue method)', assert => {
 
+    // test setup
     const { ga } = gaMock();
 
     /** Default behaviour **/
@@ -159,6 +160,23 @@ tape('SplitToGa', t => {
     instance4.queue(fakeImpression);
     assert.true(ga.notCalled, 'shouldn\'t queue `ga send` if a custom mapper throw an exception');
 
+    // `impressions` flags
+    const instance5 = new SplitToGa({
+      impressions: false,
+    });
+    ga.resetHistory();
+    instance5.queue(fakeImpression);
+    assert.true(ga.notCalled, 'shouldn\'t queue `ga send` for an impression if `impressions` flag is false');
+
+    // `impressions` flags
+    const instance6 = new SplitToGa({
+      events: false,
+    });
+    ga.resetHistory();
+    instance6.queue(fakeEvent);
+    assert.true(ga.notCalled, 'shouldn\'t queue `ga send` for a event if `events` flag is false');
+
+    // test teardown
     gaRemove();
     assert.end();
   });

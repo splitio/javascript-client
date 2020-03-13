@@ -10,7 +10,7 @@ const config = {
     trafficType: 'user',
   },
   integrations: [{
-    type: 'GA_TO_SPLIT',
+    type: 'GOOGLE_ANALYTICS_TO_SPLIT',
   }],
   startup: {
     eventsFirstPushWindow: 0.2,
@@ -161,7 +161,7 @@ export default function (mock, assert) {
       ...config,
       core: { key: config.core.key },
       integrations: [{
-        type: 'GA_TO_SPLIT',
+        type: 'GOOGLE_ANALYTICS_TO_SPLIT',
         identities: identities,
       }],
     });
@@ -211,7 +211,7 @@ export default function (mock, assert) {
       ...config,
       core: { key: config.core.key },
       integrations: [{
-        type: 'GA_TO_SPLIT',
+        type: 'GOOGLE_ANALYTICS_TO_SPLIT',
         identities: identitiesSdkOpts,
       }],
     });
@@ -264,7 +264,7 @@ export default function (mock, assert) {
     const factory = SplitFactory({
       ...config,
       integrations: [{
-        type: 'GA_TO_SPLIT',
+        type: 'GOOGLE_ANALYTICS_TO_SPLIT',
         filter: model => model.get('hitType') === 'pageview', // accepts only pageviews
         mapper: () => ({ eventTypeId: 'mapperSdkOpts' }), // return a fixed event instance
         prefix: prefixSdkOpts,
