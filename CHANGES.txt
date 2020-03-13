@@ -1,6 +1,6 @@
 10.11.0 (Mar 13, 2020)
  - Added integrations property to configuration which could receive a list of valid integrations.
- - Added support of inbound ('GOOGLE_ANALYTICS_TO_SPLIT') and outbound ('SPLIT_TO_GOOGLE_ANALYTICS') SDK integrations for Google Analytics. Read more in our documentation's integrations section.
+ - Added support of inbound and outbound SDK to SDK integrations for Google Analytics. Read more in our documentation's integrations section.
  - Updated logging logic to avoid calling console.error in the client side.
  - Updated logging error messages priority to significantly reduce the amount of error level logs that can't be silenced.
  - Updated axios to 0.19.2 and few other minor updates on dev dependencies.
