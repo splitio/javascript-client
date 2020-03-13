@@ -111,7 +111,7 @@ function ClientInputValidationLayer(context, isKeyBinded, isTTBinded) {
     const tt = isTTBinded ? maybeTT : validateTrafficType(maybeTT, 'track');
     const event = validateEvent(maybeEvent, 'track');
     const eventValue = validateEventValue(maybeEventValue, 'track');
-    const { properties, size } = validateEventProperties(maybeProperties);
+    const { properties, size } = validateEventProperties(maybeProperties, 'track');
     const isOperational = validateIfDestroyed(context);
 
     if (isOperational && key && tt && event && eventValue !== false && properties !== false) {

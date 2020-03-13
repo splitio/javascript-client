@@ -1,9 +1,7 @@
 import { uniq } from '../lang';
 import logFactory from '../logger';
 import { validateSplit } from './split';
-const log = logFactory('', {
-  displayAllErrors: true
-});
+const log = logFactory('');
 
 export function validateSplits(maybeSplits, method) {
   if (Array.isArray(maybeSplits) && maybeSplits.length > 0) {

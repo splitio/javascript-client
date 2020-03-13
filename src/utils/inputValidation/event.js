@@ -1,8 +1,6 @@
 import { isString } from '../lang';
 import logFactory from '../logger';
-const log = logFactory('', {
-  displayAllErrors: true
-});
+const log = logFactory('');
 
 const EVENT_TYPE_REGEX = /^[a-zA-Z0-9][-_.:a-zA-Z0-9]{0,79}$/;
 

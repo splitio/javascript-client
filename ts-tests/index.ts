@@ -384,6 +384,34 @@ impressionListener.logImpression(impressionData);
 
 /**** Tests for fully crowded settings interfaces ****/
 
+// Browser integrations
+let fieldsObjectSample: UniversalAnalytics.FieldsObject = { hitType: 'event', eventAction: 'action' };
+let eventDataSample: SplitIO.EventData = { eventTypeId: 'someEventTypeId', value: 10, properties: {} }
+
+let googleAnalyticsToSplitConfig: SplitIO.IGoogleAnalyticsToSplitConfig = {
+  type: 'GOOGLE_ANALYTICS_TO_SPLIT',
+};
+let splitToGoogleAnalyticsConfig: SplitIO.ISplitToGoogleAnalyticsConfig = {
+  type: 'SPLIT_TO_GOOGLE_ANALYTICS',
+};
+
+let customGoogleAnalyticsToSplitConfig: SplitIO.IGoogleAnalyticsToSplitConfig = {
+  type: 'GOOGLE_ANALYTICS_TO_SPLIT',
+  events: false,
+  filter: function (model: UniversalAnalytics.Model): boolean { return true; },
+  mapper: function (model: UniversalAnalytics.Model, defaultMapping: SplitIO.EventData): SplitIO.EventData { return eventDataSample; },
+  prefix: 'PREFIX',
+  identities: [{ key: 'key1', trafficType: 'tt1'}, { key: 'key2', trafficType: 'tt2'}],
+};
+let customSplitToGoogleAnalyticsConfig: SplitIO.ISplitToGoogleAnalyticsConfig = {
+  type: 'SPLIT_TO_GOOGLE_ANALYTICS',
+  events: false,
+  impressions: true,
+  filter: function (model: SplitIO.IntegrationData): boolean { return true; },
+  mapper: function (model: SplitIO.IntegrationData, defaultMapping: UniversalAnalytics.FieldsObject): UniversalAnalytics.FieldsObject { return fieldsObjectSample; },
+  trackerNames: ['t0', 'myTracker'],
+}
+
 let fullBrowserSettings: SplitIO.IBrowserSettings = {
   core: {
     authorizationKey: 'asd',
@@ -412,9 +440,11 @@ let fullBrowserSettings: SplitIO.IBrowserSettings = {
     prefix: 'PREFIX'
   },
   impressionListener: impressionListener,
-  debug: true
+  debug: true,
+  integrations: [googleAnalyticsToSplitConfig, splitToGoogleAnalyticsConfig, customGoogleAnalyticsToSplitConfig, customSplitToGoogleAnalyticsConfig]
 };
 fullBrowserSettings.storage.type = 'MEMORY';
+fullBrowserSettings.integrations[0].type = 'GOOGLE_ANALYTICS_TO_SPLIT';
 
 let fullNodeSettings: SplitIO.INodeSettings = {
   core: {

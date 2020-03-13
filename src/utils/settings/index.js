@@ -23,6 +23,7 @@ import mode from './mode';
 import { API } from '../../utils/logger';
 import { STANDALONE_MODE, STORAGE_MEMORY, CONSUMER_MODE } from '../../utils/constants';
 import { version } from '../../../package.json';
+import integrations from './integrations';
 
 const eventsEndpointMatcher = /^\/(testImpressions|metrics|events)/;
 
@@ -48,8 +49,8 @@ const base = {
     featuresRefreshRate: 30,
     // fetch segments updates each 60 sec
     segmentsRefreshRate: 60,
-    // publish metrics each 60 sec
-    metricsRefreshRate: 60,
+    // publish metrics each 120 sec
+    metricsRefreshRate: 120,
     // publish evaluations each 60 sec
     impressionsRefreshRate: 60,
     // fetch offline changes each 15 sec
@@ -79,7 +80,10 @@ const base = {
   impressionListener: undefined,
 
   // Instance version.
-  version: `${language}-${version}`
+  version: `${language}-${version}`,
+
+  // List of integrations.
+  integrations: undefined,
 };
 
 function fromSecondsToMillis(n) {
@@ -123,7 +127,11 @@ function defaults(custom) {
   setupLogger(withDefaults.debug);
 
   // Current ip/hostname information
-  withDefaults.runtime = runtime(withDefaults.core.IPAddressesEnabled,withDefaults.mode === CONSUMER_MODE);
+  withDefaults.runtime = runtime(withDefaults.core.IPAddressesEnabled, withDefaults.mode === CONSUMER_MODE);
+
+  // ensure a valid list of integrations.
+  // `integrations` returns an array of valid integration items.
+  withDefaults.integrations = integrations(withDefaults);
 
   return withDefaults;
 }

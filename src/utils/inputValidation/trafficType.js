@@ -2,9 +2,7 @@ import { isString } from '../lang';
 import thenable from '../promise/thenable';
 import { LOCALHOST_MODE } from '../constants';
 import logFactory from '../logger';
-const log = logFactory('', {
-  displayAllErrors: true
-});
+const log = logFactory('');
 
 const CAPITAL_LETTERS_REGEX = /[A-Z]/;
 

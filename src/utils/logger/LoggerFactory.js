@@ -1,8 +1,6 @@
 /* eslint-disable no-console */
 'use strict';
 
-let isNode = typeof process !== 'undefined' && process.version ? true : false;
-
 export const LogLevels = {
   'DEBUG': 'DEBUG',
   'INFO':  'INFO',
@@ -51,9 +49,8 @@ export class Logger {
 
   _log(level, text) {
     const formattedText = this._generateLogMessage(level, text);
-    const method = level === LogLevels.ERROR && !isNode ? 'error' : 'log';
 
-    console[method](formattedText);
+    console.log(formattedText);
   }
 
   _generateLogMessage(level, text) {

@@ -16,3 +16,9 @@ export const CONTROL_WITH_CONFIG = {
 // Constants for unknown and not-applicable values
 export const UNKNOWN = 'unknown';
 export const NA = 'NA';
+// Integration types
+export const GOOGLE_ANALYTICS_TO_SPLIT = 'GOOGLE_ANALYTICS_TO_SPLIT';
+export const SPLIT_TO_GOOGLE_ANALYTICS = 'SPLIT_TO_GOOGLE_ANALYTICS';
+// Integration data types
+export const SPLIT_IMPRESSION = 'IMPRESSION';
+export const SPLIT_EVENT = 'EVENT';

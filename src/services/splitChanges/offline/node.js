@@ -24,6 +24,8 @@ const log = logFactory('splitio-offline:splits-fetcher');
 
 const DEFAULT_FILENAME = '.split';
 
+let previousMock = 'NO_MOCK_LOADED';
+
 function configFilesPath(config = {}) {
   let configFilePath = config.features;
 
@@ -58,8 +60,11 @@ function readSplitConfigFile(filePath) {
   } catch (e) {
     log.error(e.message);
 
-    return [];
+    return {};
   }
+
+  if (data === previousMock) return false;
+  previousMock = data;
 
   const splitObjects = data.split(/\r?\n/).reduce((accum, line, index) => {
     let tuple = line.trim();
@@ -86,10 +91,16 @@ function readSplitConfigFile(filePath) {
 
 // Parse `.yml` or `.yaml` configuration files and return a map of "Split Objects"
 function readYAMLConfigFile(filePath) {
+  let data = '';
   let yamldoc = null;
 
   try {
-    yamldoc = yaml.safeLoad(fs.readFileSync(filePath, 'utf8'));
+    data = fs.readFileSync(filePath, 'utf8');
+
+    if (data === previousMock) return false;
+    previousMock = data;
+
+    yamldoc = yaml.safeLoad(data);
   } catch (e) {
     log.error(e);
 
