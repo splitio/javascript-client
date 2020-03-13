@@ -203,7 +203,7 @@ tape('GaToSplit', assert => {
   assert.end();
 });
 
-tape('GaToSplit: `events` flag param', assert => {
+tape('GaToSplit: `hits` flag param', assert => {
 
   // test setup
   const { ga, tracker } = gaMock();
@@ -211,7 +211,7 @@ tape('GaToSplit: `events` flag param', assert => {
   let SplitTracker = ga.lastCall.args[2];
 
   // init plugin with custom options
-  new SplitTracker(tracker, { events: false });
+  new SplitTracker(tracker, { hits: false });
 
   // send hit and assert that it was not tracked as a Split event
   fakeStorage.events.track.resetHistory();
