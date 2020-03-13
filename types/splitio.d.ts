@@ -556,12 +556,11 @@ declare namespace SplitIO {
     timestamp?: number;
   };
   /**
-   * Enable Ga-to-Split integration, to track GA hits as Split events.
+   * Enable 'Google Analytics to Split' integration, to track Google Analytics hits as Split events.
    *
-   * @TODO update the following link
-   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#ga-to-split-integration}
+   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#google-analytics-to-split}
    */
-  interface GaToSplitIntegration {
+  interface IGoogleAnalyticsToSplitConfig {
     type: 'GOOGLE_ANALYTICS_TO_SPLIT',
     /**
      * Optional flag to filter GA hits from being tracked as Split events.
@@ -588,9 +587,6 @@ declare namespace SplitIO {
      *      defaultMapping.properties.someProperty = SOME_VALUE;
      *      return defaultMapping;
      *  }`
-     *
-     * @TODO update the following link
-     * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#split-to-ga-integration} for details of the default event mapping.
      */
     mapper?: (model: UniversalAnalytics.Model, defaultMapping: SplitIO.EventData) => SplitIO.EventData,
     /**
@@ -607,12 +603,11 @@ declare namespace SplitIO {
   }
   type IntegrationData = { type: 'IMPRESSION', payload: SplitIO.ImpressionData } | { type: 'EVENT', payload: SplitIO.EventData };
   /**
-   * Enable Split-to-GA integration, to track Split impressions and events as GA hits.
+   * Enable 'Split to Google Analytics' integration, to track Split impressions and events as Google Analytics hits.
    *
-   * @TODO update the following link
-   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#split-to-ga-integration}
+   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#split-to-google-analytics}
    */
-  interface SplitToGaIntegration {
+  interface ISplitToGoogleAnalyticsConfig {
     type: 'SPLIT_TO_GOOGLE_ANALYTICS',
     /**
      * Optional flag to filter Split impressions from being tracked as GA hits.
@@ -669,7 +664,7 @@ declare namespace SplitIO {
      */
     trackerNames?: string[],
   }
-  type BrowserIntegration = SplitToGaIntegration | GaToSplitIntegration;
+  type BrowserIntegration = ISplitToGoogleAnalyticsConfig | IGoogleAnalyticsToSplitConfig;
   /**
    * Settings interface for SDK instances created on the browser
    * @interface IBrowserSettings

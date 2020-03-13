@@ -388,14 +388,14 @@ impressionListener.logImpression(impressionData);
 let fieldsObjectSample: UniversalAnalytics.FieldsObject = { hitType: 'event', eventAction: 'action' };
 let eventDataSample: SplitIO.EventData = { eventTypeId: 'someEventTypeId', value: 10, properties: {} }
 
-let gaToSplitIntegration: SplitIO.GaToSplitIntegration = {
+let googleAnalyticsToSplitConfig: SplitIO.IGoogleAnalyticsToSplitConfig = {
   type: 'GOOGLE_ANALYTICS_TO_SPLIT',
 };
-let splitToGaIntegration: SplitIO.SplitToGaIntegration = {
+let splitToGoogleAnalyticsConfig: SplitIO.ISplitToGoogleAnalyticsConfig = {
   type: 'SPLIT_TO_GOOGLE_ANALYTICS',
 };
 
-let customGaToSplitIntegration: SplitIO.GaToSplitIntegration = {
+let customGoogleAnalyticsToSplitConfig: SplitIO.IGoogleAnalyticsToSplitConfig = {
   type: 'GOOGLE_ANALYTICS_TO_SPLIT',
   events: false,
   filter: function (model: UniversalAnalytics.Model): boolean { return true; },
@@ -403,7 +403,7 @@ let customGaToSplitIntegration: SplitIO.GaToSplitIntegration = {
   prefix: 'PREFIX',
   identities: [{ key: 'key1', trafficType: 'tt1'}, { key: 'key2', trafficType: 'tt2'}],
 };
-let customSplitToGaIntegration: SplitIO.SplitToGaIntegration = {
+let customSplitToGoogleAnalyticsConfig: SplitIO.ISplitToGoogleAnalyticsConfig = {
   type: 'SPLIT_TO_GOOGLE_ANALYTICS',
   events: false,
   impressions: true,
@@ -441,7 +441,7 @@ let fullBrowserSettings: SplitIO.IBrowserSettings = {
   },
   impressionListener: impressionListener,
   debug: true,
-  integrations: [gaToSplitIntegration, splitToGaIntegration, customGaToSplitIntegration, customSplitToGaIntegration]
+  integrations: [googleAnalyticsToSplitConfig, splitToGoogleAnalyticsConfig, customGoogleAnalyticsToSplitConfig, customSplitToGoogleAnalyticsConfig]
 };
 fullBrowserSettings.storage.type = 'MEMORY';
 fullBrowserSettings.integrations[0].type = 'GOOGLE_ANALYTICS_TO_SPLIT';
