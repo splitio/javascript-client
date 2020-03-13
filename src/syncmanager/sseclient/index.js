@@ -1,10 +1,11 @@
 import getEventSource from '../../services/sse/getEventSource';
 
 // const CONNECTING = 0;
-// const OPEN = 1;
-const CLOSED = 2;
+const OPEN = 1;
+// const CLOSED = 2;
 
-const BASE_URL = 'https://realtime.ably.io/event-stream';
+// const BASE_URL = 'https://realtime.ably.io/event-stream';
+const BASE_URL = 'https://realtime.ably.io/sse';
 const VERSION = '1.1';
 
 export default class SSEClient {
@@ -32,13 +33,14 @@ export default class SSEClient {
     this.close();
 
     // @TODO test and add error handling
+    // @REVIEW url encoded
     const channels = JSON.parse(decodedToken['x-ably-capability']);
     const channelsQueryParam = Object.keys(channels).join(',');
     const url = `${BASE_URL}?channels=${channelsQueryParam}&accessToken=${token}&v=${VERSION}`;
     // url for testing
     // const url = `${BASE_URL}?channels=${channels}&key=${jwt}&v=${VERSION}`;
 
-    // @TOTO set options
+    // @TODO set options
     const options = {};
     this.connection = new this.EventSource(url, options);
 
@@ -49,8 +51,9 @@ export default class SSEClient {
     }
   }
 
+  /** Close if opened */
   close() {
-    if (this.connection && this.connection.readyState === CLOSED) {
+    if (this.connection && this.connection.readyState === OPEN) {
       this.connection.close();
       if (this.listener) this.listener.handleClose();
     }
