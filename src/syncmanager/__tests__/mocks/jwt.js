@@ -19,8 +19,12 @@ export const base64sample = 'ZW1pQHNwbGl0Lmlv';
 
 export const decodedBase64sample = 'emi@split.io';
 
-export const authDataSample = {
+export const authDataResponseSample = {
   pushEnabled: true,
   token: jwtSample,
+};
+
+export const authDataSample = {
+  ...authDataResponseSample,
   decodedToken: decodedJwtPayloadSample,
 };
