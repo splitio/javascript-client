@@ -1,7 +1,7 @@
 import tape from 'tape';
 import sinon from 'sinon';
 import EventSourceMock from './mocks/eventSourceMock';
-import { authDataSample } from  './mocks/jwt';
+import { authDataSample } from  './mocks/dataMocks';
 import proxyquire from 'proxyquire';
 const proxyquireStrict = proxyquire.noCallThru();
 

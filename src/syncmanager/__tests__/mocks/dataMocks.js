@@ -28,3 +28,7 @@ export const authDataSample = {
   ...authDataResponseSample,
   decodedToken: decodedJwtPayloadSample,
 };
+
+export const splitKeySample = 'emi@split.io';
+
+export const splitKeyBase64HashSample = 'MjAxNjU2NDU5Mw==';

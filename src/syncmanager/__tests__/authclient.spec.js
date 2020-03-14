@@ -3,7 +3,7 @@ import authenticate from '../authclient';
 import SettingsFactory from '../../utils/settings/index';
 import MockAdapter from 'axios-mock-adapter';
 import { __getAxiosInstance } from '../../services/transport';
-import { authDataResponseSample, authDataSample } from './mocks/jwt';
+import { authDataResponseSample, authDataSample } from './mocks/dataMocks';
 
 const mock = new MockAdapter(__getAxiosInstance());
 
