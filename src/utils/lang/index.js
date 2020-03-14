@@ -297,3 +297,10 @@ export function encodeToBase64(value) {
 
   return output;
 }
+
+import murmur from '../../engine/engine/murmur3';
+
+export function hashSplitKey(splitKey) {
+  // @REVIEW add some validation for splitKey?
+  return encodeToBase64(murmur.hash(splitKey, 0).toString());
+}

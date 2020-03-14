@@ -2,16 +2,9 @@ import SSEClient from '../sseclient';
 import authenticate from '../authclient';
 import FeedbackLoopFactory from '../feedbackloop';
 import NotificationProcessorFactory from '../notificationprocessor';
+import { hashSplitKey } from '../../utils/lang';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-pushmanager');
-
-import murmur from '../../engine/engine/murmur3';
-import { encodeToBase64 } from '../../utils/lang';
-
-function hashSplitKey(splitKey) {
-  // @REVIEW add some validation for splitKey?
-  return encodeToBase64(murmur.hash(splitKey, 0).toString());
-}
 
 export default function PushManagerFactory(settings, producer, producerWithMySegmentsUpdater = false) {
 
