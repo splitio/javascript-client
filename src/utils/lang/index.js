@@ -295,20 +295,15 @@ export function encodeToBase64(value) {
 
   // for other environments, such as RN
   let result = '';
-
   for (let block = 0, charCode, i = 0, map = chars;
     value.charAt(i | 0) || (map = '=', i % 1);
     result += map.charAt(63 & block >> 8 - i % 1 * 8)) {
-
     charCode = value.charCodeAt(i += 3 / 4);
-
     if (charCode > 0xFF) {
       throw new Error('"btoa" failed: The string to be encoded contains characters outside of the Latin1 range.');
     }
-
     block = block << 8 | charCode;
   }
-
   return result;
 }
 
@@ -339,10 +334,16 @@ export function decodeFromBase64(value) {
   for (; i < value.length;) {
     bitmap = chars.indexOf(value.charAt(i++)) << 18 | chars.indexOf(value.charAt(i++)) << 12 |
       (r1 = chars.indexOf(value.charAt(i++))) << 6 | (r2 = chars.indexOf(value.charAt(i++)));
-
     result += r1 === 64 ? String.fromCharCode(bitmap >> 16 & 255) :
       r2 === 64 ? String.fromCharCode(bitmap >> 16 & 255, bitmap >> 8 & 255) :
         String.fromCharCode(bitmap >> 16 & 255, bitmap >> 8 & 255, bitmap & 255);
   }
   return result;
+}
+
+import murmur from '../../engine/engine/murmur3';
+
+export function hashSplitKey(splitKey) {
+  // @REVIEW add some validation for splitKey?
+  return encodeToBase64(murmur.hash(splitKey, 0).toString());
 }

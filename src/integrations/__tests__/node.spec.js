@@ -4,7 +4,7 @@
 import tape from 'tape';
 import sinon from 'sinon';
 import proxyquire from 'proxyquire';
-import { GA_TO_SPLIT, SPLIT_TO_GA } from '../../../lib/utils/constants';
+import { GA_TO_SPLIT, SPLIT_TO_GA } from '../../utils/constants';
 import { SPLIT_IMPRESSION, SPLIT_EVENT } from '../../utils/constants';
 const proxyquireStrict = proxyquire.noCallThru();
 
