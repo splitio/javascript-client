@@ -220,8 +220,8 @@ function GaToSplit(sdkOptions, storage, coreSettings) {
       tracker.set('sendHitTask', function (model) {
         originalSendHitTask(model);
 
-        // filter hit if `events` flag is false or if it comes from Split-to-GA integration
-        if (opts.events === false || model.get('splitHit')) return;
+        // filter hit if `hits` flag is false or if it comes from Split-to-GA integration
+        if (opts.hits === false || model.get('splitHit')) return;
         try {
           if (opts.filter && !opts.filter(model)) return;
         } catch (err) {

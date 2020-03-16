@@ -564,10 +564,10 @@ declare namespace SplitIO {
     type: 'GOOGLE_ANALYTICS_TO_SPLIT',
     /**
      * Optional flag to filter GA hits from being tracked as Split events.
-     * @property {boolean} events
+     * @property {boolean} hits
      * @default true
      */
-    events?: boolean,
+    hits?: boolean,
     /**
      * Optional predicate used to define a custom filter for tracking GA hits as Split events.
      * For example, the following filter allows to track only 'event' hits:
@@ -592,7 +592,7 @@ declare namespace SplitIO {
     /**
      * Optional prefix for EventTypeId, to prevent any kind of data collision between events.
      * @property {string} prefix
-     * @default '' (empty string)
+     * @default 'ga'
      */
     prefix?: string,
     /**

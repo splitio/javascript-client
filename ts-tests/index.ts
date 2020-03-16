@@ -397,7 +397,7 @@ let splitToGoogleAnalyticsConfig: SplitIO.ISplitToGoogleAnalyticsConfig = {
 
 let customGoogleAnalyticsToSplitConfig: SplitIO.IGoogleAnalyticsToSplitConfig = {
   type: 'GOOGLE_ANALYTICS_TO_SPLIT',
-  events: false,
+  hits: false,
   filter: function (model: UniversalAnalytics.Model): boolean { return true; },
   mapper: function (model: UniversalAnalytics.Model, defaultMapping: SplitIO.EventData): SplitIO.EventData { return eventDataSample; },
   prefix: 'PREFIX',
