@@ -1,6 +1,4 @@
 import ClientFactory from '../client';
-import FullProducerFactory from '../producer';
-import PartialProducerFactory from '../producer/browser/Partial';
 import MetricsFactory from '../metrics';
 import EventsFactory from '../events';
 import SignalsListener from '../listeners';
@@ -31,14 +29,10 @@ function SplitFactoryOnline(context, readyTrackers, mainClientMetricCollectors) 
   // Signal listener only needed for main instances
   const signalsListener = sharedInstance ? undefined : new SignalsListener(context);
 
-  let producer;
-
   switch (settings.mode) {
     case PRODUCER_MODE:
     case STANDALONE_MODE: {
       context.put(context.constants.COLLECTORS, metrics && metrics.collectors);
-      // We don't fully instantiate producer if we are creating a shared instance.
-      producer = sharedInstance ? PartialProducerFactory(context) : FullProducerFactory(context);
       break;
     }
     case CONSUMER_MODE: {
@@ -51,7 +45,7 @@ function SplitFactoryOnline(context, readyTrackers, mainClientMetricCollectors) 
     }
   }
 
-  if (readyTrackers && producer && !sharedInstance) { // Only track ready events for non-shared and non-consumer clients
+  if (readyTrackers && settings.mode === STANDALONE_MODE && !sharedInstance) { // Only track ready events for non-shared and non-consumer clients
     const {
       sdkReadyTracker, splitsReadyTracker, segmentsReadyTracker
     } = readyTrackers;
@@ -65,11 +59,11 @@ function SplitFactoryOnline(context, readyTrackers, mainClientMetricCollectors) 
   }
 
   // Start background jobs tasks
-  if (producer) {
+  if (settings.mode === STANDALONE_MODE) {
     if (sharedInstance)
-      syncManager.startPartialProducer(producer, settings);
+      syncManager.startSharedClient(context);
     else
-      syncManager.startFullProducer(producer);
+      syncManager.startMainClient(context);
   }
   metrics && metrics.start();
   events && context.put(context.constants.EVENTS, events) && events.start();
@@ -87,11 +81,11 @@ function SplitFactoryOnline(context, readyTrackers, mainClientMetricCollectors) 
       // Destroy instance
       async destroy() {
         // Stop background jobs
-        if (producer) {
+        if (settings.mode === STANDALONE_MODE) {
           if (sharedInstance)
-            syncManager.stopPartialProducer(producer, settings);
+            syncManager.stopSharedClient(context);
           else
-            syncManager.stopFullProducer(producer);
+            syncManager.stopMainClient();
         }
         metrics && metrics.stop();
         events && events.stop();

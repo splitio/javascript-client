@@ -152,7 +152,7 @@ export function merge(target, source, ...rest) {
  */
 export function uniq(arr) {
   const seen = {};
-  return arr.filter(function (item) {
+  return arr.filter(function(item) {
     return Object.prototype.hasOwnProperty.call(seen, item) ? false : seen[item] = true;
   });
 }
@@ -163,7 +163,7 @@ export function uniq(arr) {
  */
 export function unicAsStrings(arr, stringify = JSON.stringify) {
   const seen = {};
-  return arr.filter(function (item) {
+  return arr.filter(function(item) {
     const itemString = stringify(item);
     return Object.prototype.hasOwnProperty.call(seen, itemString) ? false : seen[itemString] = true;
   });
@@ -221,7 +221,7 @@ export function groupBy(source, prop) {
   const map = {};
 
   if (Array.isArray(source) && isString(prop)) {
-    for (let i = 0; i < source.length; i++) {
+    for(let i = 0; i < source.length; i++) {
       const key = source[i][prop];
 
       // Skip the element if the key is not a string.
@@ -242,7 +242,7 @@ export function groupBy(source, prop) {
 export function getFnName(fn) {
   if (fn.name) return fn.name;
 
-  return (fn.toString().match(/function (.+?)\(/) || ['', ''])[1];
+  return (fn.toString().match(/function (.+?)\(/)||['',''])[1];
 }
 
 /**
@@ -261,46 +261,4 @@ export function shallowClone(obj) {
 
 export function isBoolean(val) {
   return val === true || val === false;
-}
-
-const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
-
-/**
- * Encode a given string value to Base64 format
- *
- * @param {string} value to encode
- */
-export function encodeToBase64(value) {
-  // for browsers (moderns and old ones)
-  if (typeof btoa === 'function')
-    return btoa(value);
-
-  // for node (version mayor than v4)
-  if (typeof Buffer === 'function')
-    return Buffer.from(value).toString('base64');
-
-  // for other environments, such as RN
-  let output = '';
-
-  for (let block = 0, charCode, i = 0, map = chars;
-    value.charAt(i | 0) || (map = '=', i % 1);
-    output += map.charAt(63 & block >> 8 - i % 1 * 8)) {
-
-    charCode = value.charCodeAt(i += 3 / 4);
-
-    if (charCode > 0xFF) {
-      throw new Error("'btoa' failed: The string to be encoded contains characters outside of the Latin1 range.");
-    }
-
-    block = block << 8 | charCode;
-  }
-
-  return output;
-}
-
-import murmur from '../../engine/engine/murmur3';
-
-export function hashSplitKey(splitKey) {
-  // @REVIEW add some validation for splitKey?
-  return encodeToBase64(murmur.hash(splitKey, 0).toString());
 }

@@ -1,7 +1,7 @@
 import { Types, errorParser, messageParser } from './notificationparser';
 
 // @TODO logging
-export default function NotificationProcessorFactory(feedbackLoop, splitKeyHashes) {
+export default function NotificationProcessorFactory(feedbackLoop, userKeyHashes) {
   return {
     handleOpen() {
       // @REVIEW: call handleEvent({type: Types.STREAMING_UP}); // or Types.STREAMING_RECONNECTED according to spec
@@ -37,12 +37,12 @@ export default function NotificationProcessorFactory(feedbackLoop, splitKeyHashe
             eventData.segmentName);
           break;
         case Types.MY_SEGMENTS_UPDATE: {
-          // @TODO test the following way to get the splitKey from the channel hash
-          const splitKeyHash = channel.split('_')[2];
-          const splitKey = splitKeyHashes[splitKeyHash];
+          // @TODO test the following way to get the userKey from the channel hash
+          const userKeyHash = channel.split('_')[2];
+          const userKey = userKeyHashes[userKeyHash];
           feedbackLoop.queueSyncMySegments(
             eventData.changeNumber,
-            splitKey,
+            userKey,
             eventData.includesPayload ? eventData.segmentList : undefined);
           break;
         }

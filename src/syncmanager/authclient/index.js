@@ -1,6 +1,6 @@
-export default function authenticate(settings, splitKeys) {
+export default function authenticate(settings, userKeys) {
   // @TODO implement the real function
   settings;
-  splitKeys;
+  userKeys;
   return Promise.resolve({ jwt: 'jwt', channels: 'channels', ttl: 1 });
 }

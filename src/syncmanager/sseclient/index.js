@@ -6,14 +6,14 @@ export default class SSEClient {
   // - Properties:
   // EventSource: EventSource constructor;
   // connection: EventSource | undefined;
-  // listener: EventHandler for errors, messages and open events.
+  // handler: EventHandler for errors, messages and open events.
 
   constructor(EventSource) {
     this.EventSource = EventSource;
   }
 
-  setEventListener(listener) {
-    this.listener = listener;
+  setEventHandler(handler) {
+    this.handler = handler;
   }
 
   open(token) {

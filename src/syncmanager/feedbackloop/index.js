@@ -4,12 +4,12 @@ export default function FeedbackLoopFactory(producer, connectCallback) {
 
   return {
     // The following two methods are only for browser
-    addProducerWithMySegmentsUpdater(splitKey, producer) {
-      producersWithMySegmentsUpdater[splitKey] = producer;
+    addProducerWithMySegmentsUpdater(userKey, producer) {
+      producersWithMySegmentsUpdater[userKey] = producer;
     },
     // eslint-disable-next-line no-unused-vars
-    removeProducerWithMySegmentsUpdater(splitKey, producer) {
-      delete producersWithMySegmentsUpdater[splitKey];
+    removeProducerWithMySegmentsUpdater(userKey, producer) {
+      delete producersWithMySegmentsUpdater[userKey];
     },
 
     startPolling() {
@@ -47,10 +47,10 @@ export default function FeedbackLoopFactory(producer, connectCallback) {
       producer.callSegmentsUpdater(changeNumber, segmentName);
     },
 
-    queueSyncMySegments(changeNumber, splitKey, segmentList) {
+    queueSyncMySegments(changeNumber, userKey, segmentList) {
       // @TODO use queue
-      if (producersWithMySegmentsUpdater[splitKey])
-        producersWithMySegmentsUpdater[splitKey].callMySegmentsUpdater(changeNumber, segmentList);
+      if (producersWithMySegmentsUpdater[userKey])
+        producersWithMySegmentsUpdater[userKey].callMySegmentsUpdater(changeNumber, segmentList);
     },
   };
 }
