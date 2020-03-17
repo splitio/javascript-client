@@ -61,7 +61,7 @@ function SplitFactoryOnline(context, readyTrackers, mainClientMetricCollectors) 
   // Start background jobs tasks
   if (settings.mode === STANDALONE_MODE) {
     if (sharedInstance)
-      syncManager.startSharedClient(context);
+      syncManager.startSharedClient(context, settings);
     else
       syncManager.startMainClient(context);
   }
@@ -83,7 +83,7 @@ function SplitFactoryOnline(context, readyTrackers, mainClientMetricCollectors) 
         // Stop background jobs
         if (settings.mode === STANDALONE_MODE) {
           if (sharedInstance)
-            syncManager.stopSharedClient(context);
+            syncManager.stopSharedClient(context, settings);
           else
             syncManager.stopMainClient();
         }

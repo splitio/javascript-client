@@ -2,17 +2,18 @@ import SSEClient from '../sseclient';
 import authenticate from '../authclient';
 import NotificationProcessorFactory from '../notificationprocessor';
 import { hashUserKey } from '../../utils/push';
+import { forOwn } from '../../utils/lang';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-pushmanager');
 
 /**
  * Factory of the push mode manager.
  *
- * @param {*} settings validated factory config
- * @param {*} producer producer for the main client
+ * @param {*} context context of the main client
+ * @param {*} producer producer of the main client
  * @param {*} userKey user key of the main client for browser. `undefined` for node.
  */
-export default function PushManagerFactory(settings, producer, userKey) {
+export default function PushManagerFactory(context, producer, userKey) {
 
   const sseClient = SSEClient.getInstance();
 
@@ -21,6 +22,9 @@ export default function PushManagerFactory(settings, producer, userKey) {
     log.warn('EventSource API is not available. Fallback to polling mode');
     return undefined;
   }
+
+  const settings = context.get(context.constants.SETTINGS);
+  const storage = context.get(context.constants.STORAGE);
 
   /** Functions used to handle mySegments synchronization for browser */
 
@@ -45,7 +49,18 @@ export default function PushManagerFactory(settings, producer, userKey) {
     if (producer.isRunning())
       producer.stop();
   }
-  if (userKey) addPartialProducer(userKey, producer);
+
+  // for browser:
+  // - add main producer as `partialproducer` to handle mySegments synchronization as a partial producer
+  // - update `syncingMySegments` flag, to perform synchronization of mySegments updaters
+  let syncingMySegments = false;
+  if (userKey) {
+    addPartialProducer(userKey, producer);
+    const { splits: splitsEventEmitter } = context.get(context.constants.READINESS);
+    splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, function () {
+      syncingMySegments = storage.splits.usesSegments();
+    });
+  }
 
   /** PushManager functions, according to the spec */
 
@@ -73,7 +88,7 @@ export default function PushManagerFactory(settings, producer, userKey) {
   }
 
   function connect() {
-    authenticate(settings, userKeys).then(
+    authenticate(settings, syncingMySegments ? userKeys : undefined).then(
       function (authData) {
         if (!authData.pushEnabled)
           throw new Error('Streaming is not enabled for the organization');
@@ -100,16 +115,33 @@ export default function PushManagerFactory(settings, producer, userKey) {
   /** Feedbackloop functions, according to the spec */
 
   function startPolling() {
-    if (!producer.isRunning())
-      producer.start();
+    // producer will have a single producer in node, and the list of partialProducers in browser
+    const producers = userKey ? partialProducers : { 'node': producer };
+
+    forOwn(producers, function (producer) {
+      if (!producer.isRunning())
+        producer.start();
+    });
   }
 
   function stopPollingAnsSyncAll() {
-    if (producer.isRunning())
-      producer.stop();
+    // producer will have a single producer in node, and the list of partialProducers in browser
+    const producers = userKey ? partialProducers : { 'node': producer };
+
+    forOwn(producers, function (producer) {
+      if (producer.isRunning())
+        producer.stop();
+    });
+
     // fetch splits and segments.
     producer.callSplitsUpdater();
-    producer.callSegmentsUpdater();
+    if (!userKey) { // node
+      producer.callSegmentsUpdater();
+    } else { // browser
+      forOwn(partialProducers, function (producer) {
+        producer.callMySegmentsUpdater();
+      });
+    }
   }
 
   /** Functions related to synchronization according to the spec (responsability of Queues and Workers) */

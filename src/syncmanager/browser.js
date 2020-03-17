@@ -5,8 +5,9 @@ import { matching } from '../utils/key/factory';
 
 /**
  * Factory of sync manager
- * It was designed considering a plugable PushManager:
- * if the push manager is available, the SyncManager passes down the responsability of handling producer
+ * It was designed considering:
+ * - a plugable PushManager: if the push manager is available, the SyncManager passes down the responsability of handling producer
+ * - keep a single partialProducer per userKey instead of shared client, to avoid unnecessary /mySegments requests
  *
  * @param context main client context
  */
@@ -32,7 +33,7 @@ export default function BrowserSyncManagerFactory(context) {
 
       // start syncing
       if (settings.streamingEnabled)
-        pushManager = PushManagerFactory(settings, producer, userKey);
+        pushManager = PushManagerFactory(context, producer, userKey);
       if (!pushManager)
         producer.start();
     },
@@ -48,12 +49,12 @@ export default function BrowserSyncManagerFactory(context) {
     startSharedClient(sharedContext, settings) {
 
       const userKey = matching(settings.core.key);
-      if (!partialProducers[userKey] || partialProducers[userKey].count === 0) {
+      if (!partialProducers[userKey]) {
         // if not previously created or already stoped (count === 0),
         // create new partialProducer and save reference for `stopSharedClient`
         const partialProducer = PartialProducerFactory(sharedContext);
         partialProducers[userKey] = {
-          partialProducer,
+          producer: partialProducer,
           count: 1,
         };
 
@@ -69,17 +70,17 @@ export default function BrowserSyncManagerFactory(context) {
       }
     },
 
-    stopSharedClient(settings) {
+    stopSharedClient(sharedContext, settings) {
 
       const userKey = matching(settings.core.key);
 
-      const partialProducer = partialProducers[userKey];
-      if (partialProducer) {
-        partialProducer.count--;
-        const { producer, count } = partialProducer;
-
+      const entry = partialProducers[userKey];
+      if (entry) {
+        entry.count--;
+        const { producer, count } = entry;
         // stop syncing
         if (count === 0) {
+          delete partialProducers[userKey];
           if (pushManager)
             pushManager.removePartialProducer(userKey, producer);
           else

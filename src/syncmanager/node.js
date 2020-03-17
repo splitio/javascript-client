@@ -19,7 +19,7 @@ export default function NodeSyncManagerFactory(context) {
       producer = FullProducerFactory(context);
       // start syncing
       if (settings.streamingEnabled)
-        pushManager = PushManagerFactory(settings, producer);
+        pushManager = PushManagerFactory(context, producer);
       if (!pushManager)
         producer.start();
     },
