@@ -59,9 +59,9 @@ tape('validateEventData', assert => {
   assert.throws(() => { validateEventData(undefined); }, 'throws exception if passed object is undefined');
   assert.throws(() => { validateEventData(null); }, 'throws exception if passed object is null');
 
-  assert.equal(validateEventData({}), true, 'does not validates eventTypeId');
-  assert.equal(validateEventData({ eventTypeId: 'type' }), true, 'does not validates eventTypeId');
-  assert.equal(validateEventData({ eventTypeId: 123 }), true, 'does not validates eventTypeId');
+  assert.equal(validateEventData({}), false, 'event must have a valid eventTypeId');
+  assert.equal(validateEventData({ eventTypeId: 'type' }), true, 'event must have a valid eventTypeId');
+  assert.equal(validateEventData({ eventTypeId: 123 }), false, 'event must have a valid eventTypeId');
 
   assert.equal(validateEventData({ eventTypeId: 'type', value: 'value' }), false, 'event must have a valid value if present');
   assert.equal(validateEventData({ eventTypeId: 'type', value: 0 }), true, 'event must have a valid value if present');
@@ -82,12 +82,11 @@ tape('validateEventData', assert => {
 });
 
 tape('fixEventTypeId', assert => {
-  const DEFAULT_EVENT_TYPE = 'event';
-  assert.equal(fixEventTypeId(undefined), DEFAULT_EVENT_TYPE);
-  assert.equal(fixEventTypeId(111), DEFAULT_EVENT_TYPE);
-  assert.equal(fixEventTypeId(''), DEFAULT_EVENT_TYPE);
-  assert.equal(fixEventTypeId('()'), DEFAULT_EVENT_TYPE);
-  assert.equal(fixEventTypeId('()+_'), DEFAULT_EVENT_TYPE);
+  assert.equal(fixEventTypeId(undefined), undefined);
+  assert.equal(fixEventTypeId(111), 111);
+  assert.equal(fixEventTypeId(''), '');
+  assert.equal(fixEventTypeId('()'), '');
+  assert.equal(fixEventTypeId('()+_'), '');
   assert.equal(fixEventTypeId('  some   event '), 'some_event_');
   assert.equal(fixEventTypeId('  -*- some  -.%^ event =+ '), 'some_-._event_');
   assert.end();
@@ -106,7 +105,7 @@ tape('defaultMapper', assert => {
 });
 
 const sdkOptions = {
-  type: 'GA_TO_SPLIT',
+  type: 'GOOGLE_ANALYTICS_TO_SPLIT',
 };
 const coreSettings = {
   key: 'key',
@@ -133,6 +132,7 @@ const customIdentities = [{ key: 'key2', trafficType: 'tt2' }];
 
 tape('GaToSplit', assert => {
 
+  // test setup
   const { ga, tracker } = gaMock();
 
   // provide SplitTracker plugin
@@ -178,7 +178,7 @@ tape('GaToSplit', assert => {
 
   // provide a new SplitTracker plugin with custom SDK options
   GaToSplit({
-    type: 'GA_TO_SPLIT', mapper: customMapper2, filter: customFilter, identities: customIdentities, prefix: ''
+    type: 'GOOGLE_ANALYTICS_TO_SPLIT', mapper: customMapper2, filter: customFilter, identities: customIdentities, prefix: '', events: true
   }, fakeStorage, coreSettings);
   assert.true(ga.lastCall.calledWith('provide', 'splitTracker'));
   SplitTracker = ga.lastCall.args[2];
@@ -198,7 +198,27 @@ tape('GaToSplit', assert => {
       timestamp: event.timestamp,
     }, 'should track the event using a custom mapper and identity from the SDK options');
 
+  // test teardown
   gaRemove();
+  assert.end();
+});
 
+tape('GaToSplit: `hits` flag param', assert => {
+
+  // test setup
+  const { ga, tracker } = gaMock();
+  GaToSplit(sdkOptions, fakeStorage, coreSettings);
+  let SplitTracker = ga.lastCall.args[2];
+
+  // init plugin with custom options
+  new SplitTracker(tracker, { hits: false });
+
+  // send hit and assert that it was not tracked as a Split event
+  fakeStorage.events.track.resetHistory();
+  window.ga('send', hitSample);
+  assert.true(fakeStorage.events.track.notCalled);
+
+  // test teardown
+  gaRemove();
   assert.end();
 });

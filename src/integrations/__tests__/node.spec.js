@@ -4,7 +4,7 @@
 import tape from 'tape';
 import sinon from 'sinon';
 import proxyquire from 'proxyquire';
-import { GA_TO_SPLIT, SPLIT_TO_GA } from '../../utils/constants';
+import { GOOGLE_ANALYTICS_TO_SPLIT, SPLIT_TO_GOOGLE_ANALYTICS } from '../../utils/constants';
 import { SPLIT_IMPRESSION, SPLIT_EVENT } from '../../utils/constants';
 const proxyquireStrict = proxyquire.noCallThru();
 
@@ -60,7 +60,7 @@ tape('IntegrationsManagerFactory for browser', t => {
     const instance1 = browserIMF(contextMock1);
     assert.equal(instance1, undefined, 'The instance should be undefined if settings.integrations does not contain integrations that register a listener.');
 
-    const contextMock2 = new ContextMock(null, { integrations: [{ type: GA_TO_SPLIT }, { type: SPLIT_TO_GA }] });
+    const contextMock2 = new ContextMock(null, { integrations: [{ type: GOOGLE_ANALYTICS_TO_SPLIT }, { type: SPLIT_TO_GOOGLE_ANALYTICS }] });
     const instance2 = browserIMF(contextMock2);
     assert.true(GaToSplitMock.calledOnce, 'GaToSplit invoked once');
     assert.true(SplitToGaMock.calledOnce, 'SplitToGa invoked once');
@@ -70,7 +70,7 @@ tape('IntegrationsManagerFactory for browser', t => {
     resetStubs();
 
     const contextMock3 = new ContextMock(null, { integrations:
-      [{ type: GA_TO_SPLIT }, { type: SPLIT_TO_GA }, { type: GA_TO_SPLIT }, { type: SPLIT_TO_GA }, { type: SPLIT_TO_GA }] });
+      [{ type: GOOGLE_ANALYTICS_TO_SPLIT }, { type: SPLIT_TO_GOOGLE_ANALYTICS }, { type: GOOGLE_ANALYTICS_TO_SPLIT }, { type: SPLIT_TO_GOOGLE_ANALYTICS }, { type: SPLIT_TO_GOOGLE_ANALYTICS }] });
     browserIMF(contextMock3);
     assert.true(GaToSplitMock.calledTwice, 'GaToSplit invoked twice');
     assert.true(SplitToGaMock.calledThrice, 'SplitToGa invoked thrice');
@@ -82,7 +82,7 @@ tape('IntegrationsManagerFactory for browser', t => {
   t.test('Interaction with GaToSplit integration module', assert => {
     const coreSetting = { key: 'emiliano', trafficType: 'user' };
     const gaToSplitOptions = {
-      type: 'GA_TO_SPLIT',
+      type: 'GOOGLE_ANALYTICS_TO_SPLIT',
       param1: 'param1',
       param2: 'param2',
     };
@@ -98,7 +98,7 @@ tape('IntegrationsManagerFactory for browser', t => {
 
   t.test('Interaction with SplitToGa integration module', assert => {
     const splitToGaOptions = {
-      type: 'SPLIT_TO_GA',
+      type: 'SPLIT_TO_GOOGLE_ANALYTICS',
       param1: 'param1',
       param2: 'param2',
     };

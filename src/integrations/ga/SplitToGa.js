@@ -69,6 +69,10 @@ class SplitToGa {
       // We don't warn if a tracker does not exist, since the user might create it after the SDK is initialized.
       // Note: GA allows to create and get trackers using a string or number as tracker name, and does nothing if other types are used.
       if (Array.isArray(options.trackerNames)) this.trackerNames = uniq(options.trackerNames);
+
+      // No need to validate `impressions` and `events` flags. Any other value than `false` is ignored.
+      this.impressions = options.impressions;
+      this.events = options.events;
     }
 
     log.info('Started Split-to-GA integration');
@@ -79,6 +83,9 @@ class SplitToGa {
     // the global `ga` reference was not yet mutated by analytics.js.
     const ga = SplitToGa.getGa();
     if (ga) {
+
+      if(this.impressions === false && data.type === SPLIT_IMPRESSION) return;
+      if(this.events === false && data.type === SPLIT_EVENT) return;
 
       let fieldsObject;
       try { // only try/catch filter and mapper, which might be defined by the user

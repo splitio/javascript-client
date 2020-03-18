@@ -1,6 +1,6 @@
 import GaToSplit from './ga/GaToSplit';
 import SplitToGa from './ga/SplitToGa';
-import { GA_TO_SPLIT, SPLIT_TO_GA, SPLIT_IMPRESSION, SPLIT_EVENT } from '../utils/constants';
+import { GOOGLE_ANALYTICS_TO_SPLIT, SPLIT_TO_GOOGLE_ANALYTICS, SPLIT_IMPRESSION, SPLIT_EVENT } from '../utils/constants';
 
 /**
  * Factory function for browser IntegrationsManager.
@@ -21,14 +21,14 @@ const integrationsManagerFactory = context => {
     let integration;
 
     switch (type) {
-      case GA_TO_SPLIT: {
+      case GOOGLE_ANALYTICS_TO_SPLIT: {
         const storage = context.get(context.constants.STORAGE);
         const coreSettings = settings.core;
         integration = GaToSplit(integrationOptions, storage, coreSettings);
         break;
       }
 
-      case SPLIT_TO_GA: {
+      case SPLIT_TO_GOOGLE_ANALYTICS: {
         integration = new SplitToGa(integrationOptions);
         break;
       }

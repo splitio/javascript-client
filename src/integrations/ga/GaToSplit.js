@@ -1,6 +1,7 @@
 import { isString, isFinite, unicAsStrings } from '../../utils/lang';
 import logFactory from '../../utils/logger';
 import {
+  validateEvent,
   validateEventValue,
   validateEventProperties,
   validateKey,
@@ -118,6 +119,9 @@ export function validateIdentities(identities) {
  * @returns {boolean} Whether the data instance is a valid EventData or not.
  */
 export function validateEventData(eventData) {
+  if (!validateEvent(eventData.eventTypeId, 'splitio-ga-to-split:mapper'))
+    return false;
+
   if (validateEventValue(eventData.value, 'splitio-ga-to-split:mapper') === false)
     return false;
 
@@ -137,7 +141,6 @@ export function validateEventData(eventData) {
   return true;
 }
 
-const DEFAULT_EVENT_TYPE = 'event';
 const INVALID_PREFIX_REGEX = /^[^a-zA-Z0-9]+/;
 const INVALID_SUBSTRING_REGEX = /[^-_.:a-zA-Z0-9]+/g;
 /**
@@ -147,18 +150,18 @@ const INVALID_SUBSTRING_REGEX = /[^-_.:a-zA-Z0-9]+/g;
  * @returns {string} Fixed version of `eventTypeId`.
  */
 export function fixEventTypeId(eventTypeId) {
-  // set a default eventTypeId if it is not a string or is an empty one.
+  // return the input eventTypeId if it cannot be fixed
   if (!isString(eventTypeId) || eventTypeId.length === 0) {
-    return DEFAULT_EVENT_TYPE;
+    return eventTypeId;
   }
 
   // replace invalid substrings and truncate
   const fixed = eventTypeId
     .replace(INVALID_PREFIX_REGEX, '')
-    .replace(INVALID_SUBSTRING_REGEX, '_')
-    .slice(0, 80);
-  // return DEFAULT_EVENT_TYPE if fixed string is empty
-  return fixed ? fixed : DEFAULT_EVENT_TYPE;
+    .replace(INVALID_SUBSTRING_REGEX, '_');
+  const truncated = fixed.slice(0, 80);
+  if (truncated.length < fixed.length) log.warn('EventTypeId was truncated because it cannot be more than 80 characters long.');
+  return truncated;
 }
 
 /**
@@ -217,8 +220,8 @@ function GaToSplit(sdkOptions, storage, coreSettings) {
       tracker.set('sendHitTask', function (model) {
         originalSendHitTask(model);
 
-        // filter hit if it comes from Split-to-GA integration
-        if (model.get('splitHit')) return;
+        // filter hit if `hits` flag is false or if it comes from Split-to-GA integration
+        if (opts.hits === false || model.get('splitHit')) return;
         try {
           if (opts.filter && !opts.filter(model)) return;
         } catch (err) {
@@ -235,8 +238,7 @@ function GaToSplit(sdkOptions, storage, coreSettings) {
             log.warn(`GaToSplit custom mapper threw: ${err}`);
             return;
           }
-          // don't send the custom event if it is falsy or invalid
-          if (!eventData || !validateEventData(eventData))
+          if (!eventData)
             return;
         }
 
@@ -244,6 +246,9 @@ function GaToSplit(sdkOptions, storage, coreSettings) {
         if (opts.prefix) eventData.eventTypeId = `${opts.prefix}.${eventData.eventTypeId}`;
 
         eventData.eventTypeId = fixEventTypeId(eventData.eventTypeId);
+
+        if (!validateEventData(eventData))
+          return;
 
         // Store the event
         if (eventData.key && eventData.trafficTypeName) {
