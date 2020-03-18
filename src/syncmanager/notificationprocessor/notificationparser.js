@@ -14,6 +14,7 @@ export function errorParser(error) {
 }
 
 export function messageParser(message) {
-  const data = JSON.parse(message.data);
-  return data;
+  const messageData = JSON.parse(message.data);
+  messageData.data = JSON.parse(messageData.data);
+  return messageData;
 }

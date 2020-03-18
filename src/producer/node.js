@@ -112,16 +112,6 @@ const NodeUpdater = (context) => {
       // @TODO
       segmentName;
       segmentsUpdater();
-    },
-
-    callKillSplit(changeNumber, splitName, defaultTreatment) {
-      if(changeNumber) {
-        // @TODO check if changeNumber is older
-        return;
-      }
-
-      // @TODO
-      splitName, defaultTreatment;
     }
   };
 };

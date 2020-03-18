@@ -124,7 +124,7 @@ export default function PushManagerFactory(context, producer, userKey) {
     });
   }
 
-  function stopPollingAnsSyncAll() {
+  function stopPollingAndSyncAll() {
     // producer will have a single producer in node, and the list of partialProducers in browser
     const producers = userKey ? partialProducers : { 'node': producer };
 
@@ -148,7 +148,8 @@ export default function PushManagerFactory(context, producer, userKey) {
 
   function killSplit(changeNumber, splitName, defaultTreatment) {
     // @TODO use queue
-    producer.callKillSplit(changeNumber, splitName, defaultTreatment);
+    storage.splits.killSplit(splitName, defaultTreatment);
+    producer.callSplitsUpdater(changeNumber);
   }
 
   function queueSyncSplits(changeNumber) {
@@ -171,7 +172,7 @@ export default function PushManagerFactory(context, producer, userKey) {
 
   const notificationProcessor = NotificationProcessorFactory({
     startPolling,
-    stopPollingAnsSyncAll,
+    stopPollingAndSyncAll,
     reconnectPush: connect,
     queueSyncSplits,
     queueSyncSegments,
@@ -185,7 +186,7 @@ export default function PushManagerFactory(context, producer, userKey) {
   return {
     stopFullProducer(producer) { // same producer passed to NodePushManagerFactory
       // remove listener, so that when connection is closed, polling mode is not started.
-      sseClient.setListener(undefined);
+      sseClient.setEventHandler(undefined);
       sseClient.close();
 
       if (producer.isRunning())
