@@ -380,4 +380,37 @@ export default function (mock, assert) {
     });
   });
 
+  // test `hits` flag
+  assert.test(t => {
+    mock.onPost(settings.url('/events/bulk')).replyOnce(req => {
+      const resp = JSON.parse(req.data);
+      const sentHits = window.gaSpy.getHits();
+
+      t.equal(resp.filter(event => event.eventTypeId === 'ga.pageview').length, 0, 'No events associated to GA hits must be sent');
+      t.equal(resp.filter(event => event.eventTypeId === 'some_event').length, 1, 'Tracked events must be sent to Split');
+      t.equal(sentHits.length, 1, 'Hits must be sent to GA');
+
+      setTimeout(() => {
+        client.destroy();
+        t.end();
+      });
+      return [200];
+    });
+
+    gaTag();
+
+    // siteSpeedSampleRate set to 0 to never send a site speed timing hit
+    window.ga('create', 'UA-00000000-1', 'auto', { siteSpeedSampleRate: 0 });
+
+    gaSpy();
+
+    window.ga('require', 'splitTracker', { hits: false });
+    window.ga('send', 'pageview');
+
+    const factory = SplitFactory(config);
+    client = factory.client();
+    client.track('some_event');
+
+  });
+
 }
