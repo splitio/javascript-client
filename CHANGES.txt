@@ -1,4 +1,4 @@
-10.11.1 (Mar X, 2020)
+10.11.1 (Mar 19, 2020)
  - Updated @babel/runtime-corejs3, @types/node and several dev dependencies.
  - Updated the name of the "events" config of GOOGLE_ANALYTICS_TO_SPLIT integration to "hits".
 
