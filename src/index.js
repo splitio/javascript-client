@@ -10,9 +10,10 @@ import tracker from './utils/timeTracker';
 import SplitFactoryOnline from './factory/online';
 import SplitFactoryOffline from './factory/offline';
 import sdkStatusManager from './readiness/statusManager';
-import { LOCALHOST_MODE } from './utils/constants';
+import { LOCALHOST_MODE, STANDALONE_MODE } from './utils/constants';
 import { validateApiKey, validateKey, validateTrafficType } from './utils/inputValidation';
 import IntegrationsManagerFactory from './integrations';
+import SyncManagerFactory from './sync';
 
 const buildInstanceId = (key, trafficType) => `${key.matchingKey ? key.matchingKey : key}-${key.bucketingKey ? key.bucketingKey : key}-${trafficType !== undefined ? trafficType : ''}`;
 
@@ -44,6 +45,10 @@ export function SplitFactory(config) {
   // It needs to access the storage, settings and potentially other pieces, so it's registered after them.
   const integrationsManager = IntegrationsManagerFactory(context);
   context.put(context.constants.INTEGRATIONS_MANAGER, integrationsManager);
+
+  // Create syncManager if STANDALONE_MODE (not needed for CONSUMER_MODE or LOCALHOST_MODE)
+  const syncManager = settings.mode === STANDALONE_MODE ? SyncManagerFactory(context) : undefined;
+  context.put(context.constants.SYNC_MANAGER, syncManager);
 
   // Define which type of factory to use
   const splitFactory = settings.mode === LOCALHOST_MODE ? SplitFactoryOffline : SplitFactoryOnline;
@@ -105,6 +110,7 @@ export function SplitFactory(config) {
         sharedContext.put(sharedContext.constants.STATUS_MANAGER, sdkStatusManager(sharedContext, true));
         sharedContext.put(context.constants.SETTINGS, sharedSettings);
         sharedContext.put(context.constants.STORAGE, storage.shared(sharedSettings));
+        sharedContext.put(context.constants.SYNC_MANAGER, syncManager);
 
         // As shared clients reuse all the storage information, we don't need to check here if we
         // will use offline or online mode. We should stick with the original decision.
