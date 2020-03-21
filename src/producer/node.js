@@ -31,6 +31,27 @@ const NodeUpdater = (context) => {
   let stopSplitsUpdate = false;
   let stopSegmentsUpdate = false;
   let splitFetchCompleted = false;
+  let isRunning = false;
+  let isSplitsUpdaterRunning = false;
+  let isSegmentsUpdaterRunning = false;
+
+  function callSplitsUpdater() {
+    isSplitsUpdaterRunning = true;
+    return splitsUpdater().then(function () {
+      // Mark splits as ready (track first successfull call to start downloading segments)
+      splitFetchCompleted = true;
+    }).finally(function () {
+      isSplitsUpdaterRunning = false;
+    });
+  }
+
+  function callSegmentsUpdater(segments) {
+    // @TODO update isSegmentsUpdaterRunning per segmentName
+    isSegmentsUpdaterRunning = true;
+    return segmentsUpdater(segments).finally(function () {
+      isSegmentsUpdaterRunning = false;
+    });
+  }
 
   return {
     start() {
@@ -45,7 +66,7 @@ const NodeUpdater = (context) => {
             scheduleSegmentsUpdate => {
               if (splitFetchCompleted) {
                 log.debug('Fetching segments');
-                segmentsUpdater().then(() => scheduleSegmentsUpdate());
+                callSegmentsUpdater().then(() => scheduleSegmentsUpdate());
               } else {
                 scheduleSegmentsUpdate();
               }
@@ -59,10 +80,8 @@ const NodeUpdater = (context) => {
         scheduleSplitsUpdate => {
           log.debug('Fetching splits');
 
-          splitsUpdater()
+          callSplitsUpdater()
             .then(() => {
-              // Mark splits as ready (track first successfull call to start downloading segments)
-              splitFetchCompleted = true;
               // Spin up the segments update if needed
               spinUpSegmentUpdater();
               // Re-schedule update
@@ -71,6 +90,8 @@ const NodeUpdater = (context) => {
         },
         settings.scheduler.featuresRefreshRate
       );
+
+      isRunning = true;
     },
 
     stop() {
@@ -78,7 +99,26 @@ const NodeUpdater = (context) => {
 
       stopSplitsUpdate && stopSplitsUpdate();
       stopSegmentsUpdate && stopSegmentsUpdate();
-    }
+
+      isRunning = false;
+    },
+
+    // Used by SyncManager to know if running in polling mode.
+    isRunning() {
+      return isRunning;
+    },
+
+    // Used by splitsSync
+    isSplitsUpdaterRunning() {
+      return isSplitsUpdaterRunning;
+    },
+    callSplitsUpdater,
+
+    // Used by segmentsSync
+    isSegmentsUpdaterRunning() {
+      return isSegmentsUpdaterRunning;
+    },
+    callSegmentsUpdater,
   };
 };
 
