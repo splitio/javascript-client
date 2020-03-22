@@ -32,14 +32,14 @@ const SegmentChangesUpdaterFactory = context => {
 
   let readyOnAlreadyExistentState = true;
 
-  return async function SegmentChangesUpdater() {
+  return async function SegmentChangesUpdater(segments) {
     log.debug('Started segments update');
 
     // Async fetchers are collected here.
     const updaters = [];
 
-    // Read list of available segments names to be updated.
-    const segments = await storage.segments.getRegisteredSegments();
+    // If not segments provided, read list of available segments names to be updated.
+    if (!segments) segments = await storage.segments.getRegisteredSegments();
 
     for (let segmentName of segments) {
       const since = await storage.segments.getChangeNumber(segmentName);

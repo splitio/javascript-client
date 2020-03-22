@@ -24,15 +24,36 @@ import onSplitsArrivedFactory from './onSplitsArrivedFactory';
 const PartialBrowserProducer = (context) => {
   const settings = context.get(context.constants.SETTINGS);
   const { splits: splitsEventEmitter } = context.get(context.constants.READINESS);
-  
+
   const segmentsUpdater = MySegmentsUpdater(context);
   const segmentsUpdaterTask = TaskFactory(segmentsUpdater, settings.scheduler.segmentsRefreshRate);
 
   const onSplitsArrived = onSplitsArrivedFactory(segmentsUpdaterTask, context);
-  
+
   splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, onSplitsArrived);
 
-  return segmentsUpdaterTask;
+  let isMySegmentsUpdaterRunning = false;
+
+  function callMySegmentsUpdater(segmentList) {
+    isMySegmentsUpdaterRunning = true;
+    return segmentsUpdater(undefined, segmentList).finally(function () {
+      isMySegmentsUpdaterRunning = false;
+    });
+  }
+
+  return {
+    start: segmentsUpdaterTask.start,
+    stop: segmentsUpdaterTask.stop,
+
+    // Used by SyncManager to know if running in polling mode.
+    isRunning: segmentsUpdaterTask.isRunning,
+
+    // Used by segmentsSync
+    isMySegmentsUpdaterRunning() {
+      return isMySegmentsUpdaterRunning;
+    },
+    callMySegmentsUpdater,
+  };
 };
 
 export default PartialBrowserProducer;
