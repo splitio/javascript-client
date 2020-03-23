@@ -3,7 +3,7 @@ import FullProducerFactory from '../producer';
 import PartialProducerFactory from '../producer/browser/Partial';
 import { matching } from '../utils/key/factory';
 import { forOwn } from '../utils/lang';
-import { hashUserKey } from '../utils/push';
+import { hashUserKey } from '../utils/jwt/hashUserKey';
 import { SETTINGS, STORAGE } from '../utils/context/constants';
 
 /**
