@@ -15,7 +15,7 @@ const settings = SettingsFactory({
 
 tape('authenticate', t => {
 
-  t.test('success in node (no user keys)', assert => {
+  t.test('success in node (200)', assert => {
 
     const userKeys = {};
 
@@ -35,7 +35,7 @@ tape('authenticate', t => {
     assert.end();
   });
 
-  t.test('success in browser (with user keys)', assert => {
+  t.test('success in browser (200)', assert => {
 
     const userKeys = { ['emi@split.io']: 'emihash', ['maldo@split.io']: 'maldohash' };
 
@@ -55,6 +55,22 @@ tape('authenticate', t => {
     assert.end();
   });
 
+  t.test('bad request in browser due to no user keys (400)', assert => {
+
+    mock.onGet(settings.url('/auth')).replyOnce(() => {
+      return [400, '"no user specified"'];
+    });
+
+    authenticate(settings, {}).then(() => {
+      assert.fail('if bad request, promise is rejected');
+    }).catch(error => {
+      assert.equal(error.statusCode, 400,
+        'if bad request, status code is 400');
+    });
+
+    assert.end();
+  });
+
   t.test('Invalid credentials (401)', assert => {
 
     mock.onGet(settings.url('/auth')).replyOnce(() => {
@@ -66,8 +82,6 @@ tape('authenticate', t => {
     }).catch(error => {
       assert.equal(error.statusCode, 401,
         'if invalid credential, status code is 401');
-      assert.equal(error.message, 'Split Network Error',
-        'if invalid credential, error message is "Split Network Error"');
     });
 
     assert.end();
