@@ -7,7 +7,7 @@ function userKeyToQueryParam(userKey) {
 
 export default function GET(settings, userKeys) {
   let relativeUrl = '/auth';
-  if (userKeys) { // accounting the possibility that `userKeys` is undefined
+  if (userKeys) { // accounting the possibility that `userKeys` is undefined (in node)
     const queryParams = Object.keys(userKeys).map(userKeyToQueryParam).join('&');
     if (queryParams) // accounting the possibility that `userKeys` and thus `queryParams` are empty
       relativeUrl += '?' + queryParams;
