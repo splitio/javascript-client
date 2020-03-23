@@ -1,28 +1,32 @@
 import getEventSource from '../../services/getEventSource';
 
 // const CONNECTING = 0;
-const OPEN = 1;
-// const CLOSED = 2;
+// const OPEN = 1;
+const CLOSED = 2;
 
-// const BASE_URL = 'https://realtime.ably.io/event-stream';
-// @ TODO move BASE_URL to settings object
-const BASE_URL = 'https://realtime.ably.io/sse';
 const VERSION = '1.1';
 
 export default class SSEClient {
-  static getInstance() {
+
+  /**
+   * Returns a SSEClient instance, or undefined if EventSource is not available.
+   * @param {*} settings Split settings used to get streaming URL
+   */
+  static getInstance(settings) {
     const EventSource = getEventSource();
     if (EventSource)
-      return new SSEClient(EventSource);
+      return new SSEClient(EventSource, settings);
   }
 
-  // - Properties:
-  // EventSource: EventSource constructor;
-  // connection: EventSource | undefined;
-  // handler: EventHandler for errors, messages and open events.
+  // Instance properties:
+  //  streamingUrl: string
+  //  EventSource: EventSource constructor
+  //  connection: EventSource | undefined
+  //  handler: EventHandler for open, close, error and messages events
 
-  constructor(EventSource) {
+  constructor(EventSource, settings) {
     this.EventSource = EventSource;
+    this.streamingUrl = settings.url('/sse');
   }
 
   setEventHandler(handler) {
@@ -30,21 +34,17 @@ export default class SSEClient {
   }
 
   open({ token, decodedToken }) {
-    // @REVIEW we can maybe remove next line, if we are properly calling sseClient.close() from Push manager
-    this.close();
+    this.close(); // it closes connection if previously opened
 
-    // @TODO test and add error handling
     const channels = JSON.parse(decodedToken['x-ably-capability']);
     const channelsQueryParam = Object.keys(channels).map(
       function (channel) {
         return encodeURIComponent(channel);
       }
     ).join(',');
-    const url = `${BASE_URL}?channels=${channelsQueryParam}&accessToken=${token}&v=${VERSION}`;
+    const url = `${this.streamingUrl}?channels=${channelsQueryParam}&accessToken=${token}&v=${VERSION}`;
 
-    // @TODO set options
-    const options = {};
-    this.connection = new this.EventSource(url, options);
+    this.connection = new this.EventSource(url);
 
     if (this.handler) { // no need to check if SSEClient is used only by PushManager
       this.connection.onopen = this.handler.handleOpen;
@@ -53,9 +53,9 @@ export default class SSEClient {
     }
   }
 
-  /** Close if opened */
+  /** Close if open or connecting */
   close() {
-    if (this.connection && this.connection.readyState === OPEN) {
+    if (this.connection && this.connection.readyState !== CLOSED) {
       this.connection.close();
       if (this.handler) this.handler.handleClose();
     }
