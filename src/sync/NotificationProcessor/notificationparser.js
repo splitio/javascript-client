@@ -6,11 +6,12 @@ export const EventTypes = {
   STREAMING_DOWN: 'STREAMING_DOWN',
   STREAMING_UP: 'STREAMING_UP',
   RECONNECT: 'RECONNECT',
+  SSE_ERROR: 'error',
 };
 
 export function errorParser(error) {
-  const data = JSON.parse(error.data);
-  return data;
+  // @TODO review
+  return error;
 }
 
 export function messageParser(message) {

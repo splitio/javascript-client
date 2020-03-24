@@ -30,14 +30,25 @@ export default function NotificationProcessorFactory(callbacks, userKeyHashes) {
           eventData.splitName,
           eventData.defaultTreatment);
         break;
-      // @REVIEW do we need to close the connection if STREAMING_DOWN?
+
+      // @TODO check if we should call pushmanager.scheduleReAuth or something like that, as we do when Auth fails due to a HTTP or Network errors.
+      // HTTP or Network error
+      case EventTypes.SSE_ERROR:
+        // We must close the conexion to avoid error loop in the connection
+        callbacks.closeSSEconnection();
+        callbacks.startPolling();
+        break;
+
+      // @TODO NotificationManagerKeeper
       case EventTypes.STREAMING_DOWN:
+        // we don't close the SSE connection, to keep listening for STREAMING_UP events
         callbacks.startPolling();
         break;
       case EventTypes.STREAMING_UP:
         callbacks.stopPolling();
         callbacks.syncAll();
         break;
+
       // @REVIEW is there some scenario where we should consider a DISCONNECT event type?
       case EventTypes.RECONNECT:
         callbacks.connectPush();
@@ -48,6 +59,7 @@ export default function NotificationProcessorFactory(callbacks, userKeyHashes) {
   return {
     handleOpen() {
       // @REVIEW: call handleEvent({type: EventTypes.STREAMING_UP}); // or EventTypes.STREAMING_RECONNECTED according to spec
+      callbacks.stopPolling(); // needed on success reauth after a fail auth. In other scenarios, stopPolling will do nothing (already in PUSH mode)
       callbacks.syncAll();
     },
 
@@ -58,9 +70,8 @@ export default function NotificationProcessorFactory(callbacks, userKeyHashes) {
 
     handleError(error) {
       const errorData = errorParser(error);
-      // @TODO logic of NotificationManagerKeeper
-      // @TODO close connection to avoid reconnect loop
-      this.handleEvent(errorData);
+      // @TODO logic of NotificationManagerKeeper?
+      handleEvent(errorData);
     },
 
     handleMessage(message) {
