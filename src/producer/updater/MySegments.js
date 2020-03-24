@@ -32,24 +32,34 @@ function MySegmentsUpdaterFactory(context) {
   let readyOnAlreadyExistentState = true;
   let startingUp = true;
 
-  return function MySegmentsUpdater(retry = 0) {
+  function updateSegments(segments) {
+    // Update the list of segment names available
+    const shouldNotifyUpdate = storage.segments.resetSegments(segments);
+
+    // Notify update if required
+    if (storage.splits.usesSegments() && (shouldNotifyUpdate || readyOnAlreadyExistentState)) {
+      readyOnAlreadyExistentState = false;
+      segmentsEventEmitter.emit(segmentsEventEmitter.SDK_SEGMENTS_ARRIVED);
+    }
+  }
+
+  return function MySegmentsUpdater(retry = 0, segmentList) {
+    // If segmentList is provided, there is no need to fetch mySegments
+    if (segmentList) {
+      updateSegments(segmentList);
+      return;
+    }
+
     // NOTE: We only collect metrics on startup.
     return mySegmentsFetcher(settings, startingUp, metricCollectors).then(segments => {
       // Only when we have downloaded segments completely, we should not keep
       // retrying anymore
       startingUp = false;
 
-      // Update the list of segment names available
-      const shouldNotifyUpdate = storage.segments.resetSegments(segments);
-
-      // Notify update if required
-      if (storage.splits.usesSegments() && (shouldNotifyUpdate || readyOnAlreadyExistentState)) {
-        readyOnAlreadyExistentState = false;
-        segmentsEventEmitter.emit(segmentsEventEmitter.SDK_SEGMENTS_ARRIVED);
-      }
+      updateSegments(segments);
     })
       .catch(error => {
-        if (!(error instanceof SplitError)) setTimeout(() => {throw error;}, 0);
+        if (!(error instanceof SplitError)) setTimeout(() => { throw error; }, 0);
 
         if (startingUp && settings.startup.retriesOnFailureBeforeReady > retry) {
           retry += 1;
