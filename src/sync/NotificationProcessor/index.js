@@ -1,7 +1,11 @@
 import { EventTypes, errorParser, messageParser } from './notificationparser';
+import Backoff from '../../utils/backoff';
 
 // @TODO logging
-export default function NotificationProcessorFactory(callbacks, userKeyHashes) {
+export default function NotificationProcessorFactory(sseClient, backoffBase, callbacks, userKeyHashes) {
+
+  // @TODO name constant
+  const sseReconnectBackoff = new Backoff(sseClient.reopen.bind(sseClient), backoffBase, 1800);
 
   function handleEvent(eventData, channel) {
     switch (eventData.type) {
@@ -36,7 +40,8 @@ export default function NotificationProcessorFactory(callbacks, userKeyHashes) {
       case EventTypes.SSE_ERROR:
         // We must close the conexion to avoid error loop in the connection
         callbacks.closeSSEconnection();
-        callbacks.startPolling();
+        sseReconnectBackoff.scheduleCall();
+        callbacks.startPolling(); // no harm if polling already
         break;
 
       // @TODO NotificationManagerKeeper
@@ -61,6 +66,7 @@ export default function NotificationProcessorFactory(callbacks, userKeyHashes) {
       // @REVIEW: call handleEvent({type: EventTypes.STREAMING_UP}); // or EventTypes.STREAMING_RECONNECTED according to spec
       callbacks.stopPolling(); // needed on success reauth after a fail auth. In other scenarios, stopPolling will do nothing (already in PUSH mode)
       callbacks.syncAll();
+      sseReconnectBackoff.reset();
     },
 
     handleClose() {
