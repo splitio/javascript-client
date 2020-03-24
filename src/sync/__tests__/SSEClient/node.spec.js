@@ -48,6 +48,9 @@ tape('SSClient', t => {
     const instance = SSClient.getInstance(settings);
     instance.setEventHandler(handler);
 
+    // error on first open without authToken
+    assert.throws(instance.reopen.bind(instance), 'throw error if reopen is invoked without a previous open call');
+
     // open connection
     instance.open(authDataSample);
     let esconnection = instance.connection; // instance of EventSource used to mock events
@@ -77,11 +80,19 @@ tape('SSClient', t => {
     assert.ok(handler.handleOpen.notCalled, 'handleOpen not called until open event is emitted');
     assert.ok(handler.handleClose.notCalled, 'handleClose not called when you open the first connection');
 
-    // reopen connection
+    // open a new connection
     instance.open(authDataSample);
     assert.ok(handler.handleClose.called, 'handleClose called when you open a new connection');
     instance.connection.emitOpen();
     assert.ok(handler.handleOpen.calledOnce, 'handleOpen called when connection is open');
+
+    // reopen the connection
+    handler.handleOpen.resetHistory();
+    handler.handleClose.resetHistory();
+    instance.reopen();
+    instance.connection.emitOpen();
+    assert.ok(handler.handleOpen.calledOnce, 'handleOpen called if connection is reopen');
+    assert.ok(handler.handleClose.calledOnce, 'handleClose called if connection is reopen');
 
     // remove event handler before opening a new connection
     handler.handleOpen.resetHistory();
