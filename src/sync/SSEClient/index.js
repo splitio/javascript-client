@@ -23,6 +23,7 @@ export default class SSEClient {
   //  EventSource: EventSource constructor
   //  connection: EventSource | undefined
   //  handler: EventHandler for open, close, error and messages events
+  //  authToken: Object | undefined
 
   constructor(EventSource, settings) {
     this.EventSource = EventSource;
@@ -33,16 +34,24 @@ export default class SSEClient {
     this.handler = handler;
   }
 
-  open({ token, decodedToken }) {
+  /**
+   * Open the conexion with a given authToken
+   *
+   * @param {Object} authToken
+   * @throws {TypeError} if `authToken` is undefined
+   */
+  open(authToken) {
     this.close(); // it closes connection if previously opened
 
-    const channels = JSON.parse(decodedToken['x-ably-capability']);
+    this.authToken = authToken;
+
+    const channels = JSON.parse(authToken.decodedToken['x-ably-capability']);
     const channelsQueryParam = Object.keys(channels).map(
       function (channel) {
         return encodeURIComponent(channel);
       }
     ).join(',');
-    const url = `${this.streamingUrl}?channels=${channelsQueryParam}&accessToken=${token}&v=${VERSION}`;
+    const url = `${this.streamingUrl}?channels=${channelsQueryParam}&accessToken=${authToken.token}&v=${VERSION}`;
 
     this.connection = new this.EventSource(url);
 
@@ -59,5 +68,14 @@ export default class SSEClient {
       this.connection.close();
       if (this.handler) this.handler.handleClose();
     }
+  }
+
+  /**
+   * Re-open the conexion with the last given authToken.
+   *
+   * @throws {TypeError} if `open` has not been previously called with an authToken
+   */
+  reopen() {
+    this.open(this.authToken);
   }
 }
