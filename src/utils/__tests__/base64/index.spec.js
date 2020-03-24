@@ -1,10 +1,3 @@
-/**
- * TODO
- *  - test 'encodeToBase64' and 'decodeFromBase64'
- *    - in browser (atob/btoa)
- *    - in others (neither browser nor node)
- */
-
 import tape from 'tape';
 import { base64sample, decodedBase64sample } from '../../../sync/__tests__/mocks/dataMocks';
 

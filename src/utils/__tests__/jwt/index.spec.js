@@ -1,10 +1,3 @@
-/**
- * TODO
- *  - test 'encodeToBase64' and 'decodeFromBase64'
- *    - in browser (atob/btoa)
- *    - in others (neither browser and node)
- */
-
 import tape from 'tape';
 import { jwtSample, decodedJwtPayloadSample, userKeySample, userKeyBase64HashSample } from '../../../sync/__tests__/mocks/dataMocks';
 

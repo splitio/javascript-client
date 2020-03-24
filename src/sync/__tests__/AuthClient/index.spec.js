@@ -15,7 +15,7 @@ const settings = SettingsFactory({
 
 tape('authenticate', t => {
 
-  t.test('success in node (no user keys)', assert => {
+  t.test('success in node (200)', assert => {
 
     const userKeys = {};
 
@@ -35,7 +35,7 @@ tape('authenticate', t => {
     assert.end();
   });
 
-  t.test('success in browser (with user keys)', assert => {
+  t.test('success in browser (200)', assert => {
 
     const userKeys = { ['emi@split.io']: 'emihash', ['maldo@split.io']: 'maldohash' };
 
@@ -55,7 +55,23 @@ tape('authenticate', t => {
     assert.end();
   });
 
-  t.test('Invalid credentials', assert => {
+  t.test('bad request in browser due to no user keys (400)', assert => {
+
+    mock.onGet(settings.url('/auth')).replyOnce(() => {
+      return [400, '"no user specified"'];
+    });
+
+    authenticate(settings, {}).then(() => {
+      assert.fail('if bad request, promise is rejected');
+    }).catch(error => {
+      assert.equal(error.statusCode, 400,
+        'if bad request, status code is 400');
+    });
+
+    assert.end();
+  });
+
+  t.test('Invalid credentials (401)', assert => {
 
     mock.onGet(settings.url('/auth')).replyOnce(() => {
       return [401, '"Invalid credentials"'];
@@ -66,8 +82,47 @@ tape('authenticate', t => {
     }).catch(error => {
       assert.equal(error.statusCode, 401,
         'if invalid credential, status code is 401');
-      assert.equal(error.message, 'Split Network Error',
-        'if invalid credential, error message is "Split Network Error"');
+    });
+
+    assert.end();
+  });
+
+  t.test('HTTP error (other than 401)', assert => {
+
+    const NOT_OK_STATUS_CODE = 500;
+
+    mock.onGet(settings.url('/auth')).replyOnce(() => {
+      return [NOT_OK_STATUS_CODE, 'some error message'];
+    });
+
+    authenticate(settings, {}).then(() => {
+      assert.fail('if an HTTP error, promise is rejected');
+    }).catch(error => {
+      assert.equal(error.statusCode, NOT_OK_STATUS_CODE,
+        'if an HTTP error, status code is the HTTP status code');
+    });
+
+    assert.end();
+  });
+
+  t.test('Network error (e.g., timeout)', assert => {
+
+    mock.onGet(settings.url('/auth')).networkErrorOnce();
+
+    authenticate(settings, {}).then(() => {
+      assert.fail('if network error, promise is rejected');
+    }).catch(error => {
+      assert.equal(error.statusCode, 'NO_STATUS',
+        'if network error, status code is "NO_STATUS"');
+    });
+
+    mock.onGet(settings.url('/auth')).timeoutOnce();
+
+    authenticate(settings, {}).then(() => {
+      assert.fail('if timeout error, promise is rejected');
+    }).catch(error => {
+      assert.equal(error.statusCode, 'NO_STATUS',
+        'if timeout error, status code is "NO_STATUS"');
     });
 
     assert.end();
