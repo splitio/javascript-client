@@ -1,26 +1,33 @@
 import tape from 'tape';
 import sinon from 'sinon';
 import proxyquire from 'proxyquire';
+import SettingsFactory from '../../../utils/settings';
 import EventSourceMock from '../mocks/eventSourceMock';
-import { authDataSample } from  '../mocks/dataMocks';
+import { authDataSample, channelsQueryParamSample } from '../mocks/dataMocks';
 const proxyquireStrict = proxyquire.noCallThru();
 
 let eventSourceReference;
 
 // Import the module, mocking getEventSource.
-const SSClient = proxyquireStrict('../../sseclient/index', {
+const SSClient = proxyquireStrict('../../SSEClient/index', {
   '../../services/getEventSource': () => eventSourceReference
 }).default;
+
+const settings = SettingsFactory({
+  core: {
+    key: 'emi@split.io'
+  }
+});
 
 tape('SSClient', t => {
 
   t.test('getInstance', assert => {
     eventSourceReference = undefined;
-    let instance = SSClient.getInstance();
+    let instance = SSClient.getInstance(settings);
     assert.equal(instance, undefined, 'instance not created if EventSource not available');
 
     eventSourceReference = EventSourceMock;
-    instance = SSClient.getInstance();
+    instance = SSClient.getInstance(settings);
     assert.notEqual(instance, undefined, 'instance created if EventSource is available');
     assert.notEqual(instance.eventSource, EventSourceMock, 'the instance EventSource');
 
@@ -38,7 +45,7 @@ tape('SSClient', t => {
 
     // instance SSEClient
     eventSourceReference = EventSourceMock;
-    const instance = SSClient.getInstance();
+    const instance = SSClient.getInstance(settings);
     instance.setEventHandler(handler);
 
     // open connection
@@ -68,21 +75,38 @@ tape('SSClient', t => {
     // open attempt without open event emitted
     instance.open(authDataSample);
     assert.ok(handler.handleOpen.notCalled, 'handleOpen not called until open event is emitted');
+    assert.ok(handler.handleClose.notCalled, 'handleClose not called when you open the first connection');
 
     // reopen connection
     instance.open(authDataSample);
-    assert.ok(handler.handleClose.notCalled, 'handleClose not called when a new connection want to be open and previous one was not open');
+    assert.ok(handler.handleClose.called, 'handleClose called when you open a new connection');
     instance.connection.emitOpen();
     assert.ok(handler.handleOpen.calledOnce, 'handleOpen called when connection is open');
-    instance.open(authDataSample);
-    assert.ok(handler.handleClose.calledOnce, 'handleClose called when connection is closed to open a new connection');
 
     // remove event handler before opening a new connection
     handler.handleOpen.resetHistory();
+    handler.handleClose.resetHistory();
     instance.setEventHandler(undefined);
     instance.open(authDataSample);
     instance.connection.emitOpen();
     assert.ok(handler.handleOpen.notCalled, 'handleOpen not called if connection is open but the handler was removed');
+    assert.ok(handler.handleClose.notCalled, 'handleClose not called if a new connection is open but the handler was removed');
+
+    assert.end();
+  });
+
+  t.test('open method: URL', assert => {
+
+    eventSourceReference = EventSourceMock;
+    const instance = SSClient.getInstance(settings);
+    instance.open(authDataSample);
+
+    const EXPECTED_URL = settings.url('/sse') +
+      '?channels=' + channelsQueryParamSample +
+      '&accessToken=' + authDataSample.token +
+      '&v=1.1';
+
+    assert.equal(instance.connection.url, EXPECTED_URL, 'URL is properly set for streaming connection');
 
     assert.end();
   });

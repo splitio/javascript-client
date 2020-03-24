@@ -32,3 +32,5 @@ export const authDataSample = {
 export const userKeySample = 'emi@split.io';
 
 export const userKeyBase64HashSample = 'MjAxNjU2NDU5Mw==';
+
+export const channelsQueryParamSample = 'NzM2MDI5Mzc0_MzQyODU4NDUyNg%3D%3D_segments,NzM2MDI5Mzc0_MzQyODU4NDUyNg%3D%3D_splits,control';

@@ -27,6 +27,7 @@ import integrations from './integrations';
 
 const eventsEndpointMatcher = /^\/(testImpressions|metrics|events)/;
 const authEndpointMatcher = /^\/auth/;
+const streamingEndpointMatcher = /^\/(sse|event-stream)/;
 
 const base = {
   // Define which kind of object you want to retrieve from SplitFactory
@@ -69,6 +70,8 @@ const base = {
     events: 'https://events.split.io/api',
     // SDK Auth Server
     auth: 'https://auth.split.io/api',
+    // Streaming Server
+    streaming: 'https://realtime.ably.io',
   },
 
   // Defines which kind of storage we should instanciate.
@@ -152,6 +155,9 @@ const proto = {
     }
     if (authEndpointMatcher.test(target)) {
       return `${this.urls.auth}${target}`;
+    }
+    if (streamingEndpointMatcher.test(target)) {
+      return `${this.urls.streaming}${target}`;
     }
     return `${this.urls.sdk}${target}`;
   },

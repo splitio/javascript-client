@@ -9,12 +9,24 @@ import segmentSyncFactory from '../SegmentSync';
 /**
  * Factory of the push mode manager.
  *
- * @param {*} syncManager reference to syncManager for callback functions
- * @param {*} context context of main client
- * @param {*} producer producer of main client (/produce/node or /producer/browser/full)
- * @param {*} clients object with client information to handle mySegments synchronization. It is undefined for node.
+ * @param {*} syncManager reference to syncManager for callback functions.
+ *  interface syncManager {
+ *    startPolling: () => void,
+ *    stopPolling: () => void,
+ *    syncAll: () => void,
+ *  }
+ * @param {*} context context of main client.
+ * @param {*} producer producer of main client (/produce/node or /producer/browser/full).
+ * @param {*} clients object with client information to handle mySegments synchronization. undefined for node.
+ *  interface clients {
+ *    userKeys: { [userKey: string]: string },
+ *    userKeyHashes: { [userKeyHash: string]: string },
+ *    clients: { [userKey: string]: Object },
+ *  }
  */
 export default function PushManagerFactory(syncManager, context, producer, clients) {
+
+  // @TODO: check availability of EventSource, and base64 functions
 
   const sseClient = SSEClient.getInstance();
 
@@ -39,7 +51,7 @@ export default function PushManagerFactory(syncManager, context, producer, clien
   function scheduleNextReauth() {
     // @TODO calculate delay
     const delayInSeconds = 60;
-    scheduleReconnect(delayInSeconds);
+    scheduleReconnect(delayInSeconds * 1000);
   }
 
   let timeoutID = 0;
@@ -57,8 +69,12 @@ export default function PushManagerFactory(syncManager, context, producer, clien
   function connectPush() {
     authenticate(settings, clients ? clients.userKeys : undefined).then(
       function (authData) {
-        if (!authData.pushEnabled)
-          throw new Error('Streaming is not enabled for the organization');
+
+        if (!authData.pushEnabled) {
+          log.error('Streaming is not enabled for the organization. Switching to polling mode.');
+          syncManager.startPolling(); // there is no need to close sseClient (it is not open on this scenario)
+          return;
+        }
 
         // Connect to SSE and schedule refresh token
         const decodedToken = authData.decodedToken;
@@ -67,12 +83,17 @@ export default function PushManagerFactory(syncManager, context, producer, clien
       }
     ).catch(
       function (error) {
-        // @TODO: review:
-        //  log messages for invalid token, 'Streaming is not enabled for the organization', http errors, etc.
-        //  should we re-schedule a connect call when http errors or 'Streaming is not enabled for the organization'
-        //  (in case push is enabled for that call)?
+        if(error && error.statusCode) {
+          switch(error.statusCode) {
+            case 401:
+              log.error(error.message);
+              sseClient.close();
+              syncManager.startPolling(); // we switch to polling, even knowing that the API Key is invalid.
+              return;
+          }
+        }
+        // Branch for other HTTP and network errors
         log.error(error);
-
         sseClient.close();
         scheduleNextReauth();
       }
@@ -94,6 +115,8 @@ export default function PushManagerFactory(syncManager, context, producer, clien
     syncAll: syncManager.syncAll,
     // PushManager
     connectPush,
+    // @TODO review if passing sseClient directly
+    closeSSEconnection: sseClient.close.bind(sseClient),
     // SyncWorkers
     splitSync,
     segmentSync,
