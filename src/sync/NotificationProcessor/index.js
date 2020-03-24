@@ -4,8 +4,7 @@ import Backoff from '../../utils/backoff';
 // @TODO logging
 export default function NotificationProcessorFactory(sseClient, backoffBase, callbacks, userKeyHashes) {
 
-  // @TODO name constant
-  const sseReconnectBackoff = new Backoff(sseClient.reopen.bind(sseClient), backoffBase, 1800);
+  const sseReconnectBackoff = new Backoff(sseClient.reopen.bind(sseClient), backoffBase);
 
   function handleEvent(eventData, channel) {
     switch (eventData.type) {
