@@ -9,7 +9,7 @@ const proxyquireStrict = proxyquire.noCallThru();
 let eventSourceReference;
 
 // Import the module, mocking getEventSource.
-const SSClient = proxyquireStrict('../../sseclient/index', {
+const SSClient = proxyquireStrict('../../SSEClient/index', {
   '../../services/getEventSource': () => eventSourceReference
 }).default;
 
