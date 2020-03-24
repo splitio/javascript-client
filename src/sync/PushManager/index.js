@@ -5,11 +5,15 @@ import logFactory from '../../utils/logger';
 const log = logFactory('splitio-pushmanager');
 import splitSyncFactory from '../SplitSync';
 import segmentSyncFactory from '../SegmentSync';
+import checkPushSupport from './checkPushSupport';
+import Backoff from '../../utils/backoff';
+
+const SECONDS_BEFORE_EXPIRATION = 600;
 
 /**
  * Factory of the push mode manager.
  *
- * @param {*} syncManager reference to syncManager for callback functions.
+ * @param {*} syncManager reference to syncManager for callback functions (feedback loop).
  *  interface syncManager {
  *    startPolling: () => void,
  *    stopPolling: () => void,
@@ -26,16 +30,11 @@ import segmentSyncFactory from '../SegmentSync';
  */
 export default function PushManagerFactory(syncManager, context, producer, clients) {
 
-  // @TODO: check availability of EventSource, and base64 functions
+  // No return a PushManager if PUSH mode is not supported.
+  if (!checkPushSupport(log))
+    return;
 
   const sseClient = SSEClient.getInstance();
-
-  // No return a PushManager if sseClient could not be created, due to the lack of EventSource API.
-  if (!sseClient) {
-    log.warn('EventSource API is not available. Fallback to polling mode');
-    return undefined;
-  }
-
   const settings = context.get(context.constants.SETTINGS);
   const storage = context.get(context.constants.STORAGE);
 
@@ -43,33 +42,28 @@ export default function PushManagerFactory(syncManager, context, producer, clien
 
   /** PushManager functions, according to the spec */
 
-  function scheduleNextTokenRefresh(issuedAt, expirationTime) {
-    // @REVIEW calculate delay. Currently set one minute less than delta.
-    const delayInSeconds = expirationTime - issuedAt - 60;
-    scheduleReconnect(delayInSeconds * 1000);
-  }
-  function scheduleNextReauth() {
-    // @TODO calculate delay
-    const delayInSeconds = 60;
-    scheduleReconnect(delayInSeconds * 1000);
-  }
+  const authRetryBackoffBase = settings.authRetryBackoffBase;
+  const reauthBackoff = new Backoff(connectPush, authRetryBackoffBase);
 
   let timeoutID = 0;
-  function scheduleReconnect(delayInMillis) {
-    // @REVIEW is there some scenario where `clearScheduledReconnect` must be explicitly called?
+  function scheduleNextTokenRefresh(issuedAt, expirationTime) {
+    // Set token refresh 10 minutes before expirationTime
+    const delayInSeconds = expirationTime - issuedAt - SECONDS_BEFORE_EXPIRATION;
+
+    // @TODO review if there is some scenario where clearTimeout must be explicitly called
     // cancel a scheduled reconnect if previously established, since `scheduleReconnect` is invoked on different scenarios:
     // - initial connect
     // - scheduled connects for refresh token, auth errors and sse errors.
     if (timeoutID) clearTimeout(timeoutID);
     timeoutID = setTimeout(() => {
       connectPush();
-    }, delayInMillis);
+    }, delayInSeconds * 1000);
   }
 
   function connectPush() {
     authenticate(settings, clients ? clients.userKeys : undefined).then(
       function (authData) {
-
+        reauthBackoff.reset(); // restart attempts counter for reauth due to HTTP/network errors
         if (!authData.pushEnabled) {
           log.error('Streaming is not enabled for the organization. Switching to polling mode.');
           syncManager.startPolling(); // there is no need to close sseClient (it is not open on this scenario)
@@ -83,19 +77,20 @@ export default function PushManagerFactory(syncManager, context, producer, clien
       }
     ).catch(
       function (error) {
-        if(error && error.statusCode) {
-          switch(error.statusCode) {
-            case 401:
+
+        sseClient.close();
+        syncManager.startPolling(); // no harm if already in polling mode
+
+        if (error.statusCode) {
+          switch (error.statusCode) {
+            case 401: // invalid api key
               log.error(error.message);
-              sseClient.close();
-              syncManager.startPolling(); // we switch to polling, even knowing that the API Key is invalid.
               return;
           }
         }
         // Branch for other HTTP and network errors
         log.error(error);
-        sseClient.close();
-        scheduleNextReauth();
+        reauthBackoff.scheduleCall();
       }
     );
   }
@@ -104,23 +99,20 @@ export default function PushManagerFactory(syncManager, context, producer, clien
 
   const splitSync = splitSyncFactory(storage.splits, producer);
 
-  const segmentSync = clients ? segmentSyncFactory(clients.clients) : segmentSyncFactory(storage.segments, producer);
+  const segmentSync = clients ?
+    segmentSyncFactory(clients.clients) : // browser mySegmentsSync
+    segmentSyncFactory(storage.segments, producer); // node segmentSync
 
   /** initialization */
 
-  const notificationProcessor = NotificationProcessorFactory({
-    // SyncManager
-    startPolling: syncManager.startPolling,
-    stopPolling: syncManager.stopPolling,
-    syncAll: syncManager.syncAll,
-    // PushManager
-    connectPush,
-    // @TODO review if passing sseClient directly
-    closeSSEconnection: sseClient.close.bind(sseClient),
+  const notificationProcessor = NotificationProcessorFactory(
+    sseClient,
+    syncManager, // feedback loop
     // SyncWorkers
     splitSync,
     segmentSync,
-  }, clients ? clients.userKeyHashes : undefined);
+    settings.streamingReconnectBackoffBase,
+    clients ? clients.userKeyHashes : undefined);
   sseClient.setEventHandler(notificationProcessor);
 
   return {
