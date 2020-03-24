@@ -5,6 +5,7 @@ import logFactory from '../../utils/logger';
 const log = logFactory('splitio-pushmanager');
 import splitSyncFactory from '../SplitSync';
 import segmentSyncFactory from '../SegmentSync';
+import checkPushSupport from './checkPushSupport';
 
 /**
  * Factory of the push mode manager.
@@ -26,16 +27,11 @@ import segmentSyncFactory from '../SegmentSync';
  */
 export default function PushManagerFactory(syncManager, context, producer, clients) {
 
-  // @TODO: check availability of EventSource, and base64 functions
+  // No return a PushManager if PUSH mode is not supported.
+  if(!checkPushSupport(log))
+    return;
 
   const sseClient = SSEClient.getInstance();
-
-  // No return a PushManager if sseClient could not be created, due to the lack of EventSource API.
-  if (!sseClient) {
-    log.warn('EventSource API is not available. Fallback to polling mode');
-    return undefined;
-  }
-
   const settings = context.get(context.constants.SETTINGS);
   const storage = context.get(context.constants.STORAGE);
 
@@ -104,7 +100,9 @@ export default function PushManagerFactory(syncManager, context, producer, clien
 
   const splitSync = splitSyncFactory(storage.splits, producer);
 
-  const segmentSync = clients ? segmentSyncFactory(clients.clients) : segmentSyncFactory(storage.segments, producer);
+  const segmentSync = clients ?
+    segmentSyncFactory(clients.clients) : // browser mySegmentsSync
+    segmentSyncFactory(storage.segments, producer); // node segmentSync
 
   /** initialization */
 
