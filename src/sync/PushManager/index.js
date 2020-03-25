@@ -34,9 +34,9 @@ export default function PushManagerFactory(syncManager, context, producer, clien
   if (!checkPushSupport(log))
     return;
 
-  const sseClient = SSEClient.getInstance();
   const settings = context.get(context.constants.SETTINGS);
   const storage = context.get(context.constants.STORAGE);
+  const sseClient = SSEClient.getInstance(settings);
 
   /** Functions used to handle mySegments synchronization for browser */
 
