@@ -46,6 +46,10 @@ const TaskFactory = (updater, period) => {
 
       stopUpdater && stopUpdater();
       stopUpdater = false;
+    },
+
+    isRunning() {
+      return stopUpdater ? true : false;
     }
   };
 };
