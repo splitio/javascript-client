@@ -842,6 +842,20 @@ declare namespace SplitIO {
      * @default false
      */
     streamingEnabled?: boolean,
+    /**
+     * Seconds to wait before re attempting to authenticate for push notifications.
+     * Next attempts follow intervals in power of two: base seconds, base x 2 seconds, base x 4 seconds, ...
+     * @property {number} authRetryBackoffBase
+     * @default 1
+     */
+    authRetryBackoffBase?: number,
+    /**
+     * Seconds to wait before re attempting to connect to streaming.
+     * Next attempts follow intervals in power of two: base seconds, base x 2 seconds, base x 4 seconds, ...
+     * @property {number} streamingReconnectBackoffBase
+     * @default 1
+     */
+    streamingReconnectBackoffBase?: number,
   }
   /**
    * Settings interface for SDK instances created on NodeJS.

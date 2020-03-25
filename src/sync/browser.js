@@ -14,10 +14,8 @@ import { SETTINGS, STORAGE } from '../utils/context/constants';
  */
 export default function BrowserSyncManagerFactory() {
 
-
   let pushManager = undefined;
   let mainProducer = undefined; // reference to browser full producer (main client producer)
-
 
   // `clients` is a mapping of user keys to their corresponding hashes, partial producers and segments storages.
   const clients = {

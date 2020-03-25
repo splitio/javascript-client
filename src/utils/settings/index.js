@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-import { merge } from '../lang';
+import { merge, isFinite } from '../lang';
 import language from './language';
 import runtime from './runtime';
 import overridesPerPlatform from './defaults';
@@ -90,6 +90,15 @@ const base = {
 
   // List of integrations.
   integrations: undefined,
+
+  // toggle using (true) or not using (false) Server-Side Events for synchronizing storage
+  streamingEnabled: false,
+
+  // backoff base seconds to wait before re attempting to authenticate for push notifications
+  authRetryBackoffBase: 1,
+
+  // backoff base seconds to wait before re attempting to connect to streaming
+  streamingReconnectBackoffBase: 1,
 };
 
 function fromSecondsToMillis(n) {
@@ -138,6 +147,16 @@ function defaults(custom) {
   // ensure a valid list of integrations.
   // `integrations` returns an array of valid integration items.
   withDefaults.integrations = integrations(withDefaults);
+
+  // validate and fix push options
+  // @TODO log warning, and check if using `fromSecondsToMillis`, but what about 'NaN' results?
+  if (typeof withDefaults.streamingEnabled !== 'boolean') withDefaults.streamingEnabled = false;
+  if (withDefaults.streamingEnabled === true) {
+    if(!isFinite(withDefaults.authRetryBackoffBase) || withDefaults.authRetryBackoffBase < 1)
+      withDefaults.authRetryBackoffBase = base.authRetryBackoffBase;
+    if(!isFinite(withDefaults.streamingReconnectBackoffBase) || withDefaults.streamingReconnectBackoffBase < 1)
+      withDefaults.streamingReconnectBackoffBase = base.streamingReconnectBackoffBase;
+  }
 
   return withDefaults;
 }
