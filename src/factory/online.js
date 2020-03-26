@@ -14,7 +14,7 @@ function SplitFactoryOnline(context, readyTrackers, mainClientMetricCollectors) 
   const readiness = context.get(context.constants.READINESS);
   const storage = context.get(context.constants.STORAGE);
   const statusManager = context.get(context.constants.STATUS_MANAGER);
-  const syncManager = context.get(context.constants.SYNC_MANAGER);
+  const syncManager = context.get(context.constants.SYNC_MANAGER, true);
 
   // We are only interested in exposable EventEmitter
   const { gate, splits, segments } = readiness;

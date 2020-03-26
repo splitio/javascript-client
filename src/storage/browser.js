@@ -9,10 +9,41 @@ import EventsCacheInMemory from './EventsCache/InMemory';
 import KeyBuilder from './Keys';
 import KeyBuilderLocalStorage from './KeysLocalStorage';
 import { STORAGE_MEMORY, STORAGE_LOCALSTORAGE } from '../utils/constants';
+import { matching } from '../utils/key/factory';
 
 const BrowserStorageFactory = context => {
   const settings = context.get(context.constants.SETTINGS);
   const { storage } = settings;
+
+  const inMemoryInstances = {};
+  const localStorageInstances = {};
+
+  function getSegmentCacheInMemory(userKey, keys) {
+    if (!inMemoryInstances[userKey]) {
+      inMemoryInstances[userKey] = new SegmentCacheInMemory(keys);
+      inMemoryInstances[userKey].count = 0;
+    }
+    inMemoryInstances[userKey].count++;
+    return inMemoryInstances[userKey];
+  }
+
+  function getSegmentCacheInLocalStorage(userKey, keys) {
+    if (!localStorageInstances[userKey])
+      localStorageInstances[userKey] = new SegmentCacheInLocalStorage(keys);
+    return localStorageInstances[userKey];
+  }
+
+  function flushSegmentCacheInMemory(userKey) {
+    if (inMemoryInstances[userKey]) {
+      inMemoryInstances[userKey].count--;
+      if (inMemoryInstances[userKey].count === 0) {
+        inMemoryInstances[userKey].flush();
+        delete inMemoryInstances[userKey];
+      }
+    }
+  }
+
+  const mainUserKey = matching(settings.core.key);
 
   switch (storage.type) {
     case STORAGE_MEMORY: {
@@ -20,7 +51,7 @@ const BrowserStorageFactory = context => {
 
       return {
         splits: new SplitCacheInMemory,
-        segments: new SegmentCacheInMemory(keys),
+        segments: getSegmentCacheInMemory(mainUserKey, keys),
         impressions: new ImpressionsCacheInMemory,
         metrics: new LatencyCacheInMemory,
         count: new CountCacheInMemory,
@@ -29,10 +60,11 @@ const BrowserStorageFactory = context => {
         // When using shared instanciation with MEMORY we reuse everything but segments (they are customer per key).
         shared(settings) {
           const childKeyBuilder = new KeyBuilder(settings);
+          const userKey = matching(settings.core.key);
 
           return {
             splits: this.splits,
-            segments: new SegmentCacheInMemory(childKeyBuilder),
+            segments: getSegmentCacheInMemory(userKey, childKeyBuilder),
             impressions: this.impressions,
             metrics: this.metrics,
             count: this.count,
@@ -40,14 +72,14 @@ const BrowserStorageFactory = context => {
 
             destroy() {
               this.splits = new SplitCacheInMemory;
-              this.segments.flush();
+              flushSegmentCacheInMemory(userKey);
             }
           };
         },
 
         destroy() {
           this.splits.flush();
-          this.segments.flush();
+          flushSegmentCacheInMemory(mainUserKey);
           this.impressions.clear();
           this.metrics.clear();
           this.count.clear();
@@ -61,7 +93,7 @@ const BrowserStorageFactory = context => {
 
       return {
         splits: new SplitCacheInLocalStorage(keys),
-        segments: new SegmentCacheInLocalStorage(keys),
+        segments: getSegmentCacheInLocalStorage(mainUserKey, keys),
         impressions: new ImpressionsCacheInMemory,
         metrics: new LatencyCacheInMemory,
         count: new CountCacheInMemory,
@@ -70,10 +102,11 @@ const BrowserStorageFactory = context => {
         // When using shared instanciation with MEMORY we reuse everything but segments (they are customer per key).
         shared(settings) {
           const childKeysBuilder = new KeyBuilderLocalStorage(settings);
+          const userKey = matching(settings.core.key);
 
           return {
             splits: this.splits,
-            segments: new SegmentCacheInLocalStorage(childKeysBuilder),
+            segments: getSegmentCacheInLocalStorage(userKey, childKeysBuilder),
             impressions: this.impressions,
             metrics: this.metrics,
             count: this.count,
@@ -81,14 +114,14 @@ const BrowserStorageFactory = context => {
 
             destroy() {
               this.splits = new SplitCacheInMemory;
-              this.segments = new SegmentCacheInMemory(childKeysBuilder);
+              this.segments = getSegmentCacheInMemory(userKey, childKeysBuilder);
             }
           };
         },
 
         destroy() {
           this.splits = new SplitCacheInMemory;
-          this.segments = new SegmentCacheInMemory(new KeyBuilder(settings));
+          this.segments = getSegmentCacheInMemory(mainUserKey, new KeyBuilder(settings));
           this.impressions.clear();
           this.metrics.clear();
           this.count.clear();
