@@ -28,6 +28,7 @@ tape('SETTINGS / check defaults', assert => {
     sdk: 'https://sdk.split.io/api',
     events: 'https://events.split.io/api',
     auth: 'https://auth.split.io/api',
+    streaming: 'https://realtime.ably.io',
   });
   assert.end();
 });
@@ -94,6 +95,7 @@ tape('SETTINGS / urls should be configurable', assert => {
     sdk: 'sdk-url',
     events: 'events-url',
     auth: 'auth-url',
+    streaming: 'streaming-url',
   };
 
   const settings = SettingsFactory({
