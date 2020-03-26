@@ -7,15 +7,14 @@ import { hashUserKey } from '../utils/jwt/hashUserKey';
 import { SETTINGS, STORAGE } from '../utils/context/constants';
 
 /**
- * Factory of sync manager
- * It keeps a single partialProducer per userKey instead of shared client, to avoid duplicated `/mySegments` requests
+ * Factory of sync manager for browser
  *
  * @param context main client context
  */
 export default function BrowserSyncManagerFactory() {
 
-  let pushManager = undefined;
-  let mainProducer = undefined; // reference to browser full producer (main client producer)
+  let pushManager;
+  let mainProducer; // reference to browser full producer (main client producer)
 
   // `clients` is a mapping of user keys to their corresponding hashes, partial producers and segments storages.
   const clients = {
@@ -27,35 +26,32 @@ export default function BrowserSyncManagerFactory() {
     clients: {},
   };
 
-  // adds an entry to `clients` maps. If the client is new, it creates and returns the client producer
-  function addClient(userKey, clientContext, isSharedClient) {
-    if (!clients.clients[userKey]) {
-      const producer = isSharedClient ? PartialProducerFactory(clientContext) : FullProducerFactory(clientContext);
-      const mySegmentsStorage = clientContext.get(STORAGE).segments;
-      clients.clients[userKey] = { producer, mySegmentsStorage, count: 1 };
+  // adds an entry to `clients` maps
+  function addClient(context, isSharedClient) {
+    const settings = context.get(SETTINGS);
+    const userKey = matching(settings.core.key);
+    const producer = isSharedClient ? PartialProducerFactory(context) : FullProducerFactory(context);
+    const mySegmentsStorage = context.get(STORAGE).segments;
 
-      const hash = hashUserKey(userKey);
-      clients.userKeys[userKey] = hash;
-      clients.userKeyHashes[hash] = userKey;
+    clients.clients[userKey] = { producer, mySegmentsStorage };
+    const hash = hashUserKey(userKey);
+    clients.userKeys[userKey] = hash;
+    clients.userKeyHashes[hash] = userKey;
 
-      return producer;
-    } else {
-      // if previously created, count it
-      clients.clients[userKey].count++;
-    }
+    return producer;
   }
 
-  // removes an entry from `clients` maps. If it is last reference of the given `userKey`, it returns the client producer
-  function removeClient(userKey) {
+  // removes an entry from `clients` maps, and returns its producer
+  function removeClient(context) {
+    const settings = context.get(SETTINGS);
+    const userKey = matching(settings.core.key);
+
     const client = clients.clients[userKey];
-    if (client) {
-      client.count--;
-      if (client.count === 0) {
-        delete clients.clients[userKey];
-        delete clients.userKeyHashes[clients.userKeys[userKey]];
-        delete clients.userKeys[userKey];
-        return client.producer;
-      }
+    if (client) { // check in case `client.destroy()` has been invoked more than once for the same client
+      delete clients.clients[userKey];
+      delete clients.userKeyHashes[clients.userKeys[userKey]];
+      delete clients.userKeys[userKey];
+      return client.producer;
     }
   }
 
@@ -66,12 +62,13 @@ export default function BrowserSyncManagerFactory() {
     });
   }
 
-  function stopPolling() {
+  function stopPollingAndSyncAll() {
     // if polling, stop
     forOwn(clients.clients, function (entry) {
       if (entry.producer.isRunning())
         entry.producer.stop();
     });
+    syncAll();
   }
 
   function syncAll() {
@@ -86,44 +83,40 @@ export default function BrowserSyncManagerFactory() {
   return {
 
     startSync(context, isSharedClient) {
-      const settings = context.get(SETTINGS);
-      const userKey = matching(settings.core.key);
-      const producer = addClient(userKey, context, isSharedClient);
 
-      if (producer) {
-        // if main client and streamingEnabled, create PushManager
-        if (!isSharedClient) {
-          mainProducer = producer;
-          if (settings.streamingEnabled) {
-            pushManager = PushManagerFactory({
-              startPolling,
-              stopPolling,
-              syncAll,
-            }, context, mainProducer, clients);
-          }
-        }
+      const producer = addClient(context, isSharedClient);
 
-        // start syncing
-        if (pushManager) {
-          if (!isSharedClient) syncAll(); // initial syncAll (only when main client is created)
-          pushManager.connectPush(); // reconnects in case of a new shared client
-        } else {
-          producer.start();
+      // if main client and streamingEnabled, create PushManager
+      if (!isSharedClient) {
+        mainProducer = producer;
+        const settings = context.get(SETTINGS);
+        if (settings.streamingEnabled) {
+          pushManager = PushManagerFactory({
+            onPushConnect: stopPollingAndSyncAll,
+            onPushDisconnect: startPolling,
+          }, context, mainProducer, clients);
         }
+      }
+
+      // start syncing
+      if (pushManager) {
+        if (!isSharedClient) syncAll(); // initial syncAll (only when main client is created)
+        pushManager.connectPush(); // reconnects in case of a new shared client
+      } else {
+        producer.start();
       }
     },
 
     stopSync(context, isSharedClient) {
-      const settings = context.get(SETTINGS);
-      const userKey = matching(settings.core.key);
-      const producerToStop = isSharedClient ? removeClient(userKey) : mainProducer;
+
+      const producer = removeClient(context);
 
       // stop push if stoping main client
       if (!isSharedClient && pushManager)
         pushManager.stopPush();
 
-      if (producerToStop && producerToStop.isRunning())
-        producerToStop.stop();
+      if (producer && producer.isRunning())
+        producer.stop();
       // We don't reconnect pushmanager when removing a client,
       // since it is more costly than continue listening the channel
     },

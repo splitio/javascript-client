@@ -13,11 +13,10 @@ const SECONDS_BEFORE_EXPIRATION = 600;
 /**
  * Factory of the push mode manager.
  *
- * @param {*} syncManager reference to syncManager for callback functions (feedback loop).
- *  interface syncManager {
- *    startPolling: () => void,
- *    stopPolling: () => void,
- *    syncAll: () => void,
+ * @param {*} feedbackLoop callback functions for streaming up or down.
+ *  interface feedbackLoop {
+ *    onPushConnect: () => void,
+ *    onPushDisconnect: () => void,
  *  }
  * @param {*} context context of main client.
  * @param {*} producer producer of main client (/produce/node or /producer/browser/full).
@@ -28,7 +27,7 @@ const SECONDS_BEFORE_EXPIRATION = 600;
  *    clients: { [userKey: string]: Object },
  *  }
  */
-export default function PushManagerFactory(syncManager, context, producer, clients) {
+export default function PushManagerFactory(feedbackLoop, context, producer, clients) {
 
   // No return a PushManager if PUSH mode is not supported.
   if (!checkPushSupport(log))
@@ -37,8 +36,6 @@ export default function PushManagerFactory(syncManager, context, producer, clien
   const settings = context.get(context.constants.SETTINGS);
   const storage = context.get(context.constants.STORAGE);
   const sseClient = SSEClient.getInstance(settings);
-
-  /** Functions used to handle mySegments synchronization for browser */
 
   /** PushManager functions, according to the spec */
 
@@ -66,7 +63,7 @@ export default function PushManagerFactory(syncManager, context, producer, clien
         reauthBackoff.reset(); // restart attempts counter for reauth due to HTTP/network errors
         if (!authData.pushEnabled) {
           log.error('Streaming is not enabled for the organization. Switching to polling mode.');
-          syncManager.startPolling(); // there is no need to close sseClient (it is not open on this scenario)
+          feedbackLoop.onPushDisconnect(); // there is no need to close sseClient (it is not open on this scenario)
           return;
         }
 
@@ -79,7 +76,7 @@ export default function PushManagerFactory(syncManager, context, producer, clien
       function (error) {
 
         sseClient.close();
-        syncManager.startPolling(); // no harm if already in polling mode
+        feedbackLoop.onPushDisconnect(); // no harm if `onPushDisconnect` was already notified
 
         if (error.statusCode) {
           switch (error.statusCode) {
@@ -107,7 +104,7 @@ export default function PushManagerFactory(syncManager, context, producer, clien
 
   const notificationProcessor = NotificationProcessorFactory(
     sseClient,
-    syncManager, // feedback loop
+    feedbackLoop,
     // SyncWorkers
     splitSync,
     segmentSync,

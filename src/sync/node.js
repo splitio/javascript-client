@@ -2,31 +2,32 @@ import PushManagerFactory from './PushManager';
 import FullProducerFactory from '../producer';
 import { SETTINGS } from '../utils/context/constants';
 
+// Not do initial syncAll in producers
 /**
- * Factory of SyncManager
+ * Factory of SyncManager for node
  *
  * @param context main client context
  */
 export default function NodeSyncManagerFactory() {
 
-  let pushManager = undefined;
-  let producer = undefined;
+  let pushManager;
+  let producer;
 
   function startPolling() {
-    if (!producer.isRunning())
+    if (producer && !producer.isRunning())
       producer.start();
   }
 
-  // for the moment, the PushManager uses `stopPolling` together with `syncAll`, but they are separated for future scenarios
-  function stopPolling() {
+  function stopPollingAndSyncAll() {
     // if polling, stop
-    if (producer.isRunning())
+    if (producer && producer.isRunning())
       producer.stop();
+    syncAll();
   }
 
   function syncAll() {
     // fetch splits and segments. There is no need to catch this promise (it is handled by `SplitChangesUpdater`)
-    producer.callSplitsUpdater().then(() => {
+    producer && producer.callSplitsUpdater().then(() => {
       producer.callSegmentsUpdater();
     });
   }
@@ -38,9 +39,8 @@ export default function NodeSyncManagerFactory() {
 
       if (settings.streamingEnabled)
         pushManager = PushManagerFactory({
-          startPolling,
-          stopPolling,
-          syncAll,
+          onPushConnect: stopPollingAndSyncAll,
+          onPushDisconnect: startPolling,
         }, context, producer);
 
       // start syncing

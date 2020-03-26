@@ -4,7 +4,7 @@ import Backoff from '../../utils/backoff';
 // @TODO logging
 export default function NotificationProcessorFactory(
   sseClient,
-  syncManager /* feedback loop */,
+  feedbackLoop,
   splitSync,
   segmentSync,
   backoffBase,
@@ -47,30 +47,28 @@ export default function NotificationProcessorFactory(
         // retries are hadnled via backoff algorithm
         sseClient.close();
         sseReconnectBackoff.scheduleCall();
-        syncManager.startPolling(); // no harm if polling already
+        feedbackLoop.onPushDisconnect(); // no harm if polling already
         break;
 
       // @TODO NotificationManagerKeeper
       case EventTypes.STREAMING_DOWN:
         // we don't close the SSE connection, to keep listening for STREAMING_UP events
-        syncManager.startPolling();
+        feedbackLoop.onPushDisconnect();
         break;
       case EventTypes.STREAMING_UP:
-        syncManager.stopPolling();
-        syncManager.syncAll();
+        feedbackLoop.onPushConnect();
         break;
     }
   }
 
   return {
     handleOpen() {
-      syncManager.stopPolling(); // needed on success reauth after a fail auth. In other scenarios, stopPolling will do nothing (already in PUSH mode)
-      syncManager.syncAll();
+      feedbackLoop.onPushConnect();
       sseReconnectBackoff.reset(); // reset backoff in case SSE conexion has opened after a HTTP or network error.
     },
 
     handleClose() {
-      syncManager.startPolling();
+      feedbackLoop.onPushDisconnect();
     },
 
     handleError(error) {
