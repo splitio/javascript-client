@@ -46,13 +46,13 @@ class SplitCacheLocalStorage {
           const segmentsCountKey = this.keys.buildSplitsWithSegmentCountKey();
           localStorage.setItem(segmentsCountKey, toNumber(localStorage.getItem(segmentsCountKey)) + 1);
         }
-      }
+      }      
     } catch (e) {
       log.error(e);
     }
   }
 
-  addSplit(splitName, split) {
+  addSplit(splitName , split) {
     try {
       const splitKey = this.keys.buildSplitKey(splitName);
       const splitFromLocalStorage = localStorage.getItem(splitKey);
@@ -64,7 +64,7 @@ class SplitCacheLocalStorage {
       const parsedSplit = split ? JSON.parse(split) : null;
 
       this.incrementCounts(parsedSplit);
-
+      
       return true;
     } catch (e) {
       log.error(e);
@@ -91,7 +91,7 @@ class SplitCacheLocalStorage {
       this.decrementCounts(parsedSplit);
 
       return 1;
-    } catch (e) {
+    } catch(e) {
       log.error(e);
       return 0;
     }
@@ -185,7 +185,7 @@ class SplitCacheLocalStorage {
 
     const storedCount = localStorage.getItem(this.keys.buildSplitsWithSegmentCountKey());
     const splitsWithSegmentsCount = storedCount === null ? 0 : toNumber(storedCount);
-
+    
     if (isFinite(splitsWithSegmentsCount)) {
       return splitsWithSegmentsCount > 0;
     } else {
@@ -215,18 +215,6 @@ class SplitCacheLocalStorage {
    */
   checkCache() {
     return this.getChangeNumber() > -1;
-  }
-
-  killSplit(splitName, defaultTreatment) {
-    const split = this.getSplit(splitName);
-
-    if (split) {
-      const parsedSplit = JSON.parse(split);
-      parsedSplit.killed = true;
-      parsedSplit.defaultTreatment = defaultTreatment;
-      const newSplit = JSON.stringify(parsedSplit);
-      this.addSplit(splitName, newSplit);
-    }
   }
 }
 
