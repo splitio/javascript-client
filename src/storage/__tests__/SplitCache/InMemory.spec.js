@@ -1,5 +1,6 @@
 import tape from 'tape-catch';
 import SplitCacheInMemory from '../../SplitCache/InMemory';
+import killLocally from '../../SplitCache/killLocally';
 
 tape('SPLIT CACHE / In Memory', assert => {
   const cache = new SplitCacheInMemory();
@@ -81,6 +82,30 @@ tape('SPLIT CACHE / In Memory / trafficTypeExists and ttcache tests', assert => 
   cache.addSplit('split1', '{ "trafficTypeName": "account_tt" }');
   assert.true(cache.trafficTypeExists('account_tt'));
   assert.false(cache.trafficTypeExists('user_tt'));
+
+  assert.end();
+});
+
+tape('SPLIT CACHE / In Memory / killLocally', assert => {
+  const cache = new SplitCacheInMemory();
+  cache.addSplit('lol1', '{ "name": "something"}');
+  cache.addSplit('lol2', '{ "name": "something else"}');
+  const initialChangeNumber = cache.getChangeNumber();
+
+  // kill an unexistent split
+  killLocally(cache, 'unexistent_split', 'other_treatment', 101);
+  const unexistentSplit = cache.getSplit('unexistent_split');
+
+  assert.equal(unexistentSplit, undefined, 'unexisting split keeps being unexistent');
+  assert.equal(cache.getChangeNumber(), initialChangeNumber, 'changeNumber is not changed if `killLocally` is call over an unexistent split');
+
+  // kill an existent split
+  killLocally(cache, 'lol1', 'some_treatment', 100);
+  const lol1Split = JSON.parse(cache.getSplit('lol1'));
+
+  assert.equal(lol1Split.killed, true, 'existing split must be killed');
+  assert.equal(lol1Split.defaultTreatment, 'some_treatment', 'existing split must have the given default treatment');
+  assert.equal(cache.getChangeNumber(), 100, 'cache must have new changeNumber');
 
   assert.end();
 });

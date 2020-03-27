@@ -12,9 +12,9 @@ export default function killLocally(splitStorage, splitName, defaultTreatment, c
     const newSplit = JSON.stringify(parsedSplit);
     splitStorage.addSplit(splitName, newSplit);
     // Instead of calling `splitStorage.addSplit`, we could optimize it at follows:
-    // for `InMemory` storage call:
+    //  for `InMemory` storage call:
     //    splitStorage.splitCache.set(splitName, newSplit);
-    // for `InLocalStorage` cache call:
+    //  for `InLocalStorage` cache call:
     //    const splitKey = splitStorage.keys.buildSplitKey(splitName); localStorage.setItem(splitKey, split);
     splitStorage.setChangeNumber(changeNumber);
   }
