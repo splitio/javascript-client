@@ -10,54 +10,57 @@ import { SETTINGS } from '../utils/context/constants';
  */
 export default function NodeSyncManagerFactory() {
 
-  let pushManager;
-  let producer;
-
-  function startPolling() {
-    if (producer && !producer.isRunning())
-      producer.start();
-  }
-
-  function stopPollingAndSyncAll() {
-    // if polling, stop
-    if (producer && producer.isRunning())
-      producer.stop();
-    syncAll();
-  }
-
-  function syncAll() {
-    // fetch splits and segments. There is no need to catch this promise (it is handled by `SplitChangesUpdater`)
-    producer && producer.callSplitsUpdater().then(() => {
-      producer.callSegmentsUpdater();
-    });
-  }
-
   return {
-    startSync(context) {
-      const settings = context.get(SETTINGS);
-      producer = FullProducerFactory(context);
+    createSync(context) {
+      const producer = FullProducerFactory(context);
 
+      function startPolling() {
+        if (!producer.isRunning())
+          producer.start();
+      }
+
+      function stopPollingAndSyncAll() {
+        // if polling, stop
+        if (producer.isRunning())
+          producer.stop();
+        syncAll();
+      }
+
+      function syncAll() {
+        // fetch splits and segments. There is no need to catch this promise (it is handled by `SplitChangesUpdater`)
+        producer.callSplitsUpdater().then(() => {
+          producer.callSegmentsUpdater();
+        });
+      }
+
+      let pushManager;
+
+      const settings = context.get(SETTINGS);
       if (settings.streamingEnabled)
         pushManager = PushManagerFactory({
           onPushConnect: stopPollingAndSyncAll,
           onPushDisconnect: startPolling,
-        }, context, producer);
+        }, context);
 
-      // start syncing
-      if (pushManager) {
-        syncAll();
-        pushManager.connectPush();
-      } else {
-        producer.start();
-      }
-    },
-    stopSync() {
-      // stop syncing
-      if (pushManager)
-        pushManager.stopPush();
+      return {
+        start() {
+          // start syncing
+          if (pushManager) {
+            syncAll();
+            pushManager.connectPush();
+          } else {
+            producer.start();
+          }
+        },
+        stop() {
+          // stop syncing
+          if (pushManager)
+            pushManager.stopPush();
 
-      if (producer.isRunning())
-        producer.stop();
+          if (producer.isRunning())
+            producer.stop();
+        }
+      };
     },
   };
 }

@@ -1,5 +1,6 @@
 import { EventTypes, errorParser, messageParser } from './notificationparser';
 import Backoff from '../../utils/backoff';
+import { MY_SEGMENT_SYNC } from '../../utils/context/constants';
 
 // @TODO logging
 export default function NotificationProcessorFactory(
@@ -28,10 +29,12 @@ export default function NotificationProcessorFactory(
         // @TODO test the following way to get the userKey from the channel hash
         const userKeyHash = channel.split('_')[2];
         const userKey = userKeyHashes[userKeyHash];
-        segmentSync.queueSyncMySegments(
-          eventData.changeNumber,
-          userKey,
-          eventData.includesPayload ? eventData.segmentList : undefined);
+        if (userKey && segmentSync[userKey]) { // check context since it can be undefined if client has been destroyed
+          const mySegmentSync = segmentSync[userKey].get(MY_SEGMENT_SYNC, true);
+          mySegmentSync && mySegmentSync.queueSyncMySegments(
+            eventData.changeNumber,
+            eventData.includesPayload ? eventData.segmentList : undefined);
+        }
         break;
       }
       case EventTypes.SPLIT_KILL:

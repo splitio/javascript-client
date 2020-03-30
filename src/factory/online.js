@@ -29,10 +29,13 @@ function SplitFactoryOnline(context, readyTrackers, mainClientMetricCollectors) 
   // Signal listener only needed for main instances
   const signalsListener = sharedInstance ? undefined : new SignalsListener(context);
 
+  let synchronizer;
+
   switch (settings.mode) {
     case PRODUCER_MODE:
     case STANDALONE_MODE: { // STANDALONE_MODE implies `syncManager !== undefined`
       context.put(context.constants.COLLECTORS, metrics && metrics.collectors);
+      synchronizer = syncManager.createSync(context, sharedInstance /* used in browser only */);
       break;
     }
     case CONSUMER_MODE: {
@@ -45,7 +48,7 @@ function SplitFactoryOnline(context, readyTrackers, mainClientMetricCollectors) 
     }
   }
 
-  if (readyTrackers && syncManager && !sharedInstance) { // Only track ready events for non-shared clients in standalone mode
+  if (readyTrackers && synchronizer && !sharedInstance) { // Only track ready events for non-shared and non-consumer clients
     const {
       sdkReadyTracker, splitsReadyTracker, segmentsReadyTracker
     } = readyTrackers;
@@ -59,7 +62,7 @@ function SplitFactoryOnline(context, readyTrackers, mainClientMetricCollectors) 
   }
 
   // Start background jobs tasks
-  syncManager && syncManager.startSync(context, sharedInstance /* used in browser only */);
+  synchronizer && synchronizer.start();
   metrics && metrics.start();
   events && context.put(context.constants.EVENTS, events) && events.start();
 
@@ -76,7 +79,7 @@ function SplitFactoryOnline(context, readyTrackers, mainClientMetricCollectors) 
       // Destroy instance
       async destroy() {
         // Stop background jobs
-        syncManager && syncManager.stopSync(context, sharedInstance /* used in browser only */);
+        synchronizer && synchronizer.stop();
         metrics && metrics.stop();
         events && events.stop();
 

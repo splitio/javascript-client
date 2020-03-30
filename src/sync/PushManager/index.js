@@ -7,6 +7,8 @@ import splitSyncFactory from '../SplitSync';
 import segmentSyncFactory from '../SegmentSync';
 import checkPushSupport from './checkPushSupport';
 import Backoff from '../../utils/backoff';
+import { hashUserKey } from '../../utils/jwt/hashUserKey';
+import { PRODUCER, STORAGE, MY_SEGMENT_SYNC } from '../../utils/context/constants';
 
 const SECONDS_BEFORE_EXPIRATION = 600;
 
@@ -27,7 +29,7 @@ const SECONDS_BEFORE_EXPIRATION = 600;
  *    clients: { [userKey: string]: Object },
  *  }
  */
-export default function PushManagerFactory(feedbackLoop, context, producer, clients) {
+export default function PushManagerFactory(feedbackLoop, context, clientContexts /* undefined for node */) {
 
   // No return a PushManager if PUSH mode is not supported.
   if (!checkPushSupport(log))
@@ -58,7 +60,7 @@ export default function PushManagerFactory(feedbackLoop, context, producer, clie
   }
 
   function connectPush() {
-    authenticate(settings, clients ? clients.userKeys : undefined).then(
+    authenticate(settings, clientContexts ? Object.keys(clientContexts) : undefined).then(
       function (authData) {
         reauthBackoff.reset(); // restart attempts counter for reauth due to HTTP/network errors
         if (!authData.pushEnabled) {
@@ -93,14 +95,14 @@ export default function PushManagerFactory(feedbackLoop, context, producer, clie
   }
 
   /** Functions related to synchronization according to the spec (Queues and Workers) */
-
+  const producer = context.get(PRODUCER, true);
   const splitSync = splitSyncFactory(storage.splits, producer);
 
-  const segmentSync = clients ?
-    segmentSyncFactory(clients.clients) : // browser mySegmentsSync
+  const segmentSync = clientContexts || // map of user keys to contexts, used by NotificationProcessor to get MySegmentSync in browser
     segmentSyncFactory(storage.segments, producer); // node segmentSync
 
   /** initialization */
+  const userKeyHashes = {};
 
   const notificationProcessor = NotificationProcessorFactory(
     sseClient,
@@ -109,7 +111,7 @@ export default function PushManagerFactory(feedbackLoop, context, producer, clie
     splitSync,
     segmentSync,
     settings.streamingReconnectBackoffBase,
-    clients ? clients.userKeyHashes : undefined);
+    userKeyHashes);
   sseClient.setEventHandler(notificationProcessor);
 
   return {
@@ -118,6 +120,22 @@ export default function PushManagerFactory(feedbackLoop, context, producer, clie
       sseClient.setEventHandler(undefined);
       sseClient.close();
     },
+
+    // used in node
     connectPush,
+
+    // used in browser
+    addClient(userKey, context) {
+      const hash = hashUserKey(userKey);
+      userKeyHashes[hash] = userKey;
+      const storage = context.get(STORAGE);
+      const producer = context.get(PRODUCER);
+      context.put(MY_SEGMENT_SYNC, segmentSyncFactory(storage.segments, producer));
+      connectPush(); // reconnects to listen MY_SEGMENTS_UPDATE channel for the new client
+    },
+    removeClient(userKey) {
+      const hash = hashUserKey(userKey);
+      delete userKeyHashes[hash];
+    }
   };
 }
