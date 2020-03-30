@@ -97,15 +97,20 @@ tape('SPLIT CACHE / In Memory / killLocally', assert => {
   const unexistentSplit = cache.getSplit('unexistent_split');
 
   assert.equal(unexistentSplit, undefined, 'unexisting split keeps being unexistent');
-  assert.equal(cache.getChangeNumber(), initialChangeNumber, 'changeNumber is not changed if `killLocally` is call over an unexistent split');
 
   // kill an existent split
   killLocally(cache, 'lol1', 'some_treatment', 100);
-  const lol1Split = JSON.parse(cache.getSplit('lol1'));
+  let lol1Split = JSON.parse(cache.getSplit('lol1'));
 
-  assert.equal(lol1Split.killed, true, 'existing split must be killed');
+  assert.true(lol1Split.killed, 'existing split must be killed');
   assert.equal(lol1Split.defaultTreatment, 'some_treatment', 'existing split must have the given default treatment');
-  assert.equal(cache.getChangeNumber(), 100, 'cache must have new changeNumber');
+  assert.equal(lol1Split.changeNumber, 100, 'existing split must have the given change number');
+  assert.equal(cache.getChangeNumber(), initialChangeNumber, 'cache changeNumber is not changed');
+
+  // not update if changeNumber is old
+  killLocally(cache, 'lol1', 'some_treatment_2', 90);
+  lol1Split = JSON.parse(cache.getSplit('lol1'));
+  assert.notEqual(lol1Split.defaultTreatment, 'some_treatment_2', 'existing split is not updated if given changeNumber is older');
 
   assert.end();
 });
