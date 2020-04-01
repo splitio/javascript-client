@@ -1,77 +1,68 @@
-import { EventTypes, errorParser, messageParser } from './notificationparser';
+import { errorParser, messageParser } from './notificationparser';
 import Backoff from '../../utils/backoff';
-import { MY_SEGMENTS_CHANGE_WORKER } from '../../utils/context/constants';
+import { PushEventTypes } from '../constants';
 
 // @TODO logging
 export default function NotificationProcessorFactory(
   sseClient,
   pushEmitter, // feedbackLoop
-  splitSync,
-  segmentSync,
-  backoffBase,
-  userKeyHashes
+  backoffBase
 ) {
 
   const sseReconnectBackoff = new Backoff(sseClient.reopen.bind(sseClient), backoffBase);
 
   function handleEvent(eventData, channel) {
     switch (eventData.type) {
-      case EventTypes.SPLIT_UPDATE:
-        splitSync.queueSyncSplits(
+      case PushEventTypes.SPLIT_UPDATE:
+        pushEmitter.emit(PushEventTypes.SPLIT_UPDATE, 
           eventData.changeNumber);
         break;
-      case EventTypes.SEGMENT_UPDATE:
-        segmentSync.queueSyncSegments(
-          eventData.changeNumber,
+      case PushEventTypes.SEGMENT_UPDATE:
+        pushEmitter.emit(PushEventTypes.SEGMENT_UPDATE, 
+          eventData.changeNumber, 
           eventData.segmentName);
         break;
-      case EventTypes.MY_SEGMENTS_UPDATE: {
-        // @TODO test the following way to get the userKey from the channel hash
-        const userKeyHash = channel.split('_')[2];
-        const userKey = userKeyHashes[userKeyHash];
-        if (userKey && segmentSync[userKey]) { // check context since it can be undefined if client has been destroyed
-          const mySegmentSync = segmentSync[userKey].get(MY_SEGMENTS_CHANGE_WORKER, true);
-          mySegmentSync && mySegmentSync.queueSyncMySegments(
-            eventData.changeNumber,
-            eventData.includesPayload ? eventData.segmentList : undefined);
-        }
+      case PushEventTypes.MY_SEGMENTS_UPDATE: {
+        pushEmitter.emit(PushEventTypes.MY_SEGMENTS_UPDATE, 
+          eventData,
+          channel);
         break;
       }
-      case EventTypes.SPLIT_KILL:
-        splitSync.killSplit(
+      case PushEventTypes.SPLIT_KILL:
+        pushEmitter.emit(PushEventTypes.SPLIT_KILL, 
           eventData.changeNumber,
           eventData.splitName,
           eventData.defaultTreatment);
         break;
 
       // HTTP or Network error
-      case EventTypes.SSE_ERROR:
-        // close the conexion to avoid repeated errors due to retries
+      case PushEventTypes.SSE_ERROR:
+        // SSE connection is closed to avoid repeated errors due to retries
         // retries are hadnled via backoff algorithm
         sseClient.close();
         sseReconnectBackoff.scheduleCall();
-        pushEmitter.emit(pushEmitter.Event.PUSH_DISCONNECT); // no harm if polling already
+        pushEmitter.emit(PushEventTypes.PUSH_DISCONNECT); // no harm if polling already
         break;
 
       // @TODO NotificationManagerKeeper
-      case EventTypes.STREAMING_DOWN:
-        // we don't close the SSE connection, to keep listening for STREAMING_UP events
-        pushEmitter.emit(pushEmitter.Event.PUSH_DISCONNECT);
+      case PushEventTypes.STREAMING_DOWN:
+        // SSE connection is not closed to keep listening for STREAMING_UP events
+        pushEmitter.emit(PushEventTypes.PUSH_DISCONNECT);
         break;
-      case EventTypes.STREAMING_UP:
-        pushEmitter.emit(pushEmitter.Event.PUSH_CONNECT);
+      case PushEventTypes.STREAMING_UP:
+        pushEmitter.emit(PushEventTypes.PUSH_CONNECT);
         break;
     }
   }
 
   return {
     handleOpen() {
-      pushEmitter.emit(pushEmitter.Event.PUSH_CONNECT);
+      pushEmitter.emit(PushEventTypes.PUSH_CONNECT);
       sseReconnectBackoff.reset(); // reset backoff in case SSE conexion has opened after a HTTP or network error.
     },
 
     handleClose() {
-      pushEmitter.emit(pushEmitter.Event.PUSH_DISCONNECT);
+      pushEmitter.emit(PushEventTypes.PUSH_DISCONNECT);
     },
 
     handleError(error) {

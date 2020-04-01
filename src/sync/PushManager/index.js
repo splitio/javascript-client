@@ -9,12 +9,7 @@ import checkPushSupport from './checkPushSupport';
 import Backoff from '../../utils/backoff';
 import { hashUserKey } from '../../utils/jwt/hashUserKey';
 import EventEmitter from 'events';
-
-const SECONDS_BEFORE_EXPIRATION = 600;
-const Event = {
-  PUSH_CONNECT: 'PUSH_CONNECT',
-  PUSH_DISCONNECT: 'PUSH_DISCONNECT',
-};
+import { PushEventTypes, SECONDS_BEFORE_EXPIRATION } from '../constants';
 
 /**
  * Factory of the push mode manager.
@@ -36,7 +31,7 @@ const Event = {
 export default function PushManagerFactory(context, clientContexts /* undefined for node */) {
 
   const pushEmitter = new EventEmitter();
-  pushEmitter.Event = Event;
+  pushEmitter.Event = PushEventTypes;
 
   // No return a PushManager if PUSH mode is not supported.
   if (!checkPushSupport(log))
@@ -101,25 +96,38 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
     );
   }
 
-  /** Functions related to synchronization according to the spec (Queues and Workers) */
-  const producer = context.get(context.constants.PRODUCER, true);
-  const splitSync = splitSyncFactory(storage.splits, producer);
-
-  const segmentSync = clientContexts || // map of user keys to contexts, used by NotificationProcessor to get MySegmentSync in browser
-    segmentSyncFactory(storage.segments, producer); // node segmentSync
-
   /** initialization */
   const userKeyHashes = {};
 
   const notificationProcessor = NotificationProcessorFactory(
     sseClient,
     pushEmitter,
-    // SyncWorkers
-    splitSync,
-    segmentSync,
-    settings.streamingReconnectBackoffBase,
-    userKeyHashes);
+    settings.streamingReconnectBackoffBase);
   sseClient.setEventHandler(notificationProcessor);
+
+  /** Functions related to synchronization according to the spec (Queues and Workers) */
+  const producer = context.get(context.constants.PRODUCER, true);
+  const splitSync = splitSyncFactory(storage.splits, producer);
+
+  pushEmitter.on(PushEventTypes.SPLIT_KILL, splitSync.killSplit);
+  pushEmitter.on(PushEventTypes.SPLIT_UPDATE, splitSync.queueSyncSplits);
+
+  if (clientContexts) { // browser
+    pushEmitter.on(PushEventTypes.MY_SEGMENTS_UPDATE, function handleMySegmentsUpdate(eventData, channel) {
+      // @TODO move function outside and test
+      const userKeyHash = channel.split('_')[2];
+      const userKey = userKeyHashes[userKeyHash];
+      if (userKey && clientContexts[userKey]) { // check context since it can be undefined if client has been destroyed
+        const mySegmentSync = clientContexts[userKey].get(context.constants.MY_SEGMENTS_CHANGE_WORKER, true);
+        mySegmentSync && mySegmentSync.queueSyncMySegments(
+          eventData.changeNumber,
+          eventData.includesPayload ? eventData.segmentList : undefined);
+      }
+    });
+  } else { // node
+    const segmentSync = segmentSyncFactory(storage.segments, producer);
+    pushEmitter.on(PushEventTypes.SEGMENT_UPDATE, segmentSync.queueSyncSegments);
+  }
 
   return Object.assign(
     // Expose Event Emitter functionality and Event constants
