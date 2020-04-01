@@ -8,8 +8,13 @@ import segmentSyncFactory from '../SegmentSync';
 import checkPushSupport from './checkPushSupport';
 import Backoff from '../../utils/backoff';
 import { hashUserKey } from '../../utils/jwt/hashUserKey';
+import EventEmitter from 'events';
 
 const SECONDS_BEFORE_EXPIRATION = 600;
+const Event = {
+  PUSH_CONNECT: 'PUSH_CONNECT',
+  PUSH_DISCONNECT: 'PUSH_DISCONNECT',
+};
 
 /**
  * Factory of the push mode manager.
@@ -28,7 +33,10 @@ const SECONDS_BEFORE_EXPIRATION = 600;
  *    clients: { [userKey: string]: Object },
  *  }
  */
-export default function PushManagerFactory(feedbackLoop, context, clientContexts /* undefined for node */) {
+export default function PushManagerFactory(context, clientContexts /* undefined for node */) {
+
+  const pushEmitter = new EventEmitter();
+  pushEmitter.Event = Event;
 
   // No return a PushManager if PUSH mode is not supported.
   if (!checkPushSupport(log))
@@ -64,7 +72,7 @@ export default function PushManagerFactory(feedbackLoop, context, clientContexts
         reauthBackoff.reset(); // restart attempts counter for reauth due to HTTP/network errors
         if (!authData.pushEnabled) {
           log.error('Streaming is not enabled for the organization. Switching to polling mode.');
-          feedbackLoop.onPushDisconnect(); // there is no need to close sseClient (it is not open on this scenario)
+          pushEmitter.emit(Event.PUSH_DISCONNECT); // there is no need to close sseClient (it is not open on this scenario)
           return;
         }
 
@@ -77,7 +85,7 @@ export default function PushManagerFactory(feedbackLoop, context, clientContexts
       function (error) {
 
         sseClient.close();
-        feedbackLoop.onPushDisconnect(); // no harm if `onPushDisconnect` was already notified
+        pushEmitter.emit(Event.PUSH_DISCONNECT); // no harm if `PUSH_DISCONNECT` was already notified
 
         if (error.statusCode) {
           switch (error.statusCode) {
@@ -105,7 +113,7 @@ export default function PushManagerFactory(feedbackLoop, context, clientContexts
 
   const notificationProcessor = NotificationProcessorFactory(
     sseClient,
-    feedbackLoop,
+    pushEmitter,
     // SyncWorkers
     splitSync,
     segmentSync,
@@ -113,28 +121,33 @@ export default function PushManagerFactory(feedbackLoop, context, clientContexts
     userKeyHashes);
   sseClient.setEventHandler(notificationProcessor);
 
-  return {
-    stopPush() { // same producer passed to NodePushManagerFactory
-      // remove listener, so that when connection is closed, polling mode is not started.
-      sseClient.setEventHandler(undefined);
-      sseClient.close();
-    },
+  return Object.assign(
+    // Expose Event Emitter functionality and Event constants
+    Object.create(pushEmitter),
+    {
 
-    // used in node
-    connectPush,
+      // Expose functionality for starting and stoping push mode:
 
-    // used in browser
-    addClient(userKey, context) {
-      const hash = hashUserKey(userKey);
-      userKeyHashes[hash] = userKey;
-      const storage = context.get(context.constants.STORAGE);
-      const producer = context.get(context.constants.PRODUCER);
-      context.put(context.constants.MY_SEGMENTS_CHANGE_WORKER, segmentSyncFactory(storage.segments, producer));
-      connectPush(); // reconnects to listen MY_SEGMENTS_UPDATE channel for the new client
-    },
-    removeClient(userKey) {
-      const hash = hashUserKey(userKey);
-      delete userKeyHashes[hash];
+      stop() { // same producer passed to NodePushManagerFactory
+        // remove listener, so that when connection is closed, polling mode is not started.
+        sseClient.setEventHandler(undefined);
+        sseClient.close();
+      },
+
+      start: connectPush,
+
+      // used in browser
+      addClient(userKey, context) {
+        const hash = hashUserKey(userKey);
+        userKeyHashes[hash] = userKey;
+        const storage = context.get(context.constants.STORAGE);
+        const producer = context.get(context.constants.PRODUCER);
+        context.put(context.constants.MY_SEGMENTS_CHANGE_WORKER, segmentSyncFactory(storage.segments, producer));
+      },
+      removeClient(userKey) {
+        const hash = hashUserKey(userKey);
+        delete userKeyHashes[hash];
+      }
     }
-  };
+  );
 }

@@ -5,7 +5,7 @@ import { MY_SEGMENTS_CHANGE_WORKER } from '../../utils/context/constants';
 // @TODO logging
 export default function NotificationProcessorFactory(
   sseClient,
-  feedbackLoop,
+  pushEmitter, // feedbackLoop
   splitSync,
   segmentSync,
   backoffBase,
@@ -50,28 +50,28 @@ export default function NotificationProcessorFactory(
         // retries are hadnled via backoff algorithm
         sseClient.close();
         sseReconnectBackoff.scheduleCall();
-        feedbackLoop.onPushDisconnect(); // no harm if polling already
+        pushEmitter.emit(pushEmitter.Event.PUSH_DISCONNECT); // no harm if polling already
         break;
 
       // @TODO NotificationManagerKeeper
       case EventTypes.STREAMING_DOWN:
         // we don't close the SSE connection, to keep listening for STREAMING_UP events
-        feedbackLoop.onPushDisconnect();
+        pushEmitter.emit(pushEmitter.Event.PUSH_DISCONNECT);
         break;
       case EventTypes.STREAMING_UP:
-        feedbackLoop.onPushConnect();
+        pushEmitter.emit(pushEmitter.Event.PUSH_CONNECT);
         break;
     }
   }
 
   return {
     handleOpen() {
-      feedbackLoop.onPushConnect();
+      pushEmitter.emit(pushEmitter.Event.PUSH_CONNECT);
       sseReconnectBackoff.reset(); // reset backoff in case SSE conexion has opened after a HTTP or network error.
     },
 
     handleClose() {
-      feedbackLoop.onPushDisconnect();
+      pushEmitter.emit(pushEmitter.Event.PUSH_DISCONNECT);
     },
 
     handleError(error) {

@@ -9,9 +9,8 @@ import { forOwn } from '../utils/lang';
  *
  * @param context main client context
  */
-export default function BrowserSyncManagerFactory(context) {
+export default function BrowserSyncManagerFactory(mainContext) {
 
-  const mainContext = context;
   const contexts = {};
   let pushManager;
 
@@ -35,7 +34,7 @@ export default function BrowserSyncManagerFactory(context) {
 
   function syncAll() {
     // fetch splits and segments
-    const mainProducer = mainContext.get(context.constants.PRODUCER, true);
+    const mainProducer = mainContext.get(mainContext.constants.PRODUCER, true);
     mainProducer && mainProducer.callSplitsUpdater();
     // @TODO review precence of segments to run mySegmentUpdaters
     forOwn(contexts, function (context) {
@@ -55,8 +54,13 @@ export default function BrowserSyncManagerFactory(context) {
       start() {
         // start syncing
         if (pushManager) {
-          if (!isSharedClient) syncAll(); // initial syncAll (only when main client is created)
-          pushManager.addClient(userKey, context); // reconnects in case of a new shared client
+          if (!isSharedClient) {
+            syncAll(); // initial syncAll (only when main client is created)
+            pushManager.on(pushManager.Event.PUSH_CONNECT, stopPollingAndSyncAll);
+            pushManager.on(pushManager.Event.PUSH_DISCONNECT, startPolling);
+          }
+          pushManager.addClient(userKey, context);
+          pushManager.start(); // reconnects in case of a new shared client
         } else {
           producer.start();
         }
@@ -71,7 +75,7 @@ export default function BrowserSyncManagerFactory(context) {
             pushManager.removeClient(userKey);
             // stop push if stoping main client
             if (!isSharedClient)
-              pushManager.stopPush();
+              pushManager.stop();
           }
 
           if (producer && producer.isRunning())
@@ -84,15 +88,11 @@ export default function BrowserSyncManagerFactory(context) {
   }
 
   // called before creating PushManager, to create the producer and put in context.
-  const result = shared(context, false);
+  const result = shared(mainContext, false);
 
-  const settings = context.get(context.constants.SETTINGS);
-  if (settings.streamingEnabled) {
-    pushManager = PushManagerFactory({
-      onPushConnect: stopPollingAndSyncAll,
-      onPushDisconnect: startPolling,
-    }, mainContext, contexts);
-  }
+  const settings = mainContext.get(mainContext.constants.SETTINGS);
+  if (settings.streamingEnabled)
+    pushManager = PushManagerFactory(mainContext, contexts);
 
   // for main client we return a SyncManager with 3 methods: start, stop and shared. The last is used to instantiate "partial SyncManagers".
   result.shared = shared;

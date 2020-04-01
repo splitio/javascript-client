@@ -34,17 +34,16 @@ export default function NodeSyncManagerFactory(context) {
 
   const settings = context.get(context.constants.SETTINGS);
   if (settings.streamingEnabled)
-    pushManager = PushManagerFactory({
-      onPushConnect: stopPollingAndSyncAll,
-      onPushDisconnect: startPolling,
-    }, context);
+    pushManager = PushManagerFactory(context);
 
   return {
     start() {
       // start syncing
       if (pushManager) {
         syncAll();
-        pushManager.connectPush();
+        pushManager.on(pushManager.Event.PUSH_CONNECT, stopPollingAndSyncAll);
+        pushManager.on(pushManager.Event.PUSH_DISCONNECT, startPolling);
+        pushManager.start();
       } else {
         producer.start();
       }
@@ -52,7 +51,7 @@ export default function NodeSyncManagerFactory(context) {
     stop() {
       // stop syncing
       if (pushManager)
-        pushManager.stopPush();
+        pushManager.stop();
 
       if (producer.isRunning())
         producer.stop();
