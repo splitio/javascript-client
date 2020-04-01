@@ -1,6 +1,6 @@
 import { EventTypes, errorParser, messageParser } from './notificationparser';
 import Backoff from '../../utils/backoff';
-import { MY_SEGMENT_SYNC } from '../../utils/context/constants';
+import { MY_SEGMENTS_CHANGE_WORKER } from '../../utils/context/constants';
 
 // @TODO logging
 export default function NotificationProcessorFactory(
@@ -30,7 +30,7 @@ export default function NotificationProcessorFactory(
         const userKeyHash = channel.split('_')[2];
         const userKey = userKeyHashes[userKeyHash];
         if (userKey && segmentSync[userKey]) { // check context since it can be undefined if client has been destroyed
-          const mySegmentSync = segmentSync[userKey].get(MY_SEGMENT_SYNC, true);
+          const mySegmentSync = segmentSync[userKey].get(MY_SEGMENTS_CHANGE_WORKER, true);
           mySegmentSync && mySegmentSync.queueSyncMySegments(
             eventData.changeNumber,
             eventData.includesPayload ? eventData.segmentList : undefined);

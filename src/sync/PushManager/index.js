@@ -8,7 +8,6 @@ import segmentSyncFactory from '../SegmentSync';
 import checkPushSupport from './checkPushSupport';
 import Backoff from '../../utils/backoff';
 import { hashUserKey } from '../../utils/jwt/hashUserKey';
-import { PRODUCER, STORAGE, MY_SEGMENT_SYNC } from '../../utils/context/constants';
 
 const SECONDS_BEFORE_EXPIRATION = 600;
 
@@ -95,7 +94,7 @@ export default function PushManagerFactory(feedbackLoop, context, clientContexts
   }
 
   /** Functions related to synchronization according to the spec (Queues and Workers) */
-  const producer = context.get(PRODUCER, true);
+  const producer = context.get(context.constants.PRODUCER, true);
   const splitSync = splitSyncFactory(storage.splits, producer);
 
   const segmentSync = clientContexts || // map of user keys to contexts, used by NotificationProcessor to get MySegmentSync in browser
@@ -128,9 +127,9 @@ export default function PushManagerFactory(feedbackLoop, context, clientContexts
     addClient(userKey, context) {
       const hash = hashUserKey(userKey);
       userKeyHashes[hash] = userKey;
-      const storage = context.get(STORAGE);
-      const producer = context.get(PRODUCER);
-      context.put(MY_SEGMENT_SYNC, segmentSyncFactory(storage.segments, producer));
+      const storage = context.get(context.constants.STORAGE);
+      const producer = context.get(context.constants.PRODUCER);
+      context.put(context.constants.MY_SEGMENTS_CHANGE_WORKER, segmentSyncFactory(storage.segments, producer));
       connectPush(); // reconnects to listen MY_SEGMENTS_UPDATE channel for the new client
     },
     removeClient(userKey) {
