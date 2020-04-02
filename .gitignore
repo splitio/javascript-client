@@ -18,9 +18,11 @@
 /stats
 
 ## transpiled code
+#until we have a pipeline in place we will need to comment out this
+#/umd
 /lib
 /es
-/umd
+
 
 ## TS tests compilated files
 /ts-tests/*.js

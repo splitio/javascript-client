@@ -1,4 +1,4 @@
 {
   "main": "./node.js",
-  "browser": "./browser.js"
+  "browser": "./node.js"
 }
