@@ -61,12 +61,9 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
     }, delayInSeconds * 1000);
   }
 
-  // variable used to reauthenticate in case a new shared client is added,
-  // avoiding to open some unnecessary sse connection.
-  let mustConnectOnStart = true;
-
   function connectPush() {
-    authenticate(settings, clientContexts ? Object.keys(clientContexts) : undefined).then(
+    const userKeys = clientContexts ? Object.keys(clientContexts) : undefined;
+    authenticate(settings, userKeys).then(
       function (authData) {
         // restart attempts counter for reauth due to HTTP/network errors
         reauthBackoff.reset();
@@ -78,10 +75,8 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
           return;
         }
 
-        // reconnect if a new shared client was added during authentication
-        if(mustConnectOnStart) {
-          mustConnectOnStart = false;
-          connectPush();
+        // don't open SSE connection if a new shared client was added, since it means that a new authentication is taking place
+        if (userKeys && userKeys.length < Object.keys(clientContexts).length) {
           return;
         }
 
@@ -143,6 +138,10 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
     pushEmitter.on(PushEventTypes.SEGMENT_UPDATE, segmentSync.queueSyncSegments);
   }
 
+  // variable used on browser to reconnect only when a new client was added,
+  // saving some authentication and sse connections.
+  let connectForNewClient = false;
+
   return Object.assign(
     // Expose Event Emitter functionality and Event constants
     Object.create(pushEmitter),
@@ -156,23 +155,30 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
         sseClient.close();
       },
 
-      start() {
-        if (mustConnectOnStart) {
-          mustConnectOnStart = false;
-          connectPush();
-        }
-      },
+      // used in node
+      start: connectPush,
 
       // used in browser
-      addClient(userKey, context) {
+      startNewClient(userKey, context) {
         const hash = hashUserKey(userKey);
         if (!userKeyHashes[hash]) {
           userKeyHashes[hash] = userKey;
-          mustConnectOnStart = true; // we must reconnect on start, to listen the channel for the new user key
+          connectForNewClient = true; // we must reconnect on start, to listen the channel for the new user key
         }
         const storage = context.get(context.constants.STORAGE);
         const producer = context.get(context.constants.PRODUCER);
         context.put(context.constants.MY_SEGMENTS_CHANGE_WORKER, segmentSyncFactory(storage.segments, producer));
+
+        // Reconnects in case of a new client.
+        // Run in next event-loop cycle to save authentication calls
+        // in case the user is creating several clients in the current cycle.
+        setTimeout(function start() {
+          if (connectForNewClient) {
+            connectForNewClient = false;
+            connectPush();
+          }
+        });
+
       },
       removeClient(userKey) {
         const hash = hashUserKey(userKey);

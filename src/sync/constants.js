@@ -9,7 +9,7 @@ export const PushEventTypes = {
   STREAMING_DOWN: 'STREAMING_DOWN',
   STREAMING_UP: 'STREAMING_UP',
   RECONNECT: 'RECONNECT',
-  SSE_ERROR: 'SSE_ERROR',
+  error: 'error',
 };
 
 export const SECONDS_BEFORE_EXPIRATION = 600;

@@ -59,11 +59,7 @@ export default function BrowserSyncManagerFactory(mainContext) {
             pushManager.on(pushManager.Event.PUSH_CONNECT, stopPollingAndSyncAll);
             pushManager.on(pushManager.Event.PUSH_DISCONNECT, startPolling);
           }
-          pushManager.addClient(userKey, context);
-          // Reconnects in case of a new shared client.
-          // Run in next event-loop cycle to save authentication calls
-          // in case the user is creating several clients in the current cycle.
-          setTimeout(pushManager.start);
+          pushManager.startNewClient(userKey, context);
         } else {
           producer.start();
         }
