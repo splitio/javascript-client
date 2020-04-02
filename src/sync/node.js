@@ -10,6 +10,7 @@ import FullProducerFactory from '../producer';
 export default function NodeSyncManagerFactory(context) {
 
   const producer = FullProducerFactory(context);
+  context.put(context.constants.PRODUCER, producer);
 
   function startPolling() {
     if (!producer.isRunning())
@@ -43,7 +44,7 @@ export default function NodeSyncManagerFactory(context) {
         syncAll();
         pushManager.on(pushManager.Event.PUSH_CONNECT, stopPollingAndSyncAll);
         pushManager.on(pushManager.Event.PUSH_DISCONNECT, startPolling);
-        pushManager.start();
+        setTimeout(pushManager.start); // Run in next event-loop cycle as in browser
       } else {
         producer.start();
       }

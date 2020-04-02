@@ -61,13 +61,27 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
     }, delayInSeconds * 1000);
   }
 
+  // variable used to reauthenticate in case a new shared client is added,
+  // avoiding to open some unnecessary sse connection.
+  let mustConnectOnStart = true;
+
   function connectPush() {
     authenticate(settings, clientContexts ? Object.keys(clientContexts) : undefined).then(
       function (authData) {
-        reauthBackoff.reset(); // restart attempts counter for reauth due to HTTP/network errors
+        // restart attempts counter for reauth due to HTTP/network errors
+        reauthBackoff.reset();
+
+        // emit PUSH_DISCONNECT if org is not whitelisted
         if (!authData.pushEnabled) {
           log.error('Streaming is not enabled for the organization. Switching to polling mode.');
           pushEmitter.emit(Event.PUSH_DISCONNECT); // there is no need to close sseClient (it is not open on this scenario)
+          return;
+        }
+
+        // reconnect if a new shared client was added during authentication
+        if(mustConnectOnStart) {
+          mustConnectOnStart = false;
+          connectPush();
           return;
         }
 
@@ -142,12 +156,20 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
         sseClient.close();
       },
 
-      start: connectPush,
+      start() {
+        if (mustConnectOnStart) {
+          mustConnectOnStart = false;
+          connectPush();
+        }
+      },
 
       // used in browser
       addClient(userKey, context) {
         const hash = hashUserKey(userKey);
-        userKeyHashes[hash] = userKey;
+        if (!userKeyHashes[hash]) {
+          userKeyHashes[hash] = userKey;
+          mustConnectOnStart = true; // we must reconnect on start, to listen the channel for the new user key
+        }
         const storage = context.get(context.constants.STORAGE);
         const producer = context.get(context.constants.PRODUCER);
         context.put(context.constants.MY_SEGMENTS_CHANGE_WORKER, segmentSyncFactory(storage.segments, producer));
