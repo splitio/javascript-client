@@ -20,7 +20,8 @@ import isLocalStorageAvailable from '../../../utils/localstorage/isAvailable';
 import {
   LOCALHOST_MODE,
   STORAGE_MEMORY,
-  STORAGE_LOCALSTORAGE
+  STORAGE_LOCALSTORAGE,
+  STORAGE_CLOUDFLARE_KV
 } from '../../../utils/constants';
 
 const ParseStorageSettings = settings => {
@@ -46,8 +47,8 @@ const ParseStorageSettings = settings => {
 
   // If an invalid storage type is provided OR we want to use LOCALSTORAGE and
   // it's not available, fallback into MEMORY
-  if (type !== STORAGE_MEMORY && type !== STORAGE_LOCALSTORAGE ||
-      type === STORAGE_LOCALSTORAGE && !isLocalStorageAvailable()) {
+  if (type !== STORAGE_MEMORY && type !== STORAGE_LOCALSTORAGE && type !== STORAGE_CLOUDFLARE_KV ||
+    type === STORAGE_LOCALSTORAGE && !isLocalStorageAvailable()) {
     type = STORAGE_MEMORY;
     log.warn('Invalid or unavailable storage. Fallbacking into MEMORY storage');
   }

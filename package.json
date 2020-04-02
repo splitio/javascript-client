@@ -10,7 +10,8 @@
     "lib",
     "types/*.d.ts",
     "es",
-    "src"
+    "src",
+    "umd"
   ],
   "repository": "splitio/javascript-client",
   "homepage": "https://github.com/splitio/javascript-client#readme",

@@ -12,7 +12,7 @@ import {
   validateIfReady
 } from '../utils/inputValidation';
 import { startsWith } from '../utils/lang';
-import { STORAGE_REDIS, CONTROL, CONTROL_WITH_CONFIG } from '../utils/constants';
+import { STORAGE_REDIS, CONTROL, CONTROL_WITH_CONFIG, STORAGE_CLOUDFLARE_KV } from '../utils/constants';
 
 /**
  * We will validate the input before actually executing the client methods. We should "guard" the client here,
@@ -20,7 +20,7 @@ import { STORAGE_REDIS, CONTROL, CONTROL_WITH_CONFIG } from '../utils/constants'
  */
 function ClientInputValidationLayer(context, isKeyBinded, isTTBinded) {
   const settings = context.get(context.constants.SETTINGS);
-  const isStorageSync = settings.storage.type !== STORAGE_REDIS;
+  const isStorageSync = settings.storage.type !== STORAGE_REDIS && settings.storage.type !== STORAGE_CLOUDFLARE_KV;
   // instantiate the client
   const client = ClientFactory(context);
   // Keep a reference to the original methods
