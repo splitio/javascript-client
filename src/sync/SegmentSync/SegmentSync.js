@@ -1,41 +1,50 @@
 /**
- *
- * @param {*} segmentsStorage
- * @param {*} segmentsProducer
+ * SegmentSync class
  */
-export default function segmentSyncFactory(segmentsStorage, segmentsProducer) {
+export default class SegmentSync {
 
-  let segmentsChangesQueues = [];
+  /**
+   * @param {Object} segmentsStorage
+   * @param {Object} segmentsProducer
+   */
+  constructor(segmentsStorage, segmentsProducer) {
+    this.segmentsStorage = segmentsStorage;
+    this.segmentsProducer = segmentsProducer;
+    this.segmentsChangesQueue = [];
+  }
 
-  // Preconditions: isSegmentsUpdaterRunning === false
-  function dequeSyncSegmentsCall() {
-    if (segmentsChangesQueues.length > 0) {
-      const { changeNumber, segmentName } = segmentsChangesQueues[segmentsChangesQueues.length - 1];
-      if (changeNumber > segmentsStorage.getChangeNumber(segmentName)) {
-        segmentsProducer.callSegmentsUpdater([segmentName]).then(
-          dequeSyncSegmentsCall
-        );
+  // Private method
+  // Preconditions: this.segmentsProducer.isSegmentsUpdaterRunning === false
+  __handleSyncSegmentsCall() {
+    if (this.segmentsChangesQueue.length > 0) {
+      const { changeNumber, segmentName } = this.segmentsChangesQueue[this.segmentsChangesQueue.length - 1];
+      if (changeNumber > this.segmentsStorage.getChangeNumber(segmentName)) {
+        this.segmentsProducer.callSegmentsUpdater([segmentName]).then(() => {
+          this.__handleSyncSegmentsCall();
+        });
       } else {
-        segmentsChangesQueues.pop();
-        dequeSyncSegmentsCall();
+        this.segmentsChangesQueue.pop();
+        this.__handleSyncSegmentsCall();
       }
     }
   }
 
-  // Invoked on segmentsChange event
-  function queueSyncSegments(changeNumber, segmentName) {
-    const currentChangeNumber = segmentsStorage.getChangeNumber(segmentName);
+  /**
+   * Invoked on SEGMENT_UPDATE notification.
+   *
+   * @param {string} segmentName segment name of the SEGMENT_UPDATE notification
+   * @param {number} changeNumber change number of the SEGMENT_UPDATE notification
+   */
+  queueSyncSegments(segmentName, changeNumber) {
+    const currentChangeNumber = this.segmentsStorage.getChangeNumber(segmentName);
 
     if (changeNumber <= currentChangeNumber) return;
 
-    segmentsChangesQueues.push({ changeNumber, segmentName });
+    this.segmentsChangesQueue.push({ segmentName, changeNumber });
 
-    if (segmentsProducer.isSegmentsUpdaterRunning()) return;
+    if (this.segmentsProducer.isSegmentsUpdaterRunning()) return;
 
-    dequeSyncSegmentsCall();
+    this.__handleSyncSegmentsCall();
   }
 
-  return {
-    queueSyncSegments
-  };
 }

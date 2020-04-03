@@ -31,21 +31,17 @@ export default class SplitSync {
    * Invoked on SPLIT_UPDATE notification.
    *
    * @param {number} changeNumber change number of the SPLIT_UPDATE notification
-   * @returns {boolean} true if a `/splitChanges` fetch was queued, i.e., if `changeNumber` is mayor than the current changeNumber and mayor than the last queued one,
-   * to account the possibility that events could arrive disordered or after the last `/splitChanges` request has fetched the new data.
    */
   queueSplitChanges(changeNumber) {
     const currentChangeNumber = this.splitStorage.getChangeNumber();
 
-    if (changeNumber <= currentChangeNumber && changeNumber <= this.maxChangeNumber) return false;
+    if (changeNumber <= currentChangeNumber && changeNumber <= this.maxChangeNumber) return;
 
     this.maxChangeNumber = changeNumber;
 
-    if (this.splitProducer.isSplitsUpdaterRunning()) return true;
+    if (this.splitProducer.isSplitsUpdaterRunning()) return;
 
     this.__handleSyncSplitsCall();
-
-    return true;
   }
 
   /**
