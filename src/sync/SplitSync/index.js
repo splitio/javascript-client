@@ -29,9 +29,9 @@ export default class SplitSync {
 
   /**
    * Invoked on SPLIT_UPDATE notification.
-   * 
+   *
    * @param {number} changeNumber change number of the SPLIT_UPDATE notification
-   * @returns {boolean} true if a `/splitChanges` fetch was queued, i.e., if `changeNumber` is mayor than the current changeNumber and mayor than the last queued ones,  
+   * @returns {boolean} true if a `/splitChanges` fetch was queued, i.e., if `changeNumber` is mayor than the current changeNumber and mayor than the last queued one,
    * to account the possibility that events could arrive disordered or after the last `/splitChanges` request has fetched the new data.
    */
   queueSplitChanges(changeNumber) {
@@ -50,15 +50,14 @@ export default class SplitSync {
 
   /**
    * Invoked on SPLIT_KILL notification
-   * 
-   * @param {number} changeNumber change number of the SPLIT_UPDATE notification 
+   *
+   * @param {number} changeNumber change number of the SPLIT_UPDATE notification
    * @param {string} splitName name of split to kill
    * @param {string} defaultTreatment default treatment value
    */
   killSplit(changeNumber, splitName, defaultTreatment) {
-    if (this.queueSplitChanges(changeNumber))
-      // only kill split if the `/splitChanges` fetch was queued. Otherwise, the kill has been already handled
-      killLocally(this.splitStorage, splitName, defaultTreatment, changeNumber);
+    killLocally(this.splitStorage, splitName, defaultTreatment, changeNumber);
+    this.queueSplitChanges(changeNumber);
   }
 
 }
