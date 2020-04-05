@@ -3,7 +3,7 @@ import killLocally from '../../storage/SplitCache/killLocally';
 /**
  * SplitsSync class
  */
-export default class SplitSync {
+export default class SplitUpdateWorker {
 
   /**
    * @param {Object} splitStorage splits cache
@@ -17,10 +17,10 @@ export default class SplitSync {
 
   // Private method
   // Preconditions: this.splitProducer.isSplitsUpdaterRunning === false
-  __handleSyncSplitsCall() {
+  __handleSplitUpdateCall() {
     if (this.maxChangeNumber > this.splitStorage.getChangeNumber()) {
       this.splitProducer.callSplitsUpdater().then(() => {
-        this.__handleSyncSplitsCall();
+        this.__handleSplitUpdateCall();
       });
     } else {
       this.maxChangeNumber = 0;
@@ -28,11 +28,11 @@ export default class SplitSync {
   }
 
   /**
-   * Invoked on SPLIT_UPDATE notification.
+   * Invoked by NotificationProcessor on SPLIT_UPDATE event
    *
    * @param {number} changeNumber change number of the SPLIT_UPDATE notification
    */
-  queueSplitChanges(changeNumber) {
+  put(changeNumber) {
     const currentChangeNumber = this.splitStorage.getChangeNumber();
 
     if (changeNumber <= currentChangeNumber && changeNumber <= this.maxChangeNumber) return;
@@ -41,11 +41,11 @@ export default class SplitSync {
 
     if (this.splitProducer.isSplitsUpdaterRunning()) return;
 
-    this.__handleSyncSplitsCall();
+    this.__handleSplitUpdateCall();
   }
 
   /**
-   * Invoked on SPLIT_KILL notification
+   * Invoked by NotificationProcessor on SPLIT_KILL event
    *
    * @param {number} changeNumber change number of the SPLIT_UPDATE notification
    * @param {string} splitName name of split to kill
@@ -53,7 +53,7 @@ export default class SplitSync {
    */
   killSplit(changeNumber, splitName, defaultTreatment) {
     killLocally(this.splitStorage, splitName, defaultTreatment, changeNumber);
-    this.queueSplitChanges(changeNumber);
+    this.put(changeNumber);
   }
 
 }

@@ -1,7 +1,7 @@
 /**
- * MySegmentSync class
+ * MySegmentUpdateWorker class
  */
-export default class MySegmentSync {
+export default class MySegmentUpdateWorker {
 
   /**
    *
@@ -17,13 +17,13 @@ export default class MySegmentSync {
 
   // Private method
   // Preconditions: this.mySegmentsProducer.isMySegmentsUpdaterRunning === false
-  // @TODO update this block once `/mySegments` endpoint returns `changeNumber`,
-  __handleSyncMySegmentsCall() {
+  // @TODO update this block once `/mySegments` endpoint provides the changeNumber
+  __handleMySegmentUpdateCall() {
     if (this.maxChangeNumber > this.currentChangeNumber) {
       const currentMaxChangeNumber = this.maxChangeNumber;
       this.mySegmentsProducer.callMySegmentsUpdater().then(() => {
         this.currentChangeNumber = Math.max(this.currentChangeNumber, currentMaxChangeNumber); // use `currentMaxChangeNumber`, in case that `this.maxChangeNumber` was updated during fetch.
-        this.__handleSyncMySegmentsCall();
+        this.__handleMySegmentUpdateCall();
       });
     } else {
       this.maxChangeNumber = 0;
@@ -31,21 +31,16 @@ export default class MySegmentSync {
   }
 
   /**
-   * Invoked on mySegmentsChange event
+   * Invoked by NotificationProcessor on MY_SEGMENTS_UPDATE event
    *
    * @param {number} changeNumber change number of the MY_SEGMENTS_UPDATE notification
    * @param {string[] | undefined} segmentList might be undefined
    */
-  queueSyncMySegments(changeNumber, segmentList) {
-    // currently, since `getChangeNumber` always returns -1,
-    // each mySegmentsChange notification without a segmentList triggers a `/mySegments` fetch
-    // const currentChangeNumber = mySegmentsStorage.getChangeNumber();
-
+  put(changeNumber, segmentList) {
     // if `segmentList` is present, directly call MySegmentsUpdater to update storage
-    // @TODO This block might be removed once `/mySegments` endpoint returns `changeNumber`,
-    // since in that case we can track the last `changeNumber` at the segment storage.
     if (segmentList && changeNumber > this.currentChangeNumber) {
       this.mySegmentsProducer.callMySegmentsUpdater(segmentList);
+      // @TODO remove next line once `/mySegments` endpoint provides the changeNumber, since in that case we can track it at the segment storage.
       this.currentChangeNumber = changeNumber;
       return;
     }
@@ -56,7 +51,7 @@ export default class MySegmentSync {
 
     if (this.mySegmentsProducer.isMySegmentsUpdaterRunning()) return;
 
-    this.__handleSyncMySegmentsCall();
+    this.__handleMySegmentUpdateCall();
   }
 
 }

@@ -48,7 +48,7 @@ const PartialBrowserProducer = (context) => {
     // Used by SyncManager to know if running in polling mode.
     isRunning: segmentsUpdaterTask.isRunning,
 
-    // Used by segmentsSync
+    // Used by MySegmentUpdateWorker
     isMySegmentsUpdaterRunning() {
       return isMySegmentsUpdaterRunning;
     },

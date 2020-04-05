@@ -46,7 +46,6 @@ const NodeUpdater = (context) => {
   }
 
   function callSegmentsUpdater(segments) {
-    // @TODO update isSegmentsUpdaterRunning per segmentName
     isSegmentsUpdaterRunning = true;
     return segmentsUpdater(segments).finally(function () {
       isSegmentsUpdaterRunning = false;
@@ -114,7 +113,7 @@ const NodeUpdater = (context) => {
     },
     callSplitsUpdater,
 
-    // Used by segmentsSync
+    // Used by SegmentUpdateWorker
     isSegmentsUpdaterRunning() {
       return isSegmentsUpdaterRunning;
     },

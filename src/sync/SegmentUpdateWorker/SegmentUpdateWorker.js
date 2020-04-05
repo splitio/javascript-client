@@ -1,7 +1,7 @@
 /**
- * SegmentSync class
+ * SegmentUpdateWorker class
  */
-export default class SegmentSync {
+export default class SegmentUpdateWorker {
 
   /**
    * @param {Object} segmentsStorage
@@ -15,27 +15,27 @@ export default class SegmentSync {
 
   // Private method
   // Preconditions: this.segmentsProducer.isSegmentsUpdaterRunning === false
-  __handleSyncSegmentsCall() {
+  __handleSegmentUpdateCall() {
     if (this.segmentsChangesQueue.length > 0) {
       const { changeNumber, segmentName } = this.segmentsChangesQueue[this.segmentsChangesQueue.length - 1];
       if (changeNumber > this.segmentsStorage.getChangeNumber(segmentName)) {
         this.segmentsProducer.callSegmentsUpdater([segmentName]).then(() => {
-          this.__handleSyncSegmentsCall();
+          this.__handleSegmentUpdateCall();
         });
       } else {
         this.segmentsChangesQueue.pop();
-        this.__handleSyncSegmentsCall();
+        this.__handleSegmentUpdateCall();
       }
     }
   }
 
   /**
-   * Invoked on SEGMENT_UPDATE notification.
+   * Invoked by NotificationProcessor on SEGMENT_UPDATE event
    *
    * @param {string} segmentName segment name of the SEGMENT_UPDATE notification
    * @param {number} changeNumber change number of the SEGMENT_UPDATE notification
    */
-  queueSyncSegments(segmentName, changeNumber) {
+  put(segmentName, changeNumber) {
     const currentChangeNumber = this.segmentsStorage.getChangeNumber(segmentName);
 
     if (changeNumber <= currentChangeNumber) return;
@@ -44,7 +44,7 @@ export default class SegmentSync {
 
     if (this.segmentsProducer.isSegmentsUpdaterRunning()) return;
 
-    this.__handleSyncSegmentsCall();
+    this.__handleSegmentUpdateCall();
   }
 
 }

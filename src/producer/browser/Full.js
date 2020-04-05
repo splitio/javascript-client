@@ -81,7 +81,7 @@ const FullBrowserProducer = (context) => {
     },
     callSplitsUpdater,
 
-    // Used by segmentsSync
+    // Used by MySegmentUpdateWorker
     isMySegmentsUpdaterRunning() {
       return isMySegmentsUpdaterRunning;
     },
