@@ -11,3 +11,5 @@ export const PushEventTypes = {
   RECONNECT: 'RECONNECT',
   error: 'error',
 };
+
+export const SECONDS_BEFORE_EXPIRATION = 600;
