@@ -1,4 +1,0 @@
-{
-  "main": "./SegmentSync.js",
-  "browser": "./MySegmentSync.js"
-}

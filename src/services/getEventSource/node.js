@@ -1,8 +1,7 @@
-export default function getEventSource(modulePath = 'eventsource') {
-  let EventSource = undefined;
+export default function getEventSource() {
+  // returns EventSource at `eventsource` package or undefined
   try {
-    EventSource = require(modulePath);
+    return require('eventsource');
     // eslint-disable-next-line no-empty
   } catch (error) { }
-  return EventSource;
 }

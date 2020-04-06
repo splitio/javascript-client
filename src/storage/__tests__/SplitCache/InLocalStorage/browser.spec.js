@@ -2,6 +2,7 @@ import tape from 'tape-catch';
 import SplitCacheInLocalStorage from '../../../SplitCache/InLocalStorage';
 import KeyBuilder from '../../../Keys';
 import SettingsFactory from '../../../../utils/settings';
+import killLocally from '../../../SplitCache/killLocally';
 
 tape('SPLIT CACHE / LocalStorage', assert => {
   const cache = new SplitCacheInLocalStorage(new KeyBuilder(SettingsFactory()));
@@ -109,6 +110,35 @@ tape('SPLIT CACHE / LocalStorage / trafficTypeExists and ttcache tests', assert 
   cache.addSplit('split1', '{ "trafficTypeName": "account_tt" }');
   assert.true(cache.trafficTypeExists('account_tt'));
   assert.false(cache.trafficTypeExists('user_tt'));
+
+  assert.end();
+});
+
+tape('SPLIT CACHE / LocalStorage / killLocally', assert => {
+  const cache = new SplitCacheInLocalStorage(new KeyBuilder(SettingsFactory()));
+  cache.addSplit('lol1', '{ "name": "something"}');
+  cache.addSplit('lol2', '{ "name": "something else"}');
+  const initialChangeNumber = cache.getChangeNumber();
+
+  // kill an unexistent split
+  killLocally(cache, 'unexistent_split', 'other_treatment', 101);
+  const unexistentSplit = cache.getSplit('unexistent_split');
+
+  assert.equal(unexistentSplit, undefined, 'unexisting split keeps being unexistent');
+
+  // kill an existent split
+  killLocally(cache, 'lol1', 'some_treatment', 100);
+  let lol1Split = JSON.parse(cache.getSplit('lol1'));
+
+  assert.true(lol1Split.killed, 'existing split must be killed');
+  assert.equal(lol1Split.defaultTreatment, 'some_treatment', 'existing split must have new default treatment');
+  assert.equal(lol1Split.changeNumber, 100, 'existing split must have the given change number');
+  assert.equal(cache.getChangeNumber(), initialChangeNumber, 'cache changeNumber is not changed');
+
+  // not update if changeNumber is old
+  killLocally(cache, 'lol1', 'some_treatment_2', 90);
+  lol1Split = JSON.parse(cache.getSplit('lol1'));
+  assert.notEqual(lol1Split.defaultTreatment, 'some_treatment_2', 'existing split is not updated if given changeNumber is older');
 
   assert.end();
 });
