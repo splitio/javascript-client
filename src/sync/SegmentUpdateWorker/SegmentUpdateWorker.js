@@ -14,12 +14,12 @@ export default class SegmentUpdateWorker {
   }
 
   // Private method
-  // Preconditions: this.segmentsProducer.isSegmentsUpdaterRunning === false
+  // Preconditions: this.segmentsProducer.isSynchronizeSegmentRunning === false
   __handleSegmentUpdateCall() {
     if (this.segmentsChangesQueue.length > 0) {
       const { changeNumber, segmentName } = this.segmentsChangesQueue[this.segmentsChangesQueue.length - 1];
       if (changeNumber > this.segmentsStorage.getChangeNumber(segmentName)) {
-        this.segmentsProducer.callSegmentsUpdater([segmentName]).then(() => {
+        this.segmentsProducer.synchronizeSegment(segmentName).then(() => {
           this.__handleSegmentUpdateCall();
         });
       } else {
@@ -42,7 +42,7 @@ export default class SegmentUpdateWorker {
 
     this.segmentsChangesQueue.push({ segmentName, changeNumber });
 
-    if (this.segmentsProducer.isSegmentsUpdaterRunning()) return;
+    if (this.segmentsProducer.isSynchronizeSegmentRunning()) return;
 
     this.__handleSegmentUpdateCall();
   }

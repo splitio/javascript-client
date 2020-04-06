@@ -16,10 +16,10 @@ export default class SplitUpdateWorker {
   }
 
   // Private method
-  // Preconditions: this.splitProducer.isSplitsUpdaterRunning === false
+  // Preconditions: this.splitProducer.isSynchronizeSplitsRunning === false
   __handleSplitUpdateCall() {
     if (this.maxChangeNumber > this.splitStorage.getChangeNumber()) {
-      this.splitProducer.callSplitsUpdater().then(() => {
+      this.splitProducer.synchronizeSplits().then(() => {
         this.__handleSplitUpdateCall();
       });
     } else {
@@ -39,7 +39,7 @@ export default class SplitUpdateWorker {
 
     this.maxChangeNumber = changeNumber;
 
-    if (this.splitProducer.isSplitsUpdaterRunning()) return;
+    if (this.splitProducer.isSynchronizeSplitsRunning()) return;
 
     this.__handleSplitUpdateCall();
   }

@@ -29,28 +29,28 @@ const FullBrowserProducer = (context) => {
   const splitsUpdater = SplitChangesUpdater(context);
   const segmentsUpdater = MySegmentsUpdater(context);
 
-  let isSplitsUpdaterRunning = false;
+  let isSynchronizeSplitsRunning = false;
 
-  function callSplitsUpdater() {
-    isSplitsUpdaterRunning = true;
+  function synchronizeSplits() {
+    isSynchronizeSplitsRunning = true;
     return splitsUpdater().finally(function() {
-      isSplitsUpdaterRunning = false;
+      isSynchronizeSplitsRunning = false;
     });
   }
 
-  let isMySegmentsUpdaterRunning = false;
+  let isSynchronizeMySegmentsRunning = false;
 
-  function callMySegmentsUpdater(segmentList) {
-    isMySegmentsUpdaterRunning = true;
+  function synchronizeMySegments(segmentList) {
+    isSynchronizeMySegmentsRunning = true;
     return segmentsUpdater(undefined, segmentList).finally(function () {
-      isMySegmentsUpdaterRunning = false;
+      isSynchronizeMySegmentsRunning = false;
     });
   }
 
   const settings = context.get(context.constants.SETTINGS);
   const { splits: splitsEventEmitter } = context.get(context.constants.READINESS);
 
-  const splitsUpdaterTask = TaskFactory(callSplitsUpdater, settings.scheduler.featuresRefreshRate);
+  const splitsUpdaterTask = TaskFactory(synchronizeSplits, settings.scheduler.featuresRefreshRate);
   const segmentsUpdaterTask = TaskFactory(segmentsUpdater, settings.scheduler.segmentsRefreshRate);
 
   const onSplitsArrived = onSplitsArrivedFactory(segmentsUpdaterTask, context);
@@ -76,16 +76,16 @@ const FullBrowserProducer = (context) => {
     isRunning: splitsUpdaterTask.isRunning,
 
     // Used by splitsSync
-    isSplitsUpdaterRunning() {
-      return isSplitsUpdaterRunning;
+    isSynchronizeSplitsRunning() {
+      return isSynchronizeSplitsRunning;
     },
-    callSplitsUpdater,
+    synchronizeSplits,
 
     // Used by MySegmentUpdateWorker
-    isMySegmentsUpdaterRunning() {
-      return isMySegmentsUpdaterRunning;
+    isSynchronizeMySegmentsRunning() {
+      return isSynchronizeMySegmentsRunning;
     },
-    callMySegmentsUpdater,
+    synchronizeMySegments,
   };
 };
 

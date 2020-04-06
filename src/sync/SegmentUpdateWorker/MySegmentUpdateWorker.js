@@ -16,12 +16,12 @@ export default class MySegmentUpdateWorker {
   }
 
   // Private method
-  // Preconditions: this.mySegmentsProducer.isMySegmentsUpdaterRunning === false
+  // Preconditions: this.mySegmentsProducer.isSynchronizeMySegmentsRunning === false
   // @TODO update this block once `/mySegments` endpoint provides the changeNumber
   __handleMySegmentUpdateCall() {
     if (this.maxChangeNumber > this.currentChangeNumber) {
       const currentMaxChangeNumber = this.maxChangeNumber;
-      this.mySegmentsProducer.callMySegmentsUpdater().then(() => {
+      this.mySegmentsProducer.synchronizeMySegments().then(() => {
         this.currentChangeNumber = Math.max(this.currentChangeNumber, currentMaxChangeNumber); // use `currentMaxChangeNumber`, in case that `this.maxChangeNumber` was updated during fetch.
         this.__handleMySegmentUpdateCall();
       });
@@ -39,7 +39,7 @@ export default class MySegmentUpdateWorker {
   put(changeNumber, segmentList) {
     // if `segmentList` is present, directly call MySegmentsUpdater to update storage
     if (segmentList && changeNumber > this.currentChangeNumber) {
-      this.mySegmentsProducer.callMySegmentsUpdater(segmentList);
+      this.mySegmentsProducer.synchronizeMySegments(segmentList);
       // @TODO remove next line once `/mySegments` endpoint provides the changeNumber, since in that case we can track it at the segment storage.
       this.currentChangeNumber = changeNumber;
       return;
@@ -49,7 +49,7 @@ export default class MySegmentUpdateWorker {
 
     this.maxChangeNumber = changeNumber;
 
-    if (this.mySegmentsProducer.isMySegmentsUpdaterRunning()) return;
+    if (this.mySegmentsProducer.isSynchronizeMySegmentsRunning()) return;
 
     this.__handleMySegmentUpdateCall();
   }

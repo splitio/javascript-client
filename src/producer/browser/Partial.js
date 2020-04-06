@@ -32,12 +32,12 @@ const PartialBrowserProducer = (context) => {
 
   splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, onSplitsArrived);
 
-  let isMySegmentsUpdaterRunning = false;
+  let isSynchronizeMySegmentsRunning = false;
 
-  function callMySegmentsUpdater(segmentList) {
-    isMySegmentsUpdaterRunning = true;
+  function synchronizeMySegments(segmentList) {
+    isSynchronizeMySegmentsRunning = true;
     return segmentsUpdater(undefined, segmentList).finally(function () {
-      isMySegmentsUpdaterRunning = false;
+      isSynchronizeMySegmentsRunning = false;
     });
   }
 
@@ -49,10 +49,10 @@ const PartialBrowserProducer = (context) => {
     isRunning: segmentsUpdaterTask.isRunning,
 
     // Used by MySegmentUpdateWorker
-    isMySegmentsUpdaterRunning() {
-      return isMySegmentsUpdaterRunning;
+    isSynchronizeMySegmentsRunning() {
+      return isSynchronizeMySegmentsRunning;
     },
-    callMySegmentsUpdater,
+    synchronizeMySegments,
   };
 };
 

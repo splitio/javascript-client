@@ -32,23 +32,26 @@ const NodeUpdater = (context) => {
   let stopSegmentsUpdate = false;
   let splitFetchCompleted = false;
   let isRunning = false;
-  let isSplitsUpdaterRunning = false;
-  let isSegmentsUpdaterRunning = false;
+  let isSynchronizeSplitsRunning = false;
+  let isSynchronizeSegmentRunning = false;
 
-  function callSplitsUpdater() {
-    isSplitsUpdaterRunning = true;
+  function synchronizeSplits() {
+    isSynchronizeSplitsRunning = true;
     return splitsUpdater().then(function () {
       // Mark splits as ready (track first successfull call to start downloading segments)
       splitFetchCompleted = true;
     }).finally(function () {
-      isSplitsUpdaterRunning = false;
+      isSynchronizeSplitsRunning = false;
     });
   }
 
-  function callSegmentsUpdater(segments) {
-    isSegmentsUpdaterRunning = true;
-    return segmentsUpdater(segments).finally(function () {
-      isSegmentsUpdaterRunning = false;
+  /**
+   * @param {string} segmentName segment name at SEGMENT_UPDATE event
+   */
+  function synchronizeSegment(segmentName) {
+    isSynchronizeSegmentRunning = true;
+    return segmentsUpdater([segmentName]).finally(function () {
+      isSynchronizeSegmentRunning = false;
     });
   }
 
@@ -65,7 +68,7 @@ const NodeUpdater = (context) => {
             scheduleSegmentsUpdate => {
               if (splitFetchCompleted) {
                 log.debug('Fetching segments');
-                callSegmentsUpdater().then(() => scheduleSegmentsUpdate());
+                synchronizeSegment().then(() => scheduleSegmentsUpdate());
               } else {
                 scheduleSegmentsUpdate();
               }
@@ -79,7 +82,7 @@ const NodeUpdater = (context) => {
         scheduleSplitsUpdate => {
           log.debug('Fetching splits');
 
-          callSplitsUpdater()
+          synchronizeSplits()
             .then(() => {
               // Spin up the segments update if needed
               spinUpSegmentUpdater();
@@ -108,16 +111,16 @@ const NodeUpdater = (context) => {
     },
 
     // Used by splitsSync
-    isSplitsUpdaterRunning() {
-      return isSplitsUpdaterRunning;
+    isSynchronizeSplitsRunning() {
+      return isSynchronizeSplitsRunning;
     },
-    callSplitsUpdater,
+    synchronizeSplits,
 
     // Used by SegmentUpdateWorker
-    isSegmentsUpdaterRunning() {
-      return isSegmentsUpdaterRunning;
+    isSynchronizeSegmentRunning() {
+      return isSynchronizeSegmentRunning;
     },
-    callSegmentsUpdater,
+    synchronizeSegment,
   };
 };
 
