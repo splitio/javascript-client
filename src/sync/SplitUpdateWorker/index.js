@@ -1,7 +1,7 @@
 import killLocally from '../../storage/SplitCache/killLocally';
 
 /**
- * SplitsSync class
+ * SplitUpdateWorker class
  */
 export default class SplitUpdateWorker {
 

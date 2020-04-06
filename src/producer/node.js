@@ -50,7 +50,7 @@ const NodeUpdater = (context) => {
    */
   function synchronizeSegment(segmentName) {
     isSynchronizeSegmentRunning = true;
-    return segmentsUpdater([segmentName]).finally(function () {
+    return segmentsUpdater(segmentName).finally(function () {
       isSynchronizeSegmentRunning = false;
     });
   }
@@ -110,7 +110,7 @@ const NodeUpdater = (context) => {
       return isRunning;
     },
 
-    // Used by splitsSync
+    // Used by SplitUpdateWorker
     isSynchronizeSplitsRunning() {
       return isSynchronizeSplitsRunning;
     },

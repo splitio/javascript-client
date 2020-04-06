@@ -75,7 +75,7 @@ const FullBrowserProducer = (context) => {
     // Used by SyncManager to know if running in polling mode.
     isRunning: splitsUpdaterTask.isRunning,
 
-    // Used by splitsSync
+    // Used by SplitUpdateWorker
     isSynchronizeSplitsRunning() {
       return isSynchronizeSplitsRunning;
     },
