@@ -53,15 +53,15 @@ tape('SegmentUpdateWorker', t => {
 
     // assert calling to `synchronizeSegment` if `isSynchronizeSegmentRunning` is false
     assert.equal(producer.isSynchronizeSegmentRunning(), false);
-    segmentUpdateWorker.put('mocked_segment_1', 100);
+    segmentUpdateWorker.put(100, 'mocked_segment_1');
     assert.equal(segmentUpdateWorker.segmentsChangesQueue.length, 1, 'queues event');
     assert.true(producer.synchronizeSegment.calledOnce, 'calls `synchronizeSegment` if `isSynchronizeSegmentRunning` is false');
     assert.true(producer.synchronizeSegment.calledOnceWithExactly('mocked_segment_1'), 'calls `synchronizeSegment` with segmentName');
 
     // assert queueing items if `isSynchronizeSegmentRunning` is true
     assert.equal(producer.isSynchronizeSegmentRunning(), true);
-    segmentUpdateWorker.put('mocked_segment_1', 95);
-    segmentUpdateWorker.put('mocked_segment_2', 100);
+    segmentUpdateWorker.put(95, 'mocked_segment_1');
+    segmentUpdateWorker.put(100, 'mocked_segment_2');
 
     assert.equal(segmentUpdateWorker.segmentsChangesQueue.length, 3, 'queues events');
     assert.true(producer.synchronizeSegment.calledOnce, 'doesn\'t call `synchronizeSegment` while isSynchronizeSegmentRunning is true');

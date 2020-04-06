@@ -32,10 +32,10 @@ export default class SegmentUpdateWorker {
   /**
    * Invoked by NotificationProcessor on SEGMENT_UPDATE event
    *
-   * @param {string} segmentName segment name of the SEGMENT_UPDATE notification
    * @param {number} changeNumber change number of the SEGMENT_UPDATE notification
+   * @param {string} segmentName segment name of the SEGMENT_UPDATE notification
    */
-  put(segmentName, changeNumber) {
+  put(changeNumber, segmentName) {
     const currentChangeNumber = this.segmentsStorage.getChangeNumber(segmentName);
 
     if (changeNumber <= currentChangeNumber) return;
