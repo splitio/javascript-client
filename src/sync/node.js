@@ -26,8 +26,8 @@ export default function NodeSyncManagerFactory(context) {
 
   function syncAll() {
     // fetch splits and segments. There is no need to catch this promise (it is handled by `SplitChangesUpdater`)
-    producer.callSplitsUpdater().then(() => {
-      producer.callSegmentsUpdater();
+    producer.synchronizeSplits().then(() => {
+      producer.synchronizeSegment();
     });
   }
 

@@ -1,0 +1,4 @@
+{
+  "main": "./SegmentUpdateWorker.js",
+  "browser": "./MySegmentUpdateWorker.js"
+}

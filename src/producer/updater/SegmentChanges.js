@@ -32,14 +32,14 @@ const SegmentChangesUpdaterFactory = context => {
 
   let readyOnAlreadyExistentState = true;
 
-  return async function SegmentChangesUpdater(segments) {
+  return async function SegmentChangesUpdater(segmentName) {
     log.debug('Started segments update');
 
     // Async fetchers are collected here.
     const updaters = [];
 
-    // If not segments provided, read list of available segments names to be updated.
-    if (!segments) segments = await storage.segments.getRegisteredSegments();
+    // If not a segment name provided, read list of available segments names to be updated.
+    const segments = segmentName ? [segmentName] : await storage.segments.getRegisteredSegments();
 
     for (let segmentName of segments) {
       const since = await storage.segments.getChangeNumber(segmentName);
@@ -74,7 +74,7 @@ const SegmentChangesUpdaterFactory = context => {
         segmentsEventEmitter.emit(segmentsEventEmitter.SDK_SEGMENTS_ARRIVED);
       }
     }).catch(error => {
-      if (!(error instanceof SplitError)) setTimeout(() => {throw error;}, 0);
+      if (!(error instanceof SplitError)) setTimeout(() => { throw error; }, 0);
 
       if (startsWith(error.message, '403')) {
         context.put(context.constants.DESTROYED, true);

@@ -35,11 +35,11 @@ export default function BrowserSyncManagerFactory(mainContext) {
   function syncAll() {
     // fetch splits and segments
     const mainProducer = mainContext.get(mainContext.constants.PRODUCER, true);
-    mainProducer && mainProducer.callSplitsUpdater();
+    mainProducer && mainProducer.synchronizeSplits();
     // @TODO review precence of segments to run mySegmentUpdaters
     forOwn(contexts, function (context) {
       const producer = context.get(context.constants.PRODUCER, true);
-      producer && producer.callMySegmentsUpdater();
+      producer && producer.synchronizeMySegments();
     });
   }
 

@@ -32,12 +32,12 @@ const PartialBrowserProducer = (context) => {
 
   splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, onSplitsArrived);
 
-  let isMySegmentsUpdaterRunning = false;
+  let isSynchronizeMySegmentsRunning = false;
 
-  function callMySegmentsUpdater(segmentList) {
-    isMySegmentsUpdaterRunning = true;
+  function synchronizeMySegments(segmentList) {
+    isSynchronizeMySegmentsRunning = true;
     return segmentsUpdater(undefined, segmentList).finally(function () {
-      isMySegmentsUpdaterRunning = false;
+      isSynchronizeMySegmentsRunning = false;
     });
   }
 
@@ -48,11 +48,11 @@ const PartialBrowserProducer = (context) => {
     // Used by SyncManager to know if running in polling mode.
     isRunning: segmentsUpdaterTask.isRunning,
 
-    // Used by segmentsSync
-    isMySegmentsUpdaterRunning() {
-      return isMySegmentsUpdaterRunning;
+    // Used by MySegmentUpdateWorker
+    isSynchronizeMySegmentsRunning() {
+      return isSynchronizeMySegmentsRunning;
     },
-    callMySegmentsUpdater,
+    synchronizeMySegments,
   };
 };
 
