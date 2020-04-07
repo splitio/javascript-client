@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-function repeat(fn, delay, ...rest) {
+function repeat(fn, delay, notCallImmediately, ...rest) {
   let tid;
   let stopped = false;
 
@@ -40,7 +40,11 @@ function repeat(fn, delay, ...rest) {
     next(delay, ...rest);
   };
 
-  fn(...rest, next);
+  if (notCallImmediately) {
+    next(delay, ...rest);
+  } else {
+    fn(...rest, next);
+  }
 
   return till;
 }
