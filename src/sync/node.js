@@ -14,7 +14,7 @@ export default function NodeSyncManagerFactory(context) {
 
   function startPolling() {
     if (!producer.isRunning())
-      producer.start();
+      producer.start(true); // `fetchers` are scheduled but not called immediately
   }
 
   function stopPollingAndSyncAll() {

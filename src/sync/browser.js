@@ -18,7 +18,7 @@ export default function BrowserSyncManagerFactory(mainContext) {
     forOwn(contexts, function (context) {
       const producer = context.get(context.constants.PRODUCER, true);
       if (producer && !producer.isRunning())
-        producer.start();
+        producer.start(true); // `fetchers` are scheduled but not called immediately
     });
   }
 
