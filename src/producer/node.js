@@ -56,14 +56,19 @@ const NodeUpdater = (context) => {
   }
 
   return {
-    start() {
+    /**
+     * @param {boolean} notStartImmediately if true, fetcher calls are scheduled but not run immediately
+     */
+    start(notStartImmediately) {
       log.info('Starting NODEJS updater');
       log.debug(`Splits will be refreshed each ${settings.scheduler.featuresRefreshRate} millis`);
       log.debug(`Segments will be refreshed each ${settings.scheduler.segmentsRefreshRate} millis`);
 
       // Schedule incremental update of segments only if needed
       const spinUpSegmentUpdater = () => {
-        if (!stopSegmentsUpdate) {
+        // We must check that Split polling is running (i.e. `stopSplitsUpdate !== false`),
+        // in case that `spinUpSegmentUpdater` is called once the client has been destroyed.
+        if (stopSplitsUpdate && !stopSegmentsUpdate) {
           stopSegmentsUpdate = repeat(
             scheduleSegmentsUpdate => {
               if (splitFetchCompleted) {
@@ -90,7 +95,8 @@ const NodeUpdater = (context) => {
               scheduleSplitsUpdate();
             });
         },
-        settings.scheduler.featuresRefreshRate
+        settings.scheduler.featuresRefreshRate,
+        notStartImmediately
       );
 
       isRunning = true;
@@ -100,7 +106,9 @@ const NodeUpdater = (context) => {
       log.info('Stopping NODEJS updater');
 
       stopSplitsUpdate && stopSplitsUpdate();
+      stopSplitsUpdate = false; // Mark polling stopped, to be able to call `start` again and to avoid polling segments if `spinUpSegmentUpdater` is called after the client has been destroyed.
       stopSegmentsUpdate && stopSegmentsUpdate();
+      stopSegmentsUpdate = false;
 
       isRunning = false;
     },
