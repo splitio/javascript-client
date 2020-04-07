@@ -60,7 +60,7 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
         // emit PUSH_DISCONNECT if org is not whitelisted
         if (!authData.pushEnabled) {
           log.error('Streaming is not enabled for the organization. Switching to polling mode.');
-          pushEmitter.emit(Event.PUSH_DISCONNECT); // there is no need to close sseClient (it is not open on this scenario)
+          pushEmitter.emit(PushEventTypes.PUSH_DISCONNECT); // there is no need to close sseClient (it is not open on this scenario)
           return;
         }
 
@@ -78,7 +78,7 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
       function (error) {
 
         sseClient.close();
-        pushEmitter.emit(Event.PUSH_DISCONNECT); // no harm if `PUSH_DISCONNECT` was already notified
+        pushEmitter.emit(PushEventTypes.PUSH_DISCONNECT); // no harm if `PUSH_DISCONNECT` was already notified
 
         if (error.statusCode) {
           switch (error.statusCode) {
