@@ -58,11 +58,14 @@ const FullBrowserProducer = (context) => {
   splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, onSplitsArrived);
 
   return {
-    start() {
+    /**
+     * @param {boolean} notStartImmediately if true, fetcher calls are scheduled but not run immediately
+     */
+    start(notStartImmediately) {
       log.info('Starting BROWSER producer');
 
-      splitsUpdaterTask.start();
-      segmentsUpdaterTask.start();
+      splitsUpdaterTask.start(notStartImmediately);
+      segmentsUpdaterTask.start(notStartImmediately);
     },
 
     stop() {
