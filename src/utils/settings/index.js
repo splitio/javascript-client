@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-import { merge, isFinite } from '../lang';
+import { merge } from '../lang';
 import language from './language';
 import runtime from './runtime';
 import overridesPerPlatform from './defaults';
@@ -148,14 +148,13 @@ function defaults(custom) {
   // `integrations` returns an array of valid integration items.
   withDefaults.integrations = integrations(withDefaults);
 
-  // validate and fix push options
-  // @TODO log warning, and check if using `fromSecondsToMillis`, but what about 'NaN' results?
+  // validate push options
   if (typeof withDefaults.streamingEnabled !== 'boolean') withDefaults.streamingEnabled = false;
   if (withDefaults.streamingEnabled === true) {
-    if(!isFinite(withDefaults.authRetryBackoffBase) || withDefaults.authRetryBackoffBase < 1)
-      withDefaults.authRetryBackoffBase = base.authRetryBackoffBase;
-    if(!isFinite(withDefaults.streamingReconnectBackoffBase) || withDefaults.streamingReconnectBackoffBase < 1)
-      withDefaults.streamingReconnectBackoffBase = base.streamingReconnectBackoffBase;
+    // Backoff bases.
+    // We are not checking if bases are positive numbers. Thus, we might be reauthenticating immediately (`setTimeout` with NaN or negative number)
+    withDefaults.authRetryBackoffBase = fromSecondsToMillis(withDefaults.authRetryBackoffBase);
+    withDefaults.streamingReconnectBackoffBase = fromSecondsToMillis(withDefaults.streamingReconnectBackoffBase);
   }
 
   return withDefaults;
