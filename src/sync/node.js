@@ -1,7 +1,6 @@
 import PushManagerFactory from './PushManager';
 import FullProducerFactory from '../producer';
 
-// Not do initial syncAll in producers
 /**
  * Factory of SyncManager for node
  *
