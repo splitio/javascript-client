@@ -31,7 +31,7 @@ export default function Fetcher(request) {
     });
 }
 
-// This function is only exposed for unit testing purposses.
+// This function is only exposed for testing purposses.
 export function __getAxiosInstance() {
   return _axiosInstance;
 }
