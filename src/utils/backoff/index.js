@@ -4,23 +4,23 @@ class Backoff {
    * Schedule function calls with exponential backoff
    *
    * @param {function} cb
-   * @param {number} baseSec
-   * @param {number} maxSec
+   * @param {number} baseMillis
+   * @param {number} maxMillis
    */
-  constructor(cb, baseSec, maxSec) {
-    this.baseSec = baseSec || Backoff.DEFAULT_BASE_SECONDS;
-    this.maxSec = maxSec || Backoff.DEFAULT_MAX_SECONDS;
+  constructor(cb, baseMillis, maxMillis) {
+    this.baseMillis = baseMillis || Backoff.DEFAULT_BASE_MILLIS;
+    this.maxMillis = maxMillis || Backoff.DEFAULT_MAX_MILLIS;
     this.attempts = 0;
     this.cb = cb;
   }
 
   scheduleCall() {
-    let delayInSec = this.baseSec * Math.pow(2, this.attempts);
-    if (delayInSec > this.maxSec) delayInSec = this.maxSec;
+    let delayInMillis = this.baseMillis * Math.pow(2, this.attempts);
+    if (delayInMillis > this.maxMillis) delayInMillis = this.maxMillis;
     if (this.timeoutID) clearTimeout(this.timeoutID);
     this.timeoutID = setTimeout(() => {
       this.cb();
-    }, delayInSec * 1000);
+    }, delayInMillis);
     this.attempts++;
   }
 
@@ -31,7 +31,7 @@ class Backoff {
 
 }
 
-Backoff.DEFAULT_BASE_SECONDS = 1; // 1 second
-Backoff.DEFAULT_MAX_SECONDS = 1800; // 30 minutes
+Backoff.DEFAULT_BASE_MILLIS = 1000; // 1 second
+Backoff.DEFAULT_MAX_MILLIS = 1800000; // 30 minutes
 
 export default Backoff;
