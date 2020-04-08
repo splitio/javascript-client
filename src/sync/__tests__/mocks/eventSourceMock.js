@@ -18,6 +18,10 @@ const defaultOptions = {
 };
 
 export const sources = {};
+let __listener;
+export function setConstructorListener(listener) {
+  __listener = listener;
+}
 
 export default class EventSource {
 
@@ -31,6 +35,7 @@ export default class EventSource {
     // eslint-disable-next-line no-undef
     this.__emitter = new EventEmitter();
     sources[url] = this;
+    if (__listener) setTimeout(__listener, 0, this);
   }
 
   addEventListener(eventName, listener) {
