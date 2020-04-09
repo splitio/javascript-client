@@ -73,7 +73,7 @@ export function testAuthRetries(mock, assert) {
 
   mock.onGet(settings.url('/splitChanges?since=-1')).replyOnce(function () {
     const lapse = Date.now() - start;
-    assert.true(lapse < MILLIS_ERROR_MARGIN, 'initial sync');
+    assert.true(nearlyEqual(lapse, 0, MILLIS_ERROR_MARGIN), 'initial sync');
     return [200, splitChangesMock1];
   });
   mock.onGet(settings.url('/splitChanges?since=1457552620999')).replyOnce(function () {
@@ -112,8 +112,10 @@ export function testSSERetries(mock, assert) {
     ready = true;
   });
 
+  const expectedSSEurl = `${settings.url('/sse')}?channels=NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_NDA2NTIwNjY5Ng%3D%3D_mySegments,NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_splits,control&accessToken=${authPushEnabled.token}&v=1.1`;
   let sseattempts = 0;
   setConstructorListener(function (eventSourceInstance) {
+    assert.equal(eventSourceInstance.url, expectedSSEurl, 'SSE url is correct');
     if (sseattempts < 2) {
       eventSourceInstance.emitError({ type: 'error' });
     } else {
@@ -134,7 +136,7 @@ export function testSSERetries(mock, assert) {
 
   mock.onGet(settings.url('/splitChanges?since=-1')).replyOnce(function () {
     const lapse = Date.now() - start;
-    assert.true(lapse < MILLIS_ERROR_MARGIN, 'initial sync');
+    assert.true(nearlyEqual(lapse, 0, MILLIS_ERROR_MARGIN), 'initial sync');
     return [200, splitChangesMock1];
   });
   mock.onGet(settings.url('/splitChanges?since=1457552620999')).replyOnce(function () {

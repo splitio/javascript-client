@@ -1,0 +1,4 @@
+{
+  "type": "message",
+  "data": "{\"id\": \"mc4i3NENoA:0:0\",\"clientId\": \"NDEzMTY5Mzg0MA==:MTM2ODE2NDMxNA==\",\"timestamp\": 1457552631900,\"encoding\": \"json\",\"channel\": \"NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw==_splits\",\"data\": \"{\\\"type\\\":\\\"SPLIT_UPDATE\\\",\\\"changeNumber\\\":1457552631000}\"}"
+}
