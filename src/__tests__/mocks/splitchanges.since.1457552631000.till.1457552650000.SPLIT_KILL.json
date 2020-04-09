@@ -8,8 +8,9 @@
       "name": "whitelist",
       "seed": 104328192,
       "status": "ACTIVE",
-      "killed": false,
+      "killed": true,
       "defaultTreatment": "not_allowed",
+      "changeNumber": 1457552650000,
       "conditions": [
         {
           "matcherGroup": {
@@ -69,6 +70,6 @@
       ]
     }
   ],
-  "since": 1457552620999,
-  "till": 1457552631000
+  "since": 1457552631000,
+  "till": 1457552650000
 }
