@@ -1,12 +1,12 @@
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
 import authPushDisabled from '../mocks/auth.pushDisabled.json';
-import authPushEnabled from '../mocks/auth.pushEnabled.facundo@split.io';
+import authPushEnabled from '../mocks/auth.pushEnabled.node.json';
 
 import { nearlyEqual } from '../utils';
 
 
-import EventSourceMock, { setConstructorListener } from '../../sync/__tests__/mocks/eventSourceMock';
+import EventSourceMock, { setMockListener } from '../../sync/__tests__/mocks/eventSourceMock';
 import { __setEventSource } from '../../services/getEventSource/node';
 __setEventSource(EventSourceMock);
 
@@ -112,9 +112,9 @@ export function testSSERetries(mock, assert) {
     ready = true;
   });
 
-  const expectedSSEurl = `${settings.url('/sse')}?channels=NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_NDA2NTIwNjY5Ng%3D%3D_mySegments,NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_splits,control&accessToken=${authPushEnabled.token}&v=1.1`;
+  const expectedSSEurl = `${settings.url('/sse')}?channels=NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_segments,NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_splits,control&accessToken=${authPushEnabled.token}&v=1.1`;
   let sseattempts = 0;
-  setConstructorListener(function (eventSourceInstance) {
+  setMockListener(function (eventSourceInstance) {
     assert.equal(eventSourceInstance.url, expectedSSEurl, 'SSE url is correct');
     if (sseattempts < 2) {
       eventSourceInstance.emitError({ type: 'error' });

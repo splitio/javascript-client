@@ -19,7 +19,7 @@ const defaultOptions = {
 
 export const sources = {};
 let __listener;
-export function setConstructorListener(listener) {
+export function setMockListener(listener) {
   __listener = listener;
 }
 

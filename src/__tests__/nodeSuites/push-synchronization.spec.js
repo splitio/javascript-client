@@ -8,7 +8,7 @@ import authPushEnabled from '../mocks/auth.pushEnabled.facundo@split.io';
 import { nearlyEqual } from '../utils';
 
 
-import EventSourceMock, { setConstructorListener } from '../../sync/__tests__/mocks/eventSourceMock';
+import EventSourceMock, { setMockListener } from '../../sync/__tests__/mocks/eventSourceMock';
 import { __setEventSource } from '../../services/getEventSource/node';
 __setEventSource(EventSourceMock);
 
@@ -61,7 +61,7 @@ export function testSplitUpdate(mock, assert) {
   const splitio = SplitFactory(config);
   const client = splitio.client();
 
-  setConstructorListener(function (eventSourceInstance) {
+  setMockListener(function (eventSourceInstance) {
     setTimeout(() => {
       eventSourceInstance.emitOpen();
     }, MILLIS_SSE_OPEN); // open SSE connection after 0.5 seconds
