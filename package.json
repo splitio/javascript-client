@@ -36,7 +36,7 @@
     "@types/google.analytics": "0.0.40",
     "@types/node": "^13.9.1",
     "axios": "0.19.2",
-    "core-js": "3.6.1",
+    "core-js": "3.6.5",
     "ip": "1.1.5",
     "js-yaml": "3.13.1",
     "utfx": "1.0.1"
