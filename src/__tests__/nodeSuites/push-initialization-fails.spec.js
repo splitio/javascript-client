@@ -15,8 +15,8 @@ const config = {
     authorizationKey: '<fake-token-push-1>'
   },
   scheduler: {
-    featuresRefreshRate: 1,
-    segmentsRefreshRate: 1,
+    featuresRefreshRate: 0.1,
+    segmentsRefreshRate: 0.1,
     metricsRefreshRate: 3000,
     impressionsRefreshRate: 3000
   },
@@ -32,7 +32,7 @@ const settings = SettingsFactory(config);
 /**
  * Sequence of calls:
  *  0.0 secs: initial SyncAll (/splitChanges, /segmentChanges/*) and auth (success but push disabled)
- *  1.0 sects: polling (/splitChanges, /segmentChanges/*)
+ *  0.1 secs: polling (/splitChanges, /segmentChanges/*)
  */
 export function testAuthWithPushDisabled(mock, assert) {
 
@@ -67,7 +67,7 @@ export function testAuthWithPushDisabled(mock, assert) {
 /**
  * Sequence of calls:
  *  0.0 secs: initial SyncAll (/splitChanges, /segmentChanges/*) and auth (fail 401)
- *  1.0 sects: polling (/splitChanges, /segmentChanges/*)
+ *  0.1 secs: polling (/splitChanges, /segmentChanges/*)
  */
 export function testAuthWith401(mock, assert) {
 

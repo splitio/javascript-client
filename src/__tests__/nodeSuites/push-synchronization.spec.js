@@ -57,6 +57,7 @@ const MILLIS_DESTROY = 600;
  *  0.5 secs: SPLIT_KILL event -> /splitChanges
  */
 export function testSynchronization(mock, assert) {
+  mock.reset();
 
   const start = Date.now();
 
