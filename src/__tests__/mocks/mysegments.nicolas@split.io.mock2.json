@@ -1,0 +1,16 @@
+{
+  "mySegments": [
+    {
+      "id": "482df151-e63f-11e9-9275-924a43dg782b",
+      "name": "developers"
+    },
+    {
+      "id": "725df151-d43f-11e9-7561-498b43dc783e",
+      "name": "engineers"
+    },
+    {
+      "id": "725df151-d43f-11e9-7561-498b43dc783f",
+      "name": "employees"
+    }
+  ]
+}

@@ -2,7 +2,7 @@ import { SplitFactory } from '../..';
 import SettingsFactory from '../../utils/settings';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
-import mySegmentsFacundo from '../mocks/mysegments.facundo@split.io.json';
+import mySegmentsNicolas from '../mocks/mysegments.nicolas@split.io.json';
 
 import authPushDisabled from '../mocks/auth.pushDisabled.json';
 import authInvalidCredentials from '../mocks/auth.invalidCredentials.txt';
@@ -12,7 +12,7 @@ const baseUrls = {
   events: 'https://events.baseurl/api',
   auth: 'https://auth.baseurl/api'
 };
-const userKey = 'facundo@split.io';
+const userKey = 'nicolas@split.io';
 const config = {
   core: {
     authorizationKey: '<fake-token-push-1>',
@@ -45,7 +45,7 @@ export function testAuthWithPushDisabled(mock, assert) {
     assert.pass('auth');
     return [200, authPushDisabled];
   });
-  mock.onGet(settings.url('/mySegments/facundo@split.io')).reply(200, mySegmentsFacundo);
+  mock.onGet(settings.url('/mySegments/nicolas@split.io')).reply(200, mySegmentsNicolas);
   mock.onGet(settings.url('/splitChanges?since=-1')).replyOnce(function () {
     assert.pass('initial sync');
     return [200, splitChangesMock1];
@@ -80,7 +80,7 @@ export function testAuthWith401(mock, assert) {
     assert.pass('auth');
     return [401, authInvalidCredentials];
   });
-  mock.onGet(settings.url('/mySegments/facundo@split.io')).reply(200, mySegmentsFacundo);
+  mock.onGet(settings.url('/mySegments/nicolas@split.io')).reply(200, mySegmentsNicolas);
   mock.onGet(settings.url('/splitChanges?since=-1')).replyOnce(function () {
     assert.pass('initial sync');
     return [200, splitChangesMock1];
