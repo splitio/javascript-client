@@ -8,17 +8,14 @@ import { nearlyEqual } from '../utils';
 
 import EventSourceMock, { setMockListener } from '../../sync/__tests__/mocks/eventSourceMock';
 import { __setEventSource } from '../../services/getEventSource/node';
-__setEventSource(EventSourceMock);
 
 import { SplitFactory } from '../../index';
 import SettingsFactory from '../../utils/settings';
 
-const MILLIS_ERROR_MARGIN = 50;
-
 const baseUrls = {
-  sdk: 'https://sdk.baseurl/api',
-  events: 'https://events.baseurl/api',
-  auth: 'https://auth.baseurl/api'
+  sdk: 'https://sdk.push-initialization-retries/api',
+  events: 'https://events.push-initialization-retries/api',
+  auth: 'https://auth.push-initialization-retries/api'
 };
 const config = {
   core: {
@@ -66,25 +63,25 @@ export function testAuthRetries(mock, assert) {
     if (!request.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
     const lapse = Date.now() - start;
     const expected = (config.authRetryBackoffBase * Math.pow(2, 0) + config.authRetryBackoffBase * Math.pow(2, 1)) * 1000;
-    assert.true(nearlyEqual(lapse, expected, MILLIS_ERROR_MARGIN), 'third auth attempt (aproximately in 1.5 seconds from first attempt)');
+    assert.true(nearlyEqual(lapse, expected), 'third auth attempt (aproximately in 1.5 seconds from first attempt)');
     return [200, authPushDisabled];
   });
   mock.onGet(new RegExp(`${settings.url('/segmentChanges/')}.*`)).reply(200, { since: 10, till: 10, name: 'segmentName', added: [], removed: [] });
 
   mock.onGet(settings.url('/splitChanges?since=-1')).replyOnce(function () {
     const lapse = Date.now() - start;
-    assert.true(nearlyEqual(lapse, 0, MILLIS_ERROR_MARGIN), 'initial sync');
+    assert.true(nearlyEqual(lapse, 0), 'initial sync');
     return [200, splitChangesMock1];
   });
   mock.onGet(settings.url('/splitChanges?since=1457552620999')).replyOnce(function () {
     assert.true(ready, 'client ready before first polling fetch');
     const lapse = Date.now() - start;
-    assert.true(nearlyEqual(lapse, config.scheduler.featuresRefreshRate * 1000, MILLIS_ERROR_MARGIN), 'polling');
+    assert.true(nearlyEqual(lapse, config.scheduler.featuresRefreshRate * 1000), 'polling');
     return [200, splitChangesMock2];
   });
   mock.onGet(settings.url('/splitChanges?since=1457552620999')).replyOnce(function () {
     const lapse = Date.now() - start;
-    assert.true(nearlyEqual(lapse, config.scheduler.featuresRefreshRate * 1000 * 2, MILLIS_ERROR_MARGIN), 'keep polling since auth success buth with push disabled');
+    assert.true(nearlyEqual(lapse, config.scheduler.featuresRefreshRate * 1000 * 2), 'keep polling since auth success buth with push disabled');
     client.destroy().then(() => {
       assert.end();
     });
@@ -101,6 +98,7 @@ export function testAuthRetries(mock, assert) {
  *  1.5 secs: third sse attempt (success), syncAll (/splitChanges, /segmentChanges/*)
  */
 export function testSSERetries(mock, assert) {
+  __setEventSource(EventSourceMock);
 
   const start = Date.now();
   const expectedTimeToSSEsuccess = (config.streamingReconnectBackoffBase * Math.pow(2, 0) + config.streamingReconnectBackoffBase * Math.pow(2, 1)) * 1000;
@@ -121,7 +119,7 @@ export function testSSERetries(mock, assert) {
     } else {
       const lapse = Date.now() - start;
 
-      assert.true(nearlyEqual(lapse, expectedTimeToSSEsuccess, MILLIS_ERROR_MARGIN), 'third auth attempt (aproximately in 1.5 seconds from first attempt)');
+      assert.true(nearlyEqual(lapse, expectedTimeToSSEsuccess), 'third auth attempt (aproximately in 1.5 seconds from first attempt)');
       eventSourceInstance.emitOpen();
     }
     sseattempts++;
@@ -136,18 +134,18 @@ export function testSSERetries(mock, assert) {
 
   mock.onGet(settings.url('/splitChanges?since=-1')).replyOnce(function () {
     const lapse = Date.now() - start;
-    assert.true(nearlyEqual(lapse, 0, MILLIS_ERROR_MARGIN), 'initial sync');
+    assert.true(nearlyEqual(lapse, 0), 'initial sync');
     return [200, splitChangesMock1];
   });
   mock.onGet(settings.url('/splitChanges?since=1457552620999')).replyOnce(function () {
     assert.true(ready, 'client ready before first polling fetch');
     const lapse = Date.now() - start;
-    assert.true(nearlyEqual(lapse, config.scheduler.featuresRefreshRate * 1000, MILLIS_ERROR_MARGIN), 'polling');
+    assert.true(nearlyEqual(lapse, config.scheduler.featuresRefreshRate * 1000), 'polling');
     return [200, splitChangesMock2];
   });
   mock.onGet(settings.url('/splitChanges?since=1457552620999')).replyOnce(function () {
     const lapse = Date.now() - start;
-    assert.true(nearlyEqual(lapse, expectedTimeToSSEsuccess, MILLIS_ERROR_MARGIN), 'sync due to success SSE connection');
+    assert.true(nearlyEqual(lapse, expectedTimeToSSEsuccess), 'sync due to success SSE connection');
     client.destroy().then(() => {
       assert.end();
     });

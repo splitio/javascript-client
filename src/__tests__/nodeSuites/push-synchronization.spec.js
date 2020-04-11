@@ -14,7 +14,6 @@ import { nearlyEqual } from '../utils';
 
 import EventSourceMock, { setMockListener } from '../../sync/__tests__/mocks/eventSourceMock';
 import { __setEventSource } from '../../services/getEventSource/node';
-__setEventSource(EventSourceMock);
 
 import { SplitFactory } from '../../index';
 import SettingsFactory from '../../utils/settings';
@@ -22,9 +21,9 @@ import SettingsFactory from '../../utils/settings';
 const key = 'nicolas@split.io';
 
 const baseUrls = {
-  sdk: 'https://sdk.baseurl/api',
-  events: 'https://events.baseurl/api',
-  auth: 'https://auth.baseurl/api'
+  sdk: 'https://sdk.push-synchronization/api',
+  events: 'https://events.push-synchronization/api',
+  auth: 'https://auth.push-synchronization/api'
 };
 const config = {
   core: {
@@ -36,7 +35,6 @@ const config = {
 };
 const settings = SettingsFactory(config);
 
-const MILLIS_ERROR_MARGIN = 50;
 const MILLIS_SSE_OPEN = 100;
 const MILLIS_FIRST_SPLIT_UPDATE_EVENT = 200;
 const MILLIS_SECOND_SPLIT_UPDATE_EVENT = 300;
@@ -55,6 +53,7 @@ const MILLIS_DESTROY = 600;
  */
 export function testSynchronization(mock, assert) {
   mock.reset();
+  __setEventSource(EventSourceMock);
 
   const start = Date.now();
 
@@ -110,7 +109,7 @@ export function testSynchronization(mock, assert) {
   // initial split and segment sync
   mock.onGet(settings.url('/splitChanges?since=-1')).replyOnce(function () {
     const lapse = Date.now() - start;
-    assert.true(nearlyEqual(lapse, 0, MILLIS_ERROR_MARGIN), 'initial sync');
+    assert.true(nearlyEqual(lapse, 0), 'initial sync');
     return [200, splitChangesMock1];
   });
   mock.onGet(settings.url('/segmentChanges/employees?since=-1')).replyOnce(
@@ -120,7 +119,7 @@ export function testSynchronization(mock, assert) {
   // split and segment sync after SSE opened
   mock.onGet(settings.url('/splitChanges?since=1457552620999')).replyOnce(function () {
     const lapse = Date.now() - start;
-    assert.true(nearlyEqual(lapse, MILLIS_SSE_OPEN, MILLIS_ERROR_MARGIN), 'sync after SSE connection is opened');
+    assert.true(nearlyEqual(lapse, MILLIS_SSE_OPEN), 'sync after SSE connection is opened');
     return [200, splitChangesMock2];
   });
   mock.onGet(settings.url('/segmentChanges/employees?since=1457552620999')).replyOnce(
@@ -134,14 +133,14 @@ export function testSynchronization(mock, assert) {
   // fetch due to SPLIT_UPDATE event
   mock.onGet(settings.url('/splitChanges?since=1457552620999')).replyOnce(function () {
     const lapse = Date.now() - start;
-    assert.true(nearlyEqual(lapse, MILLIS_FIRST_SPLIT_UPDATE_EVENT, MILLIS_ERROR_MARGIN), 'sync due to SPLIT_UPDATE event');
+    assert.true(nearlyEqual(lapse, MILLIS_FIRST_SPLIT_UPDATE_EVENT), 'sync due to SPLIT_UPDATE event');
     return [200, splitChangesMock3];
   });
 
   // fetch due to SEGMENT_UPDATE event
   mock.onGet(settings.url('/segmentChanges/employees?since=1457552620999')).replyOnce(function () {
     const lapse = Date.now() - start;
-    assert.true(nearlyEqual(lapse, MILLIS_SEGMENT_UPDATE_EVENT, MILLIS_ERROR_MARGIN), 'sync due to SEGMENT_UPDATE event');
+    assert.true(nearlyEqual(lapse, MILLIS_SEGMENT_UPDATE_EVENT), 'sync due to SEGMENT_UPDATE event');
     return [200, { since: 1457552620999, till: 1457552640000, name: 'employees', added: [], removed: [key] }];
   });
 
@@ -149,7 +148,7 @@ export function testSynchronization(mock, assert) {
   mock.onGet(settings.url('/splitChanges?since=1457552631000')).replyOnce(function () {
     assert.equal(client.getTreatment(key, 'whitelist'), 'not_allowed', 'evaluation with split killed immediately, before fetch is done');
     const lapse = Date.now() - start;
-    assert.true(nearlyEqual(lapse, MILLIS_SPLIT_KILL_EVENT, MILLIS_ERROR_MARGIN), 'sync due to SPLIT_KILL event');
+    assert.true(nearlyEqual(lapse, MILLIS_SPLIT_KILL_EVENT), 'sync due to SPLIT_KILL event');
     return [200, splitChangesMock4];
   });
 }
