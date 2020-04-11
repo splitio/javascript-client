@@ -1,12 +1,12 @@
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
 import authPushDisabled from '../mocks/auth.pushDisabled.json';
-import authPushEnabled from '../mocks/auth.pushEnabled.node.json';
+import authPushEnabledNicolas from '../mocks/auth.pushEnabled.nicolas@split.io.json';
+import mySegmentsNicolasMock from '../mocks/mysegments.nicolas@split.io.json';
 
 import { nearlyEqual } from '../utils';
 
 import EventSourceMock, { setMockListener } from '../../sync/__tests__/mocks/eventSourceMock';
-import { __setEventSource } from '../../services/getEventSource/node';
 
 import { SplitFactory } from '../../index';
 import SettingsFactory from '../../utils/settings';
@@ -16,9 +16,11 @@ const baseUrls = {
   events: 'https://events.push-initialization-retries/api',
   auth: 'https://auth.push-initialization-retries/api'
 };
+const userKey = 'nicolas@split.io';
 const config = {
   core: {
-    authorizationKey: '<fake-token-push-1>'
+    authorizationKey: '<fake-token-push-1>',
+    key: userKey,
   },
   scheduler: {
     featuresRefreshRate: 0.2,
@@ -39,11 +41,11 @@ const settings = SettingsFactory(config);
 
 /**
  * Sequence of calls:
- *  0.0 secs: initial SyncAll (/splitChanges, /segmentChanges/*) and first auth attempt
+ *  0.0 secs: initial SyncAll (/splitChanges, /mySegments/*) and first auth attempt
  *  0.1 secs: second auth attempt
- *  0.2 secs: polling (/splitChanges, /segmentChanges/*)
+ *  0.2 secs: polling (/splitChanges, /mySegments/*)
  *  0.3 secs: third auth attempt (success but push disabled)
- *  0.4 secs: polling (/splitChanges, /segmentChanges/*)
+ *  0.4 secs: polling (/splitChanges, /mySegments/*)
  */
 export function testAuthRetries(mock, assert) {
 
@@ -56,16 +58,16 @@ export function testAuthRetries(mock, assert) {
     ready = true;
   });
 
-  mock.onGet(settings.url('/auth')).timeoutOnce();
-  mock.onGet(settings.url('/auth')).networkErrorOnce();
-  mock.onGet(settings.url('/auth')).replyOnce(function (request) {
+  mock.onGet(settings.url(`/auth?users=${encodeURIComponent(userKey)}`)).timeoutOnce();
+  mock.onGet(settings.url(`/auth?users=${encodeURIComponent(userKey)}`)).networkErrorOnce();
+  mock.onGet(settings.url(`/auth?users=${encodeURIComponent(userKey)}`)).replyOnce(function (request) {
     if (!request.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
     const lapse = Date.now() - start;
     const expected = (settings.authRetryBackoffBase * Math.pow(2, 0) + settings.authRetryBackoffBase * Math.pow(2, 1));
     assert.true(nearlyEqual(lapse, expected), 'third auth attempt (aproximately in 0.3 seconds from first attempt)');
     return [200, authPushDisabled];
   });
-  mock.onGet(new RegExp(`${settings.url('/segmentChanges/')}.*`)).reply(200, { since: 10, till: 10, name: 'segmentName', added: [], removed: [] });
+  mock.onGet(settings.url('/mySegments/nicolas@split.io')).reply(200, mySegmentsNicolasMock);
 
   mock.onGet(settings.url('/splitChanges?since=-1')).replyOnce(function () {
     const lapse = Date.now() - start;
@@ -91,13 +93,13 @@ export function testAuthRetries(mock, assert) {
 
 /**
  * Sequence of calls:
- *  0.0 secs: initial SyncAll (/splitChanges, /segmentChanges/*), auth success and sse fail
+ *  0.0 secs: initial SyncAll (/splitChanges, /mySegments/*), auth success and sse fail
  *  0.1 secs: second sse attempt
- *  0.2 secs: polling (/splitChanges, /segmentChanges/*)
- *  0.3 secs: third sse attempt (success), syncAll (/splitChanges, /segmentChanges/*)
+ *  0.2 secs: polling (/splitChanges, /mySegments/*)
+ *  0.3 secs: third sse attempt (success), syncAll (/splitChanges, /mySegments/*)
  */
 export function testSSERetries(mock, assert) {
-  __setEventSource(EventSourceMock);
+  window.EventSource = EventSourceMock;
 
   const start = Date.now();
   const expectedTimeToSSEsuccess = (settings.streamingReconnectBackoffBase * Math.pow(2, 0) + settings.streamingReconnectBackoffBase * Math.pow(2, 1));
@@ -109,7 +111,7 @@ export function testSSERetries(mock, assert) {
     ready = true;
   });
 
-  const expectedSSEurl = `${settings.url('/sse')}?channels=NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_segments,NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_splits,control&accessToken=${authPushEnabled.token}&v=1.1`;
+  const expectedSSEurl = `${settings.url('/sse')}?channels=NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_NTcwOTc3MDQx_mySegments,NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_splits,control&accessToken=${authPushEnabledNicolas.token}&v=1.1`;
   let sseattempts = 0;
   setMockListener(function (eventSourceInstance) {
     assert.equal(eventSourceInstance.url, expectedSSEurl, 'SSE url is correct');
@@ -124,12 +126,12 @@ export function testSSERetries(mock, assert) {
     sseattempts++;
   });
 
-  mock.onGet(settings.url('/auth')).replyOnce(function (request) {
+  mock.onGet(settings.url(`/auth?users=${encodeURIComponent(userKey)}`)).replyOnce(function (request) {
     if (!request.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
     assert.pass('auth success');
-    return [200, authPushEnabled];
+    return [200, authPushEnabledNicolas];
   });
-  mock.onGet(new RegExp(`${settings.url('/segmentChanges/')}.*`)).reply(200, { since: 10, till: 10, name: 'segmentName', added: [], removed: [] });
+  mock.onGet(settings.url('/mySegments/nicolas@split.io')).reply(200, mySegmentsNicolasMock);
 
   mock.onGet(settings.url('/splitChanges?since=-1')).replyOnce(function () {
     const lapse = Date.now() - start;

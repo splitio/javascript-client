@@ -45,9 +45,9 @@ const MILLIS_DESTROY = 600;
 /**
  * Sequence of calls:
  *  0.0 secs: initial SyncAll (/splitChanges, /segmentChanges/*), auth, SSE connection
- *  0.1 sects: SSE connection opened -> syncAll (/splitChanges, /segmentChanges/*)
+ *  0.1 secs: SSE connection opened -> syncAll (/splitChanges, /segmentChanges/*)
  *  0.2 secs: SPLIT_UPDATE event -> /splitChanges
- *  0.3 sects: SPLIT_UPDATE event with old changeNumber
+ *  0.3 secs: SPLIT_UPDATE event with old changeNumber
  *  0.4 secs: SEGMENT_UPDATE event -> /segmentChanges/
  *  0.5 secs: SPLIT_KILL event -> /splitChanges
  */
