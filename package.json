@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio",
-  "version": "10.11.1",
+  "version": "10.11.2-canary.0",
   "description": "Split SDK",
   "files": [
     "README.md",
@@ -32,9 +32,9 @@
     "node": ">=6"
   },
   "dependencies": {
-    "@babel/runtime-corejs3": "^7.8.7",
+    "@babel/runtime-corejs3": "^7.9.2",
     "@types/google.analytics": "0.0.40",
-    "@types/node": "^13.9.1",
+    "@types/node": "^13.11.1",
     "axios": "0.19.2",
     "core-js": "3.6.1",
     "ip": "1.1.5",
@@ -47,12 +47,12 @@
   },
   "devDependencies": {
     "@babel/cli": "^7.8.4",
-    "@babel/core": "^7.8.7",
-    "@babel/plugin-transform-runtime": "^7.8.3",
-    "@babel/preset-env": "^7.8.7",
-    "@babel/register": "^7.8.6",
-    "axios-mock-adapter": "^1.17.0",
-    "babel-loader": "^8.0.6",
+    "@babel/core": "^7.9.0",
+    "@babel/plugin-transform-runtime": "^7.9.0",
+    "@babel/preset-env": "^7.9.5",
+    "@babel/register": "^7.9.0",
+    "axios-mock-adapter": "^1.18.1",
+    "babel-loader": "^8.1.0",
     "copyfiles": "^2.2.0",
     "cross-env": "^7.0.2",
     "csv-streamify": "4.0.0",
@@ -71,7 +71,7 @@
     "tap-summary": "4.0.0",
     "tape": "4.13.0",
     "tape-catch": "1.0.6",
-    "webpack": "^4.42.0",
+    "webpack": "^4.42.1",
     "webpack-cli": "^3.3.11",
     "webpack-merge": "^4.2.2"
   },
