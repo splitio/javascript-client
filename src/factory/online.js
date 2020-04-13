@@ -32,7 +32,7 @@ function SplitFactoryOnline(context, readyTrackers, mainClientMetricCollectors) 
 
   let producer;
 
-  switch(settings.mode) {
+  switch (settings.mode) {
     case PRODUCER_MODE:
     case STANDALONE_MODE: {
       context.put(context.constants.COLLECTORS, metrics && metrics.collectors);
@@ -99,8 +99,8 @@ function SplitFactoryOnline(context, readyTrackers, mainClientMetricCollectors) 
           storage.destroy && storage.destroy();
           // Mark the factory as destroyed.
           context.put(context.constants.DESTROYED, true);
-        // And release the API Key
-        !sharedInstance && releaseApiKey(settings.core.authorizationKey);
+          // And release the API Key
+          !sharedInstance && releaseApiKey(settings.core.authorizationKey);
         });
       }
     }
