@@ -20,6 +20,7 @@ const inputValidationLog = logFactory('', { displayAllErrors: true });
 import segmentChangesFetcher from '../fetcher/SegmentChanges';
 import { findIndex, startsWith } from '../../utils/lang';
 import { SplitError } from '../../utils/lang/Errors';
+import thenable from '../../utils/promise/thenable';
 
 const SegmentChangesUpdaterFactory = context => {
   const {
@@ -32,55 +33,75 @@ const SegmentChangesUpdaterFactory = context => {
 
   let readyOnAlreadyExistentState = true;
 
-  return async function SegmentChangesUpdater() {
+  return function SegmentChangesUpdater() {
     log.debug('Started segments update');
 
-    // Async fetchers are collected here.
-    const updaters = [];
-
     // Read list of available segments names to be updated.
-    const segments = await storage.segments.getRegisteredSegments();
+    const names = storage.segments.getRegisteredSegments();
 
-    for (let segmentName of segments) {
-      const since = await storage.segments.getChangeNumber(segmentName);
-
-      log.debug(`Processing segment ${segmentName}`);
-
-      updaters.push(segmentChangesFetcher(settings, segmentName, since, metricCollectors).then(async function (changes) {
-        let changeNumber = -1;
-
-        for (let x of changes) {
-          if (x.added.length > 0)
-            await storage.segments.addToSegment(segmentName, x.added);
-
-          if (x.removed.length > 0)
-            await storage.segments.removeFromSegment(segmentName, x.removed);
-
-          if (x.added.length > 0 || x.removed.length > 0) {
-            await storage.segments.setChangeNumber(segmentName, x.till);
-            changeNumber = x.till;
-          }
-
-          log.debug(`Processed ${segmentName} with till = ${x.till}. Added: ${x.added.length}. Removed: ${x.removed.length}`);
-        }
-
-        return changeNumber;
-      }));
+    if (thenable(names)) {
+      return names.then(updateSegments);
+    } else {
+      return updateSegments(names);
     }
 
-    return Promise.all(updaters).then(shouldUpdateFlags => {
-      if (findIndex(shouldUpdateFlags, v => v !== -1) !== -1 || readyOnAlreadyExistentState) {
-        readyOnAlreadyExistentState = false;
-        segmentsEventEmitter.emit(segmentsEventEmitter.SDK_SEGMENTS_ARRIVED);
-      }
-    }).catch(error => {
-      if (!(error instanceof SplitError)) setTimeout(() => {throw error;}, 0);
+    function updateSegments(segmentNames) {
+      // Async fetchers are collected here.
+      const updaters = [];
 
-      if (startsWith(error.message, '403')) {
-        context.put(context.constants.DESTROYED, true);
-        inputValidationLog.error('Factory instantiation: you passed a Browser type authorizationKey, please grab an Api Key from the Split web console that is of type SDK.');
+      for (let segmentName of segmentNames) {
+        // Define the processor. These fetchers, if we decide we're not gonna use async/await for a while could use a refactor
+        const processSegment = (since) => {
+          log.debug(`Processing segment ${segmentName}`);
+
+          updaters.push(segmentChangesFetcher(settings, segmentName, since, metricCollectors).then((changes) => {
+            const operationPromises = [];
+            let changeNumber = -1;
+
+            for (let x of changes) {
+              const changePromises = [];
+              if (x.added.length > 0) changePromises.push(storage.segments.addToSegment(segmentName, x.added));
+
+              if (x.removed.length > 0) changePromises.push(storage.segments.removeFromSegment(segmentName, x.removed));
+
+              if (x.added.length > 0 || x.removed.length > 0) {
+                changePromises.push(storage.segments.setChangeNumber(segmentName, x.till));
+                changeNumber = x.till;
+              }
+
+              // Register this bulk of key operations operations so we can track them all.
+              operationPromises.push(Promise.all(changePromises).then(() => {
+                log.debug(`Processed ${segmentName} with till = ${x.till}. Added: ${x.added.length}. Removed: ${x.removed.length}`);
+              }));
+            }
+
+            return Promise.all(operationPromises).then(() => changeNumber);
+          }));
+        };
+
+        const since = storage.segments.getChangeNumber(segmentName);
+
+        if (thenable(since)) {
+          since.then(processSegment);
+        } else {
+          processSegment(since);
+        }
       }
-    });
+
+      return Promise.all(updaters).then(shouldUpdateFlags => {
+        if (findIndex(shouldUpdateFlags, v => v !== -1) !== -1 || readyOnAlreadyExistentState) {
+          readyOnAlreadyExistentState = false;
+          segmentsEventEmitter.emit(segmentsEventEmitter.SDK_SEGMENTS_ARRIVED);
+        }
+      }).catch(error => {
+        if (!(error instanceof SplitError)) setTimeout(() => {throw error;}, 0);
+
+        if (startsWith(error.message, '403')) {
+          context.put(context.constants.DESTROYED, true);
+          inputValidationLog.error('Factory instantiation: you passed a Browser type authorizationKey, please grab an Api Key from the Split web console that is of type SDK.');
+        }
+      });
+    }
   };
 
 };
