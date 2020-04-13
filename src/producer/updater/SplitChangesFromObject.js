@@ -16,6 +16,7 @@ limitations under the License.
 import { forOwn } from '../../utils/lang';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-producer:offline');
+import thenable from '../../utils/promise/thenable';
 
 function FromObjectUpdaterFactory(Fetcher, context) {
   const {
@@ -24,7 +25,7 @@ function FromObjectUpdaterFactory(Fetcher, context) {
     [context.constants.STORAGE]: storage
   } = context.getAll();
 
-  return async function ObjectUpdater() {
+  return function ObjectUpdater() {
     const splits = [];
     let loadError = null;
     let splitsMock = {};
@@ -55,12 +56,20 @@ function FromObjectUpdaterFactory(Fetcher, context) {
         ]);
       });
 
-      await storage.splits.flush();
-      await storage.splits.addSplits(splits);
+      const flushResult = storage.splits.flush();
+      const flushPromise = thenable(flushResult) ? flushResult : Promise.resolve(flushResult);
 
-      readiness.splits.emit(readiness.splits.SDK_SPLITS_ARRIVED);
-      readiness.segments.emit(readiness.segments.SDK_SEGMENTS_ARRIVED);
+      return flushPromise.then(function () {
+        const addSplitsResult = storage.splits.addSplits(splits);
+        const addSplitsPromise = thenable(addSplitsResult) ? addSplitsResult : Promise.resolve(addSplitsResult);
+
+        return addSplitsPromise.then(function () {
+          readiness.splits.emit(readiness.splits.SDK_SPLITS_ARRIVED);
+          readiness.segments.emit(readiness.segments.SDK_SEGMENTS_ARRIVED);
+        });
+      });
     }
+    return Promise.resolve();
   };
 }
 

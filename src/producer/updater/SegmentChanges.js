@@ -20,6 +20,7 @@ const inputValidationLog = logFactory('', { displayAllErrors: true });
 import segmentChangesFetcher from '../fetcher/SegmentChanges';
 import { findIndex, startsWith } from '../../utils/lang';
 import { SplitError } from '../../utils/lang/Errors';
+import thenable from '../../utils/promise/thenable';
 
 const SegmentChangesUpdaterFactory = context => {
   const {
@@ -32,54 +33,70 @@ const SegmentChangesUpdaterFactory = context => {
 
   let readyOnAlreadyExistentState = true;
 
-  return async function SegmentChangesUpdater() {
+  return function SegmentChangesUpdater(segmentName) {
     log.debug('Started segments update');
 
     // Async fetchers are collected here.
     const updaters = [];
 
-    // Read list of available segments names to be updated.
-    const segments = await storage.segments.getRegisteredSegments();
+    // If not a segment name provided, read list of available segments names to be updated.
+    const segments = segmentName ? [segmentName] : storage.segments.getRegisteredSegments();
+    const segmentsPromise = thenable(segments) ? segments : Promise.resolve(segments);
+    return segmentsPromise.then(function (segments) {
+      const sincePromises = [];
+      for (let segmentName of segments) {
+        const since = storage.segments.getChangeNumber(segmentName);
+        const sincePromise = thenable(since) ? since : Promise.resolve(since);
+        sincePromise.then(function (since) {
+          log.debug(`Processing segment ${segmentName}`);
 
-    for (let segmentName of segments) {
-      const since = await storage.segments.getChangeNumber(segmentName);
+          updaters.push(segmentChangesFetcher(settings, segmentName, since, metricCollectors).then(async function (changes) {
+            let changeNumber = -1;
+            const changePromises = [];
+            for (let x of changes) {
+              let promise = Promise.resolve();
 
-      log.debug(`Processing segment ${segmentName}`);
+              promise.then(function() {
+                if (x.added.length > 0) {
+                  return storage.segments.addToSegment(segmentName, x.added);
+                }
+              }).then(function() {
+                if (x.removed.length > 0)
+                  return storage.segments.removeFromSegment(segmentName, x.removed);
+              }).then(function() {
+                log.debug(`Processed ${segmentName} with till = ${x.till}. Added: ${x.added.length}. Removed: ${x.removed.length}`);
 
-      updaters.push(segmentChangesFetcher(settings, segmentName, since, metricCollectors).then(async function (changes) {
-        let changeNumber = -1;
+                if (x.added.length > 0 || x.removed.length > 0) {
+                  changeNumber = x.till;
+                  return storage.segments.setChangeNumber(segmentName, x.till);
+                }
+              });
 
-        for (let x of changes) {
-          if (x.added.length > 0)
-            await storage.segments.addToSegment(segmentName, x.added);
+              changePromises.push(promise);
+            }
 
-          if (x.removed.length > 0)
-            await storage.segments.removeFromSegment(segmentName, x.removed);
-
-          if (x.added.length > 0 || x.removed.length > 0) {
-            await storage.segments.setChangeNumber(segmentName, x.till);
-            changeNumber = x.till;
+            return Promise.all(sincePromises).then(function () {
+              return changeNumber;
+            });
+          }));
+        });
+        sincePromises.push(sincePromise);
+      }
+      return Promise.all(sincePromises).then(function () {
+        return Promise.all(updaters).then(shouldUpdateFlags => {
+          if (findIndex(shouldUpdateFlags, v => v !== -1) !== -1 || readyOnAlreadyExistentState) {
+            readyOnAlreadyExistentState = false;
+            segmentsEventEmitter.emit(segmentsEventEmitter.SDK_SEGMENTS_ARRIVED);
           }
+        }).catch(error => {
+          if (!(error instanceof SplitError)) setTimeout(() => { throw error; }, 0);
 
-          log.debug(`Processed ${segmentName} with till = ${x.till}. Added: ${x.added.length}. Removed: ${x.removed.length}`);
-        }
-
-        return changeNumber;
-      }));
-    }
-
-    return Promise.all(updaters).then(shouldUpdateFlags => {
-      if (findIndex(shouldUpdateFlags, v => v !== -1) !== -1 || readyOnAlreadyExistentState) {
-        readyOnAlreadyExistentState = false;
-        segmentsEventEmitter.emit(segmentsEventEmitter.SDK_SEGMENTS_ARRIVED);
-      }
-    }).catch(error => {
-      if (!(error instanceof SplitError)) setTimeout(() => {throw error;}, 0);
-
-      if (startsWith(error.message, '403')) {
-        context.put(context.constants.DESTROYED, true);
-        inputValidationLog.error('Factory instantiation: you passed a Browser type authorizationKey, please grab an Api Key from the Split web console that is of type SDK.');
-      }
+          if (startsWith(error.message, '403')) {
+            context.put(context.constants.DESTROYED, true);
+            inputValidationLog.error('Factory instantiation: you passed a Browser type authorizationKey, please grab an Api Key from the Split web console that is of type SDK.');
+          }
+        });
+      });
     });
   };
 
