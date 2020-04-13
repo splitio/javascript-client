@@ -63,10 +63,7 @@ module.exports = {
               presets: [['@babel/preset-env', {
                 'useBuiltIns': 'usage',
                 'corejs': '3',
-                'targets': {
-                  'ie': '10',
-                  'node': '6'
-                },
+                'targets': '> 0.5%, last 2 versions, Firefox ESR, not dead, not IE >= 0',
                 exclude: ['es.promise']
               }]],
               plugins: [

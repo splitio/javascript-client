@@ -14,10 +14,7 @@ module.exports = function (api) {
         'useBuiltIns': 'usage',
         'modules': 'commonjs',
         'corejs': '3',
-        'targets': {
-          'ie': '10',
-          'node': '4'
-        },
+        'targets': '> 0.5%, last 2 versions, Firefox ESR, not dead, not IE >= 0, node > 6',
         exclude: [
           'es.promise'
         ]
