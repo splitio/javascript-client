@@ -26,38 +26,39 @@ const log = logFactory('splitio-producer:updater');
  * Startup all the background jobs required for a Browser SDK instance.
  */
 const FullBrowserProducer = (context) => {
+  const settings = context.get(context.constants.SETTINGS);
+  const { splits: splitsEventEmitter } = context.get(context.constants.READINESS);
+
   const splitsUpdater = SplitChangesUpdater(context);
   const mySegmentsUpdater = MySegmentsUpdater(context);
+
+  const splitsUpdaterTask = TaskFactory(synchronizeSplits, settings.scheduler.featuresRefreshRate);
+  const mySegmentsUpdaterTask = TaskFactory(mySegmentsUpdater, settings.scheduler.segmentsRefreshRate);
+
+  const onSplitsArrived = onSplitsArrivedFactory(mySegmentsUpdaterTask, context);
+  splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, onSplitsArrived);
 
   let isSynchronizingSplits = false;
   let isSynchronizingMySegments = false;
 
   function synchronizeSplits() {
     isSynchronizingSplits = true;
-    return splitsUpdater().finally(function() {
+    return splitsUpdater().finally(function () {
       isSynchronizingSplits = false;
     });
   }
 
   function synchronizeMySegments(segmentList) {
     isSynchronizingMySegments = true;
-    return mySegmentsUpdater(undefined, segmentList).finally(function () {
+    return mySegmentsUpdater(0, segmentList).finally(function () {
       isSynchronizingMySegments = false;
     });
   }
 
-  const settings = context.get(context.constants.SETTINGS);
-  const { splits: splitsEventEmitter } = context.get(context.constants.READINESS);
-
-  const splitsUpdaterTask = TaskFactory(synchronizeSplits, settings.scheduler.featuresRefreshRate);
-  const mySegmentsUpdaterTask = TaskFactory(mySegmentsUpdater, settings.scheduler.segmentsRefreshRate);
-
-  const onSplitsArrived = onSplitsArrivedFactory(mySegmentsUpdaterTask, context);
-
-  splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, onSplitsArrived);
-
   return {
     /**
+     * Start periodic fetching (polling)
+     *
      * @param {boolean} notStartImmediately if true, fetcher calls are scheduled but not run immediately
      */
     start(notStartImmediately) {
@@ -67,6 +68,7 @@ const FullBrowserProducer = (context) => {
       mySegmentsUpdaterTask.start(notStartImmediately);
     },
 
+    // Stop periodic fetching (polling)
     stop() {
       log.info('Stopping BROWSER producer');
 

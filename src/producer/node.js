@@ -57,6 +57,8 @@ const NodeUpdater = (context) => {
 
   return {
     /**
+     * Start periodic fetching (polling)
+     *
      * @param {boolean} notStartImmediately if true, fetcher calls are scheduled but not run immediately
      */
     start(notStartImmediately) {
@@ -102,6 +104,7 @@ const NodeUpdater = (context) => {
       isRunning = true;
     },
 
+    // Stop periodic fetching (polling)
     stop() {
       log.info('Stopping NODEJS updater');
 

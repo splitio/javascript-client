@@ -29,20 +29,22 @@ const PartialBrowserProducer = (context) => {
   const mySegmentsUpdaterTask = TaskFactory(mySegmentsUpdater, settings.scheduler.segmentsRefreshRate);
 
   const onSplitsArrived = onSplitsArrivedFactory(mySegmentsUpdaterTask, context);
-
   splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, onSplitsArrived);
 
   let isSynchronizingMySegments = false;
 
   function synchronizeMySegments(segmentList) {
     isSynchronizingMySegments = true;
-    return mySegmentsUpdater(undefined, segmentList).finally(function () {
+    return mySegmentsUpdater(0, segmentList).finally(function () {
       isSynchronizingMySegments = false;
     });
   }
 
   return {
+    // Start periodic fetching (polling)
     start: mySegmentsUpdaterTask.start,
+
+    // Stop periodic fetching (polling)
     stop: mySegmentsUpdaterTask.stop,
 
     // Used by SyncManager to know if running in polling mode.
