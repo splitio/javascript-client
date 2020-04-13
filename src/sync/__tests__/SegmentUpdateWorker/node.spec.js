@@ -40,18 +40,18 @@ function ProducerMock(segmentStorage) {
 
 tape('SegmentUpdateWorker', t => {
 
+  // setup
+  const cache = new SegmentCacheInMemory(new KeyBuilder(SettingsFactory()));
+  cache.addToSegment('mocked_segment_1', ['a', 'b', 'c']);
+  cache.addToSegment('mocked_segment_2', ['d']);
+  const producer = ProducerMock(cache);
+
+  const segmentUpdateWorker = new SegmentUpdateWorker(cache, producer);
+  t.equal(segmentUpdateWorker.segmentsChangesQueue.length, 0, 'inits with not queued events');
+
   t.test('put', assert => {
 
-    // setup
-    const cache = new SegmentCacheInMemory(new KeyBuilder(SettingsFactory()));
-    cache.addToSegment('mocked_segment_1', ['a', 'b', 'c']);
-    cache.addToSegment('mocked_segment_2', ['d']);
-    const producer = ProducerMock(cache);
-
-    const segmentUpdateWorker = new SegmentUpdateWorker(cache, producer);
-    assert.equal(segmentUpdateWorker.segmentsChangesQueue.length, 0, 'inits with not queued events');
-
-    // assert calling to `synchronizeSegment` if `isSynchronizingSegments` is false
+    // assert calling `synchronizeSegment` if `isSynchronizingSegments` is false
     assert.equal(producer.isSynchronizingSegments(), false);
     segmentUpdateWorker.put(100, 'mocked_segment_1');
     assert.equal(segmentUpdateWorker.segmentsChangesQueue.length, 1, 'queues event');
@@ -64,7 +64,7 @@ tape('SegmentUpdateWorker', t => {
     segmentUpdateWorker.put(100, 'mocked_segment_2');
 
     assert.equal(segmentUpdateWorker.segmentsChangesQueue.length, 3, 'queues events');
-    assert.true(producer.synchronizeSegment.calledOnce, 'doesn\'t call `synchronizeSegment` while isSynchronizingSegments is true');
+    assert.true(producer.synchronizeSegment.calledOnce, 'doesn\'t call `synchronizeSegment` if `isSynchronizingSegments` is true');
 
     // assert dequeueing and recalling to `synchronizeSegment`
     producer.__resolveSegmentsUpdaterCall(0, 'mocked_segment_1', 100); // resolve first call to `synchronizeSegment`

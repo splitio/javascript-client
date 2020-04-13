@@ -11,22 +11,24 @@ export default class MySegmentUpdateWorker {
   constructor(mySegmentsStorage, mySegmentsProducer) {
     this.mySegmentsStorage = mySegmentsStorage;
     this.mySegmentsProducer = mySegmentsProducer;
-    this.maxChangeNumber = 0;
+    this.maxChangeNumber = 0; // keeps the maximum changeNumber among queued events
+    this.segmentList = undefined; // keeps the segmentList (if included in payload) from the queued event with maximum changeNumber
     this.currentChangeNumber = -1; // @TODO: remove once `/mySegments` endpoint provides the changeNumber
   }
 
   // Private method
   // Preconditions: this.mySegmentsProducer.isSynchronizingMySegments === false
-  // @TODO update this block once `/mySegments` endpoint provides the changeNumber
+  // @TODO update this block similar to SplitUpdateWorker, once `/mySegments` endpoint provides the changeNumber
   __handleMySegmentUpdateCall() {
     if (this.maxChangeNumber > this.currentChangeNumber) {
       const currentMaxChangeNumber = this.maxChangeNumber;
-      this.mySegmentsProducer.synchronizeMySegments().then(() => {
+      this.mySegmentsProducer.synchronizeMySegments(this.segmentList).then(() => {
         this.currentChangeNumber = Math.max(this.currentChangeNumber, currentMaxChangeNumber); // use `currentMaxChangeNumber`, in case that `this.maxChangeNumber` was updated during fetch.
         this.__handleMySegmentUpdateCall();
       });
     } else {
       this.maxChangeNumber = 0;
+      this.segmentList = undefined;
     }
   }
 
@@ -37,17 +39,13 @@ export default class MySegmentUpdateWorker {
    * @param {string[] | undefined} segmentList might be undefined
    */
   put(changeNumber, segmentList) {
-    // if `segmentList` is present, directly call MySegmentsUpdater to update storage
-    if (segmentList && changeNumber > this.currentChangeNumber) {
-      this.mySegmentsProducer.synchronizeMySegments(segmentList);
-      // @TODO remove next line once `/mySegments` endpoint provides the changeNumber, since in that case we can track it at the segment storage.
-      this.currentChangeNumber = changeNumber;
-      return;
-    }
+    // @TODO uncomment next line once `/mySegments` endpoint provides the changeNumber
+    // const currentChangeNumber = this.mySegmentsStorage.getChangeNumber();
 
-    if (changeNumber <= this.currentChangeNumber && changeNumber <= this.maxChangeNumber) return;
+    if (changeNumber <= this.currentChangeNumber || changeNumber <= this.maxChangeNumber) return;
 
     this.maxChangeNumber = changeNumber;
+    this.segmentList = segmentList;
 
     if (this.mySegmentsProducer.isSynchronizingMySegments()) return;
 

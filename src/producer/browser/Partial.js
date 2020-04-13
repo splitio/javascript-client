@@ -26,13 +26,16 @@ const PartialBrowserProducer = (context) => {
   const { splits: splitsEventEmitter } = context.get(context.constants.READINESS);
 
   const mySegmentsUpdater = MySegmentsUpdater(context);
-  const mySegmentsUpdaterTask = TaskFactory(mySegmentsUpdater, settings.scheduler.segmentsRefreshRate);
+  const mySegmentsUpdaterTask = TaskFactory(synchronizeMySegments, settings.scheduler.segmentsRefreshRate);
 
   const onSplitsArrived = onSplitsArrivedFactory(mySegmentsUpdaterTask, context);
   splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, onSplitsArrived);
 
   let isSynchronizingMySegments = false;
 
+  /**
+   * @param {string[] | undefined} segmentList might be undefined
+   */
   function synchronizeMySegments(segmentList) {
     isSynchronizingMySegments = true;
     return mySegmentsUpdater(0, segmentList).finally(function () {

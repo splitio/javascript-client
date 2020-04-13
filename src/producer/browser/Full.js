@@ -33,7 +33,7 @@ const FullBrowserProducer = (context) => {
   const mySegmentsUpdater = MySegmentsUpdater(context);
 
   const splitsUpdaterTask = TaskFactory(synchronizeSplits, settings.scheduler.featuresRefreshRate);
-  const mySegmentsUpdaterTask = TaskFactory(mySegmentsUpdater, settings.scheduler.segmentsRefreshRate);
+  const mySegmentsUpdaterTask = TaskFactory(synchronizeMySegments, settings.scheduler.segmentsRefreshRate);
 
   const onSplitsArrived = onSplitsArrivedFactory(mySegmentsUpdaterTask, context);
   splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, onSplitsArrived);
@@ -48,6 +48,9 @@ const FullBrowserProducer = (context) => {
     });
   }
 
+  /**
+   * @param {string[] | undefined} segmentList might be undefined
+   */
   function synchronizeMySegments(segmentList) {
     isSynchronizingMySegments = true;
     return mySegmentsUpdater(0, segmentList).finally(function () {

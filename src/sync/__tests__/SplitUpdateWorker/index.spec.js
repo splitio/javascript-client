@@ -54,21 +54,22 @@ tape('SplitUpdateWorker', t => {
     const splitUpdateWorker = new SplitUpdateWorker(cache, producer);
     assert.equal(splitUpdateWorker.maxChangeNumber, 0, 'inits with not queued changeNumber (maxChangeNumber equals to 0)');
 
-    // assert calling to `synchronizeSplits` if `isSynchronizingSplits` is false
+    // assert calling `synchronizeSplits` if `isSynchronizingSplits` is false
     assert.equal(producer.isSynchronizingSplits(), false);
-    splitUpdateWorker.put(100);
+    splitUpdateWorker.put(100); // queued
     assert.equal(splitUpdateWorker.maxChangeNumber, 100, 'queues changeNumber if it is mayor than storage changeNumber and queue is empty');
     assert.true(producer.synchronizeSplits.calledOnce, 'calls `synchronizeSplits` if `isSynchronizingSplits` is false');
 
     // assert queueing changeNumber if `isSynchronizingSplits` is true
     assert.equal(producer.isSynchronizingSplits(), true);
-    splitUpdateWorker.put(105);
-    splitUpdateWorker.put(104);
-    splitUpdateWorker.put(106);
+    splitUpdateWorker.put(105); // queued
+    splitUpdateWorker.put(104); // not queued
+    splitUpdateWorker.put(106); // queued
+    splitUpdateWorker.put(103); // not queued
     assert.true(producer.synchronizeSplits.calledOnce, 'doesn\'t call `synchronizeSplits` while isSynchronizingSplits is true');
     assert.equal(splitUpdateWorker.maxChangeNumber, 106, 'queues changeNumber if it is mayor than currently queued changeNumber and storage changeNumber');
 
-    // assert calling to `synchronizeSplits` if previous call is resolved and a new changeNumber in queue
+    // assert calling `synchronizeSplits` if previous call is resolved and a new changeNumber in queue
     producer.__resolveSplitsUpdaterCall(0, 100);
     setTimeout(() => {
       assert.true(producer.synchronizeSplits.calledTwice, 'recalls `synchronizeSplits` if `isSynchronizingSplits` is false and queue is not empty');
@@ -94,13 +95,13 @@ tape('SplitUpdateWorker', t => {
     const producer = ProducerMock(cache);
     const splitUpdateWorker = new SplitUpdateWorker(cache, producer);
 
-    // assert calling to `synchronizeSplits` and `killLocally`, if changeNumber is new
+    // assert calling `synchronizeSplits` and `killLocally`, if changeNumber is new
     splitUpdateWorker.killSplit(100, 'lol1', 'off');
     assert.equal(splitUpdateWorker.maxChangeNumber, 100, 'queues changeNumber if it is mayor than storage changeNumber and queue is empty');
     assert.true(producer.synchronizeSplits.calledOnce, 'calls `synchronizeSplits` if `isSynchronizingSplits` is false');
     assertKilledSplit(assert, cache, 100, 'lol1', 'off');
 
-    // assert not calling to `synchronizeSplits` and `killLocally`, if changeNumber is old
+    // assert not calling `synchronizeSplits` and `killLocally`, if changeNumber is old
     producer.__resolveSplitsUpdaterCall(0, 100);
     setTimeout(() => {
       splitUpdateWorker.killSplit(90, 'lol1', 'on');

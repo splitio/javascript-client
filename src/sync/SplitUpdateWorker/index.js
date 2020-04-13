@@ -35,7 +35,7 @@ export default class SplitUpdateWorker {
   put(changeNumber) {
     const currentChangeNumber = this.splitStorage.getChangeNumber();
 
-    if (changeNumber <= currentChangeNumber && changeNumber <= this.maxChangeNumber) return;
+    if (changeNumber <= currentChangeNumber || changeNumber <= this.maxChangeNumber) return;
 
     this.maxChangeNumber = changeNumber;
 
