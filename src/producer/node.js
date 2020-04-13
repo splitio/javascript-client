@@ -32,16 +32,16 @@ const NodeUpdater = (context) => {
   let stopSegmentsUpdate = false;
   let splitFetchCompleted = false;
   let isRunning = false;
-  let isSynchronizeSplitsRunning = false;
-  let isSynchronizeSegmentRunning = false;
+  let isSynchronizingSplits = false;
+  let isSynchronizingSegments = false;
 
   function synchronizeSplits() {
-    isSynchronizeSplitsRunning = true;
+    isSynchronizingSplits = true;
     return splitsUpdater().then(function () {
       // Mark splits as ready (track first successfull call to start downloading segments)
       splitFetchCompleted = true;
     }).finally(function () {
-      isSynchronizeSplitsRunning = false;
+      isSynchronizingSplits = false;
     });
   }
 
@@ -49,9 +49,9 @@ const NodeUpdater = (context) => {
    * @param {string} segmentName segment name at SEGMENT_UPDATE event
    */
   function synchronizeSegment(segmentName) {
-    isSynchronizeSegmentRunning = true;
+    isSynchronizingSegments = true;
     return segmentsUpdater(segmentName).finally(function () {
-      isSynchronizeSegmentRunning = false;
+      isSynchronizingSegments = false;
     });
   }
 
@@ -119,14 +119,14 @@ const NodeUpdater = (context) => {
     },
 
     // Used by SplitUpdateWorker
-    isSynchronizeSplitsRunning() {
-      return isSynchronizeSplitsRunning;
+    isSynchronizingSplits() {
+      return isSynchronizingSplits;
     },
     synchronizeSplits,
 
     // Used by SegmentUpdateWorker
-    isSynchronizeSegmentRunning() {
-      return isSynchronizeSegmentRunning;
+    isSynchronizingSegments() {
+      return isSynchronizingSegments;
     },
     synchronizeSegment,
   };

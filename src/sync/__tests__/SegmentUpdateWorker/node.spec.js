@@ -14,21 +14,21 @@ function ProducerMock(segmentStorage) {
     return new Promise((res, rej) => { __segmentsUpdaterCalls.push({ res, rej }); });
   }
 
-  let __isSynchronizeSegmentRunning = false;
+  let __isSynchronizingSegments = false;
 
-  function isSynchronizeSegmentRunning() {
-    return __isSynchronizeSegmentRunning;
+  function isSynchronizingSegments() {
+    return __isSynchronizingSegments;
   }
 
   function synchronizeSegment() {
-    __isSynchronizeSegmentRunning = true;
+    __isSynchronizingSegments = true;
     return __segmentsUpdater().finally(function () {
-      __isSynchronizeSegmentRunning = false;
+      __isSynchronizingSegments = false;
     });
   }
 
   return {
-    isSynchronizeSegmentRunning: sinon.spy(isSynchronizeSegmentRunning),
+    isSynchronizingSegments: sinon.spy(isSynchronizingSegments),
     synchronizeSegment: sinon.spy(synchronizeSegment),
 
     __resolveSegmentsUpdaterCall(index, segmentName, changeNumber) {
@@ -51,26 +51,26 @@ tape('SegmentUpdateWorker', t => {
     const segmentUpdateWorker = new SegmentUpdateWorker(cache, producer);
     assert.equal(segmentUpdateWorker.segmentsChangesQueue.length, 0, 'inits with not queued events');
 
-    // assert calling to `synchronizeSegment` if `isSynchronizeSegmentRunning` is false
-    assert.equal(producer.isSynchronizeSegmentRunning(), false);
+    // assert calling to `synchronizeSegment` if `isSynchronizingSegments` is false
+    assert.equal(producer.isSynchronizingSegments(), false);
     segmentUpdateWorker.put(100, 'mocked_segment_1');
     assert.equal(segmentUpdateWorker.segmentsChangesQueue.length, 1, 'queues event');
-    assert.true(producer.synchronizeSegment.calledOnce, 'calls `synchronizeSegment` if `isSynchronizeSegmentRunning` is false');
+    assert.true(producer.synchronizeSegment.calledOnce, 'calls `synchronizeSegment` if `isSynchronizingSegments` is false');
     assert.true(producer.synchronizeSegment.calledOnceWithExactly('mocked_segment_1'), 'calls `synchronizeSegment` with segmentName');
 
-    // assert queueing items if `isSynchronizeSegmentRunning` is true
-    assert.equal(producer.isSynchronizeSegmentRunning(), true);
+    // assert queueing items if `isSynchronizingSegments` is true
+    assert.equal(producer.isSynchronizingSegments(), true);
     segmentUpdateWorker.put(95, 'mocked_segment_1');
     segmentUpdateWorker.put(100, 'mocked_segment_2');
 
     assert.equal(segmentUpdateWorker.segmentsChangesQueue.length, 3, 'queues events');
-    assert.true(producer.synchronizeSegment.calledOnce, 'doesn\'t call `synchronizeSegment` while isSynchronizeSegmentRunning is true');
+    assert.true(producer.synchronizeSegment.calledOnce, 'doesn\'t call `synchronizeSegment` while isSynchronizingSegments is true');
 
     // assert dequeueing and recalling to `synchronizeSegment`
     producer.__resolveSegmentsUpdaterCall(0, 'mocked_segment_1', 100); // resolve first call to `synchronizeSegment`
     setTimeout(() => {
       assert.equal(cache.getChangeNumber('mocked_segment_1'), 100, '100');
-      assert.true(producer.synchronizeSegment.calledTwice, 'recalls `synchronizeSegment` if `isSynchronizeSegmentRunning` is false and queue is not empty');
+      assert.true(producer.synchronizeSegment.calledTwice, 'recalls `synchronizeSegment` if `isSynchronizingSegments` is false and queue is not empty');
       assert.true(producer.synchronizeSegment.lastCall.calledWithExactly('mocked_segment_2'), 'calls `synchronizeSegment` with segmentName');
 
       // assert dequeueing remaining events

@@ -27,23 +27,22 @@ const log = logFactory('splitio-producer:updater');
  */
 const FullBrowserProducer = (context) => {
   const splitsUpdater = SplitChangesUpdater(context);
-  const segmentsUpdater = MySegmentsUpdater(context);
+  const mySegmentsUpdater = MySegmentsUpdater(context);
 
-  let isSynchronizeSplitsRunning = false;
+  let isSynchronizingSplits = false;
+  let isSynchronizingMySegments = false;
 
   function synchronizeSplits() {
-    isSynchronizeSplitsRunning = true;
+    isSynchronizingSplits = true;
     return splitsUpdater().finally(function() {
-      isSynchronizeSplitsRunning = false;
+      isSynchronizingSplits = false;
     });
   }
 
-  let isSynchronizeMySegmentsRunning = false;
-
   function synchronizeMySegments(segmentList) {
-    isSynchronizeMySegmentsRunning = true;
-    return segmentsUpdater(undefined, segmentList).finally(function () {
-      isSynchronizeMySegmentsRunning = false;
+    isSynchronizingMySegments = true;
+    return mySegmentsUpdater(undefined, segmentList).finally(function () {
+      isSynchronizingMySegments = false;
     });
   }
 
@@ -51,9 +50,9 @@ const FullBrowserProducer = (context) => {
   const { splits: splitsEventEmitter } = context.get(context.constants.READINESS);
 
   const splitsUpdaterTask = TaskFactory(synchronizeSplits, settings.scheduler.featuresRefreshRate);
-  const segmentsUpdaterTask = TaskFactory(segmentsUpdater, settings.scheduler.segmentsRefreshRate);
+  const mySegmentsUpdaterTask = TaskFactory(mySegmentsUpdater, settings.scheduler.segmentsRefreshRate);
 
-  const onSplitsArrived = onSplitsArrivedFactory(segmentsUpdaterTask, context);
+  const onSplitsArrived = onSplitsArrivedFactory(mySegmentsUpdaterTask, context);
 
   splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, onSplitsArrived);
 
@@ -65,28 +64,28 @@ const FullBrowserProducer = (context) => {
       log.info('Starting BROWSER producer');
 
       splitsUpdaterTask.start(notStartImmediately);
-      segmentsUpdaterTask.start(notStartImmediately);
+      mySegmentsUpdaterTask.start(notStartImmediately);
     },
 
     stop() {
       log.info('Stopping BROWSER producer');
 
       splitsUpdaterTask.stop();
-      segmentsUpdaterTask && segmentsUpdaterTask.stop();
+      mySegmentsUpdaterTask && mySegmentsUpdaterTask.stop();
     },
 
     // Used by SyncManager to know if running in polling mode.
     isRunning: splitsUpdaterTask.isRunning,
 
     // Used by SplitUpdateWorker
-    isSynchronizeSplitsRunning() {
-      return isSynchronizeSplitsRunning;
+    isSynchronizingSplits() {
+      return isSynchronizingSplits;
     },
     synchronizeSplits,
 
     // Used by MySegmentUpdateWorker
-    isSynchronizeMySegmentsRunning() {
-      return isSynchronizeMySegmentsRunning;
+    isSynchronizingMySegments() {
+      return isSynchronizingMySegments;
     },
     synchronizeMySegments,
   };

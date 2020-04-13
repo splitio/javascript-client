@@ -16,7 +16,7 @@ export default class SplitUpdateWorker {
   }
 
   // Private method
-  // Preconditions: this.splitProducer.isSynchronizeSplitsRunning === false
+  // Preconditions: this.splitProducer.isSynchronizingSplits === false
   __handleSplitUpdateCall() {
     if (this.maxChangeNumber > this.splitStorage.getChangeNumber()) {
       this.splitProducer.synchronizeSplits().then(() => {
@@ -39,7 +39,7 @@ export default class SplitUpdateWorker {
 
     this.maxChangeNumber = changeNumber;
 
-    if (this.splitProducer.isSynchronizeSplitsRunning()) return;
+    if (this.splitProducer.isSynchronizingSplits()) return;
 
     this.__handleSplitUpdateCall();
   }

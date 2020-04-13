@@ -16,7 +16,7 @@ export default class MySegmentUpdateWorker {
   }
 
   // Private method
-  // Preconditions: this.mySegmentsProducer.isSynchronizeMySegmentsRunning === false
+  // Preconditions: this.mySegmentsProducer.isSynchronizingMySegments === false
   // @TODO update this block once `/mySegments` endpoint provides the changeNumber
   __handleMySegmentUpdateCall() {
     if (this.maxChangeNumber > this.currentChangeNumber) {
@@ -49,7 +49,7 @@ export default class MySegmentUpdateWorker {
 
     this.maxChangeNumber = changeNumber;
 
-    if (this.mySegmentsProducer.isSynchronizeMySegmentsRunning()) return;
+    if (this.mySegmentsProducer.isSynchronizingMySegments()) return;
 
     this.__handleMySegmentUpdateCall();
   }

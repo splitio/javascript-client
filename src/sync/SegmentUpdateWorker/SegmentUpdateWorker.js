@@ -14,7 +14,7 @@ export default class SegmentUpdateWorker {
   }
 
   // Private method
-  // Preconditions: this.segmentsProducer.isSynchronizeSegmentRunning === false
+  // Preconditions: this.segmentsProducer.isSynchronizingSegments === false
   __handleSegmentUpdateCall() {
     if (this.segmentsChangesQueue.length > 0) {
       const { changeNumber, segmentName } = this.segmentsChangesQueue[this.segmentsChangesQueue.length - 1];
@@ -42,7 +42,7 @@ export default class SegmentUpdateWorker {
 
     this.segmentsChangesQueue.push({ segmentName, changeNumber });
 
-    if (this.segmentsProducer.isSynchronizeSegmentRunning()) return;
+    if (this.segmentsProducer.isSynchronizingSegments()) return;
 
     this.__handleSegmentUpdateCall();
   }

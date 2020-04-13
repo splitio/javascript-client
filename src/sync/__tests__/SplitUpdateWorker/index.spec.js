@@ -11,22 +11,22 @@ function ProducerMock(splitStorage) {
     return new Promise((res, rej) => { __splitsUpdaterCalls.push({ res, rej }); });
   }
 
-  let __isSynchronizeSplitsRunning = false;
+  let __isSynchronizingSplits = false;
 
-  function isSynchronizeSplitsRunning() {
-    return __isSynchronizeSplitsRunning;
+  function isSynchronizingSplits() {
+    return __isSynchronizingSplits;
   }
 
   function synchronizeSplits() {
-    __isSynchronizeSplitsRunning = true;
+    __isSynchronizingSplits = true;
     return __splitsUpdater().then(function () {
     }).finally(function () {
-      __isSynchronizeSplitsRunning = false;
+      __isSynchronizingSplits = false;
     });
   }
 
   return {
-    isSynchronizeSplitsRunning: sinon.spy(isSynchronizeSplitsRunning),
+    isSynchronizingSplits: sinon.spy(isSynchronizingSplits),
     synchronizeSplits: sinon.spy(synchronizeSplits),
 
     __resolveSplitsUpdaterCall(index, changeNumber) {
@@ -54,24 +54,24 @@ tape('SplitUpdateWorker', t => {
     const splitUpdateWorker = new SplitUpdateWorker(cache, producer);
     assert.equal(splitUpdateWorker.maxChangeNumber, 0, 'inits with not queued changeNumber (maxChangeNumber equals to 0)');
 
-    // assert calling to `synchronizeSplits` if `isSynchronizeSplitsRunning` is false
-    assert.equal(producer.isSynchronizeSplitsRunning(), false);
+    // assert calling to `synchronizeSplits` if `isSynchronizingSplits` is false
+    assert.equal(producer.isSynchronizingSplits(), false);
     splitUpdateWorker.put(100);
     assert.equal(splitUpdateWorker.maxChangeNumber, 100, 'queues changeNumber if it is mayor than storage changeNumber and queue is empty');
-    assert.true(producer.synchronizeSplits.calledOnce, 'calls `synchronizeSplits` if `isSynchronizeSplitsRunning` is false');
+    assert.true(producer.synchronizeSplits.calledOnce, 'calls `synchronizeSplits` if `isSynchronizingSplits` is false');
 
-    // assert queueing changeNumber if `isSynchronizeSplitsRunning` is true
-    assert.equal(producer.isSynchronizeSplitsRunning(), true);
+    // assert queueing changeNumber if `isSynchronizingSplits` is true
+    assert.equal(producer.isSynchronizingSplits(), true);
     splitUpdateWorker.put(105);
     splitUpdateWorker.put(104);
     splitUpdateWorker.put(106);
-    assert.true(producer.synchronizeSplits.calledOnce, 'doesn\'t call `synchronizeSplits` while isSynchronizeSplitsRunning is true');
+    assert.true(producer.synchronizeSplits.calledOnce, 'doesn\'t call `synchronizeSplits` while isSynchronizingSplits is true');
     assert.equal(splitUpdateWorker.maxChangeNumber, 106, 'queues changeNumber if it is mayor than currently queued changeNumber and storage changeNumber');
 
     // assert calling to `synchronizeSplits` if previous call is resolved and a new changeNumber in queue
     producer.__resolveSplitsUpdaterCall(0, 100);
     setTimeout(() => {
-      assert.true(producer.synchronizeSplits.calledTwice, 'recalls `synchronizeSplits` if `isSynchronizeSplitsRunning` is false and queue is not empty');
+      assert.true(producer.synchronizeSplits.calledTwice, 'recalls `synchronizeSplits` if `isSynchronizingSplits` is false and queue is not empty');
       assert.equal(splitUpdateWorker.maxChangeNumber, 106, 'changeNumber stays queued until `synchronizeSplits` is settled');
 
       // assert dequeueing changeNumber
@@ -97,7 +97,7 @@ tape('SplitUpdateWorker', t => {
     // assert calling to `synchronizeSplits` and `killLocally`, if changeNumber is new
     splitUpdateWorker.killSplit(100, 'lol1', 'off');
     assert.equal(splitUpdateWorker.maxChangeNumber, 100, 'queues changeNumber if it is mayor than storage changeNumber and queue is empty');
-    assert.true(producer.synchronizeSplits.calledOnce, 'calls `synchronizeSplits` if `isSynchronizeSplitsRunning` is false');
+    assert.true(producer.synchronizeSplits.calledOnce, 'calls `synchronizeSplits` if `isSynchronizingSplits` is false');
     assertKilledSplit(assert, cache, 100, 'lol1', 'off');
 
     // assert not calling to `synchronizeSplits` and `killLocally`, if changeNumber is old
