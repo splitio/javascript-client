@@ -44,7 +44,7 @@ const ObjectsToViews = (jsons) => {
   return views;
 };
 
-const SplitManagerFactory = (splits, context) => {
+function SplitManagerFactory(splits, context) {
   const SPLIT_FN_LABEL = 'split';
   const statusManager = context.get(context.constants.STATUS_MANAGER);
 
@@ -97,6 +97,6 @@ const SplitManagerFactory = (splits, context) => {
       }
     }
   );
-};
+}
 
 export default SplitManagerFactory;
