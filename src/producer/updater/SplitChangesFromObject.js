@@ -24,7 +24,7 @@ function FromObjectUpdaterFactory(Fetcher, context) {
     [context.constants.STORAGE]: storage
   } = context.getAll();
 
-  return async function ObjectUpdater() {
+  return function ObjectUpdater() {
     const splits = [];
     let loadError = null;
     let splitsMock = {};
@@ -55,12 +55,14 @@ function FromObjectUpdaterFactory(Fetcher, context) {
         ]);
       });
 
-      await storage.splits.flush();
-      await storage.splits.addSplits(splits);
-
-      readiness.splits.emit(readiness.splits.SDK_SPLITS_ARRIVED);
-      readiness.segments.emit(readiness.segments.SDK_SEGMENTS_ARRIVED);
-    }
+      return Promise.all([
+        storage.splits.flush(),
+        storage.splits.addSplits(splits)
+      ]).then(() => {
+        readiness.splits.emit(readiness.splits.SDK_SPLITS_ARRIVED);
+        readiness.segments.emit(readiness.segments.SDK_SEGMENTS_ARRIVED);
+      });
+    } else return Promise.resolve();
   };
 }
 
