@@ -99,17 +99,22 @@ tape('SplitUpdateWorker', t => {
     splitUpdateWorker.killSplit(100, 'lol1', 'off');
     assert.equal(splitUpdateWorker.maxChangeNumber, 100, 'queues changeNumber if it is mayor than storage changeNumber and queue is empty');
     assert.true(producer.synchronizeSplits.calledOnce, 'calls `synchronizeSplits` if `isSynchronizingSplits` is false');
-    assertKilledSplit(assert, cache, 100, 'lol1', 'off');
 
-    // assert not calling `synchronizeSplits` and `killLocally`, if changeNumber is old
-    producer.__resolveSplitsUpdaterCall(0, 100);
-    setTimeout(() => {
-      splitUpdateWorker.killSplit(90, 'lol1', 'on');
-      assert.equal(splitUpdateWorker.maxChangeNumber, 0, 'doesn\'t queue changeNumber if it is minor than storage changeNumber');
-      assert.true(producer.synchronizeSplits.calledOnce, 'doesn\'t call `synchronizeSplits`');
-      assertKilledSplit(assert, cache, 100, 'lol1', 'off'); // calling `killLocally` makes no effect
+    setTimeout(() => { // we use a timeout since killLocally is asynchronous
+      assertKilledSplit(assert, cache, 100, 'lol1', 'off');
 
-      assert.end();
+      // assert not calling `synchronizeSplits` and `killLocally`, if changeNumber is old
+      producer.__resolveSplitsUpdaterCall(0, 100);
+      setTimeout(() => {
+        splitUpdateWorker.killSplit(90, 'lol1', 'on');
+        assert.equal(splitUpdateWorker.maxChangeNumber, 0, 'doesn\'t queue changeNumber if it is minor than storage changeNumber');
+        assert.true(producer.synchronizeSplits.calledOnce, 'doesn\'t call `synchronizeSplits`');
+
+        setTimeout(() => {
+          assertKilledSplit(assert, cache, 100, 'lol1', 'off'); // calling `killLocally` makes no effect
+          assert.end();
+        });
+      });
     });
   });
 

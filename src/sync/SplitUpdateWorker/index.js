@@ -1,5 +1,3 @@
-import killLocally from '../../storage/SplitCache/killLocally';
-
 /**
  * SplitUpdateWorker class
  */
@@ -52,7 +50,7 @@ export default class SplitUpdateWorker {
    * @param {string} defaultTreatment default treatment value
    */
   killSplit(changeNumber, splitName, defaultTreatment) {
-    killLocally(this.splitStorage, splitName, defaultTreatment, changeNumber);
+    this.splitStorage.killLocally(splitName, defaultTreatment, changeNumber);
     this.put(changeNumber);
   }
 

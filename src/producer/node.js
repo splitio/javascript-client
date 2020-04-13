@@ -131,7 +131,7 @@ const NodeUpdater = (context) => {
     isSynchronizingSegments() {
       return isSynchronizingSegments;
     },
-    synchronizeSegment,
+    synchronizeSegment
   };
 };
 
