@@ -17,15 +17,13 @@ tape('authenticate', t => {
 
   t.test('success in node (200)', assert => {
 
-    const userKeys = {};
-
     mock.onGet(settings.url('/auth')).replyOnce(req => {
       assert.equal(req.headers['Authorization'], `Bearer ${settings.core.authorizationKey}`,
         'auth request must contain Authorization header with config authorizationKey');
       return [200, authDataResponseSample];
     });
 
-    authenticate(settings, userKeys).then(data => {
+    authenticate(settings).then(data => {
       assert.deepEqual(data, authDataSample,
         'if success, authorization must return data with token and decoded token');
     }).catch(error => {
@@ -37,7 +35,7 @@ tape('authenticate', t => {
 
   t.test('success in browser (200)', assert => {
 
-    const userKeys = { ['emi@split.io']: 'emihash', ['maldo@split.io']: 'maldohash' };
+    const userKeys = ['emi@split.io', 'maldo@split.io'];
 
     mock.onGet(settings.url('/auth?users=emi%40split.io&users=maldo%40split.io')).replyOnce(req => {
       assert.equal(req.headers['Authorization'], `Bearer ${settings.core.authorizationKey}`,
@@ -61,7 +59,7 @@ tape('authenticate', t => {
       return [400, '"no user specified"'];
     });
 
-    authenticate(settings, {}).then(() => {
+    authenticate(settings, []).then(() => {
       assert.fail('if bad request, promise is rejected');
     }).catch(error => {
       assert.equal(error.statusCode, 400,
@@ -77,7 +75,7 @@ tape('authenticate', t => {
       return [401, '"Invalid credentials"'];
     });
 
-    authenticate(settings, {}).then(() => {
+    authenticate(settings, []).then(() => {
       assert.fail('if invalid credential, promise is rejected');
     }).catch(error => {
       assert.equal(error.statusCode, 401,
@@ -95,7 +93,7 @@ tape('authenticate', t => {
       return [NOT_OK_STATUS_CODE, 'some error message'];
     });
 
-    authenticate(settings, {}).then(() => {
+    authenticate(settings, []).then(() => {
       assert.fail('if an HTTP error, promise is rejected');
     }).catch(error => {
       assert.equal(error.statusCode, NOT_OK_STATUS_CODE,
@@ -109,7 +107,7 @@ tape('authenticate', t => {
 
     mock.onGet(settings.url('/auth')).networkErrorOnce();
 
-    authenticate(settings, {}).then(() => {
+    authenticate(settings, []).then(() => {
       assert.fail('if network error, promise is rejected');
     }).catch(error => {
       assert.equal(error.statusCode, 'NO_STATUS',
@@ -118,7 +116,7 @@ tape('authenticate', t => {
 
     mock.onGet(settings.url('/auth')).timeoutOnce();
 
-    authenticate(settings, {}).then(() => {
+    authenticate(settings, []).then(() => {
       assert.fail('if timeout error, promise is rejected');
     }).catch(error => {
       assert.equal(error.statusCode, 'NO_STATUS',

@@ -5,10 +5,15 @@ function userKeyToQueryParam(userKey) {
   return 'users=' + encodeURIComponent(userKey);
 }
 
+/**
+ *
+ * @param {Object} settings Split factory config.
+ * @param {string[] | undefined} userKeys set of user Keys to track MY_SEGMENTS_CHANGES. It is undefined for Node.
+ */
 export default function GET(settings, userKeys) {
   let relativeUrl = '/auth';
   if (userKeys) { // accounting the possibility that `userKeys` is undefined (in node)
-    const queryParams = Object.keys(userKeys).map(userKeyToQueryParam).join('&');
+    const queryParams = userKeys.map(userKeyToQueryParam).join('&');
     if (queryParams) // accounting the possibility that `userKeys` and thus `queryParams` are empty
       relativeUrl += '?' + queryParams;
   }
