@@ -1,5 +1,3 @@
-import killLocally from '../../storage/SplitCache/killLocally';
-
 /**
  * SplitUpdateWorker class
  */
@@ -16,7 +14,7 @@ export default class SplitUpdateWorker {
   }
 
   // Private method
-  // Preconditions: this.splitProducer.isSynchronizeSplitsRunning === false
+  // Preconditions: this.splitProducer.isSynchronizingSplits === false
   __handleSplitUpdateCall() {
     if (this.maxChangeNumber > this.splitStorage.getChangeNumber()) {
       this.splitProducer.synchronizeSplits().then(() => {
@@ -35,11 +33,11 @@ export default class SplitUpdateWorker {
   put(changeNumber) {
     const currentChangeNumber = this.splitStorage.getChangeNumber();
 
-    if (changeNumber <= currentChangeNumber && changeNumber <= this.maxChangeNumber) return;
+    if (changeNumber <= currentChangeNumber || changeNumber <= this.maxChangeNumber) return;
 
     this.maxChangeNumber = changeNumber;
 
-    if (this.splitProducer.isSynchronizeSplitsRunning()) return;
+    if (this.splitProducer.isSynchronizingSplits()) return;
 
     this.__handleSplitUpdateCall();
   }
@@ -52,7 +50,7 @@ export default class SplitUpdateWorker {
    * @param {string} defaultTreatment default treatment value
    */
   killSplit(changeNumber, splitName, defaultTreatment) {
-    killLocally(this.splitStorage, splitName, defaultTreatment, changeNumber);
+    this.splitStorage.killLocally(splitName, defaultTreatment, changeNumber);
     this.put(changeNumber);
   }
 

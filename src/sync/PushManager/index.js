@@ -35,19 +35,15 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
   const authRetryBackoffBase = settings.authRetryBackoffBase;
   const reauthBackoff = new Backoff(connectPush, authRetryBackoffBase);
 
-  let timeoutID = 0;
-  function scheduleNextTokenRefresh(issuedAt, expirationTime) {
+  let timeoutId = 0;
+  function scheduleTokenRefresh(issuedAt, expirationTime) {
+    // clear scheduled token refresh if exists (needed when resuming PUSH)
+    if (timeoutId) clearTimeout(timeoutId);
+
     // Set token refresh 10 minutes before expirationTime
     const delayInSeconds = expirationTime - issuedAt - SECONDS_BEFORE_EXPIRATION;
 
-    // @TODO review if there is some scenario where clearTimeout must be explicitly called
-    // cancel a scheduled reconnect if previously established, since `scheduleReconnect` is invoked on different scenarios:
-    // - initial connect
-    // - scheduled connects for refresh token, auth errors and sse errors.
-    if (timeoutID) clearTimeout(timeoutID);
-    timeoutID = setTimeout(() => {
-      connectPush();
-    }, delayInSeconds * 1000);
+    timeoutId = setTimeout(connectPush, delayInSeconds * 1000);
   }
 
   function connectPush() {
@@ -72,7 +68,7 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
         // Connect to SSE and schedule refresh token
         const decodedToken = authData.decodedToken;
         sseClient.open(authData);
-        scheduleNextTokenRefresh(decodedToken.iat, decodedToken.exp);
+        scheduleTokenRefresh(decodedToken.iat, decodedToken.exp);
       }
     ).catch(
       function (error) {
@@ -142,6 +138,8 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
         // remove listener, so that when connection is closed, polling mode is not started.
         sseClient.setEventHandler(undefined);
         sseClient.close();
+        if (timeoutId) clearTimeout(timeoutId); // cancel timeout for token refresh if previously established
+        reauthBackoff.reset(); // cancel backoff timeout if previously established
       },
 
       // used in node
