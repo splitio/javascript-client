@@ -6,6 +6,8 @@ const CLOSED = 2;
 
 const VERSION = '1.1';
 
+const controlMatcher = /^control_/;
+
 export default class SSEClient {
 
   /**
@@ -48,7 +50,8 @@ export default class SSEClient {
     const channels = JSON.parse(authToken.decodedToken['x-ably-capability']);
     const channelsQueryParam = Object.keys(channels).map(
       function (channel) {
-        return encodeURIComponent(channel);
+        const params = controlMatcher.test(channel) ? '[?occupancy=metrics.publishers]' : '';
+        return encodeURIComponent(params + channel);
       }
     ).join(',');
     const url = `${this.streamingUrl}?channels=${channelsQueryParam}&accessToken=${authToken.token}&v=${VERSION}`;

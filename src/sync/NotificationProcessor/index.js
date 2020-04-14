@@ -2,12 +2,16 @@ import { errorParser, messageParser } from './notificationparser';
 import Backoff from '../../utils/backoff';
 import { PushEventTypes } from '../constants';
 
+const controlPriMatcher = /control_pri$/;
+
 // @TODO logging
 export default function NotificationProcessorFactory(
   sseClient,
   pushEmitter, // feedbackLoop
   backoffBase
 ) {
+
+  let isStreamingUp;
 
   const sseReconnectBackoff = new Backoff(sseClient.reopen.bind(sseClient), backoffBase);
 
@@ -45,18 +49,26 @@ export default function NotificationProcessorFactory(
         break;
 
       // @TODO NotificationManagerKeeper
-      case PushEventTypes.STREAMING_DOWN:
-        // SSE connection is not closed to keep listening for STREAMING_UP events
-        pushEmitter.emit(PushEventTypes.PUSH_DISCONNECT);
-        break;
-      case PushEventTypes.STREAMING_UP:
-        pushEmitter.emit(PushEventTypes.PUSH_CONNECT);
-        break;
+      case PushEventTypes.OCCUPANCY:
+        // logic of NotificationManagerKeeper
+        if(controlPriMatcher.test(channel)) {
+          if (eventData.metrics.publishers === 0 && isStreamingUp) {
+            pushEmitter.emit(PushEventTypes.PUSH_DISCONNECT); // PushEventTypes.STREAMING_DOWN
+            isStreamingUp = !isStreamingUp;
+            break;
+          }
+          if (eventData.metrics.publishers !== 0 && !isStreamingUp) {
+            pushEmitter.emit(PushEventTypes.PUSH_CONNECT); // PushEventTypes.STREAMING_UP
+            isStreamingUp = !isStreamingUp;
+            break;
+          }
+        }
     }
   }
 
   return {
     handleOpen() {
+      isStreamingUp = true;
       pushEmitter.emit(PushEventTypes.PUSH_CONNECT);
       sseReconnectBackoff.reset(); // reset backoff in case SSE conexion has opened after a HTTP or network error.
     },
@@ -67,13 +79,11 @@ export default function NotificationProcessorFactory(
 
     handleError(error) {
       const errorData = errorParser(error);
-      // @TODO logic of NotificationManagerKeeper
       handleEvent(errorData);
     },
 
     handleMessage(message) {
       const messageData = messageParser(message);
-      // @TODO logic of NotificationManagerKeeper
       handleEvent(messageData.data, messageData.channel);
     },
 
