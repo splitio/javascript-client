@@ -2,6 +2,7 @@ import { isFinite, toNumber } from '../../utils/lang';
 import usesSegments from '../../utils/splits/usesSegments';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-storage:localstorage');
+import killLocally from './killLocally';
 
 class SplitCacheLocalStorage {
 
@@ -46,7 +47,7 @@ class SplitCacheLocalStorage {
           const segmentsCountKey = this.keys.buildSplitsWithSegmentCountKey();
           localStorage.setItem(segmentsCountKey, toNumber(localStorage.getItem(segmentsCountKey)) + 1);
         }
-      }      
+      }
     } catch (e) {
       log.error(e);
     }
@@ -64,7 +65,7 @@ class SplitCacheLocalStorage {
       const parsedSplit = split ? JSON.parse(split) : null;
 
       this.incrementCounts(parsedSplit);
-      
+
       return true;
     } catch (e) {
       log.error(e);
@@ -185,7 +186,7 @@ class SplitCacheLocalStorage {
 
     const storedCount = localStorage.getItem(this.keys.buildSplitsWithSegmentCountKey());
     const splitsWithSegmentsCount = storedCount === null ? 0 : toNumber(storedCount);
-    
+
     if (isFinite(splitsWithSegmentsCount)) {
       return splitsWithSegmentsCount > 0;
     } else {
@@ -217,5 +218,7 @@ class SplitCacheLocalStorage {
     return this.getChangeNumber() > -1;
   }
 }
+
+SplitCacheLocalStorage.prototype.killLocally = killLocally;
 
 export default SplitCacheLocalStorage;

@@ -27,7 +27,7 @@ const TaskFactory = (updater, period) => {
   let stopUpdater = false;
 
   return {
-    start() {
+    start(notStartImmediately) {
       if (!stopUpdater) {
         log.debug(`Starting ${updaterName} refreshing each ${period}`);
 
@@ -36,7 +36,8 @@ const TaskFactory = (updater, period) => {
             log.debug(`Running ${updaterName}`);
             updater().then(() => reschedule());
           },
-          period
+          period,
+          notStartImmediately
         );
       }
     },
@@ -46,6 +47,10 @@ const TaskFactory = (updater, period) => {
 
       stopUpdater && stopUpdater();
       stopUpdater = false;
+    },
+
+    isRunning() {
+      return stopUpdater ? true : false;
     }
   };
 };

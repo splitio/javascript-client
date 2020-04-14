@@ -26,33 +26,73 @@ const log = logFactory('splitio-producer:updater');
  * Startup all the background jobs required for a Browser SDK instance.
  */
 const FullBrowserProducer = (context) => {
-  const splitsUpdater = SplitChangesUpdater(context);
-  const segmentsUpdater = MySegmentsUpdater(context);
-
   const settings = context.get(context.constants.SETTINGS);
   const { splits: splitsEventEmitter } = context.get(context.constants.READINESS);
-  
-  const splitsUpdaterTask = TaskFactory(splitsUpdater, settings.scheduler.featuresRefreshRate);
-  const segmentsUpdaterTask = TaskFactory(segmentsUpdater, settings.scheduler.segmentsRefreshRate);
 
-  const onSplitsArrived = onSplitsArrivedFactory(segmentsUpdaterTask, context);
-  
+  const splitsUpdater = SplitChangesUpdater(context);
+  const mySegmentsUpdater = MySegmentsUpdater(context);
+
+  const splitsUpdaterTask = TaskFactory(synchronizeSplits, settings.scheduler.featuresRefreshRate);
+  const mySegmentsUpdaterTask = TaskFactory(synchronizeMySegments, settings.scheduler.segmentsRefreshRate);
+
+  const onSplitsArrived = onSplitsArrivedFactory(mySegmentsUpdaterTask, context);
   splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, onSplitsArrived);
 
+  let isSynchronizingSplits = false;
+  let isSynchronizingMySegments = false;
+
+  function synchronizeSplits() {
+    isSynchronizingSplits = true;
+    return splitsUpdater().finally(function () {
+      isSynchronizingSplits = false;
+    });
+  }
+
+  /**
+   * @param {string[] | undefined} segmentList might be undefined
+   */
+  function synchronizeMySegments(segmentList) {
+    isSynchronizingMySegments = true;
+    return mySegmentsUpdater(0, segmentList).finally(function () {
+      isSynchronizingMySegments = false;
+    });
+  }
+
   return {
-    start() {
+    /**
+     * Start periodic fetching (polling)
+     *
+     * @param {boolean} notStartImmediately if true, fetcher calls are scheduled but not run immediately
+     */
+    start(notStartImmediately) {
       log.info('Starting BROWSER producer');
 
-      splitsUpdaterTask.start();
-      segmentsUpdaterTask.start();
+      splitsUpdaterTask.start(notStartImmediately);
+      mySegmentsUpdaterTask.start(notStartImmediately);
     },
 
+    // Stop periodic fetching (polling)
     stop() {
       log.info('Stopping BROWSER producer');
 
       splitsUpdaterTask.stop();
-      segmentsUpdaterTask && segmentsUpdaterTask.stop();
-    }
+      mySegmentsUpdaterTask && mySegmentsUpdaterTask.stop();
+    },
+
+    // Used by SyncManager to know if running in polling mode.
+    isRunning: splitsUpdaterTask.isRunning,
+
+    // Used by SplitUpdateWorker
+    isSynchronizingSplits() {
+      return isSynchronizingSplits;
+    },
+    synchronizeSplits,
+
+    // Used by MySegmentUpdateWorker
+    isSynchronizingMySegments() {
+      return isSynchronizingMySegments;
+    },
+    synchronizeMySegments,
   };
 };
 
