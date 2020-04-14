@@ -47,7 +47,7 @@ function MySegmentsUpdaterFactory(context) {
     // If segmentList is provided, there is no need to fetch mySegments
     if (segmentList) {
       updateSegments(segmentList);
-      return;
+      return Promise.resolve();
     }
 
     // NOTE: We only collect metrics on startup.
