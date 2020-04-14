@@ -32,14 +32,17 @@ const SegmentChangesUpdaterFactory = context => {
 
   let readyOnAlreadyExistentState = true;
 
-  return async function SegmentChangesUpdater(segmentName) {
+  /**
+   * @param {string[] | undefined} segmentNames list of segment names to fetch. By passing `undefined` it fetches the list of segments registered at the storage
+   */
+  return async function SegmentChangesUpdater(segmentNames) {
     log.debug('Started segments update');
 
     // Async fetchers are collected here.
     const updaters = [];
 
     // If not a segment name provided, read list of available segments names to be updated.
-    const segments = segmentName ? [segmentName] : await storage.segments.getRegisteredSegments();
+    const segments = segmentNames ? segmentNames : await storage.segments.getRegisteredSegments();
 
     for (let segmentName of segments) {
       const since = await storage.segments.getChangeNumber(segmentName);

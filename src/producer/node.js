@@ -46,11 +46,11 @@ const NodeUpdater = (context) => {
   }
 
   /**
-   * @param {string} segmentName segment name at SEGMENT_UPDATE event
+   * @param {string[] | undefined} segmentNames list of segment names to fetch. By passing `undefined` it fetches the list of segments registered at the storage
    */
-  function synchronizeSegment(segmentName) {
+  function synchronizeSegment(segmentNames) {
     isSynchronizingSegments = true;
-    return segmentsUpdater(segmentName).finally(function () {
+    return segmentsUpdater(segmentNames).finally(function () {
       isSynchronizingSegments = false;
     });
   }

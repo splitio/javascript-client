@@ -10,22 +10,21 @@ export default class SegmentUpdateWorker {
   constructor(segmentsStorage, segmentsProducer) {
     this.segmentsStorage = segmentsStorage;
     this.segmentsProducer = segmentsProducer;
-    this.segmentsChangesQueue = [];
+    this.maxChangeNumbers = {};
   }
 
   // Private method
   // Preconditions: this.segmentsProducer.isSynchronizingSegments === false
   __handleSegmentUpdateCall() {
-    if (this.segmentsChangesQueue.length > 0) {
-      const { changeNumber, segmentName } = this.segmentsChangesQueue[this.segmentsChangesQueue.length - 1];
-      if (changeNumber > this.segmentsStorage.getChangeNumber(segmentName)) {
-        this.segmentsProducer.synchronizeSegment(segmentName).then(() => {
-          this.__handleSegmentUpdateCall();
-        });
-      } else {
-        this.segmentsChangesQueue.pop();
+    const segmentsToFetch = Object.keys(this.maxChangeNumbers).filter((segmentName) => {
+      return this.maxChangeNumbers[segmentName] > this.segmentsStorage.getChangeNumber(segmentName);
+    });
+    if (segmentsToFetch.length > 0) {
+      this.segmentsProducer.synchronizeSegment(segmentsToFetch).then(() => {
         this.__handleSegmentUpdateCall();
-      }
+      });
+    } else {
+      this.maxChangeNumbers = {};
     }
   }
 
@@ -38,9 +37,9 @@ export default class SegmentUpdateWorker {
   put(changeNumber, segmentName) {
     const currentChangeNumber = this.segmentsStorage.getChangeNumber(segmentName);
 
-    if (changeNumber <= currentChangeNumber) return;
+    if (changeNumber <= currentChangeNumber || changeNumber <= this.maxChangeNumbers[segmentName]) return;
 
-    this.segmentsChangesQueue.push({ segmentName, changeNumber });
+    this.maxChangeNumbers[segmentName] = changeNumber;
 
     if (this.segmentsProducer.isSynchronizingSegments()) return;
 
