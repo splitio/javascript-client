@@ -32,31 +32,33 @@ const NodeUpdater = (context) => {
   let stopSegmentsUpdate = false;
   let splitFetchCompleted = false;
   let isRunning = false;
-  let isSynchronizeSplitsRunning = false;
-  let isSynchronizeSegmentRunning = false;
+  let isSynchronizingSplits = false;
+  let isSynchronizingSegments = false;
 
   function synchronizeSplits() {
-    isSynchronizeSplitsRunning = true;
+    isSynchronizingSplits = true;
     return splitsUpdater().then(function () {
       // Mark splits as ready (track first successfull call to start downloading segments)
       splitFetchCompleted = true;
     }).finally(function () {
-      isSynchronizeSplitsRunning = false;
+      isSynchronizingSplits = false;
     });
   }
 
   /**
-   * @param {string} segmentName segment name at SEGMENT_UPDATE event
+   * @param {string[] | undefined} segmentNames list of segment names to fetch. By passing `undefined` it fetches the list of segments registered at the storage
    */
-  function synchronizeSegment(segmentName) {
-    isSynchronizeSegmentRunning = true;
-    return segmentsUpdater(segmentName).finally(function () {
-      isSynchronizeSegmentRunning = false;
+  function synchronizeSegment(segmentNames) {
+    isSynchronizingSegments = true;
+    return segmentsUpdater(segmentNames).finally(function () {
+      isSynchronizingSegments = false;
     });
   }
 
   return {
     /**
+     * Start periodic fetching (polling)
+     *
      * @param {boolean} notStartImmediately if true, fetcher calls are scheduled but not run immediately
      */
     start(notStartImmediately) {
@@ -102,6 +104,7 @@ const NodeUpdater = (context) => {
       isRunning = true;
     },
 
+    // Stop periodic fetching (polling)
     stop() {
       log.info('Stopping NODEJS updater');
 
@@ -119,16 +122,16 @@ const NodeUpdater = (context) => {
     },
 
     // Used by SplitUpdateWorker
-    isSynchronizeSplitsRunning() {
-      return isSynchronizeSplitsRunning;
+    isSynchronizingSplits() {
+      return isSynchronizingSplits;
     },
     synchronizeSplits,
 
     // Used by SegmentUpdateWorker
-    isSynchronizeSegmentRunning() {
-      return isSynchronizeSegmentRunning;
+    isSynchronizingSegments() {
+      return isSynchronizingSegments;
     },
-    synchronizeSegment,
+    synchronizeSegment
   };
 };
 

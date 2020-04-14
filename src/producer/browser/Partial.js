@@ -25,32 +25,37 @@ const PartialBrowserProducer = (context) => {
   const settings = context.get(context.constants.SETTINGS);
   const { splits: splitsEventEmitter } = context.get(context.constants.READINESS);
 
-  const segmentsUpdater = MySegmentsUpdater(context);
-  const segmentsUpdaterTask = TaskFactory(segmentsUpdater, settings.scheduler.segmentsRefreshRate);
+  const mySegmentsUpdater = MySegmentsUpdater(context);
+  const mySegmentsUpdaterTask = TaskFactory(synchronizeMySegments, settings.scheduler.segmentsRefreshRate);
 
-  const onSplitsArrived = onSplitsArrivedFactory(segmentsUpdaterTask, context);
-
+  const onSplitsArrived = onSplitsArrivedFactory(mySegmentsUpdaterTask, context);
   splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, onSplitsArrived);
 
-  let isSynchronizeMySegmentsRunning = false;
+  let isSynchronizingMySegments = false;
 
+  /**
+   * @param {string[] | undefined} segmentList might be undefined
+   */
   function synchronizeMySegments(segmentList) {
-    isSynchronizeMySegmentsRunning = true;
-    return segmentsUpdater(undefined, segmentList).finally(function () {
-      isSynchronizeMySegmentsRunning = false;
+    isSynchronizingMySegments = true;
+    return mySegmentsUpdater(0, segmentList).finally(function () {
+      isSynchronizingMySegments = false;
     });
   }
 
   return {
-    start: segmentsUpdaterTask.start,
-    stop: segmentsUpdaterTask.stop,
+    // Start periodic fetching (polling)
+    start: mySegmentsUpdaterTask.start,
+
+    // Stop periodic fetching (polling)
+    stop: mySegmentsUpdaterTask.stop,
 
     // Used by SyncManager to know if running in polling mode.
-    isRunning: segmentsUpdaterTask.isRunning,
+    isRunning: mySegmentsUpdaterTask.isRunning,
 
     // Used by MySegmentUpdateWorker
-    isSynchronizeMySegmentsRunning() {
-      return isSynchronizeMySegmentsRunning;
+    isSynchronizingMySegments() {
+      return isSynchronizingMySegments;
     },
     synchronizeMySegments,
   };
