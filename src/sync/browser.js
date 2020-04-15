@@ -3,7 +3,7 @@ import FullProducerFactory from '../producer';
 import PartialProducerFactory from '../producer/browser/Partial';
 import { matching } from '../utils/key/factory';
 import { forOwn } from '../utils/lang';
-import logFactory from '../../utils/logger';
+import logFactory from '../utils/logger';
 const log = logFactory('splitio-sync:sync-manager');
 
 /**
@@ -43,7 +43,6 @@ export default function BrowserSyncManagerFactory(mainContext) {
     // fetch splits and segments
     const mainProducer = mainContext.get(mainContext.constants.PRODUCER, true);
     mainProducer && mainProducer.synchronizeSplits();
-    // @TODO review precence of segments to run mySegmentUpdaters
     forOwn(contexts, function (context) {
       const producer = context.get(context.constants.PRODUCER, true);
       producer && producer.synchronizeMySegments();
