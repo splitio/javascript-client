@@ -1,6 +1,8 @@
 import { errorParser, messageParser } from './NotificationParser';
 import notificationKeeperFactory from './NotificationKeeper';
 import { PushEventTypes } from '../constants';
+import logFactory from '../../utils/logger';
+const log = logFactory('splitio-sync:push-notifications');
 
 export default function NotificationProcessorFactory(
   pushEmitter, // SyncManager FeedbackLoop & Update Queues
@@ -9,6 +11,8 @@ export default function NotificationProcessorFactory(
   const notificationKeeper = notificationKeeperFactory(pushEmitter);
 
   function handleEvent(eventData, channel) {
+    log.info(`Received a new Push notification of type "${eventData.type}" from channel "${channel}"`);
+
     switch (eventData.type) {
 
       /** events for NotificationProcessor */
