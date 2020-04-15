@@ -1,6 +1,6 @@
 import PushManagerFactory from './PushManager';
 import FullProducerFactory from '../producer';
-import logFactory from '../../utils/logger';
+import logFactory from '../utils/logger';
 const log = logFactory('splitio-sync:sync-manager');
 
 /**
