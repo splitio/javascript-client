@@ -38,7 +38,6 @@ tape('SSClient', t => {
     // instance event handler
     const handler = {
       handleOpen: sinon.stub(),
-      handleClose: sinon.stub(),
       handleError: sinon.stub(),
       handleMessage: sinon.stub(),
     };
@@ -72,36 +71,29 @@ tape('SSClient', t => {
 
     // close connection
     instance.close();
-    assert.ok(handler.handleClose.calledOnce, 'handleClose called when connection is closed');
-    handler.handleClose.resetHistory();
+    assert.equal(instance.connection.readyState, 2, 'connection readyState is CLOSED'); // CLOSED (2)
 
     // open attempt without open event emitted
     instance.open(authDataSample);
     assert.ok(handler.handleOpen.notCalled, 'handleOpen not called until open event is emitted');
-    assert.ok(handler.handleClose.notCalled, 'handleClose not called when you open the first connection');
 
     // open a new connection
     instance.open(authDataSample);
-    assert.ok(handler.handleClose.called, 'handleClose called when you open a new connection');
     instance.connection.emitOpen();
     assert.ok(handler.handleOpen.calledOnce, 'handleOpen called when connection is open');
 
     // reopen the connection
     handler.handleOpen.resetHistory();
-    handler.handleClose.resetHistory();
     instance.reopen();
     instance.connection.emitOpen();
     assert.ok(handler.handleOpen.calledOnce, 'handleOpen called if connection is reopen');
-    assert.ok(handler.handleClose.calledOnce, 'handleClose called if connection is reopen');
 
     // remove event handler before opening a new connection
     handler.handleOpen.resetHistory();
-    handler.handleClose.resetHistory();
     instance.setEventHandler(undefined);
     instance.open(authDataSample);
     instance.connection.emitOpen();
     assert.ok(handler.handleOpen.notCalled, 'handleOpen not called if connection is open but the handler was removed');
-    assert.ok(handler.handleClose.notCalled, 'handleClose not called if a new connection is open but the handler was removed');
 
     assert.end();
   });
@@ -115,7 +107,7 @@ tape('SSClient', t => {
     const EXPECTED_URL = settings.url('/sse') +
       '?channels=' + channelsQueryParamSample +
       '&accessToken=' + authDataSample.token +
-      '&v=1.1';
+      '&v=1.1&heartbeats=true';
 
     assert.equal(instance.connection.url, EXPECTED_URL, 'URL is properly set for streaming connection');
 
