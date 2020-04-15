@@ -8,7 +8,7 @@ export const PushEventTypes = {
   MY_SEGMENTS_UPDATE: 'MY_SEGMENTS_UPDATE',
   SPLIT_KILL: 'SPLIT_KILL',
   OCCUPANCY: 'OCCUPANCY',
-  error: 'error',
+  SSE_ERROR: 'SSE_ERROR',
 };
 
 export const SECONDS_BEFORE_EXPIRATION = 600;
