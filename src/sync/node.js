@@ -1,5 +1,7 @@
 import PushManagerFactory from './PushManager';
 import FullProducerFactory from '../producer';
+import logFactory from '../../utils/logger';
+const log = logFactory('splitio-sync:sync-manager');
 
 /**
  * Factory of SyncManager for node
@@ -12,11 +14,13 @@ export default function NodeSyncManagerFactory(context) {
   context.put(context.constants.PRODUCER, producer);
 
   function startPolling() {
+    log.info('PUSH down or disconnected. Starting periodic fetch of data.');
     if (!producer.isRunning())
       producer.start(true); // `fetchers` are scheduled but not called immediately
   }
 
   function stopPollingAndSyncAll() {
+    log.info('PUSH (re)connected. Syncing and stopping periodic fetch of data.');
     // if polling, stop
     if (producer.isRunning())
       producer.stop();

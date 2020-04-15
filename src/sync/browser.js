@@ -3,6 +3,8 @@ import FullProducerFactory from '../producer';
 import PartialProducerFactory from '../producer/browser/Partial';
 import { matching } from '../utils/key/factory';
 import { forOwn } from '../utils/lang';
+import logFactory from '../../utils/logger';
+const log = logFactory('splitio-sync:sync-manager');
 
 /**
  * Factory of sync manager for browser
@@ -15,6 +17,7 @@ export default function BrowserSyncManagerFactory(mainContext) {
   let pushManager;
 
   function startPolling() {
+    log.info('PUSH down or disconnected. Starting periodic fetch of data.');
     forOwn(contexts, function (context) {
       const producer = context.get(context.constants.PRODUCER, true);
       if (producer && !producer.isRunning())
@@ -23,6 +26,7 @@ export default function BrowserSyncManagerFactory(mainContext) {
   }
 
   function stopPollingAndSyncAll() {
+    log.info('PUSH (re)connected. Syncing and stopping periodic fetch of data.');
     // if polling, stop
     forOwn(contexts, function (context) {
       const producer = context.get(context.constants.PRODUCER, true);
@@ -48,6 +52,7 @@ export default function BrowserSyncManagerFactory(mainContext) {
     context.put(context.constants.PRODUCER, producer);
     const settings = context.get(context.constants.SETTINGS);
     const userKey = matching(settings.core.key);
+    if(contexts[userKey]) log.warn('A client with the same user key has already been created. Only the new instance will be properly synchronized.');
     contexts[userKey] = context;
 
     return {
