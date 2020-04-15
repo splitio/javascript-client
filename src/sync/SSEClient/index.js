@@ -1,9 +1,5 @@
 import getEventSource from '../../services/getEventSource';
 
-// const CONNECTING = 0;
-// const OPEN = 1;
-const CLOSED = 2;
-
 const VERSION = '1.1';
 
 const controlMatcher = /^control_/;
@@ -37,7 +33,7 @@ export default class SSEClient {
   }
 
   /**
-   * Open the conexion with a given authToken
+   * Open the connection with a given authToken
    *
    * @param {Object} authToken
    * @throws {TypeError} if `authToken` is undefined
@@ -54,7 +50,7 @@ export default class SSEClient {
         return encodeURIComponent(params + channel);
       }
     ).join(',');
-    const url = `${this.streamingUrl}?channels=${channelsQueryParam}&accessToken=${authToken.token}&v=${VERSION}`;
+    const url = `${this.streamingUrl}?channels=${channelsQueryParam}&accessToken=${authToken.token}&v=${VERSION}&heartbeats=true`; // same results using `&heartbeats=false`
 
     this.connection = new this.EventSource(url);
 
@@ -65,16 +61,13 @@ export default class SSEClient {
     }
   }
 
-  /** Close if open or connecting */
+  /** Close connection  */
   close() {
-    if (this.connection && this.connection.readyState !== CLOSED) {
-      this.connection.close();
-      if (this.handler) this.handler.handleClose();
-    }
+    if (this.connection) this.connection.close();
   }
 
   /**
-   * Re-open the conexion with the last given authToken.
+   * Re-open the connection with the last given authToken.
    *
    * @throws {TypeError} if `open` has not been previously called with an authToken
    */

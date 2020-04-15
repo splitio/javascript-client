@@ -33,5 +33,5 @@ tape('Backoff', assert => {
   assert.equal(backoff.baseMillis, CUSTOM_BASE, 'contains given baseMillis');
   assert.equal(backoff.maxMillis, CUSTOM_MAX, 'contains given maxMillis');
 
-  backoff.scheduleCall();
+  assert.equal(backoff.scheduleCall(), backoff.baseMillis, 'scheduleCall returns the scheduled delay time');
 });

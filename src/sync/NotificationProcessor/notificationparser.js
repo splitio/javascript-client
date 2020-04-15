@@ -1,7 +1,11 @@
 import { PushEventTypes } from '../constants';
+import { isString } from '../../utils/lang';
 
 export function errorParser(error) {
-  // @TODO remove or review if some additional parsing is needed for some errors
+  // HTTP errors handled by Ably (e.g., 400 due to invalid token, 401 due to expired token, 500) have a data object
+  if (isString(error.data))
+    error.parsedData = JSON.parse(error.data); // cannot assign to read only property 'data'
+
   return error;
 }
 
