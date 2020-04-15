@@ -25,14 +25,17 @@ export default function BrowserSyncManagerFactory(mainContext) {
     });
   }
 
-  function stopPollingAndSyncAll() {
-    log.info('PUSH (re)connected. Syncing and stopping periodic fetch of data.');
-    // if polling, stop
+  function stopPolling() {
     forOwn(contexts, function (context) {
       const producer = context.get(context.constants.PRODUCER, true);
       if (producer && producer.isRunning())
         producer.stop();
     });
+  }
+
+  function stopPollingAndSyncAll() {
+    log.info('PUSH (re)connected. Syncing and stopping periodic fetch of data.');
+    stopPolling();
     syncAll();
   }
 
@@ -80,12 +83,15 @@ export default function BrowserSyncManagerFactory(mainContext) {
             // stop push if stoping main client
             if (!isSharedClient)
               pushManager.stop();
+            // We don't reconnect pushmanager when removing a shared client,
+            // since it is more costly than continue listening the channel
           }
 
+          if (!isSharedClient)
+            stopPolling();
           if (producer && producer.isRunning())
             producer.stop();
-          // We don't reconnect pushmanager when removing a client,
-          // since it is more costly than continue listening the channel
+
         }
       }
     };
