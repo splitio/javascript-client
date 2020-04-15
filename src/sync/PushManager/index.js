@@ -2,7 +2,7 @@ import SSEClient from '../SSEClient';
 import authenticate from '../AuthClient';
 import NotificationProcessorFactory from '../NotificationProcessor';
 import logFactory from '../../utils/logger';
-const log = logFactory('splitio-pushmanager');
+const log = logFactory('splitio-sync:push-manager');
 import SplitUpdateWorker from '../SplitUpdateWorker';
 import SegmentUpdateWorker from '../SegmentUpdateWorker';
 import checkPushSupport from './checkPushSupport';
@@ -47,6 +47,8 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
   }
 
   function connectPush() {
+    log.info('Connecting to push streaming.');
+
     const userKeys = clientContexts ? Object.keys(clientContexts) : undefined;
     authenticate(settings, userKeys).then(
       function (authData) {
@@ -80,14 +82,14 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
         if (error.statusCode) {
           switch (error.statusCode) {
             case 401: // invalid api key
-              log.error(error.message);
+              log.error(`Fail to authenticate for push notifications, with error message: "${error.message}".`);
               return;
           }
         }
+
         // Branch for other HTTP and network errors
         const delayInMillis = reauthBackoff.scheduleCall();
-        log.error(`Fail to authenticate for push, with error message: "${error.message}". Attempting to reauthenticate in ${delayInMillis / 1000} seconds.`);
-
+        log.error(`Fail to authenticate for push notifications, with error message: "${error.message}". Attempting to reauthenticate in ${delayInMillis / 1000} seconds.`);
       }
     );
   }
@@ -110,7 +112,7 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
       sseReconnectBackoff.scheduleCall();
 
     const errorMessage = error.parsedData && error.parsedData.message;
-    log.error(`Fail to connect to streaming${errorMessage ? `, with error message: "${errorMessage}"` : ''}. Attempting to reconnect in ${delayInMillis / 1000} seconds.`); // @TODO review logged message
+    log.error(`Fail to connect to streaming${errorMessage ? `, with error message: "${errorMessage}"` : ''}. Attempting to reconnect in ${delayInMillis / 1000} seconds.`);
 
     pushEmitter.emit(PushEventTypes.PUSH_DISCONNECT); // no harm if polling already
   });
@@ -124,7 +126,6 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
 
   if (clientContexts) { // browser
     pushEmitter.on(PushEventTypes.MY_SEGMENTS_UPDATE, function handleMySegmentsUpdate(eventData, channel) {
-      // @TODO move function outside and test
       const userKeyHash = channel.split('_')[2];
       const userKey = userKeyHashes[userKeyHash];
       if (userKey && clientContexts[userKey]) { // check context since it can be undefined if client has been destroyed
@@ -151,9 +152,6 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
       // Expose functionality for starting and stoping push mode:
 
       stop() { // same producer passed to NodePushManagerFactory
-        // @TODO remove handleClose, since we are not emiting there the event PUSH_DISCONNECT anymore
-        // remove listener, so that when connection is closed, polling mode is not started.
-        // sseClient.setEventHandler(undefined);
         sseClient.close();
 
         // cancel timeouts if previously established
