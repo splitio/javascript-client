@@ -109,7 +109,7 @@ export function testSSERetries(mock, assert) {
     ready = true;
   });
 
-  const expectedSSEurl = `${settings.url('/sse')}?channels=NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_segments,NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_splits,control&accessToken=${authPushEnabled.token}&v=1.1`;
+  const expectedSSEurl = `${settings.url('/sse')}?channels=NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_segments,NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_splits,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_pri,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_sec&accessToken=${authPushEnabled.token}&v=1.1`;
   let sseattempts = 0;
   setMockListener(function (eventSourceInstance) {
     assert.equal(eventSourceInstance.url, expectedSSEurl, 'SSE url is correct');
