@@ -2,7 +2,7 @@ import SSEClient from '../SSEClient';
 import authenticate from '../AuthClient';
 import NotificationProcessorFactory from '../NotificationProcessor';
 import logFactory from '../../utils/logger';
-const log = logFactory('splitio-pushmanager');
+const log = logFactory('splitio-sync:push-manager');
 import SplitUpdateWorker from '../SplitUpdateWorker';
 import SegmentUpdateWorker from '../SegmentUpdateWorker';
 import checkPushSupport from './checkPushSupport';
@@ -32,8 +32,8 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
 
   /** PushManager functions, according to the spec */
 
-  const authRetryBackoffBase = settings.authRetryBackoffBase;
-  const reauthBackoff = new Backoff(connectPush, authRetryBackoffBase);
+  const reauthBackoff = new Backoff(connectPush, settings.authRetryBackoffBase);
+  const sseReconnectBackoff = new Backoff(sseClient.reopen.bind(sseClient), settings.streamingReconnectBackoffBase);
 
   let timeoutId = 0;
   function scheduleTokenRefresh(issuedAt, expirationTime) {
@@ -47,11 +47,14 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
   }
 
   function connectPush() {
+    log.info('Connecting to push streaming.');
+
     const userKeys = clientContexts ? Object.keys(clientContexts) : undefined;
     authenticate(settings, userKeys).then(
       function (authData) {
-        // restart attempts counter for reauth due to HTTP/network errors
+        // restart backoff retry counter for auth and SSE connections, due to HTTP/network errors
         reauthBackoff.reset();
+        sseReconnectBackoff.reset(); // reset backoff in case SSE conexion has opened after a HTTP or network error.
 
         // emit PUSH_DISCONNECT if org is not whitelisted
         if (!authData.pushEnabled) {
@@ -73,19 +76,20 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
     ).catch(
       function (error) {
 
-        sseClient.close();
+        sseClient.close(); // no harm if already disconnected
         pushEmitter.emit(PushEventTypes.PUSH_DISCONNECT); // no harm if `PUSH_DISCONNECT` was already notified
 
         if (error.statusCode) {
           switch (error.statusCode) {
             case 401: // invalid api key
-              log.error(error.message);
+              log.error(`Fail to authenticate for push notifications, with error message: "${error.message}".`);
               return;
           }
         }
+
         // Branch for other HTTP and network errors
-        log.error(error);
-        reauthBackoff.scheduleCall();
+        const delayInMillis = reauthBackoff.scheduleCall();
+        log.error(`Fail to authenticate for push notifications, with error message: "${error.message}". Attempting to reauthenticate in ${delayInMillis / 1000} seconds.`);
       }
     );
   }
@@ -93,13 +97,27 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
   /** initialization */
   const userKeyHashes = {};
 
-  const notificationProcessor = NotificationProcessorFactory(
-    sseClient,
-    pushEmitter,
-    settings.streamingReconnectBackoffBase);
+  const notificationProcessor = NotificationProcessorFactory(pushEmitter);
   sseClient.setEventHandler(notificationProcessor);
 
-  /** Functions related to synchronization according to the spec (Queues and Workers) */
+  /** Functions related to fallbacking */
+
+  pushEmitter.on(PushEventTypes.SSE_ERROR, function (error) { // HTTP or network error in SSE connection
+    // SSE connection is closed to avoid repeated errors due to retries
+    sseClient.close();
+
+    // retries are handled via backoff algorithm
+    let delayInMillis = (error.parsedData && (error.parsedData.statusCode === 400 || error.parsedData.statusCode === 401)) ?
+      reauthBackoff.scheduleCall() : // reauthenticate in case of token expired (when somehow refresh token was not properly executed) or invalid
+      sseReconnectBackoff.scheduleCall();
+
+    const errorMessage = error.parsedData && error.parsedData.message;
+    log.error(`Fail to connect to streaming${errorMessage ? `, with error message: "${errorMessage}"` : ''}. Attempting to reconnect in ${delayInMillis / 1000} seconds.`);
+
+    pushEmitter.emit(PushEventTypes.PUSH_DISCONNECT); // no harm if polling already
+  });
+
+  /** Functions related to synchronization (Queues and Workers in the spec) */
   const producer = context.get(context.constants.PRODUCER, true);
   const splitUpdateWorker = new SplitUpdateWorker(storage.splits, producer);
 
@@ -108,7 +126,6 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
 
   if (clientContexts) { // browser
     pushEmitter.on(PushEventTypes.MY_SEGMENTS_UPDATE, function handleMySegmentsUpdate(eventData, channel) {
-      // @TODO move function outside and test
       const userKeyHash = channel.split('_')[2];
       const userKey = userKeyHashes[userKeyHash];
       if (userKey && clientContexts[userKey]) { // check context since it can be undefined if client has been destroyed
@@ -135,11 +152,12 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
       // Expose functionality for starting and stoping push mode:
 
       stop() { // same producer passed to NodePushManagerFactory
-        // remove listener, so that when connection is closed, polling mode is not started.
-        sseClient.setEventHandler(undefined);
         sseClient.close();
-        if (timeoutId) clearTimeout(timeoutId); // cancel timeout for token refresh if previously established
-        reauthBackoff.reset(); // cancel backoff timeout if previously established
+
+        // cancel timeouts if previously established
+        if (timeoutId) clearTimeout(timeoutId);
+        reauthBackoff.reset();
+        sseReconnectBackoff.reset();
       },
 
       // used in node

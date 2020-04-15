@@ -1,22 +1,21 @@
-import { errorParser, messageParser } from './notificationparser';
-import Backoff from '../../utils/backoff';
+import { errorParser, messageParser } from './NotificationParser';
+import notificationKeeperFactory from './NotificationKeeper';
 import { PushEventTypes } from '../constants';
+import logFactory from '../../utils/logger';
+const log = logFactory('splitio-sync:push-notifications');
 
-const controlPriMatcher = /control_pri$/;
-
-// @TODO logging
 export default function NotificationProcessorFactory(
-  sseClient,
-  pushEmitter, // feedbackLoop
-  backoffBase
+  pushEmitter, // SyncManager FeedbackLoop & Update Queues
 ) {
 
-  let isStreamingUp;
-
-  const sseReconnectBackoff = new Backoff(sseClient.reopen.bind(sseClient), backoffBase);
+  const notificationKeeper = notificationKeeperFactory(pushEmitter);
 
   function handleEvent(eventData, channel) {
+    log.info(`Received a new Push notification of type "${eventData.type}" from channel "${channel}"`);
+
     switch (eventData.type) {
+
+      /** events for NotificationProcessor */
       case PushEventTypes.SPLIT_UPDATE:
         pushEmitter.emit(PushEventTypes.SPLIT_UPDATE,
           eventData.changeNumber);
@@ -39,47 +38,21 @@ export default function NotificationProcessorFactory(
           eventData.defaultTreatment);
         break;
 
-      // HTTP or Network error
-      case PushEventTypes.error:
-        // SSE connection is closed to avoid repeated errors due to retries
-        // retries are hadnled via backoff algorithm
-        sseClient.close(); // it emits the event PUSH_DISCONNECT
-        sseReconnectBackoff.scheduleCall();
-        // pushEmitter.emit(PushEventTypes.PUSH_DISCONNECT); // no harm if polling already, but the event is already emitted when calling `sseClient.close`
-        break;
-
-      // @TODO NotificationManagerKeeper
+      /** events for NotificationManagerKeeper */
       case PushEventTypes.OCCUPANCY:
-        // logic of NotificationManagerKeeper
-        if(controlPriMatcher.test(channel)) {
-          if (eventData.metrics.publishers === 0 && isStreamingUp) {
-            pushEmitter.emit(PushEventTypes.PUSH_DISCONNECT); // PushEventTypes.STREAMING_DOWN
-            isStreamingUp = !isStreamingUp;
-            break;
-          }
-          if (eventData.metrics.publishers !== 0 && !isStreamingUp) {
-            pushEmitter.emit(PushEventTypes.PUSH_CONNECT); // PushEventTypes.STREAMING_UP
-            isStreamingUp = !isStreamingUp;
-            break;
-          }
-        }
+        notificationKeeper.handleIncomingPresenceEvent(eventData, channel);
     }
   }
 
   return {
     handleOpen() {
-      isStreamingUp = true;
-      pushEmitter.emit(PushEventTypes.PUSH_CONNECT);
-      sseReconnectBackoff.reset(); // reset backoff in case SSE conexion has opened after a HTTP or network error.
+      notificationKeeper.handleOpen();
     },
 
-    handleClose() {
-      pushEmitter.emit(PushEventTypes.PUSH_DISCONNECT);
-    },
-
+    /** HTTP & Network errors */
     handleError(error) {
-      const errorData = errorParser(error);
-      handleEvent(errorData);
+      const parsedError = errorParser(error);
+      pushEmitter.emit(PushEventTypes.SSE_ERROR, parsedError);
     },
 
     handleMessage(message) {

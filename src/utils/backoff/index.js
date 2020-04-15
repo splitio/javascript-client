@@ -14,14 +14,20 @@ class Backoff {
     this.cb = cb;
   }
 
+  /**
+   * Schedule a next call to `cb`
+   * @returns scheduled delay in milliseconds
+   */
   scheduleCall() {
-    let delayInMillis = this.baseMillis * Math.pow(2, this.attempts);
-    if (delayInMillis > this.maxMillis) delayInMillis = this.maxMillis;
+    let delayInMillis = Math.min(this.baseMillis * Math.pow(2, this.attempts), this.maxMillis);
+
     if (this.timeoutID) clearTimeout(this.timeoutID);
     this.timeoutID = setTimeout(() => {
       this.cb();
     }, delayInMillis);
     this.attempts++;
+
+    return delayInMillis;
   }
 
   reset() {
