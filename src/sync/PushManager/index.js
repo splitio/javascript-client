@@ -15,27 +15,35 @@ import { PushEventTypes, SECONDS_BEFORE_EXPIRATION } from '../constants';
  * Factory of the push mode manager.
  *
  * @param {Object} context context of main client.
- * @param {Object} clientContexts map of user keys to client contexts to handle sync of MySegments. undefined for node.
+ * @param {Object | undefined} clientContexts map of user keys to client contexts to handle sync of MySegments. undefined for node.
  */
 export default function PushManagerFactory(context, clientContexts /* undefined for node */) {
-
-  const pushEmitter = new EventEmitter();
-  pushEmitter.Event = PushEventTypes;
 
   // No return a PushManager if PUSH mode is not supported.
   if (!checkPushSupport(log))
     return;
 
+  const pushEmitter = new EventEmitter();
+  pushEmitter.Event = PushEventTypes;
+
   const settings = context.get(context.constants.SETTINGS);
   const storage = context.get(context.constants.STORAGE);
   const sseClient = SSEClient.getInstance(settings);
+  const notificationProcessor = NotificationProcessorFactory(pushEmitter);
+  sseClient.setEventHandler(notificationProcessor);
 
-  /** PushManager functions, according to the spec */
+  // map of hashes to user keys, to dispatch MY_SEGMENTS_UPDATE events to the corresponding MySegmentsUpdateWorker
+  const userKeyHashes = {};
+  // variable used on browser to reconnect only when a new client was added, saving some authentication and sse connections.
+  let connectForNewClient = false;
+
+  /** PushManager functions related to initialization */
 
   const reauthBackoff = new Backoff(connectPush, settings.authRetryBackoffBase);
   const sseReconnectBackoff = new Backoff(sseClient.reopen.bind(sseClient), settings.streamingReconnectBackoffBase);
 
   let timeoutId = 0;
+
   function scheduleTokenRefresh(issuedAt, expirationTime) {
     // clear scheduled token refresh if exists (needed when resuming PUSH)
     if (timeoutId) clearTimeout(timeoutId);
@@ -94,12 +102,6 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
     );
   }
 
-  /** initialization */
-  const userKeyHashes = {};
-
-  const notificationProcessor = NotificationProcessorFactory(pushEmitter);
-  sseClient.setEventHandler(notificationProcessor);
-
   /** Functions related to fallbacking */
 
   pushEmitter.on(PushEventTypes.SSE_ERROR, function (error) { // HTTP or network error in SSE connection
@@ -118,6 +120,7 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
   });
 
   /** Functions related to synchronization (Queues and Workers in the spec) */
+
   const producer = context.get(context.constants.PRODUCER, true);
   const splitUpdateWorker = new SplitUpdateWorker(storage.splits, producer);
 
@@ -139,10 +142,6 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
     const segmentUpdateWorker = new SegmentUpdateWorker(storage.segments, producer);
     pushEmitter.on(PushEventTypes.SEGMENT_UPDATE, segmentUpdateWorker.put.bind(segmentUpdateWorker));
   }
-
-  // variable used on browser to reconnect only when a new client was added,
-  // saving some authentication and sse connections.
-  let connectForNewClient = false;
 
   return Object.assign(
     // Expose Event Emitter functionality and Event constants

@@ -6,7 +6,6 @@ import getEventSource from '../../../services/getEventSource/browser';
  *
  * @return {boolean} if push is supported
  */
-// @TODO add unit test
 export default function checkPushSupport(logger) {
   const esReference = getEventSource();
   if (!esReference) {
