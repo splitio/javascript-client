@@ -13,9 +13,12 @@ export default function NotificationProcessorFactory(
   function handleEvent(eventData, channel) {
     log.info(`Received a new Push notification of type "${eventData.type}" from channel "${channel}"`);
 
-    switch (eventData.type) {
+    // we only handle update events if streaming is up.
+    if (eventData.type !== PushEventTypes.OCCUPANCY && !notificationKeeper.isStreamingUp())
+      return;
 
-      /** events for NotificationProcessor */
+    switch (eventData.type) {
+      /** update events for NotificationProcessor */
       case PushEventTypes.SPLIT_UPDATE:
         pushEmitter.emit(PushEventTypes.SPLIT_UPDATE,
           eventData.changeNumber);
@@ -38,7 +41,7 @@ export default function NotificationProcessorFactory(
           eventData.defaultTreatment);
         break;
 
-      /** events for NotificationManagerKeeper */
+      /** occupancy events for NotificationManagerKeeper */
       case PushEventTypes.OCCUPANCY:
         notificationKeeper.handleIncomingPresenceEvent(eventData, channel);
     }
