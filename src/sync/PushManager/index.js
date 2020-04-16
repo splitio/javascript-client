@@ -132,7 +132,7 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
         const mySegmentSync = clientContexts[userKey].get(context.constants.MY_SEGMENTS_CHANGE_WORKER, true);
         mySegmentSync && mySegmentSync.put(
           eventData.changeNumber,
-          eventData.includesPayload ? eventData.segmentList : undefined);
+          eventData.includesPayload ? eventData.segmentList? eventData.segmentList : [] : undefined);
       }
     });
   } else { // node
