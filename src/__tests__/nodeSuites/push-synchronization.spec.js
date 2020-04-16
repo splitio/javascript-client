@@ -151,4 +151,25 @@ export function testSynchronization(mock, assert) {
     assert.true(nearlyEqual(lapse, MILLIS_SPLIT_KILL_EVENT), 'sync due to SPLIT_KILL event');
     return [200, splitChangesMock4];
   });
+
+  /**
+   * mock the basic behaviour for remaining `/segmentChanges` requests:
+   *  - when `?since=-1`, it returns a single key in `added` list (doesn't make sense a segment without items)
+   *  - otherwise, it returns empty `added` and `removed` lists, and the same since and till values.
+   */
+  mock.onGet(new RegExp(`${settings.url('/segmentChanges')}/*`)).reply(function (request) {
+    const since = parseInt(request.url.split('=').pop());
+    const name = request.url.split('?')[0].split('/').pop();
+    return [200, {
+      'name': name,
+      'added': since === -1 ? [key] : [],
+      'removed': [],
+      'since': since,
+      'till': since === -1 ? 1457552620999 : since,
+    }];
+  });
+
+  mock.onGet(new RegExp('.*')).reply(function (request) {
+    assert.fail('unexpected GET request with url: ' + request.url);
+  });
 }

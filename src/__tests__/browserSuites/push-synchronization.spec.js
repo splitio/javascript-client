@@ -96,9 +96,9 @@ export function testSynchronization(mock, assert) {
     }, MILLIS_SECOND_SPLIT_UPDATE_EVENT); // send a SPLIT_UPDATE event with an old changeNumber after 0.3 seconds
 
     setTimeout(() => {
-      assert.equal(client.getTreatment('qc_team'), 'no', 'evaluation with initial MySegments list');
+      assert.equal(client.getTreatment('splitters'), 'off', 'evaluation with initial MySegments list');
       client.once(client.Event.SDK_UPDATE, () => {
-        assert.equal(client.getTreatment('qc_team'), 'yes', 'evaluation with updated MySegments list');
+        assert.equal(client.getTreatment('splitters'), 'on', 'evaluation with updated MySegments list');
       });
       eventSourceInstance.emitMessage(mySegmentsUpdateMessage);
     }, MILLIS_MYSEGMENT_UPDATE_EVENT); // send a MY_SEGMENTS_UPDATE event with a new changeNumber after 0.4 seconds
@@ -161,10 +161,6 @@ export function testSynchronization(mock, assert) {
     return [200, authPushEnabledNicolasAndMarcio];
   });
 
-  mock.onGet(new RegExp(`${settings.url('/auth')}/*`)).replyOnce(function () {
-    assert.fail('must not call `/auth` if a shared client is destroyed');
-  });
-
   // initial split and mySegments sync
   mock.onGet(settings.url('/splitChanges?since=-1')).replyOnce(function () {
     const lapse = Date.now() - start;
@@ -204,16 +200,16 @@ export function testSynchronization(mock, assert) {
   });
 
   // split and mySegment sync after second SSE opened
-  mock.onGet(settings.url('/splitChanges?since=1457552631000')).replyOnce(function () {
+  mock.onGet(settings.url('/splitChanges?since=1457552650000')).replyOnce(function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_SECOND_SSE_OPEN), 'sync after second SSE connection is opened');
     console.log('lapse: ' + lapse);
-    return [200, { splits: [], since: 1457552631000, till: 1457552631000 }];
+    return [200, { splits: [], since: 1457552650000, till: 1457552650000 }];
   });
   mock.onGet(settings.url('/mySegments/nicolas@split.io')).replyOnce(200, mySegmentsNicolasMock2);
   mock.onGet(settings.url('/mySegments/marcio@split.io')).replyOnce(200, mySegmentsMarcio);
 
-  mock.onGet(settings.url('/mySegments/nicolas@split.io')).replyOnce(function () {
-    assert.fail('must not call `/mySegments/` again');
+  mock.onGet(new RegExp('.*')).reply(function (request) {
+    assert.fail('unexpected GET request with url: ' + request.url);
   });
 }

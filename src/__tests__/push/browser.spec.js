@@ -3,6 +3,7 @@ import MockAdapter from 'axios-mock-adapter';
 import { testAuthWithPushDisabled, testAuthWith401, testNoEventSource, testNoBase64Support } from '../browserSuites/push-initialization-fails.spec';
 import { testAuthRetries, testSSERetries } from '../browserSuites/push-initialization-retries.spec';
 import { testSynchronization } from '../browserSuites/push-synchronization.spec';
+import { testFallbacking } from '../browserSuites/push-fallbacking.spec';
 
 import { __getAxiosInstance } from '../../services/transport';
 
@@ -18,7 +19,9 @@ tape('## Browser JS - E2E CI Tests for PUSH ##', function (assert) {
   assert.test('E2E / PUSH initialization: auth fails and then success', testAuthRetries.bind(null, mock));
   assert.test('E2E / PUSH initialization: SSE connection fails and then success', testSSERetries.bind(null, mock));
 
-  assert.test('E2E / PUSH synchronization: SPLIT_UPDATE event', testSynchronization.bind(null, mock));
+  assert.test('E2E / PUSH synchronization', testSynchronization.bind(null, mock));
+
+  assert.test('E2E / PUSH fallbacking', testFallbacking.bind(null, mock));
 
   assert.end();
 });
