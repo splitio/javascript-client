@@ -1,0 +1,4 @@
+{
+  "type": "message",
+  "data": "{\"id\":\"JdPcOgIxuH:0:0\",\"timestamp\":1586987434844,\"encoding\":\"json\",\"channel\":\"[?occupancy=metrics.publishers]control_sec\",\"data\":\"{\\\"metrics\\\":{\\\"publishers\\\":0}}\",\"name\":\"[meta]occupancy\"}"
+}

@@ -79,9 +79,9 @@ export function testSynchronization(mock, assert) {
       eventSourceInstance.emitMessage(oldSplitUpdateMessage);
     }, MILLIS_SECOND_SPLIT_UPDATE_EVENT); // send a SPLIT_UPDATE event with an old changeNumber after 0.3 seconds
     setTimeout(() => {
-      assert.equal(client.getTreatment(key, 'qc_team'), 'yes', 'evaluation with initial segment');
+      assert.equal(client.getTreatment(key, 'splitters'), 'on', 'evaluation with initial segment');
       client.once(client.Event.SDK_UPDATE, () => {
-        assert.equal(client.getTreatment(key, 'qc_team'), 'no', 'evaluation with updated segment');
+        assert.equal(client.getTreatment(key, 'splitters'), 'off', 'evaluation with updated segment');
       });
       eventSourceInstance.emitMessage(segmentUpdateMessage);
     }, MILLIS_SEGMENT_UPDATE_EVENT); // send a SEGMENT_UPDATE event with a new changeNumber after 0.4 seconds
@@ -112,8 +112,12 @@ export function testSynchronization(mock, assert) {
     assert.true(nearlyEqual(lapse, 0), 'initial sync');
     return [200, splitChangesMock1];
   });
-  mock.onGet(settings.url('/segmentChanges/employees?since=-1')).replyOnce(
-    200, { since: -1, till: 1457552620999, name: 'employees', added: [key], removed: [] }
+  mock.onGet(settings.url('/segmentChanges/splitters?since=-1')).replyOnce(
+    200, { since: -1, till: 1457552620999, name: 'splitters', added: [key], removed: [] }
+  );
+  // extra reply due to double request (greedy fetch). @TODO: remove once `SplitChangesUpdaterFactory` and `segmentChangesFetcher` are updated
+  mock.onGet(settings.url('/segmentChanges/splitters?since=1457552620999')).replyOnce(
+    200, { since: 1457552620999, till: 1457552620999, name: 'splitters', added: [], removed: [] }
   );
 
   // split and segment sync after SSE opened
@@ -122,12 +126,8 @@ export function testSynchronization(mock, assert) {
     assert.true(nearlyEqual(lapse, MILLIS_SSE_OPEN), 'sync after SSE connection is opened');
     return [200, splitChangesMock2];
   });
-  mock.onGet(settings.url('/segmentChanges/employees?since=1457552620999')).replyOnce(
-    200, { since: 1457552620999, till: 1457552620999, name: 'employees', added: [], removed: [] }
-  );
-  // extra reply due to double request. @TODO: remove once `SplitChangesUpdaterFactory` and `segmentChangesFetcher` are updated
-  mock.onGet(settings.url('/segmentChanges/employees?since=1457552620999')).replyOnce(
-    200, { since: 1457552620999, till: 1457552620999, name: 'employees', added: [], removed: [] }
+  mock.onGet(settings.url('/segmentChanges/splitters?since=1457552620999')).replyOnce(
+    200, { since: 1457552620999, till: 1457552620999, name: 'splitters', added: [], removed: [] }
   );
 
   // fetch due to SPLIT_UPDATE event
@@ -138,10 +138,10 @@ export function testSynchronization(mock, assert) {
   });
 
   // fetch due to SEGMENT_UPDATE event
-  mock.onGet(settings.url('/segmentChanges/employees?since=1457552620999')).replyOnce(function () {
+  mock.onGet(settings.url('/segmentChanges/splitters?since=1457552620999')).replyOnce(function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_SEGMENT_UPDATE_EVENT), 'sync due to SEGMENT_UPDATE event');
-    return [200, { since: 1457552620999, till: 1457552640000, name: 'employees', added: [], removed: [key] }];
+    return [200, { since: 1457552620999, till: 1457552640000, name: 'splitters', added: [], removed: [key] }];
   });
 
   // fetch due to SPLIT_KILL event
