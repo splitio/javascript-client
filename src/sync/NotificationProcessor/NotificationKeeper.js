@@ -24,6 +24,10 @@ export default function notificationKeeperFactory(feedbackLoopEmitter) {
           feedbackLoopEmitter.emit(PushEventTypes.PUSH_CONNECT); // notify(STREAMING_UP) in spec
         }
       }
+    },
+
+    isStreamingUp() {
+      return isStreamingUp;
     }
   };
 }
