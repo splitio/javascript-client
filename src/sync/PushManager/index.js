@@ -128,14 +128,14 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
   pushEmitter.on(PushEventTypes.SPLIT_UPDATE, splitUpdateWorker.put.bind(splitUpdateWorker));
 
   if (clientContexts) { // browser
-    pushEmitter.on(PushEventTypes.MY_SEGMENTS_UPDATE, function handleMySegmentsUpdate(eventData, channel) {
+    pushEmitter.on(PushEventTypes.MY_SEGMENTS_UPDATE, function handleMySegmentsUpdate(parsedData, channel) {
       const userKeyHash = channel.split('_')[2];
       const userKey = userKeyHashes[userKeyHash];
       if (userKey && clientContexts[userKey]) { // check context since it can be undefined if client has been destroyed
         const mySegmentSync = clientContexts[userKey].get(context.constants.MY_SEGMENTS_CHANGE_WORKER, true);
         mySegmentSync && mySegmentSync.put(
-          eventData.changeNumber,
-          eventData.includesPayload ? eventData.segmentList? eventData.segmentList : [] : undefined);
+          parsedData.changeNumber,
+          parsedData.includesPayload ? parsedData.segmentList ? parsedData.segmentList : [] : undefined);
       }
     });
   } else { // node
