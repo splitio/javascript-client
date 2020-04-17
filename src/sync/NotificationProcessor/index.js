@@ -10,43 +10,6 @@ export default function NotificationProcessorFactory(
 
   const notificationKeeper = notificationKeeperFactory(pushEmitter);
 
-  function handleEvent(eventData, channel) {
-    log.info(`Received a new Push notification of type "${eventData.type}" from channel "${channel}"`);
-
-    // we only handle update events if streaming is up.
-    if (eventData.type !== PushEventTypes.OCCUPANCY && !notificationKeeper.isStreamingUp())
-      return;
-
-    switch (eventData.type) {
-      /** update events for NotificationProcessor */
-      case PushEventTypes.SPLIT_UPDATE:
-        pushEmitter.emit(PushEventTypes.SPLIT_UPDATE,
-          eventData.changeNumber);
-        break;
-      case PushEventTypes.SEGMENT_UPDATE:
-        pushEmitter.emit(PushEventTypes.SEGMENT_UPDATE,
-          eventData.changeNumber,
-          eventData.segmentName);
-        break;
-      case PushEventTypes.MY_SEGMENTS_UPDATE: {
-        pushEmitter.emit(PushEventTypes.MY_SEGMENTS_UPDATE,
-          eventData,
-          channel);
-        break;
-      }
-      case PushEventTypes.SPLIT_KILL:
-        pushEmitter.emit(PushEventTypes.SPLIT_KILL,
-          eventData.changeNumber,
-          eventData.splitName,
-          eventData.defaultTreatment);
-        break;
-
-      /** occupancy events for NotificationManagerKeeper */
-      case PushEventTypes.OCCUPANCY:
-        notificationKeeper.handleIncomingPresenceEvent(eventData, channel);
-    }
-  }
-
   return {
     handleOpen() {
       notificationKeeper.handleOpen();
@@ -59,8 +22,42 @@ export default function NotificationProcessorFactory(
     },
 
     handleMessage(message) {
-      const messageData = messageParser(message);
-      handleEvent(messageData.data, messageData.channel);
+      const { parsedData, channel } = messageParser(message);
+
+      log.info(`New push message received, with data: "${message.data}".`);
+
+      // we only handle update events if streaming is up.
+      if (parsedData.type !== PushEventTypes.OCCUPANCY && !notificationKeeper.isStreamingUp())
+        return;
+
+      switch (parsedData.type) {
+        /** update events for NotificationProcessor */
+        case PushEventTypes.SPLIT_UPDATE:
+          pushEmitter.emit(PushEventTypes.SPLIT_UPDATE,
+            parsedData.changeNumber);
+          break;
+        case PushEventTypes.SEGMENT_UPDATE:
+          pushEmitter.emit(PushEventTypes.SEGMENT_UPDATE,
+            parsedData.changeNumber,
+            parsedData.segmentName);
+          break;
+        case PushEventTypes.MY_SEGMENTS_UPDATE: {
+          pushEmitter.emit(PushEventTypes.MY_SEGMENTS_UPDATE,
+            parsedData,
+            channel);
+          break;
+        }
+        case PushEventTypes.SPLIT_KILL:
+          pushEmitter.emit(PushEventTypes.SPLIT_KILL,
+            parsedData.changeNumber,
+            parsedData.splitName,
+            parsedData.defaultTreatment);
+          break;
+
+        /** occupancy events for NotificationManagerKeeper */
+        case PushEventTypes.OCCUPANCY:
+          notificationKeeper.handleIncomingPresenceEvent(parsedData, channel);
+      }
     },
 
   };
