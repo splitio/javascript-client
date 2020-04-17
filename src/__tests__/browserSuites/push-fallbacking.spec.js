@@ -36,7 +36,7 @@ const baseUrls = {
 const config = {
   core: {
     authorizationKey: '<fake-token-push-1>',
-    key: userKey,
+    key: userKey
   },
   scheduler: {
     featuresRefreshRate: 0.2,

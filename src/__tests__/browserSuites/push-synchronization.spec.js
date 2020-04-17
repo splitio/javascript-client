@@ -35,7 +35,7 @@ const baseUrls = {
 const config = {
   core: {
     authorizationKey: '<fake-token-push-1>',
-    key: userKey,
+    key: userKey
   },
   urls: baseUrls,
   streamingEnabled: true,

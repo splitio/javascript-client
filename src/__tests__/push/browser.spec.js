@@ -4,6 +4,7 @@ import { testAuthWithPushDisabled, testAuthWith401, testNoEventSource, testNoBas
 import { testAuthRetries, testSSERetries } from '../browserSuites/push-initialization-retries.spec';
 import { testSynchronization } from '../browserSuites/push-synchronization.spec';
 import { testFallbacking } from '../browserSuites/push-fallbacking.spec';
+import { testRefreshToken } from '../browserSuites/push-refresh-token.spec';
 
 import { __getAxiosInstance } from '../../services/transport';
 
@@ -22,6 +23,8 @@ tape('## Browser JS - E2E CI Tests for PUSH ##', function (assert) {
   assert.test('E2E / PUSH synchronization', testSynchronization.bind(null, mock));
 
   assert.test('E2E / PUSH fallbacking', testFallbacking.bind(null, mock));
+
+  assert.test('E2E / PUSH refresh token', testRefreshToken.bind(null, mock));
 
   assert.end();
 });
