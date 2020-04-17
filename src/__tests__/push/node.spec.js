@@ -4,6 +4,7 @@ import { testAuthWithPushDisabled, testAuthWith401, testNoEventSource } from '..
 import { testAuthRetries, testSSERetries } from '../nodeSuites/push-initialization-retries.spec';
 import { testSynchronization } from '../nodeSuites/push-synchronization.spec';
 import { testFallbacking } from '../nodeSuites/push-fallbacking.spec';
+import { testRefreshToken } from '../nodeSuites/push-refresh-token.spec';
 
 import { __getAxiosInstance } from '../../services/transport';
 
@@ -21,6 +22,8 @@ tape('## Node JS - E2E CI Tests for PUSH ##', async function (assert) {
   assert.test('E2E / PUSH synchronization', testSynchronization.bind(null, mock));
 
   assert.test('E2E / PUSH fallbacking', testFallbacking.bind(null, mock));
+
+  assert.test('E2E / PUSH refresh token', testRefreshToken.bind(null, mock));
 
   assert.end();
 });
