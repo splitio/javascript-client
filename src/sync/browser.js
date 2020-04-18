@@ -1,5 +1,5 @@
 import PushManagerFactory from './PushManager';
-import { PUSH_DISCONNECT, PUSH_CONNECT } from '../constants';
+import { PUSH_DISCONNECT, PUSH_CONNECT } from './constants';
 import FullProducerFactory from '../producer';
 import PartialProducerFactory from '../producer/browser/Partial';
 import { matching } from '../utils/key/factory';
