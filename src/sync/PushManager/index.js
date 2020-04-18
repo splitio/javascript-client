@@ -1,6 +1,6 @@
 import SSEClient from '../SSEClient';
 import authenticate from '../AuthClient';
-import NotificationProcessorFactory from '../NotificationProcessor';
+import SSEHandlerFactory from '../SSEHandler';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-sync:push-manager');
 import SplitUpdateWorker from '../SplitUpdateWorker';
@@ -28,8 +28,8 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
   const settings = context.get(context.constants.SETTINGS);
   const storage = context.get(context.constants.STORAGE);
   const sseClient = SSEClient.getInstance(settings);
-  const notificationProcessor = NotificationProcessorFactory(pushEmitter);
-  sseClient.setEventHandler(notificationProcessor);
+  const sseHandler = SSEHandlerFactory(pushEmitter);
+  sseClient.setEventHandler(sseHandler);
 
   // map of hashes to user keys, to dispatch MY_SEGMENTS_UPDATE events to the corresponding MySegmentsUpdateWorker
   const userKeyHashes = {};
