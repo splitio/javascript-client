@@ -4,6 +4,7 @@ import { PushEventTypes } from '../constants';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-sync:push-notifications');
 
+// in terms of the PUSH spec, this factory is actually the SSEHandler, and its `handleMessage` method is the `NotificationProcessor`
 export default function NotificationProcessorFactory(
   pushEmitter, // SyncManager FeedbackLoop & Update Queues
 ) {
@@ -27,7 +28,7 @@ export default function NotificationProcessorFactory(
       log.info(`New push message received, with data: "${message.data}".`);
 
       // we only handle update events if streaming is up.
-      if (parsedData.type !== PushEventTypes.OCCUPANCY && !notificationKeeper.isStreamingUp())
+      if (!notificationKeeper.isStreamingUp() && parsedData.type !== PushEventTypes.OCCUPANCY && parsedData.type !== PushEventTypes.CONTROL)
         return;
 
       switch (parsedData.type) {
@@ -36,17 +37,19 @@ export default function NotificationProcessorFactory(
           pushEmitter.emit(PushEventTypes.SPLIT_UPDATE,
             parsedData.changeNumber);
           break;
+
         case PushEventTypes.SEGMENT_UPDATE:
           pushEmitter.emit(PushEventTypes.SEGMENT_UPDATE,
             parsedData.changeNumber,
             parsedData.segmentName);
           break;
-        case PushEventTypes.MY_SEGMENTS_UPDATE: {
+
+        case PushEventTypes.MY_SEGMENTS_UPDATE:
           pushEmitter.emit(PushEventTypes.MY_SEGMENTS_UPDATE,
             parsedData,
             channel);
           break;
-        }
+
         case PushEventTypes.SPLIT_KILL:
           pushEmitter.emit(PushEventTypes.SPLIT_KILL,
             parsedData.changeNumber,
@@ -54,9 +57,14 @@ export default function NotificationProcessorFactory(
             parsedData.defaultTreatment);
           break;
 
-        /** occupancy events for NotificationManagerKeeper */
+        /** occupancy & control events for NotificationManagerKeeper */
         case PushEventTypes.OCCUPANCY:
-          notificationKeeper.handleIncomingPresenceEvent(parsedData, channel);
+          notificationKeeper.handleOccupancyEvent(parsedData, channel);
+          break;
+
+        case PushEventTypes.CONTROL:
+          notificationKeeper.handleControlEvent(parsedData, channel);
+
       }
     },
 
