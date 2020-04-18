@@ -1,4 +1,5 @@
 import PushManagerFactory from './PushManager';
+import { PUSH_DISCONNECT, PUSH_CONNECT } from '../constants';
 import FullProducerFactory from '../producer';
 import PartialProducerFactory from '../producer/browser/Partial';
 import { matching } from '../utils/key/factory';
@@ -60,8 +61,8 @@ export default function BrowserSyncManagerFactory(mainContext) {
         if (pushManager) {
           if (!isSharedClient) {
             syncAll(); // initial syncAll (only when main client is created)
-            pushManager.on(pushManager.Event.PUSH_CONNECT, stopPollingAndSyncAll);
-            pushManager.on(pushManager.Event.PUSH_DISCONNECT, startPolling);
+            pushManager.on(PUSH_CONNECT, stopPollingAndSyncAll);
+            pushManager.on(PUSH_DISCONNECT, startPolling);
           }
           pushManager.startNewClient(userKey, context);
         } else {
