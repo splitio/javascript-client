@@ -102,7 +102,23 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
     );
   }
 
-  /** Functions related to fallbacking */
+  function disconnectPush() {
+    sseClient.close();
+
+    // cancel timeouts if previously established
+    if (timeoutId) clearTimeout(timeoutId);
+    reauthBackoff.reset();
+    sseReconnectBackoff.reset();
+  }
+
+  /** Fallbacking due to STREAMING_DISABLED control event */
+
+  pushEmitter.on(PushEventTypes.PUSH_DISABLED, function () {
+    disconnectPush();
+    pushEmitter.emit(PushEventTypes.PUSH_DISCONNECT); // no harm if polling already
+  });
+
+  /** Fallbacking due to SSE errors */
 
   pushEmitter.on(PushEventTypes.SSE_ERROR, function (error) { // HTTP or network error in SSE connection
     // SSE connection is closed to avoid repeated errors due to retries
@@ -111,7 +127,7 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
     // retries are handled via backoff algorithm
     let delayInMillis = (error.parsedData && (error.parsedData.statusCode === 400 || error.parsedData.statusCode === 401)) ?
       reauthBackoff.scheduleCall() : // reauthenticate in case of token expired (when somehow refresh token was not properly executed) or invalid
-      sseReconnectBackoff.scheduleCall();
+      sseReconnectBackoff.scheduleCall(); // reconnect SSE for any other SSE error
 
     const errorMessage = error.parsedData && error.parsedData.message;
     log.error(`Fail to connect to streaming${errorMessage ? `, with error message: "${errorMessage}"` : ''}. Attempting to reconnect in ${delayInMillis / 1000} seconds.`);
@@ -150,14 +166,7 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
 
       // Expose functionality for starting and stoping push mode:
 
-      stop() { // same producer passed to NodePushManagerFactory
-        sseClient.close();
-
-        // cancel timeouts if previously established
-        if (timeoutId) clearTimeout(timeoutId);
-        reauthBackoff.reset();
-        sseReconnectBackoff.reset();
-      },
+      stop: disconnectPush,
 
       // used in node
       start: connectPush,

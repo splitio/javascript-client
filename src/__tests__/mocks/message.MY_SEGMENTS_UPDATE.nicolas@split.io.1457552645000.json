@@ -1,4 +1,0 @@
-{
-  "type": "message",
-  "data": "{\"id\":\"mc4i3NENoA:0:0\",\"clientId\":\"NDEzMTY5Mzg0MA==:MTM2ODE2NDMxNA==\",\"timestamp\":1457552645900,\"encoding\":\"json\",\"channel\":\"NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw==_NTcwOTc3MDQx_mySegments\",\"data\":\"{\\\"type\\\":\\\"MY_SEGMENTS_UPDATE\\\",\\\"changeNumber\\\":1457552645000,\\\"segmentList\\\":[\\\"developers\\\",\\\"engineers\\\"],\\\"includesPayload\\\":true}\"}"
-}
