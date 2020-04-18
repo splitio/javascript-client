@@ -1,11 +1,10 @@
 import { errorParser, messageParser } from './NotificationParser';
 import notificationKeeperFactory from './NotificationKeeper';
-import { PushEventTypes } from '../constants';
+import { SSE_ERROR, SPLIT_UPDATE, SEGMENT_UPDATE, MY_SEGMENTS_UPDATE, SPLIT_KILL, OCCUPANCY, CONTROL } from '../constants';
 import logFactory from '../../utils/logger';
-const log = logFactory('splitio-sync:push-notifications');
+const log = logFactory('splitio-sync:sse-handler');
 
-// in terms of the PUSH spec, this factory is actually the SSEHandler, and its `handleMessage` method is the `NotificationProcessor`
-export default function NotificationProcessorFactory(
+export default function SSEHandlerFactory(
   pushEmitter, // SyncManager FeedbackLoop & Update Queues
 ) {
 
@@ -16,53 +15,54 @@ export default function NotificationProcessorFactory(
       notificationKeeper.handleOpen();
     },
 
-    /** HTTP & Network errors */
+    /* HTTP & Network errors */
     handleError(error) {
       const parsedError = errorParser(error);
-      pushEmitter.emit(PushEventTypes.SSE_ERROR, parsedError);
+      pushEmitter.emit(SSE_ERROR, parsedError);
     },
 
+    /* NotificationProcessor */
     handleMessage(message) {
       const { parsedData, channel } = messageParser(message);
 
       log.info(`New push message received, with data: "${message.data}".`);
 
       // we only handle update events if streaming is up.
-      if (!notificationKeeper.isStreamingUp() && parsedData.type !== PushEventTypes.OCCUPANCY && parsedData.type !== PushEventTypes.CONTROL)
+      if (!notificationKeeper.isStreamingUp() && parsedData.type !== OCCUPANCY && parsedData.type !== CONTROL)
         return;
 
       switch (parsedData.type) {
-        /** update events for NotificationProcessor */
-        case PushEventTypes.SPLIT_UPDATE:
-          pushEmitter.emit(PushEventTypes.SPLIT_UPDATE,
+        /* update events */
+        case SPLIT_UPDATE:
+          pushEmitter.emit(SPLIT_UPDATE,
             parsedData.changeNumber);
           break;
 
-        case PushEventTypes.SEGMENT_UPDATE:
-          pushEmitter.emit(PushEventTypes.SEGMENT_UPDATE,
+        case SEGMENT_UPDATE:
+          pushEmitter.emit(SEGMENT_UPDATE,
             parsedData.changeNumber,
             parsedData.segmentName);
           break;
 
-        case PushEventTypes.MY_SEGMENTS_UPDATE:
-          pushEmitter.emit(PushEventTypes.MY_SEGMENTS_UPDATE,
+        case MY_SEGMENTS_UPDATE:
+          pushEmitter.emit(MY_SEGMENTS_UPDATE,
             parsedData,
             channel);
           break;
 
-        case PushEventTypes.SPLIT_KILL:
-          pushEmitter.emit(PushEventTypes.SPLIT_KILL,
+        case SPLIT_KILL:
+          pushEmitter.emit(SPLIT_KILL,
             parsedData.changeNumber,
             parsedData.splitName,
             parsedData.defaultTreatment);
           break;
 
-        /** occupancy & control events for NotificationManagerKeeper */
-        case PushEventTypes.OCCUPANCY:
+        /* occupancy & control events, handled by NotificationManagerKeeper */
+        case OCCUPANCY:
           notificationKeeper.handleOccupancyEvent(parsedData, channel);
           break;
 
-        case PushEventTypes.CONTROL:
+        case CONTROL:
           notificationKeeper.handleControlEvent(parsedData, channel);
 
       }

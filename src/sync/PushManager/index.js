@@ -9,7 +9,7 @@ import checkPushSupport from './checkPushSupport';
 import Backoff from '../../utils/backoff';
 import { hashUserKey } from '../../utils/jwt/hashUserKey';
 import EventEmitter from 'events';
-import { PushEventTypes, SECONDS_BEFORE_EXPIRATION } from '../constants';
+import { SECONDS_BEFORE_EXPIRATION, PUSH_DISCONNECT, PUSH_DISABLED, SSE_ERROR, SPLIT_KILL, SPLIT_UPDATE, SEGMENT_UPDATE, MY_SEGMENTS_UPDATE } from '../constants';
 
 /**
  * Factory of the push mode manager.
@@ -24,7 +24,6 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
     return;
 
   const pushEmitter = new EventEmitter();
-  pushEmitter.Event = PushEventTypes;
 
   const settings = context.get(context.constants.SETTINGS);
   const storage = context.get(context.constants.STORAGE);
@@ -67,7 +66,7 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
         // emit PUSH_DISCONNECT if org is not whitelisted
         if (!authData.pushEnabled) {
           log.error('Streaming is not enabled for the organization. Switching to polling mode.');
-          pushEmitter.emit(PushEventTypes.PUSH_DISCONNECT); // there is no need to close sseClient (it is not open on this scenario)
+          pushEmitter.emit(PUSH_DISCONNECT); // there is no need to close sseClient (it is not open on this scenario)
           return;
         }
 
@@ -85,7 +84,7 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
       function (error) {
 
         sseClient.close(); // no harm if already disconnected
-        pushEmitter.emit(PushEventTypes.PUSH_DISCONNECT); // no harm if `PUSH_DISCONNECT` was already notified
+        pushEmitter.emit(PUSH_DISCONNECT); // no harm if `PUSH_DISCONNECT` was already notified
 
         if (error.statusCode) {
           switch (error.statusCode) {
@@ -113,14 +112,14 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
 
   /** Fallbacking due to STREAMING_DISABLED control event */
 
-  pushEmitter.on(PushEventTypes.PUSH_DISABLED, function () {
+  pushEmitter.on(PUSH_DISABLED, function () {
     disconnectPush();
-    pushEmitter.emit(PushEventTypes.PUSH_DISCONNECT); // no harm if polling already
+    pushEmitter.emit(PUSH_DISCONNECT); // no harm if polling already
   });
 
   /** Fallbacking due to SSE errors */
 
-  pushEmitter.on(PushEventTypes.SSE_ERROR, function (error) { // HTTP or network error in SSE connection
+  pushEmitter.on(SSE_ERROR, function (error) { // HTTP or network error in SSE connection
     // SSE connection is closed to avoid repeated errors due to retries
     sseClient.close();
 
@@ -132,7 +131,7 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
     const errorMessage = error.parsedData && error.parsedData.message;
     log.error(`Fail to connect to streaming${errorMessage ? `, with error message: "${errorMessage}"` : ''}. Attempting to reconnect in ${delayInMillis / 1000} seconds.`);
 
-    pushEmitter.emit(PushEventTypes.PUSH_DISCONNECT); // no harm if polling already
+    pushEmitter.emit(PUSH_DISCONNECT); // no harm if polling already
   });
 
   /** Functions related to synchronization (Queues and Workers in the spec) */
@@ -140,11 +139,11 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
   const producer = context.get(context.constants.PRODUCER, true);
   const splitUpdateWorker = new SplitUpdateWorker(storage.splits, producer);
 
-  pushEmitter.on(PushEventTypes.SPLIT_KILL, splitUpdateWorker.killSplit.bind(splitUpdateWorker));
-  pushEmitter.on(PushEventTypes.SPLIT_UPDATE, splitUpdateWorker.put.bind(splitUpdateWorker));
+  pushEmitter.on(SPLIT_KILL, splitUpdateWorker.killSplit.bind(splitUpdateWorker));
+  pushEmitter.on(SPLIT_UPDATE, splitUpdateWorker.put.bind(splitUpdateWorker));
 
   if (clientContexts) { // browser
-    pushEmitter.on(PushEventTypes.MY_SEGMENTS_UPDATE, function handleMySegmentsUpdate(parsedData, channel) {
+    pushEmitter.on(MY_SEGMENTS_UPDATE, function handleMySegmentsUpdate(parsedData, channel) {
       const userKeyHash = channel.split('_')[2];
       const userKey = userKeyHashes[userKeyHash];
       if (userKey && clientContexts[userKey]) { // check context since it can be undefined if client has been destroyed
@@ -156,7 +155,7 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
     });
   } else { // node
     const segmentUpdateWorker = new SegmentUpdateWorker(storage.segments, producer);
-    pushEmitter.on(PushEventTypes.SEGMENT_UPDATE, segmentUpdateWorker.put.bind(segmentUpdateWorker));
+    pushEmitter.on(SEGMENT_UPDATE, segmentUpdateWorker.put.bind(segmentUpdateWorker));
   }
 
   return Object.assign(
