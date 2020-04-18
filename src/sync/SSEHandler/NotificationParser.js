@@ -1,4 +1,4 @@
-import { PushEventTypes } from '../constants';
+import { OCCUPANCY } from '../constants';
 import { isString } from '../../utils/lang';
 
 export function errorParser(error) {
@@ -15,7 +15,7 @@ export function messageParser(message) {
 
   // set the event type to OCCUPANCY, to handle all events uniformely
   if (messageData.name && messageData.name === '[meta]occupancy')
-    messageData.parsedData.type = PushEventTypes.OCCUPANCY;
+    messageData.parsedData.type = OCCUPANCY;
 
   return messageData;
 }
