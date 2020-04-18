@@ -1,5 +1,5 @@
 export const PushEventTypes = {
-  // high level event types: subscribed by SyncManager and published by PushManager and NotificationProcessor
+  // high level event types: subscribed by SyncManager and published by PushManager and NotificationManagerKeeper
   PUSH_CONNECT: 'PUSH_CONNECT',
   PUSH_DISCONNECT: 'PUSH_DISCONNECT',
   // UPDATE-type events associated to SSE events

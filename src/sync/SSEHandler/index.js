@@ -2,10 +2,9 @@ import { errorParser, messageParser } from './NotificationParser';
 import notificationKeeperFactory from './NotificationKeeper';
 import { PushEventTypes } from '../constants';
 import logFactory from '../../utils/logger';
-const log = logFactory('splitio-sync:push-notifications');
+const log = logFactory('splitio-sync:sse-handler');
 
-// in terms of the PUSH spec, this factory is actually the SSEHandler, and its `handleMessage` method is the `NotificationProcessor`
-export default function NotificationProcessorFactory(
+export default function SSEHandlerFactory(
   pushEmitter, // SyncManager FeedbackLoop & Update Queues
 ) {
 
@@ -16,12 +15,13 @@ export default function NotificationProcessorFactory(
       notificationKeeper.handleOpen();
     },
 
-    /** HTTP & Network errors */
+    /* HTTP & Network errors */
     handleError(error) {
       const parsedError = errorParser(error);
       pushEmitter.emit(PushEventTypes.SSE_ERROR, parsedError);
     },
 
+    /* NotificationProcessor */
     handleMessage(message) {
       const { parsedData, channel } = messageParser(message);
 
@@ -32,7 +32,7 @@ export default function NotificationProcessorFactory(
         return;
 
       switch (parsedData.type) {
-        /** update events for NotificationProcessor */
+        /* update events */
         case PushEventTypes.SPLIT_UPDATE:
           pushEmitter.emit(PushEventTypes.SPLIT_UPDATE,
             parsedData.changeNumber);
@@ -57,7 +57,7 @@ export default function NotificationProcessorFactory(
             parsedData.defaultTreatment);
           break;
 
-        /** occupancy & control events for NotificationManagerKeeper */
+        /* occupancy & control events, handled by NotificationManagerKeeper */
         case PushEventTypes.OCCUPANCY:
           notificationKeeper.handleOccupancyEvent(parsedData, channel);
           break;
