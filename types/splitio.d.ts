@@ -556,15 +556,20 @@ declare namespace SplitIO {
     timestamp?: number;
   };
   /**
-   * Enable Ga-to-Split integration, to track GA hits as Split events.
+   * Enable 'Google Analytics to Split' integration, to track Google Analytics hits as Split events.
    *
-   * @TODO update the following link
-   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#ga-to-split-integration}
+   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#google-analytics-to-split}
    */
-  interface GaToSplitIntegration {
-    type: 'GA_TO_SPLIT',
+  interface IGoogleAnalyticsToSplitConfig {
+    type: 'GOOGLE_ANALYTICS_TO_SPLIT',
     /**
-     * Optional predicate used to filter GA hits from being tracked as Split events.
+     * Optional flag to filter GA hits from being tracked as Split events.
+     * @property {boolean} hits
+     * @default true
+     */
+    hits?: boolean,
+    /**
+     * Optional predicate used to define a custom filter for tracking GA hits as Split events.
      * For example, the following filter allows to track only 'event' hits:
      *  `(model) => model.get('hitType') === 'event'`
      * By default, all hits are tracked as Split events.
@@ -582,15 +587,12 @@ declare namespace SplitIO {
      *      defaultMapping.properties.someProperty = SOME_VALUE;
      *      return defaultMapping;
      *  }`
-     *
-     * @TODO update the following link
-     * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#split-to-ga-integration} for details of the default event mapping.
      */
     mapper?: (model: UniversalAnalytics.Model, defaultMapping: SplitIO.EventData) => SplitIO.EventData,
     /**
      * Optional prefix for EventTypeId, to prevent any kind of data collision between events.
      * @property {string} prefix
-     * @default '' (empty string)
+     * @default 'ga'
      */
     prefix?: string,
     /**
@@ -601,18 +603,28 @@ declare namespace SplitIO {
   }
   type IntegrationData = { type: 'IMPRESSION', payload: SplitIO.ImpressionData } | { type: 'EVENT', payload: SplitIO.EventData };
   /**
-   * Enable Split-to-GA integration, to track Split impressions and events as GA hits.
+   * Enable 'Split to Google Analytics' integration, to track Split impressions and events as Google Analytics hits.
    *
-   * @TODO update the following link
-   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#split-to-ga-integration}
+   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#split-to-google-analytics}
    */
-  interface SplitToGaIntegration {
-    type: 'SPLIT_TO_GA',
+  interface ISplitToGoogleAnalyticsConfig {
+    type: 'SPLIT_TO_GOOGLE_ANALYTICS',
     /**
-     * Optional predicate used to filter data instances (Split events and impressions) from being tracked as GA hits.
-     * For example, the following filter allows to track only impressions:
+     * Optional flag to filter Split impressions from being tracked as GA hits.
+     * @property {boolean} impressions
+     * @default true
+     */
+    impressions?: boolean,
+    /**
+     * Optional flag to filter Split events from being tracked as GA hits.
+     * @property {boolean} events
+     * @default true
+     */
+    events?: boolean,
+    /**
+     * Optional predicate used to define a custom filter for tracking Split data (events and impressions) as GA hits.
+     * For example, the following filter allows to track only impressions, equivalent to setting `events` to `false`:
      *  `(data) => data.type === 'IMPRESSION'`
-     * By default, all impressions and events are tracked as GA hits.
      */
     filter?: (data: SplitIO.IntegrationData) => boolean,
     /**
@@ -652,7 +664,7 @@ declare namespace SplitIO {
      */
     trackerNames?: string[],
   }
-  type BrowserIntegration = SplitToGaIntegration | GaToSplitIntegration;
+  type BrowserIntegration = ISplitToGoogleAnalyticsConfig | IGoogleAnalyticsToSplitConfig;
   /**
    * Settings interface for SDK instances created on the browser
    * @interface IBrowserSettings

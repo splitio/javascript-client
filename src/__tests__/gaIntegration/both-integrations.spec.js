@@ -14,9 +14,9 @@ const config = {
     trafficType: 'user',
   },
   integrations: [{
-    type: 'GA_TO_SPLIT',
+    type: 'GOOGLE_ANALYTICS_TO_SPLIT',
   }, {
-    type: 'SPLIT_TO_GA',
+    type: 'SPLIT_TO_GOOGLE_ANALYTICS',
   }],
   urls: {
     sdk: 'https://sdk.both-integrations.io/api',

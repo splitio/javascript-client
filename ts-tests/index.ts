@@ -388,22 +388,25 @@ impressionListener.logImpression(impressionData);
 let fieldsObjectSample: UniversalAnalytics.FieldsObject = { hitType: 'event', eventAction: 'action' };
 let eventDataSample: SplitIO.EventData = { eventTypeId: 'someEventTypeId', value: 10, properties: {} }
 
-let gaToSplitIntegration: SplitIO.GaToSplitIntegration = {
-  type: 'GA_TO_SPLIT',
+let googleAnalyticsToSplitConfig: SplitIO.IGoogleAnalyticsToSplitConfig = {
+  type: 'GOOGLE_ANALYTICS_TO_SPLIT',
 };
-let splitToGaIntegration: SplitIO.SplitToGaIntegration = {
-  type: 'SPLIT_TO_GA',
+let splitToGoogleAnalyticsConfig: SplitIO.ISplitToGoogleAnalyticsConfig = {
+  type: 'SPLIT_TO_GOOGLE_ANALYTICS',
 };
 
-let customGaToSplitIntegration: SplitIO.GaToSplitIntegration = {
-  type: 'GA_TO_SPLIT',
+let customGoogleAnalyticsToSplitConfig: SplitIO.IGoogleAnalyticsToSplitConfig = {
+  type: 'GOOGLE_ANALYTICS_TO_SPLIT',
+  hits: false,
   filter: function (model: UniversalAnalytics.Model): boolean { return true; },
   mapper: function (model: UniversalAnalytics.Model, defaultMapping: SplitIO.EventData): SplitIO.EventData { return eventDataSample; },
   prefix: 'PREFIX',
   identities: [{ key: 'key1', trafficType: 'tt1'}, { key: 'key2', trafficType: 'tt2'}],
 };
-let customSplitToGaIntegration: SplitIO.SplitToGaIntegration = {
-  type: 'SPLIT_TO_GA',
+let customSplitToGoogleAnalyticsConfig: SplitIO.ISplitToGoogleAnalyticsConfig = {
+  type: 'SPLIT_TO_GOOGLE_ANALYTICS',
+  events: false,
+  impressions: true,
   filter: function (model: SplitIO.IntegrationData): boolean { return true; },
   mapper: function (model: SplitIO.IntegrationData, defaultMapping: UniversalAnalytics.FieldsObject): UniversalAnalytics.FieldsObject { return fieldsObjectSample; },
   trackerNames: ['t0', 'myTracker'],
@@ -438,10 +441,10 @@ let fullBrowserSettings: SplitIO.IBrowserSettings = {
   },
   impressionListener: impressionListener,
   debug: true,
-  integrations: [gaToSplitIntegration, splitToGaIntegration, customGaToSplitIntegration, customSplitToGaIntegration]
+  integrations: [googleAnalyticsToSplitConfig, splitToGoogleAnalyticsConfig, customGoogleAnalyticsToSplitConfig, customSplitToGoogleAnalyticsConfig]
 };
 fullBrowserSettings.storage.type = 'MEMORY';
-fullBrowserSettings.integrations[0].type = 'GA_TO_SPLIT';
+fullBrowserSettings.integrations[0].type = 'GOOGLE_ANALYTICS_TO_SPLIT';
 
 let fullNodeSettings: SplitIO.INodeSettings = {
   core: {

@@ -18,7 +18,7 @@ const config = {
     trafficType: 'user',
   },
   integrations: [{
-    type: 'SPLIT_TO_GA',
+    type: 'SPLIT_TO_GOOGLE_ANALYTICS',
   }],
   scheduler: {
     impressionsRefreshRate: 0.2,
@@ -141,10 +141,10 @@ export default function (mock, assert) {
         authorizationKey: '<some-token-2>',
       },
       integrations: [{
-        type: 'SPLIT_TO_GA',
+        type: 'SPLIT_TO_GOOGLE_ANALYTICS',
         trackerNames: ['myTracker1'],
       }, {
-        type: 'SPLIT_TO_GA',
+        type: 'SPLIT_TO_GOOGLE_ANALYTICS',
         trackerNames: ['myTracker2'],
       }],
     });
@@ -230,11 +230,11 @@ export default function (mock, assert) {
         eventsQueueSize: numOfEvents,
       },
       integrations: [{
-        type: 'SPLIT_TO_GA',
+        type: 'SPLIT_TO_GOOGLE_ANALYTICS',
         trackerNames: ['myTracker3'],
         filter: onlyImpressionsFilter,
       }, {
-        type: 'SPLIT_TO_GA',
+        type: 'SPLIT_TO_GOOGLE_ANALYTICS',
         trackerNames: ['myTracker4'],
         mapper: onlyEventsMapper,
       }],
@@ -297,14 +297,14 @@ export default function (mock, assert) {
       ...config,
       debug: true,
       integrations: [{
-        type: 'SPLIT_TO_GA',
+        type: 'SPLIT_TO_GOOGLE_ANALYTICS',
         mapper: function () { throw error; },
       }, {
-        type: 'SPLIT_TO_GA',
+        type: 'SPLIT_TO_GOOGLE_ANALYTICS',
         trackerNames: ['myTracker1'],
         mapper: function () { return {}; },
       }, {
-        type: 'SPLIT_TO_GA',
+        type: 'SPLIT_TO_GOOGLE_ANALYTICS',
         trackerNames: ['myTracker2'],
         mapper: function () { return { hitType: 'event', eventCategory: 'my-split-impression', eventAction: 'some-action' }; },
       }],
@@ -365,4 +365,72 @@ export default function (mock, assert) {
 
   });
 
+  // test `events` and `impressions` flags
+  assert.test(t => {
+
+    let client;
+
+    // Generator to synchronize the call of t.end() when both impressions and events endpoints were invoked.
+    const finish = (function* () {
+      yield;
+      t.equal(window.gaSpy.getHits().length, 1, 'Total hits are 1: pageview');
+      setTimeout(() => {
+        client.destroy();
+        t.end();
+      });
+    })();
+
+    mock.onPost(settings.url('/testImpressions/bulk')).replyOnce(req => {
+      // we can assert payload and ga hits, once ga is ready and after `SplitToGa.queue`, that is timeout wrapped, make to the queue stack.
+      setTimeout(() => {
+        window.ga(() => {
+          const resp = JSON.parse(req.data);
+          const sentImpressions = countImpressions(resp);
+          const sentImpressionHits = window.gaSpy.getHits().filter(hit => hit.eventCategory === 'split-impression');
+
+          t.equal(sentImpressions, 1, 'Number of impressions');
+          t.equal(sentImpressionHits.length, 0, 'No hits associated to Split impressions must be sent');
+
+          finish.next();
+        });
+      });
+      return [200];
+    });
+
+    mock.onPost(settings.url('/events/bulk')).replyOnce(req => {
+      setTimeout(() => {
+        window.ga(() => {
+          const resp = JSON.parse(req.data);
+          const sentEvents = resp.length;
+          const sentEventHits = window.gaSpy.getHits().filter(hit => hit.eventCategory === 'split-event');
+
+          t.equal(sentEvents, 1, 'Number of events');
+          t.equal(sentEventHits.length, 0, 'No hits associated to Split events must be sent');
+
+          finish.next();
+        });
+      });
+      return [200];
+    });
+
+    gaTag();
+    window.ga('create', 'UA-00000000-1', 'auto', { siteSpeedSampleRate: 0 });
+    gaSpy();
+    window.ga('send', 'pageview');
+
+    const factory = SplitFactory({
+      ...config,
+      integrations: [{
+        type: 'SPLIT_TO_GOOGLE_ANALYTICS',
+        events: false,
+        impressions: false,
+      }]
+    });
+    client = factory.client();
+    client.ready().then(() => {
+      client.track('some_event');
+      client.getTreatment('hierarchical_splits_test');
+    });
+
+  });
 }
