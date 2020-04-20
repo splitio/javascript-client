@@ -2,6 +2,7 @@ import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
 import authPushDisabled from '../mocks/auth.pushDisabled.json';
 import authPushEnabledNicolas from '../mocks/auth.pushEnabled.nicolas@split.io.json';
+import authPushBadToken from '../mocks/auth.pushBadToken.json';
 import mySegmentsNicolasMock from '../mocks/mysegments.nicolas@split.io.json';
 
 import { nearlyEqual } from '../utils';
@@ -41,8 +42,8 @@ const settings = SettingsFactory(config);
 
 /**
  * Sequence of calls:
- *  0.0 secs: initial SyncAll (/splitChanges, /mySegments/*) and first auth attempt
- *  0.1 secs: second auth attempt
+ *  0.0 secs: initial SyncAll (/splitChanges, /mySegments/*) and first auth attempt (fail due to bad token)
+ *  0.1 secs: second auth attempt (fail due to network error)
  *  0.2 secs: polling (/splitChanges, /mySegments/*)
  *  0.3 secs: third auth attempt (success but push disabled)
  *  0.4 secs: polling (/splitChanges, /mySegments/*)
@@ -58,7 +59,11 @@ export function testAuthRetries(mock, assert) {
     ready = true;
   });
 
-  mock.onGet(settings.url(`/auth?users=${encodeURIComponent(userKey)}`)).timeoutOnce();
+  mock.onGet(settings.url(`/auth?users=${encodeURIComponent(userKey)}`)).replyOnce(function (request) {
+    if (!request.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
+    assert.pass('first auth attempt');
+    return [200, authPushBadToken];
+  });
   mock.onGet(settings.url(`/auth?users=${encodeURIComponent(userKey)}`)).networkErrorOnce();
   mock.onGet(settings.url(`/auth?users=${encodeURIComponent(userKey)}`)).replyOnce(function (request) {
     if (!request.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
