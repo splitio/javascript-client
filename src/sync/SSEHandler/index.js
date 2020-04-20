@@ -23,7 +23,7 @@ export default function SSEHandlerFactory(
 
     /* NotificationProcessor */
     handleMessage(message) {
-      const { parsedData, channel } = messageParser(message);
+      const { parsedData, channel, timestamp } = messageParser(message);
 
       log.info(`New push message received, with data: "${message.data}".`);
 
@@ -59,11 +59,11 @@ export default function SSEHandlerFactory(
 
         /* occupancy & control events, handled by NotificationManagerKeeper */
         case OCCUPANCY:
-          notificationKeeper.handleOccupancyEvent(parsedData, channel);
+          notificationKeeper.handleOccupancyEvent(parsedData.metrics.publishers, channel, timestamp);
           break;
 
         case CONTROL:
-          notificationKeeper.handleControlEvent(parsedData, channel);
+          notificationKeeper.handleControlEvent(parsedData.controlType, channel, timestamp);
 
       }
     },
