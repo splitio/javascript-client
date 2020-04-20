@@ -116,7 +116,7 @@ export function testSSERetries(mock, assert) {
   setMockListener(function (eventSourceInstance) {
     assert.equal(eventSourceInstance.url, expectedSSEurl, 'SSE url is correct');
     if (sseattempts < 2) {
-      eventSourceInstance.emitError({ type: 'error' });
+      eventSourceInstance.emitError('some error');
     } else {
       const lapse = Date.now() - start;
 

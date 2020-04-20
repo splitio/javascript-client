@@ -53,7 +53,7 @@ const MILLIS_DESTROY = 700;
  *  0.5 secs: SPLIT_KILL event -> /splitChanges: bad response and network error -> SDK_UPDATE not triggered although cache is updated (killLocally) @TODO review if we should trigger SDK_UPDATE anyway
  *  0.6 secs: SEGMENT_UPDATE event -> /segmentChanges/*: bad response and then fail -> SDK_UPDATE not triggered
  */
-export function testSynchronizationFails(mock, assert) {
+export function testSynchronizationRetries(mock, assert) {
   assert.plan(16);
   mock.reset();
   __setEventSource(EventSourceMock);
@@ -91,13 +91,13 @@ export function testSynchronizationFails(mock, assert) {
     setTimeout(() => {
       assert.equal(client.getTreatment(key, 'whitelist'), 'allowed', 'evaluation with not killed Split');
       client.once(client.Event.SDK_UPDATE, () => {
-        assert.fail('SDK_UPDATE event must not be triggered due to fetch fails');
+        assert.fail('SDK_UPDATE event must not be triggered due to fetch failures');
       });
       eventSourceInstance.emitMessage(splitKillMessage);
     }, MILLIS_SPLIT_KILL_EVENT); // send a SPLIT_KILL event with a new changeNumber after 0.5 seconds
     setTimeout(() => {
       client.once(client.Event.SDK_UPDATE, () => {
-        assert.fail('SDK_UPDATE event must not be triggered due to fetch fails');
+        assert.fail('SDK_UPDATE event must not be triggered due to fetch failures');
       });
       eventSourceInstance.emitMessage(secondSegmentUpdateMessage);
     }, MILLIS_SECOND_SEGMENT_UPDATE_EVENT); // send a second SEGMENT_UPDATE event with a new changeNumber after 0.6 seconds

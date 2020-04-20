@@ -1,4 +1,4 @@
 {
   "type": "message",
-  "data": "{\"id\":\"itKIDa6b4b:0:0\",\"clientId\": \"EORI49J_FSJKA2\",\"timestamp\":1586987434843,\"encoding\":\"json\",\"channel\":\"[?occupancy=metrics.publishers]control_pri\",\"data\":\"{\\\"type\\\":\\\"CONTROL\\\",\\\"controlType\\\":\\\"STREAMING_PAUSED\\\"}\"}"
+  "data": "{\"id\":\"itKIDa6b4b:0:0\",\"clientId\": \"EORI49J_FSJKA2\",\"timestamp\":1586987434843,\"encoding\":\"json\",\"channel\":\"control_pri\",\"data\":\"{\\\"type\\\":\\\"CONTROL\\\",\\\"controlType\\\":\\\"STREAMING_PAUSED\\\"}\"}"
 }
