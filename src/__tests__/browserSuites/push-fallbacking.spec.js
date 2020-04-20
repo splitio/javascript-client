@@ -8,14 +8,14 @@ import splitChangesMock3 from '../mocks/splitchanges.since.1457552620999.till.14
 import mySegmentsNicolasMock1 from '../mocks/mysegments.nicolas@split.io.json';
 import mySegmentsNicolasMock2 from '../mocks/mysegments.nicolas@split.io.mock2.json';
 
-import occupancy0ControlPriMessage from '../mocks/message.OCCUPANCY.0.control_pri.json';
-// import occupancy0ControlSecMessage from '../mocks/message.OCCUPANCY.0.control_sec.json';
-import occupancy1ControlPriMessage from '../mocks/message.OCCUPANCY.1.control_pri.json';
-import occupancy1ControlSecMessage from '../mocks/message.OCCUPANCY.1.control_sec.json';
+import occupancy1ControlPriMessage from '../mocks/message.OCCUPANCY.1.control_pri.1586987434450.json';
+import occupancy1ControlSecMessage from '../mocks/message.OCCUPANCY.1.control_sec.1586987434451.json';
+import occupancy0ControlPriMessage from '../mocks/message.OCCUPANCY.0.control_pri.1586987434550.json';
+import occupancy2ControlPriMessage from '../mocks/message.OCCUPANCY.2.control_pri.1586987434650.json';
 
-import streamingPausedControlPriMessage from '../mocks/message.CONTROL.STREAMING_PAUSED.control_pri.json';
-import streamingResumedControlPriMessage from '../mocks/message.CONTROL.STREAMING_RESUMED.control_pri.json';
-import streamingDisabledControlPriMessage from '../mocks/message.CONTROL.STREAMING_DISABLED.control_pri.json';
+import streamingPausedControlPriMessage from '../mocks/message.CONTROL.STREAMING_PAUSED.control_pri.1586987434750.json';
+import streamingResumedControlPriMessage from '../mocks/message.CONTROL.STREAMING_RESUMED.control_pri.1586987434850.json';
+import streamingDisabledControlPriMessage from '../mocks/message.CONTROL.STREAMING_DISABLED.control_pri.1586987434950.json';
 
 import splitUpdateMessage from '../mocks/message.SPLIT_UPDATE.1457552631000.json';
 import mySegmentsUpdateMessage from '../mocks/message.MY_SEGMENTS_UPDATE.nicolas@split.io.1457552640000.json';
@@ -119,7 +119,7 @@ export function testFallbacking(mock, assert) {
     }, MILLIS_SPLIT_UPDATE_EVENT_DURING_POLLING); // send a SPLIT_UPDATE event while polling, to check that we are ignoring it
 
     setTimeout(() => {
-      eventSourceInstance.emitMessage(occupancy1ControlPriMessage);
+      eventSourceInstance.emitMessage(occupancy2ControlPriMessage);
     }, MILLIS_STREAMING_UP_OCCUPANCY); // send a OCCUPANCY event for switching to push
 
     setTimeout(() => {
