@@ -8,9 +8,9 @@ import authInvalidCredentials from '../mocks/auth.invalidCredentials.txt';
 import { nearlyEqual } from '../utils';
 
 const baseUrls = {
-  sdk: 'https://sdk.push-initialization-fails/api',
-  events: 'https://events.push-initialization-fails/api',
-  auth: 'https://auth.push-initialization-fails/api'
+  sdk: 'https://sdk.push-initialization-nopush/api',
+  events: 'https://events.push-initialization-nopush/api',
+  auth: 'https://auth.push-initialization-nopush/api'
 };
 const userKey = 'nicolas@split.io';
 const config = {
