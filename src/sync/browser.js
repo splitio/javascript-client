@@ -1,10 +1,10 @@
 import PushManagerFactory from './PushManager';
-import { PUSH_DISCONNECT, PUSH_CONNECT } from './constants';
 import FullProducerFactory from '../producer';
 import PartialProducerFactory from '../producer/browser/Partial';
 import { matching } from '../utils/key/factory';
 import { forOwn } from '../utils/lang';
 import logFactory from '../utils/logger';
+import { PUSH_DISCONNECT, PUSH_CONNECT } from './constants';
 const log = logFactory('splitio-sync:sync-manager');
 
 /**
@@ -14,8 +14,13 @@ const log = logFactory('splitio-sync:sync-manager');
  */
 export default function BrowserSyncManagerFactory(mainContext) {
 
+  // map of user keys to client contexts
   const contexts = {};
-  let pushManager;
+  const settings = mainContext.get(mainContext.constants.SETTINGS);
+
+  // call `shared` before creating PushManager, since it is in charge of creating the full producer and adding it into the main context.
+  const syncManager = createInstance(false, mainContext);
+  const pushManager = settings.streamingEnabled ? PushManagerFactory(mainContext, contexts) : undefined;
 
   function startPolling() {
     log.info('PUSH down or disconnected. Starting periodic fetch of data.');
@@ -47,12 +52,20 @@ export default function BrowserSyncManagerFactory(mainContext) {
     });
   }
 
-  function shared(context, isSharedClient = true) {
+  /**
+   * Creates a SyncManager that handles the synchronization of clients (main and shared ones).
+   * Internally, it creates the client producer, adds it into its context, and defines the `start` and `stop` methods that handle synchronization.
+   *
+   * @param {Object} context
+   * @param {boolean} isSharedClient
+   */
+  function createInstance(isSharedClient, context) {
     const producer = isSharedClient ? PartialProducerFactory(context) : FullProducerFactory(context);
-    context.put(context.constants.PRODUCER, producer);
     const settings = context.get(context.constants.SETTINGS);
     const userKey = matching(settings.core.key);
-    if(contexts[userKey]) log.warn('A client with the same user key has already been created. Only the new instance will be properly synchronized.');
+
+    context.put(context.constants.PRODUCER, producer);
+    if (contexts[userKey]) log.warn('A client with the same user key has already been created. Only the new instance will be properly synchronized.');
     contexts[userKey] = context;
 
     return {
@@ -72,6 +85,7 @@ export default function BrowserSyncManagerFactory(mainContext) {
 
       stop() {
         const context = contexts[userKey];
+
         if (context) { // check in case `client.destroy()` has been invoked more than once for the same client
           delete contexts[userKey];
 
@@ -92,14 +106,7 @@ export default function BrowserSyncManagerFactory(mainContext) {
     };
   }
 
-  // called before creating PushManager, to create the producer and put in context.
-  const result = shared(mainContext, false);
-
-  const settings = mainContext.get(mainContext.constants.SETTINGS);
-  if (settings.streamingEnabled)
-    pushManager = PushManagerFactory(mainContext, contexts);
-
-  // for main client we return a SyncManager with 3 methods: start, stop and shared. The last is used to instantiate "partial SyncManagers".
-  result.shared = shared;
-  return result;
+  // For the main client we return a SyncManager with 3 methods: start, stop and shared. The last is used to instantiate "partial SyncManagers".
+  syncManager.shared = createInstance.bind(null, true);
+  return syncManager;
 }

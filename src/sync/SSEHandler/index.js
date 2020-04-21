@@ -17,15 +17,29 @@ export default function SSEHandlerFactory(
 
     /* HTTP & Network errors */
     handleError(error) {
-      const parsedError = errorParser(error);
-      pushEmitter.emit(SSE_ERROR, parsedError);
+      let errorWithParsedData = error;
+      try {
+        errorWithParsedData = errorParser(error);
+      } catch (err) {
+        log.error(`Error parsing SSE error notification: ${err}`);
+      }
+
+      pushEmitter.emit(SSE_ERROR, errorWithParsedData);
     },
 
     /* NotificationProcessor */
     handleMessage(message) {
-      const { parsedData, channel, timestamp } = messageParser(message);
+      log.info(`New SSE message received, with data: "${message.data}".`);
 
-      log.info(`New push message received, with data: "${message.data}".`);
+      let messageWithParsedData;
+      try {
+        messageWithParsedData = messageParser(message);
+      } catch (err) {
+        log.error(`Error parsing SSE message notification: ${err}`);
+        return;
+      }
+
+      const { parsedData, channel, timestamp } = messageWithParsedData;
 
       // we only handle update events if streaming is up.
       if (!notificationKeeper.isStreamingUp() && parsedData.type !== OCCUPANCY && parsedData.type !== CONTROL)

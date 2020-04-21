@@ -1,7 +1,7 @@
 import PushManagerFactory from './PushManager';
-import { PUSH_DISCONNECT, PUSH_CONNECT } from './constants';
 import FullProducerFactory from '../producer';
 import logFactory from '../utils/logger';
+import { PUSH_DISCONNECT, PUSH_CONNECT } from './constants';
 const log = logFactory('splitio-sync:sync-manager');
 
 /**
@@ -12,7 +12,11 @@ const log = logFactory('splitio-sync:sync-manager');
 export default function NodeSyncManagerFactory(context) {
 
   const producer = FullProducerFactory(context);
+  const settings = context.get(context.constants.SETTINGS);
+
+  // add producer into the context before creating the PushManager
   context.put(context.constants.PRODUCER, producer);
+  const pushManager = settings.streamingEnabled ? PushManagerFactory(context) : undefined;
 
   function startPolling() {
     log.info('PUSH down or disconnected. Starting periodic fetch of data.');
@@ -34,12 +38,6 @@ export default function NodeSyncManagerFactory(context) {
       producer.synchronizeSegment();
     });
   }
-
-  let pushManager;
-
-  const settings = context.get(context.constants.SETTINGS);
-  if (settings.streamingEnabled)
-    pushManager = PushManagerFactory(context);
 
   return {
     start() {

@@ -74,7 +74,9 @@ interface ISettings {
   features: {
     [featureName: string]: string
   },
-  readonly streamingEnabled: boolean
+  readonly streamingEnabled: boolean,
+  readonly authRetryBackoffBase: number,
+  readonly streamingReconnectBackoffBase: number
 }
 /**
  * Log levels.
@@ -129,6 +131,26 @@ interface ISharedSettings {
    * @default undefined
    */
   impressionListener?: SplitIO.IImpressionListener,
+  /**
+   * Enable Server-Sent Event (push mode) for synchronizing splits and segments definitions.
+   * @property {boolean} streamingEnabled
+   * @default false
+   */
+  streamingEnabled?: boolean,
+  /**
+   * Seconds to wait before re attempting to authenticate for push notifications.
+   * Next attempts follow intervals in power of two: base seconds, base x 2 seconds, base x 4 seconds, ...
+   * @property {number} authRetryBackoffBase
+   * @default 1
+   */
+  authRetryBackoffBase?: number,
+  /**
+   * Seconds to wait before re attempting to connect to streaming.
+   * Next attempts follow intervals in power of two: base seconds, base x 2 seconds, base x 4 seconds, ...
+   * @property {number} streamingReconnectBackoffBase
+   * @default 1
+   */
+  streamingReconnectBackoffBase?: number,
 }
 /**
  * Common settings interface for SDK instances on NodeJS.
@@ -277,12 +299,6 @@ interface INodeBasicSettings extends ISharedSettings {
    * @default $HOME/.split
    */
   features?: SplitIO.MockedFeaturesFilePath,
-  /**
-   * Enable Server-Sent Event (push mode) for synchronizing splits and segments definitions.
-   * @property {boolean} streamingEnabled
-   * @default false
-   */
-  streamingEnabled?: boolean,
 }
 /**
  * Common API for entities that expose status handlers.
@@ -836,26 +852,6 @@ declare namespace SplitIO {
      * @property {Object} integrations
      */
     integrations?: BrowserIntegration[],
-    /**
-     * Enable Server-Sent Event (push mode) for synchronizing splits and segments definitions.
-     * @property {boolean} streamingEnabled
-     * @default false
-     */
-    streamingEnabled?: boolean,
-    /**
-     * Seconds to wait before re attempting to authenticate for push notifications.
-     * Next attempts follow intervals in power of two: base seconds, base x 2 seconds, base x 4 seconds, ...
-     * @property {number} authRetryBackoffBase
-     * @default 1
-     */
-    authRetryBackoffBase?: number,
-    /**
-     * Seconds to wait before re attempting to connect to streaming.
-     * Next attempts follow intervals in power of two: base seconds, base x 2 seconds, base x 4 seconds, ...
-     * @property {number} streamingReconnectBackoffBase
-     * @default 1
-     */
-    streamingReconnectBackoffBase?: number,
   }
   /**
    * Settings interface for SDK instances created on NodeJS.
