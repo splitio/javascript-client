@@ -136,7 +136,7 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
 
   /** Functions related to synchronization (Queues and Workers in the spec) */
 
-  const producer = context.get(context.constants.PRODUCER, true);
+  const producer = context.get(context.constants.PRODUCER);
   const splitUpdateWorker = new SplitUpdateWorker(storage.splits, producer);
 
   pushEmitter.on(SPLIT_KILL, splitUpdateWorker.killSplit.bind(splitUpdateWorker));

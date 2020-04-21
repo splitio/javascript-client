@@ -6,6 +6,7 @@ import SignalsListener from '../listeners';
 import { releaseApiKey } from '../utils/inputValidation';
 import { STANDALONE_MODE, PRODUCER_MODE, CONSUMER_MODE } from '../utils/constants';
 
+// map of authorizationKeys to syncManagers, to keep a single instance per factory and needed to create shared clients
 const syncManagers = {};
 
 //
