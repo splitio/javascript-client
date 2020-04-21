@@ -18,15 +18,15 @@ export default function BrowserSyncManagerFactory(mainContext) {
   const contexts = {};
   const settings = mainContext.get(mainContext.constants.SETTINGS);
 
-  // call `shared` before creating PushManager, since it is in charge of creating the full producer and adding it into the main context.
+  // call `createInstance` before creating PushManager, since it is in charge of creating the full producer and adding it into the main context.
   const syncManager = createInstance(false, mainContext);
   const pushManager = settings.streamingEnabled ? PushManagerFactory(mainContext, contexts) : undefined;
 
   function startPolling() {
     log.info('PUSH down or disconnected. Starting periodic fetch of data.');
     forOwn(contexts, function (context) {
-      const producer = context.get(context.constants.PRODUCER, true);
-      if (producer && !producer.isRunning())
+      const producer = context.get(context.constants.PRODUCER);
+      if (!producer.isRunning())
         producer.start(true); // `fetchers` are scheduled but not called immediately
     });
   }
@@ -35,8 +35,8 @@ export default function BrowserSyncManagerFactory(mainContext) {
     log.info('PUSH (re)connected. Syncing and stopping periodic fetch of data.');
     // if polling, stop
     forOwn(contexts, function (context) {
-      const producer = context.get(context.constants.PRODUCER, true);
-      if (producer && producer.isRunning())
+      const producer = context.get(context.constants.PRODUCER);
+      if (producer.isRunning())
         producer.stop();
     });
     syncAll();
@@ -47,8 +47,8 @@ export default function BrowserSyncManagerFactory(mainContext) {
     const mainProducer = mainContext.get(mainContext.constants.PRODUCER, true);
     mainProducer && mainProducer.synchronizeSplits();
     forOwn(contexts, function (context) {
-      const producer = context.get(context.constants.PRODUCER, true);
-      producer && producer.synchronizeMySegments();
+      const producer = context.get(context.constants.PRODUCER);
+      producer.synchronizeMySegments();
     });
   }
 
@@ -98,7 +98,7 @@ export default function BrowserSyncManagerFactory(mainContext) {
             // since it is more costly than continue listening the channel
           }
 
-          if (producer && producer.isRunning())
+          if (producer.isRunning())
             producer.stop();
 
         }
