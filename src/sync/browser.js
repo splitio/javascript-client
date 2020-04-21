@@ -1,10 +1,10 @@
 import PushManagerFactory from './PushManager';
-import { PUSH_DISCONNECT, PUSH_CONNECT } from './constants';
 import FullProducerFactory from '../producer';
 import PartialProducerFactory from '../producer/browser/Partial';
 import { matching } from '../utils/key/factory';
 import { forOwn } from '../utils/lang';
 import logFactory from '../utils/logger';
+import { PUSH_DISCONNECT, PUSH_CONNECT } from './constants';
 const log = logFactory('splitio-sync:sync-manager');
 
 /**

@@ -1,10 +1,10 @@
 import ClientFactory from '../client';
 import MetricsFactory from '../metrics';
 import EventsFactory from '../events';
-import SignalsListener from '../listeners';
-import { STANDALONE_MODE, PRODUCER_MODE, CONSUMER_MODE } from '../utils/constants';
-import { releaseApiKey } from '../utils/inputValidation';
 import SyncManagerFactory from '../sync';
+import SignalsListener from '../listeners';
+import { releaseApiKey } from '../utils/inputValidation';
+import { STANDALONE_MODE, PRODUCER_MODE, CONSUMER_MODE } from '../utils/constants';
 
 const syncManagers = {};
 
