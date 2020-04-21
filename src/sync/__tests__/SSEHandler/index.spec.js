@@ -28,7 +28,12 @@ tape('SSEHandler', t => {
     const errorWithData = { data: '{ "message": "error message"}' };
     sseHandler.handleError(errorWithData);
     assert.true(pushEmitter.emit.calledWithExactly(SSE_ERROR,
-      { ...errorWithData, parsedData: JSON.parse(errorWithData.data) }), 'must emit SSE_ERROR with given error and parsed data');
+      { data: errorWithData.data, parsedData: JSON.parse(errorWithData.data) }), 'must emit SSE_ERROR with given error and parsed data');
+
+    const errorWithBadData = { data: '{"message"error"' };
+    sseHandler.handleError(errorWithBadData);
+    assert.true(pushEmitter.emit.calledWithExactly(SSE_ERROR,
+      { data: errorWithBadData.data }), 'must emit SSE_ERROR with given error and not parsed data if cannot be parsed');
 
     assert.end();
   });
