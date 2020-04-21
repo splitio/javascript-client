@@ -5,6 +5,8 @@ const controlPriMatcher = /control_pri$/;
 export default function notificationKeeperFactory(feedbackLoopEmitter) {
 
   let isStreamingUp;
+  let occupancyTimestamp = -1;
+  let controlTimestamp = -1;
 
   return {
     handleOpen() {
@@ -12,30 +14,35 @@ export default function notificationKeeperFactory(feedbackLoopEmitter) {
       feedbackLoopEmitter.emit(PUSH_CONNECT);
     },
 
-    handleOccupancyEvent(parsedData, channel) {
-      if (controlPriMatcher.test(channel)) {
-        if (parsedData.metrics.publishers === 0 && isStreamingUp) {
+    handleOccupancyEvent(publishers, channel, timestamp) {
+      if (controlPriMatcher.test(channel) && timestamp > occupancyTimestamp) {
+        occupancyTimestamp = timestamp;
+        if (publishers === 0 && isStreamingUp) {
           isStreamingUp = false;
           feedbackLoopEmitter.emit(PUSH_DISCONNECT); // notify(STREAMING_DOWN) in spec
+          return;
         }
-        if (parsedData.metrics.publishers !== 0 && !isStreamingUp) {
+        if (publishers !== 0 && !isStreamingUp) {
           isStreamingUp = true;
           feedbackLoopEmitter.emit(PUSH_CONNECT); // notify(STREAMING_UP) in spec
         }
       }
     },
 
-    handleControlEvent(parsedData, channel) {
-      if (controlPriMatcher.test(channel)) {
-        if (parsedData.controlType === ControlTypes.STREAMING_PAUSED && isStreamingUp) {
+    handleControlEvent(controlType, channel, timestamp) {
+      if (controlPriMatcher.test(channel) && timestamp > controlTimestamp) {
+        controlTimestamp = timestamp;
+        if (controlType === ControlTypes.STREAMING_PAUSED && isStreamingUp) {
           isStreamingUp = false;
           feedbackLoopEmitter.emit(PUSH_DISCONNECT); // notify(STREAMING_DOWN) in spec
+          return;
         }
-        if (parsedData.controlType === ControlTypes.STREAMING_RESUMED && !isStreamingUp) {
+        if (controlType === ControlTypes.STREAMING_RESUMED && !isStreamingUp) {
           isStreamingUp = true;
           feedbackLoopEmitter.emit(PUSH_CONNECT); // notify(STREAMING_UP) in spec
+          return;
         }
-        if (parsedData.controlType === ControlTypes.STREAMING_DISABLED) {
+        if (controlType === ControlTypes.STREAMING_DISABLED) {
           isStreamingUp = false;
           feedbackLoopEmitter.emit(PUSH_DISABLED);
         }
