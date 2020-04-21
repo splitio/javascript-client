@@ -19,7 +19,7 @@ export default function BrowserSyncManagerFactory(mainContext) {
   const settings = mainContext.get(mainContext.constants.SETTINGS);
 
   // call `shared` before creating PushManager, since it is in charge of creating the full producer and adding it into the main context.
-  const mainSyncManager = shared(mainContext, false);
+  const syncManager = createInstance(false, mainContext);
   const pushManager = settings.streamingEnabled ? PushManagerFactory(mainContext, contexts) : undefined;
 
   function startPolling() {
@@ -53,13 +53,13 @@ export default function BrowserSyncManagerFactory(mainContext) {
   }
 
   /**
-   * Handles the synchronization of clients (main and shared ones).
+   * Creates a SyncManager that handles the synchronization of clients (main and shared ones).
    * Internally, it creates the client producer, adds it into its context, and defines the `start` and `stop` methods that handle synchronization.
    *
    * @param {Object} context
    * @param {boolean} isSharedClient
    */
-  function shared(context, isSharedClient = true) {
+  function createInstance(isSharedClient, context) {
     const producer = isSharedClient ? PartialProducerFactory(context) : FullProducerFactory(context);
     const settings = context.get(context.constants.SETTINGS);
     const userKey = matching(settings.core.key);
@@ -106,7 +106,7 @@ export default function BrowserSyncManagerFactory(mainContext) {
     };
   }
 
-  // for main client we return a SyncManager with 3 methods: start, stop and shared. The last is used to instantiate "partial SyncManagers".
-  mainSyncManager.shared = shared;
-  return mainSyncManager;
+  // For the main client we return a SyncManager with 3 methods: start, stop and shared. The last is used to instantiate "partial SyncManagers".
+  syncManager.shared = createInstance.bind(null, true);
+  return syncManager;
 }
