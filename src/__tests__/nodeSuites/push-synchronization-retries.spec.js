@@ -50,11 +50,11 @@ const MILLIS_DESTROY = 700;
  *  0.2 secs: SPLIT_UPDATE event -> /splitChanges: network error and then success -> SDK_UPDATE triggered
  *  0.3 secs: SPLIT_UPDATE event with old changeNumber -> SDK_UPDATE not triggered
  *  0.4 secs: SEGMENT_UPDATE event -> /segmentChanges/*: bad response and then success -> SDK_UPDATE triggered
- *  0.5 secs: SPLIT_KILL event -> /splitChanges: bad response and network error -> SDK_UPDATE not triggered although cache is updated (killLocally) @TODO review if we should trigger SDK_UPDATE anyway
+ *  0.5 secs: SPLIT_KILL event -> /splitChanges: bad response and network error -> SDK_UPDATE triggered although fetches fail
  *  0.6 secs: SEGMENT_UPDATE event -> /segmentChanges/*: bad response and then fail -> SDK_UPDATE not triggered
  */
 export function testSynchronizationRetries(mock, assert) {
-  assert.plan(16);
+  assert.plan(18);
   mock.reset();
   __setEventSource(EventSourceMock);
 
@@ -91,7 +91,12 @@ export function testSynchronizationRetries(mock, assert) {
     setTimeout(() => {
       assert.equal(client.getTreatment(key, 'whitelist'), 'allowed', 'evaluation with not killed Split');
       client.once(client.Event.SDK_UPDATE, () => {
-        assert.fail('SDK_UPDATE event must not be triggered due to fetch failures');
+        const lapse = Date.now() - start;
+        assert.true(nearlyEqual(lapse, MILLIS_SPLIT_KILL_EVENT), 'SDK_UPDATE due to SPLIT_KILL event');
+        assert.equal(client.getTreatment(key, 'whitelist'), 'not_allowed', 'evaluation with killed Split. SDK_UPDATE event must be triggered only once due to SPLIT_KILL, even if fetches fail.');
+        client.once(client.Event.SDK_UPDATE, () => {
+          assert.fail('SDK_UPDATE event must not be triggered again');
+        });
       });
       eventSourceInstance.emitMessage(splitKillMessage);
     }, MILLIS_SPLIT_KILL_EVENT); // send a SPLIT_KILL event with a new changeNumber after 0.5 seconds
@@ -164,7 +169,7 @@ export function testSynchronizationRetries(mock, assert) {
     assert.equal(client.getTreatment(key, 'whitelist'), 'not_allowed', 'evaluation with split killed immediately, before fetch is done');
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_SPLIT_KILL_EVENT), 'sync due to SPLIT_KILL event');
-    return [200, splitChangesMock3]; // returning old state
+    return [200, { since: 1457552631000, till: 1457552631000, splits: [] }]; // returning old state
   });
   // fetch retry for SPLIT_KILL event, due to previous unexpected response (response till minor than SPLIT_KILL changeNumber)
   mock.onGet(settings.url('/splitChanges?since=1457552631000')).networkErrorOnce();

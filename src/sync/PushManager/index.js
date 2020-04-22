@@ -25,6 +25,7 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
 
   const pushEmitter = new EventEmitter();
 
+  const { splits: splitsEventEmitter } = context.get(context.constants.READINESS);
   const settings = context.get(context.constants.SETTINGS);
   const storage = context.get(context.constants.STORAGE);
   const sseClient = SSEClient.getInstance(settings);
@@ -137,7 +138,7 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
   /** Functions related to synchronization (Queues and Workers in the spec) */
 
   const producer = context.get(context.constants.PRODUCER);
-  const splitUpdateWorker = new SplitUpdateWorker(storage.splits, producer);
+  const splitUpdateWorker = new SplitUpdateWorker(storage.splits, producer, splitsEventEmitter);
 
   pushEmitter.on(SPLIT_KILL, splitUpdateWorker.killSplit.bind(splitUpdateWorker));
   pushEmitter.on(SPLIT_UPDATE, splitUpdateWorker.put.bind(splitUpdateWorker));

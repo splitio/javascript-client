@@ -41,9 +41,9 @@ const FullBrowserProducer = (context) => {
   let isSynchronizingSplits = false;
   let isSynchronizingMySegments = false;
 
-  function synchronizeSplits() {
+  function synchronizeSplits(isSplitKill) {
     isSynchronizingSplits = true;
-    return splitsUpdater().finally(function () {
+    return splitsUpdater(0, isSplitKill).finally(function () {
       isSynchronizingSplits = false;
     });
   }

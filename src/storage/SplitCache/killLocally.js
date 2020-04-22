@@ -8,7 +8,9 @@ import thenable from '../../utils/promise/thenable';
  * @param {string} splitName
  * @param {string} defaultTreatment
  * @param {number} changeNumber
- * @returns {Promise}
+ * @returns {Promise} a promise that is resolved once the split kill is performed.
+ * The fulfillment value is a boolean: `true` if the kill success or `false` otherwise, for instance,
+ * if the `changeNumber` is old, if the `splitName` is not found, or if the storage fails to apply the update.
  */
 export default function killLocally(splitName, defaultTreatment, changeNumber) {
   const split = this.getSplit(splitName);
@@ -26,5 +28,6 @@ export default function killLocally(splitName, defaultTreatment, changeNumber) {
         return this.addSplit(splitName, newSplit);
       }
     }
+    return false;
   });
 }

@@ -56,7 +56,7 @@ function SplitChangesUpdaterFactory(context, isNode = false) {
   let startingUp = true;
   let readyOnAlreadyExistentState = true;
 
-  return async function SplitChangesUpdater(retry = 0) {
+  return async function SplitChangesUpdater(retry = 0, isSplitKill = false) {
     const since = await storage.splits.getChangeNumber();
 
     log.debug(`Spin up split update using since = ${since}`);
@@ -80,7 +80,7 @@ function SplitChangesUpdaterFactory(context, isNode = false) {
         ]).then(() => {
           if (since !== splitChanges.till || readyOnAlreadyExistentState) {
             readyOnAlreadyExistentState = false;
-            splitsEventEmitter.emit(splitsEventEmitter.SDK_SPLITS_ARRIVED);
+            splitsEventEmitter.emit(splitsEventEmitter.SDK_SPLITS_ARRIVED, isSplitKill);
           }
         });
       })
@@ -95,7 +95,7 @@ function SplitChangesUpdaterFactory(context, isNode = false) {
         if (startingUp && settings.startup.retriesOnFailureBeforeReady > retry) {
           retry += 1;
           log.info(`Retrying download of splits #${retry}. Reason: ${error}`);
-          return SplitChangesUpdater(retry);
+          return SplitChangesUpdater(retry, isSplitKill);
         } else {
           startingUp = false;
         }
