@@ -50,7 +50,7 @@ deploy:
     acl: public_read
     cache_control: "max-age=31536000, public"
     on:
-      branch: development
+      branch: push_sdk_update_on_split_kill
   - provider: s3
     access_key_id: ${AWS_ACCESS_KEY_ID_PROD}
     secret_access_key: ${AWS_SECRET_ACCESS_PROD}
