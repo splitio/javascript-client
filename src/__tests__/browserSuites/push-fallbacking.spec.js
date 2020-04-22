@@ -158,7 +158,7 @@ export function testFallbacking(mock, assert) {
 
     setTimeout(() => {
       client.destroy().then(() => {
-        assert.pass();
+        assert.pass('client destroyed');
       });
     }, MILLIS_DESTROY); // destroy client after 0.6 seconds
   });

@@ -1,3 +1,5 @@
+import Backoff from '../../utils/backoff';
+
 /**
  * SplitUpdateWorker class
  */
@@ -6,6 +8,7 @@ export default class SplitUpdateWorker {
   /**
    * @param {Object} splitStorage splits cache
    * @param {Object} splitProducer node producer or full browser producer
+   * @param {Object} splitsEventEmitter
    */
   constructor(splitStorage, splitProducer, splitsEventEmitter) {
     this.splitStorage = splitStorage;
@@ -13,22 +16,21 @@ export default class SplitUpdateWorker {
     this.maxChangeNumber = 0;
     this.isSplitKill = false;
     this.splitsEventEmitter = splitsEventEmitter;
+    this.backoff = new Backoff(this.__handleSplitUpdateCall.bind(this));
   }
 
   // Private method
   // Preconditions: this.splitProducer.isSynchronizingSplits === false
   __handleSplitUpdateCall() {
-    // `attempts` is used as an extra stop condition for `__handleSplitUpdateCall` recursion,
-    // to limit at 2 the maximum number of fetches per update event in case `/splitChanges`
-    // requests are failing due to some network or server issue.
-    if (this.maxChangeNumber > this.splitStorage.getChangeNumber() && this.attempts <= 1) {
-      this.attempts++;
+    if (this.maxChangeNumber > this.splitStorage.getChangeNumber()) {
+      this.newEvent = false;
       this.splitProducer.synchronizeSplits(this.isSplitKill).then(() => {
-        this.__handleSplitUpdateCall();
+        if (this.newEvent) {
+          this.__handleSplitUpdateCall();
+        } else {
+          this.backoff.scheduleCall();
+        }
       });
-    } else {
-      this.maxChangeNumber = 0;
-      this.isSplitKill = false;
     }
   }
 
@@ -44,7 +46,8 @@ export default class SplitUpdateWorker {
     if (changeNumber <= currentChangeNumber || changeNumber <= this.maxChangeNumber) return;
 
     this.maxChangeNumber = changeNumber;
-    this.attempts = 0;
+    this.newEvent = true;
+    this.backoff.reset();
     this.isSplitKill = isSplitKill;
 
     if (this.splitProducer.isSynchronizingSplits()) return;
