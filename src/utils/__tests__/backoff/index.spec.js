@@ -7,6 +7,7 @@ tape('Backoff', assert => {
   let start = Date.now();
   let backoff;
 
+  let alreadyReset = false;
   const callback = () => {
     const delta = Date.now() - start;
     start += delta;
@@ -18,7 +19,15 @@ tape('Backoff', assert => {
     } else {
       backoff.reset();
       assert.equal(backoff.attempts, 0, 'restarts attempts when `reset` called');
-      assert.end();
+      assert.equal(backoff.timeoutID, 0, 'restarts timeoutId when `reset` called');
+
+      // init the schedule cycle or finish the test
+      if(alreadyReset) {
+        assert.end();
+      } else {
+        alreadyReset = true;
+        backoff.scheduleCall();
+      }
     }
   };
 

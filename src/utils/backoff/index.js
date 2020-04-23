@@ -32,7 +32,10 @@ class Backoff {
 
   reset() {
     this.attempts = 0;
-    if (this.timeoutID) clearTimeout(this.timeoutID);
+    if (this.timeoutID) {
+      clearTimeout(this.timeoutID);
+      this.timeoutID = 0;
+    }
   }
 
 }
