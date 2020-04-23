@@ -48,7 +48,7 @@ tape('SSClient', t => {
     instance.setEventHandler(handler);
 
     // error on first open without authToken
-    assert.throws(instance.reopen.bind(instance), 'throw error if reopen is invoked without a previous open call');
+    assert.throws(instance.reopen, 'throw error if reopen is invoked without a previous open call');
 
     // open connection
     instance.open(authDataSample);

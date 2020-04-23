@@ -40,7 +40,7 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
   /** PushManager functions related to initialization */
 
   const reauthBackoff = new Backoff(connectPush, settings.authRetryBackoffBase);
-  const sseReconnectBackoff = new Backoff(sseClient.reopen.bind(sseClient), settings.streamingReconnectBackoffBase);
+  const sseReconnectBackoff = new Backoff(sseClient.reopen, settings.streamingReconnectBackoffBase);
 
   let timeoutId = 0;
 
@@ -141,8 +141,8 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
   const producer = context.get(context.constants.PRODUCER);
   const splitUpdateWorker = new SplitUpdateWorker(storage.splits, producer);
 
-  pushEmitter.on(SPLIT_KILL, splitUpdateWorker.killSplit.bind(splitUpdateWorker));
-  pushEmitter.on(SPLIT_UPDATE, splitUpdateWorker.put.bind(splitUpdateWorker));
+  pushEmitter.on(SPLIT_KILL, splitUpdateWorker.killSplit);
+  pushEmitter.on(SPLIT_UPDATE, splitUpdateWorker.put);
 
   if (clientContexts) { // browser
     pushEmitter.on(MY_SEGMENTS_UPDATE, function handleMySegmentsUpdate(parsedData, channel) {
@@ -157,7 +157,7 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
     });
   } else { // node
     const segmentUpdateWorker = new SegmentUpdateWorker(storage.segments, producer);
-    pushEmitter.on(SEGMENT_UPDATE, segmentUpdateWorker.put.bind(segmentUpdateWorker));
+    pushEmitter.on(SEGMENT_UPDATE, segmentUpdateWorker.put);
   }
 
   return Object.assign(
