@@ -16,7 +16,10 @@ export default class SplitUpdateWorker {
     this.maxChangeNumber = 0;
     this.isSplitKill = false;
     this.splitsEventEmitter = splitsEventEmitter;
-    this.backoff = new Backoff(this.__handleSplitUpdateCall.bind(this));
+    this.put = this.put.bind(this);
+    this.killSplit = this.killSplit.bind(this);
+    this.__handleSplitUpdateCall = this.__handleSplitUpdateCall.bind(this);
+    this.backoff = new Backoff(this.__handleSplitUpdateCall);
   }
 
   // Private method

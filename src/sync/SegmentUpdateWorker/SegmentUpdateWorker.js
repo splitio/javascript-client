@@ -13,7 +13,9 @@ export default class SegmentUpdateWorker {
     this.segmentsStorage = segmentsStorage;
     this.segmentsProducer = segmentsProducer;
     this.maxChangeNumbers = {};
-    this.backoff = new Backoff(this.__handleSegmentUpdateCall.bind(this));
+    this.put = this.put.bind(this);
+    this.__handleSegmentUpdateCall = this.__handleSegmentUpdateCall.bind(this);
+    this.backoff = new Backoff(this.__handleSegmentUpdateCall);
   }
 
   // Private method
