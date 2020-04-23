@@ -1,15 +1,18 @@
-import SSEClient from '../SSEClient';
+import EventEmitter from 'events';
+
 import authenticate from '../AuthClient';
-import SSEHandlerFactory from '../SSEHandler';
-import logFactory from '../../utils/logger';
-const log = logFactory('splitio-sync:push-manager');
-import SplitUpdateWorker from '../SplitUpdateWorker';
+import { checkPushRequirements } from './pushRequirements';
 import SegmentUpdateWorker from '../SegmentUpdateWorker';
-import checkPushSupport from './checkPushSupport';
+import SplitUpdateWorker from '../SplitUpdateWorker';
+import SSEClient from '../SSEClient';
+import SSEHandlerFactory from '../SSEHandler';
+
 import Backoff from '../../utils/backoff';
 import { hashUserKey } from '../../utils/jwt/hashUserKey';
-import EventEmitter from 'events';
+import logFactory from '../../utils/logger';
 import { SECONDS_BEFORE_EXPIRATION, PUSH_DISCONNECT, PUSH_DISABLED, SSE_ERROR, SPLIT_KILL, SPLIT_UPDATE, SEGMENT_UPDATE, MY_SEGMENTS_UPDATE } from '../constants';
+
+const log = logFactory('splitio-sync:push-manager');
 
 /**
  * Factory of the push mode manager.
@@ -20,11 +23,9 @@ import { SECONDS_BEFORE_EXPIRATION, PUSH_DISCONNECT, PUSH_DISABLED, SSE_ERROR, S
 export default function PushManagerFactory(context, clientContexts /* undefined for node */) {
 
   // No return a PushManager if PUSH mode is not supported.
-  if (!checkPushSupport(log))
-    return;
+  if (!checkPushRequirements(log)) return;
 
   const pushEmitter = new EventEmitter();
-
   const settings = context.get(context.constants.SETTINGS);
   const storage = context.get(context.constants.STORAGE);
   const sseClient = SSEClient.getInstance(settings);
@@ -71,9 +72,7 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
         }
 
         // don't open SSE connection if a new shared client was added, since it means that a new authentication is taking place
-        if (userKeys && userKeys.length < Object.keys(clientContexts).length) {
-          return;
-        }
+        if (userKeys && userKeys.length < Object.keys(clientContexts).length) return;
 
         // Connect to SSE and schedule refresh token
         const decodedToken = authData.decodedToken;
@@ -124,9 +123,12 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
     sseClient.close();
 
     // retries are handled via backoff algorithm
-    let delayInMillis = (error.parsedData && (error.parsedData.statusCode === 400 || error.parsedData.statusCode === 401)) ?
-      reauthBackoff.scheduleCall() : // reauthenticate in case of token expired (when somehow refresh token was not properly executed) or invalid
-      sseReconnectBackoff.scheduleCall(); // reconnect SSE for any other SSE error
+    let delayInMillis;
+    if (error.parsedData && (error.parsedData.statusCode === 400 || error.parsedData.statusCode === 401)) {
+      delayInMillis = reauthBackoff.scheduleCall(); // reauthenticate in case of token invalid or expired (when somehow refresh token was not properly executed)
+    } else {
+      delayInMillis = sseReconnectBackoff.scheduleCall(); // reconnect SSE for any other network or HTTP error
+    }
 
     const errorMessage = error.parsedData && error.parsedData.message;
     log.error(`Fail to connect to streaming${errorMessage ? `, with error message: "${errorMessage}"` : ''}. Attempting to reconnect in ${delayInMillis / 1000} seconds.`);
@@ -162,9 +164,7 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
     // Expose Event Emitter functionality and Event constants
     Object.create(pushEmitter),
     {
-
       // Expose functionality for starting and stoping push mode:
-
       stop: disconnectPush,
 
       // used in node
@@ -173,23 +173,24 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
       // used in browser
       startNewClient(userKey, context) {
         const hash = hashUserKey(userKey);
+        const storage = context.get(context.constants.STORAGE);
+        const producer = context.get(context.constants.PRODUCER);
+
         if (!userKeyHashes[hash]) {
           userKeyHashes[hash] = userKey;
           connectForNewClient = true; // we must reconnect on start, to listen the channel for the new user key
         }
-        const storage = context.get(context.constants.STORAGE);
-        const producer = context.get(context.constants.PRODUCER);
         context.put(context.constants.MY_SEGMENTS_CHANGE_WORKER, new SegmentUpdateWorker(storage.segments, producer));
 
         // Reconnects in case of a new client.
         // Run in next event-loop cycle to save authentication calls
         // in case the user is creating several clients in the current cycle.
-        setTimeout(function start() {
+        setTimeout(function checkForReconnect() {
           if (connectForNewClient) {
             connectForNewClient = false;
             connectPush();
           }
-        });
+        }, 0);
 
       },
       removeClient(userKey) {

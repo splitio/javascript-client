@@ -6,14 +6,14 @@ import getEventSource from '../../../services/getEventSource/browser';
  *
  * @return {boolean} if push is supported
  */
-export default function checkPushSupport(logger) {
+export function checkPushRequirements(logger) {
   const esReference = getEventSource();
   if (!esReference) {
-    logger.warn('EventSource API is not available. Fallback to polling mode');
+    logger.warn('EventSource API is not available. Falling back to polling mode.');
     return false;
   }
   if (typeof atob !== 'function' || typeof btoa !== 'function') {
-    logger.warn('"atob" and "btoa" functions for Base64 encoding are not available. Fallback to polling mode');
+    logger.warn('"atob" and "btoa" functions for Base64 encoding are not available. Falling back to polling mode.');
     return false;
   }
   return true;
