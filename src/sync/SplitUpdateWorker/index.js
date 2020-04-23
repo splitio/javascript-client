@@ -13,6 +13,8 @@ export default class SplitUpdateWorker {
     this.maxChangeNumber = 0;
     this.isSplitKill = false;
     this.splitsEventEmitter = splitsEventEmitter;
+    this.put = this.put.bind(this);
+    this.killSplit = this.killSplit.bind(this);
   }
 
   // Private method
