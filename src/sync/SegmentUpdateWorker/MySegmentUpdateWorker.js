@@ -13,7 +13,8 @@ export default class MySegmentUpdateWorker {
     this.mySegmentsProducer = mySegmentsProducer;
     this.maxChangeNumber = 0; // keeps the maximum changeNumber among queued events
     this.segmentList = undefined; // keeps the segmentList (if included in payload) from the queued event with maximum changeNumber
-    this.currentChangeNumber = -1; // @TODO: remove this property once `/mySegments` endpoint provides the changeNumber, and use `attemps` number instead as in `Split|SegmentUpdateWorker`.
+    this.currentChangeNumber = -1; // @TODO: remove once `/mySegments` endpoint provides the changeNumber
+    this.put = this.put.bind(this);
   }
 
   // Private method

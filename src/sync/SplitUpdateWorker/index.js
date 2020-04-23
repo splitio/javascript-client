@@ -11,6 +11,8 @@ export default class SplitUpdateWorker {
     this.splitStorage = splitStorage;
     this.splitProducer = splitProducer;
     this.maxChangeNumber = 0;
+    this.put = this.put.bind(this);
+    this.killSplit = this.killSplit.bind(this);
   }
 
   // Private method
