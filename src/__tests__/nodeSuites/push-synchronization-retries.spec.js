@@ -73,17 +73,19 @@ export function testSynchronizationRetries(mock, assert) {
   const ORIGINAL_DEFAULT_BASE_MILLIS = Backoff.DEFAULT_BASE_MILLIS;
   Backoff.DEFAULT_BASE_MILLIS = 100;
 
-  assert.plan(18);
+  assert.plan(19);
   mock.reset();
   __setEventSource(EventSourceMock);
 
-  const start = Date.now();
+  let start;
 
   const splitio = SplitFactory(config);
   const client = splitio.client();
 
   // mock SSE open and message events
   setMockListener(function (eventSourceInstance) {
+    start = Date.now();
+
     const expectedSSEurl = `${settings.url('/sse')}?channels=NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_segments,NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_splits,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_pri,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_sec&accessToken=${authPushEnabled.token}&v=1.1&heartbeats=true`;
     assert.equals(eventSourceInstance.url, expectedSSEurl, 'EventSource URL is the expected');
 
@@ -133,11 +135,7 @@ export function testSynchronizationRetries(mock, assert) {
   });
 
   // initial split and segment sync
-  mock.onGet(settings.url('/splitChanges?since=-1')).replyOnce(function () {
-    const lapse = Date.now() - start;
-    assert.true(nearlyEqual(lapse, 0), 'initial sync');
-    return [200, splitChangesMock1];
-  });
+  mock.onGet(settings.url('/splitChanges?since=-1')).replyOnce(200, splitChangesMock1);
   mock.onGet(settings.url('/segmentChanges/splitters?since=-1')).replyOnce(
     200, { since: -1, till: 1457552620999, name: 'splitters', added: [key], removed: [] }
   );
