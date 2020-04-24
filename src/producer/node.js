@@ -35,9 +35,9 @@ const NodeUpdater = (context) => {
   let isSynchronizingSplits = false;
   let isSynchronizingSegments = false;
 
-  function synchronizeSplits(isSplitKill) {
+  function synchronizeSplits() {
     isSynchronizingSplits = true;
-    return splitsUpdater(0, isSplitKill).then(function () {
+    return splitsUpdater().then(function () {
       // Mark splits as ready (track first successfull call to start downloading segments)
       splitFetchCompleted = true;
     }).finally(function () {

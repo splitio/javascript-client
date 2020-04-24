@@ -10,10 +10,9 @@ const Events = {
   SDK_READY_TIMED_OUT: 'init::timeout',
   SDK_READY: 'init::ready',
   SDK_READY_FROM_CACHE: 'init::cache-ready',
-  SDK_SEGMENTS_ARRIVED: 'state::segments-arrived',
   SDK_SPLITS_ARRIVED: 'state::splits-arrived',
+  SDK_SEGMENTS_ARRIVED: 'state::segments-arrived',
   SDK_SPLITS_CACHE_LOADED: 'state::splits-cache-loaded',
-  SDK_SPLITS_KILL: 'state::splits-kill',
   SDK_UPDATE: 'state::update',
   READINESS_GATE_CHECK_STATE: 'state::check'
 };
@@ -28,7 +27,6 @@ function GateContext() {
   const splits = new EventEmitter();
   splits.SDK_SPLITS_CACHE_LOADED = Events.SDK_SPLITS_CACHE_LOADED;
   splits.SDK_SPLITS_ARRIVED = Events.SDK_SPLITS_ARRIVED;
-  splits.SDK_SPLITS_KILL = Events.SDK_SPLITS_KILL;
 
   // references counter: how many
   let refCount = 0;
@@ -48,19 +46,13 @@ function GateContext() {
     });
 
     splits.on(Events.SDK_SPLITS_ARRIVED, (isSplitKill) => {
-      if(isSplitKill) return;
-      splitsStatus = SPLITS_READY;
+      if(!isSplitKill) splitsStatus = SPLITS_READY;
       gate.emit(Events.READINESS_GATE_CHECK_STATE);
     });
 
     splits.once(Events.SDK_SPLITS_CACHE_LOADED, () => {
       // Make it async
       setTimeout(() => gate.emit(Events.SDK_READY_FROM_CACHE), 0);
-    });
-
-    splits.on(Events.SDK_SPLITS_KILL, () => {
-      // Make it async
-      setTimeout(() => gate.emit(Events.SDK_UPDATE), 0);
     });
 
     segments.on(Events.SDK_SEGMENTS_ARRIVED, () => {
