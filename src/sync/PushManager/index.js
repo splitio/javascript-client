@@ -66,7 +66,8 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
 
         // emit PUSH_DISCONNECT if org is not whitelisted
         if (!authData.pushEnabled) {
-          log.error('Streaming is not enabled for the organization. Switching to polling mode.');
+          // @TODO review log messages before releasing
+          log.info('Streaming is not available. Switching to polling mode.');
           pushEmitter.emit(PUSH_DISCONNECT); // there is no need to close sseClient (it is not open on this scenario)
           return;
         }
@@ -85,15 +86,13 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
         sseClient.close(); // no harm if already disconnected
         pushEmitter.emit(PUSH_DISCONNECT); // no harm if `PUSH_DISCONNECT` was already notified
 
-        if (error.statusCode) {
-          switch (error.statusCode) {
-            case 401: // invalid api key
-              log.error(`Fail to authenticate for push notifications, with error message: "${error.message}".`);
-              return;
-          }
+        // Handle HTTP error for invalid API Key
+        if (error.statusCode === 401) {
+          log.error(`Fail to authenticate for push notifications, with error message: "${error.message}".`);
+          return;
         }
 
-        // Branch for other HTTP and network errors
+        // Handle other HTTP and network errors
         const delayInMillis = reauthBackoff.scheduleCall();
         log.error(`Fail to authenticate for push notifications, with error message: "${error.message}". Attempting to reauthenticate in ${delayInMillis / 1000} seconds.`);
       }
@@ -101,6 +100,7 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
   }
 
   function disconnectPush() {
+    log.info('Disconnecting from push streaming.');
     sseClient.close();
 
     // cancel timeouts if previously established

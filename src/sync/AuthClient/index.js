@@ -15,11 +15,12 @@ export default function authenticate(settings, userKeys) {
   return authPromise
     .then(resp => resp.data)
     .then(json => {
-      if (json.token) // empty token when `"pushEnabled": false`
+      if (json.token) { // empty token when `"pushEnabled": false`
         return {
           ...json,
-          decodedToken: decodeJWTtoken(json.token),
+          decodedToken: decodeJWTtoken(json.token)
         };
+      }
       return json;
     });
 }
