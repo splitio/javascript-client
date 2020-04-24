@@ -7,5 +7,6 @@ const DEFAULT_ERROR_MARGIN = 50; // 0.05 secs
  * @param {number} epsilon
  */
 export function nearlyEqual(actual, expected, epsilon = DEFAULT_ERROR_MARGIN) {
-  return actual >= expected - epsilon && actual <= expected + epsilon;
+  const diff = Math.abs(actual - expected);
+  return diff <= epsilon;
 }

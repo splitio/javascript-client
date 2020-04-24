@@ -20,11 +20,7 @@ export default class SegmentUpdateWorker {
     const segmentsToFetch = Object.keys(this.maxChangeNumbers).filter((segmentName) => {
       return this.maxChangeNumbers[segmentName] > this.segmentsStorage.getChangeNumber(segmentName);
     });
-    // `attempts` is used as an extra stop condition for `__handleSegmentUpdateCall` recursion,
-    // to limit at 2 the maximum number of fetches per update event in case `/segmentChanges`
-    // requests are failing due to some network or server issue.
-    if (segmentsToFetch.length > 0 && this.attempts <= 1) {
-      this.attempts++;
+    if (segmentsToFetch.length > 0) {
       this.segmentsProducer.synchronizeSegment(segmentsToFetch).then(() => {
         this.__handleSegmentUpdateCall();
       });
@@ -45,7 +41,6 @@ export default class SegmentUpdateWorker {
     if (changeNumber <= currentChangeNumber || changeNumber <= this.maxChangeNumbers[segmentName]) return;
 
     this.maxChangeNumbers[segmentName] = changeNumber;
-    this.attempts = 0;
 
     if (this.segmentsProducer.isSynchronizingSegments()) return;
 

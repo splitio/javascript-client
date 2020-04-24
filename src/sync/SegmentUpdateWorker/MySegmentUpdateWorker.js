@@ -21,15 +21,10 @@ export default class MySegmentUpdateWorker {
   // Preconditions: this.mySegmentsProducer.isSynchronizingMySegments === false
   // @TODO update this block similar to SplitUpdateWorker, once `/mySegments` endpoint provides the changeNumber
   __handleMySegmentUpdateCall() {
-    // `attempts` is used as an extra stop condition for `__handleSegmentUpdateCall` recursion,
-    // to limit at 2 the maximum number of fetches per update event in case `/segmentChanges`
-    // requests are failing due to some network or server issue.
-    if (this.maxChangeNumber > this.currentChangeNumber && this.attempts <= 1) {
-      this.attempts++;
+    if (this.maxChangeNumber > this.currentChangeNumber) {
       const currentMaxChangeNumber = this.maxChangeNumber;
-      this.mySegmentsProducer.synchronizeMySegments(this.segmentList).then((result) => {
-        if(result !== false) // @TODO remove when revamping producers. Currently `MySegmentsUpdater` is resolved with a "false" value if the fetch fails.
-          this.currentChangeNumber = Math.max(this.currentChangeNumber, currentMaxChangeNumber); // use `currentMaxChangeNumber`, in case that `this.maxChangeNumber` was updated during fetch.
+      this.mySegmentsProducer.synchronizeMySegments(this.segmentList).then(() => {
+        this.currentChangeNumber = Math.max(this.currentChangeNumber, currentMaxChangeNumber); // use `currentMaxChangeNumber`, in case that `this.maxChangeNumber` was updated during fetch.
         this.__handleMySegmentUpdateCall();
       });
     } else {
@@ -51,7 +46,6 @@ export default class MySegmentUpdateWorker {
     if (changeNumber <= this.currentChangeNumber || changeNumber <= this.maxChangeNumber) return;
 
     this.maxChangeNumber = changeNumber;
-    this.attempts = 0;
     this.segmentList = segmentList;
 
     if (this.mySegmentsProducer.isSynchronizingMySegments()) return;
