@@ -73,7 +73,10 @@ interface ISettings {
   readonly version: string,
   features: {
     [featureName: string]: string
-  }
+  },
+  readonly streamingEnabled: boolean,
+  readonly authRetryBackoffBase: number,
+  readonly streamingReconnectBackoffBase: number
 }
 /**
  * Log levels.
@@ -128,6 +131,26 @@ interface ISharedSettings {
    * @default undefined
    */
   impressionListener?: SplitIO.IImpressionListener,
+  /**
+   * Enable Server-Sent Event (push mode) for synchronizing splits and segments definitions.
+   * @property {boolean} streamingEnabled
+   * @default false
+   */
+  streamingEnabled?: boolean,
+  /**
+   * Seconds to wait before re attempting to authenticate for push notifications.
+   * Next attempts follow intervals in power of two: base seconds, base x 2 seconds, base x 4 seconds, ...
+   * @property {number} authRetryBackoffBase
+   * @default 1
+   */
+  authRetryBackoffBase?: number,
+  /**
+   * Seconds to wait before re attempting to connect to streaming.
+   * Next attempts follow intervals in power of two: base seconds, base x 2 seconds, base x 4 seconds, ...
+   * @property {number} streamingReconnectBackoffBase
+   * @default 1
+   */
+  streamingReconnectBackoffBase?: number,
 }
 /**
  * Common settings interface for SDK instances on NodeJS.
@@ -275,7 +298,7 @@ interface INodeBasicSettings extends ISharedSettings {
    * @property {MockedFeaturesFilePath} features
    * @default $HOME/.split
    */
-  features?: SplitIO.MockedFeaturesFilePath
+  features?: SplitIO.MockedFeaturesFilePath,
 }
 /**
  * Common API for entities that expose status handlers.
@@ -543,10 +566,20 @@ declare namespace SplitIO {
   interface IImpressionListener {
     logImpression(data: SplitIO.ImpressionData): void
   }
+  /**
+   * A pair of user `key` and its `trafficType`, required for tracking valid Split events.
+   * @typedef {Object} Identity
+   * @property {string} key The user key.
+   * @property {string} trafficType The key traffic type.
+   */
   type Identity = {
     key: string;
     trafficType: string;
   };
+  /**
+   * Object with information about a Split event.
+   * @typedef {Object} EventData
+   */
   type EventData = {
     eventTypeId: string;
     value?: number;
@@ -601,6 +634,12 @@ declare namespace SplitIO {
      */
     identities?: Identity[],
   }
+  /**
+   * Object representing the data sent to Split (events and impressions).
+   * @typedef {Object} IntegrationData
+   * @property {string} type The type of Split data, either 'IMPRESSION' or 'EVENT'.
+   * @property {ImpressionData | EventData} payload The data instance itself.
+   */
   type IntegrationData = { type: 'IMPRESSION', payload: SplitIO.ImpressionData } | { type: 'EVENT', payload: SplitIO.EventData };
   /**
    * Enable 'Split to Google Analytics' integration, to track Split impressions and events as Google Analytics hits.
@@ -645,7 +684,7 @@ declare namespace SplitIO {
      *    hitType: 'event',
      *    eventCategory: 'split-impression',
      *    eventAction: 'Evaluate ' + data.payload.impression.feature,
-     *    eventLabel: 'Treatment ' + data.payload.impression.treatment + ' Label ' + data.payload.impression.label,
+     *    eventLabel: 'Treatment: ' + data.payload.impression.treatment + '. Targeting rule: ' + data.payload.impression.label + '.',
      *    nonInteraction: true,
      *  }`
      * Default FieldsObject instance for data.type === 'EVENT':
@@ -664,6 +703,9 @@ declare namespace SplitIO {
      */
     trackerNames?: string[],
   }
+  /**
+   * Available integration options for the browser
+   */
   type BrowserIntegration = ISplitToGoogleAnalyticsConfig | IGoogleAnalyticsToSplitConfig;
   /**
    * Settings interface for SDK instances created on the browser
@@ -809,7 +851,7 @@ declare namespace SplitIO {
      * SDK integration settings for the Browser.
      * @property {Object} integrations
      */
-    integrations?: BrowserIntegration[]
+    integrations?: BrowserIntegration[],
   }
   /**
    * Settings interface for SDK instances created on NodeJS.

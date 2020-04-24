@@ -441,7 +441,10 @@ let fullBrowserSettings: SplitIO.IBrowserSettings = {
   },
   impressionListener: impressionListener,
   debug: true,
-  integrations: [googleAnalyticsToSplitConfig, splitToGoogleAnalyticsConfig, customGoogleAnalyticsToSplitConfig, customSplitToGoogleAnalyticsConfig]
+  integrations: [googleAnalyticsToSplitConfig, splitToGoogleAnalyticsConfig, customGoogleAnalyticsToSplitConfig, customSplitToGoogleAnalyticsConfig],
+  streamingEnabled: true,
+  authRetryBackoffBase: 1,
+  streamingReconnectBackoffBase: 1
 };
 fullBrowserSettings.storage.type = 'MEMORY';
 fullBrowserSettings.integrations[0].type = 'GOOGLE_ANALYTICS_TO_SPLIT';
@@ -473,7 +476,10 @@ let fullNodeSettings: SplitIO.INodeSettings = {
   },
   impressionListener: impressionListener,
   mode: 'standalone',
-  debug: false
+  debug: false,
+  streamingEnabled: true,
+  authRetryBackoffBase: 1,
+  streamingReconnectBackoffBase: 1
 };
 fullNodeSettings.storage.type = 'MEMORY';
 fullNodeSettings.mode = 'consumer';

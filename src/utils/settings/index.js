@@ -14,16 +14,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-import { merge } from '../lang';
+import { merge, isBoolean } from '../lang';
 import language from './language';
 import runtime from './runtime';
 import overridesPerPlatform from './defaults';
 import storage from './storage';
+import integrations from './integrations';
 import mode from './mode';
 import { API } from '../../utils/logger';
 import { STANDALONE_MODE, STORAGE_MEMORY, CONSUMER_MODE } from '../../utils/constants';
 import { version } from '../../../package.json';
-import integrations from './integrations';
 
 const eventsEndpointMatcher = /^\/(testImpressions|metrics|events)/;
 const authEndpointMatcher = /^\/auth/;
@@ -90,6 +90,15 @@ const base = {
 
   // List of integrations.
   integrations: undefined,
+
+  // toggle using (true) or not using (false) Server-Side Events for synchronizing storage
+  streamingEnabled: false,
+
+  // backoff base seconds to wait before re attempting to authenticate for push notifications
+  authRetryBackoffBase: 1,
+
+  // backoff base seconds to wait before re attempting to connect to streaming
+  streamingReconnectBackoffBase: 1
 };
 
 function fromSecondsToMillis(n) {
@@ -138,6 +147,15 @@ function defaults(custom) {
   // ensure a valid list of integrations.
   // `integrations` returns an array of valid integration items.
   withDefaults.integrations = integrations(withDefaults);
+
+  // validate push options
+  if (!isBoolean(withDefaults.streamingEnabled)) withDefaults.streamingEnabled = false;
+  if (withDefaults.streamingEnabled) {
+    // Backoff bases.
+    // We are not checking if bases are positive numbers. Thus, we might be reauthenticating immediately (`setTimeout` with NaN or negative number)
+    withDefaults.authRetryBackoffBase = fromSecondsToMillis(withDefaults.authRetryBackoffBase);
+    withDefaults.streamingReconnectBackoffBase = fromSecondsToMillis(withDefaults.streamingReconnectBackoffBase);
+  }
 
   return withDefaults;
 }
