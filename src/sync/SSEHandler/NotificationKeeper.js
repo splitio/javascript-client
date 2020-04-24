@@ -28,7 +28,7 @@ export default function notificationKeeperFactory(feedbackLoopEmitter) {
             feedbackLoopEmitter.emit(PUSH_CONNECT); // notify(STREAMING_UP) in spec
           }
           // nothing to do when hasResumed === false:
-          // streaming is already down for publishers === 0 and cannot be up for publishers !== 0
+          // streaming is already down for `publishers === 0`, and cannot be up for `publishers !== 0`
         }
         hasPublishers = publishers !== 0;
       }
@@ -46,7 +46,7 @@ export default function notificationKeeperFactory(feedbackLoopEmitter) {
             feedbackLoopEmitter.emit(PUSH_CONNECT); // notify(STREAMING_UP) in spec
           }
           // nothing to do when hasPublishers === false:
-          // streaming is already down for STREAMING_PAUSED and cannot be up for STREAMING_RESUMED
+          // streaming is already down for `STREAMING_PAUSED`, and cannot be up for `STREAMING_RESUMED`
         }
         hasResumed = controlType === ControlTypes.STREAMING_RESUMED;
       }
