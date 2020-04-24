@@ -87,7 +87,7 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
         pushEmitter.emit(PUSH_DISCONNECT); // no harm if `PUSH_DISCONNECT` was already notified
 
         // Handle HTTP error for invalid API Key
-        if (error.statusCode && error.statusCode === 401) {
+        if (error.statusCode === 401) {
           log.error(`Fail to authenticate for push notifications, with error message: "${error.message}".`);
           return;
         }
