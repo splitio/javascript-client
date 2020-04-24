@@ -26,6 +26,7 @@ export default class SSEClient {
   constructor(EventSource, settings) {
     this.EventSource = EventSource;
     this.streamingUrl = settings.url('/sse');
+    this.reopen = this.reopen.bind(this);
   }
 
   setEventHandler(handler) {

@@ -11,6 +11,7 @@ export default class SegmentUpdateWorker {
     this.segmentsStorage = segmentsStorage;
     this.segmentsProducer = segmentsProducer;
     this.maxChangeNumbers = {};
+    this.put = this.put.bind(this);
   }
 
   // Private method
