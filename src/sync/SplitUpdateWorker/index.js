@@ -63,6 +63,7 @@ export default class SplitUpdateWorker {
    * @param {string} defaultTreatment default treatment value
    */
   killSplit(changeNumber, splitName, defaultTreatment) {
+    // @TODO handle retry due to errors in storage, once we allow the definition of custom async storages
     this.splitStorage.killLocally(splitName, defaultTreatment, changeNumber).then((updated) => {
       // trigger an SDK_UPDATE if Split was killed locally
       if (updated) this.splitsEventEmitter.emit(this.splitsEventEmitter.SDK_SPLITS_ARRIVED, true);
