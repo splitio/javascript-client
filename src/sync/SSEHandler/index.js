@@ -4,9 +4,12 @@ import { SSE_ERROR, SPLIT_UPDATE, SEGMENT_UPDATE, MY_SEGMENTS_UPDATE, SPLIT_KILL
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-sync:sse-handler');
 
-export default function SSEHandlerFactory(
-  pushEmitter, // SyncManager FeedbackLoop & Update Queues
-) {
+/**
+ * Factory for SSEHandler
+ *
+ * @param {Object} pushEmitter emitter for emitting events related to feedback-loop & update queues
+ */
+export default function SSEHandlerFactory(pushEmitter) {
 
   const notificationKeeper = notificationKeeperFactory(pushEmitter);
 
@@ -21,7 +24,7 @@ export default function SSEHandlerFactory(
       try {
         errorWithParsedData = errorParser(error);
       } catch (err) {
-        log.error(`Error parsing SSE error notification: ${err}`);
+        log.warn(`Error parsing SSE error notification: ${err}`);
       }
 
       pushEmitter.emit(SSE_ERROR, errorWithParsedData);
@@ -35,7 +38,7 @@ export default function SSEHandlerFactory(
       try {
         messageWithParsedData = messageParser(message);
       } catch (err) {
-        log.error(`Error parsing SSE message notification: ${err}`);
+        log.warn(`Error parsing SSE message notification: ${err}`);
         return;
       }
 
@@ -51,19 +54,16 @@ export default function SSEHandlerFactory(
           pushEmitter.emit(SPLIT_UPDATE,
             parsedData.changeNumber);
           break;
-
         case SEGMENT_UPDATE:
           pushEmitter.emit(SEGMENT_UPDATE,
             parsedData.changeNumber,
             parsedData.segmentName);
           break;
-
         case MY_SEGMENTS_UPDATE:
           pushEmitter.emit(MY_SEGMENTS_UPDATE,
             parsedData,
             channel);
           break;
-
         case SPLIT_KILL:
           pushEmitter.emit(SPLIT_KILL,
             parsedData.changeNumber,
@@ -75,10 +75,11 @@ export default function SSEHandlerFactory(
         case OCCUPANCY:
           notificationKeeper.handleOccupancyEvent(parsedData.metrics.publishers, channel, timestamp);
           break;
-
         case CONTROL:
           notificationKeeper.handleControlEvent(parsedData.controlType, channel, timestamp);
-
+          break;
+        default:
+          break;
       }
     },
 
