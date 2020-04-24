@@ -2,7 +2,7 @@ import getEventSource from '../../services/getEventSource';
 
 const VERSION = '1.1';
 
-const controlMatcher = /^control_/;
+const CONTROL_CHANNEL_REGEX = /^control_/;
 
 export default class SSEClient {
 
@@ -46,7 +46,7 @@ export default class SSEClient {
     const channels = JSON.parse(authToken.decodedToken['x-ably-capability']);
     const channelsQueryParam = Object.keys(channels).map(
       function (channel) {
-        const params = controlMatcher.test(channel) ? '[?occupancy=metrics.publishers]' : '';
+        const params = CONTROL_CHANNEL_REGEX.test(channel) ? '[?occupancy=metrics.publishers]' : '';
         return encodeURIComponent(params + channel);
       }
     ).join(',');

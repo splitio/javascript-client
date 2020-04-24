@@ -1,10 +1,10 @@
 import { PUSH_CONNECT, PUSH_DISCONNECT, PUSH_DISABLED, ControlTypes } from '../constants';
 
-const controlPriMatcher = /control_pri$/;
+const CONTROL_PRI_CHANNEL_REGEX = /control_pri$/;
 
 export default function notificationKeeperFactory(feedbackLoopEmitter) {
 
-  let isStreamingUp;
+  let isStreamingUp = false;
   let occupancyTimestamp = -1;
   let controlTimestamp = -1;
 
@@ -15,7 +15,7 @@ export default function notificationKeeperFactory(feedbackLoopEmitter) {
     },
 
     handleOccupancyEvent(publishers, channel, timestamp) {
-      if (controlPriMatcher.test(channel) && timestamp > occupancyTimestamp) {
+      if (CONTROL_PRI_CHANNEL_REGEX.test(channel) && timestamp > occupancyTimestamp) {
         occupancyTimestamp = timestamp;
         if (publishers === 0 && isStreamingUp) {
           isStreamingUp = false;
@@ -30,7 +30,7 @@ export default function notificationKeeperFactory(feedbackLoopEmitter) {
     },
 
     handleControlEvent(controlType, channel, timestamp) {
-      if (controlPriMatcher.test(channel) && timestamp > controlTimestamp) {
+      if (CONTROL_PRI_CHANNEL_REGEX.test(channel) && timestamp > controlTimestamp) {
         controlTimestamp = timestamp;
         if (controlType === ControlTypes.STREAMING_PAUSED && isStreamingUp) {
           isStreamingUp = false;
