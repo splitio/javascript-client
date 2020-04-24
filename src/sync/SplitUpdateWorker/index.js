@@ -18,11 +18,7 @@ export default class SplitUpdateWorker {
   // Private method
   // Preconditions: this.splitProducer.isSynchronizingSplits === false
   __handleSplitUpdateCall() {
-    // `attempts` is used as an extra stop condition for `__handleSplitUpdateCall` recursion,
-    // to limit at 2 the maximum number of fetches per update event in case `/splitChanges`
-    // requests are failing due to some network or server issue.
-    if (this.maxChangeNumber > this.splitStorage.getChangeNumber() && this.attempts <= 1) {
-      this.attempts++;
+    if (this.maxChangeNumber > this.splitStorage.getChangeNumber()) {
       this.splitProducer.synchronizeSplits().then(() => {
         this.__handleSplitUpdateCall();
       });
@@ -42,7 +38,6 @@ export default class SplitUpdateWorker {
     if (changeNumber <= currentChangeNumber || changeNumber <= this.maxChangeNumber) return;
 
     this.maxChangeNumber = changeNumber;
-    this.attempts = 0;
 
     if (this.splitProducer.isSynchronizingSplits()) return;
 
