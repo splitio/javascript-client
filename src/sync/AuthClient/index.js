@@ -7,7 +7,7 @@ import { decodeJWTtoken } from '../../utils/jwt';
  * Precondition:
  *
  * @param {Object} settings Split factory config, used to get authorizationKey and other params required by authRequest.
- * @param {Object} userKeys set of user Keys to track MY_SEGMENTS_CHANGES. It is an empty object for Node.
+ * @param {string[] | undefined} userKeys set of user Keys to track MY_SEGMENTS_CHANGES. It is undefined for Node.
  * @throws {ReferenceError} if `atob` function is not defined
  */
 export default function authenticate(settings, userKeys) {
@@ -15,9 +15,12 @@ export default function authenticate(settings, userKeys) {
   return authPromise
     .then(resp => resp.data)
     .then(json => {
-      return {
-        ...json,
-        decodedToken: decodeJWTtoken(json.token),
-      };
+      if (json.token) { // empty token when `"pushEnabled": false`
+        return {
+          ...json,
+          decodedToken: decodeJWTtoken(json.token)
+        };
+      }
+      return json;
     });
 }
