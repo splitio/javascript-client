@@ -25,13 +25,13 @@ export default function BrowserSyncManagerFactory(mainContext) {
 
   function startPolling() {
     if (!mainProducer.isRunning()) {
-      log.info('PUSH down or disconnected. Starting periodic fetch of data.');
+      log.info('Streaming not available. Starting periodic fetch of data.');
       forOwn(contexts, function (context) {
         const producer = context.get(context.constants.PRODUCER);
         producer.start(true); // `fetchers` are scheduled but not called immediately
       });
     } else {
-      log.info('PUSH couldn\'t connect. Continue periodic fetch of data.');
+      log.info('Streaming couldn\'t connect. Continue periodic fetch of data.');
     }
   }
 

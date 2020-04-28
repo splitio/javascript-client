@@ -71,7 +71,7 @@ const base = {
     // SDK Auth Server
     auth: 'https://auth.split.io/api',
     // Streaming Server
-    streaming: 'https://realtime.ably.io',
+    streaming: 'https://split-realtime.ably.io',
   },
 
   // Defines which kind of storage we should instanciate.

@@ -20,10 +20,10 @@ export default function NodeSyncManagerFactory(context) {
 
   function startPolling() {
     if (!producer.isRunning()) {
-      log.info('PUSH down or disconnected. Starting periodic fetch of data.');
+      log.info('Streaming not available. Starting periodic fetch of data.');
       producer.start(true); // `fetchers` are scheduled but not called immediately
     } else {
-      log.info('PUSH couldn\'t connect. Continue periodic fetch of data.');
+      log.info('Streaming couldn\'t connect. Continue periodic fetch of data.');
     }
   }
 
