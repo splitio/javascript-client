@@ -19,9 +19,12 @@ export default function NodeSyncManagerFactory(context) {
   const pushManager = settings.streamingEnabled ? PushManagerFactory(context) : undefined;
 
   function startPolling() {
-    log.info('PUSH down or disconnected. Starting periodic fetch of data.');
-    if (!producer.isRunning())
+    if (!producer.isRunning()) {
+      log.info('PUSH down or disconnected. Starting periodic fetch of data.');
       producer.start(true); // `fetchers` are scheduled but not called immediately
+    } else {
+      log.info('PUSH couldn\'t connect. Continue periodic fetch of data.');
+    }
   }
 
   function stopPollingAndSyncAll() {
