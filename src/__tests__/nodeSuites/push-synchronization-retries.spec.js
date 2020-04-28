@@ -169,9 +169,9 @@ export function testSynchronizationRetries(mock, assert) {
     assert.true(nearlyEqual(lapse, MILLIS_SEGMENT_UPDATE_EVENT), 'sync due to SEGMENT_UPDATE event');
     return [200, { since: 1457552620999, till: 1457552620999, name: 'splitters', added: [], removed: [] }];
   });
-  // fetch retry for SEGMENT_UPDATE event, due to previous unexpected response (response till minor than SEGMENT_UPDATE changeNumber)
+  // first fetch retry for SEGMENT_UPDATE event, due to previous unexpected response (response till minor than SEGMENT_UPDATE changeNumber)
   mock.onGet(settings.url('/segmentChanges/splitters?since=1457552620999')).networkErrorOnce();
-  // fetch second retry for SEGMENT_UPDATE event, due to previous network error
+  // second fetch retry for SEGMENT_UPDATE event, due to previous network error
   mock.onGet(settings.url('/segmentChanges/splitters?since=1457552620999')).replyOnce(function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_SECOND_RETRY_FOR_SEGMENT_UPDATE_EVENT), 'sync second retry for SEGMENT_UPDATE event');
@@ -187,11 +187,11 @@ export function testSynchronizationRetries(mock, assert) {
     assert.true(nearlyEqual(lapse, MILLIS_SPLIT_KILL_EVENT), 'sync due to SPLIT_KILL event');
     return [200, { since: 1457552631000, till: 1457552631000, splits: [] }]; // returning old state
   });
-  // fetch retry for SPLIT_KILL event, due to previous unexpected response (response till minor than SPLIT_KILL changeNumber)
+  // first fetch retry for SPLIT_KILL event, due to previous unexpected response (response till minor than SPLIT_KILL changeNumber)
   mock.onGet(settings.url('/splitChanges?since=1457552631000')).networkErrorOnce();
-  // fetch second retry for SPLIT_KILL event
+  // second fetch retry for SPLIT_KILL event
   mock.onGet(settings.url('/splitChanges?since=1457552631000')).networkErrorOnce();
-  // fetch second retry for SPLIT_KILL event
+  // third fetch retry for SPLIT_KILL event
   mock.onGet(settings.url('/splitChanges?since=1457552631000')).replyOnce(function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_THIRD_RETRY_FOR_SPLIT_KILL_EVENT), 'third fetch retry due to SPLIT_KILL event');

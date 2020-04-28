@@ -25,9 +25,9 @@ export default class SegmentUpdateWorker {
       return this.maxChangeNumbers[segmentName] > this.segmentsStorage.getChangeNumber(segmentName);
     });
     if (segmentsToFetch.length > 0) {
-      this.newEvent = false;
+      this.handleNewEvent = false;
       this.segmentsProducer.synchronizeSegment(segmentsToFetch).then(() => {
-        if (this.newEvent) {
+        if (this.handleNewEvent) {
           this.__handleSegmentUpdateCall();
         } else {
           this.backoff.scheduleCall();
@@ -48,7 +48,7 @@ export default class SegmentUpdateWorker {
     if (changeNumber <= currentChangeNumber || changeNumber <= this.maxChangeNumbers[segmentName]) return;
 
     this.maxChangeNumbers[segmentName] = changeNumber;
-    this.newEvent = true;
+    this.handleNewEvent = true;
     this.backoff.reset();
 
     if (this.segmentsProducer.isSynchronizingSegments()) return;

@@ -6,9 +6,9 @@ import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
 import splitChangesMock3 from '../mocks/splitchanges.since.1457552620999.till.1457552631000.SPLIT_UPDATE.json';
 
+import occupancy0ControlPriMessage from '../mocks/message.OCCUPANCY.0.control_pri.1586987434550.json';
 import occupancy1ControlPriMessage from '../mocks/message.OCCUPANCY.1.control_pri.1586987434450.json';
 import occupancy1ControlSecMessage from '../mocks/message.OCCUPANCY.1.control_sec.1586987434451.json';
-import occupancy0ControlPriMessage from '../mocks/message.OCCUPANCY.0.control_pri.1586987434550.json';
 import occupancy2ControlPriMessage from '../mocks/message.OCCUPANCY.2.control_pri.1586987434650.json';
 
 import streamingPausedControlPriMessage from '../mocks/message.CONTROL.STREAMING_PAUSED.control_pri.1586987434750.json';
@@ -110,7 +110,7 @@ export function testFallbacking(mock, assert) {
 
     setTimeout(() => {
       eventSourceInstance.emitMessage(occupancy0ControlPriMessage);
-    }, MILLIS_STREAMING_DOWN_OCCUPANCY); // send a OCCUPANCY event for switching to polling
+    }, MILLIS_STREAMING_DOWN_OCCUPANCY); // send an OCCUPANCY event for switching to polling
 
     setTimeout(() => {
       eventSourceInstance.emitMessage(splitUpdateMessage);
@@ -127,7 +127,6 @@ export function testFallbacking(mock, assert) {
       });
       eventSourceInstance.emitMessage(splitUpdateMessage);
     }, MILLIS_SPLIT_UPDATE_EVENT_DURING_PUSH); // send a SPLIT_UPDATE event when push resumed, to check that we are handling it
-
 
     setTimeout(() => {
       eventSourceInstance.emitMessage(streamingPausedControlPriMessage);
@@ -186,7 +185,9 @@ export function testFallbacking(mock, assert) {
 
   // split and segment sync due to streaming up (OCCUPANCY event)
   mock.onGet(settings.url('/splitChanges?since=1457552620999')).replyOnce(200, splitChangesMock2);
-  mock.onGet(settings.url('/segmentChanges/splitters?since=1457552620999')).replyOnce(200, { since: 1457552620999, till: 1457552620999, name: 'splitters', added: [], removed: [] });
+  mock.onGet(settings.url('/segmentChanges/splitters?since=1457552620999')).replyOnce(200, { since: 1457552620999, till: 1457552621999, name: 'splitters', added: ['other_key'], removed: [] });
+  // extra retry due to double request (greedy fetch until since === till)
+  mock.onGet(settings.url('/segmentChanges/splitters?since=1457552621999')).replyOnce(200, { since: 1457552621999, till: 1457552621999, name: 'splitters', added: [], removed: [] });
 
   // fetch due to SPLIT_UPDATE event
   mock.onGet(settings.url('/splitChanges?since=1457552620999')).replyOnce(function () {
@@ -204,14 +205,14 @@ export function testFallbacking(mock, assert) {
 
   // split and segment sync due to streaming up (CONTROL event)
   mock.onGet(settings.url('/splitChanges?since=1457552631000')).replyOnce(200, { splits: [], since: 1457552631000, till: 1457552631000 });
-  mock.onGet(settings.url('/segmentChanges/splitters?since=1457552620999')).replyOnce(200, { since: 1457552620999, till: 1457552620999, name: 'splitters', added: [], removed: [] });
+  mock.onGet(settings.url('/segmentChanges/splitters?since=1457552621999')).replyOnce(200, { since: 1457552621999, till: 1457552621999, name: 'splitters', added: [], removed: [] });
 
   // fetch due to SEGMENT_UPDATE event
-  mock.onGet(settings.url('/segmentChanges/splitters?since=1457552620999')).replyOnce(function () {
+  mock.onGet(settings.url('/segmentChanges/splitters?since=1457552621999')).replyOnce(function () {
     const lapse = Date.now() - start;
     // debugger;
     assert.true(nearlyEqual(lapse, MILLIS_SEGMENT_UPDATE_EVENT_DURING_PUSH), 'sync due to SEGMENT_UPDATE event');
-    return [200, { since: 1457552620999, till: 1457552640000, name: 'splitters', added: [], removed: [key] }];
+    return [200, { since: 1457552621999, till: 1457552640000, name: 'splitters', added: [], removed: [key] }];
   });
   // extra retry (fetch until since === till)
   mock.onGet(settings.url('/segmentChanges/splitters?since=1457552640000')).replyOnce(200, { since: 1457552640000, till: 1457552640000, name: 'splitters', added: [], removed: [] });
@@ -220,7 +221,7 @@ export function testFallbacking(mock, assert) {
   mock.onGet(settings.url('/splitChanges?since=1457552631000')).replyOnce(function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_THIRD_SPLIT_POLLING), 'fetch due to third SPLIT polling');
-    return [200, { splits: [], since: 1457552631000, till: 1457552631000 }];
+    return [200, { splits: [], since: 1457552631000, till: 1457552632000 }];
   });
 
   /**
