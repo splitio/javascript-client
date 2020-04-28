@@ -7,10 +7,11 @@ export default class SplitUpdateWorker {
    * @param {Object} splitStorage splits cache
    * @param {Object} splitProducer node producer or full browser producer
    */
-  constructor(splitStorage, splitProducer) {
+  constructor(splitStorage, splitProducer, splitsEventEmitter) {
     this.splitStorage = splitStorage;
     this.splitProducer = splitProducer;
     this.maxChangeNumber = 0;
+    this.splitsEventEmitter = splitsEventEmitter;
     this.put = this.put.bind(this);
     this.killSplit = this.killSplit.bind(this);
   }
@@ -52,8 +53,13 @@ export default class SplitUpdateWorker {
    * @param {string} defaultTreatment default treatment value
    */
   killSplit(changeNumber, splitName, defaultTreatment) {
-    this.splitStorage.killLocally(splitName, defaultTreatment, changeNumber);
-    this.put(changeNumber);
+    // @TODO handle retry due to errors in storage, once we allow the definition of custom async storages
+    this.splitStorage.killLocally(splitName, defaultTreatment, changeNumber).then((updated) => {
+      // trigger an SDK_UPDATE if Split was killed locally
+      if (updated) this.splitsEventEmitter.emit(this.splitsEventEmitter.SDK_SPLITS_ARRIVED, true);
+      // queues the SplitChanges fetch (only if changeNumber is newer)
+      this.put(changeNumber);
+    });
   }
 
 }
