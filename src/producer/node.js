@@ -80,7 +80,8 @@ const NodeUpdater = (context) => {
                 scheduleSegmentsUpdate();
               }
             },
-            settings.scheduler.segmentsRefreshRate
+            settings.scheduler.segmentsRefreshRate,
+            notStartImmediately
           );
         }
       };
