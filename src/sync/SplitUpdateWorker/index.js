@@ -25,9 +25,9 @@ export default class SplitUpdateWorker {
   // Preconditions: this.splitProducer.isSynchronizingSplits === false
   __handleSplitUpdateCall() {
     if (this.maxChangeNumber > this.splitStorage.getChangeNumber()) {
-      this.newEvent = false;
+      this.handleNewEvent = false;
       this.splitProducer.synchronizeSplits().then(() => {
-        if (this.newEvent) {
+        if (this.handleNewEvent) {
           this.__handleSplitUpdateCall();
         } else {
           this.backoff.scheduleCall();
@@ -47,7 +47,7 @@ export default class SplitUpdateWorker {
     if (changeNumber <= currentChangeNumber || changeNumber <= this.maxChangeNumber) return;
 
     this.maxChangeNumber = changeNumber;
-    this.newEvent = true;
+    this.handleNewEvent = true;
     this.backoff.reset();
 
     if (this.splitProducer.isSynchronizingSplits()) return;
