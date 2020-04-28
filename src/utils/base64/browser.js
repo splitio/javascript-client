@@ -17,14 +17,3 @@ export function decodeFromBase64(value) {
 export function encodeToBase64(value) {
   return btoa(value);
 }
-
-import murmur from '../../engine/engine/murmur3';
-
-/**
- * Returns the hash of a given user key
- *
- * @throws {ReferenceError} if `btoa` function is not defined
- */
-export function hashUserKey(userKey) {
-  return encodeToBase64(murmur.hash(userKey, 0).toString());
-}

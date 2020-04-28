@@ -35,6 +35,8 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
 
   // map of hashes to user keys, to dispatch MY_SEGMENTS_UPDATE events to the corresponding MySegmentsUpdateWorker
   const userKeyHashes = {};
+  // list of workers, used to stop them all together when push is disconnected
+  const workers = [];
   // variable used on browser to reconnect only when a new client was added, saving some authentication and sse connections.
   let connectForNewClient = false;
 
@@ -100,15 +102,22 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
     );
   }
 
+  // close SSE connection and cancel scheduled tasks
   function disconnectPush() {
     log.info('Disconnecting from push streaming.');
     sseClient.close();
 
-    // cancel timeouts if previously established
     if (timeoutId) clearTimeout(timeoutId);
     reauthBackoff.reset();
     sseReconnectBackoff.reset();
   }
+
+  // cancel scheduled fetch retries of Split, Segment, and MySegment Update Workers
+  function stopWorkers() {
+    workers.forEach(worker => worker.backoff.reset());
+  }
+
+  pushEmitter.on(PUSH_DISCONNECT, stopWorkers);
 
   /** Fallbacking due to STREAMING_DISABLED control event */
 
@@ -142,6 +151,7 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
   const producer = context.get(context.constants.PRODUCER);
   const splitUpdateWorker = new SplitUpdateWorker(storage.splits, producer, splitsEventEmitter);
 
+  workers.push(splitUpdateWorker);
   pushEmitter.on(SPLIT_KILL, splitUpdateWorker.killSplit);
   pushEmitter.on(SPLIT_UPDATE, splitUpdateWorker.put);
 
@@ -158,6 +168,7 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
     });
   } else { // node
     const segmentUpdateWorker = new SegmentUpdateWorker(storage.segments, producer);
+    workers.push(segmentUpdateWorker);
     pushEmitter.on(SEGMENT_UPDATE, segmentUpdateWorker.put);
   }
 
@@ -166,7 +177,10 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
     Object.create(pushEmitter),
     {
       // Expose functionality for starting and stoping push mode:
-      stop: disconnectPush,
+      stop() {
+        disconnectPush();
+        stopWorkers(); // if we call `stopWorkers` inside `disconnectPush`, it would be called twice on a PUSH_DISABLED event, which anyway is not harmful.
+      },
 
       // used in node
       start: connectPush,
@@ -181,7 +195,9 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
           userKeyHashes[hash] = userKey;
           connectForNewClient = true; // we must reconnect on start, to listen the channel for the new user key
         }
-        context.put(context.constants.MY_SEGMENTS_CHANGE_WORKER, new SegmentUpdateWorker(storage.segments, producer));
+        const mySegmentSync = new SegmentUpdateWorker(storage.segments, producer);
+        workers.push(mySegmentSync);
+        context.put(context.constants.MY_SEGMENTS_CHANGE_WORKER, mySegmentSync);
 
         // Reconnects in case of a new client.
         // Run in next event-loop cycle to save authentication calls

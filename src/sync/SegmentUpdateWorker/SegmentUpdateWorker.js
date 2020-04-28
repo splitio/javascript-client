@@ -1,3 +1,5 @@
+import Backoff from '../../utils/backoff';
+
 /**
  * SegmentUpdateWorker class
  */
@@ -12,6 +14,8 @@ export default class SegmentUpdateWorker {
     this.segmentsProducer = segmentsProducer;
     this.maxChangeNumbers = {};
     this.put = this.put.bind(this);
+    this.__handleSegmentUpdateCall = this.__handleSegmentUpdateCall.bind(this);
+    this.backoff = new Backoff(this.__handleSegmentUpdateCall);
   }
 
   // Private method
@@ -21,11 +25,14 @@ export default class SegmentUpdateWorker {
       return this.maxChangeNumbers[segmentName] > this.segmentsStorage.getChangeNumber(segmentName);
     });
     if (segmentsToFetch.length > 0) {
+      this.handleNewEvent = false;
       this.segmentsProducer.synchronizeSegment(segmentsToFetch).then(() => {
-        this.__handleSegmentUpdateCall();
+        if (this.handleNewEvent) {
+          this.__handleSegmentUpdateCall();
+        } else {
+          this.backoff.scheduleCall();
+        }
       });
-    } else {
-      this.maxChangeNumbers = {};
     }
   }
 
@@ -41,6 +48,8 @@ export default class SegmentUpdateWorker {
     if (changeNumber <= currentChangeNumber || changeNumber <= this.maxChangeNumbers[segmentName]) return;
 
     this.maxChangeNumbers[segmentName] = changeNumber;
+    this.handleNewEvent = true;
+    this.backoff.reset();
 
     if (this.segmentsProducer.isSynchronizingSegments()) return;
 

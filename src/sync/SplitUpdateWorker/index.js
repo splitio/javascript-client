@@ -1,3 +1,5 @@
+import Backoff from '../../utils/backoff';
+
 /**
  * SplitUpdateWorker class
  */
@@ -6,6 +8,7 @@ export default class SplitUpdateWorker {
   /**
    * @param {Object} splitStorage splits cache
    * @param {Object} splitProducer node producer or full browser producer
+   * @param {Object} splitsEventEmitter
    */
   constructor(splitStorage, splitProducer, splitsEventEmitter) {
     this.splitStorage = splitStorage;
@@ -14,17 +17,22 @@ export default class SplitUpdateWorker {
     this.splitsEventEmitter = splitsEventEmitter;
     this.put = this.put.bind(this);
     this.killSplit = this.killSplit.bind(this);
+    this.__handleSplitUpdateCall = this.__handleSplitUpdateCall.bind(this);
+    this.backoff = new Backoff(this.__handleSplitUpdateCall);
   }
 
   // Private method
   // Preconditions: this.splitProducer.isSynchronizingSplits === false
   __handleSplitUpdateCall() {
     if (this.maxChangeNumber > this.splitStorage.getChangeNumber()) {
+      this.handleNewEvent = false;
       this.splitProducer.synchronizeSplits().then(() => {
-        this.__handleSplitUpdateCall();
+        if (this.handleNewEvent) {
+          this.__handleSplitUpdateCall();
+        } else {
+          this.backoff.scheduleCall();
+        }
       });
-    } else {
-      this.maxChangeNumber = 0;
     }
   }
 
@@ -39,6 +47,8 @@ export default class SplitUpdateWorker {
     if (changeNumber <= currentChangeNumber || changeNumber <= this.maxChangeNumber) return;
 
     this.maxChangeNumber = changeNumber;
+    this.handleNewEvent = true;
+    this.backoff.reset();
 
     if (this.splitProducer.isSynchronizingSplits()) return;
 

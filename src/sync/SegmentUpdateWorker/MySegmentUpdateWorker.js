@@ -1,3 +1,5 @@
+import Backoff from '../../utils/backoff';
+
 /**
  * MySegmentUpdateWorker class
  */
@@ -15,6 +17,8 @@ export default class MySegmentUpdateWorker {
     this.segmentList = undefined; // keeps the segmentList (if included in payload) from the queued event with maximum changeNumber
     this.currentChangeNumber = -1; // @TODO: remove once `/mySegments` endpoint provides the changeNumber
     this.put = this.put.bind(this);
+    this.__handleMySegmentUpdateCall = this.__handleMySegmentUpdateCall.bind(this);
+    this.backoff = new Backoff(this.__handleMySegmentUpdateCall);
   }
 
   // Private method
@@ -22,14 +26,17 @@ export default class MySegmentUpdateWorker {
   // @TODO update this block similar to SplitUpdateWorker, once `/mySegments` endpoint provides the changeNumber
   __handleMySegmentUpdateCall() {
     if (this.maxChangeNumber > this.currentChangeNumber) {
+      this.handleNewEvent = false;
       const currentMaxChangeNumber = this.maxChangeNumber;
-      this.mySegmentsProducer.synchronizeMySegments(this.segmentList).then(() => {
-        this.currentChangeNumber = Math.max(this.currentChangeNumber, currentMaxChangeNumber); // use `currentMaxChangeNumber`, in case that `this.maxChangeNumber` was updated during fetch.
-        this.__handleMySegmentUpdateCall();
+      this.mySegmentsProducer.synchronizeMySegments(this.segmentList).then((result) => {
+        if (result !== false) // @TODO remove when revamping producers. Currently `MySegmentsUpdater` is resolved with a "false" value if the fetch fails.
+          this.currentChangeNumber = Math.max(this.currentChangeNumber, currentMaxChangeNumber); // use `currentMaxChangeNumber`, in case that `this.maxChangeNumber` was updated during fetch.
+        if (this.handleNewEvent) {
+          this.__handleMySegmentUpdateCall();
+        } else {
+          this.backoff.scheduleCall();
+        }
       });
-    } else {
-      this.maxChangeNumber = 0;
-      this.segmentList = undefined;
     }
   }
 
@@ -46,6 +53,8 @@ export default class MySegmentUpdateWorker {
     if (changeNumber <= this.currentChangeNumber || changeNumber <= this.maxChangeNumber) return;
 
     this.maxChangeNumber = changeNumber;
+    this.handleNewEvent = true;
+    this.backoff.reset();
     this.segmentList = segmentList;
 
     if (this.mySegmentsProducer.isSynchronizingMySegments()) return;

@@ -57,12 +57,14 @@ tape('SplitUpdateWorker', t => {
     const producer = ProducerMock(cache);
 
     const splitUpdateWorker = new SplitUpdateWorker(cache, producer);
+    splitUpdateWorker.backoff.baseMillis = 0; // retry immediately
+
     assert.equal(splitUpdateWorker.maxChangeNumber, 0, 'inits with not queued changeNumber (maxChangeNumber equals to 0)');
 
     // assert calling `synchronizeSplits` if `isSynchronizingSplits` is false
     assert.equal(producer.isSynchronizingSplits(), false);
     splitUpdateWorker.put(100); // queued
-    assert.equal(splitUpdateWorker.maxChangeNumber, 100, 'queues changeNumber if it is mayor than storage changeNumber and queue is empty');
+    assert.equal(splitUpdateWorker.maxChangeNumber, 100, 'queues changeNumber if it is mayor than storage changeNumber and maxChangeNumber');
     assert.true(producer.synchronizeSplits.calledOnce, 'calls `synchronizeSplits` if `isSynchronizingSplits` is false');
 
     // assert queueing changeNumber if `isSynchronizingSplits` is true
@@ -72,22 +74,36 @@ tape('SplitUpdateWorker', t => {
     splitUpdateWorker.put(106); // queued
     splitUpdateWorker.put(103); // not queued
     assert.true(producer.synchronizeSplits.calledOnce, 'doesn\'t call `synchronizeSplits` while isSynchronizingSplits is true');
-    assert.equal(splitUpdateWorker.maxChangeNumber, 106, 'queues changeNumber if it is mayor than currently queued changeNumber and storage changeNumber');
+    assert.equal(splitUpdateWorker.maxChangeNumber, 106, 'queues changeNumber if it is mayor than currently maxChangeNumber and storage changeNumber');
 
     // assert calling `synchronizeSplits` if previous call is resolved and a new changeNumber in queue
     producer.__resolveSplitsUpdaterCall(0, 100);
     setTimeout(() => {
       assert.true(producer.synchronizeSplits.calledTwice, 'recalls `synchronizeSplits` if `isSynchronizingSplits` is false and queue is not empty');
-      assert.equal(splitUpdateWorker.maxChangeNumber, 106, 'changeNumber stays queued until `synchronizeSplits` is settled');
+      assert.equal(splitUpdateWorker.maxChangeNumber, 106, 'maxChangeNumber');
+      assert.equal(splitUpdateWorker.backoff.attempts, 0, 'no retry scheduled if synchronization success (changeNumber is the expected)');
 
-      // assert dequeueing changeNumber
-      producer.__resolveSplitsUpdaterCall(1, 106);
+      // assert reschedule synchronization if changeNumber is not updated as expected
+      producer.__resolveSplitsUpdaterCall(1, 100);
       setTimeout(() => {
-        assert.true(producer.synchronizeSplits.calledTwice, 'doesn\'t call `synchronizeSplits` while queues is empty');
-        assert.equal(splitUpdateWorker.maxChangeNumber, 0, ' dequeues changeNumber once `synchronizeSplits` is resolved');
+        assert.equal(producer.synchronizeSplits.callCount, 3, 'recalls `synchronizeSplits` if synchronization fail (changeNumber is not the expected)');
+        assert.equal(splitUpdateWorker.maxChangeNumber, 106, 'maxChangeNumber');
+        assert.equal(splitUpdateWorker.backoff.attempts, 1, 'retry scheduled if synchronization fail (changeNumber is not the expected)');
 
-        assert.end();
-      });
+        // assert dequeueing changeNumber
+        producer.__resolveSplitsUpdaterCall(2, 106);
+        setTimeout(() => {
+          assert.equal(producer.synchronizeSplits.callCount, 3, 'doesn\'t call `synchronizeSplits` again');
+          assert.equal(splitUpdateWorker.maxChangeNumber, 106, 'maxChangeNumber');
+
+          // assert restarting retries, when a newer event is queued
+          splitUpdateWorker.put(107); // queued
+          assert.equal(splitUpdateWorker.backoff.attempts, 0, 'backoff scheduler for retries is reset if a new event is queued');
+
+          assert.end();
+        });
+
+      }, 10); // wait a little bit until `synchronizeSplits` is called in next event-loop cycle
     });
   });
 
@@ -120,7 +136,7 @@ tape('SplitUpdateWorker', t => {
         splitUpdateWorker.killSplit(90, 'lol1', 'on');
 
         setTimeout(() => {
-          assert.equal(splitUpdateWorker.maxChangeNumber, 0, 'doesn\'t queues changeNumber if killLocally resolved without update (its changeNumber was minor than the split changeNumber');
+          assert.equal(splitUpdateWorker.maxChangeNumber, 100, 'doesn\'t queues changeNumber if killLocally resolved without update (its changeNumber was minor than the split changeNumber');
           assert.true(producer.synchronizeSplits.notCalled, 'doesn\'t call `synchronizeSplits` if killLocally resolved without update');
           assert.true(splitsEventEmitterMock.emit.notCalled, 'doesn\'t emit `SDK_SPLITS_ARRIVED` if killLocally resolved without update');
 
