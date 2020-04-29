@@ -54,11 +54,11 @@
           "partitions": [
             {
               "treatment": "on",
-              "size": 50
+              "size": 0
             },
             {
               "treatment": "off",
-              "size": 50
+              "size": 100
             }
           ],
           "label": "default rule"

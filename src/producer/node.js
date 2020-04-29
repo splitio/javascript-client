@@ -80,8 +80,8 @@ const NodeUpdater = (context) => {
                 scheduleSegmentsUpdate();
               }
             },
-            settings.scheduler.segmentsRefreshRate,
-            notStartImmediately
+            settings.scheduler.segmentsRefreshRate
+            // no need to pass `notStartImmediately`, since this task is invoked by `stopSplitsUpdate`
           );
         }
       };

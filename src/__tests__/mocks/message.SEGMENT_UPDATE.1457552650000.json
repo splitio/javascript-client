@@ -1,4 +1,4 @@
 {
   "type": "message",
-  "data": "{\"id\":\"mc4i3NENoA:0:0\",\"clientId\":\"NDEzMTY5Mzg0MA==:MTM2ODE2NDMxNA==\",\"timestamp\":1457552650900,\"encoding\":\"json\",\"channel\":\"NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw==_segments\",\"data\":\"{\\\"type\\\":\\\"SEGMENT_UPDATE\\\",\\\"changeNumber\\\":1457552650000,\\\"segmentName\\\":\\\"splitters\\\"}\"}"
+  "data": "{\"id\":\"mc4i3NENoA:0:0\",\"clientId\":\"NDEzMTY5Mzg0MA==:MTM2ODE2NDMxNA==\",\"timestamp\":1457552650900,\"encoding\":\"json\",\"channel\":\"NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw==_segments\",\"data\":\"{\\\"type\\\":\\\"SEGMENT_UPDATE\\\",\\\"changeNumber\\\":1457552650000,\\\"segmentName\\\":\\\"employees\\\"}\"}"
 }

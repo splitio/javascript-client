@@ -1,9 +1,9 @@
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
-import splitChangesMock3 from '../mocks/splitchanges.since.1457552620999.till.1457552631000.SPLIT_UPDATE.json';
-import splitChangesMock4 from '../mocks/splitchanges.since.1457552631000.till.1457552650000.SPLIT_KILL.json';
+import splitChangesMock3 from '../mocks/splitchanges.since.1457552620999.till.1457552649999.SPLIT_UPDATE.json';
+import splitChangesMock4 from '../mocks/splitchanges.since.1457552649999.till.1457552650000.SPLIT_KILL.json';
 
-import splitUpdateMessage from '../mocks/message.SPLIT_UPDATE.1457552631000.json';
+import splitUpdateMessage from '../mocks/message.SPLIT_UPDATE.1457552649999.json';
 import oldSplitUpdateMessage from '../mocks/message.SPLIT_UPDATE.1457552620999.json';
 import segmentUpdateMessage from '../mocks/message.SEGMENT_UPDATE.1457552640000.json';
 import splitKillMessage from '../mocks/message.SPLIT_KILL.1457552650000.json';
@@ -150,7 +150,7 @@ export function testSynchronization(mock, assert) {
   );
 
   // fetch due to SPLIT_KILL event
-  mock.onGet(settings.url('/splitChanges?since=1457552631000')).replyOnce(function () {
+  mock.onGet(settings.url('/splitChanges?since=1457552649999')).replyOnce(function () {
     assert.equal(client.getTreatment(key, 'whitelist'), 'not_allowed', 'evaluation with split killed immediately, before fetch is done');
     return [200, splitChangesMock4];
   });
