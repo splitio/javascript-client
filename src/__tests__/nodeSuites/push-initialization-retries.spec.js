@@ -80,6 +80,11 @@ export function testAuthRetries(mock, assert) {
   mock.onGet(settings.url('/splitChanges?since=1457552620999')).replyOnce(function () {
     assert.true(ready, 'client ready before first polling fetch');
     const lapse = Date.now() - start;
+    assert.true(nearlyEqual(lapse, 0), 'fallback to polling');
+    return [200, splitChangesMock2];
+  });
+  mock.onGet(settings.url('/splitChanges?since=1457552620999')).replyOnce(function () {
+    const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, settings.scheduler.featuresRefreshRate), 'polling');
     return [200, splitChangesMock2];
   });
@@ -143,6 +148,11 @@ export function testSSERetries(mock, assert) {
   });
   mock.onGet(settings.url('/splitChanges?since=1457552620999')).replyOnce(function () {
     assert.true(ready, 'client ready before first polling fetch');
+    const lapse = Date.now() - start;
+    assert.true(nearlyEqual(lapse, 0), 'fallback to polling');
+    return [200, splitChangesMock2];
+  });
+  mock.onGet(settings.url('/splitChanges?since=1457552620999')).replyOnce(function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, settings.scheduler.featuresRefreshRate), 'polling');
     return [200, splitChangesMock2];

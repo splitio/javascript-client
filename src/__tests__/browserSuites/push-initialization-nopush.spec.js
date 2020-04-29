@@ -36,9 +36,10 @@ const settings = SettingsFactory(config);
 /**
  * Sequence of calls:
  *  0.0 secs: initial SyncAll (/splitChanges, /mySegments/*) and auth (success but push disabled)
+ *  0.0 secs: syncAll if falling back to polling (/splitChanges, /mySegments/*)
  *  0.1 secs: polling (/splitChanges, /mySegments/*)
  */
-function testInitializationFail(mock, assert) {
+function testInitializationFail(mock, assert, fallbackToPolling) {
   const start = Date.now();
 
   mock.onGet(settings.url('/mySegments/nicolas@split.io')).reply(200, mySegmentsNicolas);
@@ -54,11 +55,20 @@ function testInitializationFail(mock, assert) {
   client.on(client.Event.SDK_READY, () => {
     ready = true;
   });
+  
+  if (fallbackToPolling) {
+    mock.onGet(settings.url('/splitChanges?since=1457552620999')).replyOnce(function () {
+      assert.true(ready, 'client ready');
+      const lapse = Date.now() - start;
+      assert.true(nearlyEqual(lapse, 0), 'polling (first fetch)');
+      return [200, splitChangesMock2];
+    });
+  }
 
   mock.onGet(settings.url('/splitChanges?since=1457552620999')).replyOnce(function () {
-    assert.true(ready, 'client ready before first polling fetch');
+    assert.true(ready, 'client ready');
     const lapse = Date.now() - start;
-    assert.true(nearlyEqual(lapse, settings.scheduler.featuresRefreshRate), 'polling');
+    assert.true(nearlyEqual(lapse, settings.scheduler.featuresRefreshRate), 'polling (second fetch)');
     client.destroy().then(() => {
       assert.end();
     });
@@ -74,7 +84,7 @@ export function testAuthWithPushDisabled(mock, assert) {
     return [200, authPushDisabled];
   });
 
-  testInitializationFail(mock, assert);
+  testInitializationFail(mock, assert, true);
 
 }
 
@@ -86,7 +96,7 @@ export function testAuthWith401(mock, assert) {
     return [401, authInvalidCredentials];
   });
 
-  testInitializationFail(mock, assert);
+  testInitializationFail(mock, assert, true);
 
 }
 
@@ -98,7 +108,7 @@ export function testNoEventSource(mock, assert) {
     assert.fail('not authenticate if EventSource is not available');
   });
 
-  testInitializationFail(mock, assert);
+  testInitializationFail(mock, assert, false);
 
   window.EventSource = originalEventSource;
 
@@ -112,7 +122,7 @@ export function testNoBase64Support(mock, assert) {
     assert.fail('not authenticate if `atob` or `btoa` functions are not available');
   });
 
-  testInitializationFail(mock, assert);
+  testInitializationFail(mock, assert, false);
 
   window.atob = originalAtoB;
 
