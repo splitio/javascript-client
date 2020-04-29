@@ -42,8 +42,8 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
 
   /** PushManager functions related to initialization */
 
-  const reauthBackoff = new Backoff(connectPush, settings.authRetryBackoffBase);
-  const sseReconnectBackoff = new Backoff(sseClient.reopen, settings.streamingReconnectBackoffBase);
+  const reauthBackoff = new Backoff(connectPush, settings.scheduler.authRetryBackoffBase);
+  const sseReconnectBackoff = new Backoff(sseClient.reopen, settings.scheduler.streamingReconnectBackoffBase);
 
   let timeoutId = 0;
 

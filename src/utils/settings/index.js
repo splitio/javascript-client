@@ -60,7 +60,11 @@ const base = {
     // publish events every 60 seconds after the first flush
     eventsPushRate: 60,
     // how many events will be queued before flushing
-    eventsQueueSize: 500
+    eventsQueueSize: 500,
+    // backoff base seconds to wait before re attempting to authenticate for push notifications
+    authRetryBackoffBase: 1,
+    // backoff base seconds to wait before re attempting to connect to streaming
+    streamingReconnectBackoffBase: 1
   },
 
   urls: {
@@ -93,12 +97,6 @@ const base = {
 
   // toggle using (true) or not using (false) Server-Side Events for synchronizing storage
   streamingEnabled: false,
-
-  // backoff base seconds to wait before re attempting to authenticate for push notifications
-  authRetryBackoffBase: 1,
-
-  // backoff base seconds to wait before re attempting to connect to streaming
-  streamingReconnectBackoffBase: 1
 };
 
 function fromSecondsToMillis(n) {
@@ -153,8 +151,8 @@ function defaults(custom) {
   if (withDefaults.streamingEnabled) {
     // Backoff bases.
     // We are not checking if bases are positive numbers. Thus, we might be reauthenticating immediately (`setTimeout` with NaN or negative number)
-    withDefaults.authRetryBackoffBase = fromSecondsToMillis(withDefaults.authRetryBackoffBase);
-    withDefaults.streamingReconnectBackoffBase = fromSecondsToMillis(withDefaults.streamingReconnectBackoffBase);
+    withDefaults.scheduler.authRetryBackoffBase = fromSecondsToMillis(withDefaults.scheduler.authRetryBackoffBase);
+    withDefaults.scheduler.streamingReconnectBackoffBase = fromSecondsToMillis(withDefaults.scheduler.streamingReconnectBackoffBase);
   }
 
   return withDefaults;
