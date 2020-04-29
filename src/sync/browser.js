@@ -28,7 +28,7 @@ export default function BrowserSyncManagerFactory(mainContext) {
       log.info('Streaming not available. Starting periodic fetch of data.');
       forOwn(contexts, function (context) {
         const producer = context.get(context.constants.PRODUCER);
-        producer.start(true); // `fetchers` are scheduled but not called immediately
+        producer.start();
       });
     } else {
       log.info('Streaming couldn\'t connect. Continue periodic fetch of data.');

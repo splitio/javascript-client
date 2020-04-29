@@ -43,15 +43,10 @@ const PartialBrowserProducer = (context) => {
   }
 
   return {
-    /**
-     * Start periodic fetching (polling)
-     *
-     * @param {boolean} notStartImmediately if true, fetcher call is scheduled but not run immediately
-     */
-    start(notStartImmediately) {
-      mySegmentsUpdaterTask.start(notStartImmediately);
+    // Start periodic fetching (polling)
+    start() {
+      mySegmentsUpdaterTask.start();
       splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, onSplitsArrived);
-      if (notStartImmediately) onSplitsArrived(); // resuming polling
     },
 
     // Stop periodic fetching (polling)
