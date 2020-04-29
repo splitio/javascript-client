@@ -36,7 +36,6 @@ const FullBrowserProducer = (context) => {
   const mySegmentsUpdaterTask = TaskFactory(synchronizeMySegments, settings.scheduler.segmentsRefreshRate);
 
   const onSplitsArrived = onSplitsArrivedFactory(mySegmentsUpdaterTask, context);
-  splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, onSplitsArrived);
 
   let isSynchronizingSplits = false;
   let isSynchronizingMySegments = false;
@@ -69,6 +68,8 @@ const FullBrowserProducer = (context) => {
 
       splitsUpdaterTask.start(notStartImmediately);
       mySegmentsUpdaterTask.start(notStartImmediately);
+      splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, onSplitsArrived);
+      if (notStartImmediately) onSplitsArrived(); // resuming polling
     },
 
     // Stop periodic fetching (polling)
@@ -77,6 +78,7 @@ const FullBrowserProducer = (context) => {
 
       splitsUpdaterTask.stop();
       mySegmentsUpdaterTask && mySegmentsUpdaterTask.stop();
+      splitsEventEmitter.removeListener(splitsEventEmitter.SDK_SPLITS_ARRIVED, onSplitsArrived);
     },
 
     // Used by SyncManager to know if running in polling mode.

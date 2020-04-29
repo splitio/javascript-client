@@ -198,6 +198,9 @@ export function testSynchronization(mock, assert) {
     return [200, splitChangesMock4];
   });
 
+  // initial fetch of mySegments for new client
+  mock.onGet(settings.url('/mySegments/marcio@split.io')).replyOnce(200, mySegmentsMarcio);
+
   // split and mySegment sync after second SSE opened
   mock.onGet(settings.url('/splitChanges?since=1457552650000')).replyOnce(function () {
     const lapse = Date.now() - start;

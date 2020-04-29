@@ -28,7 +28,7 @@ tape('SETTINGS / check defaults', assert => {
     sdk: 'https://sdk.split.io/api',
     events: 'https://events.split.io/api',
     auth: 'https://auth.split.io/api',
-    streaming: 'https://realtime.ably.io',
+    streaming: 'https://split-realtime.ably.io',
   });
   assert.end();
 });

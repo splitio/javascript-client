@@ -21,31 +21,36 @@ export default function BrowserSyncManagerFactory(mainContext) {
   // call `createInstance` before creating PushManager, since it is in charge of creating the full producer and adding it into the main context.
   const syncManager = createInstance(false, mainContext);
   const pushManager = settings.streamingEnabled ? PushManagerFactory(mainContext, contexts) : undefined;
+  const mainProducer = mainContext.get(mainContext.constants.PRODUCER);
 
   function startPolling() {
-    log.info('PUSH down or disconnected. Starting periodic fetch of data.');
-    forOwn(contexts, function (context) {
-      const producer = context.get(context.constants.PRODUCER);
-      if (!producer.isRunning())
+    if (!mainProducer.isRunning()) {
+      log.info('Streaming not available. Starting periodic fetch of data.');
+      forOwn(contexts, function (context) {
+        const producer = context.get(context.constants.PRODUCER);
         producer.start(true); // `fetchers` are scheduled but not called immediately
-    });
+      });
+    } else {
+      log.info('Streaming couldn\'t connect. Continue periodic fetch of data.');
+    }
   }
 
   function stopPollingAndSyncAll() {
-    log.info('PUSH (re)connected. Syncing and stopping periodic fetch of data.');
-    // if polling, stop
-    forOwn(contexts, function (context) {
-      const producer = context.get(context.constants.PRODUCER);
-      if (producer.isRunning())
+    if (mainProducer.isRunning()) {
+      log.info('PUSH (re)connected. Syncing and stopping periodic fetch of data.');
+      // if polling, stop
+      forOwn(contexts, function (context) {
+        const producer = context.get(context.constants.PRODUCER);
         producer.stop();
-    });
+      });
+    }
     syncAll();
   }
 
   function syncAll() {
     // fetch splits and segments
-    const mainProducer = mainContext.get(mainContext.constants.PRODUCER, true);
-    mainProducer && mainProducer.synchronizeSplits();
+    const mainProducer = mainContext.get(mainContext.constants.PRODUCER);
+    mainProducer.synchronizeSplits();
     forOwn(contexts, function (context) {
       const producer = context.get(context.constants.PRODUCER);
       producer.synchronizeMySegments();
@@ -76,6 +81,10 @@ export default function BrowserSyncManagerFactory(mainContext) {
             syncAll(); // initial syncAll (only when main client is created)
             pushManager.on(PUSH_CONNECT, stopPollingAndSyncAll);
             pushManager.on(PUSH_DISCONNECT, startPolling);
+          } else {
+            // for a shared client we must perform a `producer.synchronizeMySegments` for the initial fetch of its segments
+            // since `syncAll` was already executed when starting the main client
+            producer.synchronizeMySegments();
           }
           pushManager.startNewClient(userKey, context);
         } else {
