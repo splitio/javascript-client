@@ -54,6 +54,8 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
     // Set token refresh 10 minutes before expirationTime
     const delayInSeconds = expirationTime - issuedAt - SECONDS_BEFORE_EXPIRATION;
 
+    log.info(`Refreshing streaming token in ${delayInSeconds} seconds.`);
+
     timeoutId = setTimeout(connectPush, delayInSeconds * 1000);
   }
 
