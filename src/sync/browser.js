@@ -82,9 +82,14 @@ export default function BrowserSyncManagerFactory(mainContext) {
             pushManager.on(PUSH_CONNECT, stopPollingAndSyncAll);
             pushManager.on(PUSH_DISCONNECT, startPolling);
           } else {
-            // for a shared client we must perform a `producer.synchronizeMySegments` for the initial fetch of its segments
-            // since `syncAll` was already executed when starting the main client
-            producer.synchronizeMySegments();
+            if (mainProducer.isRunning()) {
+              // if doing polling, we must start the producer periodic fetch of data
+              producer.start();
+            } else {
+              // if not doing polling, we must perform a `producer.synchronizeMySegments` for the initial fetch
+              // of segments since `syncAll` was already executed when starting the main client
+              producer.synchronizeMySegments();
+            }
           }
           pushManager.startNewClient(userKey, context);
         } else {
