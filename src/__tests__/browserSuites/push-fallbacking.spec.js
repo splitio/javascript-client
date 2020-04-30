@@ -34,6 +34,7 @@ import SettingsFactory from '../../utils/settings';
 
 const userKey = 'nicolas@split.io';
 const secondUserKey = 'marcio@split.io';
+const thirdUserKey = 'facundo@split.io';
 
 const baseUrls = {
   sdk: 'https://sdk.push-synchronization/api',
@@ -83,6 +84,7 @@ const MILLIS_DESTROY = MILLIS_STREAMING_DISABLED_CONTROL + settings.scheduler.fe
  *  0.55 secs: create a new client while streaming -> initial fetch (/mySegments/marcio), auth, SSE connection and syncAll (/splitChanges, /mySegments/nicolas, /mySegments/marcio)
  *  0.6 secs: SPLIT_UPDATE event -> /splitChanges
  *  0.7 secs: Streaming down (CONTROL event) -> fetch due to fallback to polling (/splitChanges, /mySegments/nicolas, /mySegments/marcio)
+ *  0.7 secs: create a new client while polling -> initial fetch (/mySegments/facundo), auth fail (continue polling)
  *  0.8 secs: MY_SEGMENTS_UPDATE event ignored
  *  0.9 secs: periodic fetch due to polling (/splitChanges)
  *  0.95 secs: periodic fetch due to polling (/mySegments/nicolas, /mySegments/marcio)
@@ -94,7 +96,7 @@ const MILLIS_DESTROY = MILLIS_STREAMING_DISABLED_CONTROL + settings.scheduler.fe
  *  1.7 secs: destroy client
  */
 export function testFallbacking(mock, assert) {
-  assert.plan(14);
+  assert.plan(16);
   mock.reset();
 
   const start = Date.now();
@@ -102,7 +104,7 @@ export function testFallbacking(mock, assert) {
   const splitio = SplitFactory(config);
   const client = splitio.client();
   // eslint-disable-next-line no-unused-vars
-  let secondClient;
+  let secondClient, thirdClient;
 
   // mock SSE open and message events
   setMockListener(function (eventSourceInstance) {
@@ -146,6 +148,7 @@ export function testFallbacking(mock, assert) {
 
         setTimeout(() => {
           eventSourceInstance.emitMessage(streamingPausedControlPriMessage);
+          thirdClient = splitio.client(thirdUserKey);
         }, MILLIS_STREAMING_PAUSED_CONTROL - MILLIS_CREATE_CLIENT_DURING_PUSH); // send a CONTROL event for switching to polling
 
         setTimeout(() => {
@@ -209,7 +212,7 @@ export function testFallbacking(mock, assert) {
   mock.onGet(settings.url('/splitChanges?since=1457552620999')).replyOnce(200, { splits: [], since: 1457552620999, till: 1457552620999 });
   mock.onGet(settings.url('/mySegments/nicolas@split.io')).replyOnce(200, mySegmentsNicolasMock1);
 
-  // initial shared client sync, reauth and syncAll due to new client
+  // creating of second client during streaming: initial mysegment sync, reauth and syncAll due to new client
   mock.onGet(settings.url('/mySegments/marcio@split.io')).replyOnce(200, mySegmentsMarcio);
   mock.onGet(settings.url(`/auth?users=${encodeURIComponent(userKey)}&users=${encodeURIComponent(secondUserKey)}`)).replyOnce(function (request) {
     if (!request.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
@@ -231,6 +234,13 @@ export function testFallbacking(mock, assert) {
   mock.onGet(settings.url('/splitChanges?since=1457552649999')).replyOnce(200, { splits: [], since: 1457552649999, till: 1457552649999 });
   mock.onGet(settings.url('/mySegments/nicolas@split.io')).replyOnce(200, mySegmentsNicolasMock1);
   mock.onGet(settings.url('/mySegments/marcio@split.io')).replyOnce(200, mySegmentsMarcio);
+  
+  // creation of third client during polling: initial mysegment sync and authentication
+  mock.onGet(settings.url('/mySegments/facundo@split.io')).replyOnce(200, mySegmentsMarcio);
+  // authentication fail, so we keep polling. next auth attempt is scheduled in one second (after the test finishes)
+  mock.onGet(settings.url(`/auth?users=${encodeURIComponent(userKey)}&users=${encodeURIComponent(secondUserKey)}&users=${encodeURIComponent(thirdUserKey)}`)).networkErrorOnce();
+  
+  // continue fetches due to second fallback to polling
   mock.onGet(settings.url('/splitChanges?since=1457552649999')).replyOnce(function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_STREAMING_PAUSED_CONTROL + settings.scheduler.featuresRefreshRate), 'fetch due to second fallback to polling');
@@ -238,11 +248,13 @@ export function testFallbacking(mock, assert) {
   });
   mock.onGet(settings.url('/mySegments/nicolas@split.io')).replyOnce(200, mySegmentsNicolasMock1);
   mock.onGet(settings.url('/mySegments/marcio@split.io')).replyOnce(200, mySegmentsMarcio);
+  mock.onGet(settings.url('/mySegments/facundo@split.io')).replyOnce(200, mySegmentsMarcio);
 
   // split and segment sync due to streaming up (CONTROL event)
   mock.onGet(settings.url('/splitChanges?since=1457552649999')).replyOnce(200, { splits: [], since: 1457552649999, till: 1457552649999 });
   mock.onGet(settings.url('/mySegments/nicolas@split.io')).replyOnce(200, mySegmentsNicolasMock1);
   mock.onGet(settings.url('/mySegments/marcio@split.io')).replyOnce(200, mySegmentsMarcio);
+  mock.onGet(settings.url('/mySegments/facundo@split.io')).replyOnce(200, mySegmentsMarcio);
 
   // fetch due to MY_SEGMENTS_UPDATE event
   mock.onGet(settings.url('/mySegments/nicolas@split.io')).replyOnce(function () {
@@ -255,6 +267,7 @@ export function testFallbacking(mock, assert) {
   mock.onGet(settings.url('/splitChanges?since=1457552649999')).replyOnce(200, { splits: [], since: 1457552649999, till: 1457552649999 });
   mock.onGet(settings.url('/mySegments/nicolas@split.io')).replyOnce(200, mySegmentsNicolasMock1);
   mock.onGet(settings.url('/mySegments/marcio@split.io')).replyOnce(200, mySegmentsMarcio);
+  mock.onGet(settings.url('/mySegments/facundo@split.io')).replyOnce(200, mySegmentsMarcio);
   mock.onGet(settings.url('/splitChanges?since=1457552649999')).replyOnce(function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_STREAMING_DISABLED_CONTROL + settings.scheduler.featuresRefreshRate), 'fetch due to third fallback to polling');
