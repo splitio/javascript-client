@@ -56,12 +56,8 @@ const NodeUpdater = (context) => {
   }
 
   return {
-    /**
-     * Start periodic fetching (polling)
-     *
-     * @param {boolean} notStartImmediately if true, fetcher calls are scheduled but not run immediately
-     */
-    start(notStartImmediately) {
+    // Start periodic fetching (polling)
+    start() {
       log.info('Starting NODEJS updater');
       log.debug(`Splits will be refreshed each ${settings.scheduler.featuresRefreshRate} millis`);
       log.debug(`Segments will be refreshed each ${settings.scheduler.segmentsRefreshRate} millis`);
@@ -80,8 +76,7 @@ const NodeUpdater = (context) => {
                 scheduleSegmentsUpdate();
               }
             },
-            settings.scheduler.segmentsRefreshRate,
-            notStartImmediately
+            settings.scheduler.segmentsRefreshRate
           );
         }
       };
@@ -98,8 +93,7 @@ const NodeUpdater = (context) => {
               scheduleSplitsUpdate();
             });
         },
-        settings.scheduler.featuresRefreshRate,
-        notStartImmediately
+        settings.scheduler.featuresRefreshRate
       );
 
       isRunning = true;

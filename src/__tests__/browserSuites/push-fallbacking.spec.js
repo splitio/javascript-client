@@ -2,9 +2,9 @@
  * Validate the handling of OCCUPANCY and CONTROL events
  */
 
-import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
-import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
-import splitChangesMock3 from '../mocks/splitchanges.since.1457552620999.till.1457552631000.SPLIT_UPDATE.json';
+import splitChangesMock1 from '../mocks/splitchanges.real.withSegments.json'; // since: -1, till: 1457552620999 (for initial fetch)
+import splitChangesMock2 from '../mocks/splitchanges.real.updateWithSegments.json'; // since: 1457552620999, till: 1457552649999 (for SPLIT_UPDATE event)
+import splitChangesMock3 from '../mocks/splitchanges.real.updateWithoutSegments.json'; // since: 1457552649999, till: 1457552669999 (for second polling fetch)
 import mySegmentsNicolasMock1 from '../mocks/mysegments.nicolas@split.io.json';
 import mySegmentsNicolasMock2 from '../mocks/mysegments.nicolas@split.io.mock2.json';
 
@@ -17,7 +17,7 @@ import streamingPausedControlPriMessage from '../mocks/message.CONTROL.STREAMING
 import streamingResumedControlPriMessage from '../mocks/message.CONTROL.STREAMING_RESUMED.control_pri.1586987434850.json';
 import streamingDisabledControlPriMessage from '../mocks/message.CONTROL.STREAMING_DISABLED.control_pri.1586987434950.json';
 
-import splitUpdateMessage from '../mocks/message.SPLIT_UPDATE.1457552631000.json';
+import splitUpdateMessage from '../mocks/message.SPLIT_UPDATE.1457552649999.json';
 import mySegmentsUpdateMessage from '../mocks/message.MY_SEGMENTS_UPDATE.nicolas@split.io.1457552640000.json';
 
 import authPushEnabledNicolas from '../mocks/auth.pushEnabled.nicolas@split.io.json';
@@ -44,7 +44,7 @@ const config = {
   },
   scheduler: {
     featuresRefreshRate: 0.2,
-    segmentsRefreshRate: 3000,
+    segmentsRefreshRate: 0.25,
     metricsRefreshRate: 3000,
     impressionsRefreshRate: 3000
   },
@@ -57,40 +57,39 @@ const settings = SettingsFactory(config);
 const MILLIS_SSE_OPEN = 100;
 const MILLIS_STREAMING_DOWN_OCCUPANCY = MILLIS_SSE_OPEN + 100;
 const MILLIS_SPLIT_UPDATE_EVENT_DURING_POLLING = MILLIS_STREAMING_DOWN_OCCUPANCY + 100;
-const MILLIS_SPLIT_POLLING = MILLIS_STREAMING_DOWN_OCCUPANCY + settings.scheduler.featuresRefreshRate;
-const MILLIS_STREAMING_UP_OCCUPANCY = MILLIS_SPLIT_POLLING + 100;
+const MILLIS_STREAMING_UP_OCCUPANCY = MILLIS_STREAMING_DOWN_OCCUPANCY + settings.scheduler.featuresRefreshRate + 100;
 const MILLIS_SPLIT_UPDATE_EVENT_DURING_PUSH = MILLIS_STREAMING_UP_OCCUPANCY + 100;
 
 const MILLIS_STREAMING_PAUSED_CONTROL = MILLIS_SPLIT_UPDATE_EVENT_DURING_PUSH + 100;
 const MILLIS_MY_SEGMENTS_UPDATE_EVENT_DURING_POLLING = MILLIS_STREAMING_PAUSED_CONTROL + 100;
-const MILLIS_SECOND_SPLIT_POLLING = MILLIS_STREAMING_PAUSED_CONTROL + settings.scheduler.featuresRefreshRate;
-const MILLIS_STREAMING_RESUMED_CONTROL = MILLIS_SECOND_SPLIT_POLLING + 100;
+const MILLIS_STREAMING_RESUMED_CONTROL = MILLIS_STREAMING_PAUSED_CONTROL + settings.scheduler.featuresRefreshRate + 100;
 const MILLIS_MY_SEGMENTS_UPDATE_EVENT_DURING_PUSH = MILLIS_STREAMING_RESUMED_CONTROL + 100;
 const MILLIS_STREAMING_DISABLED_CONTROL = MILLIS_MY_SEGMENTS_UPDATE_EVENT_DURING_PUSH + 100;
-const MILLIS_THIRD_SPLIT_POLLING = MILLIS_STREAMING_DISABLED_CONTROL + settings.scheduler.featuresRefreshRate;
-
-const MILLIS_DESTROY = MILLIS_THIRD_SPLIT_POLLING + 100;
+const MILLIS_DESTROY = MILLIS_STREAMING_DISABLED_CONTROL + settings.scheduler.featuresRefreshRate * 2 + 100;
 
 /**
  * Sequence of calls:
  *  0.0 secs: initial SyncAll (/splitChanges, /mySegments/*), auth, SSE connection
  *  0.1 secs: SSE connection opened -> syncAll (/splitChanges, /mySegments/*)
- *  0.2 secs: Streaming down (OCCUPANCY event)
+ *  0.2 secs: Streaming down (OCCUPANCY event) -> fetch due to fallback to polling (/splitChanges, /mySegments/*)
  *  0.3 secs: SPLIT_UPDATE event ignored
  *  0.4 secs: periodic fetch due to polling (/splitChanges)
+ *  0.45 secs: periodic fetch due to polling (/mySegments/*)
  *  0.5 secs: Streaming up (OCCUPANCY event) -> syncAll (/splitChanges, /mySegments/*)
  *  0.6 secs: SPLIT_UPDATE event -> /splitChanges
- *  0.7 secs: Streaming down (CONTROL event)
+ *  0.7 secs: Streaming down (CONTROL event) -> fetch due to fallback to polling (/splitChanges, /mySegments/*)
  *  0.8 secs: MY_SEGMENTS_UPDATE event ignored
  *  0.9 secs: periodic fetch due to polling (/splitChanges)
+ *  0.95 secs: periodic fetch due to polling (/mySegments/*)
  *  1.0 secs: Streaming up (CONTROL event) -> syncAll (/splitChanges, /mySegments/*)
  *  1.1 secs: MY_SEGMENTS_UPDATE event -> /mySegments/*
- *  1.2 secs: Streaming down (CONTROL event)
- *  1.4 secs: periodic fetch due to polling (/splitChanges)
- *  1.5 secs: destroy client
+ *  1.2 secs: Streaming down (CONTROL event) -> fetch due to fallback to polling (/splitChanges, /mySegments/*)
+ *  1.4 secs: periodic fetch due to polling (/splitChanges): due to update without segments, mySegments are not fetched
+ *  1.6 secs: periodic fetch due to polling (/splitChanges)
+ *  1.7 secs: destroy client
  */
 export function testFallbacking(mock, assert) {
-  assert.plan(13);
+  assert.plan(14);
   mock.reset();
 
   const start = Date.now();
@@ -123,9 +122,9 @@ export function testFallbacking(mock, assert) {
     }, MILLIS_STREAMING_UP_OCCUPANCY); // send a OCCUPANCY event for switching to push
 
     setTimeout(() => {
-      assert.equal(client.getTreatment('whitelist'), 'not_allowed', 'evaluation of initial Split');
+      assert.equal(client.getTreatment('real_split'), 'on', 'evaluation of initial Split');
       client.once(client.Event.SDK_UPDATE, () => {
-        assert.equal(client.getTreatment('whitelist'), 'allowed', 'evaluation of updated Split');
+        assert.equal(client.getTreatment('real_split'), 'off', 'evaluation of updated Split');
       });
       eventSourceInstance.emitMessage(splitUpdateMessage);
     }, MILLIS_SPLIT_UPDATE_EVENT_DURING_PUSH); // send a SPLIT_UPDATE event when push resumed, to check that we are handling it
@@ -143,9 +142,9 @@ export function testFallbacking(mock, assert) {
     }, MILLIS_STREAMING_RESUMED_CONTROL); // send a CONTROL event for switching to push
 
     setTimeout(() => {
-      assert.equal(client.getTreatment('splitters'), 'off', 'evaluation with initial segment');
+      assert.equal(client.getTreatment('real_split'), 'off', 'evaluation with initial segment');
       client.once(client.Event.SDK_UPDATE, () => {
-        assert.equal(client.getTreatment('splitters'), 'on', 'evaluation with updated segment');
+        assert.equal(client.getTreatment('real_split'), 'on', 'evaluation with updated segment');
       });
       eventSourceInstance.emitMessage(mySegmentsUpdateMessage);
     }, MILLIS_MY_SEGMENTS_UPDATE_EVENT_DURING_PUSH); // send a MY_SEGMENTS_UPDATE event
@@ -168,41 +167,47 @@ export function testFallbacking(mock, assert) {
     return [200, authPushEnabledNicolas];
   });
 
-  // initial split and segment sync
+  // initial split and mySegment sync
   mock.onGet(settings.url('/splitChanges?since=-1')).replyOnce(200, splitChangesMock1);
   mock.onGet(settings.url('/mySegments/nicolas@split.io')).replyOnce(200, mySegmentsNicolasMock1);
 
   // split and segment sync after SSE opened
-  mock.onGet(settings.url('/splitChanges?since=1457552620999')).replyOnce(200, splitChangesMock2);
+  mock.onGet(settings.url('/splitChanges?since=1457552620999')).replyOnce(200, { splits: [], since: 1457552620999, till: 1457552620999 });
   mock.onGet(settings.url('/mySegments/nicolas@split.io')).replyOnce(200, mySegmentsNicolasMock1);
 
-  // fetch due to split polling
+  // fetches due to first fallback to polling
+  mock.onGet(settings.url('/splitChanges?since=1457552620999')).replyOnce(200, { splits: [], since: 1457552620999, till: 1457552620999 });
+  mock.onGet(settings.url('/mySegments/nicolas@split.io')).replyOnce(200, mySegmentsNicolasMock1);
   mock.onGet(settings.url('/splitChanges?since=1457552620999')).replyOnce(function () {
     const lapse = Date.now() - start;
-    assert.true(nearlyEqual(lapse, MILLIS_SPLIT_POLLING), 'fetch due to SPLIT polling');
-    return [200, splitChangesMock2];
+    assert.true(nearlyEqual(lapse, MILLIS_STREAMING_DOWN_OCCUPANCY + settings.scheduler.featuresRefreshRate), 'fetch due to first fallback to polling');
+    return [200, { splits: [], since: 1457552620999, till: 1457552620999 }];
   });
+  mock.onGet(settings.url('/mySegments/nicolas@split.io')).replyOnce(200, mySegmentsNicolasMock1);
 
   // split and segment sync due to streaming up (OCCUPANCY event)
-  mock.onGet(settings.url('/splitChanges?since=1457552620999')).replyOnce(200, splitChangesMock2);
+  mock.onGet(settings.url('/splitChanges?since=1457552620999')).replyOnce(200, { splits: [], since: 1457552620999, till: 1457552620999 });
   mock.onGet(settings.url('/mySegments/nicolas@split.io')).replyOnce(200, mySegmentsNicolasMock1);
 
   // fetch due to SPLIT_UPDATE event
   mock.onGet(settings.url('/splitChanges?since=1457552620999')).replyOnce(function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_SPLIT_UPDATE_EVENT_DURING_PUSH), 'sync due to SPLIT_UPDATE event');
-    return [200, splitChangesMock3];
+    return [200, splitChangesMock2];
   });
 
-  // fetch due to second split polling
-  mock.onGet(settings.url('/splitChanges?since=1457552631000')).replyOnce(function () {
+  // fetches due to second fallback to polling
+  mock.onGet(settings.url('/splitChanges?since=1457552649999')).replyOnce(200, { splits: [], since: 1457552649999, till: 1457552649999 });
+  mock.onGet(settings.url('/mySegments/nicolas@split.io')).replyOnce(200, mySegmentsNicolasMock1);
+  mock.onGet(settings.url('/splitChanges?since=1457552649999')).replyOnce(function () {
     const lapse = Date.now() - start;
-    assert.true(nearlyEqual(lapse, MILLIS_SECOND_SPLIT_POLLING), 'fetch due to second SPLIT polling');
-    return [200, { splits: [], since: 1457552631000, till: 1457552631000 }];
+    assert.true(nearlyEqual(lapse, MILLIS_STREAMING_PAUSED_CONTROL + settings.scheduler.featuresRefreshRate), 'fetch due to second fallback to polling');
+    return [200, { splits: [], since: 1457552649999, till: 1457552649999 }];
   });
+  mock.onGet(settings.url('/mySegments/nicolas@split.io')).replyOnce(200, mySegmentsNicolasMock1);
 
   // split and segment sync due to streaming up (CONTROL event)
-  mock.onGet(settings.url('/splitChanges?since=1457552631000')).replyOnce(200, { splits: [], since: 1457552631000, till: 1457552631000 });
+  mock.onGet(settings.url('/splitChanges?since=1457552649999')).replyOnce(200, { splits: [], since: 1457552649999, till: 1457552649999 });
   mock.onGet(settings.url('/mySegments/nicolas@split.io')).replyOnce(200, mySegmentsNicolasMock1);
 
   // fetch due to MY_SEGMENTS_UPDATE event
@@ -212,11 +217,18 @@ export function testFallbacking(mock, assert) {
     return [200, mySegmentsNicolasMock2];
   });
 
-  // fetch due to third split polling
-  mock.onGet(settings.url('/splitChanges?since=1457552631000')).replyOnce(function () {
+  // fetches due to third fallback to polling (mySegments is not fetched after the first iteration)
+  mock.onGet(settings.url('/splitChanges?since=1457552649999')).replyOnce(200, { splits: [], since: 1457552649999, till: 1457552649999 });
+  mock.onGet(settings.url('/mySegments/nicolas@split.io')).replyOnce(200, mySegmentsNicolasMock1);
+  mock.onGet(settings.url('/splitChanges?since=1457552649999')).replyOnce(function () {
     const lapse = Date.now() - start;
-    assert.true(nearlyEqual(lapse, MILLIS_THIRD_SPLIT_POLLING), 'fetch due to third SPLIT polling');
-    return [200, { splits: [], since: 1457552631000, till: 1457552631000 }];
+    assert.true(nearlyEqual(lapse, MILLIS_STREAMING_DISABLED_CONTROL + settings.scheduler.featuresRefreshRate), 'fetch due to third fallback to polling');
+    return [200, splitChangesMock3];
+  });
+  mock.onGet(settings.url('/splitChanges?since=1457552669999')).replyOnce(function () {
+    const lapse = Date.now() - start;
+    assert.true(nearlyEqual(lapse, MILLIS_STREAMING_DISABLED_CONTROL + settings.scheduler.featuresRefreshRate * 2), 'fetch due to third fallback to polling');
+    return [200, { splits: [], since: 1457552669999, till: 1457552669999 }];
   });
 
   mock.onGet(new RegExp('.*')).reply(function (request) {

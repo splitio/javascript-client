@@ -1,10 +1,10 @@
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
-import splitChangesMock3 from '../mocks/splitchanges.since.1457552620999.till.1457552631000.SPLIT_UPDATE.json';
+import splitChangesMock3 from '../mocks/splitchanges.since.1457552620999.till.1457552649999.SPLIT_UPDATE.json';
 import mySegmentsNicolasMock1 from '../mocks/mysegments.nicolas@split.io.json';
 import mySegmentsNicolasMock2 from '../mocks/mysegments.nicolas@split.io.mock2.json';
 
-import splitUpdateMessage from '../mocks/message.SPLIT_UPDATE.1457552631000.json';
+import splitUpdateMessage from '../mocks/message.SPLIT_UPDATE.1457552649999.json';
 import oldSplitUpdateMessage from '../mocks/message.SPLIT_UPDATE.1457552620999.json';
 import mySegmentsUpdateMessage from '../mocks/message.MY_SEGMENTS_UPDATE.nicolas@split.io.1457552640000.json';
 import splitKillMessage from '../mocks/message.SPLIT_KILL.1457552650000.json';
@@ -175,18 +175,18 @@ export function testSynchronizationRetries(mock, assert) {
   });
 
   // fetch due to SPLIT_KILL event
-  mock.onGet(settings.url('/splitChanges?since=1457552631000')).replyOnce(function () {
+  mock.onGet(settings.url('/splitChanges?since=1457552649999')).replyOnce(function () {
     assert.equal(client.getTreatment('whitelist'), 'not_allowed', 'evaluation with split killed immediately, before fetch is done');
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_SPLIT_KILL_EVENT), 'sync due to SPLIT_KILL event');
-    return [200, { since: 1457552631000, till: 1457552631000, splits: [] }]; // returning old state
+    return [200, { since: 1457552649999, till: 1457552649999, splits: [] }]; // returning old state
   });
   // first fetch retry for SPLIT_KILL event, due to previous unexpected response (response till minor than SPLIT_KILL changeNumber)
-  mock.onGet(settings.url('/splitChanges?since=1457552631000')).networkErrorOnce();
+  mock.onGet(settings.url('/splitChanges?since=1457552649999')).networkErrorOnce();
   // second fetch retry for SPLIT_KILL event
-  mock.onGet(settings.url('/splitChanges?since=1457552631000')).networkErrorOnce();
+  mock.onGet(settings.url('/splitChanges?since=1457552649999')).networkErrorOnce();
   // third fetch retry for SPLIT_KILL event
-  mock.onGet(settings.url('/splitChanges?since=1457552631000')).replyOnce(function () {
+  mock.onGet(settings.url('/splitChanges?since=1457552649999')).replyOnce(function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_THIRD_RETRY_FOR_SPLIT_KILL_EVENT), 'third fetch retry due to SPLIT_KILL event');
 

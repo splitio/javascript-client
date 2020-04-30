@@ -42,8 +42,8 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
 
   /** PushManager functions related to initialization */
 
-  const reauthBackoff = new Backoff(connectPush, settings.authRetryBackoffBase);
-  const sseReconnectBackoff = new Backoff(sseClient.reopen, settings.streamingReconnectBackoffBase);
+  const reauthBackoff = new Backoff(connectPush, settings.scheduler.authRetryBackoffBase);
+  const sseReconnectBackoff = new Backoff(sseClient.reopen, settings.scheduler.streamingReconnectBackoffBase);
 
   let timeoutId = 0;
 
@@ -53,6 +53,8 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
 
     // Set token refresh 10 minutes before expirationTime
     const delayInSeconds = expirationTime - issuedAt - SECONDS_BEFORE_EXPIRATION;
+
+    log.info(`Refreshing streaming token in ${delayInSeconds} seconds.`);
 
     timeoutId = setTimeout(connectPush, delayInSeconds * 1000);
   }

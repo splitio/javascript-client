@@ -35,9 +35,10 @@ const settings = SettingsFactory(config);
 /**
  * Sequence of calls:
  *  0.0 secs: initial SyncAll (/splitChanges, /segmentChanges/*) and auth (success but push disabled)
+ *  0.0 secs: syncAll if falling back to polling (/splitChanges, /segmentChanges/*)
  *  0.1 secs: polling (/splitChanges, /segmentChanges/*)
  */
-function testInitializationFail(mock, assert) {
+function testInitializationFail(mock, assert, fallbackToPolling) {
   const start = Date.now();
 
   mock.onGet(new RegExp(`${settings.url('/segmentChanges/')}.*`)).reply(200, { since: 10, till: 10, name: 'segmentName', added: [], removed: [] });
@@ -54,10 +55,19 @@ function testInitializationFail(mock, assert) {
     ready = true;
   });
 
+  if (fallbackToPolling) {
+    mock.onGet(settings.url('/splitChanges?since=1457552620999')).replyOnce(function () {
+      assert.true(ready, 'client ready');
+      const lapse = Date.now() - start;
+      assert.true(nearlyEqual(lapse, 0), 'polling (first fetch)');
+      return [200, splitChangesMock2];
+    });
+  }
+
   mock.onGet(settings.url('/splitChanges?since=1457552620999')).replyOnce(function () {
-    assert.true(ready, 'client ready before first polling fetch');
+    assert.true(ready, 'client ready');
     const lapse = Date.now() - start;
-    assert.true(nearlyEqual(lapse, settings.scheduler.featuresRefreshRate), 'polling');
+    assert.true(nearlyEqual(lapse, settings.scheduler.featuresRefreshRate), 'polling (second fetch)');
     client.destroy().then(() => {
       assert.end();
     });
@@ -73,7 +83,7 @@ export function testAuthWithPushDisabled(mock, assert) {
     return [200, authPushDisabled];
   });
 
-  testInitializationFail(mock, assert);
+  testInitializationFail(mock, assert, true);
 
 }
 
@@ -85,7 +95,7 @@ export function testAuthWith401(mock, assert) {
     return [401, authInvalidCredentials];
   });
 
-  testInitializationFail(mock, assert);
+  testInitializationFail(mock, assert, true);
 
 }
 
@@ -96,7 +106,7 @@ export function testNoEventSource(mock, assert) {
     assert.fail('not authenticate if EventSource is not available');
   });
 
-  testInitializationFail(mock, assert);
+  testInitializationFail(mock, assert, false);
 
   __restore();
 

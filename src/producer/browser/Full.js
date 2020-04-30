@@ -58,18 +58,13 @@ const FullBrowserProducer = (context) => {
   }
 
   return {
-    /**
-     * Start periodic fetching (polling)
-     *
-     * @param {boolean} notStartImmediately if true, fetcher calls are scheduled but not run immediately
-     */
-    start(notStartImmediately) {
+    // Start periodic fetching (polling)
+    start() {
       log.info('Starting BROWSER producer');
 
-      splitsUpdaterTask.start(notStartImmediately);
-      mySegmentsUpdaterTask.start(notStartImmediately);
+      splitsUpdaterTask.start();
+      mySegmentsUpdaterTask.start();
       splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, onSplitsArrived);
-      if (notStartImmediately) onSplitsArrived(); // resuming polling
     },
 
     // Stop periodic fetching (polling)

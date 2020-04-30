@@ -27,15 +27,15 @@ const config = {
     featuresRefreshRate: 0.2,
     segmentsRefreshRate: 0.2,
     metricsRefreshRate: 3000,
-    impressionsRefreshRate: 3000
+    impressionsRefreshRate: 3000,
+    authRetryBackoffBase: 0.1,
+    streamingReconnectBackoffBase: 0.1
   },
   urls: baseUrls,
   startup: {
     eventsFirstPushWindow: 3000
   },
   streamingEnabled: true,
-  authRetryBackoffBase: 0.1,
-  streamingReconnectBackoffBase: 0.1,
   // debug: true,
 };
 const settings = SettingsFactory(config);
@@ -68,7 +68,7 @@ export function testAuthRetries(mock, assert) {
   mock.onGet(settings.url(`/auth?users=${encodeURIComponent(userKey)}`)).replyOnce(function (request) {
     if (!request.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
     const lapse = Date.now() - start;
-    const expected = (settings.authRetryBackoffBase * Math.pow(2, 0) + settings.authRetryBackoffBase * Math.pow(2, 1));
+    const expected = (settings.scheduler.authRetryBackoffBase * Math.pow(2, 0) + settings.scheduler.authRetryBackoffBase * Math.pow(2, 1));
     assert.true(nearlyEqual(lapse, expected), 'third auth attempt (aproximately in 0.3 seconds from first attempt)');
     return [200, authPushDisabled];
   });
@@ -81,6 +81,11 @@ export function testAuthRetries(mock, assert) {
   });
   mock.onGet(settings.url('/splitChanges?since=1457552620999')).replyOnce(function () {
     assert.true(ready, 'client ready before first polling fetch');
+    const lapse = Date.now() - start;
+    assert.true(nearlyEqual(lapse, 0), 'fallback to polling');
+    return [200, splitChangesMock2];
+  });
+  mock.onGet(settings.url('/splitChanges?since=1457552620999')).replyOnce(function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, settings.scheduler.featuresRefreshRate), 'polling');
     return [200, splitChangesMock2];
@@ -107,7 +112,7 @@ export function testSSERetries(mock, assert) {
   window.EventSource = EventSourceMock;
 
   const start = Date.now();
-  const expectedTimeToSSEsuccess = (settings.streamingReconnectBackoffBase * Math.pow(2, 0) + settings.streamingReconnectBackoffBase * Math.pow(2, 1));
+  const expectedTimeToSSEsuccess = (settings.scheduler.streamingReconnectBackoffBase * Math.pow(2, 0) + settings.scheduler.streamingReconnectBackoffBase * Math.pow(2, 1));
 
   const splitio = SplitFactory(config);
   const client = splitio.client();
@@ -145,6 +150,11 @@ export function testSSERetries(mock, assert) {
   });
   mock.onGet(settings.url('/splitChanges?since=1457552620999')).replyOnce(function () {
     assert.true(ready, 'client ready before first polling fetch');
+    const lapse = Date.now() - start;
+    assert.true(nearlyEqual(lapse, 0), 'fallback to polling');
+    return [200, splitChangesMock2];
+  });
+  mock.onGet(settings.url('/splitChanges?since=1457552620999')).replyOnce(function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, settings.scheduler.featuresRefreshRate), 'polling');
     return [200, splitChangesMock2];
