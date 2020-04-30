@@ -132,7 +132,8 @@ interface ISharedSettings {
    */
   impressionListener?: SplitIO.IImpressionListener,
   /**
-   * Enable Server-Sent Event (push mode) for synchronizing splits and segments definitions.
+   * Boolean flag to enable the streaming service as default synchronization mechanism. In the event of any issue with streaming,
+   * the SDK would fallback to the polling mechanism. If false, the SDK would poll for changes as usual without attempting to use streaming.
    * @property {boolean} streamingEnabled
    * @default false
    */
@@ -567,7 +568,7 @@ declare namespace SplitIO {
     logImpression(data: SplitIO.ImpressionData): void
   }
   /**
-   * A pair of user `key` and its `trafficType`, required for tracking valid Split events.
+   * A pair of user key and it's trafficType, required for tracking valid Split events.
    * @typedef {Object} Identity
    * @property {string} key The user key.
    * @property {string} trafficType The key traffic type.
@@ -635,7 +636,7 @@ declare namespace SplitIO {
     identities?: Identity[],
   }
   /**
-   * Object representing the data sent to Split (events and impressions).
+   * Object representing the data sent by Split (events and impressions).
    * @typedef {Object} IntegrationData
    * @property {string} type The type of Split data, either 'IMPRESSION' or 'EVENT'.
    * @property {ImpressionData | EventData} payload The data instance itself.
@@ -662,7 +663,7 @@ declare namespace SplitIO {
     events?: boolean,
     /**
      * Optional predicate used to define a custom filter for tracking Split data (events and impressions) as GA hits.
-     * For example, the following filter allows to track only impressions, equivalent to setting `events` to `false`:
+     * For example, the following filter allows to track only impressions, equivalent to setting events to false:
      *  `(data) => data.type === 'IMPRESSION'`
      */
     filter?: (data: SplitIO.IntegrationData) => boolean,
