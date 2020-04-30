@@ -87,10 +87,10 @@ const MILLIS_DESTROY = MILLIS_STREAMING_DISABLED_CONTROL + settings.scheduler.fe
  *  0.7 secs: create a new client while polling -> initial fetch (/mySegments/facundo), auth fail (continue polling)
  *  0.8 secs: MY_SEGMENTS_UPDATE event ignored
  *  0.9 secs: periodic fetch due to polling (/splitChanges)
- *  0.95 secs: periodic fetch due to polling (/mySegments/nicolas, /mySegments/marcio)
- *  1.0 secs: Streaming up (CONTROL event) -> syncAll (/splitChanges, /mySegments/nicolas, /mySegments/marcio)
+ *  0.95 secs: periodic fetch due to polling (/mySegments/nicolas, /mySegments/marcio, /mySegments/facundo)
+ *  1.0 secs: Streaming up (CONTROL event) -> syncAll (/splitChanges, /mySegments/nicolas, /mySegments/marcio, /mySegments/facundo)
  *  1.1 secs: MY_SEGMENTS_UPDATE event -> /mySegments/nicolas
- *  1.2 secs: Streaming down (CONTROL event) -> fetch due to fallback to polling (/splitChanges, /mySegments/nicolas, /mySegments/marcio)
+ *  1.2 secs: Streaming down (CONTROL event) -> fetch due to fallback to polling (/splitChanges, /mySegments/nicolas, /mySegments/marcio, /mySegments/facundo)
  *  1.4 secs: periodic fetch due to polling (/splitChanges): due to update without segments, mySegments are not fetched
  *  1.6 secs: periodic fetch due to polling (/splitChanges)
  *  1.7 secs: destroy client
