@@ -45,8 +45,8 @@ function GateContext() {
       }
     });
 
-    splits.on(Events.SDK_SPLITS_ARRIVED, () => {
-      splitsStatus = SPLITS_READY;
+    splits.on(Events.SDK_SPLITS_ARRIVED, (isSplitKill) => {
+      if(!isSplitKill) splitsStatus = SPLITS_READY;
       gate.emit(Events.READINESS_GATE_CHECK_STATE);
     });
 

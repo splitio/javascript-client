@@ -31,8 +31,32 @@ const NodeUpdater = (context) => {
   let stopSplitsUpdate = false;
   let stopSegmentsUpdate = false;
   let splitFetchCompleted = false;
+  let isRunning = false;
+  let isSynchronizingSplits = false;
+  let isSynchronizingSegments = false;
+
+  function synchronizeSplits() {
+    isSynchronizingSplits = true;
+    return splitsUpdater().then(function () {
+      // Mark splits as ready (track first successfull call to start downloading segments)
+      splitFetchCompleted = true;
+    }).finally(function () {
+      isSynchronizingSplits = false;
+    });
+  }
+
+  /**
+   * @param {string[] | undefined} segmentNames list of segment names to fetch. By passing `undefined` it fetches the list of segments registered at the storage
+   */
+  function synchronizeSegment(segmentNames) {
+    isSynchronizingSegments = true;
+    return segmentsUpdater(segmentNames).finally(function () {
+      isSynchronizingSegments = false;
+    });
+  }
 
   return {
+    // Start periodic fetching (polling)
     start() {
       log.info('Starting NODEJS updater');
       log.debug(`Splits will be refreshed each ${settings.scheduler.featuresRefreshRate} millis`);
@@ -40,12 +64,14 @@ const NodeUpdater = (context) => {
 
       // Schedule incremental update of segments only if needed
       const spinUpSegmentUpdater = () => {
-        if (!stopSegmentsUpdate) {
+        // We must check that Split polling is running (i.e. `stopSplitsUpdate !== false`),
+        // in case that `spinUpSegmentUpdater` is called once the client has been destroyed.
+        if (stopSplitsUpdate && !stopSegmentsUpdate) {
           stopSegmentsUpdate = repeat(
             scheduleSegmentsUpdate => {
               if (splitFetchCompleted) {
                 log.debug('Fetching segments');
-                segmentsUpdater().then(() => scheduleSegmentsUpdate());
+                synchronizeSegment().then(() => scheduleSegmentsUpdate());
               } else {
                 scheduleSegmentsUpdate();
               }
@@ -59,10 +85,8 @@ const NodeUpdater = (context) => {
         scheduleSplitsUpdate => {
           log.debug('Fetching splits');
 
-          splitsUpdater()
+          synchronizeSplits()
             .then(() => {
-              // Mark splits as ready (track first successfull call to start downloading segments)
-              splitFetchCompleted = true;
               // Spin up the segments update if needed
               spinUpSegmentUpdater();
               // Re-schedule update
@@ -71,14 +95,38 @@ const NodeUpdater = (context) => {
         },
         settings.scheduler.featuresRefreshRate
       );
+
+      isRunning = true;
     },
 
+    // Stop periodic fetching (polling)
     stop() {
       log.info('Stopping NODEJS updater');
 
       stopSplitsUpdate && stopSplitsUpdate();
+      stopSplitsUpdate = false; // Mark polling stopped, to be able to call `start` again and to avoid polling segments if `spinUpSegmentUpdater` is called after the client has been destroyed.
       stopSegmentsUpdate && stopSegmentsUpdate();
-    }
+      stopSegmentsUpdate = false;
+
+      isRunning = false;
+    },
+
+    // Used by SyncManager to know if running in polling mode.
+    isRunning() {
+      return isRunning;
+    },
+
+    // Used by SplitUpdateWorker
+    isSynchronizingSplits() {
+      return isSynchronizingSplits;
+    },
+    synchronizeSplits,
+
+    // Used by SegmentUpdateWorker
+    isSynchronizingSegments() {
+      return isSynchronizingSegments;
+    },
+    synchronizeSegment
   };
 };
 

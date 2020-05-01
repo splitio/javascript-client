@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio",
-  "version": "10.11.1",
+  "version": "10.12.0-canary.6",
   "description": "Split SDK",
   "files": [
     "README.md",
@@ -43,7 +43,8 @@
   },
   "optionalDependencies": {
     "events": "3.1.0",
-    "ioredis": "^4.14.1"
+    "ioredis": "^4.14.1",
+    "eventsource": "^1.0.7"
   },
   "devDependencies": {
     "@babel/cli": "^7.8.4",
@@ -95,12 +96,14 @@
     "test-browser-destroy": "cross-env NODE_ENV=test karma start karma/destroy.ci.karma.conf.js",
     "test-browser-errors": "cross-env NODE_ENV=test karma start karma/errors.ci.karma.conf.js",
     "test-browser-gaintegration": "cross-env NODE_ENV=test karma start karma/gaintegration.ci.karma.conf.js",
+    "test-browser-push": "cross-env NODE_ENV=test karma start karma/push.ci.karma.conf.js",
     "test-node": "cross-env NODE_ENV=test tape -r @babel/register \"src/*/**/__tests__/**/!(browser).spec.js\" | tap-summary",
     "test-node-e2e": "cross-env NODE_ENV=test tape -r @babel/register src/__tests__/node.spec.js | tap-summary",
     "test-node-destroy": "cross-env NODE_ENV=test tape -r @babel/register src/__tests__/destroy/node.spec.js | tap-summary",
     "test-node-errors": "cross-env NODE_ENV=test tape -r @babel/register src/__tests__/errorCatching/node.spec.js | tap-summary",
     "test-node-offline": "cross-env NODE_ENV=test tape -r @babel/register src/__tests__/offline/node.spec.js | tap-summary",
     "test-node-redis": "cross-env NODE_ENV=test tape -r @babel/register \"src/__tests__/node_redis.spec.js\" | tap-summary",
+    "test-node-push": "cross-env NODE_ENV=test tape -r @babel/register src/__tests__/push/node.spec.js | tap-summary",
     "pretest-ts-decls": "npm run build-es && npm run build-cjs && npm link",
     "test-ts-decls": "./scripts/ts-tests.sh",
     "posttest-ts-decls": "npm unlink && npm install",
