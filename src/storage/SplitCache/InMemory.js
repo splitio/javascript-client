@@ -1,5 +1,6 @@
 import { isFinite } from '../../utils/lang';
 import usesSegments from '../../utils/splits/usesSegments';
+import killLocally from './killLocally';
 
 class SplitCacheInMemory {
 
@@ -24,7 +25,7 @@ class SplitCacheInMemory {
     }
 
     const parsedSplit = JSON.parse(split);
-    
+
     if (parsedSplit) {
       // Store the Split.
       this.splitCache.set(splitName, split);
@@ -34,10 +35,10 @@ class SplitCacheInMemory {
         if (!this.ttCache[ttName]) this.ttCache[ttName] = 0;
         this.ttCache[ttName]++;
       }
-  
+
       // Add to segments count for the new version of the Split
       if (usesSegments(parsedSplit.conditions)) this.splitsWithSegmentsCount++;
-  
+
       return true;
     } else {
       return false;
@@ -53,7 +54,7 @@ class SplitCacheInMemory {
 
     return results;
   }
-  
+
   removeSplit(splitName) {
     const split = this.getSplit(splitName);
     if (split) {
@@ -62,15 +63,15 @@ class SplitCacheInMemory {
 
       const parsedSplit = JSON.parse(split);
       const ttName = parsedSplit.trafficTypeName;
-      
+
       if (ttName) { // safeguard
         this.ttCache[ttName]--; // Update tt cache
         if (!this.ttCache[ttName]) delete this.ttCache[ttName];
       }
-      
+
       // Update the segments count.
       if (usesSegments(parsedSplit.conditions)) this.splitsWithSegmentsCount--;
-      
+
       return 1;
     } else {
       return 0;
@@ -138,5 +139,7 @@ class SplitCacheInMemory {
     return false;
   }
 }
+
+SplitCacheInMemory.prototype.killLocally = killLocally;
 
 export default SplitCacheInMemory;

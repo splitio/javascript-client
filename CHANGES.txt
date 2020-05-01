@@ -1,3 +1,7 @@
+10.12.0 (April 30, 2020)
+ - Added support for the new Split streaming architecture. When enabled, the SDK will not poll for updates but instead receive notifications every time there's a change in your environments,
+  allowing to process those much quicker. If disabled (default) or in the event of an issue, the SDK will fallback to the known polling mechanism to provide a seamless experience.
+
 10.11.1 (Mar 19, 2020)
  - Updated @babel/runtime-corejs3, @types/node and several dev dependencies.
  - Updated the name of the "events" config of GOOGLE_ANALYTICS_TO_SPLIT integration to "hits".

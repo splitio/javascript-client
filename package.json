@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio",
-  "version": "10.11.1",
+  "version": "10.12.0",
   "description": "Split SDK",
   "files": [
     "README.md",
@@ -36,14 +36,15 @@
     "@types/google.analytics": "0.0.40",
     "@types/node": "^13.9.1",
     "axios": "0.19.2",
-    "core-js": "3.6.1",
+    "core-js": "3.6.5",
     "ip": "1.1.5",
     "js-yaml": "3.13.1",
     "utfx": "1.0.1"
   },
   "optionalDependencies": {
     "events": "3.1.0",
-    "ioredis": "^4.14.1"
+    "ioredis": "^4.14.1",
+    "eventsource": "^1.0.7"
   },
   "devDependencies": {
     "@babel/cli": "^7.8.4",
@@ -63,13 +64,13 @@
     "karma-webpack": "^4.0.2",
     "lodash": "4.17.15",
     "proxyquire": "^2.1.3",
-    "puppeteer": "^2.1.1",
+    "puppeteer": "^3.0.0",
     "redis-dump": "0.1.10",
     "redis-server": "1.2.2",
     "rimraf": "^3.0.2",
-    "sinon": "^8.1.1",
+    "sinon": "^9.0.2",
     "tap-summary": "4.0.0",
-    "tape": "4.13.0",
+    "tape": "4.13.2",
     "tape-catch": "1.0.6",
     "webpack": "^4.42.0",
     "webpack-cli": "^3.3.11",
@@ -95,12 +96,14 @@
     "test-browser-destroy": "cross-env NODE_ENV=test karma start karma/destroy.ci.karma.conf.js",
     "test-browser-errors": "cross-env NODE_ENV=test karma start karma/errors.ci.karma.conf.js",
     "test-browser-gaintegration": "cross-env NODE_ENV=test karma start karma/gaintegration.ci.karma.conf.js",
+    "test-browser-push": "cross-env NODE_ENV=test karma start karma/push.ci.karma.conf.js",
     "test-node": "cross-env NODE_ENV=test tape -r @babel/register \"src/*/**/__tests__/**/!(browser).spec.js\" | tap-summary",
     "test-node-e2e": "cross-env NODE_ENV=test tape -r @babel/register src/__tests__/node.spec.js | tap-summary",
     "test-node-destroy": "cross-env NODE_ENV=test tape -r @babel/register src/__tests__/destroy/node.spec.js | tap-summary",
     "test-node-errors": "cross-env NODE_ENV=test tape -r @babel/register src/__tests__/errorCatching/node.spec.js | tap-summary",
     "test-node-offline": "cross-env NODE_ENV=test tape -r @babel/register src/__tests__/offline/node.spec.js | tap-summary",
     "test-node-redis": "cross-env NODE_ENV=test tape -r @babel/register \"src/__tests__/node_redis.spec.js\" | tap-summary",
+    "test-node-push": "cross-env NODE_ENV=test tape -r @babel/register src/__tests__/push/node.spec.js | tap-summary",
     "pretest-ts-decls": "npm run build-es && npm run build-cjs && npm link",
     "test-ts-decls": "./scripts/ts-tests.sh",
     "posttest-ts-decls": "npm unlink && npm install",
