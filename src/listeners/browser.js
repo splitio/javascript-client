@@ -64,7 +64,7 @@ export default class BrowserSignalListener {
       const url = this.settings.url('/testImpressions/beacon');
       const impressionsPayload = fromImpressionsCollector(impressions, this.settings);
       if (!this._sendBeacon(url, impressionsPayload)) {
-        impressionsService(impressionsBulkRequest(this.settings, { data: JSON.stringify(impressionsPayload) }));
+        impressionsService(impressionsBulkRequest(this.settings, { body: JSON.stringify(impressionsPayload) }));
       }
       impressions.clear();
     }
@@ -77,7 +77,7 @@ export default class BrowserSignalListener {
       const url = this.settings.url('/events/beacon');
       const eventsPayload = events.toJSON();
       if (!this._sendBeacon(url, eventsPayload)) {
-        eventsService(eventsBulkRequest(this.settings, { data: JSON.stringify(eventsPayload) }));
+        eventsService(eventsBulkRequest(this.settings, { body: JSON.stringify(eventsPayload) }));
       }
       events.clear();
     }

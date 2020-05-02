@@ -52,7 +52,7 @@ const MetricsFactory = context => {
     // POST latencies
     const latenciesPromise = storage.metrics.isEmpty() ? null : metricsService(
       metricsTimesServiceRequest(settings, {
-        data: JSON.stringify(fromLatenciesCollector(storage.metrics))
+        body: JSON.stringify(fromLatenciesCollector(storage.metrics))
       }))
       .then(() => storage.metrics.clear())
       .catch(() => storage.metrics.clear());
@@ -60,7 +60,7 @@ const MetricsFactory = context => {
     // POST counters
     const countersPromise = storage.count.isEmpty() ? null : metricsService(
       metricsCountersServiceRequest(settings, {
-        data: JSON.stringify(fromCountersCollector(storage.count))
+        body: JSON.stringify(fromCountersCollector(storage.count))
       }))
       .then(() => storage.count.clear())
       .catch(() => storage.count.clear());
@@ -80,7 +80,7 @@ const MetricsFactory = context => {
     const latencyTrackerStop = tracker.start(tracker.TaskNames.IMPRESSIONS_PUSH);
 
     return impressionsService(impressionsBulkRequest(settings, {
-      data: JSON.stringify(fromImpressionsCollector(storage.impressions, settings))
+      body: JSON.stringify(fromImpressionsCollector(storage.impressions, settings))
     }))
       .then(() => {
         impressionsRetries = 0;

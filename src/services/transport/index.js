@@ -10,7 +10,9 @@ function fetchUrl(request) {
 }
 
 export default function Fetcher(request) {
+  // this fetch signature is implemented by unfetch polyfill
   return fetch(fetchUrl(request), request)
+    // @TODO review and update: aren't HTTP errors handled as resolved promises when using fetch?
     .catch(error => {
       const resp = error.response;
       const url = error.config ? error.config.url : 'unknown';
