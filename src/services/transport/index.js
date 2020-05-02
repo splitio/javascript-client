@@ -1,12 +1,16 @@
-import axios from 'axios';
+import 'isomorphic-unfetch';
 import { SplitNetworkError } from '../../utils/lang/Errors';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-services:service');
 
-const _axiosInstance = axios.create();
+// @TODO update RequestFactory and remove this function
+function fetchUrl(request) {
+  const queryParams = request.params ? '?' + Object.keys(request.params).map(key => `${key}=${request.params[key]}`).join('&') : '';
+  return request.url + queryParams;
+}
 
 export default function Fetcher(request) {
-  return _axiosInstance.request(request)
+  return fetch(fetchUrl(request), request)
     .catch(error => {
       const resp = error.response;
       const url = error.config ? error.config.url : 'unknown';
@@ -29,9 +33,4 @@ export default function Fetcher(request) {
 
       throw new SplitNetworkError(msg, resp ? resp.status : 'NO_STATUS');
     });
-}
-
-// This function is only exposed for testing purposses.
-export function __getAxiosInstance() {
-  return _axiosInstance;
 }

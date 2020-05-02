@@ -13,7 +13,7 @@ import { decodeJWTtoken } from '../../utils/jwt';
 export default function authenticate(settings, userKeys) {
   let authPromise = authService(authRequest(settings, userKeys)); // errors handled by authService
   return authPromise
-    .then(resp => resp.data)
+    .then(resp => resp.json())
     .then(json => {
       if (json.token) { // empty token when `"pushEnabled": false`
         return {
