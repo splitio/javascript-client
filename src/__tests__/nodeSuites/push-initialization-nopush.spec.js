@@ -39,7 +39,7 @@ const settings = SettingsFactory(config);
  *  0.1 secs: polling (/splitChanges, /segmentChanges/*)
  */
 function testInitializationFail(fetchMock, assert, fallbackToPolling) {
-  const start = Date.now();
+  let start, splitio, client, ready = false;
 
   fetchMock.get(new RegExp(`${settings.url('/segmentChanges/')}.*`),
     { status: 200, body: { since: 10, till: 10, name: 'segmentName', added: [], removed: [] } });
@@ -47,13 +47,6 @@ function testInitializationFail(fetchMock, assert, fallbackToPolling) {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, 0), 'initial sync');
     return { status: 200, body: splitChangesMock1 };
-  });
-
-  const splitio = SplitFactory(config);
-  const client = splitio.client();
-  let ready = false;
-  client.on(client.Event.SDK_READY, () => {
-    ready = true;
   });
 
   if (fallbackToPolling) {
@@ -74,13 +67,21 @@ function testInitializationFail(fetchMock, assert, fallbackToPolling) {
     });
     return { status: 200, body: splitChangesMock2 };
   });
+
+  start = Date.now();
+  splitio = SplitFactory(config);
+  client = splitio.client();
+  client.on(client.Event.SDK_READY, () => {
+    ready = true;
+  });
+
 }
 
 export function testAuthWithPushDisabled(fetchMock, assert) {
   assert.plan(6);
-  
-  fetchMock.getOnce(settings.url('/auth'), function (url, options) {
-    if (!options.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
+
+  fetchMock.getOnce(settings.url('/auth'), function (url, opts) {
+    if (!opts.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
     assert.pass('auth');
     return { status: 200, body: authPushDisabled };
   });
@@ -91,9 +92,9 @@ export function testAuthWithPushDisabled(fetchMock, assert) {
 
 export function testAuthWith401(fetchMock, assert) {
   assert.plan(6);
-  
-  fetchMock.getOnce(settings.url('/auth'), function (url, options) {
-    if (!options.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
+
+  fetchMock.getOnce(settings.url('/auth'), function (url, opts) {
+    if (!opts.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
     assert.pass('auth');
     return { status: 401, body: authInvalidCredentials };
   });

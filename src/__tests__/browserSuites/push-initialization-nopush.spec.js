@@ -40,7 +40,7 @@ const settings = SettingsFactory(config);
  *  0.1 secs: polling (/splitChanges, /mySegments/*)
  */
 function testInitializationFail(fetchMock, assert, fallbackToPolling) {
-  const start = Date.now();
+  let start, splitio, client, ready = false;
 
   fetchMock.get(settings.url('/mySegments/nicolas@split.io'), { status: 200, body: mySegmentsNicolas });
   fetchMock.getOnce(settings.url('/splitChanges?since=-1'), function () {
@@ -49,13 +49,6 @@ function testInitializationFail(fetchMock, assert, fallbackToPolling) {
     return { status: 200, body: splitChangesMock1 };
   });
 
-  const splitio = SplitFactory(config);
-  const client = splitio.client();
-  let ready = false;
-  client.on(client.Event.SDK_READY, () => {
-    ready = true;
-  });
-  
   if (fallbackToPolling) {
     fetchMock.getOnce(settings.url('/splitChanges?since=1457552620999'), function () {
       assert.true(ready, 'client ready');
@@ -74,13 +67,21 @@ function testInitializationFail(fetchMock, assert, fallbackToPolling) {
     });
     return { status: 200, body: splitChangesMock2 };
   });
+
+  start = Date.now();
+  splitio = SplitFactory(config);
+  client = splitio.client();
+  client.on(client.Event.SDK_READY, () => {
+    ready = true;
+  });
+
 }
 
 export function testAuthWithPushDisabled(fetchMock, assert) {
-  // assert.plan(6);
+  assert.plan(6);
 
-  fetchMock.getOnce(settings.url(`/auth?users=${encodeURIComponent(userKey)}`), function (url, options) {
-    if (!options.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
+  fetchMock.getOnce(settings.url(`/auth?users=${encodeURIComponent(userKey)}`), function (url, opts) {
+    if (!opts.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
     assert.pass('auth');
     return { status: 200, body: authPushDisabled };
   });
@@ -92,8 +93,8 @@ export function testAuthWithPushDisabled(fetchMock, assert) {
 export function testAuthWith401(fetchMock, assert) {
   assert.plan(6);
 
-  fetchMock.getOnce(settings.url(`/auth?users=${encodeURIComponent(userKey)}`), function (url, options) {
-    if (!options.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
+  fetchMock.getOnce(settings.url(`/auth?users=${encodeURIComponent(userKey)}`), function (url, opts) {
+    if (!opts.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
     assert.pass('auth');
     return { status: 401, body: authInvalidCredentials };
   });
@@ -104,7 +105,7 @@ export function testAuthWith401(fetchMock, assert) {
 
 export function testNoEventSource(fetchMock, assert) {
   assert.plan(3);
-  
+
   const originalEventSource = window.EventSource;
   window.EventSource = undefined;
   fetchMock.getOnce(settings.url(`/auth?users=${encodeURIComponent(userKey)}`), function () {

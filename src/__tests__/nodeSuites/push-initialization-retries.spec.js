@@ -41,60 +41,61 @@ const settings = SettingsFactory(config);
 /**
  * Sequence of calls:
  *  0.0 secs: initial SyncAll (/splitChanges, /segmentChanges/*) and first auth attempt (fail due to bad token)
+ *  0.0 secs: polling (/splitChanges, /segmentChanges/*)
  *  0.1 secs: second auth attempt (fail due to network error)
  *  0.2 secs: polling (/splitChanges, /segmentChanges/*)
  *  0.3 secs: third auth attempt (success but push disabled)
  *  0.4 secs: polling (/splitChanges, /segmentChanges/*)
  */
-export function testAuthRetries(mock, assert) {
+export function testAuthRetries(fetchMock, assert) {
 
-  const start = Date.now();
+  let start, splitio, client, ready = false;
 
-  const splitio = SplitFactory(config);
-  const client = splitio.client();
-  let ready = false;
-  client.on(client.Event.SDK_READY, () => {
-    ready = true;
-  });
-
-  mock.onGet(settings.url('/auth')).replyOnce(function (request) {
-    if (!request.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
+  fetchMock.getOnce(settings.url('/auth'), function (url, opts) {
+    if (!opts.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
     assert.pass('first auth attempt');
-    return [200, authPushBadToken];
+    return { status: 200, body: authPushBadToken };
   });
-  mock.onGet(settings.url('/auth')).networkErrorOnce();
-  mock.onGet(settings.url('/auth')).replyOnce(function (request) {
-    if (!request.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
+  fetchMock.getOnce(settings.url('/auth'), { throws: new TypeError('Network error') });
+  fetchMock.getOnce(settings.url('/auth'), function (url, opts) {
+    if (!opts.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
     const lapse = Date.now() - start;
     const expected = (settings.scheduler.authRetryBackoffBase * Math.pow(2, 0) + settings.scheduler.authRetryBackoffBase * Math.pow(2, 1));
     assert.true(nearlyEqual(lapse, expected), 'third auth attempt (aproximately in 0.3 seconds from first attempt)');
-    return [200, authPushDisabled];
+    return { status: 200, body: authPushDisabled };
   });
-  mock.onGet(new RegExp(`${settings.url('/segmentChanges/')}.*`)).reply(200, { since: 10, till: 10, name: 'segmentName', added: [], removed: [] });
+  fetchMock.get(new RegExp(`${settings.url('/segmentChanges/')}.*`), { status: 200, body: { since: 10, till: 10, name: 'segmentName', added: [], removed: [] } });
 
-  mock.onGet(settings.url('/splitChanges?since=-1')).replyOnce(function () {
+  fetchMock.getOnce(settings.url('/splitChanges?since=-1'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, 0), 'initial sync');
-    return [200, splitChangesMock1];
+    return { status: 200, body: splitChangesMock1 };
   });
-  mock.onGet(settings.url('/splitChanges?since=1457552620999')).replyOnce(function () {
+  fetchMock.getOnce(settings.url('/splitChanges?since=1457552620999'), function () {
     assert.true(ready, 'client ready before first polling fetch');
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, 0), 'fallback to polling');
-    return [200, splitChangesMock2];
+    return { status: 200, body: splitChangesMock2 };
   });
-  mock.onGet(settings.url('/splitChanges?since=1457552620999')).replyOnce(function () {
+  fetchMock.getOnce(settings.url('/splitChanges?since=1457552620999'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, settings.scheduler.featuresRefreshRate), 'polling');
-    return [200, splitChangesMock2];
+    return { status: 200, body: splitChangesMock2 };
   });
-  mock.onGet(settings.url('/splitChanges?since=1457552620999')).replyOnce(function () {
+  fetchMock.getOnce(settings.url('/splitChanges?since=1457552620999'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, settings.scheduler.featuresRefreshRate * 2), 'keep polling since auth success buth with push disabled');
     client.destroy().then(() => {
       assert.end();
     });
-    return [200, splitChangesMock2];
+    return { status: 200, body: splitChangesMock2 };
+  });
+
+  start = Date.now();
+  splitio = SplitFactory(config);
+  client = splitio.client();
+  client.on(client.Event.SDK_READY, () => {
+    ready = true;
   });
 
 }
@@ -106,18 +107,11 @@ export function testAuthRetries(mock, assert) {
  *  0.2 secs: polling (/splitChanges, /segmentChanges/*)
  *  0.3 secs: third sse attempt (success), syncAll (/splitChanges, /segmentChanges/*)
  */
-export function testSSERetries(mock, assert) {
+export function testSSERetries(fetchMock, assert) {
   __setEventSource(EventSourceMock);
 
-  const start = Date.now();
+  let start, splitio, client, ready = false;
   const expectedTimeToSSEsuccess = (settings.scheduler.streamingReconnectBackoffBase * Math.pow(2, 0) + settings.scheduler.streamingReconnectBackoffBase * Math.pow(2, 1));
-
-  const splitio = SplitFactory(config);
-  const client = splitio.client();
-  let ready = false;
-  client.on(client.Event.SDK_READY, () => {
-    ready = true;
-  });
 
   const expectedSSEurl = `${settings.url('/sse')}?channels=NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_segments,NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_splits,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_pri,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_sec&accessToken=${authPushEnabled.token}&v=1.1&heartbeats=true`;
   let sseattempts = 0;
@@ -134,37 +128,44 @@ export function testSSERetries(mock, assert) {
     sseattempts++;
   });
 
-  mock.onGet(settings.url('/auth')).replyOnce(function (request) {
-    if (!request.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
+  fetchMock.getOnce(settings.url('/auth'), function (url, opts) {
+    if (!opts.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
     assert.pass('auth success');
-    return [200, authPushEnabled];
+    return { status: 200, body: authPushEnabled };
   });
-  mock.onGet(new RegExp(`${settings.url('/segmentChanges/')}.*`)).reply(200, { since: 10, till: 10, name: 'segmentName', added: [], removed: [] });
+  fetchMock.get(new RegExp(`${settings.url('/segmentChanges/')}.*`), { status: 200, body: { since: 10, till: 10, name: 'segmentName', added: [], removed: [] } });
 
-  mock.onGet(settings.url('/splitChanges?since=-1')).replyOnce(function () {
+  fetchMock.getOnce(settings.url('/splitChanges?since=-1'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, 0), 'initial sync');
-    return [200, splitChangesMock1];
+    return { status: 200, body: splitChangesMock1 };
   });
-  mock.onGet(settings.url('/splitChanges?since=1457552620999')).replyOnce(function () {
+  fetchMock.getOnce(settings.url('/splitChanges?since=1457552620999'), function () {
     assert.true(ready, 'client ready before first polling fetch');
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, 0), 'fallback to polling');
-    return [200, splitChangesMock2];
+    return { status: 200, body: splitChangesMock2 };
   });
-  mock.onGet(settings.url('/splitChanges?since=1457552620999')).replyOnce(function () {
+  fetchMock.getOnce(settings.url('/splitChanges?since=1457552620999'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, settings.scheduler.featuresRefreshRate), 'polling');
-    return [200, splitChangesMock2];
+    return { status: 200, body: splitChangesMock2 };
   });
-  mock.onGet(settings.url('/splitChanges?since=1457552620999')).replyOnce(function () {
+  fetchMock.getOnce(settings.url('/splitChanges?since=1457552620999'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, expectedTimeToSSEsuccess), 'sync due to success SSE connection');
     client.destroy().then(() => {
       assert.end();
     });
 
-    return [200, splitChangesMock2];
+    return { status: 200, body: splitChangesMock2 };
+  });
+
+  start = Date.now();
+  splitio = SplitFactory(config);
+  client = splitio.client();
+  client.on(client.Event.SDK_READY, () => {
+    ready = true;
   });
 
 }

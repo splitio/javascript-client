@@ -51,15 +51,12 @@ const MILLIS_DESTROY = 600;
  *  0.4 secs: SEGMENT_UPDATE event -> /segmentChanges/
  *  0.5 secs: SPLIT_KILL event -> /splitChanges
  */
-export function testSynchronization(mock, assert) {
+export function testSynchronization(fetchMock, assert) {
   assert.plan(15);
-  mock.reset();
+  fetchMock.reset();
   __setEventSource(EventSourceMock);
 
-  const start = Date.now();
-
-  const splitio = SplitFactory(config);
-  const client = splitio.client();
+  let start, splitio, client;
 
   // mock SSE open and message events
   setMockListener(function (eventSourceInstance) {
@@ -107,52 +104,53 @@ export function testSynchronization(mock, assert) {
     }, MILLIS_DESTROY); // destroy client after 0.6 seconds
   });
 
-  mock.onGet(settings.url('/auth')).replyOnce(function (request) {
-    if (!request.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
+  // initial auth
+  fetchMock.getOnce(settings.url('/auth'), function (url, opts) {
+    if (!opts.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
     assert.pass('auth success');
-    return [200, authPushEnabled];
+    return { status: 200, body: authPushEnabled };
   });
 
   // initial split and segment sync
-  mock.onGet(settings.url('/splitChanges?since=-1')).replyOnce(function () {
+  fetchMock.getOnce(settings.url('/splitChanges?since=-1'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, 0), 'initial sync');
-    return [200, splitChangesMock1];
+    return { status: 200, body: splitChangesMock1 };
   });
-  mock.onGet(settings.url('/segmentChanges/splitters?since=-1')).replyOnce(
-    200, { since: -1, till: 1457552620999, name: 'splitters', added: [key], removed: [] }
+  fetchMock.getOnce(settings.url('/segmentChanges/splitters?since=-1'),
+    { status: 200, body: { since: -1, till: 1457552620999, name: 'splitters', added: [key], removed: [] } }
   );
   // extra retry due to double request (greedy fetch). @TODO: remove once `SplitChangesUpdaterFactory` and `segmentChangesFetcher` are updated
-  mock.onGet(settings.url('/segmentChanges/splitters?since=1457552620999')).replyOnce(
-    200, { since: 1457552620999, till: 1457552620999, name: 'splitters', added: [], removed: [] }
+  fetchMock.getOnce(settings.url('/segmentChanges/splitters?since=1457552620999'),
+    { status: 200, body: { since: 1457552620999, till: 1457552620999, name: 'splitters', added: [], removed: [] } }
   );
 
   // split and segment sync after SSE opened
-  mock.onGet(settings.url('/splitChanges?since=1457552620999')).replyOnce(function () {
+  fetchMock.getOnce(settings.url('/splitChanges?since=1457552620999'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_SSE_OPEN), 'sync after SSE connection is opened');
-    return [200, splitChangesMock2];
+    return { status: 200, body: splitChangesMock2 };
   });
-  mock.onGet(settings.url('/segmentChanges/splitters?since=1457552620999')).replyOnce(
-    200, { since: 1457552620999, till: 1457552620999, name: 'splitters', added: [], removed: [] }
+  fetchMock.getOnce(settings.url('/segmentChanges/splitters?since=1457552620999'),
+    { status: 200, body: { since: 1457552620999, till: 1457552620999, name: 'splitters', added: [], removed: [] } }
   );
 
   // fetch due to SPLIT_UPDATE event
-  mock.onGet(settings.url('/splitChanges?since=1457552620999')).replyOnce(200, splitChangesMock3);
+  fetchMock.getOnce(settings.url('/splitChanges?since=1457552620999'), { status: 200, body: splitChangesMock3 });
 
   // fetch due to SEGMENT_UPDATE event
-  mock.onGet(settings.url('/segmentChanges/splitters?since=1457552620999')).replyOnce(
-    200, { since: 1457552620999, till: 1457552640000, name: 'splitters', added: [], removed: [key] }
+  fetchMock.getOnce(settings.url('/segmentChanges/splitters?since=1457552620999'),
+    { status: 200, body: { since: 1457552620999, till: 1457552640000, name: 'splitters', added: [], removed: [key] } }
   );
   // extra retry (fetch until since === till)
-  mock.onGet(settings.url('/segmentChanges/splitters?since=1457552640000')).replyOnce(
-    200, { since: 1457552640000, till: 1457552640000, name: 'splitters', added: [], removed: [] }
+  fetchMock.getOnce(settings.url('/segmentChanges/splitters?since=1457552640000'),
+    { status: 200, body: { since: 1457552640000, till: 1457552640000, name: 'splitters', added: [], removed: [] } }
   );
 
   // fetch due to SPLIT_KILL event
-  mock.onGet(settings.url('/splitChanges?since=1457552649999')).replyOnce(function () {
+  fetchMock.getOnce(settings.url('/splitChanges?since=1457552649999'), function () {
     assert.equal(client.getTreatment(key, 'whitelist'), 'not_allowed', 'evaluation with split killed immediately, before fetch is done');
-    return [200, splitChangesMock4];
+    return { status: 200, body: splitChangesMock4 };
   });
 
   /**
@@ -160,19 +158,28 @@ export function testSynchronization(mock, assert) {
    *  - when `?since=-1`, it returns a single key in `added` list (doesn't make sense a segment without items)
    *  - otherwise, it returns empty `added` and `removed` lists, and the same since and till values.
    */
-  mock.onGet(new RegExp(`${settings.url('/segmentChanges')}/(employees|developers)`)).reply(function (request) {
-    const since = parseInt(request.url.split('=').pop());
-    const name = request.url.split('?')[0].split('/').pop();
-    return [200, {
-      'name': name,
-      'added': since === -1 ? [key] : [],
-      'removed': [],
-      'since': since,
-      'till': since === -1 ? 1457552620999 : since,
-    }];
+  fetchMock.get(new RegExp(`${settings.url('/segmentChanges')}/(employees|developers)`), function (url) {
+    const since = parseInt(url.split('=').pop());
+    const name = url.split('?')[0].split('/').pop();
+    return {
+      status: 200, body: {
+        'name': name,
+        'added': since === -1 ? [key] : [],
+        'removed': [],
+        'since': since,
+        'till': since === -1 ? 1457552620999 : since,
+      }
+    };
   });
 
-  mock.onGet(new RegExp('.*')).reply(function (request) {
-    assert.fail('unexpected GET request with url: ' + request.url);
+  fetchMock.get(new RegExp('.*'), function (url) {
+    assert.fail('unexpected GET request with url: ' + url);
   });
+
+  fetchMock.post('*', 200);
+
+  start = Date.now();
+  splitio = SplitFactory(config);
+  client = splitio.client();
+
 }
