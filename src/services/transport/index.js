@@ -3,15 +3,9 @@ import { SplitNetworkError } from '../../utils/lang/Errors';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-services:service');
 
-// @TODO update RequestFactory and remove this function
-function fetchUrl(request) {
-  const queryParams = request.params ? '?' + Object.keys(request.params).map(key => `${key}=${request.params[key]}`).join('&') : '';
-  return request.url + queryParams;
-}
-
 export default function Fetcher(request) {
   // We use this fetch signature to support unfetch polyfill
-  const url = fetchUrl(request);
+  const url = request.url;
   return fetch(url, request)
     // @TODO review: https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch#Checking_that_the_fetch_was_successful
     .then(response => {
