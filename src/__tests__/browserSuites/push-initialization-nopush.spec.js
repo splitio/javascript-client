@@ -29,7 +29,7 @@ const config = {
     eventsFirstPushWindow: 3000
   },
   streamingEnabled: true,
-  // debug: true,
+  debug: true,
 };
 const settings = SettingsFactory(config);
 
@@ -39,14 +39,14 @@ const settings = SettingsFactory(config);
  *  0.0 secs: syncAll if falling back to polling (/splitChanges, /mySegments/*)
  *  0.1 secs: polling (/splitChanges, /mySegments/*)
  */
-function testInitializationFail(mock, assert, fallbackToPolling) {
+function testInitializationFail(fetchMock, assert, fallbackToPolling) {
   const start = Date.now();
 
-  mock.onGet(settings.url('/mySegments/nicolas@split.io')).reply(200, mySegmentsNicolas);
-  mock.onGet(settings.url('/splitChanges?since=-1')).replyOnce(function () {
+  fetchMock.get(settings.url('/mySegments/nicolas@split.io'), { status: 200, body: mySegmentsNicolas });
+  fetchMock.getOnce(settings.url('/splitChanges?since=-1'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, 0), 'initial sync');
-    return [200, splitChangesMock1];
+    return { status: 200, body: splitChangesMock1 };
   });
 
   const splitio = SplitFactory(config);
@@ -57,72 +57,76 @@ function testInitializationFail(mock, assert, fallbackToPolling) {
   });
   
   if (fallbackToPolling) {
-    mock.onGet(settings.url('/splitChanges?since=1457552620999')).replyOnce(function () {
+    fetchMock.getOnce(settings.url('/splitChanges?since=1457552620999'), function () {
       assert.true(ready, 'client ready');
       const lapse = Date.now() - start;
       assert.true(nearlyEqual(lapse, 0), 'polling (first fetch)');
-      return [200, splitChangesMock2];
+      return { status: 200, body: splitChangesMock2 };
     });
   }
 
-  mock.onGet(settings.url('/splitChanges?since=1457552620999')).replyOnce(function () {
+  fetchMock.getOnce(settings.url('/splitChanges?since=1457552620999'), function () {
     assert.true(ready, 'client ready');
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, settings.scheduler.featuresRefreshRate), 'polling (second fetch)');
     client.destroy().then(() => {
       assert.end();
     });
-    return [200, splitChangesMock2];
+    return { status: 200, body: splitChangesMock2 };
   });
 }
 
-export function testAuthWithPushDisabled(mock, assert) {
+export function testAuthWithPushDisabled(fetchMock, assert) {
+  // assert.plan(6);
 
-  mock.onGet(settings.url(`/auth?users=${encodeURIComponent(userKey)}`)).replyOnce(function (request) {
-    if (!request.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
+  fetchMock.getOnce(settings.url(`/auth?users=${encodeURIComponent(userKey)}`), function (url, options) {
+    if (!options.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
     assert.pass('auth');
-    return [200, authPushDisabled];
+    return { status: 200, body: authPushDisabled };
   });
 
-  testInitializationFail(mock, assert, true);
+  testInitializationFail(fetchMock, assert, true);
 
 }
 
-export function testAuthWith401(mock, assert) {
+export function testAuthWith401(fetchMock, assert) {
+  assert.plan(6);
 
-  mock.onGet(settings.url(`/auth?users=${encodeURIComponent(userKey)}`)).replyOnce(function (request) {
-    if (!request.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
+  fetchMock.getOnce(settings.url(`/auth?users=${encodeURIComponent(userKey)}`), function (url, options) {
+    if (!options.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
     assert.pass('auth');
-    return [401, authInvalidCredentials];
+    return { status: 401, body: authInvalidCredentials };
   });
 
-  testInitializationFail(mock, assert, true);
+  testInitializationFail(fetchMock, assert, true);
 
 }
 
-export function testNoEventSource(mock, assert) {
-
+export function testNoEventSource(fetchMock, assert) {
+  assert.plan(3);
+  
   const originalEventSource = window.EventSource;
   window.EventSource = undefined;
-  mock.onGet(settings.url(`/auth?users=${encodeURIComponent(userKey)}`)).replyOnce(function () {
+  fetchMock.getOnce(settings.url(`/auth?users=${encodeURIComponent(userKey)}`), function () {
     assert.fail('not authenticate if EventSource is not available');
   });
 
-  testInitializationFail(mock, assert, false);
+  testInitializationFail(fetchMock, assert, false);
 
   window.EventSource = originalEventSource;
 
 }
 
-export function testNoBase64Support(mock, assert) {
+export function testNoBase64Support(fetchMock, assert) {
+  assert.plan(3);
 
   const originalAtoB = window.atob;
   window.atob = undefined;
-  mock.onGet(settings.url(`/auth?users=${encodeURIComponent(userKey)}`)).replyOnce(function () {
+  fetchMock.getOnce(settings.url(`/auth?users=${encodeURIComponent(userKey)}`), function () {
     assert.fail('not authenticate if `atob` or `btoa` functions are not available');
   });
 
-  testInitializationFail(mock, assert, false);
+  testInitializationFail(fetchMock, assert, false);
 
   window.atob = originalAtoB;
 
