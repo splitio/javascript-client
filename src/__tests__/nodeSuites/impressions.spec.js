@@ -32,18 +32,18 @@ const config = {
   }
 };
 
-export default async function(key, mock, assert) {
+export default async function(key, fetchMock, assert) {
   // Mocking this specific route to make sure we only get the items we want to test from the handlers.
-  mock.onGet(settings.url('/splitChanges?since=-1')).replyOnce(200, splitChangesMock1);
-  mock.onGet(settings.url('/splitChanges?since=1457552620999')).reply(200, splitChangesMock2);
-  mock.onGet(new RegExp(`${settings.url('/segmentChanges/')}.*`)).reply(200, {since:10, till:10, name: 'segmentName', added: [], removed: []});
+  fetchMock.getOnce(settings.url('/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
+  fetchMock.get(settings.url('/splitChanges?since=1457552620999'), { status: 200, body: splitChangesMock2 });
+  fetchMock.get(new RegExp(`${settings.url('/segmentChanges/')}.*`), { status: 200, body: {since:10, till:10, name: 'segmentName', added: [], removed: []} });
 
   const splitio = SplitFactory(config);
   const client = splitio.client();
   let evaluationsStart = 0, readyEvaluationsStart = 0, evaluationsEnd = 0;
 
-  mock.onPost(settings.url('/testImpressions/bulk')).replyOnce(req => {
-    const data = JSON.parse(req.data);
+  fetchMock.postOnce(settings.url('/testImpressions/bulk'), (url, opts) => {
+    const data = JSON.parse(opts.body);
 
     assert.equal(data.length, 3, 'We performed evaluations for three splits, so we should have 3 items total.');
 
@@ -94,8 +94,10 @@ export default async function(key, mock, assert) {
     client.destroy();
     assert.end();
 
-    return [200];
+    return 200;
   });
+  // @TODO: review code to either remove next route or add some asserts
+  fetchMock.postOnce(settings.url('/testImpressions/bulk'), 200);
 
   splitio.Logger.enable();
   evaluationsStart = Date.now();

@@ -1,5 +1,5 @@
 import tape from 'tape-catch';
-import MockAdapter from 'axios-mock-adapter';
+import fetchMock from 'fetch-mock';
 import SettingsFactory from '../utils/settings';
 
 import evaluationsSuite from './nodeSuites/evaluations.spec';
@@ -11,10 +11,11 @@ import expectedTreatmentsSuite from './nodeSuites/expected-treatments.spec';
 import managerSuite from './nodeSuites/manager.spec';
 import ipAddressesSetting from './nodeSuites/ip-addresses-setting.spec';
 
-import { __getAxiosInstance } from '../services/transport';
-
 import splitChangesMock1 from './mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from './mocks/splitchanges.since.1457552620999.json';
+
+// config the fetch mock to chain routes (appends the new route to the list of routes)
+fetchMock.config.overwriteRoutes = false;
 
 const settings = SettingsFactory({
   core: {
@@ -36,41 +37,43 @@ const config = {
 
 const key = 'facundo@split.io';
 
-// Set the mock adapter on the current axios instance
-const mock = new MockAdapter(__getAxiosInstance());
-
-mock.onGet(settings.url('/splitChanges?since=-1')).reply(200, splitChangesMock1);
-mock.onGet(settings.url('/splitChanges?since=1457552620999')).reply(200, splitChangesMock2);
-mock.onGet(new RegExp(`${settings.url('/segmentChanges')}/*`)).reply(200, {
-  'name': 'segment',
-  'added': [],
-  'removed': [],
-  'since': 1,
-  'till': 1
+fetchMock.get(settings.url('/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
+fetchMock.get(settings.url('/splitChanges?since=1457552620999'), { status: 200, body: splitChangesMock2 });
+fetchMock.get(new RegExp(`${settings.url('/segmentChanges')}/*`), {
+  status: 200, body: {
+    'name': 'segment',
+    'added': [],
+    'removed': [],
+    'since': 1,
+    'till': 1
+  }
 });
+
+// @TODO review if moving it inside each test suite
+fetchMock.post(settings.url('/testImpressions/bulk'), 200);
 
 tape('## Node JS - E2E CI Tests ##', async function (assert) {
   /* Check client evaluations. */
   assert.test('E2E / In Memory', evaluationsSuite.bind(null, config, key));
 
   /* Check impressions */
-  assert.test('E2E / Impressions', impressionsSuite.bind(null, key, mock));
+  assert.test('E2E / Impressions', impressionsSuite.bind(null, key, fetchMock));
   assert.test('E2E / Impressions listener', impressionsListenerSuite);
 
   /* Check metrics */
-  assert.test('E2E / Metrics', metricsSuite.bind(null, key, mock));
+  assert.test('E2E / Metrics', metricsSuite.bind(null, key, fetchMock));
 
   /* Check events in memory */
-  assert.test('E2E / Events', eventsSuite.bind(null, mock));
+  assert.test('E2E / Events', eventsSuite.bind(null, fetchMock));
 
   /* Check that a treatment is the expected one for the key */
-  assert.test('E2E / Expected Treatments by key', expectedTreatmentsSuite.bind(null, config, settings, mock));
+  assert.test('E2E / Expected Treatments by key', expectedTreatmentsSuite.bind(null, config, settings, fetchMock));
 
   /* Manager basic tests */
-  assert.test('E2E / Manager basics', managerSuite.bind(null, settings, mock));
+  assert.test('E2E / Manager basics', managerSuite.bind(null, settings, fetchMock));
 
   /* Check IP address and Machine name headers when IP address setting is enabled and disabled */
-  assert.test('E2E / IP Addresses Setting', ipAddressesSetting.bind(null, mock));
+  assert.test('E2E / IP Addresses Setting', ipAddressesSetting.bind(null, fetchMock));
 
   assert.end();
 });

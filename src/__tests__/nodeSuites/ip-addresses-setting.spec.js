@@ -70,12 +70,12 @@ const postEndpoints = [
   '/metrics/counters'
 ];
 
-export default function ipAddressesSettingAssertions(mock, assert) {
+export default function ipAddressesSettingAssertions(fetchMock, assert) {
 
   // Generator to synchronize the call of assert.end() when all Splitio configurations are run.
-  const finish = (function*() {
+  const finish = (function* () {
     const CONFIG_SAMPLES_COUNT = configSamples.length;
-    for (let i = 0; i < CONFIG_SAMPLES_COUNT-1; i++) {
+    for (let i = 0; i < CONFIG_SAMPLES_COUNT - 1; i++) {
       yield;
     }
     assert.end();
@@ -100,8 +100,8 @@ export default function ipAddressesSettingAssertions(mock, assert) {
   function mockAndAssertIPAddressesEnabled(config) {
 
     config.impressionListener = {
-      logImpression: function(impression) {
-        assertImpression( config.core.IPAddressesEnabled === undefined ? true : config.core.IPAddressesEnabled, config.mode === undefined ? STANDALONE_MODE : config.mode , impression );
+      logImpression: function (impression) {
+        assertImpression(config.core.IPAddressesEnabled === undefined ? true : config.core.IPAddressesEnabled, config.mode === undefined ? STANDALONE_MODE : config.mode, impression);
       }
     };
     const splitio = SplitFactory(config);
@@ -109,9 +109,9 @@ export default function ipAddressesSettingAssertions(mock, assert) {
     const settings = SettingsFactory(config);
 
     // Generator to synchronize the destruction of the client when all the post endpoints where called once.
-    const finishConfig = (function*() {
+    const finishConfig = (function* () {
       const POST_ENDPOINTS_TO_TEST = postEndpoints.length;
-      for (let i = 0; i < POST_ENDPOINTS_TO_TEST-1; i++) {
+      for (let i = 0; i < POST_ENDPOINTS_TO_TEST - 1; i++) {
         yield;
       }
       client.destroy();
@@ -119,29 +119,31 @@ export default function ipAddressesSettingAssertions(mock, assert) {
     })();
 
     // Mock GET endpoints to run client normally
-    mock.onGet(settings.url('/splitChanges?since=-1')).reply(200, splitChangesMock1);
-    mock.onGet(new RegExp(`${settings.url('/segmentChanges/')}.*`)).reply(200, {since:10, till:10, name: 'segmentName', added: [], removed: []});
-    
+    fetchMock.getOnce(settings.url('/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
+    fetchMock.getOnce(settings.url('/splitChanges?since=1457552620999'), { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
+    fetchMock.get(new RegExp(`${settings.url('/segmentChanges/')}.*`), { status: 200, body: { since: 10, till: 10, name: 'segmentName', added: [], removed: [] } });
+
     // Mock and assert POST endpoints
-    postEndpoints.forEach( postEndpoint => {
-      mock.onPost(settings.url(postEndpoint)).replyOnce(req => {
-        assertHeaders(settings.core.IPAddressesEnabled, req);
+    postEndpoints.forEach(postEndpoint => {
+      fetchMock.postOnce(settings.url(postEndpoint), (url, opts) => {
+        assertHeaders(settings.core.IPAddressesEnabled, opts);
         finishConfig.next();
-        return [200];
+        return 200;
       });
+      // @TODO remove somehow, since client should be destroyed before second refresh
+      fetchMock.post(settings.url(postEndpoint), 200);
     });
-    
-    // Run normal client flow 
+
+    // Run normal client flow
     client.on(client.Event.SDK_READY, () => {
       client.getTreatment('nicolas@split.io', 'hierarchical_splits_test');
       client.track('nicolas@split.io', 'sometraffictype', 'someEvent', 10);
     });
-    
+
   }
 
-  configSamples.forEach( 
+  configSamples.forEach(
     configSample => mockAndAssertIPAddressesEnabled(configSample)
   );
 
 }
-  
