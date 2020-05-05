@@ -2,15 +2,14 @@
 import path from 'path';
 import tape from 'tape-catch';
 import sinon from 'sinon';
-import MockAdapter from 'axios-mock-adapter';
+import fetchMock from 'fetch-mock';
 import { SplitFactory } from '../../';
 import SettingsFactory from '../../utils/settings';
-import { __getAxiosInstance } from '../../services/transport';
 
-// Set the mock adapter on the current axios instance
-const mock = new MockAdapter(__getAxiosInstance());
+// config the fetch mock to chain routes (appends the new route to the list of routes)
+fetchMock.config.overwriteRoutes = false;
 
-const settings = SettingsFactory({ core: { key: 'facundo@split.io' }});
+const settings = SettingsFactory({ core: { key: 'facundo@split.io' } });
 
 const spySplitChanges = sinon.spy();
 const spySegmentChanges = sinon.spy();
@@ -25,19 +24,18 @@ const spyAny = sinon.spy();
 // going the axios request flow
 const replySpy = spy => {
   spy();
-  return [200];
+  return 200;
 };
 
 const configMocks = () => {
-  mock
-    .onAny(new RegExp(`${settings.url('/splitChanges/')}.*`)).reply(() => replySpy(spySplitChanges))
-    .onAny(new RegExp(`${settings.url('/segmentChanges/')}.*`)).reply(() => replySpy(spySegmentChanges))
-    .onAny(new RegExp(`${settings.url('/mySegments/')}.*`)).reply(() => replySpy(spyMySegments))
-    .onAny(settings.url('/events/bulk')).reply(() => replySpy(spyEventsBulk))
-    .onAny(settings.url('/testImpressions/bulk')).reply(() => replySpy(spyTestImpressionsBulk))
-    .onAny(settings.url('/metrics/times')).reply(() => replySpy(spyMetricsTimes))
-    .onAny(settings.url('/metrics/counters')).reply(() => replySpy(spyMetricsCounters))
-    .onAny().reply(() => replySpy(spyAny));
+  fetchMock.mock(new RegExp(`${settings.url('/splitChanges/')}.*`), () => replySpy(spySplitChanges));
+  fetchMock.mock(new RegExp(`${settings.url('/segmentChanges/')}.*`), () => replySpy(spySegmentChanges));
+  fetchMock.mock(new RegExp(`${settings.url('/mySegments/')}.*`), () => replySpy(spyMySegments));
+  fetchMock.mock(settings.url('/events/bulk'), () => replySpy(spyEventsBulk));
+  fetchMock.mock(settings.url('/testImpressions/bulk'), () => replySpy(spyTestImpressionsBulk));
+  fetchMock.mock(settings.url('/metrics/times'), () => replySpy(spyMetricsTimes));
+  fetchMock.mock(settings.url('/metrics/counters'), () => replySpy(spyMetricsCounters));
+  fetchMock.mock('*', () => replySpy(spyAny));
 };
 
 const settingsGenerator = mockFileName => {
@@ -76,7 +74,7 @@ tape('NodeJS Offline Mode', function (t) {
 
     sinon.spy(console, 'log');
 
-    const factory = SplitFactory({...config, debug: 'ERROR'}); // enable error level logs to check the message.
+    const factory = SplitFactory({ ...config, debug: 'ERROR' }); // enable error level logs to check the message.
     const client = factory.client();
 
     client.on(client.Event.SDK_READY, () => {
@@ -111,7 +109,7 @@ function networkAssertions(client, assert) {
   });
 }
 
-function DotSplitTests (assert) {
+function DotSplitTests(assert) {
   configMocks();
   const config = settingsGenerator('.split');
   const factory = SplitFactory(config);
@@ -164,7 +162,7 @@ function DotSplitTests (assert) {
   });
 }
 
-function DotYAMLTests (mockFileName, mockFileExt, assert) {
+function DotYAMLTests(mockFileName, mockFileExt, assert) {
   configMocks();
   const config = settingsGenerator(`${mockFileName}.${mockFileExt}`);
   const factory = SplitFactory(config);
@@ -224,9 +222,9 @@ function DotYAMLTests (mockFileName, mockFileExt, assert) {
 
     let readyTimestamp = Date.now();
 
-    setTimeout(() => { factory.settings.features = path.join(__dirname, `${mockFileName}.${mockFileExt}` ); }, 290);
-    setTimeout(() => { factory.settings.features = path.join(__dirname, `${mockFileName}.${mockFileExt}` ); }, 590);
-    setTimeout(() => { factory.settings.features = path.join(__dirname, `${mockFileName}.${mockFileExt}` ); }, 890);
+    setTimeout(() => { factory.settings.features = path.join(__dirname, `${mockFileName}.${mockFileExt}`); }, 290);
+    setTimeout(() => { factory.settings.features = path.join(__dirname, `${mockFileName}.${mockFileExt}`); }, 590);
+    setTimeout(() => { factory.settings.features = path.join(__dirname, `${mockFileName}.${mockFileExt}`); }, 890);
     setTimeout(() => { factory.settings.features = path.join(__dirname, `update.${mockFileName}.${mockFileExt}`); }, 1000);
 
     client.once(client.Event.SDK_UPDATE, () => {
