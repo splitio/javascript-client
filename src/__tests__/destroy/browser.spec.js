@@ -1,13 +1,17 @@
 import tape from 'tape-catch';
-import MockAdapter from 'axios-mock-adapter';
+import fetchMock from 'fetch-mock';
 import map from 'lodash/map';
 import pick from 'lodash/pick';
 import { SplitFactory } from '../../';
 import SettingsFactory from '../../utils/settings';
-import { __getAxiosInstance } from '../../services/transport';
 
-// Set the mock adapter on the current axios instance
-const mock = new MockAdapter(__getAxiosInstance());
+import splitChangesMock1 from './splitChanges.since.-1.json';
+import splitChangesMock2 from './splitChanges.since.1500492097547.json';
+import mySegmentsMock from './mySegments.json';
+import impressionsMock from './impressions.json';
+
+// config the fetch mock to chain routes (appends the new route to the list of routes)
+fetchMock.config.overwriteRoutes = false;
 
 const settings = SettingsFactory({
   core: {
@@ -15,17 +19,12 @@ const settings = SettingsFactory({
   }
 });
 
-import splitChangesMock1 from './splitChanges.since.-1.json';
-import splitChangesMock2 from './splitChanges.since.1500492097547.json';
-import mySegmentsMock from './mySegments.json';
-import impressionsMock from './impressions.json';
+fetchMock.getOnce(settings.url('/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
+fetchMock.getOnce(settings.url('/splitChanges?since=-1500492097547'), { status: 200, body: splitChangesMock2 });
 
-mock.onGet(settings.url('/splitChanges?since=-1')).replyOnce(200, splitChangesMock1);
-mock.onGet(settings.url('/splitChanges?since=-1500492097547')).replyOnce(200, splitChangesMock2);
-
-mock.onGet(settings.url('/mySegments/ut1')).replyOnce(200, mySegmentsMock);
-mock.onGet(settings.url('/mySegments/ut2')).replyOnce(200, mySegmentsMock);
-mock.onGet(settings.url('/mySegments/ut3')).replyOnce(200, mySegmentsMock);
+fetchMock.getOnce(settings.url('/mySegments/ut1'), { status: 200, body: mySegmentsMock });
+fetchMock.getOnce(settings.url('/mySegments/ut2'), { status: 200, body: mySegmentsMock });
+fetchMock.getOnce(settings.url('/mySegments/ut3'), { status: 200, body: mySegmentsMock });
 
 tape('SDK destroy for BrowserJS', async function (assert) {
   const config = {
@@ -50,19 +49,19 @@ tape('SDK destroy for BrowserJS', async function (assert) {
   client3.track('tt2', 'otherEventType', 3);
 
   // Assert we are sending the impressions while doing the destroy
-  mock.onPost(settings.url('/testImpressions/bulk')).replyOnce(request => {
-    const impressions = JSON.parse(request.data);
+  fetchMock.postOnce(settings.url('/testImpressions/bulk'), (url, opts) => {
+    const impressions = JSON.parse(opts.body);
 
     impressions[0].keyImpressions = map(impressions[0].keyImpressions, imp => pick(imp, ['keyName', 'treatment']));
 
     assert.deepEqual(impressions, impressionsMock);
 
-    return [200];
+    return 200;
   });
 
   // Assert we are sending the events while doing the destroy
-  mock.onPost(settings.url('/events/bulk')).replyOnce(request => {
-    const events = JSON.parse(request.data);
+  fetchMock.postOnce(settings.url('/events/bulk'), (url, opts) => {
+    const events = JSON.parse(opts.body);
 
     /* 3 events were pushed */
     assert.equal(events.length, 3, 'Should flush all events on destroy.');
@@ -81,7 +80,7 @@ tape('SDK destroy for BrowserJS', async function (assert) {
     assert.equal(thirdEvent.eventTypeId, 'otherEventType', 'The flushed events should match the events on the queue.');
     assert.equal(thirdEvent.value, 3, 'The flushed events should match the events on the queue.');
 
-    return [200];
+    return 200;
   });
 
   await client.ready();
@@ -106,7 +105,7 @@ tape('SDK destroy for BrowserJS', async function (assert) {
   assert.notOk(client2.track('tt', 'eventType', 2),  'After destroy, track calls return false.');
 
   await client.destroy();
-  mock.restore();
+  fetchMock.restore();
 
   assert.equal(client.getTreatment('Single_Test'), 'control', 'After destroy, getTreatment returns control for every destroyed client.');
   assert.deepEqual(client.getTreatments(['Single_Test']), { 'Single_Test': 'control' }, 'After destroy, getTreatments returns map of controls for every destroyed client.');
