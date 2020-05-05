@@ -14,22 +14,18 @@ const config = {
   }],
   startup: {
     eventsFirstPushWindow: 0.2,
-  },
-  urls: {
-    sdk: 'https://sdk.ga-to-split.io/api',
-    events: 'https://events.ga-to-split.io/api'
-  },
+  }
 };
 const settings = SettingsFactory(config);
 
-export default function (mock, assert) {
+export default function (fetchMock, assert) {
 
   let client;
 
   // test default behavior on default tracker
   assert.test(t => {
-    mock.onPost(settings.url('/events/bulk')).replyOnce(req => {
-      const resp = JSON.parse(req.data);
+    fetchMock.postOnce(settings.url('/events/bulk'), (url, opts) => {
+      const resp = JSON.parse(opts.body);
       const sentHits = window.gaSpy.getHits();
 
       t.equal(resp.length, sentHits.length, `Number of sent hits must be equal to sent events (${resp.length})`);
@@ -40,7 +36,7 @@ export default function (mock, assert) {
         client.destroy();
         t.end();
       });
-      return [200];
+      return 200;
     });
 
     gaTag();
@@ -63,8 +59,8 @@ export default function (mock, assert) {
     const numberOfCustomEvents = 5;
     let client;
 
-    mock.onPost(settings.url('/events/bulk')).replyOnce(req => {
-      const resp = JSON.parse(req.data);
+    fetchMock.postOnce(settings.url('/events/bulk'), (url, opts) => {
+      const resp = JSON.parse(opts.body);
       const sentHits = window.gaSpy.getHits('myTracker');
 
       t.equal(resp.length, sentHits.length, `Number of sent hits must be equal to sent events (${resp.length})`);
@@ -75,7 +71,7 @@ export default function (mock, assert) {
         client.destroy();
         t.end();
       });
-      return [200];
+      return 200;
     });
 
     gaTag('other_location_for_ga');
@@ -137,8 +133,8 @@ export default function (mock, assert) {
     const identities = [{ key: 'user1', trafficType: 'user' }, { key: 'user2', trafficType: 'user' }];
     let client;
 
-    mock.onPost(settings.url('/events/bulk')).replyOnce(req => {
-      const resp = JSON.parse(req.data);
+    fetchMock.postOnce(settings.url('/events/bulk'), (url, opts) => {
+      const resp = JSON.parse(opts.body);
       const sentHits = window.gaSpy.getHits('myTracker3');
 
       t.equal(sentHits.length, numberOfCustomEvents, `Number of sent hits must be equal to sent custom events (${numberOfCustomEvents})`);
@@ -148,7 +144,7 @@ export default function (mock, assert) {
         client.destroy();
         t.end();
       });
-      return [200];
+      return 200;
     });
 
     gaTag();
@@ -183,8 +179,8 @@ export default function (mock, assert) {
 
     let client;
 
-    mock.onPost(settings.url('/events/bulk')).replyOnce(req => {
-      const resp = JSON.parse(req.data);
+    fetchMock.postOnce(settings.url('/events/bulk'), (url, opts) => {
+      const resp = JSON.parse(opts.body);
       t.equal(resp.length, expectedNumberOfSplitEvents, 'The number of sent Split events must be equal to the number of sent hits multiply by the number of identities');
 
       const sentHitsTracker4 = window.gaSpy.getHits('myTracker4');
@@ -197,7 +193,7 @@ export default function (mock, assert) {
         client.destroy();
         t.end();
       });
-      return [200];
+      return 200;
     });
 
     gaTag();
@@ -235,8 +231,8 @@ export default function (mock, assert) {
 
     let client;
 
-    mock.onPost(settings.url('/events/bulk')).replyOnce(req => {
-      const resp = JSON.parse(req.data);
+    fetchMock.postOnce(settings.url('/events/bulk'), (url, opts) => {
+      const resp = JSON.parse(opts.body);
       t.equal(resp.length, gaSendIterations * 2, 'The number of sent Split events must be equal to the number of no filtered sent hits');
       t.equal(resp.filter(event => event.eventTypeId === prefixSdkOpts + '.mapperSdkOpts').length, gaSendIterations, 'Custom Split events');
       t.equal(resp.filter(event => event.eventTypeId === prefixPluginOpts + '.mapperPluginOpts').length, gaSendIterations, 'Custom Split events');
@@ -251,7 +247,7 @@ export default function (mock, assert) {
         client.destroy();
         t.end();
       });
-      return [200];
+      return 200;
     });
 
     gaTag();
@@ -290,10 +286,10 @@ export default function (mock, assert) {
 
   // exception in custom mapper or invalid mapper result must not block sending hits
   assert.test(t => {
-    mock.onPost(settings.url('/events/bulk')).replyOnce(req => {
-      const resp = JSON.parse(req.data);
+    fetchMock.postOnce(settings.url('/events/bulk'), (url, opts) => {
+      const resp = JSON.parse(opts.body);
       t.equal(resp.length, 1, 'only a custom event is sent. no events associated to ga hit');
-      return [200];
+      return 200;
     });
 
     gaTag();
@@ -337,8 +333,8 @@ export default function (mock, assert) {
     const hits = [{ hitType: 'pageview' }, { hitType: 'event' }];
     const hitsAfterDestroyed = [{ hitType: 'screenview' }];
 
-    mock.onPost(settings.url('/events/bulk')).replyOnce(req => {
-      const resp = JSON.parse(req.data);
+    fetchMock.postOnce(settings.url('/events/bulk'), (url, opts) => {
+      const resp = JSON.parse(opts.body);
       const sentHits = window.gaSpy.getHits();
 
       t.equal(resp.length, sentHits.length, `Number of sent hits must be equal to sent events (${hits.length})`);
@@ -353,7 +349,7 @@ export default function (mock, assert) {
           });
         });
       });
-      return [200];
+      return 200;
     });
 
     removeGaTag();
@@ -382,8 +378,8 @@ export default function (mock, assert) {
 
   // test `hits` flag
   assert.test(t => {
-    mock.onPost(settings.url('/events/bulk')).replyOnce(req => {
-      const resp = JSON.parse(req.data);
+    fetchMock.postOnce(settings.url('/events/bulk'), (url, opts) => {
+      const resp = JSON.parse(opts.body);
       const sentHits = window.gaSpy.getHits();
 
       t.equal(resp.filter(event => event.eventTypeId === 'ga.pageview').length, 0, 'No events associated to GA hits must be sent');
@@ -394,7 +390,7 @@ export default function (mock, assert) {
         client.destroy();
         t.end();
       });
-      return [200];
+      return 200;
     });
 
     gaTag();
