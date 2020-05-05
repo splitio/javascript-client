@@ -6,7 +6,7 @@ const settings = SettingsFactory({
   }
 });
 
-export default function(startWithTT, mock, assert) {
+export default function(startWithTT, fetchMock, assert) {
   const factory = SplitFactory({
     core: {
       authorizationKey: 'dummy',
@@ -69,8 +69,8 @@ export default function(startWithTT, mock, assert) {
    */
   const trackAssertions = () => {
     // Prepare the mock to check for events having correct values
-    mock.onPost(settings.url('/events/bulk')).replyOnce(req => {
-      const events = JSON.parse(req.data);
+    fetchMock.postOnce(settings.url('/events/bulk'), (url, opts) => {
+      const events = JSON.parse(opts.body);
 
       assert.equal(events.length, 3, 'Tracked only valid events');
       assert.equal(events[0].trafficTypeName, `${startWithTT ? 'start' : 'main'}_tt`, 'matching traffic types both binded and provided through client.track()');
@@ -79,7 +79,7 @@ export default function(startWithTT, mock, assert) {
 
       finished.next();
 
-      return [200];
+      return 200;
     });
 
     if (startWithTT) {

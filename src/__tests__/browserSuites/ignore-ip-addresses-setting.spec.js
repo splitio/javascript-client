@@ -1,5 +1,6 @@
 import { SplitFactory } from '../..';
 import SettingsFactory from '../../utils/settings';
+import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 
 // Header keys and expected values. Expected values are obtained with the runtime function evaluated with IPAddressesEnabled in true.
 const HEADER_SPLITSDKMACHINEIP = 'SplitSDKMachineIP';
@@ -66,12 +67,12 @@ const postEndpoints = [
   '/metrics/counters'
 ];
 
-export default function(mock, assert) {
+export default function (fetchMock, assert) {
 
   // Generator to synchronize the call of assert.end() when all Splitio configurations are run.
-  const finish = (function*() {
+  const finish = (function* () {
     const CONFIG_SAMPLES_COUNT = configSamples.length;
-    for (let i = 0; i < CONFIG_SAMPLES_COUNT-1; i++) {
+    for (let i = 0; i < CONFIG_SAMPLES_COUNT - 1; i++) {
       yield;
     }
     assert.end();
@@ -87,21 +88,26 @@ export default function(mock, assert) {
 
     // Assert properties in impressions logged to impression listener
     config.impressionListener = {
-      logImpression: function(impression) {
+      logImpression: function (impression) {
         assert.false(impression.ip, '"ip" property in impressions must be false, no matters the value of IPAddressesEnabled.');
         assert.false(impression.hostname, '"hostname" property in impressions must be false, no matters the value of IPAddressesEnabled.');
       }
     };
 
+    // Mock GET endpoints before creating the client
+    const settings = SettingsFactory(config);
+    fetchMock.getOnce(settings.url('/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
+    fetchMock.getOnce(settings.url('/splitChanges?since=1457552620999'), { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
+    fetchMock.getOnce(settings.url(`/mySegments/${config.core.key}`), { status: 200, body: { mySegments: [] } });
+
     // Init Split client
     const splitio = SplitFactory(config);
     const client = splitio.client();
-    const settings = SettingsFactory(config);
 
     // Generator to synchronize the destruction of the client when all the post endpoints where called once.
-    const finishConfig = (function*() {
+    const finishConfig = (function* () {
       const POST_ENDPOINTS_TO_TEST = postEndpoints.length;
-      for (let i = 0; i < POST_ENDPOINTS_TO_TEST-1; i++) {
+      for (let i = 0; i < POST_ENDPOINTS_TO_TEST - 1; i++) {
         yield;
       }
       client.destroy();
@@ -109,15 +115,15 @@ export default function(mock, assert) {
     })();
 
     // Mock and assert POST endpoints
-    postEndpoints.forEach( postEndpoint => {
-      mock.onPost(settings.url(postEndpoint)).replyOnce(req => {
-        assertHeaders(settings.core.IPAddressesEnabled, req);
+    postEndpoints.forEach(postEndpoint => {
+      fetchMock.postOnce(settings.url(postEndpoint), (url, opts) => {
+        assertHeaders(settings.core.IPAddressesEnabled, opts);
         finishConfig.next();
-        return [200];
+        return 200;
       });
     });
-    
-    // Run normal client flow 
+
+    // Run normal client flow
     client.ready().then(() => {
       client.getTreatment('hierarchical_splits_test');
       client.track('sometraffictype', 'someEvent', 10);

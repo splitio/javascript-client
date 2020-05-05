@@ -24,25 +24,25 @@ const config = {
   }
 };
 
-export default async function metricsBrowserSuite(mock, assert) {
-  mock.onGet(baseUrls.sdk + '/splitChanges?since=-1').replyOnce(500)
-    .onGet(baseUrls.sdk + '/splitChanges?since=-1').reply(200, splitChangesMock1);
-  mock.onGet(baseUrls.sdk + '/mySegments/metrics-browser-tests-key').replyOnce(500)
-    .onGet(baseUrls.sdk +  '/mySegments/metrics-browser-tests-key').reply(200, { 'mySegments': [] });
+export default async function metricsBrowserSuite(fetchMock, assert) {
+  fetchMock.getOnce(baseUrls.sdk + '/splitChanges?since=-1', 500);
+  fetchMock.get(baseUrls.sdk + '/splitChanges?since=-1', { status: 200, body: splitChangesMock1 });
+  fetchMock.getOnce(baseUrls.sdk + '/mySegments/metrics-browser-tests-key', 500);
+  fetchMock.get(baseUrls.sdk + '/mySegments/metrics-browser-tests-key', { status: 200, body: { 'mySegments': [] } });
   // Should not execute but adding just in case.
-  mock.onGet(baseUrls.sdk + '/splitChanges?since=1457552620999').reply(200, splitChangesMock2);
+  fetchMock.get(baseUrls.sdk + '/splitChanges?since=1457552620999', { status: 200, body: splitChangesMock2 });
 
   const splitio = SplitFactory(config);
   const client = splitio.client();
 
-  const finish = (function*() {
+  const finish = (function* () {
     yield;
     client.destroy();
     assert.end();
   })();
 
-  mock.onPost(baseUrls.events + '/metrics/times').replyOnce(req => {
-    const data = JSON.parse(req.data);
+  fetchMock.postOnce(baseUrls.events + '/metrics/times', (url, opts) => {
+    const data = JSON.parse(opts.body);
 
     assert.equal(data.length, 7, 'We performed 4 correct evaluation requests (one per method) plus ready, splits and segments, so we should have 7 latency metrics.');
 
@@ -73,11 +73,11 @@ export default async function metricsBrowserSuite(mock, assert) {
 
     finish.next();
 
-    return [200];
+    return 200;
   });
 
-  mock.onPost(baseUrls.events + '/metrics/counters').replyOnce(req => {
-    const data = JSON.parse(req.data);
+  fetchMock.postOnce(baseUrls.events + '/metrics/counters', (url, opts) => {
+    const data = JSON.parse(opts.body);
 
     assert.equal(data.length, 4, 'Based on the mock setup, we should have four items.');
 
@@ -103,26 +103,26 @@ export default async function metricsBrowserSuite(mock, assert) {
 
     finish.next();
 
-    return [200];
+    return 200;
   });
 
   await client.ready();
 
   // treatments and results are only validated so we know for sure when the function was actually running to compare the metrics.
   assert.equal(client.getTreatment('always_on'), 'on', 'Evaluation was correct.');
-  assert.equal(client.getTreatment('always_on', () => {}), 'control', 'We should return control with invalid input.');
+  assert.equal(client.getTreatment('always_on', () => { }), 'control', 'We should return control with invalid input.');
 
   assert.deepEqual(client.getTreatmentWithConfig('split_with_config'), {
     treatment: 'on',
     config: '{"color":"brown","dimensions":{"height":12,"width":14},"text":{"inner":"click me"}}'
   }, 'Evaluation with config was correct.');
-  assert.deepEqual(client.getTreatmentWithConfig('split_with_config', () => {}), {
+  assert.deepEqual(client.getTreatmentWithConfig('split_with_config', () => { }), {
     treatment: 'control',
     config: null
   }, 'Evaluation with config returned control state for invalid input.');
 
-  assert.deepEqual(client.getTreatments(['always_on', 'always_off']), { always_on:'on', always_off:'off' }, 'Evaluations were correct.');
-  assert.deepEqual(client.getTreatments(['always_on', 'always_off', null], () => {}), { always_on:'control', always_off:'control' }, 'We should return map of controls with invalid input.');
+  assert.deepEqual(client.getTreatments(['always_on', 'always_off']), { always_on: 'on', always_off: 'off' }, 'Evaluations were correct.');
+  assert.deepEqual(client.getTreatments(['always_on', 'always_off', null], () => { }), { always_on: 'control', always_off: 'control' }, 'We should return map of controls with invalid input.');
 
   assert.deepEqual(client.getTreatmentsWithConfig(['split_with_config', 'always_on', null]),
     {
@@ -136,7 +136,7 @@ export default async function metricsBrowserSuite(mock, assert) {
       }
     }
     , 'Evaluations with config were correct.');
-  assert.deepEqual(client.getTreatmentsWithConfig(['split_with_config', 'always_on', null], () => {}),
+  assert.deepEqual(client.getTreatmentsWithConfig(['split_with_config', 'always_on', null], () => { }),
     {
       split_with_config: {
         treatment: 'control',

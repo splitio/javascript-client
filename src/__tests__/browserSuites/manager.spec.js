@@ -2,8 +2,8 @@ import { SplitFactory } from '../../';
 import splitChangesMockReal from '../mocks/splitchanges.real.json';
 import map from 'lodash/map';
 
-export default async function(settings, mock, assert) {
-  mock.onGet(settings.url('/splitChanges?since=-1')).reply(200, splitChangesMockReal);
+export default async function(settings, fetchMock, assert) {
+  fetchMock.getOnce({ url: settings.url('/splitChanges?since=-1'), overwriteRoutes: true }, { status: 200, body: splitChangesMockReal });
 
   const mockSplits = splitChangesMockReal;
 

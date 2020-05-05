@@ -61,7 +61,7 @@ export default function (fetchMock, assert) {
     });
 
     fetchMock.postOnce(settings.url('/events/bulk'), (url, opts) => {
-      // @TODO review why with a delay of 0 is not working
+      // @TODO review why it is not working with a delay of 0
       setTimeout(() => {
         window.ga(() => {
           const resp = JSON.parse(opts.body);
@@ -186,7 +186,7 @@ export default function (fetchMock, assert) {
     });
 
     fetchMock.postOnce(settings.url('/events/bulk'), (url, opts) => {
-      // @TODO review why with a delay of 0 is not working
+      // @TODO review why it is not working with a delay of 0
       setTimeout(() => {
         window.ga(() => {
           const resp = JSON.parse(opts.body);
