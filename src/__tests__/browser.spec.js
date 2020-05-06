@@ -13,7 +13,7 @@ import {
 import sharedInstantiationSuite from './browserSuites/shared-instantiation.spec';
 import managerSuite from './browserSuites/manager.spec';
 import ignoreIpAddressesSettingSuite from './browserSuites/ignore-ip-addresses-setting.spec';
-import useBeaconApiSuite from './browserSuites/use-beacon-api.spec';
+// import useBeaconApiSuite from './browserSuites/use-beacon-api.spec';
 
 import SettingsFactory from '../utils/settings';
 

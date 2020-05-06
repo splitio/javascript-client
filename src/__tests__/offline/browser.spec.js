@@ -19,7 +19,7 @@ const spyMetricsCounters = sinon.spy();
 const spyAny = sinon.spy();
 
 // helper function that should call the spy function and return a 200 to keep
-// going the axios request flow
+// going the fetch request flow
 const replySpy = spy => {
   spy();
   return 200;
