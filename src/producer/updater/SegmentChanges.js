@@ -42,15 +42,11 @@ const SegmentChangesUpdaterFactory = context => {
     // Async fetchers are collected here.
     const updaters = [];
 
-    // If not a segment name provided, read list of available segments names to be updated.
-    const segments = segmentNames ? segmentNames : storage.segments.getRegisteredSegments();
-    const segmentsPromise = thenable(segments) ? segments : Promise.resolve(segments);
-    return segmentsPromise.then(function (segments) {
+    function segmentsUpdater(segments) {
       const sincePromises = [];
       for (let segmentName of segments) {
-        const since = storage.segments.getChangeNumber(segmentName);
-        const sincePromise = thenable(since) ? since : Promise.resolve(since);
-        sincePromise.then(function (since) {
+
+        const segmentUpdater = function (since) {
           log.debug(`Processing segment ${segmentName}`);
 
           updaters.push(segmentChangesFetcher(settings, segmentName, since, metricCollectors).then(function (changes) {
@@ -74,14 +70,17 @@ const SegmentChangesUpdaterFactory = context => {
 
               log.debug(`Processed ${segmentName} with till = ${x.till}. Added: ${x.added.length}. Removed: ${x.removed.length}`);
 
-              if(promises.length > 0) changePromises.push(...promises);
+              if (promises.length > 0) changePromises.push(...promises);
             }
 
             return Promise.all(changePromises).then(function () {
               return changeNumber;
             });
           }));
-        });
+        };
+
+        const since = storage.segments.getChangeNumber(segmentName);
+        const sincePromise = thenable(since) ? since.then(segmentUpdater) : segmentUpdater(since);
         sincePromises.push(sincePromise);
       }
 
@@ -100,7 +99,11 @@ const SegmentChangesUpdaterFactory = context => {
           }
         });
       });
-    });
+    }
+
+    // If not a segment name provided, read list of available segments names to be updated.
+    const segments = segmentNames ? segmentNames : storage.segments.getRegisteredSegments();
+    return thenable(segments) ? segments.then(segmentsUpdater) : segmentsUpdater(segments);
   };
 
 };

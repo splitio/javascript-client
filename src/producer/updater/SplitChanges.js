@@ -58,10 +58,8 @@ function SplitChangesUpdaterFactory(context, isNode = false) {
   let readyOnAlreadyExistentState = true;
 
   return function SplitChangesUpdater(retry = 0) {
-    const since = storage.splits.getChangeNumber();
-    const sincePromise = thenable(since) ? since : Promise.resolve(since);
 
-    return sincePromise.then(function (since) {
+    function splitChanges(since) {
       log.debug(`Spin up split update using since = ${since}`);
 
       const fetcherPromise = splitChangesFetcher(settings, since, startingUp, metricCollectors, isNode)
@@ -89,7 +87,7 @@ function SplitChangesUpdaterFactory(context, isNode = false) {
         })
         .catch(error => {
           if (!(error instanceof SplitError)) {
-            setTimeout(() => {throw error;}, 0);
+            setTimeout(() => { throw error; }, 0);
             startingUp = false; // Stop retrying.
           }
 
@@ -110,7 +108,10 @@ function SplitChangesUpdaterFactory(context, isNode = false) {
       if (startingUp && storage.splits.checkCache()) splitsEventEmitter.emit(splitsEventEmitter.SDK_SPLITS_CACHE_LOADED);
 
       return fetcherPromise;
-    });
+    }
+
+    const since = storage.splits.getChangeNumber();
+    return thenable(since) ? since.then(splitChanges) : splitChanges(since);
   };
 }
 

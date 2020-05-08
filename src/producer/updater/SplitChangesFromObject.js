@@ -36,11 +36,21 @@ function FromObjectUpdaterFactory(Fetcher, context) {
       log.error(`There was an issue loading the mock Splits data, no changes will be applied to the current cache. ${err}`);
     }
 
+    function emitEvents() {
+      readiness.splits.emit(readiness.splits.SDK_SPLITS_ARRIVED);
+      readiness.segments.emit(readiness.segments.SDK_SEGMENTS_ARRIVED);
+    }
+
+    function addSplits() {
+      const addSplitsResult = storage.splits.addSplits(splits);
+      return thenable(addSplitsResult) ? addSplitsResult.then(emitEvents) : emitEvents();
+    }
+
     if (!loadError && splitsMock) {
       log.debug('Splits data: ');
       log.debug(JSON.stringify(splitsMock));
 
-      forOwn(splitsMock, function(val, name) {
+      forOwn(splitsMock, function (val, name) {
         splits.push([
           name,
           JSON.stringify({
@@ -58,16 +68,7 @@ function FromObjectUpdaterFactory(Fetcher, context) {
 
       const flushResult = storage.splits.flush();
       const flushPromise = thenable(flushResult) ? flushResult : Promise.resolve(flushResult);
-
-      return flushPromise.then(function () {
-        const addSplitsResult = storage.splits.addSplits(splits);
-        const addSplitsPromise = thenable(addSplitsResult) ? addSplitsResult : Promise.resolve(addSplitsResult);
-
-        return addSplitsPromise.then(function () {
-          readiness.splits.emit(readiness.splits.SDK_SPLITS_ARRIVED);
-          readiness.segments.emit(readiness.segments.SDK_SEGMENTS_ARRIVED);
-        });
-      });
+      return flushPromise.then(addSplits);
     }
     return Promise.resolve();
   };
