@@ -57,34 +57,34 @@ const SegmentChangesUpdaterFactory = context => {
             let changeNumber = -1;
             const changePromises = [];
             for (let x of changes) {
-              let promise = Promise.resolve();
+              let promises = [];
+              if (x.added.length > 0) {
+                const result = storage.segments.addToSegment(segmentName, x.added);
+                if (thenable(result)) promises.push(result);
+              }
+              if (x.removed.length > 0) {
+                const result = storage.segments.removeFromSegment(segmentName, x.removed);
+                if (thenable(result)) promises.push(result);
+              }
+              if (x.added.length > 0 || x.removed.length > 0) {
+                const result = storage.segments.setChangeNumber(segmentName, x.till);
+                if (thenable(result)) promises.push(result);
+                changeNumber = x.till;
+              }
 
-              promise.then(function() {
-                if (x.added.length > 0) {
-                  return storage.segments.addToSegment(segmentName, x.added);
-                }
-              }).then(function() {
-                if (x.removed.length > 0)
-                  return storage.segments.removeFromSegment(segmentName, x.removed);
-              }).then(function() {
-                log.debug(`Processed ${segmentName} with till = ${x.till}. Added: ${x.added.length}. Removed: ${x.removed.length}`);
+              log.debug(`Processed ${segmentName} with till = ${x.till}. Added: ${x.added.length}. Removed: ${x.removed.length}`);
 
-                if (x.added.length > 0 || x.removed.length > 0) {
-                  changeNumber = x.till;
-                  return storage.segments.setChangeNumber(segmentName, x.till);
-                }
-              });
-
-              changePromises.push(promise);
+              if(promises.length > 0) changePromises.push(...promises);
             }
 
-            return Promise.all(sincePromises).then(function () {
+            return Promise.all(changePromises).then(function () {
               return changeNumber;
             });
           }));
         });
         sincePromises.push(sincePromise);
       }
+
       return Promise.all(sincePromises).then(function () {
         return Promise.all(updaters).then(shouldUpdateFlags => {
           if (findIndex(shouldUpdateFlags, v => v !== -1) !== -1 || readyOnAlreadyExistentState) {
