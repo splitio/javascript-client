@@ -33,14 +33,17 @@ const SegmentChangesUpdaterFactory = context => {
 
   let readyOnAlreadyExistentState = true;
 
-  return function SegmentChangesUpdater(segmentName) {
+  /**
+   * @param {string[] | undefined} segmentNames list of segment names to fetch. By passing `undefined` it fetches the list of segments registered at the storage
+   */
+  return function SegmentChangesUpdater(segmentNames) {
     log.debug('Started segments update');
 
     // Async fetchers are collected here.
     const updaters = [];
 
     // If not a segment name provided, read list of available segments names to be updated.
-    const segments = segmentName ? [segmentName] : storage.segments.getRegisteredSegments();
+    const segments = segmentNames ? segmentNames : storage.segments.getRegisteredSegments();
     const segmentsPromise = thenable(segments) ? segments : Promise.resolve(segments);
     return segmentsPromise.then(function (segments) {
       const sincePromises = [];
@@ -50,7 +53,7 @@ const SegmentChangesUpdaterFactory = context => {
         sincePromise.then(function (since) {
           log.debug(`Processing segment ${segmentName}`);
 
-          updaters.push(segmentChangesFetcher(settings, segmentName, since, metricCollectors).then(async function (changes) {
+          updaters.push(segmentChangesFetcher(settings, segmentName, since, metricCollectors).then(function (changes) {
             let changeNumber = -1;
             const changePromises = [];
             for (let x of changes) {

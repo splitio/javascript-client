@@ -24,12 +24,14 @@ script:
   - npm run test-browser-offline
   - npm run test-browser-destroy
   - npm run test-browser-errors
+  - npm run test-browser-push
   - 'npm run test-node -- --no-progress'
   - 'npm run test-node-e2e -- --no-progress'
   - 'npm run test-node-redis -- --no-progress'
   - 'npm run test-node-offline -- --no-progress'
   - 'npm run test-node-destroy -- --no-progress'
   - npm run test-node-errors
+  - npm run test-node-push
   - npm run lint
   - BUILD_BRANCH=$TRAVIS_BRANCH BUILD_COMMIT=$TRAVIS_COMMIT npm run rebuild:ci
 

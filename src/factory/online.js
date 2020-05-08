@@ -1,11 +1,13 @@
 import ClientFactory from '../client';
-import FullProducerFactory from '../producer';
-import PartialProducerFactory from '../producer/browser/Partial';
 import MetricsFactory from '../metrics';
 import EventsFactory from '../events';
+import SyncManagerFactory from '../sync';
 import SignalsListener from '../listeners';
-import { STANDALONE_MODE, PRODUCER_MODE, CONSUMER_MODE } from '../utils/constants';
 import { releaseApiKey } from '../utils/inputValidation';
+import { STANDALONE_MODE, PRODUCER_MODE, CONSUMER_MODE } from '../utils/constants';
+
+// map of authorizationKeys to syncManagers, to keep a single instance per factory and needed to create shared clients
+const syncManagers = {};
 
 //
 // Create SDK instance based on the provided configurations
@@ -30,14 +32,19 @@ function SplitFactoryOnline(context, readyTrackers, mainClientMetricCollectors) 
   // Signal listener only needed for main instances
   const signalsListener = sharedInstance ? undefined : new SignalsListener(context);
 
-  let producer;
+  let syncManager;
 
   switch (settings.mode) {
     case PRODUCER_MODE:
     case STANDALONE_MODE: {
       context.put(context.constants.COLLECTORS, metrics && metrics.collectors);
-      // We don't fully instantiate producer if we are creating a shared instance.
-      producer = sharedInstance ? PartialProducerFactory(context) : FullProducerFactory(context);
+      // We don't fully instantiate syncManager if we are creating a shared instance.
+      if (sharedInstance) {
+        syncManager = syncManagers[settings.core.authorizationKey].shared(context);
+      } else {
+        syncManager = SyncManagerFactory(context);
+        syncManagers[settings.core.authorizationKey] = syncManager;
+      }
       break;
     }
     case CONSUMER_MODE: {
@@ -50,7 +57,7 @@ function SplitFactoryOnline(context, readyTrackers, mainClientMetricCollectors) 
     }
   }
 
-  if (readyTrackers && producer && !sharedInstance) { // Only track ready events for non-shared and non-consumer clients
+  if (readyTrackers && syncManager && !sharedInstance) { // Only track ready events for non-shared and non-consumer clients
     const {
       sdkReadyTracker, splitsReadyTracker, segmentsReadyTracker
     } = readyTrackers;
@@ -64,7 +71,7 @@ function SplitFactoryOnline(context, readyTrackers, mainClientMetricCollectors) 
   }
 
   // Start background jobs tasks
-  producer && producer.start();
+  syncManager && syncManager.start();
   metrics && metrics.start();
   events && context.put(context.constants.EVENTS, events) && events.start();
 
@@ -81,7 +88,7 @@ function SplitFactoryOnline(context, readyTrackers, mainClientMetricCollectors) 
       // Destroy instance
       destroy() {
         // Stop background jobs
-        producer && producer.stop();
+        syncManager && syncManager.stop();
         metrics && metrics.stop();
         events && events.stop();
 
@@ -99,8 +106,11 @@ function SplitFactoryOnline(context, readyTrackers, mainClientMetricCollectors) 
           storage.destroy && storage.destroy();
           // Mark the factory as destroyed.
           context.put(context.constants.DESTROYED, true);
-          // And release the API Key
-          !sharedInstance && releaseApiKey(settings.core.authorizationKey);
+          // And release the API Key and SyncManager
+          if (!sharedInstance) {
+            releaseApiKey(settings.core.authorizationKey);
+            delete syncManagers[settings.core.authorizationKey];
+          }
         });
       }
     }
