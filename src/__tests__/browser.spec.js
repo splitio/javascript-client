@@ -4,7 +4,7 @@ import evaluationsSuite from './browserSuites/evaluations.spec';
 import impressionsSuite from './browserSuites/impressions.spec';
 import metricsSuite from './browserSuites/metrics.spec';
 import impressionsListenerSuite from './browserSuites/impressions-listener.spec';
-// import readinessSuite from './browserSuites/readiness.spec';
+import readinessSuite from './browserSuites/readiness.spec';
 import readyFromCache from './browserSuites/ready-from-cache.spec';
 import {
   withoutBindingTT,
@@ -107,8 +107,8 @@ tape('## E2E CI Tests ##', function(assert) {
   assert.test('E2E / Shared instances with Traffic Type on factory settings', sharedInstantiationSuite.bind(null, true, fetchMock));
   /* Check basic manager functionality */
   assert.test('E2E / Manager API', managerSuite.bind(null, settings, fetchMock));
-  // /* Validate readiness */
-  // assert.test('E2E / Readiness', readinessSuite.bind(null, fetchMock));
+  /* Validate readiness */
+  assert.test('E2E / Readiness', readinessSuite.bind(null, fetchMock));
   /* Validate headers for ip and hostname are not sended with requests (ignore setting IPAddressesEnabled) */
   assert.test('E2E / Ignore setting IPAddressesEnabled', ignoreIpAddressesSettingSuite.bind(null, fetchMock));
   /* Check that impressions and events are sended to backend via Beacon API or Fetch when page unload is triggered. */
