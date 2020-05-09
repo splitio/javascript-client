@@ -16,7 +16,7 @@ module.exports = function (api) {
         'corejs': '3',
         'targets': {
           'ie': '10',
-          'node': '4'
+          'node': '6'
         },
         exclude: [
           'es.promise'
