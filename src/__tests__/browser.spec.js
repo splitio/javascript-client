@@ -13,7 +13,7 @@ import {
 import sharedInstantiationSuite from './browserSuites/shared-instantiation.spec';
 import managerSuite from './browserSuites/manager.spec';
 import ignoreIpAddressesSettingSuite from './browserSuites/ignore-ip-addresses-setting.spec';
-// import useBeaconApiSuite from './browserSuites/use-beacon-api.spec';
+import useBeaconApiSuite from './browserSuites/use-beacon-api.spec';
 
 import SettingsFactory from '../utils/settings';
 
@@ -87,6 +87,7 @@ tape('## E2E CI Tests ##', function(assert) {
   fetchMock.get(settings.url('/mySegments/facundo@split.io'), { status: 200, body: mySegmentsFacundo });
   fetchMock.get(settings.url('/mySegments/nicolas@split.io'), { status: 200, body: mySegmentsNicolas });
   fetchMock.get(settings.url('/mySegments/marcio@split.io'), { status: 200, body: mySegmentsMarcio });
+  fetchMock.post(settings.url('/testImpressions/bulk'), 200);
 
   /* Check client evaluations. */
   assert.test('E2E / In Memory', evaluationsSuite.bind(null, configInMemory, fetchMock));
@@ -110,8 +111,8 @@ tape('## E2E CI Tests ##', function(assert) {
   // assert.test('E2E / Readiness', readinessSuite.bind(null, fetchMock));
   /* Validate headers for ip and hostname are not sended with requests (ignore setting IPAddressesEnabled) */
   assert.test('E2E / Ignore setting IPAddressesEnabled', ignoreIpAddressesSettingSuite.bind(null, fetchMock));
-  // /* Check that impressions and events are sended to backend via Beacon API or Fetch when page unload is triggered. */
-  // assert.test('E2E / Use Beacon API (or Fetch if not available) to send remaining impressions and events when browser page is unload', useBeaconApiSuite.bind(null, fetchMock));
+  /* Check that impressions and events are sended to backend via Beacon API or Fetch when page unload is triggered. */
+  assert.test('E2E / Use Beacon API (or Fetch if not available) to send remaining impressions and events when browser page is unload', useBeaconApiSuite.bind(null, fetchMock));
   /* Validate ready from cache behaviour (might be merged into another suite if we end up having simple behavior around it as expected) */
   assert.test('E2E / Readiness from cache', readyFromCache.bind(null, fetchMock));
 

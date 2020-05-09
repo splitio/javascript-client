@@ -135,6 +135,7 @@ export default function (fetchMock, assert) {
     fetchMock.get(testUrls.sdk + '/mySegments/nicolas3@split.io', function () {
       return new Promise(res => { setTimeout(() => res({ status: 200, body: { 'mySegments': [] }, headers: {} }), 1000); }); // Third client mySegments will come after 1s
     });
+    fetchMock.postOnce(testUrls.events + '/testImpressions/bulk', 200);
 
     localStorage.setItem('readyFromCache_2.SPLITIO.splits.till', 25);
     localStorage.setItem('readyFromCache_2.SPLITIO.split.always_on', alwaysOnSplitInverted);

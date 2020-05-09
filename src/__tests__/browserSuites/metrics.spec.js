@@ -31,6 +31,8 @@ export default async function metricsBrowserSuite(fetchMock, assert) {
   fetchMock.get(baseUrls.sdk + '/mySegments/metrics-browser-tests-key', { status: 200, body: { 'mySegments': [] } });
   // Should not execute but adding just in case.
   fetchMock.get(baseUrls.sdk + '/splitChanges?since=1457552620999', { status: 200, body: splitChangesMock2 });
+  // We need to handle all requests properly
+  fetchMock.postOnce(baseUrls.events + '/testImpressions/bulk', 200);
 
   const splitio = SplitFactory(config);
   const client = splitio.client();

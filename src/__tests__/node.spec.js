@@ -48,8 +48,6 @@ fetchMock.get(new RegExp(`${settings.url('/segmentChanges')}/*`), {
     'till': 1
   }
 });
-
-// @TODO review if moving it inside each test suite
 fetchMock.post(settings.url('/testImpressions/bulk'), 200);
 
 tape('## Node JS - E2E CI Tests ##', async function (assert) {
