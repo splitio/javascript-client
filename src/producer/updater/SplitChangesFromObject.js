@@ -56,7 +56,7 @@ function FromObjectUpdaterFactory(Fetcher, context) {
       });
 
       return Promise.all([
-       	storage.splits.flush(),
+        storage.splits.flush(),
         storage.splits.addSplits(splits)
       ]).then(() => {
         readiness.splits.emit(readiness.splits.SDK_SPLITS_ARRIVED);
