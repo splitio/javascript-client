@@ -1,5 +1,5 @@
 // @TODO use ponyfill instead of polyfill to avoid collision with user polyfills
-import 'isomorphic-unfetch';
+import fetch from '../fetch';
 import { SplitNetworkError } from '../../utils/lang/Errors';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-services:service');
