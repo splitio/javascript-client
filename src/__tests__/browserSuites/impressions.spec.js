@@ -82,6 +82,7 @@ export default function (fetchMock, assert) {
 
     return 200;
   });
+  fetchMock.postOnce(settings.url('/testImpressions/bulk'), 200);
 
   client.ready().then(() => {
     // depends on hierarchical_dep_hierarchical which depends on hierarchical_dep_always_on
