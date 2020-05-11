@@ -1,5 +1,5 @@
 import tape from 'tape-catch';
-import fetchMock from 'fetch-mock';
+import fetchMock from './utils/fetchMock';
 import SettingsFactory from '../utils/settings';
 
 import evaluationsSuite from './nodeSuites/evaluations.spec';
@@ -13,9 +13,6 @@ import ipAddressesSetting from './nodeSuites/ip-addresses-setting.spec';
 
 import splitChangesMock1 from './mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from './mocks/splitchanges.since.1457552620999.json';
-
-// config the fetch mock to chain routes (appends the new route to the list of routes)
-fetchMock.config.overwriteRoutes = false;
 
 const settings = SettingsFactory({
   core: {

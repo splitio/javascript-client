@@ -1,5 +1,5 @@
 import tape from 'tape-catch';
-import fetchMock from 'fetch-mock';
+import fetchMock from './utils/fetchMock';
 import evaluationsSuite from './browserSuites/evaluations.spec';
 import impressionsSuite from './browserSuites/impressions.spec';
 import metricsSuite from './browserSuites/metrics.spec';
@@ -22,9 +22,6 @@ import splitChangesMock2 from './mocks/splitchanges.since.1457552620999.json';
 import mySegmentsFacundo from './mocks/mysegments.facundo@split.io.json';
 import mySegmentsNicolas from './mocks/mysegments.nicolas@split.io.json';
 import mySegmentsMarcio from './mocks/mysegments.marcio@split.io.json';
-
-// config the fetch mock to chain routes (appends the new route to the list of routes)
-fetchMock.config.overwriteRoutes = false;
 
 const settings = SettingsFactory({
   core: {

@@ -1,5 +1,5 @@
 import tape from 'tape-catch';
-import fetchMock from 'fetch-mock';
+import fetchMock from '../utils/fetchMock';
 import { testAuthWithPushDisabled, testAuthWith401, testNoEventSource, testNoBase64Support } from '../browserSuites/push-initialization-nopush.spec';
 import { testAuthRetries, testSSERetries } from '../browserSuites/push-initialization-retries.spec';
 import { testSynchronization } from '../browserSuites/push-synchronization.spec';

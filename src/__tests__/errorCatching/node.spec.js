@@ -1,7 +1,7 @@
 // Here we are testing exceptions and the handler should be ours, we need to avoid tape-catch
 import tape from 'tape';
 import includes from 'lodash/includes';
-import fetchMock from 'fetch-mock';
+import fetchMock from '../utils/fetchMock';
 
 import { SplitFactory } from '../../';
 import SettingsFactory from '../../utils/settings';
@@ -10,8 +10,6 @@ import splitChangesMock1 from './splitChanges.since.-1.json';
 import splitChangesMock2 from './splitChanges.since.1500492097547.json';
 import splitChangesMock3 from './splitChanges.since.1500492297547.json';
 
-// config the fetch mock to chain routes (appends the new route to the list of routes)
-fetchMock.config.overwriteRoutes = false;
 // Option object used to configure mocked routes with a delay of 1.5 seconds.
 const responseDelay = { delay: 1500 };
 

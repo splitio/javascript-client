@@ -2,12 +2,9 @@
 import path from 'path';
 import tape from 'tape-catch';
 import sinon from 'sinon';
-import fetchMock from 'fetch-mock';
+import fetchMock from '../utils/fetchMock';
 import { SplitFactory } from '../../';
 import SettingsFactory from '../../utils/settings';
-
-// config the fetch mock to chain routes (appends the new route to the list of routes)
-fetchMock.config.overwriteRoutes = false;
 
 const settings = SettingsFactory({ core: { key: 'facundo@split.io' } });
 

@@ -1,5 +1,5 @@
 import tape from 'tape-catch';
-import fetchMock from 'fetch-mock';
+import fetchMock from '../utils/fetchMock';
 import map from 'lodash/map';
 import pick from 'lodash/pick';
 import { SplitFactory } from '../../';
@@ -9,9 +9,6 @@ import splitChangesMock1 from './splitChanges.since.-1.json';
 import splitChangesMock2 from './splitChanges.since.1500492097547.json';
 import mySegmentsMock from './mySegments.json';
 import impressionsMock from './impressions.json';
-
-// config the fetch mock to chain routes (appends the new route to the list of routes)
-fetchMock.config.overwriteRoutes = false;
 
 const settings = SettingsFactory({
   core: {

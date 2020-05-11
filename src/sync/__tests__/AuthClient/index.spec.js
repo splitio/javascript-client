@@ -1,5 +1,5 @@
 import tape from 'tape';
-import fetchMock from 'fetch-mock';
+import fetchMock from '../../../__tests__/utils/fetchMock';
 import authenticate from '../../AuthClient';
 import SettingsFactory from '../../../utils/settings/index';
 import { authDataResponseSample, authDataSample } from '../mocks/dataMocks';
