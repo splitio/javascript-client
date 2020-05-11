@@ -96,6 +96,7 @@ export default async function(key, fetchMock, assert) {
 
     return 200;
   });
+  fetchMock.postOnce(settings.url('/testImpressions/bulk'), 200);
 
   splitio.Logger.enable();
   evaluationsStart = Date.now();
