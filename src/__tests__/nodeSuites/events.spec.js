@@ -60,7 +60,6 @@ export default function trackAssertions(fetchMock, assert) {
     assert.true(midEvent.timestamp >= tsStart && midEvent.timestamp <= tsEnd, 'The timestamp should be a number with the right value.');
     assert.equal(lastEvent.properties, null, 'The properties should be null.');
 
-    // @TODO figure out why we must use a setTimeout when using fetch-mock on this test
     setTimeout(() => {
       client.destroy();
       assert.end();

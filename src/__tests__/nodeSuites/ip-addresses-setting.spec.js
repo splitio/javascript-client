@@ -130,7 +130,6 @@ export default function ipAddressesSettingAssertions(fetchMock, assert) {
         finishConfig.next();
         return 200;
       });
-      // @TODO remove somehow, since client should be destroyed before second refresh
       fetchMock.post(settings.url(postEndpoint), 200);
     });
 
