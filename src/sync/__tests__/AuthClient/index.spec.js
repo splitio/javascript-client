@@ -4,8 +4,6 @@ import authenticate from '../../AuthClient';
 import SettingsFactory from '../../../utils/settings/index';
 import { authDataResponseSample, authDataSample } from '../mocks/dataMocks';
 
-fetchMock.config.overwriteRoutes = false;
-
 const settings = SettingsFactory({
   core: {
     authorizationKey: 'SDK_KEY',
