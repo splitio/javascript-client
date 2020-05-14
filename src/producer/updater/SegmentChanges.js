@@ -18,7 +18,7 @@ import logFactory from '../../utils/logger';
 const log = logFactory('splitio-producer:segment-changes');
 const inputValidationLog = logFactory('', { displayAllErrors: true });
 import segmentChangesFetcher from '../fetcher/SegmentChanges';
-import { findIndex, startsWith } from '../../utils/lang';
+import { findIndex } from '../../utils/lang';
 import { SplitError } from '../../utils/lang/Errors';
 
 const SegmentChangesUpdaterFactory = context => {
@@ -79,7 +79,7 @@ const SegmentChangesUpdaterFactory = context => {
     }).catch(error => {
       if (!(error instanceof SplitError)) setTimeout(() => { throw error; }, 0);
 
-      if (startsWith(error.message, '403')) {
+      if (error.statusCode === 403) {
         context.put(context.constants.DESTROYED, true);
         inputValidationLog.error('Factory instantiation: you passed a Browser type authorizationKey, please grab an Api Key from the Split web console that is of type SDK.');
       }

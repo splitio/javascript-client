@@ -34,6 +34,6 @@ export default function Fetcher(request) {
         log[request.logErrorsAsInfo ? 'info' : 'error'](`Response status is not OK. Status: ${resp ? resp.status : 'NO_STATUS'}. URL: ${url}. Message: ${msg}`);
       }
 
-      throw new SplitNetworkError(msg, resp ? resp.status : 'NO_STATUS');
+      throw new SplitNetworkError(msg, resp && resp.status);
     });
 }

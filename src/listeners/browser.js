@@ -50,7 +50,7 @@ export default class BrowserSignalListener {
   /**
    * _flushData method.
    * Called when unload event is triggered. It flushed remaining impressions and events to the backend,
-   * using beacon API if possible, or falling back to Fetch.
+   * using beacon API if possible, or falling back to regular post transport.
    */
   flushData() {
     this._flushImpressions();
