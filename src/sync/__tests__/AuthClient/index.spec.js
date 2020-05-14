@@ -107,8 +107,8 @@ tape('authenticate', t => {
     authenticate(settings, []).then(() => {
       assert.fail('if network error, promise is rejected');
     }).catch(error => {
-      assert.equal(error.statusCode, 'NO_STATUS',
-        'if network error, status code is "NO_STATUS"');
+      assert.equal(error.statusCode, undefined,
+        'if network error, status code is `undefined`');
       assert.end();
     });
 
