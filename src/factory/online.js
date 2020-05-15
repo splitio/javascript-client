@@ -86,31 +86,32 @@ function SplitFactoryOnline(context, readyTrackers, mainClientMetricCollectors) 
     // Utilities
     {
       // Destroy instance
-      async destroy() {
+      destroy() {
         // Stop background jobs
         syncManager && syncManager.stop();
         metrics && metrics.stop();
         events && events.stop();
 
         // Send impressions and events in parallel.
-        await Promise.all([
+        return Promise.all([
           metrics && metrics.flush(),
           events && events.flush()
-        ]);
+        ]).then(function () {
 
-        // Cleanup event listeners
-        readiness.destroy();
-        signalsListener && signalsListener.stop();
+          // Cleanup event listeners
+          readiness.destroy();
+          signalsListener && signalsListener.stop();
 
-        // Cleanup storage
-        storage.destroy && storage.destroy();
-        // Mark the factory as destroyed.
-        context.put(context.constants.DESTROYED, true);
-        // And release the API Key and SyncManager
-        if (!sharedInstance) {
-          releaseApiKey(settings.core.authorizationKey);
-          delete syncManagers[settings.core.authorizationKey];
-        }
+          // Cleanup storage
+          storage.destroy && storage.destroy();
+          // Mark the factory as destroyed.
+          context.put(context.constants.DESTROYED, true);
+          // And release the API Key and SyncManager
+          if (!sharedInstance) {
+            releaseApiKey(settings.core.authorizationKey);
+            delete syncManagers[settings.core.authorizationKey];
+          }
+        });
       }
     }
   );

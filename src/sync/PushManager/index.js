@@ -71,7 +71,6 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
 
         // emit PUSH_DISCONNECT if org is not whitelisted
         if (!authData.pushEnabled) {
-          // @TODO review log messages before releasing
           log.info('Streaming is not available. Switching to polling mode.');
           pushEmitter.emit(PUSH_DISCONNECT); // there is no need to close sseClient (it is not open on this scenario)
           return;
