@@ -44,8 +44,7 @@ export default class SSEClient {
 
     this.authToken = authToken;
 
-    const channels = JSON.parse(authToken.decodedToken['x-ably-capability']);
-    const channelsQueryParam = Object.keys(channels).map(
+    const channelsQueryParam = Object.keys(authToken.channels).map(
       function (channel) {
         const params = CONTROL_CHANNEL_REGEX.test(channel) ? '[?occupancy=metrics.publishers]' : '';
         return encodeURIComponent(params + channel);
