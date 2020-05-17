@@ -216,6 +216,7 @@ AsyncSDK.Logger.disable();
 // Events constants we get
 const eventConsts: {[key: string]: SplitIO.Event} = client.Event;
 splitEvent = client.Event.SDK_READY;
+splitEvent = client.Event.SDK_READY_FROM_CACHE;
 splitEvent = client.Event.SDK_READY_TIMED_OUT;
 splitEvent = client.Event.SDK_UPDATE;
 
@@ -276,6 +277,7 @@ tracked = client.track('myEventType', undefined, { prop1: 1, prop2: '2', prop3: 
 // Events constants we get (same as for sync client, just for interface checking)
 const eventConstsAsymc: {[key: string]: SplitIO.Event} = client.Event;
 splitEvent = client.Event.SDK_READY;
+splitEvent = client.Event.SDK_READY_FROM_CACHE;
 splitEvent = client.Event.SDK_READY_TIMED_OUT;
 splitEvent = client.Event.SDK_UPDATE;
 
@@ -336,6 +338,7 @@ const bb: number = manager.listenerCount(splitEvent);
 // manager exposes Event constants too
 const managerEventConsts: {[key: string]: SplitIO.Event} = manager.Event;
 splitEvent = manager.Event.SDK_READY;
+splitEvent = manager.Event.SDK_READY_FROM_CACHE;
 splitEvent = manager.Event.SDK_READY_TIMED_OUT;
 splitEvent = manager.Event.SDK_UPDATE;
 
@@ -358,6 +361,7 @@ const bbb: number = asyncManager.listenerCount(splitEvent);
 // asyncManager exposes Event constants too
 const asyncManagerEventConsts: {[key: string]: SplitIO.Event} = asyncManager.Event;
 splitEvent = asyncManager.Event.SDK_READY;
+splitEvent = asyncManager.Event.SDK_READY_FROM_CACHE;
 splitEvent = asyncManager.Event.SDK_READY_TIMED_OUT;
 splitEvent = asyncManager.Event.SDK_UPDATE;
 
@@ -380,6 +384,34 @@ impressionListener.logImpression(impressionData);
 
 /**** Tests for fully crowded settings interfaces ****/
 
+// Browser integrations
+let fieldsObjectSample: UniversalAnalytics.FieldsObject = { hitType: 'event', eventAction: 'action' };
+let eventDataSample: SplitIO.EventData = { eventTypeId: 'someEventTypeId', value: 10, properties: {} }
+
+let googleAnalyticsToSplitConfig: SplitIO.IGoogleAnalyticsToSplitConfig = {
+  type: 'GOOGLE_ANALYTICS_TO_SPLIT',
+};
+let splitToGoogleAnalyticsConfig: SplitIO.ISplitToGoogleAnalyticsConfig = {
+  type: 'SPLIT_TO_GOOGLE_ANALYTICS',
+};
+
+let customGoogleAnalyticsToSplitConfig: SplitIO.IGoogleAnalyticsToSplitConfig = {
+  type: 'GOOGLE_ANALYTICS_TO_SPLIT',
+  hits: false,
+  filter: function (model: UniversalAnalytics.Model): boolean { return true; },
+  mapper: function (model: UniversalAnalytics.Model, defaultMapping: SplitIO.EventData): SplitIO.EventData { return eventDataSample; },
+  prefix: 'PREFIX',
+  identities: [{ key: 'key1', trafficType: 'tt1'}, { key: 'key2', trafficType: 'tt2'}],
+};
+let customSplitToGoogleAnalyticsConfig: SplitIO.ISplitToGoogleAnalyticsConfig = {
+  type: 'SPLIT_TO_GOOGLE_ANALYTICS',
+  events: false,
+  impressions: true,
+  filter: function (model: SplitIO.IntegrationData): boolean { return true; },
+  mapper: function (model: SplitIO.IntegrationData, defaultMapping: UniversalAnalytics.FieldsObject): UniversalAnalytics.FieldsObject { return fieldsObjectSample; },
+  trackerNames: ['t0', 'myTracker'],
+}
+
 let fullBrowserSettings: SplitIO.IBrowserSettings = {
   core: {
     authorizationKey: 'asd',
@@ -394,7 +426,9 @@ let fullBrowserSettings: SplitIO.IBrowserSettings = {
     segmentsRefreshRate: 1,
     offlineRefreshRate: 1,
     eventsPushRate: 1,
-    eventsQueueSize: 1
+    eventsQueueSize: 1,
+    authRetryBackoffBase: 1,
+    streamingReconnectBackoffBase: 1
   },
   startup: {
     readyTimeout: 1,
@@ -408,9 +442,12 @@ let fullBrowserSettings: SplitIO.IBrowserSettings = {
     prefix: 'PREFIX'
   },
   impressionListener: impressionListener,
-  debug: true
+  debug: true,
+  integrations: [googleAnalyticsToSplitConfig, splitToGoogleAnalyticsConfig, customGoogleAnalyticsToSplitConfig, customSplitToGoogleAnalyticsConfig],
+  streamingEnabled: true
 };
 fullBrowserSettings.storage.type = 'MEMORY';
+fullBrowserSettings.integrations[0].type = 'GOOGLE_ANALYTICS_TO_SPLIT';
 
 let fullNodeSettings: SplitIO.INodeSettings = {
   core: {
@@ -425,7 +462,9 @@ let fullNodeSettings: SplitIO.INodeSettings = {
     segmentsRefreshRate: 1,
     offlineRefreshRate: 1,
     eventsPushRate: 1,
-    eventsQueueSize: 1
+    eventsQueueSize: 1,
+    authRetryBackoffBase: 1,
+    streamingReconnectBackoffBase: 1
   },
   startup: {
     readyTimeout: 1,
@@ -439,7 +478,8 @@ let fullNodeSettings: SplitIO.INodeSettings = {
   },
   impressionListener: impressionListener,
   mode: 'standalone',
-  debug: false
+  debug: false,
+  streamingEnabled: true
 };
 fullNodeSettings.storage.type = 'MEMORY';
 fullNodeSettings.mode = 'consumer';

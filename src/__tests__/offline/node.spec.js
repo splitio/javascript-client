@@ -2,15 +2,11 @@
 import path from 'path';
 import tape from 'tape-catch';
 import sinon from 'sinon';
-import MockAdapter from 'axios-mock-adapter';
+import fetchMock from '../utils/fetchMock';
 import { SplitFactory } from '../../';
 import SettingsFactory from '../../utils/settings';
-import { __getAxiosInstance } from '../../services/transport';
 
-// Set the mock adapter on the current axios instance
-const mock = new MockAdapter(__getAxiosInstance());
-
-const settings = SettingsFactory({ core: { key: 'facundo@split.io' }});
+const settings = SettingsFactory({ core: { key: 'facundo@split.io' } });
 
 const spySplitChanges = sinon.spy();
 const spySegmentChanges = sinon.spy();
@@ -22,22 +18,21 @@ const spyMetricsCounters = sinon.spy();
 const spyAny = sinon.spy();
 
 // helper function that should call the spy function and return a 200 to keep
-// going the axios request flow
+// going the fetch request flow
 const replySpy = spy => {
   spy();
-  return [200];
+  return 200;
 };
 
 const configMocks = () => {
-  mock
-    .onAny(new RegExp(`${settings.url('/splitChanges/')}.*`)).reply(() => replySpy(spySplitChanges))
-    .onAny(new RegExp(`${settings.url('/segmentChanges/')}.*`)).reply(() => replySpy(spySegmentChanges))
-    .onAny(new RegExp(`${settings.url('/mySegments/')}.*`)).reply(() => replySpy(spyMySegments))
-    .onAny(settings.url('/events/bulk')).reply(() => replySpy(spyEventsBulk))
-    .onAny(settings.url('/testImpressions/bulk')).reply(() => replySpy(spyTestImpressionsBulk))
-    .onAny(settings.url('/metrics/times')).reply(() => replySpy(spyMetricsTimes))
-    .onAny(settings.url('/metrics/counters')).reply(() => replySpy(spyMetricsCounters))
-    .onAny().reply(() => replySpy(spyAny));
+  fetchMock.mock(new RegExp(`${settings.url('/splitChanges/')}.*`), () => replySpy(spySplitChanges));
+  fetchMock.mock(new RegExp(`${settings.url('/segmentChanges/')}.*`), () => replySpy(spySegmentChanges));
+  fetchMock.mock(new RegExp(`${settings.url('/mySegments/')}.*`), () => replySpy(spyMySegments));
+  fetchMock.mock(settings.url('/events/bulk'), () => replySpy(spyEventsBulk));
+  fetchMock.mock(settings.url('/testImpressions/bulk'), () => replySpy(spyTestImpressionsBulk));
+  fetchMock.mock(settings.url('/metrics/times'), () => replySpy(spyMetricsTimes));
+  fetchMock.mock(settings.url('/metrics/counters'), () => replySpy(spyMetricsCounters));
+  fetchMock.mock('*', () => replySpy(spyAny));
 };
 
 const settingsGenerator = mockFileName => {
@@ -49,7 +44,7 @@ const settingsGenerator = mockFileName => {
       impressionsRefreshRate: 0.01,
       eventsPushRate: 0.01,
       metricsRefreshRate: 0.01,
-      offlineRefreshRate: 3
+      offlineRefreshRate: 0.3
     },
     startup: {
       eventsFirstPushWindow: 0,
@@ -64,8 +59,8 @@ const settingsGenerator = mockFileName => {
 tape('NodeJS Offline Mode', function (t) {
 
   t.test('Old format evaluations - .split', DotSplitTests);
-  t.test('New format evaluations - .yaml extension', DotYAMLTests.bind(null, 'split.yaml'));
-  t.test('New format evaluations - .yml extension', DotYAMLTests.bind(null, 'split2.yml'));
+  t.test('New format evaluations - .yaml extension', DotYAMLTests.bind(null, 'split', 'yaml'));
+  t.test('New format evaluations - .yml extension', DotYAMLTests.bind(null, 'split2', 'yml'));
 
   t.test('Old format manager - .split extension', ManagerDotSplitTests);
   t.test('New format manager - .yaml extension', ManagerDotYamlTests.bind(null, 'split.yaml'));
@@ -76,7 +71,7 @@ tape('NodeJS Offline Mode', function (t) {
 
     sinon.spy(console, 'log');
 
-    const factory = SplitFactory({...config, debug: 'ERROR'}); // enable error level logs to check the message.
+    const factory = SplitFactory({ ...config, debug: 'ERROR' }); // enable error level logs to check the message.
     const client = factory.client();
 
     client.on(client.Event.SDK_READY, () => {
@@ -111,7 +106,7 @@ function networkAssertions(client, assert) {
   });
 }
 
-function DotSplitTests (assert) {
+function DotSplitTests(assert) {
   configMocks();
   const config = settingsGenerator('.split');
   const factory = SplitFactory(config);
@@ -149,15 +144,24 @@ function DotSplitTests (assert) {
       testing_not_exist: { treatment: 'control', config: null }
     });
 
-    networkAssertions(client, assert).then(() => {
-      client.destroy().then(assert.end);
+    setTimeout(() => { factory.settings.features = path.join(__dirname, '.split'); }, 290);
+    setTimeout(() => { factory.settings.features = path.join(__dirname, '.split'); }, 590);
+    setTimeout(() => { factory.settings.features = path.join(__dirname, '.split'); }, 890);
+    setTimeout(() => { factory.settings.features = path.join(__dirname, 'update.split'); }, 1000);
+
+    client.once(client.Event.SDK_UPDATE, () => {
+      assert.equal(client.getTreatment('qa-user', 'testing_split4'), 'updated_treatment');
+
+      networkAssertions(client, assert).then(() => {
+        client.destroy().then(assert.end);
+      });
     });
   });
 }
 
-function DotYAMLTests (mockFileName, assert) {
+function DotYAMLTests(mockFileName, mockFileExt, assert) {
   configMocks();
-  const config = settingsGenerator(mockFileName);
+  const config = settingsGenerator(`${mockFileName}.${mockFileExt}`);
   const factory = SplitFactory(config);
   const client = factory.client();
   // Tracking some events to test they are not flushed.
@@ -213,8 +217,20 @@ function DotYAMLTests (mockFileName, assert) {
       testing_not_exist: { treatment: 'control', config: null }
     });
 
-    networkAssertions(client, assert).then(() => {
-      client.destroy().then(assert.end);
+    let readyTimestamp = Date.now();
+
+    setTimeout(() => { factory.settings.features = path.join(__dirname, `${mockFileName}.${mockFileExt}`); }, 290);
+    setTimeout(() => { factory.settings.features = path.join(__dirname, `${mockFileName}.${mockFileExt}`); }, 590);
+    setTimeout(() => { factory.settings.features = path.join(__dirname, `${mockFileName}.${mockFileExt}`); }, 890);
+    setTimeout(() => { factory.settings.features = path.join(__dirname, `update.${mockFileName}.${mockFileExt}`); }, 1000);
+
+    client.once(client.Event.SDK_UPDATE, () => {
+      assert.equal(client.getTreatment('qa-user', 'testing_split_update'), 'updated_treatment', 'the update should be properly processed');
+      assert.true((Date.now() - readyTimestamp) > 1000);
+
+      networkAssertions(client, assert).then(() => {
+        client.destroy().then(assert.end);
+      });
     });
   });
 }
@@ -249,7 +265,9 @@ function ManagerDotSplitTests(assert) {
 
     assert.deepEqual(manager.splits(), [expectedView1, expectedView2, expectedView3]);
 
-    client.destroy().then(assert.end);
+    networkAssertions(client, assert).then(() => {
+      client.destroy().then(assert.end);
+    });
   });
 }
 
@@ -305,6 +323,8 @@ function ManagerDotYamlTests(mockFileName, assert) {
 
     assert.deepEqual(manager.splits(), [expectedView1, expectedView2, expectedView3, expectedView4]);
 
-    client.destroy().then(assert.end);
+    networkAssertions(client, assert).then(() => {
+      client.destroy().then(assert.end);
+    });
   });
 }

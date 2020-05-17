@@ -26,7 +26,9 @@ tape('SETTINGS / check defaults', assert => {
 
   assert.deepEqual(settings.urls, {
     sdk: 'https://sdk.split.io/api',
-    events: 'https://events.split.io/api'
+    events: 'https://events.split.io/api',
+    auth: 'https://auth.split.io/api',
+    streaming: 'https://streaming.split.io',
   });
   assert.end();
 });
@@ -91,7 +93,9 @@ tape('SETTINGS / key and traffic type should be overwritable', assert => {
 tape('SETTINGS / urls should be configurable', assert => {
   const urls = {
     sdk: 'sdk-url',
-    events: 'events-url'
+    events: 'events-url',
+    auth: 'auth-url',
+    streaming: 'streaming-url',
   };
 
   const settings = SettingsFactory({
@@ -145,7 +149,7 @@ tape('SETTINGS / required properties should be always present', assert => {
 
   assert.ok(locatorSchedulerFeaturesRefreshRate(settings) !== undefined, 'scheduler.featuresRefreshRate should be present');
   assert.ok(locatorSchedulerSegmentsRefreshRate(settings) !== undefined, 'scheduler.segmentsRefreshRate should be present');
-  assert.ok(locatorSchedulerMetricsRefreshRate(settings) !== undefined, 'scheduler.metricsRefreshRate should be present');
+  assert.equal(locatorSchedulerMetricsRefreshRate(settings), 120 * 1000, 'scheduler.metricsRefreshRate should be present');
   assert.ok(locatorSchedulerImpressionsRefreshRate(settings) !== undefined, 'scheduler.impressionsRefreshRate should be present');
 
   assert.ok(locatorUrlsSDK(settings) !== undefined, 'urls.sdk should be present');

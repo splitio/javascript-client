@@ -24,7 +24,7 @@ function FromObjectUpdaterFactory(Fetcher, context) {
     [context.constants.STORAGE]: storage
   } = context.getAll();
 
-  return async function ObjectUpdater() {
+  return function ObjectUpdater() {
     const splits = [];
     let loadError = null;
     let splitsMock = {};
@@ -35,11 +35,11 @@ function FromObjectUpdaterFactory(Fetcher, context) {
       log.error(`There was an issue loading the mock Splits data, no changes will be applied to the current cache. ${err}`);
     }
 
-    if (!loadError) {
-      log.debug('Splits data:');
+    if (!loadError && splitsMock) {
+      log.debug('Splits data: ');
       log.debug(JSON.stringify(splitsMock));
 
-      forOwn(splitsMock, function(val, name) {
+      forOwn(splitsMock, function (val, name) {
         splits.push([
           name,
           JSON.stringify({
@@ -55,11 +55,15 @@ function FromObjectUpdaterFactory(Fetcher, context) {
         ]);
       });
 
-      await storage.splits.flush();
-      await storage.splits.addSplits(splits);
-
-      readiness.splits.emit(readiness.splits.SDK_SPLITS_ARRIVED);
-      readiness.segments.emit(readiness.segments.SDK_SEGMENTS_ARRIVED);
+      return Promise.all([
+        storage.splits.flush(),
+        storage.splits.addSplits(splits)
+      ]).then(() => {
+        readiness.splits.emit(readiness.splits.SDK_SPLITS_ARRIVED);
+        readiness.segments.emit(readiness.segments.SDK_SEGMENTS_ARRIVED);
+      });
+    } else {
+      return Promise.resolve();
     }
   };
 }

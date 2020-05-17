@@ -1,5 +1,5 @@
 import logFactory from '../utils/logger';
-const log = logFactory('', { displayAllErrors: true });
+const log = logFactory('');
 
 const NEW_LISTENER_EVENT = 'newListener';
 const REMOVE_LISTENER_EVENT = 'removeListener';
@@ -11,9 +11,16 @@ export default function callbackHandlerContext(context, forSharedClient = false)
 
   const {
     SDK_READY,
+    SDK_READY_FROM_CACHE,
     SDK_UPDATE,
     SDK_READY_TIMED_OUT
   } = gate;
+
+  gate.once(SDK_READY_FROM_CACHE, () => {
+    log.info('Split SDK is ready from cache.');
+
+    context.put(context.constants.READY_FROM_CACHE, true);
+  });
 
   gate.on(REMOVE_LISTENER_EVENT, event => {
     if (event === SDK_READY) readyCbCount--;
@@ -87,6 +94,7 @@ export default function callbackHandlerContext(context, forSharedClient = false)
       // Expose the event constants without changing the interface
       Event: {
         SDK_READY,
+        SDK_READY_FROM_CACHE,
         SDK_UPDATE,
         SDK_READY_TIMED_OUT,
       },

@@ -14,17 +14,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-import { merge } from '../lang';
+import { merge, isBoolean } from '../lang';
 import language from './language';
 import runtime from './runtime';
 import overridesPerPlatform from './defaults';
 import storage from './storage';
+import integrations from './integrations';
 import mode from './mode';
 import { API } from '../../utils/logger';
 import { STANDALONE_MODE, STORAGE_MEMORY, CONSUMER_MODE } from '../../utils/constants';
 import { version } from '../../../package.json';
 
 const eventsEndpointMatcher = /^\/(testImpressions|metrics|events)/;
+const authEndpointMatcher = /^\/auth/;
+const streamingEndpointMatcher = /^\/(sse|event-stream)/;
 
 const base = {
   // Define which kind of object you want to retrieve from SplitFactory
@@ -48,8 +51,8 @@ const base = {
     featuresRefreshRate: 30,
     // fetch segments updates each 60 sec
     segmentsRefreshRate: 60,
-    // publish metrics each 60 sec
-    metricsRefreshRate: 60,
+    // publish metrics each 120 sec
+    metricsRefreshRate: 120,
     // publish evaluations each 60 sec
     impressionsRefreshRate: 60,
     // fetch offline changes each 15 sec
@@ -57,14 +60,22 @@ const base = {
     // publish events every 60 seconds after the first flush
     eventsPushRate: 60,
     // how many events will be queued before flushing
-    eventsQueueSize: 500
+    eventsQueueSize: 500,
+    // backoff base seconds to wait before re attempting to authenticate for push notifications
+    authRetryBackoffBase: 1,
+    // backoff base seconds to wait before re attempting to connect to streaming
+    streamingReconnectBackoffBase: 1
   },
 
   urls: {
     // CDN having all the information for your environment
     sdk: 'https://sdk.split.io/api',
     // Storage for your SDK events
-    events: 'https://events.split.io/api'
+    events: 'https://events.split.io/api',
+    // SDK Auth Server
+    auth: 'https://auth.split.io/api',
+    // Streaming Server
+    streaming: 'https://streaming.split.io',
   },
 
   // Defines which kind of storage we should instanciate.
@@ -79,7 +90,13 @@ const base = {
   impressionListener: undefined,
 
   // Instance version.
-  version: `${language}-${version}`
+  version: `${language}-${version}`,
+
+  // List of integrations.
+  integrations: undefined,
+
+  // toggle using (true) or not using (false) Server-Side Events for synchronizing storage
+  streamingEnabled: false,
 };
 
 function fromSecondsToMillis(n) {
@@ -123,7 +140,20 @@ function defaults(custom) {
   setupLogger(withDefaults.debug);
 
   // Current ip/hostname information
-  withDefaults.runtime = runtime(withDefaults.core.IPAddressesEnabled,withDefaults.mode === CONSUMER_MODE);
+  withDefaults.runtime = runtime(withDefaults.core.IPAddressesEnabled, withDefaults.mode === CONSUMER_MODE);
+
+  // ensure a valid list of integrations.
+  // `integrations` returns an array of valid integration items.
+  withDefaults.integrations = integrations(withDefaults);
+
+  // validate push options
+  if (!isBoolean(withDefaults.streamingEnabled)) withDefaults.streamingEnabled = false;
+  if (withDefaults.streamingEnabled) {
+    // Backoff bases.
+    // We are not checking if bases are positive numbers. Thus, we might be reauthenticating immediately (`setTimeout` with NaN or negative number)
+    withDefaults.scheduler.authRetryBackoffBase = fromSecondsToMillis(withDefaults.scheduler.authRetryBackoffBase);
+    withDefaults.scheduler.streamingReconnectBackoffBase = fromSecondsToMillis(withDefaults.scheduler.streamingReconnectBackoffBase);
+  }
 
   return withDefaults;
 }
@@ -139,7 +169,12 @@ const proto = {
     if (eventsEndpointMatcher.test(target)) {
       return `${this.urls.events}${target}`;
     }
-
+    if (authEndpointMatcher.test(target)) {
+      return `${this.urls.auth}${target}`;
+    }
+    if (streamingEndpointMatcher.test(target)) {
+      return `${this.urls.streaming}${target}`;
+    }
     return `${this.urls.sdk}${target}`;
   },
 

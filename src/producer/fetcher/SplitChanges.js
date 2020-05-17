@@ -29,7 +29,7 @@ function splitChangesFetcher(settings, since, startingUp = false, metricCollecto
     splitsPromise = timeout(settings.startup.requestTimeoutBeforeReady, splitsPromise);
   }
 
-  return splitsPromise.then(resp => resp.data);
+  return splitsPromise.then(resp => resp.json());
 }
 
 export default splitChangesFetcher;

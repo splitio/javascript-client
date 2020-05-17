@@ -1,9 +1,7 @@
 import { isString } from '../lang';
 import { SPLIT_NOT_FOUND } from '../labels';
 import logFactory from '../logger';
-const log = logFactory('', {
-  displayAllErrors: true
-});
+const log = logFactory('');
 // include BOM and nbsp
 const TRIMMABLE_SPACES_REGEX = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/;
 

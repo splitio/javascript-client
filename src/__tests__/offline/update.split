@@ -1,0 +1,8 @@
+####
+# This file a simple mock for testing
+####
+
+testing_split on
+testing_split2 off
+testing_split3 custom_treatment
+testing_split4 updated_treatment

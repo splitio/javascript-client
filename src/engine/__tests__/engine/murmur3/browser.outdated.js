@@ -13,7 +13,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-import axios from 'axios';
 import tape from 'tape-catch';
 import utils from '../../../engine/murmur3';
 
@@ -39,15 +38,15 @@ tape('MURMUR3', function (t) {
   }
 
   t.test('validate hashing behavior using basic dataset', assert => {
-    axios.get('/base/engine/__tests__/engine/mocks/murmur3-sample-data-v2.csv')
-      .then(response => response.data)
+    fetch('/base/engine/__tests__/engine/mocks/murmur3-sample-data-v2.csv')
+      .then(response => response.text())
       .then(text => assertText(text, assert))
       .catch(error => assert.error(error));
   });
 
   t.test('validate hashing behavior using chinese dataset', assert => {
-    axios.get('/base/engine/__tests__/engine/mocks/murmur3-sample-data-non-alpha-numeric-v2.csv')
-      .then(response => response.data)
+    fetch('/base/engine/__tests__/engine/mocks/murmur3-sample-data-non-alpha-numeric-v2.csv')
+      .then(response => response.text())
       .then(text => assertText(text, assert))
       .catch(error => assert.error(error));
   });

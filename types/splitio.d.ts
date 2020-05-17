@@ -3,6 +3,7 @@
 // Definitions by: Nico Zelaya <https://github.com/NicoZelaya/>
 
 /// <reference types="node" />
+/// <reference types="google.analytics" />
 
 export as namespace SplitIO;
 export = SplitIO;
@@ -10,11 +11,13 @@ export = SplitIO;
 /**
  * @typedef {Object} EventConsts
  * @property {string} SDK_READY The ready event.
+ * @property {string} SDK_READY_FROM_CACHE The ready event when fired with cached data.
  * @property {string} SDK_READY_TIMED_OUT The timeout event.
  * @property {string} SDK_UPDATE The update event.
  */
 type EventConsts = {
   SDK_READY: 'init::ready',
+  SDK_READY_FROM_CACHE: 'init::cache-ready',
   SDK_READY_TIMED_OUT: 'init::timeout',
   SDK_UPDATE: 'state::update'
 };
@@ -49,7 +52,9 @@ interface ISettings {
     segmentsRefreshRate: number,
     offlineRefreshRate: number,
     eventsPushRate: number,
-    eventsQueueSize: number
+    eventsQueueSize: number,
+    authRetryBackoffBase: number,
+    streamingReconnectBackoffBase: number
   },
   readonly startup: {
     readyTimeout: number,
@@ -70,7 +75,8 @@ interface ISettings {
   readonly version: string,
   features: {
     [featureName: string]: string
-  }
+  },
+  readonly streamingEnabled: boolean
 }
 /**
  * Log levels.
@@ -113,7 +119,7 @@ interface ILoggerAPI {
  */
 interface ISharedSettings {
   /**
-   * Wether the logger should be enabled or disabled by default.
+   * Whether the logger should be enabled or disabled by default.
    * @property {Boolean} debug
    * @default false
    */
@@ -125,6 +131,13 @@ interface ISharedSettings {
    * @default undefined
    */
   impressionListener?: SplitIO.IImpressionListener,
+  /**
+   * Boolean flag to enable the streaming service as default synchronization mechanism. In the event of any issue with streaming,
+   * the SDK would fallback to the polling mechanism. If false, the SDK would poll for changes as usual without attempting to use streaming.
+   * @property {boolean} streamingEnabled
+   * @default false
+   */
+  streamingEnabled?: boolean,
 }
 /**
  * Common settings interface for SDK instances on NodeJS.
@@ -184,7 +197,7 @@ interface INodeBasicSettings extends ISharedSettings {
     /**
      * The SDK sends diagnostic metrics to Split servers. This parameters controls this metric flush period in seconds.
      * @property {number} metricsRefreshRate
-     * @default 60
+     * @default 120
      */
     metricsRefreshRate?: number,
     /**
@@ -213,6 +226,20 @@ interface INodeBasicSettings extends ISharedSettings {
      * @default 15
      */
     offlineRefreshRate?: number
+    /**
+     * When using streaming mode, seconds to wait before re attempting to authenticate for push notifications.
+     * Next attempts follow intervals in power of two: base seconds, base x 2 seconds, base x 4 seconds, ...
+     * @property {number} authRetryBackoffBase
+     * @default 1
+     */
+    authRetryBackoffBase?: number,
+    /**
+     * When using streaming mode, seconds to wait before re attempting to connect to streaming.
+     * Next attempts follow intervals in power of two: base seconds, base x 2 seconds, base x 4 seconds, ...
+     * @property {number} streamingReconnectBackoffBase
+     * @default 1
+     */
+    streamingReconnectBackoffBase?: number,
   },
   /**
    * SDK Core settings for NodeJS.
@@ -272,7 +299,7 @@ interface INodeBasicSettings extends ISharedSettings {
    * @property {MockedFeaturesFilePath} features
    * @default $HOME/.split
    */
-  features?: SplitIO.MockedFeaturesFilePath
+  features?: SplitIO.MockedFeaturesFilePath,
 }
 /**
  * Common API for entities that expose status handlers.
@@ -391,7 +418,7 @@ declare namespace SplitIO {
    * Possible Split SDK events.
    * @typedef {string} Event
    */
-  type Event = 'init::timeout' | 'init::ready' | 'state::update';
+  type Event = 'init::timeout' | 'init::ready' | 'init::cache-ready' | 'state::update';
   /**
    * Split attributes should be on object with values of type string or number (dates should be sent as millis since epoch).
    * @typedef {Object.<number, string, boolean, string[], number[]>} Attributes
@@ -541,6 +568,147 @@ declare namespace SplitIO {
     logImpression(data: SplitIO.ImpressionData): void
   }
   /**
+   * A pair of user key and it's trafficType, required for tracking valid Split events.
+   * @typedef {Object} Identity
+   * @property {string} key The user key.
+   * @property {string} trafficType The key traffic type.
+   */
+  type Identity = {
+    key: string;
+    trafficType: string;
+  };
+  /**
+   * Object with information about a Split event.
+   * @typedef {Object} EventData
+   */
+  type EventData = {
+    eventTypeId: string;
+    value?: number;
+    properties?: Properties;
+    trafficTypeName?: string;
+    key?: string;
+    timestamp?: number;
+  };
+  /**
+   * Enable 'Google Analytics to Split' integration, to track Google Analytics hits as Split events.
+   *
+   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#google-analytics-to-split}
+   */
+  interface IGoogleAnalyticsToSplitConfig {
+    type: 'GOOGLE_ANALYTICS_TO_SPLIT',
+    /**
+     * Optional flag to filter GA hits from being tracked as Split events.
+     * @property {boolean} hits
+     * @default true
+     */
+    hits?: boolean,
+    /**
+     * Optional predicate used to define a custom filter for tracking GA hits as Split events.
+     * For example, the following filter allows to track only 'event' hits:
+     *  `(model) => model.get('hitType') === 'event'`
+     * By default, all hits are tracked as Split events.
+     */
+    filter?: (model: UniversalAnalytics.Model) => boolean,
+    /**
+     * Optional function useful when you need to modify the Split event before tracking it.
+     * This function is invoked with two arguments:
+     * 1. the GA model object representing the hit.
+     * 2. the default format of the mapped Split event instance.
+     * The return value must be a Split event, that can be the second argument or a new object.
+     *
+     * For example, the following mapper adds a custom property to events:
+     *  `(model, defaultMapping) => {
+     *      defaultMapping.properties.someProperty = SOME_VALUE;
+     *      return defaultMapping;
+     *  }`
+     */
+    mapper?: (model: UniversalAnalytics.Model, defaultMapping: SplitIO.EventData) => SplitIO.EventData,
+    /**
+     * Optional prefix for EventTypeId, to prevent any kind of data collision between events.
+     * @property {string} prefix
+     * @default 'ga'
+     */
+    prefix?: string,
+    /**
+     * List of Split identities (key & traffic type pairs) used to track events.
+     * If not provided, events are sent using the key and traffic type provided at SDK config
+     */
+    identities?: Identity[],
+  }
+  /**
+   * Object representing the data sent by Split (events and impressions).
+   * @typedef {Object} IntegrationData
+   * @property {string} type The type of Split data, either 'IMPRESSION' or 'EVENT'.
+   * @property {ImpressionData | EventData} payload The data instance itself.
+   */
+  type IntegrationData = { type: 'IMPRESSION', payload: SplitIO.ImpressionData } | { type: 'EVENT', payload: SplitIO.EventData };
+  /**
+   * Enable 'Split to Google Analytics' integration, to track Split impressions and events as Google Analytics hits.
+   *
+   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#split-to-google-analytics}
+   */
+  interface ISplitToGoogleAnalyticsConfig {
+    type: 'SPLIT_TO_GOOGLE_ANALYTICS',
+    /**
+     * Optional flag to filter Split impressions from being tracked as GA hits.
+     * @property {boolean} impressions
+     * @default true
+     */
+    impressions?: boolean,
+    /**
+     * Optional flag to filter Split events from being tracked as GA hits.
+     * @property {boolean} events
+     * @default true
+     */
+    events?: boolean,
+    /**
+     * Optional predicate used to define a custom filter for tracking Split data (events and impressions) as GA hits.
+     * For example, the following filter allows to track only impressions, equivalent to setting events to false:
+     *  `(data) => data.type === 'IMPRESSION'`
+     */
+    filter?: (data: SplitIO.IntegrationData) => boolean,
+    /**
+     * Optional function useful when you need to modify the GA hit before sending it.
+     * This function is invoked with two arguments:
+     * 1. the input data (Split event or impression).
+     * 2. the default format of the mapped FieldsObject instance (GA hit).
+     * The return value must be a FieldsObject, that can be the second argument or a new object.
+     *
+     * For example, the following mapper adds a custom dimension to hits:
+     *  `(data, defaultMapping) => {
+     *      defaultMapping.dimension1 = SOME_VALUE;
+     *      return defaultMapping;
+     *  }`
+     *
+     * Default FieldsObject instance for data.type === 'IMPRESSION':
+     *  `{
+     *    hitType: 'event',
+     *    eventCategory: 'split-impression',
+     *    eventAction: 'Evaluate ' + data.payload.impression.feature,
+     *    eventLabel: 'Treatment: ' + data.payload.impression.treatment + '. Targeting rule: ' + data.payload.impression.label + '.',
+     *    nonInteraction: true,
+     *  }`
+     * Default FieldsObject instance for data.type === 'EVENT':
+     *  `{
+     *    hitType: 'event',
+     *    eventCategory: 'split-event',
+     *    eventAction: data.payload.eventTypeId,
+     *    eventValue: data.payload.value,
+     *    nonInteraction: true,
+     *  }`
+     */
+    mapper?: (data: SplitIO.IntegrationData, defaultMapping: UniversalAnalytics.FieldsObject) => UniversalAnalytics.FieldsObject,
+    /**
+     * List of tracker names to send the hit. An empty string represents the default tracker.
+     * If not provided, hits are only sent to default tracker.
+     */
+    trackerNames?: string[],
+  }
+  /**
+   * Available integration options for the browser
+   */
+  type BrowserIntegration = ISplitToGoogleAnalyticsConfig | IGoogleAnalyticsToSplitConfig;
+  /**
    * Settings interface for SDK instances created on the browser
    * @interface IBrowserSettings
    * @extends ISharedSettings
@@ -599,7 +767,7 @@ declare namespace SplitIO {
       /**
        * The SDK sends diagnostic metrics to Split servers. This parameters controls this metric flush period in seconds.
        * @property {number} metricsRefreshRate
-       * @default 60
+       * @default 120
        */
       metricsRefreshRate?: number,
       /**
@@ -628,6 +796,20 @@ declare namespace SplitIO {
        * @default 15
        */
       offlineRefreshRate?: number
+      /**
+       * When using streaming mode, seconds to wait before re attempting to authenticate for push notifications.
+       * Next attempts follow intervals in power of two: base seconds, base x 2 seconds, base x 4 seconds, ...
+       * @property {number} authRetryBackoffBase
+       * @default 1
+       */
+      authRetryBackoffBase?: number,
+      /**
+       * When using streaming mode, seconds to wait before re attempting to connect to streaming.
+       * Next attempts follow intervals in power of two: base seconds, base x 2 seconds, base x 4 seconds, ...
+       * @property {number} streamingReconnectBackoffBase
+       * @default 1
+       */
+      streamingReconnectBackoffBase?: number,
     },
     /**
      * SDK Core settings for the browser.
@@ -680,6 +862,11 @@ declare namespace SplitIO {
        */
       prefix?: string
     }
+    /**
+     * SDK integration settings for the Browser.
+     * @property {Object} integrations
+     */
+    integrations?: BrowserIntegration[],
   }
   /**
    * Settings interface for SDK instances created on NodeJS.
@@ -806,7 +993,7 @@ declare namespace SplitIO {
      * @returns {Treatment} The treatment result.
      */
     getTreatment(splitName: string, attributes?: Attributes): Treatment,
-     /**
+    /**
      * Returns a TreatmentWithConfig value (a map of treatment and config), which will be (or eventually be) the map with treatment and config for the given feature.
      * For usage on NodeJS as we don't have only one key.
      * @function getTreatmentWithConfig
@@ -875,7 +1062,7 @@ declare namespace SplitIO {
      * @param {string} eventType - The event type corresponding to this event.
      * @param {number=} value - The value of this event.
      * @param {Properties=} properties - The properties of this event. Values can be string, number, boolean or null.
-     * @returns {boolean} Wether the event was added to the queue succesfully or not.
+     * @returns {boolean} Whether the event was added to the queue succesfully or not.
      */
     track(key: SplitIO.SplitKey, trafficType: string, eventType: string, value?: number, properties?: Properties): boolean,
     /**
@@ -886,7 +1073,7 @@ declare namespace SplitIO {
      * @param {string} eventType - The event type corresponding to this event.
      * @param {number=} value - The value of this event.
      * @param {Properties=} properties - The properties of this event. Values can be string, number, boolean or null.
-     * @returns {boolean} Wether the event was added to the queue succesfully or not.
+     * @returns {boolean} Whether the event was added to the queue succesfully or not.
      */
     track(trafficType: string, eventType: string, value?: number, properties?: Properties): boolean,
     /**
@@ -896,7 +1083,7 @@ declare namespace SplitIO {
      * @param {string} eventType - The event type corresponding to this event.
      * @param {number=} value - The value of this event.
      * @param {Properties=} properties - The properties of this event. Values can be string, number, boolean or null.
-     * @returns {boolean} Wether the event was added to the queue succesfully or not.
+     * @returns {boolean} Whether the event was added to the queue succesfully or not.
      */
     track(eventType: string, value?: number, properties?: Properties): boolean
   }

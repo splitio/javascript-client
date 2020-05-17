@@ -1,15 +1,22 @@
-import axios from 'axios';
+import getFetch from '../getFetch';
 import { SplitNetworkError } from '../../utils/lang/Errors';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-services:service');
 
-const _axiosInstance = axios.create();
-
 export default function Fetcher(request) {
-  return _axiosInstance.request(request)
+  // using `fetch(url, options)` signature to work with unfetch
+  const url = request.url;
+  // @TODO: update to use global fetch when IE10+ is deprecated
+  return getFetch()(url, request)
+    // https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch#Checking_that_the_fetch_was_successful
+    .then(response => {
+      if (!response.ok) {
+        throw { response };
+      }
+      return response;
+    })
     .catch(error => {
       const resp = error.response;
-      const url = error.config ? error.config.url : 'unknown';
       let msg = '';
 
       if (resp) { // An HTTP error
@@ -23,14 +30,11 @@ export default function Fetcher(request) {
         msg = error.message;
       }
 
-      if (!resp || resp.status !== 403) // 403's log we'll be handled somewhere else.
-        log.error(`Response status is not OK. Status: ${resp ? resp.status : 'NO_STATUS'}. URL: ${url}. Message: ${msg}`);
+      if (!resp || resp.status !== 403) { // 403's log we'll be handled somewhere else.
+        log[request.logErrorsAsInfo ? 'info' : 'error'](`Response status is not OK. Status: ${resp ? resp.status : 'NO_STATUS'}. URL: ${url}. Message: ${msg}`);
+      }
 
-      throw new SplitNetworkError(msg, resp ? resp.status : 'NO_STATUS');
+      // passes `undefined` as statusCode if not an HTTP error (resp === undefined)
+      throw new SplitNetworkError(msg, resp && resp.status);
     });
-}
-
-// This function is only exposed for unit testing purposses.
-export function __getAxiosInstance() {
-  return _axiosInstance;
 }

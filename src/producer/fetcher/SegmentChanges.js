@@ -17,14 +17,13 @@ limitations under the License.
 import segmentChangesService from '../../services/segmentChanges';
 import segmentChangesRequest from '../../services/segmentChanges/get';
 import tracker from '../../utils/timeTracker';
-import { startsWith } from '../../utils/lang';
 
 function greedyFetch(settings, lastSinceValue, segmentName, metricCollectors) {
   return tracker.start(tracker.TaskNames.SEGMENTS_FETCH, metricCollectors, segmentChangesService(segmentChangesRequest(settings, {
     since: lastSinceValue,
     segmentName
   })))
-    .then(resp => resp.data)
+    .then(resp => resp.json())
     .then(json => {
       let {since, till} = json;
       if (since === till) {
@@ -37,7 +36,7 @@ function greedyFetch(settings, lastSinceValue, segmentName, metricCollectors) {
     })
     .catch(err => {
       // If the operation is forbidden it may be due to permissions, don't recover and propagate the error.
-      if (startsWith(err.message, '403')) throw err;
+      if (err.statusCode === 403) throw err;
       // if something goes wrong with the request to the server, we are going to
       // stop requesting information till the next round of downloading
       return [];

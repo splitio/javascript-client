@@ -1,10 +1,9 @@
 import tape from 'tape-catch';
 import map from 'lodash/map';
 import pick from 'lodash/pick';
-import MockAdapter from 'axios-mock-adapter';
+import fetchMock from '../utils/fetchMock';
 import { SplitFactory } from '../../';
 import SettingsFactory from '../../utils/settings';
-import { __getAxiosInstance } from '../../services/transport';
 
 const settings = SettingsFactory({
   core: {
@@ -16,11 +15,8 @@ import splitChangesMock1 from './splitChanges.since.-1.json';
 import splitChangesMock2 from './splitChanges.since.1500492097547.json';
 import impressionsMock from './impressions.json';
 
-// Set the mock adapter on the current axios instance
-const mock = new MockAdapter(__getAxiosInstance());
-
-mock.onGet(settings.url('/splitChanges?since=-1')).reply(200, splitChangesMock1);
-mock.onGet(settings.url('/splitChanges?since=-1500492097547')).reply(200, splitChangesMock2);
+fetchMock.get(settings.url('/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
+fetchMock.get(settings.url('/splitChanges?since=-1500492097547'), { status: 200, body: splitChangesMock2 });
 
 tape('SDK destroy for NodeJS', async function (assert) {
   const config = {
@@ -36,14 +32,14 @@ tape('SDK destroy for NodeJS', async function (assert) {
   const manager = factory.manager();
 
   // Assert we are sending the impressions while doing the destroy
-  mock.onPost(settings.url('/testImpressions/bulk')).replyOnce(request => {
-    const impressions = JSON.parse(request.data);
+  fetchMock.postOnce(settings.url('/testImpressions/bulk'), (url, opts) => {
+    const impressions = JSON.parse(opts.body);
 
     impressions[0].keyImpressions = map(impressions[0].keyImpressions, imp => pick(imp, ['keyName', 'treatment']));
 
     assert.deepEqual(impressions, impressionsMock);
 
-    return [200];
+    return 200;
   });
 
   // Events tracking do not need to wait for ready.
@@ -51,8 +47,8 @@ tape('SDK destroy for NodeJS', async function (assert) {
   client.track('nicolas.zelaya@gmail.com','tt', 'validEventType', 1);
 
   // Assert we are sending the events while doing the destroy
-  mock.onPost(settings.url('/events/bulk')).replyOnce(request => {
-    const events = JSON.parse(request.data);
+  fetchMock.postOnce(settings.url('/events/bulk'), (url, opts) => {
+    const events = JSON.parse(opts.body);
 
     assert.equal(events.length, 1, 'Should flush all events on destroy.');
 
@@ -61,7 +57,7 @@ tape('SDK destroy for NodeJS', async function (assert) {
     assert.equal(firstEvent.key, 'nicolas.zelaya@gmail.com', 'The flushed events should match the events on the queue.');
     assert.equal(firstEvent.eventTypeId, 'validEventType', 'The flushed events should match the events on the queue.');
 
-    return [200];
+    return 200;
   });
 
   await client.ready();

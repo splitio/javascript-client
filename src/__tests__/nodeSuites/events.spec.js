@@ -24,14 +24,14 @@ const baseSettings = {
   }
 };
 
-export default function trackAssertions(mock, assert) {
+export default function trackAssertions(fetchMock, assert) {
   const splitio = SplitFactory(baseSettings);
   const client = splitio.client();
 
   let tsStart, tsEnd;
 
-  mock.onPost(settings.url('/events/bulk')).replyOnce(req => {
-    const resp = JSON.parse(req.data);
+  fetchMock.postOnce(settings.url('/events/bulk'), (url, opts) => {
+    const resp = JSON.parse(opts.body);
 
     // We will test the first and last item in detail.
     const firstEvent = resp[0];
@@ -60,10 +60,12 @@ export default function trackAssertions(mock, assert) {
     assert.true(midEvent.timestamp >= tsStart && midEvent.timestamp <= tsEnd, 'The timestamp should be a number with the right value.');
     assert.equal(lastEvent.properties, null, 'The properties should be null.');
 
-    client.destroy();
-    assert.end();
+    setTimeout(() => {
+      client.destroy();
+      assert.end();
+    }, 0);
 
-    return [200];
+    return 200;
   });
 
   assert.ok(client.track, 'client.track should be defined.');

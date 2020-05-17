@@ -24,14 +24,14 @@ const baseSettings = {
   }
 };
 
-export function withoutBindingTT(mock, assert) {
+export function withoutBindingTT(fetchMock, assert) {
   const splitio = SplitFactory(baseSettings);
   const client = splitio.client();
 
   let tsStart, tsEnd;
 
-  mock.onPost(settings.url('/events/bulk')).replyOnce(req => {
-    const resp = JSON.parse(req.data);
+  fetchMock.postOnce(settings.url('/events/bulk'), (url, opts) => {
+    const resp = JSON.parse(opts.body);
 
     // We will test the first and last item in detail.
     const firstEvent = resp[0];
@@ -61,7 +61,7 @@ export function withoutBindingTT(mock, assert) {
     client.destroy();
     assert.end();
 
-    return [200];
+    return 200;
   });
 
   assert.ok(client.track, 'client.track should be defined.');
@@ -91,7 +91,7 @@ export function withoutBindingTT(mock, assert) {
   assert.notOk(client.track('othertraffictype', 'my.checkout.event', null, 'asd'), 'client.track returns false if an event properties was incorrect and it could not be added to the queue.');
 }
 
-export function bindingTT(mock, assert) {
+export function bindingTT(fetchMock, assert) {
   const localSettings = Object.assign({}, baseSettings);
   localSettings.core.trafficType = 'binded_tt';
   const splitio = SplitFactory(localSettings);
@@ -99,8 +99,8 @@ export function bindingTT(mock, assert) {
 
   let tsStart, tsEnd;
 
-  mock.onPost(settings.url('/events/bulk')).replyOnce(req => {
-    const resp = JSON.parse(req.data);
+  fetchMock.postOnce(settings.url('/events/bulk'), (url, opts) => {
+    const resp = JSON.parse(opts.body);
 
     // We will test the first and last item in detail.
     const firstEvent = resp[0];
@@ -130,7 +130,7 @@ export function bindingTT(mock, assert) {
     client.destroy();
     assert.end();
 
-    return [200];
+    return 200;
   });
 
   assert.ok(client.track, 'client.track should be defined.');

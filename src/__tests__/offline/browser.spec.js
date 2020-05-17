@@ -1,14 +1,10 @@
 import tape from 'tape-catch';
 import sinon from 'sinon';
-import MockAdapter from 'axios-mock-adapter';
+import fetchMock from '../utils/fetchMock';
 import { SplitFactory } from '../../';
 import SettingsFactory from '../../utils/settings';
-import { __getAxiosInstance } from '../../services/transport';
 
-const settings = SettingsFactory({ core: { key: 'facundo@split.io' }});
-
-// Set the mock adapter on the current axios instance
-const mock = new MockAdapter(__getAxiosInstance());
+const settings = SettingsFactory({ core: { key: 'facundo@split.io' } });
 
 const spySplitChanges = sinon.spy();
 const spySegmentChanges = sinon.spy();
@@ -20,26 +16,33 @@ const spyMetricsCounters = sinon.spy();
 const spyAny = sinon.spy();
 
 // helper function that should call the spy function and return a 200 to keep
-// going the axios request flow
+// going the fetch request flow
 const replySpy = spy => {
   spy();
-  return [200];
+  return 200;
 };
 
 const configMocks = () => {
-  mock
-    .onAny(new RegExp(`${settings.url('/splitChanges/')}.*`)).reply(() => replySpy(spySplitChanges))
-    .onAny(new RegExp(`${settings.url('/segmentChanges/')}.*`)).reply(() => replySpy(spySegmentChanges))
-    .onAny(new RegExp(`${settings.url('/mySegments/')}.*`)).reply(() => replySpy(spyMySegments))
-    .onAny(settings.url('/events/bulk')).reply(() => replySpy(spyEventsBulk))
-    .onAny(settings.url('/testImpressions/bulk')).reply(() => replySpy(spyTestImpressionsBulk))
-    .onAny(settings.url('/metrics/times')).reply(() => replySpy(spyMetricsTimes))
-    .onAny(settings.url('/metrics/counters')).reply(() => replySpy(spyMetricsCounters))
-    .onAny().reply(() => replySpy(spyAny));
+  fetchMock.mock(new RegExp(`${settings.url('/splitChanges/')}.*`), () => replySpy(spySplitChanges));
+  fetchMock.mock(new RegExp(`${settings.url('/segmentChanges/')}.*`), () => replySpy(spySegmentChanges));
+  fetchMock.mock(new RegExp(`${settings.url('/mySegments/')}.*`), () => replySpy(spyMySegments));
+  fetchMock.mock(settings.url('/events/bulk'), () => replySpy(spyEventsBulk));
+  fetchMock.mock(settings.url('/testImpressions/bulk'), () => replySpy(spyTestImpressionsBulk));
+  fetchMock.mock(settings.url('/metrics/times'), () => replySpy(spyMetricsTimes));
+  fetchMock.mock(settings.url('/metrics/counters'), () => replySpy(spyMetricsCounters));
+  fetchMock.mock('*', () => replySpy(spyAny));
 };
 
 tape('Browser offline mode', function (assert) {
   configMocks();
+  const originalFeaturesMap = {
+    testing_split: 'on',
+    testing_split_with_config: {
+      treatment: 'off',
+      config: '{ "color": "blue" }'
+    }
+  };
+
   const config = {
     core: {
       authorizationKey: 'localhost'
@@ -48,18 +51,12 @@ tape('Browser offline mode', function (assert) {
       impressionsRefreshRate: 0.01,
       eventsPushRate: 0.01,
       metricsRefreshRate: 0.01,
-      offlineRefreshRate: 3
+      offlineRefreshRate: 0.19
     },
     startup: {
       eventsFirstPushWindow: 0
     },
-    features: {
-      testing_split: 'on',
-      testing_split_with_config: {
-        treatment: 'off',
-        config: '{ "color": "blue" }'
-      }
-    }
+    features: originalFeaturesMap
   };
   const factory = SplitFactory(config);
   const manager = factory.manager();
@@ -75,7 +72,9 @@ tape('Browser offline mode', function (assert) {
   assert.equal(client.getTreatment('testing_split'), 'control');
   assert.equal(manager.splits().length, 0);
 
-  client.on(client.Event.SDK_READY, function () {
+  client.once(client.Event.SDK_READY, function () {
+    const readyTimestamp = Date.now();
+
     // Check the information through the client original instance
     assert.equal(client.getTreatment('testing_split'), 'on');
     assert.equal(client.getTreatment('testing_split_2'), 'control');
@@ -107,7 +106,7 @@ tape('Browser offline mode', function (assert) {
       name: 'testing_split', trafficType: null, killed: false, changeNumber: 0, treatments: ['on'], configs: {}
     };
     const expectedSplitView2 = {
-      name: 'testing_split_with_config', trafficType: null, killed: false, changeNumber: 0, treatments: ['off'], configs: { off: '{ "color": "blue" }'}
+      name: 'testing_split_with_config', trafficType: null, killed: false, changeNumber: 0, treatments: ['off'], configs: { off: '{ "color": "blue" }' }
     };
     assert.deepEqual(manager.names(), ['testing_split', 'testing_split_with_config']);
     assert.deepEqual(manager.split('testing_split'), expectedSplitView1);
@@ -139,18 +138,28 @@ tape('Browser offline mode', function (assert) {
       testing_split_with_config: { treatment: 'off', config: '{ "color": "blue" }' }
     });
 
-    // Update the features.
-    factory.settings.features = {
-      testing_split: 'on',
-      testing_split_2: 'off',
-      testing_split_3: 'custom_treatment',
-      testing_split_with_config: {
-        treatment: 'nope',
-        config: null
-      }
-    };
-    // We allow the SDK to process the feature changes and then test again..
-    setTimeout(function () {
+    setTimeout(() => {
+      // Update the features.
+      factory.settings.features = {
+        testing_split: 'on',
+        testing_split_2: 'off',
+        testing_split_3: 'custom_treatment',
+        testing_split_with_config: {
+          treatment: 'nope',
+          config: null
+        }
+      };
+    }, 1000);
+
+    setTimeout(() => { factory.settings.features = originalFeaturesMap; }, 200);
+    setTimeout(() => { factory.settings.features = { testing_split: 'on', testing_split_with_config: { treatment: 'off', config: '{ "color": "blue" }' } }; }, 400);
+    setTimeout(() => { factory.settings.features = originalFeaturesMap; }, 600);
+    setTimeout(() => { factory.settings.features = { testing_split: 'on', testing_split_with_config: { treatment: 'off', config: '{ "color": "blue" }' } }; }, 750);
+
+    // once updated, test again.
+    client.once(client.Event.SDK_UPDATE, function () {
+      assert.true((Date.now() - readyTimestamp) > 1000, 'Should only emit SDK_UPDATE after a real update.');
+
       assert.equal(client.getTreatment('testing_split_2'), 'off');
       assert.equal(client.getTreatment('testing_split_3'), 'custom_treatment');
       assert.deepEqual(client.getTreatmentWithConfig('testing_split_3'), { treatment: 'custom_treatment', config: null });

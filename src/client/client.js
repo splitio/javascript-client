@@ -3,6 +3,7 @@ const log = logFactory('splitio-client');
 import { evaluateFeature, evaluateFeatures } from '../engine/evaluator';
 import ImpressionTracker from '../trackers/impression';
 import ImpressionsTracker from '../trackers/impressions';
+import EventTracker from '../trackers/event';
 import tracker from '../utils/timeTracker';
 import thenable from '../utils/promise/thenable';
 import { matching, bucketing } from '../utils/key/factory';
@@ -11,26 +12,12 @@ import { validateSplitExistance, validateTrafficTypeExistance } from '../utils/i
 import { SDK_NOT_READY } from '../utils/labels';
 import { CONTROL } from '../utils/constants';
 
-function queueEventsCallback({
-  eventTypeId, trafficTypeName, key, value, timestamp, properties
-}, tracked) {
-  // Logging every prop would be too much.
-  const msg = `event of type "${eventTypeId}" for traffic type "${trafficTypeName}". Key: ${key}. Value: ${value}. Timestamp: ${timestamp}. ${properties ? 'With properties.' : 'With no properties.'}`;
-
-  if (tracked) {
-    log.info(`Successfully qeued ${msg}`);
-  } else {
-    log.warn(`Failed to queue ${msg}`);
-  }
-
-  return tracked;
-}
-
 function ClientFactory(context) {
   const storage = context.get(context.constants.STORAGE);
   const metricCollectors = context.get(context.constants.COLLECTORS);
   const impressionTracker = ImpressionTracker(context);
   const impressionsTracker = ImpressionsTracker(context);
+  const eventTracker = EventTracker(context);
 
   function getTreatment(key, splitName, attributes, withConfig = false) {
     const taskToBeTracked = tracker.TaskNames[withConfig ? 'SDK_GET_TREATMENT_WITH_CONFIG' : 'SDK_GET_TREATMENT'];
@@ -82,7 +69,7 @@ function ClientFactory(context) {
     withConfig,
     invokingMethodName
   ) {
-    const isSdkReady = context.get(context.constants.READY, true);
+    const isSdkReady = context.get(context.constants.READY, true) || context.get(context.constants.READY_FROM_CACHE, true);
     const matchingKey = matching(key);
     const bucketingKey = bucketing(key);
 
@@ -134,13 +121,7 @@ function ClientFactory(context) {
     // This may be async but we only warn, we don't actually care if it is valid or not in terms of queueing the event.
     validateTrafficTypeExistance(trafficTypeName, context, 'track');
 
-    const tracked = storage.events.track(eventData, size);
-
-    if (thenable(tracked)) {
-      return tracked.then(queueEventsCallback.bind(null, eventData));
-    } else {
-      return queueEventsCallback(eventData, tracked);
-    }
+    return eventTracker.track(eventData, size);
   }
 
   return {

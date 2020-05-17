@@ -1,8 +1,6 @@
 import { isFinite } from '../lang';
 import logFactory from '../logger';
-const log = logFactory('', {
-  displayAllErrors: true
-});
+const log = logFactory('');
 
 export function validateEventValue(maybeValue, method) {
   if (isFinite(maybeValue) || maybeValue == undefined) // eslint-disable-line eqeqeq
