@@ -10,7 +10,7 @@ import splitKillMessage from '../mocks/message.SPLIT_KILL.1457552650000.json';
 
 import authPushEnabled from '../mocks/auth.pushEnabled.node.json';
 
-import { nearlyEqual } from '../utils';
+import { nearlyEqual, mockSegmentChanges } from '../utils';
 
 import EventSourceMock, { setMockListener } from '../../sync/__tests__/mocks/eventSourceMock';
 import { __setEventSource } from '../../services/getEventSource/node';
@@ -153,24 +153,7 @@ export function testSynchronization(fetchMock, assert) {
     return { status: 200, body: splitChangesMock4 };
   });
 
-  /**
-   * mock the basic behaviour for remaining `/segmentChanges` requests:
-   *  - when `?since=-1`, it returns a single key in `added` list (doesn't make sense a segment without items)
-   *  - otherwise, it returns empty `added` and `removed` lists, and the same since and till values.
-   */
-  fetchMock.get(new RegExp(`${settings.url('/segmentChanges')}/(employees|developers)`), function (url) {
-    const since = parseInt(url.split('=').pop());
-    const name = url.split('?')[0].split('/').pop();
-    return {
-      status: 200, body: {
-        'name': name,
-        'added': since === -1 ? [key] : [],
-        'removed': [],
-        'since': since,
-        'till': since === -1 ? 1457552620999 : since,
-      }
-    };
-  });
+  mockSegmentChanges(fetchMock, new RegExp(`${settings.url('/segmentChanges')}/(employees|developers)`), [key]);
 
   fetchMock.get(new RegExp('.*'), function (url) {
     assert.fail('unexpected GET request with url: ' + url);

@@ -62,10 +62,10 @@ export default function callbackHandlerContext(context, internalReadyCbCount = 0
         hasTimedout = true;
         reject(error);
       });
-    }, function (err) {
+    }), function (err) {
       // If the promise doesn't have a custom onRejected handler, just log the error.
       log.error(err);
-    }));
+    });
 
     return promise;
   }
@@ -83,9 +83,13 @@ export default function callbackHandlerContext(context, internalReadyCbCount = 0
       },
       // Expose the ready promise flag
       ready: () => {
-        if (!isReady && hasTimedout) {
-          // @TODO remove duplicated string
-          return promiseWrapper(Promise.reject('Split SDK emitted SDK_READY_TIMED_OUT event.'), () => { });
+        if (hasTimedout) {
+          if (!isReady) {
+            // @TODO remove duplicated string
+            return promiseWrapper(Promise.reject('Split SDK emitted SDK_READY_TIMED_OUT event.'), function () { });
+          } else {
+            return Promise.resolve();
+          }
         }
         return readyPromise;
       }

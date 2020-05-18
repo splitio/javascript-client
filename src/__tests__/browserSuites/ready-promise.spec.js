@@ -35,11 +35,11 @@ function assertGetTreatmentControlNotReady(assert, client) {
 function assertGetTreatmentControlNotReadyOnDestroy(assert, client) {
   consoleSpy.log.resetHistory();
   assert.equal(client.getTreatment('hierarchical_splits_test'), 'control', 'We should get control if client has been destroyed.');
-  assert.true(consoleSpy.error.calledWithExactly('[ERROR] Client has already been destroyed - no calls possible.'), 'Telling us that client has been destroyed. Calling getTreatment would return CONTROL.');
+  assert.true(consoleSpy.log.calledWithExactly('[ERROR] Client has already been destroyed - no calls possible.'), 'Telling us that client has been destroyed. Calling getTreatment would return CONTROL.');
 }
 
 /* Validate readiness state transitions, warning and error messages when using ready promises. */
-export default function readyPromiseAssertions(mock, assert) {
+export default function readyPromiseAssertions(fetchMock, assert) {
 
   // Timeout with retry attempt. Timeout is triggered even when it is longer than the request time, since the first and retry requests take more than the 'requestTimeoutBeforeReady' limit.
   assert.test(t => {
@@ -55,16 +55,17 @@ export default function readyPromiseAssertions(mock, assert) {
         retriesOnFailureBeforeReady: 1
       }
     };
-    mock
-      .onGet(config.urls.sdk + '/splitChanges?since=-1').replyOnce(function() {
-        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20); });
-      })
-      .onGet(config.urls.sdk + '/splitChanges?since=-1').replyOnce(function() {
-        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20); });
-      })
-      .onGet(config.urls.sdk + '/mySegments/facundo@split.io').reply(function() {
-        return new Promise((res) => { setTimeout(() => { res([200, mySegmentsFacundo, {}]); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20); });
-      });
+
+    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', function () {
+      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: splitChangesMock1 }); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20); });
+    });
+    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', function () {
+      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: splitChangesMock1 }); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20); });
+    });
+    fetchMock.get(config.urls.sdk + '/mySegments/facundo@split.io', function () {
+      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: mySegmentsFacundo }); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20); });
+    });
+    fetchMock.postOnce(config.urls.events + '/testImpressions/bulk', 200);
 
     const splitio = SplitFactory(config);
     const client = splitio.client();
@@ -106,16 +107,17 @@ export default function readyPromiseAssertions(mock, assert) {
         retriesOnFailureBeforeReady: 1
       }
     };
-    mock
-      .onGet(config.urls.sdk + '/splitChanges?since=-1').replyOnce(function() {
-        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20); });
-      })
-      .onGet(config.urls.sdk + '/splitChanges?since=-1').replyOnce(function() {
-        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20); });
-      })
-      .onGet(config.urls.sdk + '/mySegments/facundo@split.io').reply(function() {
-        return new Promise((res) => { setTimeout(() => { res([200, mySegmentsFacundo, {}]); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20); });
-      });
+
+    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', function () {
+      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: splitChangesMock1 }); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20); });
+    });
+    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', function () {
+      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: splitChangesMock1 }); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20); });
+    });
+    fetchMock.get(config.urls.sdk + '/mySegments/facundo@split.io', function () {
+      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: mySegmentsFacundo }); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20); });
+    });
+    fetchMock.postOnce(config.urls.events + '/testImpressions/bulk', 200);
 
     const splitio = SplitFactory(config);
     const client = splitio.client();
@@ -159,16 +161,17 @@ export default function readyPromiseAssertions(mock, assert) {
         retriesOnFailureBeforeReady: 1
       }
     };
-    mock
-      .onGet(config.urls.sdk + '/splitChanges?since=-1').replyOnce(function() {
-        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20); });
-      })
-      .onGet(config.urls.sdk + '/splitChanges?since=-1').replyOnce(function() {
-        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20); });
-      })
-      .onGet(config.urls.sdk + '/mySegments/facundo@split.io').reply(function() {
-        return new Promise((res) => { setTimeout(() => { res([200, mySegmentsFacundo, {}]); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20); });
-      });
+
+    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', function () {
+      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: splitChangesMock1 }); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20); });
+    });
+    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', function () {
+      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: splitChangesMock1 }); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20); });
+    });
+    fetchMock.get(config.urls.sdk + '/mySegments/facundo@split.io', function () {
+      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: mySegmentsFacundo }); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20); });
+    });
+    fetchMock.postOnce(config.urls.events + '/testImpressions/bulk', 200);
 
     const splitio = SplitFactory(config);
     const client = splitio.client();
@@ -199,10 +202,10 @@ export default function readyPromiseAssertions(mock, assert) {
                     t.end();
                   });
               });
-            },() => {
+            }, () => {
               t.fail('### SDK TIMED OUT - It should not in this scenario');
             });
-        }, fromSecondsToMillis(0.1) );
+        }, fromSecondsToMillis(0.1));
       });
   }, 'Time out and then ready after retry attempt');
 
@@ -230,21 +233,21 @@ export default function readyPromiseAssertions(mock, assert) {
     // time difference between TIME OUT and IS READY events (in milliseconds)
     const diffTimeoutAndIsReady = fromSecondsToMillis(
       (config.startup.requestTimeoutBeforeReady * (config.startup.retriesOnFailureBeforeReady + 1) +
-      config.scheduler.featuresRefreshRate) - config.startup.readyTimeout) + refreshTimeMillis;
+        config.scheduler.featuresRefreshRate) - config.startup.readyTimeout) + refreshTimeMillis;
 
-    mock
-      .onGet(config.urls.sdk + '/splitChanges?since=-1').replyOnce(function() {
-        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20); });
-      })
-      .onGet(config.urls.sdk + '/splitChanges?since=-1').replyOnce(function() {
-        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20); });
-      })
-      .onGet(config.urls.sdk + '/splitChanges?since=-1').replyOnce(function() {
-        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, refreshTimeMillis); });
-      })
-      .onGet(config.urls.sdk + '/mySegments/facundo@split.io').reply(function() {
-        return new Promise((res) => { setTimeout(() => { res([200, mySegmentsFacundo, {}]); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20); });
-      });
+    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', function () {
+      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: splitChangesMock1 }); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20); });
+    });
+    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', function () {
+      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: splitChangesMock1 }); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20); });
+    });
+    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', function () {
+      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: splitChangesMock1 }); }, refreshTimeMillis); });
+    });
+    fetchMock.get(config.urls.sdk + '/mySegments/facundo@split.io', function () {
+      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: mySegmentsFacundo }); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20); });
+    });
+    fetchMock.postOnce(config.urls.events + '/testImpressions/bulk', 200);
 
     const splitio = SplitFactory(config);
     const client = splitio.client();
@@ -275,10 +278,10 @@ export default function readyPromiseAssertions(mock, assert) {
                     t.end();
                   });
               });
-            },() => {
+            }, () => {
               t.fail('### SDK TIMED OUT - It should not in this scenario');
             });
-        }, diffTimeoutAndIsReady + 20 );
+        }, diffTimeoutAndIsReady + 20);
       });
   }, 'Time out and then ready after scheduled refresh');
 
@@ -296,13 +299,14 @@ export default function readyPromiseAssertions(mock, assert) {
         retriesOnFailureBeforeReady: 0
       }
     };
-    mock
-      .onGet(config.urls.sdk + '/splitChanges?since=-1').reply(function() {
-        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20); });
-      }) // /splitChanges takes longer than 'requestTimeoutBeforeReady'
-      .onGet(config.urls.sdk + '/mySegments/facundo@split.io').reply(function() {
-        return new Promise((res) => { setTimeout(() => { res([200, mySegmentsFacundo, {}]); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20); });
-      });
+
+    fetchMock.get(config.urls.sdk + '/splitChanges?since=-1', function () {
+      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: splitChangesMock1 }); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20); });
+    }); // /splitChanges takes longer than 'requestTimeoutBeforeReady'
+    fetchMock.get(config.urls.sdk + '/mySegments/facundo@split.io', function () {
+      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: mySegmentsFacundo }); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20); });
+    });
+    fetchMock.postOnce(config.urls.events + '/testImpressions/bulk', 200);
 
     const splitio = SplitFactory(config);
     const client = splitio.client();
@@ -311,13 +315,13 @@ export default function readyPromiseAssertions(mock, assert) {
       .then(() => {
         t.fail('### SDK IS READY - not TIMED OUT when it should.');
         client.destroy().then(() => { t.end(); });
-      },() => {
+      }, () => {
         t.pass('### SDK TIMED OUT - Request tooks longer than we allowed per requestTimeoutBeforeReady, timed out.');
         assertGetTreatmentControlNotReady(t, client);
         throw 'error';
       })
       .catch((error) => {
-        t.equal(error,'error','### Handled thrown exception on onRejected callback.');
+        t.equal(error, 'error', '### Handled thrown exception on onRejected callback.');
         client.destroy().then(() => {
           client.ready()
             .then(() => {
@@ -347,13 +351,14 @@ export default function readyPromiseAssertions(mock, assert) {
         retriesOnFailureBeforeReady: 0
       }
     };
-    mock
-      .onGet(config.urls.sdk + '/splitChanges?since=-1').reply(function() {
-        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20); });
-      })
-      .onGet(config.urls.sdk + '/mySegments/facundo@split.io').reply(function() {
-        return new Promise((res) => { setTimeout(() => { res([200, mySegmentsFacundo, {}]); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20); });
-      }); // Both /splitChanges and /mySegments take less than 'requestTimeoutBeforeReady'
+
+    fetchMock.get(config.urls.sdk + '/splitChanges?since=-1', function () {
+      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: splitChangesMock1 }); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20); });
+    });
+    fetchMock.get(config.urls.sdk + '/mySegments/facundo@split.io', function () {
+      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: mySegmentsFacundo }); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20); });
+    }); // Both /splitChanges and /mySegments take less than 'requestTimeoutBeforeReady'
+    fetchMock.postOnce(config.urls.events + '/testImpressions/bulk', 200);
 
     const splitio = SplitFactory(config);
     const client = splitio.client();
@@ -365,7 +370,7 @@ export default function readyPromiseAssertions(mock, assert) {
         throw 'error';
       })
       .catch((error) => {
-        t.equal(error,'error','### Handled thrown exception on onRejected callback.');
+        t.equal(error, 'error', '### Handled thrown exception on onRejected callback.');
         client.destroy().then(() => {
           client.ready()
             .then(() => {
@@ -395,16 +400,17 @@ export default function readyPromiseAssertions(mock, assert) {
         retriesOnFailureBeforeReady: 1
       }
     };
-    mock
-      .onGet(config.urls.sdk + '/splitChanges?since=-1').replyOnce(function() {
-        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20); });
-      })
-      .onGet(config.urls.sdk + '/splitChanges?since=-1').replyOnce(function() {
-        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20); });
-      })
-      .onGet(config.urls.sdk + '/mySegments/facundo@split.io').reply(function() {
-        return new Promise((res) => { setTimeout(() => { res([200, mySegmentsFacundo, {}]); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20); });
-      });
+
+    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', function () {
+      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: splitChangesMock1 }); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20); });
+    });
+    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', function () {
+      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: splitChangesMock1 }); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20); });
+    });
+    fetchMock.get(config.urls.sdk + '/mySegments/facundo@split.io', function () {
+      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: mySegmentsFacundo }); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20); });
+    });
+    fetchMock.postOnce(config.urls.events + '/testImpressions/bulk', 200);
 
     const splitio = SplitFactory(config);
     const client = splitio.client();
@@ -423,7 +429,7 @@ export default function readyPromiseAssertions(mock, assert) {
           t.pass('### SDK TIMED OUT - time out is triggered before retry attempt finishes');
           assertGetTreatmentControlNotReady(t, client);
           const tDelta = Date.now() - tStart;
-          assert.ok( tDelta < fromSecondsToMillis(config.startup.readyTimeout) + 20 && tDelta > fromSecondsToMillis(config.startup.readyTimeout) - 20, 'The "reject" callback is expected to be called in 0.15 seconds aprox');
+          assert.ok(tDelta < fromSecondsToMillis(config.startup.readyTimeout) + 20 && tDelta > fromSecondsToMillis(config.startup.readyTimeout) - 20, 'The "reject" callback is expected to be called in 0.15 seconds aprox');
         });
     }, 0);
 
@@ -439,9 +445,9 @@ export default function readyPromiseAssertions(mock, assert) {
           t.pass('### SDK TIMED OUT - time out is triggered before retry attempt finishes');
           assertGetTreatmentControlNotReady(t, client);
           const tDelta = Date.now() - tStart;
-          assert.ok( tDelta < 20, 'The "reject" callback is expected to be called inmediately (0 seconds aprox).');
+          assert.ok(tDelta < 20, 'The "reject" callback is expected to be called inmediately (0 seconds aprox).');
         });
-    }, fromSecondsToMillis(0.15) );
+    }, fromSecondsToMillis(0.15));
 
     // promise3 is handled in 0.2 seconds, when the promise is just resolved. Thus, the 'resolve' callback is expected to be called inmediately (0 seconds aprox).
     setTimeout(() => {
@@ -452,10 +458,10 @@ export default function readyPromiseAssertions(mock, assert) {
           t.pass('### SDK IS READY - retry attempt finishes before the requestTimeoutBeforeReady limit');
           assertGetTreatmentWhenReady(t, client);
           const tDelta = Date.now() - tStart;
-          assert.ok( tDelta < 20, 'The "resolve" callback is expected to be called inmediately (0 seconds aprox).');
+          assert.ok(tDelta < 20, 'The "resolve" callback is expected to be called inmediately (0 seconds aprox).');
 
           return Promise.resolve();
-        },() => {
+        }, () => {
           t.fail('### SDK TIMED OUT - It should not in this scenario');
           return Promise.resolve();
         })
@@ -473,7 +479,7 @@ export default function readyPromiseAssertions(mock, assert) {
               });
           });
         });
-    }, fromSecondsToMillis(0.2) );
+    }, fromSecondsToMillis(0.2));
   }, 'Evaluate that multiple promises are resolved/rejected on expected times.');
 
   // Validate that warning messages are properly sent.
@@ -490,46 +496,47 @@ export default function readyPromiseAssertions(mock, assert) {
         retriesOnFailureBeforeReady: 1
       }
     };
-    mock
-      .onGet(config.urls.sdk + '/splitChanges?since=-1').replyOnce(function() {
-        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20); });
-      })
-      .onGet(config.urls.sdk + '/splitChanges?since=-1').replyOnce(function() {
-        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20); });
-      })
-      .onGet(config.urls.sdk + '/mySegments/facundo@split.io').reply(function() {
-        return new Promise((res) => { setTimeout(() => { res([200, mySegmentsFacundo, {}]); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20); });
-      });
+
+    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', function () {
+      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: splitChangesMock1 }); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20); });
+    });
+    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', function () {
+      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: splitChangesMock1 }); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20); });
+    });
+    fetchMock.get(config.urls.sdk + '/mySegments/facundo@split.io', function () {
+      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: mySegmentsFacundo }); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20); });
+    });
+    fetchMock.postOnce(config.urls.events + '/testImpressions/bulk', 200);
 
     const splitio = SplitFactory(config);
-    
-    const onReadycallback = function() {};
-  
+
+    const onReadycallback = function () { };
+
     // We invoke the ready method and also add and remove SDK_READY event listeners using the client and manager instances
     const client = splitio.client();
     client.ready();
     client.on(client.Event.SDK_READY, onReadycallback);
     client.off(client.Event.SDK_READY, onReadycallback);
-  
+
     const manager = splitio.manager();
     manager.ready();
     manager.on(manager.Event.SDK_READY, onReadycallback);
     manager.off(manager.Event.SDK_READY, onReadycallback);
-  
+
     consoleSpy.log.resetHistory();
     setTimeout(() => {
       client.ready();
-      
+
       assertGetTreatmentWhenReady(t, client);
       t.true(consoleSpy.log.calledWithExactly('[WARN]  No listeners for SDK Readiness detected. Incorrect control treatments could have been logged if you called getTreatment/s while the SDK was not yet ready.'),
         'Warning that there are not listeners for SDK_READY event');
 
       consoleSpy.log.resetHistory();
-      client.on(client.Event.SDK_READY, () => {});
-      client.on(client.Event.SDK_READY_TIMED_OUT, () => {});
-      t.true(consoleSpy.error.calledWithExactly('[ERROR] A listener was added for SDK_READY on the SDK, which has already fired and won\'t be emitted again. The callback won\'t be executed.'),
+      client.on(client.Event.SDK_READY, () => { });
+      client.on(client.Event.SDK_READY_TIMED_OUT, () => { });
+      t.true(consoleSpy.log.calledWithExactly('[ERROR] A listener was added for SDK_READY on the SDK, which has already fired and won\'t be emitted again. The callback won\'t be executed.'),
         'Logging error that a listeners for SDK_READY event was added after triggered');
-      t.true(consoleSpy.error.calledWithExactly('[ERROR] A listener was added for SDK_READY_TIMED_OUT on the SDK, which has already fired and won\'t be emitted again. The callback won\'t be executed.'),
+      t.true(consoleSpy.log.calledWithExactly('[ERROR] A listener was added for SDK_READY_TIMED_OUT on the SDK, which has already fired and won\'t be emitted again. The callback won\'t be executed.'),
         'Logging error that a listeners for SDK_READY_TIMED_OUT event was added after triggered');
 
       client.destroy().then(() => {
@@ -543,8 +550,8 @@ export default function readyPromiseAssertions(mock, assert) {
             t.fail('### SDK TIMED OUT - It should not in this scenario.');
             t.end();
           });
-      });  
-    }, fromSecondsToMillis(0.2) );
+      });
+    }, fromSecondsToMillis(0.2));
 
   }, 'Validate that warning messages are properly sent');
 
@@ -562,30 +569,46 @@ export default function readyPromiseAssertions(mock, assert) {
         retriesOnFailureBeforeReady: 0
       }
     };
-    mock
-      .onGet(config.urls.sdk + '/splitChanges?since=-1').reply(function() {
-        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20); });
-      }) // /splitChanges takes longer than 'requestTimeoutBeforeReady'
-      .onGet(config.urls.sdk + '/mySegments/facundo@split.io').reply(function() {
-        return new Promise((res) => { setTimeout(() => { res([200, mySegmentsFacundo, {}]); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20); });
-      });
+
+    fetchMock.get(config.urls.sdk + '/splitChanges?since=-1', function () {
+      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: splitChangesMock1 }); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20); });
+    }); // /splitChanges takes longer than 'requestTimeoutBeforeReady'
+    fetchMock.get(config.urls.sdk + '/mySegments/facundo@split.io', function () {
+      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: mySegmentsFacundo }); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20); });
+    });
+    fetchMock.postOnce(config.urls.events + '/testImpressions/bulk', 200);
 
     const splitio = SplitFactory(config);
     const client = splitio.client();
 
     // Assert getTreatment return CONTROL and trigger warning when SDK is not ready yet
     assertGetTreatmentControlNotReady(t, client);
-    
+
     client.ready()
       .then(() => {
         t.fail('### SDK IS READY - not TIMED OUT when it should.');
-        client.destroy().then(() => { t.end(); });
       });
+
+    setTimeout(() => {
+      client.destroy().then(() => {
+        client.ready()
+          .then(() => {
+            t.fail('### SDK IS READY - It should not in this scenario.');
+            t.end();
+          })
+          .catch(() => {
+            t.pass('### SDK IS READY - the promise remains rejected after client destruction.');
+            assertGetTreatmentControlNotReadyOnDestroy(t, client);
+            t.end();
+          });
+      });
+    }, fromSecondsToMillis(config.startup.readyTimeout) + 20);
 
   }, 'Time out event is not handled. Ready promise should not be resolved');
 
+  // @TODO test for shared clients
   // Other possible tests:
-  //  * Basic time out path: startup without retries on failure and response taking more than 'requestTimeoutBeforeReady'. 
+  //  * Basic time out path: startup without retries on failure and response taking more than 'requestTimeoutBeforeReady'.
   //  * Basic is ready path: startup without retries on failure and response taking less than 'requestTimeoutBeforeReady'.
   //  * Ready with retry attempts and refresh.
   //  * Ready after timeout with retry attempts and refresh.
