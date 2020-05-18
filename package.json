@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio",
-  "version": "10.12.1-canary.2",
+  "version": "10.12.1",
   "description": "Split SDK",
   "files": [
     "README.md",
@@ -35,10 +35,11 @@
     "@babel/runtime-corejs3": "^7.8.7",
     "@types/google.analytics": "0.0.40",
     "@types/node": "^13.9.1",
-    "axios": "0.19.2",
     "core-js": "3.6.5",
     "ip": "1.1.5",
     "js-yaml": "3.13.1",
+    "node-fetch": "^2.6.0",
+    "unfetch": "^4.1.0",
     "utfx": "1.0.1"
   },
   "optionalDependencies": {
@@ -52,12 +53,12 @@
     "@babel/plugin-transform-runtime": "^7.8.3",
     "@babel/preset-env": "^7.8.7",
     "@babel/register": "^7.8.6",
-    "axios-mock-adapter": "^1.17.0",
     "babel-loader": "^8.0.6",
     "copyfiles": "^2.2.0",
     "cross-env": "^7.0.2",
     "csv-streamify": "4.0.0",
     "eslint": "^6.8.0",
+    "fetch-mock": "^9.4.0",
     "karma": "^4.4.1",
     "karma-chrome-launcher": "^3.1.0",
     "karma-tap": "4.1.4",

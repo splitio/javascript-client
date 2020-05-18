@@ -1,17 +1,13 @@
 // Here we are testing exceptions and the handler should be ours, we need to avoid tape-catch
 import tape from 'tape';
 import includes from 'lodash/includes';
-import MockAdapter from 'axios-mock-adapter';
+import fetchMock from '../utils/fetchMock';
 import splitChangesMock1 from './splitChanges.since.-1.json';
 import mySegmentsMock from './mySegments.nico@split.io.json';
 import splitChangesMock2 from './splitChanges.since.1500492097547.json';
 import splitChangesMock3 from './splitChanges.since.1500492297547.json';
 import { SplitFactory } from '../../';
 import SettingsFactory from '../../utils/settings';
-import { __getAxiosInstance } from '../../services/transport';
-
-// Set the mock adapter on the current axios instance
-const mock = new MockAdapter(__getAxiosInstance());
 
 const settings = SettingsFactory({
   core: {
@@ -19,13 +15,13 @@ const settings = SettingsFactory({
   }
 });
 
-mock.onGet(settings.url('/splitChanges?since=-1')).reply(function() {
-  return new Promise((res) => { setTimeout(() => res([200, splitChangesMock1]), 1000);});
+fetchMock.get(settings.url('/splitChanges?since=-1'), function () {
+  return new Promise((res) => { setTimeout(() => res({ status: 200, body: splitChangesMock1 }), 1000); });
 });
-mock.onGet(settings.url('/splitChanges?since=1500492097547')).reply(200, splitChangesMock2);
-mock.onGet(settings.url('/splitChanges?since=1500492297547')).reply(200, splitChangesMock3);
-mock.onGet(settings.url('/mySegments/nico@split.io')).reply(200, mySegmentsMock);
-mock.onPost().reply(200);
+fetchMock.get(settings.url('/splitChanges?since=1500492097547'), { status: 200, body: splitChangesMock2 });
+fetchMock.get(settings.url('/splitChanges?since=1500492297547'), { status: 200, body: splitChangesMock3 });
+fetchMock.get(settings.url('/mySegments/nico@split.io'), { status: 200, body: mySegmentsMock });
+fetchMock.post('*', 200);
 
 const assertionsPlanned = 3;
 let errCount = 0;
@@ -60,7 +56,7 @@ tape('Error catching on callbacks - Browsers', assert => {
       if (errCount === assertionsPlanned) {
         const wrapUp = () => {
           window.onerror = previousErrorHandler;
-          mock.restore();
+          fetchMock.restore();
           assert.end();
         };
 
@@ -76,7 +72,7 @@ tape('Error catching on callbacks - Browsers', assert => {
     if (window.onerror !== exceptionHandler) {
       previousErrorHandler = window.onerror;
       window.onerror = exceptionHandler;
-    } 
+    }
   }
 
   client.on(client.Event.SDK_READY_TIMED_OUT, () => {
@@ -93,6 +89,6 @@ tape('Error catching on callbacks - Browsers', assert => {
     attachErrorHandlerIfApplicable();
     null.willThrowForUpdate();
   });
-  
+
   attachErrorHandlerIfApplicable();
 });

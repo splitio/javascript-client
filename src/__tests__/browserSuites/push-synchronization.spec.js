@@ -64,15 +64,11 @@ const MILLIS_MY_SEGMENTS_UPDATE_WITH_PAYLOAD = 800;
  *  0.7 secs: SSE connection opened -> syncAll (/splitChanges, /mySegments/*)
  *  0.8 secs: MY_SEGMENTS_UPDATE event for new client (withPayload). client destroyed
  */
-export function testSynchronization(mock, assert) {
+export function testSynchronization(fetchMock, assert) {
   assert.plan(23);
-  mock.reset();
+  fetchMock.reset();
 
-  const start = Date.now();
-
-  const splitio = SplitFactory(config);
-  const client = splitio.client();
-  let otherClient;
+  let start, splitio, client, otherClient;
 
   // mock SSE open and message events
   setMockListener(function (eventSourceInstance) {
@@ -157,60 +153,67 @@ export function testSynchronization(mock, assert) {
   });
 
   // initial auth
-  mock.onGet(settings.url(`/auth?users=${encodeURIComponent(userKey)}`)).replyOnce(function (request) {
-    if (!request.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
+  fetchMock.getOnce(settings.url(`/auth?users=${encodeURIComponent(userKey)}`), function (url, opts) {
+    if (!opts.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
     assert.pass('auth success');
-    return [200, authPushEnabledNicolas];
+    return { status: 200, body: authPushEnabledNicolas };
   });
 
   // reauth due to new client
-  mock.onGet(settings.url(`/auth?users=${encodeURIComponent(userKey)}&users=${encodeURIComponent(otherUserKey)}`)).replyOnce(function (request) {
-    if (!request.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
+  fetchMock.getOnce(settings.url(`/auth?users=${encodeURIComponent(userKey)}&users=${encodeURIComponent(otherUserKey)}`), function (url, opts) {
+    if (!opts.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
     assert.pass('second auth success');
-    return [200, authPushEnabledNicolasAndMarcio];
+    return { status: 200, body: authPushEnabledNicolasAndMarcio };
   });
 
   // initial split and mySegments sync
-  mock.onGet(settings.url('/splitChanges?since=-1')).replyOnce(function () {
+  fetchMock.getOnce(settings.url('/splitChanges?since=-1'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, 0), 'initial sync');
-    return [200, splitChangesMock1];
+    return { status: 200, body: splitChangesMock1 };
   });
-  mock.onGet(settings.url('/mySegments/nicolas@split.io')).replyOnce(200, mySegmentsNicolasMock1);
+  fetchMock.getOnce(settings.url('/mySegments/nicolas@split.io'), { status: 200, body: mySegmentsNicolasMock1 });
 
   // split and segment sync after SSE opened
-  mock.onGet(settings.url('/splitChanges?since=1457552620999')).replyOnce(function () {
+  fetchMock.getOnce(settings.url('/splitChanges?since=1457552620999'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_SSE_OPEN), 'sync after SSE connection is opened');
-    return [200, splitChangesMock2];
+    return { status: 200, body: splitChangesMock2 };
   });
-  mock.onGet(settings.url('/mySegments/nicolas@split.io')).replyOnce(200, mySegmentsNicolasMock1);
+  fetchMock.getOnce(settings.url('/mySegments/nicolas@split.io'), { status: 200, body: mySegmentsNicolasMock1 });
 
   // fetch due to SPLIT_UPDATE event
-  mock.onGet(settings.url('/splitChanges?since=1457552620999')).replyOnce(200, splitChangesMock3);
+  fetchMock.getOnce(settings.url('/splitChanges?since=1457552620999'), { status: 200, body: splitChangesMock3 });
 
   // fetch due to first MY_SEGMENTS_UPDATE event
-  mock.onGet(settings.url('/mySegments/nicolas@split.io')).replyOnce(200, mySegmentsNicolasMock2);
+  fetchMock.getOnce(settings.url('/mySegments/nicolas@split.io'), { status: 200, body: mySegmentsNicolasMock2 });
 
   // fetch due to SPLIT_KILL event
-  mock.onGet(settings.url('/splitChanges?since=1457552649999')).replyOnce(function () {
+  fetchMock.getOnce(settings.url('/splitChanges?since=1457552649999'), function () {
     assert.equal(client.getTreatment('whitelist'), 'not_allowed', 'evaluation with split killed immediately, before fetch is done');
-    return [200, splitChangesMock4];
+    return { status: 200, body: splitChangesMock4 };
   });
 
   // initial fetch of mySegments for new client
-  mock.onGet(settings.url('/mySegments/marcio@split.io')).replyOnce(200, mySegmentsMarcio);
+  fetchMock.getOnce(settings.url('/mySegments/marcio@split.io'), { status: 200, body: mySegmentsMarcio });
 
   // split and mySegment sync after second SSE opened
-  mock.onGet(settings.url('/splitChanges?since=1457552650000')).replyOnce(function () {
+  fetchMock.getOnce(settings.url('/splitChanges?since=1457552650000'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_SECOND_SSE_OPEN), 'sync after second SSE connection is opened');
-    return [200, { splits: [], since: 1457552650000, till: 1457552650000 }];
+    return { status: 200, body: { splits: [], since: 1457552650000, till: 1457552650000 } };
   });
-  mock.onGet(settings.url('/mySegments/nicolas@split.io')).replyOnce(200, mySegmentsNicolasMock2);
-  mock.onGet(settings.url('/mySegments/marcio@split.io')).replyOnce(200, mySegmentsMarcio);
+  fetchMock.getOnce(settings.url('/mySegments/nicolas@split.io'), { status: 200, body: mySegmentsNicolasMock2 });
+  fetchMock.getOnce(settings.url('/mySegments/marcio@split.io'), { status: 200, body: mySegmentsMarcio });
 
-  mock.onGet(new RegExp('.*')).reply(function (request) {
-    assert.fail('unexpected GET request with url: ' + request.url);
+  fetchMock.get(new RegExp('.*'), function (url) {
+    assert.fail('unexpected GET request with url: ' + url);
   });
+  
+  fetchMock.post('*', 200);
+  
+  start = Date.now();
+  splitio = SplitFactory(config);
+  client = splitio.client();
+  
 }

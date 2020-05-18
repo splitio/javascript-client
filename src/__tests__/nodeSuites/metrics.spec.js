@@ -31,21 +31,19 @@ const config = {
   }
 };
 
-export default async function(key, mock, assert) {
+export default async function(key, fetchMock, assert) {
   const segmentChangesUrlRegex = new RegExp(`${baseUrls.sdk}/segmentChanges/*`);
 
-  mock.onGet(settings.url('/splitChanges?since=-1')).replyOnce(500)
-    .onGet(settings.url('/splitChanges?since=-1')).replyOnce(200, splitChangesMock1);
-  mock.onGet(segmentChangesUrlRegex)
-    .replyOnce(200, { since:10, till:10, name: 'segmentName', added: [], removed: [] })
-    .onGet(segmentChangesUrlRegex)
-    .replyOnce(401)
-    .onGet(segmentChangesUrlRegex)
-    .replyOnce(500)
-    .onGet(segmentChangesUrlRegex)
-    .reply(200, {since:10, till:10, name: 'segmentName' + Date.now(), added: [], removed: []});
+  fetchMock.getOnce(settings.url('/splitChanges?since=-1'), 500);
+  fetchMock.getOnce(settings.url('/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
+  fetchMock.getOnce(segmentChangesUrlRegex, { status: 200, body: { since:10, till:10, name: 'segmentName', added: [], removed: [] } });
+  fetchMock.getOnce(segmentChangesUrlRegex, 401);
+  fetchMock.getOnce(segmentChangesUrlRegex, 500);
+  fetchMock.get(segmentChangesUrlRegex, { status: 200, body: {since:10, till:10, name: 'segmentName' + Date.now(), added: [], removed: []} });
   // Should not execute but adding just in case.
-  mock.onGet(settings.url('/splitChanges?since=1457552620999')).reply(200, splitChangesMock2);
+  fetchMock.get(settings.url('/splitChanges?since=1457552620999'), { status: 200, body: splitChangesMock2 });
+
+  fetchMock.postOnce(settings.url('/testImpressions/bulk'), 200);
 
   const splitio = SplitFactory(config);
   const client = splitio.client();
@@ -56,8 +54,8 @@ export default async function(key, mock, assert) {
     assert.end();
   })();
 
-  mock.onPost(settings.url('/metrics/times')).replyOnce(req => {
-    const data = JSON.parse(req.data);
+  fetchMock.postOnce(settings.url('/metrics/times'), (url, opts) => {
+    const data = JSON.parse(opts.body);
 
     assert.equal(data.length, 7, 'We performed 4 correct evaluation requests (one per method) plus ready, splits and segments, so we should have 7 latency metrics.');
 
@@ -88,11 +86,11 @@ export default async function(key, mock, assert) {
 
     finish.next();
 
-    return [200];
+    return 200;
   });
 
-  mock.onPost(settings.url('/metrics/counters')).replyOnce(req => {
-    const data = JSON.parse(req.data);
+  fetchMock.postOnce(settings.url('/metrics/counters'), (url, opts) => {
+    const data = JSON.parse(opts.body);
 
     assert.equal(data.length, 4, 'Based on the mock setup, we should have four items.');
 
@@ -118,7 +116,7 @@ export default async function(key, mock, assert) {
 
     finish.next();
 
-    return [200];
+    return 200;
   });
 
   await client.ready();

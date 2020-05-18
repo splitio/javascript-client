@@ -1,14 +1,10 @@
 import tape from 'tape-catch';
 import sinon from 'sinon';
-import MockAdapter from 'axios-mock-adapter';
+import fetchMock from '../utils/fetchMock';
 import { SplitFactory } from '../../';
 import SettingsFactory from '../../utils/settings';
-import { __getAxiosInstance } from '../../services/transport';
 
-const settings = SettingsFactory({ core: { key: 'facundo@split.io' }});
-
-// Set the mock adapter on the current axios instance
-const mock = new MockAdapter(__getAxiosInstance());
+const settings = SettingsFactory({ core: { key: 'facundo@split.io' } });
 
 const spySplitChanges = sinon.spy();
 const spySegmentChanges = sinon.spy();
@@ -20,22 +16,21 @@ const spyMetricsCounters = sinon.spy();
 const spyAny = sinon.spy();
 
 // helper function that should call the spy function and return a 200 to keep
-// going the axios request flow
+// going the fetch request flow
 const replySpy = spy => {
   spy();
-  return [200];
+  return 200;
 };
 
 const configMocks = () => {
-  mock
-    .onAny(new RegExp(`${settings.url('/splitChanges/')}.*`)).reply(() => replySpy(spySplitChanges))
-    .onAny(new RegExp(`${settings.url('/segmentChanges/')}.*`)).reply(() => replySpy(spySegmentChanges))
-    .onAny(new RegExp(`${settings.url('/mySegments/')}.*`)).reply(() => replySpy(spyMySegments))
-    .onAny(settings.url('/events/bulk')).reply(() => replySpy(spyEventsBulk))
-    .onAny(settings.url('/testImpressions/bulk')).reply(() => replySpy(spyTestImpressionsBulk))
-    .onAny(settings.url('/metrics/times')).reply(() => replySpy(spyMetricsTimes))
-    .onAny(settings.url('/metrics/counters')).reply(() => replySpy(spyMetricsCounters))
-    .onAny().reply(() => replySpy(spyAny));
+  fetchMock.mock(new RegExp(`${settings.url('/splitChanges/')}.*`), () => replySpy(spySplitChanges));
+  fetchMock.mock(new RegExp(`${settings.url('/segmentChanges/')}.*`), () => replySpy(spySegmentChanges));
+  fetchMock.mock(new RegExp(`${settings.url('/mySegments/')}.*`), () => replySpy(spyMySegments));
+  fetchMock.mock(settings.url('/events/bulk'), () => replySpy(spyEventsBulk));
+  fetchMock.mock(settings.url('/testImpressions/bulk'), () => replySpy(spyTestImpressionsBulk));
+  fetchMock.mock(settings.url('/metrics/times'), () => replySpy(spyMetricsTimes));
+  fetchMock.mock(settings.url('/metrics/counters'), () => replySpy(spyMetricsCounters));
+  fetchMock.mock('*', () => replySpy(spyAny));
 };
 
 tape('Browser offline mode', function (assert) {
@@ -111,7 +106,7 @@ tape('Browser offline mode', function (assert) {
       name: 'testing_split', trafficType: null, killed: false, changeNumber: 0, treatments: ['on'], configs: {}
     };
     const expectedSplitView2 = {
-      name: 'testing_split_with_config', trafficType: null, killed: false, changeNumber: 0, treatments: ['off'], configs: { off: '{ "color": "blue" }'}
+      name: 'testing_split_with_config', trafficType: null, killed: false, changeNumber: 0, treatments: ['off'], configs: { off: '{ "color": "blue" }' }
     };
     assert.deepEqual(manager.names(), ['testing_split', 'testing_split_with_config']);
     assert.deepEqual(manager.split('testing_split'), expectedSplitView1);
@@ -157,9 +152,9 @@ tape('Browser offline mode', function (assert) {
     }, 1000);
 
     setTimeout(() => { factory.settings.features = originalFeaturesMap; }, 200);
-    setTimeout(() => { factory.settings.features = { testing_split: 'on', testing_split_with_config: { treatment: 'off', config: '{ "color": "blue" }' }};}, 400);
+    setTimeout(() => { factory.settings.features = { testing_split: 'on', testing_split_with_config: { treatment: 'off', config: '{ "color": "blue" }' } }; }, 400);
     setTimeout(() => { factory.settings.features = originalFeaturesMap; }, 600);
-    setTimeout(() => { factory.settings.features = { testing_split: 'on', testing_split_with_config: { treatment: 'off', config: '{ "color": "blue" }' }};}, 750);
+    setTimeout(() => { factory.settings.features = { testing_split: 'on', testing_split_with_config: { treatment: 'off', config: '{ "color": "blue" }' } }; }, 750);
 
     // once updated, test again.
     client.once(client.Event.SDK_UPDATE, function () {

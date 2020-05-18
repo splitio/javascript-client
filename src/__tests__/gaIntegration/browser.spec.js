@@ -1,17 +1,13 @@
 import tape from 'tape-catch';
-import MockAdapter from 'axios-mock-adapter';
+import fetchMock from '../utils/fetchMock';
 import gaToSplitSuite from './ga-to-split.spec';
 import splitToGaSuite from './split-to-ga.spec';
 import bothIntegrationsSuite from './both-integrations.spec';
 
-import { __getAxiosInstance } from '../../services/transport';
 import SettingsFactory from '../../utils/settings';
 
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import mySegmentsFacundo from '../mocks/mysegments.facundo@split.io.json';
-
-// Set the mock adapter on the current axios instance
-const mock = new MockAdapter(__getAxiosInstance());
 
 const settings = SettingsFactory({
   core: {
@@ -21,13 +17,13 @@ const settings = SettingsFactory({
 
 tape('## E2E CI Tests ##', function(assert) {
 
-  mock.onGet(settings.url('/splitChanges?since=-1')).reply(200, splitChangesMock1);
-  mock.onGet(settings.url('/mySegments/facundo@split.io')).reply(200, mySegmentsFacundo);
+  fetchMock.get(settings.url('/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
+  fetchMock.get(settings.url('/mySegments/facundo@split.io'), { status: 200, body: mySegmentsFacundo });
 
   /* Validate GA integration */
-  assert.test('E2E / GA-to-Split', gaToSplitSuite.bind(null, mock));
-  assert.test('E2E / Split-to-GA', splitToGaSuite.bind(null, mock));
-  assert.test('E2E / Both GA integrations', bothIntegrationsSuite.bind(null, mock));
+  assert.test('E2E / GA-to-Split', gaToSplitSuite.bind(null, fetchMock));
+  assert.test('E2E / Split-to-GA', splitToGaSuite.bind(null, fetchMock));
+  assert.test('E2E / Both GA integrations', bothIntegrationsSuite.bind(null, fetchMock));
 
   assert.end();
 });

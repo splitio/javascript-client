@@ -18,7 +18,7 @@ const config = {
 const settings = SettingsFactory(config);
 
 // Spy calls to Beacon API method
-const sendBeaconSpy = sinon.spy(window.navigator,'sendBeacon');
+const sendBeaconSpy = sinon.spy(window.navigator, 'sendBeacon');
 
 // util method to trigger 'unload' event
 function triggerUnloadEvent() {
@@ -62,11 +62,12 @@ const assertCallsToBeaconAPI = (assert) => {
 };
 
 // This E2E test checks that Beacon API is not called when page unload is triggered and there are not events or impressions to send.
-function beaconApiNotSendTest(mock, assert) {
+function beaconApiNotSendTest(fetchMock, assert) {
 
   // Mocking this specific route to make sure we only get the items we want to test from the handlers.
-  mock.onGet(settings.url('/splitChanges?since=-1')).reply(200, splitChangesMock1);
-  mock.onGet(settings.url('/mySegments/facundo@split.io')).reply(200, mySegmentsFacundo);
+  fetchMock.get(settings.url('/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
+  fetchMock.get(settings.url('/splitChanges?since=1457552620999'), { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
+  fetchMock.get(settings.url('/mySegments/facundo@split.io'), { status: 200, body: mySegmentsFacundo });
 
   // Init and run Split client
   const splitio = SplitFactory(config);
@@ -76,20 +77,20 @@ function beaconApiNotSendTest(mock, assert) {
     // trigger unload event, without tracked events and impressions
     triggerUnloadEvent();
 
-    // queue the assertion of the Beacon requests, destruction of client and execution of the second E2E test named beaconApiSendTest
+    // destroy the client and execute the next E2E test named beaconApiSendTest
     setTimeout(() => {
       assert.ok(sendBeaconSpy.notCalled, 'sendBeacon should not be called if there are not events and impressions to track');
       sendBeaconSpy.resetHistory();
 
-      client.destroy().then(()=>{
-        beaconApiSendTest(mock,assert);
+      client.destroy().then(() => {
+        beaconApiSendTest(fetchMock, assert);
       });
     }, 0);
   });
 }
 
 // This E2E test checks that impressions and events are sent to backend via Beacon API when page unload is triggered.
-function beaconApiSendTest(mock, assert) {
+function beaconApiSendTest(fetchMock, assert) {
 
   // Init and run Split client
   const splitio = SplitFactory(config);
@@ -101,20 +102,20 @@ function beaconApiSendTest(mock, assert) {
     // trigger unload event inmmediatly, before scheduled push of events and impressions
     triggerUnloadEvent();
 
-    // queue the assertion of the Beacon requests, destruction of client and execution of the second E2E test named fallbackTest
+    // queue the assertion of the Beacon requests, destroy the client and execute the next E2E test named fallbackTest
     setTimeout(() => {
-      
+
       assertCallsToBeaconAPI(assert);
       sendBeaconSpy.resetHistory();
-      client.destroy().then(()=>{
-        fallbackTest(mock,assert);
+      client.destroy().then(() => {
+        fallbackTest(fetchMock, assert);
       });
     }, 0);
   });
 }
 
 // This E2E test checks that impressions and events are sent to backend via Axios when page unload is triggered and Beacon API is not available.
-function fallbackTest(mock, assert) {
+function fallbackTest(fetchMock, assert) {
 
   // destroy reference to Beacon API
   window.navigator.sendBeacon = null;
@@ -123,27 +124,30 @@ function fallbackTest(mock, assert) {
   const client = splitio.client();
 
   // synchronize client destruction when both endpoints ('/testImpressions/bulk' and '/events/bulk') are called
-  const finish = (function*() {
+  const finish = (function* () {
     yield;
-    client.destroy().then(function(){
-      assert.end();
-    });
+    // @TODO review why we must destroy client in a different event-loop cycle, compared to axios-mock-adapter
+    setTimeout(function () {
+      client.destroy().then(function () {
+        assert.end();
+      });
+    }, 0);
   })();
-  
+
   // Mock endpoints used by Axios
-  mock.onPost(settings.url('/testImpressions/bulk')).replyOnce(req => {
-    const resp = JSON.parse(req.data);
-    assert.ok(req, 'Fallback to /testImpressions/bulk');
-    assertImpressionSent(assert,resp[0]);
+  fetchMock.postOnce(settings.url('/testImpressions/bulk'), (url, opts) => {
+    const resp = JSON.parse(opts.body);
+    assert.ok(opts, 'Fallback to /testImpressions/bulk');
+    assertImpressionSent(assert, resp[0]);
     finish.next();
-    return [200];
+    return 200;
   });
-  mock.onPost(settings.url('/events/bulk')).replyOnce(req => {
-    const resp = JSON.parse(req.data);
-    assert.ok(req, 'Fallback to /events/bulk');
-    assertEventSent(assert,resp[0]);
+  fetchMock.postOnce(settings.url('/events/bulk'), (url, opts) => {
+    const resp = JSON.parse(opts.body);
+    assert.ok(opts, 'Fallback to /events/bulk');
+    assertEventSent(assert, resp[0]);
     finish.next();
-    return [200];
+    return 200;
   });
 
   client.on(client.Event.SDK_READY, () => {

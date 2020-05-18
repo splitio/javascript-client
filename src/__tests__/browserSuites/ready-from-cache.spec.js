@@ -60,7 +60,7 @@ const baseConfig = {
   }
 };
 
-export default function(mock, assert) {
+export default function (fetchMock, assert) {
 
   assert.test(t => { // Testing when we start from scratch
     const testUrls = {
@@ -70,16 +70,16 @@ export default function(mock, assert) {
     localStorage.clear();
     t.plan(3);
 
-    mock.onGet(testUrls.sdk + '/splitChanges?since=-1').reply(200, splitChangesMock1);
-    mock.onGet(testUrls.sdk + '/splitChanges?since=1457552620999').reply(200, splitChangesMock2);
-    mock.onGet(testUrls.sdk + '/mySegments/nicolas@split.io').reply(200, mySegmentsNicolas);
-    mock.onGet(testUrls.sdk + '/mySegments/nicolas2@split.io').reply(200, { 'mySegments': [] });
-    mock.onGet(testUrls.sdk + '/mySegments/nicolas3@split.io').reply(200, { 'mySegments': [] });
+    fetchMock.get(testUrls.sdk + '/splitChanges?since=-1', { status: 200, body: splitChangesMock1 });
+    fetchMock.get(testUrls.sdk + '/splitChanges?since=1457552620999', { status: 200, body: splitChangesMock2 });
+    fetchMock.get(testUrls.sdk + '/mySegments/nicolas@split.io', { status: 200, body: mySegmentsNicolas });
+    fetchMock.get(testUrls.sdk + '/mySegments/nicolas2@split.io', { status: 200, body: { 'mySegments': [] } });
+    fetchMock.get(testUrls.sdk + '/mySegments/nicolas3@split.io', { status: 200, body: { 'mySegments': [] } });
 
     const splitio = SplitFactory({
-      ...baseConfig, 
+      ...baseConfig,
       core: {
-        ...baseConfig.core, 
+        ...baseConfig.core,
         authorizationKey: '<fake-token-rfc2>',
       },
       storage: {
@@ -122,30 +122,27 @@ export default function(mock, assert) {
     localStorage.clear();
     t.plan(6 * 2);
 
-    mock.onGet(testUrls.sdk + '/splitChanges?since=25')
-      .reply(function() {
-        return new Promise(res => { setTimeout(() => res([200, { ...splitChangesMock1, since: 25 }, {}]), 200); }); // 400ms is how long it'll take to reply with Splits, no SDK_READY should be emitted before that.
-      });
-    mock.onGet(testUrls.sdk + '/splitChanges?since=1457552620999').reply(200, splitChangesMock2);
-    mock.onGet(testUrls.sdk + '/mySegments/nicolas@split.io')
-      .reply(function() {
-        return new Promise(res => { setTimeout(() => res([200, mySegmentsNicolas, {}]), 400); }); // First client gets segments before splits. No segment cache loading (yet)
-      });
-    mock.onGet(testUrls.sdk + '/mySegments/nicolas2@split.io')
-      .reply(function() {
-        return new Promise(res => { setTimeout(() => res([200, { 'mySegments': [] }, {}]), 700); }); // Second client gets segments after 700ms 
-      });
-    mock.onGet(testUrls.sdk + '/mySegments/nicolas3@split.io')
-      .reply(function() {
-        return new Promise(res => { setTimeout(() => res([200, { 'mySegments': [] }, {}]), 1000); }); // Third client mySegments will come after 1s
-      });
+    fetchMock.get(testUrls.sdk + '/splitChanges?since=25', function () {
+      return new Promise(res => { setTimeout(() => res({ status: 200, body: { ...splitChangesMock1, since: 25 }, headers: {} }), 200); }); // 400ms is how long it'll take to reply with Splits, no SDK_READY should be emitted before that.
+    });
+    fetchMock.get(testUrls.sdk + '/splitChanges?since=1457552620999', { status: 200, body: splitChangesMock2 });
+    fetchMock.get(testUrls.sdk + '/mySegments/nicolas@split.io', function () {
+      return new Promise(res => { setTimeout(() => res({ status: 200, body: mySegmentsNicolas, headers: {} }), 400); }); // First client gets segments before splits. No segment cache loading (yet)
+    });
+    fetchMock.get(testUrls.sdk + '/mySegments/nicolas2@split.io', function () {
+      return new Promise(res => { setTimeout(() => res({ status: 200, body: { 'mySegments': [] }, headers: {} }), 700); }); // Second client gets segments after 700ms
+    });
+    fetchMock.get(testUrls.sdk + '/mySegments/nicolas3@split.io', function () {
+      return new Promise(res => { setTimeout(() => res({ status: 200, body: { 'mySegments': [] }, headers: {} }), 1000); }); // Third client mySegments will come after 1s
+    });
+    fetchMock.postOnce(testUrls.events + '/testImpressions/bulk', 200);
 
     localStorage.setItem('readyFromCache_2.SPLITIO.splits.till', 25);
     localStorage.setItem('readyFromCache_2.SPLITIO.split.always_on', alwaysOnSplitInverted);
 
     const startTime = Date.now();
     const splitio = SplitFactory({
-      ...baseConfig, 
+      ...baseConfig,
       storage: {
         type: 'LOCALSTORAGE',
         prefix: 'readyFromCache_2'
@@ -163,7 +160,7 @@ export default function(mock, assert) {
     });
 
     client.once(client.Event.SDK_READY_FROM_CACHE, () => {
-      t.true(Date.now() - startTime < 400,'It should emit SDK_READY_FROM_CACHE on every client if there was data in the cache and we subscribe on time. Should be considerably faster than actual readiness from the cloud.');
+      t.true(Date.now() - startTime < 400, 'It should emit SDK_READY_FROM_CACHE on every client if there was data in the cache and we subscribe on time. Should be considerably faster than actual readiness from the cloud.');
       t.equal(client.getTreatment('always_on'), 'off', 'It should evaluate treatments with data from cache instead of control due to Input Validation');
     });
     client2.once(client.Event.SDK_READY_FROM_CACHE, () => {
@@ -187,6 +184,6 @@ export default function(mock, assert) {
       t.true(Date.now() - startTime >= 1000, 'It should emit SDK_READY too but after syncing with the cloud.');
       t.equal(client.getTreatment('always_on'), 'on', 'It should evaluate treatments with updated data after syncing with the cloud.');
     });
-  
+
   });
 }

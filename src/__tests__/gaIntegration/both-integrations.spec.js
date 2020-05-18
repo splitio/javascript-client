@@ -17,15 +17,11 @@ const config = {
     type: 'GOOGLE_ANALYTICS_TO_SPLIT',
   }, {
     type: 'SPLIT_TO_GOOGLE_ANALYTICS',
-  }],
-  urls: {
-    sdk: 'https://sdk.both-integrations.io/api',
-    events: 'https://events.both-integrations.io/api'
-  },
+  }]
 };
 const settings = SettingsFactory(config);
 
-export default function (mock, assert) {
+export default function (fetchMock, assert) {
 
   let client;
 
@@ -48,12 +44,12 @@ export default function (mock, assert) {
       }, 0);
     })();
 
-    mock.onPost(settings.url('/testImpressions/bulk')).replyOnce(req => {
+    fetchMock.postOnce(settings.url('/testImpressions/bulk'), (url, opts) => {
       // we can assert payload and ga hits, once ga is ready and after `SplitToGa.queue`, that is timeout wrapped, make to the queue stack.
       window.ga(() => {
         setTimeout(() => {
           try {
-            const resp = JSON.parse(req.data);
+            const resp = JSON.parse(opts.body);
             const numberOfSentImpressions = countImpressions(resp);
             const sentImpressionHits = window.gaSpy.getHits().filter(hit => hit.eventCategory === 'split-impression');
 
@@ -66,14 +62,14 @@ export default function (mock, assert) {
           }
         });
       });
-      return [200];
+      return 200;
     });
 
-    mock.onPost(settings.url('/events/bulk')).replyOnce(req => {
+    fetchMock.postOnce(settings.url('/events/bulk'), (url, opts) => {
       window.ga(() => {
         setTimeout(() => {
           try {
-            const sentEvents = JSON.parse(req.data);
+            const sentEvents = JSON.parse(opts.body);
             const sentEventsFromSplitToGa = sentEvents.filter(event => {
               return event.properties && event.properties.eventCategory && includes(event.properties.eventCategory, 'split');
             });
@@ -92,7 +88,7 @@ export default function (mock, assert) {
           }
         });
       });
-      return [200];
+      return 200;
     });
 
     gaTag();
