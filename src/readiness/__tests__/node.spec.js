@@ -18,7 +18,8 @@ const statusManager = proxyquireStrict('../statusManager', {
   '../utils/logger': LogFactoryMock
 }).default;
 
-// @TODO add tests to assert param internalReadyCbCount
+// @TODO add test to assert param internalReadyCbCount
+// @TODO add test to assert new ready promise logic (resolved when SDK_READY, rejected when SDK_READY_TIMEOUT)
 tape('Readiness Callbacks handler - Event emitter and returned handler', t => {
   const gateMock = {
     on: sinon.stub(),
