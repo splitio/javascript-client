@@ -8,8 +8,7 @@ const REMOVE_LISTENER_EVENT = 'removeListener';
 /**
  *
  * @param {Object} context
- * @param {boolean} forSharedClient
- * @param {number} internalReadyCbCount number of SDK_READY listeners that are set inside the SDK: 1 for main client in not LOCALHOST mode, 0 otherwise
+ * @param {number} internalReadyCbCount number of SDK_READY listeners that are added/removed internally
  */
 export default function callbackHandlerContext(context, internalReadyCbCount = 0) {
   const gate = context.get(context.constants.READINESS).gate;
@@ -21,21 +20,6 @@ export default function callbackHandlerContext(context, internalReadyCbCount = 0
     SDK_UPDATE,
     SDK_READY_TIMED_OUT
   } = gate;
-  const readyPromise = generateReadyPromise();
-
-  gate.once(SDK_READY, () => {
-    if (readyCbCount === internalReadyCbCount && !readyPromise.hasOnFulfilled()) log.warn('No listeners for SDK Readiness detected. Incorrect control treatments could have been logged if you called getTreatment/s while the SDK was not yet ready.');
-
-    context.put(context.constants.READY, true);
-
-    isReady = true;
-  });
-
-  gate.once(SDK_READY_FROM_CACHE, () => {
-    log.info('Split SDK is ready from cache.');
-
-    context.put(context.constants.READY_FROM_CACHE, true);
-  });
 
   gate.on(REMOVE_LISTENER_EVENT, event => {
     if (event === SDK_READY) readyCbCount--;
@@ -51,9 +35,26 @@ export default function callbackHandlerContext(context, internalReadyCbCount = 0
     }
   });
 
+  const readyPromise = generateReadyPromise();
+
+  gate.once(SDK_READY_FROM_CACHE, () => {
+    log.info('Split SDK is ready from cache.');
+
+    context.put(context.constants.READY_FROM_CACHE, true);
+  });
+
   function generateReadyPromise() {
     const promise = promiseWrapper(new Promise((resolve, reject) => {
-      gate.once(SDK_READY, resolve);
+      gate.once(SDK_READY, () => {
+        console.log('readyCbCount '+readyCbCount);
+        if (readyCbCount === internalReadyCbCount && !promise.hasOnFulfilled()) log.warn('No listeners for SDK Readiness detected. Incorrect control treatments could have been logged if you called getTreatment/s while the SDK was not yet ready.');
+
+        context.put(context.constants.READY, true);
+
+        isReady = true;
+
+        resolve();
+      });
       gate.once(SDK_READY_TIMED_OUT, reject);
     }, function (err) {
       // If the promise doesn't have a custom onRejected handler, just log the error.
