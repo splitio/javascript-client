@@ -5,6 +5,11 @@ const log = logFactory('');
 const NEW_LISTENER_EVENT = 'newListener';
 const REMOVE_LISTENER_EVENT = 'removeListener';
 
+// default onRejected handler, that just logs the error, if ready promise doesn't have one.
+function defaultOnRejected(err) {
+  log.error(err);
+}
+
 /**
  *
  * @param {Object} context
@@ -62,10 +67,7 @@ export default function callbackHandlerContext(context, internalReadyCbCount = 0
         hasTimedout = true;
         reject(error);
       });
-    }), function (err) {
-      // If the promise doesn't have a custom onRejected handler, just log the error.
-      log.error(err);
-    });
+    }), defaultOnRejected);
 
     return promise;
   }
@@ -85,8 +87,7 @@ export default function callbackHandlerContext(context, internalReadyCbCount = 0
       ready: () => {
         if (hasTimedout) {
           if (!isReady) {
-            // @TODO remove duplicated string
-            return promiseWrapper(Promise.reject('Split SDK emitted SDK_READY_TIMED_OUT event.'), function () { });
+            return promiseWrapper(Promise.reject('Split SDK has emitted SDK_READY_TIMED_OUT event.'), defaultOnRejected);
           } else {
             return Promise.resolve();
           }
