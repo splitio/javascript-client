@@ -26,26 +26,25 @@ const baseConfig = {
   }
 };
 
-export default function(mock, assert) {
+export default function (fetchMock, assert) {
   assert.test(t => { // Timeout test, we have retries but splitChanges takes too long
     const testUrls = {
       sdk: 'https://sdk.baseurl/readinessSuite1',
       events: 'https://events.baseurl/readinessSuite1'
     };
-    mock
-      .onGet(testUrls.sdk + '/splitChanges?since=-1').reply(function() {
-        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, 5100); });
-      })
-      .onGet(testUrls.sdk + '/mySegments/nicolas@split.io').reply(function() {
-        return new Promise((res) => { setTimeout(() => { res([200, mySegmentsNicolas, {}]); }, 4900); });
-      })
-      .onGet(testUrls.sdk + '/splitChanges?since=1457552620999').reply(200, splitChangesMock2);
+    fetchMock.get(testUrls.sdk + '/splitChanges?since=-1', function () {
+      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: splitChangesMock1, headers: {} }); }, 5100); });
+    });
+    fetchMock.get(testUrls.sdk + '/mySegments/nicolas@split.io', function () {
+      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: mySegmentsNicolas, headers: {} }); }, 4900); });
+    });
+    fetchMock.get(testUrls.sdk + '/splitChanges?since=1457552620999', { status: 200, body: splitChangesMock2 });
 
     const splitio = SplitFactory({
       ...baseConfig, urls: testUrls
     });
     const client = splitio.client();
-  
+
     client.once(client.Event.SDK_READY, () => {
       t.fail('### IS READY - NOT TIMED OUT when it should.');
       t.end();
@@ -62,18 +61,17 @@ export default function(mock, assert) {
       sdk: 'https://sdk.baseurl/readinessSuite2',
       events: 'https://events.baseurl/readinessSuite2'
     };
-    mock
-      .onGet(testUrls.sdk + '/splitChanges?since=-1').reply(function() {
-        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, 4900); });
-      })
-      .onGet(testUrls.sdk + '/mySegments/nicolas@split.io').reply(function() {
-        return new Promise((res) => { setTimeout(() => { res([200, mySegmentsNicolas, {}]); }, 5100); });
-      })
-      .onGet(testUrls.sdk + '/splitChanges?since=1457552620999').reply(200, splitChangesMock2);
+    fetchMock.get(testUrls.sdk + '/splitChanges?since=-1', function () {
+      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: splitChangesMock1, headers: {} }); }, 4900); });
+    });
+    fetchMock.get(testUrls.sdk + '/mySegments/nicolas@split.io', function () {
+      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: mySegmentsNicolas, headers: {} }); }, 5100); });
+    });
+    fetchMock.get(testUrls.sdk + '/splitChanges?since=1457552620999', { status: 200, body: splitChangesMock2 });
 
     const splitio = SplitFactory({ ...baseConfig, urls: testUrls });
     const client = splitio.client();
-  
+
     client.once(client.Event.SDK_READY, () => {
       t.fail('### IS READY - NOT TIMED OUT when it should.');
       t.end();
@@ -84,24 +82,23 @@ export default function(mock, assert) {
       client.destroy().then(() => { t.end(); });
     });
   });
-  
+
   assert.test(t => { // Readiness test, first splitChanges above the limit (req timeout) second one below so final state should be ready.
     const testUrls = {
       sdk: 'https://sdk.baseurl/readinessSuite3',
       events: 'https://events.baseurl/readinessSuite3'
     };
 
-    mock
-      .onGet(testUrls.sdk + '/splitChanges?since=-1').replyOnce(function() {
-        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, 5100); });
-      })
-      .onGet(testUrls.sdk + '/splitChanges?since=-1').replyOnce(function() {
-        return new Promise((res) => { setTimeout(() => { res([200, splitChangesMock1, {}]); }, 4900); }); // Faster, it should get ready on the retry.
-      })
-      .onGet(testUrls.sdk + '/mySegments/nicolas@split.io').reply(function() {
-        return new Promise((res) => { setTimeout(() => { res([200, mySegmentsNicolas, {}]); }, 4900); });
-      })
-      .onGet(testUrls.sdk + '/splitChanges?since=1457552620999').reply(200, splitChangesMock2);
+    fetchMock.getOnce(testUrls.sdk + '/splitChanges?since=-1', function () {
+      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: splitChangesMock1, headers: {} }); }, 5100); });
+    });
+    fetchMock.getOnce(testUrls.sdk + '/splitChanges?since=-1', function () {
+      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: splitChangesMock1, headers: {} }); }, 4900); }); // Faster, it should get ready on the retry.
+    });
+    fetchMock.get(testUrls.sdk + '/mySegments/nicolas@split.io', function () {
+      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: mySegmentsNicolas, headers: {} }); }, 4900); });
+    });
+    fetchMock.get(testUrls.sdk + '/splitChanges?since=1457552620999', { status: 200, body: splitChangesMock2 });
 
     const splitio = SplitFactory({ ...baseConfig, urls: testUrls });
     const client = splitio.client();
@@ -122,24 +119,23 @@ export default function(mock, assert) {
   function mockForSegmentsPauseTest(testUrls, startWithSegments = false) {
     let mySegmentsHits = 0;
 
-    mock
-      .onGet(new RegExp(`${testUrls.sdk}/mySegments/nicolas\\d?@split.io`)).reply(function() { // Mock any mySegments call, so we can test with multiple clients.
-        mySegmentsHits++;
-        return new Promise((res) => { setTimeout(() => { res([200, { mySegments: [] }, {}]); }, mySegmentsEndpointDelay); });
-      }) 
-      // Now mock the no more updates state 
-      .onGet(testUrls.sdk + '/splitChanges?since=1457552669999').reply(200, { splits: [], since: 1457552669999, till: 1457552669999 });
+    fetchMock.get(new RegExp(`${testUrls.sdk}/mySegments/nicolas\\d?@split.io`), function () { // Mock any mySegments call, so we can test with multiple clients.
+      mySegmentsHits++;
+      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: { mySegments: [] } }); }, mySegmentsEndpointDelay); });
+    });
+    // Now mock the no more updates state
+    fetchMock.get(testUrls.sdk + '/splitChanges?since=1457552669999', { status: 200, body: { splits: [], since: 1457552669999, till: 1457552669999 } });
 
 
     if (startWithSegments) {
       // Adjust since and till so the order is inverted.
-      mock.onGet(testUrls.sdk + '/splitChanges?since=-1').reply(200, splitChangesStartWithSegmentsMock)
-        .onGet(testUrls.sdk + '/splitChanges?since=1457552620999').reply(200, { ...splitChangesUpdateWithoutSegmentsMock, since: 1457552620999, till: 1457552649999 })
-        .onGet(testUrls.sdk + '/splitChanges?since=1457552649999').reply(200, { ...splitChangesUpdateWithSegmentsMock, since: 1457552649999, till: 1457552669999 });
+      fetchMock.get(testUrls.sdk + '/splitChanges?since=-1', { status: 200, body: splitChangesStartWithSegmentsMock });
+      fetchMock.get(testUrls.sdk + '/splitChanges?since=1457552620999', { status: 200, body: { ...splitChangesUpdateWithoutSegmentsMock, since: 1457552620999, till: 1457552649999 } });
+      fetchMock.get(testUrls.sdk + '/splitChanges?since=1457552649999', { status: 200, body: { ...splitChangesUpdateWithSegmentsMock, since: 1457552649999, till: 1457552669999 } });
     } else {
-      mock.onGet(testUrls.sdk + '/splitChanges?since=-1').reply(200, splitChangesStartWithoutSegmentsMock)
-        .onGet(testUrls.sdk + '/splitChanges?since=1457552620999').reply(200, splitChangesUpdateWithSegmentsMock)
-        .onGet(testUrls.sdk + '/splitChanges?since=1457552649999').reply(200, splitChangesUpdateWithoutSegmentsMock);
+      fetchMock.get(testUrls.sdk + '/splitChanges?since=-1', { status: 200, body: splitChangesStartWithoutSegmentsMock });
+      fetchMock.get(testUrls.sdk + '/splitChanges?since=1457552620999', { status: 200, body: splitChangesUpdateWithSegmentsMock });
+      fetchMock.get(testUrls.sdk + '/splitChanges?since=1457552649999', { status: 200, body: splitChangesUpdateWithoutSegmentsMock });
     }
 
     return () => mySegmentsHits;
@@ -153,8 +149,8 @@ export default function(mock, assert) {
     const getMySegmentsHits = mockForSegmentsPauseTest(testUrls, false);
 
     const start = Date.now();
-    const splitio = SplitFactory({ 
-      ...baseConfig, 
+    const splitio = SplitFactory({
+      ...baseConfig,
       startup: {
         retriesOnFailureBeforeReady: 0
       },
@@ -177,7 +173,7 @@ export default function(mock, assert) {
       setTimeout(() => {
         t.equal(getMySegmentsHits(), 1 * CLIENTS_COUNT, 'mySegments should had been hit once per client on the first attempt, but it stopped syncing afterwards.');
       }, 2500);
-      // Now we will wait until it picks up Splits, using the SDK_UPDATE event. Features are refreshed every 3s, but segments every 1s. 
+      // Now we will wait until it picks up Splits, using the SDK_UPDATE event. Features are refreshed every 3s, but segments every 1s.
       client.once(client.Event.SDK_UPDATE, () => {
         // This update came with segments, it should have tried to fetch mySegments for all used keys.
         setTimeout(() => {
@@ -186,23 +182,23 @@ export default function(mock, assert) {
 
         setTimeout(() => { // Nasty ugly crap to avoid listening to the update coming from mySegment calls.
           client.once(client.Event.SDK_UPDATE, () => {
-            setTimeout(() => {            
+            setTimeout(() => {
               // This update left us in an state with no segments (removed the matcher we fetched on the previous one), it should stop the producer and not trigger more requests.
               t.equal(getMySegmentsHits(), 4 * CLIENTS_COUNT, 'It should have tried to synchronize mySegments periodically.');
-  
+
               setTimeout(() => {
                 t.equal(getMySegmentsHits(), 4 * CLIENTS_COUNT, 'It should have not tried to synchronize segments again after the last update that left us in a no segment state.');
-  
+
                 Promise.all([
                   client2.destroy(),
                   client3.destroy(),
                   client.destroy()
                 ]).then(() => { t.end(); });
-                
+
               }, 10000);
             }, 0);
           });
-        }, 3000); 
+        }, 3000);
       });
     });
     client.once(client.Event.SDK_READY_TIMED_OUT, () => {
@@ -219,8 +215,8 @@ export default function(mock, assert) {
     const getMySegmentsHits = mockForSegmentsPauseTest(testUrls, false);
 
     const start = Date.now();
-    const splitio = SplitFactory({ 
-      ...baseConfig, 
+    const splitio = SplitFactory({
+      ...baseConfig,
       startup: {
         retriesOnFailureBeforeReady: 0
       },
@@ -247,7 +243,7 @@ export default function(mock, assert) {
       setTimeout(() => {
         t.equal(getMySegmentsHits(), 1 * CLIENTS_COUNT, 'mySegments should had been hit once per client on the first attempt, but it stopped syncing afterwards.');
       }, 2500);
-      // Now we will wait until it picks up Splits, using the SDK_UPDATE event. Features are refreshed every 3s, but segments every 1s. 
+      // Now we will wait until it picks up Splits, using the SDK_UPDATE event. Features are refreshed every 3s, but segments every 1s.
       client.once(client.Event.SDK_UPDATE, () => {
         // This update came with segments, it should have tried to fetch mySegments for all used keys.
         setTimeout(() => {
@@ -259,20 +255,20 @@ export default function(mock, assert) {
             setTimeout(() => {
               // This update left us in an state with no segments (removed the matcher we fetched on the previous one), it should stop the producer and not trigger more requests.
               t.equal(getMySegmentsHits(), 4 * CLIENTS_COUNT, 'It should have tried to synchronize mySegments periodically.');
-  
+
               setTimeout(() => {
                 t.equal(getMySegmentsHits(), 4 * CLIENTS_COUNT, 'It should have not tried to synchronize segments again after the last update that left us in a no segment state.');
-  
+
                 Promise.all([
                   client2.destroy(),
                   client3.destroy(),
                   client.destroy()
                 ]).then(() => { t.end(); });
-                
+
               }, 10000);
             }, 0);
           });
-        }, 3000); 
+        }, 3000);
       });
     });
     client.once(client.Event.SDK_READY_TIMED_OUT, () => {
@@ -290,7 +286,7 @@ export default function(mock, assert) {
 
     const start = Date.now();
     const splitio = SplitFactory({
-      ...baseConfig, 
+      ...baseConfig,
       startup: {
         retriesOnFailureBeforeReady: 0
       },
@@ -313,7 +309,7 @@ export default function(mock, assert) {
       setTimeout(() => {
         t.equal(getMySegmentsHits(), 3 * CLIENTS_COUNT, 'mySegments should had been hit once per client on the first attempt and keep syncing afterwards.');
       }, 2500);
-      // Now we will wait until it picks up splits, using the SDK_UPDATE event. Features are refreshed every 3s, but segments every 1s (plus sync time). 
+      // Now we will wait until it picks up splits, using the SDK_UPDATE event. Features are refreshed every 3s, but segments every 1s (plus sync time).
       client.once(client.Event.SDK_UPDATE, () => {
         // This update came without segments, it should not trigger an extra fetch.
         setTimeout(() => {
@@ -322,23 +318,23 @@ export default function(mock, assert) {
 
         setTimeout(() => {
           client.once(client.Event.SDK_UPDATE, () => {
-            setTimeout(() => {            
+            setTimeout(() => {
               // This update left us in an state with segments again, it should trigger a request ASAP and restart the producer.
               t.equal(getMySegmentsHits(), 4 * CLIENTS_COUNT, 'It should have tried to synchronize mySegments periodically.');
-  
+
               setTimeout(() => {
                 t.equal(getMySegmentsHits(), 6 * CLIENTS_COUNT, 'It should keep the producer synchronizing periodically..');
-  
+
                 Promise.all([
                   client2.destroy(),
                   client3.destroy(),
                   client.destroy()
                 ]).then(() => { t.end(); });
-                
+
               }, 3000);
             }, 0);
           });
-        }, 3000); 
+        }, 3000);
       });
     });
     client.once(client.Event.SDK_READY_TIMED_OUT, () => {
@@ -356,7 +352,7 @@ export default function(mock, assert) {
 
     const start = Date.now();
     const splitio = SplitFactory({
-      ...baseConfig, 
+      ...baseConfig,
       startup: {
         retriesOnFailureBeforeReady: 0
       },
@@ -383,7 +379,7 @@ export default function(mock, assert) {
       setTimeout(() => {
         t.equal(getMySegmentsHits(), 3 * CLIENTS_COUNT, 'mySegments should had been hit once per client on the first attempt and keep syncing afterwards.');
       }, 2500);
-      // Now we will wait until it picks up splits, using the SDK_UPDATE event. Features are refreshed every 3s, but segments every 1s (plus sync time). 
+      // Now we will wait until it picks up splits, using the SDK_UPDATE event. Features are refreshed every 3s, but segments every 1s (plus sync time).
       client.once(client.Event.SDK_UPDATE, () => {
         // This update came without segments, it should not trigger an extra fetch.
         setTimeout(() => {
@@ -392,23 +388,23 @@ export default function(mock, assert) {
 
         setTimeout(() => {
           client.once(client.Event.SDK_UPDATE, () => {
-            setTimeout(() => {            
+            setTimeout(() => {
               // This update left us in an state with segments again, it should trigger a request ASAP and restart the producer.
               t.equal(getMySegmentsHits(), 4 * CLIENTS_COUNT, 'It should have tried to synchronize mySegments periodically.');
-  
+
               setTimeout(() => {
                 t.equal(getMySegmentsHits(), 6 * CLIENTS_COUNT, 'It should keep the producer synchronizing periodically..');
-  
+
                 Promise.all([
                   client2.destroy(),
                   client3.destroy(),
                   client.destroy()
                 ]).then(() => { t.end(); });
-                
+
               }, 3000);
             }, 0);
           });
-        }, 3000); 
+        }, 3000);
       });
     });
     client.once(client.Event.SDK_READY_TIMED_OUT, () => {
@@ -426,7 +422,7 @@ export default function(mock, assert) {
 
     const start = Date.now();
     const splitio = SplitFactory({
-      ...baseConfig, 
+      ...baseConfig,
       startup: {
         retriesOnFailureBeforeReady: 0
       },
@@ -474,7 +470,7 @@ export default function(mock, assert) {
 
     const start = Date.now();
     const splitio = SplitFactory({
-      ...baseConfig, 
+      ...baseConfig,
       startup: {
         retriesOnFailureBeforeReady: 0
       },
@@ -515,18 +511,18 @@ export default function(mock, assert) {
 
   assert.test(t => { // Testing when we start from cache without segments being previously used, and first update HAS segments.
     const testUrls = {
-      sdk: 'https://sdk.baseurl/readinessLSMySegmentsSuite4',
-      events: 'https://events.baseurl/readinessLSMySegmentsSuite4'
+      sdk: 'https://sdk.baseurl/readinessLSMySegmentsSuite5',
+      events: 'https://events.baseurl/readinessLSMySegmentsSuite5'
     };
     const getMySegmentsHits = mockForSegmentsPauseTest(testUrls, false);
 
     // I'm having the first update of Splits come with segments. In this scenario it'll wait for mySegments to download before being ready.
-    mock.onGet(testUrls.sdk + '/splitChanges?since=1457552669999').reply(200, { ...splitChangesUpdateWithSegmentsMock, since: 1457552669999, till: 1457552679999 })
-      .onGet(testUrls.sdk + '/splitChanges?since=1457552679999').reply(200, { splits: [], since: 1457552679999, till: 1457552679999 });
+    fetchMock.get({ url: testUrls.sdk + '/splitChanges?since=1457552669999', overwriteRoutes: true }, { status: 200, body: { ...splitChangesUpdateWithSegmentsMock, since: 1457552669999, till: 1457552679999 } });
+    fetchMock.get(testUrls.sdk + '/splitChanges?since=1457552679999', { status: 200, body: { splits: [], since: 1457552679999, till: 1457552679999 } });
 
     const start = Date.now();
     const splitio = SplitFactory({
-      ...baseConfig, 
+      ...baseConfig,
       startup: {
         retriesOnFailureBeforeReady: 0
       },
@@ -548,8 +544,9 @@ export default function(mock, assert) {
     const client3 = splitio.client('nicolas3@split.io');
 
     client.once(client.Event.SDK_READY, () => {
-      t.ok(Date.now() - start >= mySegmentsEndpointDelay, 'It should not be ready without waiting for mySegments, when we start from cache it might be stale.');
-
+      const delay = Date.now() - start;
+      t.ok(delay >= mySegmentsEndpointDelay, 'It should not be ready without waiting for mySegments, when we start from cache it might be stale.');
+      console.log(delay);
       setTimeout(() => {
         t.equal(getMySegmentsHits(), 3 * CLIENTS_COUNT, 'mySegments should had been hit once per client on the first attempt but stopped syncing afterwards');
         Promise.all([
@@ -567,14 +564,14 @@ export default function(mock, assert) {
 
   assert.test(t => { // Testing when we start from cache with segments being previously used, and update is empty.
     const testUrls = {
-      sdk: 'https://sdk.baseurl/readinessLSMySegmentsSuite5',
-      events: 'https://events.baseurl/readinessLSMySegmentsSuite5'
+      sdk: 'https://sdk.baseurl/readinessLSMySegmentsSuite6',
+      events: 'https://events.baseurl/readinessLSMySegmentsSuite6'
     };
     const getMySegmentsHits = mockForSegmentsPauseTest(testUrls, false);
 
     const start = Date.now();
     const splitio = SplitFactory({
-      ...baseConfig, 
+      ...baseConfig,
       startup: {
         retriesOnFailureBeforeReady: 0
       },
@@ -615,17 +612,17 @@ export default function(mock, assert) {
 
   assert.test(t => { // Testing when we start from cache with segments being previously used and first update removes segments
     const testUrls = {
-      sdk: 'https://sdk.baseurl/readinessLSMySegmentsSuite5',
-      events: 'https://events.baseurl/readinessLSMySegmentsSuite5'
+      sdk: 'https://sdk.baseurl/readinessLSMySegmentsSuite7',
+      events: 'https://events.baseurl/readinessLSMySegmentsSuite7'
     };
     const getMySegmentsHits = mockForSegmentsPauseTest(testUrls, false);
     // I'm having the first update of Splits come without segments. In this scenario it'll NOT wait for mySegments to download before being ready.
-    mock.onGet(testUrls.sdk + '/splitChanges?since=1457552669999').reply(200, { ...splitChangesUpdateWithoutSegmentsMock, since: 1457552669999, till: 1457552679999 })
-      .onGet(testUrls.sdk + '/splitChanges?since=1457552679999').reply(200, { splits: [], since: 1457552679999, till: 1457552679999 });
+    fetchMock.get({ url: testUrls.sdk + '/splitChanges?since=1457552669999', overwriteRoutes: true }, { status: 200, body: { ...splitChangesUpdateWithoutSegmentsMock, since: 1457552669999, till: 1457552679999 } });
+    fetchMock.get(testUrls.sdk + '/splitChanges?since=1457552679999', { status: 200, body: { splits: [], since: 1457552679999, till: 1457552679999 } });
 
     const start = Date.now();
     const splitio = SplitFactory({
-      ...baseConfig, 
+      ...baseConfig,
       startup: {
         retriesOnFailureBeforeReady: 0
       },

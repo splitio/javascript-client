@@ -38,75 +38,80 @@ const settings = SettingsFactory(config);
  *  0.0 secs: syncAll if falling back to polling (/splitChanges, /segmentChanges/*)
  *  0.1 secs: polling (/splitChanges, /segmentChanges/*)
  */
-function testInitializationFail(mock, assert, fallbackToPolling) {
-  const start = Date.now();
+function testInitializationFail(fetchMock, assert, fallbackToPolling) {
+  let start, splitio, client, ready = false;
 
-  mock.onGet(new RegExp(`${settings.url('/segmentChanges/')}.*`)).reply(200, { since: 10, till: 10, name: 'segmentName', added: [], removed: [] });
-  mock.onGet(settings.url('/splitChanges?since=-1')).replyOnce(function () {
+  fetchMock.get(new RegExp(`${settings.url('/segmentChanges/')}.*`),
+    { status: 200, body: { since: 10, till: 10, name: 'segmentName', added: [], removed: [] } });
+  fetchMock.getOnce(settings.url('/splitChanges?since=-1'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, 0), 'initial sync');
-    return [200, splitChangesMock1];
-  });
-
-  const splitio = SplitFactory(config);
-  const client = splitio.client();
-  let ready = false;
-  client.on(client.Event.SDK_READY, () => {
-    ready = true;
+    return { status: 200, body: splitChangesMock1 };
   });
 
   if (fallbackToPolling) {
-    mock.onGet(settings.url('/splitChanges?since=1457552620999')).replyOnce(function () {
+    fetchMock.getOnce(settings.url('/splitChanges?since=1457552620999'), function () {
       assert.true(ready, 'client ready');
       const lapse = Date.now() - start;
       assert.true(nearlyEqual(lapse, 0), 'polling (first fetch)');
-      return [200, splitChangesMock2];
+      return { status: 200, body: splitChangesMock2 };
     });
   }
 
-  mock.onGet(settings.url('/splitChanges?since=1457552620999')).replyOnce(function () {
+  fetchMock.getOnce(settings.url('/splitChanges?since=1457552620999'), function () {
     assert.true(ready, 'client ready');
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, settings.scheduler.featuresRefreshRate), 'polling (second fetch)');
     client.destroy().then(() => {
       assert.end();
     });
-    return [200, splitChangesMock2];
+    return { status: 200, body: splitChangesMock2 };
   });
+
+  start = Date.now();
+  splitio = SplitFactory(config);
+  client = splitio.client();
+  client.on(client.Event.SDK_READY, () => {
+    ready = true;
+  });
+
 }
 
-export function testAuthWithPushDisabled(mock, assert) {
+export function testAuthWithPushDisabled(fetchMock, assert) {
+  assert.plan(6);
 
-  mock.onGet(settings.url('/auth')).replyOnce(function (request) {
-    if (!request.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
+  fetchMock.getOnce(settings.url('/auth'), function (url, opts) {
+    if (!opts.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
     assert.pass('auth');
-    return [200, authPushDisabled];
+    return { status: 200, body: authPushDisabled };
   });
 
-  testInitializationFail(mock, assert, true);
+  testInitializationFail(fetchMock, assert, true);
 
 }
 
-export function testAuthWith401(mock, assert) {
+export function testAuthWith401(fetchMock, assert) {
+  assert.plan(6);
 
-  mock.onGet(settings.url('/auth')).replyOnce(function (request) {
-    if (!request.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
+  fetchMock.getOnce(settings.url('/auth'), function (url, opts) {
+    if (!opts.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
     assert.pass('auth');
-    return [401, authInvalidCredentials];
+    return { status: 401, body: authInvalidCredentials };
   });
 
-  testInitializationFail(mock, assert, true);
+  testInitializationFail(fetchMock, assert, true);
 
 }
 
-export function testNoEventSource(mock, assert) {
+export function testNoEventSource(fetchMock, assert) {
+  assert.plan(3);
 
   __setEventSource(undefined);
-  mock.onGet(settings.url('/auth')).replyOnce(function () {
+  fetchMock.getOnce(settings.url('/auth'), function () {
     assert.fail('not authenticate if EventSource is not available');
   });
 
-  testInitializationFail(mock, assert, false);
+  testInitializationFail(fetchMock, assert, false);
 
   __restore();
 

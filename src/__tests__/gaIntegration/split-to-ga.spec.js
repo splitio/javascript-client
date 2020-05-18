@@ -1,8 +1,6 @@
 import sinon from 'sinon';
 import { SplitFactory } from '../..';
 import SettingsFactory from '../../utils/settings';
-import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
-import mySegmentsFacundo from '../mocks/mysegments.facundo@split.io.json';
 import { gaSpy, gaTag, removeGaTag, addGaTag } from './gaTestUtils';
 import { SPLIT_IMPRESSION, SPLIT_EVENT } from '../../utils/constants';
 
@@ -28,10 +26,7 @@ const config = {
 
 const settings = SettingsFactory(config);
 
-export default function (mock, assert) {
-
-  mock.onGet(settings.url('/splitChanges?since=-1')).reply(200, splitChangesMock1);
-  mock.onGet(settings.url('/mySegments/facundo@split.io')).reply(200, mySegmentsFacundo);
+export default function (fetchMock, assert) {
 
   // test default behavior
   assert.test(t => {
@@ -48,11 +43,11 @@ export default function (mock, assert) {
       });
     })();
 
-    mock.onPost(settings.url('/testImpressions/bulk')).replyOnce(req => {
+    fetchMock.postOnce(settings.url('/testImpressions/bulk'), (url, opts) => {
       // we can assert payload and ga hits, once ga is ready and after `SplitToGa.queue`, that is timeout wrapped, make to the queue stack.
       setTimeout(() => {
         window.ga(() => {
-          const resp = JSON.parse(req.data);
+          const resp = JSON.parse(opts.body);
           const sentImpressions = countImpressions(resp);
           const sentImpressionHits = window.gaSpy.getHits().filter(hit => hit.eventCategory === 'split-impression');
 
@@ -62,13 +57,14 @@ export default function (mock, assert) {
           finish.next();
         });
       });
-      return [200];
+      return 200;
     });
 
-    mock.onPost(settings.url('/events/bulk')).replyOnce(req => {
+    fetchMock.postOnce(settings.url('/events/bulk'), (url, opts) => {
+      // @TODO review why it is not working with a delay of 0
       setTimeout(() => {
         window.ga(() => {
-          const resp = JSON.parse(req.data);
+          const resp = JSON.parse(opts.body);
           const sentEvents = resp.length;
           const sentEventHits = window.gaSpy.getHits().filter(hit => hit.eventCategory === 'split-event');
 
@@ -77,8 +73,8 @@ export default function (mock, assert) {
 
           finish.next();
         });
-      });
-      return [200];
+      }, 10);
+      return 200;
     });
 
     gaTag();
@@ -105,10 +101,10 @@ export default function (mock, assert) {
     let client;
     const numOfEvaluations = 4;
 
-    mock.onPost(settings.url('/testImpressions/bulk')).replyOnce(req => {
+    fetchMock.postOnce(settings.url('/testImpressions/bulk'), (url, opts) => {
       setTimeout(() => {
         window.other_location_for_ga(() => {
-          const resp = JSON.parse(req.data);
+          const resp = JSON.parse(opts.body);
           const sentImpressions = countImpressions(resp);
           const sentHitsTracker1 = window.gaSpy.getHits('myTracker1');
           const sentHitsTracker2 = window.gaSpy.getHits('myTracker2');
@@ -123,7 +119,7 @@ export default function (mock, assert) {
           });
         });
       });
-      return [200];
+      return 200;
     });
 
     gaTag('other_location_for_ga');
@@ -172,10 +168,10 @@ export default function (mock, assert) {
       });
     })();
 
-    mock.onPost(settings.url('/testImpressions/bulk')).replyOnce(req => {
+    fetchMock.postOnce(settings.url('/testImpressions/bulk'), (url, opts) => {
       setTimeout(() => {
         window.ga(() => {
-          const resp = JSON.parse(req.data);
+          const resp = JSON.parse(opts.body);
           const sentImpressions = countImpressions(resp);
           const sentImpressionHitsTracker3 = window.gaSpy.getHits('myTracker3').filter(hit => hit.eventCategory === 'split-impression');
           const sentImpressionHitsTracker4 = window.gaSpy.getHits('myTracker4').filter(hit => hit.eventCategory === 'split-impression');
@@ -186,13 +182,14 @@ export default function (mock, assert) {
           finish.next();
         });
       });
-      return [200];
+      return 200;
     });
 
-    mock.onPost(settings.url('/events/bulk')).replyOnce(req => {
+    fetchMock.postOnce(settings.url('/events/bulk'), (url, opts) => {
+      // @TODO review why it is not working with a delay of 0
       setTimeout(() => {
         window.ga(() => {
-          const resp = JSON.parse(req.data);
+          const resp = JSON.parse(opts.body);
           const sentEvents = resp.length;
           const sentEventHitsTracker3 = window.gaSpy.getHits('myTracker3').filter(hit => hit.eventCategory === 'mycategory');
           const sentEventHitsTracker4 = window.gaSpy.getHits('myTracker4').filter(hit => hit.eventCategory === 'mycategory');
@@ -202,8 +199,8 @@ export default function (mock, assert) {
 
           finish.next();
         });
-      });
-      return [200];
+      }, 10);
+      return 200;
     });
 
     gaTag();
@@ -259,10 +256,10 @@ export default function (mock, assert) {
     let client;
     const numOfEvaluations = 1;
 
-    mock.onPost(settings.url('/testImpressions/bulk')).replyOnce(req => {
+    fetchMock.postOnce(settings.url('/testImpressions/bulk'), (url, opts) => {
       setTimeout(() => {
         window.ga(() => {
-          const resp = JSON.parse(req.data);
+          const resp = JSON.parse(opts.body);
           const sentImpressions = countImpressions(resp);
           const sentHitsDefault = window.gaSpy.getHits();
           const sentHitsTracker1 = window.gaSpy.getHits('myTracker1');
@@ -282,7 +279,7 @@ export default function (mock, assert) {
           });
         });
       });
-      return [200];
+      return 200;
     });
 
     gaTag();
@@ -324,10 +321,10 @@ export default function (mock, assert) {
     let client;
     const numOfEvaluations = 1;
 
-    mock.onPost(settings.url('/testImpressions/bulk')).replyOnce(req => {
+    fetchMock.postOnce(settings.url('/testImpressions/bulk'), (url, opts) => {
       setTimeout(() => {
         window.ga(() => {
-          const resp = JSON.parse(req.data);
+          const resp = JSON.parse(opts.body);
           const sentImpressions = countImpressions(resp);
           const sentHitsDefault = window.gaSpy.getHits();
 
@@ -342,7 +339,7 @@ export default function (mock, assert) {
           });
         });
       });
-      return [200];
+      return 200;
     });
 
     removeGaTag();
@@ -380,11 +377,11 @@ export default function (mock, assert) {
       });
     })();
 
-    mock.onPost(settings.url('/testImpressions/bulk')).replyOnce(req => {
+    fetchMock.postOnce(settings.url('/testImpressions/bulk'), (url, opts) => {
       // we can assert payload and ga hits, once ga is ready and after `SplitToGa.queue`, that is timeout wrapped, make to the queue stack.
       setTimeout(() => {
         window.ga(() => {
-          const resp = JSON.parse(req.data);
+          const resp = JSON.parse(opts.body);
           const sentImpressions = countImpressions(resp);
           const sentImpressionHits = window.gaSpy.getHits().filter(hit => hit.eventCategory === 'split-impression');
 
@@ -394,13 +391,13 @@ export default function (mock, assert) {
           finish.next();
         });
       });
-      return [200];
+      return 200;
     });
 
-    mock.onPost(settings.url('/events/bulk')).replyOnce(req => {
+    fetchMock.postOnce(settings.url('/events/bulk'), (url, opts) => {
       setTimeout(() => {
         window.ga(() => {
-          const resp = JSON.parse(req.data);
+          const resp = JSON.parse(opts.body);
           const sentEvents = resp.length;
           const sentEventHits = window.gaSpy.getHits().filter(hit => hit.eventCategory === 'split-event');
 
@@ -410,7 +407,7 @@ export default function (mock, assert) {
           finish.next();
         });
       });
-      return [200];
+      return 200;
     });
 
     gaTag();

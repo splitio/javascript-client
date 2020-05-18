@@ -2,7 +2,7 @@ import { SplitFactory } from '../../';
 
 const SDK_INSTANCES_TO_TEST = 4;
 
-export default function(config, assert) {
+export default function (config, fetchMock, assert) {
   let i = 0, tested = 0;
   const wBucketing = !!config.core.key.bucketingKey;
 
@@ -270,7 +270,7 @@ export default function(config, assert) {
 
     // Evaluate for the multiple version
     assert.deepEqual(client.getTreatmentsWithConfig(null), {}, 'If I try go get treatments with inproper input, I get empty object as always.');
-    assert.deepEqual(client.getTreatmentsWithConfig(['errored', null, 'errored', 'something'], () => {}), { errored: CONTROL_WITH_CONFIG, something: CONTROL_WITH_CONFIG }, 'If I try go get treatments with inproper input but the split names are valid, I get control as treatment and config null for those names.');
+    assert.deepEqual(client.getTreatmentsWithConfig(['errored', null, 'errored', 'something'], () => { }), { errored: CONTROL_WITH_CONFIG, something: CONTROL_WITH_CONFIG }, 'If I try go get treatments with inproper input but the split names are valid, I get control as treatment and config null for those names.');
     assert.deepEqual(client.getTreatmentsWithConfig(['not_existent', 'other']), { not_existent: CONTROL_WITH_CONFIG, other: CONTROL_WITH_CONFIG }, 'If I get a treatment for non existent Splits, I get control as treatment and config null for those split names.');
     assert.deepEqual(client.getTreatmentsWithConfig(['split_with_config', 'qc_team']), {
       qc_team: { treatment: 'no', config: null },
@@ -278,8 +278,10 @@ export default function(config, assert) {
     }, 'If I get treatments right, I get a map of objects with those treatments and the configs when existent, null config otherwise.');
   };
 
-  for(i; i < SDK_INSTANCES_TO_TEST; i++) {
+  for (i; i < SDK_INSTANCES_TO_TEST; i++) {
     let splitio = SplitFactory(config);
+
+    fetchMock.getOnce('https://sdk.split.io/api/mySegments/aaaaaaklmnbv', { status: 200, body: { mySegments: [] } });
 
     // on TA tests, this is going to return one against the mocked seed.
     let clientTABucket1 = splitio.client('aaaaaaklmnbv');

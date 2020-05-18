@@ -72,18 +72,15 @@ const MILLIS_THIRD_RETRY_FOR_SPLIT_KILL_EVENT = 1600;
  *  1.6 secs: SPLIT_KILL event -> /splitChanges retry: 408 request timeout
  *    (we destroy the client here, to assert that all scheduled tasks are clean)
  */
-export function testSynchronizationRetries(mock, assert) {
+export function testSynchronizationRetries(fetchMock, assert) {
   // we update the backoff default base, to reduce the time of the test
   const ORIGINAL_DEFAULT_BASE_MILLIS = Backoff.DEFAULT_BASE_MILLIS;
   Backoff.DEFAULT_BASE_MILLIS = 100;
 
   assert.plan(17);
-  mock.reset();
+  fetchMock.reset();
 
-  let start;
-
-  const splitio = SplitFactory(config);
-  const client = splitio.client();
+  let start, splitio, client;
 
   // mock SSE open and message events
   setMockListener(function (eventSourceInstance) {
@@ -136,57 +133,57 @@ export function testSynchronizationRetries(mock, assert) {
   });
 
   // initial auth
-  mock.onGet(settings.url(`/auth?users=${encodeURIComponent(userKey)}`)).replyOnce(function (request) {
-    if (!request.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
+  fetchMock.getOnce(settings.url(`/auth?users=${encodeURIComponent(userKey)}`), function (url, opts) {
+    if (!opts.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
     assert.pass('auth success');
-    return [200, authPushEnabledNicolas];
+    return { status: 200, body: authPushEnabledNicolas };
   });
 
   // initial split and mySegments sync
-  mock.onGet(settings.url('/splitChanges?since=-1')).replyOnce(200, splitChangesMock1);
-  mock.onGet(settings.url('/mySegments/nicolas@split.io')).replyOnce(200, mySegmentsNicolasMock1);
+  fetchMock.getOnce(settings.url('/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
+  fetchMock.getOnce(settings.url('/mySegments/nicolas@split.io'), { status: 200, body: mySegmentsNicolasMock1 });
 
   // split and segment sync after SSE opened
-  mock.onGet(settings.url('/splitChanges?since=1457552620999')).replyOnce(function () {
+  fetchMock.getOnce(settings.url('/splitChanges?since=1457552620999'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_SSE_OPEN), 'sync after SSE connection is opened');
-    return [200, splitChangesMock2];
+    return { status: 200, body: splitChangesMock2 };
   });
-  mock.onGet(settings.url('/mySegments/nicolas@split.io')).replyOnce(200, mySegmentsNicolasMock1);
+  fetchMock.getOnce(settings.url('/mySegments/nicolas@split.io'), { status: 200, body: mySegmentsNicolasMock1 });
 
   // fetch due to SPLIT_UPDATE event
-  mock.onGet(settings.url('/splitChanges?since=1457552620999')).replyOnce(200, splitChangesMock2);
+  fetchMock.getOnce(settings.url('/splitChanges?since=1457552620999'), { status: 200, body: splitChangesMock2 });
   // fetch retry for SPLIT_UPDATE event, due to previous unexpected response (response till minor than SPLIT_UPDATE changeNumber)
-  mock.onGet(settings.url('/splitChanges?since=1457552620999')).replyOnce(function () {
+  fetchMock.getOnce(settings.url('/splitChanges?since=1457552620999'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_RETRY_FOR_FIRST_SPLIT_UPDATE_EVENT), 'fetch retry due to SPLIT_UPDATE event');
-    return [200, splitChangesMock3];
+    return { status: 200, body: splitChangesMock3 };
   });
 
   // fetch due to first MY_SEGMENTS_UPDATE event
-  mock.onGet(settings.url('/mySegments/nicolas@split.io')).networkErrorOnce();
+  fetchMock.getOnce(settings.url('/mySegments/nicolas@split.io'), { throws: new TypeError('Network error') });
   // fetch retry for MY_SEGMENTS_UPDATE event, due to previous fail
-  mock.onGet(settings.url('/mySegments/nicolas@split.io')).networkErrorOnce();
+  fetchMock.getOnce(settings.url('/mySegments/nicolas@split.io'), { throws: new TypeError('Network error') });
   // second fetch retry for MY_SEGMENTS_UPDATE event, due to previous fail
-  mock.onGet(settings.url('/mySegments/nicolas@split.io')).replyOnce(function () {
+  fetchMock.getOnce(settings.url('/mySegments/nicolas@split.io'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_SECOND_RETRY_FOR_MYSEGMENT_UPDATE_EVENT), 'sync second retry for MY_SEGMENTS_UPDATE event');
-    return [200, mySegmentsNicolasMock2];
+    return { status: 200, body: mySegmentsNicolasMock2 };
   });
 
   // fetch due to SPLIT_KILL event
-  mock.onGet(settings.url('/splitChanges?since=1457552649999')).replyOnce(function () {
+  fetchMock.getOnce(settings.url('/splitChanges?since=1457552649999'), function () {
     assert.equal(client.getTreatment('whitelist'), 'not_allowed', 'evaluation with split killed immediately, before fetch is done');
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_SPLIT_KILL_EVENT), 'sync due to SPLIT_KILL event');
-    return [200, { since: 1457552649999, till: 1457552649999, splits: [] }]; // returning old state
+    return { status: 200, body: { since: 1457552649999, till: 1457552649999, splits: [] } }; // returning old state
   });
   // first fetch retry for SPLIT_KILL event, due to previous unexpected response (response till minor than SPLIT_KILL changeNumber)
-  mock.onGet(settings.url('/splitChanges?since=1457552649999')).networkErrorOnce();
+  fetchMock.getOnce(settings.url('/splitChanges?since=1457552649999'), { throws: new TypeError('Network error') });
   // second fetch retry for SPLIT_KILL event
-  mock.onGet(settings.url('/splitChanges?since=1457552649999')).networkErrorOnce();
+  fetchMock.getOnce(settings.url('/splitChanges?since=1457552649999'), { throws: new TypeError('Network error') });
   // third fetch retry for SPLIT_KILL event
-  mock.onGet(settings.url('/splitChanges?since=1457552649999')).replyOnce(function () {
+  fetchMock.getOnce(settings.url('/splitChanges?since=1457552649999'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_THIRD_RETRY_FOR_SPLIT_KILL_EVENT), 'third fetch retry due to SPLIT_KILL event');
 
@@ -198,10 +195,16 @@ export function testSynchronizationRetries(mock, assert) {
       });
     });
 
-    return [408, 'request timeout'];
+    return { status: 408, body: 'request timeout' };
   });
 
-  mock.onGet(new RegExp('.*')).reply(function (request) {
-    assert.fail('unexpected GET request with url: ' + request.url);
+  fetchMock.get(new RegExp('.*'), function (url) {
+    assert.fail('unexpected GET request with url: ' + url);
   });
+
+  fetchMock.post('*', 200);
+
+  splitio = SplitFactory(config);
+  client = splitio.client();
+
 }

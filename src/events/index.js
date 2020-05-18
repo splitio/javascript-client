@@ -19,7 +19,7 @@ const EventsFactory = context => {
     storage.events.clear(); // we always clear the queue.
 
     return eventsService(eventsBulkRequest(settings, {
-      data: json
+      body: json
     })).then(wrapUpCb).catch(wrapUpCb);
   };
 

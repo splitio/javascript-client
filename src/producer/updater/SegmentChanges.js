@@ -18,8 +18,9 @@ import logFactory from '../../utils/logger';
 const log = logFactory('splitio-producer:segment-changes');
 const inputValidationLog = logFactory('', { displayAllErrors: true });
 import segmentChangesFetcher from '../fetcher/SegmentChanges';
-import { findIndex, startsWith } from '../../utils/lang';
+import { findIndex } from '../../utils/lang';
 import { SplitError } from '../../utils/lang/Errors';
+import thenable from '../../utils/promise/thenable';
 
 const SegmentChangesUpdaterFactory = context => {
   const {
@@ -35,55 +36,74 @@ const SegmentChangesUpdaterFactory = context => {
   /**
    * @param {string[] | undefined} segmentNames list of segment names to fetch. By passing `undefined` it fetches the list of segments registered at the storage
    */
-  return async function SegmentChangesUpdater(segmentNames) {
+  return function SegmentChangesUpdater(segmentNames) {
     log.debug('Started segments update');
 
     // Async fetchers are collected here.
     const updaters = [];
 
-    // If not a segment name provided, read list of available segments names to be updated.
-    const segments = segmentNames ? segmentNames : await storage.segments.getRegisteredSegments();
+    function segmentsUpdater(segments) {
+      const sincePromises = [];
+      for (let segmentName of segments) {
 
-    for (let segmentName of segments) {
-      const since = await storage.segments.getChangeNumber(segmentName);
+        const segmentUpdater = function (since) {
+          log.debug(`Processing segment ${segmentName}`);
 
-      log.debug(`Processing segment ${segmentName}`);
+          updaters.push(segmentChangesFetcher(settings, segmentName, since, metricCollectors).then(function (changes) {
+            let changeNumber = -1;
+            const changePromises = [];
+            for (let x of changes) {
+              let promises = [];
+              if (x.added.length > 0) {
+                const result = storage.segments.addToSegment(segmentName, x.added);
+                if (thenable(result)) promises.push(result);
+              }
+              if (x.removed.length > 0) {
+                const result = storage.segments.removeFromSegment(segmentName, x.removed);
+                if (thenable(result)) promises.push(result);
+              }
+              if (x.added.length > 0 || x.removed.length > 0) {
+                const result = storage.segments.setChangeNumber(segmentName, x.till);
+                if (thenable(result)) promises.push(result);
+                changeNumber = x.till;
+              }
 
-      updaters.push(segmentChangesFetcher(settings, segmentName, since, metricCollectors).then(async function (changes) {
-        let changeNumber = -1;
+              log.debug(`Processed ${segmentName} with till = ${x.till}. Added: ${x.added.length}. Removed: ${x.removed.length}`);
 
-        for (let x of changes) {
-          if (x.added.length > 0)
-            await storage.segments.addToSegment(segmentName, x.added);
+              if (promises.length > 0) changePromises.push(...promises);
+            }
 
-          if (x.removed.length > 0)
-            await storage.segments.removeFromSegment(segmentName, x.removed);
+            return Promise.all(changePromises).then(function () {
+              return changeNumber;
+            });
+          }));
+        };
 
-          if (x.added.length > 0 || x.removed.length > 0) {
-            await storage.segments.setChangeNumber(segmentName, x.till);
-            changeNumber = x.till;
+        const since = storage.segments.getChangeNumber(segmentName);
+        const sincePromise = thenable(since) ? since.then(segmentUpdater) : segmentUpdater(since);
+        sincePromises.push(sincePromise);
+      }
+
+      return Promise.all(sincePromises).then(function () {
+        return Promise.all(updaters).then(shouldUpdateFlags => {
+          if (findIndex(shouldUpdateFlags, v => v !== -1) !== -1 || readyOnAlreadyExistentState) {
+            readyOnAlreadyExistentState = false;
+            segmentsEventEmitter.emit(segmentsEventEmitter.SDK_SEGMENTS_ARRIVED);
           }
+        }).catch(error => {
+          if (!(error instanceof SplitError)) setTimeout(() => { throw error; }, 0);
 
-          log.debug(`Processed ${segmentName} with till = ${x.till}. Added: ${x.added.length}. Removed: ${x.removed.length}`);
-        }
-
-        return changeNumber;
-      }));
+          if (error.statusCode === 403) {
+            context.put(context.constants.DESTROYED, true);
+            inputValidationLog.error('Factory instantiation: you passed a Browser type authorizationKey, please grab an Api Key from the Split web console that is of type SDK.');
+          }
+        });
+      });
     }
 
-    return Promise.all(updaters).then(shouldUpdateFlags => {
-      if (findIndex(shouldUpdateFlags, v => v !== -1) !== -1 || readyOnAlreadyExistentState) {
-        readyOnAlreadyExistentState = false;
-        segmentsEventEmitter.emit(segmentsEventEmitter.SDK_SEGMENTS_ARRIVED);
-      }
-    }).catch(error => {
-      if (!(error instanceof SplitError)) setTimeout(() => { throw error; }, 0);
-
-      if (startsWith(error.message, '403')) {
-        context.put(context.constants.DESTROYED, true);
-        inputValidationLog.error('Factory instantiation: you passed a Browser type authorizationKey, please grab an Api Key from the Split web console that is of type SDK.');
-      }
-    });
+    // If not a segment name provided, read list of available segments names to be updated.
+    const segments = segmentNames ? segmentNames : storage.segments.getRegisteredSegments();
+    return thenable(segments) ? segments.then(segmentsUpdater) : segmentsUpdater(segments);
   };
 
 };

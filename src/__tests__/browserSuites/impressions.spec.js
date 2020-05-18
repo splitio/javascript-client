@@ -16,11 +16,11 @@ const settings = SettingsFactory({
   urls: baseUrls
 });
 
-export default function(mock, assert) {
+export default function (fetchMock, assert) {
   // Mocking this specific route to make sure we only get the items we want to test from the handlers.
-  mock.onGet(settings.url('/splitChanges?since=-1')).replyOnce(200, splitChangesMock1);
-  mock.onGet(settings.url('/splitChanges?since=1457552620999')).reply(200, splitChangesMock2);
-  mock.onGet(settings.url('/mySegments/facundo@split.io')).reply(200, mySegmentsFacundo);
+  fetchMock.getOnce(settings.url('/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
+  fetchMock.get(settings.url('/splitChanges?since=1457552620999'), { status: 200, body: splitChangesMock2 });
+  fetchMock.get(settings.url('/mySegments/facundo@split.io'), { status: 200, body: mySegmentsFacundo });
 
   const splitio = SplitFactory({
     core: {
@@ -41,7 +41,7 @@ export default function(mock, assert) {
 
   const client = splitio.client();
   const assertPayload = req => {
-    const resp = JSON.parse(req.data);
+    const resp = JSON.parse(req.body);
 
     assert.equal(resp.length, 2, 'We performed two evaluations so we should have 2 impressions');
 
@@ -67,23 +67,22 @@ export default function(mock, assert) {
     assert.equal(treatment, 'on', 'Present impression should have the correct treatment.');
   };
 
-  mock.onPost(settings.url('/testImpressions/bulk'))
-    .replyOnce(req => {
-      assertPayload(req);
-      assert.comment('After a failure, Impressions will keep the data for the next call.');
-      return [400];
-    })
-    // Attach again to catch the retry.
-    .onPost(settings.url('/testImpressions/bulk'))
-    .replyOnce(req => {
-      assert.comment('We do one retry, so after a failed impressions post we will try once more.');
-      assertPayload(req);
+  fetchMock.postOnce(settings.url('/testImpressions/bulk'), (url, req) => {
+    assertPayload(req);
+    assert.comment('After a failure, Impressions will keep the data for the next call.');
+    return 400;
+  });
+  // Attach again to catch the retry.
+  fetchMock.postOnce(settings.url('/testImpressions/bulk'), (url, req) => {
+    assert.comment('We do one retry, so after a failed impressions post we will try once more.');
+    assertPayload(req);
 
-      client.destroy();
-      assert.end();
+    client.destroy();
+    assert.end();
 
-      return [200];
-    });
+    return 200;
+  });
+  fetchMock.postOnce(settings.url('/testImpressions/bulk'), 200);
 
   client.ready().then(() => {
     // depends on hierarchical_dep_hierarchical which depends on hierarchical_dep_always_on

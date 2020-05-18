@@ -23,23 +23,23 @@ export default class BrowserSignalListener {
   }
 
   /**
-   * start method. 
-   * Called when SplitFactory is initialized. 
+   * start method.
+   * Called when SplitFactory is initialized.
    * We add a handler on unload events. The handler flushes remaining impressions and events to the backend.
    */
   start() {
     if (window && window.addEventListener) {
       log.debug('Registering flush handler when unload page event is triggered.');
       window.addEventListener(UNLOAD_DOM_EVENT, this.flushData);
-    }  
+    }
   }
 
 
   /**
-   * stop method. 
-   * Called when client is destroyed. 
+   * stop method.
+   * Called when client is destroyed.
    * We need to remove the handler for unload events, since it can break if called when Split context was destroyed.
-   */ 
+   */
   stop() {
     if (window && window.removeEventListener) {
       log.debug('Deregistering flush handler when unload page event is triggered.');
@@ -48,10 +48,10 @@ export default class BrowserSignalListener {
   }
 
   /**
-   * _flushData method. 
-   * Called when unload event is triggered. It flushed remaining impressions and events to the backend, 
-   * using beacon API if possible, or falling back to XHR.
-   */ 
+   * _flushData method.
+   * Called when unload event is triggered. It flushed remaining impressions and events to the backend,
+   * using beacon API if possible, or falling back to regular post transport.
+   */
   flushData() {
     this._flushImpressions();
     this._flushEvents();
@@ -64,7 +64,7 @@ export default class BrowserSignalListener {
       const url = this.settings.url('/testImpressions/beacon');
       const impressionsPayload = fromImpressionsCollector(impressions, this.settings);
       if (!this._sendBeacon(url, impressionsPayload)) {
-        impressionsService(impressionsBulkRequest(this.settings, { data: JSON.stringify(impressionsPayload) }));
+        impressionsService(impressionsBulkRequest(this.settings, { body: JSON.stringify(impressionsPayload) }));
       }
       impressions.clear();
     }
@@ -77,7 +77,7 @@ export default class BrowserSignalListener {
       const url = this.settings.url('/events/beacon');
       const eventsPayload = events.toJSON();
       if (!this._sendBeacon(url, eventsPayload)) {
-        eventsService(eventsBulkRequest(this.settings, { data: JSON.stringify(eventsPayload) }));
+        eventsService(eventsBulkRequest(this.settings, { body: JSON.stringify(eventsPayload) }));
       }
       events.clear();
     }

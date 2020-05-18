@@ -13,14 +13,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-import axios from 'axios';
 import tape from 'tape-catch';
 import { types as matcherTypes } from '../../../matchers/types';
 import matcherFactory from '../../../matchers';
 
 tape('MATCHER REGEX / validate regex behavior using sample data', assert => {
-  axios.get('/base/engine/__tests__/matchers/mocks/regex.txt')
-    .then(response => response.data)
+  fetch('/base/engine/__tests__/matchers/mocks/regex.txt')
+    .then(response => response.text())
     .then(text => {
       const lines = text.trim().split(/\r\n|\n|\r/);
 

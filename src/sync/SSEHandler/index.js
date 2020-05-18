@@ -32,17 +32,16 @@ export default function SSEHandlerFactory(pushEmitter) {
 
     /* NotificationProcessor */
     handleMessage(message) {
-      log.info(`New SSE message received, with data: "${message.data}".`);
-
       let messageWithParsedData;
       try {
         messageWithParsedData = messageParser(message);
       } catch (err) {
-        log.warn(`Error parsing SSE message notification: ${err}`);
+        log.warn(`Error parsing new SSE message notification: ${err}`);
         return;
       }
 
-      const { parsedData, channel, timestamp } = messageWithParsedData;
+      const { parsedData, data, channel, timestamp } = messageWithParsedData;
+      log.debug(`New SSE message received, with data: ${data}.`);
 
       // we only handle update events if streaming is up.
       if (!notificationKeeper.isStreamingUp() && parsedData.type !== OCCUPANCY && parsedData.type !== CONTROL)

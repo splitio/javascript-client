@@ -4,8 +4,8 @@ import rl from 'readline';
 
 import splitChangesMockReal from '../mocks/splitchanges.real.json';
 
-export default async function(config, settings, mock, assert) {
-  mock.onGet(settings.url('/splitChanges?since=-1')).reply(200, splitChangesMockReal);
+export default async function (config, settings, fetchMock, assert) {
+  fetchMock.get({ url: settings.url('/splitChanges?since=-1'), overwriteRoutes: true }, { status: 200, body: splitChangesMockReal });
 
   const splitio = SplitFactory(config);
   const client = splitio.client();

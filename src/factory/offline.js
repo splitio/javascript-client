@@ -25,7 +25,7 @@ function SplitFactoryOffline(context, sharedTrackers) {
     // Utilities
     {
       // Destroy instance. Async so we respect the online api.
-      async destroy() {
+      destroy() {
         // Stop background jobs
         producer && producer.stop();
         // Cleanup event listeners
@@ -35,6 +35,8 @@ function SplitFactoryOffline(context, sharedTrackers) {
         // Mark the factory as destroyed.
         context.put(context.constants.DESTROYED, true);
         !sharedInstance && releaseApiKey();
+
+        return Promise.resolve();
       }
     }
   );
