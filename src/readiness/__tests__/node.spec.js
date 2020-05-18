@@ -18,7 +18,6 @@ const statusManager = proxyquireStrict('../statusManager', {
   '../utils/logger': LogFactoryMock
 }).default;
 
-// @TODO add test to assert new ready promise logic (resolved when SDK_READY, rejected when SDK_READY_TIMEOUT)
 tape('Readiness Callbacks handler - Event emitter and returned handler', t => {
   const gateMock = {
     on: sinon.stub(),
@@ -231,24 +230,33 @@ tape('Readiness Callbacks handler - Ready promise', t => {
     assert.true(ready instanceof Promise, 'It should return a promise.');
 
     // Get the callback
-    const readyEventCB = gateMock.once.getCall(0).args[1];
+    let readyEventCB = gateMock.once.getCall(0).args[1];
 
     readyEventCB(); // make the SDK "ready"
 
-    let testPassed = false;
+    let testPassedCount = 0;
     await ready.then(
       () => {
         assert.pass('It should be a promise that will be resolved when the SDK is ready.');
+        testPassedCount++;
+      },
+      () => assert.fail('It should be resolved on ready event, not rejected.')
+    );
+
+    // any subsequent call to .ready() must be a resolved promise
+    await ready.then(
+      () => {
+        assert.pass('A subsequent call should be a resolved promise.');
         resetStubs();
-        testPassed = true;
+        testPassedCount++;
       },
       () => assert.fail('It should be resolved on ready event, not rejected.')
     );
 
     // control assertion. stubs already reset.
-    assert.true(testPassed);
+    assert.equal(testPassedCount, 2);
 
-    const statusInterfaceForTimedout = statusManager(contextMock); // Default is regular clients, no bool flag
+    const statusInterfaceForTimedout = statusManager(contextMock);
 
     // Get the callback
     const timedoutEventCB = gateMock.once.getCall(1).args[1];
@@ -261,9 +269,33 @@ tape('Readiness Callbacks handler - Ready promise', t => {
       () => assert.fail('It should be a promise that was rejected on SDK_READY_TIMED_OUT, not resolved.'),
       () => {
         assert.pass('It should be a promise that will be rejected when the SDK is timed out.');
-        resetStubs();
-        assert.end();
+        testPassedCount++;
       }
+    );
+
+    // any subsequent call to .ready() must be a rejected promise
+    await readyForTimeout.then(
+      () => assert.fail('It should be a promise that was rejected on SDK_READY_TIMED_OUT, not resolved.'),
+      () => {
+        assert.pass('A subsequent call should be a rejected promise.');
+        testPassedCount++;
+      }
+    );
+
+    // Get the callback
+    readyEventCB = gateMock.once.getCall(0).args[1];
+    readyEventCB(); // make the SDK "ready"
+
+    // once SDK_READY, `.ready()` returns a resolved promise
+    await ready.then(
+      () => {
+        assert.pass('It should be a resolved promise when the SDK is ready, even after an SDK timeout.');
+        resetStubs();
+        testPassedCount++;
+        assert.equal(testPassedCount, 5);
+        assert.end();
+      },
+      () => assert.fail('It should be resolved on ready event, not rejected.')
     );
   });
 
@@ -292,5 +324,41 @@ tape('Readiness Callbacks handler - Ready promise', t => {
 
     // Resolve the promise, this would be called by the gate when SDK_READY is emitted.
     readyEventCB();
+  });
+
+  t.test('.ready() rejected promises have a default onRejected handler that just logs the error', async assert => {
+    const statusInterface = statusManager(contextMock);
+    let readyForTimeout = statusInterface.ready();
+
+    // Get the callback
+    const timedoutEventCB = gateMock.once.getCall(1).args[1];
+    const timeoutErrorMessage = 'Split SDK emitted SDK_READY_TIMED_OUT event.';
+    timedoutEventCB(timeoutErrorMessage); // make the SDK "timed out"
+
+    readyForTimeout.then(
+      () => assert.fail('It should be a promise that was rejected on SDK_READY_TIMED_OUT, not resolved.')
+    );
+
+    assert.true(loggerMock.error.notCalled, 'not called until promise is rejected');
+
+    setTimeout(() => {
+      assert.true(loggerMock.error.calledOnceWithExactly(timeoutErrorMessage), 'If we don\'t handle the rejected promise, an error is logged.');
+      readyForTimeout = statusInterface.ready();
+
+      setTimeout(() => {
+        assert.true(loggerMock.error.lastCall.calledWithExactly('Split SDK has emitted SDK_READY_TIMED_OUT event.'), 'If we don\'t handle a new .ready() rejected promise, an error is logged.');
+        readyForTimeout = statusInterface.ready();
+
+        readyForTimeout
+          .then(() => assert.fail())
+          .then(() => assert.fail())
+          .catch((error) => {
+            assert.equal(error, 'Split SDK has emitted SDK_READY_TIMED_OUT event.');
+            assert.true(loggerMock.error.calledTwice, 'If we provide an onRejected handler, even chaining several onFulfilled handlers, the error is not logged.');
+            resetStubs();
+            assert.end();
+          });
+      }, 0);
+    }, 0);
   });
 });
