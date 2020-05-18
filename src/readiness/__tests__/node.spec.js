@@ -18,7 +18,6 @@ const statusManager = proxyquireStrict('../statusManager', {
   '../utils/logger': LogFactoryMock
 }).default;
 
-// @TODO add test to assert param internalReadyCbCount
 // @TODO add test to assert new ready promise logic (resolved when SDK_READY, rejected when SDK_READY_TIMEOUT)
 tape('Readiness Callbacks handler - Event emitter and returned handler', t => {
   const gateMock = {
@@ -62,7 +61,7 @@ tape('Readiness Callbacks handler - Event emitter and returned handler', t => {
     assert.equal(statusInterface.Event.SDK_READY_TIMED_OUT, gateMock.SDK_READY_TIMED_OUT, 'which contains the constants for the events, for backwards compatibility.');
     assert.equal(statusInterface.Event.SDK_UPDATE, gateMock.SDK_UPDATE, 'which contains the constants for the events, for backwards compatibility.');
 
-    assert.equal(gateMock.once.callCount, 3, 'It should make four one time only subscriptions');
+    assert.equal(gateMock.once.callCount, 3, 'It should make three one time only subscriptions');
 
     const sdkReadyResolvePromiseCall = gateMock.once.getCall(0);
     const sdkReadyRejectPromiseCall = gateMock.once.getCall(1);
@@ -171,6 +170,31 @@ tape('Readiness Callbacks handler - Event emitter and returned handler', t => {
 
     readyEventCB();
     assert.false(loggerMock.warn.called, 'No warning when the SDK is ready as we still have one listener.');
+
+    resetStubs();
+    assert.end();
+  });
+
+  t.test('The event callbacks should work as expected - SDK_READY emits with expected internal callbacks', assert => {
+    // the statusManager expects more than one SDK_READY callback to not log the "No listeners" warning
+    statusManager(contextMock, 1);
+
+    // Get the callbacks
+    const readyEventCB = gateMock.once.getCall(0).args[1];
+    const removeListenerCB = gateMock.on.getCall(0).args[1];
+    const addListenerCB = gateMock.on.getCall(1).args[1];
+
+    // Fake adding two listeners and removing one
+    addListenerCB(gateMock.SDK_READY);
+    addListenerCB(gateMock.SDK_READY);
+    removeListenerCB(gateMock.SDK_READY);
+
+    assert.false(loggerMock.warn.called, 'We are adding/removing listeners to the ready event before it is ready, so no warnings are logged.');
+    assert.false(loggerMock.error.called, 'We are adding/removing listeners to the ready event before it is ready, so no errors are logged.');
+
+    readyEventCB();
+    assert.true(loggerMock.warn.called, 'As we had the same amount of listeners that the expected, we get a warning.');
+    assert.false(loggerMock.error.called, 'As we had at least one listener, we get no errors.');
 
     resetStubs();
     assert.end();
