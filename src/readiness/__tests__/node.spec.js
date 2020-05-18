@@ -18,6 +18,7 @@ const statusManager = proxyquireStrict('../statusManager', {
   '../utils/logger': LogFactoryMock
 }).default;
 
+// @TODO add tests to assert param internalReadyCbCount
 tape('Readiness Callbacks handler - Event emitter and returned handler', t => {
   const gateMock = {
     on: sinon.stub(),
@@ -200,24 +201,8 @@ tape('Readiness Callbacks handler - Ready promise', t => {
     loggerMock.error.resetHistory();
   }
 
-  t.test('.ready() promise behaviour for shared clients', async assert => {
-    const statusInterfaceForShared = statusManager(contextMock, true);
-    const readyForShared = statusInterfaceForShared.ready();
-
-    assert.true(readyForShared instanceof Promise, 'It should return a promise.');
-
-    await readyForShared.then(
-      () => {
-        assert.pass('It should be a promise that was resolved already.');
-        resetStubs();
-        assert.end();
-      },
-      () => assert.fail('It should be a promise that was resolved already, not rejected.')
-    );
-  });
-
-  t.test('.ready() promise behaviour for main clients', async assert => {
-    const statusInterface = statusManager(contextMock); // Default is regular clients, no bool flag
+  t.test('.ready() promise behaviour for clients', async assert => {
+    const statusInterface = statusManager(contextMock);
     const ready = statusInterface.ready();
 
     assert.true(ready instanceof Promise, 'It should return a promise.');
@@ -225,7 +210,7 @@ tape('Readiness Callbacks handler - Ready promise', t => {
     // Get the callback
     const readyEventCB = gateMock.once.getCall(0).args[1];
 
-    readyEventCB(); // make the SDK "ready", to assert that ready promise is resolved
+    readyEventCB(); // make the SDK "ready"
 
     let testPassed = false;
     await ready.then(
@@ -244,30 +229,18 @@ tape('Readiness Callbacks handler - Ready promise', t => {
 
     // Get the callback
     const timedoutEventCB = gateMock.once.getCall(1).args[1];
-    const sdkReadyEventCB = gateMock.once.getCall(2).args[1];
 
     const readyForTimeout = statusInterfaceForTimedout.ready();
 
-    timedoutEventCB(); // make the SDK "timed out", to assert that ready promise is rejected
+    timedoutEventCB(); // make the SDK "timed out"
 
     await readyForTimeout.then(
       () => assert.fail('It should be a promise that was rejected on SDK_READY_TIMED_OUT, not resolved.'),
       () => {
         assert.pass('It should be a promise that will be rejected when the SDK is timed out.');
-      }
-    );
-
-    sdkReadyEventCB(); // make the SDK "ready" after "timed out", to assert that ready promise is now resolved
-
-    const readyForSdkReady = statusInterfaceForTimedout.ready();  
-
-    await readyForSdkReady.then(
-      () => {
-        assert.pass('It should be a promise that is inmediatelly resolved, since the SDK is ready.');
         resetStubs();
         assert.end();
-      },
-      () => assert.fail('It should be resolved on ready event, not rejected.')
+      }
     );
   });
 

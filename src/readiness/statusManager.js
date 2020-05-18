@@ -11,7 +11,7 @@ const REMOVE_LISTENER_EVENT = 'removeListener';
  * @param {boolean} forSharedClient
  * @param {number} internalReadyCbCount number of SDK_READY listeners that are set inside the SDK: 1 for main client in not LOCALHOST mode, 0 otherwise
  */
-export default function callbackHandlerContext(context, forSharedClient = false, internalReadyCbCount = 0) {
+export default function callbackHandlerContext(context, internalReadyCbCount = 0) {
   const gate = context.get(context.constants.READINESS).gate;
   let readyCbCount = 0;
   let isReady = false;
@@ -21,7 +21,7 @@ export default function callbackHandlerContext(context, forSharedClient = false,
     SDK_UPDATE,
     SDK_READY_TIMED_OUT
   } = gate;
-  const readyPromise = getReadyPromise();
+  const readyPromise = generateReadyPromise();
 
   gate.once(SDK_READY, () => {
     if (readyCbCount === internalReadyCbCount && !readyPromise.hasOnFulfilled()) log.warn('No listeners for SDK Readiness detected. Incorrect control treatments could have been logged if you called getTreatment/s while the SDK was not yet ready.');
@@ -61,15 +61,6 @@ export default function callbackHandlerContext(context, forSharedClient = false,
     }));
 
     return promise;
-  }
-
-  function getReadyPromise() {
-    if (forSharedClient) {
-      return Promise.resolve();
-    }
-
-    // Non-shared clients use the full blown ready promise implementation.
-    return generateReadyPromise();
   }
 
   return Object.assign(

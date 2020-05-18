@@ -51,7 +51,7 @@ export function SplitFactory(config) {
   // Put readiness config within context
   const readiness = gateFactory(settings.startup.readyTimeout);
   context.put(context.constants.READINESS, readiness);
-  const statusManager = sdkStatusManager(context, undefined, 1);
+  const statusManager = sdkStatusManager(context, 1);
   context.put(context.constants.STATUS_MANAGER, statusManager);
 
   const {
@@ -103,7 +103,7 @@ export function SplitFactory(config) {
         sharedContext.put(context.constants.READY, true); // For SDK inner workings it's supposed to be ready.
         const readiness = gateFactory(sharedSettings.startup.readyTimeout);
         sharedContext.put(context.constants.READINESS, readiness);
-        sharedContext.put(context.constants.STATUS_MANAGER, sdkStatusManager(sharedContext, true));
+        sharedContext.put(context.constants.STATUS_MANAGER, sdkStatusManager(sharedContext));
         sharedContext.put(context.constants.SETTINGS, sharedSettings);
         sharedContext.put(context.constants.STORAGE, storage.shared(sharedSettings));
 
