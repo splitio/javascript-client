@@ -65,7 +65,7 @@ function SplitFactoryOnline(context, readyTrackers, mainClientMetricCollectors) 
     // Defered setup of collectors for this task, as it is the only ready latency we store on BE.
     sdkReadyTracker.setCollectorForTask(metrics.collectors);
 
-    gate.on(SDK_READY, sdkReadyTracker);
+    gate.once(SDK_READY, sdkReadyTracker);
     splits.once(splits.SDK_SPLITS_ARRIVED, splitsReadyTracker);
     segments.once(segments.SDK_SEGMENTS_ARRIVED, segmentsReadyTracker);
   }

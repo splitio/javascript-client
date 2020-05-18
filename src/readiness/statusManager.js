@@ -1,20 +1,35 @@
+import promiseWrapper from '../utils/promise/wrapper';
 import logFactory from '../utils/logger';
 const log = logFactory('');
 
 const NEW_LISTENER_EVENT = 'newListener';
 const REMOVE_LISTENER_EVENT = 'removeListener';
 
-export default function callbackHandlerContext(context, forSharedClient = false) {
+/**
+ *
+ * @param {Object} context
+ * @param {boolean} forSharedClient
+ * @param {number} internalReadyCbCount number of SDK_READY listeners that are set inside the SDK: 1 for main client in not LOCALHOST mode, 0 otherwise
+ */
+export default function callbackHandlerContext(context, forSharedClient = false, internalReadyCbCount = 0) {
   const gate = context.get(context.constants.READINESS).gate;
   let readyCbCount = 0;
   let isReady = false;
-
   const {
     SDK_READY,
     SDK_READY_FROM_CACHE,
     SDK_UPDATE,
     SDK_READY_TIMED_OUT
   } = gate;
+  const readyPromise = getReadyPromise();
+
+  gate.once(SDK_READY, () => {
+    if (readyCbCount === internalReadyCbCount && !readyPromise.hasOnFulfilled()) log.warn('No listeners for SDK Readiness detected. Incorrect control treatments could have been logged if you called getTreatment/s while the SDK was not yet ready.');
+
+    context.put(context.constants.READY, true);
+
+    isReady = true;
+  });
 
   gate.once(SDK_READY_FROM_CACHE, () => {
     log.info('Split SDK is ready from cache.');
@@ -36,44 +51,14 @@ export default function callbackHandlerContext(context, forSharedClient = false)
     }
   });
 
-  let readyPromise = getReadyPromise();
-
-  gate.once(SDK_READY, () => {
-    if (readyCbCount === 0) log.warn('No listeners for SDK Readiness detected. Incorrect control treatments could have been logged if you called getTreatment/s while the SDK was not yet ready.');
-
-    context.put(context.constants.READY, true);
-
-    // Once the state is ready, the readyPromise is a resolved promise
-    readyPromise = Promise.resolve();
-  });
-
   function generateReadyPromise() {
-    let hasCatch = false;
-    const promise = new Promise((resolve, reject) => {
-      gate.once(SDK_READY, () => { isReady = true; resolve(); });
+    const promise = promiseWrapper(new Promise((resolve, reject) => {
+      gate.once(SDK_READY, resolve);
       gate.once(SDK_READY_TIMED_OUT, reject);
-    }).catch(function(err) {
-      // If the promise has a custom error handler, just propagate
-      if (hasCatch) throw err;
-      // If not handle the error to prevent unhandled promise exception.
+    }, function (err) {
+      // If the promise doesn't have a custom onRejected handler, just log the error.
       log.error(err);
-    });
-    const originalThen = promise.then;
-
-    // Using .catch(fn) is the same than using .then(null, fn)
-    promise.then = function () {
-      if (arguments.length > 0 && typeof arguments[0] === 'function') {
-        const succCb = arguments[0];
-        readyCbCount++;
-        arguments[0] = function() {
-          if (isReady) succCb();
-        };
-      }
-      if (arguments.length > 1 && typeof arguments[1] === 'function')
-        hasCatch = true;
-
-      return originalThen.apply(this, arguments);
-    };
+    }));
 
     return promise;
   }
@@ -105,4 +90,3 @@ export default function callbackHandlerContext(context, forSharedClient = false)
     }
   );
 }
-

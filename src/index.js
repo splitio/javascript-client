@@ -51,7 +51,7 @@ export function SplitFactory(config) {
   // Put readiness config within context
   const readiness = gateFactory(settings.startup.readyTimeout);
   context.put(context.constants.READINESS, readiness);
-  const statusManager = sdkStatusManager(context);
+  const statusManager = sdkStatusManager(context, undefined, 1);
   context.put(context.constants.STATUS_MANAGER, statusManager);
 
   const {
@@ -99,16 +99,18 @@ export function SplitFactory(config) {
         const sharedSettings = settings.overrideKeyAndTT(validKey, validTrafficType);
         const sharedContext = new Context();
 
+        // @TODO remove next line but review possible side effects. No need to set it false (it is not done for the main client) and it is updated on client SDK_READY event
         sharedContext.put(context.constants.READY, true); // For SDK inner workings it's supposed to be ready.
         const readiness = gateFactory(sharedSettings.startup.readyTimeout);
         sharedContext.put(context.constants.READINESS, readiness);
-        sharedContext.put(sharedContext.constants.STATUS_MANAGER, sdkStatusManager(sharedContext, true));
+        sharedContext.put(context.constants.STATUS_MANAGER, sdkStatusManager(sharedContext, true));
         sharedContext.put(context.constants.SETTINGS, sharedSettings);
         sharedContext.put(context.constants.STORAGE, storage.shared(sharedSettings));
 
         // As shared clients reuse all the storage information, we don't need to check here if we
         // will use offline or online mode. We should stick with the original decision.
         clientInstances[instanceId] = splitFactory(sharedContext, false, mainClientMetricCollectors).api;
+        // @TODO remove next line when implementing ready promise for shared clients
         // The readiness should depend on the readiness of the parent, instead of showing ready by default.
         clientInstances[instanceId].ready = mainClientInstance.ready;
 
