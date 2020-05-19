@@ -99,6 +99,7 @@ export function SplitFactory(config) {
         const sharedSettings = settings.overrideKeyAndTT(validKey, validTrafficType);
         const sharedContext = new Context();
 
+        sharedContext.put(context.constants.READY, true); // For SDK inner workings it's supposed to be ready.
         const readiness = gateFactory(sharedSettings.startup.readyTimeout);
         sharedContext.put(context.constants.READINESS, readiness);
         sharedContext.put(context.constants.STATUS_MANAGER, sdkStatusManager(sharedContext, -1));
