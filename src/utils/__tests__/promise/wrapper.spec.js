@@ -2,11 +2,12 @@ import tape from 'tape-catch';
 import promiseWrapper from '../../promise/wrapper';
 
 tape('Promise utils / promise wrapper', function (assert) {
-  assert.plan(23 + 17); // number of passHandler, passHandlerWithThrow and `hasOnFulfilled` asserts
+  assert.plan(27 + 17); // number of passHandler, passHandlerFinally, passHandlerWithThrow and `hasOnFulfilled` asserts
 
   const value = 'value';
   const failHandler = (val) => { assert.fail(val); };
   const passHandler = (val) => { assert.equal(val, value); return val; };
+  const passHandlerFinally = () => { assert.pass(); };
   const passHandlerWithThrow = (val) => { assert.equal(val, value); throw val; };
   const createResolvedPromise = () => new Promise((res) => { setTimeout(()=>{res(value);}, 100); });
   const createRejectedPromise = () => new Promise((_, rej) => { setTimeout(()=>{rej(value);}, 100); });
@@ -20,11 +21,11 @@ tape('Promise utils / promise wrapper', function (assert) {
   assert.equal(wrappedPromise.hasOnFulfilled(), true);
 
   wrappedPromise = promiseWrapper(createResolvedPromise(), failHandler);
-  wrappedPromise.then(passHandler, failHandler);
+  wrappedPromise.then(passHandler, failHandler).finally(passHandlerFinally);
   assert.equal(wrappedPromise.hasOnFulfilled(), true);
 
   wrappedPromise = promiseWrapper(createResolvedPromise(), failHandler);
-  wrappedPromise.then(passHandler).catch(failHandler);
+  wrappedPromise.then(passHandler).catch(failHandler).finally(passHandlerFinally);
   assert.equal(wrappedPromise.hasOnFulfilled(), true);
 
   wrappedPromise = promiseWrapper(createResolvedPromise(), failHandler);
@@ -32,7 +33,7 @@ tape('Promise utils / promise wrapper', function (assert) {
   assert.equal(wrappedPromise.hasOnFulfilled(), true);
 
   wrappedPromise = promiseWrapper(createResolvedPromise(), failHandler);
-  wrappedPromise.then(passHandler).then(passHandler).catch(failHandler).then(passHandler);
+  wrappedPromise.then(passHandler).then(passHandler).catch(failHandler).finally(passHandlerFinally).then(passHandler);
   assert.equal(wrappedPromise.hasOnFulfilled(), true);
 
   wrappedPromise = promiseWrapper(createResolvedPromise(), failHandler);
@@ -76,7 +77,7 @@ tape('Promise utils / promise wrapper', function (assert) {
   assert.equal(wrappedPromise.hasOnFulfilled(), true);
 
   wrappedPromise = promiseWrapper(createRejectedPromise(), failHandler);
-  wrappedPromise.then(failHandler).catch(passHandler).then(passHandler);
+  wrappedPromise.then(failHandler).catch(passHandler).then(passHandler).finally(passHandlerFinally);;
   assert.equal(wrappedPromise.hasOnFulfilled(), true);
 
   setTimeout(() => {
@@ -87,11 +88,12 @@ tape('Promise utils / promise wrapper', function (assert) {
 
 tape('Promise utils / promise wrapper: async/await', async function (assert) {
 
-  assert.plan(6); // number of passHandler and passHandlerWithThrow
+  assert.plan(8); // number of passHandler and passHandlerWithThrow
 
   const value = 'value';
   const failHandler = (val) => { assert.fail(val); };
   const passHandler = (val) => { assert.equal(val, value); return val; };
+  const passHandlerFinally = () => { assert.pass(); };
   const passHandlerWithThrow = (val) => { assert.equal(val, value); throw val; };
   const createResolvedPromise = () => new Promise((res) => { res(value); });
   const createRejectedPromise = () => new Promise((res, rej) => { rej(value); });
@@ -101,6 +103,8 @@ tape('Promise utils / promise wrapper: async/await', async function (assert) {
     passHandler(result);
   } catch(result) {
     failHandler(result);
+  } finally {
+    passHandlerFinally();
   }
 
   try {
@@ -117,6 +121,8 @@ tape('Promise utils / promise wrapper: async/await', async function (assert) {
     passHandlerWithThrow(result);
   } catch(error) {
     result = passHandler(error);
+  } finally {
+    passHandlerFinally();
   }
   passHandler(result);
 
