@@ -109,6 +109,8 @@ export function SplitFactory(config) {
         // As shared clients reuse all the storage information, we don't need to check here if we
         // will use offline or online mode. We should stick with the original decision.
         clientInstances[instanceId] = splitFactory(sharedContext, false, mainClientMetricCollectors).api;
+        // The readiness should depend on the readiness of the parent, instead of showing ready by default.
+        clientInstances[instanceId].ready = mainClientInstance.ready;
 
         log.info('New shared client instance created.');
       } else {
