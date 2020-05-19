@@ -58,6 +58,7 @@ const FullBrowserProducer = (context) => {
     });
   }
 
+  // @TODO move this logic back to onSplitsArrived
   function checkSplitUsingSegments() {
     const isReady = context.get(context.constants.READY, true);
     if (!splitsStorage.usesSegments() && !isReady) segmentsEventEmitter.emit(segmentsEventEmitter.SDK_SEGMENTS_ARRIVED);
@@ -71,6 +72,7 @@ const FullBrowserProducer = (context) => {
 
       splitsUpdaterTask.start();
       if (splitsStorage.usesSegments()) mySegmentsUpdaterTask.start();
+      // @TODO consider removing next line if onSplitsArrived knows the synchronization mode
       splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, onSplitsArrived);
     },
 
@@ -80,6 +82,7 @@ const FullBrowserProducer = (context) => {
 
       splitsUpdaterTask.stop();
       mySegmentsUpdaterTask && mySegmentsUpdaterTask.stop();
+      // @TODO consider removing next line if onSplitsArrived knows the synchronization mode
       splitsEventEmitter.removeListener(splitsEventEmitter.SDK_SPLITS_ARRIVED, onSplitsArrived);
     },
 
