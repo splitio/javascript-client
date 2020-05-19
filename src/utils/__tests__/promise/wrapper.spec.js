@@ -77,7 +77,7 @@ tape('Promise utils / promise wrapper', function (assert) {
   assert.equal(wrappedPromise.hasOnFulfilled(), true);
 
   wrappedPromise = promiseWrapper(createRejectedPromise(), failHandler);
-  wrappedPromise.then(failHandler).catch(passHandler).then(passHandler).finally(passHandlerFinally);;
+  wrappedPromise.then(failHandler).catch(passHandler).then(passHandler).finally(passHandlerFinally);
   assert.equal(wrappedPromise.hasOnFulfilled(), true);
 
   setTimeout(() => {
