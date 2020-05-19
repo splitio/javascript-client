@@ -27,8 +27,6 @@ const log = logFactory('splitio-producer:updater');
  */
 const FullBrowserProducer = (context) => {
   const settings = context.get(context.constants.SETTINGS);
-  const splitsStorage = context.get(context.constants.STORAGE).splits;
-  const { splits: splitsEventEmitter, segments: segmentsEventEmitter } = context.get(context.constants.READINESS);
 
   const splitsUpdater = SplitChangesUpdater(context);
   const mySegmentsUpdater = MySegmentsUpdater(context);
@@ -36,7 +34,7 @@ const FullBrowserProducer = (context) => {
   const splitsUpdaterTask = TaskFactory(synchronizeSplits, settings.scheduler.featuresRefreshRate);
   const mySegmentsUpdaterTask = TaskFactory(synchronizeMySegments, settings.scheduler.segmentsRefreshRate);
 
-  const onSplitsArrived = onSplitsArrivedFactory(mySegmentsUpdaterTask, context);
+  const onSplitsArrived = onSplitsArrivedFactory(mySegmentsUpdaterTask, context, splitsUpdaterTask.isRunning);
 
   let isSynchronizingSplits = false;
   let isSynchronizingMySegments = false;
@@ -58,22 +56,13 @@ const FullBrowserProducer = (context) => {
     });
   }
 
-  // @TODO move this logic back to onSplitsArrived
-  function checkSplitUsingSegments() {
-    const isReady = context.get(context.constants.READY, true);
-    if (!splitsStorage.usesSegments() && !isReady) segmentsEventEmitter.emit(segmentsEventEmitter.SDK_SEGMENTS_ARRIVED);
-  }
-  splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, checkSplitUsingSegments);
-
   return {
     // Start periodic fetching (polling)
     start() {
       log.info('Starting BROWSER producer');
 
       splitsUpdaterTask.start();
-      if (splitsStorage.usesSegments()) mySegmentsUpdaterTask.start();
-      // @TODO consider removing next line if onSplitsArrived knows the synchronization mode
-      splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, onSplitsArrived);
+      onSplitsArrived(); // start mySegmentsUpdaterTask if splits are using segments
     },
 
     // Stop periodic fetching (polling)
@@ -82,8 +71,6 @@ const FullBrowserProducer = (context) => {
 
       splitsUpdaterTask.stop();
       mySegmentsUpdaterTask && mySegmentsUpdaterTask.stop();
-      // @TODO consider removing next line if onSplitsArrived knows the synchronization mode
-      splitsEventEmitter.removeListener(splitsEventEmitter.SDK_SPLITS_ARRIVED, onSplitsArrived);
     },
 
     // Used by SyncManager to know if running in polling mode.

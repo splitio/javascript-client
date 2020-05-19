@@ -23,13 +23,10 @@ import onSplitsArrivedFactory from './onSplitsArrivedFactory';
  */
 const PartialBrowserProducer = (context) => {
   const settings = context.get(context.constants.SETTINGS);
-  const splitsStorage = context.get(context.constants.STORAGE).splits;
-  const { splits: splitsEventEmitter, segments: segmentsEventEmitter } = context.get(context.constants.READINESS);
-
   const mySegmentsUpdater = MySegmentsUpdater(context);
   const mySegmentsUpdaterTask = TaskFactory(synchronizeMySegments, settings.scheduler.segmentsRefreshRate);
 
-  const onSplitsArrived = onSplitsArrivedFactory(mySegmentsUpdaterTask, context);
+  const onSplitsArrived = onSplitsArrivedFactory(mySegmentsUpdaterTask, context, isRunning);
 
   let isSynchronizingMySegments = false;
 
@@ -43,34 +40,30 @@ const PartialBrowserProducer = (context) => {
     });
   }
 
-  // @TODO move this logic back to onSplitsArrived
-  function checkSplitUsingSegments() {
-    const isReady = context.get(context.constants.READY, true);
-    if (!splitsStorage.usesSegments() && !isReady) segmentsEventEmitter.emit(segmentsEventEmitter.SDK_SEGMENTS_ARRIVED);
+  let running = false;
+  // we cannot rely on `mySegmentsUpdaterTask.isRunning` to check if doing polling
+  function isRunning() {
+    return running;
   }
-  if (splitsStorage.getChangeNumber() !== -1) {
-    setTimeout(checkSplitUsingSegments, 0);
-  } else {
-    splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, checkSplitUsingSegments);
-  }
+
+  // for shared clients, we run it a first time to emit SDK_SEGMENTS_ARRIVED if splits were already fetched and don't use segments
+  onSplitsArrived();
 
   return {
     // Start periodic fetching (polling)
     start() {
-      if (splitsStorage.usesSegments()) mySegmentsUpdaterTask.start();
-      // @TODO consider removing next line if onSplitsArrived knows the synchronization mode
-      splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, onSplitsArrived);
+      running = true;
+      onSplitsArrived(); // start mySegmentsUpdaterTask if splits are using segments
     },
 
     // Stop periodic fetching (polling)
     stop() {
+      running = false;
       mySegmentsUpdaterTask.stop();
-      // @TODO consider removing next line if onSplitsArrived knows the synchronization mode
-      splitsEventEmitter.removeListener(splitsEventEmitter.SDK_SPLITS_ARRIVED, onSplitsArrived);
     },
 
     // Used by SyncManager to know if running in polling mode.
-    isRunning: mySegmentsUpdaterTask.isRunning,
+    isRunning,
 
     // Used by MySegmentUpdateWorker
     isSynchronizingMySegments() {
