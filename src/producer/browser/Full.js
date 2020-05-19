@@ -27,7 +27,8 @@ const log = logFactory('splitio-producer:updater');
  */
 const FullBrowserProducer = (context) => {
   const settings = context.get(context.constants.SETTINGS);
-  const { splits: splitsEventEmitter } = context.get(context.constants.READINESS);
+  const splitsStorage = context.get(context.constants.STORAGE).splits;
+  const { splits: splitsEventEmitter, segments: segmentsEventEmitter } = context.get(context.constants.READINESS);
 
   const splitsUpdater = SplitChangesUpdater(context);
   const mySegmentsUpdater = MySegmentsUpdater(context);
@@ -57,13 +58,19 @@ const FullBrowserProducer = (context) => {
     });
   }
 
+  function checkSplitUsingSegments() {
+    const isReady = context.get(context.constants.READY, true);
+    if (!splitsStorage.usesSegments() && !isReady) segmentsEventEmitter.emit(segmentsEventEmitter.SDK_SEGMENTS_ARRIVED);
+  }
+  splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, checkSplitUsingSegments);
+
   return {
     // Start periodic fetching (polling)
     start() {
       log.info('Starting BROWSER producer');
 
       splitsUpdaterTask.start();
-      mySegmentsUpdaterTask.start();
+      if (splitsStorage.usesSegments()) mySegmentsUpdaterTask.start();
       splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, onSplitsArrived);
     },
 

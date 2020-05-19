@@ -23,7 +23,8 @@ import onSplitsArrivedFactory from './onSplitsArrivedFactory';
  */
 const PartialBrowserProducer = (context) => {
   const settings = context.get(context.constants.SETTINGS);
-  const { splits: splitsEventEmitter } = context.get(context.constants.READINESS);
+  const splitsStorage = context.get(context.constants.STORAGE).splits;
+  const { splits: splitsEventEmitter, segments: segmentsEventEmitter } = context.get(context.constants.READINESS);
 
   const mySegmentsUpdater = MySegmentsUpdater(context);
   const mySegmentsUpdaterTask = TaskFactory(synchronizeMySegments, settings.scheduler.segmentsRefreshRate);
@@ -42,10 +43,20 @@ const PartialBrowserProducer = (context) => {
     });
   }
 
+  function checkSplitUsingSegments() {
+    const isReady = context.get(context.constants.READY, true);
+    if (!splitsStorage.usesSegments() && !isReady) segmentsEventEmitter.emit(segmentsEventEmitter.SDK_SEGMENTS_ARRIVED);
+  }
+  if (splitsStorage.getChangeNumber() !== -1) {
+    setTimeout(checkSplitUsingSegments, 0);
+  } else {
+    splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, checkSplitUsingSegments);
+  }
+
   return {
     // Start periodic fetching (polling)
     start() {
-      mySegmentsUpdaterTask.start();
+      if (splitsStorage.usesSegments()) mySegmentsUpdaterTask.start();
       splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, onSplitsArrived);
     },
 
