@@ -1,9 +1,11 @@
 /**
- * wraps a given promise in a new promise with a default onRejected function,
+ * wraps a given promise in a new one with a default onRejected function,
  * that handles the promise rejection if not other onRejected handler is provided.
  *
  * @param customPromise promise to wrap
  * @param defaultOnRejected default onRejected function
+ * @returns a promise that doesn't need to be handled for rejection (except when using async/await syntax) and
+ * with a method named `hasOnFulfilled` that returns true if the promise has attached an onFulfilled handler.
  */
 export default function promiseWrapper(customPromise, defaultOnRejected) {
 

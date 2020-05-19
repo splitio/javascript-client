@@ -11,8 +11,12 @@ function defaultOnRejected(err) {
 }
 
 /**
+ * StatusManager factory. Responsable of:
+ * - exposing public status event constants (SDK_READY, etc.), event emitter (gate), and ready promise.
+ * - updating client context according to status events
+ * - logging warnings and errors regarding user listeners of status events
  *
- * @param {Object} context
+ * @param {Object} context client context
  * @param {number} internalReadyCbCount number of SDK_READY listeners that are added/removed internally
  */
 export default function callbackHandlerContext(context, internalReadyCbCount = 0) {
