@@ -97,9 +97,9 @@ export default function(startWithTT, fetchMock, assert) {
   };
 
   /* Assert initial state */
-  assert.equal(mainClient.ready, nicolasClient.ready, 'Shared clients should share the ready flag.');
-  assert.equal(mainClient.ready, marcioClient.ready, 'Shared clients should share the ready flag.');
-  assert.equal(nicolasClient.ready, marcioClient.ready, 'Shared clients should share the ready flag.');
+  assert.notEqual(mainClient.ready, nicolasClient.ready, 'Shared clients should have their own ready promise.');
+  assert.notEqual(mainClient.ready, marcioClient.ready, 'Shared clients should have their own ready promise.');
+  assert.notEqual(nicolasClient.ready, marcioClient.ready, 'Shared clients should have their own ready promise.');
 
   /* Assert client.track(), no need to wait for ready. */
   trackAssertions();
