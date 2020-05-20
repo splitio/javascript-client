@@ -319,6 +319,7 @@ interface IStatusInterface extends NodeJS.EventEmitter {
    * @returns {Promise<void>}
    */
   ready(): Promise<void>
+  // @TODO add sync status methods
 }
 /**
  * Common definitions between clients for different environments interface.
