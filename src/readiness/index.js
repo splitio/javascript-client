@@ -27,6 +27,9 @@ function GateContext() {
   const splits = new EventEmitter();
   splits.SDK_SPLITS_CACHE_LOADED = Events.SDK_SPLITS_CACHE_LOADED;
   splits.SDK_SPLITS_ARRIVED = Events.SDK_SPLITS_ARRIVED;
+  splits.haveSplitsArrived = function () {
+    return splitsStatus === SPLITS_READY;
+  };
 
   // references counter: how many
   let refCount = 0;
@@ -46,7 +49,7 @@ function GateContext() {
     });
 
     splits.on(Events.SDK_SPLITS_ARRIVED, (isSplitKill) => {
-      if(!isSplitKill) splitsStatus = SPLITS_READY;
+      if (!isSplitKill) splitsStatus = SPLITS_READY;
       gate.emit(Events.READINESS_GATE_CHECK_STATE);
     });
 

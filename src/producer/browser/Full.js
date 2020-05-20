@@ -35,8 +35,9 @@ const FullBrowserProducer = (context) => {
   const splitsUpdaterTask = TaskFactory(synchronizeSplits, settings.scheduler.featuresRefreshRate);
   const mySegmentsUpdaterTask = TaskFactory(synchronizeMySegments, settings.scheduler.segmentsRefreshRate);
 
-  const onSplitsArrived = onSplitsArrivedFactory(mySegmentsUpdaterTask, context, splitsUpdaterTask.isRunning);
+  const { onceSplitsArrived, onSplitsArrived } = onSplitsArrivedFactory(mySegmentsUpdaterTask, context, splitsUpdaterTask.isRunning);
   splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, onSplitsArrived);
+  splitsEventEmitter.once(splitsEventEmitter.SDK_SPLITS_ARRIVED, onceSplitsArrived);
 
   let isSynchronizingSplits = false;
   let isSynchronizingMySegments = false;
