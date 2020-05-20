@@ -30,6 +30,7 @@ const PartialBrowserProducer = (context) => {
 
   const onSplitsArrived = onSplitsArrivedFactory(mySegmentsUpdaterTask, context, isRunning);
   splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, onSplitsArrived);
+  // for shared clients, we run it a first time to emit SDK_SEGMENTS_ARRIVED if splits were already fetched and they don't use segments
   if (splitsEventEmitter.haveSplitsArrived()) onSplitsArrived();
 
   let isSynchronizingMySegments = false;
@@ -49,9 +50,6 @@ const PartialBrowserProducer = (context) => {
   function isRunning() {
     return running;
   }
-
-  // for shared clients, we run it a first time to emit SDK_SEGMENTS_ARRIVED if splits were already fetched and don't use segments
-  // onSplitsArrived();
 
   return {
     // Start periodic fetching (polling)
