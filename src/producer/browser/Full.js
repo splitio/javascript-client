@@ -27,6 +27,7 @@ const log = logFactory('splitio-producer:updater');
  */
 const FullBrowserProducer = (context) => {
   const settings = context.get(context.constants.SETTINGS);
+  const { splits: splitsEventEmitter } = context.get(context.constants.READINESS);
 
   const splitsUpdater = SplitChangesUpdater(context);
   const mySegmentsUpdater = MySegmentsUpdater(context);
@@ -35,6 +36,7 @@ const FullBrowserProducer = (context) => {
   const mySegmentsUpdaterTask = TaskFactory(synchronizeMySegments, settings.scheduler.segmentsRefreshRate);
 
   const onSplitsArrived = onSplitsArrivedFactory(mySegmentsUpdaterTask, context, splitsUpdaterTask.isRunning);
+  splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, onSplitsArrived);
 
   let isSynchronizingSplits = false;
   let isSynchronizingMySegments = false;
