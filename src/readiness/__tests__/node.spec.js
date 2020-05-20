@@ -176,10 +176,10 @@ tape('Readiness Callbacks handler - Event emitter and returned handler', t => {
 
   t.test('The event callbacks should work as expected - SDK_READY emits with expected internal callbacks', assert => {
     // the statusManager expects more than one SDK_READY callback to not log the "No listeners" warning
-    statusManager(contextMock, 1);
+    statusManager(contextMock, false, 1);
 
     // Get the callbacks
-    const readyEventCB = gateMock.once.getCall(0).args[1];
+    let readyEventCB = gateMock.once.getCall(0).args[1];
     const removeListenerCB = gateMock.on.getCall(0).args[1];
     const addListenerCB = gateMock.on.getCall(1).args[1];
 
@@ -196,6 +196,12 @@ tape('Readiness Callbacks handler - Event emitter and returned handler', t => {
     assert.false(loggerMock.error.called, 'As we had at least one listener, we get no errors.');
 
     resetStubs();
+
+    statusManager(contextMock, true, 0);
+    readyEventCB = gateMock.once.getCall(0).args[1];
+    readyEventCB();
+    assert.false(loggerMock.warn.called, 'As we set the `forSharedClient` flag, the amount of expected listeners is not checked.');
+
     assert.end();
   });
 });
