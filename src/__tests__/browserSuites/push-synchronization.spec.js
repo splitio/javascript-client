@@ -209,11 +209,11 @@ export function testSynchronization(fetchMock, assert) {
   fetchMock.get(new RegExp('.*'), function (url) {
     assert.fail('unexpected GET request with url: ' + url);
   });
-  
+
   fetchMock.post('*', 200);
-  
+
   start = Date.now();
   splitio = SplitFactory(config);
   client = splitio.client();
-  
+
 }

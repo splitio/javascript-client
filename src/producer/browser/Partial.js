@@ -28,10 +28,10 @@ const PartialBrowserProducer = (context) => {
   const mySegmentsUpdater = MySegmentsUpdater(context);
   const mySegmentsUpdaterTask = TaskFactory(synchronizeMySegments, settings.scheduler.segmentsRefreshRate);
 
-  const onSplitsArrived = onSplitsArrivedFactory(mySegmentsUpdaterTask, context, isRunning);
-  splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, onSplitsArrived);
+  const { onceSplitsArrived, onSplitsArrived } = onSplitsArrivedFactory(mySegmentsUpdaterTask, context);
+  splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, onceSplitsArrived);
   // for shared clients, we run it a first time to emit SDK_SEGMENTS_ARRIVED if splits were already fetched and they don't use segments
-  if (splitsEventEmitter.haveSplitsArrived()) onSplitsArrived();
+  if (splitsEventEmitter.haveSplitsArrived()) onceSplitsArrived();
 
   let isSynchronizingMySegments = false;
 
@@ -56,12 +56,14 @@ const PartialBrowserProducer = (context) => {
     start() {
       running = true;
       mySegmentsUpdaterTask.start();
+      splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, onSplitsArrived);
     },
 
     // Stop periodic fetching (polling)
     stop() {
       running = false;
       mySegmentsUpdaterTask.stop();
+      splitsEventEmitter.removeListener(splitsEventEmitter.SDK_SPLITS_ARRIVED, onSplitsArrived);
     },
 
     // Used by SyncManager to know if running in polling mode.

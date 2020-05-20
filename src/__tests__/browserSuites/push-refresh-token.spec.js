@@ -108,9 +108,9 @@ export function testRefreshToken(fetchMock, assert) {
   fetchMock.get(new RegExp('.*'), function (url) {
     assert.fail('unexpected GET request with url: ' + url);
   });
-  
+
   start = Date.now();
   splitio = SplitFactory(config);
   client = splitio.client();
-  
+
 }
