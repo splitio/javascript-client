@@ -35,9 +35,8 @@ const FullBrowserProducer = (context) => {
   const splitsUpdaterTask = TaskFactory(synchronizeSplits, settings.scheduler.featuresRefreshRate);
   const mySegmentsUpdaterTask = TaskFactory(synchronizeMySegments, settings.scheduler.segmentsRefreshRate);
 
-  const { onceSplitsArrived, onSplitsArrived } = onSplitsArrivedFactory(mySegmentsUpdaterTask, context, splitsUpdaterTask.isRunning);
+  const onSplitsArrived = onSplitsArrivedFactory(mySegmentsUpdaterTask, context, splitsUpdaterTask.isRunning);
   splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, onSplitsArrived);
-  splitsEventEmitter.once(splitsEventEmitter.SDK_SPLITS_ARRIVED, onceSplitsArrived);
 
   let isSynchronizingSplits = false;
   let isSynchronizingMySegments = false;
@@ -65,7 +64,7 @@ const FullBrowserProducer = (context) => {
       log.info('Starting BROWSER producer');
 
       splitsUpdaterTask.start();
-      onSplitsArrived(); // start mySegmentsUpdaterTask if splits are using segments
+      mySegmentsUpdaterTask.start();
     },
 
     // Stop periodic fetching (polling)

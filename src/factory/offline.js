@@ -11,6 +11,10 @@ function SplitFactoryOffline(context, sharedTrackers) {
   const storage = context.get(context.constants.STORAGE);
   const statusManager = context.get(context.constants.STATUS_MANAGER);
 
+  // Shared clients are ready immediately in LOCALHOST mode
+  // this implies `client.ready()` to be resolved
+  if (sharedInstance) readiness.gate.emit(readiness.gate.SDK_READY);
+
   // Producer
   const producer = sharedInstance ? undefined : OfflineProducerFactory(context);
 
