@@ -1,7 +1,7 @@
 language: node_js
 
 node_js:
-  - "v12.16.3"
+  - "lts/*"
 
 cache: npm
 
