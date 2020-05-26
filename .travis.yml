@@ -9,7 +9,7 @@ services:
   - redis-server
 
 addons:
-  sonarqube: true
+  sonarcloud: true
 
 git:
   depth: false
