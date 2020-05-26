@@ -8,5 +8,6 @@ module.exports = merge(common, {
   mode: 'development',
   output: {
     filename: `[name]-${VERSION}.js`
-  }
+  },
+  target: 'webworker'
 });

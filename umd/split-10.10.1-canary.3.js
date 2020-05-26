@@ -7,7 +7,7 @@
 		exports["splitio"] = factory();
 	else
 		root["splitio"] = factory();
-})(window, function() {
+})(self, function() {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
