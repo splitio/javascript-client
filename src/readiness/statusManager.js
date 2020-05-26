@@ -11,14 +11,14 @@ function defaultOnRejected(err) {
 }
 
 /**
- * StatusManager factory. Responsable of exposing public status event constants (SDK_READY, etc.), emitter, and ready promise.
- * It also updates client context according to status events and logs warnings and errors regarding user listeners of events.
+ * StatusManager factory.
+ * Responsable of exposing public status API: ready promise, event emitter and constants (SDK_READY, etc).
+ * It also updates client context according to status events and logs related warnings and errors.
  *
  * @param {Object} context client context
- * @param {boolean} forSharedClient by the time, it is only used for disabling the 'No listeners' warning
  * @param {number} internalReadyCbCount number of SDK_READY listeners that are added/removed internally
  */
-export default function callbackHandlerContext(context, forSharedClient = false, internalReadyCbCount = 0) {
+export default function callbackHandlerContext(context, internalReadyCbCount = 0) {
   const gate = context.get(context.constants.READINESS).gate;
   let readyCbCount = 0;
   let isReady = false;
@@ -55,10 +55,7 @@ export default function callbackHandlerContext(context, forSharedClient = false,
   function generateReadyPromise() {
     const promise = promiseWrapper(new Promise((resolve, reject) => {
       gate.once(SDK_READY, () => {
-        // not logging the warning for shared clients, because they might be ready immediately (if splits are not using segments)
-        if (!forSharedClient && readyCbCount === internalReadyCbCount && !promise.hasOnFulfilled()) {
-          log.warn('No listeners for SDK Readiness detected. Incorrect control treatments could have been logged if you called getTreatment/s while the SDK was not yet ready.');
-        }
+        if (readyCbCount === internalReadyCbCount && !promise.hasOnFulfilled()) log.warn('No listeners for SDK Readiness detected. Incorrect control treatments could have been logged if you called getTreatment/s while the SDK was not yet ready.');
         context.put(context.constants.READY, true);
         isReady = true;
         resolve();

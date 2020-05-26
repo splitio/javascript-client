@@ -102,7 +102,7 @@ export function SplitFactory(config) {
         sharedContext.put(context.constants.READY, true); // For SDK inner workings it's supposed to be ready.
         const readiness = gateFactory(sharedSettings.startup.readyTimeout);
         sharedContext.put(context.constants.READINESS, readiness);
-        sharedContext.put(context.constants.STATUS_MANAGER, sdkStatusManager(sharedContext, true));
+        sharedContext.put(context.constants.STATUS_MANAGER, sdkStatusManager(sharedContext, -1));
         sharedContext.put(context.constants.SETTINGS, sharedSettings);
         sharedContext.put(context.constants.STORAGE, storage.shared(sharedSettings));
 
