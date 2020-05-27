@@ -19,7 +19,7 @@ function defaultOnRejected(err) {
  * @param {number} internalReadyCbCount number of SDK_READY listeners that are added/removed internally
  */
 export default function callbackHandlerContext(context, internalReadyCbCount = 0) {
-  const gate = context.get(context.constants.READINESS).gate;
+  const { gate, splits } = context.get(context.constants.READINESS);
   let readyCbCount = 0;
   let isReady = false;
   let hasTimedout = false;
@@ -46,11 +46,15 @@ export default function callbackHandlerContext(context, internalReadyCbCount = 0
 
   const readyPromise = generateReadyPromise();
 
-  gate.once(SDK_READY_FROM_CACHE, () => {
-    log.info('Split SDK is ready from cache.');
-
+  if(splits.splitsCacheLoaded) {
     context.put(context.constants.READY_FROM_CACHE, true);
-  });
+  } else {
+    gate.once(SDK_READY_FROM_CACHE, () => {
+      log.info('Split SDK is ready from cache.');
+
+      context.put(context.constants.READY_FROM_CACHE, true);
+    });
+  }
 
   function generateReadyPromise() {
     const promise = promiseWrapper(new Promise((resolve, reject) => {
