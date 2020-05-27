@@ -72,7 +72,7 @@ const PartialBrowserProducer = (context) => {
     // Start periodic fetching (polling)
     start() {
       running = true;
-      mySegmentsUpdaterTask.start();
+      if (splitsStorage.usesSegments()) mySegmentsUpdaterTask.start();
     },
 
     // Stop periodic fetching (polling)
