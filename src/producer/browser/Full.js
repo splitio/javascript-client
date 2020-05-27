@@ -17,8 +17,7 @@ limitations under the License.
 import logFactory from '../../utils/logger';
 import TaskFactory from '../task';
 import SplitChangesUpdater from '../updater/SplitChanges';
-import MySegmentsUpdater from '../updater/MySegments';
-import onSplitsArrivedFactory from './onSplitsArrivedFactory';
+import PartialBrowserProducer from './Partial';
 
 const log = logFactory('splitio-producer:updater');
 
@@ -27,34 +26,19 @@ const log = logFactory('splitio-producer:updater');
  */
 const FullBrowserProducer = (context) => {
   const settings = context.get(context.constants.SETTINGS);
-  const { splits: splitsEventEmitter } = context.get(context.constants.READINESS);
 
   const splitsUpdater = SplitChangesUpdater(context);
-  const mySegmentsUpdater = MySegmentsUpdater(context);
 
   const splitsUpdaterTask = TaskFactory(synchronizeSplits, settings.scheduler.featuresRefreshRate);
-  const mySegmentsUpdaterTask = TaskFactory(synchronizeMySegments, settings.scheduler.segmentsRefreshRate);
 
-  const { onceSplitsArrived, onSplitsArrived } = onSplitsArrivedFactory(mySegmentsUpdaterTask, context);
-  splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, onceSplitsArrived);
+  const mySegmentsProducer = PartialBrowserProducer(context);
 
   let isSynchronizingSplits = false;
-  let isSynchronizingMySegments = false;
 
   function synchronizeSplits() {
     isSynchronizingSplits = true;
     return splitsUpdater().finally(function () {
       isSynchronizingSplits = false;
-    });
-  }
-
-  /**
-   * @param {string[] | undefined} segmentList might be undefined
-   */
-  function synchronizeMySegments(segmentList) {
-    isSynchronizingMySegments = true;
-    return mySegmentsUpdater(0, segmentList).finally(function () {
-      isSynchronizingMySegments = false;
     });
   }
 
@@ -64,8 +48,7 @@ const FullBrowserProducer = (context) => {
       log.info('Starting BROWSER producer');
 
       splitsUpdaterTask.start();
-      mySegmentsUpdaterTask.start();
-      splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, onSplitsArrived);
+      mySegmentsProducer.start();
     },
 
     // Stop periodic fetching (polling)
@@ -73,8 +56,7 @@ const FullBrowserProducer = (context) => {
       log.info('Stopping BROWSER producer');
 
       splitsUpdaterTask.stop();
-      mySegmentsUpdaterTask && mySegmentsUpdaterTask.stop();
-      splitsEventEmitter.removeListener(splitsEventEmitter.SDK_SPLITS_ARRIVED, onSplitsArrived);
+      mySegmentsProducer.stop();
     },
 
     // Used by SyncManager to know if running in polling mode.
@@ -87,10 +69,8 @@ const FullBrowserProducer = (context) => {
     synchronizeSplits,
 
     // Used by MySegmentUpdateWorker
-    isSynchronizingMySegments() {
-      return isSynchronizingMySegments;
-    },
-    synchronizeMySegments,
+    isSynchronizingMySegments: mySegmentsProducer.isSynchronizingMySegments,
+    synchronizeMySegments: mySegmentsProducer.synchronizeMySegments,
   };
 };
 
