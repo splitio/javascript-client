@@ -44,11 +44,11 @@ const FullBrowserProducer = (context) => {
 
   return {
     // Start periodic fetching (polling)
-    start() {
+    start(pollingMode) {
       log.info('Starting BROWSER producer');
 
       splitsUpdaterTask.start();
-      mySegmentsProducer.start();
+      mySegmentsProducer.start(pollingMode);
     },
 
     // Stop periodic fetching (polling)

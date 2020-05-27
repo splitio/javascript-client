@@ -495,7 +495,7 @@ export default function (fetchMock, assert) {
       t.ok(Date.now() - start < 50, 'It should be ready quickly, since it had no segments and update has no segments either.');
 
       setTimeout(() => {
-        t.equal(getMySegmentsHits(), 0 * CLIENTS_COUNT, 'mySegments should had not been hit if neither cache and update have splits using segments');
+        t.equal(getMySegmentsHits(), 1 * CLIENTS_COUNT, 'mySegments should had been hit once per client on the first attempt but stopped syncing afterwards');
         Promise.all([
           client2.destroy(),
           client3.destroy(),
