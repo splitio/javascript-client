@@ -6,7 +6,10 @@ const settings = SettingsFactory({
   }
 });
 
-export default function(startWithTT, fetchMock, assert) {
+export default function (startWithTT, fetchMock, assert) {
+  // mocking mySegments endpoint with delay for a new client
+  fetchMock.get(settings.url('/mySegments/emiliano@split.io'), { status: 200, body: { mySegments: [] } }, { delay: 100 });
+
   const factory = SplitFactory({
     core: {
       authorizationKey: 'dummy',
@@ -23,6 +26,7 @@ export default function(startWithTT, fetchMock, assert) {
 
   let nicolasClient = factory.client('nicolas@split.io', 'nico_tt');
   let marcioClient = factory.client('marcio@split.io');
+  let emilianoClient = factory.client('emiliano@split.io');
 
   assert.throws(factory.client.bind(factory, null), 'Calling factory.client() with a key parameter that is not a valid key should throw.');
   assert.throws(factory.client.bind(factory, {}), 'Calling factory.client() with a key parameter that is not a valid key should throw.');
@@ -34,10 +38,17 @@ export default function(startWithTT, fetchMock, assert) {
     yield;
     yield;
     yield;
+    yield;
+    yield;
+    yield;
+    yield;
+    yield;
+    yield;
 
     marcioClient.destroy();
     nicolasClient.destroy();
     mainClient.destroy();
+    emilianoClient.destroy();
 
     assert.end();
   })();
@@ -110,12 +121,21 @@ export default function(startWithTT, fetchMock, assert) {
   getTreatmentsAssertions(mainClient, expectControls);
   getTreatmentsAssertions(nicolasClient, expectControls);
   getTreatmentsAssertions(marcioClient, expectControls);
-  // Once main is ready, they all should be ready. Same thing to use one ready or the other.
-  nicolasClient.ready().then(() => {
+  getTreatmentsAssertions(emilianoClient, expectControls);
+
+  // Each client is ready when splits and its segments are fetched
+  mainClient.ready().then(() => {
     assert.comment('Main instance - facundo@split.io');
     getTreatmentsAssertions(mainClient, ['off', 'on', 'on', 'off']);
+    getTreatmentsAssertions(emilianoClient, expectControls);
+
+    emilianoClient.ready().then(() => {
+      assert.comment('Shared instance - emiliano@split.io');
+      getTreatmentsAssertions(emilianoClient, ['off', 'on', 'off', 'off']);
+    });
   });
-  mainClient.ready().then(() => {
+
+  nicolasClient.ready().then(() => {
     assert.comment('Shared instance - nicolas@split.io');
     getTreatmentsAssertions(nicolasClient, ['off', 'on', 'off', 'on']);
   });
