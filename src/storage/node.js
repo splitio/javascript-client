@@ -25,17 +25,11 @@ const NodeStorageFactory = context => {
       const redis = new RedisAdapter(storage.options);
       const meta = MetaBuilder(settings);
 
-      // subscription to Redis connect event to emit SDK_READY
-      const readinessP = context.get(context.constants.READINESS);
-      readinessP.then(readiness => {
-        redis.on('connect', () => {
-          // @TODO check if running sync or not
-          // setTimeout(() => { // Allow for the sync statements to run so client is returned before these are emitted and callbacks executed.
-          const { splits, segments } = readiness;
-          splits.emit(splits.SDK_SPLITS_ARRIVED, false);
-          segments.emit(segments.SDK_SEGMENTS_ARRIVED, false);
-          // }, 0);
-        });
+      // subscription to Redis connect event in order to emit SDK_READY
+      const { splits, segments } = context.get(context.constants.READINESS);
+      redis.on('connect', () => {
+        splits.emit(splits.SDK_SPLITS_ARRIVED, false);
+        segments.emit(segments.SDK_SEGMENTS_ARRIVED, false);
       });
 
       return {
