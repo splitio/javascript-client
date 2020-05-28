@@ -48,11 +48,11 @@ function SplitFactoryOnline(context, readyTrackers, mainClientMetricCollectors) 
       break;
     }
     case CONSUMER_MODE: {
-      context.put(context.constants.READY, true); // For SDK inner workings it's supposed to be ready.
-      setTimeout(() => { // Allow for the sync statements to run so client is returned before these are emitted and callbacks executed.
-        splits.emit(splits.SDK_SPLITS_ARRIVED, false);
-        segments.emit(segments.SDK_SEGMENTS_ARRIVED, false);
-      }, 0);
+      context.put(context.constants.READY_FROM_CACHE, true); // For SDK inner workings it's supposed to be ready from cache.
+      // setTimeout(() => { // Allow for the sync statements to run so client is returned before these are emitted and callbacks executed.
+      //   splits.emit(splits.SDK_SPLITS_ARRIVED, false);
+      //   segments.emit(segments.SDK_SEGMENTS_ARRIVED, false);
+      // }, 0);
       break;
     }
   }
