@@ -115,27 +115,30 @@ tape('Browser offline mode', function (assert) {
     assert.deepEqual(manager.splits(), [expectedSplitView1, expectedSplitView2]);
 
     // And then through the shared instance.
-    assert.equal(sharedClient.getTreatment('testing_split'), 'on');
-    assert.equal(sharedClient.getTreatment('testing_split_2'), 'control');
-    assert.deepEqual(sharedClient.getTreatments([
-      'testing_split',
-      'testing_split_2',
-      'testing_split_with_config'
-    ]), {
-      testing_split: 'on',
-      testing_split_2: 'control',
-      testing_split_with_config: 'off'
-    });
-    // with config
-    assert.deepEqual(sharedClient.getTreatmentWithConfig('testing_split'), { treatment: 'on', config: null });
-    assert.deepEqual(sharedClient.getTreatmentsWithConfig([
-      'testing_split',
-      'testing_split_2',
-      'testing_split_with_config'
-    ]), {
-      testing_split: { treatment: 'on', config: null },
-      testing_split_2: { treatment: 'control', config: null },
-      testing_split_with_config: { treatment: 'off', config: '{ "color": "blue" }' }
+    // We use ready promise since SDK_READY may have been emitted for the shared client (not in this case anyway)
+    sharedClient.ready().then(() => {
+      assert.equal(sharedClient.getTreatment('testing_split'), 'on');
+      assert.equal(sharedClient.getTreatment('testing_split_2'), 'control');
+      assert.deepEqual(sharedClient.getTreatments([
+        'testing_split',
+        'testing_split_2',
+        'testing_split_with_config'
+      ]), {
+        testing_split: 'on',
+        testing_split_2: 'control',
+        testing_split_with_config: 'off'
+      });
+      // with config
+      assert.deepEqual(sharedClient.getTreatmentWithConfig('testing_split'), { treatment: 'on', config: null });
+      assert.deepEqual(sharedClient.getTreatmentsWithConfig([
+        'testing_split',
+        'testing_split_2',
+        'testing_split_with_config'
+      ]), {
+        testing_split: { treatment: 'on', config: null },
+        testing_split_2: { treatment: 'control', config: null },
+        testing_split_with_config: { treatment: 'off', config: '{ "color": "blue" }' }
+      });
     });
 
     setTimeout(() => {
