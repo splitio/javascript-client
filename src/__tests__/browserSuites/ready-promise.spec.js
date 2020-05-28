@@ -1,5 +1,5 @@
 import sinon from 'sinon';
-import { nearlyEqual } from '../utils/index';
+import { nearlyEqual } from '../utils';
 
 function fromSecondsToMillis(n) {
   return Math.round(n * 1000);
