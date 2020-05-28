@@ -119,6 +119,7 @@ tape('NodeJS Redis', function (t) {
         assert.true(await client.track('nicolas@split.io', 'user', 'test.redis.event', 18), 'If the event was succesfully queued the promise will resolve to true');
         assert.false(await client.track(), 'If the event was NOT succesfully queued the promise will resolve to false');
 
+        await client.ready(); // promise already resolved
         await client.destroy();
 
         // close server connection
@@ -156,6 +157,7 @@ tape('NodeJS Redis', function (t) {
 
         try {
           await client.ready();
+          assert.fail('Ready promise keeps being rejected until SDK_READY is emitted');
         } catch (error) {
           assert.pass('Ready promise keeps being rejected until SDK_READY is emitted');
         }
@@ -191,7 +193,13 @@ tape('NodeJS Redis', function (t) {
 
         client.once(client.Event.SDK_READY_TIMED_OUT, assert.fail);
 
+        const start = Date.now();
         client.once(client.Event.SDK_READY, async () => { // Use SDK_READY event.
+          // ready promise is resolved
+          await client.ready();
+          const delay = Date.now() - start;
+          assert.true(nearlyEqual(delay, 0), 'Ready promise is resolved once SDK_READY is emitted');
+
           assert.equal(await client.getTreatment('UT_Segment_member', 'UT_NOT_SET_MATCHER', {
             permissions: ['create']
           }), 'off', 'Control assertion - Everything working as expected.');
