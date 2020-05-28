@@ -11,6 +11,7 @@ import { SplitFactory } from '../';
 import { merge } from '../utils/lang';
 import KeyBuilder from '../storage/Keys';
 import SettingsFactory from '../utils/settings';
+import { nearlyEqual } from './utils';
 
 const IP_VALUE = ipFunction.address();
 const HOSTNAME_VALUE = osFunction.hostname();
@@ -125,6 +126,63 @@ tape('NodeJS Redis', function (t) {
       });
   });
 
+  t.test('Connection ready and timed out', async assert => {
+    const readyTimeout = 0.1; // 100 millis
+    const configWithShortTimeout = { ...config, startup: { readyTimeout } };
+    const sdk = SplitFactory(configWithShortTimeout);
+    const client = sdk.client();
+
+    const start = Date.now();
+    let readyTimestamp;
+
+    // @TODO assert SDK usage while Redis is not connected
+    // assert.equal(await client.getTreatment('UT_Segment_member', 'always-on'), 'control', 'In the event of a Redis error like a disconnection, getTreatments should not hang but resolve to "control".');
+    // assert.false(await client.track('nicolas@split.io', 'user', 'test.redis.event', 18), 'In the event of a Redis error like a disconnection, track should resolve to false.');
+
+    // SDK_READY_TIMED_OUT event must be emitted after 100 millis
+    client.on(client.Event.SDK_READY_TIMED_OUT, () => {
+      const delay = Date.now() - start;
+      assert.true(nearlyEqual(delay, readyTimeout * 1000), 'SDK_READY_TIMED_OUT event must be emitted after 100 millis');
+    });
+
+    // alse, ready promise must be rejected after 100 millis
+    client.ready().catch(() => {
+      const delay = Date.now() - start;
+      assert.true(nearlyEqual(delay, readyTimeout * 1000), 'Ready promise must be rejected after 100 millis');
+
+      // initialize server to emit SDK_READY
+      initializeRedisServer().then(async (server) => {
+        readyTimestamp = Date.now();
+
+        try {
+          await client.ready();
+        } catch (error) {
+          assert.pass('Ready promise keeps being rejected until SDK_READY is emitted');
+        }
+
+        client.on(client.Event.SDK_READY, async () => {
+          const delay = Date.now() - readyTimestamp;
+          assert.true(nearlyEqual(delay, 0, 100), 'SDK_READY event must be emitted soon once Redis server is connected');
+
+          await client.ready();
+          assert.pass('Ready promise is resolved once SDK_READY is emitted');
+
+          // some asserts to test regular usage
+          assert.equal(await client.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT'), 'on', 'Evaluations using Redis storage should be correct.');
+          assert.equal(await client.getTreatment('other', 'UT_IN_SEGMENT'), 'off', 'Evaluations using Redis storage should be correct.');
+          assert.true(await client.track('nicolas@split.io', 'user', 'test.redis.event', 18), 'If the event was succesfully queued the promise will resolve to true');
+          assert.false(await client.track(), 'If the event was NOT succesfully queued the promise will resolve to false');
+
+          await client.destroy();
+
+          // close server connection
+          server.close().then(assert.end);
+        });
+      });
+
+    });
+  });
+
   t.test('Connection error', assert => {
     initializeRedisServer()
       .then((server) => {
@@ -209,17 +267,17 @@ tape('NodeJS Redis', function (t) {
   t.test('Check IP and Hostname in Redis', assert => {
     initializeRedisServer()
       .then(async (server) => {
-        
+
         const configs = [
           config,
-          merge({ }, config, { core: { IPAddressesEnabled: true } }),
-          merge({ }, config, { core: { IPAddressesEnabled: false } })
+          merge({}, config, { core: { IPAddressesEnabled: true } }),
+          merge({}, config, { core: { IPAddressesEnabled: false } })
         ];
 
         for (let config of configs) {
 
           // Redis client and keys required to check Redis store.
-          const setting = SettingsFactory(config);  
+          const setting = SettingsFactory(config);
           const connection = new RedisClient(setting.storage.options.url);
           const keys = new KeyBuilder(setting);
           const eventKey = keys.buildEventsKey();
@@ -241,15 +299,15 @@ tape('NodeJS Redis', function (t) {
           let redisImpressions = await connection.lrange(eventKey, 0, -1);
           assert.equal(redisImpressions.length, 1, 'After getting a treatment, we should have one impression on Redis.');
           const parsedImpression = JSON.parse(redisImpressions[0]);
-          assert.equal(parsedImpression.m.i, setting.core.IPAddressesEnabled? IP_VALUE : NA, `If IPAddressesEnabled is true, the property .m.i of the impression object must be equal to the machine ip, or "${NA}" otherwise.`);
-          assert.equal(parsedImpression.m.n, setting.core.IPAddressesEnabled? HOSTNAME_VALUE : NA, `If IPAddressesEnabled is true, the property .m.n of the impression object must be equal to the machine hostname, or "${NA}" otherwise.`);
+          assert.equal(parsedImpression.m.i, setting.core.IPAddressesEnabled ? IP_VALUE : NA, `If IPAddressesEnabled is true, the property .m.i of the impression object must be equal to the machine ip, or "${NA}" otherwise.`);
+          assert.equal(parsedImpression.m.n, setting.core.IPAddressesEnabled ? HOSTNAME_VALUE : NA, `If IPAddressesEnabled is true, the property .m.n of the impression object must be equal to the machine hostname, or "${NA}" otherwise.`);
 
           // Assert if the event object was stored properly
           let redisEvents = await connection.lrange(eventKey, 0, -1);
           assert.equal(redisEvents.length, 1, 'After tracking an event, we should have one event on Redis.');
           const parsedEvent = JSON.parse(redisEvents[0]);
-          assert.equal(parsedEvent.m.i, setting.core.IPAddressesEnabled? IP_VALUE : NA, `If IPAddressesEnabled is true, the property .m.i of the event object must be equal to the machine ip, or "${NA}" otherwise.`);
-          assert.equal(parsedEvent.m.n, setting.core.IPAddressesEnabled? HOSTNAME_VALUE : NA, `If IPAddressesEnabled is true, the property .m.n of the event object must be equal to the machine hostname, or "${NA}" otherwise.`);
+          assert.equal(parsedEvent.m.i, setting.core.IPAddressesEnabled ? IP_VALUE : NA, `If IPAddressesEnabled is true, the property .m.i of the event object must be equal to the machine ip, or "${NA}" otherwise.`);
+          assert.equal(parsedEvent.m.n, setting.core.IPAddressesEnabled ? HOSTNAME_VALUE : NA, `If IPAddressesEnabled is true, the property .m.n of the event object must be equal to the machine hostname, or "${NA}" otherwise.`);
 
           // Deallocate Split and Redis clients
           await client.destroy();
