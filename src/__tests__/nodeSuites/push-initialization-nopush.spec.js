@@ -68,13 +68,12 @@ function testInitializationFail(fetchMock, assert, fallbackToPolling) {
     return { status: 200, body: splitChangesMock2 };
   });
 
-  start = Date.now();
   splitio = SplitFactory(config);
   client = splitio.client();
   client.on(client.Event.SDK_READY, () => {
     ready = true;
   });
-
+  start = Date.now();
 }
 
 export function testAuthWithPushDisabled(fetchMock, assert) {

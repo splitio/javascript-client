@@ -1,4 +1,4 @@
-10.13.0 (May XX, 2020)
+10.12.2 (Jun XX, 2020)
  - Updated client.ready() function to be consumed on demand and return a promise reflecting the current status of the SDK at the time the method was invoked.
 
 10.12.1 (May 18, 2020)
