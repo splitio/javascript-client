@@ -100,6 +100,7 @@ export function SplitFactory(config) {
         const sharedContext = new Context();
 
         const readiness = gateFactory(sharedSettings.startup.readyTimeout);
+        sharedContext.put(context.constants.READY_FROM_CACHE, context.get(context.constants.READY_FROM_CACHE, true));
         sharedContext.put(context.constants.READINESS, readiness);
         sharedContext.put(context.constants.STATUS_MANAGER, sdkStatusManager(sharedContext, -1));
         sharedContext.put(context.constants.SETTINGS, sharedSettings);

@@ -31,7 +31,7 @@ const PartialBrowserProducer = (context) => {
   const mySegmentsUpdaterTask = TaskFactory(synchronizeMySegments, settings.scheduler.segmentsRefreshRate);
 
   splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, checkIfUsingSegments);
-  // for shared clients, we run `checkIfUsingSegments` a first time if splits have already arrived
+  // Needed for shared clients, we run `checkIfUsingSegments` a first time if splits have already arrived, to emit SDK_READY (if apply) immediately in next event cycle
   if (splitsEventEmitter.haveSplitsArrived()) setTimeout(checkIfUsingSegments, 0);
 
   let isSynchronizingMySegments = false;
@@ -55,8 +55,10 @@ const PartialBrowserProducer = (context) => {
   function checkIfUsingSegments() {
     const splitsHaveSegments = splitsStorage.usesSegments();
     const isReady = context.get(context.constants.READY, true);
+
     // emit SDK_READY if splits are not using segments
     if (!isReady && !splitsHaveSegments) segmentsEventEmitter.emit(segmentsEventEmitter.SDK_SEGMENTS_ARRIVED);
+
     // smart pause/resume of mySegmentsUpdaterTask while doing polling
     if (running && splitsHaveSegments !== mySegmentsUpdaterTask.isRunning()) {
       log.info(`Turning segments data polling ${splitsHaveSegments ? 'ON' : 'OFF'}.`);

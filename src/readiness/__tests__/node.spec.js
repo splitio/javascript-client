@@ -28,26 +28,22 @@ tape('Readiness Callbacks handler - Event emitter and returned handler', t => {
     SDK_READY_TIMED_OUT: 'sdk_ready_timeout_event',
     SDK_UPDATE: 'sdk_update',
   };
-  const splitsMock = {
-    splitsCacheLoaded: false
-  };
   const contextMock = {
     put: sinon.stub(),
-    get: entityName => entityName === 'readiness_gate' ? { gate: gateMock, splits: splitsMock } : null,
+    get: entityName => entityName === 'readiness_gate' ? { gate: gateMock } : null,
     constants: {
       READINESS: 'readiness_gate',
       READY: 'is_ready',
       READY_FROM_CACHE: 'is_ready_from_cache'
     }
   };
-  function resetStubs(splitsCacheLoaded = false) {
+  function resetStubs() {
     contextMock.put.resetHistory();
     gateMock.on.resetHistory();
     gateMock.once.resetHistory();
     loggerMock.warn.resetHistory();
     loggerMock.error.resetHistory();
     loggerMock.info.resetHistory();
-    splitsMock.splitsCacheLoaded = splitsCacheLoaded;
   }
 
   t.test('Providing the gate object to get the SDK status interface that manages events', assert => {
@@ -93,14 +89,9 @@ tape('Readiness Callbacks handler - Event emitter and returned handler', t => {
 
     const readyFromCacheEventCB = gateMock.once.getCall(2).args[1];
     readyFromCacheEventCB();
+    assert.true(loggerMock.info.calledOnce, 'If the SDK_READY_FROM_CACHE event fires, we get a info message.');
+    assert.true(loggerMock.info.calledWithExactly('Split SDK is ready from cache.'), 'Telling us the SDK is ready to be used with data from cache.');
     assert.true(contextMock.put.calledOnceWithExactly(contextMock.constants.READY_FROM_CACHE, true), 'It takes care of marking the SDK as ready from cache');
-
-    resetStubs(true); // reset context with `splitsCacheLoaded` flag (i.e., SDK_READY_FROM_CACHE event was already emitted)
-    statusManager(contextMock);
-
-    const readyFromCacheCall = gateMock.once.getCall(2);
-    assert.equal(readyFromCacheCall, null, 'There is not a subscription to the SDK_READY_FROM_CACHE event if the event was already emitted');
-    assert.true(contextMock.put.calledOnceWithExactly(contextMock.constants.READY_FROM_CACHE, true), 'It takes care of marking the SDK as ready from cache, if `splitsCacheLoaded` flag at splits gate is true');
 
     resetStubs();
     assert.end();
@@ -233,16 +224,12 @@ tape('Readiness Callbacks handler - Ready promise', t => {
     SDK_READY_TIMED_OUT: 'sdk_ready_timeout_event',
     SDK_UPDATE: 'sdk_update',
   };
-  const splitsMock = {
-    splitsCacheLoaded: false
-  };
   const contextMock = {
     put: sinon.stub(),
-    get: entityName => entityName === 'readiness_gate' ? { gate: gateMock, splits: splitsMock } : null,
+    get: entityName => entityName === 'readiness_gate' ? { gate: gateMock } : null,
     constants: {
       READINESS: 'readiness_gate',
-      READY: 'is_ready',
-      READY_FROM_CACHE: 'is_ready_from_cache'
+      READY: 'is_ready'
     }
   };
   function resetStubs() {
