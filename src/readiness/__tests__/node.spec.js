@@ -118,7 +118,7 @@ tape('Readiness Callbacks handler - Event emitter and returned handler', t => {
 
     loggerMock.error.resetHistory();
     addListenerCB(gateMock.SDK_READY_TIMED_OUT);
-    assert.true(loggerMock.error.calledOnceWithExactly('A listener was added for SDK_READY_TIMED_OUT on the SDK, which has already fired and won\'t be emitted again. The callback won\'t be executed.'), 'If we try to add a listener to SDK_READY we get the corresponding warning.');
+    assert.true(loggerMock.error.calledOnceWithExactly('A listener was added for SDK_READY_TIMED_OUT on the SDK, which has already fired and won\'t be emitted again. The callback won\'t be executed.'), 'If we try to add a listener to SDK_READY_TIMED_OUT we get the corresponding warning.');
 
     resetStubs();
     assert.end();

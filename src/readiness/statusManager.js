@@ -21,6 +21,8 @@ function defaultOnRejected(err) {
 export default function callbackHandlerContext(context, internalReadyCbCount = 0) {
   const gate = context.get(context.constants.READINESS).gate;
   let readyCbCount = 0;
+  let isReady = false;
+  let hasTimedout = false;
   const {
     SDK_READY,
     SDK_READY_FROM_CACHE,
@@ -34,7 +36,7 @@ export default function callbackHandlerContext(context, internalReadyCbCount = 0
 
   gate.on(NEW_LISTENER_EVENT, event => {
     if (event === SDK_READY || event === SDK_READY_TIMED_OUT) {
-      if (context.get(context.constants.READY, true)) {
+      if (isReady) {
         log.error(`A listener was added for ${event === SDK_READY ? 'SDK_READY' : 'SDK_READY_TIMED_OUT'} on the SDK, which has already fired and won't be emitted again. The callback won't be executed.`);
       } else if (event === SDK_READY) {
         readyCbCount++;
@@ -55,10 +57,11 @@ export default function callbackHandlerContext(context, internalReadyCbCount = 0
       gate.once(SDK_READY, () => {
         if (readyCbCount === internalReadyCbCount && !promise.hasOnFulfilled()) log.warn('No listeners for SDK Readiness detected. Incorrect control treatments could have been logged if you called getTreatment/s while the SDK was not yet ready.');
         context.put(context.constants.READY, true);
+        isReady = true;
         resolve();
       });
       gate.once(SDK_READY_TIMED_OUT, (error) => {
-        context.put(context.constants.HAS_TIMEDOUT, true);
+        hasTimedout = true;
         reject(error);
       });
     }), defaultOnRejected);
@@ -79,8 +82,8 @@ export default function callbackHandlerContext(context, internalReadyCbCount = 0
       },
       // Expose the ready promise flag
       ready: () => {
-        if (context.get(context.constants.HAS_TIMEDOUT, true)) {
-          if (!context.get(context.constants.READY, true)) {
+        if (hasTimedout) {
+          if (!isReady) {
             return promiseWrapper(Promise.reject('Split SDK has emitted SDK_READY_TIMED_OUT event.'), defaultOnRejected);
           } else {
             return Promise.resolve();
@@ -90,9 +93,9 @@ export default function callbackHandlerContext(context, internalReadyCbCount = 0
       },
       // Expose methods to access client status synchronously
       // @TODO add tests for next methods
-      isReady() { return context.get(context.constants.READY, true) || false; },
+      isReady() { return isReady; },
       isReadyFromCache() { return context.get(context.constants.READY_FROM_CACHE, true) || false; },
-      hasTimedout() { return context.get(context.constants.HAS_TIMEDOUT, true) || false; },
+      hasTimedout() { return hasTimedout; },
       isDestroyed() { return context.get(context.constants.DESTROYED, true) || false; }
     }
   );
