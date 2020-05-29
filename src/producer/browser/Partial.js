@@ -30,9 +30,11 @@ const PartialBrowserProducer = (context) => {
   const mySegmentsUpdater = MySegmentsUpdater(context);
   const mySegmentsUpdaterTask = TaskFactory(synchronizeMySegments, settings.scheduler.segmentsRefreshRate);
 
-  splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, checkIfUsingSegments);
-  // Needed for shared clients, we run `checkIfUsingSegments` a first time if splits have already arrived, to emit SDK_READY (if apply) immediately in next event cycle
-  if (splitsEventEmitter.haveSplitsArrived()) setTimeout(checkIfUsingSegments, 0);
+  splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, smartPausing);
+  // needed for shared clients, we run `smartReady` a first time if splits were sync and don't use segments,
+  // to emit SDK_SEGMENTS_ARRIVED (and thus SDK_READY) immediately in next event cycle
+  if (!splitsStorage.usesSegments()) setTimeout(smartReady, 0);
+  else splitsEventEmitter.once(splitsEventEmitter.SDK_SPLITS_ARRIVED, smartReady);
 
   let isSynchronizingMySegments = false;
 
@@ -52,15 +54,17 @@ const PartialBrowserProducer = (context) => {
     return running;
   }
 
-  function checkIfUsingSegments() {
-    const splitsHaveSegments = splitsStorage.usesSegments();
+  // emit SDK_SEGMENTS_ARRIVED (and thus SDK_READY) if not ready yet and splits are not using segments
+  function smartReady() {
     const isReady = context.get(context.constants.READY, true);
+    if (!isReady && !splitsStorage.usesSegments()) segmentsEventEmitter.emit(segmentsEventEmitter.SDK_SEGMENTS_ARRIVED);
+  }
 
-    // emit SDK_READY if splits are not using segments
-    if (!isReady && !splitsHaveSegments) segmentsEventEmitter.emit(segmentsEventEmitter.SDK_SEGMENTS_ARRIVED);
-
-    // smart pause/resume of mySegmentsUpdaterTask while doing polling
-    if (running && splitsHaveSegments !== mySegmentsUpdaterTask.isRunning()) {
+  // smartly pause/resume mySegmentsUpdaterTask while doing polling
+  function smartPausing() {
+    if (!running) return; // noop if not doing polling
+    const splitsHaveSegments = splitsStorage.usesSegments();
+    if (splitsHaveSegments !== mySegmentsUpdaterTask.isRunning()) {
       log.info(`Turning segments data polling ${splitsHaveSegments ? 'ON' : 'OFF'}.`);
       if (splitsHaveSegments) {
         mySegmentsUpdaterTask.start();
@@ -72,9 +76,9 @@ const PartialBrowserProducer = (context) => {
 
   return {
     // Start periodic fetching (polling)
-    start(pollingMode) {
+    start() {
       running = true;
-      if (pollingMode || splitsStorage.usesSegments()) mySegmentsUpdaterTask.start();
+      if (splitsStorage.usesSegments()) mySegmentsUpdaterTask.start();
     },
 
     // Stop periodic fetching (polling)

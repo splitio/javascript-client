@@ -28,11 +28,6 @@ function GateContext() {
   splits.SDK_SPLITS_CACHE_LOADED = Events.SDK_SPLITS_CACHE_LOADED;
   splits.SDK_SPLITS_ARRIVED = Events.SDK_SPLITS_ARRIVED;
 
-  // used by shared clients to know if SDK_SPLITS_ARRIVED and SDK_SPLITS_CACHE_LOADED events have already been emitted
-  splits.haveSplitsArrived = function () {
-    return splitsStatus === SPLITS_READY;
-  };
-
   // references counter: how many
   let refCount = 0;
 
