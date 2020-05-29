@@ -93,7 +93,7 @@ export default function BrowserSyncManagerFactory(mainContext) {
           }
           pushManager.startNewClient(userKey, context);
         } else {
-          producer.start(true);
+          producer.start();
         }
       },
 

@@ -25,6 +25,13 @@ const NodeStorageFactory = context => {
       const redis = new RedisAdapter(storage.options);
       const meta = MetaBuilder(settings);
 
+      // subscription to Redis connect event in order to emit SDK_READY
+      const { splits, segments } = context.get(context.constants.READINESS);
+      redis.on('connect', () => {
+        splits.emit(splits.SDK_SPLITS_ARRIVED, false);
+        segments.emit(segments.SDK_SEGMENTS_ARRIVED, false);
+      });
+
       return {
         splits: new SplitCacheInRedis(keys, redis),
         segments: new SegmentCacheInRedis(keys, redis),

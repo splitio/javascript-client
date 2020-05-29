@@ -28,12 +28,6 @@ function GateContext() {
   splits.SDK_SPLITS_CACHE_LOADED = Events.SDK_SPLITS_CACHE_LOADED;
   splits.SDK_SPLITS_ARRIVED = Events.SDK_SPLITS_ARRIVED;
 
-  // used by shared clients to know if SDK_SPLITS_ARRIVED and SDK_SPLITS_CACHE_LOADED events have already been emitted
-  splits.haveSplitsArrived = function () {
-    return splitsStatus === SPLITS_READY;
-  };
-  splits.splitsCacheLoaded = false;
-
   // references counter: how many
   let refCount = 0;
 
@@ -58,10 +52,7 @@ function GateContext() {
 
     splits.once(Events.SDK_SPLITS_CACHE_LOADED, () => {
       // Make it async
-      setTimeout(() => {
-        splits.splitsCacheLoaded = true;
-        gate.emit(Events.SDK_READY_FROM_CACHE);
-      }, 0);
+      setTimeout(() => gate.emit(Events.SDK_READY_FROM_CACHE), 0);
     });
 
     segments.on(Events.SDK_SEGMENTS_ARRIVED, () => {

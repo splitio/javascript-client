@@ -35,9 +35,15 @@ export function SplitFactory(config) {
   // We will just log and allow for the SDK to end up throwing an SDK_TIMEOUT event for devs to handle.
   validateApiKey(settings.core.authorizationKey);
 
+  // Put readiness config within context
+  const gateFactory = ReadinessGateFacade();
+  const readiness = gateFactory(settings.startup.readyTimeout);
+  context.put(context.constants.READINESS, readiness);
+  const statusManager = sdkStatusManager(context);
+  context.put(context.constants.STATUS_MANAGER, statusManager);
+
   // Put storage config within context
   const storage = StorageFactory(context);
-  const gateFactory = ReadinessGateFacade();
   context.put(context.constants.STORAGE, storage);
 
   // Put integrationsManager within context.
@@ -47,12 +53,6 @@ export function SplitFactory(config) {
 
   // Define which type of factory to use
   const splitFactory = settings.mode === LOCALHOST_MODE ? SplitFactoryOffline : SplitFactoryOnline;
-
-  // Put readiness config within context
-  const readiness = gateFactory(settings.startup.readyTimeout);
-  context.put(context.constants.READINESS, readiness);
-  const statusManager = sdkStatusManager(context);
-  context.put(context.constants.STATUS_MANAGER, statusManager);
 
   const {
     api: mainClientInstance,
@@ -100,6 +100,7 @@ export function SplitFactory(config) {
         const sharedContext = new Context();
 
         const readiness = gateFactory(sharedSettings.startup.readyTimeout);
+        sharedContext.put(context.constants.READY_FROM_CACHE, context.get(context.constants.READY_FROM_CACHE, true));
         sharedContext.put(context.constants.READINESS, readiness);
         sharedContext.put(context.constants.STATUS_MANAGER, sdkStatusManager(sharedContext, -1));
         sharedContext.put(context.constants.SETTINGS, sharedSettings);
