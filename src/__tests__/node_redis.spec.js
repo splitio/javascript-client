@@ -127,7 +127,7 @@ tape('NodeJS Redis', function (t) {
       });
   });
 
-  t.test('Connection ready and timed out', async assert => {
+  t.test('Connection ready and timed out', assert => {
     const readyTimeout = 0.1; // 100 millis
     const configWithShortTimeout = { ...config, startup: { readyTimeout } };
     const sdk = SplitFactory(configWithShortTimeout);
@@ -136,9 +136,12 @@ tape('NodeJS Redis', function (t) {
     const start = Date.now();
     let readyTimestamp;
 
-    // @TODO assert SDK usage while Redis is not connected
-    // assert.equal(await client.getTreatment('UT_Segment_member', 'always-on'), 'control', 'In the event of a Redis error like a disconnection, getTreatments should not hang but resolve to "control".');
-    // assert.false(await client.track('nicolas@split.io', 'user', 'test.redis.event', 18), 'In the event of a Redis error like a disconnection, track should resolve to false.');
+    client.getTreatment('UT_Segment_member', 'always-on').then(treatment => {
+      assert.equal(treatment, 'on', 'Evaluations using Redis storage should be correct and resolved once Redis connection is stablished');
+    });
+    client.track('nicolas@split.io', 'user', 'test.redis.event', 18).then(result => {
+      assert.true(result, 'If the event was succesfully queued the promise will resolve to true once Redis connection is stablished');
+    });
 
     // SDK_READY_TIMED_OUT event must be emitted after 100 millis
     client.on(client.Event.SDK_READY_TIMED_OUT, () => {
