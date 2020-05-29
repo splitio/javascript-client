@@ -40,11 +40,11 @@
     "js-yaml": "3.13.1",
     "node-fetch": "^2.6.0",
     "unfetch": "^4.1.0",
-    "utfx": "1.0.1"
+    "utfx": "1.0.1",
+    "events": "3.1.0",
+    "ioredis": "^4.14.1"
   },
   "optionalDependencies": {
-    "events": "3.1.0",
-    "ioredis": "^4.14.1",
     "eventsource": "^1.0.7"
   },
   "devDependencies": {
