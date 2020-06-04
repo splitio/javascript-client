@@ -49,8 +49,8 @@ function ToInt32(x) {
 function hash(str /*: string */, seed /*: number */) /*: number */ {
   let h = 0;
 
-  for (let c of str) {
-    h = ToInt32(ToInt32(31 * h) + c.charCodeAt(0));
+  for (let i = 0; i < str.length; i++) {
+    h = ToInt32(ToInt32(31 * h) + str.charCodeAt(i));
   }
 
   return ToInt32(h ^ seed);

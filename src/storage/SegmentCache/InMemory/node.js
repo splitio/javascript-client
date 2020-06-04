@@ -46,8 +46,8 @@ class SegmentCacheInMemory {
   }
 
   registerSegments(segments) {
-    for (let segmentName of segments) {
-      this.registerSegment(segmentName);
+    for (let i = 0; i < segments.length; i++) {
+      this.registerSegment(segments[i]);
     }
 
     return true;

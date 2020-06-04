@@ -26,9 +26,9 @@ function computeSplitsMutation(entries) {
     if (split.status === 'ACTIVE') {
       accum.added.push([split.name, JSON.stringify(split)]);
 
-      for (let segmentName of parseSegments(split.conditions)) {
+      parseSegments(split.conditions).forEach(segmentName => {
         accum.segments.add(segmentName);
-      }
+      });
     } else {
       accum.removed.push(split.name);
     }

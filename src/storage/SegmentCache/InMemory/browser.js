@@ -30,7 +30,6 @@ class SegmentCacheInMemory {
   resetSegments(segmentNames) {
     let isDiff = false;
     let index;
-    let s;
 
     // Extreme fast => everything is empty
     if (segmentNames.length === 0 && this.segmentCache.size === segmentNames.length)
@@ -41,8 +40,8 @@ class SegmentCacheInMemory {
       isDiff = true;
 
       this.segmentCache = new Map();
-      for (s of segmentNames) {
-        this.addToSegment(s);
+      for (let i = 0; i < segmentNames.length; i++) {
+        this.addToSegment(segmentNames[i]);
       }
     } else {
       // Slowest path => we need to find at least 1 difference because
@@ -54,8 +53,8 @@ class SegmentCacheInMemory {
         isDiff = true;
 
         this.segmentCache = new Map();
-        for (s of segmentNames) {
-          this.addToSegment(s);
+        for (let i = 0; i < segmentNames.length; i++) {
+          this.addToSegment(segmentNames[i]);
         }
       }
     }
