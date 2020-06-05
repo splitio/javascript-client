@@ -16,7 +16,8 @@ function defaultOnRejected(err) {
  * It also updates client context according to status events and logs related warnings and errors.
  *
  * @param {Object} context client context
- * @param {number} internalReadyCbCount number of SDK_READY listeners that are added/removed internally
+ * @param {number} internalReadyCbCount number of SDK_READY listeners that are added/removed by the SDK,
+ * used to properly log the warning 'No listeners for SDK Readiness detected'
  */
 export default function callbackHandlerContext(context, internalReadyCbCount = 0) {
   const gate = context.get(context.constants.READINESS).gate;

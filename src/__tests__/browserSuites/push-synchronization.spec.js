@@ -15,7 +15,7 @@ import splitKillMessage from '../mocks/message.SPLIT_KILL.1457552650000.json';
 import authPushEnabledNicolas from '../mocks/auth.pushEnabled.nicolas@split.io.json';
 import authPushEnabledNicolasAndMarcio from '../mocks/auth.pushEnabled.nicolas@split.io.marcio@split.io.json';
 
-import { nearlyEqual } from '../utils';
+import { nearlyEqual } from '../testUtils';
 
 // Replace original EventSource with mock
 import EventSourceMock, { setMockListener } from '../../sync/__tests__/mocks/eventSourceMock';
