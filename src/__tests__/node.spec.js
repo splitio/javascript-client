@@ -1,5 +1,5 @@
 import tape from 'tape-catch';
-import fetchMock from './utils/fetchMock';
+import fetchMock from './testUtils/fetchMock';
 import SettingsFactory from '../utils/settings';
 
 import evaluationsSuite from './nodeSuites/evaluations.spec';

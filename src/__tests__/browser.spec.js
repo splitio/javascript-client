@@ -1,5 +1,5 @@
 import tape from 'tape-catch';
-import fetchMock from './utils/fetchMock';
+import fetchMock from './testUtils/fetchMock';
 import evaluationsSuite from './browserSuites/evaluations.spec';
 import impressionsSuite from './browserSuites/impressions.spec';
 import metricsSuite from './browserSuites/metrics.spec';

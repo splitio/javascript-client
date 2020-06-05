@@ -5,7 +5,7 @@ import authPushEnabledNicolas from '../mocks/auth.pushEnabled.nicolas@split.io.j
 import authPushBadToken from '../mocks/auth.pushBadToken.json';
 import mySegmentsNicolasMock from '../mocks/mysegments.nicolas@split.io.json';
 
-import { nearlyEqual } from '../utils';
+import { nearlyEqual } from '../testUtils';
 
 import EventSourceMock, { setMockListener } from '../../sync/__tests__/mocks/eventSourceMock';
 

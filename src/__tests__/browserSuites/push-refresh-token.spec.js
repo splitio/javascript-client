@@ -4,7 +4,7 @@ import mySegmentsNicolasMock1 from '../mocks/mysegments.nicolas@split.io.json';
 
 import authPushEnabledNicolas from '../mocks/auth.pushEnabled.nicolas@split.io.601secs.json';
 
-import { nearlyEqual } from '../utils';
+import { nearlyEqual } from '../testUtils';
 
 // Replace original EventSource with mock
 import EventSourceMock, { setMockListener } from '../../sync/__tests__/mocks/eventSourceMock';
@@ -108,9 +108,9 @@ export function testRefreshToken(fetchMock, assert) {
   fetchMock.get(new RegExp('.*'), function (url) {
     assert.fail('unexpected GET request with url: ' + url);
   });
-  
+
   start = Date.now();
   splitio = SplitFactory(config);
   client = splitio.client();
-  
+
 }

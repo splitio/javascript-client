@@ -2,7 +2,7 @@
 import path from 'path';
 import tape from 'tape-catch';
 import sinon from 'sinon';
-import fetchMock from '../utils/fetchMock';
+import fetchMock from '../testUtils/fetchMock';
 import { SplitFactory } from '../../';
 import SettingsFactory from '../../utils/settings';
 

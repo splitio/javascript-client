@@ -209,7 +209,7 @@ tape('NodeJS Redis', function (t) {
   t.test('Check IP and Hostname in Redis', assert => {
     initializeRedisServer()
       .then(async (server) => {
-        
+
         const configs = [
           config,
           merge({ }, config, { core: { IPAddressesEnabled: true } }),
@@ -219,7 +219,7 @@ tape('NodeJS Redis', function (t) {
         for (let config of configs) {
 
           // Redis client and keys required to check Redis store.
-          const setting = SettingsFactory(config);  
+          const setting = SettingsFactory(config);
           const connection = new RedisClient(setting.storage.options.url);
           const keys = new KeyBuilder(setting);
           const eventKey = keys.buildEventsKey();

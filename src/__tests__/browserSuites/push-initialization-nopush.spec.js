@@ -5,7 +5,7 @@ import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
 import mySegmentsNicolas from '../mocks/mysegments.nicolas@split.io.json';
 import authPushDisabled from '../mocks/auth.pushDisabled.json';
 import authInvalidCredentials from '../mocks/auth.invalidCredentials.txt';
-import { nearlyEqual } from '../utils';
+import { nearlyEqual } from '../testUtils';
 
 const baseUrls = {
   sdk: 'https://sdk.push-initialization-nopush/api',
@@ -68,12 +68,13 @@ function testInitializationFail(fetchMock, assert, fallbackToPolling) {
     return { status: 200, body: splitChangesMock2 };
   });
 
+  start = Date.now();
   splitio = SplitFactory(config);
   client = splitio.client();
   client.on(client.Event.SDK_READY, () => {
     ready = true;
   });
-  start = Date.now();
+
 }
 
 export function testAuthWithPushDisabled(fetchMock, assert) {

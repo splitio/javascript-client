@@ -46,8 +46,8 @@ export default function readyPromiseAssertions(fetchMock, assert) {
     const config = {
       ...baseConfig,
       urls: {
-        sdk: 'https://sdk.baseurl/readinessSuite3',
-        events: 'https://events.baseurl/readinessSuite3'
+        sdk: 'https://sdk.baseurl/readyPromise1',
+        events: 'https://events.baseurl/readyPromise1'
       },
       startup: {
         readyTimeout: 0.15,
@@ -56,15 +56,10 @@ export default function readyPromiseAssertions(fetchMock, assert) {
       }
     };
 
-    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', function () {
-      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: splitChangesMock1 }); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20); });
-    });
-    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', function () {
-      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: splitChangesMock1 }); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20); });
-    });
-    fetchMock.get(config.urls.sdk + '/mySegments/facundo@split.io', function () {
-      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: mySegmentsFacundo }); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20); });
-    });
+    // /splitChanges takes longer than 'requestTimeoutBeforeReady' in both attempts
+    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20 });
+    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20 });
+    fetchMock.get(config.urls.sdk + '/mySegments/facundo@split.io', mySegmentsFacundo, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20 });
     fetchMock.postOnce(config.urls.events + '/testImpressions/bulk', 200);
 
     const splitio = SplitFactory(config);
@@ -98,8 +93,8 @@ export default function readyPromiseAssertions(fetchMock, assert) {
     const config = {
       ...baseConfig,
       urls: {
-        sdk: 'https://sdk.baseurl/readinessSuite4',
-        events: 'https://events.baseurl/readinessSuite4'
+        sdk: 'https://sdk.baseurl/readyPromise2',
+        events: 'https://events.baseurl/readyPromise2'
       },
       startup: {
         readyTimeout: 0.15,
@@ -108,15 +103,10 @@ export default function readyPromiseAssertions(fetchMock, assert) {
       }
     };
 
-    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', function () {
-      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: splitChangesMock1 }); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20); });
-    });
-    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', function () {
-      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: splitChangesMock1 }); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20); });
-    });
-    fetchMock.get(config.urls.sdk + '/mySegments/facundo@split.io', function () {
-      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: mySegmentsFacundo }); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20); });
-    });
+    // /splitChanges takes longer than 'requestTimeoutBeforeReady' only for the first attempt
+    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20 });
+    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20 });
+    fetchMock.get(config.urls.sdk + '/mySegments/facundo@split.io', mySegmentsFacundo, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20 });
     fetchMock.postOnce(config.urls.events + '/testImpressions/bulk', 200);
 
     const splitio = SplitFactory(config);
@@ -152,8 +142,8 @@ export default function readyPromiseAssertions(fetchMock, assert) {
     const config = {
       ...baseConfig,
       urls: {
-        sdk: 'https://sdk.baseurl/readinessSuite5',
-        events: 'https://events.baseurl/readinessSuite5'
+        sdk: 'https://sdk.baseurl/readyPromise3',
+        events: 'https://events.baseurl/readyPromise3'
       },
       startup: {
         readyTimeout: 0.15,
@@ -162,15 +152,10 @@ export default function readyPromiseAssertions(fetchMock, assert) {
       }
     };
 
-    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', function () {
-      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: splitChangesMock1 }); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20); });
-    });
-    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', function () {
-      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: splitChangesMock1 }); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20); });
-    });
-    fetchMock.get(config.urls.sdk + '/mySegments/facundo@split.io', function () {
-      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: mySegmentsFacundo }); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20); });
-    });
+    // /splitChanges takes longer than 'requestTimeoutBeforeReady' only for the first attempt
+    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20 });
+    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20 });
+    fetchMock.get(config.urls.sdk + '/mySegments/facundo@split.io', mySegmentsFacundo, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20 });
     fetchMock.postOnce(config.urls.events + '/testImpressions/bulk', 200);
 
     const splitio = SplitFactory(config);
@@ -214,8 +199,8 @@ export default function readyPromiseAssertions(fetchMock, assert) {
     const config = {
       ...baseConfig,
       urls: {
-        sdk: 'https://sdk.baseurl/readinessSuite6',
-        events: 'https://events.baseurl/readinessSuite6'
+        sdk: 'https://sdk.baseurl/readyPromise4',
+        events: 'https://events.baseurl/readyPromise4'
       },
       scheduler: {
         featuresRefreshRate: 0.25,
@@ -235,18 +220,11 @@ export default function readyPromiseAssertions(fetchMock, assert) {
       (config.startup.requestTimeoutBeforeReady * (config.startup.retriesOnFailureBeforeReady + 1) +
         config.scheduler.featuresRefreshRate) - config.startup.readyTimeout) + refreshTimeMillis;
 
-    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', function () {
-      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: splitChangesMock1 }); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20); });
-    });
-    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', function () {
-      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: splitChangesMock1 }); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20); });
-    });
-    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', function () {
-      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: splitChangesMock1 }); }, refreshTimeMillis); });
-    });
-    fetchMock.get(config.urls.sdk + '/mySegments/facundo@split.io', function () {
-      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: mySegmentsFacundo }); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20); });
-    });
+    // /splitChanges takes longer than 'requestTimeoutBeforeReady' in both initial attempts
+    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20 });
+    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20 });
+    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: refreshTimeMillis });
+    fetchMock.get(config.urls.sdk + '/mySegments/facundo@split.io', mySegmentsFacundo, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20 });
     fetchMock.postOnce(config.urls.events + '/testImpressions/bulk', 200);
 
     const splitio = SplitFactory(config);
@@ -290,8 +268,8 @@ export default function readyPromiseAssertions(fetchMock, assert) {
     const config = {
       ...baseConfig,
       urls: {
-        sdk: 'https://sdk.baseurl/readinessSuite7',
-        events: 'https://events.baseurl/readinessSuite7'
+        sdk: 'https://sdk.baseurl/readyPromise5',
+        events: 'https://events.baseurl/readyPromise5'
       },
       startup: {
         readyTimeout: 0.1,
@@ -300,12 +278,9 @@ export default function readyPromiseAssertions(fetchMock, assert) {
       }
     };
 
-    fetchMock.get(config.urls.sdk + '/splitChanges?since=-1', function () {
-      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: splitChangesMock1 }); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20); });
-    }); // /splitChanges takes longer than 'requestTimeoutBeforeReady'
-    fetchMock.get(config.urls.sdk + '/mySegments/facundo@split.io', function () {
-      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: mySegmentsFacundo }); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20); });
-    });
+    // /splitChanges takes longer than 'requestTimeoutBeforeReady'
+    fetchMock.get(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20 });
+    fetchMock.get(config.urls.sdk + '/mySegments/facundo@split.io', mySegmentsFacundo, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20 });
     fetchMock.postOnce(config.urls.events + '/testImpressions/bulk', 200);
 
     const splitio = SplitFactory(config);
@@ -342,8 +317,8 @@ export default function readyPromiseAssertions(fetchMock, assert) {
     const config = {
       ...baseConfig,
       urls: {
-        sdk: 'https://sdk.baseurl/readinessSuite8',
-        events: 'https://events.baseurl/readinessSuite8'
+        sdk: 'https://sdk.baseurl/readyPromise6',
+        events: 'https://events.baseurl/readyPromise6'
       },
       startup: {
         readyTimeout: 0.1,
@@ -352,12 +327,9 @@ export default function readyPromiseAssertions(fetchMock, assert) {
       }
     };
 
-    fetchMock.get(config.urls.sdk + '/splitChanges?since=-1', function () {
-      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: splitChangesMock1 }); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20); });
-    });
-    fetchMock.get(config.urls.sdk + '/mySegments/facundo@split.io', function () {
-      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: mySegmentsFacundo }); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20); });
-    }); // Both /splitChanges and /mySegments take less than 'requestTimeoutBeforeReady'
+    // Both /splitChanges and /mySegments take less than 'requestTimeoutBeforeReady'
+    fetchMock.get(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20 });
+    fetchMock.get(config.urls.sdk + '/mySegments/facundo@split.io', mySegmentsFacundo, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20 });
     fetchMock.postOnce(config.urls.events + '/testImpressions/bulk', 200);
 
     const splitio = SplitFactory(config);
@@ -391,8 +363,8 @@ export default function readyPromiseAssertions(fetchMock, assert) {
     const config = {
       ...baseConfig,
       urls: {
-        sdk: 'https://sdk.baseurl/readinessSuite9',
-        events: 'https://events.baseurl/readinessSuite9'
+        sdk: 'https://sdk.baseurl/readyPromise7',
+        events: 'https://events.baseurl/readyPromise7'
       },
       startup: {
         readyTimeout: 0.15,
@@ -401,15 +373,10 @@ export default function readyPromiseAssertions(fetchMock, assert) {
       }
     };
 
-    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', function () {
-      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: splitChangesMock1 }); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20); });
-    });
-    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', function () {
-      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: splitChangesMock1 }); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20); });
-    });
-    fetchMock.get(config.urls.sdk + '/mySegments/facundo@split.io', function () {
-      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: mySegmentsFacundo }); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20); });
-    });
+    // /splitChanges takes longer than 'requestTimeoutBeforeReady' only for the first attempt
+    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20 });
+    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20 });
+    fetchMock.get(config.urls.sdk + '/mySegments/facundo@split.io', mySegmentsFacundo, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20 });
     fetchMock.postOnce(config.urls.events + '/testImpressions/bulk', 200);
 
     const splitio = SplitFactory(config);
@@ -487,8 +454,8 @@ export default function readyPromiseAssertions(fetchMock, assert) {
     const config = {
       ...baseConfig,
       urls: {
-        sdk: 'https://sdk.baseurl/readinessSuite10',
-        events: 'https://events.baseurl/readinessSuite10'
+        sdk: 'https://sdk.baseurl/readyPromise8',
+        events: 'https://events.baseurl/readyPromise8'
       },
       startup: {
         readyTimeout: 0.15,
@@ -497,15 +464,10 @@ export default function readyPromiseAssertions(fetchMock, assert) {
       }
     };
 
-    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', function () {
-      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: splitChangesMock1 }); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20); });
-    });
-    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', function () {
-      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: splitChangesMock1 }); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20); });
-    });
-    fetchMock.get(config.urls.sdk + '/mySegments/facundo@split.io', function () {
-      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: mySegmentsFacundo }); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20); });
-    });
+    // /splitChanges takes longer than 'requestTimeoutBeforeReady' only for the first attempt
+    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20 });
+    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20 });
+    fetchMock.get(config.urls.sdk + '/mySegments/facundo@split.io', mySegmentsFacundo, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20 });
     fetchMock.postOnce(config.urls.events + '/testImpressions/bulk', 200);
 
     const splitio = SplitFactory(config);
@@ -560,8 +522,8 @@ export default function readyPromiseAssertions(fetchMock, assert) {
     const config = {
       ...baseConfig,
       urls: {
-        sdk: 'https://sdk.baseurl/readinessSuite11',
-        events: 'https://events.baseurl/readinessSuite11'
+        sdk: 'https://sdk.baseurl/readyPromise9',
+        events: 'https://events.baseurl/readyPromise9'
       },
       startup: {
         readyTimeout: 0.1, // We use a short ready timeout to don't extend to much the test
@@ -570,12 +532,9 @@ export default function readyPromiseAssertions(fetchMock, assert) {
       }
     };
 
-    fetchMock.get(config.urls.sdk + '/splitChanges?since=-1', function () {
-      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: splitChangesMock1 }); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20); });
-    }); // /splitChanges takes longer than 'requestTimeoutBeforeReady'
-    fetchMock.get(config.urls.sdk + '/mySegments/facundo@split.io', function () {
-      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: mySegmentsFacundo }); }, fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20); });
-    });
+    // /splitChanges takes longer than 'requestTimeoutBeforeReady'
+    fetchMock.get(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20 });
+    fetchMock.get(config.urls.sdk + '/mySegments/facundo@split.io', mySegmentsFacundo, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20 });
     fetchMock.postOnce(config.urls.events + '/testImpressions/bulk', 200);
 
     const splitio = SplitFactory(config);
