@@ -135,6 +135,8 @@ tape('NodeJS Redis', function (t) {
 
     const start = Date.now();
     let readyTimestamp;
+    let redisServer;
+    assert.plan(19);
 
     client.getTreatment('UT_Segment_member', 'always-on').then(treatment => {
       assert.equal(treatment, 'on', 'Evaluations using Redis storage should be correct and resolved once Redis connection is stablished');
@@ -157,35 +159,66 @@ tape('NodeJS Redis', function (t) {
       // initialize server to emit SDK_READY
       initializeRedisServer().then(async (server) => {
         readyTimestamp = Date.now();
-
+        redisServer = server;
         try {
           await client.ready();
           assert.fail('Ready promise keeps being rejected until SDK_READY is emitted');
         } catch (error) {
           assert.pass('Ready promise keeps being rejected until SDK_READY is emitted');
         }
+      });
+    });
 
-        client.on(client.Event.SDK_READY, async () => {
-          const delay = Date.now() - readyTimestamp;
-          assert.true(nearlyEqual(delay, 0, 100), 'SDK_READY event must be emitted soon once Redis server is connected');
+    // subscribe to SDK_READY event to assert regular usage
+    client.on(client.Event.SDK_READY, async () => {
+      const delay = Date.now() - readyTimestamp;
+      assert.true(nearlyEqual(delay, 0, 100), 'SDK_READY event must be emitted soon once Redis server is connected');
 
-          await client.ready();
-          assert.pass('Ready promise is resolved once SDK_READY is emitted');
+      await client.ready();
+      assert.pass('Ready promise is resolved once SDK_READY is emitted');
 
-          // some asserts to test regular usage
-          assert.equal(await client.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT'), 'on', 'Evaluations using Redis storage should be correct.');
-          assert.equal(await client.getTreatment('other', 'UT_IN_SEGMENT'), 'off', 'Evaluations using Redis storage should be correct.');
-          assert.true(await client.track('nicolas@split.io', 'user', 'test.redis.event', 18), 'If the event was succesfully queued the promise will resolve to true');
-          assert.false(await client.track(), 'If the event was NOT succesfully queued the promise will resolve to false');
+      // some asserts to test regular usage
+      assert.equal(await client.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT'), 'on', 'Evaluations using Redis storage should be correct.');
+      assert.equal(await client.getTreatment('other', 'UT_IN_SEGMENT'), 'off', 'Evaluations using Redis storage should be correct.');
+      assert.true(await client.track('nicolas@split.io', 'user', 'test.redis.event', 18), 'If the event was succesfully queued the promise will resolve to true');
+      assert.false(await client.track(), 'If the event was NOT succesfully queued the promise will resolve to false');
 
-          await client.destroy();
+      await client.destroy();
+      assert.pass();
+    });
 
-          // close server connection
-          server.close().then(assert.end);
-        });
+    // create a new factory with a very short readyTimedout config to emit SDK_READY_TIMED_OUT even with the Redis server on
+    client.on(client.Event.SDK_READY, async () => {
+      const configWithVeryShortTimeout = {
+        ...config,
+        startup: { readyTimeout: 0.001 },
+        core: { authorizationKey: 'aaa4sb69bjv7d4d027f7ukkitd53ek6a9ai9' }
+      };
+      const sdk2 = SplitFactory(configWithVeryShortTimeout);
+      const client2 = sdk2.client();
+      client2.on(client2.Event.SDK_READY_TIMED_OUT, () => {
+        assert.pass('SDK_READY_TIMED_OUT event must be emitted');
       });
 
+      client2.on(client2.Event.SDK_READY, async () => {
+        assert.pass('SDK_READY event must be emitted');
+
+        // some asserts to test regular usage
+        assert.equal(await client2.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT'), 'on', 'Evaluations using Redis storage should be correct.');
+        assert.equal(await client2.getTreatment('other', 'UT_IN_SEGMENT'), 'off', 'Evaluations using Redis storage should be correct.');
+        assert.true(await client2.track('nicolas@split.io', 'user', 'test.redis.event', 18), 'If the event was succesfully queued the promise will resolve to true');
+        assert.false(await client2.track(), 'If the event was NOT succesfully queued the promise will resolve to false');
+
+        await client2.destroy();
+
+        // close server connection
+        redisServer.close().then(() => {
+          assert.pass();
+          assert.end();
+        });
+      });
     });
+
   });
 
   t.test('Connection error', assert => {
@@ -195,13 +228,14 @@ tape('NodeJS Redis', function (t) {
         const client = sdk.client();
 
         client.once(client.Event.SDK_READY_TIMED_OUT, assert.fail);
+        client.ready().then(assert.pass).catch(assert.fail);
 
         const start = Date.now();
         client.once(client.Event.SDK_READY, async () => { // Use SDK_READY event.
           // ready promise is resolved
           await client.ready();
           const delay = Date.now() - start;
-          assert.true(nearlyEqual(delay, 0), 'Ready promise is resolved once SDK_READY is emitted');
+          assert.true(nearlyEqual(delay, 0), 'Ready promise is resolved once SDK_READY is emitted, and it is emitted almost immediately after the SDK is created');
 
           assert.equal(await client.getTreatment('UT_Segment_member', 'UT_NOT_SET_MATCHER', {
             permissions: ['create']

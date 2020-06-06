@@ -1,7 +1,7 @@
 import tape from 'tape-catch';
 import map from 'lodash/map';
 import pick from 'lodash/pick';
-import fetchMock from '../utils/fetchMock';
+import fetchMock from '../testUtils/fetchMock';
 import { SplitFactory } from '../../';
 import SettingsFactory from '../../utils/settings';
 

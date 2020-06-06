@@ -28,8 +28,8 @@ const NodeStorageFactory = context => {
       // subscription to Redis connect event in order to emit SDK_READY
       const { splits, segments } = context.get(context.constants.READINESS);
       redis.on('connect', () => {
-        splits.emit(splits.SDK_SPLITS_ARRIVED, false);
-        segments.emit(segments.SDK_SEGMENTS_ARRIVED, false);
+        splits.emit(splits.SDK_SPLITS_ARRIVED);
+        segments.emit(segments.SDK_SEGMENTS_ARRIVED);
       });
 
       return {

@@ -35,7 +35,8 @@ export function SplitFactory(config) {
   // We will just log and allow for the SDK to end up throwing an SDK_TIMEOUT event for devs to handle.
   validateApiKey(settings.core.authorizationKey);
 
-  // Put readiness config within context
+  // Put readiness and statusManager within context
+  // Done before adding storage, to let it access readiness gate synchronously
   const gateFactory = ReadinessGateFacade();
   const readiness = gateFactory(settings.startup.readyTimeout);
   context.put(context.constants.READINESS, readiness);
@@ -102,6 +103,7 @@ export function SplitFactory(config) {
         const readiness = gateFactory(sharedSettings.startup.readyTimeout);
         sharedContext.put(context.constants.READY_FROM_CACHE, context.get(context.constants.READY_FROM_CACHE, true));
         sharedContext.put(context.constants.READINESS, readiness);
+        // for shared clients, the internal offset of added/removed SDK_READY callbacks is -1
         sharedContext.put(context.constants.STATUS_MANAGER, sdkStatusManager(sharedContext, -1));
         sharedContext.put(context.constants.SETTINGS, sharedSettings);
         sharedContext.put(context.constants.STORAGE, storage.shared(sharedSettings));
