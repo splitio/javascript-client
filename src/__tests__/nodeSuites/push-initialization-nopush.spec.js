@@ -4,7 +4,7 @@ import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
 import authPushDisabled from '../mocks/auth.pushDisabled.json';
 import authInvalidCredentials from '../mocks/auth.invalidCredentials.txt';
-import { nearlyEqual } from '../utils';
+import { nearlyEqual } from '../testUtils';
 
 import { __setEventSource, __restore } from '../../services/getEventSource/node';
 
@@ -45,7 +45,8 @@ function testInitializationFail(fetchMock, assert, fallbackToPolling) {
     { status: 200, body: { since: 10, till: 10, name: 'segmentName', added: [], removed: [] } });
   fetchMock.getOnce(settings.url('/splitChanges?since=-1'), function () {
     const lapse = Date.now() - start;
-    assert.true(nearlyEqual(lapse, 0), 'initial sync');
+    // using a higher error margin for Travis, due to a lower performance than local execution
+    assert.true(nearlyEqual(lapse, 0, process.env.TRAVIS ? 100 : 50), 'initial sync');
     return { status: 200, body: splitChangesMock1 };
   });
 
@@ -53,7 +54,7 @@ function testInitializationFail(fetchMock, assert, fallbackToPolling) {
     fetchMock.getOnce(settings.url('/splitChanges?since=1457552620999'), function () {
       assert.true(ready, 'client ready');
       const lapse = Date.now() - start;
-      assert.true(nearlyEqual(lapse, 0), 'polling (first fetch)');
+      assert.true(nearlyEqual(lapse, 0, process.env.TRAVIS ? 100 : 50), 'polling (first fetch)');
       return { status: 200, body: splitChangesMock2 };
     });
   }
@@ -61,19 +62,20 @@ function testInitializationFail(fetchMock, assert, fallbackToPolling) {
   fetchMock.getOnce(settings.url('/splitChanges?since=1457552620999'), function () {
     assert.true(ready, 'client ready');
     const lapse = Date.now() - start;
-    assert.true(nearlyEqual(lapse, settings.scheduler.featuresRefreshRate), 'polling (second fetch)');
+    assert.true(nearlyEqual(lapse, settings.scheduler.featuresRefreshRate, process.env.TRAVIS ? 100 : 50), 'polling (second fetch)');
     client.destroy().then(() => {
       assert.end();
     });
     return { status: 200, body: splitChangesMock2 };
   });
 
+  start = Date.now();
   splitio = SplitFactory(config);
   client = splitio.client();
   client.on(client.Event.SDK_READY, () => {
     ready = true;
   });
-  start = Date.now();
+
 }
 
 export function testAuthWithPushDisabled(fetchMock, assert) {

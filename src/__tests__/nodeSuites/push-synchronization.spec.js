@@ -10,7 +10,7 @@ import splitKillMessage from '../mocks/message.SPLIT_KILL.1457552650000.json';
 
 import authPushEnabled from '../mocks/auth.pushEnabled.node.json';
 
-import { nearlyEqual, mockSegmentChanges } from '../utils';
+import { nearlyEqual, mockSegmentChanges } from '../testUtils';
 
 import EventSourceMock, { setMockListener } from '../../sync/__tests__/mocks/eventSourceMock';
 import { __setEventSource } from '../../services/getEventSource/node';

@@ -1,7 +1,7 @@
 // Here we are testing exceptions and the handler should be ours, we need to avoid tape-catch
 import tape from 'tape';
 import includes from 'lodash/includes';
-import fetchMock from '../utils/fetchMock';
+import fetchMock from '../testUtils/fetchMock';
 
 import { SplitFactory } from '../../';
 import SettingsFactory from '../../utils/settings';

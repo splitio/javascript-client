@@ -49,6 +49,8 @@ export default function (startWithTT, fetchMock, assert) {
     yield;
     yield;
     yield;
+    yield;
+    yield;
 
     marcioClient.destroy();
     nicolasClient.destroy();
@@ -149,8 +151,12 @@ export default function (startWithTT, fetchMock, assert) {
     assert.comment('Shared instance - marcio@split.io');
     getTreatmentsAssertions(marcioClient, ['off', 'on', 'off', 'off']);
   });
+  matiasClient.on(matiasClient.Event.SDK_READY_TIMED_OUT, () => {
+    getTreatmentsAssertions(matiasClient, expectControls);
+  });
   matiasClient.ready().catch(() => {
     matiasClient.on(matiasClient.Event.SDK_READY, () => {
+      getTreatmentsAssertions(matiasClient, ['off', 'on', 'off', 'off']);
       matiasClient.ready().then(() => {
         assert.comment('Shared instance - matias@split.io');
         getTreatmentsAssertions(matiasClient, ['off', 'on', 'off', 'off']);

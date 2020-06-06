@@ -3,7 +3,7 @@ import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
 
 import authPushEnabled from '../mocks/auth.pushEnabled.node.601secs.json';
 
-import { nearlyEqual, mockSegmentChanges } from '../utils';
+import { nearlyEqual, mockSegmentChanges } from '../testUtils';
 
 import EventSourceMock, { setMockListener } from '../../sync/__tests__/mocks/eventSourceMock';
 import { __setEventSource } from '../../services/getEventSource/node';
