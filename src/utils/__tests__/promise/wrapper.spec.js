@@ -2,7 +2,7 @@ import tape from 'tape-catch';
 import promiseWrapper from '../../promise/wrapper';
 
 tape('Promise utils / promise wrapper', function (assert) {
-  assert.plan(31 + 19); // number of passHandler, passHandlerFinally, passHandlerWithThrow and `hasOnFulfilled` asserts
+  assert.plan(36 + 22); // number of passHandler, passHandlerFinally, passHandlerWithThrow and `hasOnFulfilled` asserts
 
   const value = 'value';
   const failHandler = (val) => { assert.fail(val); };
@@ -18,6 +18,10 @@ tape('Promise utils / promise wrapper', function (assert) {
 
   wrappedPromise = promiseWrapper(createResolvedPromise(), failHandler);
   wrappedPromise.then(passHandler);
+  assert.equal(wrappedPromise.hasOnFulfilled(), true);
+
+  wrappedPromise = promiseWrapper(createResolvedPromise(), failHandler);
+  wrappedPromise.finally(passHandlerFinally);
   assert.equal(wrappedPromise.hasOnFulfilled(), true);
 
   wrappedPromise = promiseWrapper(createResolvedPromise(), failHandler);
@@ -54,9 +58,18 @@ tape('Promise utils / promise wrapper', function (assert) {
   wrappedPromise = promiseWrapper(createRejectedPromise(), passHandler);
   assert.equal(wrappedPromise.hasOnFulfilled(), false);
 
-  wrappedPromise = promiseWrapper(createRejectedPromise(), passHandler);
+  wrappedPromise = promiseWrapper(createRejectedPromise(), failHandler);
   wrappedPromise.catch(passHandler);
   assert.equal(wrappedPromise.hasOnFulfilled(), false);
+
+  wrappedPromise = promiseWrapper(createRejectedPromise(), failHandler);
+  wrappedPromise.catch(passHandler).then(passHandler);
+  assert.equal(wrappedPromise.hasOnFulfilled(), false);
+
+  // caveat: setting an `onFinally` handler as the first handler, requires an `onRejected` handler if promise is rejected
+  wrappedPromise = promiseWrapper(createRejectedPromise(), failHandler);
+  wrappedPromise.finally(passHandlerFinally).catch(passHandlerFinally);
+  assert.equal(wrappedPromise.hasOnFulfilled(), true);
 
   wrappedPromise = promiseWrapper(createRejectedPromise(), passHandler);
   wrappedPromise.then(undefined, passHandler);
