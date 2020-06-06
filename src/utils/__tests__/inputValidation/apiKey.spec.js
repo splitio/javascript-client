@@ -37,7 +37,6 @@ const errorMsgs = {
 
 const invalidKeys = [
   { key: '', msg: errorMsgs.EMPTY_API_KEY },
-  { key: 'undefined', msg: errorMsgs.EMPTY_API_KEY },
   { key: null, msg: errorMsgs.NULL_API_KEY },
   { key: undefined, msg: errorMsgs.NULL_API_KEY },
   { key: () => {}, msg: errorMsgs.WRONG_TYPE_API_KEY },
