@@ -227,22 +227,17 @@ export default function readyPromiseAssertions(fetchMock, assert) {
     fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: refreshTimeMillis });
     // main client endpoint configured to fetch segments before request timeout
     fetchMock.get(config.urls.sdk + '/mySegments/facundo@split.io', mySegmentsFacundo, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20 });
-    fetchMock.get(config.urls.sdk + '/splitChanges?since=1457552620999', { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
+    fetchMock.get(config.urls.sdk + '/splitChanges?since=1457552620999', { splits: [], since: 1457552620999, till: 1457552620999 });
     // shared client endpoint configured to fetch segments immediately, in order to emit SDK_READY as soon as splits arrives
-    fetchMock.get(config.urls.sdk + '/mySegments/nicolas@split.io', { status: 200, body: mySegmentsFacundo });
+    fetchMock.get(config.urls.sdk + '/mySegments/nicolas@split.io', mySegmentsFacundo);
     // shared client endpoint configured to emit SDK_READY_TIMED_OUT
-    fetchMock.get(config.urls.sdk + '/mySegments/emiliano@split.io', function () {
-      return new Promise((res) => { setTimeout(() => { res({ status: 200, body: mySegmentsFacundo }); }, fromSecondsToMillis(config.startup.readyTimeout) + 20); });
-    });
+    fetchMock.get(config.urls.sdk + '/mySegments/emiliano@split.io', mySegmentsFacundo, { delay: fromSecondsToMillis(config.startup.readyTimeout) + 20 });
 
     fetchMock.postOnce(config.urls.events + '/testImpressions/bulk', 200);
 
     const splitio = SplitFactory(config);
     const client = splitio.client();
     const nicolasClient = splitio.client('nicolas@split.io');
-
-    nicolasClient.on(nicolasClient.Event.SDK_READY_TIMED_OUT, () => { console.log('nico SDK_READY_TIMED_OUT'); });
-    nicolasClient.on(nicolasClient.Event.SDK_READY, () => { console.log('nico SDK_READY'); });
 
     client.ready()
       .then(() => {
@@ -499,6 +494,8 @@ export default function readyPromiseAssertions(fetchMock, assert) {
     fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20 });
     fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20 });
     fetchMock.get(config.urls.sdk + '/mySegments/facundo@split.io', mySegmentsFacundo, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20 });
+    fetchMock.get(config.urls.sdk + '/mySegments/nicolas@split.io', mySegmentsFacundo);
+    fetchMock.get(config.urls.sdk + '/mySegments/emiliano@split.io', mySegmentsFacundo);
     fetchMock.postOnce(config.urls.events + '/testImpressions/bulk', 200);
 
     const splitio = SplitFactory(config);
@@ -524,6 +521,7 @@ export default function readyPromiseAssertions(fetchMock, assert) {
       t.true(consoleSpy.log.calledWithExactly('[WARN]  No listeners for SDK Readiness detected. Incorrect control treatments could have been logged if you called getTreatment/s while the SDK was not yet ready.'),
         'Warning that there are not listeners for SDK_READY event');
 
+      // assert error messages when adding event listeners after SDK has already triggered them
       consoleSpy.log.resetHistory();
       client.on(client.Event.SDK_READY, () => { });
       client.on(client.Event.SDK_READY_TIMED_OUT, () => { });
@@ -532,17 +530,31 @@ export default function readyPromiseAssertions(fetchMock, assert) {
       t.true(consoleSpy.log.calledWithExactly('[ERROR] A listener was added for SDK_READY_TIMED_OUT on the SDK, which has already fired and won\'t be emitted again. The callback won\'t be executed.'),
         'Logging error that a listeners for SDK_READY_TIMED_OUT event was added after triggered');
 
-      client.destroy().then(() => {
-        client.ready()
-          .then(() => {
-            t.pass('### SDK IS READY - the promise remains resolved after client destruction.');
-            assertGetTreatmentControlNotReadyOnDestroy(t, client);
-            t.end();
-          })
-          .catch(() => {
-            t.fail('### SDK TIMED OUT - It should not in this scenario.');
-            t.end();
+      // assert 'No listener warning' on shared clients
+      consoleSpy.log.resetHistory();
+      const sharedClientWithCb = splitio.client('nicolas@split.io');
+      sharedClientWithCb.on(client.Event.SDK_READY, () => {
+        t.false(consoleSpy.log.calledWithExactly('[WARN]  No listeners for SDK Readiness detected. Incorrect control treatments could have been logged if you called getTreatment/s while the SDK was not yet ready.'),
+          'No warning logged');
+
+        // eslint-disable-next-line no-unused-vars
+        const sharedClientWithoutCb = splitio.client('emiliano@split.io');
+        setTimeout(() => {
+          t.true(consoleSpy.log.calledWithExactly('[WARN]  No listeners for SDK Readiness detected. Incorrect control treatments could have been logged if you called getTreatment/s while the SDK was not yet ready.'),
+            'Warning logged');
+          client.destroy().then(() => {
+            client.ready()
+              .then(() => {
+                t.pass('### SDK IS READY - the promise remains resolved after client destruction.');
+                assertGetTreatmentControlNotReadyOnDestroy(t, client);
+                t.end();
+              })
+              .catch(() => {
+                t.fail('### SDK TIMED OUT - It should not in this scenario.');
+                t.end();
+              });
           });
+        }, 0);
       });
     }, fromSecondsToMillis(0.2));
 
