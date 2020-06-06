@@ -11,9 +11,10 @@ export function validateApiKey(maybeApiKey) {
   if (maybeApiKey == undefined) { // eslint-disable-line eqeqeq
     log.error('Factory instantiation: you passed a null or undefined api_key, api_key must be a non-empty string.');
   } else if (isString(maybeApiKey)) {
-    if (maybeApiKey.length > 0)
+    if (maybeApiKey.length > 20)
       apiKey = maybeApiKey;
     else
+      // @TODO: update error message
       log.error('Factory instantiation: you passed an empty api_key, api_key must be a non-empty string.');
   } else {
     log.error('Factory instantiation: you passed an invalid api_key, api_key must be a non-empty string.');
