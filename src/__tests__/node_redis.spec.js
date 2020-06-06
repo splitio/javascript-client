@@ -11,7 +11,7 @@ import { SplitFactory } from '../';
 import { merge } from '../utils/lang';
 import KeyBuilder from '../storage/Keys';
 import SettingsFactory from '../utils/settings';
-import { nearlyEqual } from './utils';
+import { nearlyEqual } from './testUtils';
 
 const IP_VALUE = ipFunction.address();
 const HOSTNAME_VALUE = osFunction.hostname();
