@@ -10,7 +10,6 @@ export default {
     name: 'splitio',  // umd format requires a name
   },
   plugins: [
-    // @TODO review what is doing browser param
     resolve({
       browser: true,
       // @TODO check preferBuiltins

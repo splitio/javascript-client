@@ -9,7 +9,6 @@ module.exports = function (api) {
     case 'development':
     case 'cjs':
     case 'production':
-    case 'test':
       presets.push(['@babel/preset-env', {
         'useBuiltIns': false,
         'modules': 'commonjs',
@@ -23,6 +22,7 @@ module.exports = function (api) {
         'corejs': 3
       }]);
       break;
+    case 'test':
     case 'umd': // umd build
       presets.push(['@babel/preset-env', {
         'useBuiltIns': false,

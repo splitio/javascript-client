@@ -8,9 +8,9 @@ module.exports = function(config) {
     files: [
       '__tests__/destroy/browser.spec.js'
     ],
-    // prepare code for the browser using webpack
+    // prepare code for the browser using rollup
     preprocessors: {
-      '__tests__/destroy/browser.spec.js': ['webpack']
+      '__tests__/destroy/browser.spec.js': ['rollup']
     },
 
     // level of logging

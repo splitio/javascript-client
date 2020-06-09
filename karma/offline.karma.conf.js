@@ -9,9 +9,9 @@ module.exports = function(config) {
       '__tests__/offline/browser.spec.js'
     ],
 
-    // prepare code for the browser using webpack
+    // prepare code for the browser using rollup
     preprocessors: {
-      '__tests__/offline/browser.spec.js': ['webpack']
+      '__tests__/offline/browser.spec.js': ['rollup']
     },
 
     // level of logging

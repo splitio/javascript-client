@@ -3,7 +3,12 @@
 const puppeteer = require('puppeteer');
 process.env.CHROME_BIN = puppeteer.executablePath();
 
-const webpack = require('webpack');
+const nodeResolve = require('@rollup/plugin-node-resolve').nodeResolve;
+const commonjs = require('@rollup/plugin-commonjs');
+const json = require('@rollup/plugin-json');
+const babel = require('@rollup/plugin-babel').default;
+const terser = require('rollup-plugin-terser').terser;
+const nodePolyfills = require('rollup-plugin-node-polyfills');
 
 module.exports = {
   // base path, that will be used to resolve files and exclude
@@ -45,60 +50,51 @@ module.exports = {
     '*/__tests__/**/inputValidation/*.spec.js'
   ],
 
-  // prepare code for the browser using webpack
+  // prepare code for the browser using rollup
   preprocessors: {
-    '*/__tests__/**/*.spec.js': ['webpack'],
+    '*/__tests__/**/*.spec.js': ['rollup'],
   },
 
-  webpack: {
-    mode: 'production',
-    module: {
-      rules: [
-        {
-          test: /\.js$/,
-          exclude: /node_modules/,
-          use: {
-            loader: 'babel-loader',
-            options: {
-              presets: [['@babel/preset-env', {
-                'useBuiltIns': false,
-                'targets': {
-                  'ie': '10',
-                  'node': '6'
-                },
-                'modules': false
-              }]],
-              plugins: [
-                [
-                  '@babel/plugin-transform-runtime',
-                  {
-                    'absoluteRuntime': false,
-                    'corejs': 3,
-                    'regenerator': true,
-                    'useESModules': false,
-                    'helpers': true
-                  }
-                ]
-              ]
-            }
-          }
-        }
-      ]
+  rollupPreprocessor: {
+    // `input` is handled by karma-rollup-preprocessor.
+    output: {
+      format: 'umd',
+      name: 'splitio',
+      // sourcemap: 'inline', // uncomment for debugging
     },
     plugins: [
-      new webpack.DefinePlugin({
-        'process.env.NODE_ENV': JSON.stringify('test'),
-        __DEV__: true
-      })
-    ],
-    node: {
-      fs: 'empty'
-    }
+      nodeResolve({
+        browser: true,
+        preferBuiltins: false,
+      }),
+      commonjs(),
+      json(),
+      babel({
+        babelHelpers: 'runtime',
+        exclude: 'node_modules/**',
+      }),
+      terser(),
+      nodePolyfills()
+    ]
   },
 
-  webpackServer: {
-    noInfo: true
-  },
+  // @TODO check next configs and migrate if needed:
+
+  // webpack: {
+  //   ...
+  //   plugins: [
+  //     new webpack.DefinePlugin({
+  //       'process.env.NODE_ENV': JSON.stringify('test'),
+  //       __DEV__: true
+  //     })
+  //   ],
+  //   node: {
+  //     fs: 'empty'
+  //   }
+  // },
+  // webpackServer: {
+  //   noInfo: true
+  // },
 
   // web server port
   port: 9876,
