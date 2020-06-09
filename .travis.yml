@@ -19,8 +19,8 @@ before_script:
   - npm install
 
 script:
-  - npm run test-browser-ci
-  - npm run test-browser-e2e-ci
+  # - npm run test-browser-ci
+  # - npm run test-browser-e2e-ci
   - npm run test-browser-offline
   - npm run test-browser-destroy
   - npm run test-browser-errors
