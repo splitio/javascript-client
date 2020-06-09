@@ -1,5 +1,5 @@
 import tape from 'tape-catch';
-import fetchMock from './utils/fetchMock';
+import fetchMock from './testUtils/fetchMock';
 import SettingsFactory from '../utils/settings';
 
 import evaluationsSuite from './nodeSuites/evaluations.spec';
@@ -10,6 +10,7 @@ import impressionsListenerSuite from './nodeSuites/impressions-listener.spec';
 import expectedTreatmentsSuite from './nodeSuites/expected-treatments.spec';
 import managerSuite from './nodeSuites/manager.spec';
 import ipAddressesSetting from './nodeSuites/ip-addresses-setting.spec';
+import readyPromiseSuite from './nodeSuites/ready-promise.spec';
 
 import splitChangesMock1 from './mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from './mocks/splitchanges.since.1457552620999.json';
@@ -69,6 +70,9 @@ tape('## Node JS - E2E CI Tests ##', async function (assert) {
 
   /* Check IP address and Machine name headers when IP address setting is enabled and disabled */
   assert.test('E2E / IP Addresses Setting', ipAddressesSetting.bind(null, fetchMock));
+
+  /* Validate readiness with ready promises */
+  assert.test('E2E / Ready promise', readyPromiseSuite.bind(null, key, fetchMock));
 
   assert.end();
 });

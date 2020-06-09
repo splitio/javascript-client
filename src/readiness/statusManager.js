@@ -1,34 +1,35 @@
+import promiseWrapper from '../utils/promise/wrapper';
 import logFactory from '../utils/logger';
 const log = logFactory('');
 
 const NEW_LISTENER_EVENT = 'newListener';
 const REMOVE_LISTENER_EVENT = 'removeListener';
 
-export default function callbackHandlerContext(context, forSharedClient = false) {
+// default onRejected handler, that just logs the error, if ready promise doesn't have one.
+function defaultOnRejected(err) {
+  log.error(err);
+}
+
+/**
+ * StatusManager factory.
+ * Responsable of exposing public status API: ready promise, event emitter and constants (SDK_READY, etc).
+ * It also updates client context according to status events and logs related warnings and errors.
+ *
+ * @param {Object} context client context
+ * @param {number} internalReadyCbCount number of SDK_READY listeners that are added/removed by the SDK,
+ * used to properly log the warning 'No listeners for SDK Readiness detected'
+ */
+export default function callbackHandlerContext(context, internalReadyCbCount = 0) {
   const gate = context.get(context.constants.READINESS).gate;
   let readyCbCount = 0;
   let isReady = false;
+  let hasTimedout = false;
   const {
     SDK_READY,
     SDK_READY_FROM_CACHE,
     SDK_UPDATE,
     SDK_READY_TIMED_OUT
   } = gate;
-  const readyPromise = getReadyPromise();
-
-  gate.once(SDK_READY, () => {
-    if (readyCbCount === 0) log.warn('No listeners for SDK Readiness detected. Incorrect control treatments could have been logged if you called getTreatment/s while the SDK was not yet ready.');
-
-    context.put(context.constants.READY, true);
-
-    isReady = true;
-  });
-
-  gate.once(SDK_READY_FROM_CACHE, () => {
-    log.info('Split SDK is ready from cache.');
-
-    context.put(context.constants.READY_FROM_CACHE, true);
-  });
 
   gate.on(REMOVE_LISTENER_EVENT, event => {
     if (event === SDK_READY) readyCbCount--;
@@ -44,39 +45,29 @@ export default function callbackHandlerContext(context, forSharedClient = false)
     }
   });
 
+  const readyPromise = generateReadyPromise();
+
+  gate.once(SDK_READY_FROM_CACHE, () => {
+    log.info('Split SDK is ready from cache.');
+
+    context.put(context.constants.READY_FROM_CACHE, true);
+  });
+
   function generateReadyPromise() {
-    let hasCatch = false;
-    const promise = new Promise((resolve, reject) => {
-      gate.once(SDK_READY, resolve);
-      gate.once(SDK_READY_TIMED_OUT, reject);
-    }).catch(function(err) {
-      // If the promise has a custom error handler, just propagate
-      if (hasCatch) throw err;
-      // If not handle the error to prevent unhandled promise exception.
-      log.error(err);
-    });
-    const originalThen = promise.then;
-
-    // Using .catch(fn) is the same than using .then(null, fn)
-    promise.then = function () {
-      if (arguments.length > 0 && typeof arguments[0] === 'function')
-        readyCbCount++;
-      if (arguments.length > 1 && typeof arguments[1] === 'function')
-        hasCatch = true;
-
-      return originalThen.apply(this, arguments);
-    };
+    const promise = promiseWrapper(new Promise((resolve, reject) => {
+      gate.once(SDK_READY, () => {
+        if (readyCbCount === internalReadyCbCount && !promise.hasOnFulfilled()) log.warn('No listeners for SDK Readiness detected. Incorrect control treatments could have been logged if you called getTreatment/s while the SDK was not yet ready.');
+        context.put(context.constants.READY, true);
+        isReady = true;
+        resolve();
+      });
+      gate.once(SDK_READY_TIMED_OUT, (error) => {
+        hasTimedout = true;
+        reject(error);
+      });
+    }), defaultOnRejected);
 
     return promise;
-  }
-
-  function getReadyPromise() {
-    if (forSharedClient) {
-      return Promise.resolve();
-    }
-
-    // Non-shared clients use the full blown ready promise implementation.
-    return generateReadyPromise();
   }
 
   return Object.assign(
@@ -92,9 +83,15 @@ export default function callbackHandlerContext(context, forSharedClient = false)
       },
       // Expose the ready promise flag
       ready: () => {
+        if (hasTimedout) {
+          if (!isReady) {
+            return promiseWrapper(Promise.reject('Split SDK has emitted SDK_READY_TIMED_OUT event.'), defaultOnRejected);
+          } else {
+            return Promise.resolve();
+          }
+        }
         return readyPromise;
       }
     }
   );
 }
-
