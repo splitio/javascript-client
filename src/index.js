@@ -35,9 +35,16 @@ export function SplitFactory(config) {
   // We will just log and allow for the SDK to end up throwing an SDK_TIMEOUT event for devs to handle.
   validateApiKey(settings.core.authorizationKey);
 
+  // Put readiness and statusManager within context
+  // Done before adding storage, to let it access readiness gate synchronously
+  const gateFactory = ReadinessGateFacade();
+  const readiness = gateFactory(settings.startup.readyTimeout);
+  context.put(context.constants.READINESS, readiness);
+  const statusManager = sdkStatusManager(context);
+  context.put(context.constants.STATUS_MANAGER, statusManager);
+
   // Put storage config within context
   const storage = StorageFactory(context);
-  const gateFactory = ReadinessGateFacade();
   context.put(context.constants.STORAGE, storage);
 
   // Put integrationsManager within context.
@@ -47,12 +54,6 @@ export function SplitFactory(config) {
 
   // Define which type of factory to use
   const splitFactory = settings.mode === LOCALHOST_MODE ? SplitFactoryOffline : SplitFactoryOnline;
-
-  // Put readiness config within context
-  const readiness = gateFactory(settings.startup.readyTimeout);
-  context.put(context.constants.READINESS, readiness);
-  const statusManager = sdkStatusManager(context);
-  context.put(context.constants.STATUS_MANAGER, statusManager);
 
   const {
     api: mainClientInstance,

@@ -1,5 +1,6 @@
 10.12.2 (Jun XX, 2020)
  - Updated client.ready() and manager.ready() functions to be consumed on demand and return a promise reflecting the current status of the SDK at the time the method was invoked.
+ - Updated readiness events on consumer mode: the SDK emits SDK_READY event once the connection to Redis cache is successful.
 
 10.12.1 (May 18, 2020)
  - Updated logging messages for streaming notifications to DEBUG log level.
