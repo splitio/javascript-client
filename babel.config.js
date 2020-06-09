@@ -26,7 +26,6 @@ module.exports = function (api) {
 
     default: // es6 build
       presets.push(['@babel/preset-env', {
-        'useBuiltIns': false,
         'modules': false
       }]);
       plugins.push(
