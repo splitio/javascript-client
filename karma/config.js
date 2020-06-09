@@ -6,6 +6,7 @@ process.env.CHROME_BIN = puppeteer.executablePath();
 const nodeResolve = require('@rollup/plugin-node-resolve').nodeResolve;
 const commonjs = require('@rollup/plugin-commonjs');
 const json = require('@rollup/plugin-json');
+const string = require('rollup-plugin-string').string;
 const babel = require('@rollup/plugin-babel').default;
 const terser = require('rollup-plugin-terser').terser;
 const nodePolyfills = require('rollup-plugin-node-polyfills');
@@ -69,6 +70,7 @@ module.exports = {
       }),
       commonjs(),
       json(),
+      string({ include: '**/*.txt' }),
       babel({
         babelHelpers: 'runtime',
         exclude: 'node_modules/**',
