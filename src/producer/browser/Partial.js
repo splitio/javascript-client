@@ -16,19 +16,25 @@ limitations under the License.
 
 import TaskFactory from '../task';
 import MySegmentsUpdater from '../updater/MySegments';
-import onSplitsArrivedFactory from './onSplitsArrivedFactory';
+import logFactory from '../../utils/logger';
+const log = logFactory('splitio-producer:mySegmentsHandler');
 
 /**
  * Incremental updater to be used to share data in the browser.
  */
 const PartialBrowserProducer = (context) => {
   const settings = context.get(context.constants.SETTINGS);
-  const { splits: splitsEventEmitter } = context.get(context.constants.READINESS);
+  const splitsStorage = context.get(context.constants.STORAGE).splits;
+  const { splits: splitsEventEmitter, segments: segmentsEventEmitter } = context.get(context.constants.READINESS);
 
   const mySegmentsUpdater = MySegmentsUpdater(context);
   const mySegmentsUpdaterTask = TaskFactory(synchronizeMySegments, settings.scheduler.segmentsRefreshRate);
 
-  const onSplitsArrived = onSplitsArrivedFactory(mySegmentsUpdaterTask, context);
+  splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, smartPausing);
+  // needed for shared clients, we run `smartReady` a first time if splits were sync and don't use segments,
+  // to emit SDK_SEGMENTS_ARRIVED (and thus SDK_READY) immediately in next event cycle
+  if (!splitsStorage.usesSegments()) setTimeout(smartReady, 0);
+  else splitsEventEmitter.once(splitsEventEmitter.SDK_SPLITS_ARRIVED, smartReady);
 
   let isSynchronizingMySegments = false;
 
@@ -42,21 +48,47 @@ const PartialBrowserProducer = (context) => {
     });
   }
 
+  let running = false;
+  // we cannot rely on `mySegmentsUpdaterTask.isRunning` to check if doing polling
+  function isRunning() {
+    return running;
+  }
+
+  // emit SDK_SEGMENTS_ARRIVED (and thus SDK_READY) if not ready yet and splits are not using segments
+  function smartReady() {
+    const isReady = context.get(context.constants.READY, true);
+    if (!isReady && !splitsStorage.usesSegments()) segmentsEventEmitter.emit(segmentsEventEmitter.SDK_SEGMENTS_ARRIVED);
+  }
+
+  // smartly pause/resume mySegmentsUpdaterTask while doing polling
+  function smartPausing() {
+    if (!running) return; // noop if not doing polling
+    const splitsHaveSegments = splitsStorage.usesSegments();
+    if (splitsHaveSegments !== mySegmentsUpdaterTask.isRunning()) {
+      log.info(`Turning segments data polling ${splitsHaveSegments ? 'ON' : 'OFF'}.`);
+      if (splitsHaveSegments) {
+        mySegmentsUpdaterTask.start();
+      } else {
+        mySegmentsUpdaterTask.stop();
+      }
+    }
+  }
+
   return {
     // Start periodic fetching (polling)
     start() {
-      mySegmentsUpdaterTask.start();
-      splitsEventEmitter.on(splitsEventEmitter.SDK_SPLITS_ARRIVED, onSplitsArrived);
+      running = true;
+      if (splitsStorage.usesSegments()) mySegmentsUpdaterTask.start();
     },
 
     // Stop periodic fetching (polling)
     stop() {
+      running = false;
       mySegmentsUpdaterTask.stop();
-      splitsEventEmitter.removeListener(splitsEventEmitter.SDK_SPLITS_ARRIVED, onSplitsArrived);
     },
 
     // Used by SyncManager to know if running in polling mode.
-    isRunning: mySegmentsUpdaterTask.isRunning,
+    isRunning,
 
     // Used by MySegmentUpdateWorker
     isSynchronizingMySegments() {

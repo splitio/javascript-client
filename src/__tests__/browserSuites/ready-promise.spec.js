@@ -1,4 +1,5 @@
 import sinon from 'sinon';
+import { nearlyEqual } from '../testUtils/index';
 
 function fromSecondsToMillis(n) {
   return Math.round(n * 1000);
@@ -194,7 +195,7 @@ export default function readyPromiseAssertions(fetchMock, assert) {
       });
   }, 'Time out and then ready after retry attempt');
 
-  // Time out and then ready after scheduled refresh. Time out is triggered, but the state changes into ready after refresh.
+  // Time out and then ready after scheduled refresh. Time out is triggered, but the state changes into ready after refresh (include assert on shared client)
   assert.test(t => {
     const config = {
       ...baseConfig,
@@ -224,11 +225,19 @@ export default function readyPromiseAssertions(fetchMock, assert) {
     fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20 });
     fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20 });
     fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: refreshTimeMillis });
+    // main client endpoint configured to fetch segments before request timeout
     fetchMock.get(config.urls.sdk + '/mySegments/facundo@split.io', mySegmentsFacundo, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20 });
+    fetchMock.get(config.urls.sdk + '/splitChanges?since=1457552620999', { splits: [], since: 1457552620999, till: 1457552620999 });
+    // shared client endpoint configured to fetch segments immediately, in order to emit SDK_READY as soon as splits arrives
+    fetchMock.get(config.urls.sdk + '/mySegments/nicolas@split.io', mySegmentsFacundo);
+    // shared client endpoint configured to emit SDK_READY_TIMED_OUT
+    fetchMock.get(config.urls.sdk + '/mySegments/emiliano@split.io', mySegmentsFacundo, { delay: fromSecondsToMillis(config.startup.readyTimeout) + 20 });
+
     fetchMock.postOnce(config.urls.events + '/testImpressions/bulk', 200);
 
     const splitio = SplitFactory(config);
     const client = splitio.client();
+    const nicolasClient = splitio.client('nicolas@split.io');
 
     client.ready()
       .then(() => {
@@ -238,30 +247,47 @@ export default function readyPromiseAssertions(fetchMock, assert) {
         t.pass('### SDK TIMED OUT - Requests took longer than we allowed per requestTimeoutBeforeReady on both attempts, timed out.');
         assertGetTreatmentControlNotReady(t, client);
 
-        setTimeout(() => {
-          client.ready()
-            .then(() => {
-              t.pass('### SDK IS READY - the scheduled refresh changes the client state into "is ready"');
-              assertGetTreatmentWhenReady(t, client);
+        client.on(client.Event.SDK_READY, () => {
+          client.ready().then(() => {
+            t.pass('### SDK IS READY - the scheduled refresh changes the client state into "ready"');
+            assertGetTreatmentWhenReady(t, client);
 
-              client.destroy().then(() => {
-                client.ready()
-                  .then(() => {
-                    t.pass('### SDK IS READY - the promise remains resolved after client destruction.');
-                    assertGetTreatmentControlNotReadyOnDestroy(t, client);
-                    t.end();
-                  })
-                  .catch(() => {
-                    t.fail('### SDK TIMED OUT - It should not in this scenario.');
-                    t.end();
+            const tStart = Date.now();
+            nicolasClient.ready().then(() => {
+              const delta = Date.now() - tStart;
+              t.true(nearlyEqual(delta, 0), 'shared client is ready as soon as main client is ready (i.e., splits have arrived)');
+
+              const timeoutClient = splitio.client('emiliano@split.io');
+              timeoutClient.ready().then(undefined, () => { // setting onRejected handler via `then` method
+                t.pass('### Shared client TIMED OUT - promise rejected since mySegments fetch took more time than readyTimeout');
+                timeoutClient.ready().catch(() => { // setting onRejected handler via `catch` method
+                  t.pass('### Shared client TIMED OUT - promise keeps being rejected');
+                  timeoutClient.on(timeoutClient.Event.SDK_READY, () => {
+                    timeoutClient.ready().then(() => {
+                      t.pass('### Shared client READY - `ready` returns a new resolved promise');
+                      Promise.all([timeoutClient.destroy(), nicolasClient.destroy(), client.destroy()]).then(() => {
+                        client.ready()
+                          .then(() => {
+                            t.pass('### SDK IS READY - the promise remains resolved after client destruction.');
+                            assertGetTreatmentControlNotReadyOnDestroy(t, client);
+                            t.end();
+                          })
+                          .catch(() => {
+                            t.fail('### SDK TIMED OUT - It should not in this scenario.');
+                            t.end();
+                          });
+                      });
+                    });
                   });
+                });
               });
             }, () => {
               t.fail('### SDK TIMED OUT - It should not in this scenario');
             });
-        }, diffTimeoutAndIsReady + 20);
+          }, diffTimeoutAndIsReady + 20);
+        });
       });
-  }, 'Time out and then ready after scheduled refresh');
+  }, 'Time out and then ready after scheduled refresh (include assert on shared client)');
 
   // Validate fallback to 'catch' callback when exception is thrown on 'then' onRejected callback.
   assert.test(t => {
@@ -468,6 +494,8 @@ export default function readyPromiseAssertions(fetchMock, assert) {
     fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20 });
     fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20 });
     fetchMock.get(config.urls.sdk + '/mySegments/facundo@split.io', mySegmentsFacundo, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20 });
+    fetchMock.get(config.urls.sdk + '/mySegments/nicolas@split.io', mySegmentsFacundo);
+    fetchMock.get(config.urls.sdk + '/mySegments/emiliano@split.io', mySegmentsFacundo);
     fetchMock.postOnce(config.urls.events + '/testImpressions/bulk', 200);
 
     const splitio = SplitFactory(config);
@@ -493,6 +521,7 @@ export default function readyPromiseAssertions(fetchMock, assert) {
       t.true(consoleSpy.log.calledWithExactly('[WARN]  No listeners for SDK Readiness detected. Incorrect control treatments could have been logged if you called getTreatment/s while the SDK was not yet ready.'),
         'Warning that there are not listeners for SDK_READY event');
 
+      // assert error messages when adding event listeners after SDK has already triggered them
       consoleSpy.log.resetHistory();
       client.on(client.Event.SDK_READY, () => { });
       client.on(client.Event.SDK_READY_TIMED_OUT, () => { });
@@ -501,23 +530,37 @@ export default function readyPromiseAssertions(fetchMock, assert) {
       t.true(consoleSpy.log.calledWithExactly('[ERROR] A listener was added for SDK_READY_TIMED_OUT on the SDK, which has already fired and won\'t be emitted again. The callback won\'t be executed.'),
         'Logging error that a listeners for SDK_READY_TIMED_OUT event was added after triggered');
 
-      client.destroy().then(() => {
-        client.ready()
-          .then(() => {
-            t.pass('### SDK IS READY - the promise remains resolved after client destruction.');
-            assertGetTreatmentControlNotReadyOnDestroy(t, client);
-            t.end();
-          })
-          .catch(() => {
-            t.fail('### SDK TIMED OUT - It should not in this scenario.');
-            t.end();
+      // assert 'No listener warning' on shared clients
+      consoleSpy.log.resetHistory();
+      const sharedClientWithCb = splitio.client('nicolas@split.io');
+      sharedClientWithCb.on(client.Event.SDK_READY, () => {
+        t.false(consoleSpy.log.calledWithExactly('[WARN]  No listeners for SDK Readiness detected. Incorrect control treatments could have been logged if you called getTreatment/s while the SDK was not yet ready.'),
+          'No warning logged');
+
+        // eslint-disable-next-line no-unused-vars
+        const sharedClientWithoutCb = splitio.client('emiliano@split.io');
+        setTimeout(() => {
+          t.true(consoleSpy.log.calledWithExactly('[WARN]  No listeners for SDK Readiness detected. Incorrect control treatments could have been logged if you called getTreatment/s while the SDK was not yet ready.'),
+            'Warning logged');
+          client.destroy().then(() => {
+            client.ready()
+              .then(() => {
+                t.pass('### SDK IS READY - the promise remains resolved after client destruction.');
+                assertGetTreatmentControlNotReadyOnDestroy(t, client);
+                t.end();
+              })
+              .catch(() => {
+                t.fail('### SDK TIMED OUT - It should not in this scenario.');
+                t.end();
+              });
           });
+        }, 0);
       });
     }, fromSecondsToMillis(0.2));
 
   }, 'Validate that warning messages are properly sent');
 
-  // Time out event is not handled. Ready promise should not be resolved
+  // Time out event is not handled. Ready promise should not be resolved (include assert on shared client)
   assert.test(t => {
     const config = {
       ...baseConfig,
@@ -535,10 +578,12 @@ export default function readyPromiseAssertions(fetchMock, assert) {
     // /splitChanges takes longer than 'requestTimeoutBeforeReady'
     fetchMock.get(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20 });
     fetchMock.get(config.urls.sdk + '/mySegments/facundo@split.io', mySegmentsFacundo, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20 });
+    fetchMock.get(config.urls.sdk + '/mySegments/nicolas@split.io', mySegmentsFacundo, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20 });
     fetchMock.postOnce(config.urls.events + '/testImpressions/bulk', 200);
 
     const splitio = SplitFactory(config);
     const client = splitio.client();
+    const otherClient = splitio.client('nicolas@split.io');
 
     // Assert getTreatment return CONTROL and trigger warning when SDK is not ready yet
     assertGetTreatmentControlNotReady(t, client);
@@ -547,9 +592,13 @@ export default function readyPromiseAssertions(fetchMock, assert) {
       .then(() => {
         t.fail('### SDK IS READY - not TIMED OUT when it should.');
       });
+    otherClient.ready()
+      .then(() => {
+        t.fail('### SDK IS READY - not TIMED OUT when it should.');
+      });
 
     setTimeout(() => {
-      client.destroy().then(() => {
+      Promise.all([client.destroy(), otherClient.destroy()]).then(() => {
         client.ready()
           .then(() => {
             t.fail('### SDK IS READY - It should not in this scenario.');
@@ -563,9 +612,8 @@ export default function readyPromiseAssertions(fetchMock, assert) {
       });
     }, fromSecondsToMillis(config.startup.readyTimeout) + 20);
 
-  }, 'Time out event is not handled. Ready promise should not be resolved');
+  }, 'Time out event is not handled. Ready promise should not be resolved (include assert on shared client)');
 
-  // @TODO test for shared clients
   // Other possible tests:
   //  * Basic time out path: startup without retries on failure and response taking more than 'requestTimeoutBeforeReady'.
   //  * Basic is ready path: startup without retries on failure and response taking less than 'requestTimeoutBeforeReady'.

@@ -70,8 +70,12 @@ tape('Browser offline mode', function (assert) {
   assert.true(sharedClient.track('a_tt', 'another_ev_id', 10));
 
   assert.equal(client.getTreatment('testing_split'), 'control');
+  assert.equal(sharedClient.getTreatment('testing_split'), 'control');
   assert.equal(manager.splits().length, 0);
 
+  sharedClient.on(sharedClient.Event.SDK_READY, function () {
+    assert.equal(sharedClient.getTreatment('testing_split'), 'on');
+  });
   client.once(client.Event.SDK_READY, function () {
     const readyTimestamp = Date.now();
 
@@ -114,28 +118,36 @@ tape('Browser offline mode', function (assert) {
     assert.deepEqual(manager.split('not_existent'), null);
     assert.deepEqual(manager.splits(), [expectedSplitView1, expectedSplitView2]);
 
-    // And then through the shared instance.
-    assert.equal(sharedClient.getTreatment('testing_split'), 'on');
-    assert.equal(sharedClient.getTreatment('testing_split_2'), 'control');
-    assert.deepEqual(sharedClient.getTreatments([
-      'testing_split',
-      'testing_split_2',
-      'testing_split_with_config'
-    ]), {
-      testing_split: 'on',
-      testing_split_2: 'control',
-      testing_split_with_config: 'off'
+    const otherSharedClient = factory.client('emiliano.sanchez@split.io');
+    assert.equal(otherSharedClient.getTreatment('testing_split'), 'control');
+    otherSharedClient.on(otherSharedClient.Event.SDK_READY, function () {
+      assert.equal(otherSharedClient.getTreatment('testing_split'), 'on');
     });
-    // with config
-    assert.deepEqual(sharedClient.getTreatmentWithConfig('testing_split'), { treatment: 'on', config: null });
-    assert.deepEqual(sharedClient.getTreatmentsWithConfig([
-      'testing_split',
-      'testing_split_2',
-      'testing_split_with_config'
-    ]), {
-      testing_split: { treatment: 'on', config: null },
-      testing_split_2: { treatment: 'control', config: null },
-      testing_split_with_config: { treatment: 'off', config: '{ "color": "blue" }' }
+    // And then through the shared instance.
+    // We use ready promise since SDK_READY may have been emitted for the shared client (not in this case anyway)
+    otherSharedClient.ready().then(() => {
+      assert.equal(otherSharedClient.getTreatment('testing_split'), 'on');
+      assert.equal(otherSharedClient.getTreatment('testing_split_2'), 'control');
+      assert.deepEqual(otherSharedClient.getTreatments([
+        'testing_split',
+        'testing_split_2',
+        'testing_split_with_config'
+      ]), {
+        testing_split: 'on',
+        testing_split_2: 'control',
+        testing_split_with_config: 'off'
+      });
+      // with config
+      assert.deepEqual(otherSharedClient.getTreatmentWithConfig('testing_split'), { treatment: 'on', config: null });
+      assert.deepEqual(otherSharedClient.getTreatmentsWithConfig([
+        'testing_split',
+        'testing_split_2',
+        'testing_split_with_config'
+      ]), {
+        testing_split: { treatment: 'on', config: null },
+        testing_split_2: { treatment: 'control', config: null },
+        testing_split_with_config: { treatment: 'off', config: '{ "color": "blue" }' }
+      });
     });
 
     setTimeout(() => {

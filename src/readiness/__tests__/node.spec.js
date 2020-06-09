@@ -8,7 +8,8 @@ const proxyquireStrict = proxyquire.noCallThru();
 
 const loggerMock = {
   warn: sinon.stub(),
-  error: sinon.stub()
+  error: sinon.stub(),
+  info: sinon.stub()
 };
 function LogFactoryMock() {
   return loggerMock;
@@ -32,7 +33,8 @@ tape('Readiness Callbacks handler - Event emitter and returned handler', t => {
     get: entityName => entityName === 'readiness_gate' ? { gate: gateMock } : null,
     constants: {
       READINESS: 'readiness_gate',
-      READY: 'is_ready'
+      READY: 'is_ready',
+      READY_FROM_CACHE: 'is_ready_from_cache'
     }
   };
   function resetStubs() {
@@ -41,6 +43,7 @@ tape('Readiness Callbacks handler - Event emitter and returned handler', t => {
     gateMock.once.resetHistory();
     loggerMock.warn.resetHistory();
     loggerMock.error.resetHistory();
+    loggerMock.info.resetHistory();
   }
 
   t.test('Providing the gate object to get the SDK status interface that manages events', assert => {
@@ -76,6 +79,19 @@ tape('Readiness Callbacks handler - Event emitter and returned handler', t => {
 
     assert.equal(removeListenerSubCall.args[0], 'removeListener', 'First subscription should be made to the removeListener event.');
     assert.equal(addListenerSubCall.args[0], 'newListener', 'Second subscription should be made to the newListener event, after the removeListener one so we avoid an unnecessary trigger.');
+
+    resetStubs();
+    assert.end();
+  });
+
+  t.test('The event callbacks should work as expected - SDK_READY_FROM_CACHE', assert => {
+    statusManager(contextMock);
+
+    const readyFromCacheEventCB = gateMock.once.getCall(2).args[1];
+    readyFromCacheEventCB();
+    assert.true(loggerMock.info.calledOnce, 'If the SDK_READY_FROM_CACHE event fires, we get a info message.');
+    assert.true(loggerMock.info.calledWithExactly('Split SDK is ready from cache.'), 'Telling us the SDK is ready to be used with data from cache.');
+    assert.true(contextMock.put.calledOnceWithExactly(contextMock.constants.READY_FROM_CACHE, true), 'It takes care of marking the SDK as ready from cache');
 
     resetStubs();
     assert.end();
@@ -212,7 +228,8 @@ tape('Readiness Callbacks handler - Ready promise', t => {
     put: sinon.stub(),
     get: entityName => entityName === 'readiness_gate' ? { gate: gateMock } : null,
     constants: {
-      READINESS: 'readiness_gate'
+      READINESS: 'readiness_gate',
+      READY: 'is_ready'
     }
   };
   function resetStubs() {

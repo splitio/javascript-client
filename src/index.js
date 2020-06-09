@@ -99,9 +99,10 @@ export function SplitFactory(config) {
         const sharedSettings = settings.overrideKeyAndTT(validKey, validTrafficType);
         const sharedContext = new Context();
 
-        sharedContext.put(context.constants.READY, true); // For SDK inner workings it's supposed to be ready.
         const readiness = gateFactory(sharedSettings.startup.readyTimeout);
+        sharedContext.put(context.constants.READY_FROM_CACHE, context.get(context.constants.READY_FROM_CACHE, true));
         sharedContext.put(context.constants.READINESS, readiness);
+        // for shared clients, the internal offset of added/removed SDK_READY callbacks is -1
         sharedContext.put(context.constants.STATUS_MANAGER, sdkStatusManager(sharedContext, -1));
         sharedContext.put(context.constants.SETTINGS, sharedSettings);
         sharedContext.put(context.constants.STORAGE, storage.shared(sharedSettings));
@@ -109,8 +110,6 @@ export function SplitFactory(config) {
         // As shared clients reuse all the storage information, we don't need to check here if we
         // will use offline or online mode. We should stick with the original decision.
         clientInstances[instanceId] = splitFactory(sharedContext, false, mainClientMetricCollectors).api;
-        // The readiness should depend on the readiness of the parent, instead of showing ready by default.
-        clientInstances[instanceId].ready = mainClientInstance.ready;
 
         log.info('New shared client instance created.');
       } else {

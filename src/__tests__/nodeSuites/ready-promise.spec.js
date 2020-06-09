@@ -490,6 +490,7 @@ export default function readyPromiseAssertions(key, fetchMock, assert) {
       t.true(consoleSpy.log.calledWithExactly('[WARN]  No listeners for SDK Readiness detected. Incorrect control treatments could have been logged if you called getTreatment/s while the SDK was not yet ready.'),
         'Warning that there are not listeners for SDK_READY event');
 
+      // assert error messages when adding event listeners after SDK has already triggered them
       consoleSpy.log.resetHistory();
       client.on(client.Event.SDK_READY, () => { });
       client.on(client.Event.SDK_READY_TIMED_OUT, () => { });
