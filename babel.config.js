@@ -43,7 +43,6 @@ module.exports = function (api) {
       break;
     default: // es6 build
       presets.push(['@babel/preset-env', {
-        'useBuiltIns': false,
         'modules': false
       }]);
       plugins.push(
