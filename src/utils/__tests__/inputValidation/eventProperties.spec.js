@@ -47,7 +47,7 @@ const invalidValues = [
   Infinity,
   new Promise(res => res),
   Symbol('asd'),
-  new Map()
+  new Set()
 ];
 
 tape('INPUT VALIDATION for Event Properties', t => {
@@ -135,7 +135,7 @@ tape('INPUT VALIDATION for Event Properties', t => {
       willBeNulled1: function() {},
       willBeNulled2: {},
       willBeNulled3: [],
-      willBeNulled4: new Map()
+      willBeNulled4: new Set()
     };
     const output = validateEventProperties(providedProperties, 'some_method_eventProps');
 
