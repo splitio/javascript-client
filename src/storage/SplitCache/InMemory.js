@@ -48,8 +48,8 @@ class SplitCacheInMemory {
   addSplits(entries) {
     let results = [];
 
-    entries.forEach(([key, value]) => {
-      results.push(this.addSplit(key, value));
+    entries.forEach(keyValuePair => {
+      results.push(this.addSplit(keyValuePair[0], keyValuePair[1]));
     });
 
     return results;
