@@ -36,10 +36,10 @@ const ObjectToView = (json) => {
 const ObjectsToViews = (jsons) => {
   let views = [];
 
-  for (let split of jsons) {
+  jsons.forEach(split => {
     const view = ObjectToView(split);
     if (view != null) views.push(view);
-  }
+  });
 
   return views;
 };
