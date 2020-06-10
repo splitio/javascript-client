@@ -19,8 +19,7 @@ import base from '../request';
 export default function POST(settings, params) {
   return base(settings, '/metrics/times', objectAssign({
     method: 'POST'
-  }, {
-    ...params,
+  }, params, {
     logErrorsAsInfo: true
   }));
 }

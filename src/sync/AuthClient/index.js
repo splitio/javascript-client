@@ -1,3 +1,4 @@
+import objectAssign from 'object-assign';
 import authService from '../../services/auth';
 import authRequest from '../../services/auth/auth';
 import { decodeJWTtoken } from '../../utils/jwt';
@@ -19,11 +20,10 @@ export default function authenticate(settings, userKeys) {
         const decodedToken = decodeJWTtoken(json.token);
         if (typeof decodedToken.iat !== 'number' || typeof decodedToken.exp !== 'number') throw 'token properties "issuedAt" (iat) or "expiration" (exp) are missing or invalid';
         const channels = JSON.parse(decodedToken['x-ably-capability']);
-        return {
-          ...json,
+        return objectAssign({
           decodedToken,
           channels
-        };
+        }, json);
       }
       return json;
     });

@@ -186,13 +186,14 @@ const proto = {
    */
   overrideKeyAndTT(key, trafficType) {
     return objectAssign(
-      Object.create(proto), {
-        ...this,
-        core: {
-          ...this.core,
-          key,
-          trafficType
-        }
+      Object.create(proto),
+      this, {
+        core: objectAssign({},
+          this.core, {
+            key,
+            trafficType
+          }
+        )
       }
     );
   }
