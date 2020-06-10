@@ -262,3 +262,20 @@ export function shallowClone(obj) {
 export function isBoolean(val) {
   return val === true || val === false;
 }
+
+/** Array utils */
+export function addToArray(array, item) {
+  const index = array.indexOf(item);
+  if (index > -1) {
+    array[index] = item;
+  } else {
+    array.push(item);
+  }
+}
+
+export function deleteFromArray(array, item) {
+  const index = array.indexOf(item);
+  if (index > -1) {
+    array.splice(index, 1);
+  }
+}

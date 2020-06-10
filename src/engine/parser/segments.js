@@ -2,7 +2,7 @@
  * Collect segments from a raw split definition.
  */
 const parseSegments = (conditions) => {
-  let segments = new Set();
+  let segments = {};
 
   for (let condition of conditions) {
     let {
@@ -18,7 +18,7 @@ const parseSegments = (conditions) => {
       } = matcher;
 
       if (matcherType === 'IN_SEGMENT') {
-        segments.add(userDefinedSegmentMatcherData.segmentName);
+        segments[userDefinedSegmentMatcherData.segmentName] = true;
       }
     }
   }

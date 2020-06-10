@@ -26,8 +26,8 @@ function computeSplitsMutation(entries) {
     if (split.status === 'ACTIVE') {
       accum.added.push([split.name, JSON.stringify(split)]);
 
-      for (let segmentName of parseSegments(split.conditions)) {
-        accum.segments.add(segmentName);
+      for (let segmentName in parseSegments(split.conditions)) {
+        accum.segments[segmentName] = true;
       }
     } else {
       accum.removed.push(split.name);
@@ -37,10 +37,10 @@ function computeSplitsMutation(entries) {
   }, {
     added: [],
     removed: [],
-    segments: new Set()
+    segments: {}
   });
 
-  computed.segments = [...computed.segments];
+  computed.segments = Object.keys(computed.segments);
 
   return computed;
 }
