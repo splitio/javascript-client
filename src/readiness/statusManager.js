@@ -1,3 +1,4 @@
+import objectAssign from 'object-assign';
 import promiseWrapper from '../utils/promise/wrapper';
 import logFactory from '../utils/logger';
 const log = logFactory('');
@@ -71,7 +72,7 @@ export default function callbackHandlerContext(context, internalReadyCbCount = 0
     return promise;
   }
 
-  return Object.assign(
+  return objectAssign(
     // Expose Event Emitter functionality
     Object.create(gate),
     {

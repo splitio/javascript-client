@@ -1,3 +1,4 @@
+import objectAssign from 'object-assign';
 import thenable from '../utils/promise/thenable';
 import { find } from '../utils/lang';
 import { validateSplit, validateSplitExistance, validateIfDestroyed, validateIfReady } from '../utils/inputValidation';
@@ -48,7 +49,7 @@ function SplitManagerFactory(splits, context) {
   const SPLIT_FN_LABEL = 'split';
   const statusManager = context.get(context.constants.STATUS_MANAGER);
 
-  return Object.assign(
+  return objectAssign(
     // Proto-linkage of the readiness Event Emitter
     Object.create(statusManager),
     {

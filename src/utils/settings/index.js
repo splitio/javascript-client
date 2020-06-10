@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
+import objectAssign from 'object-assign';
 import { merge, isBoolean } from '../lang';
 import language from './language';
 import runtime from './runtime';
@@ -184,7 +185,7 @@ const proto = {
    * @param {string} [trafficType]
    */
   overrideKeyAndTT(key, trafficType) {
-    return Object.assign(
+    return objectAssign(
       Object.create(proto), {
         ...this,
         core: {
@@ -197,6 +198,6 @@ const proto = {
   }
 };
 
-const SettingsFactory = (settings) => Object.assign(Object.create(proto), defaults(settings));
+const SettingsFactory = (settings) => objectAssign(Object.create(proto), defaults(settings));
 
 export default SettingsFactory;
