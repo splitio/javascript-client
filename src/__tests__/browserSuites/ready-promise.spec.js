@@ -20,7 +20,8 @@ const baseConfig = {
     authorizationKey: '<fake-token-3>',
     key: 'facundo@split.io',
   },
-  debug: 'WARN'
+  debug: 'WARN',
+  streamingEnabled: false
 };
 
 function assertGetTreatmentWhenReady(assert, client) {

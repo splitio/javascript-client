@@ -3,7 +3,8 @@ import SettingsFactory from '../../utils/settings';
 const settings = SettingsFactory({
   core: {
     key: 'asd'
-  }
+  },
+  streamingEnabled: false
 });
 
 export default function (startWithTT, fetchMock, assert) {
@@ -20,7 +21,8 @@ export default function (startWithTT, fetchMock, assert) {
     startup: {
       eventsFirstPushWindow: 3,
       readyTimeout: 0.15
-    }
+    },
+    streamingEnabled: false
   });
   let mainClient = factory.client();
   assert.equal(mainClient, factory.client(), 'If we call factory.client() (no params) more than once, it is just a get of the main client.');
