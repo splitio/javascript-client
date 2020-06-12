@@ -37,7 +37,6 @@ module.exports = function (api) {
         [
           '@babel/plugin-transform-runtime',
           {
-            'useESModules': true,
             'corejs': 3,
           }
         ]);

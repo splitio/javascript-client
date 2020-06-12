@@ -19,7 +19,6 @@ export default {
     json(),
     babel({
       babelHelpers: 'runtime',
-      // @ TODO check if we should exclude node_modules or not
       exclude: 'node_modules/**',
     }),
   ]

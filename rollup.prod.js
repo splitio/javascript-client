@@ -5,7 +5,8 @@ import pkg from './package.json';
 const VERSION = pkg.version;
 
 config.output.file = `umd/split-${VERSION}.min.js`;
-config.output.sourcemap = true;
+// @TODO include sourcemaps or not?
+// config.output.sourcemap = true;
 config.plugins.push(terser());
 
 export default config;
