@@ -94,13 +94,7 @@ class SegmentCacheInLocalStorage {
   }
 
   getRegisteredSegments() {
-    return Object.keys(localStorage).reduce((accum, key) => {
-      const segmentName = this.keys.extractSegmentName(key);
-
-      if (segmentName) accum.push(segmentName);
-
-      return accum;
-    }, []);
+    return [];
   }
 
   flush() {

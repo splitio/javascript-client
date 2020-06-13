@@ -87,7 +87,7 @@ class SegmentCacheInMemory {
   }
 
   getRegisteredSegments() {
-    return Object.keys(this.segmentCache);
+    return [];
   }
 }
 
