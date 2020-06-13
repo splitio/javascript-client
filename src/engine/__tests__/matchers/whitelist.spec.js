@@ -21,7 +21,7 @@ tape('MATCHER WHITELIST / should return true ONLY when the key is defined', func
 
   let matcher = matcherFactory({
     type: matcherTypes.WHITELIST,
-    value: new Set().add('key')
+    value: { 'key': true }
   });
 
   assert.true(matcher('key'), '"key" should be true');

@@ -76,9 +76,9 @@ class SplitCacheLocalStorage {
   addSplits(entries) {
     let results = [];
 
-    for (const [key, value] of entries) {
-      results.push(this.addSplit(key, value));
-    }
+    entries.forEach(keyValuePair => {
+      results.push(this.addSplit(keyValuePair[0], keyValuePair[1]));
+    });
 
     return results;
   }
@@ -205,9 +205,9 @@ class SplitCacheLocalStorage {
    * Fetches multiple splits definitions.
    */
   fetchMany(splitNames) {
-    const splits = new Map();
+    const splits = {};
     splitNames.forEach(splitName => {
-      splits.set(splitName, localStorage.getItem(this.keys.buildSplitKey(splitName)));
+      splits[splitName] = localStorage.getItem(this.keys.buildSplitKey(splitName));
     });
     return splits;
   }

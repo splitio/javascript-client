@@ -37,11 +37,11 @@ const mockStorage = {
       return null;
     },
     fetchMany(names) {
-      const splits = new Map;
+      const splits = {};
       names.forEach(name => {
-        splits.set(name, this.getSplit(name));
+        splits[name] = this.getSplit(name);
       });
-      
+
       return splits;
     }
   }

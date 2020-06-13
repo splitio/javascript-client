@@ -6,8 +6,8 @@ const log = logFactory('splitio-storage:redis');
  * Discard errors for an answer of multiple operations.
  */
 const processPipelineAnswer = (results) =>
-  results.reduce((accum, [err, value]) => {
-    if (err === null) accum.push(value);
+  results.reduce((accum, errValuePair) => {
+    if (errValuePair[0] === null) accum.push(errValuePair[1]);
     return accum;
   }, []);
 
@@ -37,7 +37,7 @@ class SplitCacheInRedis {
 
   addSplits(entries) {
     if (entries.length) {
-      const cmds = entries.map(([key, value]) => ['set', this.keys.buildSplitKey(key), value]);
+      const cmds = entries.map(keyValuePair => ['set', this.keys.buildSplitKey(keyValuePair[0]), keyValuePair[1]]);
 
       return this.redis.pipeline(cmds)
         .exec()
@@ -161,12 +161,12 @@ class SplitCacheInRedis {
 
       throw this.redisError;
     }
-    const splits = new Map();
+    const splits = {};
     const keys = splitNames.map(splitName => this.keys.buildSplitKey(splitName));
     return this.redis.mget(...keys)
       .then(splitDefinitions => {
         splitNames.forEach((splitName, idx) => {
-          splits.set(splitName, splitDefinitions[idx]);
+          splits[splitName] = splitDefinitions[idx];
         });
         return Promise.resolve(splits);
       })
