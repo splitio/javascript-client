@@ -1,4 +1,3 @@
-import resetSegments from '../resetSegments';
 import logFactory from '../../../utils/logger';
 const log = logFactory('splitio-storage:localstorage');
 
@@ -34,6 +33,46 @@ class SegmentCacheInLocalStorage {
     }
   }
 
+  resetSegments(segmentNames) {
+    let isDiff = false;
+    let index;
+
+    // Scan current values from localStorage
+    const storedSegmentNames = Object.keys(localStorage).reduce((accum, key) => {
+      const segmentName = this.keys.extractSegmentName(key);
+
+      if (segmentName) accum.push(segmentName);
+
+      return accum;
+    }, []);
+
+    // Extreme fast => everything is empty
+    if (segmentNames.length === 0 && storedSegmentNames.length === segmentNames.length)
+      return isDiff;
+
+    // Quick path
+    if (storedSegmentNames.length !== segmentNames.length) {
+      isDiff = true;
+
+      storedSegmentNames.forEach(segmentName => this.removeFromSegment(segmentName));
+      segmentNames.forEach(segmentName => this.addToSegment(segmentName));
+    } else {
+      // Slowest path => we need to find at least 1 difference because
+      for(index = 0; index < segmentNames.length && storedSegmentNames.indexOf(segmentNames[index]) !== -1; index++) {
+        // TODO: why empty statement?
+      }
+
+      if (index < segmentNames.length) {
+        isDiff = true;
+
+        storedSegmentNames.forEach(segmentName => this.removeFromSegment(segmentName));
+        segmentNames.forEach(segmentName => this.addToSegment(segmentName));
+      }
+    }
+
+    return isDiff;
+  }
+
   isInSegment(segmentName/*, key: string*/) {
     return localStorage.getItem(this.keys.buildSegmentNameKey(segmentName)) === DEFINED;
   }
@@ -55,13 +94,7 @@ class SegmentCacheInLocalStorage {
   }
 
   getRegisteredSegments() {
-    return Object.keys(localStorage).reduce((accum, key) => {
-      const segmentName = this.keys.extractSegmentName(key);
-
-      if (segmentName) accum.push(segmentName);
-
-      return accum;
-    }, []);
+    return [];
   }
 
   flush() {
@@ -69,7 +102,5 @@ class SegmentCacheInLocalStorage {
     localStorage.clear();
   }
 }
-
-SegmentCacheInLocalStorage.prototype.resetSegments = resetSegments;
 
 export default SegmentCacheInLocalStorage;
