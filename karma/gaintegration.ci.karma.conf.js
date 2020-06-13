@@ -6,11 +6,11 @@ module.exports = function(config) {
   config.set(assign({}, require('./config'), {
     // list of files / patterns to load in the browser
     files: [
-      '__tests__/gaIntegration/browser.spec.js'
+      { pattern: '__tests__/gaIntegration/browser.spec.js', watched: false }
     ],
-    // prepare code for the browser using webpack
+    // prepare code for the browser using rollup
     preprocessors: {
-      '__tests__/gaIntegration/browser.spec.js': ['webpack']
+      '__tests__/gaIntegration/browser.spec.js': ['rollup']
     },
 
     // level of logging

@@ -23,7 +23,24 @@ module.exports = function (api) {
         'corejs': 3
       }]);
       break;
-
+    case 'karmatest':
+    case 'umd': // umd build
+      presets.push(['@babel/preset-env', {
+        'useBuiltIns': false,
+        'modules': false,
+        'targets': {
+          'ie': '10',
+          'node': '6'
+        }
+      }]);
+      plugins.push(
+        [
+          '@babel/plugin-transform-runtime',
+          {
+            'corejs': 3,
+          }
+        ]);
+      break;
     default: // es6 build
       presets.push(['@babel/preset-env', {
         'modules': false

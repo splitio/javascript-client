@@ -19,8 +19,8 @@ before_script:
   - npm install
 
 script:
-  - npm run test-browser-ci
-  - npm run test-browser-e2e-ci
+  # - npm run test-browser-ci
+  # - npm run test-browser-e2e-ci
   - npm run test-browser-offline
   - npm run test-browser-destroy
   - npm run test-browser-errors
@@ -50,7 +50,7 @@ deploy:
     acl: public_read
     cache_control: "max-age=31536000, public"
     on:
-      branch: development
+      branch: trim_rollup
   - provider: s3
     access_key_id: ${AWS_ACCESS_KEY_ID_PROD}
     secret_access_key: ${AWS_SECRET_ACCESS_PROD}

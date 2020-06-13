@@ -1,16 +1,16 @@
 const assign = require('lodash/assign');
 
-module.exports = function(config) {
+module.exports = function (config) {
   'use strict';
 
   config.set(assign({}, require('./config'), {
     // list of files / patterns to load in the browser
     files: [
-      '__tests__/destroy/browser.spec.js'
+      { pattern: '__tests__/destroy/browser.spec.js', watched: false }
     ],
-    // prepare code for the browser using webpack
+    // prepare code for the browser using rollup
     preprocessors: {
-      '__tests__/destroy/browser.spec.js': ['webpack']
+      '__tests__/destroy/browser.spec.js': ['rollup']
     },
 
     // level of logging
