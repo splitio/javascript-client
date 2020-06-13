@@ -1,5 +1,3 @@
-import resetSegments from '../resetSegments';
-
 class SegmentCacheInMemory {
 
   constructor(keys) {
@@ -27,6 +25,45 @@ class SegmentCacheInMemory {
     return true;
   }
 
+  // @NOTE based on the way we use segments in the browser, this way is the best
+  //       option
+  resetSegments(segmentNames) {
+    let isDiff = false;
+    let index;
+
+    const storedSegmentKeys = Object.keys(this.segmentCache);
+
+    // Extreme fast => everything is empty
+    if (segmentNames.length === 0 && storedSegmentKeys.length === segmentNames.length)
+      return isDiff;
+
+    // Quick path
+    if (storedSegmentKeys.length !== segmentNames.length) {
+      isDiff = true;
+
+      this.segmentCache = {};
+      segmentNames.forEach (s => {
+        this.addToSegment(s);
+      });
+    } else {
+      // Slowest path => we need to find at least 1 difference because
+      for(index = 0; index < segmentNames.length && this.isInSegment(segmentNames[index]); index++) {
+        // TODO: why empty statement?
+      }
+
+      if (index < segmentNames.length) {
+        isDiff = true;
+
+        this.segmentCache = {};
+        segmentNames.forEach (s => {
+          this.addToSegment(s);
+        });
+      }
+    }
+
+    return isDiff;
+  }
+
   isInSegment(segmentName/*, key: string*/) {
     const segmentKey = this.keys.buildSegmentNameKey(segmentName);
 
@@ -50,10 +87,8 @@ class SegmentCacheInMemory {
   }
 
   getRegisteredSegments() {
-    return Object.keys(this.segmentCache);
+    return [];
   }
 }
-
-SegmentCacheInMemory.prototype.resetSegments = resetSegments;
 
 export default SegmentCacheInMemory;
