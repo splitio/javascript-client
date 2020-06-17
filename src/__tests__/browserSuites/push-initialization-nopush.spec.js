@@ -5,7 +5,7 @@ import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
 import mySegmentsNicolas from '../mocks/mysegments.nicolas@split.io.json';
 import authPushDisabled from '../mocks/auth.pushDisabled.json';
 import authInvalidCredentials from '../mocks/auth.invalidCredentials.txt';
-import { nearlyEqual } from '../utils';
+import { nearlyEqual } from '../testUtils';
 
 const baseUrls = {
   sdk: 'https://sdk.push-initialization-nopush/api',

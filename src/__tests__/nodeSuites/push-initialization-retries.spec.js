@@ -4,7 +4,7 @@ import authPushDisabled from '../mocks/auth.pushDisabled.json';
 import authPushEnabled from '../mocks/auth.pushEnabled.node.json';
 import authPushBadToken from '../mocks/auth.pushBadToken.json';
 
-import { nearlyEqual } from '../utils';
+import { nearlyEqual } from '../testUtils';
 
 import EventSourceMock, { setMockListener } from '../../sync/__tests__/mocks/eventSourceMock';
 import { __setEventSource } from '../../services/getEventSource/node';

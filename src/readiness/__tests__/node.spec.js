@@ -8,7 +8,8 @@ const proxyquireStrict = proxyquire.noCallThru();
 
 const loggerMock = {
   warn: sinon.stub(),
-  error: sinon.stub()
+  error: sinon.stub(),
+  info: sinon.stub()
 };
 function LogFactoryMock() {
   return loggerMock;
@@ -32,7 +33,8 @@ tape('Readiness Callbacks handler - Event emitter and returned handler', t => {
     get: entityName => entityName === 'readiness_gate' ? { gate: gateMock } : null,
     constants: {
       READINESS: 'readiness_gate',
-      READY: 'is_ready'
+      READY: 'is_ready',
+      READY_FROM_CACHE: 'is_ready_from_cache'
     }
   };
   function resetStubs() {
@@ -41,6 +43,7 @@ tape('Readiness Callbacks handler - Event emitter and returned handler', t => {
     gateMock.once.resetHistory();
     loggerMock.warn.resetHistory();
     loggerMock.error.resetHistory();
+    loggerMock.info.resetHistory();
   }
 
   t.test('Providing the gate object to get the SDK status interface that manages events', assert => {
@@ -60,15 +63,13 @@ tape('Readiness Callbacks handler - Event emitter and returned handler', t => {
     assert.equal(statusInterface.Event.SDK_READY_TIMED_OUT, gateMock.SDK_READY_TIMED_OUT, 'which contains the constants for the events, for backwards compatibility.');
     assert.equal(statusInterface.Event.SDK_UPDATE, gateMock.SDK_UPDATE, 'which contains the constants for the events, for backwards compatibility.');
 
-    assert.equal(gateMock.once.callCount, 4, 'It should make four one time only subscriptions');
+    assert.equal(gateMock.once.callCount, 3, 'It should make three one time only subscriptions');
 
     const sdkReadyResolvePromiseCall = gateMock.once.getCall(0);
     const sdkReadyRejectPromiseCall = gateMock.once.getCall(1);
-    const sdkReadyListenersCheckCall = gateMock.once.getCall(2);
-    const sdkReadyFromCacheListenersCheckCall = gateMock.once.getCall(3);
-    assert.equal(sdkReadyResolvePromiseCall.args[0], gateMock.SDK_READY, 'A one time only subscription is also on the SDK_READY event, for resolving the full blown ready promise.');
+    const sdkReadyFromCacheListenersCheckCall = gateMock.once.getCall(2);
+    assert.equal(sdkReadyResolvePromiseCall.args[0], gateMock.SDK_READY, 'A one time only subscription is on the SDK_READY event, for resolving the full blown ready promise and to check for callbacks warning.');
     assert.equal(sdkReadyRejectPromiseCall.args[0], gateMock.SDK_READY_TIMED_OUT, 'A one time only subscription is also on the SDK_READY_TIMED_OUT event, for rejecting the full blown ready promise.');
-    assert.equal(sdkReadyListenersCheckCall.args[0], gateMock.SDK_READY, 'A one time only subscription is on the SDK_READY event, to check for callbacks warning.');
     assert.equal(sdkReadyFromCacheListenersCheckCall.args[0], gateMock.SDK_READY_FROM_CACHE, 'A one time only subscription is on the SDK_READY_FROM_CACHE event, to log the event and update internal state.');
 
     assert.ok(gateMock.on.calledTwice, 'It should also add two persistent listeners');
@@ -83,11 +84,24 @@ tape('Readiness Callbacks handler - Event emitter and returned handler', t => {
     assert.end();
   });
 
+  t.test('The event callbacks should work as expected - SDK_READY_FROM_CACHE', assert => {
+    statusManager(contextMock);
+
+    const readyFromCacheEventCB = gateMock.once.getCall(2).args[1];
+    readyFromCacheEventCB();
+    assert.true(loggerMock.info.calledOnce, 'If the SDK_READY_FROM_CACHE event fires, we get a info message.');
+    assert.true(loggerMock.info.calledWithExactly('Split SDK is ready from cache.'), 'Telling us the SDK is ready to be used with data from cache.');
+    assert.true(contextMock.put.calledOnceWithExactly(contextMock.constants.READY_FROM_CACHE, true), 'It takes care of marking the SDK as ready from cache');
+
+    resetStubs();
+    assert.end();
+  });
+
   t.test('The event callbacks should work as expected - SDK_READY emits with no callbacks', assert => {
     statusManager(contextMock);
 
     // Get the callbacks
-    const readyEventCB = gateMock.once.getCall(2).args[1];
+    const readyEventCB = gateMock.once.getCall(0).args[1];
     const addListenerCB = gateMock.on.getCall(1).args[1];
 
     readyEventCB();
@@ -114,7 +128,7 @@ tape('Readiness Callbacks handler - Event emitter and returned handler', t => {
     statusManager(contextMock);
 
     // Get the callbacks
-    const readyEventCB = gateMock.once.getCall(2).args[1];
+    const readyEventCB = gateMock.once.getCall(0).args[1];
     const addListenerCB = gateMock.on.getCall(1).args[1];
 
     addListenerCB(gateMock.SDK_READY);
@@ -133,7 +147,7 @@ tape('Readiness Callbacks handler - Event emitter and returned handler', t => {
     statusManager(contextMock);
 
     // Get the callbacks
-    const readyEventCB = gateMock.once.getCall(2).args[1];
+    const readyEventCB = gateMock.once.getCall(0).args[1];
     const addListenerCB = gateMock.on.getCall(1).args[1];
     const removeListenerCB = gateMock.on.getCall(0).args[1];
 
@@ -156,7 +170,7 @@ tape('Readiness Callbacks handler - Event emitter and returned handler', t => {
     statusManager(contextMock);
 
     // Get the callbacks
-    const readyEventCB = gateMock.once.getCall(2).args[1];
+    const readyEventCB = gateMock.once.getCall(0).args[1];
     const removeListenerCB = gateMock.on.getCall(0).args[1];
     const addListenerCB = gateMock.on.getCall(1).args[1];
 
@@ -175,6 +189,31 @@ tape('Readiness Callbacks handler - Event emitter and returned handler', t => {
     resetStubs();
     assert.end();
   });
+
+  t.test('The event callbacks should work as expected - SDK_READY emits with expected internal callbacks', assert => {
+    // the statusManager expects more than one SDK_READY callback to not log the "No listeners" warning
+    statusManager(contextMock, 1);
+
+    // Get the callbacks
+    const readyEventCB = gateMock.once.getCall(0).args[1];
+    const removeListenerCB = gateMock.on.getCall(0).args[1];
+    const addListenerCB = gateMock.on.getCall(1).args[1];
+
+    // Fake adding two listeners and removing one
+    addListenerCB(gateMock.SDK_READY);
+    addListenerCB(gateMock.SDK_READY);
+    removeListenerCB(gateMock.SDK_READY);
+
+    assert.false(loggerMock.warn.called, 'We are adding/removing listeners to the ready event before it is ready, so no warnings are logged.');
+    assert.false(loggerMock.error.called, 'We are adding/removing listeners to the ready event before it is ready, so no errors are logged.');
+
+    readyEventCB();
+    assert.true(loggerMock.warn.called, 'As we had the same amount of listeners that the expected, we get a warning.');
+    assert.false(loggerMock.error.called, 'As we had at least one listener, we get no errors.');
+
+    resetStubs();
+    assert.end();
+  });
 });
 
 tape('Readiness Callbacks handler - Ready promise', t => {
@@ -189,7 +228,8 @@ tape('Readiness Callbacks handler - Ready promise', t => {
     put: sinon.stub(),
     get: entityName => entityName === 'readiness_gate' ? { gate: gateMock } : null,
     constants: {
-      READINESS: 'readiness_gate'
+      READINESS: 'readiness_gate',
+      READY: 'is_ready'
     }
   };
   function resetStubs() {
@@ -200,47 +240,40 @@ tape('Readiness Callbacks handler - Ready promise', t => {
     loggerMock.error.resetHistory();
   }
 
-  t.test('.ready() promise behaviour for shared clients', async assert => {
-    const statusInterfaceForShared = statusManager(contextMock, true);
-    const readyForShared = statusInterfaceForShared.ready();
-
-    assert.true(readyForShared instanceof Promise, 'It should return a promise.');
-
-    await readyForShared.then(
-      () => {
-        assert.pass('It should be a promise that was resolved already.');
-        resetStubs();
-        assert.end();
-      },
-      () => assert.fail('It should be a promise that was resolved already, not rejected.')
-    );
-  });
-
-  t.test('.ready() promise behaviour for main clients', async assert => {
-    const statusInterface = statusManager(contextMock); // Default is regular clients, no bool flag
+  t.test('.ready() promise behaviour for clients', async assert => {
+    const statusInterface = statusManager(contextMock);
     const ready = statusInterface.ready();
 
     assert.true(ready instanceof Promise, 'It should return a promise.');
 
     // Get the callback
-    const readyEventCB = gateMock.once.getCall(0).args[1];
+    let readyEventCB = gateMock.once.getCall(0).args[1];
 
     readyEventCB(); // make the SDK "ready"
 
-    let testPassed = false;
+    let testPassedCount = 0;
     await ready.then(
       () => {
         assert.pass('It should be a promise that will be resolved when the SDK is ready.');
+        testPassedCount++;
+      },
+      () => assert.fail('It should be resolved on ready event, not rejected.')
+    );
+
+    // any subsequent call to .ready() must be a resolved promise
+    await ready.then(
+      () => {
+        assert.pass('A subsequent call should be a resolved promise.');
         resetStubs();
-        testPassed = true;
+        testPassedCount++;
       },
       () => assert.fail('It should be resolved on ready event, not rejected.')
     );
 
     // control assertion. stubs already reset.
-    assert.true(testPassed);
+    assert.equal(testPassedCount, 2);
 
-    const statusInterfaceForTimedout = statusManager(contextMock); // Default is regular clients, no bool flag
+    const statusInterfaceForTimedout = statusManager(contextMock);
 
     // Get the callback
     const timedoutEventCB = gateMock.once.getCall(1).args[1];
@@ -253,16 +286,40 @@ tape('Readiness Callbacks handler - Ready promise', t => {
       () => assert.fail('It should be a promise that was rejected on SDK_READY_TIMED_OUT, not resolved.'),
       () => {
         assert.pass('It should be a promise that will be rejected when the SDK is timed out.');
-        resetStubs();
-        assert.end();
+        testPassedCount++;
       }
+    );
+
+    // any subsequent call to .ready() must be a rejected promise
+    await readyForTimeout.then(
+      () => assert.fail('It should be a promise that was rejected on SDK_READY_TIMED_OUT, not resolved.'),
+      () => {
+        assert.pass('A subsequent call should be a rejected promise.');
+        testPassedCount++;
+      }
+    );
+
+    // Get the callback
+    readyEventCB = gateMock.once.getCall(0).args[1];
+    readyEventCB(); // make the SDK "ready"
+
+    // once SDK_READY, `.ready()` returns a resolved promise
+    await ready.then(
+      () => {
+        assert.pass('It should be a resolved promise when the SDK is ready, even after an SDK timeout.');
+        resetStubs();
+        testPassedCount++;
+        assert.equal(testPassedCount, 5);
+        assert.end();
+      },
+      () => assert.fail('It should be resolved on ready event, not rejected.')
     );
   });
 
   t.test('Full blown ready promise count as a callback and resolves on SDK_READY', assert => {
     const statusInterface = statusManager(contextMock);
     const readyPromise = statusInterface.ready();
-    const sdkReadyCallback = gateMock.once.getCall(2).args[1];
+    const sdkReadyCallback = gateMock.once.getCall(0).args[1];
     const readyEventCB = gateMock.once.getCall(0).args[1];
 
     sdkReadyCallback(assert);
@@ -284,5 +341,41 @@ tape('Readiness Callbacks handler - Ready promise', t => {
 
     // Resolve the promise, this would be called by the gate when SDK_READY is emitted.
     readyEventCB();
+  });
+
+  t.test('.ready() rejected promises have a default onRejected handler that just logs the error', async assert => {
+    const statusInterface = statusManager(contextMock);
+    let readyForTimeout = statusInterface.ready();
+
+    // Get the callback
+    const timedoutEventCB = gateMock.once.getCall(1).args[1];
+    const timeoutErrorMessage = 'Split SDK emitted SDK_READY_TIMED_OUT event.';
+    timedoutEventCB(timeoutErrorMessage); // make the SDK "timed out"
+
+    readyForTimeout.then(
+      () => assert.fail('It should be a promise that was rejected on SDK_READY_TIMED_OUT, not resolved.')
+    );
+
+    assert.true(loggerMock.error.notCalled, 'not called until promise is rejected');
+
+    setTimeout(() => {
+      assert.true(loggerMock.error.calledOnceWithExactly(timeoutErrorMessage), 'If we don\'t handle the rejected promise, an error is logged.');
+      readyForTimeout = statusInterface.ready();
+
+      setTimeout(() => {
+        assert.true(loggerMock.error.lastCall.calledWithExactly('Split SDK has emitted SDK_READY_TIMED_OUT event.'), 'If we don\'t handle a new .ready() rejected promise, an error is logged.');
+        readyForTimeout = statusInterface.ready();
+
+        readyForTimeout
+          .then(() => assert.fail())
+          .then(() => assert.fail())
+          .catch((error) => {
+            assert.equal(error, 'Split SDK has emitted SDK_READY_TIMED_OUT event.');
+            assert.true(loggerMock.error.calledTwice, 'If we provide an onRejected handler, even chaining several onFulfilled handlers, the error is not logged.');
+            resetStubs();
+            assert.end();
+          });
+      }, 0);
+    }, 0);
   });
 });

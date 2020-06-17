@@ -35,9 +35,16 @@ export function SplitFactory(config) {
   // We will just log and allow for the SDK to end up throwing an SDK_TIMEOUT event for devs to handle.
   validateApiKey(settings.core.authorizationKey);
 
+  // Put readiness and statusManager within context
+  // Done before adding storage, to let it access readiness gate synchronously
+  const gateFactory = ReadinessGateFacade();
+  const readiness = gateFactory(settings.startup.readyTimeout);
+  context.put(context.constants.READINESS, readiness);
+  const statusManager = sdkStatusManager(context);
+  context.put(context.constants.STATUS_MANAGER, statusManager);
+
   // Put storage config within context
   const storage = StorageFactory(context);
-  const gateFactory = ReadinessGateFacade();
   context.put(context.constants.STORAGE, storage);
 
   // Put integrationsManager within context.
@@ -47,12 +54,6 @@ export function SplitFactory(config) {
 
   // Define which type of factory to use
   const splitFactory = settings.mode === LOCALHOST_MODE ? SplitFactoryOffline : SplitFactoryOnline;
-
-  // Put readiness config within context
-  const readiness = gateFactory(settings.startup.readyTimeout);
-  context.put(context.constants.READINESS, readiness);
-  const statusManager = sdkStatusManager(context);
-  context.put(context.constants.STATUS_MANAGER, statusManager);
 
   const {
     api: mainClientInstance,
@@ -99,18 +100,17 @@ export function SplitFactory(config) {
         const sharedSettings = settings.overrideKeyAndTT(validKey, validTrafficType);
         const sharedContext = new Context();
 
-        sharedContext.put(context.constants.READY, true); // For SDK inner workings it's supposed to be ready.
         const readiness = gateFactory(sharedSettings.startup.readyTimeout);
+        sharedContext.put(context.constants.READY_FROM_CACHE, context.get(context.constants.READY_FROM_CACHE, true));
         sharedContext.put(context.constants.READINESS, readiness);
-        sharedContext.put(sharedContext.constants.STATUS_MANAGER, sdkStatusManager(sharedContext, true));
+        // for shared clients, the internal offset of added/removed SDK_READY callbacks is -1
+        sharedContext.put(context.constants.STATUS_MANAGER, sdkStatusManager(sharedContext, -1));
         sharedContext.put(context.constants.SETTINGS, sharedSettings);
         sharedContext.put(context.constants.STORAGE, storage.shared(sharedSettings));
 
         // As shared clients reuse all the storage information, we don't need to check here if we
         // will use offline or online mode. We should stick with the original decision.
         clientInstances[instanceId] = splitFactory(sharedContext, false, mainClientMetricCollectors).api;
-        // The readiness should depend on the readiness of the parent, instead of showing ready by default.
-        clientInstances[instanceId].ready = mainClientInstance.ready;
 
         log.info('New shared client instance created.');
       } else {
