@@ -2,7 +2,7 @@ import PushManagerFactory from './PushManager';
 import FullProducerFactory from '../producer';
 import PartialProducerFactory from '../producer/browser/Partial';
 import { matching } from '../utils/key/factory';
-import { forOwn } from '../utils/lang';
+import { forOwn, toString } from '../utils/lang';
 import logFactory from '../utils/logger';
 import { PUSH_DISCONNECT, PUSH_CONNECT } from './constants';
 const log = logFactory('splitio-sync:sync-manager');
@@ -67,7 +67,7 @@ export default function BrowserSyncManagerFactory(mainContext) {
   function createInstance(isSharedClient, context) {
     const producer = isSharedClient ? PartialProducerFactory(context) : FullProducerFactory(context);
     const settings = context.get(context.constants.SETTINGS);
-    const userKey = matching(settings.core.key);
+    const userKey = toString(matching(settings.core.key));
 
     context.put(context.constants.PRODUCER, producer);
     if (contexts[userKey]) log.warn('A client with the same user key has already been created. Only the new instance will be properly synchronized.');
