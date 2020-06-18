@@ -18,7 +18,8 @@ import splitChangesMock2 from './mocks/splitchanges.since.1457552620999.json';
 const settings = SettingsFactory({
   core: {
     authorizationKey: '<fake-token>'
-  }
+  },
+  streamingEnabled: false
 });
 
 const config = {
@@ -30,7 +31,8 @@ const config = {
     segmentsRefreshRate: 1,
     metricsRefreshRate: 3000, // for now I don't want to publish metrics during E2E run.
     impressionsRefreshRate: 3000  // for now I don't want to publish impressions during E2E run.
-  }
+  },
+  streamingEnabled: false
 };
 
 const key = 'facundo@split.io';

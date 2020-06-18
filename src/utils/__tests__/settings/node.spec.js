@@ -91,7 +91,7 @@ tape('SETTINGS / IPAddressesEnabled should be overwritable and true by default',
       authorizationKey: 'dummy token'
     },
     mode: CONSUMER_MODE
-  });  
+  });
 
   assert.equal(settingsWithIPAddressDisabled.core.IPAddressesEnabled, false, 'When creating a setting instance, it will have the provided value for IPAddressesEnabled');
   assert.equal(settingsWithIPAddressEnabled.core.IPAddressesEnabled, true, 'and if no IPAddressesEnabled was provided, it will be true.');
@@ -101,6 +101,25 @@ tape('SETTINGS / IPAddressesEnabled should be overwritable and true by default',
 
   assert.deepEqual({ ip: IP_VALUE, hostname: HOSTNAME_VALUE }, settingsWithIPAddressEnabled.runtime, 'When IP address is enabled, the runtime setting will have the current ip and hostname values.');
   assert.deepEqual({ ip: IP_VALUE, hostname: HOSTNAME_VALUE }, settingsWithIPAddressEnabledAndConsumerMode.runtime, 'When IP address is enabled, the runtime setting will have the current ip and hostname values.');
+
+  assert.end();
+});
+
+tape('SETTINGS / streamingEnabled should be overwritable and true by default', assert => {
+  const settingsWithStreamingDisabled = SettingsFactory({
+    core: {
+      authorizationKey: 'dummy token',
+    },
+    streamingEnabled: false
+  });
+  const settingsWithStreamingEnabled = SettingsFactory({
+    core: {
+      authorizationKey: 'dummy token'
+    }
+  });
+
+  assert.equal(settingsWithStreamingDisabled.streamingEnabled, false, 'When creating a setting instance, it will have the provided value for streamingEnabled');
+  assert.equal(settingsWithStreamingEnabled.streamingEnabled, true, 'If streamingEnabled is not provided, it will be true.');
 
   assert.end();
 });
