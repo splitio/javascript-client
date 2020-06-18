@@ -67,6 +67,7 @@ export default function BrowserSyncManagerFactory(mainContext) {
   function createInstance(isSharedClient, context) {
     const producer = isSharedClient ? PartialProducerFactory(context) : FullProducerFactory(context);
     const settings = context.get(context.constants.SETTINGS);
+    // we need to stringify the user key (or matching key) in case it is not an string, to hash and pass as query param for authentication
     const userKey = toString(matching(settings.core.key));
 
     context.put(context.constants.PRODUCER, producer);
