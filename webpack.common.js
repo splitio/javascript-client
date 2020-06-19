@@ -19,15 +19,12 @@ module.exports = {
           loader: 'babel-loader',
           options: {
             presets: [['@babel/preset-env', {
-              'useBuiltIns': 'usage',
-              'corejs': '3',
+              'useBuiltIns': false,
               'targets': {
                 'ie': '10',
                 'node': '6'
               },
-              exclude: [
-                'es.promise'
-              ]
+              'modules': false
             }]],
             plugins: [
               [
