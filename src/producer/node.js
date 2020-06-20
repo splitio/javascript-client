@@ -37,10 +37,11 @@ const NodeUpdater = (context) => {
 
   function synchronizeSplits() {
     isSynchronizingSplits = true;
-    return splitsUpdater().then(function () {
+    return splitsUpdater().then(function (result) {
       // Mark splits as ready (track first successfull call to start downloading segments)
       splitFetchCompleted = true;
       isSynchronizingSplits = false;
+      return result; // false if the task fail fetching or storing mySegments
     });
   }
 
@@ -49,8 +50,9 @@ const NodeUpdater = (context) => {
    */
   function synchronizeSegment(segmentNames) {
     isSynchronizingSegments = true;
-    return segmentsUpdater(segmentNames).then(function () {
+    return segmentsUpdater(segmentNames).then(function (result) {
       isSynchronizingSegments = false;
+      return result; // false if the task fail fetching or storing mySegments
     });
   }
 
