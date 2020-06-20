@@ -43,7 +43,7 @@ const PartialBrowserProducer = (context) => {
    */
   function synchronizeMySegments(segmentList) {
     isSynchronizingMySegments = true;
-    return mySegmentsUpdater(0, segmentList).finally(function () {
+    return mySegmentsUpdater(0, segmentList).then(function () {
       isSynchronizingMySegments = false;
     });
   }

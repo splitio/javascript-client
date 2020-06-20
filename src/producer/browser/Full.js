@@ -37,7 +37,7 @@ const FullBrowserProducer = (context) => {
 
   function synchronizeSplits() {
     isSynchronizingSplits = true;
-    return splitsUpdater().finally(function () {
+    return splitsUpdater().then(function () {
       isSynchronizingSplits = false;
     });
   }
