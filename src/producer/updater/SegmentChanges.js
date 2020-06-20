@@ -22,7 +22,7 @@ import { findIndex } from '../../utils/lang';
 import { SplitError } from '../../utils/lang/Errors';
 import thenable from '../../utils/promise/thenable';
 
-const SegmentChangesUpdaterFactory = context => {
+export default function SegmentChangesUpdaterFactory(context) {
   const {
     [context.constants.SETTINGS]: settings,
     [context.constants.READINESS]: readiness,
@@ -34,6 +34,8 @@ const SegmentChangesUpdaterFactory = context => {
   let readyOnAlreadyExistentState = true;
 
   /**
+   * Segments updater returns a promise that resolves with a `false` boolean value if it fails to fetch segments or synchronize them with the storage.
+   *
    * @param {string[] | undefined} segmentNames list of segment names to fetch. By passing `undefined` it fetches the list of segments registered at the storage
    */
   return function SegmentChangesUpdater(segmentNames) {
@@ -97,6 +99,8 @@ const SegmentChangesUpdaterFactory = context => {
             context.put(context.constants.DESTROYED, true);
             inputValidationLog.error('Factory instantiation: you passed a Browser type authorizationKey, please grab an Api Key from the Split web console that is of type SDK.');
           }
+
+          return false;
         });
       });
     }
@@ -106,6 +110,4 @@ const SegmentChangesUpdaterFactory = context => {
     return thenable(segments) ? segments.then(segmentsUpdater) : segmentsUpdater(segments);
   };
 
-};
-
-export default SegmentChangesUpdaterFactory;
+}

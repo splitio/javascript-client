@@ -19,7 +19,7 @@ import { SplitError } from '../../utils/lang/Errors';
 const log = logFactory('splitio-producer:my-segments');
 import mySegmentsFetcher from '../fetcher/MySegments';
 
-function MySegmentsUpdaterFactory(context) {
+export default function MySegmentsUpdaterFactory(context) {
   const {
     [context.constants.SETTINGS]: settings,
     [context.constants.READINESS]: readiness,
@@ -32,6 +32,7 @@ function MySegmentsUpdaterFactory(context) {
   let readyOnAlreadyExistentState = true;
   let startingUp = true;
 
+  // @TODO when modularizing storage, handle possible errors and async execution of storage.segments.resetSegments
   function updateSegments(segments) {
     // Update the list of segment names available
     const shouldNotifyUpdate = storage.segments.resetSegments(segments);
@@ -43,6 +44,12 @@ function MySegmentsUpdaterFactory(context) {
     }
   }
 
+  /**
+   * MySegments updater returns a promise that resolves with a `false` boolean value if it fails to fetch mySegments or synchronize them with the storage.
+   *
+   * @param {number | undefined} retry current number of retry attemps. this param is only set by SplitChangesUpdater itself.
+   * @param {string[] | undefined} segmentList list of mySegment names to sync in the storage. If the list is `undefined`, it fetches them before syncing in the storage.
+   */
   return function MySegmentsUpdater(retry = 0, segmentList) {
     // If segmentList is provided, there is no need to fetch mySegments
     if (segmentList) {
@@ -74,5 +81,3 @@ function MySegmentsUpdaterFactory(context) {
   };
 
 }
-
-export default MySegmentsUpdaterFactory;

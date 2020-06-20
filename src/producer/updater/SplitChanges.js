@@ -45,7 +45,7 @@ function computeSplitsMutation(entries) {
   return computed;
 }
 
-function SplitChangesUpdaterFactory(context, isNode = false) {
+export default function SplitChangesUpdaterFactory(context, isNode = false) {
   const {
     [context.constants.SETTINGS]: settings,
     [context.constants.READINESS]: readiness,
@@ -57,6 +57,11 @@ function SplitChangesUpdaterFactory(context, isNode = false) {
   let startingUp = true;
   let readyOnAlreadyExistentState = true;
 
+  /**
+   * Split updater returns a promise that resolves with a `false` boolean value if it fails to fetch splits or synchronize them with the storage.
+   *
+   * @param {number | undefined} retry current number of retry attemps. this param is only set by SplitChangesUpdater itself.
+   */
   return function SplitChangesUpdater(retry = 0) {
 
     function splitChanges(since) {
@@ -116,5 +121,3 @@ function SplitChangesUpdaterFactory(context, isNode = false) {
     return sincePromise.then(splitChanges);
   };
 }
-
-export default SplitChangesUpdaterFactory;
