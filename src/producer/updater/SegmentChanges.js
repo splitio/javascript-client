@@ -93,6 +93,7 @@ export default function SegmentChangesUpdaterFactory(context) {
             segmentsEventEmitter.emit(segmentsEventEmitter.SDK_SEGMENTS_ARRIVED);
           }
         }).catch(error => {
+          // handle user callback errors
           if (!(error instanceof SplitError)) setTimeout(() => { throw error; }, 0);
 
           if (error.statusCode === 403) {

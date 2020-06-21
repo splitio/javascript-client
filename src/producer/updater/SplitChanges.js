@@ -78,6 +78,7 @@ export default function SplitChangesUpdaterFactory(context, isNode = false) {
           log.debug(`Segment names collected ${mutation.segments}`);
 
           // Write into storage
+          // @TODO if allowing custom storages, wrap errors as SplitErrors to distinguish from user callback errors
           return Promise.all([
             storage.splits.addSplits(mutation.added),
             storage.splits.removeSplits(mutation.removed),
@@ -91,6 +92,7 @@ export default function SplitChangesUpdaterFactory(context, isNode = false) {
           });
         })
         .catch(error => {
+          // handle user callback errors
           if (!(error instanceof SplitError)) {
             setTimeout(() => { throw error; }, 0);
             startingUp = false; // Stop retrying.

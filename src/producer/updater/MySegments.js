@@ -32,7 +32,7 @@ export default function MySegmentsUpdaterFactory(context) {
   let readyOnAlreadyExistentState = true;
   let startingUp = true;
 
-  // @TODO when modularizing storage, handle possible errors and async execution of storage.segments.resetSegments
+  // @TODO if allowing custom storages, handle async execution and wrap errors as SplitErrors to distinguish from user callback errors
   function updateSegments(segments) {
     // Update the list of segment names available
     const shouldNotifyUpdate = storage.segments.resetSegments(segments);
@@ -51,33 +51,32 @@ export default function MySegmentsUpdaterFactory(context) {
    * @param {string[] | undefined} segmentList list of mySegment names to sync in the storage. If the list is `undefined`, it fetches them before syncing in the storage.
    */
   return function MySegmentsUpdater(retry = 0, segmentList) {
-    // If segmentList is provided, there is no need to fetch mySegments
-    if (segmentList) {
-      updateSegments(segmentList);
-      return Promise.resolve();
-    }
+    const updaterPromise = segmentList ?
+      // If segmentList is provided, there is no need to fetch mySegments
+      new Promise(() => { updateSegments(segmentList); }) :
+      // NOTE: We only collect metrics on startup.
+      mySegmentsFetcher(settings, startingUp, metricCollectors).then(segments => {
+        // Only when we have downloaded segments completely, we should not keep
+        // retrying anymore
+        startingUp = false;
 
-    // NOTE: We only collect metrics on startup.
-    return mySegmentsFetcher(settings, startingUp, metricCollectors).then(segments => {
-      // Only when we have downloaded segments completely, we should not keep
-      // retrying anymore
-      startingUp = false;
-
-      updateSegments(segments);
-    })
-      .catch(error => {
-        if (!(error instanceof SplitError)) setTimeout(() => { throw error; }, 0);
-
-        if (startingUp && settings.startup.retriesOnFailureBeforeReady > retry) {
-          retry += 1;
-          log.warn(`Retrying download of segments #${retry}. Reason: ${error}`);
-          return MySegmentsUpdater(retry);
-        } else {
-          startingUp = false;
-        }
-
-        return false; // shouldUpdate = false
+        updateSegments(segments);
       });
+
+    return updaterPromise.catch(error => {
+      // handle user callback errors
+      if (!(error instanceof SplitError)) setTimeout(() => { throw error; }, 0);
+
+      if (startingUp && settings.startup.retriesOnFailureBeforeReady > retry) {
+        retry += 1;
+        log.warn(`Retrying download of segments #${retry}. Reason: ${error}`);
+        return MySegmentsUpdater(retry);
+      } else {
+        startingUp = false;
+      }
+
+      return false; // shouldUpdate = false
+    });
   };
 
 }
