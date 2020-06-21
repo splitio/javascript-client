@@ -41,7 +41,7 @@ const NodeUpdater = (context) => {
       // Mark splits as ready (track first successfull call to start downloading segments)
       splitFetchCompleted = true;
       isSynchronizingSplits = false;
-      return result; // false if the task fail fetching or storing mySegments
+      return result; // false if `splitsUpdater` fails to fetch or store splits
     });
   }
 
@@ -52,7 +52,7 @@ const NodeUpdater = (context) => {
     isSynchronizingSegments = true;
     return segmentsUpdater(segmentNames).then(function (result) {
       isSynchronizingSegments = false;
-      return result; // false if the task fail fetching or storing mySegments
+      return result; // false if `segmentsUpdater` fails to fetch or store segments
     });
   }
 

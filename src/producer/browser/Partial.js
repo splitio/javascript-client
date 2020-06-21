@@ -45,7 +45,7 @@ const PartialBrowserProducer = (context) => {
     isSynchronizingMySegments = true;
     return mySegmentsUpdater(0, segmentList).then(function (result) {
       isSynchronizingMySegments = false;
-      return result; // false if the task fail fetching or storing mySegments
+      return result; // false if `mySegmentsUpdater` fails to fetch or store mySegments
     });
   }
 

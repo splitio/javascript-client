@@ -39,7 +39,7 @@ const FullBrowserProducer = (context) => {
     isSynchronizingSplits = true;
     return splitsUpdater().then(function (result) {
       isSynchronizingSplits = false;
-      return result; // false if the task fail fetching or storing mySegments
+      return result; // false if `splitsUpdater` fails to fetch or store splits
     });
   }
 
