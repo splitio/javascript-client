@@ -16,6 +16,7 @@ limitations under the License.
 
 import timeout from '../../utils/promise/timeout';
 import tracker from '../../utils/timeTracker';
+import { SplitError } from '../../utils/lang/Errors';
 import splitChangesService from '../../services/splitChanges';
 import splitChangesRequest from '../../services/splitChanges/get';
 
@@ -29,7 +30,10 @@ function splitChangesFetcher(settings, since, startingUp = false, metricCollecto
     splitsPromise = timeout(settings.startup.requestTimeoutBeforeReady, splitsPromise);
   }
 
-  return splitsPromise.then(resp => resp.json());
+  return splitsPromise
+    .then(resp => resp.json())
+    // JSON parsing errors are handled as SplitErrors, to distinguish from user callback errors
+    .catch(error => { throw new SplitError(error.message); });
 }
 
 export default splitChangesFetcher;

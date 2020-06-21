@@ -11,7 +11,8 @@ export default async function(settings, fetchMock, assert) {
     core: {
       authorizationKey: '<fake-token-1>',
       key: 'marcio@split.io'
-    }
+    },
+    streamingEnabled: false
   });
   const client = splitio.client();
   const manager = splitio.manager();

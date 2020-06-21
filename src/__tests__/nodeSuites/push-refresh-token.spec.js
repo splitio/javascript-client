@@ -80,6 +80,7 @@ export function testRefreshToken(fetchMock, assert) {
   fetchMock.getOnce(settings.url('/splitChanges?since=1457552620999'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_REFRESH_TOKEN + MILLIS_SSE_OPEN), 'sync after SSE connection is reopened');
+    return { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } };
   });
 
   // second re-auth due to refresh token
@@ -97,6 +98,7 @@ export function testRefreshToken(fetchMock, assert) {
     client.destroy().then(() => {
       assert.end();
     });
+    return { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } };
   });
 
   mockSegmentChanges(fetchMock, new RegExp(`${settings.url('/segmentChanges')}/*`), [key]);

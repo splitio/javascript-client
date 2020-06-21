@@ -17,7 +17,8 @@ const baseConfig = {
   core: {
     authorizationKey: '<fake-token-3>'
   },
-  debug: 'WARN'
+  debug: 'WARN',
+  streamingEnabled: false
 };
 
 function assertGetTreatmentWhenReady(assert, client, key) {

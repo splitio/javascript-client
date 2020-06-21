@@ -16,6 +16,7 @@ import authPushEnabledNicolas from '../mocks/auth.pushEnabled.nicolas@split.io.j
 import authPushEnabledNicolasAndMarcio from '../mocks/auth.pushEnabled.nicolas@split.io.marcio@split.io.json';
 
 import { nearlyEqual } from '../testUtils';
+import includes from 'lodash/includes';
 
 // Replace original EventSource with mock
 import EventSourceMock, { setMockListener } from '../../sync/__tests__/mocks/eventSourceMock';
@@ -65,7 +66,7 @@ const MILLIS_MY_SEGMENTS_UPDATE_WITH_PAYLOAD = 800;
  *  0.8 secs: MY_SEGMENTS_UPDATE event for new client (withPayload). client destroyed
  */
 export function testSynchronization(fetchMock, assert) {
-  assert.plan(23);
+  assert.plan(24);
   fetchMock.reset();
 
   let start, splitio, client, otherClient;
@@ -132,17 +133,33 @@ export function testSynchronization(fetchMock, assert) {
             const lapse = Date.now() - start;
             assert.true(nearlyEqual(lapse, MILLIS_MY_SEGMENTS_UPDATE_WITH_PAYLOAD), 'SDK_UPDATE due to MY_SEGMENTS_UPDATE event (with payload)');
             assert.equal(otherClient.getTreatment('qc_team'), 'yes', 'evaluation with updated MySegments list (shared client)');
-
-            // destroy shared client and then main client
-            otherClient.destroy().then(() => {
-              assert.equal(otherClient.getTreatment('whitelist'), 'control', 'evaluation returns control for shared client if it is destroyed');
-              assert.equal(client.getTreatment('whitelist'), 'not_allowed', 'evaluation returns correct tratment for main client');
-              client.destroy().then(() => {
-                assert.equal(client.getTreatment('whitelist'), 'control', 'evaluation returns control for main client if it is destroyed');
-                assert.end();
-              });
-            });
           });
+
+          // assert that user error on callback is an Uncaught Exception
+          otherClient.once(otherClient.Event.SDK_UPDATE, () => {
+            const previousErrorHandler = window.onerror;
+            const exceptionHandler = err => {
+              if (includes(err, 'willThrowFor')) {
+                assert.pass(`User error on SDK_UPDATE callback should throw as Uncaught Exception: ${err}`);
+              } else {
+                assert.fail(err);
+              }
+              window.onerror = previousErrorHandler;
+
+              // destroy shared client and then main client
+              otherClient.destroy().then(() => {
+                assert.equal(otherClient.getTreatment('whitelist'), 'control', 'evaluation returns control for shared client if it is destroyed');
+                assert.equal(client.getTreatment('whitelist'), 'not_allowed', 'evaluation returns correct tratment for main client');
+                client.destroy().then(() => {
+                  assert.equal(client.getTreatment('whitelist'), 'control', 'evaluation returns control for main client if it is destroyed');
+                  assert.end();
+                });
+              });
+            };
+            window.onerror = exceptionHandler;
+            null.willThrowForUpdate();
+          });
+
           eventSourceInstance.emitMessage(mySegmentsUpdateMessageWithPayload);
         }, MILLIS_MY_SEGMENTS_UPDATE_WITH_PAYLOAD - MILLIS_NEW_CLIENT); // send a MY_SEGMENTS_UPDATE event with payload after 0.1 seconds from new SSE connection opened
 

@@ -21,7 +21,8 @@ const config = {
   urls: baseUrls,
   startup: {
     eventsFirstPushWindow: 3000
-  }
+  },
+  streamingEnabled: false
 };
 
 export default async function metricsBrowserSuite(fetchMock, assert) {

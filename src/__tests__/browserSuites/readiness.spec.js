@@ -23,7 +23,8 @@ const baseConfig = {
   },
   startup: {
     eventsFirstPushWindow: 3000 // We use default for the readiness related ones.
-  }
+  },
+  streamingEnabled: false
 };
 
 export default function (fetchMock, assert) {
