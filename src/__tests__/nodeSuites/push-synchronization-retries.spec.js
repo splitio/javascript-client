@@ -31,7 +31,7 @@ const config = {
   },
   urls: baseUrls,
   streamingEnabled: true,
-  debug: true,
+  // debug: true,
 };
 const settings = SettingsFactory(config);
 
