@@ -63,12 +63,12 @@ const MILLIS_THIRD_RETRY_FOR_SPLIT_KILL_EVENT = 1600;
  *  0.4 secs: SPLIT_UPDATE event with old changeNumber -> SDK_UPDATE not triggered
  *
  *  0.5 secs: MY_SEGMENTS_UPDATE event -> /mySegments/nicolas@split.io: network error
- *  0.6 secs: MY_SEGMENTS_UPDATE event -> /mySegments/nicolas@split.io retry: network error
+ *  0.6 secs: MY_SEGMENTS_UPDATE event -> /mySegments/nicolas@split.io retry: invalid JSON response
  *  0.8 secs: MY_SEGMENTS_UPDATE event -> /mySegments/nicolas@split.io retry: success -> SDK_UPDATE triggered
  *
- *  0.9 secs: SPLIT_KILL event -> /splitChanges: bad response -> SDK_UPDATE triggered although fetches fail
+ *  0.9 secs: SPLIT_KILL event -> /splitChanges: outdated response -> SDK_UPDATE triggered although fetches fail
  *  1.0 secs: SPLIT_KILL event -> /splitChanges retry: network error
- *  1.2 secs: SPLIT_KILL event -> /splitChanges retry: network error
+ *  1.2 secs: SPLIT_KILL event -> /splitChanges retry: invalid JSON response
  *  1.6 secs: SPLIT_KILL event -> /splitChanges retry: 408 request timeout
  *    (we destroy the client here, to assert that all scheduled tasks are clean)
  */
@@ -163,7 +163,7 @@ export function testSynchronizationRetries(fetchMock, assert) {
   // fetch due to first MY_SEGMENTS_UPDATE event
   fetchMock.getOnce(settings.url('/mySegments/nicolas@split.io'), { throws: new TypeError('Network error') });
   // fetch retry for MY_SEGMENTS_UPDATE event, due to previous fail
-  fetchMock.getOnce(settings.url('/mySegments/nicolas@split.io'), { throws: new TypeError('Network error') });
+  fetchMock.getOnce(settings.url('/mySegments/nicolas@split.io'), { status: 200, body: '%^%$#%$%&$%&$%&$%&' }); // invalid JSON response
   // second fetch retry for MY_SEGMENTS_UPDATE event, due to previous fail
   fetchMock.getOnce(settings.url('/mySegments/nicolas@split.io'), function () {
     const lapse = Date.now() - start;
@@ -181,7 +181,7 @@ export function testSynchronizationRetries(fetchMock, assert) {
   // first fetch retry for SPLIT_KILL event, due to previous unexpected response (response till minor than SPLIT_KILL changeNumber)
   fetchMock.getOnce(settings.url('/splitChanges?since=1457552649999'), { throws: new TypeError('Network error') });
   // second fetch retry for SPLIT_KILL event
-  fetchMock.getOnce(settings.url('/splitChanges?since=1457552649999'), { throws: new TypeError('Network error') });
+  fetchMock.getOnce(settings.url('/splitChanges?since=1457552649999'), { status: 200, body: '%^%$#%$%&$%&$%&$%&' }); // invalid JSON response
   // third fetch retry for SPLIT_KILL event
   fetchMock.getOnce(settings.url('/splitChanges?since=1457552649999'), function () {
     const lapse = Date.now() - start;
