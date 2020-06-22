@@ -98,7 +98,7 @@ export function testRefreshToken(fetchMock, assert) {
     client.destroy().then(() => {
       assert.end();
     });
-    return { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } };
+    return { status: 500, body: 'server error' };
   });
 
   mockSegmentChanges(fetchMock, new RegExp(`${settings.url('/segmentChanges')}/*`), [key]);

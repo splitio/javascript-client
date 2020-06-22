@@ -103,7 +103,7 @@ export function testRefreshToken(fetchMock, assert) {
     client.destroy().then(() => {
       assert.end();
     });
-    return { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } };
+    return { status: 500, body: 'server error' };
   });
   fetchMock.getOnce(settings.url('/mySegments/nicolas@split.io'), { status: 200, body: mySegmentsNicolasMock1 });
 
