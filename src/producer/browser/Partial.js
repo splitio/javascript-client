@@ -43,9 +43,10 @@ const PartialBrowserProducer = (context) => {
    */
   function synchronizeMySegments(segmentList) {
     isSynchronizingMySegments = true;
-    return mySegmentsUpdater(0, segmentList).then(function (result) {
+    // `mySegmentsUpdater` promise always resolves, and with a false value if it fails to fetch or store mySegments
+    return mySegmentsUpdater(0, segmentList).then(function (res) {
       isSynchronizingMySegments = false;
-      return result; // false if `mySegmentsUpdater` fails to fetch or store mySegments
+      return res;
     });
   }
 
