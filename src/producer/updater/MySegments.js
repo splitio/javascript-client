@@ -55,7 +55,7 @@ export default function MySegmentsUpdaterFactory(context) {
 
     if (segmentList) {
       // If segmentList is provided, there is no need to fetch mySegments
-      updaterPromise = new Promise(() => { updateSegments(segmentList); });
+      updaterPromise = new Promise((res) => { updateSegments(segmentList); res();});
     } else {
       // NOTE: We only collect metrics on startup.
       updaterPromise = mySegmentsFetcher(settings, startingUp, metricCollectors).then(segments => {
