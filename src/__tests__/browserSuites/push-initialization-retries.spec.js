@@ -98,7 +98,6 @@ export function testAuthRetries(fetchMock, assert) {
   splitio = SplitFactory(config);
   client = splitio.client();
   client.on(client.Event.SDK_READY, () => {
-    console.log('ready');
     ready = true;
   });
 
@@ -170,7 +169,89 @@ export function testSSERetries(fetchMock, assert) {
   splitio = SplitFactory(config);
   client = splitio.client();
   client.on(client.Event.SDK_READY, () => {
-    console.log('ready');
+    ready = true;
+  });
+
+}
+
+/**
+ * Assert that if the main client is destroyed and authentication request was in progress and success, the SDK doesn't open the SSE connection
+ *
+ * Sequence of calls:
+ *  0.0 secs: initial SyncAll (/splitChanges, /mySegments/*) and first auth attempt
+ *  0.05 secs: client destroyed
+ *  0.1 secs: first auth attempt response (success) but not SSE connection opened since push was closed
+ *  0.2 secs: test finished
+ */
+export function testSdkDestroyWhileAuthSuccess(fetchMock, assert) {
+  window.EventSource = EventSourceMock;
+  setMockListener(function (eventSourceInstance) {
+    assert.fail('unexpected EventSource request with url: ' + eventSourceInstance.url);
+  });
+
+  let splitio, client, ready = false;
+
+  fetchMock.getOnce(settings.url(`/auth?users=${encodeURIComponent(userKey)}`), { status: 200, body: authPushEnabledNicolas }, { delay: 100 });
+
+  fetchMock.get({ url: settings.url('/mySegments/nicolas@split.io'), repeat: 2 }, { status: 200, body: mySegmentsNicolasMock });
+  fetchMock.getOnce(settings.url('/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
+
+  setTimeout(() => {
+    client.destroy().then(() => {
+      setTimeout(() => {
+        assert.true(ready, 'client was ready before being destroyed');
+        assert.end();
+      }, 150); // finish the test 50 millis after the third auth attempt would have been done if the client wasn't destroyed
+    });
+  }, 50); // destroy the client 50 millis before we get a response for the auth request
+
+  splitio = SplitFactory(config);
+  client = splitio.client();
+  client.on(client.Event.SDK_READY, () => {
+    ready = true;
+  });
+
+}
+
+/**
+ * Asserts that if the main client is destroyed and authentication request was in progress and fail, the SDK doesn't schedule an auth retry
+ *
+ * Sequence of calls:
+ *  0.0 secs: initial SyncAll (/splitChanges, /mySegments/*) and first auth attempt (fail due to bad token)
+ *  0.0 secs: polling (/splitChanges, /mySegments/*)
+ *  0.1 secs: second auth attempt request
+ *  0.15 secs: client destroyed
+ *  0.2 secs: second auth attempt response (fail due to network error)
+ *  0.4 secs: NO third auth attempt
+ *  0.45 secs: test finished
+ */
+export function testSdkDestroyWhileAuthRetries(fetchMock, assert) {
+
+  let splitio, client, ready = false;
+
+  fetchMock.getOnce(settings.url(`/auth?users=${encodeURIComponent(userKey)}`), { status: 200, body: authPushBadToken });
+  fetchMock.getOnce(settings.url(`/auth?users=${encodeURIComponent(userKey)}`), { throws: new TypeError('Network error') }, { delay: 100 });
+
+  fetchMock.get({ url: settings.url('/mySegments/nicolas@split.io'), repeat: 2 }, { status: 200, body: mySegmentsNicolasMock });
+  fetchMock.getOnce(settings.url('/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
+  fetchMock.getOnce(settings.url('/splitChanges?since=1457552620999'), { status: 200, body: splitChangesMock2 });
+
+  fetchMock.get(new RegExp('.*'), function (url) {
+    assert.fail('unexpected GET request with url: ' + url);
+  });
+
+  setTimeout(() => {
+    client.destroy().then(() => {
+      setTimeout(() => {
+        assert.true(ready, 'client was ready before being destroyed');
+        assert.end();
+      }, 300); // finish the test 50 millis after the third auth attempt would have been done if the client wasn't destroyed
+    });
+  }, 150); // destroy the client 50 millis before we get a response for the second auth attempt
+
+  splitio = SplitFactory(config);
+  client = splitio.client();
+  client.on(client.Event.SDK_READY, () => {
     ready = true;
   });
 
