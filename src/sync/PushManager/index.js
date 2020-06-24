@@ -39,7 +39,7 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
   const workers = [];
   // variable used on browser to reconnect only when a new client was added, saving some authentication and sse connections.
   let connectForNewClient = false;
-  // flag that indicates if `disconnectPush` was called, either by the SyncManager (when the client is destroyed) or by a PUSH_DISABLED notification
+  // flag that indicates if `disconnectPush` was called, either by the SyncManager (when the client is destroyed) or by a STREAMING_DISABLED control notification
   let disconnected;
 
   /** PushManager functions related to initialization */
