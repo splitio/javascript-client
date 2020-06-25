@@ -24,7 +24,7 @@ import mySegmentsUpdateMessage from '../mocks/message.MY_SEGMENTS_UPDATE.nicolas
 import authPushEnabledNicolas from '../mocks/auth.pushEnabled.nicolas@split.io.json';
 import authPushEnabledNicolasAndMarcio from '../mocks/auth.pushEnabled.nicolas@split.io.marcio@split.io.json';
 
-import { nearlyEqual } from '../utils';
+import { nearlyEqual } from '../testUtils';
 
 import EventSourceMock, { setMockListener } from '../../sync/__tests__/mocks/eventSourceMock';
 window.EventSource = EventSourceMock;
@@ -231,12 +231,12 @@ export function testFallbacking(fetchMock, assert) {
   fetchMock.getOnce(settings.url('/splitChanges?since=1457552649999'), { status: 200, body: { splits: [], since: 1457552649999, till: 1457552649999 } });
   fetchMock.getOnce(settings.url('/mySegments/nicolas@split.io'), { status: 200, body: mySegmentsNicolasMock1 });
   fetchMock.getOnce(settings.url('/mySegments/marcio@split.io'), { status: 200, body: mySegmentsMarcio });
-  
+
   // creation of third client during polling: initial mysegment sync and authentication
   fetchMock.getOnce(settings.url('/mySegments/facundo@split.io'), { status: 200, body: mySegmentsMarcio });
   // authentication fail, so we keep polling. next auth attempt is scheduled in one second (after the test finishes)
   fetchMock.getOnce(settings.url(`/auth?users=${encodeURIComponent(userKey)}&users=${encodeURIComponent(secondUserKey)}&users=${encodeURIComponent(thirdUserKey)}`), { throws: new TypeError('Network error') });
-  
+
   // continue fetches due to second fallback to polling
   fetchMock.getOnce(settings.url('/splitChanges?since=1457552649999'), function () {
     const lapse = Date.now() - start;
@@ -279,11 +279,11 @@ export function testFallbacking(fetchMock, assert) {
   fetchMock.get(new RegExp('.*'), function (url) {
     assert.fail('unexpected GET request with url: ' + url);
   });
-  
+
   fetchMock.post('*', 200);
 
   start = Date.now();
   splitio = SplitFactory(config);
   client = splitio.client();
-    
+
 }

@@ -3,10 +3,15 @@ import SettingsFactory from '../../utils/settings';
 const settings = SettingsFactory({
   core: {
     key: 'asd'
-  }
+  },
+  streamingEnabled: false
 });
 
-export default function(startWithTT, fetchMock, assert) {
+export default function (startWithTT, fetchMock, assert) {
+  // mocking mySegments endpoints with delays for new clients
+  fetchMock.get(settings.url('/mySegments/emiliano@split.io'), { status: 200, body: { mySegments: [] } }, { delay: 100 });
+  fetchMock.get(settings.url('/mySegments/matias@split.io'), { status: 200, body: { mySegments: [] } }, { delay: 200 });
+
   const factory = SplitFactory({
     core: {
       authorizationKey: 'dummy',
@@ -14,8 +19,10 @@ export default function(startWithTT, fetchMock, assert) {
       trafficType: startWithTT ? 'start_tt' : undefined
     },
     startup: {
-      eventsFirstPushWindow: 3
-    }
+      eventsFirstPushWindow: 3,
+      readyTimeout: 0.15
+    },
+    streamingEnabled: false
   });
   let mainClient = factory.client();
   assert.equal(mainClient, factory.client(), 'If we call factory.client() (no params) more than once, it is just a get of the main client.');
@@ -23,6 +30,8 @@ export default function(startWithTT, fetchMock, assert) {
 
   let nicolasClient = factory.client('nicolas@split.io', 'nico_tt');
   let marcioClient = factory.client('marcio@split.io');
+  let emilianoClient = factory.client('emiliano@split.io');
+  let matiasClient = factory.client('matias@split.io');
 
   assert.throws(factory.client.bind(factory, null), 'Calling factory.client() with a key parameter that is not a valid key should throw.');
   assert.throws(factory.client.bind(factory, {}), 'Calling factory.client() with a key parameter that is not a valid key should throw.');
@@ -34,10 +43,22 @@ export default function(startWithTT, fetchMock, assert) {
     yield;
     yield;
     yield;
+    yield;
+    yield;
+    yield;
+    yield;
+    yield;
+    yield;
+    yield;
+    yield;
+    yield;
+    yield;
 
     marcioClient.destroy();
     nicolasClient.destroy();
     mainClient.destroy();
+    emilianoClient.destroy();
+    matiasClient.destroy();
 
     assert.end();
   })();
@@ -97,9 +118,9 @@ export default function(startWithTT, fetchMock, assert) {
   };
 
   /* Assert initial state */
-  assert.equal(mainClient.ready, nicolasClient.ready, 'Shared clients should share the ready flag.');
-  assert.equal(mainClient.ready, marcioClient.ready, 'Shared clients should share the ready flag.');
-  assert.equal(nicolasClient.ready, marcioClient.ready, 'Shared clients should share the ready flag.');
+  assert.notEqual(mainClient.ready, nicolasClient.ready, 'Shared clients should have their own ready promise.');
+  assert.notEqual(mainClient.ready, marcioClient.ready, 'Shared clients should have their own ready promise.');
+  assert.notEqual(nicolasClient.ready, marcioClient.ready, 'Shared clients should have their own ready promise.');
 
   /* Assert client.track(), no need to wait for ready. */
   trackAssertions();
@@ -110,17 +131,40 @@ export default function(startWithTT, fetchMock, assert) {
   getTreatmentsAssertions(mainClient, expectControls);
   getTreatmentsAssertions(nicolasClient, expectControls);
   getTreatmentsAssertions(marcioClient, expectControls);
-  // Once main is ready, they all should be ready. Same thing to use one ready or the other.
-  nicolasClient.ready().then(() => {
+  getTreatmentsAssertions(emilianoClient, expectControls);
+
+  // Each client is ready when splits and its segments are fetched
+  mainClient.ready().then(() => {
     assert.comment('Main instance - facundo@split.io');
     getTreatmentsAssertions(mainClient, ['off', 'on', 'on', 'off']);
+    getTreatmentsAssertions(emilianoClient, expectControls);
+
+    emilianoClient.ready().then(() => {
+      assert.comment('Shared instance - emiliano@split.io');
+      getTreatmentsAssertions(emilianoClient, ['off', 'on', 'off', 'off']);
+    });
   });
-  mainClient.ready().then(() => {
+
+  nicolasClient.ready().then(() => {
     assert.comment('Shared instance - nicolas@split.io');
     getTreatmentsAssertions(nicolasClient, ['off', 'on', 'off', 'on']);
   });
   marcioClient.ready().then(() => {
     assert.comment('Shared instance - marcio@split.io');
     getTreatmentsAssertions(marcioClient, ['off', 'on', 'off', 'off']);
+  });
+  matiasClient.on(matiasClient.Event.SDK_READY_TIMED_OUT, () => {
+    getTreatmentsAssertions(matiasClient, expectControls);
+  });
+  matiasClient.ready().catch(() => {
+    matiasClient.on(matiasClient.Event.SDK_READY, () => {
+      getTreatmentsAssertions(matiasClient, ['off', 'on', 'off', 'off']);
+      matiasClient.ready().then(() => {
+        assert.comment('Shared instance - matias@split.io');
+        getTreatmentsAssertions(matiasClient, ['off', 'on', 'off', 'off']);
+      });
+    });
+    assert.comment('Shared instance - matias@split.io');
+    getTreatmentsAssertions(matiasClient, expectControls);
   });
 }

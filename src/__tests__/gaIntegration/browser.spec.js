@@ -1,5 +1,5 @@
 import tape from 'tape-catch';
-import fetchMock from '../utils/fetchMock';
+import fetchMock from '../testUtils/fetchMock';
 import gaToSplitSuite from './ga-to-split.spec';
 import splitToGaSuite from './split-to-ga.spec';
 import bothIntegrationsSuite from './both-integrations.spec';

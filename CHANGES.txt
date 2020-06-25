@@ -1,3 +1,9 @@
+10.13.0 (Jun 25, 2020)
+ - Updated client.ready() and manager.ready() functions to be consumed on demand and return a promise reflecting the current status of the SDK at the time the method was invoked.
+ - Updated readiness events on consumer mode: the SDK emits SDK_READY event once the connection to Redis cache is successful.
+ - Updated streamingEnabled default value from false to true, to use streaming synchronization by default.
+ - Removed the use of Promise.prototype.finally to avoid issues with some promise polyfills.
+
 10.12.1 (May 18, 2020)
  - Updated logging messages for streaming notifications to DEBUG log level.
  - Updated asynchronous logic handling to avoid async/await syntax in order to remove regenerator-runtime dependency.

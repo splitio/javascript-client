@@ -1,14 +1,15 @@
 import tape from 'tape-catch';
 import map from 'lodash/map';
 import pick from 'lodash/pick';
-import fetchMock from '../utils/fetchMock';
+import fetchMock from '../testUtils/fetchMock';
 import { SplitFactory } from '../../';
 import SettingsFactory from '../../utils/settings';
 
 const settings = SettingsFactory({
   core: {
     key: 'facundo@split.io'
-  }
+  },
+  streamingEnabled: false
 });
 
 import splitChangesMock1 from './splitChanges.since.-1.json';
@@ -24,7 +25,8 @@ tape('SDK destroy for NodeJS', async function (assert) {
       authorizationKey: 'fake-key',
       key: 'facundo@split.io'
     },
-    mode: 'standalone'
+    mode: 'standalone',
+    streamingEnabled: false
   };
 
   const factory = SplitFactory(config);

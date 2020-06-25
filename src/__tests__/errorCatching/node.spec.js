@@ -1,7 +1,7 @@
 // Here we are testing exceptions and the handler should be ours, we need to avoid tape-catch
 import tape from 'tape';
 import includes from 'lodash/includes';
-import fetchMock from '../utils/fetchMock';
+import fetchMock from '../testUtils/fetchMock';
 
 import { SplitFactory } from '../../';
 import SettingsFactory from '../../utils/settings';
@@ -16,7 +16,8 @@ const responseDelay = { delay: 1500 };
 const settings = SettingsFactory({
   core: {
     authorizationKey: '<fake-token>'
-  }
+  },
+  streamingEnabled: false
 });
 
 fetchMock.get(settings.url('/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 }, responseDelay);
@@ -42,7 +43,8 @@ tape('Error catching on callbacks', assert => {
       impressionsRefreshRate: 10000,
       eventsPushRate: 10000
     },
-    debug: false
+    debug: false,
+    streamingEnabled: false
   });
   const client = factory.client();
 

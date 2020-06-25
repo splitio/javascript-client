@@ -120,6 +120,7 @@ class SplitCacheLocalStorage {
   setChangeNumber(changeNumber) {
     try {
       localStorage.setItem(this.keys.buildSplitsTillKey(), changeNumber + '');
+      this.hasSync = true;
       return true;
     } catch (e) {
       log.error(e);
@@ -181,8 +182,8 @@ class SplitCacheLocalStorage {
   }
 
   usesSegments() {
-    // If there are no splits in the cache yet, assume we need them.
-    if (this.getChangeNumber() === -1) return true;
+    // If cache hasn't been synchronized with the cloud, assume we need them.
+    if (!this.hasSync) return true;
 
     const storedCount = localStorage.getItem(this.keys.buildSplitsWithSegmentCountKey());
     const splitsWithSegmentsCount = storedCount === null ? 0 : toNumber(storedCount);
@@ -197,6 +198,7 @@ class SplitCacheLocalStorage {
   flush() {
     log.info('Flushing localStorage');
     localStorage.clear();
+    this.hasSync = false;
   }
 
   /**

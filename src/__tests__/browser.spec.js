@@ -1,5 +1,5 @@
 import tape from 'tape-catch';
-import fetchMock from './utils/fetchMock';
+import fetchMock from './testUtils/fetchMock';
 import evaluationsSuite from './browserSuites/evaluations.spec';
 import impressionsSuite from './browserSuites/impressions.spec';
 import metricsSuite from './browserSuites/metrics.spec';
@@ -14,6 +14,7 @@ import sharedInstantiationSuite from './browserSuites/shared-instantiation.spec'
 import managerSuite from './browserSuites/manager.spec';
 import ignoreIpAddressesSettingSuite from './browserSuites/ignore-ip-addresses-setting.spec';
 import useBeaconApiSuite from './browserSuites/use-beacon-api.spec';
+import readyPromiseSuite from './browserSuites/ready-promise.spec';
 
 import SettingsFactory from '../utils/settings';
 
@@ -26,7 +27,8 @@ import mySegmentsMarcio from './mocks/mysegments.marcio@split.io.json';
 const settings = SettingsFactory({
   core: {
     key: 'facundo@split.io'
-  }
+  },
+  streamingEnabled: false
 });
 
 const configInMemory = {
@@ -39,7 +41,8 @@ const configInMemory = {
     segmentsRefreshRate: 1,
     metricsRefreshRate: 3000, // for now I don't want to publish metrics during E2E run.
     impressionsRefreshRate: 3000  // for now I don't want to publish impressions during E2E run.
-  }
+  },
+  streamingEnabled: false
 };
 
 const configInMemoryWithBucketingKey = {
@@ -55,7 +58,8 @@ const configInMemoryWithBucketingKey = {
     segmentsRefreshRate: 1,
     metricsRefreshRate: 3000, // for now I don't want to publish metrics during E2E run.
     impressionsRefreshRate: 3000  // for now I don't want to publish impressions during E2E run.
-  }
+  },
+  streamingEnabled: false
 };
 
 const configInLocalStorage = {
@@ -72,7 +76,8 @@ const configInLocalStorage = {
   storage: {
     type: 'LOCALSTORAGE',
     prefix: 'e2eTEST'    // Avoid storage name clashes
-  }
+  },
+  streamingEnabled: false
 };
 
 tape('## E2E CI Tests ##', function(assert) {
@@ -112,6 +117,8 @@ tape('## E2E CI Tests ##', function(assert) {
   assert.test('E2E / Use Beacon API (or Fetch if not available) to send remaining impressions and events when browser page is unload', useBeaconApiSuite.bind(null, fetchMock));
   /* Validate ready from cache behaviour (might be merged into another suite if we end up having simple behavior around it as expected) */
   assert.test('E2E / Readiness from cache', readyFromCache.bind(null, fetchMock));
+  /* Validate readiness with ready promises */
+  assert.test('E2E / Ready promise', readyPromiseSuite.bind(null, fetchMock));
 
   //If we change the mocks, we need to clear localstorage. Cleaning up after testing ensures "fresh data".
   localStorage.clear();

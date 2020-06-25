@@ -1,7 +1,7 @@
 // Here we are testing exceptions and the handler should be ours, we need to avoid tape-catch
 import tape from 'tape';
 import includes from 'lodash/includes';
-import fetchMock from '../utils/fetchMock';
+import fetchMock from '../testUtils/fetchMock';
 import splitChangesMock1 from './splitChanges.since.-1.json';
 import mySegmentsMock from './mySegments.nico@split.io.json';
 import splitChangesMock2 from './splitChanges.since.1500492097547.json';
@@ -12,7 +12,8 @@ import SettingsFactory from '../../utils/settings';
 const settings = SettingsFactory({
   core: {
     authorizationKey: '<fake-token>'
-  }
+  },
+  streamingEnabled: false
 });
 
 fetchMock.get(settings.url('/splitChanges?since=-1'), function () {
@@ -41,7 +42,8 @@ const factory = SplitFactory({
     metricsRefreshRate: 100000,
     impressionsRefreshRate: 100000,
     eventsPushRate: 100000
-  }
+  },
+  streamingEnabled: false
 });
 
 tape('Error catching on callbacks - Browsers', assert => {

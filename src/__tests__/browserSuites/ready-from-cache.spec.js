@@ -57,7 +57,8 @@ const baseConfig = {
     readyTimeout: 10,
     requestTimeoutBeforeReady: 10,
     eventsFirstPushWindow: 3000
-  }
+  },
+  streamingEnabled: false
 };
 
 export default function (fetchMock, assert) {
@@ -120,7 +121,7 @@ export default function (fetchMock, assert) {
       events: 'https://events.baseurl/readyFromCacheWithData'
     };
     localStorage.clear();
-    t.plan(6 * 2);
+    t.plan(12 * 2);
 
     fetchMock.get(testUrls.sdk + '/splitChanges?since=25', function () {
       return new Promise(res => { setTimeout(() => res({ status: 200, body: { ...splitChangesMock1, since: 25 }, headers: {} }), 200); }); // 400ms is how long it'll take to reply with Splits, no SDK_READY should be emitted before that.
@@ -147,12 +148,18 @@ export default function (fetchMock, assert) {
         type: 'LOCALSTORAGE',
         prefix: 'readyFromCache_2'
       },
+      startup: {
+        readyTimeout: 0.85
+      },
       urls: testUrls,
       debug: true
     });
     const client = splitio.client();
     const client2 = splitio.client('nicolas2@split.io');
     const client3 = splitio.client('nicolas3@split.io');
+
+    t.equal(client.getTreatment('always_on'), 'control', 'It should evaluate control treatments if not ready neither by cache nor the cloud');
+    t.equal(client3.getTreatment('always_on'), 'control', 'It should evaluate control treatments if not ready neither by cache nor the cloud');
 
     client.once(client.Event.SDK_READY_TIMED_OUT, () => {
       t.fail('It should not timeout in this scenario.');
@@ -163,27 +170,46 @@ export default function (fetchMock, assert) {
       t.true(Date.now() - startTime < 400, 'It should emit SDK_READY_FROM_CACHE on every client if there was data in the cache and we subscribe on time. Should be considerably faster than actual readiness from the cloud.');
       t.equal(client.getTreatment('always_on'), 'off', 'It should evaluate treatments with data from cache instead of control due to Input Validation');
     });
-    client2.once(client.Event.SDK_READY_FROM_CACHE, () => {
+    client2.once(client2.Event.SDK_READY_FROM_CACHE, () => {
       t.true(Date.now() - startTime < 400, 'It should emit SDK_READY_FROM_CACHE on every client if there was data in the cache and we subscribe on time. Should be considerably faster than actual readiness from the cloud.');
-      t.equal(client.getTreatment('always_on'), 'off', 'It should evaluate treatments with data from cache instead of control due to Input Validation');
+      t.equal(client2.getTreatment('always_on'), 'off', 'It should evaluate treatments with data from cache instead of control due to Input Validation');
     });
-    client3.once(client.Event.SDK_READY_FROM_CACHE, () => {
+    client3.once(client3.Event.SDK_READY_FROM_CACHE, () => {
       t.true(Date.now() - startTime < 400, 'It should emit SDK_READY_FROM_CACHE on every client if there was data in the cache and we subscribe on time. Should be considerably faster than actual readiness from the cloud.');
-      t.equal(client.getTreatment('always_on'), 'off', 'It should evaluate treatments with data from cache instead of control due to Input Validation');
+      t.equal(client3.getTreatment('always_on'), 'off', 'It should evaluate treatments with data from cache instead of control due to Input Validation');
     });
 
     client.on(client.Event.SDK_READY, () => {
       t.true(Date.now() - startTime >= 400, 'It should emit SDK_READY too but after syncing with the cloud.');
       t.equal(client.getTreatment('always_on'), 'on', 'It should evaluate treatments with updated data after syncing with the cloud.');
     });
-    client2.on(client.Event.SDK_READY, () => {
+    client.ready().then(() => {
+      t.true(Date.now() - startTime >= 400, 'It should resolve ready promise after syncing with the cloud.');
+      t.equal(client.getTreatment('always_on'), 'on', 'It should evaluate treatments with updated data after syncing with the cloud.');
+    });
+    client2.on(client2.Event.SDK_READY, () => {
       t.true(Date.now() - startTime >= 700, 'It should emit SDK_READY too but after syncing with the cloud.');
-      t.equal(client.getTreatment('always_on'), 'on', 'It should evaluate treatments with updated data after syncing with the cloud.');
+      t.equal(client2.getTreatment('always_on'), 'on', 'It should evaluate treatments with updated data after syncing with the cloud.');
     });
-    client3.on(client.Event.SDK_READY, () => {
+    client2.ready().then(() => {
+      t.true(Date.now() - startTime >= 700, 'It should resolve ready promise after syncing with the cloud.');
+      t.equal(client2.getTreatment('always_on'), 'on', 'It should evaluate treatments with updated data after syncing with the cloud.');
+    });
+    client3.on(client3.Event.SDK_READY, () => {
+      client3.ready().then(() => {
+        t.true(Date.now() - startTime >= 1000, 'It should resolve ready promise after syncing with the cloud.');
+        t.equal(client3.getTreatment('always_on'), 'on', 'It should evaluate treatments with updated data after syncing with the cloud.');
+      });
       t.true(Date.now() - startTime >= 1000, 'It should emit SDK_READY too but after syncing with the cloud.');
-      t.equal(client.getTreatment('always_on'), 'on', 'It should evaluate treatments with updated data after syncing with the cloud.');
+      t.equal(client3.getTreatment('always_on'), 'on', 'It should evaluate treatments with updated data after syncing with the cloud.');
     });
-
+    client3.on(client3.Event.SDK_READY_TIMED_OUT, () => {
+      client3.ready().catch(() => {
+        t.true(Date.now() - startTime >= 850, 'It should reject ready promise before syncing mySegments data with the cloud.');
+        t.equal(client3.getTreatment('always_on'), 'on', 'It should evaluate treatments with mySegments data from cache.');
+      });
+      t.true(Date.now() - startTime >= 850, 'It should emit SDK_READY_TIMED_OUT before syncing mySegments data with the cloud.');
+      t.equal(client3.getTreatment('always_on'), 'on', 'It should evaluate treatments with mySegments data from cache.');
+    });
   });
 }

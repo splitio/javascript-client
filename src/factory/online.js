@@ -48,11 +48,7 @@ function SplitFactoryOnline(context, readyTrackers, mainClientMetricCollectors) 
       break;
     }
     case CONSUMER_MODE: {
-      context.put(context.constants.READY, true); // For SDK inner workings it's supposed to be ready.
-      setTimeout(() => { // Allow for the sync statements to run so client is returned before these are emitted and callbacks executed.
-        splits.emit(splits.SDK_SPLITS_ARRIVED, false);
-        segments.emit(segments.SDK_SEGMENTS_ARRIVED, false);
-      }, 0);
+      context.put(context.constants.READY_FROM_CACHE, true); // For SDK inner workings it's supposed to be ready from cache.
       break;
     }
   }
@@ -65,7 +61,7 @@ function SplitFactoryOnline(context, readyTrackers, mainClientMetricCollectors) 
     // Defered setup of collectors for this task, as it is the only ready latency we store on BE.
     sdkReadyTracker.setCollectorForTask(metrics.collectors);
 
-    gate.on(SDK_READY, sdkReadyTracker);
+    gate.once(SDK_READY, sdkReadyTracker);
     splits.once(splits.SDK_SPLITS_ARRIVED, splitsReadyTracker);
     segments.once(segments.SDK_SEGMENTS_ARRIVED, segmentsReadyTracker);
   }

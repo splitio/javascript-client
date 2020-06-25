@@ -1,5 +1,5 @@
 import tape from 'tape-catch';
-import fetchMock from '../utils/fetchMock';
+import fetchMock from '../testUtils/fetchMock';
 import map from 'lodash/map';
 import pick from 'lodash/pick';
 import { SplitFactory } from '../../';
@@ -13,7 +13,8 @@ import impressionsMock from './impressions.json';
 const settings = SettingsFactory({
   core: {
     key: 'facundo@split.io'
-  }
+  },
+  streamingEnabled: false
 });
 
 fetchMock.getOnce(settings.url('/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
@@ -29,7 +30,8 @@ tape('SDK destroy for BrowserJS', async function (assert) {
       authorizationKey: 'fake-key',
       key: 'ut1'
     },
-    debug: true
+    debug: true,
+    streamingEnabled: false
   };
 
   const factory = SplitFactory(config);
