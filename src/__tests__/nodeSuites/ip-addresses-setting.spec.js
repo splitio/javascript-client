@@ -13,14 +13,18 @@ const HOSTNAME_VALUE = osFunction.hostname();
 const NA = 'NA';
 
 // Refresh rates are set to 1 second to finish the test quickly. Otherwise, it would finish in 1 minute (60 seconds is the default value)
-const scheduler = {
-  metricsRefreshRate: 1,
-  impressionsRefreshRate: 1,
-  eventsPushRate: 1
+const baseConfig = {
+  scheduler: {
+    metricsRefreshRate: 1,
+    impressionsRefreshRate: 1,
+    eventsPushRate: 1
+  },
+  streamingEnabled: false
 };
 
 // Config with IPAddressesEnabled set to false
 const configWithIPAddressesDisabled = {
+  ...baseConfig,
   core: {
     authorizationKey: '<fake-token>',
     IPAddressesEnabled: false
@@ -28,12 +32,12 @@ const configWithIPAddressesDisabled = {
   urls: {
     sdk: 'https://sdk.split-ipdisabled.io/api',
     events: 'https://events.split-ipdisabled.io/api'
-  },
-  scheduler
+  }
 };
 
 // Config with IPAddressesEnabled set to true
 const configWithIPAddressesEnabled = {
+  ...baseConfig,
   core: {
     authorizationKey: '<fake-token>',
     IPAddressesEnabled: true
@@ -41,20 +45,19 @@ const configWithIPAddressesEnabled = {
   urls: {
     sdk: 'https://sdk.split-ipenabled.io/api',
     events: 'https://events.split-ipenabled.io/api'
-  },
-  scheduler
+  }
 };
 
 // Config with default IPAddressesEnabled (true)
 const configWithIPAddressesDefault = {
+  ...baseConfig,
   core: {
     authorizationKey: '<fake-token>'
   },
   urls: {
     sdk: 'https://sdk.split-ipdefault.io/api',
     events: 'https://events.split-ipdefault.io/api'
-  },
-  scheduler
+  }
 };
 
 const configSamples = [

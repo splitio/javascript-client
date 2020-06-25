@@ -66,7 +66,6 @@ module.exports = {
                   'ie': '10',
                   'node': '6'
                 },
-                'modules': false
               }]],
               plugins: [
                 [

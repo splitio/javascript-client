@@ -135,7 +135,7 @@ interface ISharedSettings {
    * Boolean flag to enable the streaming service as default synchronization mechanism. In the event of any issue with streaming,
    * the SDK would fallback to the polling mechanism. If false, the SDK would poll for changes as usual without attempting to use streaming.
    * @property {boolean} streamingEnabled
-   * @default false
+   * @default true
    */
   streamingEnabled?: boolean,
 }

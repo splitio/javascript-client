@@ -12,7 +12,8 @@ const config = {
   urls: {
     sdk: 'https://sdk.baseurlbeacon',
     events: 'https://sdk.baseurlbeacon'
-  }
+  },
+  streamingEnabled: false
 };
 
 const settings = SettingsFactory(config);

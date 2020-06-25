@@ -12,7 +12,8 @@ const settings = SettingsFactory({
   core: {
     key: '<fake id>'
   },
-  urls: baseUrls
+  urls: baseUrls,
+  streamingEnabled: false
 });
 
 const config = {
@@ -28,7 +29,8 @@ const config = {
   urls: baseUrls,
   startup: {
     eventsFirstPushWindow: 3000
-  }
+  },
+  streamingEnabled: false
 };
 
 export default async function(key, fetchMock, assert) {
