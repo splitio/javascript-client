@@ -1,7 +1,7 @@
 import tape from 'tape-catch';
 import fetchMock from '../testUtils/fetchMock';
 import { testAuthWithPushDisabled, testAuthWith401, testNoEventSource } from '../nodeSuites/push-initialization-nopush.spec';
-import { testAuthRetries, testSSERetries } from '../nodeSuites/push-initialization-retries.spec';
+import { testAuthRetries, testSSERetries, testSdkDestroyWhileAuthRetries, testSdkDestroyWhileAuthSuccess } from '../nodeSuites/push-initialization-retries.spec';
 import { testSynchronization } from '../nodeSuites/push-synchronization.spec';
 import { testSynchronizationRetries } from '../nodeSuites/push-synchronization-retries.spec';
 import { testFallbacking } from '../nodeSuites/push-fallbacking.spec';
@@ -17,6 +17,9 @@ tape('## Node JS - E2E CI Tests for PUSH ##', async function (assert) {
 
   assert.test('E2E / PUSH initialization: auth failures and then success', testAuthRetries.bind(null, fetchMock));
   assert.test('E2E / PUSH initialization: SSE connection failures and then success', testSSERetries.bind(null, fetchMock));
+
+  assert.test('E2E / PUSH disconnection: SDK destroyed while authenticating', testSdkDestroyWhileAuthSuccess.bind(null, fetchMock));
+  assert.test('E2E / PUSH disconnection: SDK destroyed while auth was retrying', testSdkDestroyWhileAuthRetries.bind(null, fetchMock));
 
   assert.test('E2E / PUSH synchronization: happy paths', testSynchronization.bind(null, fetchMock));
   assert.test('E2E / PUSH synchronization: retries', testSynchronizationRetries.bind(null, fetchMock));

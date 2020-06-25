@@ -29,7 +29,7 @@ export default class MySegmentUpdateWorker {
       this.handleNewEvent = false;
       const currentMaxChangeNumber = this.maxChangeNumber;
       this.mySegmentsProducer.synchronizeMySegments(this.segmentList).then((result) => {
-        if (result !== false) // @TODO remove when revamping producers to use MySegments change number. Currently `MySegmentsUpdater` is resolved with a "false" value if the fetch fails.
+        if (result !== false) // Unlike `Split\SegmentUpdateWorker`, we cannot use `mySegmentsStorage.getChangeNumber` since `/mySegments` endpoint doesn't provide this value.
           this.currentChangeNumber = Math.max(this.currentChangeNumber, currentMaxChangeNumber); // use `currentMaxChangeNumber`, in case that `this.maxChangeNumber` was updated during fetch.
         if (this.handleNewEvent) {
           this.__handleMySegmentUpdateCall();

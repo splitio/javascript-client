@@ -51,17 +51,20 @@ export default function MySegmentsUpdaterFactory(context) {
    * @param {string[] | undefined} segmentList list of mySegment names to sync in the storage. If the list is `undefined`, it fetches them before syncing in the storage.
    */
   return function MySegmentsUpdater(retry = 0, segmentList) {
-    const updaterPromise = segmentList ?
+    let updaterPromise;
+
+    if (segmentList) {
       // If segmentList is provided, there is no need to fetch mySegments
-      new Promise(() => { updateSegments(segmentList); }) :
+      updaterPromise = new Promise((res) => { updateSegments(segmentList); res();});
+    } else {
       // NOTE: We only collect metrics on startup.
-      mySegmentsFetcher(settings, startingUp, metricCollectors).then(segments => {
-        // Only when we have downloaded segments completely, we should not keep
-        // retrying anymore
+      updaterPromise = mySegmentsFetcher(settings, startingUp, metricCollectors).then(segments => {
+        // Only when we have downloaded segments completely, we should not keep retrying anymore
         startingUp = false;
 
         updateSegments(segments);
       });
+    }
 
     return updaterPromise.catch(error => {
       // handle user callback errors

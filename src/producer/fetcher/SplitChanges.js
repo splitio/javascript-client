@@ -31,9 +31,8 @@ function splitChangesFetcher(settings, since, startingUp = false, metricCollecto
   }
 
   return splitsPromise
-    .then(resp => resp.json())
     // JSON parsing errors are handled as SplitErrors, to distinguish from user callback errors
-    .catch(error => { throw new SplitError(error.message); });
+    .then(resp => resp.json().catch(error => { throw new SplitError(error.message); }));
 }
 
 export default splitChangesFetcher;

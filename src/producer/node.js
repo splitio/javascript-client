@@ -37,11 +37,12 @@ const NodeUpdater = (context) => {
 
   function synchronizeSplits() {
     isSynchronizingSplits = true;
-    return splitsUpdater().then(function (result) {
+    // `splitsUpdater` promise always resolves, and with a false value if it fails to fetch or store splits
+    return splitsUpdater().then(function (res) {
       // Mark splits as ready (track first successfull call to start downloading segments)
       splitFetchCompleted = true;
       isSynchronizingSplits = false;
-      return result; // false if the task fail fetching or storing mySegments
+      return res;
     });
   }
 
@@ -50,9 +51,10 @@ const NodeUpdater = (context) => {
    */
   function synchronizeSegment(segmentNames) {
     isSynchronizingSegments = true;
-    return segmentsUpdater(segmentNames).then(function (result) {
+    // `segmentsUpdater` promise always resolves, and with a false value if it fails to fetch or store segments
+    return segmentsUpdater(segmentNames).then(function (res) {
       isSynchronizingSegments = false;
-      return result; // false if the task fail fetching or storing mySegments
+      return res;
     });
   }
 
