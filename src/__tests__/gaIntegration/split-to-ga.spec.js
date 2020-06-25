@@ -22,6 +22,7 @@ const config = {
     impressionsRefreshRate: 0.2,
     eventsQueueSize: 1,
   },
+  streamingEnabled: false
 };
 
 const settings = SettingsFactory(config);
