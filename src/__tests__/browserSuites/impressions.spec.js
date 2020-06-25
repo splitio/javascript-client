@@ -13,7 +13,8 @@ const settings = SettingsFactory({
   core: {
     key: 'asd'
   },
-  urls: baseUrls
+  urls: baseUrls,
+  streamingEnabled: false
 });
 
 export default function (fetchMock, assert) {
@@ -36,7 +37,8 @@ export default function (fetchMock, assert) {
     startup: {
       eventsFirstPushWindow: 3000
     },
-    urls: baseUrls
+    urls: baseUrls,
+    streamingEnabled: false
   });
 
   const client = splitio.client();

@@ -12,7 +12,8 @@ import SettingsFactory from '../../utils/settings';
 const settings = SettingsFactory({
   core: {
     authorizationKey: '<fake-token>'
-  }
+  },
+  streamingEnabled: false
 });
 
 fetchMock.get(settings.url('/splitChanges?since=-1'), function () {
@@ -41,7 +42,8 @@ const factory = SplitFactory({
     metricsRefreshRate: 100000,
     impressionsRefreshRate: 100000,
     eventsPushRate: 100000
-  }
+  },
+  streamingEnabled: false
 });
 
 tape('Error catching on callbacks - Browsers', assert => {

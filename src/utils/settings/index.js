@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-import { merge, isBoolean } from '../lang';
+import { merge } from '../lang';
 import language from './language';
 import runtime from './runtime';
 import overridesPerPlatform from './defaults';
@@ -96,7 +96,7 @@ const base = {
   integrations: undefined,
 
   // toggle using (true) or not using (false) Server-Side Events for synchronizing storage
-  streamingEnabled: false,
+  streamingEnabled: true,
 };
 
 function fromSecondsToMillis(n) {
@@ -147,7 +147,7 @@ function defaults(custom) {
   withDefaults.integrations = integrations(withDefaults);
 
   // validate push options
-  if (!isBoolean(withDefaults.streamingEnabled)) withDefaults.streamingEnabled = false;
+  if (withDefaults.streamingEnabled !== false) withDefaults.streamingEnabled = true;
   if (withDefaults.streamingEnabled) {
     // Backoff bases.
     // We are not checking if bases are positive numbers. Thus, we might be reauthenticating immediately (`setTimeout` with NaN or negative number)
