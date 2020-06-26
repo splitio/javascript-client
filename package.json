@@ -35,7 +35,6 @@
     "@babel/runtime": "^7.10.2",
     "@types/google.analytics": "0.0.40",
     "@types/node": "^13.9.1",
-    "core-js": "3.6.5",
     "events": "3.1.0",
     "ioredis": "^4.14.1",
     "ip": "1.1.5",
