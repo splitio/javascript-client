@@ -479,7 +479,7 @@ let fullNodeSettings: SplitIO.INodeSettings = {
   impressionListener: impressionListener,
   mode: 'standalone',
   debug: false,
-  streamingEnabled: true
+  streamingEnabled: false
 };
 fullNodeSettings.storage.type = 'MEMORY';
 fullNodeSettings.mode = 'consumer';

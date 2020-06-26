@@ -37,8 +37,10 @@ const FullBrowserProducer = (context) => {
 
   function synchronizeSplits() {
     isSynchronizingSplits = true;
-    return splitsUpdater().finally(function () {
+    // `splitsUpdater` promise always resolves, and with a false value if it fails to fetch or store splits
+    return splitsUpdater().then(function (res) {
       isSynchronizingSplits = false;
+      return res;
     });
   }
 

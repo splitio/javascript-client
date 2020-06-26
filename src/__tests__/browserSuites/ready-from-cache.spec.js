@@ -57,7 +57,8 @@ const baseConfig = {
     readyTimeout: 10,
     requestTimeoutBeforeReady: 10,
     eventsFirstPushWindow: 3000
-  }
+  },
+  streamingEnabled: false
 };
 
 export default function (fetchMock, assert) {

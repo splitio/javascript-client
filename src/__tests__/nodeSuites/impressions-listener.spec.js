@@ -5,7 +5,8 @@ import SettingsFactory from '../../utils/settings';
 const settings = SettingsFactory({
   core: {
     key: '<fake id>'
-  }
+  },
+  streamingEnabled: false
 });
 
 const listener = {
@@ -25,7 +26,8 @@ const config = {
   startup: {
     eventsFirstPushWindow: 3000
   },
-  impressionListener: listener
+  impressionListener: listener,
+  streamingEnabled: false
 };
 
 export default function(assert) {
