@@ -17,7 +17,8 @@ const config = {
     type: 'GOOGLE_ANALYTICS_TO_SPLIT',
   }, {
     type: 'SPLIT_TO_GOOGLE_ANALYTICS',
-  }]
+  }],
+  streamingEnabled: false
 };
 const settings = SettingsFactory(config);
 

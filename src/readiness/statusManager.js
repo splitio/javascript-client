@@ -95,7 +95,7 @@ export default function callbackHandlerContext(context, internalReadyCbCount = 0
         return readyPromise;
       },
       // Expose context for internal purposes only. Not considered part of the public API, and will be removed eventually.
-      context
+      __context: context
     }
   );
 }

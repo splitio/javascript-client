@@ -5,7 +5,8 @@ import SettingsFactory from '../../utils/settings';
 const settings = SettingsFactory({
   core: {
     key: 'asd'
-  }
+  },
+  streamingEnabled: false
 });
 
 const baseSettings = {
@@ -21,7 +22,8 @@ const baseSettings = {
   },
   startup: {
     eventsFirstPushWindow: 2
-  }
+  },
+  streamingEnabled: false
 };
 
 export default function trackAssertions(fetchMock, assert) {
