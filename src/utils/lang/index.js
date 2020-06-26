@@ -287,7 +287,9 @@ export function isBoolean(val) {
   return val === true || val === false;
 }
 
-/** Array utils */
+/** util functions to use Arrays as Sets of objects */
+
+// push the `item` into the `array` if not present
 export function addToArray(array, item) {
   const index = array.indexOf(item);
   if (index > -1) {
@@ -297,6 +299,7 @@ export function addToArray(array, item) {
   }
 }
 
+// delete the `item` from the `array` if present
 export function deleteFromArray(array, item) {
   const index = array.indexOf(item);
   if (index > -1) {
