@@ -14,7 +14,8 @@ const config = {
   }],
   startup: {
     eventsFirstPushWindow: 0.2,
-  }
+  },
+  streamingEnabled: false
 };
 const settings = SettingsFactory(config);
 

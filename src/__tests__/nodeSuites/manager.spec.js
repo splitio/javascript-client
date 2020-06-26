@@ -10,7 +10,8 @@ export default async function(settings, fetchMock, assert) {
   const splitio = SplitFactory({
     core: {
       authorizationKey: '<fake-token-1>'
-    }
+    },
+    streamingEnabled: false
   });
   const client = splitio.client();
   const manager = splitio.manager();

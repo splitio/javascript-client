@@ -13,7 +13,8 @@ import impressionsMock from './impressions.json';
 const settings = SettingsFactory({
   core: {
     key: 'facundo@split.io'
-  }
+  },
+  streamingEnabled: false
 });
 
 fetchMock.getOnce(settings.url('/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
@@ -29,7 +30,8 @@ tape('SDK destroy for BrowserJS', async function (assert) {
       authorizationKey: 'fake-key',
       key: 'ut1'
     },
-    debug: true
+    debug: true,
+    streamingEnabled: false
   };
 
   const factory = SplitFactory(config);

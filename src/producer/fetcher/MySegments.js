@@ -16,6 +16,7 @@ limitations under the License.
 
 import timeout from '../../utils/promise/timeout';
 import tracker from '../../utils/timeTracker';
+import { SplitError } from '../../utils/lang/Errors';
 import mySegmentsService from '../../services/mySegments';
 import mySegmentsRequest from '../../services/mySegments/get';
 
@@ -31,7 +32,8 @@ const mySegmentsFetcher = (settings, startingUp = false, metricCollectors) => {
 
   // Extract segment names
   return mySegmentsPromise
-    .then(resp => resp.json())
+    // JSON parsing errors are handled as SplitErrors, to distinguish from user callback errors
+    .then(resp => resp.json().catch(error => { throw new SplitError(error.message); }))
     .then(json => json.mySegments.map(segment => segment.name));
 };
 

@@ -43,10 +43,10 @@ const MILLIS_RETRY_FOR_FIRST_SPLIT_UPDATE_EVENT = 300;
 const MILLIS_SECOND_SPLIT_UPDATE_EVENT = 400;
 
 const MILLIS_SEGMENT_UPDATE_EVENT = 500;
-const MILLIS_SECOND_RETRY_FOR_SEGMENT_UPDATE_EVENT = 800;
+const MILLIS_THIRD_RETRY_FOR_SEGMENT_UPDATE_EVENT = 1200;
 
-const MILLIS_SPLIT_KILL_EVENT = 900;
-const MILLIS_THIRD_RETRY_FOR_SPLIT_KILL_EVENT = 1600;
+const MILLIS_SPLIT_KILL_EVENT = 1300;
+const MILLIS_THIRD_RETRY_FOR_SPLIT_KILL_EVENT = 2000;
 
 /**
  * Sequence of calls:
@@ -58,14 +58,15 @@ const MILLIS_THIRD_RETRY_FOR_SPLIT_KILL_EVENT = 1600;
  *
  *  0.4 secs: SPLIT_UPDATE event with old changeNumber -> SDK_UPDATE not triggered
  *
- *  0.5 secs: SEGMENT_UPDATE event -> /segmentChanges/*: bad response
+ *  0.5 secs: SEGMENT_UPDATE event -> /segmentChanges/*: outdated response
  *  0.6 secs: SEGMENT_UPDATE event -> /segmentChanges/* retry: network error
- *  0.8 secs: SEGMENT_UPDATE event -> /segmentChanges/* retry: success -> SDK_UPDATE triggered
+ *  0.8 secs: SEGMENT_UPDATE event -> /segmentChanges/* retry: invalid JSON response
+ *  1.2 secs: SEGMENT_UPDATE event -> /segmentChanges/* retry: success -> SDK_UPDATE triggered
  *
- *  0.9 secs: SPLIT_KILL event -> /splitChanges: bad response -> SDK_UPDATE triggered although fetches fail
- *  1.0 secs: SPLIT_KILL event -> /splitChanges retry: network error
- *  1.2 secs: SPLIT_KILL event -> /splitChanges retry: network error
- *  1.6 secs: SPLIT_KILL event -> /splitChanges retry: 408 request timeout
+ *  1.3 secs: SPLIT_KILL event -> /splitChanges: outdated response -> SDK_UPDATE triggered although fetches fail
+ *  1.4 secs: SPLIT_KILL event -> /splitChanges retry: invalid JSON response
+ *  1.6 secs: SPLIT_KILL event -> /splitChanges retry: network error
+ *  2.0 secs: SPLIT_KILL event -> /splitChanges retry: 408 request timeout
  *    (we destroy the client here, to assert that all scheduled tasks are clean)
  */
 export function testSynchronizationRetries(fetchMock, assert) {
@@ -105,7 +106,7 @@ export function testSynchronizationRetries(fetchMock, assert) {
       assert.equal(client.getTreatment(key, 'splitters'), 'on', 'evaluation with initial segment');
       client.once(client.Event.SDK_UPDATE, () => {
         const lapse = Date.now() - start;
-        assert.true(nearlyEqual(lapse, MILLIS_SECOND_RETRY_FOR_SEGMENT_UPDATE_EVENT), 'SDK_UPDATE due to SEGMENT_UPDATE event');
+        assert.true(nearlyEqual(lapse, MILLIS_THIRD_RETRY_FOR_SEGMENT_UPDATE_EVENT), 'SDK_UPDATE due to SEGMENT_UPDATE event');
         assert.equal(client.getTreatment(key, 'splitters'), 'off', 'evaluation with updated segment');
       });
       eventSourceInstance.emitMessage(segmentUpdateMessage);
@@ -121,7 +122,7 @@ export function testSynchronizationRetries(fetchMock, assert) {
         });
       });
       eventSourceInstance.emitMessage(splitKillMessage);
-    }, MILLIS_SPLIT_KILL_EVENT); // send a SPLIT_KILL event with a new changeNumber after 0.5 seconds
+    }, MILLIS_SPLIT_KILL_EVENT); // send a SPLIT_KILL event with a new changeNumber after 1.3 seconds
 
   });
 
@@ -165,14 +166,16 @@ export function testSynchronizationRetries(fetchMock, assert) {
   fetchMock.getOnce(settings.url('/segmentChanges/splitters?since=1457552620999'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_SEGMENT_UPDATE_EVENT), 'sync due to SEGMENT_UPDATE event');
-    return { status: 200, body: { since: 1457552620999, till: 1457552620999, name: 'splitters', added: [], removed: [] } };
+    return { status: 200, body: { since: 1457552620999, till: 1457552620999, name: 'splitters', added: [], removed: [] } }; // outdated response
   });
   // first fetch retry for SEGMENT_UPDATE event, due to previous unexpected response (response till minor than SEGMENT_UPDATE changeNumber)
   fetchMock.getOnce(settings.url('/segmentChanges/splitters?since=1457552620999'), { throws: new TypeError('Network error') });
   // second fetch retry for SEGMENT_UPDATE event, due to previous network error
+  fetchMock.getOnce(settings.url('/segmentChanges/splitters?since=1457552620999'), { status: 200, body: '{ "since": 1457552620999, "til' });
+  // third fetch retry for SEGMENT_UPDATE event, due to previous unexpected response (invalid JSON)
   fetchMock.getOnce(settings.url('/segmentChanges/splitters?since=1457552620999'), function () {
     const lapse = Date.now() - start;
-    assert.true(nearlyEqual(lapse, MILLIS_SECOND_RETRY_FOR_SEGMENT_UPDATE_EVENT), 'sync second retry for SEGMENT_UPDATE event');
+    assert.true(nearlyEqual(lapse, MILLIS_THIRD_RETRY_FOR_SEGMENT_UPDATE_EVENT), 'sync third retry for SEGMENT_UPDATE event');
     return { status: 200, body: { since: 1457552620999, till: 1457552640000, name: 'splitters', added: [], removed: [key] } };
   });
   // extra retry (fetch until since === till)
@@ -186,7 +189,7 @@ export function testSynchronizationRetries(fetchMock, assert) {
     return { status: 200, body: { since: 1457552649999, till: 1457552649999, splits: [] } }; // returning old state
   });
   // first fetch retry for SPLIT_KILL event, due to previous unexpected response (response till minor than SPLIT_KILL changeNumber)
-  fetchMock.getOnce(settings.url('/splitChanges?since=1457552649999'), { throws: new TypeError('Network error') });
+  fetchMock.getOnce(settings.url('/splitChanges?since=1457552649999'), { status: 200, body: '{ "since": 1457552620999, "til' }); // invalid JSON
   // second fetch retry for SPLIT_KILL event
   fetchMock.getOnce(settings.url('/splitChanges?since=1457552649999'), { throws: new TypeError('Network error') });
   // third fetch retry for SPLIT_KILL event
