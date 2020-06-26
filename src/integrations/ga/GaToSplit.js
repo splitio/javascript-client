@@ -1,4 +1,4 @@
-import { isString, isFinite, unicAsStrings } from '../../utils/lang';
+import { isString, numberIsFinite, unicAsStrings } from '../../utils/lang';
 import logFactory from '../../utils/logger';
 import {
   validateEvent,
@@ -102,7 +102,7 @@ export function validateIdentities(identities) {
     const maybeKey = identity.key;
     const maybeTT = identity.trafficType;
 
-    if (!isString(maybeKey) && !isFinite(maybeKey))
+    if (!isString(maybeKey) && !numberIsFinite(maybeKey))
       return false;
     if (!isString(maybeTT))
       return false;
@@ -129,7 +129,7 @@ export function validateEventData(eventData) {
   if (properties === false)
     return false;
 
-  if (eventData.timestamp && !isFinite(eventData.timestamp))
+  if (eventData.timestamp && !numberIsFinite(eventData.timestamp))
     return false;
 
   if (eventData.key && validateKey(eventData.key, 'splitio-ga-to-split:mapper') === false)

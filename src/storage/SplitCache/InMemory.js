@@ -1,4 +1,4 @@
-import { isFinite } from '../../utils/lang';
+import { numberIsFinite } from '../../utils/lang';
 import usesSegments from '../../utils/splits/usesSegments';
 import killLocally from './killLocally';
 
@@ -107,7 +107,7 @@ class SplitCacheInMemory {
   }
 
   trafficTypeExists(trafficType) {
-    return isFinite(this.ttCache[trafficType]) && this.ttCache[trafficType] > 0;
+    return numberIsFinite(this.ttCache[trafficType]) && this.ttCache[trafficType] > 0;
   }
 
   usesSegments() {
