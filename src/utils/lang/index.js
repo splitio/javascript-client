@@ -94,6 +94,7 @@ export function isString(val) {
 
 /**
  * Checks if a given value is a finite number.
+ * https://tc39.es/ecma262/#sec-isfinite-number
  * Uses `Number.isFinite` if available, or fallback to global `isFinite`
  */
 export function numberIsFinite(val) {
