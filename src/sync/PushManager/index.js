@@ -40,6 +40,8 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
   const workers = [];
   // variable used on browser to reconnect only when a new client was added, saving some authentication and sse connections.
   let connectForNewClient = false;
+  // flag that indicates if `disconnectPush` was called, either by the SyncManager (when the client is destroyed) or by a STREAMING_DISABLED control notification
+  let disconnected;
 
   /** PushManager functions related to initialization */
 
@@ -61,11 +63,14 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
   }
 
   function connectPush() {
+    disconnected = false;
     log.info('Connecting to push streaming.');
 
     const userKeys = clientContexts ? Object.keys(clientContexts) : undefined;
     authenticate(settings, userKeys).then(
       function (authData) {
+        if(disconnected) return;
+
         // restart backoff retry counter for auth and SSE connections, due to HTTP/network errors
         reauthBackoff.reset();
         sseReconnectBackoff.reset(); // reset backoff in case SSE conexion has opened after a HTTP or network error.
@@ -87,8 +92,9 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
       }
     ).catch(
       function (error) {
+        if(disconnected) return;
 
-        sseClient.close(); // no harm if already disconnected
+        sseClient.close(); // no harm if already closed
         pushEmitter.emit(PUSH_DISCONNECT); // no harm if `PUSH_DISCONNECT` was already notified
 
         // Handle HTTP error for invalid API Key
@@ -106,6 +112,7 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
 
   // close SSE connection and cancel scheduled tasks
   function disconnectPush() {
+    disconnected = true;
     log.info('Disconnecting from push streaming.');
     sseClient.close();
 

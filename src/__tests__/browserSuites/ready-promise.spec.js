@@ -1,5 +1,5 @@
 import sinon from 'sinon';
-import { nearlyEqual } from '../testUtils/index';
+import { nearlyEqual } from '../testUtils';
 
 function fromSecondsToMillis(n) {
   return Math.round(n * 1000);
@@ -20,7 +20,8 @@ const baseConfig = {
     authorizationKey: '<fake-token-3>',
     key: 'facundo@split.io',
   },
-  debug: 'WARN'
+  debug: 'WARN',
+  streamingEnabled: false
 };
 
 function assertGetTreatmentWhenReady(assert, client) {
