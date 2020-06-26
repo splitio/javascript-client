@@ -19,8 +19,7 @@ module.exports = function (api) {
         }
       }]);
       plugins.push(['@babel/transform-runtime', {
-        'useESModules': false,
-        'corejs': 3
+        'useESModules': false
       }]);
       break;
 
@@ -31,8 +30,7 @@ module.exports = function (api) {
       plugins.push(
         '@babel/plugin-proposal-object-rest-spread',
         ['@babel/transform-runtime', {
-          'useESModules': true,
-          'corejs': 3
+          'useESModules': true
         }]
       );
       break;

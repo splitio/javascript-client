@@ -32,7 +32,7 @@
     "node": ">=6"
   },
   "dependencies": {
-    "@babel/runtime-corejs3": "^7.10.2",
+    "@babel/runtime": "^7.10.2",
     "@types/google.analytics": "0.0.40",
     "@types/node": "^13.9.1",
     "events": "3.1.0",
