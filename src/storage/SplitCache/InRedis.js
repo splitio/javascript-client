@@ -1,4 +1,4 @@
-import { isFinite } from '../../utils/lang';
+import { isFinite, numberIsNaN } from '../../utils/lang';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-storage:redis');
 
@@ -99,7 +99,7 @@ class SplitCacheInRedis {
     return this.redis.get(this.keys.buildSplitsTillKey()).then(value => {
       const i = parseInt(value, 10);
 
-      return Number.isNaN(i) ? -1 : i;
+      return numberIsNaN(i) ? -1 : i;
     });
   }
 

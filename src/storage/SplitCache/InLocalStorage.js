@@ -1,4 +1,4 @@
-import { isFinite, toNumber } from '../../utils/lang';
+import { isFinite, toNumber, numberIsNaN } from '../../utils/lang';
 import usesSegments from '../../utils/splits/usesSegments';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-storage:localstorage');
@@ -135,7 +135,7 @@ class SplitCacheLocalStorage {
     if (value !== null) {
       value = parseInt(value, 10);
 
-      return Number.isNaN(value) ? n : value;
+      return numberIsNaN(value) ? n : value;
     }
 
     return n;
