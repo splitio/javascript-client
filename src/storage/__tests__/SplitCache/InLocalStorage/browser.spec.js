@@ -19,8 +19,8 @@ tape('SPLIT CACHE / LocalStorage', assert => {
   cache.removeSplit('lol1');
 
   const splits = cache.fetchMany(['lol1', 'lol2']);
-  assert.true(splits.get('lol1') === null);
-  assert.true(splits.get('lol2') === 'something else');
+  assert.true(splits['lol1'] === null);
+  assert.true(splits['lol2'] === 'something else');
 
   values = cache.getAll();
 

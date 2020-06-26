@@ -131,7 +131,7 @@ function getEvaluations(
   const thenables = [];
   splitNames.forEach(splitName => {
     const evaluation = getEvaluation(
-      splits.get(splitName),
+      splits[splitName],
       key,
       attributes,
       storage

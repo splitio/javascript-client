@@ -14,7 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 function transform(whitelistObject) {
-  return new Set(whitelistObject.whitelist);
+  if (!whitelistObject.whitelist) return {};
+  return whitelistObject.whitelist.reduce((accum, item) => {
+    accum[item] = true;
+    return accum;
+  }, {});
 }
 
 export default transform;

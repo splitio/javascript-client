@@ -1,4 +1,4 @@
-import { isFinite } from '../../utils/lang';
+import { numberIsFinite } from '../../utils/lang';
 import usesSegments from '../../utils/splits/usesSegments';
 import killLocally from './killLocally';
 
@@ -28,7 +28,7 @@ class SplitCacheInMemory {
 
     if (parsedSplit) {
       // Store the Split.
-      this.splitCache.set(splitName, split);
+      this.splitCache[splitName] = split;
       // Update TT cache
       const ttName = parsedSplit.trafficTypeName;
       if (ttName) { // safeguard
@@ -48,9 +48,9 @@ class SplitCacheInMemory {
   addSplits(entries) {
     let results = [];
 
-    for (const [key, value] of entries) {
+    entries.forEach(([key, value]) => {
       results.push(this.addSplit(key, value));
-    }
+    });
 
     return results;
   }
@@ -59,7 +59,7 @@ class SplitCacheInMemory {
     const split = this.getSplit(splitName);
     if (split) {
       // Delete the Split
-      this.splitCache.delete(splitName);
+      delete this.splitCache[splitName];
 
       const parsedSplit = JSON.parse(split);
       const ttName = parsedSplit.trafficTypeName;
@@ -85,7 +85,7 @@ class SplitCacheInMemory {
   }
 
   getSplit(splitName) {
-    return this.splitCache.get(splitName);
+    return this.splitCache[splitName];
   }
 
   setChangeNumber(changeNumber) {
@@ -99,15 +99,15 @@ class SplitCacheInMemory {
   }
 
   getAll() {
-    return [...this.splitCache.values()];
+    return this.getKeys().map(key => this.splitCache[key]);
   }
 
   getKeys() {
-    return [...this.splitCache.keys()];
+    return Object.keys(this.splitCache);
   }
 
   trafficTypeExists(trafficType) {
-    return isFinite(this.ttCache[trafficType]) && this.ttCache[trafficType] > 0;
+    return numberIsFinite(this.ttCache[trafficType]) && this.ttCache[trafficType] > 0;
   }
 
   usesSegments() {
@@ -115,7 +115,7 @@ class SplitCacheInMemory {
   }
 
   flush() {
-    this.splitCache = new Map;
+    this.splitCache = {};
     this.ttCache = {};
     this.changeNumber = -1;
     this.splitsWithSegmentsCount = 0;
@@ -125,9 +125,9 @@ class SplitCacheInMemory {
    * Fetches multiple splits definitions.
    */
   fetchMany(splitNames) {
-    const splits = new Map();
+    const splits = {};
     splitNames.forEach(splitName => {
-      splits.set(splitName, this.splitCache.get(splitName) || null);
+      splits[splitName] = this.splitCache[splitName] || null;
     });
     return splits;
   }

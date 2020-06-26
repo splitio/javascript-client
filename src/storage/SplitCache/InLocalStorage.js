@@ -1,4 +1,4 @@
-import { isFinite, toNumber } from '../../utils/lang';
+import { numberIsFinite, toNumber, numberIsNaN } from '../../utils/lang';
 import usesSegments from '../../utils/splits/usesSegments';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-storage:localstorage');
@@ -76,9 +76,9 @@ class SplitCacheLocalStorage {
   addSplits(entries) {
     let results = [];
 
-    for (const [key, value] of entries) {
+    entries.forEach(([key, value]) => {
       results.push(this.addSplit(key, value));
-    }
+    });
 
     return results;
   }
@@ -135,7 +135,7 @@ class SplitCacheLocalStorage {
     if (value !== null) {
       value = parseInt(value, 10);
 
-      return Number.isNaN(value) ? n : value;
+      return numberIsNaN(value) ? n : value;
     }
 
     return n;
@@ -178,7 +178,7 @@ class SplitCacheLocalStorage {
 
   trafficTypeExists(trafficType) {
     const ttCount = toNumber(localStorage.getItem(this.keys.buildTrafficTypeKey(trafficType)));
-    return isFinite(ttCount) && ttCount > 0;
+    return numberIsFinite(ttCount) && ttCount > 0;
   }
 
   usesSegments() {
@@ -188,7 +188,7 @@ class SplitCacheLocalStorage {
     const storedCount = localStorage.getItem(this.keys.buildSplitsWithSegmentCountKey());
     const splitsWithSegmentsCount = storedCount === null ? 0 : toNumber(storedCount);
 
-    if (isFinite(splitsWithSegmentsCount)) {
+    if (numberIsFinite(splitsWithSegmentsCount)) {
       return splitsWithSegmentsCount > 0;
     } else {
       return true;
@@ -205,9 +205,9 @@ class SplitCacheLocalStorage {
    * Fetches multiple splits definitions.
    */
   fetchMany(splitNames) {
-    const splits = new Map();
+    const splits = {};
     splitNames.forEach(splitName => {
-      splits.set(splitName, localStorage.getItem(this.keys.buildSplitKey(splitName)));
+      splits[splitName] = localStorage.getItem(this.keys.buildSplitKey(splitName));
     });
     return splits;
   }

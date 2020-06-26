@@ -1,4 +1,4 @@
-import { isFinite } from '../../utils/lang';
+import { numberIsFinite, numberIsNaN } from '../../utils/lang';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-storage:redis');
 
@@ -99,7 +99,7 @@ class SplitCacheInRedis {
     return this.redis.get(this.keys.buildSplitsTillKey()).then(value => {
       const i = parseInt(value, 10);
 
-      return Number.isNaN(i) ? -1 : i;
+      return numberIsNaN(i) ? -1 : i;
     });
   }
 
@@ -124,7 +124,7 @@ class SplitCacheInRedis {
     return this.redis.get(this.keys.buildTrafficTypeKey(trafficType))
       .then(ttCount => {
         ttCount = parseInt(ttCount, 10);
-        if (!isFinite(ttCount) || ttCount < 0) {
+        if (!numberIsFinite(ttCount) || ttCount < 0) {
           log.info(`Could not validate traffic type existance of ${trafficType} due to data corruption of some sorts.`);
           return false;
         }
@@ -161,12 +161,12 @@ class SplitCacheInRedis {
 
       throw this.redisError;
     }
-    const splits = new Map();
+    const splits = {};
     const keys = splitNames.map(splitName => this.keys.buildSplitKey(splitName));
     return this.redis.mget(...keys)
       .then(splitDefinitions => {
         splitNames.forEach((splitName, idx) => {
-          splits.set(splitName, splitDefinitions[idx]);
+          splits[splitName] = splitDefinitions[idx];
         });
         return Promise.resolve(splits);
       })
