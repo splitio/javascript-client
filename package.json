@@ -49,12 +49,12 @@
     "eventsource": "^1.0.7"
   },
   "devDependencies": {
-    "@babel/cli": "^7.8.4",
-    "@babel/core": "^7.8.7",
-    "@babel/plugin-transform-runtime": "^7.8.3",
-    "@babel/preset-env": "^7.9.6",
-    "@babel/register": "^7.8.6",
-    "babel-loader": "^8.0.6",
+    "@babel/cli": "^7.10.1",
+    "@babel/core": "^7.10.2",
+    "@babel/plugin-transform-runtime": "^7.10.1",
+    "@babel/preset-env": "^7.10.2",
+    "@babel/register": "^7.10.1",
+    "babel-loader": "^8.1.0",
     "copyfiles": "^2.2.0",
     "cross-env": "^7.0.2",
     "csv-streamify": "4.0.0",
