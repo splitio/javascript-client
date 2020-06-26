@@ -1,3 +1,5 @@
+import { numberIsInteger } from '../../../utils/lang';
+
 class SegmentCacheInMemory {
 
   constructor(keys) {
@@ -69,7 +71,7 @@ class SegmentCacheInMemory {
     const segmentChangeNumberKey = this.keys.buildSegmentTillKey(segmentName);
     const value = this.segmentChangeNumber[segmentChangeNumberKey];
 
-    return Number.isInteger(value) ? value : -1;
+    return numberIsInteger(value) ? value: -1;
   }
 
   flush() {
