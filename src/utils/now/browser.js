@@ -15,7 +15,9 @@ limitations under the License.
 **/
 
 function nowFactory() {
+  // eslint-disable-next-line compat/compat
   if (typeof performance === 'object' && typeof performance.now === 'function') {
+    // eslint-disable-next-line compat/compat
     return performance.now.bind(performance);
   } else {
     return Date.now;
