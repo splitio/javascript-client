@@ -7,7 +7,8 @@ import {
   findIndex,
   find,
   isString,
-  isFinite,
+  numberIsFinite,
+  // @TODO add tests for numberIsNaN and numberIsInteger
   isObject,
   uniqueId,
   merge,
@@ -157,21 +158,21 @@ tape('LANG UTILS / isString', function(assert) {
   assert.end();
 });
 
-tape('LANG UTILS / isFinite', function(assert) {
-  assert.ok(isFinite(1), 'Should return true for finite numbers.');
-  assert.ok(isFinite(new Number(4)), 'Should return true for finite numbers.');
+tape('LANG UTILS / numberIsFinite', function(assert) {
+  assert.ok(numberIsFinite(1), 'Should return true for finite numbers.');
+  assert.ok(numberIsFinite(new Number(4)), 'Should return true for finite numbers.');
 
-  assert.notOk(isFinite(), 'Should return false for anything that is not a finite number.');
-  assert.notOk(isFinite(Infinity), 'Should return false for anything that is not a finite number.');
-  assert.notOk(isFinite(-Infinity), 'Should return false for anything that is not a finite number.');
-  assert.notOk(isFinite(NaN), 'Should return false for anything that is not a finite number.');
-  assert.notOk(isFinite(new Number(Infinity)), 'Should return false for anything that is not a finite number.');
-  assert.notOk(isFinite(new Number(NaN)), 'Should return false for anything that is not a finite number.');
-  assert.notOk(isFinite(null), 'Should return false for anything that is not a finite number.');
-  assert.notOk(isFinite([]), 'Should return false for anything that is not a finite number.');
-  assert.notOk(isFinite({}), 'Should return false for anything that is not a finite number.');
-  assert.notOk(isFinite(/regex/), 'Should return false for anything that is not a finite number.');
-  assert.notOk(isFinite('5'), 'Should return false for anything that is not a finite number.');
+  assert.notOk(numberIsFinite(), 'Should return false for anything that is not a finite number.');
+  assert.notOk(numberIsFinite(Infinity), 'Should return false for anything that is not a finite number.');
+  assert.notOk(numberIsFinite(-Infinity), 'Should return false for anything that is not a finite number.');
+  assert.notOk(numberIsFinite(NaN), 'Should return false for anything that is not a finite number.');
+  assert.notOk(numberIsFinite(new Number(Infinity)), 'Should return false for anything that is not a finite number.');
+  assert.notOk(numberIsFinite(new Number(NaN)), 'Should return false for anything that is not a finite number.');
+  assert.notOk(numberIsFinite(null), 'Should return false for anything that is not a finite number.');
+  assert.notOk(numberIsFinite([]), 'Should return false for anything that is not a finite number.');
+  assert.notOk(numberIsFinite({}), 'Should return false for anything that is not a finite number.');
+  assert.notOk(numberIsFinite(/regex/), 'Should return false for anything that is not a finite number.');
+  assert.notOk(numberIsFinite('5'), 'Should return false for anything that is not a finite number.');
 
   assert.end();
 });

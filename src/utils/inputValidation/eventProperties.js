@@ -1,4 +1,4 @@
-import { isObject, shallowClone, isString, isFinite, isBoolean } from '../lang';
+import { isObject, shallowClone, isString, numberIsFinite, isBoolean } from '../lang';
 import logFactory from '../logger';
 const log = logFactory('');
 
@@ -38,7 +38,7 @@ export function validateEventProperties(maybeProperties, method) {
     let val = clone[keys[i]];
 
     const isStringVal = isString(val);
-    const isFiniteVal = isFinite(val);
+    const isFiniteVal = numberIsFinite(val);
     const isBoolVal = isBoolean(val);
     let isNullVal = val === null;
 

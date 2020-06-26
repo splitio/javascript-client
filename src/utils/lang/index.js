@@ -96,7 +96,7 @@ export function isString(val) {
  * Checks if a given value is a finite number.
  * Uses `Number.isFinite` if available, or fallback to global `isFinite`
  */
-export function isFinite(val) {
+export function numberIsFinite(val) {
   if(Number.isFinite) {
     if (typeof val === 'number') return Number.isFinite(val);
     if (val instanceof Number) return Number.isFinite(val.valueOf());

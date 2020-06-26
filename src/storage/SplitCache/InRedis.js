@@ -1,4 +1,4 @@
-import { isFinite, numberIsNaN } from '../../utils/lang';
+import { numberIsFinite, numberIsNaN } from '../../utils/lang';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-storage:redis');
 
@@ -124,7 +124,7 @@ class SplitCacheInRedis {
     return this.redis.get(this.keys.buildTrafficTypeKey(trafficType))
       .then(ttCount => {
         ttCount = parseInt(ttCount, 10);
-        if (!isFinite(ttCount) || ttCount < 0) {
+        if (!numberIsFinite(ttCount) || ttCount < 0) {
           log.info(`Could not validate traffic type existance of ${trafficType} due to data corruption of some sorts.`);
           return false;
         }
