@@ -11,12 +11,16 @@ module.exports = function (api) {
     case 'production':
     case 'test':
       presets.push(['@babel/preset-env', {
-        'useBuiltIns': false,
+        'useBuiltIns': 'usage',
         'modules': 'commonjs',
+        'corejs': '3',
         'targets': {
           'ie': '10',
           'node': '6'
-        }
+        },
+        exclude: [
+          'es.promise'
+        ]
       }]);
       plugins.push(['@babel/transform-runtime', {
         'useESModules': false,
