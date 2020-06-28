@@ -22,10 +22,13 @@ module.exports = function (api) {
 
     default: // es6 build
       presets.push(['@babel/preset-env', {
-        'modules': false
+        'modules': false,
+        'targets': {
+          'ie': '10',
+          'node': '6'
+        }
       }]);
       plugins.push(
-        '@babel/plugin-proposal-object-rest-spread',
         ['@babel/plugin-transform-runtime', {
           'useESModules': true
         }]
