@@ -1,3 +1,5 @@
+import { numberIsNaN } from '../../../utils/lang';
+
 class SegmentCacheInRedis {
 
   constructor(keys, redis) {
@@ -41,7 +43,7 @@ class SegmentCacheInRedis {
     return this.redis.get(this.keys.buildSegmentTillKey(segmentName)).then(value => {
       const i = parseInt(value, 10);
 
-      return Number.isNaN(i) ? -1 : i;
+      return numberIsNaN(i) ? -1 : i;
     });
   }
 
