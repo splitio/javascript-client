@@ -94,12 +94,39 @@ export function isString(val) {
 
 /**
  * Checks if a given value is a finite number.
+ * https://tc39.es/ecma262/#sec-isfinite-number
+ * Uses `Number.isFinite` if available, or fallback to global `isFinite`
  */
-export function isFinite(val) {
-  if (typeof val === 'number') return Number.isFinite(val);
-  if (val instanceof Number) return Number.isFinite(val.valueOf());
+export function numberIsFinite(val) {
+  // eslint-disable-next-line compat/compat
+  if(Number.isFinite) {
+    // eslint-disable-next-line compat/compat
+    if (typeof val === 'number') return Number.isFinite(val);
+    // eslint-disable-next-line compat/compat
+    if (val instanceof Number) return Number.isFinite(val.valueOf());
+    return false;
+  } else {
+    return isFinite(val); // global `isFinite` function. Unlike Number.isFinite, it converts the value to a Number.
+  }
+}
 
-  return false;
+/**
+ * `Number.isNaN` method. Checks if a given value is a NaN.
+ * https://tc39.github.io/ecma262/#sec-number.isnan
+ * Implementation of `core-js-pure/modules/es.number.is-nan.js`
+ */
+export function numberIsNaN(number) {
+  // eslint-disable-next-line eqeqeq
+  return number != number;
+}
+
+/**
+ * `Number.isInteger` method.
+ * https://tc39.github.io/ecma262/#sec-number.isinteger
+ * Implementation of `core-js-pure/internals/is-integer.js`
+ */
+export function numberIsInteger(val) {
+  return !isObject(val) && isFinite(val) && Math.floor(val) === val;
 }
 
 let uniqueIdCounter = -1;
@@ -263,7 +290,9 @@ export function isBoolean(val) {
   return val === true || val === false;
 }
 
-/** Array utils */
+/** util functions to use Arrays as Sets of objects */
+
+// push the `item` into the `array` if not present
 export function addToArray(array, item) {
   const index = array.indexOf(item);
   if (index > -1) {
@@ -273,6 +302,7 @@ export function addToArray(array, item) {
   }
 }
 
+// delete the `item` from the `array` if present
 export function deleteFromArray(array, item) {
   const index = array.indexOf(item);
   if (index > -1) {
