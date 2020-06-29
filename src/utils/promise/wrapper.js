@@ -28,7 +28,7 @@ export default function promiseWrapper(customPromise, defaultOnRejected) {
           } else {
             defaultOnRejected(value);
           }
-        },
+        }
       );
     });
 
