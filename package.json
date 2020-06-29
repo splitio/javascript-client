@@ -32,7 +32,7 @@
     "node": ">=6"
   },
   "dependencies": {
-    "@babel/runtime-corejs3": "^7.10.2",
+    "@babel/runtime": "^7.10.2",
     "@types/google.analytics": "0.0.40",
     "@types/node": "^13.9.1",
     "events": "3.1.0",
@@ -58,6 +58,7 @@
     "cross-env": "^7.0.2",
     "csv-streamify": "4.0.0",
     "eslint": "^6.8.0",
+    "eslint-plugin-compat": "^3.7.0",
     "fetch-mock": "^9.4.0",
     "karma": "^4.4.1",
     "karma-chrome-launcher": "^3.1.0",

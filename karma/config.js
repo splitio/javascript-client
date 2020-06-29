@@ -61,23 +61,13 @@ module.exports = {
             loader: 'babel-loader',
             options: {
               presets: [['@babel/preset-env', {
-                'useBuiltIns': false,
                 'targets': {
                   'ie': '10',
                   'node': '6'
-                },
+                }
               }]],
               plugins: [
-                [
-                  '@babel/plugin-transform-runtime',
-                  {
-                    'absoluteRuntime': false,
-                    'corejs': 3,
-                    'regenerator': true,
-                    'useESModules': false,
-                    'helpers': true
-                  }
-                ]
+                '@babel/plugin-transform-runtime'
               ]
             }
           }
