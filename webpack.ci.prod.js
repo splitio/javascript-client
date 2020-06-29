@@ -8,5 +8,9 @@ module.exports = env => merge(common, {
   mode: 'production',
   output: {
     filename: `[name]${env.branch !== 'master' ? `-dev-${env.commit_hash}` : `-${VERSION}`}.min.js`
+  },
+  performance: {
+    hints: 'error', // build fails if asset size exceeded
+    maxAssetSize: 100000 // 120KiB size limit
   }
 });
