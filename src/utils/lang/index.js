@@ -93,22 +93,17 @@ export function isString(val) {
 }
 
 /**
- * Checks if a given value is a finite number.
- * https://tc39.es/ecma262/#sec-isfinite-number
- * Uses `Number.isFinite` if available, or fallback to global `isFinite`
+ * Checks if a given value is a finite value of number type or Number object.
+ * Unlike `Number.isFinite`, it does test Number object instances.
+ * Unlike `isFinite`, it doesn't test other values than numbers or Number object instances.
  */
 export function numberIsFinite(val) {
-  if(Number.isFinite) {
-    if (typeof val === 'number') return Number.isFinite(val);
-    if (val instanceof Number) return Number.isFinite(val.valueOf());
-    return false;
-  } else {
-    return isFinite(val); // global `isFinite` function. Unlike Number.isFinite, it converts the value to a Number.
-  }
+  if (typeof val === 'number' || val instanceof Number) return isFinite(val);
+  return false;
 }
 
 /**
- * `Number.isNaN` method. Checks if a given value is a NaN.
+ * Compliant shim for `Number.isNaN`.
  * https://tc39.github.io/ecma262/#sec-number.isnan
  * Implementation of `core-js-pure/modules/es.number.is-nan.js`
  */
@@ -118,7 +113,7 @@ export function numberIsNaN(number) {
 }
 
 /**
- * `Number.isInteger` method.
+ * Compliant shim for `Number.isInteger`.
  * https://tc39.github.io/ecma262/#sec-number.isinteger
  * Implementation of `core-js-pure/internals/is-integer.js`
  */
