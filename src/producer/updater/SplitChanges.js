@@ -19,6 +19,7 @@ const log = logFactory('splitio-producer:split-changes');
 import splitChangesFetcher from '../fetcher/SplitChanges';
 import parseSegments from '../../engine/parser/segments';
 import { SplitError } from '../../utils/lang/Errors';
+import { ObjectSet } from '../../utils/lang/Sets';
 import thenable from '../../utils/promise/thenable';
 
 function computeSplitsMutation(entries) {
@@ -26,7 +27,7 @@ function computeSplitsMutation(entries) {
     if (split.status === 'ACTIVE') {
       accum.added.push([split.name, JSON.stringify(split)]);
 
-      for (let segmentName of parseSegments(split.conditions)) {
+      for (let segmentName in parseSegments(split.conditions).items) {
         accum.segments.add(segmentName);
       }
     } else {
@@ -37,10 +38,10 @@ function computeSplitsMutation(entries) {
   }, {
     added: [],
     removed: [],
-    segments: new Set()
+    segments: new ObjectSet()
   });
 
-  computed.segments = [...computed.segments];
+  computed.segments = computed.segments.values();
 
   return computed;
 }

@@ -16,11 +16,11 @@ limitations under the License.
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-engine:matcher');
 
-function whitelistMatcherContext(ruleAttr /*: Set */) /*: Function */ {
+function whitelistMatcherContext(ruleAttr /*: ObjectSet */) /*: Function */ {
   return function whitelistMatcher(runtimeAttr /*: string */) /*: boolean */ {
     let isInWhitelist = ruleAttr.has(runtimeAttr);
 
-    log.debug(`[whitelistMatcher] evaluated ${runtimeAttr} in [${[...ruleAttr].join(',')}] => ${isInWhitelist}`);
+    log.debug(`[whitelistMatcher] evaluated ${runtimeAttr} in [${ruleAttr.values().join(',')}] => ${isInWhitelist}`);
 
     return isInWhitelist;
   };
