@@ -98,7 +98,8 @@ export function isString(val) {
  * Unlike `isFinite`, it doesn't test other values than numbers or Number object instances.
  */
 export function numberIsFinite(val) {
-  if (typeof val === 'number' || val instanceof Number) return isFinite(val);
+  if (typeof val === 'number') return Number.isFinite ? Number.isFinite(val) : isFinite(val);
+  if (val instanceof Number) return Number.isFinite ? Number.isFinite(val.valueOf()) : isFinite(val);
   return false;
 }
 
@@ -108,6 +109,7 @@ export function numberIsFinite(val) {
  * Implementation of `core-js-pure/modules/es.number.is-nan.js`
  */
 export function numberIsNaN(number) {
+  if (Number.isNaN) return Number.isNaN(number);
   // eslint-disable-next-line eqeqeq
   return number != number;
 }
@@ -118,6 +120,7 @@ export function numberIsNaN(number) {
  * Implementation of `core-js-pure/internals/is-integer.js`
  */
 export function numberIsInteger(val) {
+  if (Number.isInteger) return Number.isInteger(val);
   return !isObject(val) && isFinite(val) && Math.floor(val) === val;
 }
 
@@ -171,7 +174,7 @@ export function merge(target, source, ...rest) {
  */
 export function uniq(arr) {
   const seen = {};
-  return arr.filter(function(item) {
+  return arr.filter(function (item) {
     return Object.prototype.hasOwnProperty.call(seen, item) ? false : seen[item] = true;
   });
 }
@@ -182,7 +185,7 @@ export function uniq(arr) {
  */
 export function unicAsStrings(arr, stringify = JSON.stringify) {
   const seen = {};
-  return arr.filter(function(item) {
+  return arr.filter(function (item) {
     const itemString = stringify(item);
     return Object.prototype.hasOwnProperty.call(seen, itemString) ? false : seen[itemString] = true;
   });
@@ -240,7 +243,7 @@ export function groupBy(source, prop) {
   const map = {};
 
   if (Array.isArray(source) && isString(prop)) {
-    for(let i = 0; i < source.length; i++) {
+    for (let i = 0; i < source.length; i++) {
       const key = source[i][prop];
 
       // Skip the element if the key is not a string.
@@ -261,7 +264,7 @@ export function groupBy(source, prop) {
 export function getFnName(fn) {
   if (fn.name) return fn.name;
 
-  return (fn.toString().match(/function (.+?)\(/)||['',''])[1];
+  return (fn.toString().match(/function (.+?)\(/) || ['', ''])[1];
 }
 
 /**
