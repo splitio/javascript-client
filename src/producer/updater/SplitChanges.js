@@ -19,7 +19,7 @@ const log = logFactory('splitio-producer:split-changes');
 import splitChangesFetcher from '../fetcher/SplitChanges';
 import parseSegments from '../../engine/parser/segments';
 import { SplitError } from '../../utils/lang/Errors';
-import { ObjectSet } from '../../utils/lang/Sets';
+import { _Set, setToArray } from '../../utils/lang/Sets';
 import thenable from '../../utils/promise/thenable';
 
 function computeSplitsMutation(entries) {
@@ -38,10 +38,10 @@ function computeSplitsMutation(entries) {
   }, {
     added: [],
     removed: [],
-    segments: new ObjectSet()
+    segments: new _Set()
   });
 
-  computed.segments = computed.segments.values();
+  computed.segments = setToArray(computed.segments);
 
   return computed;
 }

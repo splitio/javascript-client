@@ -1,44 +1,5 @@
 /**
- * Set implementation based on JS objects.
- * Only support string type as items
- */
-export class ObjectSet {
-
-  constructor(items) {
-    this.clear();
-    if (Array.isArray(items)) {
-      items.forEach((item) => {
-        this.add(item);
-      });
-    }
-  }
-
-  clear() {
-    this.items = {};
-  }
-
-  add(item) {
-    this.items[item] = true;
-    return this;
-  }
-
-  // unlike `Set.prototype.delete`, it doesn't return a boolean indicating if the item was deleted or not
-  delete(item) {
-    delete this.items[item];
-  }
-
-  has(item) {
-    return this.items[item] !== undefined;
-  }
-
-  values() {
-    return Object.keys(this.items);
-  }
-
-}
-
-/**
- * Set implementation based on JS arrays.
+ * Set implementation based on JS arrays, with the minimal features used by the SDK and supported by IE11 Set.
  * Support any object type as items
  */
 export class ArraySet {
@@ -52,6 +13,7 @@ export class ArraySet {
     this.items = [];
   }
 
+  // unlike `Set.prototype.add`, it doesn't return the object itself
   add(item) {
     const index = this.items.indexOf(item);
     if (index > -1) {
@@ -59,7 +21,6 @@ export class ArraySet {
     } else {
       this.items.push(item);
     }
-    return this;
   }
 
   // unlike `Set.prototype.delete`, it doesn't return a boolean indicating if the item was deleted or not
@@ -74,13 +35,25 @@ export class ArraySet {
     return this.items.indexOf(item) > -1;
   }
 
-  values() {
-    return this.items;
+  forEach() {
+    return this.items.forEach(arguments);
   }
 
-  // Unlike `Set`, it exposes a `size` instance method instead of a property
-  size() {
+  get size() {
     return this.items.length;
   }
 
 }
+
+export function setToArray(set) {
+  if(Array.from) return Array.from(set);
+
+  const result = [];
+  // using `Set.prototype.forEach` since it is well supported, while `values`, `entries` and `keys` methods are not
+  set.forEach(item => {
+    result.push(item);
+  });
+  return result;
+}
+
+export const _Set = Set || ArraySet;

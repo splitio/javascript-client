@@ -4,7 +4,7 @@ import sinon from 'sinon';
 import forEach from 'lodash/forEach';
 import merge from 'lodash/merge';
 import reduce from 'lodash/reduce';
-import { ArraySet } from '../../../utils/lang/Sets';
+import { _Set, setToArray } from '../../../utils/lang/Sets';
 
 // The list of methods we're wrapping on a promise (for timeout) on the adapter.
 const METHODS_TO_PROMISE_WRAP = ['set', 'exec', 'del', 'get', 'keys', 'sadd', 'srem', 'sismember', 'smembers', 'incr', 'rpush', 'pipeline', 'expire', 'mget'];
@@ -73,7 +73,7 @@ tape('STORAGE Redis Adapter / Class', assert => {
 
   assert.true(typeof instance._options === 'object', 'The instance will have an options object.');
   assert.true(Array.isArray(instance._notReadyCommandsQueue), 'The instance will have an array as the _notReadyCommandsQueue property.');
-  assert.true(instance._runningCommands instanceof ArraySet, 'The instance will have an ArraySet as the _runningCommands property.');
+  assert.true(instance._runningCommands instanceof _Set, 'The instance will have a Set as the _runningCommands property.');
 
   assert.end();
 });
@@ -273,10 +273,10 @@ tape('STORAGE Redis Adapter / instance methods - _setTimeoutWrappers and queuein
     assert.false(ioredisMock[methodName].called, `Control assertion - Original method (${methodName}) was not yet called`);
 
     const previousTimeoutCalls = timeout.callCount;
-    let previousRunningCommandsSize = instance._runningCommands.size();
+    let previousRunningCommandsSize = instance._runningCommands.size;
     instance[methodName](methodName).catch(() => {}); // Swallow exception so it's not spread to logs.
     assert.true(ioredisMock[methodName].called, `Original method (${methodName}) is called right away (through wrapper) when we are not queueing anymore.`);
-    assert.equal(instance._runningCommands.size(), previousRunningCommandsSize + 1, 'If the result of the operation was a thenable it will add the item to the running commands queue.');
+    assert.equal(instance._runningCommands.size, previousRunningCommandsSize + 1, 'If the result of the operation was a thenable it will add the item to the running commands queue.');
 
     assert.equal(timeout.callCount, previousTimeoutCalls + 1, 'The promise returned by the original method should have a timeout wrapper.');
 
@@ -355,7 +355,7 @@ tape('STORAGE Redis Adapter / instance methods - _setDisconnectWrapper', assert 
     setTimeout(() => { // queued with rejection timeout wrapper
       assert.true(loggerMock.info.calledOnceWithExactly('Attempting to disconnect but there are 2 commands still waiting for resolution. Defering disconnection until those finish.'));
 
-      Promise.all(instance._runningCommands.values()).catch(e => {
+      Promise.all(setToArray(instance._runningCommands)).catch(e => {
         setImmediate(() => { // Allow the callback to execute before checking.
           assert.true(loggerMock.warn.calledWithExactly(`Pending commands finished with error: ${e}. Proceeding with disconnection.`), 'Should warn about the error but tell user that will disconnect anyways.');
           assert.true(ioredisMock.disconnect.calledOnce, 'Original method should have been called once, asynchronously');

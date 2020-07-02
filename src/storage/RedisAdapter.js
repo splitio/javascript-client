@@ -1,6 +1,6 @@
 import ioredis from 'ioredis';
 import { merge, isString } from '../utils/lang';
-import { ArraySet } from '../utils/lang/Sets';
+import { _Set, setToArray } from '../utils/lang/Sets';
 import thenable from '../utils/promise/thenable';
 import timeout from '../utils/promise/timeout';
 
@@ -33,7 +33,7 @@ export default class RedisAdapter extends ioredis {
 
     this._options = options;
     this._notReadyCommandsQueue = [];
-    this._runningCommands = new ArraySet();
+    this._runningCommands = new _Set();
     this._listenToEvents();
     this._setTimeoutWrappers();
     this._setDisconnectWrapper();
@@ -114,10 +114,10 @@ export default class RedisAdapter extends ioredis {
       const params = arguments;
 
       setTimeout(function deferedDisconnect() {
-        if (instance._runningCommands.size() > 0) {
-          log.info(`Attempting to disconnect but there are ${instance._runningCommands.size()} commands still waiting for resolution. Defering disconnection until those finish.`);
+        if (instance._runningCommands.size > 0) {
+          log.info(`Attempting to disconnect but there are ${instance._runningCommands.size} commands still waiting for resolution. Defering disconnection until those finish.`);
 
-          Promise.all(instance._runningCommands.values())
+          Promise.all(setToArray(instance._runningCommands))
             .then(() => {
               log.debug('Pending commands finished successfully, disconnecting.');
               originalMethod.apply(instance, params);

@@ -1,10 +1,10 @@
-import { ObjectSet } from '../../utils/lang/Sets';
+import { _Set } from '../../utils/lang/Sets';
 
 /**
  * Collect segments from a raw split definition.
  */
 const parseSegments = (conditions) => {
-  let segments = new ObjectSet();
+  let segments = new _Set();
 
   for (let condition of conditions) {
     let {
