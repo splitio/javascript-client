@@ -94,34 +94,36 @@ export function isString(val) {
 
 /**
  * Checks if a given value is a finite value of number type or Number object.
- * Unlike `Number.isFinite`, it does test Number object instances.
- * Unlike `isFinite`, it doesn't test other values than numbers or Number object instances.
+ * Unlike `Number.isFinite`, it also tests Number object instances.
+ * Unlike global `isFinite`, it returns false if the value is not a number or Number object instance.
+ * @TODO remove `isFinite` once `Number.isFinite` is fully supported by targets
  */
 export function numberIsFinite(val) {
+  if (val instanceof Number) val = val.valueOf();
   if (typeof val === 'number') return Number.isFinite ? Number.isFinite(val) : isFinite(val);
-  if (val instanceof Number) return Number.isFinite ? Number.isFinite(val.valueOf()) : isFinite(val);
   return false;
 }
 
 /**
- * Compliant shim for `Number.isNaN`.
- * https://tc39.github.io/ecma262/#sec-number.isnan
- * Implementation of `core-js-pure/modules/es.number.is-nan.js`
+ * Checks if a given value is a NaN value of number type or Number object.
+ * Unlike `Number.isNaN`, it also tests Number object instances.
+ * Unlike global `isNan`, it returns false if the value is not a number or Number object instance.
  */
-export function numberIsNaN(number) {
-  if (Number.isNaN) return Number.isNaN(number);
+export function numberIsNaN(val) {
+  if (val instanceof Number) val = val.valueOf();
   // eslint-disable-next-line eqeqeq
-  return number != number;
+  return val !== val;
 }
 
 /**
- * Compliant shim for `Number.isInteger`.
- * https://tc39.github.io/ecma262/#sec-number.isinteger
- * Implementation of `core-js-pure/internals/is-integer.js`
+ * Checks if a given value is an integer value of number type or Number object.
+ * Unlike `Number.isInteger`, it also tests Number object instances.
+ * @TODO remove shim once `Number.isInteger` is fully supported by targets
  */
 export function numberIsInteger(val) {
-  if (Number.isInteger) return Number.isInteger(val);
-  return !isObject(val) && isFinite(val) && Math.floor(val) === val;
+  if (val instanceof Number) val = val.valueOf();
+  if (typeof val === 'number') return Number.isInteger ? Number.isInteger(val) : isFinite(val) && Math.floor(val) === val;
+  return false;
 }
 
 let uniqueIdCounter = -1;

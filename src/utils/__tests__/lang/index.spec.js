@@ -159,10 +159,10 @@ tape('LANG UTILS / isString', function(assert) {
   assert.end();
 });
 
-// https://tc39.es/ecma262/#sec-isfinite-number
 tape('LANG UTILS / numberIsFinite', function(assert) {
   assert.ok(numberIsFinite(1), 'Should return true for finite numbers.');
   assert.ok(numberIsFinite(-0.5), 'Should return true for finite numbers.');
+  assert.ok(numberIsFinite(Number(0.5)), 'Should return true for finite numbers.');
   assert.ok(numberIsFinite(new Number(4)), 'Should return true for finite numbers.');
 
   assert.notOk(numberIsFinite(), 'Should return false for anything that is not a finite number.');
@@ -180,39 +180,39 @@ tape('LANG UTILS / numberIsFinite', function(assert) {
   assert.end();
 });
 
-// https://tc39.es/ecma262/#sec-number.isnan
 tape('LANG UTILS / numberIsNaN', function(assert) {
   assert.ok(numberIsNaN(NaN), 'Should return true for NaN numbers of "number" type.');
   assert.ok(numberIsNaN(Number(NaN)), 'Should return true for NaN numbers of "number" type.');
+  assert.ok(numberIsNaN(new Number(NaN)), 'Should return true for NaN Number objects.');
 
   assert.notOk(numberIsNaN(), 'Should return false for anything that is not a NaN number.');
   assert.notOk(numberIsNaN(Infinity), 'Should return false for anything that is not a NaN number.');
   assert.notOk(numberIsNaN(-Infinity), 'Should return false for anything that is not a NaN number.');
   assert.notOk(numberIsNaN(new Number(Infinity)), 'Should return false for anything that is not a NaN number.');
-  assert.notOk(numberIsNaN(new Number(NaN)), 'Should return false for anything that is not a NaN number.');
   assert.notOk(numberIsNaN(null), 'Should return false for anything that is not a NaN number.');
   assert.notOk(numberIsNaN([]), 'Should return false for anything that is not a NaN number.');
   assert.notOk(numberIsNaN({}), 'Should return false for anything that is not a NaN number.');
   assert.notOk(numberIsNaN(/regex/), 'Should return false for anything that is not a NaN number.');
   assert.notOk(numberIsNaN('5'), 'Should return false for anything that is not a NaN number.');
+  assert.notOk(numberIsNaN('NaN'), 'Should return false for anything that is not a NaN number.');
 
   assert.end();
 });
 
-// https://tc39.es/ecma262/#sec-number.isinteger
 tape('LANG UTILS / numberIsInteger', function(assert) {
   assert.ok(numberIsInteger(1), 'Should return true for integer numbers of "number" type.');
   assert.ok(numberIsInteger(Number.MIN_SAFE_INTEGER), 'Should return true for integer numbers of "number" type.');
   assert.ok(numberIsInteger(Number(4)), 'Should return true for integer numbers of "number" type.');
+  assert.ok(numberIsInteger(new Number(4)), 'Should return true for integer Number objects.');
 
   assert.notOk(numberIsInteger(), 'Should return false for anything that is not an integer numbers.');
   assert.notOk(numberIsInteger(Infinity), 'Should return false for anything that is not an integer numbers.');
   assert.notOk(numberIsInteger(-Infinity), 'Should return false for anything that is not an integer numbers.');
   assert.notOk(numberIsInteger(NaN), 'Should return false for anything that is not an integer numbers.');
   assert.notOk(numberIsInteger(-0.5), 'Should return false for anything that is not an integer numbers.');
-  assert.notOk(numberIsInteger(new Number(4)), 'Should return false for anything that is not an integer numbers.');
   assert.notOk(numberIsInteger(new Number(Infinity)), 'Should return false for anything that is not an integer numbers.');
   assert.notOk(numberIsInteger(new Number(NaN)), 'Should return false for anything that is not an integer numbers.');
+  assert.notOk(numberIsInteger(new Number(-0.5)), 'Should return false for anything that is not an integer numbers.');
   assert.notOk(numberIsInteger(null), 'Should return false for anything that is not an integer numbers.');
   assert.notOk(numberIsInteger([]), 'Should return false for anything that is not an integer numbers.');
   assert.notOk(numberIsInteger({}), 'Should return false for anything that is not an integer numbers.');
