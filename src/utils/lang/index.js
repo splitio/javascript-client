@@ -111,6 +111,7 @@ export function numberIsFinite(val) {
  */
 export function numberIsNaN(val) {
   if (val instanceof Number) val = val.valueOf();
+  // @TODO replace with `Number.isNaN` once it is fully supported by targets
   // eslint-disable-next-line eqeqeq
   return val !== val;
 }
