@@ -1,4 +1,4 @@
-import { isFinite, toNumber } from '../../utils/lang';
+import { numberIsFinite, toNumber, numberIsNaN } from '../../utils/lang';
 import usesSegments from '../../utils/splits/usesSegments';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-storage:localstorage');
@@ -135,7 +135,7 @@ class SplitCacheLocalStorage {
     if (value !== null) {
       value = parseInt(value, 10);
 
-      return Number.isNaN(value) ? n : value;
+      return numberIsNaN(value) ? n : value;
     }
 
     return n;
@@ -178,7 +178,7 @@ class SplitCacheLocalStorage {
 
   trafficTypeExists(trafficType) {
     const ttCount = toNumber(localStorage.getItem(this.keys.buildTrafficTypeKey(trafficType)));
-    return isFinite(ttCount) && ttCount > 0;
+    return numberIsFinite(ttCount) && ttCount > 0;
   }
 
   usesSegments() {
@@ -188,7 +188,7 @@ class SplitCacheLocalStorage {
     const storedCount = localStorage.getItem(this.keys.buildSplitsWithSegmentCountKey());
     const splitsWithSegmentsCount = storedCount === null ? 0 : toNumber(storedCount);
 
-    if (isFinite(splitsWithSegmentsCount)) {
+    if (numberIsFinite(splitsWithSegmentsCount)) {
       return splitsWithSegmentsCount > 0;
     } else {
       return true;
