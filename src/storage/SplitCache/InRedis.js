@@ -161,12 +161,12 @@ class SplitCacheInRedis {
 
       throw this.redisError;
     }
-    const splits = new Map();
+    const splits = {};
     const keys = splitNames.map(splitName => this.keys.buildSplitKey(splitName));
     return this.redis.mget(...keys)
       .then(splitDefinitions => {
         splitNames.forEach((splitName, idx) => {
-          splits.set(splitName, splitDefinitions[idx]);
+          splits[splitName] = splitDefinitions[idx];
         });
         return Promise.resolve(splits);
       })

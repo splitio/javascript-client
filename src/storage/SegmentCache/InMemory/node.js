@@ -8,29 +8,29 @@ class SegmentCacheInMemory {
   }
 
   addToSegment(segmentName, segmentKeys) {
-    const values = this.segmentCache.get(segmentName);
-    const keySet = values ? values: new Set();
+    const values = this.segmentCache[segmentName];
+    const keySet = values ? values : new Set();
 
     segmentKeys.forEach(k => keySet.add(k));
 
-    this.segmentCache.set(segmentName, keySet);
+    this.segmentCache[segmentName] = keySet;
 
     return true;
   }
 
   removeFromSegment(segmentName, segmentKeys) {
-    const values = this.segmentCache.get(segmentName);
-    const keySet = values ? values: new Set();
+    const values = this.segmentCache[segmentName];
+    const keySet = values ? values : new Set();
 
     segmentKeys.forEach(k => keySet.delete(k));
 
-    this.segmentCache.set(segmentName, keySet);
+    this.segmentCache[segmentName] = keySet;
 
     return true;
   }
 
   isInSegment(segmentName, key) {
-    const segmentValues = this.segmentCache.get(segmentName);
+    const segmentValues = this.segmentCache[segmentName];
 
     if (segmentValues) {
       return segmentValues.has(key);
@@ -40,8 +40,8 @@ class SegmentCacheInMemory {
   }
 
   registerSegment(segmentName) {
-    if (!this.segmentCache.has(segmentName)) {
-      this.segmentCache.set(segmentName, new Set);
+    if (!this.segmentCache[segmentName]) {
+      this.segmentCache[segmentName] = new Set();
     }
 
     return true;
@@ -56,27 +56,27 @@ class SegmentCacheInMemory {
   }
 
   getRegisteredSegments() {
-    return this.segmentCache.keys();
+    return Object.keys(this.segmentCache);
   }
 
   setChangeNumber(segmentName, changeNumber) {
     const segmentChangeNumberKey = this.keys.buildSegmentTillKey(segmentName);
 
-    this.segmentChangeNumber.set(segmentChangeNumberKey, changeNumber);
+    this.segmentChangeNumber[segmentChangeNumberKey] = changeNumber;
 
     return true;
   }
 
   getChangeNumber(segmentName) {
     const segmentChangeNumberKey = this.keys.buildSegmentTillKey(segmentName);
-    const value = this.segmentChangeNumber.get(segmentChangeNumberKey);
+    const value = this.segmentChangeNumber[segmentChangeNumberKey];
 
     return numberIsInteger(value) ? value: -1;
   }
 
   flush() {
-    this.segmentCache = new Map();
-    this.segmentChangeNumber = new Map();
+    this.segmentCache = {};
+    this.segmentChangeNumber = {};
   }
 }
 
