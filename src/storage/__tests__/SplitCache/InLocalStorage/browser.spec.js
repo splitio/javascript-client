@@ -13,34 +13,34 @@ tape('SPLIT CACHE / LocalStorage', assert => {
 
   let values = cache.getAll();
 
-  assert.ok( values.indexOf('something') !== -1 );
-  assert.ok( values.indexOf('something else') !== -1 );
+  assert.ok(values.indexOf('something') !== -1);
+  assert.ok(values.indexOf('something else') !== -1);
 
   cache.removeSplit('lol1');
 
   const splits = cache.fetchMany(['lol1', 'lol2']);
-  assert.true(splits['lol1'] === null);
-  assert.true(splits['lol2'] === 'something else');
+  assert.true(splits.get('lol1') === null);
+  assert.true(splits.get('lol2') === 'something else');
 
   values = cache.getAll();
 
-  assert.ok( values.indexOf('something') === -1 );
-  assert.ok( values.indexOf('something else') !== -1 );
+  assert.ok(values.indexOf('something') === -1);
+  assert.ok(values.indexOf('something else') !== -1);
 
-  assert.ok( cache.getSplit('lol1') == null );
-  assert.ok( cache.getSplit('lol2') === 'something else' );
+  assert.ok(cache.getSplit('lol1') == null);
+  assert.ok(cache.getSplit('lol2') === 'something else');
 
-  assert.false( cache.checkCache(), 'checkCache should return false until localstorage has data.' );
+  assert.false(cache.checkCache(), 'checkCache should return false until localstorage has data.');
 
-  assert.ok( cache.getChangeNumber() === -1 );
+  assert.ok(cache.getChangeNumber() === -1);
 
-  assert.false( cache.checkCache(), 'checkCache should return false until localstorage has data.' );
+  assert.false(cache.checkCache(), 'checkCache should return false until localstorage has data.');
 
   cache.setChangeNumber(123);
 
-  assert.true( cache.checkCache(), 'checkCache should return true once localstorage has data.' );
+  assert.true(cache.checkCache(), 'checkCache should return true once localstorage has data.');
 
-  assert.ok( cache.getChangeNumber() === 123 );
+  assert.ok(cache.getChangeNumber() === 123);
 
   assert.end();
 });

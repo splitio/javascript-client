@@ -1,4 +1,5 @@
 import { numberIsFinite, numberIsNaN } from '../../utils/lang';
+import { _Map } from '../../utils/lang/Maps';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-storage:redis');
 
@@ -161,12 +162,12 @@ class SplitCacheInRedis {
 
       throw this.redisError;
     }
-    const splits = {};
+    const splits = new _Map();
     const keys = splitNames.map(splitName => this.keys.buildSplitKey(splitName));
     return this.redis.mget(...keys)
       .then(splitDefinitions => {
         splitNames.forEach((splitName, idx) => {
-          splits[splitName] = splitDefinitions[idx];
+          splits.set(splitName, splitDefinitions[idx]);
         });
         return Promise.resolve(splits);
       })

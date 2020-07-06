@@ -1,3 +1,5 @@
+import { _Map } from '../../../utils/lang/Maps';
+
 class SegmentCacheInMemory {
 
   constructor(keys) {
@@ -6,13 +8,13 @@ class SegmentCacheInMemory {
   }
 
   flush() {
-    this.segmentCache = {};
+    this.segmentCache = new _Map();
   }
 
   addToSegment(segmentName/*, segmentKeys: Array<string>*/) {
     const segmentKey = this.keys.buildSegmentNameKey(segmentName);
 
-    this.segmentCache[segmentKey] = true;
+    this.segmentCache.set(segmentKey, true);
 
     return true;
   }
@@ -20,7 +22,7 @@ class SegmentCacheInMemory {
   removeFromSegment(segmentName/*, segmentKeys: Array<string>*/) {
     const segmentKey = this.keys.buildSegmentNameKey(segmentName);
 
-    delete this.segmentCache[segmentKey];
+    this.segmentCache.delete(segmentKey);
 
     return true;
   }
@@ -31,17 +33,15 @@ class SegmentCacheInMemory {
     let isDiff = false;
     let index;
 
-    const storedSegmentKeys = Object.keys(this.segmentCache);
-
     // Extreme fast => everything is empty
-    if (segmentNames.length === 0 && storedSegmentKeys.length === segmentNames.length)
+    if (segmentNames.length === 0 && this.segmentCache.size === segmentNames.length)
       return isDiff;
 
     // Quick path
-    if (storedSegmentKeys.length !== segmentNames.length) {
+    if (this.segmentCache.size !== segmentNames.length) {
       isDiff = true;
 
-      this.segmentCache = {};
+      this.segmentCache = new _Map();
       segmentNames.forEach (s => {
         this.addToSegment(s);
       });
@@ -54,7 +54,7 @@ class SegmentCacheInMemory {
       if (index < segmentNames.length) {
         isDiff = true;
 
-        this.segmentCache = {};
+        this.segmentCache = new Map();
         segmentNames.forEach (s => {
           this.addToSegment(s);
         });
@@ -67,7 +67,7 @@ class SegmentCacheInMemory {
   isInSegment(segmentName/*, key: string*/) {
     const segmentKey = this.keys.buildSegmentNameKey(segmentName);
 
-    return this.segmentCache[segmentKey] === true;
+    return this.segmentCache.get(segmentKey) === true;
   }
 
   setChangeNumber(/*segmentName: string, changeNumber: number*/) {

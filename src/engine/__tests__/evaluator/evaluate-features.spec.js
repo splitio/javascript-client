@@ -16,6 +16,7 @@ limitations under the License.
 import tape from 'tape';
 import { evaluateFeatures } from '../../evaluator';
 import * as LabelsConstants from '../../../utils/labels';
+import { _Map } from '../../../utils/lang/Maps';
 
 const splitsMock = {
   regular: '{"changeNumber":1487277320548,"trafficAllocationSeed":1667452163,"trafficAllocation":100,"trafficTypeName":"user","name":"always-on","seed":1684183541,"configurations":{},"status":"ACTIVE","killed":false,"defaultTreatment":"off","conditions":[{"conditionType":"ROLLOUT","matcherGroup":{"combiner":"AND","matchers":[{"keySelector":{"trafficType":"user","attribute":""},"matcherType":"ALL_KEYS","negate":false,"userDefinedSegmentMatcherData":{"segmentName":""},"unaryNumericMatcherData":{"dataType":"","value":0},"whitelistMatcherData":{"whitelist":null},"betweenMatcherData":{"dataType":"","start":0,"end":0}}]},"partitions":[{"treatment":"on","size":100},{"treatment":"off","size":0}],"label":"in segment all"}]}',
@@ -37,9 +38,9 @@ const mockStorage = {
       return null;
     },
     fetchMany(names) {
-      const splits = {};
+      const splits = new _Map();
       names.forEach(name => {
-        splits[name] = this.getSplit(name);
+        splits.set(name, this.getSplit(name));
       });
 
       return splits;

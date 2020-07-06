@@ -1,4 +1,5 @@
 import { numberIsFinite, toNumber, numberIsNaN } from '../../utils/lang';
+import { _Map } from '../../utils/lang/Maps';
 import usesSegments from '../../utils/splits/usesSegments';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-storage:localstorage');
@@ -205,9 +206,9 @@ class SplitCacheLocalStorage {
    * Fetches multiple splits definitions.
    */
   fetchMany(splitNames) {
-    const splits = {};
+    const splits = new _Map();
     splitNames.forEach(splitName => {
-      splits[splitName] = localStorage.getItem(this.keys.buildSplitKey(splitName));
+      splits.set(splitName, localStorage.getItem(this.keys.buildSplitKey(splitName)));
     });
     return splits;
   }
