@@ -13,7 +13,6 @@ export class ObjectMap {
     this.items = {};
   }
 
-
   set(key, value) {
     this.items[key] = value;
     return this;
@@ -66,6 +65,7 @@ export function mapValuesToArray(map) {
  * return the Map constructor to use. If native Map is not available or it doesn't support the required features,
  * a ponyfill with minimal features is returned instead.
  */
+// @TODO review check condition
 function getMap() {
   if(!Array.from || !Map) { //} || new Map(['key', 'value']).size === 0) {
     return ObjectMap;
