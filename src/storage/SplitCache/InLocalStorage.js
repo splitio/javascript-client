@@ -8,7 +8,9 @@ class SplitCacheLocalStorage {
 
   constructor(keys, expiredChangeNumber) {
     this.keys = keys;
-    this.expiredChangeNumber = expiredChangeNumber || -1;
+
+    const value = this.getChangeNumber();
+    if (value > -1 && value < expiredChangeNumber) this.flush();
   }
 
   decrementCount(key) {
@@ -54,7 +56,7 @@ class SplitCacheLocalStorage {
     }
   }
 
-  addSplit(splitName , split) {
+  addSplit(splitName, split) {
     try {
       const splitKey = this.keys.buildSplitKey(splitName);
       const splitFromLocalStorage = localStorage.getItem(splitKey);
@@ -93,7 +95,7 @@ class SplitCacheLocalStorage {
       this.decrementCounts(parsedSplit);
 
       return 1;
-    } catch(e) {
+    } catch (e) {
       log.error(e);
       return 0;
     }
@@ -129,11 +131,6 @@ class SplitCacheLocalStorage {
     }
   }
 
-  /**
-   * Returns the stored change number.
-   * If there is not an stored value or if it is "older" (lower) than the optionally provided
-   * `expiredChangeNumber` value, the result is -1, what means that cached data is not valid for usage.
-   */
   getChangeNumber() {
     const n = -1;
     let value = localStorage.getItem(this.keys.buildSplitsTillKey());
@@ -141,7 +138,7 @@ class SplitCacheLocalStorage {
     if (value !== null) {
       value = parseInt(value, 10);
 
-      return Number.isNaN(value) || value < this.expiredChangeNumber ? n : value;
+      return Number.isNaN(value) ? n : value;
     }
 
     return n;
@@ -227,8 +224,7 @@ class SplitCacheLocalStorage {
   }
 
   /**
-   * Check if the splits information is already stored in cache and valid to use,
-   * indicated by a changeNumber mayor than -1.
+   * Check if the splits information is already stored in cache.
    * In this function we could add more code to check if the data is valid.
    */
   checkCache() {

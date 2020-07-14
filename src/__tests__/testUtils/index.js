@@ -38,3 +38,11 @@ export function mockSegmentChanges(fetchMock, matcher, keys, changeNumber = 1457
     };
   });
 }
+
+export function createSplitFactoryWithMockedDateNow(SplitFactory, config, dateNowResult) {
+  const realDateNow = window.Date.now.bind(window.Date);
+  window.Date.now = function () { return dateNowResult; };
+  const factory = SplitFactory(config);
+  window.Date.now = realDateNow;
+  return factory;
+}

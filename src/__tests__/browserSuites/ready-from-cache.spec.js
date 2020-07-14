@@ -1,4 +1,7 @@
-import { SplitFactory } from '../../';
+import { SplitFactory } from '../../index';
+
+import { createSplitFactoryWithMockedDateNow } from '../testUtils';
+import { DEFAULT_CACHE_EXPIRATION_IN_MILLIS } from '../../storage/browser';
 
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
@@ -138,11 +141,12 @@ export default function (fetchMock, assert) {
     });
     fetchMock.postOnce(testUrls.events + '/testImpressions/bulk', 200);
 
-    localStorage.setItem('readyFromCache_2.SPLITIO.splits.till', 25);
+    const SPLITS_CACHED_CHANGE_NUMBER = 25;
+    localStorage.setItem('readyFromCache_2.SPLITIO.splits.till', SPLITS_CACHED_CHANGE_NUMBER);
     localStorage.setItem('readyFromCache_2.SPLITIO.split.always_on', alwaysOnSplitInverted);
 
     const startTime = Date.now();
-    const splitio = SplitFactory({
+    const splitio = createSplitFactoryWithMockedDateNow(SplitFactory, {
       ...baseConfig,
       storage: {
         type: 'LOCALSTORAGE',
@@ -153,7 +157,7 @@ export default function (fetchMock, assert) {
       },
       urls: testUrls,
       debug: true
-    });
+    }, SPLITS_CACHED_CHANGE_NUMBER + DEFAULT_CACHE_EXPIRATION_IN_MILLIS); // with +1, Split cache is considered expired and thus 'readyFromCache_2.SPLITIO.split.always_on' is removed
     const client = splitio.client();
     const client2 = splitio.client('nicolas2@split.io');
     const client3 = splitio.client('nicolas3@split.io');

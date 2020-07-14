@@ -11,7 +11,7 @@ import KeyBuilderLocalStorage from './KeysLocalStorage';
 import { STORAGE_MEMORY, STORAGE_LOCALSTORAGE } from '../utils/constants';
 
 // This value might be eventually set via a config parameter
-const DEFAULT_CACHE_EXPIRATION_IN_MILLIS = 864000000; // 10 days
+export const DEFAULT_CACHE_EXPIRATION_IN_MILLIS = 864000000; // 10 days
 
 const BrowserStorageFactory = context => {
   const settings = context.get(context.constants.SETTINGS);
@@ -61,7 +61,8 @@ const BrowserStorageFactory = context => {
 
     case STORAGE_LOCALSTORAGE: {
       const keys = new KeyBuilderLocalStorage(settings);
-      const expiredChangeNumber = Date.now() - DEFAULT_CACHE_EXPIRATION_IN_MILLIS;
+      // @TODO use Data instead of window.Data once core-js is removed (having issues to mock Data.now for testing)
+      const expiredChangeNumber = window.Date.now() - DEFAULT_CACHE_EXPIRATION_IN_MILLIS;
 
       return {
         splits: new SplitCacheInLocalStorage(keys, expiredChangeNumber),
