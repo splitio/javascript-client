@@ -35,6 +35,7 @@ export default function MySegmentsUpdaterFactory(context) {
   // @TODO if allowing custom storages, handle async execution and wrap errors as SplitErrors to distinguish from user callback errors
   function updateSegments(segments) {
     // Update the list of segment names available
+    // There is not need to flush segments cache as splits cache, since resetSegments receives the up-to-date list of active segments
     const shouldNotifyUpdate = storage.segments.resetSegments(segments);
 
     // Notify update if required

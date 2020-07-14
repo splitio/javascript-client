@@ -112,7 +112,11 @@ export default function SplitChangesUpdaterFactory(context, isNode = false) {
         });
 
       // After triggering the requests, if we have cached splits information let's notify that.
-      if (startingUp && storage.splits.checkCache()) splitsEventEmitter.emit(splitsEventEmitter.SDK_SPLITS_CACHE_LOADED);
+      if (startingUp) {
+        if (storage.splits.checkCache()) splitsEventEmitter.emit(splitsEventEmitter.SDK_SPLITS_CACHE_LOADED);
+        // remove Splits from cache, since Splits are fetched with -1 changeNumber. Thus we cannot know which splits were ARCHIVED.
+        else storage.splits.flush();
+      }
 
       return fetcherPromise;
     }

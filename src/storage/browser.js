@@ -10,6 +10,9 @@ import KeyBuilder from './Keys';
 import KeyBuilderLocalStorage from './KeysLocalStorage';
 import { STORAGE_MEMORY, STORAGE_LOCALSTORAGE } from '../utils/constants';
 
+// This value might be eventually set via a config parameter
+const DEFAULT_CACHE_EXPIRATION_IN_MILLIS = 864000000; // 10 days
+
 const BrowserStorageFactory = context => {
   const settings = context.get(context.constants.SETTINGS);
   const { storage } = settings;
@@ -58,9 +61,10 @@ const BrowserStorageFactory = context => {
 
     case STORAGE_LOCALSTORAGE: {
       const keys = new KeyBuilderLocalStorage(settings);
+      const expiredChangeNumber = Date.now() - DEFAULT_CACHE_EXPIRATION_IN_MILLIS;
 
       return {
-        splits: new SplitCacheInLocalStorage(keys),
+        splits: new SplitCacheInLocalStorage(keys, expiredChangeNumber),
         segments: new SegmentCacheInLocalStorage(keys),
         impressions: new ImpressionsCacheInMemory,
         metrics: new LatencyCacheInMemory,

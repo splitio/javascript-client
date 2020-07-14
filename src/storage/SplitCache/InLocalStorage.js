@@ -6,8 +6,9 @@ import killLocally from './killLocally';
 
 class SplitCacheLocalStorage {
 
-  constructor(keys) {
+  constructor(keys, expiredChangeNumber) {
     this.keys = keys;
+    this.expiredChangeNumber = expiredChangeNumber || -1;
   }
 
   decrementCount(key) {
@@ -128,6 +129,11 @@ class SplitCacheLocalStorage {
     }
   }
 
+  /**
+   * Returns the stored change number.
+   * If there is not an stored value or if it is "older" (lower) than the optionally provided
+   * `expiredChangeNumber` value, the result is -1, what means that cached data is not valid for usage.
+   */
   getChangeNumber() {
     const n = -1;
     let value = localStorage.getItem(this.keys.buildSplitsTillKey());
@@ -135,7 +141,7 @@ class SplitCacheLocalStorage {
     if (value !== null) {
       value = parseInt(value, 10);
 
-      return Number.isNaN(value) ? n : value;
+      return Number.isNaN(value) || value < this.expiredChangeNumber ? n : value;
     }
 
     return n;
@@ -195,9 +201,17 @@ class SplitCacheLocalStorage {
     }
   }
 
+  /**
+   * Removes splits from localStorage and resets counters to 0 and changeNumber to -1
+   */
   flush() {
-    log.info('Flushing localStorage');
-    localStorage.clear();
+    log.info('Flushing Splits data from localStorage');
+
+    // We cannot simply call `localStorage.clear()` since that implies removing user items from the storage
+    // We could optimize next sentence, since it implies iterating over all localStorage items
+    this.removeSplits(this.getKeys());
+
+    this.setChangeNumber(-1);
     this.hasSync = false;
   }
 
@@ -213,7 +227,8 @@ class SplitCacheLocalStorage {
   }
 
   /**
-   * Check if the splits information is already stored in cache.
+   * Check if the splits information is already stored in cache and valid to use,
+   * indicated by a changeNumber mayor than -1.
    * In this function we could add more code to check if the data is valid.
    */
   checkCache() {

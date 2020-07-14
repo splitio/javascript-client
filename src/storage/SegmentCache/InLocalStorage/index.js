@@ -33,6 +33,12 @@ class SegmentCacheInLocalStorage {
     }
   }
 
+  /**
+   * Reset (update) the cached list of segments with the given list, removing and adding segments if necessary.
+   *
+   * @param {string[]} segmentNames list of segment names
+   * @returns boolean indicating if the given list was different from the cached list of segments
+   */
   resetSegments(segmentNames) {
     let isDiff = false;
     let index;
@@ -97,9 +103,16 @@ class SegmentCacheInLocalStorage {
     return [];
   }
 
+  /**
+   * Removes list of segments from localStorage
+   * @NOTE this method is not being used at the moment
+   */
   flush() {
-    log.info('Flushing localStorage');
-    localStorage.clear();
+    log.info('Flushing MySegments data from localStorage');
+
+    // We cannot simply call `localStorage.clear()` since that implies removing user items from the storage
+    // We could optimize next sentence, since it implies iterating over all localStorage items
+    this.resetSegments([]);
   }
 }
 
