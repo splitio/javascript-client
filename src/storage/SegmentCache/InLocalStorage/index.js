@@ -7,7 +7,7 @@ class SegmentCacheInLocalStorage {
 
   constructor(keys) {
     this.keys = keys;
-    // There is not need to flush segments cache as splits cache, since resetSegments receives the up-to-date list of active segments
+    // There is not need to flush segments cache like splits cache, since resetSegments receives the up-to-date list of active segments
   }
 
   addToSegment(segmentName/*, segmentKeys: Array<string>*/) {
@@ -38,7 +38,7 @@ class SegmentCacheInLocalStorage {
    * Reset (update) the cached list of segments with the given list, removing and adding segments if necessary.
    *
    * @param {string[]} segmentNames list of segment names
-   * @returns boolean indicating if the given list was different from the cached list of segments
+   * @returns boolean indicating if the cache was updated (i.e., given list was different from the cached one)
    */
   resetSegments(segmentNames) {
     let isDiff = false;

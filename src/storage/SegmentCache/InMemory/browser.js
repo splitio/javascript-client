@@ -30,7 +30,7 @@ class SegmentCacheInMemory {
    * @NOTE based on the way we use segments in the browser, this way is the best option
    *
    * @param {string[]} segmentNames list of segment names
-   * @returns boolean indicating if the given list was different from the cached list of segments
+   * @returns boolean indicating if the cache was updated (i.e., given list was different from the cached one)
    */
   resetSegments(segmentNames) {
     let isDiff = false;
