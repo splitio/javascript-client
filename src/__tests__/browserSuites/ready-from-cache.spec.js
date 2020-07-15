@@ -124,7 +124,7 @@ export default function (fetchMock, assert) {
       events: 'https://events.baseurl/readyFromCacheWithData'
     };
     localStorage.clear();
-    t.plan(12 * 2);
+    t.plan(12 * 2 + 3);
 
     fetchMock.get(testUrls.sdk + '/splitChanges?since=25', function () {
       return new Promise(res => { setTimeout(() => res({ status: 200, body: { ...splitChangesMock1, since: 25 }, headers: {} }), 200); }); // 400ms is how long it'll take to reply with Splits, no SDK_READY should be emitted before that.
@@ -141,7 +141,7 @@ export default function (fetchMock, assert) {
     });
     fetchMock.postOnce(testUrls.events + '/testImpressions/bulk', 200);
 
-    localStorage.setItem('some_user_item', 'don\'t_touch');
+    localStorage.setItem('some_user_item', 'user_item');
     localStorage.setItem('readyFromCache_2.SPLITIO.splits.till', 25);
     localStorage.setItem('readyFromCache_2.SPLITIO.split.always_on', alwaysOnSplitInverted);
 
@@ -203,6 +203,13 @@ export default function (fetchMock, assert) {
       client3.ready().then(() => {
         t.true(Date.now() - startTime >= 1000, 'It should resolve ready promise after syncing with the cloud.');
         t.equal(client3.getTreatment('always_on'), 'on', 'It should evaluate treatments with updated data after syncing with the cloud.');
+
+        // Last cb: destroy clients and check that localstorage has the expected items
+        Promise.all([client3.destroy(), client2.destroy(), client.destroy()]).then(() => {
+          t.equal(localStorage.getItem('some_user_item'), 'user_item', 'user items at localStorage must not be changed');
+          t.equal(localStorage.getItem('readyFromCache_2.SPLITIO.splits.till'), '1457552620999', 'splits.till must correspond to the till of the last successfully fetched Splits');
+          t.true(nearlyEqual(parseInt(localStorage.getItem('readyFromCache_2.SPLITIO.splits.lastUpdated')), Date.now() - 800 /* 800 ms between last Split and MySegments fetch */), 'lastUpdated is added and must correspond to the timestamp of the last successfully fetched Splits');
+        });
       });
       t.true(Date.now() - startTime >= 1000, 'It should emit SDK_READY too but after syncing with the cloud.');
       t.equal(client3.getTreatment('always_on'), 'on', 'It should evaluate treatments with updated data after syncing with the cloud.');
@@ -305,12 +312,12 @@ export default function (fetchMock, assert) {
         t.true(Date.now() - startTime >= 1000, 'It should resolve ready promise after syncing with the cloud.');
         t.equal(client3.getTreatment('always_on'), 'on', 'It should evaluate treatments with updated data after syncing with the cloud.');
 
-        // Last cb: destroy clients and check localstorage has the expected items
+        // Last cb: destroy clients and check that localstorage has the expected items
         Promise.all([client3.destroy(), client2.destroy(), client.destroy()]).then(() => {
           t.equal(localStorage.getItem('some_user_item'), 'user_item', 'user items at localStorage must not be changed');
           t.equal(localStorage.getItem('readyFromCache_3.SPLITIO.splits.till'), '1457552620999', 'splits.till must correspond to the till of the last successfully fetched Splits');
           t.true(nearlyEqual(parseInt(localStorage.getItem('readyFromCache_3.SPLITIO.splits.lastUpdated')), Date.now() - 800 /* 800 ms between last Split and MySegments fetch */), 'lastUpdated must correspond to the timestamp of the last successfully fetched Splits');
-        })
+        });
       });
       t.true(Date.now() - startTime >= 1000, 'It should emit SDK_READY too but after syncing with the cloud.');
       t.equal(client3.getTreatment('always_on'), 'on', 'It should evaluate treatments with updated data after syncing with the cloud.');
@@ -335,7 +342,7 @@ export default function (fetchMock, assert) {
 
     fetchMock.get(testUrls.sdk + '/splitChanges?since=-1', function () {
       t.equal(localStorage.getItem('readyFromCache_3.SPLITIO.split.always_on'), null, 'splits must be cleaned from cache');
-      return { status: 200, body: splitChangesMock1 }
+      return { status: 200, body: splitChangesMock1 };
     });
     fetchMock.get(testUrls.sdk + '/splitChanges?since=1457552620999', { status: 200, body: splitChangesMock2 });
     fetchMock.get(testUrls.sdk + '/mySegments/nicolas@split.io', function () {
@@ -413,12 +420,12 @@ export default function (fetchMock, assert) {
         t.true(Date.now() - startTime >= 1000, 'It should resolve ready promise after syncing with the cloud.');
         t.equal(client3.getTreatment('always_on'), 'on', 'It should evaluate treatments with updated data after syncing with the cloud.');
 
-        // Last cb: destroy clients and check localstorage has the expected items
+        // Last cb: destroy clients and check that localstorage has the expected items
         Promise.all([client3.destroy(), client2.destroy(), client.destroy()]).then(() => {
           t.equal(localStorage.getItem('some_user_item'), 'user_item', 'user items at localStorage must not be changed');
           t.equal(localStorage.getItem('readyFromCache_4.SPLITIO.splits.till'), '1457552620999', 'splits.till must correspond to the till of the last successfully fetched Splits');
           t.true(nearlyEqual(parseInt(localStorage.getItem('readyFromCache_4.SPLITIO.splits.lastUpdated')), Date.now() - 1000 /* 1000 ms between last Split and MySegments fetch */), 'lastUpdated must correspond to the timestamp of the last successfully fetched Splits');
-        })
+        });
       });
       t.true(Date.now() - startTime >= 1000, 'It should emit SDK_READY after syncing with the cloud.');
       t.equal(client3.getTreatment('always_on'), 'on', 'It should evaluate treatments with updated data after syncing with the cloud.');
