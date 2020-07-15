@@ -1,7 +1,5 @@
 import { SplitFactory } from '../../';
 
-import { createSplitFactoryWithMockedDateNow } from '../testUtils';
-
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
 import mySegmentsNicolas from '../mocks/mysegments.nicolas@split.io.json';
@@ -218,7 +216,7 @@ export default function (fetchMock, assert) {
     const getMySegmentsHits = mockForSegmentsPauseTest(testUrls, false);
 
     const start = Date.now();
-    const splitio = createSplitFactoryWithMockedDateNow(SplitFactory, {
+    const splitio = SplitFactory({
       ...baseConfig,
       startup: {
         retriesOnFailureBeforeReady: 0
@@ -354,7 +352,7 @@ export default function (fetchMock, assert) {
     const getMySegmentsHits = mockForSegmentsPauseTest(testUrls, true);
 
     const start = Date.now();
-    const splitio = createSplitFactoryWithMockedDateNow(SplitFactory, {
+    const splitio = SplitFactory({
       ...baseConfig,
       startup: {
         retriesOnFailureBeforeReady: 0
@@ -424,7 +422,7 @@ export default function (fetchMock, assert) {
     const getMySegmentsHits = mockForSegmentsPauseTest(testUrls, true);
 
     const start = Date.now();
-    const splitio = createSplitFactoryWithMockedDateNow(SplitFactory, {
+    const splitio = SplitFactory({
       ...baseConfig,
       startup: {
         retriesOnFailureBeforeReady: 0
@@ -472,7 +470,7 @@ export default function (fetchMock, assert) {
     const getMySegmentsHits = mockForSegmentsPauseTest(testUrls, false);
 
     const start = Date.now();
-    const splitio = createSplitFactoryWithMockedDateNow(SplitFactory, {
+    const splitio = SplitFactory({
       ...baseConfig,
       startup: {
         retriesOnFailureBeforeReady: 0
@@ -524,7 +522,7 @@ export default function (fetchMock, assert) {
     fetchMock.get(testUrls.sdk + '/splitChanges?since=1457552679999', { status: 200, body: { splits: [], since: 1457552679999, till: 1457552679999 } });
 
     const start = Date.now();
-    const splitio = createSplitFactoryWithMockedDateNow(SplitFactory, {
+    const splitio = SplitFactory({
       ...baseConfig,
       startup: {
         retriesOnFailureBeforeReady: 0
@@ -573,7 +571,7 @@ export default function (fetchMock, assert) {
     const getMySegmentsHits = mockForSegmentsPauseTest(testUrls, false);
 
     const start = Date.now();
-    const splitio = createSplitFactoryWithMockedDateNow(SplitFactory, {
+    const splitio = SplitFactory({
       ...baseConfig,
       startup: {
         retriesOnFailureBeforeReady: 0
@@ -624,7 +622,7 @@ export default function (fetchMock, assert) {
     fetchMock.get(testUrls.sdk + '/splitChanges?since=1457552679999', { status: 200, body: { splits: [], since: 1457552679999, till: 1457552679999 } });
 
     const start = Date.now();
-    const splitio = createSplitFactoryWithMockedDateNow(SplitFactory, {
+    const splitio = SplitFactory({
       ...baseConfig,
       startup: {
         retriesOnFailureBeforeReady: 0

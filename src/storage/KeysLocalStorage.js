@@ -18,6 +18,10 @@ class KeyBuilderForLocalStorage extends KeyBuilder {
   buildSplitsWithSegmentCountKey() {
     return `${this.settings.storage.prefix}.splits.usingSegments`;
   }
+
+  buildLastCreatedKey() {
+    return `${this.settings.storage.prefix}.splits.lastCreated`;
+  }
 }
 
 export default KeyBuilderForLocalStorage;

@@ -7,6 +7,7 @@ class SegmentCacheInLocalStorage {
 
   constructor(keys) {
     this.keys = keys;
+    // There is not need to flush segments cache as splits cache, since resetSegments receives the up-to-date list of active segments
   }
 
   addToSegment(segmentName/*, segmentKeys: Array<string>*/) {

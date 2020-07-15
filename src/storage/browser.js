@@ -62,10 +62,10 @@ const BrowserStorageFactory = context => {
     case STORAGE_LOCALSTORAGE: {
       const keys = new KeyBuilderLocalStorage(settings);
       // @TODO use Data instead of window.Data once core-js is removed (having issues to mock Data.now for testing)
-      const expiredChangeNumber = window.Date.now() - DEFAULT_CACHE_EXPIRATION_IN_MILLIS;
+      const expirationTimestamp = window.Date.now() - DEFAULT_CACHE_EXPIRATION_IN_MILLIS;
 
       return {
-        splits: new SplitCacheInLocalStorage(keys, expiredChangeNumber),
+        splits: new SplitCacheInLocalStorage(keys, expirationTimestamp),
         segments: new SegmentCacheInLocalStorage(keys),
         impressions: new ImpressionsCacheInMemory,
         metrics: new LatencyCacheInMemory,

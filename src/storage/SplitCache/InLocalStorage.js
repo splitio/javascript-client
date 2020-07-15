@@ -6,11 +6,10 @@ import killLocally from './killLocally';
 
 class SplitCacheLocalStorage {
 
-  constructor(keys, expiredChangeNumber) {
+  constructor(keys, expirationTimestamp) {
     this.keys = keys;
 
-    const value = this.getChangeNumber();
-    if (value > -1 && value < expiredChangeNumber) this.flush();
+    this.__checkExpiration(expirationTimestamp);
   }
 
   decrementCount(key) {
@@ -229,6 +228,29 @@ class SplitCacheLocalStorage {
    */
   checkCache() {
     return this.getChangeNumber() > -1;
+  }
+
+  /**
+   * Clean Splits cache if its time of last creation is older than the given `expirationTimestamp`,
+   * and update cached timestamp with current Date.
+   *
+   * @param {number | undefined} expirationTimestamp if the value is not a number, data will never be cleaned
+   */
+  __checkExpiration(expirationTimestamp) {
+    // compare last created timestamp with expiration timestamp and clean cache (flush) if older
+    const lastCreatedKey = this.keys.buildLastCreatedKey();
+    let value = localStorage.getItem(lastCreatedKey);
+    if (value !== null) {
+      value = parseInt(value, 10);
+      if (!Number.isNaN(value) && value < expirationTimestamp) this.flush();
+    }
+
+    // update last created timestamp
+    try {
+      localStorage.setItem(lastCreatedKey, Date.now() + '');
+    } catch (e) {
+      log.error(e);
+    }
   }
 }
 
