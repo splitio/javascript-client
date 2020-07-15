@@ -122,6 +122,8 @@ class SplitCacheLocalStorage {
   setChangeNumber(changeNumber) {
     try {
       localStorage.setItem(this.keys.buildSplitsTillKey(), changeNumber + '');
+      // update "last updated" timestamp with current time
+      localStorage.setItem(this.keys.buildLastUpdatedKey(), Date.now() + '');
       this.hasSync = true;
       return true;
     } catch (e) {
@@ -231,25 +233,16 @@ class SplitCacheLocalStorage {
   }
 
   /**
-   * Clean Splits cache if its time of last creation is older than the given `expirationTimestamp`,
-   * and update cached timestamp with current Date.
+   * Clean Splits cache if its `lastUpdated` timestamp is older than the given `expirationTimestamp`,
+   * Clean operation (flush) also updates `lastUpdated` timestamp with current time.
    *
-   * @param {number | undefined} expirationTimestamp if the value is not a number, data will never be cleaned
+   * @param {number | undefined} expirationTimestamp if the value is not a number, data will not be cleaned
    */
   __checkExpiration(expirationTimestamp) {
-    // compare last created timestamp with expiration timestamp and clean cache (flush) if older
-    const lastCreatedKey = this.keys.buildLastCreatedKey();
-    let value = localStorage.getItem(lastCreatedKey);
+    let value = localStorage.getItem(this.keys.buildLastUpdatedKey());
     if (value !== null) {
       value = parseInt(value, 10);
       if (!Number.isNaN(value) && value < expirationTimestamp) this.flush();
-    }
-
-    // update last created timestamp
-    try {
-      localStorage.setItem(lastCreatedKey, Date.now() + '');
-    } catch (e) {
-      log.error(e);
     }
   }
 }

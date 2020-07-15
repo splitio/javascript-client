@@ -19,8 +19,8 @@ class KeyBuilderForLocalStorage extends KeyBuilder {
     return `${this.settings.storage.prefix}.splits.usingSegments`;
   }
 
-  buildLastCreatedKey() {
-    return `${this.settings.storage.prefix}.splits.lastCreated`;
+  buildLastUpdatedKey() {
+    return `${this.settings.storage.prefix}.splits.lastUpdated`;
   }
 }
 
