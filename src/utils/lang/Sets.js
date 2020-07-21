@@ -1,59 +1,69 @@
 /**
- * Set implementation based on JS arrays, with the minimal features used by the SDK and supported by IE11 Set.
- * Support any object type as items
+ * Set implementation based on es6-set polyfill (https://github.com/medikoo/es6-set/blob/master/polyfill.js),
+ * with the minimal features used by the SDK.
  */
-export class ArraySet {
+export class SetPoly {
 
-  // unlike `Set`, it doesn't accept an iterable as first argument
+  // unlike ES6 `Set`, it doesn't accept an iterable as first argument
   constructor() {
-    this.clear();
+    this.__setData__ = [];
   }
 
   clear() {
-    this.items = [];
+    if (!this.__setData__.length) return;
+    this.__setData__.length = 0;
   }
 
-  // unlike `Set.prototype.add`, it doesn't return the object itself
-  add(item) {
-    const index = this.items.indexOf(item);
-    if (index > -1) {
-      this.items[index] = item;
-    } else {
-      this.items.push(item);
+  add(value) {
+    if (this.has(value)) return this;
+    this.__setData__.push(value);
+    return this;
+  }
+
+  delete(value) {
+    var index = this.__setData__.indexOf(value);
+    if (index === -1) return false;
+    this.__setData__.splice(index, 1);
+    return true;
+  }
+
+  has(value) {
+    return this.__setData__.indexOf(value) !== -1;
+  }
+
+  forEach(cb/*, thisArg*/) {
+    var thisArg = arguments[1];
+    if (typeof cb !== 'function') throw new TypeError(cb + ' is not a function');
+
+    for (let i = 0; i < this.__setData__.length; i++) {
+      const value = this.__setData__[i];
+      cb.call(thisArg, value, value, this);
     }
-  }
-
-  // unlike `Set.prototype.delete`, it doesn't return a boolean indicating if the item was deleted or not
-  delete(item) {
-    const index = this.items.indexOf(item);
-    if (index > -1) {
-      this.items.splice(index, 1);
-    }
-  }
-
-  has(item) {
-    return this.items.indexOf(item) > -1;
-  }
-
-  forEach() {
-    return this.items.forEach(arguments);
   }
 
   get size() {
-    return this.items.length;
+    return this.__setData__.length;
   }
 
 }
 
 export function setToArray(set) {
-  if(Array.from) return Array.from(set);
-
-  const result = [];
-  // using `Set.prototype.forEach` since it is well supported, while `values`, `entries` and `keys` methods are not
-  set.forEach(item => {
-    result.push(item);
-  });
-  return result;
+  if (set instanceof SetPoly) {
+    return set.__setData__.slice();
+  }
+  // if not using SetPoly as set, it means Array.from is supported
+  return Array.from(set);
 }
 
-export const _Set = Set || ArraySet;
+/**
+ * return the Set constructor to use. If `Array.from` built-in or native Set is not available or it doesn't support the required features,
+ * a ponyfill with minimal features is returned instead.
+ */
+function getSetConstructor() {
+  if (!Array.from || !Set || !Set.prototype.values) {
+    return SetPoly;
+  }
+  return Set;
+}
+
+export const _Set = getSetConstructor();

@@ -17,7 +17,7 @@ import { setToArray } from '../../utils/lang/Sets';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-engine:matcher');
 
-function whitelistMatcherContext(ruleAttr /*: Set or ArraySet */) /*: Function */ {
+function whitelistMatcherContext(ruleAttr /*: Set */) /*: Function */ {
   return function whitelistMatcher(runtimeAttr /*: string */) /*: boolean */ {
     let isInWhitelist = ruleAttr.has(runtimeAttr);
 

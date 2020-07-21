@@ -73,7 +73,7 @@ tape('STORAGE Redis Adapter / Class', assert => {
 
   assert.true(typeof instance._options === 'object', 'The instance will have an options object.');
   assert.true(Array.isArray(instance._notReadyCommandsQueue), 'The instance will have an array as the _notReadyCommandsQueue property.');
-  assert.true(instance._runningCommands instanceof _Set, 'The instance will have a Set as the _runningCommands property.');
+  assert.true(instance._runningCommands instanceof _Set, 'The instance will have a set as the _runningCommands property.');
 
   assert.end();
 });
