@@ -138,6 +138,13 @@ interface ISharedSettings {
    * @default true
    */
   streamingEnabled?: boolean,
+  /**
+   * @TODO document
+   */
+  splitFilter?: {
+    byName?: string[],
+    byprefix?: string[]
+  }
 }
 /**
  * Common settings interface for SDK instances on NodeJS.

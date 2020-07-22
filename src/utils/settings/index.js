@@ -21,6 +21,7 @@ import overridesPerPlatform from './defaults';
 import storage from './storage';
 import integrations from './integrations';
 import mode from './mode';
+import { splitFilterBuilder } from './splitFilter';
 import { API } from '../../utils/logger';
 import { STANDALONE_MODE, STORAGE_MEMORY, CONSUMER_MODE } from '../../utils/constants';
 import { version } from '../../../package.json';
@@ -154,6 +155,10 @@ function defaults(custom) {
     withDefaults.scheduler.authRetryBackoffBase = fromSecondsToMillis(withDefaults.scheduler.authRetryBackoffBase);
     withDefaults.scheduler.streamingReconnectBackoffBase = fromSecondsToMillis(withDefaults.scheduler.streamingReconnectBackoffBase);
   }
+
+  // validate and parse the `splitFilter` settings
+  // it returns the sanitized `splitFilter` object with the parsed query params
+  withDefaults.splitFilter = splitFilterBuilder(withDefaults);
 
   return withDefaults;
 }

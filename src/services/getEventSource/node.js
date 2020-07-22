@@ -1,7 +1,7 @@
 let __isCustom = false;
 let __eventSource = undefined;
 
-// This function is only exposed for testing purposses.
+// This function is only exposed for testing purposes.
 export function __setEventSource(eventSource) {
   __eventSource = eventSource;
   __isCustom = true;
