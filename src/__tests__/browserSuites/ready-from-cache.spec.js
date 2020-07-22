@@ -338,10 +338,13 @@ export default function (fetchMock, assert) {
       events: 'https://events.baseurl/readyFromCacheWithData4'
     };
     localStorage.clear();
-    t.plan(9 * 2 + 4);
+    t.plan(9 * 2 + 7);
 
     fetchMock.get(testUrls.sdk + '/splitChanges?since=-1', function () {
-      t.equal(localStorage.getItem('readyFromCache_3.SPLITIO.split.always_on'), null, 'splits must be cleaned from cache');
+      t.equal(localStorage.getItem('some_user_item'), 'user_item', 'user items at localStorage must not be changed');
+      t.equal(localStorage.getItem('readyFromCache_3.SPLITIO.splits.till'), null, 'splits changeNumber must be cleaned from cache');
+      t.equal(localStorage.getItem('readyFromCache_3.SPLITIO.splits.lastUpdated'), null, 'splits lastUpdate must be cleaned from cache');
+      t.equal(localStorage.getItem('readyFromCache_3.SPLITIO.split.always_on'), null, 'split must be cleaned from cache');
       return { status: 200, body: splitChangesMock1 };
     });
     fetchMock.get(testUrls.sdk + '/splitChanges?since=1457552620999', { status: 200, body: splitChangesMock2 });

@@ -4,6 +4,11 @@ import { matching } from '../utils/key/factory';
 
 class KeyBuilderForLocalStorage extends KeyBuilder {
 
+  constructor(settings) {
+    super(settings);
+    this.regexSplitCacheKey = new RegExp(`^${this.settings.storage.prefix}\\.(splits?|trafficType)\\.`);
+  }
+
   buildSegmentNameKey(segmentName) {
     return `${matching(this.settings.core.key)}.${this.settings.storage.prefix}.segment.${segmentName}`;
   }
@@ -21,6 +26,10 @@ class KeyBuilderForLocalStorage extends KeyBuilder {
 
   buildLastUpdatedKey() {
     return `${this.settings.storage.prefix}.splits.lastUpdated`;
+  }
+
+  isSplitCacheKey(key) {
+    return this.regexSplitCacheKey.test(key);
   }
 }
 

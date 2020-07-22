@@ -200,16 +200,24 @@ class SplitCacheLocalStorage {
   }
 
   /**
-   * Removes splits from localStorage and resets counters to 0 and changeNumber to -1
+   * Removes all splits cache related data from localStorage (splits, counters, changeNumber and lastUpdated).
+   * We cannot simply call `localStorage.clear()` since that implies removing user items from the storage.
    */
   flush() {
     log.info('Flushing Splits data from localStorage');
 
-    // We cannot simply call `localStorage.clear()` since that implies removing user items from the storage
-    // We could optimize next sentence, since it implies iterating over all localStorage items
-    this.removeSplits(this.getKeys());
+    // collect item keys
+    const len = localStorage.length;
+    const accum = [];
+    for (let cur = 0; cur < len; cur++) {
+      const key = localStorage.key(cur);
+      if (key != null && this.keys.isSplitCacheKey(key)) accum.push(key);
+    }
+    // remove items
+    accum.forEach(key => {
+      localStorage.removeItem(key);
+    });
 
-    this.setChangeNumber(-1);
     this.hasSync = false;
   }
 
