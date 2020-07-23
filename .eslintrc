@@ -26,5 +26,26 @@
   "parserOptions": {
     "ecmaVersion": 2018,
     "sourceType": "module"
+  },
+
+  "overrides": [
+    {
+      "files": ["src/**/*.js"],
+      "excludedFiles": ["src/**/__tests__/**"],
+      "extends": [
+        "eslint:recommended",
+        "plugin:compat/recommended"
+      ],
+      "rules": {
+        "no-restricted-syntax": ["error", "ForOfStatement"],
+        "compat/compat": ["error", "defaults, not ie < 10, not node < 6"]
+      }
+    }
+  ],
+
+  "settings": {
+    "polyfills": [
+      "Promise" // required as a polyfill by the user
+    ]
   }
 }
