@@ -19,28 +19,20 @@ module.exports = {
           loader: 'babel-loader',
           options: {
             presets: [['@babel/preset-env', {
-              'useBuiltIns': 'usage',
-              'corejs': '3',
+              'useBuiltIns': false, // default value: don't add core-js or babel polyfills
               'targets': {
                 'ie': '10',
                 'node': '6'
-              },
-              exclude: [
-                'es.promise'
-              ]
+              }
             }]],
-            plugins: [
-              [
-                '@babel/plugin-transform-runtime',
-                {
-                  'absoluteRuntime': false,
-                  'corejs': 3,
-                  'regenerator': true,
-                  'useESModules': false,
-                  'helpers': true,
-                }
-              ]
-            ]
+            plugins: [['@babel/plugin-transform-runtime', {
+              // default values
+              'absoluteRuntime': false,
+              'corejs': false,
+              'regenerator': true,
+              'useESModules': false,
+              'helpers': true,
+            }]]
           }
         }
       }

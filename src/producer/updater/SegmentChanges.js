@@ -46,7 +46,9 @@ export default function SegmentChangesUpdaterFactory(context) {
 
     function segmentsUpdater(segments) {
       const sincePromises = [];
-      for (let segmentName of segments) {
+
+      for (let index = 0; index < segments.length; index++) {
+        const segmentName = segments[index];
 
         const segmentUpdater = function (since) {
           log.debug(`Processing segment ${segmentName}`);
@@ -54,7 +56,7 @@ export default function SegmentChangesUpdaterFactory(context) {
           updaters.push(segmentChangesFetcher(settings, segmentName, since, metricCollectors).then(function (changes) {
             let changeNumber = -1;
             const changePromises = [];
-            for (let x of changes) {
+            changes.forEach(x => {
               let promises = [];
               if (x.added.length > 0) {
                 const result = storage.segments.addToSegment(segmentName, x.added);
@@ -73,7 +75,7 @@ export default function SegmentChangesUpdaterFactory(context) {
               log.debug(`Processed ${segmentName} with till = ${x.till}. Added: ${x.added.length}. Removed: ${x.removed.length}`);
 
               if (promises.length > 0) changePromises.push(...promises);
-            }
+            });
 
             return Promise.all(changePromises).then(function () {
               return changeNumber;

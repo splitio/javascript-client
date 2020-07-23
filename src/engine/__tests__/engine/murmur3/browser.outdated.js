@@ -23,7 +23,7 @@ tape('MURMUR3', function (t) {
 
     assert.plan(2 * lines.length);
 
-    for(let parts of lines) {
+    lines.forEach(parts => {
       setTimeout(() => {
         let [seed, key, hash, bucket] = parts.split(',');
 
@@ -34,7 +34,7 @@ tape('MURMUR3', function (t) {
         assert.equal(utils.hash(key, seed), hash);
         assert.equal(utils.bucket(key, seed), bucket);
       }, Math.random() * 10);
-    }
+    });
   }
 
   t.test('validate hashing behavior using basic dataset', assert => {

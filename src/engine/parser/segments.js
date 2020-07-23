@@ -4,14 +4,14 @@
 const parseSegments = (conditions) => {
   let segments = {};
 
-  for (let condition of conditions) {
+  conditions.forEach(condition => {
     let {
       matcherGroup: {
         matchers
       }
     } = condition;
 
-    for (let matcher of matchers) {
+    matchers.forEach(matcher => {
       const {
         matcherType,
         userDefinedSegmentMatcherData
@@ -20,8 +20,8 @@ const parseSegments = (conditions) => {
       if (matcherType === 'IN_SEGMENT') {
         segments[userDefinedSegmentMatcherData.segmentName] = true;
       }
-    }
-  }
+    });
+  });
 
   return segments;
 };

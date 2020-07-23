@@ -1,3 +1,4 @@
+import objectAssign from 'object-assign';
 import { isString, numberIsFinite, unicAsStrings } from '../../utils/lang';
 import logFactory from '../../utils/logger';
 import {
@@ -188,7 +189,7 @@ function GaToSplit(sdkOptions, storage, coreSettings) {
     constructor(tracker, pluginOptions) {
 
       // precedence of options: SDK options (config.integrations) overwrite pluginOptions (`ga('require', 'splitTracker', pluginOptions)`)
-      const opts = Object.assign({}, defaultOptions, sdkOptions, pluginOptions);
+      const opts = objectAssign({}, defaultOptions, sdkOptions, pluginOptions);
 
       this.tracker = tracker;
 
@@ -255,7 +256,7 @@ function GaToSplit(sdkOptions, storage, coreSettings) {
           storage.events.track(event);
         } else { // Store the event for each Key-TT pair (identities), if key and TT is not present in eventData
           opts.identities.forEach(identity => {
-            const event = Object.assign({
+            const event = objectAssign({
               key: identity.key,
               trafficTypeName: identity.trafficType,
             }, eventData);
