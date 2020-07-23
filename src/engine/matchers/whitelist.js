@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+import { setToArray } from '../../utils/lang/Sets';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-engine:matcher');
 
@@ -20,7 +21,7 @@ function whitelistMatcherContext(ruleAttr /*: Object */) /*: Function */ {
   return function whitelistMatcher(runtimeAttr /*: string */) /*: boolean */ {
     let isInWhitelist = ruleAttr[runtimeAttr] === true;
 
-    log.debug(`[whitelistMatcher] evaluated ${runtimeAttr} in [${Object.keys(ruleAttr).join(',')}] => ${isInWhitelist}`);
+    log.debug(`[whitelistMatcher] evaluated ${runtimeAttr} in [${setToArray(ruleAttr).join(',')}] => ${isInWhitelist}`);
 
     return isInWhitelist;
   };

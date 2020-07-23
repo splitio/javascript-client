@@ -1,8 +1,10 @@
+import { _Set } from '../../utils/lang/Sets';
+
 /**
  * Collect segments from a raw split definition.
  */
 const parseSegments = (conditions) => {
-  let segments = {};
+  let segments = new _Set();
 
   conditions.forEach(condition => {
     let {
