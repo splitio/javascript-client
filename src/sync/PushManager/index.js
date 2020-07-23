@@ -1,4 +1,5 @@
 import EventEmitter from 'events';
+import objectAssign from 'object-assign';
 
 import authenticate from '../AuthClient';
 import { checkPushRequirements } from './pushRequirements';
@@ -180,7 +181,7 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
     pushEmitter.on(SEGMENT_UPDATE, segmentUpdateWorker.put);
   }
 
-  return Object.assign(
+  return objectAssign(
     // Expose Event Emitter functionality and Event constants
     Object.create(pushEmitter),
     {

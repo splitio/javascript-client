@@ -1,3 +1,4 @@
+import objectAssign from 'object-assign';
 import ClientFactory from './client';
 import {
   validateAttributes,
@@ -70,9 +71,9 @@ function ClientInputValidationLayer(context, isKeyBinded, isTTBinded) {
     if (params.valid) {
       return clientGetTreatmentWithConfig(params.key, params.splitOrSplits, params.attributes);
     } else {
-      if (isStorageSync) return Object.assign({}, CONTROL_WITH_CONFIG);
+      if (isStorageSync) return objectAssign({}, CONTROL_WITH_CONFIG);
 
-      return Promise.resolve(Object.assign({}, CONTROL_WITH_CONFIG));
+      return Promise.resolve(objectAssign({}, CONTROL_WITH_CONFIG));
     }
   };
 
@@ -98,7 +99,7 @@ function ClientInputValidationLayer(context, isKeyBinded, isTTBinded) {
       return clientGetTreatmentsWithConfig(params.key, params.splitOrSplits, params.attributes);
     } else {
       const res = {};
-      if (params.splitOrSplits) params.splitOrSplits.forEach(split => res[split] = Object.assign({}, CONTROL_WITH_CONFIG));
+      if (params.splitOrSplits) params.splitOrSplits.forEach(split => res[split] = objectAssign({}, CONTROL_WITH_CONFIG));
 
       if (isStorageSync) return res;
 

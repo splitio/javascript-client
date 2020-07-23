@@ -1,3 +1,4 @@
+import objectAssign from 'object-assign';
 import logFactory from '../utils/logger';
 import thenable from '../utils/promise/thenable';
 const log = logFactory('splitio-client:event-tracker');
@@ -17,8 +18,8 @@ function EventTracker(context) {
         // Wrap in a timeout because we don't want it to be blocking.
         setTimeout(function () {
           // copy of event, to avoid unexpected behaviour if modified by integrations
-          const eventDataCopy = { ...eventData };
-          if (eventData.properties) eventDataCopy.properties = { ...eventData.properties };
+          const eventDataCopy = objectAssign({}, eventData);
+          if (eventData.properties) eventDataCopy.properties = objectAssign({}, eventData.properties);
           // integrationsManager does not throw errors (they are internally handled by each integration module)
           integrationsManager.handleEvent(eventDataCopy);
         }, 0);

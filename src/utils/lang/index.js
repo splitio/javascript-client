@@ -98,8 +98,11 @@ export function isString(val) {
  * Uses `Number.isFinite` if available, or fallback to global `isFinite`
  */
 export function numberIsFinite(val) {
+  // eslint-disable-next-line compat/compat
   if(Number.isFinite) {
+    // eslint-disable-next-line compat/compat
     if (typeof val === 'number') return Number.isFinite(val);
+    // eslint-disable-next-line compat/compat
     if (val instanceof Number) return Number.isFinite(val.valueOf());
     return false;
   } else {
