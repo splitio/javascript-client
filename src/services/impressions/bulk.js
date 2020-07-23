@@ -13,10 +13,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+import objectAssign from 'object-assign';
 import base from '../request';
 
 export default function BULK(settings, params) {
-  return base(settings, '/testImpressions/bulk', Object.assign({
+  return base(settings, '/testImpressions/bulk', objectAssign({
     method: 'POST'
   }, params));
 }

@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+import objectAssign from 'object-assign';
 import thenable from '../promise/thenable';
 import constants from './constants';
 
@@ -46,7 +47,7 @@ class Context {
    * Gets all objects stored in the context.
    * @return {Object} - A new map of context-stored items.
    */
-  getAll() { return Object.assign({}, this._map); }
+  getAll() { return objectAssign({}, this._map); }
   /**
    * Stores an item in the context instance.
    * @param {String} name - The name of what we are storing

@@ -88,12 +88,14 @@ export default class BrowserSignalListener {
    * Util method that check if beacon API is available, build the payload and send it.
    */
   _sendBeacon(url, data) {
+    // eslint-disable-next-line compat/compat
     if (navigator && navigator.sendBeacon) {
       const payload = JSON.stringify({
         entries: data,
         token: this.settings.core.authorizationKey,
         sdk: this.settings.version
       });
+      // eslint-disable-next-line compat/compat
       return navigator.sendBeacon(url, payload);
     }
     return false;

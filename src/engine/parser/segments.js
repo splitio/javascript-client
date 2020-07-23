@@ -6,24 +6,24 @@ import { _Set } from '../../utils/lang/Sets';
 const parseSegments = (conditions) => {
   let segments = new _Set();
 
-  for (let condition of conditions) {
+  conditions.forEach(condition => {
     let {
       matcherGroup: {
         matchers
       }
     } = condition;
 
-    for (let matcher of matchers) {
+    matchers.forEach(matcher => {
       const {
         matcherType,
         userDefinedSegmentMatcherData
       } = matcher;
 
       if (matcherType === 'IN_SEGMENT') {
-        segments.add(userDefinedSegmentMatcherData.segmentName);
+        segments[userDefinedSegmentMatcherData.segmentName] = true;
       }
-    }
-  }
+    });
+  });
 
   return segments;
 };

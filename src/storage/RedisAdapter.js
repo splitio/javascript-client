@@ -72,9 +72,9 @@ export default class RedisAdapter extends ioredis {
           if (thenable(result)) {
             // For handling pending commands on disconnect, add to the set and remove once finished.
             // On sync commands there's no need, only thenables.
-            instance._runningCommands.add(result);
+            addToArray(instance._runningCommands, result);
             const cleanUpRunningCommandsCb = function(res) {
-              instance._runningCommands.delete(result);
+              deleteFromArray(instance._runningCommands, result);
               return res;
             };
             // Both success and error remove from queue.
@@ -114,8 +114,8 @@ export default class RedisAdapter extends ioredis {
       const params = arguments;
 
       setTimeout(function deferedDisconnect() {
-        if (instance._runningCommands.size > 0) {
-          log.info(`Attempting to disconnect but there are ${instance._runningCommands.size} commands still waiting for resolution. Defering disconnection until those finish.`);
+        if (instance._runningCommands.length > 0) {
+          log.info(`Attempting to disconnect but there are ${instance._runningCommands.length} commands still waiting for resolution. Defering disconnection until those finish.`);
 
           Promise.all(setToArray(instance._runningCommands))
             .then(() => {

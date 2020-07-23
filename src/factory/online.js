@@ -1,3 +1,4 @@
+import objectAssign from 'object-assign';
 import ClientFactory from '../client';
 import MetricsFactory from '../metrics';
 import EventsFactory from '../events';
@@ -74,7 +75,7 @@ function SplitFactoryOnline(context, readyTrackers, mainClientMetricCollectors) 
   // If no collectors are stored we are on a shared instance, save main one.
   context.put(context.constants.COLLECTORS, mainClientMetricCollectors);
 
-  const api = Object.assign(
+  const api = objectAssign(
     // Proto linkage of the EventEmitter to prevent any change
     Object.create(statusManager),
     // getTreatment/s & track

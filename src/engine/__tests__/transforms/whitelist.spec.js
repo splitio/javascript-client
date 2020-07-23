@@ -36,6 +36,9 @@ tape('TRANSFORMS / a whitelist Array should be casted into a Set', function (ass
   sampleSet = transform({});
   assert.equal(sampleSet.size, 0, 'Empty Set if passed an object without a whitelist');
 
+  sampleSet = transform({});
+  assert.deepEqual(sampleSet, {}, 'Empty result if passed an object without a whitelist');
+
   assert.ok(true, 'Everything looks fine');
   assert.end();
 });
