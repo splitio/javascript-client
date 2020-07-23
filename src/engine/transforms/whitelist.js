@@ -16,9 +16,7 @@ limitations under the License.
 import { _Set } from '../../utils/lang/Sets';
 
 function transform(whitelistObject) {
-  const result = new _Set();
-  if (whitelistObject.whitelist) whitelistObject.whitelist.forEach(item => { result.add(item); });
-  return result;
+  return new _Set(whitelistObject.whitelist);
 }
 
 export default transform;

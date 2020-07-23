@@ -375,7 +375,7 @@ tape('STORAGE Redis Adapter / instance methods - _setDisconnectWrapper', assert 
           setTimeout(() => {
             assert.true(loggerMock.info.calledOnceWithExactly('Attempting to disconnect but there are 4 commands still waiting for resolution. Defering disconnection until those finish.'));
 
-            Promise.all(instance._runningCommands.values()).then(() => { // This one will go through success path
+            Promise.all(setToArray(instance._runningCommands)).then(() => { // This one will go through success path
               setImmediate(() => {
                 assert.true(loggerMock.debug.calledOnceWithExactly('Pending commands finished successfully, disconnecting.'));
                 assert.true(ioredisMock.disconnect.calledOnce, 'Original method should have been called once, asynchronously');
