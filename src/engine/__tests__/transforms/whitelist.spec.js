@@ -17,19 +17,24 @@ import tape from 'tape-catch';
 import transform from '../../transforms/whitelist';
 
 tape('TRANSFORMS / a whitelist Array should be casted into a Set', function (assert) {
-  let sample = [
-    'u1',
-    'u2',
-    'u3'
-  ];
+  let sample = {
+    whitelist: [
+      'u1',
+      'u2',
+      'u3'
+    ]
+  };
 
   let sampleSet = transform(sample);
 
-  for (let item in sample) {
-    if (sampleSet.has(item)) {
+  sample.whitelist.forEach(item => {
+    if (!sampleSet.has(item)) {
       assert.fail(`Missing item ${item}`);
     }
-  }
+  });
+
+  sampleSet = transform({});
+  assert.equal(sampleSet.size, 0, 'Empty Set if passed an object without a whitelist');
 
   assert.ok(true, 'Everything looks fine');
   assert.end();

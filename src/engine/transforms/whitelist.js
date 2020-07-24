@@ -13,8 +13,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+import { _Set } from '../../utils/lang/Sets';
+
 function transform(whitelistObject) {
-  return new Set(whitelistObject.whitelist);
+  return new _Set(whitelistObject.whitelist);
 }
 
 export default transform;

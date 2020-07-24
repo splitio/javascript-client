@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
+import objectAssign from 'object-assign';
 import { get } from '../utils/lang';
 import parser from './parser';
 import keyParser from '../utils/key/parser';
@@ -47,10 +48,10 @@ function Split(baseInfo, evaluator) {
 }
 
 Split.parse = function parse(splitFlatStructure, storage) {
-  const { conditions, ...baseInfo } = splitFlatStructure;
+  const conditions = splitFlatStructure.conditions;
   const evaluator = parser(conditions, storage);
 
-  return new Split(baseInfo, evaluator);
+  return new Split(objectAssign({}, splitFlatStructure), evaluator);
 };
 
 Split.prototype.getKey = function getKey() {
