@@ -250,7 +250,7 @@ class SplitCacheLocalStorage {
     let value = localStorage.getItem(this.keys.buildLastUpdatedKey());
     if (value !== null) {
       value = parseInt(value, 10);
-      if (!Number.isNaN(value) && value < expirationTimestamp) this.flush();
+      if (!numberIsNaN(value) && value < expirationTimestamp) this.flush();
     }
   }
 }
