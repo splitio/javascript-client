@@ -23,75 +23,77 @@ tape('splitFilterBuilder', t => {
   // Check different types, since `splitFilter` param is defined by the user
   t.test('Returns undefined if `splitFilter` is an invalid object or `mode` is not \'standalone\'', assert => {
 
-    assert.deepEqual(splitFilterBuilder({}), undefined, 'splitFilter ignored if not defined');
-    assert.deepEqual(splitFilterBuilder({ splitFilter: undefined, mode: STANDALONE_MODE }), undefined, 'splitFilter ignored if not an object');
-    assert.deepEqual(splitFilterBuilder({ splitFilter: null, mode: STANDALONE_MODE }), undefined, 'splitFilter ignored if not an object');
-    assert.deepEqual(splitFilterBuilder({ splitFilter: true, mode: STANDALONE_MODE }), undefined, 'splitFilter ignored if not an object');
-    assert.deepEqual(splitFilterBuilder({ splitFilter: 15, mode: STANDALONE_MODE }), undefined, 'splitFilter ignored if not an object');
-    assert.deepEqual(splitFilterBuilder({ splitFilter: 'string', mode: STANDALONE_MODE }), undefined, 'splitFilter ignored if not an object');
+    assert.deepEqual(splitFilterBuilder({}), undefined, 'splitFilter ignored if not a non-empty array');
+    assert.deepEqual(splitFilterBuilder({ splitFilter: undefined, mode: STANDALONE_MODE }), undefined, 'splitFilter ignored if not a non-empty array');
+    assert.deepEqual(splitFilterBuilder({ splitFilter: null, mode: STANDALONE_MODE }), undefined, 'splitFilter ignored if not a non-empty array');
     assert.true(loggerMock.warn.notCalled);
 
-    assert.deepEqual(splitFilterBuilder({ splitFilter: {}, mode: CONSUMER_MODE }), undefined);
-    assert.true(loggerMock.warn.calledWithExactly('splitFilter configuration is ignored if mode is not \'standalone\''));
-    loggerMock.warn.resetHistory();
+    assert.deepEqual(splitFilterBuilder({ splitFilter: true, mode: STANDALONE_MODE }), undefined, 'splitFilter ignored if not a non-empty array');
+    assert.true(loggerMock.warn.getCall(0).calledWithExactly('splitFilter configuration must be a non-empty array of filters'));
 
+    assert.deepEqual(splitFilterBuilder({ splitFilter: 15, mode: STANDALONE_MODE }), undefined, 'splitFilter ignored if not a non-empty array');
+    assert.true(loggerMock.warn.getCall(1).calledWithExactly('splitFilter configuration must be a non-empty array of filters'));
+
+    assert.deepEqual(splitFilterBuilder({ splitFilter: 'string', mode: STANDALONE_MODE }), undefined, 'splitFilter ignored if not a non-empty array');
+    assert.true(loggerMock.warn.getCall(2).calledWithExactly('splitFilter configuration must be a non-empty array of filters'));
+
+    assert.deepEqual(splitFilterBuilder({ splitFilter: [], mode: STANDALONE_MODE }), undefined, 'splitFilter ignored if not a non-empty array');
+    assert.true(loggerMock.warn.getCall(3).calledWithExactly('splitFilter configuration must be a non-empty array of filters'));
+
+    assert.deepEqual(splitFilterBuilder({ splitFilter: [{ type: 'byName', values: ['split_1'] }], mode: CONSUMER_MODE }), undefined);
+    assert.true(loggerMock.warn.calledWithExactly('splitFilter configuration is ignored if mode is not \'standalone\''));
+
+    assert.true(loggerMock.error.notCalled);
+
+    loggerMock.warn.resetHistory();
     assert.end();
   });
 
-  t.test('Returns empty object if `splitFilter` contain invalid or no filters', assert => {
+  t.test('Returns object with `undefined` queryString, if `splitFilter` is empty, contain invalid filters or contain filters with no values or invalid values', assert => {
 
-    assert.deepEqual(splitFilterBuilder({ splitFilter: {}, mode: STANDALONE_MODE }), {});
+    let splitFilter = [
+      { type: 'byName', values: [] },
+      { type: 'byName', values: [] },
+      { type: 'byPrefix', values: [] }];
+    let output = [...splitFilter]; output.queryString = undefined;
+    assert.deepEqual(splitFilterBuilder({ splitFilter, mode: STANDALONE_MODE }), output, 'filters without values');
     assert.true(loggerMock.warn.notCalled);
+    assert.true(loggerMock.error.getCall(0).calledWithExactly('Ignoring byName filter. It has no valid values (no-empty strings).'));
+    assert.true(loggerMock.error.getCall(1).calledWithExactly('Ignoring byPrefix filter. It has no valid values (no-empty strings).'));
 
-    assert.deepEqual(splitFilterBuilder({ splitFilter: [], mode: STANDALONE_MODE }), []);
-    assert.true(loggerMock.warn.notCalled);
-
-    assert.deepEqual(splitFilterBuilder({ splitFilter: { 'notValidFilter': ['value1'] }, mode: STANDALONE_MODE }), {});
-    assert.true(loggerMock.warn.calledWithExactly("'notValidFilter' is an invalid filter. Only 'byName' and 'byPrefix' are valid."));
     loggerMock.warn.resetHistory();
+    loggerMock.error.resetHistory();
 
-    // assert.deepEqual(validateIntegrationsSettings({ integrations: true }, ['INT_TYPE']), []);
-    // assert.deepEqual(validateIntegrationsSettings({ integrations: 123 }, ['INT_TYPE']), []);
-    // assert.deepEqual(validateIntegrationsSettings({ integrations: 'string' }, ['INT_TYPE']), []);
-    // assert.deepEqual(validateIntegrationsSettings({ integrations: {} }, ['INT_TYPE']), []);
-    // assert.deepEqual(validateIntegrationsSettings({ integrations: [] }, ['INT_TYPE']), []);
-    // assert.deepEqual(validateIntegrationsSettings({ integrations: [false, 0, Infinity, new Error(), () => { }, []] }, ['INT_TYPE']), []);
+    splitFilter.push(
+      { type: 'invalid', values: [] },
+      { type: 'byName', values: 'invalid' },
+      { type: null, values: [] },
+      { type: 'byName', values: [13] });
+    output.push({ type: 'byName', values: [13] });
+    assert.deepEqual(splitFilterBuilder({ splitFilter, mode: STANDALONE_MODE }), output, 'some filters are invalid');
+    assert.true(loggerMock.warn.getCall(0).calledWithExactly("'invalid' is an invalid filter. Only 'byName' and 'byPrefix' are valid."), 'invalid value of `type` property');
+    assert.true(loggerMock.warn.getCall(1).calledWithExactly("Split filter at position '4' is invalid. It must be an object with a valid 'type' filter and a list of 'values'."), 'invalid type of `values` property');
+    assert.true(loggerMock.warn.getCall(2).calledWithExactly("Split filter at position '5' is invalid. It must be an object with a valid 'type' filter and a list of 'values'."), 'invalid type of `type` property');
+    assert.equal(loggerMock.warn.callCount, 3);
+    assert.true(loggerMock.error.getCall(0).calledWithExactly("Malformed value in 'byName' filter ignored: '13'"));
+    assert.true(loggerMock.error.getCall(1).calledWithExactly('Ignoring byName filter. It has no valid values (no-empty strings).'));
+    assert.true(loggerMock.error.getCall(2).calledWithExactly('Ignoring byPrefix filter. It has no valid values (no-empty strings).'));
+    assert.equal(loggerMock.error.callCount, 3);
 
+    loggerMock.warn.resetHistory();
+    loggerMock.error.resetHistory();
+    assert.end();
+  });
+
+  t.test('Returns object with a queryString, if `splitFilter` contains at least a valid `byName` or `byPrefix` filter with at least a valid value', assert => {
+
+    // @TODO
+
+    loggerMock.warn.resetHistory();
+    loggerMock.error.resetHistory();
     assert.end();
   });
 
   // assert.equal(loggerMock.warn.getCall(0).args[0], 'undefined');
-
-  // t.test('Filters invalid integrations from `integrations` array', assert => {
-  //   const valid = {
-  //     type: 'INT1',
-  //   };
-  //   const validWithOptions = {
-  //     type: 'INT1',
-  //     param1: 'param1',
-  //     param2: 'param2',
-  //   };
-  //   const otherValidWithOptions = {
-  //     type: 'INT2',
-  //     param1: 'param1',
-  //     param2: 'param2',
-  //   };
-  //   const invalid = {
-  //     param3: 'param3',
-  //   };
-
-  //   assert.deepEqual(validateIntegrationsSettings(
-  //     { integrations: [valid, validWithOptions, invalid] }), [],
-  //   'All integrations are removed if no `validIntegrationTypes` array is passed');
-  //   assert.deepEqual(validateIntegrationsSettings(
-  //     { integrations: [valid, validWithOptions, otherValidWithOptions, invalid] }, ['INT1']),
-  //   [valid, validWithOptions],
-  //   'Integrations that do not have the passed types are removed');
-  //   assert.deepEqual(validateIntegrationsSettings(
-  //     { integrations: [invalid, valid, false, 0, validWithOptions, Infinity, new Error(), otherValidWithOptions, () => { }, [], invalid] }, ['INT1', 'INT2']),
-  //   [valid, validWithOptions, otherValidWithOptions],
-  //   'Integrations that do not have the passed types or are invalid objects are removed');
-  //   assert.end();
-  // });
 
 });

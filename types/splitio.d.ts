@@ -32,6 +32,24 @@ type SDKMode = 'standalone' | 'consumer';
  */
 type StorageType = 'MEMORY' | 'LOCALSTORAGE' | 'REDIS';
 /**
+ * @TODO comment
+ */
+interface ByNameFilter {
+  type: 'byName',
+  values: string[],
+};
+/**
+ * @TODO comment
+ */
+interface ByPrefixFilter {
+  type: 'byPrefix',
+  values: string[],
+};
+/**
+ * @TODO comment
+ */
+type SplitFilter = ByNameFilter | ByPrefixFilter;
+/**
  * Settings interface. This is a representation of the settings the SDK expose, that's why
  * most of it's props are readonly. Only features should be rewritten when localhost mode is active.
  * @interface ISettings
@@ -76,7 +94,8 @@ interface ISettings {
   features: {
     [featureName: string]: string
   },
-  readonly streamingEnabled: boolean
+  readonly streamingEnabled: boolean,
+  readonly splitFilter: SplitFilter[]
 }
 /**
  * Log levels.
@@ -141,10 +160,7 @@ interface ISharedSettings {
   /**
    * @TODO document
    */
-  splitFilter?: {
-    byName?: string[],
-    byprefix?: string[]
-  }
+  splitFilter?: SplitFilter[]
 }
 /**
  * Common settings interface for SDK instances on NodeJS.

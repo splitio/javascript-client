@@ -1,27 +1,19 @@
 import { STANDALONE_MODE } from '../constants';
-import { uniq, isString, forOwn, isObject } from '../lang';
+import { uniq, isString } from '../lang';
 import logFactory from '../logger';
 const log = logFactory('splitio-settings');
 
-const splitFilterNames = ['byName', 'byPrefix'];
-const splitFilterMaxLength = [400, 50];
-
 /**
- * Validates and sanitize a given list of filter values.
+ * Validate, deduplicate and sort a given list of filter values.
  * Exposed for testing purposes.
  *
  * @param {string} filterName string used for log messages
- * @param {string[]} list list to validate and sanitize
+ * @param {string[]} list list to validate, deduplicate and sort
  * @param {number} maxLength
- * @returns undefined or sanitized list of values. This means that the list is a non-empty array of unique and ordered non-empty strings.
+ * @returns undefined or a sanitized list of values. The list is a non-empty array of unique and alphabetically sorted non-empty strings.
  * @throws Error if the sanitized list exceeds the length indicated by `maxLength`
  */
 function filterValidation(filterName, list, maxLength) {
-  if (!Array.isArray(list)) {
-    log.error(`Ignoring ${filterName} filter. It must be an array of no-empty strings.`);
-    return;
-  }
-
   // remove invalid values (no strings and empty strings)
   let result = list.filter(value => {
     if (!isString(value) || value === '') {
@@ -30,8 +22,10 @@ function filterValidation(filterName, list, maxLength) {
     }
     return true;
   });
+
   // remove duplicated values
   result = uniq(result);
+
   // sort values
   result.sort();
 
@@ -53,51 +47,64 @@ function filterValidation(filterName, list, maxLength) {
  *  - 'prefixes=<comma-separated-values>': if only byNameList is undefined
  *  - 'names=<comma-separated-values>&prefixes=<comma-separated-values>': if no one is undefined
  *
- * @param {string[] | undefined} byNameList undefined or a not empty list of ordered and unique non-empty strings
- * @param {string[] | undefined} byPrefixList undefined or a not empty list of ordered and unique non-empty strings
+ * @param {string[] | undefined} byNameList undefined or list of ordered and unique non-empty strings
+ * @param {string[] | undefined} byPrefixList undefined or list of ordered and unique non-empty strings
+ * @returns undefined or string with the `query` component of URL.
  */
 function queryStringBuilder(byNameList, byPrefixList) {
   const queryParams = [];
-  if (byNameList) queryParams.push('names=' + encodeURIComponent(byNameList.join(',')));
-  if (byPrefixList) queryParams.push('prefixes=' + encodeURIComponent(byPrefixList.join(',')));
-  return queryParams.join('&');
+  if (byNameList && byNameList.length > 0) queryParams.push('names=' + encodeURIComponent(byNameList.join(',')));
+  if (byPrefixList && byPrefixList.length > 0) queryParams.push('prefixes=' + encodeURIComponent(byPrefixList.join(',')));
+  return queryParams.length > 0 ? queryParams.join('&') : undefined;
 }
 
 /**
- * Validates `splitFilter` configuration object and parses it to build the query string for filtering splits in `/splitChanges` request.
+ * Validates `splitFilter` configuration object and parses it to build the query string for filtering splits in `/splitChanges` fetch.
  *
  * @param {Object} settings factory configuration object
- * @returns undefined or sanitized `splitFilter` object with parsed query string.
- * @throws Error if some of the filters exceed the max allowed length
+ * @returns undefined or sanitized `splitFilter` array object with parsed `queryString`.
+ * @throws Error if the saniti some of the filters exceed the max allowed length
  */
 export function splitFilterBuilder(settings) {
   const { splitFilter, mode } = settings;
 
-  // do nothing if `splitFilter` param is not an object or mode is not STANDALONE
-  if (!isObject(splitFilter)) return;
+  // do nothing if `splitFilter` param is not a non-empty array or mode is not STANDALONE
+  if (!splitFilter) return;
   if (mode !== STANDALONE_MODE) {
     log.warn(`splitFilter configuration is ignored if mode is not '${STANDALONE_MODE}'`);
     return;
   }
+  if (!Array.isArray(splitFilter) || splitFilter.length === 0) {
+    log.warn('splitFilter configuration must be a non-empty array of filters');
+    return;
+  }
 
-  // sanitize filters
-  forOwn(splitFilter, (value, key, obj) => {
-    const filderId = splitFilterNames.indexOf(key);
-    if (filderId === -1) {
-      log.warn(`'${key}' is an invalid filter. Only 'byName' and 'byPrefix' are valid.`);
-      delete obj[key];
+  // validate filters and group their values by filter type
+  const filters = {
+    byName: undefined,
+    byPrefix: undefined
+  };
+  const validFilters = splitFilter.filter((filter, index) => {
+    if (filter && isString(filter.type) && Array.isArray(filter.values)) {
+      if (Object.prototype.hasOwnProperty.call(filters, filter.type)) {
+        if (!filters[filter.type]) filters[filter.type] = [];
+        filters[filter.type] = filters[filter.type].concat(filter.values);
+        return true;
+      } else {
+        log.warn(`'${filter.type}' is an invalid filter. Only 'byName' and 'byPrefix' are valid.`);
+      }
     } else {
-      obj[key] = filterValidation(key, value, splitFilterMaxLength[filderId]);
+      log.warn(`Split filter at position '${index}' is invalid. It must be an object with a valid 'type' filter and a list of 'values'.`);
     }
+    return false;
   });
 
-  // sanitize `byName` filter
-  // if (splitFilter.byName) splitFilter.byName = filterValidation('byName', splitFilter.byName, 400);
-  // sanitize `byPrefix` filter
-  // if (splitFilter.byPrefix) splitFilter.byPrefix = filterValidation('byPrefix', splitFilter.byName, 400);
+  // remove invalid, deduplicate and order `byName` and `byPrefix` filter values
+  if (filters.byName) filters.byName = filterValidation('byName', filters.byName, 400);
+  if (filters.byPrefix) filters.byPrefix = filterValidation('byPrefix', filters.byPrefix, 400);
 
-  // build query params
-  if (splitFilter.byName || splitFilter.byPrefix) splitFilter.queryString = queryStringBuilder(splitFilter.byName, splitFilter.byPrefix);
+  // build query string
+  validFilters.queryString = queryStringBuilder(filters.byName, filters.byPrefix);
 
-  return splitFilter;
+  return validFilters;
 }
