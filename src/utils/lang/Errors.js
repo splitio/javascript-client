@@ -1,8 +1,4 @@
-// @TODO extend Error directly once IE is depracated or when transport-runtime plugin supports the `exclude` config
-// required to remove wrapNativeSuper Babel helper when targeting old environments like IE
-const _Error = Error;
-
-export class SplitError extends _Error {
+export class SplitError extends Error {
   constructor(msg = 'Split Error') {
     super(msg);
     this.message = msg;
