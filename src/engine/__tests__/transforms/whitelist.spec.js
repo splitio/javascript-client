@@ -16,7 +16,7 @@ limitations under the License.
 import tape from 'tape-catch';
 import transform from '../../transforms/whitelist';
 
-tape('TRANSFORMS / a whitelist Array should be casted into an Object', function (assert) {
+tape('TRANSFORMS / a whitelist Array should be casted into a Set', function (assert) {
   let sample = {
     whitelist: [
       'u1',
@@ -26,11 +26,15 @@ tape('TRANSFORMS / a whitelist Array should be casted into an Object', function 
   };
 
   let sampleSet = transform(sample);
-  for (let item of sample.whitelist) {
-    if (!sampleSet[item]) {
+
+  sample.whitelist.forEach(item => {
+    if (!sampleSet.has(item)) {
       assert.fail(`Missing item ${item}`);
     }
-  }
+  });
+
+  sampleSet = transform({});
+  assert.equal(sampleSet.size, 0, 'Empty Set if passed an object without a whitelist');
 
   sampleSet = transform({});
   assert.deepEqual(sampleSet, {}, 'Empty result if passed an object without a whitelist');

@@ -1,4 +1,5 @@
 import { numberIsInteger } from '../../../utils/lang';
+import { _Set } from '../../../utils/lang/Sets';
 
 class SegmentCacheInMemory {
 
@@ -9,9 +10,9 @@ class SegmentCacheInMemory {
 
   addToSegment(segmentName, segmentKeys) {
     const values = this.segmentCache[segmentName];
-    const keySet = values ? values : {};
+    const keySet = values ? values : new _Set();
 
-    segmentKeys.forEach(k => keySet[k] = true);
+    segmentKeys.forEach(k => keySet.add(k));
 
     this.segmentCache[segmentName] = keySet;
 
@@ -20,9 +21,9 @@ class SegmentCacheInMemory {
 
   removeFromSegment(segmentName, segmentKeys) {
     const values = this.segmentCache[segmentName];
-    const keySet = values ? values : {};
+    const keySet = values ? values : new _Set();
 
-    segmentKeys.forEach(k => delete keySet[k]);
+    segmentKeys.forEach(k => keySet.delete(k));
 
     this.segmentCache[segmentName] = keySet;
 
@@ -33,7 +34,7 @@ class SegmentCacheInMemory {
     const segmentValues = this.segmentCache[segmentName];
 
     if (segmentValues) {
-      return segmentValues[key] === true;
+      return segmentValues.has(key);
     }
 
     return false;
@@ -41,7 +42,7 @@ class SegmentCacheInMemory {
 
   registerSegment(segmentName) {
     if (!this.segmentCache[segmentName]) {
-      this.segmentCache[segmentName] = {};
+      this.segmentCache[segmentName] = new _Set();
     }
 
     return true;

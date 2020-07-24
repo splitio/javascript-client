@@ -1,5 +1,6 @@
 import ioredis from 'ioredis';
-import { merge, isString, addToArray, deleteFromArray } from '../utils/lang';
+import { merge, isString } from '../utils/lang';
+import { _Set, setToArray } from '../utils/lang/Sets';
 import thenable from '../utils/promise/thenable';
 import timeout from '../utils/promise/timeout';
 
@@ -32,7 +33,7 @@ export default class RedisAdapter extends ioredis {
 
     this._options = options;
     this._notReadyCommandsQueue = [];
-    this._runningCommands = [];
+    this._runningCommands = new _Set();
     this._listenToEvents();
     this._setTimeoutWrappers();
     this._setDisconnectWrapper();
@@ -71,9 +72,9 @@ export default class RedisAdapter extends ioredis {
           if (thenable(result)) {
             // For handling pending commands on disconnect, add to the set and remove once finished.
             // On sync commands there's no need, only thenables.
-            addToArray(instance._runningCommands, result);
+            instance._runningCommands.add(result);
             const cleanUpRunningCommandsCb = function(res) {
-              deleteFromArray(instance._runningCommands, result);
+              instance._runningCommands.delete(result);
               return res;
             };
             // Both success and error remove from queue.
@@ -113,10 +114,10 @@ export default class RedisAdapter extends ioredis {
       const params = arguments;
 
       setTimeout(function deferedDisconnect() {
-        if (instance._runningCommands.length > 0) {
-          log.info(`Attempting to disconnect but there are ${instance._runningCommands.length} commands still waiting for resolution. Defering disconnection until those finish.`);
+        if (instance._runningCommands.size > 0) {
+          log.info(`Attempting to disconnect but there are ${instance._runningCommands.size} commands still waiting for resolution. Defering disconnection until those finish.`);
 
-          Promise.all(instance._runningCommands)
+          Promise.all(setToArray(instance._runningCommands))
             .then(() => {
               log.debug('Pending commands finished successfully, disconnecting.');
               originalMethod.apply(instance, params);

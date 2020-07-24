@@ -1,8 +1,10 @@
+import { _Set } from '../../utils/lang/Sets';
+
 /**
  * Collect segments from a raw split definition.
  */
 const parseSegments = (conditions) => {
-  let segments = {};
+  let segments = new _Set();
 
   conditions.forEach(condition => {
     let {
@@ -18,7 +20,7 @@ const parseSegments = (conditions) => {
       } = matcher;
 
       if (matcherType === 'IN_SEGMENT') {
-        segments[userDefinedSegmentMatcherData.segmentName] = true;
+        segments.add(userDefinedSegmentMatcherData.segmentName);
       }
     });
   });

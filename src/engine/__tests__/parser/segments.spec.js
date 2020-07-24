@@ -20,8 +20,8 @@ tape('PARSER / segments parser', assert => {
     }
   }]);
 
-  assert.ok( segments['A'] );
-  assert.ok( segments['B'] );
+  assert.ok( segments.has('A') );
+  assert.ok( segments.has('B') );
   assert.end();
 
 });
