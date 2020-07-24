@@ -75,6 +75,7 @@ export function setToArray(set) {
     return set.__setData__.slice();
   }
   // if not using SetPoly as set, it means Array.from is supported
+  // eslint-disable-next-line compat/compat
   return Array.from(set);
 }
 
@@ -83,6 +84,7 @@ export function setToArray(set) {
  * a ponyfill with minimal features is returned instead.
  */
 function getSetConstructor() {
+  // eslint-disable-next-line compat/compat
   if (!Array.from || !Set || !Set.prototype.values) {
     return SetPoly;
   }

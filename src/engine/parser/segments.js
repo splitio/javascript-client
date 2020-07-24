@@ -20,7 +20,7 @@ const parseSegments = (conditions) => {
       } = matcher;
 
       if (matcherType === 'IN_SEGMENT') {
-        segments[userDefinedSegmentMatcherData.segmentName] = true;
+        segments.add(userDefinedSegmentMatcherData.segmentName);
       }
     });
   });

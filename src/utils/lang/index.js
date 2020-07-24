@@ -124,6 +124,7 @@ export function numberIsNaN(val) {
  */
 export function numberIsInteger(val) {
   if (val instanceof Number) val = val.valueOf();
+  // eslint-disable-next-line compat/compat
   if (typeof val === 'number') return Number.isInteger ? Number.isInteger(val) : isFinite(val) && Math.floor(val) === val;
   return false;
 }
@@ -287,24 +288,4 @@ export function shallowClone(obj) {
 
 export function isBoolean(val) {
   return val === true || val === false;
-}
-
-/** util functions to use Arrays as Sets of objects */
-
-// push the `item` into the `array` if not present
-export function addToArray(array, item) {
-  const index = array.indexOf(item);
-  if (index > -1) {
-    array[index] = item;
-  } else {
-    array.push(item);
-  }
-}
-
-// delete the `item` from the `array` if present
-export function deleteFromArray(array, item) {
-  const index = array.indexOf(item);
-  if (index > -1) {
-    array.splice(index, 1);
-  }
 }

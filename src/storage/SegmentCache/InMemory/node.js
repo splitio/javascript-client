@@ -12,7 +12,7 @@ class SegmentCacheInMemory {
     const values = this.segmentCache[segmentName];
     const keySet = values ? values : new _Set();
 
-    segmentKeys.forEach(k => keySet[k] = true);
+    segmentKeys.forEach(k => keySet.add(k));
 
     this.segmentCache[segmentName] = keySet;
 
@@ -23,7 +23,7 @@ class SegmentCacheInMemory {
     const values = this.segmentCache[segmentName];
     const keySet = values ? values : new _Set();
 
-    segmentKeys.forEach(k => delete keySet[k]);
+    segmentKeys.forEach(k => keySet.delete(k));
 
     this.segmentCache[segmentName] = keySet;
 
@@ -34,7 +34,7 @@ class SegmentCacheInMemory {
     const segmentValues = this.segmentCache[segmentName];
 
     if (segmentValues) {
-      return segmentValues[key] === true;
+      return segmentValues.has(key);
     }
 
     return false;
