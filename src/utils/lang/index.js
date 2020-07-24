@@ -100,6 +100,7 @@ export function isString(val) {
  */
 export function numberIsFinite(val) {
   if (val instanceof Number) val = val.valueOf();
+  // eslint-disable-next-line compat/compat
   if (typeof val === 'number') return Number.isFinite ? Number.isFinite(val) : isFinite(val);
   return false;
 }
@@ -123,6 +124,7 @@ export function numberIsNaN(val) {
  */
 export function numberIsInteger(val) {
   if (val instanceof Number) val = val.valueOf();
+  // eslint-disable-next-line compat/compat
   if (typeof val === 'number') return Number.isInteger ? Number.isInteger(val) : isFinite(val) && Math.floor(val) === val;
   return false;
 }

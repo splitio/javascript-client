@@ -1,6 +1,8 @@
 /* eslint-disable no-console */
 'use strict';
 
+import objectAssign from 'object-assign';
+
 export const LogLevels = {
   'DEBUG': 'DEBUG',
   'INFO':  'INFO',
@@ -24,7 +26,7 @@ const defaultOptions = {
 export class Logger {
   constructor(category, options) {
     this.category = category;
-    this.options = Object.assign({}, defaultOptions, options);
+    this.options = objectAssign({}, defaultOptions, options);
   }
 
   debug(msg) {

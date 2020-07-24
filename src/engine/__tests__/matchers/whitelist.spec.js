@@ -16,12 +16,13 @@ limitations under the License.
 import tape from 'tape-catch';
 import { types as matcherTypes } from '../../matchers/types';
 import matcherFactory from '../../matchers';
+import { _Set } from '../../../utils/lang/Sets';
 
 tape('MATCHER WHITELIST / should return true ONLY when the key is defined', function (assert) {
 
   let matcher = matcherFactory({
     type: matcherTypes.WHITELIST,
-    value: new Set().add('key')
+    value: new _Set().add('key')
   });
 
   assert.true(matcher('key'), '"key" should be true');
