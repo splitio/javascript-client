@@ -19,7 +19,7 @@ const validateIntegrationsSettings = (settings, validIntegrationTypes = []) => {
 
   // We remove invalid integration items
   const validIntegrations = integrations.filter(integration => {
-    return integration && isString(integration.type) && validIntegrationTypes.includes(integration.type);
+    return integration && isString(integration.type) && validIntegrationTypes.indexOf(integration.type) > -1;
   });
 
   const invalids = integrations.length - validIntegrations.length;

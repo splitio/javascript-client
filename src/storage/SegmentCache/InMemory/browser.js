@@ -6,13 +6,13 @@ class SegmentCacheInMemory {
   }
 
   flush() {
-    this.segmentCache = new Map();
+    this.segmentCache = {};
   }
 
   addToSegment(segmentName/*, segmentKeys: Array<string>*/) {
     const segmentKey = this.keys.buildSegmentNameKey(segmentName);
 
-    this.segmentCache.set(segmentKey, true);
+    this.segmentCache[segmentKey] = true;
 
     return true;
   }
@@ -20,30 +20,36 @@ class SegmentCacheInMemory {
   removeFromSegment(segmentName/*, segmentKeys: Array<string>*/) {
     const segmentKey = this.keys.buildSegmentNameKey(segmentName);
 
-    this.segmentCache.delete(segmentKey);
+    delete this.segmentCache[segmentKey];
 
     return true;
   }
 
-  // @NOTE based on the way we use segments in the browser, this way is the best
-  //       option
+  /**
+   * Reset (update) the cached list of segments with the given list, removing and adding segments if necessary.
+   * @NOTE based on the way we use segments in the browser, this way is the best option
+   *
+   * @param {string[]} segmentNames list of segment names
+   * @returns boolean indicating if the cache was updated (i.e., given list was different from the cached one)
+   */
   resetSegments(segmentNames) {
     let isDiff = false;
     let index;
-    let s;
+
+    const storedSegmentKeys = Object.keys(this.segmentCache);
 
     // Extreme fast => everything is empty
-    if (segmentNames.length === 0 && this.segmentCache.size === segmentNames.length)
+    if (segmentNames.length === 0 && storedSegmentKeys.length === segmentNames.length)
       return isDiff;
 
     // Quick path
-    if (this.segmentCache.size !== segmentNames.length) {
+    if (storedSegmentKeys.length !== segmentNames.length) {
       isDiff = true;
 
-      this.segmentCache = new Map();
-      for (s of segmentNames) {
+      this.segmentCache = {};
+      segmentNames.forEach (s => {
         this.addToSegment(s);
-      }
+      });
     } else {
       // Slowest path => we need to find at least 1 difference because
       for(index = 0; index < segmentNames.length && this.isInSegment(segmentNames[index]); index++) {
@@ -53,10 +59,10 @@ class SegmentCacheInMemory {
       if (index < segmentNames.length) {
         isDiff = true;
 
-        this.segmentCache = new Map();
-        for (s of segmentNames) {
+        this.segmentCache = {};
+        segmentNames.forEach (s => {
           this.addToSegment(s);
-        }
+        });
       }
     }
 
@@ -66,7 +72,7 @@ class SegmentCacheInMemory {
   isInSegment(segmentName/*, key: string*/) {
     const segmentKey = this.keys.buildSegmentNameKey(segmentName);
 
-    return this.segmentCache.get(segmentKey) === true;
+    return this.segmentCache[segmentKey] === true;
   }
 
   setChangeNumber(/*segmentName: string, changeNumber: number*/) {

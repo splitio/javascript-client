@@ -1,3 +1,4 @@
+import objectAssign from 'object-assign';
 import ClientFactory from '../client';
 import OfflineProducerFactory from '../producer/offline';
 import { releaseApiKey } from '../utils/inputValidation';
@@ -20,7 +21,7 @@ function SplitFactoryOffline(context, sharedTrackers) {
   // Start background task for flag updates
   producer && producer.start();
 
-  const api = Object.assign(
+  const api = objectAssign(
     // Proto linkage of the EventEmitter to prevent any change
     Object.create(statusManager),
     // GetTreatment/s

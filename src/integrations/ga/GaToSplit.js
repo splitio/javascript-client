@@ -1,4 +1,5 @@
-import { isString, isFinite, unicAsStrings } from '../../utils/lang';
+import objectAssign from 'object-assign';
+import { isString, numberIsFinite, unicAsStrings } from '../../utils/lang';
 import logFactory from '../../utils/logger';
 import {
   validateEvent,
@@ -102,7 +103,7 @@ export function validateIdentities(identities) {
     const maybeKey = identity.key;
     const maybeTT = identity.trafficType;
 
-    if (!isString(maybeKey) && !isFinite(maybeKey))
+    if (!isString(maybeKey) && !numberIsFinite(maybeKey))
       return false;
     if (!isString(maybeTT))
       return false;
@@ -129,7 +130,7 @@ export function validateEventData(eventData) {
   if (properties === false)
     return false;
 
-  if (eventData.timestamp && !isFinite(eventData.timestamp))
+  if (eventData.timestamp && !numberIsFinite(eventData.timestamp))
     return false;
 
   if (eventData.key && validateKey(eventData.key, 'splitio-ga-to-split:mapper') === false)
@@ -188,7 +189,7 @@ function GaToSplit(sdkOptions, storage, coreSettings) {
     constructor(tracker, pluginOptions) {
 
       // precedence of options: SDK options (config.integrations) overwrite pluginOptions (`ga('require', 'splitTracker', pluginOptions)`)
-      const opts = Object.assign({}, defaultOptions, sdkOptions, pluginOptions);
+      const opts = objectAssign({}, defaultOptions, sdkOptions, pluginOptions);
 
       this.tracker = tracker;
 
@@ -255,7 +256,7 @@ function GaToSplit(sdkOptions, storage, coreSettings) {
           storage.events.track(event);
         } else { // Store the event for each Key-TT pair (identities), if key and TT is not present in eventData
           opts.identities.forEach(identity => {
-            const event = Object.assign({
+            const event = objectAssign({
               key: identity.key,
               trafficTypeName: identity.trafficType,
             }, eventData);

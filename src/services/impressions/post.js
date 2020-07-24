@@ -13,10 +13,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+import objectAssign from 'object-assign';
 import base from '../request';
 
 export default function POST(settings, params) {
-  return base(settings, '/testImpressions', Object.assign({
+  return base(settings, '/testImpressions', objectAssign({
     method: 'POST'
   }, params));
 }

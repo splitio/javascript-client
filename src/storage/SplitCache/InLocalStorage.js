@@ -1,4 +1,4 @@
-import { isFinite, toNumber } from '../../utils/lang';
+import { numberIsFinite, toNumber, numberIsNaN } from '../../utils/lang';
 import usesSegments from '../../utils/splits/usesSegments';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-storage:localstorage');
@@ -6,8 +6,10 @@ import killLocally from './killLocally';
 
 class SplitCacheLocalStorage {
 
-  constructor(keys) {
+  constructor(keys, expirationTimestamp) {
     this.keys = keys;
+
+    this.__checkExpiration(expirationTimestamp);
   }
 
   decrementCount(key) {
@@ -53,7 +55,7 @@ class SplitCacheLocalStorage {
     }
   }
 
-  addSplit(splitName , split) {
+  addSplit(splitName, split) {
     try {
       const splitKey = this.keys.buildSplitKey(splitName);
       const splitFromLocalStorage = localStorage.getItem(splitKey);
@@ -76,9 +78,9 @@ class SplitCacheLocalStorage {
   addSplits(entries) {
     let results = [];
 
-    for (const [key, value] of entries) {
-      results.push(this.addSplit(key, value));
-    }
+    entries.forEach(keyValuePair => {
+      results.push(this.addSplit(keyValuePair[0], keyValuePair[1]));
+    });
 
     return results;
   }
@@ -92,7 +94,7 @@ class SplitCacheLocalStorage {
       this.decrementCounts(parsedSplit);
 
       return 1;
-    } catch(e) {
+    } catch (e) {
       log.error(e);
       return 0;
     }
@@ -120,6 +122,8 @@ class SplitCacheLocalStorage {
   setChangeNumber(changeNumber) {
     try {
       localStorage.setItem(this.keys.buildSplitsTillKey(), changeNumber + '');
+      // update "last updated" timestamp with current time
+      localStorage.setItem(this.keys.buildLastUpdatedKey(), Date.now() + '');
       this.hasSync = true;
       return true;
     } catch (e) {
@@ -135,7 +139,7 @@ class SplitCacheLocalStorage {
     if (value !== null) {
       value = parseInt(value, 10);
 
-      return Number.isNaN(value) ? n : value;
+      return numberIsNaN(value) ? n : value;
     }
 
     return n;
@@ -178,7 +182,7 @@ class SplitCacheLocalStorage {
 
   trafficTypeExists(trafficType) {
     const ttCount = toNumber(localStorage.getItem(this.keys.buildTrafficTypeKey(trafficType)));
-    return isFinite(ttCount) && ttCount > 0;
+    return numberIsFinite(ttCount) && ttCount > 0;
   }
 
   usesSegments() {
@@ -188,16 +192,32 @@ class SplitCacheLocalStorage {
     const storedCount = localStorage.getItem(this.keys.buildSplitsWithSegmentCountKey());
     const splitsWithSegmentsCount = storedCount === null ? 0 : toNumber(storedCount);
 
-    if (isFinite(splitsWithSegmentsCount)) {
+    if (numberIsFinite(splitsWithSegmentsCount)) {
       return splitsWithSegmentsCount > 0;
     } else {
       return true;
     }
   }
 
+  /**
+   * Removes all splits cache related data from localStorage (splits, counters, changeNumber and lastUpdated).
+   * We cannot simply call `localStorage.clear()` since that implies removing user items from the storage.
+   */
   flush() {
-    log.info('Flushing localStorage');
-    localStorage.clear();
+    log.info('Flushing Splits data from localStorage');
+
+    // collect item keys
+    const len = localStorage.length;
+    const accum = [];
+    for (let cur = 0; cur < len; cur++) {
+      const key = localStorage.key(cur);
+      if (key != null && this.keys.isSplitCacheKey(key)) accum.push(key);
+    }
+    // remove items
+    accum.forEach(key => {
+      localStorage.removeItem(key);
+    });
+
     this.hasSync = false;
   }
 
@@ -205,9 +225,9 @@ class SplitCacheLocalStorage {
    * Fetches multiple splits definitions.
    */
   fetchMany(splitNames) {
-    const splits = new Map();
+    const splits = {};
     splitNames.forEach(splitName => {
-      splits.set(splitName, localStorage.getItem(this.keys.buildSplitKey(splitName)));
+      splits[splitName] = localStorage.getItem(this.keys.buildSplitKey(splitName));
     });
     return splits;
   }
@@ -218,6 +238,20 @@ class SplitCacheLocalStorage {
    */
   checkCache() {
     return this.getChangeNumber() > -1;
+  }
+
+  /**
+   * Clean Splits cache if its `lastUpdated` timestamp is older than the given `expirationTimestamp`,
+   * Clean operation (flush) also updates `lastUpdated` timestamp with current time.
+   *
+   * @param {number | undefined} expirationTimestamp if the value is not a number, data will not be cleaned
+   */
+  __checkExpiration(expirationTimestamp) {
+    let value = localStorage.getItem(this.keys.buildLastUpdatedKey());
+    if (value !== null) {
+      value = parseInt(value, 10);
+      if (!numberIsNaN(value) && value < expirationTimestamp) this.flush();
+    }
   }
 }
 
