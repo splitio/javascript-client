@@ -37,7 +37,7 @@
         "plugin:compat/recommended"
       ],
       "rules": {
-        "no-restricted-syntax": ["error", "ForOfStatement"],
+        "no-restricted-syntax": ["error", "ForOfStatement", "ArrayPattern"],
         "compat/compat": ["error", "defaults, not ie < 10, not node < 6"]
       },
       "parserOptions": {
