@@ -11,6 +11,7 @@ import expectedTreatmentsSuite from './nodeSuites/expected-treatments.spec';
 import managerSuite from './nodeSuites/manager.spec';
 import ipAddressesSetting from './nodeSuites/ip-addresses-setting.spec';
 import readyPromiseSuite from './nodeSuites/ready-promise.spec';
+import fetchSpecificSplits from './nodeSuites/fetch-specific-splits.spec';
 
 import splitChangesMock1 from './mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from './mocks/splitchanges.since.1457552620999.json';
@@ -75,6 +76,9 @@ tape('## Node JS - E2E CI Tests ##', async function (assert) {
 
   /* Validate readiness with ready promises */
   assert.test('E2E / Ready promise', readyPromiseSuite.bind(null, key, fetchMock));
+
+  /* Validate fetching specific splits */
+  assert.test('E2E / Fetch specific splits', fetchSpecificSplits.bind(null, fetchMock));
 
   assert.end();
 });

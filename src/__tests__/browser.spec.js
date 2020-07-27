@@ -15,6 +15,7 @@ import managerSuite from './browserSuites/manager.spec';
 import ignoreIpAddressesSettingSuite from './browserSuites/ignore-ip-addresses-setting.spec';
 import useBeaconApiSuite from './browserSuites/use-beacon-api.spec';
 import readyPromiseSuite from './browserSuites/ready-promise.spec';
+import fetchSpecificSplits from './browserSuites/fetch-specific-splits.spec';
 
 import SettingsFactory from '../utils/settings';
 
@@ -119,6 +120,8 @@ tape('## E2E CI Tests ##', function(assert) {
   assert.test('E2E / Readiness from cache', readyFromCache.bind(null, fetchMock));
   /* Validate readiness with ready promises */
   assert.test('E2E / Ready promise', readyPromiseSuite.bind(null, fetchMock));
+  /* Validate fetching specific splits */
+  assert.test('E2E / Fetch specific splits', fetchSpecificSplits.bind(null, fetchMock));
 
   //If we change the mocks, we need to clear localstorage. Cleaning up after testing ensures "fresh data".
   localStorage.clear();
