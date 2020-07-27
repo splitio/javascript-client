@@ -37,14 +37,14 @@ type StorageType = 'MEMORY' | 'LOCALSTORAGE' | 'REDIS';
 interface ByNameFilter {
   type: 'byName',
   values: string[],
-};
+}
 /**
  * @TODO comment
  */
 interface ByPrefixFilter {
   type: 'byPrefix',
   values: string[],
-};
+}
 /**
  * @TODO comment
  */

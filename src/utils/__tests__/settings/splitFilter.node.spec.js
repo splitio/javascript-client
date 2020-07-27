@@ -6,8 +6,13 @@ const proxyquireStrict = proxyquire.noCallThru();
 const loggerMock = {
   warn: sinon.stub(),
   error: sinon.stub(),
-  info: sinon.stub()
+  debug: sinon.stub()
 };
+function resetStubs() {
+  loggerMock.warn.resetHistory();
+  loggerMock.error.resetHistory();
+  loggerMock.debug.resetHistory();
+}
 function LogFactoryMock() {
   return loggerMock;
 }
@@ -45,7 +50,7 @@ tape('splitFilterBuilder', t => {
 
     assert.true(loggerMock.error.notCalled);
 
-    loggerMock.warn.resetHistory();
+    resetStubs();
     assert.end();
   });
 
@@ -57,12 +62,10 @@ tape('splitFilterBuilder', t => {
       { type: 'byPrefix', values: [] }];
     let output = [...splitFilter]; output.queryString = undefined;
     assert.deepEqual(splitFilterBuilder({ splitFilter, mode: STANDALONE_MODE }), output, 'filters without values');
-    assert.true(loggerMock.warn.notCalled);
-    assert.true(loggerMock.error.getCall(0).calledWithExactly('Ignoring byName filter. It has no valid values (no-empty strings).'));
-    assert.true(loggerMock.error.getCall(1).calledWithExactly('Ignoring byPrefix filter. It has no valid values (no-empty strings).'));
+    assert.true(loggerMock.warn.getCall(0).calledWithExactly('Ignoring byName filter. It has no valid values (no-empty strings).'));
+    assert.true(loggerMock.warn.getCall(1).calledWithExactly('Ignoring byPrefix filter. It has no valid values (no-empty strings).'));
 
     loggerMock.warn.resetHistory();
-    loggerMock.error.resetHistory();
 
     splitFilter.push(
       { type: 'invalid', values: [] },
@@ -74,23 +77,50 @@ tape('splitFilterBuilder', t => {
     assert.true(loggerMock.warn.getCall(0).calledWithExactly("'invalid' is an invalid filter. Only 'byName' and 'byPrefix' are valid."), 'invalid value of `type` property');
     assert.true(loggerMock.warn.getCall(1).calledWithExactly("Split filter at position '4' is invalid. It must be an object with a valid 'type' filter and a list of 'values'."), 'invalid type of `values` property');
     assert.true(loggerMock.warn.getCall(2).calledWithExactly("Split filter at position '5' is invalid. It must be an object with a valid 'type' filter and a list of 'values'."), 'invalid type of `type` property');
-    assert.equal(loggerMock.warn.callCount, 3);
-    assert.true(loggerMock.error.getCall(0).calledWithExactly("Malformed value in 'byName' filter ignored: '13'"));
-    assert.true(loggerMock.error.getCall(1).calledWithExactly('Ignoring byName filter. It has no valid values (no-empty strings).'));
-    assert.true(loggerMock.error.getCall(2).calledWithExactly('Ignoring byPrefix filter. It has no valid values (no-empty strings).'));
-    assert.equal(loggerMock.error.callCount, 3);
+    assert.true(loggerMock.warn.getCall(3).calledWithExactly("Malformed value in 'byName' filter ignored: '13'"));
+    assert.true(loggerMock.warn.getCall(4).calledWithExactly('Ignoring byName filter. It has no valid values (no-empty strings).'));
+    assert.true(loggerMock.warn.getCall(5).calledWithExactly('Ignoring byPrefix filter. It has no valid values (no-empty strings).'));
+    assert.equal(loggerMock.warn.callCount, 6);
+
+    assert.true(loggerMock.error.notCalled);
 
     loggerMock.warn.resetHistory();
-    loggerMock.error.resetHistory();
     assert.end();
   });
 
   t.test('Returns object with a queryString, if `splitFilter` contains at least a valid `byName` or `byPrefix` filter with at least a valid value', assert => {
 
-    // @TODO
+    const valuesExamples = [
+      ['\u0223abc', 'abc\u0223asd', 'abc\u0223'],
+      ['ausgefüllt']
+    ];
 
-    loggerMock.warn.resetHistory();
-    loggerMock.error.resetHistory();
+    let splitFilter = [
+      { type: 'byName', values: valuesExamples[0] },
+      { type: 'byName', values: valuesExamples[1] },
+      { type: 'byPrefix', values: [] }];
+    let output = [...splitFilter]; output.queryString = 'names=abc%C8%A3,abc%C8%A3asd,ausgef%C3%BCllt,%C8%A3abc';
+    assert.deepEqual(splitFilterBuilder({ splitFilter, mode: STANDALONE_MODE }), output, 'byName filter has elements');
+    assert.true(loggerMock.debug.calledWith("Splits filtering criteria: 'names=abc%C8%A3,abc%C8%A3asd,ausgef%C3%BCllt,%C8%A3abc'"));
+
+    splitFilter = [
+      { type: 'byPrefix', values: valuesExamples[0] },
+      { type: 'byPrefix', values: valuesExamples[1] },
+      { type: 'byName', values: [] }];
+    output = [...splitFilter]; output.queryString = 'prefixes=abc%C8%A3,abc%C8%A3asd,ausgef%C3%BCllt,%C8%A3abc';
+    assert.deepEqual(splitFilterBuilder({ splitFilter, mode: STANDALONE_MODE }), output, 'byPrefix filter has elements');
+    assert.true(loggerMock.debug.calledWith("Splits filtering criteria: 'prefixes=abc%C8%A3,abc%C8%A3asd,ausgef%C3%BCllt,%C8%A3abc'"));
+
+    splitFilter = [
+      { type: 'byName', values: valuesExamples[0] },
+      { type: 'byName', values: valuesExamples[1] },
+      { type: 'byPrefix', values: valuesExamples[0] },
+      { type: 'byPrefix', values: valuesExamples[1] }];
+    output = [...splitFilter]; output.queryString = 'names=abc%C8%A3,abc%C8%A3asd,ausgef%C3%BCllt,%C8%A3abc&prefixes=abc%C8%A3,abc%C8%A3asd,ausgef%C3%BCllt,%C8%A3abc';
+    assert.deepEqual(splitFilterBuilder({ splitFilter, mode: STANDALONE_MODE }), output, 'byName and byPrefix filter have elements');
+    assert.true(loggerMock.debug.calledWith("Splits filtering criteria: 'names=abc%C8%A3,abc%C8%A3asd,ausgef%C3%BCllt,%C8%A3abc&prefixes=abc%C8%A3,abc%C8%A3asd,ausgef%C3%BCllt,%C8%A3abc'"));
+
+    resetStubs();
     assert.end();
   });
 

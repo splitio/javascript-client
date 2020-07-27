@@ -17,7 +17,7 @@ function filterValidation(filterName, list, maxLength) {
   // remove invalid values (no strings and empty strings)
   let result = list.filter(value => {
     if (!isString(value) || value === '') {
-      log.error(`Malformed value in '${filterName}' filter ignored: '${value}'`);
+      log.warn(`Malformed value in '${filterName}' filter ignored: '${value}'`);
       return false;
     }
     return true;
@@ -32,7 +32,7 @@ function filterValidation(filterName, list, maxLength) {
   // check length
   if (result.length > maxLength) throw new Error(`${maxLength} unique values can be specified at most for '${filterName}' filter. You passed ${result.length}. Please consider reducing the amount or using other filter.`);
   if (result.length === 0) {
-    log.error(`Ignoring ${filterName} filter. It has no valid values (no-empty strings).`);
+    log.warn(`Ignoring ${filterName} filter. It has no valid values (no-empty strings).`);
     return;
   }
   return result;
@@ -53,8 +53,8 @@ function filterValidation(filterName, list, maxLength) {
  */
 function queryStringBuilder(byNameList, byPrefixList) {
   const queryParams = [];
-  if (byNameList && byNameList.length > 0) queryParams.push('names=' + encodeURIComponent(byNameList.join(',')));
-  if (byPrefixList && byPrefixList.length > 0) queryParams.push('prefixes=' + encodeURIComponent(byPrefixList.join(',')));
+  if (byNameList && byNameList.length > 0) queryParams.push('names=' + byNameList.map(value => encodeURIComponent(value)).join(','));
+  if (byPrefixList && byPrefixList.length > 0) queryParams.push('prefixes=' + byPrefixList.map(value => encodeURIComponent(value)).join(','));
   return queryParams.length > 0 ? queryParams.join('&') : undefined;
 }
 
@@ -105,6 +105,7 @@ export function splitFilterBuilder(settings) {
 
   // build query string
   validFilters.queryString = queryStringBuilder(filters.byName, filters.byPrefix);
+  if (validFilters.queryString) log.debug(`Splits filtering criteria: '${validFilters.queryString}'`);
 
   return validFilters;
 }
