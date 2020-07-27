@@ -92,17 +92,12 @@ tape('splitFiltersBuilder', t => {
 
   t.test('Returns object with a queryString, if `splitFilters` contains at least a valid `byName` or `byPrefix` filter with at least a valid value', assert => {
 
-    let output = [...splitFilters[0]]; output.queryString = queryStrings[0];
-    assert.deepEqual(splitFiltersBuilder({ sync: { splitFilters: splitFilters[0] }, mode: STANDALONE_MODE }), output, 'byName filter has elements');
-    assert.true(loggerMock.debug.calledWith(`Splits filtering criteria: '${queryStrings[0]}'`));
-
-    output = [...splitFilters[1]]; output.queryString = queryStrings[1];
-    assert.deepEqual(splitFiltersBuilder({ sync: { splitFilters: splitFilters[1] }, mode: STANDALONE_MODE }), output, 'byPrefix filter has elements');
-    assert.true(loggerMock.debug.calledWith(`Splits filtering criteria: '${queryStrings[1]}'`));
-
-    output = [...splitFilters[2]]; output.queryString = queryStrings[2];
-    assert.deepEqual(splitFiltersBuilder({ sync: { splitFilters: splitFilters[2] }, mode: STANDALONE_MODE }), output, 'byName and byPrefix filter have elements');
-    assert.true(loggerMock.debug.calledWith(`Splits filtering criteria: '${queryStrings[2]}'`));
+    for (let i = 0; i < splitFilters.length; i++) {
+      const output = [...splitFilters[i]];
+      output.queryString = queryStrings[i];
+      assert.deepEqual(splitFiltersBuilder({ sync: { splitFilters: splitFilters[i] }, mode: STANDALONE_MODE }), output, `splitFilters #${i}`);
+      assert.true(loggerMock.debug.calledWith(`Splits filtering criteria: '${queryStrings[i]}'`));
+    }
 
     resetStubs();
     assert.end();
