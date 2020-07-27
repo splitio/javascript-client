@@ -46,7 +46,7 @@ tape('splitFilterBuilder', t => {
     assert.true(loggerMock.warn.getCall(3).calledWithExactly('splitFilter configuration must be a non-empty array of filters'));
 
     assert.deepEqual(splitFilterBuilder({ splitFilter: [{ type: 'byName', values: ['split_1'] }], mode: CONSUMER_MODE }), undefined);
-    assert.true(loggerMock.warn.calledWithExactly('splitFilter configuration is ignored if mode is not \'standalone\''));
+    assert.true(loggerMock.warn.calledWithExactly("Split filters have been configured but will have no effect if mode is not 'standalone', since synchronization is being deferred to an external tool"));
 
     assert.true(loggerMock.error.notCalled);
 

@@ -71,7 +71,7 @@ export function splitFilterBuilder(settings) {
   // do nothing if `splitFilter` param is not a non-empty array or mode is not STANDALONE
   if (!splitFilter) return;
   if (mode !== STANDALONE_MODE) {
-    log.warn(`splitFilter configuration is ignored if mode is not '${STANDALONE_MODE}'`);
+    log.warn(`Split filters have been configured but will have no effect if mode is not '${STANDALONE_MODE}', since synchronization is being deferred to an external tool`);
     return;
   }
   if (!Array.isArray(splitFilter) || splitFilter.length === 0) {

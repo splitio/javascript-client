@@ -32,21 +32,31 @@ type SDKMode = 'standalone' | 'consumer';
  */
 type StorageType = 'MEMORY' | 'LOCALSTORAGE' | 'REDIS';
 /**
- * @TODO comment
+ * Define a 'By Name' split filter, that contains a list of split names to fetch.
+ * The SDK will fetch split definitions whose names match with one of the names in the list.
  */
 interface ByNameFilter {
   type: 'byName',
+  /**
+   * List of split names.
+   * @property {string[]} values
+   */
   values: string[],
 }
 /**
- * @TODO comment
+ * Define a 'By Prefix' split filter, that contain a list of split name prefixes to fetch.
+ * The SDK will fetch split definitions whose names starts with one of the prefixes in the list.
  */
 interface ByPrefixFilter {
   type: 'byPrefix',
+  /**
+   * List of split name prefixes.
+   * @property {string[]} values
+   */
   values: string[],
 }
 /**
- * @TODO comment
+ * Supported split filter types
  */
 type SplitFilter = ByNameFilter | ByPrefixFilter;
 /**
@@ -158,7 +168,16 @@ interface ISharedSettings {
    */
   streamingEnabled?: boolean,
   /**
-   * @TODO document
+   * List of Split filters. These filters are used to fetch a subset of the Splits definitions in your environment, in order to reduce the delay of the SDK to be ready.
+   * This configuration is only meaningful when the SDK is working in "standalone" mode.
+   *
+   * At the moment, two types of split filters are supported: by name and by prefix.
+   * Example:
+   *  `splitFilter: [
+   *    { type: 'byName', values: ['my_split_1', 'my_split_2'] },
+   *    { type: 'byPrefix', values: ['my_split_'] }
+   *  ]`
+   * @property {SplitFilter[]} splitFilter
    */
   splitFilter?: SplitFilter[]
 }
