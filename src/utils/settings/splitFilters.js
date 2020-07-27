@@ -59,23 +59,23 @@ function queryStringBuilder(byNameList, byPrefixList) {
 }
 
 /**
- * Validates `splitFilter` configuration object and parses it to build the query string for filtering splits in `/splitChanges` fetch.
+ * Validates `splitFilters` configuration object and parses it to build the query string for filtering splits in `/splitChanges` fetch.
  *
  * @param {Object} settings factory configuration object
- * @returns undefined or sanitized `splitFilter` array object with parsed `queryString`.
+ * @returns undefined or sanitized `splitFilters` array object with parsed `queryString`.
  * @throws Error if the saniti some of the filters exceed the max allowed length
  */
-export function splitFilterBuilder(settings) {
-  const { splitFilter, mode } = settings;
+export function splitFiltersBuilder(settings) {
+  const { sync: { splitFilters }, mode } = settings;
 
-  // do nothing if `splitFilter` param is not a non-empty array or mode is not STANDALONE
-  if (!splitFilter) return;
+  // do nothing if `splitFilters` param is not a non-empty array or mode is not STANDALONE
+  if (!splitFilters) return;
   if (mode !== STANDALONE_MODE) {
     log.warn(`Split filters have been configured but will have no effect if mode is not '${STANDALONE_MODE}', since synchronization is being deferred to an external tool`);
     return;
   }
-  if (!Array.isArray(splitFilter) || splitFilter.length === 0) {
-    log.warn('splitFilter configuration must be a non-empty array of filters');
+  if (!Array.isArray(splitFilters) || splitFilters.length === 0) {
+    log.warn('splitFilters configuration must be a non-empty array of filters');
     return;
   }
 
@@ -84,7 +84,7 @@ export function splitFilterBuilder(settings) {
     byName: undefined,
     byPrefix: undefined
   };
-  const validFilters = splitFilter.filter((filter, index) => {
+  const validFilters = splitFilters.filter((filter, index) => {
     if (filter && isString(filter.type) && Array.isArray(filter.values)) {
       if (Object.prototype.hasOwnProperty.call(filters, filter.type)) {
         if (!filters[filter.type]) filters[filter.type] = [];

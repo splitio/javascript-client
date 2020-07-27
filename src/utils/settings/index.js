@@ -22,7 +22,7 @@ import overridesPerPlatform from './defaults';
 import storage from './storage';
 import integrations from './integrations';
 import mode from './mode';
-import { splitFilterBuilder } from './splitFilter';
+import { splitFiltersBuilder } from './splitFilters';
 import { API } from '../../utils/logger';
 import { STANDALONE_MODE, STORAGE_MEMORY, CONSUMER_MODE } from '../../utils/constants';
 import { version } from '../../../package.json';
@@ -99,6 +99,10 @@ const base = {
 
   // toggle using (true) or not using (false) Server-Side Events for synchronizing storage
   streamingEnabled: true,
+
+  sync: {
+    splitFilters: undefined
+  }
 };
 
 function fromSecondsToMillis(n) {
@@ -157,9 +161,9 @@ function defaults(custom) {
     withDefaults.scheduler.streamingReconnectBackoffBase = fromSecondsToMillis(withDefaults.scheduler.streamingReconnectBackoffBase);
   }
 
-  // validate and parse the `splitFilter` settings
-  // it returns the sanitized `splitFilter` object with the parsed query params
-  withDefaults.splitFilter = splitFilterBuilder(withDefaults);
+  // validate and parse the `splitFilters` settings
+  // it returns the sanitized `splitFilters` object with the parsed query params
+  withDefaults.sync.splitFilters = splitFiltersBuilder(withDefaults);
 
   return withDefaults;
 }

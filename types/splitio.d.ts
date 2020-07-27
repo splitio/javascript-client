@@ -105,7 +105,9 @@ interface ISettings {
     [featureName: string]: string
   },
   readonly streamingEnabled: boolean,
-  readonly splitFilter: SplitFilter[]
+  readonly sync: {
+    splitFilters: SplitFilter[]
+  }
 }
 /**
  * Log levels.
@@ -168,18 +170,24 @@ interface ISharedSettings {
    */
   streamingEnabled?: boolean,
   /**
-   * List of Split filters. These filters are used to fetch a subset of the Splits definitions in your environment, in order to reduce the delay of the SDK to be ready.
-   * This configuration is only meaningful when the SDK is working in "standalone" mode.
-   *
-   * At the moment, two types of split filters are supported: by name and by prefix.
-   * Example:
-   *  `splitFilter: [
-   *    { type: 'byName', values: ['my_split_1', 'my_split_2'] },
-   *    { type: 'byPrefix', values: ['my_split_'] }
-   *  ]`
-   * @property {SplitFilter[]} splitFilter
+   * SDK synchronization settings.
+   * @property {Object} scheduler
    */
-  splitFilter?: SplitFilter[]
+  sync?: {
+    /**
+     * List of Split filters. These filters are used to fetch a subset of the Splits definitions in your environment, in order to reduce the delay of the SDK to be ready.
+     * This configuration is only meaningful when the SDK is working in "standalone" mode.
+     *
+     * At the moment, two types of split filters are supported: by name and by prefix.
+     * Example:
+     *  `splitFilter: [
+     *    { type: 'byName', values: ['my_split_1', 'my_split_2'] },
+     *    { type: 'byPrefix', values: ['my_split_'] }
+     *  ]`
+     * @property {SplitFilter[]} splitFilters
+     */
+    splitFilters?: SplitFilter[]
+  }
 }
 /**
  * Common settings interface for SDK instances on NodeJS.
