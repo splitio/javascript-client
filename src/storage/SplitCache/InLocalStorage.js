@@ -6,10 +6,17 @@ import killLocally from './killLocally';
 
 class SplitCacheLocalStorage {
 
-  constructor(keys, expirationTimestamp) {
+  /**
+   * @param {Object} keys
+   * @param {number} expirationTimestamp
+   * @param {undefined|string} filterQuery
+   */
+  constructor(keys, expirationTimestamp, splitFilters) {
     this.keys = keys;
 
     this.__checkExpiration(expirationTimestamp);
+
+    this.__checkFilterQuery(splitFilters);
   }
 
   decrementCount(key) {
@@ -120,6 +127,19 @@ class SplitCacheLocalStorage {
   }
 
   setChangeNumber(changeNumber) {
+    if(this.cacheReadyButNeedsToFlush) {
+      // we must flush all split data except the filter query
+      const filterQueryKey = this.keys.buildFilterQueryKey();
+      const filterQuery = localStorage.getItem(filterQueryKey);
+      this.flush();
+      this.cacheReadyButNeedsToFlush = false;
+      try {
+        if(filterQuery) localStorage.setItem(filterQueryKey, filterQuery);
+      } catch (e) {
+        log.error(e);
+      }
+    }
+
     try {
       localStorage.setItem(this.keys.buildSplitsTillKey(), changeNumber + '');
       // update "last updated" timestamp with current time
@@ -234,10 +254,11 @@ class SplitCacheLocalStorage {
 
   /**
    * Check if the splits information is already stored in cache.
+   * It is used as condition to emit SDK_SPLITS_CACHE_LOADED, and then SDK_READY_FROM_CACHE.
    * In this function we could add more code to check if the data is valid.
    */
   checkCache() {
-    return this.getChangeNumber() > -1;
+    return this.getChangeNumber() > -1 || this.cacheReadyButNeedsToFlush;
   }
 
   /**
@@ -252,6 +273,41 @@ class SplitCacheLocalStorage {
       value = parseInt(value, 10);
       if (!numberIsNaN(value) && value < expirationTimestamp) this.flush();
     }
+  }
+
+  __checkFilterQuery(splitFilters) {
+    const { queryString, filters } = splitFilters;
+    const filterQueryKey = this.keys.buildFilterQueryKey();
+    const currentQueryString = localStorage.getItem(filterQueryKey);
+
+    // eslint-disable-next-line eqeqeq
+    if (currentQueryString != queryString) { // using loose equality, since `null` currentQueryString is equivalent to `undefined` queryString
+      try {
+        // if filter changed, it is updated in the storage
+        if (queryString) localStorage.setItem(filterQueryKey, queryString);
+        else localStorage.removeItem(filterQueryKey);
+
+        // if cache is ready:
+        if (this.checkCache()) {
+          // * set change number to -1, to fetch splits with -1 `since` value.
+          localStorage.setItem(this.keys.buildSplitsTillKey(), '-1');
+
+          // * set `cacheReadyButNeedsToFlush` so that `checkCache` returns true (the storage is ready to be used) but the data is flushed before updating with the first split fetch
+          this.cacheReadyButNeedsToFlush = true;
+
+          // * remove from cache splits that doesn't match with the new filters
+          this.getKeys().forEach((splitName) => {
+            if (!filters.byName && !filters.byPrefix) return;
+            if (filters.byName && filters.byName.indexOf(splitName) > -1) return;
+            if (filters.byPrefix && filters.byPrefix.some(prefix => splitName.startsWith(prefix + '__'))) return;
+            this.removeSplit(splitName);
+          });
+        }
+      } catch (e) {
+        log.error(e);
+      }
+    }
+    // if the filter didn't change, nothing is done
   }
 }
 

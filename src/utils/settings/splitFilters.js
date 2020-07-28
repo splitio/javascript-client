@@ -106,6 +106,7 @@ export function splitFiltersBuilder(settings) {
   // build query string
   validFilters.queryString = queryStringBuilder(filters.byName, filters.byPrefix);
   if (validFilters.queryString) log.debug(`Splits filtering criteria: '${validFilters.queryString}'`);
+  validFilters.filters = filters;
 
   return validFilters;
 }

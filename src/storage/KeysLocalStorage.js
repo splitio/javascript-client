@@ -31,6 +31,10 @@ class KeyBuilderForLocalStorage extends KeyBuilder {
   isSplitCacheKey(key) {
     return this.regexSplitCacheKey.test(key);
   }
+
+  buildFilterQueryKey() {
+    return `${this.settings.storage.prefix}.splits.filterQuery`;
+  }
 }
 
 export default KeyBuilderForLocalStorage;

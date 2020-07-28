@@ -45,6 +45,19 @@ const alwaysOnSplitInverted = JSON.stringify({
   ]
 });
 
+const splitDeclarations = {
+  split_a: {
+    'name': 'split_a',
+    'status': 'ACTIVE',
+    'conditions': []
+  },
+  split_b: {
+    'name': 'split_b',
+    'status': 'ACTIVE',
+    'conditions': []
+  },
+};
+
 const baseConfig = {
   core: {
     authorizationKey: '<fake-token-rfc>',
@@ -440,4 +453,54 @@ export default function (fetchMock, assert) {
       t.equal(client3.getTreatment('always_on'), 'control', 'It should evaluate treatments with mySegments data from cache.');
     });
   });
+
+  assert.test(t => { // Testing when we start with cached data and split filter query is different
+    const testUrls = {
+      sdk: 'https://sdk.baseurl/readyFromCacheWithNewFilter',
+      events: 'https://events.baseurl/readyFromCacheWithNewFilter'
+    };
+    localStorage.clear();
+    t.plan(6);
+
+    fetchMock.getOnce(testUrls.sdk + '/splitChanges?since=-1&names=split_a', { status: 200, body: { splits: [splitDeclarations.split_a], since: -1, till: 1457552620999 } }, { delay: 10 }); // short delay to let emit SDK_READY_FROM_CACHE
+    // fetchMock.getOnce(testUrls.sdk + '/splitChanges?since=1457552620999&names=split_a', { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
+    fetchMock.getOnce(testUrls.sdk + '/mySegments/nicolas@split.io', { status: 200, body: { mySegments: [] } });
+
+    localStorage.setItem('some_user_item', 'user_item');
+    localStorage.setItem('readyFromCache_5.SPLITIO.splits.till', 25);
+    localStorage.setItem('readyFromCache_5.SPLITIO.split.split_b', splitDeclarations.split_b);
+
+    // const startTime = Date.now();
+    const splitio = SplitFactory({
+      ...baseConfig,
+      storage: {
+        type: 'LOCALSTORAGE',
+        prefix: 'readyFromCache_5'
+      },
+      urls: testUrls,
+      sync: {
+        splitFilters: [{ type: 'byName', values: ['split_a'] }]
+      },
+      debug: true
+    });
+    const client = splitio.client();
+    const manager = splitio.manager();
+
+    client.once(client.Event.SDK_READY_FROM_CACHE, () => {
+      t.deepEqual(manager.names(), [], 'SDK_READY_FROM_CACHE');
+    });
+
+    client.once(client.Event.SDK_READY, () => {
+      t.deepEqual(manager.names(), ['split_a'], 'SDK_READY');
+
+      client.destroy().then(() => {
+        t.equal(localStorage.getItem('some_user_item'), 'user_item', 'user items at localStorage must not be changed');
+        t.equal(localStorage.getItem('readyFromCache_5.SPLITIO.splits.till'), '1457552620999', 'splits.till must correspond to the till of the last successfully fetched Splits');
+        t.equal(localStorage.getItem('readyFromCache_5.SPLITIO.split.split_a'), JSON.stringify(splitDeclarations.split_a), 'split declarations must be cached');
+        t.equal(localStorage.getItem('readyFromCache_5.SPLITIO.splits.filterQuery'), 'names=split_a', 'splits.filterQuery must correspond to the split filter query');
+        t.end();
+      });
+    });
+  });
+
 }
