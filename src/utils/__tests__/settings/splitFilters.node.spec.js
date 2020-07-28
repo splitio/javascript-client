@@ -28,7 +28,6 @@ import { splitFilters, queryStrings } from '../../../__tests__/mocks/fetchSpecif
 
 tape('splitFiltersBuilder', t => {
 
-  // Check different types, since `splitFilters` param is defined by the user
   t.test('Returns undefined if `splitFilters` is an invalid object or `mode` is not \'standalone\'', assert => {
 
     assert.deepEqual(splitFiltersBuilder({ sync: { splitFilters: undefined }, mode: STANDALONE_MODE }), undefined, 'splitFilters ignored if not a non-empty array');
@@ -102,7 +101,5 @@ tape('splitFiltersBuilder', t => {
     resetStubs();
     assert.end();
   });
-
-  // assert.equal(loggerMock.warn.getCall(0).args[0], 'undefined');
 
 });
