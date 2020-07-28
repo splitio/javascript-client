@@ -94,7 +94,7 @@ tape('INPUT VALIDATION for Split names', t => {
     assert.deepEqual(validateSplits(myArr, 'test_method'), ['valid_name', 'something_valid'], 'It will return the array without the invalid values.');
 
     for (let i = 0; i < myArr.length; i++) {
-      assert.true(validateSplitValue.calledWithExactly(myArr[i]), 'Should validate any inner value independently.');
+      assert.true(validateSplitValue.calledWithExactly(myArr[i], 'test_method', 'split name'), 'Should validate any inner value independently.');
     }
 
     assert.false(loggerMock.error.called, 'Should not log any error for the collection.');

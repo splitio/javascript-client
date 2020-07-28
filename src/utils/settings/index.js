@@ -22,7 +22,7 @@ import overridesPerPlatform from './defaults';
 import storage from './storage';
 import integrations from './integrations';
 import mode from './mode';
-import splitFiltersBuilder from './splitFilters';
+import validateSplitFilters from '../inputValidation/splitFilters';
 import { API } from '../../utils/logger';
 import { STANDALONE_MODE, STORAGE_MEMORY, CONSUMER_MODE } from '../../utils/constants';
 import { version } from '../../../package.json';
@@ -162,8 +162,8 @@ function defaults(custom) {
   }
 
   // validate and parse the `splitFilters` settings
-  // it returns the sanitized `splitFilters` object with the parsed query params
-  withDefaults.sync.splitFilters = splitFiltersBuilder(withDefaults);
+  // it returns the validated and sanitized `splitFilters` object with the parsed query params
+  withDefaults.sync.splitFilters = validateSplitFilters(withDefaults.sync.splitFilters, withDefaults.mode);
 
   return withDefaults;
 }
