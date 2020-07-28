@@ -19,9 +19,9 @@ function LogFactoryMock() {
 import { STANDALONE_MODE, CONSUMER_MODE } from '../../constants';
 
 // Import the module mocking the logger.
-const { splitFiltersBuilder } = proxyquireStrict('../../settings/splitFilters', {
+const splitFiltersBuilder = proxyquireStrict('../../settings/splitFilters', {
   '../logger': LogFactoryMock
-});
+}).default;
 
 // Split filter and QueryStrings examples
 import { splitFilters, queryStrings } from '../../../__tests__/mocks/fetchSpecificSplits';

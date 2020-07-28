@@ -22,7 +22,7 @@ import overridesPerPlatform from './defaults';
 import storage from './storage';
 import integrations from './integrations';
 import mode from './mode';
-import { splitFiltersBuilder } from './splitFilters';
+import splitFiltersBuilder from './splitFilters';
 import { API } from '../../utils/logger';
 import { STANDALONE_MODE, STORAGE_MEMORY, CONSUMER_MODE } from '../../utils/constants';
 import { version } from '../../../package.json';
@@ -153,8 +153,8 @@ function defaults(custom) {
   withDefaults.integrations = integrations(withDefaults);
 
   // validate push options
-  if (withDefaults.streamingEnabled !== false) withDefaults.streamingEnabled = true;
-  if (withDefaults.streamingEnabled) {
+  if (withDefaults.streamingEnabled !== false) {
+    withDefaults.streamingEnabled = true;
     // Backoff bases.
     // We are not checking if bases are positive numbers. Thus, we might be reauthenticating immediately (`setTimeout` with NaN or negative number)
     withDefaults.scheduler.authRetryBackoffBase = fromSecondsToMillis(withDefaults.scheduler.authRetryBackoffBase);
