@@ -161,9 +161,10 @@ function defaults(custom) {
     withDefaults.scheduler.streamingReconnectBackoffBase = fromSecondsToMillis(withDefaults.scheduler.streamingReconnectBackoffBase);
   }
 
-  // validate and parse the `splitFilters` settings
-  // it returns the validated and sanitized `splitFilters` object with the parsed query params
-  withDefaults.sync.splitFilters = validateSplitFilters(withDefaults.sync.splitFilters, withDefaults.mode);
+  // validate the `splitFilters` settings and parse splits query
+  const splitFiltersValidation = validateSplitFilters(withDefaults.sync.splitFilters, withDefaults.mode);
+  withDefaults.sync.splitFilters = splitFiltersValidation.validFilters;
+  withDefaults.sync.__splitFiltersValidation = splitFiltersValidation;
 
   return withDefaults;
 }

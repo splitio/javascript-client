@@ -1,22 +1,7 @@
-import { STANDALONE_MODE } from '../constants';
+import { STANDALONE_MODE, FILTERS_METADATA } from '../constants';
 import { validateSplits } from './splits';
 import logFactory from '../logger';
 const log = logFactory('');
-
-// Filters metadata.
-// Ordered according to their precedency when forming the filter query string: `&names=<values>&prefixes=<values>`
-const FILTERS_METADATA = [
-  {
-    type: 'byName',
-    maxLength: 400,
-    queryParam: 'names='
-  },
-  {
-    type: 'byPrefix',
-    maxLength: 50,
-    queryParam: 'prefixes='
-  }
-];
 
 function validateFilterType(filterType) {
   return FILTERS_METADATA.some(filterMetadata => filterMetadata.type === filterType);
@@ -24,12 +9,12 @@ function validateFilterType(filterType) {
 
 /**
  * Validate, deduplicate and sort a given list of filter values.
- * Exposed for testing purposes.
  *
  * @param {string} type filter type string used for log messages
  * @param {string[]} values list of values to validate, deduplicate and sort
  * @param {number} maxLength
- * @returns undefined or a sanitized list of values. The list is a non-empty array of unique and alphabetically sorted non-empty strings.
+ * @returns list of valid, unique and alphabetically sorted non-empty strings. The list is empty if `values` param is not a non-empty array or all its values are invalid.
+ *
  * @throws Error if the sanitized list exceeds the length indicated by `maxLength`
  */
 function validateSplitFilter(type, values, maxLength) {
@@ -43,28 +28,28 @@ function validateSplitFilter(type, values, maxLength) {
     // check max length
     if (result.length > maxLength) throw new Error(`${maxLength} unique values can be specified at most for '${type}' filter. You passed ${result.length}. Please consider reducing the amount or using other filter.`);
   }
-  return result;
+  return result || []; // returns empty array if `result` is `false`
 }
 
 /**
  * Returns a string representing the URL encoded query component of /splitChanges URL.
  *
  * The possible formats of the query string are:
- *  - undefined: if all filters are undefined
+ *  - false: if all filters are empty
  *  - '&names=<comma-separated-values>': if only `byPrefix` filter is undefined
  *  - '&prefixes=<comma-separated-values>': if only `byName` filter is undefined
  *  - '&names=<comma-separated-values>&prefixes=<comma-separated-values>': if no one is undefined
  *
- * @param {Object} filters object of filters. Each filter can be undefined or a list of non-empty string values
- * @returns undefined or string with the `filter query` component of the URL.
+ * @param {Object} groupedFilters object of filters. Each filter must be a list of valid, unique and ordered string values.
+ * @returns false or string with the `split filter query` component of the URL.
  */
-function queryStringBuilder(filters) {
+function queryStringBuilder(groupedFilters) {
   const queryParams = [];
   FILTERS_METADATA.forEach(({ type, queryParam }) => {
-    const filter = filters[type];
-    if (filter && filter.length > 0) queryParams.push(queryParam + filter.map(value => encodeURIComponent(value)).join(','));
+    const filter = groupedFilters[type];
+    if (filter.length > 0) queryParams.push(queryParam + filter.map(value => encodeURIComponent(value)).join(','));
   });
-  return queryParams.length > 0 ? '&' + queryParams.join('&') : undefined;
+  return queryParams.length > 0 ? '&' + queryParams.join('&') : false;
 }
 
 /**
@@ -72,32 +57,41 @@ function queryStringBuilder(filters) {
  *
  * @param {Object|undefined} splitFilters split filters configuration param
  * @param {string} mode settings mode
- * @returns undefined or sanitized `splitFilters` array object with parsed `queryString`.
- * @throws Error if the some of the filters exceeds the max allowed length
+ * @returns it returns an object with the following properties:
+ *  - `validFilters`: the validated `splitFilters` configuration object defined by the user.
+ *  - `queryString`: the parsed split filter query. it is false if all filters are invalid or all values in filters are invalid.
+ *  - `groupedFilters`: list of values grouped by filter type.
+ *
+ * @throws Error if the some of the grouped list of values per filter exceeds the max allowed length
  */
 export default function validateSplitFilters(splitFilters, mode) {
-
+  // Validation result schema
+  const res = {
+    validFilters: [],
+    queryString: false,
+    groupedFilters: {}
+  };
   // do nothing if `splitFilters` param is not a non-empty array or mode is not STANDALONE
-  if (!splitFilters) return;
+  if (!splitFilters) return res;
+  // Warn depending on the mode
   if (mode !== STANDALONE_MODE) {
     log.warn(`Factory instantiation: split filters have been configured but will have no effect if mode is not '${STANDALONE_MODE}', since synchronization is being deferred to an external tool.`);
-    return;
+    return res;
   }
+  // Check collection type
   if (!Array.isArray(splitFilters) || splitFilters.length === 0) {
-    log.warn('Factory instantiation: splitFilters configuration must be a non-empty array of filters.');
-    return;
+    log.warn('Factory instantiation: splitFilters configuration must be a non-empty array of filter objects.');
+    return res;
   }
 
-  // validate filters and group their values by filter type
-  const filters = {
-    byName: undefined,
-    byPrefix: undefined
-  };
-  const validFilters = splitFilters.filter((filter, index) => {
+  // Validate filters and group their values by filter type inside `groupedFilters` object
+  FILTERS_METADATA.forEach(function (metadata) {
+    res.groupedFilters[metadata.type] = [];
+  });
+  // Assign the valid filters to the output of the validator by using filter function
+  res.validFilters = splitFilters.filter((filter, index) => {
     if (filter && validateFilterType(filter.type) && Array.isArray(filter.values)) {
-      if (!filters[filter.type]) filters[filter.type] = [];
-      filters[filter.type] = filters[filter.type].concat(filter.values);
-
+      res.groupedFilters[filter.type] = res.groupedFilters[filter.type].concat(filter.values);
       return true;
     } else {
       log.warn(`Factory instantiation: split filter at position '${index}' is invalid. It must be an object with a valid 'type' filter and a list of 'values'.`);
@@ -105,14 +99,14 @@ export default function validateSplitFilters(splitFilters, mode) {
     return false;
   });
 
-  // remove invalid, deduplicate and order `byName` and `byPrefix` filter values
+  // By filter type, remove invalid and duplicated values and order them
   FILTERS_METADATA.forEach(({ type, maxLength }) => {
-    if (filters[type]) filters[type] = validateSplitFilter(type, filters[type], maxLength);
+    if (res.groupedFilters[type].length > 0) res.groupedFilters[type] = validateSplitFilter(type, res.groupedFilters[type], maxLength);
   });
 
   // build query string
-  validFilters.queryString = queryStringBuilder(filters);
-  if (validFilters.queryString) log.debug(`Factory instantiation: splits filtering criteria is '${validFilters.queryString}'.`);
+  res.queryString = queryStringBuilder(res.groupedFilters);
+  if (res.queryString) log.debug(`Factory instantiation: splits filtering criteria is '${res.queryString}'.`);
 
-  return validFilters;
+  return res;
 }
