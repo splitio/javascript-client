@@ -9,7 +9,7 @@ class SplitCacheLocalStorage {
   /**
    * @param {Object} keys
    * @param {number} expirationTimestamp
-   * @param {undefined|string} filterQuery
+   * @param {undefined|Object} splitFilters
    */
   constructor(keys, expirationTimestamp, splitFilters) {
     this.keys = keys;
@@ -276,7 +276,7 @@ class SplitCacheLocalStorage {
   }
 
   __checkFilterQuery(splitFilters) {
-    const { queryString, filters } = splitFilters;
+    const queryString = splitFilters && splitFilters.queryString;
     const filterQueryKey = this.keys.buildFilterQueryKey();
     const currentQueryString = localStorage.getItem(filterQueryKey);
 
@@ -296,7 +296,8 @@ class SplitCacheLocalStorage {
           this.cacheReadyButNeedsToFlush = true;
 
           // * remove from cache splits that doesn't match with the new filters
-          this.getKeys().forEach((splitName) => {
+          const filters = splitFilters && splitFilters.filters;
+          filters && this.getKeys().forEach((splitName) => {
             if (!filters.byName && !filters.byPrefix) return;
             if (filters.byName && filters.byName.indexOf(splitName) > -1) return;
             if (filters.byPrefix && filters.byPrefix.some(prefix => splitName.startsWith(prefix + '__'))) return;

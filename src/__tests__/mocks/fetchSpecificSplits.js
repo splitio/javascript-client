@@ -32,10 +32,10 @@ export const queryStrings = [
 export const filters = [
   {
     byName: valuesExamples[2],
-    byPrefix: undefined
+    byPrefix: false
   },
   {
-    byName: undefined,
+    byName: false,
     byPrefix: valuesExamples[2]
   },
   {

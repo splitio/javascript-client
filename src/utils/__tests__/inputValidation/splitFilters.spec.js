@@ -24,7 +24,7 @@ const validateSplitFilters = proxyquireStrict('../../inputValidation/splitFilter
 }).default;
 
 // Split filter and QueryStrings examples
-import { splitFilters, queryStrings } from '../../../__tests__/mocks/fetchSpecificSplits';
+import { splitFilters, queryStrings, filters } from '../../../__tests__/mocks/fetchSpecificSplits';
 
 tape('INPUT VALIDATION for splitFilters', t => {
 
@@ -61,7 +61,7 @@ tape('INPUT VALIDATION for splitFilters', t => {
       { type: 'byName', values: [] },
       { type: 'byName', values: [] },
       { type: 'byPrefix', values: [] }];
-    let output = [...splitFilters]; output.queryString = undefined;
+    let output = [...splitFilters]; output.queryString = undefined; output.filters = { byName: false, byPrefix: false };
     assert.deepEqual(validateSplitFilters(splitFilters, STANDALONE_MODE), output, 'filters without values');
     // assert.true(loggerMock.warn.getCall(0).calledWithExactly('Ignoring byName filter. It has no valid values (no-empty strings).'));
     // assert.true(loggerMock.warn.getCall(1).calledWithExactly('Ignoring byPrefix filter. It has no valid values (no-empty strings).'));
@@ -94,6 +94,7 @@ tape('INPUT VALIDATION for splitFilters', t => {
     for (let i = 0; i < splitFilters.length; i++) {
       const output = [...splitFilters[i]];
       output.queryString = queryStrings[i];
+      output.filters = filters[i];
       assert.deepEqual(validateSplitFilters(splitFilters[i], STANDALONE_MODE), output, `splitFilters #${i}`);
       // assert.true(loggerMock.debug.calledWith(`Splits filtering criteria: '${queryStrings[i]}'`));
     }

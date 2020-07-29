@@ -113,6 +113,7 @@ export default function validateSplitFilters(splitFilters, mode) {
   // build query string
   validFilters.queryString = queryStringBuilder(filters);
   if (validFilters.queryString) log.debug(`Factory instantiation: splits filtering criteria is '${validFilters.queryString}'.`);
+  validFilters.filters = filters;
 
   return validFilters;
 }
