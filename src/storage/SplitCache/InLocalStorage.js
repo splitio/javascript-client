@@ -9,14 +9,14 @@ class SplitCacheLocalStorage {
   /**
    * @param {Object} keys
    * @param {number} expirationTimestamp
-   * @param {undefined|Object} splitFilters
+   * @param {Object} splitFiltersValidation
    */
-  constructor(keys, expirationTimestamp, splitFilters) {
+  constructor(keys, expirationTimestamp, splitFiltersValidation) {
     this.keys = keys;
 
     this.__checkExpiration(expirationTimestamp);
 
-    this.__checkFilterQuery(splitFilters);
+    this.__checkFilterQuery(splitFiltersValidation);
   }
 
   decrementCount(key) {
@@ -129,12 +129,12 @@ class SplitCacheLocalStorage {
   setChangeNumber(changeNumber) {
     if(this.cacheReadyButNeedsToFlush) {
       // we must flush all split data except the filter query
-      const filterQueryKey = this.keys.buildFilterQueryKey();
-      const filterQuery = localStorage.getItem(filterQueryKey);
+      const queryKey = this.keys.buildSplitsFilterQueryKey();
+      const queryString = localStorage.getItem(queryKey);
       this.flush();
       this.cacheReadyButNeedsToFlush = false;
       try {
-        if(filterQuery) localStorage.setItem(filterQueryKey, filterQuery);
+        if(queryString) localStorage.setItem(queryKey, queryString);
       } catch (e) {
         log.error(e);
       }
@@ -275,17 +275,19 @@ class SplitCacheLocalStorage {
     }
   }
 
-  __checkFilterQuery(splitFilters) {
-    const queryString = splitFilters && splitFilters.queryString;
-    const filterQueryKey = this.keys.buildFilterQueryKey();
-    const currentQueryString = localStorage.getItem(filterQueryKey);
+  __checkFilterQuery(splitFiltersValidation) {
+    const { queryString, groupedFilters } = splitFiltersValidation;
+    const queryKey = this.keys.buildSplitsFilterQueryKey();
+    const currentQueryString = localStorage.getItem(queryKey);
 
     // eslint-disable-next-line eqeqeq
-    if (currentQueryString != queryString) { // using loose equality, since `null` currentQueryString is equivalent to `undefined` queryString
+    if (currentQueryString !== queryString) {
       try {
+        log.info('Split filter query was modified. Updating it in localStorage cache.');
+
         // if filter changed, it is updated in the storage
-        if (queryString) localStorage.setItem(filterQueryKey, queryString);
-        else localStorage.removeItem(filterQueryKey);
+        if (queryString) localStorage.setItem(queryKey, queryString);
+        else localStorage.removeItem(queryKey);
 
         // if cache is ready:
         if (this.checkCache()) {
@@ -296,11 +298,10 @@ class SplitCacheLocalStorage {
           this.cacheReadyButNeedsToFlush = true;
 
           // * remove from cache splits that doesn't match with the new filters
-          const filters = splitFilters && splitFilters.filters;
-          filters && this.getKeys().forEach((splitName) => {
-            if (!filters.byName && !filters.byPrefix) return;
-            if (filters.byName && filters.byName.indexOf(splitName) > -1) return;
-            if (filters.byPrefix && filters.byPrefix.some(prefix => splitName.startsWith(prefix + '__'))) return;
+          groupedFilters && this.getKeys().forEach((splitName) => {
+            if (groupedFilters.byName.length === 0 && groupedFilters.byPrefix.length === 0) return;
+            if (groupedFilters.byName && groupedFilters.byName.indexOf(splitName) > -1) return;
+            if (groupedFilters.byPrefix && groupedFilters.byPrefix.some(prefix => splitName.startsWith(prefix + '__'))) return;
             this.removeSplit(splitName);
           });
         }

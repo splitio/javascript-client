@@ -613,7 +613,9 @@ export default function (fetchMock, assert) {
     });
   });
 
-  assert.test(t => { // Testing when we start with cached data with split filter, and no (or invalid) split filter config (no query string)
+  // TODO: Testing when we start with cached data with split filter, and no split filter config (null query string)
+
+  assert.test(t => { // Testing when we start with cached data with split filter, and an invalid split filter config (null query string)
     const testUrls = {
       sdk: 'https://sdk.baseurl/readyFromCache_8',
       events: 'https://events.baseurl/readyFromCache_8'
@@ -639,7 +641,7 @@ export default function (fetchMock, assert) {
       },
       urls: testUrls,
       sync: {
-        splitFilters: 'invalid'
+        splitFilters: [ {type: 'byTag', values: [ 'some_tag'] }], // invalid filter type
       },
       debug: true
     });
@@ -647,7 +649,7 @@ export default function (fetchMock, assert) {
     const manager = splitio.manager();
 
     client.once(client.Event.SDK_READY_FROM_CACHE, () => {
-      t.deepEqual(manager.names(), ['p1__split', 'deleted__split', 'p2__split'], 'splits shouldn\'t be removed for evaluation');
+      t.deepEqual(manager.names(), ['p1__split', 'deleted__split', 'p2__split'], 'splits shouldn\'t be removed for evaluation'); // TODO remove
     });
 
     client.once(client.Event.SDK_READY, () => {
@@ -690,7 +692,7 @@ export default function (fetchMock, assert) {
       },
       urls: testUrls,
       sync: {
-        splitFilters: [{ type: 'byName', values: ['p3__split'] }, { type: 'byPrefix', values: ['    p2', 'no exist trim      '] }, { type: 'byName', values: ['no_exist', ' no exist trim     '] }]
+        splitFilters: [{ type: 'byName', values: ['p3__split'] }, { type: 'byPrefix', values: ['    p2', '   p2', '  p2', ' p2', 'no exist trim      '] }, { type: 'byName', values: ['no_exist', ' no exist trim     '] }]
       },
       debug: true
     });

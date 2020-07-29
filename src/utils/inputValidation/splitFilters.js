@@ -35,13 +35,13 @@ function validateSplitFilter(type, values, maxLength) {
  * Returns a string representing the URL encoded query component of /splitChanges URL.
  *
  * The possible formats of the query string are:
- *  - false: if all filters are empty
+ *  - null: if all filters are empty
  *  - '&names=<comma-separated-values>': if only `byPrefix` filter is undefined
  *  - '&prefixes=<comma-separated-values>': if only `byName` filter is undefined
  *  - '&names=<comma-separated-values>&prefixes=<comma-separated-values>': if no one is undefined
  *
  * @param {Object} groupedFilters object of filters. Each filter must be a list of valid, unique and ordered string values.
- * @returns false or string with the `split filter query` component of the URL.
+ * @returns null or string with the `split filter query` component of the URL.
  */
 function queryStringBuilder(groupedFilters) {
   const queryParams = [];
@@ -49,7 +49,7 @@ function queryStringBuilder(groupedFilters) {
     const filter = groupedFilters[type];
     if (filter.length > 0) queryParams.push(queryParam + filter.map(value => encodeURIComponent(value)).join(','));
   });
-  return queryParams.length > 0 ? '&' + queryParams.join('&') : false;
+  return queryParams.length > 0 ? '&' + queryParams.join('&') : null;
 }
 
 /**
@@ -59,7 +59,7 @@ function queryStringBuilder(groupedFilters) {
  * @param {string} mode settings mode
  * @returns it returns an object with the following properties:
  *  - `validFilters`: the validated `splitFilters` configuration object defined by the user.
- *  - `queryString`: the parsed split filter query. it is false if all filters are invalid or all values in filters are invalid.
+ *  - `queryString`: the parsed split filter query. it is null if all filters are invalid or all values in filters are invalid.
  *  - `groupedFilters`: list of values grouped by filter type.
  *
  * @throws Error if the some of the grouped list of values per filter exceeds the max allowed length
@@ -68,7 +68,7 @@ export default function validateSplitFilters(splitFilters, mode) {
   // Validation result schema
   const res = {
     validFilters: [],
-    queryString: false,
+    queryString: null,
     groupedFilters: {}
   };
   // do nothing if `splitFilters` param is not a non-empty array or mode is not STANDALONE
