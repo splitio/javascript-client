@@ -32,34 +32,6 @@ type SDKMode = 'standalone' | 'consumer';
  */
 type StorageType = 'MEMORY' | 'LOCALSTORAGE' | 'REDIS';
 /**
- * Define a 'By Name' split filter, that contains a list of split names to fetch.
- * The SDK will fetch split definitions whose names match with one of the names in the list.
- */
-interface ByNameFilter {
-  type: 'byName',
-  /**
-   * List of split names.
-   * @property {string[]} values
-   */
-  values: string[],
-}
-/**
- * Define a 'By Prefix' split filter, that contain a list of split name prefixes to fetch.
- * The SDK will fetch split definitions whose names starts with one of the prefixes in the list.
- */
-interface ByPrefixFilter {
-  type: 'byPrefix',
-  /**
-   * List of split name prefixes.
-   * @property {string[]} values
-   */
-  values: string[],
-}
-/**
- * Supported split filter types
- */
-type SplitFilter = ByNameFilter | ByPrefixFilter;
-/**
  * Settings interface. This is a representation of the settings the SDK expose, that's why
  * most of it's props are readonly. Only features should be rewritten when localhost mode is active.
  * @interface ISettings
@@ -106,7 +78,7 @@ interface ISettings {
   },
   readonly streamingEnabled: boolean,
   readonly sync: {
-    splitFilters: SplitFilter[]
+    splitFilters: SplitIO.SplitFilter[]
   }
 }
 /**
@@ -181,12 +153,12 @@ interface ISharedSettings {
      * At the moment, two types of split filters are supported: by name and by prefix.
      * Example:
      *  `splitFilter: [
-     *    { type: 'byName', values: ['my_split_1', 'my_split_2'] },
-     *    { type: 'byPrefix', values: ['my_split_'] }
+     *    { type: 'byName', values: ['my_split_1', 'my_split_2'] }, // will fetch splits named 'my_split_1' and 'my_split_2'
+     *    { type: 'byPrefix', values: ['testing'] } // will fetch splits whose names start with 'testing__' prefix
      *  ]`
-     * @property {SplitFilter[]} splitFilters
+     * @property {SplitIO.SplitFilter[]} splitFilters
      */
-    splitFilters?: SplitFilter[]
+    splitFilters?: SplitIO.SplitFilter[]
   }
 }
 /**
@@ -758,6 +730,26 @@ declare namespace SplitIO {
    * Available integration options for the browser
    */
   type BrowserIntegration = ISplitToGoogleAnalyticsConfig | IGoogleAnalyticsToSplitConfig;
+  /**
+   * SplitFilter type.
+   * @typedef {string} SplitFilterType
+   */
+  type SplitFilterType = 'byName' | 'byPrefix';
+  /**
+   * Defines a split filter, described by a type and list of values.
+   */
+  interface SplitFilter {
+    /**
+     * Type of the filter.
+     * @property {SplitFilterType} type
+     */
+    type: SplitFilterType,
+    /**
+     * List of values: split names for 'byName' filter type, and split prefixes for 'byPrefix' type.
+     * @property {string[]} values
+     */
+    values: string[],
+  }
   /**
    * Settings interface for SDK instances created on the browser
    * @interface IBrowserSettings

@@ -24,9 +24,9 @@ export const splitFilters = [
 ];
 
 export const queryStrings = [
-  'names=abc%C8%A3,abc%C8%A3asd,ausgef%C3%BCllt,%C8%A3abc',
-  'prefixes=abc%C8%A3,abc%C8%A3asd,ausgef%C3%BCllt,%C8%A3abc',
-  'names=abc%C8%A3,abc%C8%A3asd,ausgef%C3%BCllt,%C8%A3abc&prefixes=abc%C8%A3,abc%C8%A3asd,ausgef%C3%BCllt,%C8%A3abc'
+  '&names=abc%C8%A3,abc%C8%A3asd,ausgef%C3%BCllt,%C8%A3abc',
+  '&prefixes=abc%C8%A3,abc%C8%A3asd,ausgef%C3%BCllt,%C8%A3abc',
+  '&names=abc%C8%A3,abc%C8%A3asd,ausgef%C3%BCllt,%C8%A3abc&prefixes=abc%C8%A3,abc%C8%A3asd,ausgef%C3%BCllt,%C8%A3abc'
 ];
 
 export const filters = [

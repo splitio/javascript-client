@@ -19,7 +19,7 @@ export default function fetchSpecificSplits(fetchMock, assert) {
 
   for (let i = 0; i < splitFilters.length; i++) {
     const urls = { sdk: 'https://sdkurl' + i };
-    const queryString = queryStrings[i] ? '&' + queryStrings[i] : '';
+    const queryString = queryStrings[i] || '';
     const config = { ...baseConfig, sync: { splitFilters: splitFilters[i] }, urls };
     let factory;
 

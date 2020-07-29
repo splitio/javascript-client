@@ -16,5 +16,5 @@ limitations under the License.
 import base from '../request';
 
 export default function GET(settings, since, filterQueryString) {
-  return base(settings, `/splitChanges?since=${since}${filterQueryString ? '&' + filterQueryString : ''}`);
+  return base(settings, `/splitChanges?since=${since}${filterQueryString || ''}`);
 }
