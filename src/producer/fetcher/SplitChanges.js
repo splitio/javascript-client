@@ -21,7 +21,7 @@ import splitChangesService from '../../services/splitChanges';
 import splitChangesRequest from '../../services/splitChanges/get';
 
 function splitChangesFetcher(settings, since, startingUp = false, metricCollectors, isNode) {
-  const filterQueryString = settings.sync.splitFilters && settings.sync.splitFilters.queryString;
+  const filterQueryString = settings.sync.__splitFiltersValidation.queryString;
   let splitsPromise = splitChangesService(splitChangesRequest(settings, since, filterQueryString));
   const collectMetrics = startingUp || isNode; // If we are on the browser, only collect this metric for first fetch. On node do it always.
 

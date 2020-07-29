@@ -24,29 +24,35 @@ const validateSplitFilters = proxyquireStrict('../../inputValidation/splitFilter
 }).default;
 
 // Split filter and QueryStrings examples
-import { splitFilters, queryStrings, filters } from '../../../__tests__/mocks/fetchSpecificSplits';
+import { splitFilters, queryStrings, groupedFilters } from '../../../__tests__/mocks/fetchSpecificSplits';
 
 tape('INPUT VALIDATION for splitFilters', t => {
 
+  let defaultOutput = {
+    validFilters: [],
+    queryString: false,
+    groupedFilters: {}
+  };
+
   t.test('Returns undefined if `splitFilters` is an invalid object or `mode` is not \'standalone\'', assert => {
 
-    assert.deepEqual(validateSplitFilters(undefined, STANDALONE_MODE), undefined, 'splitFilters ignored if not a non-empty array');
-    assert.deepEqual(validateSplitFilters(null, STANDALONE_MODE), undefined, 'splitFilters ignored if not a non-empty array');
+    assert.deepEqual(validateSplitFilters(undefined, STANDALONE_MODE), defaultOutput, 'splitFilters ignored if not a non-empty array');
+    assert.deepEqual(validateSplitFilters(null, STANDALONE_MODE), defaultOutput, 'splitFilters ignored if not a non-empty array');
     assert.true(loggerMock.warn.notCalled);
 
-    assert.deepEqual(validateSplitFilters(true, STANDALONE_MODE), undefined, 'splitFilters ignored if not a non-empty array');
-    assert.true(loggerMock.warn.getCall(0).calledWithExactly('Factory instantiation: splitFilters configuration must be a non-empty array of filters.'));
+    assert.deepEqual(validateSplitFilters(true, STANDALONE_MODE), defaultOutput, 'splitFilters ignored if not a non-empty array');
+    assert.true(loggerMock.warn.getCall(0).calledWithExactly('Factory instantiation: splitFilters configuration must be a non-empty array of filter objects.'));
 
-    assert.deepEqual(validateSplitFilters(15, STANDALONE_MODE), undefined, 'splitFilters ignored if not a non-empty array');
-    assert.true(loggerMock.warn.getCall(1).calledWithExactly('Factory instantiation: splitFilters configuration must be a non-empty array of filters.'));
+    assert.deepEqual(validateSplitFilters(15, STANDALONE_MODE), defaultOutput, 'splitFilters ignored if not a non-empty array');
+    assert.true(loggerMock.warn.getCall(1).calledWithExactly('Factory instantiation: splitFilters configuration must be a non-empty array of filter objects.'));
 
-    assert.deepEqual(validateSplitFilters('string', STANDALONE_MODE), undefined, 'splitFilters ignored if not a non-empty array');
-    assert.true(loggerMock.warn.getCall(2).calledWithExactly('Factory instantiation: splitFilters configuration must be a non-empty array of filters.'));
+    assert.deepEqual(validateSplitFilters('string', STANDALONE_MODE), defaultOutput, 'splitFilters ignored if not a non-empty array');
+    assert.true(loggerMock.warn.getCall(2).calledWithExactly('Factory instantiation: splitFilters configuration must be a non-empty array of filter objects.'));
 
-    assert.deepEqual(validateSplitFilters([], STANDALONE_MODE), undefined, 'splitFilters ignored if not a non-empty array');
-    assert.true(loggerMock.warn.getCall(3).calledWithExactly('Factory instantiation: splitFilters configuration must be a non-empty array of filters.'));
+    assert.deepEqual(validateSplitFilters([], STANDALONE_MODE), defaultOutput, 'splitFilters ignored if not a non-empty array');
+    assert.true(loggerMock.warn.getCall(3).calledWithExactly('Factory instantiation: splitFilters configuration must be a non-empty array of filter objects.'));
 
-    assert.deepEqual(validateSplitFilters([{ type: 'byName', values: ['split_1'] }], CONSUMER_MODE), undefined);
+    assert.deepEqual(validateSplitFilters([{ type: 'byName', values: ['split_1'] }], CONSUMER_MODE), defaultOutput);
     assert.true(loggerMock.warn.calledWithExactly("Factory instantiation: split filters have been configured but will have no effect if mode is not 'standalone', since synchronization is being deferred to an external tool."));
 
     assert.true(loggerMock.error.notCalled);
@@ -61,7 +67,11 @@ tape('INPUT VALIDATION for splitFilters', t => {
       { type: 'byName', values: [] },
       { type: 'byName', values: [] },
       { type: 'byPrefix', values: [] }];
-    let output = [...splitFilters]; output.queryString = undefined; output.filters = { byName: false, byPrefix: false };
+    let output = {
+      validFilters: [...splitFilters],
+      queryString: false,
+      groupedFilters: { byName: [], byPrefix: [] }
+    };
     assert.deepEqual(validateSplitFilters(splitFilters, STANDALONE_MODE), output, 'filters without values');
     // assert.true(loggerMock.warn.getCall(0).calledWithExactly('Ignoring byName filter. It has no valid values (no-empty strings).'));
     // assert.true(loggerMock.warn.getCall(1).calledWithExactly('Ignoring byPrefix filter. It has no valid values (no-empty strings).'));
@@ -73,7 +83,7 @@ tape('INPUT VALIDATION for splitFilters', t => {
       { type: 'byName', values: 'invalid' },
       { type: null, values: [] },
       { type: 'byName', values: [13] });
-    output.push({ type: 'byName', values: [13] });
+    output.validFilters.push({ type: 'byName', values: [13] });
     assert.deepEqual(validateSplitFilters(splitFilters, STANDALONE_MODE), output, 'some filters are invalid');
     // assert.true(loggerMock.warn.getCall(0).calledWithExactly("'invalid' is an invalid filter. Only 'byName' and 'byPrefix' are valid."), 'invalid value of `type` property');
     // assert.true(loggerMock.warn.getCall(1).calledWithExactly("Split filter at position '4' is invalid. It must be an object with a valid 'type' filter and a list of 'values'."), 'invalid type of `values` property');
@@ -92,9 +102,11 @@ tape('INPUT VALIDATION for splitFilters', t => {
   t.test('Returns object with a queryString, if `splitFilters` contains at least a valid `byName` or `byPrefix` filter with at least a valid value', assert => {
 
     for (let i = 0; i < splitFilters.length; i++) {
-      const output = [...splitFilters[i]];
-      output.queryString = queryStrings[i];
-      output.filters = filters[i];
+      const output = {
+        validFilters: [...splitFilters[i]],
+        queryString: queryStrings[i],
+        groupedFilters: groupedFilters[i]
+      };
       assert.deepEqual(validateSplitFilters(splitFilters[i], STANDALONE_MODE), output, `splitFilters #${i}`);
       // assert.true(loggerMock.debug.calledWith(`Splits filtering criteria: '${queryStrings[i]}'`));
     }

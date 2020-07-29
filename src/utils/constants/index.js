@@ -22,3 +22,17 @@ export const SPLIT_TO_GOOGLE_ANALYTICS = 'SPLIT_TO_GOOGLE_ANALYTICS';
 // Integration data types
 export const SPLIT_IMPRESSION = 'IMPRESSION';
 export const SPLIT_EVENT = 'EVENT';
+// Split filters metadata.
+// Ordered according to their precedency when forming the filter query string: `&names=<values>&prefixes=<values>`
+export const FILTERS_METADATA = [
+  {
+    type: 'byName',
+    maxLength: 400,
+    queryParam: 'names='
+  },
+  {
+    type: 'byPrefix',
+    maxLength: 50,
+    queryParam: 'prefixes='
+  }
+];
