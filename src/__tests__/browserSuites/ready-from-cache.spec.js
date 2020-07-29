@@ -133,7 +133,6 @@ export default function (fetchMock, assert) {
       t.pass('It should emit SDK_READY alone, since there was no cache.');
     });
 
-
   });
 
   assert.test(t => { // Testing when we start with cached data but without lastUpdate item (previous version)
@@ -461,7 +460,7 @@ export default function (fetchMock, assert) {
 
   /** Fetch specific splits **/
 
-  assert.test(t => { // Testing when we start with cached data without split filter, and a split filter config
+  assert.test(t => { // Testing when we start with cached data without split filter, and a valid split filter config
     const testUrls = {
       sdk: 'https://sdk.baseurl/readyFromCache_5',
       events: 'https://events.baseurl/readyFromCache_5'
@@ -506,6 +505,50 @@ export default function (fetchMock, assert) {
         t.equal(localStorage.getItem('readyFromCache_5.SPLITIO.split.p1__split'), JSON.stringify(splitDeclarations.p1__split), 'split declarations must be cached');
         t.equal(localStorage.getItem('readyFromCache_5.SPLITIO.split.p2__split'), JSON.stringify(splitDeclarations.p2__split), 'split declarations must be cached');
         t.equal(localStorage.getItem('readyFromCache_5.SPLITIO.splits.filterQuery'), '&names=p1__split,p2__split', 'splits.filterQuery must correspond to the split filter query');
+        t.end();
+      });
+    });
+  });
+
+  assert.test(t => { // Testing when we start from scratch, and a valid split filter config
+    const testUrls = {
+      sdk: 'https://sdk.baseurl/readyFromCache_5B',
+      events: 'https://events.baseurl/readyFromCache_5B'
+    };
+    localStorage.clear();
+    t.plan(5);
+
+    fetchMock.getOnce(testUrls.sdk + '/splitChanges?since=-1&names=p1__split,p2__split', { status: 200, body: { splits: [splitDeclarations.p1__split, splitDeclarations.p2__split], since: -1, till: 1457552620999 } }, { delay: 10 }); // short delay to let emit SDK_READY_FROM_CACHE
+    fetchMock.getOnce(testUrls.sdk + '/mySegments/nicolas@split.io', { status: 200, body: { mySegments: [] } });
+
+    const splitio = SplitFactory({
+      ...baseConfig,
+      storage: {
+        type: 'LOCALSTORAGE',
+        prefix: 'readyFromCache_5B'
+      },
+      urls: testUrls,
+      sync: {
+        splitFilters: [{ type: 'byName', values: ['p2__split', 'p1__split'] }, { type: 'byName', values: ['p2__split', null] }]
+      },
+      debug: true
+    });
+    const client = splitio.client();
+    const manager = splitio.manager();
+
+    client.once(client.Event.SDK_READY_FROM_CACHE, () => {
+      t.fail('It should not emit SDK_READY_FROM_CACHE if cache is empty.');
+      t.end();
+    });
+
+    client.once(client.Event.SDK_READY, () => {
+      t.deepEqual(manager.names(), ['p1__split', 'p2__split'], 'p1__split should be added for evaluation');
+
+      client.destroy().then(() => {
+        t.equal(localStorage.getItem('readyFromCache_5B.SPLITIO.splits.till'), '1457552620999', 'splits.till must correspond to the till of the last successfully fetched Splits');
+        t.equal(localStorage.getItem('readyFromCache_5B.SPLITIO.split.p1__split'), JSON.stringify(splitDeclarations.p1__split), 'split declarations must be cached');
+        t.equal(localStorage.getItem('readyFromCache_5B.SPLITIO.split.p2__split'), JSON.stringify(splitDeclarations.p2__split), 'split declarations must be cached');
+        t.equal(localStorage.getItem('readyFromCache_5B.SPLITIO.splits.filterQuery'), '&names=p1__split,p2__split', 'splits.filterQuery must correspond to the split filter query');
         t.end();
       });
     });
@@ -613,61 +656,73 @@ export default function (fetchMock, assert) {
     });
   });
 
-  // TODO: Testing when we start with cached data with split filter, and no split filter config (null query string)
+  assert.test(assert => { // Testing when we start with cached data with split filter, and no or invalid split filter config (null query string)
 
-  assert.test(t => { // Testing when we start with cached data with split filter, and an invalid split filter config (null query string)
-    const testUrls = {
-      sdk: 'https://sdk.baseurl/readyFromCache_8',
-      events: 'https://events.baseurl/readyFromCache_8'
-    };
-    localStorage.clear();
-    t.plan(8);
+    const syncParamsWithNullSplitQuery = [
+      // not defined sync config param
+      undefined,
+      // invalid splitFilters param
+      { splitFilters: 'invalid' },
+      // splitFilters param with all filters invalid
+      { splitFilters: [{ type: 'byTag', values: ['some_tag'] }] }
+    ];
 
-    fetchMock.getOnce(testUrls.sdk + '/splitChanges?since=-1', { status: 200, body: { splits: [splitDeclarations.p1__split, splitDeclarations.p2__split, splitDeclarations.p3__split], since: -1, till: 1457552620999 } }, { delay: 10 }); // short delay to let emit SDK_READY_FROM_CACHE
-    fetchMock.getOnce(testUrls.sdk + '/mySegments/nicolas@split.io', { status: 200, body: { mySegments: [] } });
+    syncParamsWithNullSplitQuery.forEach(syncParam => {
 
-    localStorage.setItem('some_user_item', 'user_item');
-    localStorage.setItem('readyFromCache_8.SPLITIO.splits.till', 25);
-    localStorage.setItem('readyFromCache_8.SPLITIO.split.p1__split', JSON.stringify(splitDeclarations.p1__split));
-    localStorage.setItem('readyFromCache_8.SPLITIO.split.p2__split', JSON.stringify(splitDeclarations.p2__split));
-    localStorage.setItem('readyFromCache_8.SPLITIO.split.deleted__split', 'deleted_split');
-    localStorage.setItem('readyFromCache_8.SPLITIO.splits.filterQuery', '&names=p2__split&prefixes=p1');
+      assert.test(t => {
+        const testUrls = {
+          sdk: 'https://sdk.baseurl/readyFromCache_8',
+          events: 'https://events.baseurl/readyFromCache_8'
+        };
+        localStorage.clear();
+        t.plan(8);
 
-    const splitio = SplitFactory({
-      ...baseConfig,
-      storage: {
-        type: 'LOCALSTORAGE',
-        prefix: 'readyFromCache_8'
-      },
-      urls: testUrls,
-      sync: {
-        splitFilters: [ {type: 'byTag', values: [ 'some_tag'] }], // invalid filter type
-      },
-      debug: true
-    });
-    const client = splitio.client();
-    const manager = splitio.manager();
+        fetchMock.getOnce(testUrls.sdk + '/splitChanges?since=-1', { status: 200, body: { splits: [splitDeclarations.p1__split, splitDeclarations.p2__split, splitDeclarations.p3__split], since: -1, till: 1457552620999 } }, { delay: 10 }); // short delay to let emit SDK_READY_FROM_CACHE
+        fetchMock.getOnce(testUrls.sdk + '/mySegments/nicolas@split.io', { status: 200, body: { mySegments: [] } });
 
-    client.once(client.Event.SDK_READY_FROM_CACHE, () => {
-      t.deepEqual(manager.names(), ['p1__split', 'deleted__split', 'p2__split'], 'splits shouldn\'t be removed for evaluation'); // TODO remove
-    });
+        localStorage.setItem('some_user_item', 'user_item');
+        localStorage.setItem('readyFromCache_8.SPLITIO.splits.till', 25);
+        localStorage.setItem('readyFromCache_8.SPLITIO.split.p1__split', JSON.stringify(splitDeclarations.p1__split));
+        localStorage.setItem('readyFromCache_8.SPLITIO.split.p2__split', JSON.stringify(splitDeclarations.p2__split));
+        localStorage.setItem('readyFromCache_8.SPLITIO.split.deleted__split', 'deleted_split');
+        localStorage.setItem('readyFromCache_8.SPLITIO.splits.filterQuery', '&names=p2__split&prefixes=p1');
 
-    client.once(client.Event.SDK_READY, () => {
-      t.deepEqual(manager.names(), ['p1__split', 'p2__split', 'p3__split'], 'active splits should be present for evaluation');
+        const splitio = SplitFactory({
+          ...baseConfig,
+          storage: {
+            type: 'LOCALSTORAGE',
+            prefix: 'readyFromCache_8'
+          },
+          urls: testUrls,
+          sync: syncParam,
+          debug: true
+        });
+        const client = splitio.client();
+        const manager = splitio.manager();
 
-      client.destroy().then(() => {
-        t.equal(localStorage.getItem('some_user_item'), 'user_item', 'user items at localStorage must not be changed');
-        t.equal(localStorage.getItem('readyFromCache_8.SPLITIO.splits.till'), '1457552620999', 'splits.till must correspond to the till of the last successfully fetched Splits');
-        t.equal(localStorage.getItem('readyFromCache_8.SPLITIO.split.p1__split'), JSON.stringify(splitDeclarations.p1__split), 'split declarations must be cached');
-        t.equal(localStorage.getItem('readyFromCache_8.SPLITIO.split.p2__split'), JSON.stringify(splitDeclarations.p2__split), 'split declarations must be cached');
-        t.equal(localStorage.getItem('readyFromCache_8.SPLITIO.split.p3__split'), JSON.stringify(splitDeclarations.p3__split), 'split declarations must be cached');
-        t.equal(localStorage.getItem('readyFromCache_8.SPLITIO.splits.filterQuery'), null, 'splits.filterQuery must correspond to the split filter query');
-        t.end();
+        client.once(client.Event.SDK_READY_FROM_CACHE, () => {
+          t.deepEqual(manager.names(), [], 'splits should be removed for evaluation');
+        });
+
+        client.once(client.Event.SDK_READY, () => {
+          t.deepEqual(manager.names(), ['p1__split', 'p2__split', 'p3__split'], 'active splits should be present for evaluation');
+
+          client.destroy().then(() => {
+            t.equal(localStorage.getItem('some_user_item'), 'user_item', 'user items at localStorage must not be changed');
+            t.equal(localStorage.getItem('readyFromCache_8.SPLITIO.splits.till'), '1457552620999', 'splits.till must correspond to the till of the last successfully fetched Splits');
+            t.equal(localStorage.getItem('readyFromCache_8.SPLITIO.split.p1__split'), JSON.stringify(splitDeclarations.p1__split), 'split declarations must be cached');
+            t.equal(localStorage.getItem('readyFromCache_8.SPLITIO.split.p2__split'), JSON.stringify(splitDeclarations.p2__split), 'split declarations must be cached');
+            t.equal(localStorage.getItem('readyFromCache_8.SPLITIO.split.p3__split'), JSON.stringify(splitDeclarations.p3__split), 'split declarations must be cached');
+            t.equal(localStorage.getItem('readyFromCache_8.SPLITIO.splits.filterQuery'), null, 'splits.filterQuery must correspond to the split filter query');
+            t.end();
+          });
+        });
       });
+
     });
   });
 
-  assert.test(t => { // Testing when we start with cached data with split filter, and a new split filter config
+  assert.test(t => { // Testing when we start with cached data with split filter, and a new valid split filter config
     const testUrls = {
       sdk: 'https://sdk.baseurl/readyFromCache_9',
       events: 'https://events.baseurl/readyFromCache_9'
@@ -717,5 +772,4 @@ export default function (fetchMock, assert) {
     });
   });
 
-  // @TODO Testing when we start from scratch, and with a split filter config
 }

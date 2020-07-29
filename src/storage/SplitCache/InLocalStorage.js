@@ -298,10 +298,11 @@ class SplitCacheLocalStorage {
           this.cacheReadyButNeedsToFlush = true;
 
           // * remove from cache splits that doesn't match with the new filters
-          groupedFilters && this.getKeys().forEach((splitName) => {
-            if (groupedFilters.byName.length === 0 && groupedFilters.byPrefix.length === 0) return;
-            if (groupedFilters.byName && groupedFilters.byName.indexOf(splitName) > -1) return;
-            if (groupedFilters.byPrefix && groupedFilters.byPrefix.some(prefix => splitName.startsWith(prefix + '__'))) return;
+          this.getKeys().forEach((splitName) => {
+            if (queryString && (
+              groupedFilters.byName.indexOf(splitName) > -1 ||
+              groupedFilters.byPrefix.some(prefix => splitName.startsWith(prefix + '__'))
+            )) return;
             this.removeSplit(splitName);
           });
         }
