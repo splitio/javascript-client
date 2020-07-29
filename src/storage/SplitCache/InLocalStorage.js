@@ -13,6 +13,7 @@ class SplitCacheLocalStorage {
    */
   constructor(keys, expirationTimestamp, splitFiltersValidation) {
     this.keys = keys;
+    this.splitFiltersValidation = splitFiltersValidation;
 
     this.__checkExpiration(expirationTimestamp);
 
@@ -127,17 +128,24 @@ class SplitCacheLocalStorage {
   }
 
   setChangeNumber(changeNumber) {
+    // when cache is ready but using a new split query, we must flush all split data
     if(this.cacheReadyButNeedsToFlush) {
-      // we must flush all split data except the filter query
-      const queryKey = this.keys.buildSplitsFilterQueryKey();
-      const queryString = localStorage.getItem(queryKey);
       this.flush();
       this.cacheReadyButNeedsToFlush = false;
+    }
+
+    // when using a new split query, we must update it at the store
+    if(this.updateNewFilter) {
       try {
-        if(queryString) localStorage.setItem(queryKey, queryString);
+        log.info('Split filter query was modified. Updating cache.');
+        const queryKey = this.keys.buildSplitsFilterQueryKey();
+        const { queryString } = this.splitFiltersValidation;
+        if (queryString) localStorage.setItem(queryKey, queryString);
+        else localStorage.removeItem(queryKey);
       } catch (e) {
         log.error(e);
       }
+      this.updateNewFilter = false;
     }
 
     try {
@@ -283,18 +291,15 @@ class SplitCacheLocalStorage {
     // eslint-disable-next-line eqeqeq
     if (currentQueryString !== queryString) {
       try {
-        log.info('Split filter query was modified. Updating it in localStorage cache.');
-
-        // if filter changed, it is updated in the storage
-        if (queryString) localStorage.setItem(queryKey, queryString);
-        else localStorage.removeItem(queryKey);
+        // mark cache to update the new query filter on first successful splits fetch
+        this.updateNewFilter = true;
 
         // if cache is ready:
         if (this.checkCache()) {
           // * set change number to -1, to fetch splits with -1 `since` value.
           localStorage.setItem(this.keys.buildSplitsTillKey(), '-1');
 
-          // * set `cacheReadyButNeedsToFlush` so that `checkCache` returns true (the storage is ready to be used) but the data is flushed before updating with the first split fetch
+          // * set `cacheReadyButNeedsToFlush` so that `checkCache` returns true (the storage is ready to be used) and the data is flushed before updating on first successful splits fetch
           this.cacheReadyButNeedsToFlush = true;
 
           // * remove from cache splits that doesn't match with the new filters

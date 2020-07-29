@@ -94,7 +94,7 @@ export default function validateSplitFilters(splitFilters, mode) {
       res.groupedFilters[filter.type] = res.groupedFilters[filter.type].concat(filter.values);
       return true;
     } else {
-      log.warn(`Factory instantiation: split filter at position '${index}' is invalid. It must be an object with a valid 'type' filter and a list of 'values'.`);
+      log.warn(`Factory instantiation: split filter at position '${index}' is invalid. It must be an object with a valid filter type ('byName' or 'byPrefix') and a list of 'values'.`);
     }
     return false;
   });
