@@ -675,7 +675,7 @@ export default function (fetchMock, assert) {
           events: 'https://events.baseurl/readyFromCache_8'
         };
         localStorage.clear();
-        t.plan(8);
+        t.plan(7);
 
         fetchMock.getOnce(testUrls.sdk + '/splitChanges?since=-1', { status: 200, body: { splits: [splitDeclarations.p1__split, splitDeclarations.p2__split, splitDeclarations.p3__split], since: -1, till: 1457552620999 } }, { delay: 10 }); // short delay to let emit SDK_READY_FROM_CACHE
         fetchMock.getOnce(testUrls.sdk + '/mySegments/nicolas@split.io', { status: 200, body: { mySegments: [] } });
@@ -701,7 +701,8 @@ export default function (fetchMock, assert) {
         const manager = splitio.manager();
 
         client.once(client.Event.SDK_READY_FROM_CACHE, () => {
-          t.deepEqual(manager.names(), [], 'splits should be removed for evaluation');
+          t.fail('It should not emit SDK_READY_FROM_CACHE because all splits were removed from cache since the filter query changed.');
+          t.end();
         });
 
         client.once(client.Event.SDK_READY, () => {

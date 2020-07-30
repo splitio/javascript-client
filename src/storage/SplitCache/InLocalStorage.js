@@ -17,7 +17,7 @@ class SplitCacheLocalStorage {
 
     this.__checkExpiration(expirationTimestamp);
 
-    this.__checkFilterQuery(splitFiltersValidation);
+    this.__checkFilterQuery();
   }
 
   decrementCount(key) {
@@ -136,10 +136,10 @@ class SplitCacheLocalStorage {
 
     // when using a new split query, we must update it at the store
     if(this.updateNewFilter) {
+      log.info('Split filter query was modified. Updating cache.');
+      const queryKey = this.keys.buildSplitsFilterQueryKey();
+      const { queryString } = this.splitFiltersValidation;
       try {
-        log.info('Split filter query was modified. Updating cache.');
-        const queryKey = this.keys.buildSplitsFilterQueryKey();
-        const { queryString } = this.splitFiltersValidation;
         if (queryString) localStorage.setItem(queryKey, queryString);
         else localStorage.removeItem(queryKey);
       } catch (e) {
@@ -283,8 +283,8 @@ class SplitCacheLocalStorage {
     }
   }
 
-  __checkFilterQuery(splitFiltersValidation) {
-    const { queryString, groupedFilters } = splitFiltersValidation;
+  __checkFilterQuery() {
+    const { queryString, groupedFilters } = this.splitFiltersValidation;
     const queryKey = this.keys.buildSplitsFilterQueryKey();
     const currentQueryString = localStorage.getItem(queryKey);
 
@@ -299,15 +299,16 @@ class SplitCacheLocalStorage {
           // * set change number to -1, to fetch splits with -1 `since` value.
           localStorage.setItem(this.keys.buildSplitsTillKey(), '-1');
 
-          // * set `cacheReadyButNeedsToFlush` so that `checkCache` returns true (the storage is ready to be used) and the data is flushed before updating on first successful splits fetch
-          this.cacheReadyButNeedsToFlush = true;
-
           // * remove from cache splits that doesn't match with the new filters
           this.getKeys().forEach((splitName) => {
             if (queryString && (
               groupedFilters.byName.indexOf(splitName) > -1 ||
               groupedFilters.byPrefix.some(prefix => splitName.startsWith(prefix + '__'))
-            )) return;
+            )) {
+              // * set `cacheReadyButNeedsToFlush` so that `checkCache` returns true (the storage is ready to be used) and the data is flushed before updating on first successful splits fetch
+              this.cacheReadyButNeedsToFlush = true;
+              return;
+            }
             this.removeSplit(splitName);
           });
         }
