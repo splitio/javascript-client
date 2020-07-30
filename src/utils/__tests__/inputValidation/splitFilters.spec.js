@@ -99,13 +99,19 @@ tape('INPUT VALIDATION for splitFilters', t => {
   t.test('Returns object with a queryString, if `splitFilters` contains at least a valid `byName` or `byPrefix` filter with at least a valid value', assert => {
 
     for (let i = 0; i < splitFilters.length; i++) {
-      const output = {
-        validFilters: [...splitFilters[i]],
-        queryString: queryStrings[i],
-        groupedFilters: groupedFilters[i]
-      };
-      assert.deepEqual(validateSplitFilters(splitFilters[i], STANDALONE_MODE), output, `splitFilters #${i}`);
-      assert.true(loggerMock.debug.calledWith(`Factory instantiation: splits filtering criteria is '${queryStrings[i]}'.`));
+
+      if (groupedFilters[i]) { // tests where validateSplitFilters executes normally
+        const output = {
+          validFilters: [...splitFilters[i]],
+          queryString: queryStrings[i],
+          groupedFilters: groupedFilters[i]
+        };
+        assert.deepEqual(validateSplitFilters(splitFilters[i], STANDALONE_MODE), output, `splitFilters #${i}`);
+        assert.true(loggerMock.debug.calledWith(`Factory instantiation: splits filtering criteria is '${queryStrings[i]}'.`));
+
+      } else { // tests where validateSplitFilters throws an exception
+        assert.throws(() => validateSplitFilters(splitFilters[i], STANDALONE_MODE), queryStrings[i]);
+      }
     }
 
     resetStubs();

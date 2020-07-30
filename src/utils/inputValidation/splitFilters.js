@@ -22,11 +22,11 @@ function validateSplitFilter(type, values, maxLength) {
   let result = validateSplits(values, 'Factory instantiation', `${type} filter`, `${type} filter value`);
 
   if (result) {
-    // sort values
-    result.sort();
-
     // check max length
     if (result.length > maxLength) throw new Error(`${maxLength} unique values can be specified at most for '${type}' filter. You passed ${result.length}. Please consider reducing the amount or using other filter.`);
+
+    // sort values
+    result.sort();
   }
   return result || []; // returns empty array if `result` is `false`
 }

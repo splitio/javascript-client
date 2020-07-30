@@ -1,5 +1,5 @@
 import { SplitFactory } from '../../';
-import { splitFilters, queryStrings } from '../mocks/fetchSpecificSplits';
+import { splitFilters, queryStrings, groupedFilters } from '../mocks/fetchSpecificSplits';
 // import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 
 const baseConfig = {
@@ -19,21 +19,31 @@ export default function fetchSpecificSplits(fetchMock, assert) {
 
   for (let i = 0; i < splitFilters.length; i++) {
     const urls = { sdk: 'https://sdkurl' + i };
-    const queryString = queryStrings[i] || '';
     const config = { ...baseConfig, sync: { splitFilters: splitFilters[i] }, urls };
-    let factory;
 
-    fetchMock.getOnce(urls.sdk + '/splitChanges?since=-1' + queryString, { status: 200, body: { splits: [], since: -1, till: 1457552620999 } });
-    fetchMock.getOnce(urls.sdk + '/splitChanges?since=1457552620999' + queryString, { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
-    fetchMock.getOnce(urls.sdk + '/splitChanges?since=1457552620999' + queryString, function () {
-      factory.client().destroy().then(() => {
-        assert.pass(`splitFilters #${i}`);
+    if (groupedFilters[i]) { // tests where validateSplitFilters executes normally
+      const queryString = queryStrings[i] || '';
+      let factory;
+
+      fetchMock.getOnce(urls.sdk + '/splitChanges?since=-1' + queryString, { status: 200, body: { splits: [], since: -1, till: 1457552620999 } });
+      fetchMock.getOnce(urls.sdk + '/splitChanges?since=1457552620999' + queryString, { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
+      fetchMock.getOnce(urls.sdk + '/splitChanges?since=1457552620999' + queryString, function () {
+        factory.client().destroy().then(() => {
+          assert.pass(`splitFilters #${i}`);
+        });
+        return { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } };
       });
-      return { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } };
-    });
-    fetchMock.get(urls.sdk + '/mySegments/nicolas@split.io', { status: 200, body: { 'mySegments': [] } });
+      fetchMock.get(urls.sdk + '/mySegments/nicolas@split.io', { status: 200, body: { 'mySegments': [] } });
 
-    factory = SplitFactory(config);
+      factory = SplitFactory(config);
+
+    } else { // tests where validateSplitFilters throws an exception
+      try {
+        SplitFactory(config);
+      } catch (e) {
+        assert.equal(e.message, queryStrings[i]);
+      }
+    }
 
   }
 }
