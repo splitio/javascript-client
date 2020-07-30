@@ -13,7 +13,7 @@ const log = logFactory('splitio-settings');
 const validateIntegrationsSettings = (settings, validIntegrationTypes = []) => {
   const { integrations } = settings;
 
-  // If integrations is not an array or an empty array, we return undefined (no integrations).
+  // If integrations is not an array or an empty array, we return an empty array (no integrations).
   if (!Array.isArray(integrations) || integrations.length === 0)
     return [];
 

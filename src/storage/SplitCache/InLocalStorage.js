@@ -6,10 +6,18 @@ import killLocally from './killLocally';
 
 class SplitCacheLocalStorage {
 
-  constructor(keys, expirationTimestamp) {
+  /**
+   * @param {Object} keys
+   * @param {number} expirationTimestamp
+   * @param {Object} splitFiltersValidation
+   */
+  constructor(keys, expirationTimestamp, splitFiltersValidation) {
     this.keys = keys;
+    this.splitFiltersValidation = splitFiltersValidation;
 
     this.__checkExpiration(expirationTimestamp);
+
+    this.__checkFilterQuery();
   }
 
   decrementCount(key) {
@@ -120,6 +128,26 @@ class SplitCacheLocalStorage {
   }
 
   setChangeNumber(changeNumber) {
+    // when cache is ready but using a new split query, we must flush all split data
+    if(this.cacheReadyButNeedsToFlush) {
+      this.flush();
+      this.cacheReadyButNeedsToFlush = false;
+    }
+
+    // when using a new split query, we must update it at the store
+    if(this.updateNewFilter) {
+      log.info('Split filter query was modified. Updating cache.');
+      const queryKey = this.keys.buildSplitsFilterQueryKey();
+      const { queryString } = this.splitFiltersValidation;
+      try {
+        if (queryString) localStorage.setItem(queryKey, queryString);
+        else localStorage.removeItem(queryKey);
+      } catch (e) {
+        log.error(e);
+      }
+      this.updateNewFilter = false;
+    }
+
     try {
       localStorage.setItem(this.keys.buildSplitsTillKey(), changeNumber + '');
       // update "last updated" timestamp with current time
@@ -234,10 +262,11 @@ class SplitCacheLocalStorage {
 
   /**
    * Check if the splits information is already stored in cache.
+   * It is used as condition to emit SDK_SPLITS_CACHE_LOADED, and then SDK_READY_FROM_CACHE.
    * In this function we could add more code to check if the data is valid.
    */
   checkCache() {
-    return this.getChangeNumber() > -1;
+    return this.getChangeNumber() > -1 || this.cacheReadyButNeedsToFlush;
   }
 
   /**
@@ -252,6 +281,42 @@ class SplitCacheLocalStorage {
       value = parseInt(value, 10);
       if (!numberIsNaN(value) && value < expirationTimestamp) this.flush();
     }
+  }
+
+  __checkFilterQuery() {
+    const { queryString, groupedFilters } = this.splitFiltersValidation;
+    const queryKey = this.keys.buildSplitsFilterQueryKey();
+    const currentQueryString = localStorage.getItem(queryKey);
+
+    // eslint-disable-next-line eqeqeq
+    if (currentQueryString !== queryString) {
+      try {
+        // mark cache to update the new query filter on first successful splits fetch
+        this.updateNewFilter = true;
+
+        // if cache is ready:
+        if (this.checkCache()) {
+          // * set change number to -1, to fetch splits with -1 `since` value.
+          localStorage.setItem(this.keys.buildSplitsTillKey(), '-1');
+
+          // * remove from cache splits that doesn't match with the new filters
+          this.getKeys().forEach((splitName) => {
+            if (queryString && (
+              groupedFilters.byName.indexOf(splitName) > -1 ||
+              groupedFilters.byPrefix.some(prefix => splitName.startsWith(prefix + '__'))
+            )) {
+              // * set `cacheReadyButNeedsToFlush` so that `checkCache` returns true (the storage is ready to be used) and the data is flushed before updating on first successful splits fetch
+              this.cacheReadyButNeedsToFlush = true;
+              return;
+            }
+            this.removeSplit(splitName);
+          });
+        }
+      } catch (e) {
+        log.error(e);
+      }
+    }
+    // if the filter didn't change, nothing is done
   }
 }
 

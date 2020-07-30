@@ -64,7 +64,7 @@ const BrowserStorageFactory = context => {
       const expirationTimestamp = Date.now() - DEFAULT_CACHE_EXPIRATION_IN_MILLIS;
 
       return {
-        splits: new SplitCacheInLocalStorage(keys, expirationTimestamp),
+        splits: new SplitCacheInLocalStorage(keys, expirationTimestamp, settings.sync.__splitFiltersValidation),
         segments: new SegmentCacheInLocalStorage(keys),
         impressions: new ImpressionsCacheInMemory,
         metrics: new LatencyCacheInMemory,

@@ -384,6 +384,9 @@ impressionListener.logImpression(impressionData);
 
 /**** Tests for fully crowded settings interfaces ****/
 
+// Split filters
+let splitFilters: SplitIO.SplitFilter[] = [{ type: 'byName', values: ['my_split_1', 'my_split_1'] }, { type: 'byPrefix', values: ['my_split', 'test_split_'] }]
+
 // Browser integrations
 let fieldsObjectSample: UniversalAnalytics.FieldsObject = { hitType: 'event', eventAction: 'action' };
 let eventDataSample: SplitIO.EventData = { eventTypeId: 'someEventTypeId', value: 10, properties: {} }
@@ -444,7 +447,10 @@ let fullBrowserSettings: SplitIO.IBrowserSettings = {
   impressionListener: impressionListener,
   debug: true,
   integrations: [googleAnalyticsToSplitConfig, splitToGoogleAnalyticsConfig, customGoogleAnalyticsToSplitConfig, customSplitToGoogleAnalyticsConfig],
-  streamingEnabled: true
+  streamingEnabled: true,
+  sync: {
+    splitFilters: splitFilters
+  }
 };
 fullBrowserSettings.storage.type = 'MEMORY';
 fullBrowserSettings.integrations[0].type = 'GOOGLE_ANALYTICS_TO_SPLIT';
@@ -479,7 +485,10 @@ let fullNodeSettings: SplitIO.INodeSettings = {
   impressionListener: impressionListener,
   mode: 'standalone',
   debug: false,
-  streamingEnabled: false
+  streamingEnabled: false,
+  sync: {
+    splitFilters: splitFilters
+  }
 };
 fullNodeSettings.storage.type = 'MEMORY';
 fullNodeSettings.mode = 'consumer';
@@ -514,5 +523,8 @@ let fullAsyncSettings: SplitIO.INodeAsyncSettings = {
   },
   impressionListener: impressionListener,
   mode: 'standalone',
-  debug: true
+  debug: true,
+  sync: {
+    splitFilters: splitFilters
+  }
 };

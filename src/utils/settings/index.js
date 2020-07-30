@@ -22,6 +22,7 @@ import overridesPerPlatform from './defaults';
 import storage from './storage';
 import integrations from './integrations';
 import mode from './mode';
+import validateSplitFilters from '../inputValidation/splitFilters';
 import { API } from '../../utils/logger';
 import { STANDALONE_MODE, STORAGE_MEMORY, CONSUMER_MODE } from '../../utils/constants';
 import { version } from '../../../package.json';
@@ -98,6 +99,10 @@ const base = {
 
   // toggle using (true) or not using (false) Server-Side Events for synchronizing storage
   streamingEnabled: true,
+
+  sync: {
+    splitFilters: undefined
+  }
 };
 
 function fromSecondsToMillis(n) {
@@ -148,13 +153,18 @@ function defaults(custom) {
   withDefaults.integrations = integrations(withDefaults);
 
   // validate push options
-  if (withDefaults.streamingEnabled !== false) withDefaults.streamingEnabled = true;
-  if (withDefaults.streamingEnabled) {
+  if (withDefaults.streamingEnabled !== false) {
+    withDefaults.streamingEnabled = true;
     // Backoff bases.
     // We are not checking if bases are positive numbers. Thus, we might be reauthenticating immediately (`setTimeout` with NaN or negative number)
     withDefaults.scheduler.authRetryBackoffBase = fromSecondsToMillis(withDefaults.scheduler.authRetryBackoffBase);
     withDefaults.scheduler.streamingReconnectBackoffBase = fromSecondsToMillis(withDefaults.scheduler.streamingReconnectBackoffBase);
   }
+
+  // validate the `splitFilters` settings and parse splits query
+  const splitFiltersValidation = validateSplitFilters(withDefaults.sync.splitFilters, withDefaults.mode);
+  withDefaults.sync.splitFilters = splitFiltersValidation.validFilters;
+  withDefaults.sync.__splitFiltersValidation = splitFiltersValidation;
 
   return withDefaults;
 }

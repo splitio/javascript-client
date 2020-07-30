@@ -76,7 +76,10 @@ interface ISettings {
   features: {
     [featureName: string]: string
   },
-  readonly streamingEnabled: boolean
+  readonly streamingEnabled: boolean,
+  readonly sync: {
+    splitFilters: SplitIO.SplitFilter[]
+  }
 }
 /**
  * Log levels.
@@ -138,6 +141,25 @@ interface ISharedSettings {
    * @default true
    */
   streamingEnabled?: boolean,
+  /**
+   * SDK synchronization settings.
+   * @property {Object} scheduler
+   */
+  sync?: {
+    /**
+     * List of Split filters. These filters are used to fetch a subset of the Splits definitions in your environment, in order to reduce the delay of the SDK to be ready.
+     * This configuration is only meaningful when the SDK is working in "standalone" mode.
+     *
+     * At the moment, two types of split filters are supported: by name and by prefix.
+     * Example:
+     *  `splitFilter: [
+     *    { type: 'byName', values: ['my_split_1', 'my_split_2'] }, // will fetch splits named 'my_split_1' and 'my_split_2'
+     *    { type: 'byPrefix', values: ['testing'] } // will fetch splits whose names start with 'testing__' prefix
+     *  ]`
+     * @property {SplitIO.SplitFilter[]} splitFilters
+     */
+    splitFilters?: SplitIO.SplitFilter[]
+  }
 }
 /**
  * Common settings interface for SDK instances on NodeJS.
@@ -708,6 +730,26 @@ declare namespace SplitIO {
    * Available integration options for the browser
    */
   type BrowserIntegration = ISplitToGoogleAnalyticsConfig | IGoogleAnalyticsToSplitConfig;
+  /**
+   * SplitFilter type.
+   * @typedef {string} SplitFilterType
+   */
+  type SplitFilterType = 'byName' | 'byPrefix';
+  /**
+   * Defines a split filter, described by a type and list of values.
+   */
+  interface SplitFilter {
+    /**
+     * Type of the filter.
+     * @property {SplitFilterType} type
+     */
+    type: SplitFilterType,
+    /**
+     * List of values: split names for 'byName' filter type, and split prefixes for 'byPrefix' type.
+     * @property {string[]} values
+     */
+    values: string[],
+  }
   /**
    * Settings interface for SDK instances created on the browser
    * @interface IBrowserSettings
