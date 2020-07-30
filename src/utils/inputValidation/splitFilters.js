@@ -106,7 +106,7 @@ export default function validateSplitFilters(splitFilters, mode) {
 
   // build query string
   res.queryString = queryStringBuilder(res.groupedFilters);
-  if (res.queryString) log.debug(`Factory instantiation: splits filtering criteria is '${res.queryString}'.`);
+  log.debug(`Factory instantiation: splits filtering criteria is '${res.queryString}'.`);
 
   return res;
 }
