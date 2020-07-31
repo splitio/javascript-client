@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
+import objectAssign from 'object-assign';
 import logFactory from '../utils/logger';
 import thenable from '../utils/promise/thenable';
 const log = logFactory('splitio-client:impressions-tracker');
@@ -52,7 +53,7 @@ function ImpressionsTracker(context) {
         for (let i = 0; i < impressionsCount; i++) {
           const impressionData = {
             // copy of impression, to avoid unexpected behaviour if modified by integrations or impressionListener
-            impression: { ...slice[i].impression },
+            impression: objectAssign({}, slice[i].impression),
             attributes: slice[i].attributes,
             ip,
             hostname,

@@ -1,17 +1,19 @@
+import { _Set } from '../../utils/lang/Sets';
+
 /**
  * Collect segments from a raw split definition.
  */
 const parseSegments = (conditions) => {
-  let segments = new Set();
+  let segments = new _Set();
 
-  for (let condition of conditions) {
+  conditions.forEach(condition => {
     let {
       matcherGroup: {
         matchers
       }
     } = condition;
 
-    for (let matcher of matchers) {
+    matchers.forEach(matcher => {
       const {
         matcherType,
         userDefinedSegmentMatcherData
@@ -20,8 +22,8 @@ const parseSegments = (conditions) => {
       if (matcherType === 'IN_SEGMENT') {
         segments.add(userDefinedSegmentMatcherData.segmentName);
       }
-    }
-  }
+    });
+  });
 
   return segments;
 };

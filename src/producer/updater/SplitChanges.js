@@ -19,6 +19,7 @@ const log = logFactory('splitio-producer:split-changes');
 import splitChangesFetcher from '../fetcher/SplitChanges';
 import parseSegments from '../../engine/parser/segments';
 import { SplitError } from '../../utils/lang/Errors';
+import { _Set, setToArray } from '../../utils/lang/Sets';
 import thenable from '../../utils/promise/thenable';
 
 function computeSplitsMutation(entries) {
@@ -26,9 +27,9 @@ function computeSplitsMutation(entries) {
     if (split.status === 'ACTIVE') {
       accum.added.push([split.name, JSON.stringify(split)]);
 
-      for (let segmentName of parseSegments(split.conditions)) {
+      parseSegments(split.conditions).forEach(segmentName => {
         accum.segments.add(segmentName);
-      }
+      });
     } else {
       accum.removed.push(split.name);
     }
@@ -37,10 +38,10 @@ function computeSplitsMutation(entries) {
   }, {
     added: [],
     removed: [],
-    segments: new Set()
+    segments: new _Set()
   });
 
-  computed.segments = [...computed.segments];
+  computed.segments = setToArray(computed.segments);
 
   return computed;
 }
@@ -80,9 +81,10 @@ export default function SplitChangesUpdaterFactory(context, isNode = false) {
           // Write into storage
           // @TODO if allowing custom storages, wrap errors as SplitErrors to distinguish from user callback errors
           return Promise.all([
+            // calling first `setChangenumber` method, to perform cache flush if split filter queryString changed
+            storage.splits.setChangeNumber(splitChanges.till),
             storage.splits.addSplits(mutation.added),
             storage.splits.removeSplits(mutation.removed),
-            storage.splits.setChangeNumber(splitChanges.till),
             storage.segments.registerSegments(mutation.segments)
           ]).then(() => {
             if (since !== splitChanges.till || readyOnAlreadyExistentState) {
