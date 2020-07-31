@@ -1,7 +1,7 @@
 10.14.0 (Jul 31, 2020)
- - Added `sync.splitFilters` property to SDK configuration to pass a list of filters and thus fetch a subset of the Splits definitions in your environment, in order to reduce the delay of the SDK to be ready.
- - Added expiration policy to split cache for browsers using localStorage: cache is cleaned up after 10 days without use.
- - Updated babel configuration to remove core-js dependency and refactored code in favor of size reduction of builds: UMD bundles, ES modules and CommonJS builds.
+ - Added `sync.splitFilters` property to SDK configuration to pass a list of filters for the splits that will be downloaded. Read more in our docs.
+ - Added expiration policy to split cache for browsers using localStorage: cache is cleared after 10 days of the last successful update.
+ - Updated babel configuration to remove core-js dependency and refactored code in favor of size reduction of UMD, ESM and CommonJS builds.
 
 10.13.0 (Jun 25, 2020)
  - Updated client.ready() and manager.ready() functions to be consumed on demand and return a promise reflecting the current status of the SDK at the time the method was invoked.
