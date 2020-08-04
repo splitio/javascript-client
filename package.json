@@ -65,6 +65,7 @@
     "karma-tap": "4.1.4",
     "karma-webpack": "^4.0.2",
     "lodash": "^4.17.19",
+    "minimist": "^1.2.5",
     "proxyquire": "^2.1.3",
     "puppeteer": "^3.0.0",
     "redis-dump": "0.1.10",
@@ -79,6 +80,7 @@
     "webpack-merge": "^4.2.2"
   },
   "scripts": {
+    "preinstall": "npx npm-force-resolutions",
     "build-es": "rimraf es && cross-env NODE_ENV=es babel ./src -d es --ignore '__tests__'",
     "postbuild-es": "cross-env NODE_ENV=es node scripts/copy.packages.json.js",
     "build-umd:stats": "webpack --progress --env production --json > ./stats/stat_results.json",
@@ -114,6 +116,9 @@
     "test": "npm run browser-test-suite && npm run node-test-suite",
     "canary": "npm run rebuild && npm publish --tag canary",
     "stable": "npm run rebuild && npm publish"
+  },
+  "resolutions": {
+    "minimist": "^1.2.5"
   },
   "greenkeeper": {
     "ignore": [
