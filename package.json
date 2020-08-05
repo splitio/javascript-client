@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio",
-  "version": "10.14.0",
+  "version": "10.14.1-canary.0",
   "description": "Split SDK",
   "files": [
     "README.md",
@@ -48,7 +48,7 @@
     "eventsource": "^1.0.7"
   },
   "devDependencies": {
-    "@babel/cli": "^7.10.1",
+    "@babel/cli": "^7.10.5",
     "@babel/core": "^7.10.2",
     "@babel/plugin-transform-runtime": "^7.10.1",
     "@babel/preset-env": "^7.10.2",
@@ -60,7 +60,7 @@
     "eslint": "^6.8.0",
     "eslint-plugin-compat": "^3.7.0",
     "fetch-mock": "^9.4.0",
-    "karma": "^4.4.1",
+    "karma": "^5.1.1",
     "karma-chrome-launcher": "^3.1.0",
     "karma-tap": "4.1.4",
     "karma-webpack": "^4.0.2",
@@ -79,6 +79,7 @@
     "webpack-merge": "^4.2.2"
   },
   "scripts": {
+    "preinstall": "npx npm-force-resolutions",
     "build-es": "rimraf es && cross-env NODE_ENV=es babel ./src -d es --ignore '__tests__'",
     "postbuild-es": "cross-env NODE_ENV=es node scripts/copy.packages.json.js",
     "build-umd:stats": "webpack --progress --env production --json > ./stats/stat_results.json",
@@ -114,6 +115,9 @@
     "test": "npm run browser-test-suite && npm run node-test-suite",
     "canary": "npm run rebuild && npm publish --tag canary",
     "stable": "npm run rebuild && npm publish"
+  },
+  "resolutions": {
+    "minimist": "1.2.5"
   },
   "greenkeeper": {
     "ignore": [

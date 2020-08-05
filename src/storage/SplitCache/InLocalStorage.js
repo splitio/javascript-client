@@ -288,7 +288,6 @@ class SplitCacheLocalStorage {
     const queryKey = this.keys.buildSplitsFilterQueryKey();
     const currentQueryString = localStorage.getItem(queryKey);
 
-    // eslint-disable-next-line eqeqeq
     if (currentQueryString !== queryString) {
       try {
         // mark cache to update the new query filter on first successful splits fetch
