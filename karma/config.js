@@ -21,7 +21,7 @@ module.exports = {
 
   // list of files / patterns to load in the browser
   files: [
-    '*/__tests__/**/*.spec.js',
+    '*/**/__tests__/**/*.spec.js',
     {
       pattern: 'engine/__tests__/engine/mocks/murmur3*.csv',
       watched: false,
@@ -40,14 +40,14 @@ module.exports = {
 
   // list of files / patterns to exclude
   exclude: [
-    '*/__tests__/**/node.spec.js',
-    '*/__tests__/**/node_redis.spec.js',
-    '*/__tests__/**/inputValidation/*.spec.js'
+    '*/**/__tests__/**/node.spec.js',
+    '*/**/__tests__/**/node_redis.spec.js',
+    '*/**/__tests__/**/inputValidation/*.spec.js'
   ],
 
   // prepare code for the browser using webpack
   preprocessors: {
-    '*/__tests__/**/*.spec.js': ['webpack'],
+    '*/**/__tests__/**/*.spec.js': ['webpack'],
   },
 
   webpack: {
