@@ -26,7 +26,7 @@ import thenable from '../../utils/promise/thenable';
 function parse(conditions, storage) {
   let predicates = [];
 
-  for (let conditionKey in conditions) {
+  for (let i = 0; i < conditions.length; i++) {
     let {
       matcherGroup: {
         matchers
@@ -34,7 +34,7 @@ function parse(conditions, storage) {
       partitions,
       label,
       conditionType
-    } = conditions[conditionKey];
+    } = conditions[i];
 
     // transform data structure
     matchers = matchersTransform(matchers);
