@@ -9,8 +9,8 @@ const settings = SettingsFactory({
 
 export default function (startWithTT, fetchMock, assert) {
   // mocking mySegments endpoints with delays for new clients
-  fetchMock.get(settings.url('/mySegments/emiliano@split.io'), { status: 200, body: { mySegments: [] } }, { delay: 100 });
-  fetchMock.get(settings.url('/mySegments/matias@split.io'), { status: 200, body: { mySegments: [] } }, { delay: 200 });
+  fetchMock.get(settings.url('/mySegments/emiliano%40split.io'), { status: 200, body: { mySegments: [] } }, { delay: 100 });
+  fetchMock.get(settings.url('/mySegments/matias%40split.io'), { status: 200, body: { mySegments: [] } }, { delay: 200 });
 
   const factory = SplitFactory({
     core: {

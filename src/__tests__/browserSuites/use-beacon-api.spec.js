@@ -68,7 +68,7 @@ function beaconApiNotSendTest(fetchMock, assert) {
   // Mocking this specific route to make sure we only get the items we want to test from the handlers.
   fetchMock.get(settings.url('/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
   fetchMock.get(settings.url('/splitChanges?since=1457552620999'), { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
-  fetchMock.get(settings.url('/mySegments/facundo@split.io'), { status: 200, body: mySegmentsFacundo });
+  fetchMock.get(settings.url('/mySegments/facundo%40split.io'), { status: 200, body: mySegmentsFacundo });
 
   // Init and run Split client
   const splitio = SplitFactory(config);

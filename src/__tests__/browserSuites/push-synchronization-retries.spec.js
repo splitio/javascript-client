@@ -142,7 +142,7 @@ export function testSynchronizationRetries(fetchMock, assert) {
 
   // initial split and mySegments sync
   fetchMock.getOnce(settings.url('/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
-  fetchMock.getOnce(settings.url('/mySegments/nicolas@split.io'), { status: 200, body: mySegmentsNicolasMock1 });
+  fetchMock.getOnce(settings.url('/mySegments/nicolas%40split.io'), { status: 200, body: mySegmentsNicolasMock1 });
 
   // split and segment sync after SSE opened
   fetchMock.getOnce(settings.url('/splitChanges?since=1457552620999'), function () {
@@ -150,7 +150,7 @@ export function testSynchronizationRetries(fetchMock, assert) {
     assert.true(nearlyEqual(lapse, MILLIS_SSE_OPEN), 'sync after SSE connection is opened');
     return { status: 200, body: splitChangesMock2 };
   });
-  fetchMock.getOnce(settings.url('/mySegments/nicolas@split.io'), { status: 200, body: mySegmentsNicolasMock1 });
+  fetchMock.getOnce(settings.url('/mySegments/nicolas%40split.io'), { status: 200, body: mySegmentsNicolasMock1 });
 
   // fetch due to SPLIT_UPDATE event
   fetchMock.getOnce(settings.url('/splitChanges?since=1457552620999'), { status: 200, body: splitChangesMock2 });
@@ -162,13 +162,13 @@ export function testSynchronizationRetries(fetchMock, assert) {
   });
 
   // fetch due to first MY_SEGMENTS_UPDATE event
-  fetchMock.getOnce(settings.url('/mySegments/nicolas@split.io'), { throws: new TypeError('Network error') });
+  fetchMock.getOnce(settings.url('/mySegments/nicolas%40split.io'), { throws: new TypeError('Network error') });
   // fetch retry for MY_SEGMENTS_UPDATE event, due to previous fail
-  fetchMock.getOnce(settings.url('/mySegments/nicolas@split.io'), { status: 200, body: '{ "since": 1457552620999, "til' }); // invalid JSON response
+  fetchMock.getOnce(settings.url('/mySegments/nicolas%40split.io'), { status: 200, body: '{ "since": 1457552620999, "til' }); // invalid JSON response
   // fetch retry for MY_SEGMENTS_UPDATE event, due to previous fail
-  fetchMock.getOnce(settings.url('/mySegments/nicolas@split.io'), { status: 500, body: 'server error' });
+  fetchMock.getOnce(settings.url('/mySegments/nicolas%40split.io'), { status: 500, body: 'server error' });
   // second fetch retry for MY_SEGMENTS_UPDATE event, due to previous fail
-  fetchMock.getOnce(settings.url('/mySegments/nicolas@split.io'), function () {
+  fetchMock.getOnce(settings.url('/mySegments/nicolas%40split.io'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_THIRD_RETRY_FOR_MYSEGMENT_UPDATE_EVENT), 'sync second retry for MY_SEGMENTS_UPDATE event');
     return { status: 200, body: mySegmentsNicolasMock2 };

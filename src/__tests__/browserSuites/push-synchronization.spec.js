@@ -201,7 +201,7 @@ export function testSynchronization(fetchMock, assert) {
     assert.true(nearlyEqual(lapse, 0), 'initial sync');
     return { status: 200, body: splitChangesMock1 };
   });
-  fetchMock.getOnce(settings.url('/mySegments/nicolas@split.io'), { status: 200, body: mySegmentsNicolasMock1 });
+  fetchMock.getOnce(settings.url('/mySegments/nicolas%40split.io'), { status: 200, body: mySegmentsNicolasMock1 });
 
   // split and segment sync after SSE opened
   fetchMock.getOnce(settings.url('/splitChanges?since=1457552620999'), function () {
@@ -209,13 +209,13 @@ export function testSynchronization(fetchMock, assert) {
     assert.true(nearlyEqual(lapse, MILLIS_SSE_OPEN), 'sync after SSE connection is opened');
     return { status: 200, body: splitChangesMock2 };
   });
-  fetchMock.getOnce(settings.url('/mySegments/nicolas@split.io'), { status: 200, body: mySegmentsNicolasMock1 });
+  fetchMock.getOnce(settings.url('/mySegments/nicolas%40split.io'), { status: 200, body: mySegmentsNicolasMock1 });
 
   // fetch due to SPLIT_UPDATE event
   fetchMock.getOnce(settings.url('/splitChanges?since=1457552620999'), { status: 200, body: splitChangesMock3 });
 
   // fetch due to first MY_SEGMENTS_UPDATE event
-  fetchMock.getOnce(settings.url('/mySegments/nicolas@split.io'), { status: 200, body: mySegmentsNicolasMock2 });
+  fetchMock.getOnce(settings.url('/mySegments/nicolas%40split.io'), { status: 200, body: mySegmentsNicolasMock2 });
 
   // fetch due to SPLIT_KILL event
   fetchMock.getOnce(settings.url('/splitChanges?since=1457552649999'), function () {
@@ -224,7 +224,7 @@ export function testSynchronization(fetchMock, assert) {
   });
 
   // initial fetch of mySegments for new client
-  fetchMock.getOnce(settings.url('/mySegments/marcio@split.io'), { status: 200, body: mySegmentsMarcio });
+  fetchMock.getOnce(settings.url('/mySegments/marcio%40split.io'), { status: 200, body: mySegmentsMarcio });
 
   // split and mySegment sync after second SSE opened
   fetchMock.getOnce(settings.url('/splitChanges?since=1457552650000'), function () {
@@ -232,8 +232,8 @@ export function testSynchronization(fetchMock, assert) {
     assert.true(nearlyEqual(lapse, MILLIS_SECOND_SSE_OPEN), 'sync after second SSE connection is opened');
     return { status: 200, body: { splits: [], since: 1457552650000, till: 1457552650000 } };
   });
-  fetchMock.getOnce(settings.url('/mySegments/nicolas@split.io'), { status: 200, body: mySegmentsNicolasMock2 });
-  fetchMock.getOnce(settings.url('/mySegments/marcio@split.io'), { status: 200, body: mySegmentsMarcio });
+  fetchMock.getOnce(settings.url('/mySegments/nicolas%40split.io'), { status: 200, body: mySegmentsNicolasMock2 });
+  fetchMock.getOnce(settings.url('/mySegments/marcio%40split.io'), { status: 200, body: mySegmentsMarcio });
 
   fetchMock.get(new RegExp('.*'), function (url) {
     assert.fail('unexpected GET request with url: ' + url);
