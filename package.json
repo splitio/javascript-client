@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio",
-  "version": "10.14.1-canary.0",
+  "version": "10.14.1-canary.1",
   "description": "Split SDK",
   "files": [
     "README.md",
@@ -79,7 +79,6 @@
     "webpack-merge": "^4.2.2"
   },
   "scripts": {
-    "preinstall": "npx npm-force-resolutions",
     "build-es": "rimraf es && cross-env NODE_ENV=es babel ./src -d es --ignore '__tests__'",
     "postbuild-es": "cross-env NODE_ENV=es node scripts/copy.packages.json.js",
     "build-umd:stats": "webpack --progress --env production --json > ./stats/stat_results.json",
@@ -115,9 +114,6 @@
     "test": "npm run browser-test-suite && npm run node-test-suite",
     "canary": "npm run rebuild && npm publish --tag canary",
     "stable": "npm run rebuild && npm publish"
-  },
-  "resolutions": {
-    "minimist": "1.2.5"
   },
   "greenkeeper": {
     "ignore": [
