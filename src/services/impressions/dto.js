@@ -13,17 +13,18 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-import { groupBy } from '../../utils/lang';
+import { groupBy, forOwn } from '../../utils/lang';
 
 export function fromImpressionsCollector(collector, settings) {
   const sendLabels = settings.core.labelsEnabled;
   let groupedByFeature = groupBy(collector.state(), 'feature');
   let dto = [];
 
-  for (let name in groupedByFeature) {
+  // using forOwn instead of for...in since the last also iterates over prototype enumerables
+  forOwn(groupedByFeature, (value, name) => {
     dto.push({
       testName: name,
-      keyImpressions: groupedByFeature[name].map(entry => {
+      keyImpressions: value.map(entry => {
         const keyImpression = {
           keyName: entry.keyName,
           treatment: entry.treatment,
@@ -37,7 +38,7 @@ export function fromImpressionsCollector(collector, settings) {
         return keyImpression;
       })
     });
-  }
+  });
 
   return dto;
 }
