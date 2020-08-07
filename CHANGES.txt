@@ -1,5 +1,5 @@
 10.14.1 (Aug XX, 2020)
- - Bugfixing - Replaced a misuse of the `for...in` statement that was leading to errors in Ember CLI builds.
+ - Bugfixing - Replaced the use of `for...in` statements since it iterates over enumerable properties on the prototype chain, which might be polluted by code external to the library.
 
 10.14.0 (Jul 31, 2020)
  - Added `sync.splitFilters` property to SDK configuration to pass a list of filters for the splits that will be downloaded. Read more in our docs.
