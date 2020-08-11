@@ -8,25 +8,25 @@ export function validateData(serializedData) {
 /**
  * Factory of data builders
  *
- * @param {Object} data validated serializedData and userId following the format proposed in https://github.com/godaddy/split-javascript-data-loader
+ * @param {Object} serializedData validated data following the format proposed in https://github.com/godaddy/split-javascript-data-loader
  * and extended with a `mySegmentsData` property.
  */
-export function dataLoaderFactory(serializedData = {}, userId) {
+export function dataLoaderFactory(serializedData = {}) {
 
   /**
    * Storage-agnostic adaptation of `loadDataIntoLocalStorage` function
    * (https://github.com/godaddy/split-javascript-data-loader/blob/master/src/load-data.js)
    *
    * @param {Object} storage storage for client-side
+   * @param {Object} userId main user key defined at the SDK config
    */
-  return function loadData(storage) {
+  return function loadData(storage, userId) {
     // Do not load data if current serializedData is empty
     if (Object.keys(serializedData).length === 0) {
       return;
     }
 
     const { segmentsData = {}, since = 0, splitsData = {} } = serializedData;
-    let { mySegmentsData } = serializedData;
 
     const currentSince = storage.splits.getChangeNumber();
 
@@ -44,14 +44,15 @@ export function dataLoaderFactory(serializedData = {}, userId) {
     });
 
     // add mySegments data
-    if (!mySegmentsData) {
+    let userIdMySegmentsData = serializedData.mySegmentsData && serializedData.mySegmentsData[userId];
+    if (!userIdMySegmentsData) {
       // segmentsData in an object where the property is the segment name and the pertaining value is a stringified object that contains the `added` array of userIds
-      mySegmentsData = Object.keys(segmentsData).filter(segmentName => {
+      userIdMySegmentsData = Object.keys(segmentsData).filter(segmentName => {
         const added = JSON.parse(segmentsData[segmentName]).added;
         return added.indexOf(userId) > -1;
       });
     }
-    storage.segments.resetSegments(mySegmentsData);
+    storage.segments.resetSegments(userIdMySegmentsData);
   };
 
 }

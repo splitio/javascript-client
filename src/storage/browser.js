@@ -109,7 +109,10 @@ const BrowserStorageFactory = context => {
   }
 
   // load precached data into storage
-  if (storage.dataLoader) storage.dataLoader(result);
+  if (storage.dataLoader) {
+    const key = settings.core.key;
+    storage.dataLoader(result, key);
+  }
 
   return result;
 };
