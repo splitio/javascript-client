@@ -902,7 +902,14 @@ declare namespace SplitIO {
        * @property {string} prefix
        * @default SPLITIO
        */
-      prefix?: string
+      prefix?: string,
+      /**
+       * @TODO document
+       */
+      data?: {
+        serializedData: any,
+        userId?: string
+      }
     }
     /**
      * SDK integration settings for the Browser.

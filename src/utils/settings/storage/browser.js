@@ -22,6 +22,7 @@ import {
   STORAGE_MEMORY,
   STORAGE_LOCALSTORAGE
 } from '../../../utils/constants';
+import { validateData, dataLoaderFactory } from '../../../storage/DataLoader';
 
 const ParseStorageSettings = settings => {
   let {
@@ -29,7 +30,8 @@ const ParseStorageSettings = settings => {
     storage: {
       type = STORAGE_MEMORY,
       options = {},
-      prefix
+      prefix,
+      data
     },
   } = settings;
 
@@ -47,7 +49,7 @@ const ParseStorageSettings = settings => {
   // If an invalid storage type is provided OR we want to use LOCALSTORAGE and
   // it's not available, fallback into MEMORY
   if (type !== STORAGE_MEMORY && type !== STORAGE_LOCALSTORAGE ||
-      type === STORAGE_LOCALSTORAGE && !isLocalStorageAvailable()) {
+    type === STORAGE_LOCALSTORAGE && !isLocalStorageAvailable()) {
     type = STORAGE_MEMORY;
     log.warn('Invalid or unavailable storage. Fallbacking into MEMORY storage');
   }
@@ -55,7 +57,8 @@ const ParseStorageSettings = settings => {
   return {
     type,
     options,
-    prefix
+    prefix,
+    dataLoader: validateData(data) ? dataLoaderFactory(data) : undefined
   };
 };
 

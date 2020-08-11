@@ -16,12 +16,13 @@ export const DEFAULT_CACHE_EXPIRATION_IN_MILLIS = 864000000; // 10 days
 const BrowserStorageFactory = context => {
   const settings = context.get(context.constants.SETTINGS);
   const { storage } = settings;
+  let result;
 
   switch (storage.type) {
     case STORAGE_MEMORY: {
       const keys = new KeyBuilder(settings);
 
-      return {
+      result = {
         splits: new SplitCacheInMemory,
         segments: new SegmentCacheInMemory(keys),
         impressions: new ImpressionsCacheInMemory,
@@ -57,13 +58,14 @@ const BrowserStorageFactory = context => {
           this.events.clear();
         }
       };
+      break;
     }
 
     case STORAGE_LOCALSTORAGE: {
       const keys = new KeyBuilderLocalStorage(settings);
       const expirationTimestamp = Date.now() - DEFAULT_CACHE_EXPIRATION_IN_MILLIS;
 
-      return {
+      result = {
         splits: new SplitCacheInLocalStorage(keys, expirationTimestamp, settings.sync.__splitFiltersValidation),
         segments: new SegmentCacheInLocalStorage(keys),
         impressions: new ImpressionsCacheInMemory,
@@ -99,12 +101,17 @@ const BrowserStorageFactory = context => {
           this.events.clear();
         }
       };
+      break;
     }
 
     default:
       throw new Error('Unsupported storage type');
   }
 
+  // load precached data into storage
+  if (storage.dataLoader) storage.dataLoader(result);
+
+  return result;
 };
 
 export default BrowserStorageFactory;
