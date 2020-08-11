@@ -133,10 +133,10 @@ class SplitCacheInMemory {
   }
 
   /**
-   * Check if the splits information is already stored in cache. In memory there is no cache to check.
+   * Check if the splits information is already stored in cache. The data can be preloaded and passed via the config.
    */
   checkCache() {
-    return false;
+    return this.getChangeNumber() > -1;
   }
 }
 

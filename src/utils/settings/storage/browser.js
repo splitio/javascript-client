@@ -26,12 +26,13 @@ import { validateData, dataLoaderFactory } from '../../../storage/DataLoader';
 
 const ParseStorageSettings = settings => {
   let {
+    core: { key },
     mode,
     storage: {
       type = STORAGE_MEMORY,
       options = {},
       prefix,
-      data
+      serializedData
     },
   } = settings;
 
@@ -58,7 +59,7 @@ const ParseStorageSettings = settings => {
     type,
     options,
     prefix,
-    dataLoader: validateData(data) ? dataLoaderFactory(data) : undefined
+    dataLoader: validateData(serializedData) ? dataLoaderFactory(serializedData, key) : undefined
   };
 };
 

@@ -904,12 +904,9 @@ declare namespace SplitIO {
        */
       prefix?: string,
       /**
-       * @TODO document
+       * @TODO document and define type
        */
-      data?: {
-        serializedData: any,
-        userId?: string
-      }
+      serializedData?: any,
     }
     /**
      * SDK integration settings for the Browser.

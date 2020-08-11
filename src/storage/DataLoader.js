@@ -1,6 +1,8 @@
+import { isObject } from '../utils/lang';
+
 // @TODO implement
-export function validateData(data) {
-  return data && data.serializedData ? true : false;
+export function validateData(serializedData) {
+  return isObject(serializedData) ? true : false;
 }
 
 /**
@@ -9,7 +11,7 @@ export function validateData(data) {
  * @param {Object} data validated serializedData and userId following the format proposed in https://github.com/godaddy/split-javascript-data-loader
  * and extended with a `mySegmentsData` property.
  */
-export function dataLoaderFactory({ serializedData = {}, userId = '' }) {
+export function dataLoaderFactory(serializedData = {}, userId) {
 
   /**
    * Storage-agnostic adaptation of `loadDataIntoLocalStorage` function
@@ -46,7 +48,7 @@ export function dataLoaderFactory({ serializedData = {}, userId = '' }) {
       // segmentsData in an object where the property is the segment name and the pertaining value is a stringified object that contains the `added` array of userIds
       mySegmentsData = Object.keys(segmentsData).filter(segmentName => {
         const added = JSON.parse(segmentsData[segmentName]).added;
-        return added.includes(userId);
+        return added.indexOf(userId) > -1;
       });
     }
     storage.segments.resetSegments(mySegmentsData);
