@@ -34,7 +34,8 @@ export default function SegmentChangesUpdaterFactory(context) {
   let readyOnAlreadyExistentState = true;
 
   /**
-   * Segments updater returns a promise that resolves with a `false` boolean value if it fails to fetch segments or synchronize them with the storage.
+   * Segments updater returns a promise that resolves with a `false` boolean value if it fails at least to fetch a segment or synchronize it with the storage.
+   * Thus, a false result doesn't imply that SDK_SEGMENTS_ARRIVED was not emitted.
    *
    * @param {string[] | undefined} segmentNames list of segment names to fetch. By passing `undefined` it fetches the list of segments registered at the storage
    */
@@ -90,10 +91,13 @@ export default function SegmentChangesUpdaterFactory(context) {
 
       return Promise.all(sincePromises).then(function () {
         return Promise.all(updaters).then(shouldUpdateFlags => {
+          // if at least one segment fetch successes, mark segments ready
           if (findIndex(shouldUpdateFlags, v => v !== -1) !== -1 || readyOnAlreadyExistentState) {
             readyOnAlreadyExistentState = false;
             segmentsEventEmitter.emit(segmentsEventEmitter.SDK_SEGMENTS_ARRIVED);
           }
+          // if at least one segment fetch fails, return false to indicate that there was some error (e.g., invalid json, HTTP error, etc)
+          if (findIndex(shouldUpdateFlags, v => v === -1) !== -1) return false;
         }).catch(error => {
           // handle user callback errors
           if (!(error instanceof SplitError)) setTimeout(() => { throw error; }, 0);
