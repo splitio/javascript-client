@@ -14,6 +14,7 @@ import { decodeJWTtoken } from '../../utils/jwt';
 export default function authenticate(settings, userKeys) {
   let authPromise = authService(authRequest(settings, userKeys)); // errors handled by authService
   return authPromise
+    // no need to handle json parsing errors as SplitError, since no user callbacks are executed after this promise is resolved
     .then(resp => resp.json())
     .then(json => {
       if (json.token) { // empty token when `"pushEnabled": false`

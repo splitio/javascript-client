@@ -41,6 +41,7 @@ export default async function(key, fetchMock, assert) {
   fetchMock.getOnce(segmentChangesUrlRegex, { status: 200, body: { since:10, till:10, name: 'segmentName', added: [], removed: [] } });
   fetchMock.getOnce(segmentChangesUrlRegex, 401);
   fetchMock.getOnce(segmentChangesUrlRegex, 500);
+  fetchMock.getOnce(segmentChangesUrlRegex, { status: 200, body: '{ INVALID JSON' });
   fetchMock.get(segmentChangesUrlRegex, { status: 200, body: {since:10, till:10, name: 'segmentName' + Date.now(), added: [], removed: []} });
   // Should not execute but adding just in case.
   fetchMock.get(settings.url('/splitChanges?since=1457552620999'), { status: 200, body: splitChangesMock2 });

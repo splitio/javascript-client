@@ -17,15 +17,17 @@ limitations under the License.
 import segmentChangesService from '../../services/segmentChanges';
 import segmentChangesRequest from '../../services/segmentChanges/get';
 import tracker from '../../utils/timeTracker';
+import { SplitError } from '../../utils/lang/Errors';
 
 function greedyFetch(settings, lastSinceValue, segmentName, metricCollectors) {
   return tracker.start(tracker.TaskNames.SEGMENTS_FETCH, metricCollectors, segmentChangesService(segmentChangesRequest(settings, {
     since: lastSinceValue,
     segmentName
   })))
-    .then(resp => resp.json())
+    // JSON parsing errors are handled as SplitErrors, to distinguish from user callback errors
+    .then(resp => resp.json().catch(error => { throw new SplitError(error.message); }))
     .then(json => {
-      let {since, till} = json;
+      let { since, till } = json;
       if (since === till) {
         return [json];
       } else {

@@ -20,7 +20,7 @@ export default class SegmentUpdateWorker {
 
   // Private method
   // Preconditions: this.segmentsProducer.isSynchronizingSegments === false
-  // Approach similar than MySegmentUpdateWorker due to difference on Segments notification and endpoint changeNumber
+  // Approach similar to MySegmentUpdateWorker due to differences on Segments notifications and endpoint changeNumbers
   __handleSegmentUpdateCall() {
     const segmentsToFetch = Object.keys(this.maxChangeNumbers).filter((segmentName) => {
       return this.maxChangeNumbers[segmentName] > this.segmentsStorage.getChangeNumber(segmentName);
@@ -29,7 +29,7 @@ export default class SegmentUpdateWorker {
       this.handleNewEvent = false;
       const currentMaxChangeNumbers = segmentsToFetch.map(segmentToFetch => this.maxChangeNumbers[segmentToFetch]);
       this.segmentsProducer.synchronizeSegment(segmentsToFetch).then((result) => {
-        if (result !== false) // Unlike `SplitUpdateWorker` where changeNumber is consistent between notification and endpoint, we must reset the `maxChangeNumbers` of those segments that were fetched and not updated by a new notification.
+        if (result !== false) // Unlike `SplitUpdateWorker` where changeNumber is consistent between notification and endpoint, we must reset the `maxChangeNumbers` of those segments that were properly fetched and not updated by a new notification.
           segmentsToFetch.forEach((fetchedSegment, index) => {
             if (this.maxChangeNumbers[fetchedSegment] === currentMaxChangeNumbers[index])
               this.maxChangeNumbers[fetchedSegment] = this.segmentsStorage.getChangeNumber(fetchedSegment);
