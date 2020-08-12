@@ -1,4 +1,4 @@
-10.14.1 (Aug XX, 2020)
+10.14.1 (Aug 12, 2020)
  - Updated push streaming support for Node to optimize segment requests.
  - Bugfixing - Replaced the use of `for...in` statements since it iterates over enumerable properties on the prototype chain, which might be polluted by code external to the library.
 
