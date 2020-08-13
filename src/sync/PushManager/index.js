@@ -101,11 +101,7 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
 
         // Handle 4XX HTTP errors: 401 (invalid API Key) or 400 (using incorrect API Key, i.e., client-side API Key on server-side)
         if (error.statusCode >= 400 && error.statusCode < 500) {
-          if (error.statusCode === 400) {
-            log.error(`${errorMessage}. Using client-side api token without specifying user(s).`);
-          } else {
-            log.error(errorMessage);
-          }
+          log.error(errorMessage);
           return;
         }
 
