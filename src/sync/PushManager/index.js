@@ -69,7 +69,7 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
     const userKeys = clientContexts ? Object.keys(clientContexts) : undefined;
     authenticate(settings, userKeys).then(
       function (authData) {
-        if(disconnected) return;
+        if (disconnected) return;
 
         // restart backoff retry counter for auth and SSE connections, due to HTTP/network errors
         reauthBackoff.reset();
@@ -92,20 +92,22 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
       }
     ).catch(
       function (error) {
-        if(disconnected) return;
+        if (disconnected) return;
 
         sseClient.close(); // no harm if already closed
         pushEmitter.emit(PUSH_DISCONNECT); // no harm if `PUSH_DISCONNECT` was already notified
 
-        // Handle HTTP error for invalid API Key
-        if (error.statusCode === 401) {
-          log.error(`Fail to authenticate for push notifications, with error message: "${error.message}".`);
+        const errorMessage = `Failed to authenticate for streaming. Error: "${error.message}".`;
+
+        // Handle 4XX HTTP errors: 401 (invalid API Key) or 400 (using incorrect API Key, i.e., client-side API Key on server-side)
+        if (error.statusCode >= 400 && error.statusCode < 500) {
+          log.error(errorMessage);
           return;
         }
 
         // Handle other HTTP and network errors
         const delayInMillis = reauthBackoff.scheduleCall();
-        log.error(`Fail to authenticate for push notifications, with error message: "${error.message}". Attempting to reauthenticate in ${delayInMillis / 1000} seconds.`);
+        log.error(`${errorMessage}. Attempting to reauthenticate in ${delayInMillis / 1000} seconds.`);
       }
     );
   }
