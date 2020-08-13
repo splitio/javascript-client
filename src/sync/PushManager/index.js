@@ -97,19 +97,21 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
         sseClient.close(); // no harm if already closed
         pushEmitter.emit(PUSH_DISCONNECT); // no harm if `PUSH_DISCONNECT` was already notified
 
+        const errorMessage = `Fail to authenticate for push notifications, with error message: "${error.message}".`;
+
         // Handle 4XX HTTP errors: 401 (invalid API Key) or 400 (using incorrect API Key, i.e., client-side API Key on server-side)
         if (error.statusCode >= 400 && error.statusCode < 500) {
           if (error.statusCode === 400) {
-            log.error('Fail to authenticate for push notifications: client-side api token without specifying user(s)');
+            log.error(`${errorMessage}. Using client-side api token without specifying user(s).`);
           } else {
-            log.error(`Fail to authenticate for push notifications, with error message: "${error.message}".`);
+            log.error(errorMessage);
           }
           return;
         }
 
         // Handle other HTTP and network errors
         const delayInMillis = reauthBackoff.scheduleCall();
-        log.error(`Fail to authenticate for push notifications, with error message: "${error.message}". Attempting to reauthenticate in ${delayInMillis / 1000} seconds.`);
+        log.error(`${errorMessage}. Attempting to reauthenticate in ${delayInMillis / 1000} seconds.`);
       }
     );
   }
