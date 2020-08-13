@@ -22,7 +22,8 @@ const config = {
     featuresRefreshRate: 0.1,
     segmentsRefreshRate: 0.1,
     metricsRefreshRate: 3000,
-    impressionsRefreshRate: 3000
+    impressionsRefreshRate: 3000,
+    authRetryBackoffBase: 0.01
   },
   urls: baseUrls,
   startup: {
