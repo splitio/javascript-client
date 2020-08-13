@@ -1,4 +1,4 @@
 {
-  "main": "./SegmentUpdateWorker.js",
-  "browser": "./MySegmentUpdateWorker.js"
+  "main": "./node.js",
+  "browser": "./browser.js"
 }

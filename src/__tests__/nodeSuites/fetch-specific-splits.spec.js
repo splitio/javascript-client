@@ -1,4 +1,4 @@
-import { SplitFactory } from '../../';
+import { SplitFactory } from '../../index';
 import { splitFilters, queryStrings, groupedFilters } from '../mocks/fetchSpecificSplits';
 
 const baseConfig = {

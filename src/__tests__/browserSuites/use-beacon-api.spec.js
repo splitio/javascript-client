@@ -1,5 +1,5 @@
 import sinon from 'sinon';
-import { SplitFactory } from '../../';
+import { SplitFactory } from '../../index';
 import SettingsFactory from '../../utils/settings';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import mySegmentsFacundo from '../mocks/mysegments.facundo@split.io.json';

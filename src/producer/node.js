@@ -51,7 +51,7 @@ const NodeUpdater = (context) => {
    */
   function synchronizeSegment(segmentNames) {
     isSynchronizingSegments = true;
-    // `segmentsUpdater` promise always resolves, and with a false value if it fails to fetch or store segments
+    // `segmentsUpdater` promise always resolves, and with a false value if it fails to fetch or store some segment
     return segmentsUpdater(segmentNames).then(function (res) {
       isSynchronizingSegments = false;
       return res;

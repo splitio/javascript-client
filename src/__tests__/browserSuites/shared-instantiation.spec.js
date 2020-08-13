@@ -1,4 +1,4 @@
-import { SplitFactory } from '../../';
+import { SplitFactory } from '../../index';
 import SettingsFactory from '../../utils/settings';
 const settings = SettingsFactory({
   core: {

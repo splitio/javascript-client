@@ -2,7 +2,7 @@ import tape from 'tape-catch';
 import fetchMock from '../testUtils/fetchMock';
 import map from 'lodash/map';
 import pick from 'lodash/pick';
-import { SplitFactory } from '../../';
+import { SplitFactory } from '../../index';
 import SettingsFactory from '../../utils/settings';
 
 import splitChangesMock1 from './splitChanges.since.-1.json';

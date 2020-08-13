@@ -4,7 +4,7 @@ import SegmentCacheInMemory from '../../../storage/SegmentCache/InMemory/node';
 import KeyBuilder from '../../../storage/Keys';
 import SettingsFactory from '../../../utils/settings';
 
-import SegmentUpdateWorker from '../../SegmentUpdateWorker/SegmentUpdateWorker';
+import SegmentUpdateWorker from '../../SegmentUpdateWorker/node';
 
 function ProducerMock(segmentStorage) {
 

@@ -3,7 +3,7 @@ import tape from 'tape';
 import includes from 'lodash/includes';
 import fetchMock from '../testUtils/fetchMock';
 
-import { SplitFactory } from '../../';
+import { SplitFactory } from '../../index';
 import SettingsFactory from '../../utils/settings';
 
 import splitChangesMock1 from './splitChanges.since.-1.json';

@@ -7,7 +7,7 @@ import sinon from 'sinon';
 import RedisServer from 'redis-server';
 import RedisClient from 'ioredis';
 import { exec } from 'child_process';
-import { SplitFactory } from '../';
+import { SplitFactory } from '../index';
 import { merge } from '../utils/lang';
 import KeyBuilder from '../storage/Keys';
 import SettingsFactory from '../utils/settings';

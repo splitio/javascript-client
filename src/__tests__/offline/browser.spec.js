@@ -1,7 +1,7 @@
 import tape from 'tape-catch';
 import sinon from 'sinon';
 import fetchMock from '../testUtils/fetchMock';
-import { SplitFactory } from '../../';
+import { SplitFactory } from '../../index';
 import SettingsFactory from '../../utils/settings';
 
 const settings = SettingsFactory({ core: { key: 'facundo@split.io' } });
