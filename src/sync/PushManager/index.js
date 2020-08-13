@@ -69,7 +69,7 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
     const userKeys = clientContexts ? Object.keys(clientContexts) : undefined;
     authenticate(settings, userKeys).then(
       function (authData) {
-        if(disconnected) return;
+        if (disconnected) return;
 
         // restart backoff retry counter for auth and SSE connections, due to HTTP/network errors
         reauthBackoff.reset();
@@ -92,14 +92,18 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
       }
     ).catch(
       function (error) {
-        if(disconnected) return;
+        if (disconnected) return;
 
         sseClient.close(); // no harm if already closed
         pushEmitter.emit(PUSH_DISCONNECT); // no harm if `PUSH_DISCONNECT` was already notified
 
-        // Handle HTTP error for invalid API Key
-        if (error.statusCode === 401) {
-          log.error(`Fail to authenticate for push notifications, with error message: "${error.message}".`);
+        // Handle 4XX HTTP errors (invalid API Key or using incorrect API Key)
+        if (error.statusCode >= 400 && error.statusCode < 500) {
+          if (error.statusCode === 400) {
+            log.error('Fail to authenticate for push notifications: client-side api token without specifying user(s)');
+          } else {
+            log.error(`Fail to authenticate for push notifications, with error message: "${error.message}".`);
+          }
           return;
         }
 
