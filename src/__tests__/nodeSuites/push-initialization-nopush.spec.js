@@ -22,7 +22,8 @@ const config = {
     featuresRefreshRate: 0.1,
     segmentsRefreshRate: 0.1,
     metricsRefreshRate: 3000,
-    impressionsRefreshRate: 3000
+    impressionsRefreshRate: 3000,
+    authRetryBackoffBase: 0.01
   },
   urls: baseUrls,
   startup: {
@@ -111,7 +112,7 @@ export function testAuthWith400(fetchMock, assert) {
   fetchMock.getOnce(settings.url('/auth'), function (url, opts) {
     if (!opts.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
     assert.pass('auth');
-    return { status: 400, body: authNoUserSpecified };
+    return { status: 201, body: authNoUserSpecified };
   });
 
   testInitializationFail(fetchMock, assert, true);
