@@ -97,7 +97,7 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
         sseClient.close(); // no harm if already closed
         pushEmitter.emit(PUSH_DISCONNECT); // no harm if `PUSH_DISCONNECT` was already notified
 
-        // Handle 4XX HTTP errors (invalid API Key or using incorrect API Key)
+        // Handle 4XX HTTP errors: 401 (invalid API Key) or 400 (using incorrect API Key, i.e., client-side API Key on server-side)
         if (error.statusCode >= 400 && error.statusCode < 500) {
           if (error.statusCode === 400) {
             log.error('Fail to authenticate for push notifications: client-side api token without specifying user(s)');
