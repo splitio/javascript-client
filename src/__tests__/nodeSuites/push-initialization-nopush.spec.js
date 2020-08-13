@@ -112,7 +112,7 @@ export function testAuthWith400(fetchMock, assert) {
   fetchMock.getOnce(settings.url('/auth'), function (url, opts) {
     if (!opts.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
     assert.pass('auth');
-    return { status: 201, body: authNoUserSpecified };
+    return { status: 400, body: authNoUserSpecified };
   });
 
   testInitializationFail(fetchMock, assert, true);
