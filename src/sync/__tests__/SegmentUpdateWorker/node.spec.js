@@ -82,18 +82,20 @@ tape('SegmentUpdateWorker', t => {
       assert.true(producer.synchronizeSegment.lastCall.calledWithExactly(['mocked_segment_1', 'mocked_segment_2', 'mocked_segment_3']), 'calls `synchronizeSegment` with segmentName');
       assert.equal(segmentUpdateWorker.backoff.attempts, 0, 'no retry scheduled if synchronization success (changeNumbers are the expected)');
 
-      // assert reschedule synchronization if some changeNumber is not updated as expected
+      // assert not rescheduling synchronization if some changeNumber is not updated as expected,
+      // but rescheduling if a new item was queued with a greater changeNumber while the fetch was pending.
+      segmentUpdateWorker.put(110, 'mocked_segment_1');
       producer.__resolveSegmentsUpdaterCall(1, { 'mocked_segment_1': 100, 'mocked_segment_2': 100, 'mocked_segment_3': 94 });
       setTimeout(() => {
-        assert.equal(producer.synchronizeSegment.callCount, 3, 'recalls `synchronizeSegment` if synchronization fail (one changeNumber is not the expected)');
-        assert.true(producer.synchronizeSegment.lastCall.calledWithExactly(['mocked_segment_1']), 'calls `synchronizeSegment` with the segmentName that failed to fetch');
-        assert.equal(segmentUpdateWorker.backoff.attempts, 1, 'retry scheduled since synchronization failed (one changeNumber is not the expected)');
+        assert.equal(producer.synchronizeSegment.callCount, 3, 'recalls `synchronizeSegment` if a new item was queued with a greater changeNumber while the fetch was pending');
+        assert.true(producer.synchronizeSegment.lastCall.calledWithExactly(['mocked_segment_1']), 'calls `synchronizeSegment` with the segmentName that was queued with a greater changeNumber while the fetch was pending');
+        assert.equal(segmentUpdateWorker.backoff.attempts, 0, 'doesn\'t retry backoff schedule since a new item was queued');
 
         // assert dequeueing remaining events
-        producer.__resolveSegmentsUpdaterCall(1, { 'mocked_segment_1': 105 }); // resolve third call to `synchronizeSegment`
+        producer.__resolveSegmentsUpdaterCall(2, { 'mocked_segment_1': 105 }); // resolve third call to `synchronizeSegment`
         setTimeout(() => {
-          assert.equal(producer.synchronizeSegment.callCount, 3, 'doesn\'t call `synchronizeSegment` again');
-          assert.deepEqual(segmentUpdateWorker.maxChangeNumbers, { 'mocked_segment_1': 105, 'mocked_segment_2': 100, 'mocked_segment_3': 94 }, 'maxChangeNumbers');
+          assert.equal(producer.synchronizeSegment.callCount, 3, 'doesn\'t recall `synchronizeSegment` if fetched changeNumbers are not the expected (i.e., are different from the queued items)');
+          assert.deepEqual(segmentUpdateWorker.maxChangeNumbers, { 'mocked_segment_1': -1, 'mocked_segment_2': -1, 'mocked_segment_3': -1 }, 'maxChangeNumbers were cleaned');
 
           // assert restarting retries, when a newer event is queued
           segmentUpdateWorker.put(110, 'mocked_segment_1'); // queued

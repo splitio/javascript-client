@@ -23,9 +23,10 @@ function greedyFetch(settings, lastSinceValue, segmentName, metricCollectors) {
     since: lastSinceValue,
     segmentName
   })))
+    // no need to handle json parsing errors as SplitError, since errors are handled differently for segments
     .then(resp => resp.json())
     .then(json => {
-      let {since, till} = json;
+      let { since, till } = json;
       if (since === till) {
         return [json];
       } else {

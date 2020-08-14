@@ -58,7 +58,7 @@ const MILLIS_THIRD_RETRY_FOR_SPLIT_KILL_EVENT = 2000;
  *
  *  0.4 secs: SPLIT_UPDATE event with old changeNumber -> SDK_UPDATE not triggered
  *
- *  0.5 secs: SEGMENT_UPDATE event -> /segmentChanges/*: outdated response
+ *  0.5 secs: SEGMENT_UPDATE event -> /segmentChanges/*: server error (cannot test outdated response, since it is not supported)
  *  0.6 secs: SEGMENT_UPDATE event -> /segmentChanges/* retry: network error
  *  0.8 secs: SEGMENT_UPDATE event -> /segmentChanges/* retry: invalid JSON response
  *  1.2 secs: SEGMENT_UPDATE event -> /segmentChanges/* retry: success -> SDK_UPDATE triggered
@@ -166,7 +166,8 @@ export function testSynchronizationRetries(fetchMock, assert) {
   fetchMock.getOnce(settings.url('/segmentChanges/splitters?since=1457552620999'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_SEGMENT_UPDATE_EVENT), 'sync due to SEGMENT_UPDATE event');
-    return { status: 200, body: { since: 1457552620999, till: 1457552620999, name: 'splitters', added: [], removed: [] } }; // outdated response
+    return { status: 500, body: 'server error' }; // server error
+    // return { status: 200, body: { since: 1457552620999, till: 1457552620999, name: 'splitters', added: [], removed: [] } }; // outdated response is not handled currently
   });
   // first fetch retry for SEGMENT_UPDATE event, due to previous unexpected response (response till minor than SEGMENT_UPDATE changeNumber)
   fetchMock.getOnce(settings.url('/segmentChanges/splitters?since=1457552620999'), { throws: new TypeError('Network error') });

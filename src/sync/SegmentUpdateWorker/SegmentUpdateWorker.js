@@ -20,17 +20,30 @@ export default class SegmentUpdateWorker {
 
   // Private method
   // Preconditions: this.segmentsProducer.isSynchronizingSegments === false
+  // Approach similar to MySegmentUpdateWorker due to differences on Segments notifications and endpoint changeNumbers
   __handleSegmentUpdateCall() {
     const segmentsToFetch = Object.keys(this.maxChangeNumbers).filter((segmentName) => {
       return this.maxChangeNumbers[segmentName] > this.segmentsStorage.getChangeNumber(segmentName);
     });
     if (segmentsToFetch.length > 0) {
       this.handleNewEvent = false;
-      this.segmentsProducer.synchronizeSegment(segmentsToFetch).then(() => {
+      const currentMaxChangeNumbers = segmentsToFetch.map(segmentToFetch => this.maxChangeNumbers[segmentToFetch]);
+
+      this.segmentsProducer.synchronizeSegment(segmentsToFetch).then((result) => {
+        // Unlike `SplitUpdateWorker` where changeNumber is consistent between notification and endpoint, if there is no error,
+        // we must clean the `maxChangeNumbers` of those segments that didn't receive a new update notification during the fetch.
+        if (result !== false) {
+          segmentsToFetch.forEach((fetchedSegment, index) => {
+            if (this.maxChangeNumbers[fetchedSegment] === currentMaxChangeNumbers[index]) this.maxChangeNumbers[fetchedSegment] = -1;
+          });
+        } else {
+          // recursive invocation with backoff if there was some error
+          this.backoff.scheduleCall();
+        }
+
+        // immediate recursive invocation if a new notification was queued during fetch
         if (this.handleNewEvent) {
           this.__handleSegmentUpdateCall();
-        } else {
-          this.backoff.scheduleCall();
         }
       });
     }
