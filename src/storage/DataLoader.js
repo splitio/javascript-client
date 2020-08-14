@@ -1,12 +1,5 @@
-import { isObject } from '../utils/lang';
-
-// @TODO implement
-export function validateData(serializedData) {
-  return isObject(serializedData) ? true : false;
-}
-
 /**
- * Factory of data builders
+ * Factory of data loaders
  *
  * @param {Object} serializedData validated data following the format proposed in https://github.com/godaddy/split-javascript-data-loader
  * and extended with a `mySegmentsData` property.

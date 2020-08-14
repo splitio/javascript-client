@@ -41,7 +41,7 @@ const initialState = String(
       localStorage.getItem(LS_KEY) : ''
 );
 
-const createLog = (namespace, options = {}) => new Logger(namespace, merge(options, defaultOptions));
+const createLog = (namespace, options = {}) => new Logger(namespace, merge(defaultOptions, options));
 
 const ownLog = createLog('splitio-utils:logger');
 

@@ -751,6 +751,35 @@ declare namespace SplitIO {
     values: string[],
   }
   /**
+   * Defines the format of Split data to preload on Split factory storage (cache).
+   */
+  interface SerializedData {
+    /**
+     * Change number of the serialized data.
+     * If this value is older than the current changeNumber at the storage, the data is not used to update the storage content.
+     */
+    since: number,
+    /**
+     * Map of splits to their serialized definitions.
+     */
+    splitsData: {
+      [splitName: string]: string
+    },
+    /**
+     * Optional map of user keys to their list of segments.
+     */
+    mySegmentsData?: {
+      [key: string]: string[]
+    },
+    /**
+     * Optional map of segments to their serialized definitions.
+     * This property is ignored if `mySegmentsData` was provided.
+     */
+    segmentsData?: {
+      [segmentName: string]: string
+    },
+  }
+  /**
    * Settings interface for SDK instances created on the browser
    * @interface IBrowserSettings
    * @extends ISharedSettings
@@ -906,7 +935,7 @@ declare namespace SplitIO {
       /**
        * @TODO document and define type
        */
-      serializedData?: any,
+      serializedData?: SerializedData,
     }
     /**
      * SDK integration settings for the Browser.
