@@ -22,7 +22,7 @@ import {
   STORAGE_MEMORY,
   STORAGE_LOCALSTORAGE
 } from '../../../utils/constants';
-import { validateSerializedData } from '../../inputValidation/serializedData';
+import { validatePreloadedData } from '../../inputValidation/preloadedData';
 import { dataLoaderFactory } from '../../../storage/DataLoader';
 
 const ParseStorageSettings = settings => {
@@ -32,7 +32,7 @@ const ParseStorageSettings = settings => {
       type = STORAGE_MEMORY,
       options = {},
       prefix,
-      serializedData
+      preloadedData
     },
   } = settings;
 
@@ -59,7 +59,7 @@ const ParseStorageSettings = settings => {
     type,
     options,
     prefix,
-    dataLoader: validateSerializedData(serializedData, 'Factory instantiation - storage preload') ? dataLoaderFactory(serializedData) : undefined
+    dataLoader: validatePreloadedData(preloadedData, 'Factory instantiation - storage preload') ? dataLoaderFactory(preloadedData) : undefined
   };
 };
 

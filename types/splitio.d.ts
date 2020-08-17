@@ -751,11 +751,11 @@ declare namespace SplitIO {
     values: string[],
   }
   /**
-   * Defines the format of Split data to preload on Split factory storage (cache).
+   * Defines the format of Split data to preload on the factory storage (cache).
    */
-  interface SerializedData {
+  interface PreloadedData {
     /**
-     * Change number of the serialized data.
+     * Change number of the preloaded data.
      * If this value is older than the current changeNumber at the storage, the data is not used to update the storage content.
      */
     since: number,
@@ -933,9 +933,12 @@ declare namespace SplitIO {
        */
       prefix?: string,
       /**
-       * @TODO document and define type
+       * Split data to preload the storage. You may optionally specify it to quickly initialice and use the SDK with cached data.
+       * If the data is valid, the SDK emits an SDK_READY_FROM_CACHE event once it is ready to be used.
+       * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#preloaded-data}
+       * @property {PreloadedData} preloadedData
        */
-      serializedData?: SerializedData,
+      preloadedData?: PreloadedData,
     }
     /**
      * SDK integration settings for the Browser.
