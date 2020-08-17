@@ -21,7 +21,7 @@ fetchMock.get(settings.url('/splitChanges?since=-1'), function () {
 });
 fetchMock.get(settings.url('/splitChanges?since=1500492097547'), { status: 200, body: splitChangesMock2 });
 fetchMock.get(settings.url('/splitChanges?since=1500492297547'), { status: 200, body: splitChangesMock3 });
-fetchMock.get(settings.url('/mySegments/nico@split.io'), { status: 200, body: mySegmentsMock });
+fetchMock.get(settings.url('/mySegments/nico%40split.io'), { status: 200, body: mySegmentsMock });
 fetchMock.post('*', 200);
 
 const assertionsPlanned = 3;

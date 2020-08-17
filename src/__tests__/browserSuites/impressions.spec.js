@@ -21,7 +21,7 @@ export default function (fetchMock, assert) {
   // Mocking this specific route to make sure we only get the items we want to test from the handlers.
   fetchMock.getOnce(settings.url('/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
   fetchMock.get(settings.url('/splitChanges?since=1457552620999'), { status: 200, body: splitChangesMock2 });
-  fetchMock.get(settings.url('/mySegments/facundo@split.io'), { status: 200, body: mySegmentsFacundo });
+  fetchMock.get(settings.url('/mySegments/facundo%40split.io'), { status: 200, body: mySegmentsFacundo });
 
   const splitio = SplitFactory({
     core: {
