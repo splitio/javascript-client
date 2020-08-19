@@ -15,7 +15,7 @@ function validateSplitsData(maybeSplitsData, method) {
     const splitNames = Object.keys(maybeSplitsData);
     if (splitNames.length > 0 && splitNames.every(splitName => isString(maybeSplitsData[splitName]))) return true;
   }
-  log.error(`${method}: preloadedData.splitData must be a map of split names to their serialized definitions.`);
+  log.error(`${method}: preloadedData.splitsData must be a map of split names to their serialized definitions.`);
   return false;
 }
 
@@ -46,7 +46,7 @@ export function validatePreloadedData(maybePreloadedData, method) {
     log.error(`${method}: preloadedData must be an object.`);
   } else if (
     validateSinceData(maybePreloadedData.since, method) &&
-    validateSplitsData(maybePreloadedData.splitData, method) &&
+    validateSplitsData(maybePreloadedData.splitsData, method) &&
     (!maybePreloadedData.mySegmentsData || validateMySegmentsData(maybePreloadedData.mySegmentsData, method)) &&
     (!maybePreloadedData.segmentsData || validateSegmentsData(maybePreloadedData.segmentsData, method))
   ) {
