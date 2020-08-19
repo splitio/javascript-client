@@ -16,7 +16,7 @@ export const splitDefinitions = {
   },
 };
 
-const splitSerializedDefinitions = (function () {
+export const splitSerializedDefinitions = (function () {
   return Object.keys(splitDefinitions).reduce((acum, splitName) => {
     acum[splitName] = JSON.stringify(splitDefinitions[splitName]);
     return acum;
@@ -30,7 +30,7 @@ export const segmentsDefinitions = {
   },
 };
 
-const segmentsSerializedDefinitions = (function () {
+export const segmentsSerializedDefinitions = (function () {
   return Object.keys(segmentsDefinitions).reduce((acum, segmentName) => {
     acum[segmentName] = JSON.stringify(segmentsDefinitions[segmentName]);
     return acum;

@@ -28,8 +28,8 @@ export function dataLoaderFactory(preloadedData = {}) {
     if (since <= currentSince) {
       return;
     }
-    // Split.IO recommends cleaning up the localStorage data
-    if (currentSince === -1) storage.splits.flush();
+    // cleaning up the localStorage data, since some cached splits might need be part of the preloaded data
+    storage.splits.flush();
     storage.splits.setChangeNumber(since);
 
     // splitsData in an object where the property is the split name and the pertaining value is a stringified json of its data

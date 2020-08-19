@@ -3,7 +3,7 @@ import { SplitFactory } from '../../';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
 import mySegmentsNicolas from '../mocks/mysegments.nicolas@split.io.json';
-import { splitDefinitions, preloadedDataWithSegments } from '../mocks/preloadedData';
+import { splitDefinitions, splitSerializedDefinitions, preloadedDataWithSegments } from '../mocks/preloadedData';
 
 import { DEFAULT_CACHE_EXPIRATION_IN_MILLIS } from '../../storage/browser';
 import { nearlyEqual } from '../testUtils';
@@ -802,25 +802,127 @@ export default function (fetchMock, assert) {
     });
   }, 'readyFromCache_preloadedData1');
 
-  // Testing when we start localstorage from scrach, and with preloaded data but expired -> ???
-
   // Testing when we start localstorage with cached data, and with newer preloaded data (with mySegmentsData) -> emit SDK_READY_FROM_CACHE, and update storage and only shared mySegments storages with existing user id
+  assert.test(t => {
+    const prefix = 'readyFromCache_preloadedData2';
+    const testUrls = {
+      sdk: 'https://sdk.baseurl/' + prefix,
+      events: 'https://events.baseurl/' + prefix
+    };
+    localStorage.clear();
+    localStorage.setItem(prefix + '.SPLITIO.splits.till', 25);
+    // cached split to keep
+    localStorage.setItem(prefix + '.SPLITIO.split.p1__split', splitSerializedDefinitions.p1__split);
+    // cached split to remove
+    localStorage.setItem(prefix + '.SPLITIO.split.split_to_remove', 'INVALID SPLIT DEFINITION BUT WILL BE REMOVED ANYWAY');
+    // cached segment to remove
+    localStorage.setItem(baseConfig.core.key + '.' + prefix + '.SPLITIO.segment.segment_2', '1');
+    // this item makes the test to fail, but it only can occurre if it is set on purpose
+    // localStorage.setItem(baseConfig.core.key + '.' + prefix + '.SPLITIO.segment.segment_1', '0');
 
-  // Testing when we start localstorage with cached data, and with newer preloaded data but invalid -> emit SDK_READY_FROM_CACHE, and don't update storages
+    t.plan(5 + Object.keys(preloadedDataWithSegments.splitsData).length);
 
-  // Testing when we start localstorage with cached data, and with older preloaded data than storage changenumber -> emit SDK_READY_FROM_CACHE, and don't update storages
+    fetchMock.getOnce(testUrls.sdk + '/splitChanges?since=1457552620999', { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } }, { delay: 10 }); // short delay to let emit SDK_READY_FROM_CACHE
+    fetchMock.getOnce(testUrls.sdk + '/mySegments/nicolas%40split.io', { status: 200, body: { mySegments: [] } });
 
-  // Testing when we start localstorage with cached data but expired, and with newer preloaded data but also expired -> ???
+    const splitio = SplitFactory({
+      ...baseConfig,
+      storage: {
+        type: 'LOCALSTORAGE',
+        prefix: prefix,
+        preloadedData: preloadedDataWithSegments
+      },
+      urls: testUrls,
+      debug: true
+    });
+    const client = splitio.client();
+    const manager = splitio.manager();
+
+    client.once(client.Event.SDK_READY_FROM_CACHE, () => {
+      t.deepEqual(Array.sort(manager.names()), Object.keys(preloadedDataWithSegments.splitsData), 'splits should be the ones in preloadedData');
+    });
+
+    client.once(client.Event.SDK_READY, () => {
+      t.deepEqual(Array.sort(manager.names()), Object.keys(preloadedDataWithSegments.splitsData), 'splits should be the ones in preloadedData');
+
+      client.destroy().then(() => {
+        t.equal(localStorage.getItem(prefix + '.SPLITIO.splits.till'), '1457552620999', 'splits.till must correspond to the till of the last successfully fetched Splits');
+        t.equal(localStorage.getItem(baseConfig.core.key + '.' + prefix + '.SPLITIO.segment.segment_1'), '1', 'added user segments should be in cache');
+        t.equal(localStorage.getItem(baseConfig.core.key + '.' + prefix + '.SPLITIO.segment.segment_2'), null, 'removed user segments should not be in cache');
+        Object.keys(preloadedDataWithSegments.splitsData).forEach(splitName => {
+          t.equal(localStorage.getItem(prefix + '.SPLITIO.split.' + splitName), preloadedDataWithSegments.splitsData[splitName], 'split declarations must be cached');
+        });
+        t.end();
+      });
+    });
+  }, 'readyFromCache_preloadedData2');
+
+  // Testing when we start localstorage with cached data, and with invalid preloaded data (invalid format or older than storage changenumber) -> emit SDK_READY_FROM_CACHE, and don't update storages
+  // @TODO Testing when we start localstorage with cached data but expired, and with newer preloaded data but also expired -> ???
+  // @TODO Testing when we start localstorage from scrach, and with preloaded data but expired -> ???
+  assert.test(assert => {
+    const invalidPreloadedData = [
+      // invalid format
+      'INVALID PRECACHED DATA',
+      // older data than storage changenumber
+      { ...preloadedDataWithSegments, since: 10 }
+    ];
+
+    invalidPreloadedData.forEach(prealoadedData => {
+
+      assert.test(t => {
+        const prefix = 'readyFromCache_preloadedData3';
+        const testUrls = {
+          sdk: 'https://sdk.baseurl/' + prefix,
+          events: 'https://events.baseurl/' + prefix
+        };
+        localStorage.clear();
+        localStorage.setItem(prefix + '.SPLITIO.splits.till', 25);
+        localStorage.setItem(prefix + '.SPLITIO.split.p1__split', splitSerializedDefinitions.p1__split);
+
+        t.plan(3);
+
+        fetchMock.getOnce(testUrls.sdk + '/splitChanges?since=25', { status: 200, body: { splits: [splitDefinitions.p1__split, splitDefinitions.p2__split], since: 25, till: 1457552620999 } }, { delay: 10 }); // short delay to let emit SDK_READY_FROM_CACHE
+        fetchMock.getOnce(testUrls.sdk + '/mySegments/nicolas%40split.io', { status: 200, body: { mySegments: [] } });
+
+        const splitio = SplitFactory({
+          ...baseConfig,
+          storage: {
+            type: 'LOCALSTORAGE',
+            prefix: prefix,
+            preloadedData: prealoadedData
+          },
+          urls: testUrls,
+          debug: true
+        });
+        const client = splitio.client();
+        const manager = splitio.manager();
+
+        client.once(client.Event.SDK_READY_FROM_CACHE, () => {
+          t.deepEqual(manager.names(), ['p1__split'], 'splits should be the ones in preloadedData');
+        });
+
+        client.once(client.Event.SDK_READY, () => {
+          t.deepEqual(manager.names(), ['p1__split', 'p2__split'], 'splits should be the ones in preloadedData');
+
+          client.destroy().then(() => {
+            t.equal(localStorage.getItem(prefix + '.SPLITIO.splits.till'), '1457552620999', 'splits.till must correspond to the till of the last successfully fetched Splits');
+            t.end();
+          });
+        });
+      });
+
+    });
+  }, 'readyFromCache_preloadedData3');
 
 
   /** Preloaded data in InMemory storage */
 
-  // Testing when we start inmemory, and with preloaded data (with segmentsData) -> emit SDK_READY_FROM_CACHE, and update storage and shared mySegments storages
+  // @TODO Testing when we start inmemory, and with preloaded data (with segmentsData) -> emit SDK_READY_FROM_CACHE, and update storage and shared mySegments storages
 
-  // Testing when we start inmemory, and with preloaded data (with mySegmentsData) -> emit SDK_READY_FROM_CACHE, and update storage and only shared mySegments storages with existing user id
+  // @TODO Testing when we start inmemory, and with preloaded data (with mySegmentsData) -> emit SDK_READY_FROM_CACHE, and update storage and only shared mySegments storages with existing user id
 
-  // Testing when we start inmemory, and with preloaded data but invalid -> don't emit SDK_READY_FROM_CACHE, and don't update storages
-
-  // Testing when we start inmemory, and with preloaded data but expired -> ???
+  // @TODO Testing when we start inmemory, and with invalid preloaded data (invalid format) -> don't emit SDK_READY_FROM_CACHE, and don't update storages
+  // @TODO Testing when we start inmemory, and with invalid preloaded data (expired) -> ???
 
 }
