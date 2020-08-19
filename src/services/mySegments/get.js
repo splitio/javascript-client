@@ -17,5 +17,11 @@ import base from '../request';
 import { matching } from '../../utils/key/factory';
 
 export default function GET(settings) {
-  return base(settings, `/mySegments/${matching(settings.core.key)}`);
+  /**
+   * URI encoding of user keys in order to:
+   *  - avoid 400 responses (due to URI malformed). E.g.: '/api/mySegments/%'
+   *  - avoid 404 responses. E.g.: '/api/mySegments/foo/bar'
+   *  - match user keys with special characters. E.g.: 'foo%bar', 'foo/bar'
+   */
+  return base(settings, `/mySegments/${encodeURIComponent(matching(settings.core.key))}`);
 }
