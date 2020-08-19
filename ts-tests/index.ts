@@ -387,6 +387,21 @@ impressionListener.logImpression(impressionData);
 // Split filters
 let splitFilters: SplitIO.SplitFilter[] = [{ type: 'byName', values: ['my_split_1', 'my_split_1'] }, { type: 'byPrefix', values: ['my_split', 'test_split_'] }]
 
+// storage preloaded data
+let preloadedData: SplitIO.PreloadedData = {
+  since: 10000,
+  splitsData: {
+    split_1: 'SPLIT_1_DEFINITION', split_2: 'SPLIT_2_DEFINITION'
+  },
+  mySegmentsData: {
+    user_id_1: [],
+    user_id_2: ['segment_1', 'segment_2']
+  },
+  segmentsData: {
+    segment_1: 'SEGMENT_1_DEFINITION', segment_2: 'SEGMENT_2_DEFINITION'
+  }
+}
+
 // Browser integrations
 let fieldsObjectSample: UniversalAnalytics.FieldsObject = { hitType: 'event', eventAction: 'action' };
 let eventDataSample: SplitIO.EventData = { eventTypeId: 'someEventTypeId', value: 10, properties: {} }
@@ -442,7 +457,8 @@ let fullBrowserSettings: SplitIO.IBrowserSettings = {
   features: mockedFeaturesMap,
   storage: {
     type: 'LOCALSTORAGE',
-    prefix: 'PREFIX'
+    prefix: 'PREFIX',
+    preloadedData: preloadedData
   },
   impressionListener: impressionListener,
   debug: true,
