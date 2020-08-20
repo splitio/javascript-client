@@ -1,6 +1,7 @@
 import { isString } from '../lang';
 import logFactory from '../logger';
 const log = logFactory('', {
+  // Errors on API key validation are important enough so that one day we might force logging them or throw an exception on startup.
   displayAllErrors: true
 });
 

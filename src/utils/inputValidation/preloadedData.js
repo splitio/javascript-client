@@ -1,9 +1,7 @@
 import { isObject, isString, numberIsFinite } from '../lang';
 import { validateSplit } from '../inputValidation';
 import logFactory from '../logger';
-const log = logFactory('', {
-  displayAllErrors: true
-});
+const log = logFactory('');
 
 function validateSinceData(maybeSince, method) {
   if (numberIsFinite(maybeSince) && maybeSince > -1) return true;
