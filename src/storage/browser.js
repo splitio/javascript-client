@@ -16,13 +16,13 @@ export const DEFAULT_CACHE_EXPIRATION_IN_MILLIS = 864000000; // 10 days
 const BrowserStorageFactory = context => {
   const settings = context.get(context.constants.SETTINGS);
   const { storage } = settings;
-  let result;
+  let instance;
 
   switch (storage.type) {
     case STORAGE_MEMORY: {
       const keys = new KeyBuilder(settings);
 
-      result = {
+      instance = {
         splits: new SplitCacheInMemory,
         segments: new SegmentCacheInMemory(keys),
         impressions: new ImpressionsCacheInMemory,
@@ -65,7 +65,7 @@ const BrowserStorageFactory = context => {
       const keys = new KeyBuilderLocalStorage(settings);
       const expirationTimestamp = Date.now() - DEFAULT_CACHE_EXPIRATION_IN_MILLIS;
 
-      result = {
+      instance = {
         splits: new SplitCacheInLocalStorage(keys, expirationTimestamp, settings.sync.__splitFiltersValidation),
         segments: new SegmentCacheInLocalStorage(keys),
         impressions: new ImpressionsCacheInMemory,
@@ -111,10 +111,10 @@ const BrowserStorageFactory = context => {
   // load precached data into storage
   if (storage.dataLoader) {
     const key = settings.core.key;
-    storage.dataLoader(result, key);
+    storage.dataLoader(instance, key);
   }
 
-  return result;
+  return instance;
 };
 
 export default BrowserStorageFactory;

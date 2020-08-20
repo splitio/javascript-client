@@ -759,6 +759,7 @@ export default function (fetchMock, assert) {
   /** Preloaded data in InLocalStorage storage */
 
   // Testing when we start localstorage from scrach, and with preloaded data (with segmentsData) -> emit SDK_READY_FROM_CACHE, and update storage and shared mySegments storages
+  // @TODO test shared storage ?
   assert.test(t => {
     const prefix = 'readyFromCache_preloadedData1';
     const testUrls = {
@@ -802,7 +803,8 @@ export default function (fetchMock, assert) {
     });
   }, 'readyFromCache_preloadedData1');
 
-  // Testing when we start localstorage with cached data, and with newer preloaded data (with mySegmentsData) -> emit SDK_READY_FROM_CACHE, and update storage and only shared mySegments storages with existing user id
+  // Testing when we start localstorage with cached data, and with newer preloaded data (with segmentsData) -> emit SDK_READY_FROM_CACHE, and update storage and only shared mySegments storages with existing user id
+  // @TODO use preloaded data with mySegmentsData instead, and test shared storage ?
   assert.test(t => {
     const prefix = 'readyFromCache_preloadedData2';
     const testUrls = {

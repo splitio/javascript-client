@@ -59,7 +59,7 @@ const ParseStorageSettings = settings => {
     type,
     options,
     prefix,
-    dataLoader: validatePreloadedData(preloadedData, 'Factory instantiation - storage preload') ? dataLoaderFactory(preloadedData) : undefined
+    dataLoader: preloadedData && validatePreloadedData(preloadedData, 'Factory instantiation - storage preload') ? dataLoaderFactory(preloadedData) : undefined
   };
 };
 

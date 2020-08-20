@@ -1,11 +1,12 @@
-import { isObject, isString } from '../lang';
+import { isObject, isString, numberIsFinite } from '../lang';
+import { validateSplit } from '../inputValidation';
 import logFactory from '../logger';
 const log = logFactory('', {
   displayAllErrors: true
 });
 
 function validateSinceData(maybeSince, method) {
-  if (maybeSince > -1) return true;
+  if (numberIsFinite(maybeSince) && maybeSince > -1) return true;
   log.error(`${method}: preloadedData.since must be a positive number.`);
   return false;
 }
@@ -13,7 +14,9 @@ function validateSinceData(maybeSince, method) {
 function validateSplitsData(maybeSplitsData, method) {
   if (isObject(maybeSplitsData)) {
     const splitNames = Object.keys(maybeSplitsData);
-    if (splitNames.length > 0 && splitNames.every(splitName => isString(maybeSplitsData[splitName]))) return true;
+    if (splitNames.length === 0) log.warn(`${method}: preloadedData.splitsData doesn't contain split definitions.`);
+    // @TODO in the future, consider handling the possibility of having parsed definitions of splits
+    if (splitNames.every(splitName => validateSplit(splitName, method) && isString(maybeSplitsData[splitName]))) return true;
   }
   log.error(`${method}: preloadedData.splitsData must be a map of split names to their serialized definitions.`);
   return false;
@@ -22,7 +25,7 @@ function validateSplitsData(maybeSplitsData, method) {
 function validateMySegmentsData(maybeMySegmentsData, method) {
   if (isObject(maybeMySegmentsData)) {
     const userKeys = Object.keys(maybeMySegmentsData);
-    if (userKeys.length > 0 && userKeys.every(userKey => {
+    if (userKeys.every(userKey => {
       const segmentNames = maybeMySegmentsData[userKey];
       // an empty list is valid
       return Array.isArray(segmentNames) && segmentNames.every(segmentName => isString(segmentName));
@@ -35,7 +38,7 @@ function validateMySegmentsData(maybeMySegmentsData, method) {
 function validateSegmentsData(maybeSegmentsData, method) {
   if (isObject(maybeSegmentsData)) {
     const segmentNames = Object.keys(maybeSegmentsData);
-    if (segmentNames.length > 0 && segmentNames.every(segmentName => isString(maybeSegmentsData[segmentName]))) return true;
+    if (segmentNames.every(segmentName => isString(maybeSegmentsData[segmentName]))) return true;
   }
   log.error(`${method}: preloadedData.segmentsData must be a map of segment names to their serialized definitions.`);
   return false;
