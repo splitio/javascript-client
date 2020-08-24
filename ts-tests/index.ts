@@ -389,6 +389,7 @@ let splitFilters: SplitIO.SplitFilter[] = [{ type: 'byName', values: ['my_split_
 
 // storage preloaded data
 let preloadedData: SplitIO.PreloadedData = {
+  lastUpdated: 10000,
   since: 10000,
   splitsData: {
     split_1: 'SPLIT_1_DEFINITION', split_2: 'SPLIT_2_DEFINITION'
