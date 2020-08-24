@@ -756,10 +756,11 @@ export default function (fetchMock, assert) {
     });
   });
 
+
   /** Preloaded data in InLocalStorage storage */
 
   // Testing when we start localstorage from scrach, and with preloaded data (with segmentsData) -> emit SDK_READY_FROM_CACHE, and update storage and shared mySegments storages
-  // @TODO test shared storage ?
+  // @TODO test shared storage, SDK_READY_FROM_CACHE with and without segments, and use preloaded data with mySegmentsData instead (update only shared mySegments storages with existing user id)?
   assert.test(t => {
     const prefix = 'readyFromCache_preloadedData1';
     const testUrls = {
@@ -804,7 +805,7 @@ export default function (fetchMock, assert) {
   }, 'readyFromCache_preloadedData1');
 
   // Testing when we start localstorage with cached data, and with newer preloaded data (with segmentsData) -> emit SDK_READY_FROM_CACHE, and update storage and only shared mySegments storages with existing user id
-  // @TODO use preloaded data with mySegmentsData instead, and test shared storage ?
+  // @TODO test shared storage, SDK_READY_FROM_CACHE with and without segments, and use preloaded data with mySegmentsData instead (update only shared mySegments storages with existing user id)?
   assert.test(t => {
     const prefix = 'readyFromCache_preloadedData2';
     const testUrls = {
@@ -859,15 +860,16 @@ export default function (fetchMock, assert) {
     });
   }, 'readyFromCache_preloadedData2');
 
-  // Testing when we start localstorage with cached data, and with invalid preloaded data (invalid format or older than storage changenumber) -> emit SDK_READY_FROM_CACHE, and don't update storages
+  // Testing when we start localstorage with cached data, and with invalid preloaded data (invalid format, older date (i.e. changenumber older than storage changenumber), data expired (i.e. last update older than expiration time)) -> emit SDK_READY_FROM_CACHE, and don't update storages
   // @TODO Testing when we start localstorage with cached data but expired, and with newer preloaded data but also expired -> ???
-  // @TODO Testing when we start localstorage from scrach, and with preloaded data but expired -> ???
   assert.test(assert => {
     const invalidPreloadedData = [
       // invalid format
       'INVALID PRECACHED DATA',
       // older data than storage changenumber
-      { ...preloadedDataWithSegments, since: 10 }
+      { ...preloadedDataWithSegments, since: 10 },
+      // expired data according to expiration policy
+      { ...preloadedDataWithSegments, lastUpdated: Date.now() - DEFAULT_CACHE_EXPIRATION_IN_MILLIS -1 }, // -1 to ensure having an expired lastUpdated item
     ];
 
     invalidPreloadedData.forEach(prealoadedData => {
@@ -921,10 +923,8 @@ export default function (fetchMock, assert) {
   /** Preloaded data in InMemory storage */
 
   // @TODO Testing when we start inmemory, and with preloaded data (with segmentsData) -> emit SDK_READY_FROM_CACHE, and update storage and shared mySegments storages
+  // @TODO test shared storage, SDK_READY_FROM_CACHE with and without segments, and use preloaded data with mySegmentsData instead (update only shared mySegments storages with existing user id)?
 
-  // @TODO Testing when we start inmemory, and with preloaded data (with mySegmentsData) -> emit SDK_READY_FROM_CACHE, and update storage and only shared mySegments storages with existing user id
-
-  // @TODO Testing when we start inmemory, and with invalid preloaded data (invalid format) -> don't emit SDK_READY_FROM_CACHE, and don't update storages
-  // @TODO Testing when we start inmemory, and with invalid preloaded data (expired) -> ???
+  // @TODO Testing when we start inmemory, and with invalid preloaded data (invalid format, data expired (i.e. last update older than expiration time)) -> don't emit SDK_READY_FROM_CACHE, and don't update storages
 
 }

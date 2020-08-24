@@ -757,6 +757,7 @@ declare namespace SplitIO {
     /**
      * Timestamp of the last moment the data was synchronized with Split servers.
      * If this value is older than 10 days ago (expiration time policy), the data is not used to update the storage content.
+     * @TODO configurable expiration time policy?
      */
     lastUpdated: number,
     /**
@@ -772,6 +773,7 @@ declare namespace SplitIO {
     },
     /**
      * Optional map of user keys to their list of segments.
+     * @TODO remove when releasing first version
      */
     mySegmentsData?: {
       [key: string]: string[]
@@ -940,6 +942,7 @@ declare namespace SplitIO {
       /**
        * Split data to preload the storage. You may optionally specify it to quickly initialice and use the SDK with cached data.
        * If the data is valid, the SDK emits an SDK_READY_FROM_CACHE event once it is ready to be used.
+       * @TODO update the following link
        * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#preloaded-data}
        * @property {PreloadedData} preloadedData
        */

@@ -15,6 +15,8 @@ export function dataLoaderFactory(preloadedData = {}) {
    *
    * @param {Object} storage storage for client-side
    * @param {Object} userId main user key defined at the SDK config
+   *
+   * @TODO extend this function to load data on shared mySegments storages. Be specific when emitting SDK_READY_FROM_CACHE on shared clients. Maybe the serializer should provide the `useSegments` flag.
    */
   return function loadData(storage, userId) {
     // Do not load data if current preloadedData is empty

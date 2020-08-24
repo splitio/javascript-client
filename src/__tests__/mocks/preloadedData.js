@@ -38,6 +38,7 @@ export const segmentsSerializedDefinitions = (function () {
 }());
 
 export const preloadedDataWithSegments = {
+  lastUpdated: Date.now(),
   since: 1457552620999,
   splitsData: splitSerializedDefinitions,
   segmentsData: segmentsSerializedDefinitions
