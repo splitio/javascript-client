@@ -21,49 +21,49 @@ const method = 'some_method';
 const testCases = [
   // valid inputs
   {
-    input: { since: 10, splitsData: {} },
+    input: { lastUpdated: 10, since: 10, splitsData: {} },
     output: true,
     warn: `${method}: preloadedData.splitsData doesn't contain split definitions.`
   },
   {
-    input: { since: 10, splitsData: { 'some_split': 'SPLIT DEFINITION' } },
+    input: { lastUpdated: 10, since: 10, splitsData: { 'some_split': 'SPLIT DEFINITION' } },
     output: true
   },
   {
-    input: { since: 10, splitsData: { 'some_split': 'SPLIT DEFINITION' }, mySegmentsData: { 'some_key': [] } },
+    input: { lastUpdated: 10, since: 10, splitsData: { 'some_split': 'SPLIT DEFINITION' }, mySegmentsData: { 'some_key': [] } },
     output: true
   },
   {
-    input: { since: 10, splitsData: { 'some_split': 'SPLIT DEFINITION' }, mySegmentsData: { 'some_key': [] } },
+    input: { lastUpdated: 10, since: 10, splitsData: { 'some_split': 'SPLIT DEFINITION' }, mySegmentsData: { 'some_key': [] } },
     output: true
   },
   {
-    input: { since: 10, splitsData: { 'some_split': 'SPLIT DEFINITION' }, mySegmentsData: {} },
+    input: { lastUpdated: 10, since: 10, splitsData: { 'some_split': 'SPLIT DEFINITION' }, mySegmentsData: {} },
     output: true
   },
   {
-    input: { since: 10, splitsData: { 'some_split': 'SPLIT DEFINITION' }, mySegmentsData: { some_key: [] } },
+    input: { lastUpdated: 10, since: 10, splitsData: { 'some_split': 'SPLIT DEFINITION' }, mySegmentsData: { some_key: [] } },
     output: true
   },
   {
-    input: { since: 10, splitsData: { 'some_split': 'SPLIT DEFINITION' }, mySegmentsData: { some_key: ['some_segment'] } },
+    input: { lastUpdated: 10, since: 10, splitsData: { 'some_split': 'SPLIT DEFINITION' }, mySegmentsData: { some_key: ['some_segment'] } },
     output: true
   },
   {
-    input: { since: 10, splitsData: { 'some_split': 'SPLIT DEFINITION' }, segmentsData: {} },
+    input: { lastUpdated: 10, since: 10, splitsData: { 'some_split': 'SPLIT DEFINITION' }, segmentsData: {} },
     output: true
   },
   {
-    input: { since: 10, splitsData: { 'some_split': 'SPLIT DEFINITION' }, segmentsData: { some_segment: 'SEGMENT DEFINITION' } },
+    input: { lastUpdated: 10, since: 10, splitsData: { 'some_split': 'SPLIT DEFINITION' }, segmentsData: { some_segment: 'SEGMENT DEFINITION' } },
     output: true
   },
   {
-    input: { since: 10, splitsData: { 'some_split': 'SPLIT DEFINITION' }, mySegmentsData: { some_key: ['some_segment'], some_other_key: ['some_segment'] }, segmentsData: { some_segment: 'SEGMENT DEFINITION', some_other_segment: 'SEGMENT DEFINITION' } },
+    input: { lastUpdated: 10, since: 10, splitsData: { 'some_split': 'SPLIT DEFINITION' }, mySegmentsData: { some_key: ['some_segment'], some_other_key: ['some_segment'] }, segmentsData: { some_segment: 'SEGMENT DEFINITION', some_other_segment: 'SEGMENT DEFINITION' } },
     output: true
   },
   {
     msg: 'should be true, even using objects for strings and numbers or having extra properties',
-    input: { ignoredProperty: 'IGNORED', since: new Number(10), splitsData: { 'some_split': new String('SPLIT DEFINITION') }, mySegmentsData: { some_key: [new String('some_segment')] }, segmentsData: { some_segment: new String('SEGMENT DEFINITION') } },
+    input: { ignoredProperty: 'IGNORED', lastUpdated: new Number(10), since: new Number(10), splitsData: { 'some_split': new String('SPLIT DEFINITION') }, mySegmentsData: { some_key: [new String('some_segment')] }, segmentsData: { some_segment: new String('SEGMENT DEFINITION') } },
     output: true
   },
 
@@ -81,56 +81,68 @@ const testCases = [
     error: `${method}: preloadedData must be an object.`
   },
   {
+    msg: 'should be false if lastUpdated property is invalid',
+    input: { lastUpdated: undefined, since: 10, splitsData: {} },
+    output: false,
+    error: `${method}: preloadedData.lastUpdated must be a positive number.`
+  },
+  {
+    msg: 'should be false if lastUpdated property is invalid',
+    input: { lastUpdated: -1, since: 10, splitsData: {} },
+    output: false,
+    error: `${method}: preloadedData.lastUpdated must be a positive number.`
+  },
+  {
     msg: 'should be false if since property is invalid',
-    input: { since: undefined, splitsData: {} },
+    input: { lastUpdated: 10, since: undefined, splitsData: {} },
     output: false,
     error: `${method}: preloadedData.since must be a positive number.`
   },
   {
     msg: 'should be false if since property is invalid',
-    input: { since: -1, splitsData: {} },
+    input: { lastUpdated: 10, since: -1, splitsData: {} },
     output: false,
     error: `${method}: preloadedData.since must be a positive number.`
   },
   {
     msg: 'should be false if splitsData property is invalid',
-    input: { since: 10, splitsData: undefined },
+    input: { lastUpdated: 10, since: 10, splitsData: undefined },
     output: false,
     error: `${method}: preloadedData.splitsData must be a map of split names to their serialized definitions.`
   },
   {
     msg: 'should be false if splitsData property is invalid',
-    input: { since: 10, splitsData: ['DEFINITION'] },
+    input: { lastUpdated: 10, since: 10, splitsData: ['DEFINITION'] },
     output: false,
     error: `${method}: preloadedData.splitsData must be a map of split names to their serialized definitions.`
   },
   {
     msg: 'should be false if splitsData property is invalid',
-    input: { since: 10, splitsData: { some_split: undefined } },
+    input: { lastUpdated: 10, since: 10, splitsData: { some_split: undefined } },
     output: false,
     error: `${method}: preloadedData.splitsData must be a map of split names to their serialized definitions.`
   },
   {
     msg: 'should be false if mySegmentsData property is invalid',
-    input: { since: 10, splitsData: { some_split: 'DEFINITION' }, mySegmentsData: ['DEFINITION'] },
+    input: { lastUpdated: 10, since: 10, splitsData: { some_split: 'DEFINITION' }, mySegmentsData: ['DEFINITION'] },
     output: false,
     error: `${method}: preloadedData.mySegmentsData must be a map of user keys to their list of segment names.`
   },
   {
     msg: 'should be false if mySegmentsData property is invalid',
-    input: { since: 10, splitsData: { some_split: 'DEFINITION' }, mySegmentsData: { some_key: undefined } },
+    input: { lastUpdated: 10, since: 10, splitsData: { some_split: 'DEFINITION' }, mySegmentsData: { some_key: undefined } },
     output: false,
     error: `${method}: preloadedData.mySegmentsData must be a map of user keys to their list of segment names.`
   },
   {
     msg: 'should be false if segmentsData property is invalid',
-    input: { since: 10, splitsData: { some_split: 'DEFINITION' }, segmentsData: ['DEFINITION'] },
+    input: { lastUpdated: 10, since: 10, splitsData: { some_split: 'DEFINITION' }, segmentsData: ['DEFINITION'] },
     output: false,
     error: `${method}: preloadedData.segmentsData must be a map of segment names to their serialized definitions.`
   },
   {
     msg: 'should be false if segmentsData property is invalid',
-    input: { since: 10, splitsData: { some_split: 'DEFINITION' }, segmentsData: { some_segment: undefined } },
+    input: { lastUpdated: 10, since: 10, splitsData: { some_split: 'DEFINITION' }, segmentsData: { some_segment: undefined } },
     output: false,
     error: `${method}: preloadedData.segmentsData must be a map of segment names to their serialized definitions.`
   }

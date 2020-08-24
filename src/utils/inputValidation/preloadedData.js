@@ -3,9 +3,9 @@ import { validateSplit } from '../inputValidation';
 import logFactory from '../logger';
 const log = logFactory('');
 
-function validateSinceData(maybeSince, method) {
-  if (numberIsFinite(maybeSince) && maybeSince > -1) return true;
-  log.error(`${method}: preloadedData.since must be a positive number.`);
+function validateTimestampData(maybeTimestamp, method, item) {
+  if (numberIsFinite(maybeTimestamp) && maybeTimestamp > -1) return true;
+  log.error(`${method}: preloadedData.${item} must be a positive number.`);
   return false;
 }
 
@@ -46,7 +46,8 @@ export function validatePreloadedData(maybePreloadedData, method) {
   if (!isObject(maybePreloadedData)) {
     log.error(`${method}: preloadedData must be an object.`);
   } else if (
-    validateSinceData(maybePreloadedData.since, method) &&
+    validateTimestampData(maybePreloadedData.lastUpdated, method, 'lastUpdated') &&
+    validateTimestampData(maybePreloadedData.since, method, 'since') &&
     validateSplitsData(maybePreloadedData.splitsData, method) &&
     (!maybePreloadedData.mySegmentsData || validateMySegmentsData(maybePreloadedData.mySegmentsData, method)) &&
     (!maybePreloadedData.segmentsData || validateSegmentsData(maybePreloadedData.segmentsData, method))

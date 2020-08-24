@@ -755,6 +755,11 @@ declare namespace SplitIO {
    */
   interface PreloadedData {
     /**
+     * Timestamp of the last moment the data was synchronized with Split servers.
+     * If this value is older than 10 days ago (expiration time policy), the data is not used to update the storage content.
+     */
+    lastUpdated: number,
+    /**
      * Change number of the preloaded data.
      * If this value is older than the current changeNumber at the storage, the data is not used to update the storage content.
      */

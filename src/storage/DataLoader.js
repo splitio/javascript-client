@@ -1,3 +1,5 @@
+import { DEFAULT_CACHE_EXPIRATION_IN_MILLIS } from './browser';
+
 /**
  * Factory of data loaders
  *
@@ -18,12 +20,14 @@ export function dataLoaderFactory(preloadedData = {}) {
     // Do not load data if current preloadedData is empty
     if (Object.keys(preloadedData).length === 0) return;
 
-    const { segmentsData = {}, since = -1, splitsData = {} } = preloadedData;
+    const { lastUpdated = -1, segmentsData = {}, since = -1, splitsData = {} } = preloadedData;
 
     const storedSince = storage.splits.getChangeNumber();
+    const expirationTimestamp = Date.now() - DEFAULT_CACHE_EXPIRATION_IN_MILLIS;
 
-    // Do not load data if current localStorage data is more recent
-    if (storedSince > since) return;
+    // Do not load data if current localStorage data is more recent,
+    // or if its `lastUpdated` timestamp is older than the given `expirationTimestamp`,
+    if (storedSince > since || lastUpdated < expirationTimestamp) return;
 
     // cleaning up the localStorage data, since some cached splits might need be part of the preloaded data
     storage.splits.flush();
