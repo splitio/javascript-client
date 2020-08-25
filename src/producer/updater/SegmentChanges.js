@@ -97,7 +97,7 @@ export default function SegmentChangesUpdaterFactory(context) {
             segmentsEventEmitter.emit(segmentsEventEmitter.SDK_SEGMENTS_ARRIVED);
           }
           // if at least one segment fetch fails, return false to indicate that there was some error (e.g., invalid json, HTTP error, etc)
-          if (findIndex(shouldUpdateFlags, v => v === -1) !== -1) return false;
+          if (shouldUpdateFlags.indexOf(-1) !== -1) return false;
         }).catch(error => {
           // handle user callback errors
           if (!(error instanceof SplitError)) setTimeout(() => { throw error; }, 0);

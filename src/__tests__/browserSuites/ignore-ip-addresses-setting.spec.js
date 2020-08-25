@@ -101,7 +101,7 @@ export default function (fetchMock, assert) {
     const settings = SettingsFactory(config);
     fetchMock.getOnce(settings.url('/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
     fetchMock.getOnce(settings.url('/splitChanges?since=1457552620999'), { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
-    fetchMock.getOnce(settings.url(`/mySegments/${config.core.key}`), { status: 200, body: { mySegments: [] } });
+    fetchMock.getOnce(settings.url(`/mySegments/${encodeURIComponent(config.core.key)}`), { status: 200, body: { mySegments: [] } });
 
     // Init Split client
     const splitio = SplitFactory(config);

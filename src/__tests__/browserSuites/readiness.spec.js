@@ -36,7 +36,7 @@ export default function (fetchMock, assert) {
     fetchMock.get(testUrls.sdk + '/splitChanges?since=-1', function () {
       return new Promise((res) => { setTimeout(() => { res({ status: 200, body: splitChangesMock1, headers: {} }); }, 5100); });
     });
-    fetchMock.get(testUrls.sdk + '/mySegments/nicolas@split.io', function () {
+    fetchMock.get(testUrls.sdk + '/mySegments/nicolas%40split.io', function () {
       return new Promise((res) => { setTimeout(() => { res({ status: 200, body: mySegmentsNicolas, headers: {} }); }, 4900); });
     });
     fetchMock.get(testUrls.sdk + '/splitChanges?since=1457552620999', { status: 200, body: splitChangesMock2 });
@@ -65,7 +65,7 @@ export default function (fetchMock, assert) {
     fetchMock.get(testUrls.sdk + '/splitChanges?since=-1', function () {
       return new Promise((res) => { setTimeout(() => { res({ status: 200, body: splitChangesMock1, headers: {} }); }, 4900); });
     });
-    fetchMock.get(testUrls.sdk + '/mySegments/nicolas@split.io', function () {
+    fetchMock.get(testUrls.sdk + '/mySegments/nicolas%40split.io', function () {
       return new Promise((res) => { setTimeout(() => { res({ status: 200, body: mySegmentsNicolas, headers: {} }); }, 5100); });
     });
     fetchMock.get(testUrls.sdk + '/splitChanges?since=1457552620999', { status: 200, body: splitChangesMock2 });
@@ -96,7 +96,7 @@ export default function (fetchMock, assert) {
     fetchMock.getOnce(testUrls.sdk + '/splitChanges?since=-1', function () {
       return new Promise((res) => { setTimeout(() => { res({ status: 200, body: splitChangesMock1, headers: {} }); }, 4900); }); // Faster, it should get ready on the retry.
     });
-    fetchMock.get(testUrls.sdk + '/mySegments/nicolas@split.io', function () {
+    fetchMock.get(testUrls.sdk + '/mySegments/nicolas%40split.io', function () {
       return new Promise((res) => { setTimeout(() => { res({ status: 200, body: mySegmentsNicolas, headers: {} }); }, 4900); });
     });
     fetchMock.get(testUrls.sdk + '/splitChanges?since=1457552620999', { status: 200, body: splitChangesMock2 });
@@ -120,7 +120,7 @@ export default function (fetchMock, assert) {
   function mockForSegmentsPauseTest(testUrls, startWithSegments = false) {
     let mySegmentsHits = 0;
 
-    fetchMock.get(new RegExp(`${testUrls.sdk}/mySegments/nicolas\\d?@split.io`), function () { // Mock any mySegments call, so we can test with multiple clients.
+    fetchMock.get(new RegExp(`${testUrls.sdk}/mySegments/nicolas\\d?%40split.io`), function () { // Mock any mySegments call, so we can test with multiple clients.
       mySegmentsHits++;
       return new Promise((res) => { setTimeout(() => { res({ status: 200, body: { mySegments: [] } }); }, mySegmentsEndpointDelay); });
     });

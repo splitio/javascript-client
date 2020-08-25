@@ -4,6 +4,7 @@ import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
 import authPushDisabled from '../mocks/auth.pushDisabled.json';
 import authInvalidCredentials from '../mocks/auth.invalidCredentials.txt';
+import authNoUserSpecified from '../mocks/auth.noUserSpecified.txt';
 import { nearlyEqual } from '../testUtils';
 
 import { __setEventSource, __restore } from '../../services/getEventSource/node';
@@ -21,7 +22,8 @@ const config = {
     featuresRefreshRate: 0.1,
     segmentsRefreshRate: 0.1,
     metricsRefreshRate: 3000,
-    impressionsRefreshRate: 3000
+    impressionsRefreshRate: 3000,
+    authRetryBackoffBase: 0.01
   },
   urls: baseUrls,
   startup: {
@@ -98,6 +100,19 @@ export function testAuthWith401(fetchMock, assert) {
     if (!opts.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
     assert.pass('auth');
     return { status: 401, body: authInvalidCredentials };
+  });
+
+  testInitializationFail(fetchMock, assert, true);
+
+}
+
+export function testAuthWith400(fetchMock, assert) {
+  assert.plan(6);
+
+  fetchMock.getOnce(settings.url('/auth'), function (url, opts) {
+    if (!opts.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
+    assert.pass('auth');
+    return { status: 400, body: authNoUserSpecified };
   });
 
   testInitializationFail(fetchMock, assert, true);

@@ -87,9 +87,9 @@ tape('## E2E CI Tests ##', function(assert) {
 
   fetchMock.get(settings.url('/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
   fetchMock.get(settings.url('/splitChanges?since=1457552620999'), { status: 200, body: splitChangesMock2 });
-  fetchMock.get(settings.url('/mySegments/facundo@split.io'), { status: 200, body: mySegmentsFacundo });
-  fetchMock.get(settings.url('/mySegments/nicolas@split.io'), { status: 200, body: mySegmentsNicolas });
-  fetchMock.get(settings.url('/mySegments/marcio@split.io'), { status: 200, body: mySegmentsMarcio });
+  fetchMock.get(settings.url('/mySegments/facundo%40split.io'), { status: 200, body: mySegmentsFacundo });
+  fetchMock.get(settings.url('/mySegments/nicolas%40split.io'), { status: 200, body: mySegmentsNicolas });
+  fetchMock.get(settings.url('/mySegments/marcio%40split.io'), { status: 200, body: mySegmentsMarcio });
   fetchMock.post(settings.url('/testImpressions/bulk'), 200);
 
   /* Check client evaluations. */
