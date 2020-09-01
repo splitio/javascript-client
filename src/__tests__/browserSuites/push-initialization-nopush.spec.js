@@ -42,7 +42,7 @@ const settings = SettingsFactory(config);
 function testInitializationFail(fetchMock, assert, fallbackToPolling) {
   let start, splitio, client, ready = false;
 
-  fetchMock.get(settings.url('/mySegments/nicolas@split.io'), { status: 200, body: mySegmentsNicolas });
+  fetchMock.get(settings.url('/mySegments/nicolas%40split.io'), { status: 200, body: mySegmentsNicolas });
   fetchMock.getOnce(settings.url('/splitChanges?since=-1'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, 0), 'initial sync');
