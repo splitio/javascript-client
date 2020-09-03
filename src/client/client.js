@@ -1,7 +1,6 @@
 import logFactory from '../utils/logger';
 const log = logFactory('splitio-client');
 import { evaluateFeature, evaluateFeatures } from '../engine/evaluator';
-import ImpressionTracker from '../trackers/impression';
 import ImpressionsTracker from '../trackers/impressions';
 import EventTracker from '../trackers/event';
 import tracker from '../utils/timeTracker';
@@ -15,7 +14,6 @@ import { CONTROL } from '../utils/constants';
 function ClientFactory(context) {
   const storage = context.get(context.constants.STORAGE);
   const metricCollectors = context.get(context.constants.COLLECTORS);
-  const impressionTracker = ImpressionTracker(context);
   const impressionsTracker = ImpressionsTracker(context);
   const eventTracker = EventTracker(context);
 
@@ -24,11 +22,12 @@ function ClientFactory(context) {
     const stopLatencyTracker = tracker.start(taskToBeTracked, metricCollectors);
     const evaluation = evaluateFeature(key, splitName, attributes, storage);
 
-    if (thenable(evaluation)) {
-      return evaluation.then(res => processEvaluation(res, splitName, key, attributes, stopLatencyTracker, impressionTracker.track, withConfig, `getTreatment${withConfig ? 'withConfig' : ''}`));
-    } else {
-      return processEvaluation(evaluation, splitName, key, attributes, stopLatencyTracker, impressionTracker.track, withConfig, `getTreatment${withConfig ? 'withConfig' : ''}`);
-    }
+    const treatment = (thenable(evaluation)) ?
+      evaluation.then(res => processEvaluation(res, splitName, key, attributes, false, impressionsTracker.queue, withConfig, `getTreatment${withConfig ? 'withConfig' : ''}`)) :
+      processEvaluation(evaluation, splitName, key, attributes, false, impressionsTracker.queue, withConfig, `getTreatment${withConfig ? 'withConfig' : ''}`);
+    impressionsTracker.track();
+    stopLatencyTracker();
+    return treatment;
   }
 
   function getTreatmentWithConfig(key, splitName, attributes) {
