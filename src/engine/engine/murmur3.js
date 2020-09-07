@@ -540,7 +540,8 @@ function bucket(str /*: string */, seed /*: number */) /*: number */ {
 }
 
 function getArchType() {
-  switch (process.arch) {
+  const arch = typeof process !== 'undefined' && process.arch ? process.arch : X86;
+  switch (arch) {
     case 'arm64':
     case 'ppc64':
     case 'x64':
