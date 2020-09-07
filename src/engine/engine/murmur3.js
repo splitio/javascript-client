@@ -553,7 +553,7 @@ function getArchType() {
   }
 }
 
-function hash128(str /*: string */, seed /*: number */) /*: number */ {
+function hash128(str /*: string */, seed /*: number */) /*: string */ {
   return getArchType() === X64 ? hash128x64(UTF16ToUTF8(str), seed >>> 0) : hash128x86(UTF16ToUTF8(str), seed >>> 0);
 }
 
