@@ -29,11 +29,12 @@ export function fromImpressionsCollector(collector, settings) {
           keyName: entry.keyName,
           treatment: entry.treatment,
           time: entry.time,
-          changeNumber: entry.changeNumber
+          changeNumber: entry.changeNumber,
         };
 
         if (sendLabels) keyImpression.label = entry.label;
         if (entry.bucketingKey) keyImpression.bucketingKey = entry.bucketingKey;
+        if (entry.pt) keyImpression.pt = entry.pt;
 
         return keyImpression;
       })

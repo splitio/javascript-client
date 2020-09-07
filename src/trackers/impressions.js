@@ -17,12 +17,16 @@ limitations under the License.
 import objectAssign from 'object-assign';
 import logFactory from '../utils/logger';
 import thenable from '../utils/promise/thenable';
+import ImpressionObserver from '../impressions/observer';
 const log = logFactory('splitio-client:impressions-tracker');
+
+const LAST_SEEN_CACHE_SIZE = 500000; // cache up to 500k impression hashes
 
 function ImpressionsTracker(context) {
   const collector = context.get(context.constants.STORAGE).impressions;
   const settings = context.get(context.constants.SETTINGS);
   const listener = settings.impressionListener;
+  const impressionObserver = new ImpressionObserver(LAST_SEEN_CACHE_SIZE);
   const integrationsManager = context.get(context.constants.INTEGRATIONS_MANAGER, true);
   const { ip, hostname } = settings.runtime;
   const sdkLanguageVersion = settings.version;
@@ -30,6 +34,7 @@ function ImpressionsTracker(context) {
 
   return {
     queue: function (impression, attributes) {
+      impression.pt = impressionObserver.testAndSet(impression);
       queue.push({
         impression,
         attributes
