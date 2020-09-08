@@ -73,15 +73,79 @@ tape('Impressions Tracker', t => {
     const contextMock = new ContextMock(fakeStorage, fakeSettings);
     const tracker = ImpressionsTracker(contextMock);
 
-    tracker.queue(10);
-    tracker.queue(20);
-    tracker.queue(30);
+    const imp1 = {
+      feature: '10',
+    };
+    const imp2 = {
+      feature: '20',
+    };
+    const imp3 = {
+      feature: '30',
+    };
+
+    tracker.queue(imp1);
+    tracker.queue(imp2);
+    tracker.queue(imp3);
+    imp1.pt = null;
+    imp2.pt = null;
+    imp3.pt = null;
 
     assert.false(fakeStorage.impressions.track.called, 'storage method should not be called by just queueing items.');
 
     tracker.track();
 
-    assert.true(fakeStorage.impressions.track.calledWithMatch([10, 20, 30]), 'Should call the storage track method once we invoke .track() method, passing queued params in a sequence.');
+    assert.true(fakeStorage.impressions.track.calledWithMatch([imp1, imp2, imp3]), 'Should call the storage track method once we invoke .track() method, passing queued params in a sequence.');
+    assert.end();
+  });
+
+  t.test('Should be able to queue elements and set previous pt for same impression.', assert => {
+    const { fakeStorage, fakeSettings } = generateContextMocks();
+    const contextMock = new ContextMock(fakeStorage, fakeSettings);
+    const tracker = ImpressionsTracker(contextMock);
+
+    const impression = {
+      feature: 'qc_team',
+      keyName: 'marcio@split.io',
+      treatment: 'no',
+      time: 123456789,
+      bucketingKey: 'impr_bucketing_2',
+      label: 'default rule'
+    };
+    const impression2 = {
+      feature: 'qc_team_2',
+      keyName: 'marcio@split.io',
+      treatment: 'yes',
+      time: 123456789,
+      bucketingKey: 'impr_bucketing_2',
+      label: 'default rule'
+    };
+    const impression3 = {
+      feature: 'qc_team',
+      keyName: 'marcio@split.io',
+      treatment: 'no',
+      time: 1234567891,
+      bucketingKey: 'impr_bucketing_2',
+      label: 'default rule'
+    };
+
+    tracker.queue(impression);
+    tracker.queue(impression2);
+    tracker.queue(impression3);
+
+    assert.false(fakeStorage.impressions.track.called, 'storage method should not be called by just queueing items.');
+
+    tracker.track();
+
+    const lastArgs = fakeStorage.impressions.track.lastCall.lastArg;
+
+    assert.equal(lastArgs.length, 3);
+    assert.equal(lastArgs[0].pt, null);
+    assert.equal(lastArgs[0].feature, 'qc_team');
+    assert.equal(lastArgs[1].pt, null);
+    assert.equal(lastArgs[1].feature, 'qc_team_2');
+    assert.equal(lastArgs[2].pt, 123456789);
+    assert.equal(lastArgs[2].feature, 'qc_team');
+
     assert.end();
   });
 
