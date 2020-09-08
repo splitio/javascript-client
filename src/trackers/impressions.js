@@ -17,16 +17,15 @@ limitations under the License.
 import objectAssign from 'object-assign';
 import logFactory from '../utils/logger';
 import thenable from '../utils/promise/thenable';
-import ImpressionObserver from '../impressions/observer';
+import ImpressionObserverFactory from '../impressions/observer';
 const log = logFactory('splitio-client:impressions-tracker');
-
-const LAST_SEEN_CACHE_SIZE = 500000; // cache up to 500k impression hashes
 
 function ImpressionsTracker(context) {
   const collector = context.get(context.constants.STORAGE).impressions;
   const settings = context.get(context.constants.SETTINGS);
   const listener = settings.impressionListener;
-  const impressionObserver = new ImpressionObserver(LAST_SEEN_CACHE_SIZE);
+  const shouldAddPreviousSeen = true; // Forced until add Mode check
+  const observer = ImpressionObserverFactory().impressionObserver;
   const integrationsManager = context.get(context.constants.INTEGRATIONS_MANAGER, true);
   const { ip, hostname } = settings.runtime;
   const sdkLanguageVersion = settings.version;
@@ -34,7 +33,6 @@ function ImpressionsTracker(context) {
 
   return {
     queue: function (impression, attributes) {
-      impression.pt = impressionObserver.testAndSet(impression);
       queue.push({
         impression,
         attributes
@@ -43,7 +41,15 @@ function ImpressionsTracker(context) {
     track: function () {
       const impressionsCount = queue.length;
       const slice = queue.splice(0, impressionsCount);
-      const res = collector.track(slice.map(({ impression }) => impression));
+
+      // Wraps impressions to store and adds previousTime if it corresponds
+      const impressions = slice.map(({ impression }) => {
+        if (shouldAddPreviousSeen) {
+          impression.pt = observer.testAndSet(impression);
+        }
+        return impression;
+      });
+      const res = collector.track(impressions);
 
       // If we're on an async storage, handle error and log it.
       if (thenable(res)) {
@@ -58,7 +64,7 @@ function ImpressionsTracker(context) {
         for (let i = 0; i < impressionsCount; i++) {
           const impressionData = {
             // copy of impression, to avoid unexpected behaviour if modified by integrations or impressionListener
-            impression: objectAssign({}, slice[i].impression),
+            impression: objectAssign({}, impressions[i]), // let's use impressions instead of slice in case we should send previousTime too
             attributes: slice[i].attributes,
             ip,
             hostname,
