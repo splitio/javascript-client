@@ -1,11 +1,11 @@
 import LRU from 'lru-cache';
-import hashImpression from './hasher';
 
 class ImpressionObserver {
-  constructor(size) {
+  constructor(size, hasher) {
     this.cache = new LRU({
       max: size,
     });
+    this.hasher = hasher;
   }
 
   testAndSet(impression) {
@@ -13,7 +13,7 @@ class ImpressionObserver {
       return null;
     }
 
-    const hash = hashImpression(impression);
+    const hash = this.hasher(impression);
     const previous = this.cache.get(hash);
     this.cache.set(hash, impression.time);
     return previous ? previous : null;
