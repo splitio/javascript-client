@@ -10,7 +10,17 @@ function  _zeroIfNull(l) {
   return (l) ? l : 0;
 }
 
-function hashImpression(impression) {
+function hashImpression32(impression) {
+  return impression ? murmur.hash(
+    `${_unknownIfNull(impression.keyName)}
+    :${_unknownIfNull(impression.feature)}
+    :${_unknownIfNull(impression.treatment)}
+    :${_unknownIfNull(impression.label)}
+    :${_zeroIfNull(impression.changeNumber)}`
+  ).toString() : null;
+}
+
+function hashImpression128(impression) {
   return impression ? murmur.hash128(
     `${_unknownIfNull(impression.keyName)}
     :${_unknownIfNull(impression.feature)}
@@ -20,4 +30,7 @@ function hashImpression(impression) {
   ).substring(0, 16) : null;
 }
 
-export default hashImpression;
+export default {
+  hashImpression32: hashImpression32,
+  hashImpression128: hashImpression128,
+};
