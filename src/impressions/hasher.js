@@ -31,6 +31,6 @@ function hashImpression128(impression) {
 }
 
 export default {
-  hashImpression32: hashImpression32,
-  hashImpression128: hashImpression128,
+  hashImpression32,
+  hashImpression128,
 };

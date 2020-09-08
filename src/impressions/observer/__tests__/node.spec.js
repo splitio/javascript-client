@@ -1,19 +1,6 @@
 import tape from 'tape-catch';
 import NodeImpressionObserver from '../node';
-
-const generateImpressions = count => {
-  const impressions = [];
-  for (let i = 0; i < count; i++) {
-    impressions.push({
-      keyName: `key_${i}`,
-      feature: `feature_${i % 10}`,
-      label: (i % 2 === 0) ? 'in segment all' : 'whitelisted',
-      changeNumber: i * i,
-      time: Date.now()
-    });
-  }
-  return impressions;
-};
+import { generateImpressions } from './testUtils';
 
 tape('Node JS / Impression Observer Basic Functionality', assert => {
   const observer = NodeImpressionObserver().impressionObserver;
