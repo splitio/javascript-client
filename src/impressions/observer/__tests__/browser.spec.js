@@ -1,9 +1,9 @@
 import tape from 'tape-catch';
-import BrowserImpressionObserver from '../browser';
+import BrowserImpressionObserverFactory from '../browser';
 import { generateImpressions } from './testUtils';
 
 tape('Browser JS / Impression Observer Basic Functionality', assert => {
-  const observer = BrowserImpressionObserver().impressionObserver;
+  const observer = BrowserImpressionObserverFactory();
 
   const imp = {
     keyName: 'someKey',

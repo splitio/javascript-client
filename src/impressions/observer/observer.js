@@ -9,9 +9,7 @@ class ImpressionObserver {
   }
 
   testAndSet(impression) {
-    if (!impression) {
-      return null;
-    }
+    if (!impression) return null;
 
     const hash = this.hasher(impression);
     const previous = this.cache.get(hash);
