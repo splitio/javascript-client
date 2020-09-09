@@ -7,6 +7,7 @@ const X64_ARCHS = ['arm64', 'ppc64', 'x64', 's390x', 'mipsel'];
 const stringSource = utfx.stringSource;
 const stringDestination = utfx.stringDestination;
 const encodeUTF16toUTF8 = utfx.encodeUTF16toUTF8;
+const isX64 = getArchType() === X64;
 
 function UTF16ToUTF8(key) {
   let sd;
@@ -19,13 +20,14 @@ function UTF16ToUTF8(key) {
   return sd();
 }
 
-// +----------------------------------------------------------------------+
-// | murmurHash3.js v2.1.2 (http://github.com/karanlyons/murmurHash.js)   |
-// | A javascript implementation of MurmurHash3's x86 hashing algorithms. |
-// |----------------------------------------------------------------------|
-// | Copyright (c) 2012 Karan Lyons                                       |
-// | Freely distributable under the MIT license.                          |
-// +----------------------------------------------------------------------+
+/*!
+ * +----------------------------------------------------------------------------------+
+ * | murmurHash3.js v3.0.0 (http://github.com/karanlyons/murmurHash3.js)              |
+ * | A TypeScript/JavaScript implementation of MurmurHash3's hashing algorithms.      |
+ * |----------------------------------------------------------------------------------|
+ * | Copyright (c) 2012-2020 Karan Lyons. Freely distributable under the MIT license. |
+ * +----------------------------------------------------------------------------------+
+ */
 
 // PRIVATE FUNCTIONS
 // -----------------
@@ -548,7 +550,7 @@ function getArchType() {
 }
 
 function hash128(str /*: string */, seed /*: number */) /*: string */ {
-  return getArchType() === X64 ? hash128x64(UTF16ToUTF8(str), seed >>> 0) : hash128x86(UTF16ToUTF8(str), seed >>> 0);
+  return isX64 ? hash128x64(UTF16ToUTF8(str), seed >>> 0) : hash128x86(UTF16ToUTF8(str), seed >>> 0);
 }
 
 export default {
