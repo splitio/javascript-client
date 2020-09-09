@@ -1,12 +1,14 @@
 import tape from 'tape-catch';
 import sinon from 'sinon';
 import ImpressionsTracker from '../impressions';
-import { STORAGE, SETTINGS, INTEGRATIONS_MANAGER } from '../../utils/context/constants';
+import { STORAGE, SETTINGS, INTEGRATIONS_MANAGER,  } from '../../utils/context/constants';
+import { STANDALONE_MODE, PRODUCER_MODE } from '../../utils/constants';
 
 /* Mocks start */
 const generateContextMocks = () => {
   // We are only mocking the pieces we care about
   const fakeSettings = {
+    mode: STANDALONE_MODE,
     runtime: { ip: 'fake-ip', hostname: 'fake-hostname' },
     version: 'js-test-10.4.0',
     impressionListener: {
@@ -218,7 +220,7 @@ tape('Impressions Tracker', t => {
     assert.end();
   });
 
-  t.test('Should track 2 impressions.', assert => {
+  t.test('Should track 2 impressions in OPTIMIZED.', assert => {
     const { fakeStorage, fakeSettings } = generateContextMocks();
     fakeSettings.sync = {
       impressionsMode: 'OPTIMIZED',
@@ -266,6 +268,60 @@ tape('Impressions Tracker', t => {
     assert.equal(lastArgs[0].feature, 'qc_team');
     assert.equal(lastArgs[1].pt, null);
     assert.equal(lastArgs[1].feature, 'qc_team_2');
+
+    assert.end();
+  });
+
+
+  t.test('Should track 2 impressions in OPTIMIZED.', assert => {
+    const { fakeStorage, fakeSettings } = generateContextMocks();
+    fakeSettings.mode = PRODUCER_MODE;
+    fakeSettings.sync = {};
+    const contextMock = new ContextMock(fakeStorage, fakeSettings);
+    const tracker = ImpressionsTracker(contextMock);
+
+    const impression = {
+      feature: 'qc_team',
+      keyName: 'marcio@split.io',
+      treatment: 'no',
+      time: Date.now(),
+      bucketingKey: 'impr_bucketing_2',
+      label: 'default rule'
+    };
+    const impression2 = {
+      feature: 'qc_team_2',
+      keyName: 'marcio@split.io',
+      treatment: 'yes',
+      time: Date.now(),
+      bucketingKey: 'impr_bucketing_2',
+      label: 'default rule'
+    };
+    const impression3 = {
+      feature: 'qc_team',
+      keyName: 'marcio@split.io',
+      treatment: 'no',
+      time: Date.now(),
+      bucketingKey: 'impr_bucketing_2',
+      label: 'default rule'
+    };
+
+    tracker.queue(impression);
+    tracker.queue(impression2);
+    tracker.queue(impression3);
+
+    assert.false(fakeStorage.impressions.track.called, 'storage method should not be called by just queueing items.');
+
+    tracker.track();
+
+    const lastArgs = fakeStorage.impressions.track.lastCall.lastArg;
+
+    assert.equal(lastArgs.length, 3);
+    assert.equal(lastArgs[0].pt, undefined);
+    assert.equal(lastArgs[0].feature, 'qc_team');
+    assert.equal(lastArgs[1].pt, undefined);
+    assert.equal(lastArgs[1].feature, 'qc_team_2');
+    assert.equal(lastArgs[2].pt, undefined);
+    assert.equal(lastArgs[2].feature, 'qc_team');
 
     assert.end();
   });

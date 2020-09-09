@@ -20,14 +20,26 @@ import thenable from '../utils/promise/thenable';
 import ImpressionObserverFactory from '../impressions/observer';
 import ImpressionCounter from '../impressions/counter';
 import { truncateTimeFrame } from '../utils/time';
-import { OPTIMIZED } from '../utils/constants';
+import { OPTIMIZED, STANDALONE_MODE } from '../utils/constants';
 const log = logFactory('splitio-client:impressions-tracker');
+
+function shouldAddPt(settings) {
+  return (settings.mode && settings.mode === STANDALONE_MODE) ? true : false;
+}
+
+function shouldBeOptimized(settings) {
+  if (!shouldAddPt(settings)) {
+    return false;
+  }
+  return settings.sync && settings.sync.impressionsMode && settings.sync.impressionsMode === OPTIMIZED ? true : false;
+}
 
 function ImpressionsTracker(context) {
   const collector = context.get(context.constants.STORAGE).impressions;
   const settings = context.get(context.constants.SETTINGS);
   const listener = settings.impressionListener;
-  const isOptimized = settings.sync && settings.sync.impressionsMode && settings.sync.impressionsMode === OPTIMIZED;
+  const shouldAddPreviousTime = shouldAddPt(settings);
+  const isOptimized = shouldBeOptimized(settings);
   const integrationsManager = context.get(context.constants.INTEGRATIONS_MANAGER, true);
   const { ip, hostname } = settings.runtime;
   const sdkLanguageVersion = settings.version;
@@ -50,11 +62,12 @@ function ImpressionsTracker(context) {
       const impressionsForListener = [];
       const impressionsToStore = [];
       slice.forEach(({ impression }) => {
-        // Adds previous time if it is enabled
-        impression.pt = observer.testAndSet(impression);
+        if (shouldAddPreviousTime) {
+          // Adds previous time if it is enabled
+          impression.pt = observer.testAndSet(impression);
+        }
 
         const now = Date.now();
-
         if (isOptimized) {
           // Increments impression counter per featureName
           counter.inc(impression.feature, now, 1);
@@ -64,6 +77,7 @@ function ImpressionsTracker(context) {
         if (!isOptimized || !impression.pt || impression.pt < truncateTimeFrame(now)) {
           impressionsToStore.push(impression);
         }
+
         // Adds impression for listener
         impressionsForListener.push(impression);
       });
