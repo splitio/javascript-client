@@ -3,6 +3,7 @@ import utfx from 'utfx';
 
 const X64 = 'x64';
 const X86 = 'x86';
+const X64_ARCHS = ['arm64', 'ppc64', 'x64', 's390x', 'mipsel'];
 const stringSource = utfx.stringSource;
 const stringDestination = utfx.stringDestination;
 const encodeUTF16toUTF8 = utfx.encodeUTF16toUTF8;
@@ -540,17 +541,10 @@ function bucket(str /*: string */, seed /*: number */) /*: number */ {
 }
 
 function getArchType() {
+  // Values listed from https://nodejs.org/api/process.html#process_process_arch
+  // @TODO Review when supporting alternatives of Node
   const arch = typeof process !== 'undefined' && process.arch ? process.arch : X86;
-  switch (arch) {
-    case 'arm64':
-    case 'ppc64':
-    case 'x64':
-    case 's390x':
-    case 'mipsel':
-      return X64;
-    default:
-      return X86;
-  }
+  return (X64_ARCHS.indexOf(arch) > -1) ? X64 : X86;
 }
 
 function hash128(str /*: string */, seed /*: number */) /*: string */ {
