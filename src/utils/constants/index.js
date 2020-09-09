@@ -36,3 +36,7 @@ export const FILTERS_METADATA = [
     queryParam: 'prefixes='
   }
 ];
+// Impression collection modes
+export const DEBUG = 'DEBUG';
+export const OPTIMIZED = 'OPTIMIZED';
+export const NONE = 'NONE';

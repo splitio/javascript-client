@@ -1,18 +1,6 @@
 import tape from 'tape-catch';
 import ImpressionCounter from '../counter';
 
-tape('Counter / Impression Counter Test truncateTimeFrame', assert => {
-  const counter = new ImpressionCounter();
-
-  assert.equal(counter._truncateTimeFrame(new Date(2020, 9, 2, 10, 53, 12).getTime()), new Date(2020, 9, 2, 10, 0, 0).getTime());
-  assert.equal(counter._truncateTimeFrame(new Date(2020, 9, 2, 10, 0, 0).getTime()), new Date(2020, 9, 2, 10, 0, 0).getTime());
-  assert.equal(counter._truncateTimeFrame(new Date(2020, 9, 2, 10, 53, 0).getTime()), new Date(2020, 9, 2, 10, 0, 0).getTime());
-  assert.equal(counter._truncateTimeFrame(new Date(2020, 9, 2, 10, 0, 12).getTime()), new Date(2020, 9, 2, 10, 0, 0).getTime());
-  assert.equal(counter._truncateTimeFrame(new Date(1970, 1, 0, 0, 0, 0).getTime()), new Date(1970, 1, 0, 0, 0, 0).getTime());
-
-  assert.end();
-});
-
 tape('Counter / Impression Counter Test makeKey', assert => {
   const timestamp = new Date(2020, 9, 2, 10, 0, 0).getTime();
   const counter = new ImpressionCounter();

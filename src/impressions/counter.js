@@ -1,16 +1,11 @@
-const TIME_INTERVAL_MS = 3600*1000;
-
+import { truncateTimeFrame } from '../utils/time';
 class ImpressionCounter {
   constructor() {
     this.cache = {};
   }
 
-  _truncateTimeFrame(timestampInMs) {
-    return timestampInMs - (timestampInMs % TIME_INTERVAL_MS);
-  }
-
   _makeKey(featureName, timeFrame) {
-    return `${featureName}::${this._truncateTimeFrame(timeFrame)}`;
+    return `${featureName}::${truncateTimeFrame(timeFrame)}`;
   }
 
   inc(featureName, timeFrame, amount) {

@@ -18,18 +18,22 @@ import objectAssign from 'object-assign';
 import logFactory from '../utils/logger';
 import thenable from '../utils/promise/thenable';
 import ImpressionObserverFactory from '../impressions/observer';
+import ImpressionCounter from '../impressions/counter';
+import { truncateTimeFrame } from '../utils/time';
+import { OPTIMIZED } from '../utils/constants';
 const log = logFactory('splitio-client:impressions-tracker');
 
 function ImpressionsTracker(context) {
   const collector = context.get(context.constants.STORAGE).impressions;
   const settings = context.get(context.constants.SETTINGS);
   const listener = settings.impressionListener;
-  const shouldAddPreviousSeen = true; // Forced until add Mode check
-  const observer = ImpressionObserverFactory().impressionObserver;
+  const isOptimized = settings.sync && settings.sync.impressionsMode && settings.sync.impressionsMode === OPTIMIZED;
   const integrationsManager = context.get(context.constants.INTEGRATIONS_MANAGER, true);
   const { ip, hostname } = settings.runtime;
   const sdkLanguageVersion = settings.version;
   const queue = [];
+  const observer = ImpressionObserverFactory().impressionObserver;
+  const counter = new ImpressionCounter();
 
   return {
     queue: function (impression, attributes) {
@@ -43,13 +47,28 @@ function ImpressionsTracker(context) {
       const slice = queue.splice(0, impressionsCount);
 
       // Wraps impressions to store and adds previousTime if it corresponds
-      const impressions = slice.map(({ impression }) => {
-        if (shouldAddPreviousSeen) {
-          impression.pt = observer.testAndSet(impression);
+      const impressionsForListener = [];
+      const impressionsToStore = [];
+      slice.forEach(({ impression }) => {
+        // Adds previous time if it is enabled
+        impression.pt = observer.testAndSet(impression);
+
+        const now = Date.now();
+
+        if (isOptimized) {
+          // Increments impression counter per featureName
+          counter.inc(impression.feature, now, 1);
         }
-        return impression;
+
+        // Checks if the impression should be added in queue to be sent
+        if (!isOptimized || !impression.pt || impression.pt < truncateTimeFrame(now)) {
+          impressionsToStore.push(impression);
+        }
+        // Adds impression for listener
+        impressionsForListener.push(impression);
       });
-      const res = collector.track(impressions);
+
+      const res = collector.track(impressionsToStore);
 
       // If we're on an async storage, handle error and log it.
       if (thenable(res)) {
@@ -64,7 +83,7 @@ function ImpressionsTracker(context) {
         for (let i = 0; i < impressionsCount; i++) {
           const impressionData = {
             // copy of impression, to avoid unexpected behaviour if modified by integrations or impressionListener
-            impression: objectAssign({}, impressions[i]), // let's use impressions instead of slice in case we should send previousTime too
+            impression: objectAssign({}, impressionsForListener[i]), // let's use impressions instead of slice in case we should send previousTime too
             attributes: slice[i].attributes,
             ip,
             hostname,
