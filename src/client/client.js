@@ -22,12 +22,14 @@ function ClientFactory(context) {
     const stopLatencyTracker = tracker.start(taskToBeTracked, metricCollectors);
     const evaluation = evaluateFeature(key, splitName, attributes, storage);
 
-    const treatment = (thenable(evaluation)) ?
-      evaluation.then(res => processEvaluation(res, splitName, key, attributes, false, impressionsTracker.queue, withConfig, `getTreatment${withConfig ? 'withConfig' : ''}`)) :
-      processEvaluation(evaluation, splitName, key, attributes, false, impressionsTracker.queue, withConfig, `getTreatment${withConfig ? 'withConfig' : ''}`);
-    impressionsTracker.track();
-    stopLatencyTracker();
-    return treatment;
+    const wrapUp = (evaluationResult) => {
+      const treatment = processEvaluation(evaluationResult, splitName, key, attributes, false, impressionsTracker.queue, withConfig, `getTreatment${withConfig ? 'withConfig' : ''}`);
+      impressionsTracker.track();
+      stopLatencyTracker();
+      return treatment;
+    };
+
+    return (thenable(evaluation)) ? evaluation.then((res) => wrapUp(res)) : wrapUp(evaluation);
   }
 
   function getTreatmentWithConfig(key, splitName, attributes) {
