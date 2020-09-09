@@ -98,57 +98,6 @@ tape('Impressions Tracker', t => {
     assert.end();
   });
 
-  t.test('Should be able to queue elements and set previous pt for same impression.', assert => {
-    const { fakeStorage, fakeSettings } = generateContextMocks();
-    const contextMock = new ContextMock(fakeStorage, fakeSettings);
-    const tracker = ImpressionsTracker(contextMock);
-
-    const impression = {
-      feature: 'qc_team',
-      keyName: 'marcio@split.io',
-      treatment: 'no',
-      time: 123456789,
-      bucketingKey: 'impr_bucketing_2',
-      label: 'default rule'
-    };
-    const impression2 = {
-      feature: 'qc_team_2',
-      keyName: 'marcio@split.io',
-      treatment: 'yes',
-      time: 123456789,
-      bucketingKey: 'impr_bucketing_2',
-      label: 'default rule'
-    };
-    const impression3 = {
-      feature: 'qc_team',
-      keyName: 'marcio@split.io',
-      treatment: 'no',
-      time: 1234567891,
-      bucketingKey: 'impr_bucketing_2',
-      label: 'default rule'
-    };
-
-    tracker.queue(impression);
-    tracker.queue(impression2);
-    tracker.queue(impression3);
-
-    assert.false(fakeStorage.impressions.track.called, 'storage method should not be called by just queueing items.');
-
-    tracker.track();
-
-    const lastArgs = fakeStorage.impressions.track.lastCall.lastArg;
-
-    assert.equal(lastArgs.length, 3);
-    assert.equal(lastArgs[0].pt, null);
-    assert.equal(lastArgs[0].feature, 'qc_team');
-    assert.equal(lastArgs[1].pt, null);
-    assert.equal(lastArgs[1].feature, 'qc_team_2');
-    assert.equal(lastArgs[2].pt, 123456789);
-    assert.equal(lastArgs[2].feature, 'qc_team');
-
-    assert.end();
-  });
-
   const fakeImpression = {
     fake: 'impression'
   };
@@ -218,8 +167,62 @@ tape('Impressions Tracker', t => {
     }, 0);
   });
 
-  t.test('Should track two impressions.', assert => {
+  t.test('Should track 3 impressions.', assert => {
     const { fakeStorage, fakeSettings } = generateContextMocks();
+    const contextMock = new ContextMock(fakeStorage, fakeSettings);
+    const tracker = ImpressionsTracker(contextMock);
+
+    const impression = {
+      feature: 'qc_team',
+      keyName: 'marcio@split.io',
+      treatment: 'no',
+      time: 123456789,
+      bucketingKey: 'impr_bucketing_2',
+      label: 'default rule'
+    };
+    const impression2 = {
+      feature: 'qc_team_2',
+      keyName: 'marcio@split.io',
+      treatment: 'yes',
+      time: 123456789,
+      bucketingKey: 'impr_bucketing_2',
+      label: 'default rule'
+    };
+    const impression3 = {
+      feature: 'qc_team',
+      keyName: 'marcio@split.io',
+      treatment: 'no',
+      time: 1234567891,
+      bucketingKey: 'impr_bucketing_2',
+      label: 'default rule'
+    };
+
+    tracker.queue(impression);
+    tracker.queue(impression2);
+    tracker.queue(impression3);
+
+    assert.false(fakeStorage.impressions.track.called, 'storage method should not be called by just queueing items.');
+
+    tracker.track();
+
+    const lastArgs = fakeStorage.impressions.track.lastCall.lastArg;
+
+    assert.equal(lastArgs.length, 3);
+    assert.equal(lastArgs[0].pt, null);
+    assert.equal(lastArgs[0].feature, 'qc_team');
+    assert.equal(lastArgs[1].pt, null);
+    assert.equal(lastArgs[1].feature, 'qc_team_2');
+    assert.equal(lastArgs[2].pt, 123456789);
+    assert.equal(lastArgs[2].feature, 'qc_team');
+
+    assert.end();
+  });
+
+  t.test('Should track 2 impressions.', assert => {
+    const { fakeStorage, fakeSettings } = generateContextMocks();
+    fakeSettings.sync = {
+      impressionsMode: 'OPTIMIZED',
+    };
     const contextMock = new ContextMock(fakeStorage, fakeSettings);
     const tracker = ImpressionsTracker(contextMock);
 
