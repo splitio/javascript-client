@@ -67,18 +67,19 @@ export default function(assert) {
           keyName: 'nicolas@split.io',
           treatment: 'on',
           bucketingKey: undefined,
-          label: 'expected label'
+          label: 'expected label',
+          pt: null,
         },
         attributes: undefined,
         ...metaData
       }));
       assert.true(listener.logImpression.getCall(1).calledWithMatch({
-        impression: secondImpression,
+        impression: Object.assign(secondImpression, { pt: null }),
         attributes: undefined,
         ...metaData
       }));
       assert.true(listener.logImpression.getCall(2).calledWithMatch({
-        impression: secondImpression,
+        impression: Object.assign(secondImpression, { pt: listener.logImpression.getCall(2).lastArg.impression.time }),
         attributes: undefined,
         ...metaData
       }));
@@ -88,7 +89,8 @@ export default function(assert) {
           keyName: 'facundo@split.io',
           treatment: 'no',
           bucketingKey: undefined,
-          label: 'default rule'
+          label: 'default rule',
+          pt: null,
         },
         attributes: testAttrs,
         ...metaData
