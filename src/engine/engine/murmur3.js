@@ -3,9 +3,11 @@ import utfx from 'utfx';
 
 const X64 = 'x64';
 const X86 = 'x86';
+const X64_ARCHS = ['arm64', 'ppc64', 'x64', 's390x', 'mipsel'];
 const stringSource = utfx.stringSource;
 const stringDestination = utfx.stringDestination;
 const encodeUTF16toUTF8 = utfx.encodeUTF16toUTF8;
+const isX64 = getArchType() === X64;
 
 function UTF16ToUTF8(key) {
   let sd;
@@ -18,13 +20,14 @@ function UTF16ToUTF8(key) {
   return sd();
 }
 
-// +----------------------------------------------------------------------+
-// | murmurHash3.js v2.1.2 (http://github.com/karanlyons/murmurHash.js)   |
-// | A javascript implementation of MurmurHash3's x86 hashing algorithms. |
-// |----------------------------------------------------------------------|
-// | Copyright (c) 2012 Karan Lyons                                       |
-// | Freely distributable under the MIT license.                          |
-// +----------------------------------------------------------------------+
+/*!
+ * +----------------------------------------------------------------------------------+
+ * | murmurHash3.js v3.0.0 (http://github.com/karanlyons/murmurHash3.js)              |
+ * | A TypeScript/JavaScript implementation of MurmurHash3's hashing algorithms.      |
+ * |----------------------------------------------------------------------------------|
+ * | Copyright (c) 2012-2020 Karan Lyons. Freely distributable under the MIT license. |
+ * +----------------------------------------------------------------------------------+
+ */
 
 // PRIVATE FUNCTIONS
 // -----------------
@@ -540,20 +543,14 @@ function bucket(str /*: string */, seed /*: number */) /*: number */ {
 }
 
 function getArchType() {
-  switch (process.arch) {
-    case 'arm64':
-    case 'ppc64':
-    case 'x64':
-    case 's390x':
-    case 'mipsel':
-      return X64;
-    default:
-      return X86;
-  }
+  // Values listed from https://nodejs.org/api/process.html#process_process_arch
+  // @TODO Review when supporting alternatives of Node
+  const arch = typeof process !== 'undefined' && process.arch ? process.arch : X86;
+  return (X64_ARCHS.indexOf(arch) > -1) ? X64 : X86;
 }
 
-function hash128(str /*: string */, seed /*: number */) /*: number */ {
-  return getArchType() === X64 ? hash128x64(UTF16ToUTF8(str), seed >>> 0) : hash128x86(UTF16ToUTF8(str), seed >>> 0);
+function hash128(str /*: string */, seed /*: number */) /*: string */ {
+  return isX64 ? hash128x64(UTF16ToUTF8(str), seed >>> 0) : hash128x86(UTF16ToUTF8(str), seed >>> 0);
 }
 
 export default {
