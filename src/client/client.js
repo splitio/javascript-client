@@ -39,9 +39,9 @@ function ClientFactory(context) {
   function getTreatments(key, splitNames, attributes, withConfig = false) {
     const taskToBeTracked = tracker.TaskNames[withConfig ? 'SDK_GET_TREATMENTS_WITH_CONFIG' : 'SDK_GET_TREATMENTS'];
     const stopLatencyTracker = tracker.start(taskToBeTracked, metricCollectors);
-    const results = {};
 
     const wrapUp = (evaluationResults) => {
+      const results = {};
       Object.keys(evaluationResults).forEach(splitName => {
         results[splitName] = processEvaluation(evaluationResults[splitName], splitName, key, attributes, withConfig, `getTreatments${withConfig ? 'withConfig' : ''}`);
       });
