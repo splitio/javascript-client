@@ -23,13 +23,13 @@ function ClientFactory(context) {
     const evaluation = evaluateFeature(key, splitName, attributes, storage);
 
     const wrapUp = (evaluationResult) => {
-      const treatment = processEvaluation(evaluationResult, splitName, key, attributes, false, impressionsTracker.queue, withConfig, `getTreatment${withConfig ? 'withConfig' : ''}`);
+      const treatment = processEvaluation(evaluationResult, splitName, key, attributes, withConfig, `getTreatment${withConfig ? 'withConfig' : ''}`);
       impressionsTracker.track();
       stopLatencyTracker();
       return treatment;
     };
 
-    return (thenable(evaluation)) ? evaluation.then((res) => wrapUp(res)) : wrapUp(evaluation);
+    return thenable(evaluation) ? evaluation.then((res) => wrapUp(res)) : wrapUp(evaluation);
   }
 
   function getTreatmentWithConfig(key, splitName, attributes) {
@@ -39,11 +39,11 @@ function ClientFactory(context) {
   function getTreatments(key, splitNames, attributes, withConfig = false) {
     const taskToBeTracked = tracker.TaskNames[withConfig ? 'SDK_GET_TREATMENTS_WITH_CONFIG' : 'SDK_GET_TREATMENTS'];
     const stopLatencyTracker = tracker.start(taskToBeTracked, metricCollectors);
-    const results = {};
 
     const wrapUp = (evaluationResults) => {
+      const results = {};
       Object.keys(evaluationResults).forEach(splitName => {
-        results[splitName] = processEvaluation(evaluationResults[splitName], splitName, key, attributes, false, impressionsTracker.queue, withConfig, `getTreatments${withConfig ? 'withConfig' : ''}`);
+        results[splitName] = processEvaluation(evaluationResults[splitName], splitName, key, attributes, withConfig, `getTreatments${withConfig ? 'withConfig' : ''}`);
       });
       impressionsTracker.track();
       stopLatencyTracker();
@@ -52,7 +52,7 @@ function ClientFactory(context) {
 
     const evaluations = evaluateFeatures(key, splitNames, attributes, storage);
 
-    return (thenable(evaluations)) ? evaluations.then((res) => wrapUp(res)) : wrapUp(evaluations);
+    return thenable(evaluations) ? evaluations.then((res) => wrapUp(res)) : wrapUp(evaluations);
   }
 
   function getTreatmentsWithConfig(key, splitNames, attributes) {
@@ -65,8 +65,6 @@ function ClientFactory(context) {
     splitName,
     key,
     attributes,
-    stopLatencyTracker = false,
-    impressionsTracker,
     withConfig,
     invokingMethodName
   ) {
@@ -84,7 +82,7 @@ function ClientFactory(context) {
 
     if (validateSplitExistance(context, splitName, label, invokingMethodName)) {
       log.info('Queueing corresponding impression.');
-      impressionsTracker({
+      impressionsTracker.queue({
         feature: splitName,
         keyName: matchingKey,
         treatment,
@@ -94,8 +92,6 @@ function ClientFactory(context) {
         changeNumber
       }, attributes);
     }
-
-    stopLatencyTracker && stopLatencyTracker();
 
     if (withConfig) {
       return {

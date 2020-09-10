@@ -1,5 +1,8 @@
-const TIME_INTERVAL_MS = 3600*1000;
+const DEDUP_WINDOW_SIZE_MS = 3600*1000;
 
+/**
+* Truncates de time frame received with the time window.
+*/
 export function truncateTimeFrame(timestampInMs) {
-  return timestampInMs - (timestampInMs % TIME_INTERVAL_MS);
+  return timestampInMs - (timestampInMs % DEDUP_WINDOW_SIZE_MS);
 }
