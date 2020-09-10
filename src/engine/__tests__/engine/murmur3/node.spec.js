@@ -71,8 +71,7 @@ function dec2hex(str) {
 }
 
 [
-  'murmur3_64_uuids_sample.csv',
-  'murmur3_64_uuids.csv'
+  'murmur3_64_uuids.csv',
 ].forEach(filename => {
 
   tape('MURMUR3 128 / validate hashing behavior using sample data', assert => {

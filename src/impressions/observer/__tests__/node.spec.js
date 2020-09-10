@@ -1,9 +1,9 @@
 import tape from 'tape-catch';
-import NodeImpressionObserver from '../node';
+import NodeImpressionObserverFactory from '../node';
 import { generateImpressions } from './testUtils';
 
 tape('Node JS / Impression Observer Basic Functionality', assert => {
-  const observer = NodeImpressionObserver().impressionObserver;
+  const observer = NodeImpressionObserverFactory();
 
   const imp = {
     keyName: 'someKey',
