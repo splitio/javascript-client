@@ -40,7 +40,6 @@ tape('Counter / Impression Counter Test BasicUsage', assert => {
   assert.equal(counted[counter._makeKey('feature2', timestamp)], 4);
   assert.equal(Object.keys(counter.popAll()).length, 0);
 
-
   const nextHourTimestamp = new Date(2020, 9, 2, 11, 10, 12).getTime();
   counter.inc('feature1', timestamp, 1);
   counter.inc('feature1', timestamp + 1, 1);
