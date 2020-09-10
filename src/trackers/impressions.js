@@ -23,10 +23,16 @@ import { truncateTimeFrame } from '../utils/time';
 import { OPTIMIZED, STANDALONE_MODE } from '../utils/constants';
 const log = logFactory('splitio-client:impressions-tracker');
 
+/**
+ * Checks if impressions previous time should be added or not.
+ */
 function shouldAddPt(settings) {
   return (settings.mode && settings.mode === STANDALONE_MODE) ? true : false;
 }
 
+/**
+ * Checks if it should dedupe impressions or not.
+ */
 function shouldBeOptimized(settings) {
   if (!shouldAddPt(settings)) {
     return false;
@@ -38,14 +44,14 @@ function ImpressionsTracker(context) {
   const collector = context.get(context.constants.STORAGE).impressions;
   const settings = context.get(context.constants.SETTINGS);
   const listener = settings.impressionListener;
-  const shouldAddPreviousTime = shouldAddPt(settings);
-  const isOptimized = shouldBeOptimized(settings);
   const integrationsManager = context.get(context.constants.INTEGRATIONS_MANAGER, true);
   const { ip, hostname } = settings.runtime;
   const sdkLanguageVersion = settings.version;
   const queue = [];
-  const observer = ImpressionObserverFactory().impressionObserver;
-  const counter = new ImpressionCounter();
+  const shouldAddPreviousTime = shouldAddPt(settings);
+  const isOptimized = shouldBeOptimized(settings);
+  const observer = ImpressionObserverFactory(); // Instantiates observer
+  const counter = new ImpressionCounter(); // Instantiates new counter for Impressions
 
   return {
     queue: function (impression, attributes) {
@@ -58,9 +64,9 @@ function ImpressionsTracker(context) {
       const impressionsCount = queue.length;
       const slice = queue.splice(0, impressionsCount);
 
+      const impressionsForListener = []; // All the impressions are going to be sent to listener
+      const impressionsToStore = []; // Track only the impressions that are going to be stored
       // Wraps impressions to store and adds previousTime if it corresponds
-      const impressionsForListener = [];
-      const impressionsToStore = [];
       slice.forEach(({ impression }) => {
         if (shouldAddPreviousTime) {
           // Adds previous time if it is enabled

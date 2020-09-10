@@ -2,6 +2,7 @@ import { SplitFactory } from '../..';
 import SettingsFactory from '../../utils/settings';
 import { gaSpy, gaTag } from './gaTestUtils';
 import includes from 'lodash/includes';
+import { DEBUG } from '../../utils/constants';
 
 function countImpressions(parsedImpressionsBulkPayload) {
   return parsedImpressionsBulkPayload
@@ -18,7 +19,10 @@ const config = {
   }, {
     type: 'SPLIT_TO_GOOGLE_ANALYTICS',
   }],
-  streamingEnabled: false
+  streamingEnabled: false,
+  sync: {
+    impressionsMode: DEBUG,
+  }
 };
 const settings = SettingsFactory(config);
 
