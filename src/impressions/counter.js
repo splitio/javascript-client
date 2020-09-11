@@ -1,6 +1,5 @@
+import { truncateTimeFrame } from '../utils/time';
 import objectAssign from 'object-assign';
-
-const DEDUP_WINDOW_SIZE_MS = 3600*1000; // Time window for deduping impressions
 
 class ImpressionCounter {
   constructor() {
@@ -8,17 +7,10 @@ class ImpressionCounter {
   }
 
   /**
-  * Truncates de time frame received with the time window.
-  */
-  _truncateTimeFrame(timestampInMs) {
-    return timestampInMs - (timestampInMs % DEDUP_WINDOW_SIZE_MS);
-  }
-
-  /**
   * Builds key to be stored in the cache with the featureName and the timeFrame truncated.
   */
   _makeKey(featureName, timeFrame) {
-    return `${featureName}::${this._truncateTimeFrame(timeFrame)}`;
+    return `${featureName}::${truncateTimeFrame(timeFrame)}`;
   }
 
   /**

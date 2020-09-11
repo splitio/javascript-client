@@ -119,6 +119,7 @@ export default async function(key, fetchMock, assert) {
     treatment: 'on',
     config: '{"color":"brown","dimensions":{"height":12,"width":14},"text":{"inner":"click me"}}'
   }, 'We should get an evaluation as always.');
+  client.getTreatmentWithConfig({ matchingKey: key, bucketingKey: 'test_buck_key'}, 'split_with_config');
   splitio.Logger.disable();
 
   evaluationsEnd = Date.now();

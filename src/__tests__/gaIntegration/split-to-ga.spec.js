@@ -3,6 +3,7 @@ import { SplitFactory } from '../..';
 import SettingsFactory from '../../utils/settings';
 import { gaSpy, gaTag, removeGaTag, addGaTag } from './gaTestUtils';
 import { SPLIT_IMPRESSION, SPLIT_EVENT } from '../../utils/constants';
+import { DEBUG } from '../../utils/constants';
 
 function countImpressions(parsedImpressionsBulkPayload) {
   return parsedImpressionsBulkPayload
@@ -22,7 +23,10 @@ const config = {
     impressionsRefreshRate: 0.2,
     eventsQueueSize: 1,
   },
-  streamingEnabled: false
+  streamingEnabled: false,
+  sync: {
+    impressionsMode: DEBUG,
+  }
 };
 
 const settings = SettingsFactory(config);

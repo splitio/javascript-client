@@ -19,7 +19,7 @@ tape('Murmur 128 / Impression Observer Basic Functionality', assert => {
     observer.testAndSet(ki);
   });
 
-  assert.is(observer.testAndSet(imp), null);
+  assert.is(observer.testAndSet(imp), undefined);
   assert.equal(observer.testAndSet(imp), imp.time);
 
   assert.end();
@@ -29,7 +29,7 @@ tape('Murmur 128 / Impression Observer Max Size', assert => {
   const observer = new ImpressionObserver(100, hasher.hashImpression128);
 
   const impressions = generateImpressions(200);
-  
+
   for (let i = 0; i < 100; i++) {
     observer.testAndSet(impressions[i]);
   }
@@ -59,7 +59,7 @@ tape('Murmur 32 / Impression Observer Basic Functionality', assert => {
     observer.testAndSet(ki);
   });
 
-  assert.is(observer.testAndSet(imp), null);
+  assert.is(observer.testAndSet(imp), undefined);
   assert.equal(observer.testAndSet(imp), imp.time);
 
   assert.end();
@@ -69,7 +69,7 @@ tape('Murmur 32 / Impression Observer Max Size', assert => {
   const observer = new ImpressionObserver(100, hasher.hashImpression32);
 
   const impressions = generateImpressions(200);
-  
+
   for (let i = 0; i < 100; i++) {
     observer.testAndSet(impressions[i]);
   }

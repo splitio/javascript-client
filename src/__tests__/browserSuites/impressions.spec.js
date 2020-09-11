@@ -45,7 +45,7 @@ export default function (fetchMock, assert) {
   const assertPayload = req => {
     const resp = JSON.parse(req.body);
 
-    assert.equal(resp.length, 2, 'We performed two evaluations so we should have 2 impressions');
+    assert.equal(resp.length, 2, 'We performed three evaluations so we should have 2 impressions type');
 
     const dependencyChildImpr = resp.filter(e => e.testName === 'hierarchical_splits_test')[0];
     const alwaysOnWithConfigImpr = resp.filter(e => e.testName === 'split_with_config')[0];
@@ -93,5 +93,7 @@ export default function (fetchMock, assert) {
       treatment: 'on',
       config: '{"color":"brown","dimensions":{"height":12,"width":14},"text":{"inner":"click me"}}'
     }, 'We should get an evaluation as always.');
+    client.getTreatmentWithConfig('split_with_config');
+    client.getTreatmentWithConfig('split_with_config');
   });
 }
