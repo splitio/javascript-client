@@ -39,6 +39,7 @@ import {
 import { OPTIMIZED, STANDALONE_MODE } from '../utils/constants';
 
 const log = logFactory('splitio-metrics');
+const IMPRESSIONS_REFRESH_COUNT = 300000; // 5 minutes
 
 const MetricsFactory = context => {
   let impressionsRetries = 0;
@@ -142,8 +143,7 @@ const MetricsFactory = context => {
           impressionsRetries++;
           log.warn(`Failed to push ${imprCount} impressions, keeping data to retry on next iteration. Reason ${err}.`);
         }
-      })
-      .then();
+      });
   };
 
   let stopImpressionsPublisher = false;
@@ -165,7 +165,7 @@ const MetricsFactory = context => {
       if (shouldPushImpressionsCache) {
         stopImpressionsCachedPublisher = repeat(
           schedulePublisher => pushCachedImpressions().then(() => schedulePublisher()),
-          settings.scheduler.impressionsRefreshCount
+          IMPRESSIONS_REFRESH_COUNT
         );
       }
     },

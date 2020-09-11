@@ -67,9 +67,7 @@ const base = {
     // backoff base seconds to wait before re attempting to authenticate for push notifications
     authRetryBackoffBase: 1,
     // backoff base seconds to wait before re attempting to connect to streaming
-    streamingReconnectBackoffBase: 1,
-    // publish evaluations cached 5 min
-    impressionsRefreshCount: 300,
+    streamingReconnectBackoffBase: 1
   },
 
   urls: {
@@ -136,7 +134,6 @@ function defaults(custom) {
   withDefaults.scheduler.impressionsRefreshRate = fromSecondsToMillis(withDefaults.scheduler.impressionsRefreshRate);
   withDefaults.scheduler.offlineRefreshRate = fromSecondsToMillis(withDefaults.scheduler.offlineRefreshRate);
   withDefaults.scheduler.eventsPushRate = fromSecondsToMillis(withDefaults.scheduler.eventsPushRate);
-  withDefaults.scheduler.impressionsRefreshCount = fromSecondsToMillis(withDefaults.scheduler.impressionsRefreshCount);
 
   // Startup periods
   withDefaults.startup.requestTimeoutBeforeReady = fromSecondsToMillis(withDefaults.startup.requestTimeoutBeforeReady);
