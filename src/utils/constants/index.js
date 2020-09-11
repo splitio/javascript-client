@@ -39,4 +39,3 @@ export const FILTERS_METADATA = [
 // Impression collection modes
 export const DEBUG = 'DEBUG';
 export const OPTIMIZED = 'OPTIMIZED';
-export const NONE = 'NONE';

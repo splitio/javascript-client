@@ -14,7 +14,7 @@ class ImpressionObserver {
     const hash = this.hasher(impression);
     const previous = this.cache.get(hash);
     this.cache.set(hash, impression.time);
-    return previous ? previous : null;
+    return previous;
   }
 }
 

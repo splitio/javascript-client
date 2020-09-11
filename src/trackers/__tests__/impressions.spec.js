@@ -2,7 +2,7 @@ import tape from 'tape-catch';
 import sinon from 'sinon';
 import ImpressionsTracker from '../impressions';
 import { STORAGE, SETTINGS, INTEGRATIONS_MANAGER,  } from '../../utils/context/constants';
-import { STANDALONE_MODE, PRODUCER_MODE } from '../../utils/constants';
+import { STANDALONE_MODE, PRODUCER_MODE, DEBUG } from '../../utils/constants';
 
 /* Mocks start */
 const generateContextMocks = () => {
@@ -13,7 +13,10 @@ const generateContextMocks = () => {
     version: 'js-test-10.4.0',
     impressionListener: {
       logImpression: sinon.stub()
-    }
+    },
+    sync: {
+      impressionsMode: DEBUG
+    },
   };
   const fakeStorage = {
     impressions: {
@@ -88,9 +91,6 @@ tape('Impressions Tracker', t => {
     tracker.queue(imp1);
     tracker.queue(imp2);
     tracker.queue(imp3);
-    imp1.pt = null;
-    imp2.pt = null;
-    imp3.pt = null;
 
     assert.false(fakeStorage.impressions.track.called, 'storage method should not be called by just queueing items.');
 
@@ -210,9 +210,9 @@ tape('Impressions Tracker', t => {
     const lastArgs = fakeStorage.impressions.track.lastCall.lastArg;
 
     assert.equal(lastArgs.length, 3);
-    assert.equal(lastArgs[0].pt, null);
+    assert.equal(lastArgs[0].pt, undefined);
     assert.equal(lastArgs[0].feature, 'qc_team');
-    assert.equal(lastArgs[1].pt, null);
+    assert.equal(lastArgs[1].pt, undefined);
     assert.equal(lastArgs[1].feature, 'qc_team_2');
     assert.equal(lastArgs[2].pt, 123456789);
     assert.equal(lastArgs[2].feature, 'qc_team');
@@ -264,9 +264,9 @@ tape('Impressions Tracker', t => {
     const lastArgs = fakeStorage.impressions.track.lastCall.lastArg;
 
     assert.equal(lastArgs.length, 2);
-    assert.equal(lastArgs[0].pt, null);
+    assert.equal(lastArgs[0].pt, undefined);
     assert.equal(lastArgs[0].feature, 'qc_team');
-    assert.equal(lastArgs[1].pt, null);
+    assert.equal(lastArgs[1].pt, undefined);
     assert.equal(lastArgs[1].feature, 'qc_team_2');
 
     assert.end();

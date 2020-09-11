@@ -103,7 +103,7 @@ const base = {
 
   sync: {
     splitFilters: undefined,
-    // impression collection modes
+    // impressions collection mode
     impressionsMode: OPTIMIZED
   }
 };
