@@ -42,6 +42,7 @@ const MetricsFactory = context => {
   let impressionsRetries = 0;
   const settings = context.get(context.constants.SETTINGS);
   const storage = context.get(context.constants.STORAGE);
+  const impressionsCounter = context.get(context.constants.IMPRESSIONS_COUNTER);
 
   const pushMetrics = () => {
     if (storage.metrics.isEmpty() && storage.count.isEmpty()) return Promise.resolve();
@@ -99,8 +100,16 @@ const MetricsFactory = context => {
       .then(() => latencyTrackerStop());
   };
 
+  const pushCachedImpressions = () => {
+    const imprCount = impressionsCounter.size();
+    if (!impressionsCounter || imprCount === 0) return Promise.resolve();
+
+    log.info(`Pushing ${imprCount} impressions`);
+  };
+
   let stopImpressionsPublisher = false;
   let stopPerformancePublisher = false;
+  let stopImpressionsCachedPublisher = false;
 
   return {
     start() {
@@ -113,15 +122,22 @@ const MetricsFactory = context => {
         schedulePublisher => pushMetrics().then(() => schedulePublisher()),
         settings.scheduler.metricsRefreshRate
       );
+
+      stopImpressionsCachedPublisher = repeat(
+        schedulePublisher => pushCachedImpressions().then(() => schedulePublisher()),
+        settings.scheduler.impressionsRefreshRate
+      );
     },
 
     flush() {
-      return pushImpressions();
+      pushImpressions();
+      return pushCachedImpressions();
     },
 
     stop() {
       stopImpressionsPublisher && stopImpressionsPublisher();
       stopPerformancePublisher && stopPerformancePublisher();
+      stopImpressionsCachedPublisher && stopImpressionsCachedPublisher();
     },
 
     // Metrics collectors

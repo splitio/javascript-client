@@ -31,6 +31,13 @@ class ImpressionCounter {
     this.cache = {};
     return res;
   }
+
+  /**
+  * Returns the amount of keys stored in cache.
+  */
+  size() {
+    return Object.keys(this.cache).length;
+  }
 }
 
 export default ImpressionCounter;
