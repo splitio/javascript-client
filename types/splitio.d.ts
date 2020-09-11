@@ -78,7 +78,8 @@ interface ISettings {
   },
   readonly streamingEnabled: boolean,
   readonly sync: {
-    splitFilters: SplitIO.SplitFilter[]
+    splitFilters: SplitIO.SplitFilter[],
+    impressionsMode: SplitIO.ImpressionsMode,
   }
 }
 /**
@@ -161,11 +162,11 @@ interface ISharedSettings {
     splitFilters?: SplitIO.SplitFilter[]
     /**
      * Impressions Collection Mode. Option to determine how impressions are going to be sent to Split Servers.
-     * Possible values are DEBUG and OPTIMIZED.
+     * Possible values are 'debug' and 'optimized'.
      * - DEBUG: will send all the impressions generated (recommended only for debugging purposes).
      * - OPTIMIZED: will send unique impressions to Split Servers avoiding a considerable amount of traffic that duplicated impressions could generate.
      * @property {String} impressionsMode
-     * @default OPTIMIZED
+     * @default 'optimized'
      */
     impressionsMode?: SplitIO.ImpressionsMode,
   }
