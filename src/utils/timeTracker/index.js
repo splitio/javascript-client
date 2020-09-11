@@ -37,6 +37,7 @@ const CONSTANTS = {
   SEGMENTS_READY: 'Getting ready - Segments',
   METRICS_PUSH: 'Pushing - Metrics',
   IMPRESSIONS_PUSH: 'Pushing - Impressions',
+  IMPRESSIONS_COUNT: 'Pushing - Impressions Count',
   EVENTS_PUSH: 'Pushing - Events',
   MY_SEGMENTS_FETCH: 'Fetching - My Segments',
   SEGMENTS_FETCH: 'Fetching - Segments',

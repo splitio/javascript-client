@@ -26,6 +26,7 @@ import {
 } from '../services/metrics/dto';
 import impressionsService from '../services/impressions';
 import impressionsBulkRequest from '../services/impressions/bulk';
+import impressionsCountRequest from '../services/impressions/count';
 import {
   fromImpressionsCollector
 } from '../services/impressions/dto';
@@ -35,6 +36,7 @@ import {
   MySegmentsCollector,
   ClientCollector
 } from './Collectors';
+import { OPTIMIZED, STANDALONE_MODE } from '../utils/constants';
 
 const log = logFactory('splitio-metrics');
 
@@ -43,6 +45,7 @@ const MetricsFactory = context => {
   const settings = context.get(context.constants.SETTINGS);
   const storage = context.get(context.constants.STORAGE);
   const impressionsCounter = context.get(context.constants.IMPRESSIONS_COUNTER);
+  const shouldPushImpressionsCache = settings.sync.impressionsMode === OPTIMIZED && settings.mode === STANDALONE_MODE;
 
   const pushMetrics = () => {
     if (storage.metrics.isEmpty() && storage.count.isEmpty()) return Promise.resolve();
@@ -105,6 +108,44 @@ const MetricsFactory = context => {
     if (!impressionsCounter || imprCount === 0) return Promise.resolve();
 
     log.info(`Pushing ${imprCount} impressions`);
+    const latencyTrackerStop = tracker.start(tracker.TaskNames.IMPRESSIONS_COUNT);
+
+    const pf = [];
+    const cachedImpressions = impressionsCounter.popAll();
+
+    const keys = Object.keys(cachedImpressions);
+    for (let i = 0; i < keys.length; i++) {
+      const splitted = keys[i].split('::');
+      if (splitted.length !== 2) continue;
+      const featureName = splitted[0];
+      const timeFrame = splitted[1];
+
+      const impressionsInTimeframe = {
+        t: featureName, // Test Name
+        m: timeFrame, // Time Frame
+        rc: cachedImpressions[keys[i]] // Count
+      };
+
+      pf.push(impressionsInTimeframe);
+    }
+
+    return impressionsService(impressionsCountRequest(settings, {
+      body: JSON.stringify({ pf })
+    }))
+      .then(() => {
+        impressionsRetries = 0;
+        storage.impressions.clear();
+      })
+      .catch(err => {
+        if (impressionsRetries) { // For now we retry only once.
+          log.warn(`Droping ${imprCount} impressions after retry. Reason ${err}.`);
+          impressionsRetries = 0;
+        } else {
+          impressionsRetries++;
+          log.warn(`Failed to push ${imprCount} impressions, keeping data to retry on next iteration. Reason ${err}.`);
+        }
+      })
+      .then(() => latencyTrackerStop());
   };
 
   let stopImpressionsPublisher = false;
@@ -123,21 +164,23 @@ const MetricsFactory = context => {
         settings.scheduler.metricsRefreshRate
       );
 
-      stopImpressionsCachedPublisher = repeat(
-        schedulePublisher => pushCachedImpressions().then(() => schedulePublisher()),
-        settings.scheduler.impressionsRefreshRate
-      );
+      if (shouldPushImpressionsCache) {
+        stopImpressionsCachedPublisher = repeat(
+          schedulePublisher => pushCachedImpressions().then(() => schedulePublisher()),
+          settings.scheduler.impressionsRefreshCount
+        );
+      }
     },
 
     flush() {
-      pushImpressions();
-      return pushCachedImpressions();
+      if (shouldPushImpressionsCache) pushCachedImpressions();
+      return pushImpressions();
     },
 
     stop() {
       stopImpressionsPublisher && stopImpressionsPublisher();
       stopPerformancePublisher && stopPerformancePublisher();
-      stopImpressionsCachedPublisher && stopImpressionsCachedPublisher();
+      if (shouldPushImpressionsCache) stopImpressionsCachedPublisher && stopImpressionsCachedPublisher();
     },
 
     // Metrics collectors

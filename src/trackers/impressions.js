@@ -18,7 +18,6 @@ import objectAssign from 'object-assign';
 import logFactory from '../utils/logger';
 import thenable from '../utils/promise/thenable';
 import ImpressionObserverFactory from '../impressions/observer';
-import ImpressionCounter from '../impressions/counter';
 import { truncateTimeFrame } from '../utils/time';
 import { OPTIMIZED, STANDALONE_MODE } from '../utils/constants';
 const log = logFactory('splitio-client:impressions-tracker');
@@ -49,7 +48,7 @@ function ImpressionsTracker(context) {
   const shouldAddPreviousTime = shouldAddPt(settings);
   const isOptimized = shouldBeOptimized(settings);
   const observer = ImpressionObserverFactory(); // Instantiates observer
-  const counter = new ImpressionCounter(); // Instantiates new counter for Impressions
+  const counter = context.get(context.constants.IMPRESSIONS_COUNTER);
 
   return {
     queue: function (impression, attributes) {
