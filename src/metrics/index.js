@@ -134,7 +134,6 @@ const MetricsFactory = context => {
     }))
       .then(() => {
         impressionsRetries = 0;
-        storage.impressions.clear();
       })
       .catch(err => {
         if (impressionsRetries) { // For now we retry only once.

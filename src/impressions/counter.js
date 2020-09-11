@@ -33,7 +33,7 @@ class ImpressionCounter {
   }
 
   /**
-  * Returns the amount of keys stored in cache.
+  * Returns how many keys are stored in cache.
   */
   size() {
     return Object.keys(this.cache).length;
