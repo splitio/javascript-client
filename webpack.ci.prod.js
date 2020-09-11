@@ -11,6 +11,6 @@ module.exports = env => merge(common, {
   },
   performance: {
     hints: 'error', // build fails if asset size exceeded
-    maxAssetSize: 122880 // 120KiB size limit
+    maxAssetSize: 138249 // 135KiB size limit
   }
 });

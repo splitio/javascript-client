@@ -2,6 +2,7 @@ import tape from 'tape-catch';
 import fetchMock from './testUtils/fetchMock';
 import evaluationsSuite from './browserSuites/evaluations.spec';
 import impressionsSuite from './browserSuites/impressions.spec';
+import impressionsSuiteDebug from './browserSuites/impressions.debug.spec';
 import metricsSuite from './browserSuites/metrics.spec';
 import impressionsListenerSuite from './browserSuites/impressions-listener.spec';
 import readinessSuite from './browserSuites/readiness.spec';
@@ -98,6 +99,7 @@ tape('## E2E CI Tests ##', function(assert) {
   assert.test('E2E / In LocalStorage with In Memory Fallback', evaluationsSuite.bind(null, configInLocalStorage, fetchMock));
   /* Check impressions */
   assert.test('E2E / Impressions', impressionsSuite.bind(null, fetchMock));
+  assert.test('E2E / Impressions Debug Mode', impressionsSuiteDebug.bind(null, fetchMock));
   /* Check impression listener */
   assert.test('E2E / Impression listener', impressionsListenerSuite);
   /* Check metrics */

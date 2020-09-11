@@ -34,6 +34,7 @@ export function fromImpressionsCollector(collector, settings) {
 
         if (sendLabels) keyImpression.r = entry.label; // Rule
         if (entry.bucketingKey) keyImpression.b = entry.bucketingKey; // Bucketing Key
+        if (entry.pt) keyImpression.pt = entry.pt;
 
         return keyImpression;
       })
