@@ -19,7 +19,7 @@ tape('Murmur 128 / Impression Observer Basic Functionality', assert => {
     observer.testAndSet(ki);
   });
 
-  assert.is(observer.testAndSet(imp), null);
+  assert.is(observer.testAndSet(imp), undefined);
   assert.equal(observer.testAndSet(imp), imp.time);
 
   assert.end();
@@ -59,7 +59,7 @@ tape('Murmur 32 / Impression Observer Basic Functionality', assert => {
     observer.testAndSet(ki);
   });
 
-  assert.is(observer.testAndSet(imp), null);
+  assert.is(observer.testAndSet(imp), undefined);
   assert.equal(observer.testAndSet(imp), imp.time);
 
   assert.end();

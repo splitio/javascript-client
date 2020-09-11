@@ -57,7 +57,6 @@ export default function(assert) {
           treatment: 'on',
           bucketingKey: undefined,
           label: 'expected label',
-          pt: null
         },
         attributes: undefined,
         ...metaData
@@ -69,7 +68,6 @@ export default function(assert) {
           treatment: 'no',
           bucketingKey: 'impr_bucketing_2',
           label: 'default rule',
-          pt: null
         },
         attributes: undefined,
         ...metaData
@@ -81,7 +79,6 @@ export default function(assert) {
           treatment: 'no',
           bucketingKey: undefined,
           label: 'default rule',
-          pt: null
         },
         attributes: testAttrs,
         ...metaData

@@ -68,13 +68,12 @@ export default function(assert) {
           treatment: 'on',
           bucketingKey: undefined,
           label: 'expected label',
-          pt: null,
         },
         attributes: undefined,
         ...metaData
       }));
       assert.true(listener.logImpression.getCall(1).calledWithMatch({
-        impression: Object.assign(secondImpression, { pt: null }),
+        impression: secondImpression,
         attributes: undefined,
         ...metaData
       }));
@@ -90,7 +89,6 @@ export default function(assert) {
           treatment: 'no',
           bucketingKey: undefined,
           label: 'default rule',
-          pt: null,
         },
         attributes: testAttrs,
         ...metaData

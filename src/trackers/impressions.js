@@ -27,17 +27,15 @@ const log = logFactory('splitio-client:impressions-tracker');
  * Checks if impressions previous time should be added or not.
  */
 function shouldAddPt(settings) {
-  return (settings.mode && settings.mode === STANDALONE_MODE) ? true : false;
+  return settings.mode === STANDALONE_MODE ? true : false;
 }
 
 /**
  * Checks if it should dedupe impressions or not.
  */
 function shouldBeOptimized(settings) {
-  if (!shouldAddPt(settings)) {
-    return false;
-  }
-  return settings.sync && settings.sync.impressionsMode && settings.sync.impressionsMode === OPTIMIZED ? true : false;
+  if (!shouldAddPt(settings)) return false;
+  return settings.sync.impressionsMode === OPTIMIZED ? true : false;
 }
 
 function ImpressionsTracker(context) {
@@ -64,7 +62,6 @@ function ImpressionsTracker(context) {
       const impressionsCount = queue.length;
       const slice = queue.splice(0, impressionsCount);
 
-      const impressionsForListener = []; // All the impressions are going to be sent to listener
       const impressionsToStore = []; // Track only the impressions that are going to be stored
       // Wraps impressions to store and adds previousTime if it corresponds
       slice.forEach(({ impression }) => {
@@ -83,9 +80,6 @@ function ImpressionsTracker(context) {
         if (!isOptimized || !impression.pt || impression.pt < truncateTimeFrame(now)) {
           impressionsToStore.push(impression);
         }
-
-        // Adds impression for listener
-        impressionsForListener.push(impression);
       });
 
       const res = collector.track(impressionsToStore);
@@ -103,7 +97,7 @@ function ImpressionsTracker(context) {
         for (let i = 0; i < impressionsCount; i++) {
           const impressionData = {
             // copy of impression, to avoid unexpected behaviour if modified by integrations or impressionListener
-            impression: objectAssign({}, impressionsForListener[i]), // let's use impressions instead of slice in case we should send previousTime too
+            impression: objectAssign({}, slice[i].impression),
             attributes: slice[i].attributes,
             ip,
             hostname,

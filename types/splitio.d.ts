@@ -495,7 +495,8 @@ declare namespace SplitIO {
       time: number,
       bucketingKey?: string,
       label: string,
-      changeNumber: number
+      changeNumber: number,
+      pt?: number,
     },
     attributes?: SplitIO.Attributes,
     ip: string,
