@@ -26,6 +26,7 @@ import validateSplitFilters from '../inputValidation/splitFilters';
 import { API } from '../../utils/logger';
 import { STANDALONE_MODE, STORAGE_MEMORY, CONSUMER_MODE, OPTIMIZED } from '../../utils/constants';
 import { version } from '../../../package.json';
+import validImpressionsMode from './impressionsMode';
 
 const eventsEndpointMatcher = /^\/(testImpressions|metrics|events)/;
 const authEndpointMatcher = /^\/auth/;
@@ -167,6 +168,9 @@ function defaults(custom) {
   const splitFiltersValidation = validateSplitFilters(withDefaults.sync.splitFilters, withDefaults.mode);
   withDefaults.sync.splitFilters = splitFiltersValidation.validFilters;
   withDefaults.sync.__splitFiltersValidation = splitFiltersValidation;
+
+  // ensure a valid impressionsMode
+  withDefaults.sync.impressionsMode = validImpressionsMode(withDefaults.sync.impressionsMode);
 
   return withDefaults;
 }
