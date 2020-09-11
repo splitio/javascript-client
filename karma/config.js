@@ -51,8 +51,7 @@ module.exports = {
   },
 
   webpack: {
-    mode: 'development',
-    devtool: 'inline-source-map',
+    mode: 'production',
     module: {
       rules: [
         {
