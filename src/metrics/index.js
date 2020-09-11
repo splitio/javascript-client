@@ -108,7 +108,6 @@ const MetricsFactory = context => {
     if (!impressionsCounter || imprCount === 0) return Promise.resolve();
 
     log.info(`Pushing ${imprCount} impressions`);
-    const latencyTrackerStop = tracker.start(tracker.TaskNames.IMPRESSIONS_COUNT);
 
     const pf = [];
     const cachedImpressions = impressionsCounter.popAll();
@@ -144,7 +143,7 @@ const MetricsFactory = context => {
           log.warn(`Failed to push ${imprCount} impressions, keeping data to retry on next iteration. Reason ${err}.`);
         }
       })
-      .then(() => latencyTrackerStop());
+      .then();
   };
 
   let stopImpressionsPublisher = false;
