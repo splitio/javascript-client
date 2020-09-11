@@ -51,7 +51,7 @@ tape('SDK destroy for BrowserJS', async function (assert) {
   fetchMock.postOnce(settings.url('/testImpressions/bulk'), (url, opts) => {
     const impressions = JSON.parse(opts.body);
 
-    impressions[0].keyImpressions = map(impressions[0].keyImpressions, imp => pick(imp, ['keyName', 'treatment']));
+    impressions[0].i = map(impressions[0].i, imp => pick(imp, ['k', 't']));
 
     assert.deepEqual(impressions, impressionsMock);
 

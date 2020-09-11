@@ -47,26 +47,26 @@ export default function (fetchMock, assert) {
 
     assert.equal(resp.length, 2, 'We performed two evaluations so we should have 2 impressions');
 
-    const dependencyChildImpr = resp.filter(e => e.testName === 'hierarchical_splits_test')[0];
-    const alwaysOnWithConfigImpr = resp.filter(e => e.testName === 'split_with_config')[0];
+    const dependencyChildImpr = resp.filter(e => e.f === 'hierarchical_splits_test')[0];
+    const alwaysOnWithConfigImpr = resp.filter(e => e.f === 'split_with_config')[0];
 
     assert.true(dependencyChildImpr, 'Split we wanted to evaluate should be present on the impressions.');
-    assert.false(resp.some(e => e.testName === 'hierarchical_dep_always_on'), 'Parent split evaluations should not result in impressions.');
-    assert.false(resp.some(e => e.testName === 'hierarchical_dep_hierarchical'), 'No matter how deep is the chain.');
+    assert.false(resp.some(e => e.f === 'hierarchical_dep_always_on'), 'Parent split evaluations should not result in impressions.');
+    assert.false(resp.some(e => e.f === 'hierarchical_dep_hierarchical'), 'No matter how deep is the chain.');
     assert.true(alwaysOnWithConfigImpr, 'Split evaluated with config should have generated an impression too.');
-    assert.false(Object.prototype.hasOwnProperty.call(alwaysOnWithConfigImpr.keyImpressions[0], 'configuration'), 'Impressions do not change with configuration evaluations.');
-    assert.false(Object.prototype.hasOwnProperty.call(alwaysOnWithConfigImpr.keyImpressions[0], 'config'), 'Impressions do not change with configuration evaluations.');
+    assert.false(Object.prototype.hasOwnProperty.call(alwaysOnWithConfigImpr.i[0], 'configuration'), 'Impressions do not change with configuration evaluations.');
+    assert.false(Object.prototype.hasOwnProperty.call(alwaysOnWithConfigImpr.i[0], 'config'), 'Impressions do not change with configuration evaluations.');
 
     const {
-      keyName,
-      label,
-      treatment
-    } = dependencyChildImpr.keyImpressions[0];
+      k,
+      r,
+      t
+    } = dependencyChildImpr.i[0];
 
-    assert.equal(keyName, 'facundo@split.io', 'Present impression should have the correct key.');
+    assert.equal(k, 'facundo@split.io', 'Present impression should have the correct key.');
     // The label present on the mock.
-    assert.equal(label, 'expected label', 'Present impression should have the correct label.');
-    assert.equal(treatment, 'on', 'Present impression should have the correct treatment.');
+    assert.equal(r, 'expected label', 'Present impression should have the correct label.');
+    assert.equal(t, 'on', 'Present impression should have the correct treatment.');
   };
 
   fetchMock.postOnce(settings.url('/testImpressions/bulk'), (url, req) => {

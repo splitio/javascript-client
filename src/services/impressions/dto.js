@@ -23,7 +23,7 @@ export function fromImpressionsCollector(collector, settings) {
   // using forOwn instead of for...in since the last also iterates over prototype enumerables
   forOwn(groupedByFeature, (value, name) => {
     dto.push({
-      t: name, // Test Name
+      f: name, // Test Name
       i: value.map(entry => { // Key Impressions
         const keyImpression = {
           k: entry.keyName, // Key
