@@ -7,7 +7,7 @@ import { DEBUG } from '../../utils/constants';
 
 function countImpressions(parsedImpressionsBulkPayload) {
   return parsedImpressionsBulkPayload
-    .reduce((accumulator, currentValue) => { return accumulator + currentValue.keyImpressions.length; }, 0);
+    .reduce((accumulator, currentValue) => { return accumulator + currentValue.i.length; }, 0);
 }
 
 const config = {

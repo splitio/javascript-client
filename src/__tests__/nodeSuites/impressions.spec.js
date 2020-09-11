@@ -50,46 +50,46 @@ export default async function(key, fetchMock, assert) {
     assert.equal(data.length, 3, 'We performed evaluations for three splits, so we should have 3 items total.');
 
     // finding these validate the feature names collection too
-    const dependencyChildImpr = data.filter(e => e.testName === 'hierarchical_splits_test')[0];
-    const alwaysOnWithConfigImpr = data.filter(e => e.testName === 'split_with_config')[0];
-    const notExistentSplitImpr = data.filter(e => e.testName === 'not_existent_split')[0];
+    const dependencyChildImpr = data.filter(e => e.f === 'hierarchical_splits_test')[0];
+    const alwaysOnWithConfigImpr = data.filter(e => e.f === 'split_with_config')[0];
+    const notExistentSplitImpr = data.filter(e => e.f === 'not_existent_split')[0];
 
-    assert.equal(notExistentSplitImpr.keyImpressions.length, 1); // Only one, the split not found is filtered by the non existent Split check.
-    assert.equal(alwaysOnWithConfigImpr.keyImpressions.length, 1);
-    assert.equal(dependencyChildImpr.keyImpressions.length, 1);
+    assert.equal(notExistentSplitImpr.i.length, 1); // Only one, the split not found is filtered by the non existent Split check.
+    assert.equal(alwaysOnWithConfigImpr.i.length, 1);
+    assert.equal(dependencyChildImpr.i.length, 1);
 
     assert.true(dependencyChildImpr, 'Split we wanted to evaluate should be present on the impressions.');
-    assert.false(data.some(e => e.testName === 'hierarchical_dep_always_on'), 'Parent split evaluations should not result in impressions.');
-    assert.false(data.some(e => e.testName === 'hierarchical_dep_hierarchical'), 'No matter how deep is the chain.');
+    assert.false(data.some(e => e.f === 'hierarchical_dep_always_on'), 'Parent split evaluations should not result in impressions.');
+    assert.false(data.some(e => e.f === 'hierarchical_dep_hierarchical'), 'No matter how deep is the chain.');
     assert.true(alwaysOnWithConfigImpr, 'Split evaluated with config should have generated an impression too.');
-    assert.false(Object.prototype.hasOwnProperty.call(alwaysOnWithConfigImpr.keyImpressions[0], 'configuration'), 'Impressions do not change with configuration evaluations.');
-    assert.false(Object.prototype.hasOwnProperty.call(alwaysOnWithConfigImpr.keyImpressions[0], 'config'), 'Impressions do not change with configuration evaluations.');
+    assert.false(Object.prototype.hasOwnProperty.call(alwaysOnWithConfigImpr.i[0], 'configuration'), 'Impressions do not change with configuration evaluations.');
+    assert.false(Object.prototype.hasOwnProperty.call(alwaysOnWithConfigImpr.i[0], 'config'), 'Impressions do not change with configuration evaluations.');
 
     function validateImpressionData(output, expected, performedWhenReady = true) {
-      assert.equal(output.keyName, expected.keyName, 'Present impressions should have the correct key.');
-      assert.equal(output.bucketingKey, expected.bucketingKey, 'Present impressions should have the correct bucketingKey.');
-      assert.equal(output.treatment, expected.treatment, 'Present impressions should have the correct treatment.');
-      assert.equal(output.label, expected.label, 'Present impressions should have the correct label.');
-      assert.equal(output.changeNumber, expected.changeNumber, 'Present impressions should have the correct changeNumber.');
-      assert.true(output.time >= (performedWhenReady ? readyEvaluationsStart : evaluationsStart) && output.time <= evaluationsEnd, 'Present impressions should have the correct timestamp (test with error margin).');
+      assert.equal(output.k, expected.keyName, 'Present impressions should have the correct key.');
+      assert.equal(output.b, expected.bucketingKey, 'Present impressions should have the correct bucketingKey.');
+      assert.equal(output.t, expected.treatment, 'Present impressions should have the correct treatment.');
+      assert.equal(output.r, expected.label, 'Present impressions should have the correct label.');
+      assert.equal(output.c, expected.changeNumber, 'Present impressions should have the correct changeNumber.');
+      assert.true(output.m >= (performedWhenReady ? readyEvaluationsStart : evaluationsStart) && output.m <= evaluationsEnd, 'Present impressions should have the correct timestamp (test with error margin).');
     }
 
-    validateImpressionData(notExistentSplitImpr.keyImpressions[0], {
+    validateImpressionData(notExistentSplitImpr.i[0], {
       keyName: 'facundo@split.io', label: SDK_NOT_READY, treatment: 'control',
       bucketingKey: undefined, changeNumber: undefined
     }, false);
-    validateImpressionData(dependencyChildImpr.keyImpressions[0], {
+    validateImpressionData(dependencyChildImpr.i[0], {
       keyName: 'facundo@split.io', label: 'expected label', treatment: 'on',
       bucketingKey: undefined, changeNumber: 2828282828
     });
-    validateImpressionData(alwaysOnWithConfigImpr.keyImpressions[0], {
+    validateImpressionData(alwaysOnWithConfigImpr.i[0], {
       keyName: 'facundo@split.io', label: 'another expected label', treatment: 'on',
       bucketingKey: 'test_buck_key', changeNumber: 828282828282
     });
 
     // Not push impressions with a invalid key (aka matching key)
     assert.true(
-      dependencyChildImpr.keyImpressions.filter(e => e.keyName !== 'facundo@split.io').length === 0,
+      dependencyChildImpr.i.filter(e => e.k !== 'facundo@split.io').length === 0,
       'There should be impressions with valid keys, the sdk will not push a impression with invalid a key'
     );
 
