@@ -53,31 +53,31 @@ export default async function(key, fetchMock, assert) {
     assert.equal(data.length, 1, 'We performed evaluations for one split, so we should have 1 item total.');
 
     // finding these validate the feature names collection too
-    const alwaysOnWithConfigImpr = data.filter(e => e.testName === 'split_with_config')[0];
+    const alwaysOnWithConfigImpr = data.filter(e => e.f === 'split_with_config')[0];
 
-    assert.equal(alwaysOnWithConfigImpr.keyImpressions.length, 3);
+    assert.equal(alwaysOnWithConfigImpr.i.length, 3);
 
     function validateImpressionData(output, expected, performedWhenReady = true) {
-      assert.equal(output.keyName, expected.keyName, 'Present impressions should have the correct key.');
-      assert.equal(output.bucketingKey, expected.bucketingKey, 'Present impressions should have the correct bucketingKey.');
-      assert.equal(output.treatment, expected.treatment, 'Present impressions should have the correct treatment.');
-      assert.equal(output.label, expected.label, 'Present impressions should have the correct label.');
-      assert.equal(output.changeNumber, expected.changeNumber, 'Present impressions should have the correct changeNumber.');
+      assert.equal(output.k, expected.keyName, 'Present impressions should have the correct key.');
+      assert.equal(output.b, expected.bucketingKey, 'Present impressions should have the correct bucketingKey.');
+      assert.equal(output.t, expected.treatment, 'Present impressions should have the correct treatment.');
+      assert.equal(output.r, expected.label, 'Present impressions should have the correct label.');
+      assert.equal(output.c, expected.changeNumber, 'Present impressions should have the correct changeNumber.');
       assert.equal(output.pt, expected.pt, 'Present impressions should have the correct previousTime.');
-      assert.true(output.time >= (performedWhenReady ? readyEvaluationsStart : evaluationsStart) && output.time <= evaluationsEnd, 'Present impressions should have the correct timestamp (test with error margin).');
+      assert.true(output.m >= (performedWhenReady ? readyEvaluationsStart : evaluationsStart) && output.m <= evaluationsEnd, 'Present impressions should have the correct timestamp (test with error margin).');
     }
 
-    validateImpressionData(alwaysOnWithConfigImpr.keyImpressions[0], {
+    validateImpressionData(alwaysOnWithConfigImpr.i[0], {
       keyName: 'facundo@split.io', label: 'another expected label', treatment: 'on',
       bucketingKey: 'test_buck_key', changeNumber: 828282828282, pt: undefined
     });
-    validateImpressionData(alwaysOnWithConfigImpr.keyImpressions[1], {
+    validateImpressionData(alwaysOnWithConfigImpr.i[1], {
       keyName: 'facundo@split.io', label: 'another expected label', treatment: 'on',
-      bucketingKey: 'test_buck_key', changeNumber: 828282828282, pt: alwaysOnWithConfigImpr.keyImpressions[0].time
+      bucketingKey: 'test_buck_key', changeNumber: 828282828282, pt: alwaysOnWithConfigImpr.i[0].m
     });
-    validateImpressionData(alwaysOnWithConfigImpr.keyImpressions[2], {
+    validateImpressionData(alwaysOnWithConfigImpr.i[2], {
       keyName: 'facundo@split.io', label: 'another expected label', treatment: 'on',
-      bucketingKey: 'test_buck_key', changeNumber: 828282828282, pt: alwaysOnWithConfigImpr.keyImpressions[1].time
+      bucketingKey: 'test_buck_key', changeNumber: 828282828282, pt: alwaysOnWithConfigImpr.i[1].m
     });
 
     client.destroy();

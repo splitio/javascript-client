@@ -30,10 +30,10 @@ function triggerUnloadEvent() {
 }
 
 const assertImpressionSent = (assert, impression) => {
-  assert.equal(impression.testName, 'hierarchical_splits_test', 'Present impression should have the correct split name.');
-  assert.equal(impression.keyImpressions[0].keyName, 'facundo@split.io', 'Present impression should have the correct key.');
-  assert.equal(impression.keyImpressions[0].label, 'expected label', 'Present impression should have the correct label.');
-  assert.equal(impression.keyImpressions[0].treatment, 'on', 'Present impression should have the correct treatment.');
+  assert.equal(impression.f, 'hierarchical_splits_test', 'Present impression should have the correct split name.');
+  assert.equal(impression.i[0].k, 'facundo@split.io', 'Present impression should have the correct key.');
+  assert.equal(impression.i[0].r, 'expected label', 'Present impression should have the correct label.');
+  assert.equal(impression.i[0].t, 'on', 'Present impression should have the correct treatment.');
 };
 
 const assertEventSent = (assert, event) => {
