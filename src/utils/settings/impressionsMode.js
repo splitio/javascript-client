@@ -4,7 +4,7 @@ const log = logFactory('splitio-settings');
 
 function validImpressionsMode(impressionsMode) {
   if ([DEBUG, OPTIMIZED].indexOf(impressionsMode) === -1) {
-    log.error('You passed an invalid impressionsMode, impressionsMode should be one of the following values: OPTIMIZED or DEBUG. The sdk continues in OPTIMIZED mode.');
+    log.error(`You passed an invalid impressionsMode, impressionsMode should be one of the following values: '${DEBUG}' or '${OPTIMIZED}'. Defaulting to '${OPTIMIZED}' mode.`);
     impressionsMode = OPTIMIZED;
   }
 
