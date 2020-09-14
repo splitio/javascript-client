@@ -51,6 +51,7 @@ fetchMock.get(new RegExp(`${settings.url('/segmentChanges')}/*`), {
   }
 });
 fetchMock.post(settings.url('/testImpressions/bulk'), 200);
+fetchMock.post(settings.url('/testImpressions/count'), 200);
 
 tape('## Node JS - E2E CI Tests ##', async function (assert) {
   /* Check client evaluations. */

@@ -36,7 +36,7 @@ import {
   MySegmentsCollector,
   ClientCollector
 } from './Collectors';
-import { OPTIMIZED, CONSUMER_MODE } from '../utils/constants';
+import { OPTIMIZED, PRODUCER_MODE, STANDALONE_MODE } from '../utils/constants';
 
 const log = logFactory('splitio-metrics');
 const IMPRESSIONS_COUNT_RATE = 300000; // 5 minutes
@@ -46,7 +46,7 @@ const MetricsFactory = context => {
   const settings = context.get(context.constants.SETTINGS);
   const storage = context.get(context.constants.STORAGE);
   const impressionsCounter = context.get(context.constants.IMPRESSIONS_COUNTER);
-  const shouldPushImpressionsCount = settings.sync.impressionsMode === OPTIMIZED && settings.mode !== CONSUMER_MODE;
+  const shouldPushImpressionsCount = [PRODUCER_MODE, STANDALONE_MODE].indexOf(settings.mode) > -1 && settings.sync.impressionsMode === OPTIMIZED;
 
   const pushMetrics = () => {
     if (storage.metrics.isEmpty() && storage.count.isEmpty()) return Promise.resolve();

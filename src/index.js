@@ -112,7 +112,7 @@ export function SplitFactory(config) {
         sharedContext.put(context.constants.STATUS_MANAGER, sdkStatusManager(sharedContext, -1));
         sharedContext.put(context.constants.SETTINGS, sharedSettings);
         sharedContext.put(context.constants.STORAGE, storage.shared(sharedSettings));
-
+        sharedContext.put(context.constants.IMPRESSIONS_COUNTER, impressionsCounter);
         // As shared clients reuse all the storage information, we don't need to check here if we
         // will use offline or online mode. We should stick with the original decision.
         clientInstances[instanceId] = splitFactory(sharedContext, false, mainClientMetricCollectors).api;

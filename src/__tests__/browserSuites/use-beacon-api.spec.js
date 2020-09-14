@@ -70,6 +70,8 @@ function beaconApiNotSendTest(fetchMock, assert) {
   fetchMock.get(settings.url('/splitChanges?since=1457552620999'), { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
   fetchMock.get(settings.url('/mySegments/facundo%40split.io'), { status: 200, body: mySegmentsFacundo });
 
+  fetchMock.post(settings.url('/testImpressions/count'), 200);
+
   // Init and run Split client
   const splitio = SplitFactory(config);
   const client = splitio.client();
@@ -150,6 +152,7 @@ function fallbackTest(fetchMock, assert) {
     finish.next();
     return 200;
   });
+  fetchMock.post(settings.url('/testImpressions/count'), 200);
 
   client.on(client.Event.SDK_READY, () => {
     client.getTreatment('hierarchical_splits_test');

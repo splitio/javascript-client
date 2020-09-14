@@ -100,6 +100,23 @@ export default async function(key, fetchMock, assert) {
   });
   fetchMock.postOnce(settings.url('/testImpressions/bulk'), 200);
 
+  fetchMock.postOnce(settings.url('/testImpressions/count'), (url, opts) => {
+    const data = JSON.parse(opts.body);
+
+    assert.equal(data.pf.length, 3, 'We should generated impressions for three features.');
+
+    // finding these validate the feature names collection too
+    const dependencyChildImpr = data.pf.filter(e => e.f === 'hierarchical_splits_test')[0];
+    const alwaysOnWithConfigImpr = data.pf.filter(e => e.f === 'split_with_config')[0];
+    const notExistentSplitImpr = data.pf.filter(e => e.f === 'not_existent_split')[0];
+
+    assert.equal(dependencyChildImpr.rc, 1);
+    assert.equal(alwaysOnWithConfigImpr.rc, 2);
+    assert.equal(notExistentSplitImpr.rc, 1);
+
+  });
+  fetchMock.postOnce(settings.url('/testImpressions/count'), 200);
+
   splitio.Logger.enable();
   evaluationsStart = Date.now();
 

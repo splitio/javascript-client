@@ -450,7 +450,7 @@ let fullBrowserSettings: SplitIO.IBrowserSettings = {
   streamingEnabled: true,
   sync: {
     splitFilters: splitFilters,
-    impressionsMode: 'debug'
+    impressionsMode: 'DEBUG'
   }
 };
 fullBrowserSettings.storage.type = 'MEMORY';
@@ -489,7 +489,7 @@ let fullNodeSettings: SplitIO.INodeSettings = {
   streamingEnabled: false,
   sync: {
     splitFilters: splitFilters,
-    impressionsMode: 'optimized'
+    impressionsMode: 'OPTIMIZED'
   }
 };
 fullNodeSettings.storage.type = 'MEMORY';

@@ -44,6 +44,17 @@ tape('SDK destroy for NodeJS', async function (assert) {
     return 200;
   });
 
+  // Assert we are sending the impressions count while doing the destroy
+  fetchMock.postOnce(settings.url('/testImpressions/count'), (url, opts) => {
+    const impressionsCount = JSON.parse(opts.body);
+
+    assert.equal(impressionsCount.pf.length, 1);
+    assert.equal(impressionsCount.pf[0].f, 'Single_Test');
+    assert.equal(impressionsCount.pf[0].rc, 3);
+
+    return 200;
+  });
+
   // Events tracking do not need to wait for ready.
   client.track('nicolas.zelaya@split.io','tt', 'invalidEventType', 'invalid value' /* Invalid values are not tracked */);
   client.track('nicolas.zelaya@gmail.com','tt', 'validEventType', 1);
