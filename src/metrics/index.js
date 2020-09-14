@@ -36,17 +36,17 @@ import {
   MySegmentsCollector,
   ClientCollector
 } from './Collectors';
-import { OPTIMIZED, STANDALONE_MODE } from '../utils/constants';
+import { OPTIMIZED, CONSUMER_MODE } from '../utils/constants';
 
 const log = logFactory('splitio-metrics');
-const IMPRESSIONS_REFRESH_COUNT = 300000; // 5 minutes
+const IMPRESSIONS_COUNT_RATE = 300000; // 5 minutes
 
 const MetricsFactory = context => {
   let impressionsRetries = 0;
   const settings = context.get(context.constants.SETTINGS);
   const storage = context.get(context.constants.STORAGE);
   const impressionsCounter = context.get(context.constants.IMPRESSIONS_COUNTER);
-  const shouldPushImpressionsCount = settings.sync.impressionsMode === OPTIMIZED && settings.mode === STANDALONE_MODE;
+  const shouldPushImpressionsCount = settings.sync.impressionsMode === OPTIMIZED && settings.mode !== CONSUMER_MODE;
 
   const pushMetrics = () => {
     if (storage.metrics.isEmpty() && storage.count.isEmpty()) return Promise.resolve();
@@ -110,7 +110,7 @@ const MetricsFactory = context => {
 
     const pf = [];
     const impressionsCount = impressionsCounter.popAll();
-    log.info(`Pushing ${imprCounts} impressions count`);
+    log.info(`Pushing count of impressions for ${imprCounts} features`);
 
     const keys = Object.keys(impressionsCount);
     for (let i = 0; i < keys.length; i++) {
@@ -120,7 +120,7 @@ const MetricsFactory = context => {
       const timeFrame = splitted[1];
 
       const impressionsInTimeframe = {
-        t: featureName, // Test Name
+        f: featureName, // Test Name
         m: timeFrame, // Time Frame
         rc: impressionsCount[keys[i]] // Count
       };
@@ -136,11 +136,11 @@ const MetricsFactory = context => {
       })
       .catch(err => {
         if (impressionsRetries) { // For now we retry only once.
-          log.warn(`Droping ${imprCounts} impressions count after retry. Reason ${err}.`);
+          log.warn(`Droping count of impressions for ${imprCounts} features after retry. Reason ${err}.`);
           impressionsRetries = 0;
         } else {
           impressionsRetries++;
-          log.warn(`Failed to push ${imprCounts} impressions count, keeping data to retry on next iteration. Reason ${err}.`);
+          log.warn(`Failed to push impressions count for ${imprCounts} features, keeping data to retry on next iteration. Reason ${err}.`);
         }
       });
   };
@@ -164,7 +164,7 @@ const MetricsFactory = context => {
       if (shouldPushImpressionsCount) {
         stopImpressionsCountPublisher = repeat(
           schedulePublisher => pushImpressionsCount().then(() => schedulePublisher()),
-          IMPRESSIONS_REFRESH_COUNT
+          IMPRESSIONS_COUNT_RATE
         );
       }
     },

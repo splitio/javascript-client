@@ -19,14 +19,14 @@ import logFactory from '../utils/logger';
 import thenable from '../utils/promise/thenable';
 import ImpressionObserverFactory from '../impressions/observer';
 import { truncateTimeFrame } from '../utils/time';
-import { OPTIMIZED, STANDALONE_MODE } from '../utils/constants';
+import { OPTIMIZED, CONSUMER_MODE } from '../utils/constants';
 const log = logFactory('splitio-client:impressions-tracker');
 
 /**
  * Checks if impressions previous time should be added or not.
  */
 function shouldAddPt(settings) {
-  return settings.mode === STANDALONE_MODE ? true : false;
+  return settings.mode !== CONSUMER_MODE ? true : false;
 }
 
 /**
