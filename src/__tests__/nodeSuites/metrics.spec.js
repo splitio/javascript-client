@@ -47,6 +47,7 @@ export default async function(key, fetchMock, assert) {
   fetchMock.get(settings.url('/splitChanges?since=1457552620999'), { status: 200, body: splitChangesMock2 });
 
   fetchMock.postOnce(settings.url('/testImpressions/bulk'), 200);
+  fetchMock.postOnce(settings.url('/testImpressions/count'), 200);
 
   const splitio = SplitFactory(config);
   const client = splitio.client();

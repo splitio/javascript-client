@@ -18,16 +18,15 @@ import objectAssign from 'object-assign';
 import logFactory from '../utils/logger';
 import thenable from '../utils/promise/thenable';
 import ImpressionObserverFactory from '../impressions/observer';
-import ImpressionCounter from '../impressions/counter';
 import { truncateTimeFrame } from '../utils/time';
-import { OPTIMIZED, STANDALONE_MODE } from '../utils/constants';
+import { OPTIMIZED, PRODUCER_MODE, STANDALONE_MODE } from '../utils/constants';
 const log = logFactory('splitio-client:impressions-tracker');
 
 /**
  * Checks if impressions previous time should be added or not.
  */
 function shouldAddPt(settings) {
-  return settings.mode === STANDALONE_MODE ? true : false;
+  return [PRODUCER_MODE, STANDALONE_MODE].indexOf(settings.mode) > -1 ? true : false;
 }
 
 /**
@@ -49,7 +48,7 @@ function ImpressionsTracker(context) {
   const shouldAddPreviousTime = shouldAddPt(settings);
   const isOptimized = shouldBeOptimized(settings);
   const observer = ImpressionObserverFactory(); // Instantiates observer
-  const counter = new ImpressionCounter(); // Instantiates new counter for Impressions
+  const impressionsCounter = context.get(context.constants.IMPRESSIONS_COUNTER);
 
   return {
     queue: function (impression, attributes) {
@@ -71,9 +70,9 @@ function ImpressionsTracker(context) {
         }
 
         const now = Date.now();
-        if (isOptimized) {
+        if (isOptimized && impressionsCounter) {
           // Increments impression counter per featureName
-          counter.inc(impression.feature, now, 1);
+          impressionsCounter.inc(impression.feature, now, 1);
         }
 
         // Checks if the impression should be added in queue to be sent
