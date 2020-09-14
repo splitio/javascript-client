@@ -105,8 +105,8 @@ const MetricsFactory = context => {
   };
 
   const pushImpressionsCount = () => {
-    const imprCounts = impressionsCounter.size();
-    if (!impressionsCounter || imprCounts === 0) return Promise.resolve();
+    const imprCounts = impressionsCounter ? impressionsCounter.size() : 0;
+    if (imprCounts === 0) return Promise.resolve();
 
     const pf = [];
     const impressionsCount = impressionsCounter.popAll();
