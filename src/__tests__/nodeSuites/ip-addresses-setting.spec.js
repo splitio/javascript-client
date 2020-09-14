@@ -3,7 +3,7 @@ import ipFunction from 'ip';
 import { SplitFactory } from '../../';
 import SettingsFactory from '../../utils/settings';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
-import { STANDALONE_MODE, CONSUMER_MODE, DEBUG } from '../../utils/constants';
+import { STANDALONE_MODE, CONSUMER_MODE } from '../../utils/constants';
 
 // Header keys and expected values. Expected values are obtained with the runtime function evaluated with IPAddressesEnabled in true.
 const HEADER_SPLITSDKMACHINEIP = 'SplitSDKMachineIP';
@@ -19,10 +19,7 @@ const baseConfig = {
     impressionsRefreshRate: 1,
     eventsPushRate: 1
   },
-  streamingEnabled: false,
-  sync: {
-    impressionsMode: DEBUG,
-  }
+  streamingEnabled: false
 };
 
 // Config with IPAddressesEnabled set to false
@@ -137,6 +134,11 @@ export default function ipAddressesSettingAssertions(fetchMock, assert) {
         return 200;
       });
       fetchMock.post(settings.url(postEndpoint), 200);
+    });
+
+    fetchMock.postOnce(settings.url('/testImpressions/count'), (url, opts) => {
+      assertHeaders(settings.core.IPAddressesEnabled, opts);
+      return 200;
     });
 
     // Run normal client flow
