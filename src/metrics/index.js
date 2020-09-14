@@ -177,7 +177,7 @@ const MetricsFactory = context => {
     stop() {
       stopImpressionsPublisher && stopImpressionsPublisher();
       stopPerformancePublisher && stopPerformancePublisher();
-      if (shouldPushImpressionsCount) stopImpressionsCountPublisher && stopImpressionsCountPublisher();
+      stopImpressionsCountPublisher && stopImpressionsCountPublisher();
     },
 
     // Metrics collectors

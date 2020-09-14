@@ -48,7 +48,7 @@ function ImpressionsTracker(context) {
   const shouldAddPreviousTime = shouldAddPt(settings);
   const isOptimized = shouldBeOptimized(settings);
   const observer = ImpressionObserverFactory(); // Instantiates observer
-  const counter = context.get(context.constants.IMPRESSIONS_COUNTER);
+  const impressionsCounter = context.get(context.constants.IMPRESSIONS_COUNTER);
 
   return {
     queue: function (impression, attributes) {
@@ -72,7 +72,7 @@ function ImpressionsTracker(context) {
         const now = Date.now();
         if (isOptimized) {
           // Increments impression counter per featureName
-          counter.inc(impression.feature, now, 1);
+          impressionsCounter.inc(impression.feature, now, 1);
         }
 
         // Checks if the impression should be added in queue to be sent
