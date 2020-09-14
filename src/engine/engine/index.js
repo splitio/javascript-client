@@ -17,7 +17,7 @@ limitations under the License.
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-engine');
 import legacy from './legacy';
-import murmur from './murmur3';
+import murmur from './murmur3/murmur3';
 const MURMUR_ID = 2;
 
 /**
