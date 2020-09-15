@@ -1,5 +1,5 @@
 import ImpressionObserver from './observer';
-import { hashImpression32 } from '../hasher/browser';
+import { hashImpression32 } from '../hasher/hashImpression32';
 
 const LAST_SEEN_CACHE_SIZE = 500; // cache up to 500 impression hashes
 

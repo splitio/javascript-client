@@ -16,11 +16,16 @@ limitations under the License.
 import objectAssign from 'object-assign';
 import options from './options';
 
-function RequestFactory(settings, relativeUrl, params) {
+function parseCustomHeaders(extraHeaders, headers) {
+  if (!extraHeaders) return headers;
+  return objectAssign(headers, extraHeaders);
+}
+
+function RequestFactory(settings, relativeUrl, params, extraHeaders) {
   const token = settings.core.authorizationKey;
   const version = settings.version;
   const { ip, hostname } = settings.runtime;
-  const headers = {};
+  let headers = {};
   const baseline = options();
 
   headers['Accept'] = 'application/json';
@@ -30,6 +35,7 @@ function RequestFactory(settings, relativeUrl, params) {
 
   if (ip) headers['SplitSDKMachineIP'] = ip;
   if (hostname) headers['SplitSDKMachineName'] = hostname;
+  headers = parseCustomHeaders(extraHeaders, headers);
 
   return objectAssign({
     headers,

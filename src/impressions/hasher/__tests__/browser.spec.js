@@ -1,5 +1,5 @@
 import tape from 'tape-catch';
-import { hashImpression32 } from '../browser';
+import { hashImpression32 } from '../hashImpression32';
 
 tape('Hasher 32 / Impression Hasher Works', assert => {
   const imp1 = {

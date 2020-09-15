@@ -15,9 +15,13 @@ limitations under the License.
 **/
 import objectAssign from 'object-assign';
 import base from '../request';
+import { OPTIMIZED, PRODUCER_MODE, STANDALONE_MODE, DEBUG } from '../../utils/constants';
 
 export default function BULK(settings, params) {
   return base(settings, '/testImpressions/bulk', objectAssign({
     method: 'POST'
-  }, params));
+  }, params), {
+    SplitSDKImpressionsMode: ([PRODUCER_MODE, STANDALONE_MODE].indexOf(settings.mode) > -1 && settings.sync.impressionsMode === OPTIMIZED)
+      ? OPTIMIZED : DEBUG // Adding extra headers to send impressions in OPTIMIZED or DEBUG modes.
+  });
 }

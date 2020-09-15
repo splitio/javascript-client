@@ -1,5 +1,5 @@
 import tape from 'tape-catch';
-import { hashImpression128 } from '../node';
+import { hashImpression128 } from '../hashImpression128';
 
 tape('Hasher 128 / Impression Hasher Works', assert => {
   const imp1 = {

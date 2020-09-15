@@ -3,6 +3,7 @@ import SettingsFactory from '../../utils/settings';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
 import mySegmentsFacundo from '../mocks/mysegments.facundo@split.io.json';
+import { OPTIMIZED } from '../../utils/constants';
 
 const baseUrls = {
   sdk: 'https://sdk.baseurl/impressionsSuite',
@@ -76,6 +77,7 @@ export default function (fetchMock, assert) {
   });
   // Attach again to catch the retry.
   fetchMock.postOnce(settings.url('/testImpressions/bulk'), (url, req) => {
+    assert.equal(req.headers.SplitSDKImpressionsMode, OPTIMIZED);
     assert.comment('We do one retry, so after a failed impressions post we will try once more.');
     assertPayload(req);
 

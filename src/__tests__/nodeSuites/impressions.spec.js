@@ -3,6 +3,7 @@ import SettingsFactory from '../../utils/settings';
 import { SDK_NOT_READY } from '../../utils/labels';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
+import { OPTIMIZED } from '../../utils/constants';
 
 const baseUrls = {
   sdk: 'https://sdk.baseurl/impressionsSuite',
@@ -45,6 +46,7 @@ export default async function(key, fetchMock, assert) {
   let evaluationsStart = 0, readyEvaluationsStart = 0, evaluationsEnd = 0;
 
   fetchMock.postOnce(settings.url('/testImpressions/bulk'), (url, opts) => {
+    assert.equal(opts.headers.SplitSDKImpressionsMode, OPTIMIZED);
     const data = JSON.parse(opts.body);
 
     assert.equal(data.length, 3, 'We performed evaluations for three splits, so we should have 3 items total.');
@@ -114,6 +116,7 @@ export default async function(key, fetchMock, assert) {
     assert.equal(alwaysOnWithConfigImpr.rc, 2);
     assert.equal(notExistentSplitImpr.rc, 1);
 
+    return 200;
   });
   fetchMock.postOnce(settings.url('/testImpressions/count'), 200);
 
