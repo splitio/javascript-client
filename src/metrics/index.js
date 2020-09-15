@@ -121,7 +121,7 @@ const MetricsFactory = context => {
 
       const impressionsInTimeframe = {
         f: featureName, // Test Name
-        m: timeFrame, // Time Frame
+        m: Number(timeFrame), // Time Frame
         rc: impressionsCount[keys[i]] // Count
       };
 

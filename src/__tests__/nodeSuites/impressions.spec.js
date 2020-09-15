@@ -113,8 +113,11 @@ export default async function(key, fetchMock, assert) {
     const notExistentSplitImpr = data.pf.filter(e => e.f === 'not_existent_split')[0];
 
     assert.equal(dependencyChildImpr.rc, 1);
+    assert.equal(typeof dependencyChildImpr.m, 'number');
     assert.equal(alwaysOnWithConfigImpr.rc, 2);
+    assert.equal(typeof alwaysOnWithConfigImpr.m, 'number');
     assert.equal(notExistentSplitImpr.rc, 1);
+    assert.equal(typeof notExistentSplitImpr.m, 'number');
 
     return 200;
   });

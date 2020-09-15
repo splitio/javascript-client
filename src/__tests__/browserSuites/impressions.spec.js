@@ -98,7 +98,9 @@ export default function (fetchMock, assert) {
     const alwaysOnWithConfigImpr = data.pf.filter(e => e.f === 'split_with_config')[0];
 
     assert.equal(dependencyChildImpr.rc, 1);
+    assert.equal(typeof dependencyChildImpr.m, 'number');
     assert.equal(alwaysOnWithConfigImpr.rc, 3);
+    assert.equal(typeof alwaysOnWithConfigImpr.m, 'number');
 
     return 200;
   });
