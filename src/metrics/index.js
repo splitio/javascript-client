@@ -39,7 +39,7 @@ import {
 import { OPTIMIZED, PRODUCER_MODE, STANDALONE_MODE } from '../utils/constants';
 
 const log = logFactory('splitio-metrics');
-const IMPRESSIONS_COUNT_RATE = 300000; // 5 minutes
+const IMPRESSIONS_COUNT_RATE = 1800000; // 30 minutes
 
 const MetricsFactory = context => {
   let impressionsRetries = 0;

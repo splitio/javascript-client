@@ -56,8 +56,8 @@ const base = {
     segmentsRefreshRate: 60,
     // publish metrics each 120 sec
     metricsRefreshRate: 120,
-    // publish evaluations each 60 sec
-    impressionsRefreshRate: 60,
+    // publish evaluations each 5 min
+    impressionsRefreshRate: 300,
     // fetch offline changes each 15 sec
     offlineRefreshRate: 15,
     // publish events every 60 seconds after the first flush

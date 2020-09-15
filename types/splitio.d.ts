@@ -223,7 +223,7 @@ interface INodeBasicSettings extends ISharedSettings {
     /**
      * The SDK sends information on who got what treatment at what time back to Split servers to power analytics. This parameter controls how often this data is sent to Split servers. The parameter should be in seconds.
      * @property {number} impressionsRefreshRate
-     * @default 60
+     * @default 300
      */
     impressionsRefreshRate?: number,
     /**
@@ -819,7 +819,7 @@ declare namespace SplitIO {
       /**
        * The SDK sends information on who got what treatment at what time back to Split servers to power analytics. This parameter controls how often this data is sent to Split servers. The parameter should be in seconds.
        * @property {number} impressionsRefreshRate
-       * @default 60
+       * @default 300
        */
       impressionsRefreshRate?: number,
       /**
