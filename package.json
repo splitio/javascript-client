@@ -40,7 +40,7 @@
     "ip": "1.1.5",
     "js-yaml": "3.13.1",
     "lru-cache": "^6.0.0",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.1",
     "object-assign": "^4.1.1",
     "unfetch": "^4.1.0",
     "utfx": "1.0.1"
