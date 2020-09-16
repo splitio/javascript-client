@@ -1,6 +1,8 @@
 import tape from 'tape-catch';
 import sinon from 'sinon';
 import BrowserSignalListener from '../browser';
+import { DEBUG } from '../../utils/constants';
+import ImpressionsCounter from '../../impressions/counter';
 
 const UNLOAD_DOM_EVENT = 'unload';
 
@@ -59,14 +61,16 @@ const generateContextMocks = () => {
 };
 
 class ContextMock {
-  constructor(fakeStorage, fakeSettings) {
+  constructor(fakeStorage, fakeSettings, shouldCreateImpressionsCounter) {
     this.constants = {
       STORAGE: 'storage',
-      SETTINGS: 'settings'
+      SETTINGS: 'settings',
+      IMPRESSIONS_COUNTER: 'impressions_counter'
     };
 
     this.fakeStorage = fakeStorage;
     this.fakeSettings = fakeSettings;
+    this.impressionsCounter = shouldCreateImpressionsCounter ? new ImpressionsCounter() : undefined;
   }
 
   get(target) {
@@ -75,6 +79,8 @@ class ContextMock {
         return this.fakeStorage;
       case 'settings':
         return this.fakeSettings;
+      case 'impressions_counter':
+        return this.impressionsCounter;
       default:
         break;
     }
@@ -91,7 +97,41 @@ function triggerUnloadEvent() {
 
 tape('Browser JS / Browser listener class constructor, start and stop methods', function (assert) {
   const { fakeStorage, fakeSettings } = generateContextMocks();
-  const contextMock = new ContextMock(fakeStorage, fakeSettings);
+  const contextMock = new ContextMock(fakeStorage, fakeSettings, true);
+
+  const listener = new BrowserSignalListener(contextMock);
+
+  listener.start();
+
+  // Assigned right function to right signal.
+  assert.ok(windowAddEventListenerSpy.calledOnce);
+  assert.ok(windowAddEventListenerSpy.calledOnceWithExactly(UNLOAD_DOM_EVENT, listener.flushData));
+
+  triggerUnloadEvent();
+
+  setTimeout(() => {
+    // Unload event was triggered. Thus sendBeacon method should have been called three times.
+    assert.equal(sendBeaconSpy.callCount, 3);
+
+    // pre-check and call stop
+    assert.ok(windowRemoveEventListenerSpy.notCalled);
+    listener.stop();
+
+    // removed correct listener from correct signal on stop.
+    assert.ok(windowRemoveEventListenerSpy.calledOnce);
+    assert.ok(windowRemoveEventListenerSpy.calledOnceWithExactly(UNLOAD_DOM_EVENT, listener.flushData));
+
+    assert.end();
+  }, 0);
+
+});
+
+tape('Browser JS Debug Mode / Browser listener class constructor, start and stop methods', function (assert) {
+  const { fakeStorage, fakeSettings } = generateContextMocks();
+  fakeSettings.sync = {
+    impressionsMode: DEBUG
+  };
+  const contextMock = new ContextMock(fakeStorage, fakeSettings, false);
 
   const listener = new BrowserSignalListener(contextMock);
 

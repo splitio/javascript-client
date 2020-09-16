@@ -27,16 +27,14 @@ import {
 import impressionsService from '../services/impressions';
 import impressionsBulkRequest from '../services/impressions/bulk';
 import impressionsCountRequest from '../services/impressions/count';
-import {
-  fromImpressionsCollector
-} from '../services/impressions/dto';
+import { fromImpressionsCollector, fromImpressionsCountCollector } from '../services/impressions/dto';
 import {
   SegmentChangesCollector,
   SplitChangesCollector,
   MySegmentsCollector,
   ClientCollector
 } from './Collectors';
-import { OPTIMIZED, PRODUCER_MODE, STANDALONE_MODE } from '../utils/constants';
+import { OPTIMIZED } from '../utils/constants';
 
 const log = logFactory('splitio-metrics');
 const IMPRESSIONS_COUNT_RATE = 1800000; // 30 minutes
@@ -46,7 +44,7 @@ const MetricsFactory = context => {
   const settings = context.get(context.constants.SETTINGS);
   const storage = context.get(context.constants.STORAGE);
   const impressionsCounter = context.get(context.constants.IMPRESSIONS_COUNTER);
-  const shouldPushImpressionsCount = [PRODUCER_MODE, STANDALONE_MODE].indexOf(settings.mode) > -1 && settings.sync.impressionsMode === OPTIMIZED;
+  const shouldPushImpressionsCount = settings.sync.impressionsMode === OPTIMIZED;
 
   const pushMetrics = () => {
     if (storage.metrics.isEmpty() && storage.count.isEmpty()) return Promise.resolve();
@@ -105,28 +103,11 @@ const MetricsFactory = context => {
   };
 
   const pushImpressionsCount = () => {
-    const imprCounts = impressionsCounter ? impressionsCounter.size() : 0;
+    const pf = fromImpressionsCountCollector(impressionsCounter);
+    const imprCounts = pf.length;
     if (imprCounts === 0) return Promise.resolve();
 
-    const pf = [];
-    const impressionsCount = impressionsCounter.popAll();
     log.info(`Pushing count of impressions for ${imprCounts} features`);
-
-    const keys = Object.keys(impressionsCount);
-    for (let i = 0; i < keys.length; i++) {
-      const splitted = keys[i].split('::');
-      if (splitted.length !== 2) continue;
-      const featureName = splitted[0];
-      const timeFrame = splitted[1];
-
-      const impressionsInTimeframe = {
-        f: featureName, // Test Name
-        m: Number(timeFrame), // Time Frame
-        rc: impressionsCount[keys[i]] // Count
-      };
-
-      pf.push(impressionsInTimeframe);
-    }
 
     return impressionsService(impressionsCountRequest(settings, {
       body: JSON.stringify({ pf })

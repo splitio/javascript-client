@@ -43,3 +43,29 @@ export function fromImpressionsCollector(collector, settings) {
 
   return dto;
 }
+
+export function fromImpressionsCountCollector(collector) {
+  const imprCounts = collector ? collector.size() : 0;
+  const pf = [];
+  if (imprCounts === 0) return pf;
+
+  const impressionsCount = collector.popAll();
+
+  const keys = Object.keys(impressionsCount);
+  for (let i = 0; i < keys.length; i++) {
+    const splitted = keys[i].split('::');
+    if (splitted.length !== 2) continue;
+    const featureName = splitted[0];
+    const timeFrame = splitted[1];
+
+    const impressionsInTimeframe = {
+      f: featureName, // Test Name
+      m: Number(timeFrame), // Time Frame
+      rc: impressionsCount[keys[i]] // Count
+    };
+
+    pf.push(impressionsInTimeframe);
+  }
+
+  return pf;
+}

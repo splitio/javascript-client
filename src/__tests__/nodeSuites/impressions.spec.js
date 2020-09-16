@@ -4,6 +4,7 @@ import { SDK_NOT_READY } from '../../utils/labels';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
 import { OPTIMIZED } from '../../utils/constants';
+import { truncateTimeFrame } from '../../utils/time';
 
 const baseUrls = {
   sdk: 'https://sdk.baseurl/impressionsSuite',
@@ -35,6 +36,8 @@ const config = {
   streamingEnabled: false
 };
 
+let truncatedTimeFrame;
+
 export default async function(key, fetchMock, assert) {
   // Mocking this specific route to make sure we only get the items we want to test from the handlers.
   fetchMock.getOnce(settings.url('/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
@@ -57,7 +60,7 @@ export default async function(key, fetchMock, assert) {
     const notExistentSplitImpr = data.filter(e => e.f === 'not_existent_split')[0];
 
     assert.equal(notExistentSplitImpr.i.length, 1); // Only one, the split not found is filtered by the non existent Split check.
-    assert.equal(alwaysOnWithConfigImpr.i.length, 1);
+    assert.equal(alwaysOnWithConfigImpr.i.length, 2);
     assert.equal(dependencyChildImpr.i.length, 1);
 
     assert.true(dependencyChildImpr, 'Split we wanted to evaluate should be present on the impressions.');
@@ -114,10 +117,13 @@ export default async function(key, fetchMock, assert) {
 
     assert.equal(dependencyChildImpr.rc, 1);
     assert.equal(typeof dependencyChildImpr.m, 'number');
-    assert.equal(alwaysOnWithConfigImpr.rc, 2);
+    assert.equal(dependencyChildImpr.m, truncatedTimeFrame);
+    assert.equal(alwaysOnWithConfigImpr.rc, 3);
     assert.equal(typeof alwaysOnWithConfigImpr.m, 'number');
+    assert.equal(alwaysOnWithConfigImpr.m, truncatedTimeFrame);
     assert.equal(notExistentSplitImpr.rc, 1);
     assert.equal(typeof notExistentSplitImpr.m, 'number');
+    assert.equal(notExistentSplitImpr.m, truncatedTimeFrame);
 
     return 200;
   });
@@ -131,6 +137,7 @@ export default async function(key, fetchMock, assert) {
   await client.ready();
 
   readyEvaluationsStart = Date.now();
+  truncatedTimeFrame = truncateTimeFrame(readyEvaluationsStart);
 
   // depends on hierarchical_dep_hierarchical which depends on hierarchical_dep_always_on
   assert.equal(client.getTreatment(key, 'not_existent_split'), 'control', 'If we try to get an evaluation for a non existent split AFTER the client is ready, it won\'t log an impression.');
@@ -143,6 +150,7 @@ export default async function(key, fetchMock, assert) {
     config: '{"color":"brown","dimensions":{"height":12,"width":14},"text":{"inner":"click me"}}'
   }, 'We should get an evaluation as always.');
   client.getTreatmentWithConfig({ matchingKey: key, bucketingKey: 'test_buck_key'}, 'split_with_config');
+  client.getTreatmentWithConfig({ matchingKey: 'different', bucketingKey: 'test_buck_key'}, 'split_with_config');
   splitio.Logger.disable();
 
   evaluationsEnd = Date.now();
