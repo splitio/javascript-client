@@ -79,12 +79,12 @@ export default class BrowserSignalListener {
   }
 
   _flushImpressionsCount() {
-    const pf = fromImpressionsCountCollector(this.impressionsCounter);
-    const imprCounts = pf.length;
+    const impressionsCountPayload = { pf: fromImpressionsCountCollector(this.impressionsCounter)};
+    const imprCounts = impressionsCountPayload.pf.length;
     if (imprCounts === 0) return;
     const url = this.settings.url('/testImpressions/count/beacon');
-    if (!this._sendBeacon(url, pf)) {
-      impressionsService(impressionsCountRequest(this.settings, { body: JSON.stringify(pf) }));
+    if (!this._sendBeacon(url, impressionsCountPayload)) {
+      impressionsService(impressionsCountRequest(this.settings, { body: JSON.stringify(impressionsCountPayload) }));
     }
   }
 

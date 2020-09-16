@@ -110,7 +110,7 @@ const MetricsFactory = context => {
     log.info(`Pushing count of impressions for ${imprCounts} features`);
 
     return impressionsService(impressionsCountRequest(settings, {
-      body: JSON.stringify(pf)
+      body: JSON.stringify({ pf })
     }))
       .then(() => {
         impressionsRetries = 0;

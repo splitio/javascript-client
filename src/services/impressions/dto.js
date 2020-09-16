@@ -67,5 +67,5 @@ export function fromImpressionsCountCollector(collector) {
     pf.push(impressionsInTimeframe);
   }
 
-  return { pf };
+  return pf;
 }

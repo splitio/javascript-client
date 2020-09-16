@@ -4,6 +4,7 @@ import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
 import mySegmentsFacundo from '../mocks/mysegments.facundo@split.io.json';
 import { OPTIMIZED } from '../../utils/constants';
+import { truncateTimeFrame } from '../../utils/time';
 
 const baseUrls = {
   sdk: 'https://sdk.baseurl/impressionsSuite',
@@ -17,6 +18,8 @@ const settings = SettingsFactory({
   urls: baseUrls,
   streamingEnabled: false
 });
+
+let truncatedTimeFrame;
 
 export default function (fetchMock, assert) {
   // Mocking this specific route to make sure we only get the items we want to test from the handlers.
@@ -99,14 +102,17 @@ export default function (fetchMock, assert) {
 
     assert.equal(dependencyChildImpr.rc, 1);
     assert.equal(typeof dependencyChildImpr.m, 'number');
+    assert.equal(dependencyChildImpr.m, truncatedTimeFrame);
     assert.equal(alwaysOnWithConfigImpr.rc, 3);
     assert.equal(typeof alwaysOnWithConfigImpr.m, 'number');
+    assert.equal(alwaysOnWithConfigImpr.m, truncatedTimeFrame);
 
     return 200;
   });
   fetchMock.postOnce(settings.url('/testImpressions/count'), 200);
 
   client.ready().then(() => {
+    truncatedTimeFrame = truncateTimeFrame(Date.now());
     // depends on hierarchical_dep_hierarchical which depends on hierarchical_dep_always_on
     assert.equal(client.getTreatment('hierarchical_splits_test'), 'on', 'We should get an evaluation as always.');
     assert.deepEqual(client.getTreatmentWithConfig('split_with_config'), {
