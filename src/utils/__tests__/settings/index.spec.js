@@ -226,7 +226,8 @@ tape('SETTINGS / urls should be correctly assigned', assert => {
     '/events/bulk',
     '/events/beacon',
     '/testImpressions/bulk',
-    '/testImpressions/beacon'
+    '/testImpressions/beacon',
+    '/testImpressions/count/beacon'
   ].forEach(relativeUrl => {
     assert.equal(settings.url(relativeUrl), `${baseEventsUrl}${relativeUrl}`, `Our settings URL function should use ${baseEventsUrl} as base for ${relativeUrl}`);
   });
