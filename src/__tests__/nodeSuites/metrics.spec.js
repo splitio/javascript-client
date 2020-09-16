@@ -2,6 +2,7 @@ import { SplitFactory } from '../../';
 import SettingsFactory from '../../utils/settings';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
+import { OPTIMIZED } from '../../utils/constants';
 
 const baseUrls = {
   sdk: 'https://sdk.baseurl/metricsSuite',
@@ -46,7 +47,10 @@ export default async function(key, fetchMock, assert) {
   // Should not execute but adding just in case.
   fetchMock.get(settings.url('/splitChanges?since=1457552620999'), { status: 200, body: splitChangesMock2 });
 
-  fetchMock.postOnce(settings.url('/testImpressions/bulk'), 200);
+  fetchMock.postOnce(settings.url('/testImpressions/bulk'), (url, opts) => {
+    assert.equal(opts.headers.SplitSDKImpressionsMode, OPTIMIZED);
+    return 200;
+  });
   fetchMock.postOnce(settings.url('/testImpressions/count'), 200);
 
   const splitio = SplitFactory(config);

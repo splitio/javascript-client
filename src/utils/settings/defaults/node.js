@@ -14,7 +14,8 @@ export default {
     eventsFirstPushWindow: 0
   },
   scheduler: {
-    featuresRefreshRate: 5
+    featuresRefreshRate: 5,
+    impressionsRefreshRate: 300
   },
   features: '.split'
 };

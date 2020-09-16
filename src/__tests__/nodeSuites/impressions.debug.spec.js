@@ -48,6 +48,7 @@ export default async function(key, fetchMock, assert) {
   let evaluationsStart = 0, readyEvaluationsStart = 0, evaluationsEnd = 0;
 
   fetchMock.postOnce(settings.url('/testImpressions/bulk'), (url, opts) => {
+    assert.equal(opts.headers.SplitSDKImpressionsMode, DEBUG);
     const data = JSON.parse(opts.body);
 
     assert.equal(data.length, 1, 'We performed evaluations for one split, so we should have 1 item total.');

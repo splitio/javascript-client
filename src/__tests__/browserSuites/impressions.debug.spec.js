@@ -79,6 +79,7 @@ export default function (fetchMock, assert) {
   };
 
   fetchMock.postOnce(settings.url('/testImpressions/bulk'), (url, req) => {
+    assert.equal(req.headers.SplitSDKImpressionsMode, DEBUG);
     assertPayload(req);
 
     client.destroy();

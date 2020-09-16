@@ -16,7 +16,8 @@ limitations under the License.
 import tape from 'tape-catch';
 import fs from 'fs';
 import rl from 'readline';
-import utils from '../../../engine/murmur3';
+import utils from '../../../engine/murmur3/murmur3';
+import { hash128 } from '../../../engine/murmur3/murmur3_128';
 
 [
   'murmur3-sample-v4.csv',
@@ -26,7 +27,7 @@ import utils from '../../../engine/murmur3';
   'murmur3-sample-double-treatment-users.csv'
 ].forEach(filename => {
 
-  tape('MURMUR3 / validate hashing behavior using sample data', assert => {
+  tape('MURMUR3 32 / validate hashing behavior using sample data', assert => {
     const parser = rl.createInterface({
       terminal: false,
       input: fs.createReadStream(require.resolve(`../mocks/${filename}`))
@@ -88,7 +89,7 @@ function dec2hex(str) {
           let [key, seed, hash] = parts;
 
           seed = parseInt(seed, 10);
-          const result = utils.hash128(key, seed);
+          const result = hash128(key, seed);
 
           assert.equal(result.substring(0, 16), dec2hex(hash).padStart(16, '0'));
         }
