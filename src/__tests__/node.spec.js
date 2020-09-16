@@ -5,11 +5,13 @@ import SettingsFactory from '../utils/settings';
 import evaluationsSuite from './nodeSuites/evaluations.spec';
 import eventsSuite from './nodeSuites/events.spec';
 import impressionsSuite from './nodeSuites/impressions.spec';
+import impressionsSuiteDebug from './nodeSuites/impressions.debug.spec';
 import metricsSuite from './nodeSuites/metrics.spec';
 import impressionsListenerSuite from './nodeSuites/impressions-listener.spec';
 import expectedTreatmentsSuite from './nodeSuites/expected-treatments.spec';
 import managerSuite from './nodeSuites/manager.spec';
 import ipAddressesSetting from './nodeSuites/ip-addresses-setting.spec';
+import ipAddressesSettingDebug from './nodeSuites/ip-addresses-setting.debug.spec';
 import readyPromiseSuite from './nodeSuites/ready-promise.spec';
 import fetchSpecificSplits from './nodeSuites/fetch-specific-splits.spec';
 
@@ -50,6 +52,7 @@ fetchMock.get(new RegExp(`${settings.url('/segmentChanges')}/*`), {
   }
 });
 fetchMock.post(settings.url('/testImpressions/bulk'), 200);
+fetchMock.post(settings.url('/testImpressions/count'), 200);
 
 tape('## Node JS - E2E CI Tests ##', async function (assert) {
   /* Check client evaluations. */
@@ -57,6 +60,7 @@ tape('## Node JS - E2E CI Tests ##', async function (assert) {
 
   /* Check impressions */
   assert.test('E2E / Impressions', impressionsSuite.bind(null, key, fetchMock));
+  assert.test('E2E / Impressions Debug Mode', impressionsSuiteDebug.bind(null, key, fetchMock));
   assert.test('E2E / Impressions listener', impressionsListenerSuite);
 
   /* Check metrics */
@@ -73,6 +77,7 @@ tape('## Node JS - E2E CI Tests ##', async function (assert) {
 
   /* Check IP address and Machine name headers when IP address setting is enabled and disabled */
   assert.test('E2E / IP Addresses Setting', ipAddressesSetting.bind(null, fetchMock));
+  assert.test('E2E / IP Addresses Setting Debug', ipAddressesSettingDebug.bind(null, fetchMock));
 
   /* Validate readiness with ready promises */
   assert.test('E2E / Ready promise', readyPromiseSuite.bind(null, key, fetchMock));

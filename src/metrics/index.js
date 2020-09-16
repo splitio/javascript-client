@@ -26,22 +26,25 @@ import {
 } from '../services/metrics/dto';
 import impressionsService from '../services/impressions';
 import impressionsBulkRequest from '../services/impressions/bulk';
-import {
-  fromImpressionsCollector
-} from '../services/impressions/dto';
+import impressionsCountRequest from '../services/impressions/count';
+import { fromImpressionsCollector, fromImpressionsCountCollector } from '../services/impressions/dto';
 import {
   SegmentChangesCollector,
   SplitChangesCollector,
   MySegmentsCollector,
   ClientCollector
 } from './Collectors';
+import { OPTIMIZED } from '../utils/constants';
 
 const log = logFactory('splitio-metrics');
+const IMPRESSIONS_COUNT_RATE = 1800000; // 30 minutes
 
 const MetricsFactory = context => {
   let impressionsRetries = 0;
   const settings = context.get(context.constants.SETTINGS);
   const storage = context.get(context.constants.STORAGE);
+  const impressionsCounter = context.get(context.constants.IMPRESSIONS_COUNTER);
+  const shouldPushImpressionsCount = settings.sync.impressionsMode === OPTIMIZED;
 
   const pushMetrics = () => {
     if (storage.metrics.isEmpty() && storage.count.isEmpty()) return Promise.resolve();
@@ -99,8 +102,33 @@ const MetricsFactory = context => {
       .then(() => latencyTrackerStop());
   };
 
+  const pushImpressionsCount = () => {
+    const pf = fromImpressionsCountCollector(impressionsCounter);
+    const imprCounts = pf.length;
+    if (imprCounts === 0) return Promise.resolve();
+
+    log.info(`Pushing count of impressions for ${imprCounts} features`);
+
+    return impressionsService(impressionsCountRequest(settings, {
+      body: JSON.stringify({ pf })
+    }))
+      .then(() => {
+        impressionsRetries = 0;
+      })
+      .catch(err => {
+        if (impressionsRetries) { // For now we retry only once.
+          log.warn(`Droping count of impressions for ${imprCounts} features after retry. Reason ${err}.`);
+          impressionsRetries = 0;
+        } else {
+          impressionsRetries++;
+          log.warn(`Failed to push impressions count for ${imprCounts} features, keeping data to retry on next iteration. Reason ${err}.`);
+        }
+      });
+  };
+
   let stopImpressionsPublisher = false;
   let stopPerformancePublisher = false;
+  let stopImpressionsCountPublisher = false;
 
   return {
     start() {
@@ -113,15 +141,24 @@ const MetricsFactory = context => {
         schedulePublisher => pushMetrics().then(() => schedulePublisher()),
         settings.scheduler.metricsRefreshRate
       );
+
+      if (shouldPushImpressionsCount) {
+        stopImpressionsCountPublisher = repeat(
+          schedulePublisher => pushImpressionsCount().then(() => schedulePublisher()),
+          IMPRESSIONS_COUNT_RATE
+        );
+      }
     },
 
     flush() {
+      if (shouldPushImpressionsCount) pushImpressionsCount();
       return pushImpressions();
     },
 
     stop() {
       stopImpressionsPublisher && stopImpressionsPublisher();
       stopPerformancePublisher && stopPerformancePublisher();
+      stopImpressionsCountPublisher && stopImpressionsCountPublisher();
     },
 
     // Metrics collectors

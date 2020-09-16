@@ -13,6 +13,7 @@ import sdkStatusManager from './readiness/statusManager';
 import { LOCALHOST_MODE } from './utils/constants';
 import { validateApiKey, validateKey, validateTrafficType } from './utils/inputValidation';
 import IntegrationsManagerFactory from './integrations';
+import ImpressionCounter from './impressions/counter';
 
 const buildInstanceId = (key, trafficType) => `${key.matchingKey ? key.matchingKey : key}-${key.bucketingKey ? key.bucketingKey : key}-${trafficType !== undefined ? trafficType : ''}`;
 
@@ -46,6 +47,10 @@ export function SplitFactory(config) {
   // Put storage config within context
   const storage = StorageFactory(context);
   context.put(context.constants.STORAGE, storage);
+
+  // Put counter
+  const impressionsCounter = new ImpressionCounter(); // Instantiates new counter for Impressions
+  context.put(context.constants.IMPRESSIONS_COUNTER, impressionsCounter);
 
   // Put integrationsManager within context.
   // It needs to access the storage, settings and potentially other pieces, so it's registered after them.
@@ -107,7 +112,7 @@ export function SplitFactory(config) {
         sharedContext.put(context.constants.STATUS_MANAGER, sdkStatusManager(sharedContext, -1));
         sharedContext.put(context.constants.SETTINGS, sharedSettings);
         sharedContext.put(context.constants.STORAGE, storage.shared(sharedSettings));
-
+        sharedContext.put(context.constants.IMPRESSIONS_COUNTER, impressionsCounter);
         // As shared clients reuse all the storage information, we don't need to check here if we
         // will use offline or online mode. We should stick with the original decision.
         clientInstances[instanceId] = splitFactory(sharedContext, false, mainClientMetricCollectors).api;

@@ -115,7 +115,7 @@ tape('BINARY SEARCH / run test using float keys', assert => {
   const KEYS = [
     1, 1.5, 2.25, 3.38, 5.06, 7.59, 11.39, 17.09, 25.63, 38.44,
     57.67, 86.5, 129.75, 194.62, 291.93, 437.89, 656.84, 985.26, 1477.89,
-    2216.84, 3325.26, 4987.89, 77481.83
+    2216.84, 3325.26, 4987.89, 7481.83
   ];
 
   let searchFor = bs.bind(null, KEYS);
@@ -129,7 +129,7 @@ tape('BINARY SEARCH / run test using float keys', assert => {
   index = searchFor(500.55);
   assert.true(index === 15, `expected value 15, returned ${index}`);
 
-  index = searchFor(77481.83);
+  index = searchFor(7481.83);
   assert.true(index === 22, `expected value 22, returned ${index}`);
 
   index = searchFor(80000);

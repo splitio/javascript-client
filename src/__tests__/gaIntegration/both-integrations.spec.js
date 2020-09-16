@@ -2,10 +2,11 @@ import { SplitFactory } from '../..';
 import SettingsFactory from '../../utils/settings';
 import { gaSpy, gaTag } from './gaTestUtils';
 import includes from 'lodash/includes';
+import { DEBUG } from '../../utils/constants';
 
 function countImpressions(parsedImpressionsBulkPayload) {
   return parsedImpressionsBulkPayload
-    .reduce((accumulator, currentValue) => { return accumulator + currentValue.keyImpressions.length; }, 0);
+    .reduce((accumulator, currentValue) => { return accumulator + currentValue.i.length; }, 0);
 }
 
 const config = {
@@ -18,7 +19,10 @@ const config = {
   }, {
     type: 'SPLIT_TO_GOOGLE_ANALYTICS',
   }],
-  streamingEnabled: false
+  streamingEnabled: false,
+  sync: {
+    impressionsMode: DEBUG,
+  }
 };
 const settings = SettingsFactory(config);
 

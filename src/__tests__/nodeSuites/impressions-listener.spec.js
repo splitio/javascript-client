@@ -46,16 +46,17 @@ export default function(assert) {
     client.getTreatment('nicolas@split.io', 'hierarchical_splits_test');
     client.getTreatment({ matchingKey: 'marcio@split.io', bucketingKey: 'impr_bucketing_2' }, 'qc_team');
     client.getTreatment('facundo@split.io', 'qc_team', testAttrs);
+    client.getTreatment('facundo@split.io', 'qc_team', testAttrs);
 
     setTimeout(() => {
-      assert.true(listener.logImpression.calledThrice, 'Impression listener logImpression method should be called after we call client.getTreatment, once per each impression generated.');
+      assert.true(listener.logImpression.callCount, 4, 'Impression listener logImpression method should be called after we call client.getTreatment, once per each impression generated.');
       assert.true(listener.logImpression.getCall(0).calledWithMatch({
         impression: {
           feature: 'hierarchical_splits_test',
           keyName: 'nicolas@split.io',
           treatment: 'on',
           bucketingKey: undefined,
-          label: 'expected label'
+          label: 'expected label',
         },
         attributes: undefined,
         ...metaData
@@ -66,7 +67,7 @@ export default function(assert) {
           keyName: 'marcio@split.io',
           treatment: 'no',
           bucketingKey: 'impr_bucketing_2',
-          label: 'default rule'
+          label: 'default rule',
         },
         attributes: undefined,
         ...metaData
@@ -77,7 +78,19 @@ export default function(assert) {
           keyName: 'facundo@split.io',
           treatment: 'no',
           bucketingKey: undefined,
-          label: 'default rule'
+          label: 'default rule',
+        },
+        attributes: testAttrs,
+        ...metaData
+      }));
+      assert.true(listener.logImpression.getCall(3).calledWithMatch({
+        impression: {
+          feature: 'qc_team',
+          keyName: 'facundo@split.io',
+          treatment: 'no',
+          bucketingKey: undefined,
+          label: 'default rule',
+          pt: listener.logImpression.getCall(2).lastArg.impression.time
         },
         attributes: testAttrs,
         ...metaData

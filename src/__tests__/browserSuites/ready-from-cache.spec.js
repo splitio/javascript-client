@@ -157,6 +157,7 @@ export default function (fetchMock, assert) {
       return new Promise(res => { setTimeout(() => res({ status: 200, body: { 'mySegments': [] }, headers: {} }), 1000); }); // Third client mySegments will come after 1s
     });
     fetchMock.postOnce(testUrls.events + '/testImpressions/bulk', 200);
+    fetchMock.postOnce(testUrls.events + '/testImpressions/count', 200);
 
     localStorage.setItem('some_user_item', 'user_item');
     localStorage.setItem('readyFromCache_2.SPLITIO.splits.till', 25);
@@ -264,6 +265,7 @@ export default function (fetchMock, assert) {
       return new Promise(res => { setTimeout(() => res({ status: 200, body: { 'mySegments': [] }, headers: {} }), 1000); }); // Third client mySegments will come after 1s
     });
     fetchMock.postOnce(testUrls.events + '/testImpressions/bulk', 200);
+    fetchMock.postOnce(testUrls.events + '/testImpressions/count', 200);
 
     localStorage.setItem('some_user_item', 'user_item');
     localStorage.setItem('readyFromCache_3.SPLITIO.splits.till', 25);
@@ -373,6 +375,7 @@ export default function (fetchMock, assert) {
       return new Promise(res => { setTimeout(() => res({ status: 200, body: { 'mySegments': [] }, headers: {} }), 1000); }); // Third client mySegments will come after 1s
     });
     fetchMock.postOnce(testUrls.events + '/testImpressions/bulk', 200);
+    fetchMock.postOnce(testUrls.events + '/testImpressions/count', 200);
 
     localStorage.setItem('some_user_item', 'user_item');
     localStorage.setItem('readyFromCache_4.SPLITIO.splits.till', 25);

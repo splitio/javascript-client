@@ -16,7 +16,7 @@ limitations under the License.
 import objectAssign from 'object-assign';
 import options from './options';
 
-function RequestFactory(settings, relativeUrl, params) {
+function RequestFactory(settings, relativeUrl, params, extraHeaders) {
   const token = settings.core.authorizationKey;
   const version = settings.version;
   const { ip, hostname } = settings.runtime;
@@ -30,6 +30,7 @@ function RequestFactory(settings, relativeUrl, params) {
 
   if (ip) headers['SplitSDKMachineIP'] = ip;
   if (hostname) headers['SplitSDKMachineName'] = hostname;
+  if (extraHeaders) objectAssign(headers, extraHeaders);
 
   return objectAssign({
     headers,
