@@ -85,7 +85,7 @@ export function setToArray(set) {
  */
 function getSetConstructor() {
   // eslint-disable-next-line compat/compat
-  if (!Array.from || !Set || !Set.prototype.values) {
+  if (!Array.from || typeof Set === 'undefined' || !Set.prototype || !Set.prototype.values) {
     return SetPoly;
   }
   return Set;
