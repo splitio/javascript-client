@@ -1,5 +1,5 @@
 10.14.2 (XXX XX, 2020)
- - Bugfixing - updated the feature detection of Set global constructor to avoid reference errors.
+ - Bugfixing - updated the feature detection of Set global constructor to avoid possible reference errors.
 
 10.14.1 (Aug 13, 2020)
  - Updated push streaming support for Node to optimize requests to Split services.
