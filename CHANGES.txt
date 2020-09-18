@@ -1,4 +1,4 @@
-10.XX.X (XXX XX, 2020)
+10.14.2 (XXX XX, 2020)
  - Bugfixing - updated the feature detection of Set global constructor to avoid reference errors.
 
 10.14.1 (Aug 13, 2020)
