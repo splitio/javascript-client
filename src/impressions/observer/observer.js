@@ -1,10 +1,8 @@
-import LRU from 'lru-cache';
+import LRU from '../../utils/lrucache/lrucache';
 
 class ImpressionObserver {
   constructor(size, hasher) {
-    this.cache = new LRU({
-      max: size,
-    });
+    this.cache = new LRU(size);
     this.hasher = hasher;
   }
 
