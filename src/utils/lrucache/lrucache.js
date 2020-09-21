@@ -1,11 +1,11 @@
 import { LinkedList, Node } from './linkedlist';
 
-const _Map = typeof Map !== 'undefined' ? Map : class MyMap {
+const _Map = typeof Map !== 'undefined' ? Map : class MapPoly { // @TODO move this util into its own file
   constructor() { }
   set(key, value) { this[key] = value; }
   get(key) { return this[key]; }
   delete(key) { delete this[key]; }
-  size() { return Object.keys(this); }
+  get size() { return Object.keys(this).length; }
 };
 
 class LRUCache {

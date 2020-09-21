@@ -10,7 +10,6 @@
         - `DEBUG`: will send every impression generated to Split.
  - Updated JSON bulk properties for Impressions to decrease the payload size.
  - Updated `ImpressionsTracker` and `ImpressionTracker` to be only one and be used for both type of evaluations: `getTreatment` and `getTreatments`.
- - Updated `node-fetch` package to fix a dependency vulnerability.
  - Bugfixing - added URI encoding of user keys to avoid HTTP errors when fetching MySegments for keys with special characters.
 
 10.14.2 (Sep 18, 2020)
