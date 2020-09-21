@@ -85,10 +85,10 @@ export function setToArray(set) {
  */
 function getSetConstructor() {
   // eslint-disable-next-line compat/compat
-  if (!Array.from || !Set || !Set.prototype.values) {
-    return SetPoly;
+  if (Array.from && typeof Set === 'function' && Set.prototype && Set.prototype.values) {
+    return Set;
   }
-  return Set;
+  return SetPoly;
 }
 
 export const _Set = getSetConstructor();

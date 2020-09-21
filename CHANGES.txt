@@ -10,8 +10,11 @@
         - `DEBUG`: will send every impression generated to Split.
  - Updated JSON bulk properties for Impressions to decrease the payload size.
  - Updated `ImpressionsTracker` and `ImpressionTracker` to be only one and be used for both type of evaluations: `getTreatment` and `getTreatments`.
- - Updated `node-fetch` package to fix a dependency vulnerability.
  - Bugfixing - added URI encoding of user keys to avoid HTTP errors when fetching MySegments for keys with special characters.
+
+10.14.2 (Sep 18, 2020)
+ - Updated `node-fetch` dependency to fix a vulnerability.
+ - Bugfixing - updated the feature detection of Set global constructor to avoid possible reference errors.
 
 10.14.1 (Aug 13, 2020)
  - Updated push streaming support for Node to optimize requests to Split services.
@@ -665,7 +668,7 @@ var sdk = splitio({
 
  - New features
 
-  - Based on users feedback, the new recommended values for all the refresh rates are:
+ - Based on users feedback, the new recommended values for all the refresh rates are:
 
 ```js
 scheduler: {
