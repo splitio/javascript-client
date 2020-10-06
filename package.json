@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio",
-  "version": "10.14.2-canary.3",
+  "version": "10.15.0",
   "description": "Split SDK",
   "files": [
     "README.md",
