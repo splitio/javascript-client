@@ -1,4 +1,4 @@
-10.15.1 (XXX XX, 2020)
+10.15.0 (Oct 6, 2020)
  - Added impressions dedupe logic to avoid sending duplicated impressions:
     - Added `ImpressionsCount` cache to count impressions generated per feature.
     - Added `ImpressionObserver` to detect previous generated impression.
