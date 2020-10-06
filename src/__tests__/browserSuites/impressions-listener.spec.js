@@ -78,7 +78,7 @@ export default function(assert) {
         ...metaData
       }));
       assert.true(listener.logImpression.getCall(2).calledWithMatch({
-        impression: Object.assign(secondImpression, { pt: listener.logImpression.getCall(2).lastArg.impression.time }),
+        impression: Object.assign(secondImpression, { pt: listener.logImpression.getCall(1).lastArg.impression.time }),
         attributes: undefined,
         ...metaData
       }));
