@@ -1,3 +1,17 @@
+10.15.0 (Oct 6, 2020)
+ - Added impressions dedupe logic to avoid sending duplicated impressions:
+    - Added `ImpressionsCount` cache to count impressions generated per feature.
+    - Added `ImpressionObserver` to detect previous generated impression.
+    - Added new endpoint (`testImpressions/count`) to send all the generated impressions in a time frame.
+    - Added beacon endpoint for ImpressionsCount.
+    - Added murmur3 128 bits hashing and splitted logic between browser and node.
+    - Added `OPTIMIZED` and `DEBUG` modes in order to enabling/disabling how impressions are going to be sent into Split servers,
+        - `OPTIMIZED`: will send unique impressions in a timeframe in order to reduce how many times impressions are posted to Split.
+        - `DEBUG`: will send every impression generated to Split.
+ - Updated JSON bulk properties for Impressions to decrease the payload size.
+ - Updated `ImpressionsTracker` and `ImpressionTracker` to be only one and be used for both type of evaluations: `getTreatment` and `getTreatments`.
+ - Bugfixing - added URI encoding of user keys to avoid HTTP errors when fetching MySegments for keys with special characters.
+
 10.14.2 (Sep 18, 2020)
  - Updated `node-fetch` dependency to fix a vulnerability.
  - Bugfixing - updated the feature detection of Set global constructor to avoid possible reference errors.

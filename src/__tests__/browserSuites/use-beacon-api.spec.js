@@ -19,7 +19,7 @@ const config = {
 const settings = SettingsFactory(config);
 
 // Spy calls to Beacon API method
-const sendBeaconSpy = sinon.spy(window.navigator, 'sendBeacon');
+let sendBeaconSpy;
 
 // util method to trigger 'unload' event
 function triggerUnloadEvent() {
@@ -30,10 +30,10 @@ function triggerUnloadEvent() {
 }
 
 const assertImpressionSent = (assert, impression) => {
-  assert.equal(impression.testName, 'hierarchical_splits_test', 'Present impression should have the correct split name.');
-  assert.equal(impression.keyImpressions[0].keyName, 'facundo@split.io', 'Present impression should have the correct key.');
-  assert.equal(impression.keyImpressions[0].label, 'expected label', 'Present impression should have the correct label.');
-  assert.equal(impression.keyImpressions[0].treatment, 'on', 'Present impression should have the correct treatment.');
+  assert.equal(impression.f, 'hierarchical_splits_test', 'Present impression should have the correct split name.');
+  assert.equal(impression.i[0].k, 'facundo@split.io', 'Present impression should have the correct key.');
+  assert.equal(impression.i[0].r, 'expected label', 'Present impression should have the correct label.');
+  assert.equal(impression.i[0].t, 'on', 'Present impression should have the correct treatment.');
 };
 
 const assertEventSent = (assert, event) => {
@@ -42,8 +42,15 @@ const assertEventSent = (assert, event) => {
   assert.equal(event.trafficTypeName, 'sometraffictype', 'TrafficTypeName should match the binded value.');
 };
 
+const assertImpressionsCountSent = (assert, impressionCount) => {
+  assert.equal(impressionCount.pf.length, 1, 'It should sent one impression count.');
+  assert.equal(impressionCount.pf[0].f, 'hierarchical_splits_test', 'Present impression count should have the correct split name.');
+  assert.equal(impressionCount.pf[0].rc, 1, 'It should be one.');
+  assert.equal(typeof impressionCount.pf[0].m, 'number', 'It should be number.');
+};
+
 const assertCallsToBeaconAPI = (assert) => {
-  assert.ok(sendBeaconSpy.calledTwice, 'sendBeacon should have been called twice');
+  assert.ok(sendBeaconSpy.calledThrice, 'sendBeacon should have been called thrice');
 
   // The first call is for flushing impressions
   const impressionsCallArgs = sendBeaconSpy.firstCall.args;
@@ -60,15 +67,24 @@ const assertCallsToBeaconAPI = (assert) => {
   assert.equal(parsedPayload.token, '...', 'assert correct payload token');
   assert.equal(parsedPayload.sdk, settings.version, 'assert correct sdk version');
   assertEventSent(assert, parsedPayload.entries[0]);
+
+  // The third call is for flushing impressions count
+  const impressionsCountCallArgs = sendBeaconSpy.thirdCall.args;
+  assert.equal(impressionsCountCallArgs[0], settings.url('/testImpressions/count/beacon'), 'assert correct url');
+  parsedPayload = JSON.parse(impressionsCountCallArgs[1]);
+  assert.equal(parsedPayload.token, '...', 'assert correct payload token');
+  assert.equal(parsedPayload.sdk, settings.version, 'assert correct sdk version');
+  assertImpressionsCountSent(assert, parsedPayload.entries);
 };
 
 // This E2E test checks that Beacon API is not called when page unload is triggered and there are not events or impressions to send.
 function beaconApiNotSendTest(fetchMock, assert) {
+  sendBeaconSpy = sinon.spy(window.navigator, 'sendBeacon');
 
   // Mocking this specific route to make sure we only get the items we want to test from the handlers.
   fetchMock.get(settings.url('/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
   fetchMock.get(settings.url('/splitChanges?since=1457552620999'), { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
-  fetchMock.get(settings.url('/mySegments/facundo@split.io'), { status: 200, body: mySegmentsFacundo });
+  fetchMock.get(settings.url('/mySegments/facundo%40split.io'), { status: 200, body: mySegmentsFacundo });
 
   // Init and run Split client
   const splitio = SplitFactory(config);
@@ -127,9 +143,11 @@ function fallbackTest(fetchMock, assert) {
   // synchronize client destruction when both endpoints ('/testImpressions/bulk' and '/events/bulk') are called
   const finish = (function* () {
     yield;
+    yield;
     // @TODO review why we must destroy client in a different event-loop cycle, compared to axios-mock-adapter
     setTimeout(function () {
       client.destroy().then(function () {
+        sendBeaconSpy.restore();
         assert.end();
       });
     }, 0);
@@ -147,6 +165,13 @@ function fallbackTest(fetchMock, assert) {
     const resp = JSON.parse(opts.body);
     assert.ok(opts, 'Fallback to /events/bulk');
     assertEventSent(assert, resp[0]);
+    finish.next();
+    return 200;
+  });
+  fetchMock.post(settings.url('/testImpressions/count'), (url, opts) => {
+    const resp = JSON.parse(opts.body);
+    assert.ok(opts, 'Fallback to /testImpressions/count');
+    assertImpressionsCountSent(assert, resp);
     finish.next();
     return 200;
   });

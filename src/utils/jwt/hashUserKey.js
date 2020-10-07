@@ -1,5 +1,5 @@
 import { encodeToBase64 } from '../base64';
-import murmur from '../../engine/engine/murmur3';
+import murmur from '../../engine/engine/murmur3/murmur3';
 
 /**
  * Returns the hash of a given user key

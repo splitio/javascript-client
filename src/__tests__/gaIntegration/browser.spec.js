@@ -18,7 +18,7 @@ const settings = SettingsFactory({
 tape('## E2E CI Tests ##', function(assert) {
 
   fetchMock.get(settings.url('/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
-  fetchMock.get(settings.url('/mySegments/facundo@split.io'), { status: 200, body: mySegmentsFacundo });
+  fetchMock.get(settings.url('/mySegments/facundo%40split.io'), { status: 200, body: mySegmentsFacundo });
 
   /* Validate GA integration */
   assert.test('E2E / GA-to-Split', gaToSplitSuite.bind(null, fetchMock));

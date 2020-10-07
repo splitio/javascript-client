@@ -16,6 +16,7 @@ limitations under the License.
 import _ from 'lodash';
 import tape from 'tape-catch';
 import SettingsFactory from '../../settings';
+import { OPTIMIZED, DEBUG } from '../../constants';
 
 tape('SETTINGS / check defaults', assert => {
   const settings = SettingsFactory({
@@ -30,6 +31,35 @@ tape('SETTINGS / check defaults', assert => {
     auth: 'https://auth.split.io/api',
     streaming: 'https://streaming.split.io',
   });
+  assert.equal(settings.sync.impressionsMode, OPTIMIZED);
+  assert.end();
+});
+
+tape('SETTINGS / override with defaults', assert => {
+  const settings = SettingsFactory({
+    core: {
+      authorizationKey: 'dummy token'
+    },
+    sync: {
+      impressionsMode: 'some',
+    }
+  });
+
+  assert.equal(settings.sync.impressionsMode, OPTIMIZED);
+  assert.end();
+});
+
+tape('SETTINGS / impressionsMode should be configurable', assert => {
+  const settings = SettingsFactory({
+    core: {
+      authorizationKey: 'dummy token'
+    },
+    sync: {
+      impressionsMode: DEBUG
+    }
+  });
+
+  assert.deepEqual(settings.sync.impressionsMode, DEBUG);
   assert.end();
 });
 
@@ -196,7 +226,8 @@ tape('SETTINGS / urls should be correctly assigned', assert => {
     '/events/bulk',
     '/events/beacon',
     '/testImpressions/bulk',
-    '/testImpressions/beacon'
+    '/testImpressions/beacon',
+    '/testImpressions/count/beacon'
   ].forEach(relativeUrl => {
     assert.equal(settings.url(relativeUrl), `${baseEventsUrl}${relativeUrl}`, `Our settings URL function should use ${baseEventsUrl} as base for ${relativeUrl}`);
   });

@@ -78,7 +78,8 @@ interface ISettings {
   },
   readonly streamingEnabled: boolean,
   readonly sync: {
-    splitFilters: SplitIO.SplitFilter[]
+    splitFilters: SplitIO.SplitFilter[],
+    impressionsMode: SplitIO.ImpressionsMode,
   }
 }
 /**
@@ -159,6 +160,15 @@ interface ISharedSettings {
      * @property {SplitIO.SplitFilter[]} splitFilters
      */
     splitFilters?: SplitIO.SplitFilter[]
+    /**
+     * Impressions Collection Mode. Option to determine how impressions are going to be sent to Split Servers.
+     * Possible values are 'DEBUG' and 'OPTIMIZED'.
+     * - DEBUG: will send all the impressions generated (recommended only for debugging purposes).
+     * - OPTIMIZED: will send unique impressions to Split Servers avoiding a considerable amount of traffic that duplicated impressions could generate.
+     * @property {String} impressionsMode
+     * @default 'OPTIMIZED'
+     */
+    impressionsMode?: SplitIO.ImpressionsMode,
   }
 }
 /**
@@ -213,7 +223,7 @@ interface INodeBasicSettings extends ISharedSettings {
     /**
      * The SDK sends information on who got what treatment at what time back to Split servers to power analytics. This parameter controls how often this data is sent to Split servers. The parameter should be in seconds.
      * @property {number} impressionsRefreshRate
-     * @default 60
+     * @default 300
      */
     impressionsRefreshRate?: number,
     /**
@@ -495,7 +505,8 @@ declare namespace SplitIO {
       time: number,
       bucketingKey?: string,
       label: string,
-      changeNumber: number
+      changeNumber: number,
+      pt?: number,
     },
     attributes?: SplitIO.Attributes,
     ip: string,
@@ -750,6 +761,11 @@ declare namespace SplitIO {
      */
     values: string[],
   }
+  /**
+  * ImpressionsMode type
+  * @typedef {string} ImpressionsMode
+  */
+  type ImpressionsMode = 'OPTIMIZED' | 'DEBUG';
   /**
    * Settings interface for SDK instances created on the browser
    * @interface IBrowserSettings

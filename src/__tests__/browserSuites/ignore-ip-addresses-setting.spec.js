@@ -1,6 +1,7 @@
 import { SplitFactory } from '../..';
 import SettingsFactory from '../../utils/settings';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
+import { DEBUG } from '../../utils/constants';
 
 // Header keys and expected values. Expected values are obtained with the runtime function evaluated with IPAddressesEnabled in true.
 const HEADER_SPLITSDKMACHINEIP = 'SplitSDKMachineIP';
@@ -13,7 +14,10 @@ const baseConfig = {
     impressionsRefreshRate: 1,
     eventsPushRate: 1
   },
-  streamingEnabled: false
+  streamingEnabled: false,
+  sync: {
+    impressionsMode: DEBUG
+  }
 };
 
 // Config with IPAddressesEnabled set to false
@@ -101,7 +105,7 @@ export default function (fetchMock, assert) {
     const settings = SettingsFactory(config);
     fetchMock.getOnce(settings.url('/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
     fetchMock.getOnce(settings.url('/splitChanges?since=1457552620999'), { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
-    fetchMock.getOnce(settings.url(`/mySegments/${config.core.key}`), { status: 200, body: { mySegments: [] } });
+    fetchMock.getOnce(settings.url(`/mySegments/${encodeURIComponent(config.core.key)}`), { status: 200, body: { mySegments: [] } });
 
     // Init Split client
     const splitio = SplitFactory(config);
