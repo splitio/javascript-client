@@ -8,7 +8,8 @@ import {
   validateKey,
   validateTrafficType,
 } from '../../utils/inputValidation';
-const log = logFactory('splitio-ga-to-split');
+const logName = 'splitio-ga-to-split', logNameMapper = logName + ':mapper';
+const log = logFactory(logName);
 
 /**
  * Provides a plugin to use with analytics.js, accounting for the possibility
@@ -120,23 +121,23 @@ export function validateIdentities(identities) {
  * @returns {boolean} Whether the data instance is a valid EventData or not.
  */
 export function validateEventData(eventData) {
-  if (!validateEvent(eventData.eventTypeId, 'splitio-ga-to-split:mapper'))
+  if (!validateEvent(eventData.eventTypeId, logNameMapper))
     return false;
 
-  if (validateEventValue(eventData.value, 'splitio-ga-to-split:mapper') === false)
+  if (validateEventValue(eventData.value, logNameMapper) === false)
     return false;
 
-  const { properties } = validateEventProperties(eventData.properties, 'splitio-ga-to-split:mapper');
+  const { properties } = validateEventProperties(eventData.properties, logNameMapper);
   if (properties === false)
     return false;
 
   if (eventData.timestamp && !numberIsFinite(eventData.timestamp))
     return false;
 
-  if (eventData.key && validateKey(eventData.key, 'splitio-ga-to-split:mapper') === false)
+  if (eventData.key && validateKey(eventData.key, logNameMapper) === false)
     return false;
 
-  if (eventData.trafficTypeName && validateTrafficType(eventData.trafficTypeName, 'splitio-ga-to-split:mapper') === false)
+  if (eventData.trafficTypeName && validateTrafficType(eventData.trafficTypeName, logNameMapper) === false)
     return false;
 
   return true;
@@ -253,7 +254,7 @@ function GaToSplit(sdkOptions, storage, coreSettings) {
 
         // Store the event
         if (eventData.key && eventData.trafficTypeName) {
-          storage.events.track(event);
+          storage.events.track(eventData);
         } else { // Store the event for each Key-TT pair (identities), if key and TT is not present in eventData
           opts.identities.forEach(identity => {
             const event = objectAssign({
