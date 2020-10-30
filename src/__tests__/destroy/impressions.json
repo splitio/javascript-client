@@ -1,18 +1,18 @@
 [
   {
-    "testName": "Single_Test",
-    "keyImpressions": [
+    "f": "Single_Test",
+    "i": [
       {
-        "keyName": "ut1",
-        "treatment": "on"
+        "k": "ut1",
+        "t": "on"
       },
       {
-        "keyName": "ut2",
-        "treatment": "on"
+        "k": "ut2",
+        "t": "on"
       },
       {
-        "keyName": "ut3",
-        "treatment": "on"
+        "k": "ut3",
+        "t": "on"
       }
     ]
   }

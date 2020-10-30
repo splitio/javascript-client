@@ -466,7 +466,8 @@ let fullBrowserSettings: SplitIO.IBrowserSettings = {
   integrations: [googleAnalyticsToSplitConfig, splitToGoogleAnalyticsConfig, customGoogleAnalyticsToSplitConfig, customSplitToGoogleAnalyticsConfig],
   streamingEnabled: true,
   sync: {
-    splitFilters: splitFilters
+    splitFilters: splitFilters,
+    impressionsMode: 'DEBUG'
   }
 };
 fullBrowserSettings.storage.type = 'MEMORY';
@@ -504,7 +505,8 @@ let fullNodeSettings: SplitIO.INodeSettings = {
   debug: false,
   streamingEnabled: false,
   sync: {
-    splitFilters: splitFilters
+    splitFilters: splitFilters,
+    impressionsMode: 'OPTIMIZED'
   }
 };
 fullNodeSettings.storage.type = 'MEMORY';

@@ -1,9 +1,11 @@
 import eventsBulkRequest from '../services/events/bulk';
 import eventsService from '../services/events';
 import impressionsBulkRequest from '../services/impressions/bulk';
+import impressionsCountRequest from '../services/impressions/count';
 import impressionsService from '../services/impressions';
-import { fromImpressionsCollector } from '../services/impressions/dto';
+import { fromImpressionsCollector, fromImpressionsCountCollector } from '../services/impressions/dto';
 import logFactory from '../utils/logger';
+import { OPTIMIZED } from '../utils/constants';
 
 const log = logFactory('splitio-client:cleanup');
 
@@ -20,6 +22,9 @@ export default class BrowserSignalListener {
     this.storage = context.get(context.constants.STORAGE);
     this.settings = context.get(context.constants.SETTINGS);
     this.flushData = this.flushData.bind(this);
+    if (this.settings.sync.impressionsMode === OPTIMIZED) {
+      this.impressionsCounter = context.get(context.constants.IMPRESSIONS_COUNTER);
+    }
   }
 
   /**
@@ -28,7 +33,7 @@ export default class BrowserSignalListener {
    * We add a handler on unload events. The handler flushes remaining impressions and events to the backend.
    */
   start() {
-    if (window && window.addEventListener) {
+    if (typeof window !== 'undefined' && window.addEventListener) {
       log.debug('Registering flush handler when unload page event is triggered.');
       window.addEventListener(UNLOAD_DOM_EVENT, this.flushData);
     }
@@ -41,7 +46,7 @@ export default class BrowserSignalListener {
    * We need to remove the handler for unload events, since it can break if called when Split context was destroyed.
    */
   stop() {
-    if (window && window.removeEventListener) {
+    if (typeof window !== 'undefined' && window.removeEventListener) {
       log.debug('Deregistering flush handler when unload page event is triggered.');
       window.removeEventListener(UNLOAD_DOM_EVENT, this.flushData);
     }
@@ -55,6 +60,9 @@ export default class BrowserSignalListener {
   flushData() {
     this._flushImpressions();
     this._flushEvents();
+    if (this.impressionsCounter) {
+      this._flushImpressionsCount();
+    }
   }
 
   _flushImpressions() {
@@ -67,6 +75,16 @@ export default class BrowserSignalListener {
         impressionsService(impressionsBulkRequest(this.settings, { body: JSON.stringify(impressionsPayload) }));
       }
       impressions.clear();
+    }
+  }
+
+  _flushImpressionsCount() {
+    const impressionsCountPayload = { pf: fromImpressionsCountCollector(this.impressionsCounter)};
+    const imprCounts = impressionsCountPayload.pf.length;
+    if (imprCounts === 0) return;
+    const url = this.settings.url('/testImpressions/count/beacon');
+    if (!this._sendBeacon(url, impressionsCountPayload)) {
+      impressionsService(impressionsCountRequest(this.settings, { body: JSON.stringify(impressionsCountPayload) }));
     }
   }
 
@@ -89,7 +107,7 @@ export default class BrowserSignalListener {
    */
   _sendBeacon(url, data) {
     // eslint-disable-next-line compat/compat
-    if (navigator && navigator.sendBeacon) {
+    if (typeof navigator !== 'undefined' && navigator.sendBeacon) {
       const payload = JSON.stringify({
         entries: data,
         token: this.settings.core.authorizationKey,

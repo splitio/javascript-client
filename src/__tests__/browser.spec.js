@@ -2,6 +2,7 @@ import tape from 'tape-catch';
 import fetchMock from './testUtils/fetchMock';
 import evaluationsSuite from './browserSuites/evaluations.spec';
 import impressionsSuite from './browserSuites/impressions.spec';
+import impressionsSuiteDebug from './browserSuites/impressions.debug.spec';
 import metricsSuite from './browserSuites/metrics.spec';
 import impressionsListenerSuite from './browserSuites/impressions-listener.spec';
 import readinessSuite from './browserSuites/readiness.spec';
@@ -14,6 +15,7 @@ import sharedInstantiationSuite from './browserSuites/shared-instantiation.spec'
 import managerSuite from './browserSuites/manager.spec';
 import ignoreIpAddressesSettingSuite from './browserSuites/ignore-ip-addresses-setting.spec';
 import useBeaconApiSuite from './browserSuites/use-beacon-api.spec';
+import useBeaconDebugApiSuite from './browserSuites/use-beacon-api.debug.spec';
 import readyPromiseSuite from './browserSuites/ready-promise.spec';
 import fetchSpecificSplits from './browserSuites/fetch-specific-splits.spec';
 
@@ -91,6 +93,7 @@ tape('## E2E CI Tests ##', function(assert) {
   fetchMock.get(settings.url('/mySegments/nicolas%40split.io'), { status: 200, body: mySegmentsNicolas });
   fetchMock.get(settings.url('/mySegments/marcio%40split.io'), { status: 200, body: mySegmentsMarcio });
   fetchMock.post(settings.url('/testImpressions/bulk'), 200);
+  fetchMock.post(settings.url('/testImpressions/count'), 200);
 
   /* Check client evaluations. */
   assert.test('E2E / In Memory', evaluationsSuite.bind(null, configInMemory, fetchMock));
@@ -98,6 +101,7 @@ tape('## E2E CI Tests ##', function(assert) {
   assert.test('E2E / In LocalStorage with In Memory Fallback', evaluationsSuite.bind(null, configInLocalStorage, fetchMock));
   /* Check impressions */
   assert.test('E2E / Impressions', impressionsSuite.bind(null, fetchMock));
+  assert.test('E2E / Impressions Debug Mode', impressionsSuiteDebug.bind(null, fetchMock));
   /* Check impression listener */
   assert.test('E2E / Impression listener', impressionsListenerSuite);
   /* Check metrics */
@@ -116,6 +120,7 @@ tape('## E2E CI Tests ##', function(assert) {
   assert.test('E2E / Ignore setting IPAddressesEnabled', ignoreIpAddressesSettingSuite.bind(null, fetchMock));
   /* Check that impressions and events are sended to backend via Beacon API or Fetch when page unload is triggered. */
   assert.test('E2E / Use Beacon API (or Fetch if not available) to send remaining impressions and events when browser page is unload', useBeaconApiSuite.bind(null, fetchMock));
+  assert.test('E2E / Use Beacon API DEBUG (or Fetch if not available) to send remaining impressions and events when browser page is unload', useBeaconDebugApiSuite.bind(null, fetchMock));
   /* Validate ready from cache behaviour (might be merged into another suite if we end up having simple behavior around it as expected) */
   assert.test('E2E / Readiness from cache', readyFromCache.bind(null, fetchMock));
   /* Validate readiness with ready promises */
