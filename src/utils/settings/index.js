@@ -28,7 +28,7 @@ import { STANDALONE_MODE, STORAGE_MEMORY, CONSUMER_MODE, OPTIMIZED } from '../..
 import packageJSON from '../../../package.json';
 import validImpressionsMode from './impressionsMode';
 
-const { version } = packageJSON
+const { version } = packageJSON;
 const eventsEndpointMatcher = /^\/(testImpressions|metrics|events)/;
 const authEndpointMatcher = /^\/auth/;
 const streamingEndpointMatcher = /^\/(sse|event-stream)/;
