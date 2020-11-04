@@ -1,3 +1,6 @@
+10.15.1 (XXX XX, 2020)
+ - Updated the version for ioredis in the package.json to be fixed to 4.18.0 given after 4.19.0 it requires Node 10, in case this SDK is installed without considering our package-lock.json file on an old Node.
+
 10.15.0 (Oct 6, 2020)
  - Added impressions dedupe logic to avoid sending duplicated impressions:
     - Added `ImpressionsCount` cache to count impressions generated per feature.
