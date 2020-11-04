@@ -767,6 +767,42 @@ declare namespace SplitIO {
   */
   type ImpressionsMode = 'OPTIMIZED' | 'DEBUG';
   /**
+   * Defines the format of Split data to preload on the factory storage (cache).
+   */
+  interface PreloadedData {
+    /**
+     * Timestamp of the last moment the data was synchronized with Split servers.
+     * If this value is older than 10 days ago (expiration time policy), the data is not used to update the storage content.
+     * @TODO configurable expiration time policy?
+     */
+    lastUpdated: number,
+    /**
+     * Change number of the preloaded data.
+     * If this value is older than the current changeNumber at the storage, the data is not used to update the storage content.
+     */
+    since: number,
+    /**
+     * Map of splits to their serialized definitions.
+     */
+    splitsData: {
+      [splitName: string]: string
+    },
+    /**
+     * Optional map of user keys to their list of segments.
+     * @TODO remove when releasing first version
+     */
+    mySegmentsData?: {
+      [key: string]: string[]
+    },
+    /**
+     * Optional map of segments to their serialized definitions.
+     * This property is ignored if `mySegmentsData` was provided.
+     */
+    segmentsData?: {
+      [segmentName: string]: string
+    },
+  }
+  /**
    * Settings interface for SDK instances created on the browser
    * @interface IBrowserSettings
    * @extends ISharedSettings
@@ -918,7 +954,15 @@ declare namespace SplitIO {
        * @property {string} prefix
        * @default SPLITIO
        */
-      prefix?: string
+      prefix?: string,
+      /**
+       * Split data to preload the storage. You may optionally specify it to quickly initialice and use the SDK with cached data.
+       * If the data is valid, the SDK emits an SDK_READY_FROM_CACHE event once it is ready to be used.
+       * @TODO update the following link
+       * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#preloaded-data}
+       * @property {PreloadedData} preloadedData
+       */
+      preloadedData?: PreloadedData,
     }
     /**
      * SDK integration settings for the Browser.

@@ -133,10 +133,11 @@ class SplitCacheInMemory {
   }
 
   /**
-   * Check if the splits information is already stored in cache. In memory there is no cache to check.
+   * Check if the splits information is already stored in cache. The data can be preloaded and passed via the config.
    */
   checkCache() {
-    return false;
+    // @TODO rollback if we decide not to emit SDK_READY_FROM_CACHE using InMemory storage
+    return this.getChangeNumber() > -1;
   }
 }
 
