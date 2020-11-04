@@ -125,6 +125,12 @@ function customMapper2(model, defaultEvent) {
   defaultEvent.properties.someProp2 = 'someProp2';
   return defaultEvent;
 }
+// Updates defaultEvent adding a `key` and `TT`, to assert that `identities` plugin param is ignored.
+function customMapper3(model, defaultEvent) {
+  defaultEvent.key = 'someKey';
+  defaultEvent.trafficTypeName = 'someTT';
+  return defaultEvent;
+}
 function customFilter() {
   return true;
 }
@@ -178,7 +184,7 @@ tape('GaToSplit', assert => {
 
   // provide a new SplitTracker plugin with custom SDK options
   GaToSplit({
-    type: 'GOOGLE_ANALYTICS_TO_SPLIT', mapper: customMapper2, filter: customFilter, identities: customIdentities, prefix: '', events: true
+    type: 'GOOGLE_ANALYTICS_TO_SPLIT', mapper: customMapper2, filter: customFilter, identities: customIdentities, prefix: ''
   }, fakeStorage, coreSettings);
   assert.true(ga.lastCall.calledWith('provide', 'splitTracker'));
   SplitTracker = ga.lastCall.args[2];
@@ -195,6 +201,28 @@ tape('GaToSplit', assert => {
       ...customMapper2(modelSample, defaultMapper(modelSample)),
       key: customIdentities[0].key,
       trafficTypeName: customIdentities[0].trafficType,
+      timestamp: event.timestamp,
+    }, 'should track the event using a custom mapper and identity from the SDK options');
+
+  /** Custom behavior: SDK options, including a customMapper that set events key and traffic type */
+
+  // provide a new SplitTracker plugin with custom SDK options
+  GaToSplit({
+    type: 'GOOGLE_ANALYTICS_TO_SPLIT', mapper: customMapper3, filter: customFilter, identities: customIdentities, prefix: ''
+  }, fakeStorage, coreSettings);
+  assert.true(ga.lastCall.calledWith('provide', 'splitTracker'));
+  SplitTracker = ga.lastCall.args[2];
+  assert.true(typeof SplitTracker === 'function');
+
+  // init plugin
+  new SplitTracker(tracker);
+
+  // send hit and assert that it was properly tracked as a Split event
+  window.ga('send', hitSample);
+  event = fakeStorage.events.track.lastCall.args[0];
+  assert.deepEqual(event,
+    {
+      ...customMapper3(modelSample, defaultMapper(modelSample)),
       timestamp: event.timestamp,
     }, 'should track the event using a custom mapper and identity from the SDK options');
 
