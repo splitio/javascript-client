@@ -320,7 +320,7 @@ interface INodeBasicSettings extends ISharedSettings {
      * @default SPLITIO
      */
     prefix?: string
-  }
+  },
   /**
    * The SDK mode. Possible values are "standalone" (which is the default) and "consumer". For "localhost" mode, use "localhost" as authorizationKey.
    * @property {SDKMode} mode
@@ -921,7 +921,38 @@ declare namespace SplitIO {
        * @default SPLITIO
        */
       prefix?: string
-    }
+    },
+    /**
+     * List of URLs that the SDK will use as base for it's synchronization functionalities, applicable only when running as standalone.
+     * Do not change these settings unless you're working an advanced use case, like connecting to the Split proxy.
+     * @property {Object} urls
+     */
+    urls?: {
+      /**
+       * String property to override the base URL where the SDK will get feature flagging related data like a Split rollout plan or segments information. 
+       * @property {string} sdk
+       * @default 'https://sdk.split.io/api'
+       */
+      sdk?: string,
+      /**
+       * String property to override the base URL where the SDK will post event-related information like impressions. 
+       * @property {string} events
+       * @default 'https://events.split.io/api'
+       */
+      events?: string,
+      /**
+       * String property to override the base URL where the SDK will get authorization tokens to be used with functionality that requires it, like streaming.
+       * @property {string} auth
+       * @default 'https://auth.split.io/api'
+       */
+      auth?: string,
+      /**
+       * String property to override the base URL where the SDK will connect to receive streaming updates.
+       * @property {string} streaming
+       * @default 'https://streaming.split.io'
+       */
+      streaming?: string
+    },
     /**
      * SDK integration settings for the Browser.
      * @property {Object} integrations
@@ -936,6 +967,37 @@ declare namespace SplitIO {
    * @see {@link https://help.split.io/hc/en-us/articles/360020564931-Node-js-SDK#configuration}
    */
   interface INodeSettings extends INodeBasicSettings {
+    /**
+     * List of URLs that the SDK will use as base for it's synchronization functionalities, applicable only when running as standalone.
+     * Do not change these settings unless you're working an advanced use case, like connecting to the Split proxy.
+     * @property {Object} urls
+     */
+    urls?: {
+      /**
+       * String property to override the base URL where the SDK will get feature flagging related data like a Split rollout plan or segments information. 
+       * @property {string} sdk
+       * @default 'https://sdk.split.io/api'
+       */
+      sdk?: string,
+      /**
+       * String property to override the base URL where the SDK will post event-related information like impressions. 
+       * @property {string} events
+       * @default 'https://events.split.io/api'
+       */
+      events?: string,
+      /**
+       * String property to override the base URL where the SDK will get authorization tokens to be used with functionality that requires it, like streaming.
+       * @property {string} auth
+       * @default 'https://auth.split.io/api'
+       */
+      auth?: string,
+      /**
+       * String property to override the base URL where the SDK will connect to receive streaming updates.
+       * @property {string} streaming
+       * @default 'https://streaming.split.io'
+       */
+      streaming?: string
+    },
     /**
      * Defines which kind of storage we should instanciate.
      * @property {Object} storage
