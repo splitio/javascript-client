@@ -146,7 +146,7 @@ interface ISharedSettings {
   streamingEnabled?: boolean,
   /**
    * SDK synchronization settings.
-   * @property {Object} scheduler
+   * @property {Object} sync
    */
   sync?: {
     /**
