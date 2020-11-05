@@ -69,7 +69,9 @@ interface ISettings {
   },
   readonly urls: {
     events: string,
-    sdk: string
+    sdk: string,
+    auth: string,
+    streaming: string
   },
   readonly debug: boolean,
   readonly version: string,
