@@ -439,6 +439,12 @@ let fullBrowserSettings: SplitIO.IBrowserSettings = {
     retriesOnFailureBeforeReady: 1,
     eventsFirstPushWindow: 1
   },
+  urls: {
+    sdk: 'https://asd.com/sdk',
+    events: 'https://asd.com/events',
+    auth: 'https://asd.com/auth',
+    streaming: 'https://asd.com/streaming'
+  },
   features: mockedFeaturesMap,
   storage: {
     type: 'LOCALSTORAGE',
@@ -478,6 +484,12 @@ let fullNodeSettings: SplitIO.INodeSettings = {
     requestTimeoutBeforeReady: 1,
     retriesOnFailureBeforeReady: 1,
     eventsFirstPushWindow: 1
+  },
+  urls: {
+    sdk: 'https://asd.com/sdk',
+    events: 'https://asd.com/events',
+    auth: 'https://asd.com/auth',
+    streaming: 'https://asd.com/streaming'
   },
   features: mockedFeaturesPath,
   storage: {

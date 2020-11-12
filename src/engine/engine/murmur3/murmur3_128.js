@@ -1,5 +1,5 @@
 /* eslint-disable no-fallthrough */
-import { UTF16ToUTF8, x86Fmix, x86Multiply, x86Rotl } from '.';
+import { UTF16ToUTF8, x86Fmix, x86Multiply, x86Rotl } from './';
 
 const X64 = 'x64';
 const X86 = 'x86';
