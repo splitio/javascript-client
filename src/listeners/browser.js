@@ -5,7 +5,8 @@ import impressionsCountRequest from '../services/impressions/count';
 import impressionsService from '../services/impressions';
 import { fromImpressionsCollector, fromImpressionsCountCollector } from '../services/impressions/dto';
 import logFactory from '../utils/logger';
-import { OPTIMIZED } from '../utils/constants';
+import { OPTIMIZED, DEBUG } from '../utils/constants';
+import objectAssign from 'object-assign';
 
 const log = logFactory('splitio-client:cleanup');
 
@@ -71,7 +72,12 @@ export default class BrowserSignalListener {
     if (!impressions.isEmpty()) {
       const url = this.settings.url('/testImpressions/beacon');
       const impressionsPayload = fromImpressionsCollector(impressions, this.settings);
-      if (!this._sendBeacon(url, impressionsPayload)) {
+      const extraMetadata = {
+        // sim stands for Sync/Split Impressions Mode
+        sim: this.settings.sync.impressionsMode === OPTIMIZED ? OPTIMIZED : DEBUG
+      };
+      
+      if (!this._sendBeacon(url, impressionsPayload, extraMetadata)) {
         impressionsService(impressionsBulkRequest(this.settings, { body: JSON.stringify(impressionsPayload) }));
       }
       impressions.clear();
@@ -105,14 +111,21 @@ export default class BrowserSignalListener {
    * _sendBeacon method.
    * Util method that check if beacon API is available, build the payload and send it.
    */
-  _sendBeacon(url, data) {
+  _sendBeacon(url, data, extraMetadata) {
     // eslint-disable-next-line compat/compat
     if (typeof navigator !== 'undefined' && navigator.sendBeacon) {
-      const payload = JSON.stringify({
+      const json = {
         entries: data,
         token: this.settings.core.authorizationKey,
-        sdk: this.settings.version
-      });
+        sdk: this.settings.version,
+      };
+
+      // Extend with endpoint specific metadata where needed
+      if (extraMetadata) objectAssign(json, extraMetadata);
+
+      // Stringify the payload
+      const payload = JSON.stringify(json);
+
       // eslint-disable-next-line compat/compat
       return navigator.sendBeacon(url, payload);
     }
