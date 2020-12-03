@@ -55,6 +55,7 @@ const assertCallsToBeaconAPI = (assert) => {
   let parsedPayload = JSON.parse(impressionsCallArgs[1]);
   assert.equal(parsedPayload.token, '...', 'assert correct payload token');
   assert.equal(parsedPayload.sdk, settings.version, 'assert correct sdk version');
+  assert.equal(parsedPayload.sim, DEBUG, 'assert correct impressions mode');
   assertImpressionSent(assert, parsedPayload.entries[0]);
 
   // The second call is for flushing events
