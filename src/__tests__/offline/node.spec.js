@@ -13,6 +13,7 @@ const spySegmentChanges = sinon.spy();
 const spyMySegments = sinon.spy();
 const spyEventsBulk = sinon.spy();
 const spyTestImpressionsBulk = sinon.spy();
+const spyTestImpressionsCount = sinon.spy();
 const spyMetricsTimes = sinon.spy();
 const spyMetricsCounters = sinon.spy();
 const spyAny = sinon.spy();
@@ -30,6 +31,7 @@ const configMocks = () => {
   fetchMock.mock(new RegExp(`${settings.url('/mySegments/')}.*`), () => replySpy(spyMySegments));
   fetchMock.mock(settings.url('/events/bulk'), () => replySpy(spyEventsBulk));
   fetchMock.mock(settings.url('/testImpressions/bulk'), () => replySpy(spyTestImpressionsBulk));
+  fetchMock.mock(settings.url('/testImpressions/count'), () => replySpy(spyTestImpressionsCount));
   fetchMock.mock(settings.url('/metrics/times'), () => replySpy(spyMetricsTimes));
   fetchMock.mock(settings.url('/metrics/counters'), () => replySpy(spyMetricsCounters));
   fetchMock.mock('*', () => replySpy(spyAny));
@@ -100,6 +102,7 @@ function networkAssertions(client, assert) {
     assert.notOk(spyMySegments.called, 'On offline mode we should not call the mySegments endpoint.');
     assert.notOk(spyEventsBulk.called, 'On offline mode we should not call the events endpoint.');
     assert.notOk(spyTestImpressionsBulk.called, 'On offline mode we should not call the impressions endpoint.');
+    assert.notOk(spyTestImpressionsCount.called, 'On offline mode we should not call the impressions count endpoint.');
     assert.notOk(spyMetricsTimes.called, 'On offline mode we should not call the metric times endpoint.');
     assert.notOk(spyMetricsCounters.called, 'On offline mode we should not call the metric counters endpoint.');
     assert.notOk(spyAny.called, 'On offline mode we should NOT call to ANY endpoint, we are completely isolated from BE.');

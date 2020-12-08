@@ -37,9 +37,20 @@ tape('SDK destroy for NodeJS', async function (assert) {
   fetchMock.postOnce(settings.url('/testImpressions/bulk'), (url, opts) => {
     const impressions = JSON.parse(opts.body);
 
-    impressions[0].keyImpressions = map(impressions[0].keyImpressions, imp => pick(imp, ['keyName', 'treatment']));
+    impressions[0].i = map(impressions[0].i, imp => pick(imp, ['k', 't']));
 
     assert.deepEqual(impressions, impressionsMock);
+
+    return 200;
+  });
+
+  // Assert we are sending the impressions count while doing the destroy
+  fetchMock.postOnce(settings.url('/testImpressions/count'), (url, opts) => {
+    const impressionsCount = JSON.parse(opts.body);
+
+    assert.equal(impressionsCount.pf.length, 1);
+    assert.equal(impressionsCount.pf[0].f, 'Single_Test');
+    assert.equal(impressionsCount.pf[0].rc, 3);
 
     return 200;
   });

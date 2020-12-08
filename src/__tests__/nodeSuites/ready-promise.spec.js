@@ -59,6 +59,7 @@ export default function readyPromiseAssertions(key, fetchMock, assert) {
     fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20 });
     fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20 });
     fetchMock.postOnce(config.urls.events + '/testImpressions/bulk', 200);
+    fetchMock.postOnce(config.urls.events + '/testImpressions/count', 200);
 
     const splitio = SplitFactory(config);
     const client = splitio.client();
@@ -106,6 +107,7 @@ export default function readyPromiseAssertions(key, fetchMock, assert) {
     fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20 });
     mockSegmentChanges(fetchMock, new RegExp(config.urls.sdk + '/segmentChanges/*'), ['some_key']);
     fetchMock.postOnce(config.urls.events + '/testImpressions/bulk', 200);
+    fetchMock.postOnce(config.urls.events + '/testImpressions/count', 200);
 
     const splitio = SplitFactory(config);
     const client = splitio.client();
@@ -155,6 +157,7 @@ export default function readyPromiseAssertions(key, fetchMock, assert) {
     fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20 });
     mockSegmentChanges(fetchMock, new RegExp(config.urls.sdk + '/segmentChanges/*'), ['some_key']);
     fetchMock.postOnce(config.urls.events + '/testImpressions/bulk', 200);
+    fetchMock.postOnce(config.urls.events + '/testImpressions/count', 200);
 
     const splitio = SplitFactory(config);
     const client = splitio.client();
@@ -224,6 +227,7 @@ export default function readyPromiseAssertions(key, fetchMock, assert) {
     fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: refreshTimeMillis });
     mockSegmentChanges(fetchMock, new RegExp(config.urls.sdk + '/segmentChanges/*'), ['some_key']);
     fetchMock.postOnce(config.urls.events + '/testImpressions/bulk', 200);
+    fetchMock.postOnce(config.urls.events + '/testImpressions/count', 200);
 
     const splitio = SplitFactory(config);
     const client = splitio.client();
@@ -280,6 +284,7 @@ export default function readyPromiseAssertions(key, fetchMock, assert) {
     fetchMock.get(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20 });
     mockSegmentChanges(fetchMock, new RegExp(config.urls.sdk + '/segmentChanges/*'), ['some_key']);
     fetchMock.postOnce(config.urls.events + '/testImpressions/bulk', 200);
+    fetchMock.postOnce(config.urls.events + '/testImpressions/count', 200);
 
     const splitio = SplitFactory(config);
     const client = splitio.client();
@@ -329,6 +334,7 @@ export default function readyPromiseAssertions(key, fetchMock, assert) {
     fetchMock.get(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20 });
     mockSegmentChanges(fetchMock, new RegExp(config.urls.sdk + '/segmentChanges/*'), ['some_key']);
     fetchMock.postOnce(config.urls.events + '/testImpressions/bulk', 200);
+    fetchMock.postOnce(config.urls.events + '/testImpressions/count', 200);
 
     const splitio = SplitFactory(config);
     const client = splitio.client();
@@ -376,6 +382,7 @@ export default function readyPromiseAssertions(key, fetchMock, assert) {
     fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20 });
     mockSegmentChanges(fetchMock, new RegExp(config.urls.sdk + '/segmentChanges/*'), ['some_key']);
     fetchMock.postOnce(config.urls.events + '/testImpressions/bulk', 200);
+    fetchMock.postOnce(config.urls.events + '/testImpressions/count', 200);
 
     const splitio = SplitFactory(config);
     const client = splitio.client();
@@ -467,6 +474,7 @@ export default function readyPromiseAssertions(key, fetchMock, assert) {
     fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20 });
     mockSegmentChanges(fetchMock, new RegExp(config.urls.sdk + '/segmentChanges/*'), ['some_key']);
     fetchMock.postOnce(config.urls.events + '/testImpressions/bulk', 200);
+    fetchMock.postOnce(config.urls.events + '/testImpressions/count', 200);
 
     const splitio = SplitFactory(config);
 
@@ -536,6 +544,7 @@ export default function readyPromiseAssertions(key, fetchMock, assert) {
     fetchMock.get(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20 });
     mockSegmentChanges(fetchMock, new RegExp(config.urls.sdk + '/segmentChanges/*'), ['some_key']);
     fetchMock.postOnce(config.urls.events + '/testImpressions/bulk', 200);
+    fetchMock.postOnce(config.urls.events + '/testImpressions/count', 200);
 
     const splitio = SplitFactory(config);
     const client = splitio.client();

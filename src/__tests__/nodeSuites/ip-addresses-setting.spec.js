@@ -136,6 +136,11 @@ export default function ipAddressesSettingAssertions(fetchMock, assert) {
       fetchMock.post(settings.url(postEndpoint), 200);
     });
 
+    fetchMock.postOnce(settings.url('/testImpressions/count'), (url, opts) => {
+      assertHeaders(settings.core.IPAddressesEnabled, opts);
+      return 200;
+    });
+
     // Run normal client flow
     client.on(client.Event.SDK_READY, () => {
       client.getTreatment('nicolas@split.io', 'hierarchical_splits_test');
@@ -147,5 +152,4 @@ export default function ipAddressesSettingAssertions(fetchMock, assert) {
   configSamples.forEach(
     configSample => mockAndAssertIPAddressesEnabled(configSample)
   );
-
 }

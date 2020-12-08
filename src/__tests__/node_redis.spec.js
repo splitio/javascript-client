@@ -341,7 +341,7 @@ tape('NodeJS Redis', function (t) {
           await client.track('nicolas@split.io', 'user', 'test.redis.event', 18);
 
           // Assert if the impression object was stored properly
-          let redisImpressions = await connection.lrange(eventKey, 0, -1);
+          let redisImpressions = await connection.lrange(impressionsKey, 0, -1);
           assert.equal(redisImpressions.length, 1, 'After getting a treatment, we should have one impression on Redis.');
           const parsedImpression = JSON.parse(redisImpressions[0]);
           assert.equal(parsedImpression.m.i, setting.core.IPAddressesEnabled ? IP_VALUE : NA, `If IPAddressesEnabled is true, the property .m.i of the impression object must be equal to the machine ip, or "${NA}" otherwise.`);

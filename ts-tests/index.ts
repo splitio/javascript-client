@@ -439,6 +439,12 @@ let fullBrowserSettings: SplitIO.IBrowserSettings = {
     retriesOnFailureBeforeReady: 1,
     eventsFirstPushWindow: 1
   },
+  urls: {
+    sdk: 'https://asd.com/sdk',
+    events: 'https://asd.com/events',
+    auth: 'https://asd.com/auth',
+    streaming: 'https://asd.com/streaming'
+  },
   features: mockedFeaturesMap,
   storage: {
     type: 'LOCALSTORAGE',
@@ -449,7 +455,8 @@ let fullBrowserSettings: SplitIO.IBrowserSettings = {
   integrations: [googleAnalyticsToSplitConfig, splitToGoogleAnalyticsConfig, customGoogleAnalyticsToSplitConfig, customSplitToGoogleAnalyticsConfig],
   streamingEnabled: true,
   sync: {
-    splitFilters: splitFilters
+    splitFilters: splitFilters,
+    impressionsMode: 'DEBUG'
   }
 };
 fullBrowserSettings.storage.type = 'MEMORY';
@@ -478,6 +485,12 @@ let fullNodeSettings: SplitIO.INodeSettings = {
     retriesOnFailureBeforeReady: 1,
     eventsFirstPushWindow: 1
   },
+  urls: {
+    sdk: 'https://asd.com/sdk',
+    events: 'https://asd.com/events',
+    auth: 'https://asd.com/auth',
+    streaming: 'https://asd.com/streaming'
+  },
   features: mockedFeaturesPath,
   storage: {
     type: 'MEMORY'
@@ -487,7 +500,8 @@ let fullNodeSettings: SplitIO.INodeSettings = {
   debug: false,
   streamingEnabled: false,
   sync: {
-    splitFilters: splitFilters
+    splitFilters: splitFilters,
+    impressionsMode: 'OPTIMIZED'
   }
 };
 fullNodeSettings.storage.type = 'MEMORY';

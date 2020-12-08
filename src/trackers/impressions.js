@@ -17,7 +17,25 @@ limitations under the License.
 import objectAssign from 'object-assign';
 import logFactory from '../utils/logger';
 import thenable from '../utils/promise/thenable';
+import ImpressionObserverFactory from '../impressions/observer';
+import { truncateTimeFrame } from '../utils/time';
+import { OPTIMIZED, PRODUCER_MODE, STANDALONE_MODE } from '../utils/constants';
 const log = logFactory('splitio-client:impressions-tracker');
+
+/**
+ * Checks if impressions previous time should be added or not.
+ */
+function shouldAddPt(settings) {
+  return [PRODUCER_MODE, STANDALONE_MODE].indexOf(settings.mode) > -1 ? true : false;
+}
+
+/**
+ * Checks if it should dedupe impressions or not.
+ */
+function shouldBeOptimized(settings) {
+  if (!shouldAddPt(settings)) return false;
+  return settings.sync.impressionsMode === OPTIMIZED ? true : false;
+}
 
 function ImpressionsTracker(context) {
   const collector = context.get(context.constants.STORAGE).impressions;
@@ -27,6 +45,10 @@ function ImpressionsTracker(context) {
   const { ip, hostname } = settings.runtime;
   const sdkLanguageVersion = settings.version;
   const queue = [];
+  const shouldAddPreviousTime = shouldAddPt(settings);
+  const isOptimized = shouldBeOptimized(settings);
+  const observer = ImpressionObserverFactory(); // Instantiates observer
+  const impressionsCounter = context.get(context.constants.IMPRESSIONS_COUNTER);
 
   return {
     queue: function (impression, attributes) {
@@ -38,7 +60,28 @@ function ImpressionsTracker(context) {
     track: function () {
       const impressionsCount = queue.length;
       const slice = queue.splice(0, impressionsCount);
-      const res = collector.track(slice.map(({ impression }) => impression));
+
+      const impressionsToStore = []; // Track only the impressions that are going to be stored
+      // Wraps impressions to store and adds previousTime if it corresponds
+      slice.forEach(({ impression }) => {
+        if (shouldAddPreviousTime) {
+          // Adds previous time if it is enabled
+          impression.pt = observer.testAndSet(impression);
+        }
+
+        const now = Date.now();
+        if (isOptimized && impressionsCounter) {
+          // Increments impression counter per featureName
+          impressionsCounter.inc(impression.feature, now, 1);
+        }
+
+        // Checks if the impression should be added in queue to be sent
+        if (!isOptimized || !impression.pt || impression.pt < truncateTimeFrame(now)) {
+          impressionsToStore.push(impression);
+        }
+      });
+
+      const res = collector.track(impressionsToStore);
 
       // If we're on an async storage, handle error and log it.
       if (thenable(res)) {

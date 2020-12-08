@@ -69,7 +69,9 @@ interface ISettings {
   },
   readonly urls: {
     events: string,
-    sdk: string
+    sdk: string,
+    auth: string,
+    streaming: string
   },
   readonly debug: boolean,
   readonly version: string,
@@ -78,7 +80,8 @@ interface ISettings {
   },
   readonly streamingEnabled: boolean,
   readonly sync: {
-    splitFilters: SplitIO.SplitFilter[]
+    splitFilters: SplitIO.SplitFilter[],
+    impressionsMode: SplitIO.ImpressionsMode,
   }
 }
 /**
@@ -143,7 +146,7 @@ interface ISharedSettings {
   streamingEnabled?: boolean,
   /**
    * SDK synchronization settings.
-   * @property {Object} scheduler
+   * @property {Object} sync
    */
   sync?: {
     /**
@@ -159,6 +162,15 @@ interface ISharedSettings {
      * @property {SplitIO.SplitFilter[]} splitFilters
      */
     splitFilters?: SplitIO.SplitFilter[]
+    /**
+     * Impressions Collection Mode. Option to determine how impressions are going to be sent to Split Servers.
+     * Possible values are 'DEBUG' and 'OPTIMIZED'.
+     * - DEBUG: will send all the impressions generated (recommended only for debugging purposes).
+     * - OPTIMIZED: will send unique impressions to Split Servers avoiding a considerable amount of traffic that duplicated impressions could generate.
+     * @property {String} impressionsMode
+     * @default 'OPTIMIZED'
+     */
+    impressionsMode?: SplitIO.ImpressionsMode,
   }
 }
 /**
@@ -213,7 +225,7 @@ interface INodeBasicSettings extends ISharedSettings {
     /**
      * The SDK sends information on who got what treatment at what time back to Split servers to power analytics. This parameter controls how often this data is sent to Split servers. The parameter should be in seconds.
      * @property {number} impressionsRefreshRate
-     * @default 60
+     * @default 300
      */
     impressionsRefreshRate?: number,
     /**
@@ -308,7 +320,7 @@ interface INodeBasicSettings extends ISharedSettings {
      * @default SPLITIO
      */
     prefix?: string
-  }
+  },
   /**
    * The SDK mode. Possible values are "standalone" (which is the default) and "consumer". For "localhost" mode, use "localhost" as authorizationKey.
    * @property {SDKMode} mode
@@ -495,7 +507,8 @@ declare namespace SplitIO {
       time: number,
       bucketingKey?: string,
       label: string,
-      changeNumber: number
+      changeNumber: number,
+      pt?: number,
     },
     attributes?: SplitIO.Attributes,
     ip: string,
@@ -727,6 +740,36 @@ declare namespace SplitIO {
     trackerNames?: string[],
   }
   /**
+   * Available URL settings for the SDKs.
+   */
+  type UrlSettings = {
+    /**
+     * String property to override the base URL where the SDK will get feature flagging related data like a Split rollout plan or segments information. 
+     * @property {string} sdk
+     * @default 'https://sdk.split.io/api'
+     */
+    sdk?: string,
+    /**
+     * String property to override the base URL where the SDK will post event-related information like impressions. 
+     * @property {string} events
+     * @default 'https://events.split.io/api'
+     */
+    events?: string,
+    /**
+     * String property to override the base URL where the SDK will get authorization tokens to be used with functionality that requires it, like streaming.
+     * @property {string} auth
+     * @default 'https://auth.split.io/api'
+     */
+    auth?: string,
+    /**
+     * String property to override the base URL where the SDK will connect to receive streaming updates.
+     * @property {string} streaming
+     * @default 'https://streaming.split.io'
+     */
+    streaming?: string
+  };
+
+  /**
    * Available integration options for the browser
    */
   type BrowserIntegration = ISplitToGoogleAnalyticsConfig | IGoogleAnalyticsToSplitConfig;
@@ -750,6 +793,11 @@ declare namespace SplitIO {
      */
     values: string[],
   }
+  /**
+  * ImpressionsMode type
+  * @typedef {string} ImpressionsMode
+  */
+  type ImpressionsMode = 'OPTIMIZED' | 'DEBUG';
   /**
    * Settings interface for SDK instances created on the browser
    * @interface IBrowserSettings
@@ -903,7 +951,13 @@ declare namespace SplitIO {
        * @default SPLITIO
        */
       prefix?: string
-    }
+    },
+    /**
+     * List of URLs that the SDK will use as base for it's synchronization functionalities, applicable only when running as standalone.
+     * Do not change these settings unless you're working an advanced use case, like connecting to the Split proxy.
+     * @property {Object} urls
+     */
+    urls?: UrlSettings,
     /**
      * SDK integration settings for the Browser.
      * @property {Object} integrations
@@ -918,6 +972,12 @@ declare namespace SplitIO {
    * @see {@link https://help.split.io/hc/en-us/articles/360020564931-Node-js-SDK#configuration}
    */
   interface INodeSettings extends INodeBasicSettings {
+    /**
+     * List of URLs that the SDK will use as base for it's synchronization functionalities, applicable only when running as standalone.
+     * Do not change these settings unless you're working an advanced use case, like connecting to the Split proxy.
+     * @property {Object} urls
+     */
+    urls?: UrlSettings,
     /**
      * Defines which kind of storage we should instanciate.
      * @property {Object} storage

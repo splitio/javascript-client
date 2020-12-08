@@ -16,7 +16,8 @@ limitations under the License.
 import tape from 'tape-catch';
 import fs from 'fs';
 import rl from 'readline';
-import utils from '../../../engine/murmur3';
+import utils from '../../../engine/murmur3/murmur3';
+import { hash128 } from '../../../engine/murmur3/murmur3_128';
 
 [
   'murmur3-sample-v4.csv',
@@ -26,7 +27,7 @@ import utils from '../../../engine/murmur3';
   'murmur3-sample-double-treatment-users.csv'
 ].forEach(filename => {
 
-  tape('MURMUR3 / validate hashing behavior using sample data', assert => {
+  tape('MURMUR3 32 / validate hashing behavior using sample data', assert => {
     const parser = rl.createInterface({
       terminal: false,
       input: fs.createReadStream(require.resolve(`../mocks/${filename}`))
@@ -50,4 +51,49 @@ import utils from '../../../engine/murmur3';
       .on('close', assert.end);
   });
 
+});
+
+function dec2hex(str) {
+  let sum = [];
+  const dec = str.toString().split('');
+  const hex = [];
+  while (dec.length) {
+    let s = 1 * dec.shift();
+    for (let i = 0; s || i < sum.length; i++) {
+      s += (sum[i] || 0) * 10;
+      sum[i] = s % 16;
+      s = (s - sum[i]) / 16;
+    }
+  }
+  while (sum.length) {
+    hex.push(sum.pop().toString(16));
+  }
+  return hex.join('');
+}
+
+[
+  'murmur3_64_uuids.csv',
+].forEach(filename => {
+
+  tape('MURMUR3 128 / validate hashing behavior using sample data', assert => {
+    const parser = rl.createInterface({
+      terminal: false,
+      input: fs.createReadStream(require.resolve(`../mocks/${filename}`))
+    });
+
+    parser
+      .on('line', line => {
+        const parts = line.split(',');
+
+        if (parts.length === 3) {
+          let [key, seed, hash] = parts;
+
+          seed = parseInt(seed, 10);
+          const result = hash128(key, seed);
+
+          assert.equal(result.substring(0, 16), dec2hex(hash).padStart(16, '0'));
+        }
+      })
+      .on('close', assert.end);
+  });
 });

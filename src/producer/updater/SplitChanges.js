@@ -121,7 +121,7 @@ export default function SplitChangesUpdaterFactory(context, isNode = false) {
 
     // @TODO check why e2e tests take so much time when sync storage result is not handled in a promise
     const since = storage.splits.getChangeNumber();
-    const sincePromise = thenable(since) ? since.then(splitChanges) : Promise.resolve(since);
+    const sincePromise = thenable(since) ? since : Promise.resolve(since);
     return sincePromise.then(splitChanges);
   };
 }
