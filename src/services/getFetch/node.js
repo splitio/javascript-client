@@ -1,4 +1,4 @@
-let nodeFetch = require('node-fetch');
+let nodeFetch = require('node-fetch').default;
 
 // This function is only exposed for testing purposes.
 export function __setFetch(fetch) {
