@@ -1,3 +1,6 @@
+10.15.3 (Feb XX, 2020)
+ - Bugfixing - Handle issue importing node-fetch library (issue #505).
+
 10.15.2 (Dec 3, 2020)
  - Updated requests for `/testImpressions/beacon` to include the impressions mode.
 
