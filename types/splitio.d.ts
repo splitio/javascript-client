@@ -2,12 +2,33 @@
 // Project: http://www.split.io/
 // Definitions by: Nico Zelaya <https://github.com/NicoZelaya/>
 
-/// <reference types="node" />
 /// <reference types="google.analytics" />
 
 export as namespace SplitIO;
 export = SplitIO;
 
+/**
+ * NodeJS.EventEmitter interface
+ * @see {@link https://nodejs.org/api/events.html}
+ */
+interface EventEmitter {
+  addListener(event: string | symbol, listener: (...args: any[]) => void): this;
+  on(event: string | symbol, listener: (...args: any[]) => void): this;
+  once(event: string | symbol, listener: (...args: any[]) => void): this;
+  removeListener(event: string | symbol, listener: (...args: any[]) => void): this;
+  off(event: string | symbol, listener: (...args: any[]) => void): this;
+  removeAllListeners(event?: string | symbol): this;
+  setMaxListeners(n: number): this;
+  getMaxListeners(): number;
+  listeners(event: string | symbol): Function[];
+  rawListeners(event: string | symbol): Function[];
+  emit(event: string | symbol, ...args: any[]): boolean;
+  listenerCount(type: string | symbol): number;
+  // Added in Node 6...
+  prependListener(event: string | symbol, listener: (...args: any[]) => void): this;
+  prependOnceListener(event: string | symbol, listener: (...args: any[]) => void): this;
+  eventNames(): Array<string | symbol>;
+}
 /**
  * @typedef {Object} EventConsts
  * @property {string} SDK_READY The ready event.
@@ -338,9 +359,9 @@ interface INodeBasicSettings extends ISharedSettings {
 /**
  * Common API for entities that expose status handlers.
  * @interface IStatusInterface
- * @extends NodeJS.EventEmitter
+ * @extends EventEmitter
  */
-interface IStatusInterface extends NodeJS.EventEmitter {
+interface IStatusInterface extends EventEmitter {
   /**
    * Constant object containing the SDK events for you to use.
    * @property {EventConsts} Event
@@ -744,13 +765,13 @@ declare namespace SplitIO {
    */
   type UrlSettings = {
     /**
-     * String property to override the base URL where the SDK will get feature flagging related data like a Split rollout plan or segments information. 
+     * String property to override the base URL where the SDK will get feature flagging related data like a Split rollout plan or segments information.
      * @property {string} sdk
      * @default 'https://sdk.split.io/api'
      */
     sdk?: string,
     /**
-     * String property to override the base URL where the SDK will post event-related information like impressions. 
+     * String property to override the base URL where the SDK will post event-related information like impressions.
      * @property {string} events
      * @default 'https://events.split.io/api'
      */
