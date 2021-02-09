@@ -1,4 +1,4 @@
-import { SplitFactory } from '../../index';
+import { SplitFactory } from '../../';
 
 const SDK_INSTANCES_TO_TEST = 4;
 

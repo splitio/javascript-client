@@ -29,7 +29,7 @@ import { nearlyEqual } from '../testUtils';
 import EventSourceMock, { setMockListener } from '../../sync/__tests__/mocks/eventSourceMock';
 window.EventSource = EventSourceMock;
 
-import { SplitFactory } from '../../index';
+import { SplitFactory } from '../../';
 import SettingsFactory from '../../utils/settings';
 
 const userKey = 'nicolas@split.io';

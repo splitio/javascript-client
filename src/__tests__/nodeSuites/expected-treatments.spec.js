@@ -1,4 +1,4 @@
-import { SplitFactory } from '../../index';
+import { SplitFactory } from '../../';
 import fs from 'fs';
 import rl from 'readline';
 

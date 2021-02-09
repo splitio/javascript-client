@@ -1,5 +1,5 @@
 import sinon from 'sinon';
-import { SplitFactory } from '../../index';
+import { SplitFactory } from '../../';
 import SettingsFactory from '../../utils/settings';
 import { gaSpy, gaTag, addGaTag, removeGaTag } from './gaTestUtils';
 

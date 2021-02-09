@@ -1,4 +1,4 @@
-import { SplitFactory } from '../../index';
+import { SplitFactory } from '../../';
 import SettingsFactory from '../../utils/settings';
 import { gaSpy, gaTag } from './gaTestUtils';
 import includes from 'lodash/includes';

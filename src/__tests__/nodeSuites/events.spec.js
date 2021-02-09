@@ -1,5 +1,5 @@
 
-import { SplitFactory } from '../../index';
+import { SplitFactory } from '../../';
 import SettingsFactory from '../../utils/settings';
 
 const settings = SettingsFactory({
