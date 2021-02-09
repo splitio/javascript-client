@@ -79,10 +79,10 @@
     "webpack-merge": "^4.2.2"
   },
   "scripts": {
-    "build-es": "rimraf es && cross-env NODE_ENV=es babel ./src -d es --ignore '__tests__'",
+    "build-es": "rimraf es && cross-env NODE_ENV=es babel ./src -d es --ignore 'src/**/__tests__/*'",
     "postbuild-es": "cross-env NODE_ENV=es node scripts/copy.packages.json.js",
     "build-umd:stats": "webpack --progress --env production --json > ./stats/stat_results.json",
-    "build-cjs": "rimraf lib && cross-env NODE_ENV=cjs babel ./src -d lib --ignore '__tests__'",
+    "build-cjs": "rimraf lib && cross-env NODE_ENV=cjs babel ./src -d lib --ignore 'src/**/__tests__/*'",
     "postbuild-cjs": "cross-env NODE_ENV=cjs node scripts/copy.packages.json.js",
     "build-umd:ci": "webpack --config webpack.ci.dev.js --env.branch=$BUILD_BRANCH --env.commit_hash=$BUILD_COMMIT && webpack --config webpack.ci.prod.js --env.branch=$BUILD_BRANCH --env.commit_hash=$BUILD_COMMIT",
     "build-umd": "webpack --config webpack.dev.js && webpack --config webpack.prod.js",
