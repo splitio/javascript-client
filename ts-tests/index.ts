@@ -226,6 +226,7 @@ const a: boolean = client.emit(splitEvent);
 client = client.removeAllListeners(splitEvent);
 client = client.removeAllListeners();
 const b: number = client.listenerCount(splitEvent);
+let nodeEventEmitter: NodeJS.EventEmitter = client;
 
 // Ready and destroy
 const readyPromise: Promise<void> = client.ready();
@@ -287,6 +288,7 @@ const a1: boolean = client.emit(splitEvent);
 client = client.removeAllListeners(splitEvent);
 client = client.removeAllListeners();
 const b1: number = client.listenerCount(splitEvent);
+nodeEventEmitter = client;
 
 // Ready and destroy (same as for sync client, just for interface checking)
 const readyPromise1: Promise<void> = client.ready();
@@ -334,6 +336,7 @@ const aa: boolean = manager.emit(splitEvent);
 manager = manager.removeAllListeners(splitEvent);
 manager = manager.removeAllListeners();
 const bb: number = manager.listenerCount(splitEvent);
+nodeEventEmitter = manager;
 
 // manager exposes Event constants too
 const managerEventConsts: {[key: string]: SplitIO.Event} = manager.Event;
@@ -357,6 +360,7 @@ const aaa: boolean = asyncManager.emit(splitEvent);
 asyncManager = asyncManager.removeAllListeners(splitEvent);
 asyncManager = asyncManager.removeAllListeners();
 const bbb: number = asyncManager.listenerCount(splitEvent);
+nodeEventEmitter = asyncManager;
 
 // asyncManager exposes Event constants too
 const asyncManagerEventConsts: {[key: string]: SplitIO.Event} = asyncManager.Event;
