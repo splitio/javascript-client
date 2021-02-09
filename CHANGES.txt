@@ -1,5 +1,5 @@
 10.15.3 (Feb XX, 2020)
- - Updated type definitions to remove `@types/node` dependency and avoid conflicts between Node and DOM types.
+ - Updated type definitions to remove `@types/node` dependency and avoid conflicts between Node and DOM type definitions.
  - Bugfixing - Handle issue importing node-fetch library (issue #505).
 
 10.15.2 (Dec 3, 2020)
