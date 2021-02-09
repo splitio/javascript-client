@@ -8,7 +8,7 @@ const consoleSpy = {
   log: sinon.spy(console, 'log'),
 };
 
-import { SplitFactory } from '../../';
+import { SplitFactory } from '../..';
 
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import { mockSegmentChanges } from '../testUtils';

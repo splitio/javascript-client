@@ -1,6 +1,6 @@
 import sinon from 'sinon';
 
-import { SplitFactory } from '../../';
+import { SplitFactory } from '../..';
 import SettingsFactory from '../../utils/settings';
 const settings = SettingsFactory({
   core: {
