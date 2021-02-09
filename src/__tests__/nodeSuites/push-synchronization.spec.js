@@ -15,7 +15,7 @@ import { nearlyEqual, mockSegmentChanges } from '../testUtils';
 import EventSourceMock, { setMockListener } from '../../sync/__tests__/mocks/eventSourceMock';
 import { __setEventSource } from '../../services/getEventSource/node';
 
-import { SplitFactory } from '../..';
+import { SplitFactory } from '../../';
 import SettingsFactory from '../../utils/settings';
 
 const key = 'nicolas@split.io';

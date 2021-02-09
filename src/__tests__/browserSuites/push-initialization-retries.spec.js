@@ -9,7 +9,7 @@ import { nearlyEqual } from '../testUtils';
 
 import EventSourceMock, { setMockListener } from '../../sync/__tests__/mocks/eventSourceMock';
 
-import { SplitFactory } from '../..';
+import { SplitFactory } from '../../';
 import SettingsFactory from '../../utils/settings';
 
 const baseUrls = {

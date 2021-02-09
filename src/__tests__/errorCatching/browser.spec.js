@@ -6,7 +6,7 @@ import splitChangesMock1 from './splitChanges.since.-1.json';
 import mySegmentsMock from './mySegments.nico@split.io.json';
 import splitChangesMock2 from './splitChanges.since.1500492097547.json';
 import splitChangesMock3 from './splitChanges.since.1500492297547.json';
-import { SplitFactory } from '../..';
+import { SplitFactory } from '../../';
 import SettingsFactory from '../../utils/settings';
 
 const settings = SettingsFactory({

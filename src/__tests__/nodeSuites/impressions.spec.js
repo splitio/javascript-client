@@ -1,4 +1,4 @@
-import { SplitFactory } from '../..';
+import { SplitFactory } from '../../';
 import SettingsFactory from '../../utils/settings';
 import { SDK_NOT_READY } from '../../utils/labels';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';

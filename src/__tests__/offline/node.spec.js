@@ -3,7 +3,7 @@ import path from 'path';
 import tape from 'tape-catch';
 import sinon from 'sinon';
 import fetchMock from '../testUtils/fetchMock';
-import { SplitFactory } from '../..';
+import { SplitFactory } from '../../';
 import SettingsFactory from '../../utils/settings';
 
 const settings = SettingsFactory({ core: { key: 'facundo@split.io' } });
