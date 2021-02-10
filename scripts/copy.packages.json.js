@@ -7,7 +7,8 @@ const outputCjsDir = './lib';
 const outputEsmDir = './es';
 
 copyfiles([input, process.env.NODE_ENV === 'cjs' ? outputCjsDir : outputEsmDir], {
-  up: 1
+  up: 1,
+  exclude: './src/**/__tests__/**/package.json'
 }, (err) => {
   if (err) {
     console.log('Error copying package.json files: ' + err);

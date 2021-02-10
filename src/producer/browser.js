@@ -14,10 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-import logFactory from '../../utils/logger';
-import TaskFactory from '../task';
-import SplitChangesUpdater from '../updater/SplitChanges';
-import PartialBrowserProducer from './Partial';
+import logFactory from '../utils/logger';
+import TaskFactory from './task';
+import SplitChangesUpdater from './updater/SplitChanges';
+import PartialBrowserProducer from './browser/Partial';
 
 const log = logFactory('splitio-producer:updater');
 
