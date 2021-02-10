@@ -25,10 +25,9 @@ import mode from './mode';
 import validateSplitFilters from '../inputValidation/splitFilters';
 import { API } from '../../utils/logger';
 import { STANDALONE_MODE, STORAGE_MEMORY, CONSUMER_MODE, OPTIMIZED } from '../../utils/constants';
-import packageJSON from '../../../package.json';
 import validImpressionsMode from './impressionsMode';
 
-const { version } = packageJSON;
+const version = '10.15.3-canary.3';
 const eventsEndpointMatcher = /^\/(testImpressions|metrics|events)/;
 const authEndpointMatcher = /^\/auth/;
 const streamingEndpointMatcher = /^\/(sse|event-stream)/;

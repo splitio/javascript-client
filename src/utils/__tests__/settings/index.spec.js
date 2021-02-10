@@ -17,6 +17,8 @@ import _ from 'lodash';
 import tape from 'tape-catch';
 import SettingsFactory from '../../settings';
 import { OPTIMIZED, DEBUG } from '../../constants';
+import language from '../../settings/language';
+import packageJson from '../../../../package.json';
 
 tape('SETTINGS / check defaults', assert => {
   const settings = SettingsFactory({
@@ -32,6 +34,7 @@ tape('SETTINGS / check defaults', assert => {
     streaming: 'https://streaming.split.io',
   });
   assert.equal(settings.sync.impressionsMode, OPTIMIZED);
+  assert.equal(settings.version, `${language}-${packageJson.version}`);
   assert.end();
 });
 
@@ -144,7 +147,7 @@ tape('SETTINGS / required properties should be always present', assert => {
 
   const locatorSchedulerFeaturesRefreshRate = _.property('scheduler.featuresRefreshRate');
   const locatorSchedulerSegmentsRefreshRate = _.property('scheduler.segmentsRefreshRate');
-  const locatorSchedulerMetricsRefreshRate  = _.property('scheduler.metricsRefreshRate');
+  const locatorSchedulerMetricsRefreshRate = _.property('scheduler.metricsRefreshRate');
   const locatorSchedulerImpressionsRefreshRate = _.property('scheduler.impressionsRefreshRate');
 
   const locatorUrlsSDK = _.property('urls.sdk');
