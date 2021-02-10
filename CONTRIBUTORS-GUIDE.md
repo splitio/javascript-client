@@ -3,9 +3,9 @@
 Split SDK is an open source project and we welcome feedback and contribution. The information below describes how to build the project with your changes, run the tests, and send the Pull Request(PR).
 
 ## Development
- 
+
 ### Development process
- 
+
 1. Fork the repository and create a topic branch from `development` branch. Please use a descriptive name for your branch.
 2. While developing, use descriptive messages in your commits. Avoid short or meaningless sentences like: "fix bug".
 3. Make sure to add tests for both positive and negative cases.
@@ -22,7 +22,7 @@ Split SDK is an open source project and we welcome feedback and contribution. Th
 
 ### Building the SDK
 
-For widespread use of the SDK with different environments and module formats, we have three different builds: 
+For widespread use of the SDK with different environments and module formats, we have three different builds:
 * A bundled **UMD** file.
 * A **ES2015** modules compatible build.
 * A **CommonJS** modules compatible build.
@@ -38,15 +38,15 @@ All tests can be run at once with the command `npm run test`.
 If you've updated the TypeScript declaration files (located in `/types` folder), you should add some lines verifying the updates in `/ts-tests/index.ts` and then run the TypeScript compilation test using the `npm run test-ts-decls` command.
 
 For additional testing scripts or to get more insight on how these work, please refer to our [package.json](package.json) file.
- 
+
 ### Linting and other useful checks
 
-Consider running the linter script (`npm run lint`) and fixing any issues before pushing your changes.
+Consider running the linter script (`npm run check:lint`) and fixing any issues before pushing your changes.
 
 If you want to debug your changes consuming it from a test application, you could:
 - For browsers, import the **UMD** bundle from an HTML document. To debug you can use the browser dev tools.
 - For Node, you could use symlinks via [npm link command](https://docs.npmjs.com/cli/link.html) and then import the package as usual. To debug you could use the [Node inspector](https://nodejs.org/en/docs/guides/debugging-getting-started/).
 
 # Contact
- 
+
 If you have any other questions or need to contact us directly in a private manner send us a note at sdks@split.io

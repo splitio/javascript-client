@@ -4,7 +4,7 @@ import MySegmentsCacheInMemory from '../../../storage/SegmentCache/InMemory/brow
 import KeyBuilder from '../../../storage/Keys';
 import SettingsFactory from '../../../utils/settings';
 
-import MySegmentUpdateWorker from '../../SegmentUpdateWorker/MySegmentUpdateWorker';
+import MySegmentUpdateWorker from '../../SegmentUpdateWorker/browser';
 
 function ProducerMock() {
 

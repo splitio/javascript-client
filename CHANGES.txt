@@ -1,3 +1,7 @@
+10.15.3 (Feb 10, 2020)
+ - Updated type definitions to remove `@types/node` dependency and avoid conflicts between Node and DOM type definitions.
+ - Bugfixing - Handle issue importing node-fetch library (issue #505).
+
 10.15.2 (Dec 3, 2020)
  - Updated requests for `/testImpressions/beacon` to include the impressions mode.
 
