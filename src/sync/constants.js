@@ -2,10 +2,27 @@
 export const SECONDS_BEFORE_EXPIRATION = 600;
 
 // Internal SDK events, subscribed by SyncManager and PushManager
-export const PUSH_CONNECT = 'PUSH_CONNECT';
-export const PUSH_DISABLED = 'PUSH_DISABLED';
-export const PUSH_DISCONNECT = 'PUSH_DISCONNECT';
-export const SSE_ERROR = 'SSE_ERROR';
+/**
+ * emitted on SSE and Authenticate non-recoverable errors, STREAMING_DISABLED control notification and authentication with pushEnabled false
+ * triggers `handleNonRetryableError` call
+ */
+export const PUSH_NONRETRYABLE_ERROR = 'PUSH_NONRETRYABLE_ERROR';
+/**
+ * emitted on SSE and Authenticate recoverable errors
+ * triggers `handleRetryableError` call
+ */
+export const PUSH_RETRYABLE_ERROR = 'PUSH_RETRYABLE_ERROR';
+/**
+ * emitted on STREAMING_RESUMED control notification, OCCUPANCY different than 0, and SSE onopen event
+ * triggers `stopPollingAndSyncAll` call
+ */
+export const PUSH_SUBSYSTEM_UP = 'PUSH_SUBSYSTEM_UP';
+
+/**
+ * emitted on STREAMING_PAUSED control notification, OCCUPANCY equal to 0, PUSH_NONRETRYABLE_ERROR and PUSH_RETRYABLE_ERROR events.
+ * triggers `startPolling` and `stopWorkers` calls
+ */
+export const PUSH_SUBSYSTEM_DOWN = 'PUSH_SUBSYSTEM_DOWN';
 
 // Update-type push notifications, handled by NotificationProcessor
 export const MY_SEGMENTS_UPDATE = 'MY_SEGMENTS_UPDATE';

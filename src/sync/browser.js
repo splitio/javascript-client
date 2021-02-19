@@ -4,7 +4,7 @@ import PartialProducerFactory from '../producer/browser/Partial';
 import { matching } from '../utils/key/factory';
 import { forOwn, toString } from '../utils/lang';
 import logFactory from '../utils/logger';
-import { PUSH_DISCONNECT, PUSH_CONNECT } from './constants';
+import { PUSH_SUBSYSTEM_DOWN, PUSH_SUBSYSTEM_UP } from './constants';
 const log = logFactory('splitio-sync:sync-manager');
 
 /**
@@ -80,8 +80,8 @@ export default function BrowserSyncManagerFactory(mainContext) {
         if (pushManager) {
           if (!isSharedClient) {
             syncAll(); // initial syncAll (only when main client is created)
-            pushManager.on(PUSH_CONNECT, stopPollingAndSyncAll);
-            pushManager.on(PUSH_DISCONNECT, startPolling);
+            pushManager.on(PUSH_SUBSYSTEM_UP, stopPollingAndSyncAll);
+            pushManager.on(PUSH_SUBSYSTEM_DOWN, startPolling);
           } else {
             if (mainProducer.isRunning()) {
               // if doing polling, we must start the producer periodic fetch of data

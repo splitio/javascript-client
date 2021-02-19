@@ -19,7 +19,7 @@ import controlStreamingResumed from '../../../__tests__/mocks/message.CONTROL.ST
 import controlStreamingDisabled from '../../../__tests__/mocks/message.CONTROL.STREAMING_DISABLED.control_pri.1586987434950';
 
 import {
-  PUSH_CONNECT, PUSH_DISCONNECT, PUSH_DISABLED, SSE_ERROR,
+  PUSH_SUBSYSTEM_UP, PUSH_SUBSYSTEM_DOWN, PUSH_DISABLED, SSE_ERROR,
   SPLIT_UPDATE, SEGMENT_UPDATE, MY_SEGMENTS_UPDATE, SPLIT_KILL
 } from '../../constants';
 
@@ -36,7 +36,7 @@ tape('SSEHandler', t => {
     // handleOpen
 
     sseHandler.handleOpen();
-    assert.true(pushEmitter.emit.calledOnceWithExactly(PUSH_CONNECT), 'must emit PUSH_CONNECT');
+    assert.true(pushEmitter.emit.calledOnceWithExactly(PUSH_SUBSYSTEM_UP), 'must emit PUSH_SUBSYSTEM_UP');
 
     sseHandler.handleMessage({ data: '{ "data": "{\\"type\\":\\"SPLIT_UPDATE\\",\\"changeNumber\\":1457552620999 }" }' });
     assert.true(pushEmitter.emit.lastCall.calledWithExactly(SPLIT_UPDATE, 1457552620999), 'must handle update massage if streaming on');
@@ -44,22 +44,22 @@ tape('SSEHandler', t => {
     // OCCUPANCY messages
 
     sseHandler.handleMessage(occupancy1ControlPri);
-    assert.equal(pushEmitter.emit.callCount, 2, 'must not emit PUSH_CONNECT if streaming on');
+    assert.equal(pushEmitter.emit.callCount, 2, 'must not emit PUSH_SUBSYSTEM_UP if streaming on');
 
     sseHandler.handleMessage(occupancy0ControlPri);
-    assert.true(pushEmitter.emit.lastCall.calledWithExactly(PUSH_DISCONNECT), 'must emit PUSH_DISCONNECT if streaming on and OCCUPANCY 0 in control_pri');
+    assert.true(pushEmitter.emit.lastCall.calledWithExactly(PUSH_SUBSYSTEM_DOWN), 'must emit PUSH_SUBSYSTEM_DOWN if streaming on and OCCUPANCY 0 in control_pri');
 
     sseHandler.handleMessage({ data: '{ "data": "{\\"type\\":\\"SPLIT_UPDATE\\",\\"changeNumber\\":1457552620999 }" }' });
     assert.true(pushEmitter.emit.callCount, 3, 'must not handle update massage if streaming off after an OCCUPANCY message');
 
     sseHandler.handleMessage(occupancy0ControlPri);
-    assert.equal(pushEmitter.emit.callCount, 3, 'must not emit PUSH_DISCONNECT if streaming off');
+    assert.equal(pushEmitter.emit.callCount, 3, 'must not emit PUSH_SUBSYSTEM_DOWN if streaming off');
 
     sseHandler.handleMessage(occupancy1ControlPri);
     assert.true(pushEmitter.emit.callCount, 3, 'must ignore OCCUPANCY message if its timestamp is older');
 
     sseHandler.handleMessage(occupancy2ControlPri);
-    assert.true(pushEmitter.emit.lastCall.calledWithExactly(PUSH_CONNECT), 'must emit PUSH_CONNECT if streaming off and OCCUPANCY mayor than 0 in control_pri');
+    assert.true(pushEmitter.emit.lastCall.calledWithExactly(PUSH_SUBSYSTEM_UP), 'must emit PUSH_SUBSYSTEM_UP if streaming off and OCCUPANCY mayor than 0 in control_pri');
 
     sseHandler.handleMessage({ data: '{ "data": "{\\"type\\":\\"SPLIT_UPDATE\\",\\"changeNumber\\":1457552620999 }" }' });
     assert.true(pushEmitter.emit.lastCall.calledWithExactly(SPLIT_UPDATE, 1457552620999), 'must handle update massage if streaming on after an OCCUPANCY event');
@@ -67,19 +67,19 @@ tape('SSEHandler', t => {
     // CONTROL messages
 
     sseHandler.handleMessage(controlStreamingPaused);
-    assert.true(pushEmitter.emit.lastCall.calledWithExactly(PUSH_DISCONNECT), 'must emit PUSH_DISCONNECT if streaming on and received a STREAMING_PAUSED control message');
+    assert.true(pushEmitter.emit.lastCall.calledWithExactly(PUSH_SUBSYSTEM_DOWN), 'must emit PUSH_SUBSYSTEM_DOWN if streaming on and received a STREAMING_PAUSED control message');
 
     sseHandler.handleMessage({ data: '{ "data": "{\\"type\\":\\"SPLIT_UPDATE\\",\\"changeNumber\\":1457552620999 }" }' });
     assert.true(pushEmitter.emit.callCount, 6, 'must not handle update massage if streaming off after a CONTROL message');
 
     sseHandler.handleMessage(controlStreamingPaused);
-    assert.true(pushEmitter.emit.callCount, 6, 'must not emit PUSH_DISCONNECT if streaming off');
+    assert.true(pushEmitter.emit.callCount, 6, 'must not emit PUSH_SUBSYSTEM_DOWN if streaming off');
 
     sseHandler.handleMessage(controlStreamingResumed);
-    assert.true(pushEmitter.emit.lastCall.calledWithExactly(PUSH_CONNECT), 'must emit PUSH_CONNECT if streaming off and received a STREAMING_RESUMED control message');
+    assert.true(pushEmitter.emit.lastCall.calledWithExactly(PUSH_SUBSYSTEM_UP), 'must emit PUSH_SUBSYSTEM_UP if streaming off and received a STREAMING_RESUMED control message');
 
     sseHandler.handleMessage(controlStreamingResumed);
-    assert.equal(pushEmitter.emit.callCount, 7, 'must not emit PUSH_CONNECT if streaming on');
+    assert.equal(pushEmitter.emit.callCount, 7, 'must not emit PUSH_SUBSYSTEM_UP if streaming on');
 
     sseHandler.handleMessage({ data: '{ "data": "{\\"type\\":\\"SPLIT_UPDATE\\",\\"changeNumber\\":1457552620999 }" }' });
     assert.true(pushEmitter.emit.lastCall.calledWithExactly(SPLIT_UPDATE, 1457552620999), 'must handle update massage if streaming on after a CONTROL event');
@@ -91,7 +91,7 @@ tape('SSEHandler', t => {
     sseHandler2.handleOpen();
 
     sseHandler2.handleMessage(controlStreamingPaused);
-    assert.true(pushEmitter.emit.lastCall.calledWithExactly(PUSH_DISCONNECT));
+    assert.true(pushEmitter.emit.lastCall.calledWithExactly(PUSH_SUBSYSTEM_DOWN));
 
     sseHandler2.handleMessage(controlStreamingDisabled);
     assert.true(pushEmitter.emit.lastCall.calledWithExactly(PUSH_DISABLED), 'must emit PUSH_DISABLED if received a STREAMING_RESUMED control message, even if streaming is off');

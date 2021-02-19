@@ -1,4 +1,4 @@
-import { PUSH_CONNECT, PUSH_DISCONNECT, PUSH_DISABLED, ControlTypes } from '../constants';
+import { PUSH_SUBSYSTEM_UP, PUSH_SUBSYSTEM_DOWN, PUSH_NONRETRYABLE_ERROR, ControlTypes } from '../constants';
 
 const CONTROL_PRI_CHANNEL_REGEX = /control_pri$/;
 
@@ -11,7 +11,7 @@ export default function notificationKeeperFactory(feedbackLoopEmitter) {
 
   return {
     handleOpen() {
-      feedbackLoopEmitter.emit(PUSH_CONNECT);
+      feedbackLoopEmitter.emit(PUSH_SUBSYSTEM_UP);
     },
 
     isStreamingUp() {
@@ -23,9 +23,9 @@ export default function notificationKeeperFactory(feedbackLoopEmitter) {
         occupancyTimestamp = timestamp;
         if (hasResumed) {
           if (publishers === 0 && hasPublishers) {
-            feedbackLoopEmitter.emit(PUSH_DISCONNECT); // notify(STREAMING_DOWN) in spec
+            feedbackLoopEmitter.emit(PUSH_SUBSYSTEM_DOWN);
           } else if (publishers !== 0 && !hasPublishers) {
-            feedbackLoopEmitter.emit(PUSH_CONNECT); // notify(STREAMING_UP) in spec
+            feedbackLoopEmitter.emit(PUSH_SUBSYSTEM_UP);
           }
           // nothing to do when hasResumed === false:
           // streaming is already down for `publishers === 0`, and cannot be up for `publishers !== 0`
@@ -38,12 +38,12 @@ export default function notificationKeeperFactory(feedbackLoopEmitter) {
       if (CONTROL_PRI_CHANNEL_REGEX.test(channel) && timestamp > controlTimestamp) {
         controlTimestamp = timestamp;
         if (controlType === ControlTypes.STREAMING_DISABLED) {
-          feedbackLoopEmitter.emit(PUSH_DISABLED);
+          feedbackLoopEmitter.emit(PUSH_NONRETRYABLE_ERROR);
         } else if (hasPublishers) {
           if (controlType === ControlTypes.STREAMING_PAUSED && hasResumed) {
-            feedbackLoopEmitter.emit(PUSH_DISCONNECT); // notify(STREAMING_DOWN) in spec
+            feedbackLoopEmitter.emit(PUSH_SUBSYSTEM_DOWN);
           } else if (controlType === ControlTypes.STREAMING_RESUMED && !hasResumed) {
-            feedbackLoopEmitter.emit(PUSH_CONNECT); // notify(STREAMING_UP) in spec
+            feedbackLoopEmitter.emit(PUSH_SUBSYSTEM_UP);
           }
           // nothing to do when hasPublishers === false:
           // streaming is already down for `STREAMING_PAUSED`, and cannot be up for `STREAMING_RESUMED`

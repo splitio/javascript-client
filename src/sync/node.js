@@ -1,7 +1,7 @@
 import PushManagerFactory from './PushManager';
 import FullProducerFactory from '../producer';
 import logFactory from '../utils/logger';
-import { PUSH_DISCONNECT, PUSH_CONNECT } from './constants';
+import { PUSH_SUBSYSTEM_DOWN, PUSH_SUBSYSTEM_UP } from './constants';
 const log = logFactory('splitio-sync:sync-manager');
 
 /**
@@ -47,8 +47,8 @@ export default function NodeSyncManagerFactory(context) {
       // start syncing
       if (pushManager) {
         syncAll();
-        pushManager.on(PUSH_CONNECT, stopPollingAndSyncAll);
-        pushManager.on(PUSH_DISCONNECT, startPolling);
+        pushManager.on(PUSH_SUBSYSTEM_UP, stopPollingAndSyncAll);
+        pushManager.on(PUSH_SUBSYSTEM_DOWN, startPolling);
         setTimeout(pushManager.start); // Run in next event-loop cycle as in browser
       } else {
         producer.start();
