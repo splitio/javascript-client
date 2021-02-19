@@ -11,7 +11,7 @@ import SSEHandlerFactory from '../SSEHandler';
 import Backoff from '../../utils/backoff';
 import { hashUserKey } from '../../utils/jwt/hashUserKey';
 import logFactory from '../../utils/logger';
-import { SECONDS_BEFORE_EXPIRATION, PUSH_SUBSYSTEM_DOWN, PUSH_NONRETRYABLE_ERROR, PUSH_RETRYABLE_ERROR, SPLIT_KILL, SPLIT_UPDATE, SEGMENT_UPDATE, MY_SEGMENTS_UPDATE } from '../constants';
+import { SECONDS_BEFORE_EXPIRATION, PUSH_SUBSYSTEM_DOWN, PUSH_SUBSYSTEM_UP, PUSH_NONRETRYABLE_ERROR, PUSH_RETRYABLE_ERROR, SPLIT_KILL, SPLIT_UPDATE, SEGMENT_UPDATE, MY_SEGMENTS_UPDATE } from '../constants';
 
 const log = logFactory('splitio-sync:push-manager');
 
@@ -40,7 +40,7 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
   const workers = [];
   // variable used on browser to reconnect only when a new client was added, saving some authentication and sse connections.
   let connectForNewClient = false;
-  // flag that indicates if `disconnectPush` was called, either by the SyncManager (when the client is destroyed) or by a STREAMING_DISABLED control notification
+  // flag that indicates if `disconnectPush` was called, either by the SyncManager (when the client is destroyed) or by a PUSH_NONRETRYABLE_ERROR error
   let disconnected;
 
   /** PushManager functions related to initialization */
@@ -68,10 +68,7 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
     const userKeys = clientContexts ? Object.keys(clientContexts) : undefined;
     authenticate(settings, userKeys).then(
       function (authData) {
-        if (disconnected) return; // the SDK has been destroyed or PUSH_NONRETRYABLE_ERROR emitted (e.g., STREAMING_DISABLED notification)
-
-        // restart backoff retry counter for auth and SSE connections, due to HTTP/network errors
-        connectPushRetryBackoff.reset();
+        if (disconnected) return;
 
         // 'pushEnabled: false' is handled as a PUSH_NONRETRYABLE_ERROR instead of PUSH_SUBSYSTEM_DOWN, in order to
         // close the sseClient in case the org has been bloqued while the instance was connected to streaming
@@ -91,7 +88,7 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
       }
     ).catch(
       function (error) {
-        if (disconnected) return; // the SDK has been destroyed or PUSH_NONRETRYABLE_ERROR emitted (e.g., STREAMING_DISABLED notification)
+        if (disconnected) return;
 
         log.error(`Failed to authenticate for streaming. Error: "${error.message}".`);
 
@@ -125,6 +122,9 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
   }
 
   pushEmitter.on(PUSH_SUBSYSTEM_DOWN, stopWorkers);
+
+  // restart backoff retry counter once push is connected
+  pushEmitter.on(PUSH_SUBSYSTEM_UP, () => { connectPushRetryBackoff.reset(); });
 
   /** Fallbacking without retry due to STREAMING_DISABLED control event, 'pushEnabled: false', and non-recoverable SSE and Authentication errors */
 

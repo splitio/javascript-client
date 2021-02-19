@@ -23,7 +23,7 @@ const config = {
     segmentsRefreshRate: 0.1,
     metricsRefreshRate: 3000,
     impressionsRefreshRate: 3000,
-    authRetryBackoffBase: 0.01
+    pushRetryBackoffBase: 0.01 // small value to assert rapidly that push is not retried
   },
   urls: baseUrls,
   startup: {

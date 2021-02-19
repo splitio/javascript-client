@@ -19,7 +19,7 @@ import controlStreamingResumed from '../../../__tests__/mocks/message.CONTROL.ST
 import controlStreamingDisabled from '../../../__tests__/mocks/message.CONTROL.STREAMING_DISABLED.control_pri.1586987434950';
 
 import {
-  PUSH_SUBSYSTEM_UP, PUSH_SUBSYSTEM_DOWN, PUSH_DISABLED, SSE_ERROR,
+  PUSH_SUBSYSTEM_UP, PUSH_SUBSYSTEM_DOWN, PUSH_NONRETRYABLE_ERROR, PUSH_RETRYABLE_ERROR,
   SPLIT_UPDATE, SEGMENT_UPDATE, MY_SEGMENTS_UPDATE, SPLIT_KILL
 } from '../../constants';
 
@@ -85,7 +85,7 @@ tape('SSEHandler', t => {
     assert.true(pushEmitter.emit.lastCall.calledWithExactly(SPLIT_UPDATE, 1457552620999), 'must handle update massage if streaming on after a CONTROL event');
 
     sseHandler.handleMessage(controlStreamingDisabled);
-    assert.true(pushEmitter.emit.lastCall.calledWithExactly(PUSH_DISABLED), 'must emit PUSH_DISABLED if received a STREAMING_RESUMED control message');
+    assert.true(pushEmitter.emit.lastCall.calledWithExactly(PUSH_NONRETRYABLE_ERROR), 'must emit PUSH_NONRETRYABLE_ERROR if received a STREAMING_RESUMED control message');
 
     const sseHandler2 = SSEHandlerFactory(pushEmitter);
     sseHandler2.handleOpen();
@@ -94,7 +94,7 @@ tape('SSEHandler', t => {
     assert.true(pushEmitter.emit.lastCall.calledWithExactly(PUSH_SUBSYSTEM_DOWN));
 
     sseHandler2.handleMessage(controlStreamingDisabled);
-    assert.true(pushEmitter.emit.lastCall.calledWithExactly(PUSH_DISABLED), 'must emit PUSH_DISABLED if received a STREAMING_RESUMED control message, even if streaming is off');
+    assert.true(pushEmitter.emit.lastCall.calledWithExactly(PUSH_NONRETRYABLE_ERROR), 'must emit PUSH_NONRETRYABLE_ERROR if received a STREAMING_RESUMED control message, even if streaming is off');
 
     assert.end();
   });
@@ -130,17 +130,27 @@ tape('SSEHandler', t => {
 
     const error = 'some error';
     sseHandler.handleError(error);
-    assert.true(pushEmitter.emit.lastCall.calledWithExactly(SSE_ERROR, error), 'must emit SSE_ERROR with given error');
+    assert.true(pushEmitter.emit.lastCall.calledWithExactly(PUSH_RETRYABLE_ERROR), 'A network error must emit PUSH_RETRYABLE_ERROR');
 
     const errorWithData = { data: '{ "message": "error message"}' };
     sseHandler.handleError(errorWithData);
-    assert.true(pushEmitter.emit.lastCall.calledWithExactly(SSE_ERROR,
-      { data: errorWithData.data, parsedData: JSON.parse(errorWithData.data) }), 'must emit SSE_ERROR with given error and parsed data');
+    assert.true(pushEmitter.emit.lastCall.calledWithExactly(PUSH_RETRYABLE_ERROR), 'An error without Ably code must emit PUSH_RETRYABLE_ERROR');
 
     const errorWithBadData = { data: '{"message"error"' };
     sseHandler.handleError(errorWithBadData);
-    assert.true(pushEmitter.emit.lastCall.calledWithExactly(SSE_ERROR,
-      { data: errorWithBadData.data }), 'must emit SSE_ERROR with given error and not parsed data if cannot be parsed');
+    assert.true(pushEmitter.emit.lastCall.calledWithExactly(PUSH_RETRYABLE_ERROR), 'An error that cannot be parsed must emit PUSH_RETRYABLE_ERROR');
+
+    const ably4XXRecoverableError = { data: '{"message":"Token expired","code":40142,"statusCode":401}' };
+    sseHandler.handleError(ably4XXRecoverableError);
+    assert.true(pushEmitter.emit.lastCall.calledWithExactly(PUSH_RETRYABLE_ERROR), 'An Ably recoverable error must emit PUSH_RETRYABLE_ERROR');
+
+    const ably4XXNonRecoverableError = { data: '{"message":"Token expired","code":42910,"statusCode":429}' };
+    sseHandler.handleError(ably4XXNonRecoverableError);
+    assert.true(pushEmitter.emit.lastCall.calledWithExactly(PUSH_NONRETRYABLE_ERROR), 'An Ably non-recoverable error must emit PUSH_NONRETRYABLE_ERROR');
+
+    const ably5XXError = { data: '{"message":"...","code":50000,"statusCode":500}' };
+    sseHandler.handleError(ably5XXError);
+    assert.true(pushEmitter.emit.lastCall.calledWithExactly(PUSH_RETRYABLE_ERROR), 'An Ably recoverable error must emit PUSH_RETRYABLE_ERROR');
 
     assert.end();
   });
