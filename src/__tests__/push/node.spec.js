@@ -1,6 +1,6 @@
 import tape from 'tape-catch';
 import fetchMock from '../testUtils/fetchMock';
-import { testAuthWithPushDisabled, testAuthWith401, testAuthWith400, testNoEventSource } from '../nodeSuites/push-initialization-nopush.spec';
+import { testAuthWithPushDisabled, testAuthWith401, testAuthWith400, testNoEventSource, testSSEWithNonRetryableError } from '../nodeSuites/push-initialization-nopush.spec';
 import { testPushRetriesDueToAuthErrors, testPushRetriesDueToSseErrors, testSdkDestroyWhileAuthRetries, testSdkDestroyWhileAuthSuccess } from '../nodeSuites/push-initialization-retries.spec';
 import { testSynchronization } from '../nodeSuites/push-synchronization.spec';
 import { testSynchronizationRetries } from '../nodeSuites/push-synchronization-retries.spec';
@@ -16,6 +16,7 @@ tape('## Node JS - E2E CI Tests for PUSH ##', async function (assert) {
   assert.test('E2E / PUSH initialization: auth with 401', testAuthWith401.bind(null, fetchMock));
   assert.test('E2E / PUSH initialization: auth with 400', testAuthWith400.bind(null, fetchMock));
   assert.test('E2E / PUSH initialization: fallback to polling if EventSource is not available', testNoEventSource.bind(null, fetchMock));
+  assert.test('E2E / PUSH initialization: sse with non-recoverable Ably error', testSSEWithNonRetryableError.bind(null, fetchMock));
 
   // Recoverable issues on inizialization
   assert.test('E2E / PUSH initialization: auth failures and then success', testPushRetriesDueToAuthErrors.bind(null, fetchMock));
