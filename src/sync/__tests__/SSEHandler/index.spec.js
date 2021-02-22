@@ -12,11 +12,18 @@ import mySegmentsUpdateMessage from '../../../__tests__/mocks/message.MY_SEGMENT
 import occupancy1ControlPri from '../../../__tests__/mocks/message.OCCUPANCY.1.control_pri.1586987434450';
 import occupancy0ControlPri from '../../../__tests__/mocks/message.OCCUPANCY.0.control_pri.1586987434550';
 import occupancy2ControlPri from '../../../__tests__/mocks/message.OCCUPANCY.2.control_pri.1586987434650';
+const occupancy1ControlSec = {...occupancy1ControlPri, data: occupancy1ControlPri.data.replace('control_pri', 'control_sec')};
+const occupancy0ControlSec = {...occupancy0ControlPri, data: occupancy0ControlPri.data.replace('control_pri', 'control_sec')};
+const occupancy2ControlSec = {...occupancy2ControlPri, data: occupancy2ControlPri.data.replace('control_pri', 'control_sec')};
 
 // control messages
 import controlStreamingPaused from '../../../__tests__/mocks/message.CONTROL.STREAMING_PAUSED.control_pri.1586987434750';
 import controlStreamingResumed from '../../../__tests__/mocks/message.CONTROL.STREAMING_RESUMED.control_pri.1586987434850';
 import controlStreamingDisabled from '../../../__tests__/mocks/message.CONTROL.STREAMING_DISABLED.control_pri.1586987434950';
+const controlStreamingPausedSec = {...controlStreamingPaused, data: controlStreamingPaused.data.replace('control_pri', 'control_sec')};
+const controlStreamingResumedSec = {...controlStreamingResumed, data: controlStreamingResumed.data.replace('control_pri', 'control_sec')};
+const controlStreamingDisabledSec = {...controlStreamingDisabled, data: controlStreamingDisabled.data.replace('control_pri', 'control_sec')};
+
 
 import {
   PUSH_SUBSYSTEM_UP, PUSH_SUBSYSTEM_DOWN, PUSH_NONRETRYABLE_ERROR, PUSH_RETRYABLE_ERROR,
@@ -29,7 +36,7 @@ tape('SSEHandler', t => {
     emit: sinon.stub()
   };
 
-  t.test('`handleOpen` and `handlerMessage` for CONTROL and OCCUPANCY notifications (NotificationKeeper)', assert => {
+  t.test('`handleOpen` and `handlerMessage` for OCCUPANCY notifications (NotificationKeeper)', assert => {
     pushEmitter.emit.resetHistory();
     const sseHandler = SSEHandlerFactory(pushEmitter);
 
@@ -47,22 +54,36 @@ tape('SSEHandler', t => {
     assert.equal(pushEmitter.emit.callCount, 2, 'must not emit PUSH_SUBSYSTEM_UP if streaming on');
 
     sseHandler.handleMessage(occupancy0ControlPri);
-    assert.true(pushEmitter.emit.lastCall.calledWithExactly(PUSH_SUBSYSTEM_DOWN), 'must emit PUSH_SUBSYSTEM_DOWN if streaming on and OCCUPANCY 0 in control_pri');
+    sseHandler.handleMessage(occupancy0ControlSec);
+    assert.true(pushEmitter.emit.lastCall.calledWithExactly(PUSH_SUBSYSTEM_DOWN), 'must emit PUSH_SUBSYSTEM_DOWN if streaming on and OCCUPANCY 0 in both control channels');
 
     sseHandler.handleMessage({ data: '{ "data": "{\\"type\\":\\"SPLIT_UPDATE\\",\\"changeNumber\\":1457552620999 }" }' });
-    assert.true(pushEmitter.emit.callCount, 3, 'must not handle update massage if streaming off after an OCCUPANCY message');
+    assert.equal(pushEmitter.emit.callCount, 3, 'must not handle update massage if streaming off after an OCCUPANCY message');
 
     sseHandler.handleMessage(occupancy0ControlPri);
+    sseHandler.handleMessage(occupancy0ControlSec);
     assert.equal(pushEmitter.emit.callCount, 3, 'must not emit PUSH_SUBSYSTEM_DOWN if streaming off');
 
     sseHandler.handleMessage(occupancy1ControlPri);
-    assert.true(pushEmitter.emit.callCount, 3, 'must ignore OCCUPANCY message if its timestamp is older');
+    sseHandler.handleMessage(occupancy1ControlSec);
+    assert.equal(pushEmitter.emit.callCount, 3, 'must ignore OCCUPANCY message if its timestamp is older');
 
-    sseHandler.handleMessage(occupancy2ControlPri);
-    assert.true(pushEmitter.emit.lastCall.calledWithExactly(PUSH_SUBSYSTEM_UP), 'must emit PUSH_SUBSYSTEM_UP if streaming off and OCCUPANCY mayor than 0 in control_pri');
+    sseHandler.handleMessage(occupancy2ControlSec);
+    assert.true(pushEmitter.emit.lastCall.calledWithExactly(PUSH_SUBSYSTEM_UP), 'must emit PUSH_SUBSYSTEM_UP if streaming off and OCCUPANCY mayor than 0 in at least one channel');
 
     sseHandler.handleMessage({ data: '{ "data": "{\\"type\\":\\"SPLIT_UPDATE\\",\\"changeNumber\\":1457552620999 }" }' });
+    sseHandler.handleMessage(occupancy2ControlPri); // must not emit PUSH_SUBSYSTEM_UP, since streaming is already on
+
     assert.true(pushEmitter.emit.lastCall.calledWithExactly(SPLIT_UPDATE, 1457552620999), 'must handle update massage if streaming on after an OCCUPANCY event');
+    assert.equal(pushEmitter.emit.callCount, 5, 'must not emit PUSH_SUBSYSTEM_UP if streaming is already on and another channel has publishers');
+
+    assert.end();
+  });
+
+  t.test('`handlerMessage` for CONTROL notifications (NotificationKeeper)', assert => {
+    pushEmitter.emit.resetHistory();
+    const sseHandler = SSEHandlerFactory(pushEmitter);
+    sseHandler.handleOpen();
 
     // CONTROL messages
 
@@ -70,31 +91,33 @@ tape('SSEHandler', t => {
     assert.true(pushEmitter.emit.lastCall.calledWithExactly(PUSH_SUBSYSTEM_DOWN), 'must emit PUSH_SUBSYSTEM_DOWN if streaming on and received a STREAMING_PAUSED control message');
 
     sseHandler.handleMessage({ data: '{ "data": "{\\"type\\":\\"SPLIT_UPDATE\\",\\"changeNumber\\":1457552620999 }" }' });
-    assert.true(pushEmitter.emit.callCount, 6, 'must not handle update massage if streaming off after a CONTROL message');
+    assert.equal(pushEmitter.emit.callCount, 2, 'must not handle update massage if streaming off after a CONTROL message');
 
     sseHandler.handleMessage(controlStreamingPaused);
-    assert.true(pushEmitter.emit.callCount, 6, 'must not emit PUSH_SUBSYSTEM_DOWN if streaming off');
+    sseHandler.handleMessage(controlStreamingPausedSec);
+    assert.equal(pushEmitter.emit.callCount, 2, 'must not emit PUSH_SUBSYSTEM_DOWN if streaming off');
 
-    sseHandler.handleMessage(controlStreamingResumed);
+    sseHandler.handleMessage(controlStreamingResumedSec); // testing STREAMING_RESUMED with second region
     assert.true(pushEmitter.emit.lastCall.calledWithExactly(PUSH_SUBSYSTEM_UP), 'must emit PUSH_SUBSYSTEM_UP if streaming off and received a STREAMING_RESUMED control message');
 
     sseHandler.handleMessage(controlStreamingResumed);
-    assert.equal(pushEmitter.emit.callCount, 7, 'must not emit PUSH_SUBSYSTEM_UP if streaming on');
+    sseHandler.handleMessage(controlStreamingResumedSec);
+    assert.equal(pushEmitter.emit.callCount, 3, 'must not emit PUSH_SUBSYSTEM_UP if streaming on');
 
     sseHandler.handleMessage({ data: '{ "data": "{\\"type\\":\\"SPLIT_UPDATE\\",\\"changeNumber\\":1457552620999 }" }' });
     assert.true(pushEmitter.emit.lastCall.calledWithExactly(SPLIT_UPDATE, 1457552620999), 'must handle update massage if streaming on after a CONTROL event');
 
-    sseHandler.handleMessage(controlStreamingDisabled);
-    assert.true(pushEmitter.emit.lastCall.calledWithExactly(PUSH_NONRETRYABLE_ERROR), 'must emit PUSH_NONRETRYABLE_ERROR if received a STREAMING_RESUMED control message');
+    sseHandler.handleMessage(controlStreamingDisabledSec); // testing STREAMING_DISABLED with second region
+    assert.true(pushEmitter.emit.lastCall.calledWithExactly(PUSH_NONRETRYABLE_ERROR), 'must emit PUSH_NONRETRYABLE_ERROR if received a STREAMING_DISABLED control message');
 
     const sseHandler2 = SSEHandlerFactory(pushEmitter);
     sseHandler2.handleOpen();
 
-    sseHandler2.handleMessage(controlStreamingPaused);
+    sseHandler2.handleMessage(controlStreamingPausedSec); // testing STREAMING_PAUSED with second region
     assert.true(pushEmitter.emit.lastCall.calledWithExactly(PUSH_SUBSYSTEM_DOWN));
 
     sseHandler2.handleMessage(controlStreamingDisabled);
-    assert.true(pushEmitter.emit.lastCall.calledWithExactly(PUSH_NONRETRYABLE_ERROR), 'must emit PUSH_NONRETRYABLE_ERROR if received a STREAMING_RESUMED control message, even if streaming is off');
+    assert.true(pushEmitter.emit.lastCall.calledWithExactly(PUSH_NONRETRYABLE_ERROR), 'must emit PUSH_NONRETRYABLE_ERROR if received a STREAMING_DISABLED control message, even if streaming is off');
 
     assert.end();
   });

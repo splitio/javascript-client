@@ -1,6 +1,5 @@
 import { PUSH_SUBSYSTEM_UP, PUSH_SUBSYSTEM_DOWN, PUSH_NONRETRYABLE_ERROR, ControlTypes } from '../constants';
 
-
 const CONTROL_CHANNEL_REGEXS = [/control_pri$/, /control_sec$/];
 
 export default function notificationKeeperFactory(feedbackLoopEmitter) {
