@@ -4,11 +4,21 @@ const CONTROL_CHANNEL_REGEXS = [/control_pri$/, /control_sec$/];
 
 export default function notificationKeeperFactory(feedbackLoopEmitter) {
 
-  let occupancyTimestamps = [-1, -1]; // keep track of most recent occupancy notification timestamp per channel
-  let occupancyPublishers = [true, true]; // keep track of publishers presence per channel, in order to compute `hasPublishers`
-  let hasPublishers = true; // false if the number of publishers is equal to 0 in the last OCCUPANCY notification from CHANNEL_PRI
-  let controlTimestamps = [-1, -1]; // keep track of most recent control notification timestamp per channel
-  let hasResumed = true; // false if last CONTROL event was STREAMING_PAUSED or STREAMING_DISABLED
+  // keep track of most recent occupancy notification timestamp per channel
+  let occupancyTimestamps = [-1, -1];
+
+  // keep track of publishers presence per channel, in order to compute `hasPublishers`
+  // Init with true, to emit PUSH_SUBSYSTEM_UP if initial OCCUPANCY notifications have 0 publishers
+  let occupancyPublishers = [true, true];
+
+  // false if the number of publishers is equal to 0 in all regions
+  let hasPublishers = true;
+
+  // keep track of most recent control notification timestamp per channel
+  let controlTimestamps = [-1, -1];
+
+  // false if last CONTROL event was STREAMING_PAUSED or STREAMING_DISABLED
+  let hasResumed = true;
 
   function getHasPublishers() { // computes the value of `hasPublishers`
     return occupancyPublishers.some(hasPublishers => hasPublishers);
