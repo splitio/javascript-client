@@ -48,11 +48,13 @@ const NodeUpdater = (context) => {
 
   /**
    * @param {string[] | undefined} segmentNames list of segment names to fetch. By passing `undefined` it fetches the list of segments registered at the storage
+   * @param {boolean} fetchOnlyNew if true, only fetch the segments that not exists, i.e., which `changeNumber` is equal to -1.
+   * This param is used by SplitUpdateWorker to fetch new registered segments on SPLIT_UPDATE notifications.
    */
-  function synchronizeSegment(segmentNames) {
+  function synchronizeSegment(segmentNames, fetchOnlyNew) {
     isSynchronizingSegments = true;
     // `segmentsUpdater` promise always resolves, and with a false value if it fails to fetch or store some segment
-    return segmentsUpdater(segmentNames).then(function (res) {
+    return segmentsUpdater(segmentNames, fetchOnlyNew).then(function (res) {
       isSynchronizingSegments = false;
       return res;
     });
