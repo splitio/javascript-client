@@ -39,7 +39,7 @@ export default function SegmentChangesUpdaterFactory(context) {
    * Thus, a false result doesn't imply that SDK_SEGMENTS_ARRIVED was not emitted.
    *
    * @param {string[] | undefined} segmentNames list of segment names to fetch. By passing `undefined` it fetches the list of segments registered at the storage
-   * @param {boolean | undefined} fetchOnlyNew if set, only fetch the segments that not exists, i.e., which `changeNumber` is equal to -1.
+   * @param {boolean} fetchOnlyNew if set, only fetch the segments that not exists, i.e., which `changeNumber` is equal to -1.
    * This param is used by SplitUpdateWorker on server-side SDK, to fetch new registered segments on SPLIT_UPDATE notifications.
    */
   return function SegmentChangesUpdater(segmentNames, fetchOnlyNew) {
