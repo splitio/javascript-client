@@ -104,22 +104,20 @@ export function testSynchronization(fetchMock, assert) {
     setTimeout(() => {
       assert.equal(client.getTreatment(key, 'qc_team'), 'yes', 'evaluation previous to split update');
       assert.equal(client.getTreatment(otherUserKey, 'qc_team'), 'no', 'evaluation previous to split update');
-      // @TODO avoid duplicated SDK_UPDATE event
+
       client.once(client.Event.SDK_UPDATE, () => {
-        client.once(client.Event.SDK_UPDATE, () => {
-          const lapse = Date.now() - start;
-          assert.true(nearlyEqual(lapse, MILLIS_SPLIT_UPDATE_EVENT_WITH_NEW_SEGMENTS), 'SDK_UPDATE due to SPLIT_UPDATE event with new segments');
-          assert.equal(client.getTreatment(key, 'qc_team'), 'no', 'evaluation of updated Split');
-          assert.equal(client.getTreatment(otherUserKey, 'qc_team'), 'yes', 'evaluation of updated Split');
-        });
+        const lapse = Date.now() - start;
+        assert.true(nearlyEqual(lapse, MILLIS_SPLIT_UPDATE_EVENT_WITH_NEW_SEGMENTS), 'SDK_UPDATE due to SPLIT_UPDATE event with new segments');
+        assert.equal(client.getTreatment(key, 'qc_team'), 'no', 'evaluation of updated Split');
+        assert.equal(client.getTreatment(otherUserKey, 'qc_team'), 'yes', 'evaluation of updated Split');
       });
       eventSourceInstance.emitMessage(splitUpdateWithNewSegmentsMessage);
     }, MILLIS_SPLIT_UPDATE_EVENT_WITH_NEW_SEGMENTS); // send a SPLIT_UPDATE event with new segments after 0.6 seconds
     setTimeout(() => {
       client.destroy().then(() => {
         assert.equal(client.getTreatment(key, 'whitelist'), 'control', 'evaluation returns control if client is destroyed');
-        // @TODO ideally SDK_UPDATE should be emitted 4 times
-        assert.equal(sdkUpdateCount, 6, 'SDK_UPDATE should be emitted 6 times');
+        // @TODO SDK_UPDATE should be emitted 4 times, but currently it is being emitted twice on SPLIT_KILL
+        assert.equal(sdkUpdateCount, 5, 'SDK_UPDATE should be emitted 5 times');
         assert.end();
       });
     }, MILLIS_DESTROY); // destroy client after 0.6 seconds

@@ -116,7 +116,7 @@ export default function SegmentChangesUpdaterFactory(context) {
     }
 
     // If not a segment name provided, read list of available segments names to be updated.
-    let segments = segmentNames ? segmentNames : storage.segments.getRegisteredSegments();
+    let segments = segmentNames ? segmentNames : segmentsStorage.getRegisteredSegments();
     if(fetchOnlyNew) segments = segments.filter(segmentName => segmentsStorage.getChangeNumber(segmentName) === -1 );
 
     return thenable(segments) ? segments.then(segmentsUpdater) : segmentsUpdater(segments);
