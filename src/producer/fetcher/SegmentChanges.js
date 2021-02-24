@@ -30,7 +30,7 @@ function greedyFetch(settings, lastSinceValue, segmentName, metricCollectors, no
       if (since === till) {
         return [json];
       } else {
-        return Promise.all([json, greedyFetch(settings, till, segmentName)]).then(flatMe => {
+        return Promise.all([json, greedyFetch(settings, till, segmentName, undefined, noCache)]).then(flatMe => {
           return [flatMe[0], ...flatMe[1]];
         });
       }

@@ -38,3 +38,7 @@ export function mockSegmentChanges(fetchMock, matcher, keys, changeNumber = 1457
     };
   });
 }
+
+export function hasNoCacheHeader(fetchMockOpts) {
+  return fetchMockOpts.headers['Cache-Control'] === 'no-cache';
+}
