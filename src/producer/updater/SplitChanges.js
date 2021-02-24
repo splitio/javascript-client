@@ -22,6 +22,11 @@ import { SplitError } from '../../utils/lang/Errors';
 import { _Set, setToArray } from '../../utils/lang/Sets';
 import thenable from '../../utils/promise/thenable';
 
+// For server-side segments storage, returns true if all registered segments have been fetched (changeNumber !== -1)
+function checkAllSegmentsExist(segmentsStorage) {
+  return segmentsStorage.getRegisteredSegments().every(segmentName => segmentsStorage.getChangeNumber(segmentName) !== -1);
+}
+
 function computeSplitsMutation(entries) {
   const computed = entries.reduce((accum, split) => {
     if (split.status === 'ACTIVE') {
@@ -88,7 +93,8 @@ export default function SplitChangesUpdaterFactory(context, isNode = false) {
             storage.splits.removeSplits(mutation.removed),
             storage.segments.registerSegments(mutation.segments)
           ]).then(() => {
-            if (since !== splitChanges.till || readyOnAlreadyExistentState) {
+            // On server-side SDK, we must check that all registered segments have been fetched
+            if (readyOnAlreadyExistentState || (since !== splitChanges.till && (!isNode || checkAllSegmentsExist(storage.segments)))) {
               readyOnAlreadyExistentState = false;
               splitsEventEmitter.emit(splitsEventEmitter.SDK_SPLITS_ARRIVED);
             }

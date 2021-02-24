@@ -2,11 +2,13 @@ import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
 import splitChangesMock3 from '../mocks/splitchanges.since.1457552620999.till.1457552649999.SPLIT_UPDATE.json';
 import splitChangesMock4 from '../mocks/splitchanges.since.1457552649999.till.1457552650000.SPLIT_KILL.json';
+import splitChangesMock5 from '../mocks/splitchanges.since.1457552650000.till.1457552650001.SPLIT_UPDATE.json';
 
 import splitUpdateMessage from '../mocks/message.SPLIT_UPDATE.1457552649999.json';
 import oldSplitUpdateMessage from '../mocks/message.SPLIT_UPDATE.1457552620999.json';
 import segmentUpdateMessage from '../mocks/message.SEGMENT_UPDATE.1457552640000.json';
 import splitKillMessage from '../mocks/message.SPLIT_KILL.1457552650000.json';
+import splitUpdateWithNewSegmentsMessage from '../mocks/message.SPLIT_UPDATE.1457552650001.json';
 
 import authPushEnabled from '../mocks/auth.pushEnabled.node.json';
 
@@ -19,6 +21,7 @@ import { SplitFactory } from '../../';
 import SettingsFactory from '../../utils/settings';
 
 const key = 'nicolas@split.io';
+const otherUserKey = 'marcio@split.io';
 
 const baseUrls = {
   sdk: 'https://sdk.push-synchronization/api',
@@ -40,7 +43,8 @@ const MILLIS_FIRST_SPLIT_UPDATE_EVENT = 200;
 const MILLIS_SECOND_SPLIT_UPDATE_EVENT = 300;
 const MILLIS_SEGMENT_UPDATE_EVENT = 400;
 const MILLIS_SPLIT_KILL_EVENT = 500;
-const MILLIS_DESTROY = 600;
+const MILLIS_SPLIT_UPDATE_EVENT_WITH_NEW_SEGMENTS = 600;
+const MILLIS_DESTROY = 700;
 
 /**
  * Sequence of calls:
@@ -50,13 +54,14 @@ const MILLIS_DESTROY = 600;
  *  0.3 secs: SPLIT_UPDATE event with old changeNumber
  *  0.4 secs: SEGMENT_UPDATE event -> /segmentChanges/
  *  0.5 secs: SPLIT_KILL event -> /splitChanges
+ *  0.6 secs: SPLIT_UPDATE event with new segments -> /splitChanges, /segmentChanges/{newSegments}
  */
 export function testSynchronization(fetchMock, assert) {
-  assert.plan(15);
+  assert.plan(21);
   fetchMock.reset();
   __setEventSource(EventSourceMock);
 
-  let start, splitio, client;
+  let start, splitio, client, sdkUpdateCount = 0;
 
   // mock SSE open and message events
   setMockListener(function (eventSourceInstance) {
@@ -97,8 +102,22 @@ export function testSynchronization(fetchMock, assert) {
       eventSourceInstance.emitMessage(splitKillMessage);
     }, MILLIS_SPLIT_KILL_EVENT); // send a SPLIT_KILL event with a new changeNumber after 0.5 seconds
     setTimeout(() => {
+      assert.equal(client.getTreatment(key, 'qc_team'), 'yes', 'evaluation previous to split update');
+      assert.equal(client.getTreatment(otherUserKey, 'qc_team'), 'no', 'evaluation previous to split update');
+
+      client.once(client.Event.SDK_UPDATE, () => {
+        const lapse = Date.now() - start;
+        assert.true(nearlyEqual(lapse, MILLIS_SPLIT_UPDATE_EVENT_WITH_NEW_SEGMENTS), 'SDK_UPDATE due to SPLIT_UPDATE event with new segments');
+        assert.equal(client.getTreatment(key, 'qc_team'), 'no', 'evaluation of updated Split');
+        assert.equal(client.getTreatment(otherUserKey, 'qc_team'), 'yes', 'evaluation of updated Split');
+      });
+      eventSourceInstance.emitMessage(splitUpdateWithNewSegmentsMessage);
+    }, MILLIS_SPLIT_UPDATE_EVENT_WITH_NEW_SEGMENTS); // send a SPLIT_UPDATE event with new segments after 0.6 seconds
+    setTimeout(() => {
       client.destroy().then(() => {
         assert.equal(client.getTreatment(key, 'whitelist'), 'control', 'evaluation returns control if client is destroyed');
+        // @TODO SDK_UPDATE should be emitted 4 times, but currently it is being emitted twice on SPLIT_KILL
+        assert.equal(sdkUpdateCount, 5, 'SDK_UPDATE should be emitted 5 times');
         assert.end();
       });
     }, MILLIS_DESTROY); // destroy client after 0.6 seconds
@@ -153,7 +172,11 @@ export function testSynchronization(fetchMock, assert) {
     return { status: 200, body: splitChangesMock4 };
   });
 
+  // fetch due to SPLIT_UPDATE event, with an update that involves a new segment
+  fetchMock.getOnce(settings.url('/splitChanges?since=1457552650000'), { status: 200, body: splitChangesMock5 });
+
   mockSegmentChanges(fetchMock, new RegExp(`${settings.url('/segmentChanges')}/(employees|developers)`), [key]);
+  mockSegmentChanges(fetchMock, { url: new RegExp(`${settings.url('/segmentChanges')}/new_segment`), repeat: 2 }, [otherUserKey]);
 
   fetchMock.get(new RegExp('.*'), function (url) {
     assert.fail('unexpected GET request with url: ' + url);
@@ -164,5 +187,6 @@ export function testSynchronization(fetchMock, assert) {
   start = Date.now();
   splitio = SplitFactory(config);
   client = splitio.client();
+  client.on(client.Event.SDK_UPDATE, () => sdkUpdateCount++);
 
 }
