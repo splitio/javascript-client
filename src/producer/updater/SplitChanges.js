@@ -62,13 +62,14 @@ export default function SplitChangesUpdaterFactory(context, isNode = false) {
    * Split updater returns a promise that resolves with a `false` boolean value if it fails to fetch splits or synchronize them with the storage.
    *
    * @param {number | undefined} retry current number of retry attemps. this param is only set by SplitChangesUpdater itself.
+   * @param {boolean | undefined} noCache true to revalidate data to fetch
    */
-  return function SplitChangesUpdater(retry = 0) {
+  return function SplitChangesUpdater(retry = 0, noCache) {
 
     function splitChanges(since) {
       log.debug(`Spin up split update using since = ${since}`);
 
-      const fetcherPromise = splitChangesFetcher(settings, since, startingUp, metricCollectors, isNode)
+      const fetcherPromise = splitChangesFetcher(settings, since, startingUp, metricCollectors, isNode, noCache)
         .then(splitChanges => {
           startingUp = false;
 
@@ -105,7 +106,7 @@ export default function SplitChangesUpdaterFactory(context, isNode = false) {
           if (startingUp && settings.startup.retriesOnFailureBeforeReady > retry) {
             retry += 1;
             log.info(`Retrying download of splits #${retry}. Reason: ${error}`);
-            return SplitChangesUpdater(retry);
+            return SplitChangesUpdater(retry, noCache);
           } else {
             startingUp = false;
           }

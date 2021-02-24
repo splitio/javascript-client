@@ -18,11 +18,11 @@ import segmentChangesService from '../../services/segmentChanges';
 import segmentChangesRequest from '../../services/segmentChanges/get';
 import tracker from '../../utils/timeTracker';
 
-function greedyFetch(settings, lastSinceValue, segmentName, metricCollectors) {
+function greedyFetch(settings, lastSinceValue, segmentName, metricCollectors, noCache) {
   return tracker.start(tracker.TaskNames.SEGMENTS_FETCH, metricCollectors, segmentChangesService(segmentChangesRequest(settings, {
     since: lastSinceValue,
     segmentName
-  })))
+  }, noCache)))
     // no need to handle json parsing errors as SplitError, since errors are handled differently for segments
     .then(resp => resp.json())
     .then(json => {
@@ -45,8 +45,8 @@ function greedyFetch(settings, lastSinceValue, segmentName, metricCollectors) {
 }
 
 // @TODO migrate to a generator function and do the job incrementally
-function segmentChangesFetcher(settings, segmentName, since, metricCollectors) {
-  return greedyFetch(settings, since, segmentName, metricCollectors);
+function segmentChangesFetcher(settings, segmentName, since, metricCollectors, noCache) {
+  return greedyFetch(settings, since, segmentName, metricCollectors, noCache);
 }
 
 export default segmentChangesFetcher;

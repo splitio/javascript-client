@@ -26,7 +26,9 @@ export default class SplitUpdateWorker {
   __handleSplitUpdateCall() {
     if (this.maxChangeNumber > this.splitStorage.getChangeNumber()) {
       this.handleNewEvent = false;
-      this.splitProducer.synchronizeSplits().then(() => {
+
+      // fetch splits revalidating data if cached
+      this.splitProducer.synchronizeSplits(true).then(() => {
         if (this.handleNewEvent) {
           this.__handleSplitUpdateCall();
         } else {

@@ -35,10 +35,13 @@ const NodeUpdater = (context) => {
   let isSynchronizingSplits = false;
   let isSynchronizingSegments = false;
 
-  function synchronizeSplits() {
+  /**
+   * @param {boolean | undefined} noCache true to revalidate data to fetch
+   */
+  function synchronizeSplits(noCache) {
     isSynchronizingSplits = true;
     // `splitsUpdater` promise always resolves, and with a false value if it fails to fetch or store splits
-    return splitsUpdater().then(function (res) {
+    return splitsUpdater(0, noCache).then(function (res) {
       // Mark splits as ready (track first successfull call to start downloading segments)
       splitFetchCompleted = true;
       isSynchronizingSplits = false;
@@ -48,11 +51,12 @@ const NodeUpdater = (context) => {
 
   /**
    * @param {string[] | undefined} segmentNames list of segment names to fetch. By passing `undefined` it fetches the list of segments registered at the storage
+   * @param {boolean | undefined} noCache true to revalidate data to fetch
    */
-  function synchronizeSegment(segmentNames) {
+  function synchronizeSegment(segmentNames, noCache) {
     isSynchronizingSegments = true;
     // `segmentsUpdater` promise always resolves, and with a false value if it fails to fetch or store some segment
-    return segmentsUpdater(segmentNames).then(function (res) {
+    return segmentsUpdater(segmentNames, noCache).then(function (res) {
       isSynchronizingSegments = false;
       return res;
     });
