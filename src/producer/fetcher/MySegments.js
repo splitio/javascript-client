@@ -20,8 +20,8 @@ import { SplitError } from '../../utils/lang/Errors';
 import mySegmentsService from '../../services/mySegments';
 import mySegmentsRequest from '../../services/mySegments/get';
 
-const mySegmentsFetcher = (settings, startingUp = false, metricCollectors) => {
-  let mySegmentsPromise = mySegmentsService(mySegmentsRequest(settings));
+const mySegmentsFetcher = (settings, startingUp = false, metricCollectors, noCache) => {
+  let mySegmentsPromise = mySegmentsService(mySegmentsRequest(settings, noCache));
 
   mySegmentsPromise = tracker.start(tracker.TaskNames.MY_SEGMENTS_FETCH, startingUp ? metricCollectors : false, mySegmentsPromise);
 

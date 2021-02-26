@@ -35,10 +35,13 @@ const FullBrowserProducer = (context) => {
 
   let isSynchronizingSplits = false;
 
-  function synchronizeSplits() {
+  /**
+   * @param {boolean | undefined} noCache true to revalidate data to fetch
+   */
+  function synchronizeSplits(noCache) {
     isSynchronizingSplits = true;
     // `splitsUpdater` promise always resolves, and with a false value if it fails to fetch or store splits
-    return splitsUpdater().then(function (res) {
+    return splitsUpdater(0, noCache).then(function (res) {
       isSynchronizingSplits = false;
       return res;
     });
