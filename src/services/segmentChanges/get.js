@@ -13,8 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-import base from '../request';
+import base, { noCacheExtraHeader } from '../request';
 
-export default function GET(settings, {since, segmentName}) {
-  return base(settings, `/segmentChanges/${segmentName}?since=${since}`);
+export default function GET(settings, {since, segmentName}, noCache) {
+  return base(settings, `/segmentChanges/${segmentName}?since=${since}`, undefined, noCache ? noCacheExtraHeader : undefined);
 }

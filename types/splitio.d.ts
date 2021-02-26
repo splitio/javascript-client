@@ -74,8 +74,7 @@ interface ISettings {
     offlineRefreshRate: number,
     eventsPushRate: number,
     eventsQueueSize: number,
-    authRetryBackoffBase: number,
-    streamingReconnectBackoffBase: number
+    pushRetryBackoffBase: number
   },
   readonly startup: {
     readyTimeout: number,
@@ -282,19 +281,12 @@ interface INodeBasicSettings extends ISharedSettings {
      */
     offlineRefreshRate?: number
     /**
-     * When using streaming mode, seconds to wait before re attempting to authenticate for push notifications.
+     * When using streaming mode, seconds to wait before re attempting to connect for push notifications.
      * Next attempts follow intervals in power of two: base seconds, base x 2 seconds, base x 4 seconds, ...
-     * @property {number} authRetryBackoffBase
+     * @property {number} pushRetryBackoffBase
      * @default 1
      */
-    authRetryBackoffBase?: number,
-    /**
-     * When using streaming mode, seconds to wait before re attempting to connect to streaming.
-     * Next attempts follow intervals in power of two: base seconds, base x 2 seconds, base x 4 seconds, ...
-     * @property {number} streamingReconnectBackoffBase
-     * @default 1
-     */
-    streamingReconnectBackoffBase?: number,
+    pushRetryBackoffBase?: number,
   },
   /**
    * SDK Core settings for NodeJS.
@@ -906,21 +898,14 @@ declare namespace SplitIO {
        * @property {number} offlineRefreshRate
        * @default 15
        */
-      offlineRefreshRate?: number
+      offlineRefreshRate?: number,
       /**
-       * When using streaming mode, seconds to wait before re attempting to authenticate for push notifications.
+       * When using streaming mode, seconds to wait before re attempting to connect for push notifications.
        * Next attempts follow intervals in power of two: base seconds, base x 2 seconds, base x 4 seconds, ...
-       * @property {number} authRetryBackoffBase
+       * @property {number} pushRetryBackoffBase
        * @default 1
        */
-      authRetryBackoffBase?: number,
-      /**
-       * When using streaming mode, seconds to wait before re attempting to connect to streaming.
-       * Next attempts follow intervals in power of two: base seconds, base x 2 seconds, base x 4 seconds, ...
-       * @property {number} streamingReconnectBackoffBase
-       * @default 1
-       */
-      streamingReconnectBackoffBase?: number,
+      pushRetryBackoffBase?: number,
     },
     /**
      * SDK Core settings for the browser.

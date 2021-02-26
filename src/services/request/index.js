@@ -39,3 +39,5 @@ function RequestFactory(settings, relativeUrl, params, extraHeaders) {
 }
 
 export default RequestFactory;
+
+export const noCacheExtraHeader = { 'Cache-Control': 'no-cache' };

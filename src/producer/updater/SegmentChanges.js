@@ -30,6 +30,7 @@ export default function SegmentChangesUpdaterFactory(context) {
     [context.constants.COLLECTORS]: metricCollectors
   } = context.getAll();
   const segmentsEventEmitter = readiness.segments;
+  const segmentsStorage = storage.segments;
 
   let readyOnAlreadyExistentState = true;
 
@@ -38,8 +39,11 @@ export default function SegmentChangesUpdaterFactory(context) {
    * Thus, a false result doesn't imply that SDK_SEGMENTS_ARRIVED was not emitted.
    *
    * @param {string[] | undefined} segmentNames list of segment names to fetch. By passing `undefined` it fetches the list of segments registered at the storage
+   * @param {boolean | undefined} fetchOnlyNew if true, only fetch the segments that not exists, i.e., which `changeNumber` is equal to -1.
+   * This param is used by SplitUpdateWorker on server-side SDK, to fetch new registered segments on SPLIT_UPDATE notifications.
+   * @param {boolean | undefined} noCache true to revalidate data to fetch on a SEGMENT_UPDATE notifications.
    */
-  return function SegmentChangesUpdater(segmentNames) {
+  return function SegmentChangesUpdater(segmentNames, fetchOnlyNew, noCache) {
     log.debug('Started segments update');
 
     // Async fetchers are collected here.
@@ -54,21 +58,21 @@ export default function SegmentChangesUpdaterFactory(context) {
         const segmentUpdater = function (since) {
           log.debug(`Processing segment ${segmentName}`);
 
-          updaters.push(segmentChangesFetcher(settings, segmentName, since, metricCollectors).then(function (changes) {
+          updaters.push(segmentChangesFetcher(settings, segmentName, since, metricCollectors, noCache).then(function (changes) {
             let changeNumber = -1;
             const changePromises = [];
             changes.forEach(x => {
               let promises = [];
               if (x.added.length > 0) {
-                const result = storage.segments.addToSegment(segmentName, x.added);
+                const result = segmentsStorage.addToSegment(segmentName, x.added);
                 if (thenable(result)) promises.push(result);
               }
               if (x.removed.length > 0) {
-                const result = storage.segments.removeFromSegment(segmentName, x.removed);
+                const result = segmentsStorage.removeFromSegment(segmentName, x.removed);
                 if (thenable(result)) promises.push(result);
               }
               if (x.added.length > 0 || x.removed.length > 0) {
-                const result = storage.segments.setChangeNumber(segmentName, x.till);
+                const result = segmentsStorage.setChangeNumber(segmentName, x.till);
                 if (thenable(result)) promises.push(result);
                 changeNumber = x.till;
               }
@@ -84,7 +88,7 @@ export default function SegmentChangesUpdaterFactory(context) {
           }));
         };
 
-        const since = storage.segments.getChangeNumber(segmentName);
+        const since = segmentsStorage.getChangeNumber(segmentName);
         const sincePromise = thenable(since) ? since.then(segmentUpdater) : segmentUpdater(since);
         sincePromises.push(sincePromise);
       }
@@ -113,7 +117,9 @@ export default function SegmentChangesUpdaterFactory(context) {
     }
 
     // If not a segment name provided, read list of available segments names to be updated.
-    const segments = segmentNames ? segmentNames : storage.segments.getRegisteredSegments();
+    let segments = segmentNames ? segmentNames : segmentsStorage.getRegisteredSegments();
+    if(fetchOnlyNew) segments = segments.filter(segmentName => segmentsStorage.getChangeNumber(segmentName) === -1 );
+
     return thenable(segments) ? segments.then(segmentsUpdater) : segmentsUpdater(segments);
   };
 
