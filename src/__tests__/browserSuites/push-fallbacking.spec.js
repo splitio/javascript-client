@@ -11,8 +11,8 @@ import mySegmentsMarcio from '../mocks/mysegments.marcio@split.io.json';
 
 import occupancy0ControlPriMessage from '../mocks/message.OCCUPANCY.0.control_pri.1586987434550.json';
 import occupancy1ControlPriMessage from '../mocks/message.OCCUPANCY.1.control_pri.1586987434450.json';
-import occupancy1ControlSecMessage from '../mocks/message.OCCUPANCY.1.control_sec.1586987434451.json';
 import occupancy2ControlPriMessage from '../mocks/message.OCCUPANCY.2.control_pri.1586987434650.json';
+import occupancy0ControlSecMessage from '../mocks/message.OCCUPANCY.0.control_sec.1586987434451.json';
 
 import streamingPausedControlPriMessage from '../mocks/message.CONTROL.STREAMING_PAUSED.control_pri.1586987434750.json';
 import streamingResumedControlPriMessage from '../mocks/message.CONTROL.STREAMING_RESUMED.control_pri.1586987434850.json';
@@ -112,7 +112,7 @@ export function testFallbacking(fetchMock, assert) {
     setTimeout(() => {
       eventSourceInstance.emitOpen();
       eventSourceInstance.emitMessage(occupancy1ControlPriMessage);
-      eventSourceInstance.emitMessage(occupancy1ControlSecMessage);
+      eventSourceInstance.emitMessage(occupancy0ControlSecMessage);
     }, MILLIS_SSE_OPEN); // open SSE connection after 0.1 seconds
 
     setTimeout(() => {
