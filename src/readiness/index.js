@@ -46,6 +46,7 @@ function GateContext() {
     });
 
     splits.on(Events.SDK_SPLITS_ARRIVED, (isSplitKill) => {
+      // `isSplitKill` condition avoids emitting SDK_READY if `/mySegments` fetch and SPLIT_KILL occurs before `/splitChanges` fetch
       if (!isSplitKill) splitsStatus = SPLITS_READY;
       gate.emit(Events.READINESS_GATE_CHECK_STATE);
     });

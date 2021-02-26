@@ -20,9 +20,9 @@ import { SplitError } from '../../utils/lang/Errors';
 import splitChangesService from '../../services/splitChanges';
 import splitChangesRequest from '../../services/splitChanges/get';
 
-function splitChangesFetcher(settings, since, startingUp = false, metricCollectors, isNode) {
+function splitChangesFetcher(settings, since, startingUp = false, metricCollectors, isNode, noCache) {
   const filterQueryString = settings.sync.__splitFiltersValidation.queryString;
-  let splitsPromise = splitChangesService(splitChangesRequest(settings, since, filterQueryString));
+  let splitsPromise = splitChangesService(splitChangesRequest(settings, since, filterQueryString, noCache));
   const collectMetrics = startingUp || isNode; // If we are on the browser, only collect this metric for first fetch. On node do it always.
 
   splitsPromise = tracker.start(tracker.TaskNames.SPLITS_FETCH, collectMetrics ? metricCollectors : false, splitsPromise);

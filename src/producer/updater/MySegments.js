@@ -49,8 +49,9 @@ export default function MySegmentsUpdaterFactory(context) {
    *
    * @param {number | undefined} retry current number of retry attemps. this param is only set by SplitChangesUpdater itself.
    * @param {string[] | undefined} segmentList list of mySegment names to sync in the storage. If the list is `undefined`, it fetches them before syncing in the storage.
+   * @param {boolean | undefined} noCache true to revalidate data to fetch
    */
-  return function MySegmentsUpdater(retry = 0, segmentList) {
+  return function MySegmentsUpdater(retry = 0, segmentList, noCache) {
     let updaterPromise;
 
     if (segmentList) {
@@ -58,7 +59,7 @@ export default function MySegmentsUpdaterFactory(context) {
       updaterPromise = new Promise((res) => { updateSegments(segmentList); res();});
     } else {
       // NOTE: We only collect metrics on startup.
-      updaterPromise = mySegmentsFetcher(settings, startingUp, metricCollectors).then(segments => {
+      updaterPromise = mySegmentsFetcher(settings, startingUp, metricCollectors, noCache).then(segments => {
         // Only when we have downloaded segments completely, we should not keep retrying anymore
         startingUp = false;
 
