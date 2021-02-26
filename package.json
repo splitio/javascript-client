@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio",
-  "version": "10.15.3",
+  "version": "10.15.4-canary.0",
   "description": "Split SDK",
   "files": [
     "README.md",
@@ -47,7 +47,7 @@
     "eventsource": "^1.0.7"
   },
   "devDependencies": {
-    "@babel/cli": "^7.10.5",
+    "@babel/cli": "^7.13.0",
     "@babel/core": "^7.10.2",
     "@babel/plugin-transform-runtime": "^7.10.1",
     "@babel/preset-env": "^7.10.2",
