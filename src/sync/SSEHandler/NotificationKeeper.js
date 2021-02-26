@@ -4,24 +4,21 @@ const CONTROL_CHANNEL_REGEXS = [/control_pri$/, /control_sec$/];
 
 export default function notificationKeeperFactory(feedbackLoopEmitter) {
 
-  // keep track of most recent occupancy notification timestamp per channel
-  let occupancyTimestamps = [-1, -1];
-
-  // keep track of publishers presence per channel, in order to compute `hasPublishers`
-  // Init with true, to emit PUSH_SUBSYSTEM_UP if initial OCCUPANCY notifications have 0 publishers
-  let occupancyPublishers = [true, true];
+  let channels = CONTROL_CHANNEL_REGEXS.map(regex => ({
+    regex,
+    hasPublishers: true, // keep track of publishers presence per channel, in order to compute `hasPublishers`. Init with true, to emit PUSH_SUBSYSTEM_UP if initial OCCUPANCY notifications have 0 publishers
+    oTime: -1, // keep track of most recent occupancy notification timestamp per channel
+    cTime: -1 // keep track of most recent control notification timestamp per channel
+  }));
 
   // false if the number of publishers is equal to 0 in all regions
   let hasPublishers = true;
-
-  // keep track of most recent control notification timestamp per channel
-  let controlTimestamps = [-1, -1];
 
   // false if last CONTROL event was STREAMING_PAUSED or STREAMING_DISABLED
   let hasResumed = true;
 
   function getHasPublishers() { // computes the value of `hasPublishers`
-    return occupancyPublishers.some(hasPublishers => hasPublishers);
+    return channels.some(c => c.hasPublishers);
   }
 
   return {
@@ -34,43 +31,51 @@ export default function notificationKeeperFactory(feedbackLoopEmitter) {
     },
 
     handleOccupancyEvent(publishers, channel, timestamp) {
-      CONTROL_CHANNEL_REGEXS.some((regex, index) => {
-        if (regex.test(channel) && timestamp > occupancyTimestamps[index]) {
-          occupancyTimestamps[index] = timestamp;
-          occupancyPublishers[index] = publishers !== 0;
-          const newHasPublishers = getHasPublishers();
-          if (hasResumed) {
-            if (!newHasPublishers && hasPublishers) {
-              feedbackLoopEmitter.emit(PUSH_SUBSYSTEM_DOWN);
-            } else if (newHasPublishers && !hasPublishers) {
-              feedbackLoopEmitter.emit(PUSH_SUBSYSTEM_UP);
+      for (let i = 0; i < channels.length; i++) {
+        const c = channels[i];
+        if (c.regex.test(channel)) {
+          if (timestamp > c.oTime) {
+            c.oTime = timestamp;
+            c.hasPublishers = publishers !== 0;
+            const newHasPublishers = getHasPublishers();
+            if (hasResumed) {
+              if (!newHasPublishers && hasPublishers) {
+                feedbackLoopEmitter.emit(PUSH_SUBSYSTEM_DOWN);
+              } else if (newHasPublishers && !hasPublishers) {
+                feedbackLoopEmitter.emit(PUSH_SUBSYSTEM_UP);
+              }
+              // nothing to do when hasResumed === false:
+              // streaming is already down for `!newHasPublishers`, and cannot be up for `newHasPublishers`
             }
-            // nothing to do when hasResumed === false:
-            // streaming is already down for `!newHasPublishers`, and cannot be up for `newHasPublishers`
+            hasPublishers = newHasPublishers;
           }
-          hasPublishers = newHasPublishers;
+          return;
         }
-      });
+      }
     },
 
     handleControlEvent(controlType, channel, timestamp) {
-      CONTROL_CHANNEL_REGEXS.some((regex, index) => {
-        if (regex.test(channel) && timestamp > controlTimestamps[index]) {
-          controlTimestamps[index] = timestamp;
-          if (controlType === ControlTypes.STREAMING_DISABLED) {
-            feedbackLoopEmitter.emit(PUSH_NONRETRYABLE_ERROR);
-          } else if (hasPublishers) {
-            if (controlType === ControlTypes.STREAMING_PAUSED && hasResumed) {
-              feedbackLoopEmitter.emit(PUSH_SUBSYSTEM_DOWN);
-            } else if (controlType === ControlTypes.STREAMING_RESUMED && !hasResumed) {
-              feedbackLoopEmitter.emit(PUSH_SUBSYSTEM_UP);
+      for (let i = 0; i < channels.length; i++) {
+        const c = channels[i];
+        if (c.regex.test(channel)) {
+          if (timestamp > c.cTime) {
+            c.cTime = timestamp;
+            if (controlType === ControlTypes.STREAMING_DISABLED) {
+              feedbackLoopEmitter.emit(PUSH_NONRETRYABLE_ERROR);
+            } else if (hasPublishers) {
+              if (controlType === ControlTypes.STREAMING_PAUSED && hasResumed) {
+                feedbackLoopEmitter.emit(PUSH_SUBSYSTEM_DOWN);
+              } else if (controlType === ControlTypes.STREAMING_RESUMED && !hasResumed) {
+                feedbackLoopEmitter.emit(PUSH_SUBSYSTEM_UP);
+              }
+              // nothing to do when hasPublishers === false:
+              // streaming is already down for `STREAMING_PAUSED`, and cannot be up for `STREAMING_RESUMED`
             }
-            // nothing to do when hasPublishers === false:
-            // streaming is already down for `STREAMING_PAUSED`, and cannot be up for `STREAMING_RESUMED`
+            hasResumed = controlType === ControlTypes.STREAMING_RESUMED;
           }
-          hasResumed = controlType === ControlTypes.STREAMING_RESUMED;
+          return;
         }
-      });
+      }
     },
 
   };
