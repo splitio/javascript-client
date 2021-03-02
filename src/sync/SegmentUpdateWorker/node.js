@@ -30,7 +30,7 @@ export default class SegmentUpdateWorker {
       const currentMaxChangeNumbers = segmentsToFetch.map(segmentToFetch => this.maxChangeNumbers[segmentToFetch]);
 
       // fetch segments revalidating data if cached
-      this.segmentsProducer.synchronizeSegment(segmentsToFetch, false, true).then((result) => {
+      this.segmentsProducer.synchronizeSegment(segmentsToFetch, true).then((result) => {
         // Unlike `SplitUpdateWorker` where changeNumber is consistent between notification and endpoint, if there is no error,
         // we must clean the `maxChangeNumbers` of those segments that didn't receive a new update notification during the fetch.
         if (result !== false) {

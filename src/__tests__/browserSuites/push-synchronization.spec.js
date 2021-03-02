@@ -221,19 +221,19 @@ export function testSynchronization(fetchMock, assert) {
 
   // fetch due to SPLIT_UPDATE event
   fetchMock.getOnce(settings.url('/splitChanges?since=1457552620999'), function (url, opts) {
-    if (!hasNoCacheHeader(opts)) assert.fail('request must include `Cache-Control` header1');
+    if (!hasNoCacheHeader(opts)) assert.fail('request must include `Cache-Control` header');
     return { status: 200, body: splitChangesMock3 };
   });
 
   // fetch due to first MY_SEGMENTS_UPDATE event
   fetchMock.getOnce(settings.url('/mySegments/nicolas%40split.io'), function (url, opts) {
-    if (!hasNoCacheHeader(opts)) assert.fail('request must include `Cache-Control` header2');
+    if (!hasNoCacheHeader(opts)) assert.fail('request must include `Cache-Control` header');
     return { status: 200, body: mySegmentsNicolasMock2 };
   });
 
   // fetch due to SPLIT_KILL event
   fetchMock.getOnce(settings.url('/splitChanges?since=1457552649999'), function (url, opts) {
-    if (!hasNoCacheHeader(opts)) assert.fail('request must include `Cache-Control` header3');
+    if (!hasNoCacheHeader(opts)) assert.fail('request must include `Cache-Control` header');
     assert.equal(client.getTreatment('whitelist'), 'not_allowed', 'evaluation with split killed immediately, before fetch is done');
     return { status: 200, body: splitChangesMock4 };
   });

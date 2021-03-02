@@ -15,7 +15,7 @@ tape('## Browser JS - E2E CI Tests for PUSH ##', function (assert) {
   assert.test('E2E / PUSH initialization: auth with push disabled', testAuthWithPushDisabled.bind(null, fetchMock));
   assert.test('E2E / PUSH initialization: auth with 401', testAuthWith401.bind(null, fetchMock));
   assert.test('E2E / PUSH initialization: fallback to polling if EventSource is not available', testNoEventSource.bind(null, fetchMock));
-  assert.test('E2E / PUSH initialization: fallback to polling if EventSource is not available', testNoBase64Support.bind(null, fetchMock));
+  assert.test('E2E / PUSH initialization: fallback to polling if `atob` or `btoa` native functions are not available', testNoBase64Support.bind(null, fetchMock));
   assert.test('E2E / PUSH initialization: sse with non-recoverable Ably error', testSSEWithNonRetryableError.bind(null, fetchMock));
 
   // Recoverable issues on inizialization
