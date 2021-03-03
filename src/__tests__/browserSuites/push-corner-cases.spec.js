@@ -41,7 +41,7 @@ const MILLIS_SPLIT_CHANGES_RESPONSE = 400;
  *  0.2 secs: SPLIT_KILL event -> /splitChanges
  *  0.4 secs: /splitChanges response --> SDK_READY
  */
-export function testSplitKillOnReadyFromCacheButBeforeReady(fetchMock, assert) {
+export function testSplitKillOnReadyFromCache(fetchMock, assert) {
   assert.plan(2);
   fetchMock.reset();
 
