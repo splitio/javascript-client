@@ -6,6 +6,7 @@ import { testSynchronization } from '../browserSuites/push-synchronization.spec'
 import { testSynchronizationRetries } from '../browserSuites/push-synchronization-retries.spec';
 import { testFallbacking } from '../browserSuites/push-fallbacking.spec';
 import { testRefreshToken } from '../browserSuites/push-refresh-token.spec';
+import { testSplitKillOnReadyFromCacheButBeforeReady } from '../browserSuites/push-corner-cases.spec';
 
 fetchMock.config.overwriteRoutes = false;
 
@@ -32,6 +33,9 @@ tape('## Browser JS - E2E CI Tests for PUSH ##', function (assert) {
   assert.test('E2E / PUSH fallbacking', testFallbacking.bind(null, fetchMock));
 
   assert.test('E2E / PUSH refresh token', testRefreshToken.bind(null, fetchMock));
+
+  // Corner cases
+  assert.test('E2E / PUSH corner case: SPLIT_KILL after SDK_READY_FROM_CACHE but before SDK_READY', testSplitKillOnReadyFromCacheButBeforeReady.bind(null, fetchMock));
 
   assert.end();
 });
