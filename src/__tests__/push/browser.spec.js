@@ -6,6 +6,7 @@ import { testSynchronization } from '../browserSuites/push-synchronization.spec'
 import { testSynchronizationRetries } from '../browserSuites/push-synchronization-retries.spec';
 import { testFallbacking } from '../browserSuites/push-fallbacking.spec';
 import { testRefreshToken } from '../browserSuites/push-refresh-token.spec';
+import { testSplitKillOnReadyFromCache } from '../browserSuites/push-corner-cases.spec';
 
 fetchMock.config.overwriteRoutes = false;
 
@@ -15,7 +16,7 @@ tape('## Browser JS - E2E CI Tests for PUSH ##', function (assert) {
   assert.test('E2E / PUSH initialization: auth with push disabled', testAuthWithPushDisabled.bind(null, fetchMock));
   assert.test('E2E / PUSH initialization: auth with 401', testAuthWith401.bind(null, fetchMock));
   assert.test('E2E / PUSH initialization: fallback to polling if EventSource is not available', testNoEventSource.bind(null, fetchMock));
-  assert.test('E2E / PUSH initialization: fallback to polling if EventSource is not available', testNoBase64Support.bind(null, fetchMock));
+  assert.test('E2E / PUSH initialization: fallback to polling if `atob` or `btoa` native functions are not available', testNoBase64Support.bind(null, fetchMock));
   assert.test('E2E / PUSH initialization: sse with non-recoverable Ably error', testSSEWithNonRetryableError.bind(null, fetchMock));
 
   // Recoverable issues on inizialization
@@ -32,6 +33,9 @@ tape('## Browser JS - E2E CI Tests for PUSH ##', function (assert) {
   assert.test('E2E / PUSH fallbacking', testFallbacking.bind(null, fetchMock));
 
   assert.test('E2E / PUSH refresh token', testRefreshToken.bind(null, fetchMock));
+
+  // Corner cases
+  assert.test('E2E / PUSH corner case: SPLIT_KILL notification must not emit SDK_READY if the SDK is ready from cache', testSplitKillOnReadyFromCache.bind(null, fetchMock));
 
   assert.end();
 });

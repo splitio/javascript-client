@@ -17,9 +17,9 @@ import SettingsFactory from '../../utils/settings';
 const userKey = 'nicolas@split.io';
 
 const baseUrls = {
-  sdk: 'https://sdk.push-synchronization/api',
-  events: 'https://events.push-synchronization/api',
-  auth: 'https://auth.push-synchronization/api'
+  sdk: 'https://sdk.push-refresh-token/api',
+  events: 'https://events.push-refresh-token/api',
+  auth: 'https://auth.push-refresh-token/api'
 };
 const config = {
   core: {
@@ -40,10 +40,10 @@ const MILLIS_REFRESH_TOKEN = 1000;
 
 /**
  * Sequence of calls:
- *  0.0 secs: initial SyncAll (/splitChanges, /segmentChanges/*), auth, SSE connection -> refresh token scheduled in 1 second.
- *  0.1 secs: SSE connection opened -> syncAll (/splitChanges, /segmentChanges/*)
+ *  0.0 secs: initial SyncAll (/splitChanges, /mySegments/*), auth, SSE connection -> refresh token scheduled in 1 second.
+ *  0.1 secs: SSE connection opened -> syncAll (/splitChanges, /mySegments/*)
  *  1.0 secs: refresh-token: reauth, SSE connection
- *  1.1 secs: SSE connection reopened -> syncAll (/splitChanges, /segmentChanges/*)
+ *  1.1 secs: SSE connection reopened -> syncAll (/splitChanges, /mySegments/*)
  *  2.0 secs: refresh-token: reauth with pushEnabled false --> SSE connection closed & syncAll
  *  2.2 secs: destroy the client. NO NEW REQUESTS SHOULD HAVE BEEN PERFORMED (too early for polling and push is disabled)
  */

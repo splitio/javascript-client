@@ -51,14 +51,14 @@ const NodeUpdater = (context) => {
 
   /**
    * @param {string[] | undefined} segmentNames list of segment names to fetch. By passing `undefined` it fetches the list of segments registered at the storage
+   * @param {boolean | undefined} noCache true to revalidate data to fetch on a SEGMENT_UPDATE notifications.
    * @param {boolean | undefined} fetchOnlyNew if true, only fetch the segments that not exists, i.e., which `changeNumber` is equal to -1.
    * This param is used by SplitUpdateWorker on server-side SDK, to fetch new registered segments on SPLIT_UPDATE notifications.
-   * @param {boolean | undefined} noCache true to revalidate data to fetch on a SEGMENT_UPDATE notifications.
    */
-  function synchronizeSegment(segmentNames, fetchOnlyNew, noCache) {
+  function synchronizeSegment(segmentNames, noCache, fetchOnlyNew) {
     isSynchronizingSegments = true;
     // `segmentsUpdater` promise always resolves, and with a false value if it fails to fetch or store some segment
-    return segmentsUpdater(segmentNames, fetchOnlyNew, noCache).then(function (res) {
+    return segmentsUpdater(segmentNames, noCache, fetchOnlyNew).then(function (res) {
       isSynchronizingSegments = false;
       return res;
     });

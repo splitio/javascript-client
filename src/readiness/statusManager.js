@@ -57,6 +57,8 @@ export default function callbackHandlerContext(context, internalReadyCbCount = 0
   function generateReadyPromise() {
     const promise = promiseWrapper(new Promise((resolve, reject) => {
       gate.once(SDK_READY, () => {
+        log.info('Split SDK is ready.');
+
         if (readyCbCount === internalReadyCbCount && !promise.hasOnFulfilled()) log.warn('No listeners for SDK Readiness detected. Incorrect control treatments could have been logged if you called getTreatment/s while the SDK was not yet ready.');
         context.put(context.constants.READY, true);
         isReady = true;

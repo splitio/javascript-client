@@ -108,6 +108,8 @@ tape('Readiness Callbacks handler - Event emitter and returned handler', t => {
     assert.true(loggerMock.warn.calledOnce, 'If the SDK_READY event fires and we have no callbacks for it (neither event nor ready promise) we get a warning.');
     assert.true(loggerMock.warn.calledWithExactly('No listeners for SDK Readiness detected. Incorrect control treatments could have been logged if you called getTreatment/s while the SDK was not yet ready.'), 'Telling us there were no listeners and evaluations before this point may have been incorrect.');
     assert.true(contextMock.put.calledOnceWithExactly(contextMock.constants.READY, true), 'It also takes care of marking the SDK ');
+    assert.true(loggerMock.info.calledOnce, 'If the SDK_READY event fires, we get a info message.');
+    assert.true(loggerMock.info.calledWithExactly('Split SDK is ready.'), 'Telling us the SDK is ready.');
 
     // Now it's marked as ready.
     addListenerCB('this event we do not care');
@@ -138,6 +140,9 @@ tape('Readiness Callbacks handler - Event emitter and returned handler', t => {
     readyEventCB();
     assert.false(loggerMock.warn.called, 'As we had at least one listener, we get no warnings.');
     assert.false(loggerMock.error.called, 'As we had at least one listener, we get no errors.');
+
+    assert.true(loggerMock.info.calledOnce, 'If the SDK_READY event fires, we get a info message.');
+    assert.true(loggerMock.info.calledWithExactly('Split SDK is ready.'), 'Telling us the SDK is ready.');
 
     resetStubs();
     assert.end();

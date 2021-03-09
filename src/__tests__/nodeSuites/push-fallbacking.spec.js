@@ -32,9 +32,9 @@ import SettingsFactory from '../../utils/settings';
 const key = 'nicolas@split.io';
 
 const baseUrls = {
-  sdk: 'https://sdk.push-synchronization/api',
-  events: 'https://events.push-synchronization/api',
-  auth: 'https://auth.push-synchronization/api'
+  sdk: 'https://sdk.push-fallbacking/api',
+  events: 'https://events.push-fallbacking/api',
+  auth: 'https://auth.push-fallbacking/api'
 };
 const config = {
   core: {

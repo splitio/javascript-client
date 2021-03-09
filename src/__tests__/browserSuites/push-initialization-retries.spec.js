@@ -131,7 +131,7 @@ export function testPushRetriesDueToSseErrors(fetchMock, assert) {
     sseattempts++;
   });
 
-  fetchMock.get({ url: settings.url(`/auth?users=${encodeURIComponent(userKey)}`), repeat: 3 }, function (url, opts) {
+  fetchMock.get({ url: settings.url(`/auth?users=${encodeURIComponent(userKey)}`), repeat: 3 /* 3 push attempts */ }, function (url, opts) {
     if (!opts.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
     assert.pass('auth success');
     return { status: 200, body: authPushEnabledNicolas };

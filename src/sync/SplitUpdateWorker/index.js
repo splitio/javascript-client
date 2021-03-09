@@ -33,7 +33,7 @@ export default class SplitUpdateWorker {
           this.__handleSplitUpdateCall();
         } else {
           // fetch new registered segments for server-side API. Not retrying on error
-          if(this.splitProducer.synchronizeSegment) this.splitProducer.synchronizeSegment(undefined, true);
+          if(this.splitProducer.synchronizeSegment) this.splitProducer.synchronizeSegment(undefined, false, true);
           this.backoff.scheduleCall();
         }
       });
