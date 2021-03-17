@@ -1,3 +1,11 @@
+10.15.4 (Mar 17, 2020)
+ - Updated Streaming logic with some improvements and fixes, including:
+      - Updated SSE error handling.
+      - Extended publishers tracking to support multiregion infrastructure.
+      - Enforced revalidation for requests stored in local caches, like proxies or browsers.
+      - Bugfixing - In NodeJS, fetch new segments captured due to streaming notifications.
+ - Updated some dependencies, including a vulnerability fix.
+
 10.15.3 (Feb 10, 2020)
  - Updated type definitions to remove `@types/node` dependency and avoid conflicts between Node and DOM type definitions.
  - Bugfixing - Handle issue importing node-fetch library (issue #505).

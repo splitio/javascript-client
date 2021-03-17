@@ -434,8 +434,7 @@ let fullBrowserSettings: SplitIO.IBrowserSettings = {
     offlineRefreshRate: 1,
     eventsPushRate: 1,
     eventsQueueSize: 1,
-    authRetryBackoffBase: 1,
-    streamingReconnectBackoffBase: 1
+    pushRetryBackoffBase: 1
   },
   startup: {
     readyTimeout: 1,
@@ -480,8 +479,7 @@ let fullNodeSettings: SplitIO.INodeSettings = {
     offlineRefreshRate: 1,
     eventsPushRate: 1,
     eventsQueueSize: 1,
-    authRetryBackoffBase: 1,
-    streamingReconnectBackoffBase: 1
+    pushRetryBackoffBase: 1
   },
   startup: {
     readyTimeout: 1,

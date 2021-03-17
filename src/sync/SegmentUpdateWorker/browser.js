@@ -28,7 +28,9 @@ export default class MySegmentUpdateWorker {
     if (this.maxChangeNumber > this.currentChangeNumber) {
       this.handleNewEvent = false;
       const currentMaxChangeNumber = this.maxChangeNumber;
-      this.mySegmentsProducer.synchronizeMySegments(this.segmentList).then((result) => {
+
+      // fetch mySegments revalidating data if cached
+      this.mySegmentsProducer.synchronizeMySegments(this.segmentList, true).then((result) => {
         if (result !== false) // Unlike `Split\SegmentUpdateWorker`, we cannot use `mySegmentsStorage.getChangeNumber` since `/mySegments` endpoint doesn't provide this value.
           this.currentChangeNumber = Math.max(this.currentChangeNumber, currentMaxChangeNumber); // use `currentMaxChangeNumber`, in case that `this.maxChangeNumber` was updated during fetch.
         if (this.handleNewEvent) {

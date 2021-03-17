@@ -19,6 +19,7 @@ before_script:
   - npm install
 
 script:
+  - npm run check
   - npm run test-browser-ci
   - npm run test-browser-e2e-ci
   - npm run test-browser-offline
@@ -32,7 +33,6 @@ script:
   - 'npm run test-node-destroy -- --no-progress'
   - npm run test-node-errors
   - npm run test-node-push
-  - npm run check
   - BUILD_BRANCH=$TRAVIS_BRANCH BUILD_COMMIT=$TRAVIS_COMMIT npm run rebuild:ci
 
 after_success:

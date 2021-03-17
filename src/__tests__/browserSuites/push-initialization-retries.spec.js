@@ -28,8 +28,7 @@ const config = {
     segmentsRefreshRate: 0.2,
     metricsRefreshRate: 3000,
     impressionsRefreshRate: 3000,
-    authRetryBackoffBase: 0.1,
-    streamingReconnectBackoffBase: 0.1
+    pushRetryBackoffBase: 0.1
   },
   urls: baseUrls,
   startup: {
@@ -44,12 +43,12 @@ const settings = SettingsFactory(config);
  * Sequence of calls:
  *  0.0 secs: initial SyncAll (/splitChanges, /mySegments/*) and first auth attempt (fail due to bad token)
  *  0.0 secs: polling (/splitChanges, /mySegments/*)
- *  0.1 secs: second auth attempt (fail due to network error)
+ *  0.1 secs: second push connect attempt (auth fail due to network error)
  *  0.2 secs: polling (/splitChanges, /mySegments/*)
- *  0.3 secs: third auth attempt (success but push disabled)
+ *  0.3 secs: third push connect attempt (auth success but push disabled)
  *  0.4 secs: polling (/splitChanges, /mySegments/*)
  */
-export function testAuthRetries(fetchMock, assert) {
+export function testPushRetriesDueToAuthErrors(fetchMock, assert) {
 
   let start, splitio, client, ready = false;
 
@@ -62,7 +61,7 @@ export function testAuthRetries(fetchMock, assert) {
   fetchMock.getOnce(settings.url(`/auth?users=${encodeURIComponent(userKey)}`), function (url, opts) {
     if (!opts.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
     const lapse = Date.now() - start;
-    const expected = (settings.scheduler.authRetryBackoffBase * Math.pow(2, 0) + settings.scheduler.authRetryBackoffBase * Math.pow(2, 1));
+    const expected = (settings.scheduler.pushRetryBackoffBase * Math.pow(2, 0) + settings.scheduler.pushRetryBackoffBase * Math.pow(2, 1));
     assert.true(nearlyEqual(lapse, expected), 'third auth attempt (aproximately in 0.3 seconds from first attempt)');
     return { status: 200, body: authPushDisabled };
   });
@@ -105,17 +104,17 @@ export function testAuthRetries(fetchMock, assert) {
 
 /**
  * Sequence of calls:
- *  0.0 secs: initial SyncAll (/splitChanges, /mySegments/*), auth success and sse fail
+ *  0.0 secs: initial SyncAll (/splitChanges, /mySegments/*), auth successes and sse fails
  *  0.0 secs: polling (/splitChanges, /mySegments/*)
- *  0.1 secs: second sse attempt
+ *  0.1 secs: second push connect attempt (auth successes and sse fails again)
  *  0.2 secs: polling (/splitChanges, /mySegments/*)
- *  0.3 secs: third sse attempt (success), syncAll (/splitChanges, /mySegments/*)
+ *  0.3 secs: third push connect attempt (auth and sse success), syncAll (/splitChanges, /mySegments/*)
  */
-export function testSSERetries(fetchMock, assert) {
+export function testPushRetriesDueToSseErrors(fetchMock, assert) {
   window.EventSource = EventSourceMock;
 
   let start, splitio, client, ready = false;
-  const expectedTimeToSSEsuccess = (settings.scheduler.streamingReconnectBackoffBase * Math.pow(2, 0) + settings.scheduler.streamingReconnectBackoffBase * Math.pow(2, 1));
+  const expectedTimeToSSEsuccess = (settings.scheduler.pushRetryBackoffBase * Math.pow(2, 0) + settings.scheduler.pushRetryBackoffBase * Math.pow(2, 1));
 
   const expectedSSEurl = `${settings.url('/sse')}?channels=NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_NTcwOTc3MDQx_mySegments,NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_splits,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_pri,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_sec&accessToken=${authPushEnabledNicolas.token}&v=1.1&heartbeats=true`;
   let sseattempts = 0;
@@ -132,7 +131,7 @@ export function testSSERetries(fetchMock, assert) {
     sseattempts++;
   });
 
-  fetchMock.getOnce(settings.url(`/auth?users=${encodeURIComponent(userKey)}`), function (url, opts) {
+  fetchMock.get({ url: settings.url(`/auth?users=${encodeURIComponent(userKey)}`), repeat: 3 /* 3 push attempts */ }, function (url, opts) {
     if (!opts.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
     assert.pass('auth success');
     return { status: 200, body: authPushEnabledNicolas };

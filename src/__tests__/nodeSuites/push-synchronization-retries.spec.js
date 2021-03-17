@@ -21,9 +21,9 @@ import SettingsFactory from '../../utils/settings';
 const key = 'nicolas@split.io';
 
 const baseUrls = {
-  sdk: 'https://sdk.push-synchronization/api',
-  events: 'https://events.push-synchronization/api',
-  auth: 'https://auth.push-synchronization/api'
+  sdk: 'https://sdk.push-synchronization-retries/api',
+  events: 'https://events.push-synchronization-retries/api',
+  auth: 'https://auth.push-synchronization-retries/api'
 };
 const config = {
   core: {
