@@ -87,6 +87,8 @@ export default function callbackHandlerContext(context, internalReadyCbCount = 0
       },
       /**
        * Returns a promise that will be resolved once the SDK has finished loading (SDK_READY event emitted) or rejected if the SDK has timedout (SDK_READY_TIMED_OUT event emitted).
+       * As it's meant to provide similar flexibility to the event approach, given that the SDK might be eventually ready after a timeout event, calling the `ready` method after the
+       * SDK had timed out will return a new promise that should eventually resolve if the SDK gets ready.
        *
        * Caveats: the method was designed to avoid an unhandled Promise rejection if the rejection case is not handled, so that `onRejected` handler is optional when using promises.
        * However, when using async/await syntax, the rejection should be explicitly propagated like in the following example:
