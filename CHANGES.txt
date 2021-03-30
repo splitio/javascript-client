@@ -427,7 +427,7 @@ var treatmentsMap = client.getTreatments('CUSTOMER_KEY', ['Split_1', 'Split_2'])
   ```
 
  - Added Manager API to query the state of the SDK. Please check the official
-  documenation for details.
+  documentation for details.
 
  - In Browser land, we can now enable localStorage as backend so we can reload
   the SDK quickly without downloading all the data again.

@@ -85,7 +85,23 @@ export default function callbackHandlerContext(context, internalReadyCbCount = 0
         SDK_UPDATE,
         SDK_READY_TIMED_OUT,
       },
-      // Expose the ready promise flag
+      /**
+       * Returns a promise that will be resolved once the SDK has finished loading (SDK_READY event emitted) or rejected if the SDK has timedout (SDK_READY_TIMED_OUT event emitted).
+       *
+       * Caveats: the method was designed to avoid an unhandled Promise rejection if the rejection case is not handled, so that `onRejected` handler is optional when using promises.
+       * However, when using async/await syntax, the rejection should be explicitly propagated like in the following example:
+       * ```
+       * try {
+       *   await client.ready().catch((e) => { throw e; });
+       *   // SDK is ready
+       * } catch(e) {
+       *   // SDK has timedout
+       * }
+       * ```
+       *
+       * @function ready
+       * @returns {Promise<void>}
+       */
       ready: () => {
         if (hasTimedout) {
           if (!isReady) {
