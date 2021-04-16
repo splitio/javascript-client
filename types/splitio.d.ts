@@ -93,7 +93,7 @@ interface ISettings {
     auth: string,
     streaming: string
   },
-  readonly debug: boolean,
+  readonly debug: boolean | LogLevel,
   readonly version: string,
   features: {
     [featureName: string]: string
@@ -149,7 +149,7 @@ interface ISharedSettings {
    * @property {Boolean} debug
    * @default false
    */
-  debug?: boolean,
+  debug?: boolean | LogLevel,
   /**
    * The impression listener, which is optional. Whatever you provide here needs to comply with the SplitIO.IImpressionListener interface,
    * which will check for the logImpression method.
@@ -360,7 +360,21 @@ interface IStatusInterface extends EventEmitter {
    */
   Event: EventConsts,
   /**
-   * Returns a promise that will be resolved once the SDK has finished loading.
+   * Returns a promise that will be resolved once the SDK has finished loading (SDK_READY event emitted) or rejected if the SDK has timedout (SDK_READY_TIMED_OUT event emitted).
+   * As it's meant to provide similar flexibility to the event approach, given that the SDK might be eventually ready after a timeout event, calling the `ready` method after the
+   * SDK had timed out will return a new promise that should eventually resolve if the SDK gets ready.
+   *
+   * Caveats: the method was designed to avoid an unhandled Promise rejection if the rejection case is not handled, so that `onRejected` handler is optional when using promises.
+   * However, when using async/await syntax, the rejection should be explicitly propagated like in the following example:
+   * ```
+   * try {
+   *   await client.ready().catch((e) => { throw e; });
+   *   // SDK is ready
+   * } catch(e) {
+   *   // SDK has timedout
+   * }
+   * ```
+   *
    * @function ready
    * @returns {Promise<void>}
    */
@@ -639,7 +653,7 @@ declare namespace SplitIO {
   /**
    * Enable 'Google Analytics to Split' integration, to track Google Analytics hits as Split events.
    *
-   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#google-analytics-to-split}
+   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#integrations}
    */
   interface IGoogleAnalyticsToSplitConfig {
     type: 'GOOGLE_ANALYTICS_TO_SPLIT',
@@ -692,7 +706,7 @@ declare namespace SplitIO {
   /**
    * Enable 'Split to Google Analytics' integration, to track Split impressions and events as Google Analytics hits.
    *
-   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#split-to-google-analytics}
+   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#integrations}
    */
   interface ISplitToGoogleAnalyticsConfig {
     type: 'SPLIT_TO_GOOGLE_ANALYTICS',

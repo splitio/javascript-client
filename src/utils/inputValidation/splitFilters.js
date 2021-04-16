@@ -1,7 +1,7 @@
 import { STANDALONE_MODE, FILTERS_METADATA } from '../constants';
 import { validateSplits } from './splits';
 import logFactory from '../logger';
-const log = logFactory('');
+const log = logFactory('splitio-settings');
 
 function validateFilterType(filterType) {
   return FILTERS_METADATA.some(filterMetadata => filterMetadata.type === filterType);
@@ -19,7 +19,7 @@ function validateFilterType(filterType) {
  */
 function validateSplitFilter(type, values, maxLength) {
   // validate and remove invalid and duplicated values
-  let result = validateSplits(values, 'Factory instantiation', `${type} filter`, `${type} filter value`);
+  let result = validateSplits(values, 'settings', `${type} filter`, `${type} filter value`);
 
   if (result) {
     // check max length
@@ -75,12 +75,12 @@ export default function validateSplitFilters(splitFilters, mode) {
   if (!splitFilters) return res;
   // Warn depending on the mode
   if (mode !== STANDALONE_MODE) {
-    log.warn(`Factory instantiation: split filters have been configured but will have no effect if mode is not '${STANDALONE_MODE}', since synchronization is being deferred to an external tool.`);
+    log.warn(`split filters have been configured but will have no effect if mode is not '${STANDALONE_MODE}', since synchronization is being deferred to an external tool.`);
     return res;
   }
   // Check collection type
   if (!Array.isArray(splitFilters) || splitFilters.length === 0) {
-    log.warn('Factory instantiation: splitFilters configuration must be a non-empty array of filter objects.');
+    log.warn('splitFilters configuration must be a non-empty array of filter objects.');
     return res;
   }
 
@@ -94,7 +94,7 @@ export default function validateSplitFilters(splitFilters, mode) {
       res.groupedFilters[filter.type] = res.groupedFilters[filter.type].concat(filter.values);
       return true;
     } else {
-      log.warn(`Factory instantiation: split filter at position '${index}' is invalid. It must be an object with a valid filter type ('byName' or 'byPrefix') and a list of 'values'.`);
+      log.warn(`split filter at position '${index}' is invalid. It must be an object with a valid filter type ('byName' or 'byPrefix') and a list of 'values'.`);
     }
     return false;
   });
@@ -106,7 +106,7 @@ export default function validateSplitFilters(splitFilters, mode) {
 
   // build query string
   res.queryString = queryStringBuilder(res.groupedFilters);
-  log.debug(`Factory instantiation: splits filtering criteria is '${res.queryString}'.`);
+  log.debug(`splits filtering criteria is '${res.queryString}'.`);
 
   return res;
 }
