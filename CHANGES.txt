@@ -1,3 +1,6 @@
+10.15.5 (Apr XXX, 2020)
+ - Updated some dependencies, including a vulnerability fix.
+
 10.15.4 (Mar 17, 2020)
  - Updated Streaming logic with some improvements and fixes, including:
       - Updated SSE error handling.
