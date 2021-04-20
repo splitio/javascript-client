@@ -13,7 +13,7 @@ function EventTracker(context) {
     const msg = `event of type "${eventTypeId}" for traffic type "${trafficTypeName}". Key: ${key}. Value: ${value}. Timestamp: ${timestamp}. ${properties ? 'With properties.' : 'With no properties.'}`;
 
     if (tracked) {
-      log.info(`Successfully qeued ${msg}`);
+      log.info(`Successfully queued ${msg}`);
       if (integrationsManager) {
         // Wrap in a timeout because we don't want it to be blocking.
         setTimeout(function () {
