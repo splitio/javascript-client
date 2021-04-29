@@ -1,7 +1,7 @@
-10.15.5 (Apr XXX, 2020)
+10.15.5 (Apr 29, 2021)
  - Updated some dependencies, including a vulnerability fix.
 
-10.15.4 (Mar 17, 2020)
+10.15.4 (Mar 17, 2021)
  - Updated Streaming logic with some improvements and fixes, including:
       - Updated SSE error handling.
       - Extended publishers tracking to support multiregion infrastructure.
@@ -9,7 +9,7 @@
       - Bugfixing - In NodeJS, fetch new segments captured due to streaming notifications.
  - Updated some dependencies, including a vulnerability fix.
 
-10.15.3 (Feb 10, 2020)
+10.15.3 (Feb 10, 2021)
  - Updated type definitions to remove `@types/node` dependency and avoid conflicts between Node and DOM type definitions.
  - Bugfixing - Handle issue importing node-fetch library (issue #505).
 
