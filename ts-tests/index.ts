@@ -544,3 +544,8 @@ let fullAsyncSettings: SplitIO.INodeAsyncSettings = {
     splitFilters: splitFilters
   }
 };
+
+// debug property can be a log level
+fullBrowserSettings.debug = 'ERROR';
+fullNodeSettings.debug = 'WARN';
+fullAsyncSettings.debug = 'INFO';
