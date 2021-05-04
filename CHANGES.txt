@@ -1,3 +1,6 @@
+10.15.6 (XXX YY, 2021)
+ - Updated ioredis version now that their incompatibility with Node <10 was already fixed.
+
 10.15.5 (Apr 29, 2021)
  - Updated some dependencies, including a vulnerability fix.
 
