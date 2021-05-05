@@ -16,6 +16,18 @@ class SplitCacheInRedis {
   constructor(keys, redis) {
     this.redis = redis;
     this.keys = keys;
+
+    // There is no need to listen for redis 'error' event, because in that case ioredis calls will be rejected and handled by redis storage adapters.
+    // But it is done just to avoid getting the ioredis message `Unhandled error event: Error: connect ECONNREFUSED`.
+    this.redisError = false;
+
+    this.redis.on('error', (e) => {
+      this.redisError = e;
+    });
+
+    this.redis.on('connect', () => {
+      this.redisError = false;
+    });
   }
 
   addSplit(splitName, split) {
@@ -61,6 +73,12 @@ class SplitCacheInRedis {
    * Get split definition or null if it's not defined.
    */
   getSplit(splitName) {
+    if (this.redisError) {
+      log.error(this.redisError);
+
+      return Promise.reject(this.redisError);
+    }
+
     return this.redis.get(this.keys.buildSplitKey(splitName));
   }
 
@@ -141,6 +159,11 @@ class SplitCacheInRedis {
    * Fetches multiple splits definitions.
    */
   fetchMany(splitNames) {
+    if (this.redisError) {
+      log.error(this.redisError);
+
+      return Promise.reject(this.redisError);
+    }
     const splits = {};
     const keys = splitNames.map(splitName => this.keys.buildSplitKey(splitName));
     return this.redis.mget(...keys)
