@@ -45,6 +45,7 @@ export function SplitFactory(config) {
   context.put(context.constants.STATUS_MANAGER, statusManager);
 
   // Put storage config within context
+  // StorageFactory can throw an exception if `storage` config is not valid
   const storage = StorageFactory(context);
   context.put(context.constants.STORAGE, storage);
 

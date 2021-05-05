@@ -27,9 +27,9 @@ function SplitFactoryOnline(context, readyTrackers, mainClientMetricCollectors) 
   const { SDK_READY } = gate;
 
   // Shared instances use parent metrics collectors
-  const metrics = sharedInstance ? undefined : MetricsFactory(context);
+  let metrics;
   // Shared instances use parent events queue
-  const events = sharedInstance ? undefined : EventsFactory(context);
+  let events;
   // Signal listener only needed for main instances
   const signalsListener = sharedInstance ? undefined : new SignalsListener(context);
 
@@ -38,11 +38,15 @@ function SplitFactoryOnline(context, readyTrackers, mainClientMetricCollectors) 
   switch (settings.mode) {
     case PRODUCER_MODE:
     case STANDALONE_MODE: {
-      context.put(context.constants.COLLECTORS, metrics && metrics.collectors);
       // We don't fully instantiate syncManager if we are creating a shared instance.
       if (sharedInstance) {
         syncManager = syncManagers[settings.core.authorizationKey].shared(context);
       } else {
+        // Submitters should only be created for standalone or producer modes
+        metrics = MetricsFactory(context);
+        context.put(context.constants.COLLECTORS, metrics.collectors);
+        events = EventsFactory(context);
+
         syncManager = SyncManagerFactory(context);
         syncManagers[settings.core.authorizationKey] = syncManager;
       }
