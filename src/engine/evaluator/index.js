@@ -45,7 +45,7 @@ export function evaluateFeature(
   try {
     stringifiedSplit = storage.splits.getSplit(splitName);
   } catch (e) {
-    // Exception on sync `getSplit` storage. ATM, it is mot possible with InMemory and InLocal storages.
+    // Exception on sync `getSplit` storage. ATM, it is not possible with InMemory and InLocal storages.
     return treatmentException;
   }
 
@@ -81,7 +81,7 @@ export function evaluateFeatures(
   try {
     stringifiedSplits = storage.splits.fetchMany(splitNames);
   } catch (e) {
-    // Exception on sync `getSplit` storage. ATM, it is mot possible with InMemory and InLocal storages.
+    // Exception on sync `getSplit` storage. ATM, it is not possible with InMemory and InLocal storages.
     return treatmentsException(splitNames);
   }
 
