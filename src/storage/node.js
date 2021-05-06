@@ -23,16 +23,17 @@ const NodeStorageFactory = context => {
   const keys = new KeyBuilder(settings);
   const readinessManager = context.get(context.constants.READINESS);
   const meta = MetaBuilder(settings);
+  const onReadyCb = () => {
+    readinessManager.splits.emit(readinessManager.splits.SDK_SPLITS_ARRIVED);
+    readinessManager.segments.emit(readinessManager.segments.SDK_SEGMENTS_ARRIVED);
+  };
 
   switch (storage.type) {
     case STORAGE_REDIS: {
       const redis = new RedisAdapter(storage.options);
 
       // subscription to Redis connect event in order to emit SDK_READY
-      redis.on('connect', () => {
-        readinessManager.splits.emit(readinessManager.splits.SDK_SPLITS_ARRIVED);
-        readinessManager.segments.emit(readinessManager.segments.SDK_SEGMENTS_ARRIVED);
-      });
+      redis.on('connect', onReadyCb);
 
       return {
         splits: new SplitCacheInRedis(keys, redis),
@@ -63,7 +64,7 @@ const NodeStorageFactory = context => {
       const storageFactory = PluggableStorage(storage);
 
       const storageFactoryParams = {
-        readinessManager,
+        onReadyCb,
         metadata: meta,
         log: LogFactory() // logger instance without TAG. PluggableStorage module handles it.
       };
