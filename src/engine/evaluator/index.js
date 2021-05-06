@@ -26,6 +26,14 @@ const treatmentException = {
   config: null
 };
 
+function treatmentsException(splitNames) {
+  const evaluations = {};
+  splitNames.forEach(splitName => {
+    evaluations[splitName] = treatmentException;
+  });
+  return evaluations;
+}
+
 export function evaluateFeature(
   key,
   splitName,
@@ -37,10 +45,8 @@ export function evaluateFeature(
   try {
     stringifiedSplit = storage.splits.getSplit(splitName);
   } catch (e) {
-    // the only scenario where getSplit can throw an error is when the storage
-    // is redis and there is a connection issue and we can't retrieve the split
-    // to be evaluated
-    return Promise.resolve(treatmentException);
+    // Exception on sync `getSplit` storage. ATM, it is mot possible with InMemory and InLocal storages.
+    return treatmentException;
   }
 
   if (thenable(stringifiedSplit)) {
@@ -49,7 +55,11 @@ export function evaluateFeature(
       key,
       attributes,
       storage
-    ));
+    )).catch(
+      // Exception on async `getSplit` storage. For example, when the storage is redis or
+      // pluggable and there is a connection issue and we can't retrieve the split to be evaluated
+      () => treatmentException
+    );
   }
 
   return getEvaluation(
@@ -67,22 +77,21 @@ export function evaluateFeatures(
   storage
 ) {
   let stringifiedSplits;
-  const evaluations = {};
 
   try {
     stringifiedSplits = storage.splits.fetchMany(splitNames);
   } catch (e) {
-    // the only scenario where fetchMany can throw an error is when the storage
-    // is redis and there is a connection issue and we can't retrieve the split
-    // to be evaluated
-    splitNames.forEach(splitName => {
-      evaluations[splitName] = treatmentException;
-    });
-    return Promise.resolve(evaluations);
+    // Exception on sync `getSplit` storage. ATM, it is mot possible with InMemory and InLocal storages.
+    return treatmentsException(splitNames);
   }
 
   return (thenable(stringifiedSplits)) ?
-    stringifiedSplits.then(splits => getEvaluations(splitNames, splits, key, attributes, storage)) :
+    stringifiedSplits.then(splits => getEvaluations(splitNames, splits, key, attributes, storage))
+      .catch(() => {
+        // Exception on async `getSplits` storage. For example, when the storage is redis or
+        // pluggable and there is a connection issue and we can't retrieve the split to be evaluated
+        return treatmentsException(splitNames);
+      }) :
     getEvaluations(splitNames, stringifiedSplits, key, attributes, storage);
 }
 

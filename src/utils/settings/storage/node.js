@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-import { LOCALHOST_MODE, STORAGE_MEMORY, STORAGE_REDIS } from '../../constants';
+import { LOCALHOST_MODE, STORAGE_MEMORY, STORAGE_REDIS, STORAGE_CUSTOM } from '../../constants';
 
 const ParseStorageSettings = (settings) => {
   let {
@@ -80,6 +80,11 @@ const ParseStorageSettings = (settings) => {
         options: newOpts
       };
     }
+
+    // For custom storage, we return the original storage options, without updating
+    // the prefix because it is done internally by the PluggableStorage module.
+    case STORAGE_CUSTOM:
+      return settings.storage;
 
     // For now, we don't have modifiers or settings for MEMORY in NodeJS
     case STORAGE_MEMORY:

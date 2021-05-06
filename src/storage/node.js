@@ -13,23 +13,25 @@ import EventsCacheInMemory from './EventsCache/InMemory';
 import EventsCacheInRedis from './EventsCache/InRedis';
 import KeyBuilder from './Keys';
 import MetaBuilder from './Meta';
-import { STORAGE_MEMORY, STORAGE_REDIS } from '../utils/constants';
+import { STORAGE_MEMORY, STORAGE_REDIS, STORAGE_CUSTOM } from '../utils/constants';
+import { PluggableStorage } from '@splitsoftware/splitio-commons';
+import LogFactory from '../utils/logger';
 
 const NodeStorageFactory = context => {
   const settings = context.get(context.constants.SETTINGS);
   const { storage } = settings;
   const keys = new KeyBuilder(settings);
+  const readinessManager = context.get(context.constants.READINESS);
+  const meta = MetaBuilder(settings);
 
   switch (storage.type) {
     case STORAGE_REDIS: {
       const redis = new RedisAdapter(storage.options);
-      const meta = MetaBuilder(settings);
 
       // subscription to Redis connect event in order to emit SDK_READY
-      const { splits, segments } = context.get(context.constants.READINESS);
       redis.on('connect', () => {
-        splits.emit(splits.SDK_SPLITS_ARRIVED);
-        segments.emit(segments.SDK_SEGMENTS_ARRIVED);
+        readinessManager.splits.emit(readinessManager.splits.SDK_SPLITS_ARRIVED);
+        readinessManager.segments.emit(readinessManager.segments.SDK_SEGMENTS_ARRIVED);
       });
 
       return {
@@ -54,6 +56,19 @@ const NodeStorageFactory = context => {
           this.events = new EventsCacheInMemory(context);
         }
       };
+    }
+
+    case STORAGE_CUSTOM: {
+
+      const storageFactory = PluggableStorage(storage);
+
+      const storageFactoryParams = {
+        readinessManager,
+        metadata: meta,
+        log: LogFactory() // logger instance without TAG. PluggableStorage module handles it.
+      };
+
+      return storageFactory(storageFactoryParams);
     }
 
     case STORAGE_MEMORY:
