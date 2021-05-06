@@ -2,6 +2,7 @@ import RedisAdapter from '../../storage/RedisAdapter';
 import { parseRedisOptions } from '../../utils/settings/storage/node';
 
 /**
+ * Wrapper that uses our RedisAdapter
  *
  * @param {Object} redisAdapterOptions
  * @returns {import("../../../types/splitio").ICustomStorageWrapper} wrapper for IORedis client
@@ -70,7 +71,7 @@ export function redisWrapper(redisAdapterOptions) {
       redis = new RedisAdapter(parseRedisOptions(redisAdapterOptions));
 
       // There is no need to listen for redis 'error' event, because in that case ioredis calls will be rejected and handled by the pluggable storage adapters.
-      // But it is done just to avoid getting the ioredis message `Unhandled error event: Error: connect ECONNREFUSED`.
+      // But it is done to avoid getting the ioredis message `Unhandled error event: Error: connect ECONNREFUSED`.
       redis.on('error', (e) => {
         redisError = e;
       });
