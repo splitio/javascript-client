@@ -613,7 +613,40 @@ declare namespace SplitIO {
    * Asynchronous storages valid types for NodeJS.
    * @typedef {string} NodeAsyncStorage
    */
-  type NodeAsyncStorage = 'REDIS';
+  type NodeAsyncStorage = 'REDIS' | 'CUSTOM';
+  /** @TODO */
+  interface ICustomStorageWrapper {
+    /** @TODO */
+    get: (key: string) => Promise<string | null>
+    /** @TODO */
+    set: (key: string, value: string) => Promise<boolean>
+    /** @TODO */
+    getAndSet: (key: string, value: string) => Promise<string | null>
+    /** @TODO */
+    del: (key: string) => Promise<boolean>
+    /** @TODO */
+    getKeysByPrefix: (prefix: string) => Promise<string[]>
+    /** @TODO */
+    getByPrefix: (prefix: string) => Promise<string[]>
+    /** @TODO */
+    incr: (key: string) => Promise<boolean>
+    /** @TODO */
+    decr: (key: string) => Promise<boolean>
+    /** @TODO */
+    getMany: (keys: string[]) => Promise<(string | null)[]>
+    /** @TODO */
+    pushItems: (key: string, items: string[]) => Promise<void>
+    /** @TODO */
+    popItems: (key: string, count: number) => Promise<string[]>
+    /** @TODO */
+    getItemsCount: (key: string) => Promise<number>
+    /** @TODO */
+    itemContains: (key: string, item: string) => Promise<boolean>
+    /** @TODO */
+    connect: () => Promise<boolean>
+    /** @TODO */
+    close: () => Promise<void>
+  }
   /**
    * Storage valid types for the browser.
    * @typedef {string} BrowserStorage
@@ -1035,6 +1068,11 @@ declare namespace SplitIO {
        * @property {Object} options
        */
       options?: Object,
+      /**
+       * Custom storage wrapper. Use it with type: 'CUSTOM'
+       * @property {ICustomStorageWrapper} wrapper
+       */
+      wrapper?: ICustomStorageWrapper,
       /**
        * Optional prefix to prevent any kind of data collision between SDK versions.
        * @property {string} prefix
