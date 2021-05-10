@@ -12,6 +12,7 @@
  */
 
 import { SplitFactory } from '@splitsoftware/splitio';
+import { ICustomStorageWrapper } from '../types/splitio';
 
 let stringPromise: Promise<string>;
 let splitNamesPromise: Promise<SplitIO.SplitNames>;
@@ -141,13 +142,14 @@ nodeSettings = {
     authorizationKey: 'key'
   }
 };
-// For node with async storage
+// For node with async Redis storage
 asyncSettings = {
   core: {
     authorizationKey: 'key'
   },
   storage: {
-    type: 'REDIS'
+    type: 'REDIS',
+    options: {}
   }
 };
 // For browser
@@ -157,6 +159,34 @@ browserSettings = {
     key: 'customer-key'
   }
 };
+// For node with async custom storage
+class MyWrapper implements ICustomStorageWrapper {
+  get(key: string) { return Promise.resolve('some_key'); };
+  set(key: string, value: string) { return Promise.resolve(); };
+  getAndSet(key: string, value: string) { return Promise.resolve(null); };
+  del(key: string) { return Promise.resolve(); };
+  getKeysByPrefix(prefix: string) { return Promise.resolve(['some_key']); };
+  getByPrefix(prefix: string) { return Promise.resolve(['some_value']); };
+  incr(key: string) { return Promise.resolve(); };
+  decr(key: string) { return Promise.resolve(); };
+  getMany(keys: string[]) { return Promise.resolve(['some_value']); };
+  pushItems(key: string, items: string[]) { return Promise.resolve(); };
+  popItems(key: string, count: number) { return Promise.resolve(['some_value']); };
+  getItemsCount(key: string) { return Promise.resolve(0); };
+  itemContains(key: string, item: string) { return Promise.resolve(false); };
+  connect() { return Promise.resolve(); };
+  close() { return Promise.resolve(); };
+}
+asyncSettings = {
+  core: {
+    authorizationKey: 'key'
+  },
+  storage: {
+    type: 'CUSTOM',
+    wrapper: new MyWrapper()
+  }
+};
+
 // With sync settings should return ISDK, if settings have async storage it should return IAsyncSDK
 SDK = SplitFactory(browserSettings);
 SDK = SplitFactory(nodeSettings);
