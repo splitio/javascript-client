@@ -51,7 +51,7 @@ type SDKMode = 'standalone' | 'consumer';
  * Storage types.
  * @typedef {string} StorageType
  */
-type StorageType = 'MEMORY' | 'LOCALSTORAGE' | 'REDIS';
+type StorageType = 'MEMORY' | 'LOCALSTORAGE' | 'REDIS' | 'CUSTOM';
 /**
  * Settings interface. This is a representation of the settings the SDK expose, that's why
  * most of it's props are readonly. Only features should be rewritten when localhost mode is active.
@@ -327,6 +327,11 @@ interface INodeBasicSettings extends ISharedSettings {
      * @property {Object} options
      */
     options?: Object,
+    /**
+     * Custom storage wrapper. Use it with type: 'CUSTOM'
+     * @property {SplitIO.ICustomStorageWrapper} wrapper
+     */
+    wrapper?: SplitIO.ICustomStorageWrapper,
     /**
      * Optional prefix to prevent any kind of data collision between SDK versions.
      * @property {string} prefix
@@ -614,37 +619,151 @@ declare namespace SplitIO {
    * @typedef {string} NodeAsyncStorage
    */
   type NodeAsyncStorage = 'REDIS' | 'CUSTOM';
-  /** @TODO */
+  /**
+   * Interface of a custom wrapper storage.
+   */
   interface ICustomStorageWrapper {
-    /** @TODO */
+    /**
+     * Get the value of given `key`.
+     *
+     * @function get
+     * @param {string} key item to retrieve
+     * @returns {Promise<string | null>} A promise that resolves with the element value associated with the specified `key`, or null if the key does not exist.
+     * The promise rejects if the operation fails.
+     */
     get: (key: string) => Promise<string | null>
-    /** @TODO */
-    set: (key: string, value: string) => Promise<boolean>
-    /** @TODO */
+    /**
+     * Add or update an item with a specified `key` and `value`.
+     *
+     * @function set
+     * @param {string} key item to update
+     * @param {string} value value to set
+     * @returns {Promise<void>} A promise that resolves if the operation success, whether the key was added or updated.
+     * The promise rejects if the operation fails.
+     */
+    set: (key: string, value: string) => Promise<void>
+    /**
+     * Add or update an item with a specified `key` and `value`.
+     *
+     * @function getAndSet
+     * @param {string} key item to update
+     * @param {string} value value to set
+     * @returns {Promise<string | null>} A promise that resolves with the previous value associated to the given `key`, or null if not set.
+     * The promise rejects if the operation fails.
+     */
     getAndSet: (key: string, value: string) => Promise<string | null>
-    /** @TODO */
-    del: (key: string) => Promise<boolean>
-    /** @TODO */
+    /**
+     * Removes the specified item by `key`.
+     *
+     * @function del
+     * @param {string} key item to delete
+     * @returns {Promise<void>} A promise that resolves if the operation success, whether the key existed and was removed or it didn't exist.
+     * The promise rejects if the operation fails, for example, if there is a connectin error.
+     */
+    del: (key: string) => Promise<void>
+    /**
+     * Returns all keys matching the given prefix.
+     *
+     * @function getKeysByPrefix
+     * @param {string} prefix string prefix to match
+     * @returns {Promise<string[]>} A promise that resolves with the list of keys that match the given `prefix`.
+     * The promise rejects if the operation fails.
+     */
     getKeysByPrefix: (prefix: string) => Promise<string[]>
-    /** @TODO */
+    /**
+     * Returns all values which keys match the given prefix.
+     *
+     * @function getByPrefix
+     * @param {string} prefix
+     * @returns {Promise<string[]>} A promise that resolves with the list of values which keys match the given `prefix`.
+     * The promise rejects if the operation fails.
+     */
     getByPrefix: (prefix: string) => Promise<string[]>
-    /** @TODO */
-    incr: (key: string) => Promise<boolean>
-    /** @TODO */
-    decr: (key: string) => Promise<boolean>
-    /** @TODO */
+    /**
+     * Increments in 1 the given `key` value or set it in 1 if the value doesn't exist.
+     *
+     * @function incr
+     * @param {string} key key to increment
+     * @returns {Promise<void>} A promise that resolves if the operation success.
+     * The promise rejects if the operation fails, for example, if there is a connectin error or the key contains a string that can not be represented as integer.
+     */
+    incr: (key: string) => Promise<void>
+    /**
+     * Decrements in 1 the given `key` value or set it in -1 if the value doesn't exist.
+     *
+     * @function decr
+     * @param {string} key key to decrement
+     * @returns {Promise<void>} A promise that resolves if the operation success.
+     * The promise rejects if the operation fails, for example, if there is a connectin error or the key contains a string that can not be represented as integer.
+     */
+    decr: (key: string) => Promise<void>
+    /**
+     * Returns the values of all given `keys`.
+     *
+     * @function getMany
+     * @param {string[]} keys list of keys to retrieve
+     * @returns {Promise<(string | null)[]>} A promise that resolves with the list of items associated with the specified list of `keys`. For every key that does not hold a string value or does not exist, null is returned.
+     * The promise rejects if the operation fails.
+     */
     getMany: (keys: string[]) => Promise<(string | null)[]>
-    /** @TODO */
+    /**
+     * Inserts given items at the tail of `key` list. If `key` does not exist, an empty list is created before pushing the items.
+     *
+     * @function pushItems
+     * @param {string} key list key
+     * @param {string[]} items list of items to push
+     * @returns {Promise<void>} A promise that resolves if the operation success.
+     * The promise rejects if the operation fails, for example, if there is a connectin error or the key holds a value that is not a list.
+     */
     pushItems: (key: string, items: string[]) => Promise<void>
-    /** @TODO */
+    /**
+     * Removes and returns the first `count` items from a list. If `key` does not exist, an empty list is items is returned.
+     *
+     * @function popItems
+     * @param {string} key list key
+     * @param {number} count number of items to pop
+     * @returns {Promise<string[]>} A promise that resolves with the list of removed items from the list, or an empty array when key does not exist.
+     * The promise rejects if the operation fails, for example, if there is a connectin error or the key holds a value that is not a list.
+     */
     popItems: (key: string, count: number) => Promise<string[]>
-    /** @TODO */
+    /**
+     * Returns the count of items in a list, or 0 if `key` does not exist.
+     *
+     * @function getItemsCount
+     * @param {string} key list key
+     * @returns {Promise<number>} A promise that resolves with the number of items at the `key` list, or 0 when `key` does not exist.
+     * The promise rejects if the operation fails, for example, if there is a connectin error or the key holds a value that is not a list.
+     */
     getItemsCount: (key: string) => Promise<number>
-    /** @TODO */
+    /**
+     * Returns if item is a member of a list.
+     *
+     * @function itemContains
+     * @param {string} key list key
+     * @param {string} item item value
+     * @returns {Promise<boolean>} A promise that resolves with true boolean value if `item` is a member of the list stored at `key`, or false if it is not a member or `key` list does not exist.
+     * The promise rejects if the operation fails, for example, if there is a connectin error or the key holds a value that is not a list.
+     */
     itemContains: (key: string, item: string) => Promise<boolean>
-    /** @TODO */
-    connect: () => Promise<boolean>
-    /** @TODO */
+    /**
+     * Connects to the underlying storage.
+     * It is meant for storages that requires to be connected to some database or server. Otherwise it can just return a resolved promise.
+     * Note: will be called once on SplitFactory instantiation.
+     *
+     * @function connect
+     * @returns {Promise<void>} A promise that resolves when the wrapper successfully connect to the underlying storage.
+     * The promise rejects with the corresponding error if the wrapper fails to connect.
+     */
+    connect: () => Promise<void>
+    /**
+     * Disconnects the underlying storage.
+     * It is meant for storages that requires to be closed, in order to release resources. Otherwise it can just return a resolved promise.
+     * Note: will be called once on SplitFactory client destroy.
+     *
+     * @function close
+     * @returns {Promise<void>} A promise that resolves when the operation ends.
+     * The promise never rejects.
+     */
     close: () => Promise<void>
   }
   /**
@@ -1059,7 +1178,7 @@ declare namespace SplitIO {
   interface INodeAsyncSettings extends INodeBasicSettings {
     storage: {
       /**
-       * Redis storage type to be instantiated by the SDK.
+       * Async storage type (Redis or Custom) to be instantiated by the SDK.
        * @property {NodeAsyncStorage} type
        */
       type: NodeAsyncStorage,
@@ -1175,7 +1294,7 @@ declare namespace SplitIO {
     /**
      * Returns a Treatments value, whick will be (or eventually be) an object with the treatments for the given features.
      * For usage on NodeJS as we don't have only one key.
-     * NOTE: Treatment will be a promise only in async storages, like REDIS.
+     * NOTE: Treatment will be a promise only in async storages, like REDIS or CUSTOM.
      * @function getTreatments
      * @param {string} key - The string key representing the consumer.
      * @param {Array<string>} splitNames - An array of the split names we wan't to get the treatments.
@@ -1186,7 +1305,7 @@ declare namespace SplitIO {
     /**
      * Returns a Treatments value, whick will be (or eventually be) an object with the treatments for the given features.
      * For usage on the Browser as we defined the key on the settings.
-     * NOTE: Treatment will be a promise only in async storages, like REDIS.
+     * NOTE: Treatment will be a promise only in async storages, like REDIS or CUSTOM.
      * @function getTreatments
      * @param {Array<string>} splitNames - An array of the split names we wan't to get the treatments.
      * @param {Attributes=} attributes - An object of type Attributes defining the attributes for the given key.
@@ -1255,7 +1374,7 @@ declare namespace SplitIO {
     /**
      * Returns a Treatment value, which will be (or eventually be) the treatment string for the given feature.
      * For usage on NodeJS as we don't have only one key.
-     * NOTE: Treatment will be a promise only in async storages, like REDIS.
+     * NOTE: Treatment will be a promise only in async storages, like REDIS or CUSTOM.
      * @function getTreatment
      * @param {string} key - The string key representing the consumer.
      * @param {string} splitName - The string that represents the split we wan't to get the treatment.
@@ -1266,7 +1385,7 @@ declare namespace SplitIO {
     /**
      * Returns a TreatmentWithConfig value, which will be (or eventually be) a map with both treatment and config string for the given feature.
      * For usage on NodeJS as we don't have only one key.
-     * NOTE: Treatment will be a promise only in async storages, like REDIS.
+     * NOTE: Treatment will be a promise only in async storages, like REDIS or CUSTOM.
      * @function getTreatmentWithConfig
      * @param {string} key - The string key representing the consumer.
      * @param {string} splitName - The string that represents the split we wan't to get the treatment.
