@@ -23,7 +23,8 @@ const NodeStorageFactory = context => {
   const keys = new KeyBuilder(settings);
   const readinessManager = context.get(context.constants.READINESS);
   const meta = MetaBuilder(settings);
-  const onReadyCb = () => {
+  const onReadyCb = (error) => {
+    if (error) return;
     readinessManager.splits.emit(readinessManager.splits.SDK_SPLITS_ARRIVED);
     readinessManager.segments.emit(readinessManager.segments.SDK_SEGMENTS_ARRIVED);
   };

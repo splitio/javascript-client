@@ -6,7 +6,7 @@ import tape from 'tape';
 import sinon from 'sinon';
 import RedisServer from 'redis-server';
 import RedisClient from 'ioredis';
-import { redisWrapper } from './redisWrapper';
+import { ioredisWrapper } from './ioredisWrapper';
 import { exec } from 'child_process';
 import { SplitFactory } from '../../index';
 import { merge } from '../../utils/lang';
@@ -24,6 +24,7 @@ const redisOptions = {
   url: `redis://localhost:${redisPort}/0`
 };
 
+/** @type SplitIO.INodeAsyncSettings */
 const config = {
   core: {
     authorizationKey: 'uoj4sb69bjv7d4d027f7ukkitd53ek6a9ai9'
@@ -36,7 +37,7 @@ const config = {
   storage: {
     type: 'CUSTOM',
     prefix: redisPrefix,
-    wrapper: redisWrapper(redisOptions)
+    wrapper: ioredisWrapper(redisOptions)
   },
   startup: {
     readyTimeout: 36000 // 10hs
@@ -69,14 +70,38 @@ const initializeRedisServer = () => {
   return promise;
 };
 
-tape('NodeJS Custom Storage using Redis', function (t) {
+tape('NodeJS Custom Storage using a wrapper for Ioredis', function (t) {
 
   t.test('Regular usage', assert => {
     initializeRedisServer()
       .then(async (server) => {
+        /** @type SplitIO.ImpressionData[] */
+        const impressions = [];
+
         const expectedConfig = '{"color":"brown"}';
-        const sdk = SplitFactory(config);
+        const sdk = SplitFactory({
+          ...config,
+          impressionListener: {
+            logImpression(data) { impressions.push(data); }
+          }
+        });
         const client = sdk.client();
+
+        // Evaluation and track before SDK_READY
+        const getTreatmentResult = client.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT');
+        assert.equal(typeof getTreatmentResult.then, 'function', 'GetTreatment calls should always return a promise on Consumer mode.');
+        // NOTE: unlike others, JS SDK attempts to retrieve splits from storage even if SDK_READY has not been emitted.
+        // This could change in a coming breaking change, in order to return a control treatment without calling the storage wrapper.
+        // ATM, we have to set `enableOfflineQueue: false` in our ioredisWrapper, to make wrapper calls fail immediately if Redis 'ready' event was not emitted.
+        // The label might be 'exception' instead of 'not ready', if the wrapper operation promise is settled after the SDK is ready.
+        assert.equal(await getTreatmentResult, 'control', 'Evaluations using custom storage should be control if initiated before SDK_READY.');
+
+        const trackResult = client.track('nicolas@split.io', 'user', 'test.redis.event', 18);
+        assert.equal(typeof trackResult.then, 'function', 'Track calls should always return a promise on Consumer mode.');
+        assert.false(await trackResult, 'If the event failed to be queued due to a wrapper operation failure, the promise will resolve to false');
+
+        // Evaluation and track on SDK_READY
+        await client.ready();
 
         assert.equal(await client.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT'), 'on', 'Evaluations using custom storage should be correct.');
         assert.equal(await client.getTreatment('other', 'UT_IN_SEGMENT'), 'off', 'Evaluations using custom storage should be correct.');
@@ -125,15 +150,20 @@ tape('NodeJS Custom Storage using Redis', function (t) {
         await client.ready(); // promise already resolved
         await client.destroy();
 
+        // Assert impressionsListener
+        assert.equal(impressions.length, 15, 'Each evaluation has its corresponting impression');
+        // @TODO update assert label to 'not ready' once JS SDK stops calling the storage if SDK_READY was not emitted.
+        assert.equal(impressions[0].impression.label, 'exception', 'The first impression is control with label "exception"');
+
         // close server connection
         server.close().then(assert.end);
       });
   });
 
-  t.test('Connection ready and timed out', assert => {
+  t.test('Connection timeout and then ready', assert => {
     const readyTimeout = 0.1; // 100 millis
     const configWithShortTimeout = { ...config, startup: { readyTimeout } };
-    configWithShortTimeout.storage.wrapper = redisWrapper(redisOptions);
+    configWithShortTimeout.storage.wrapper = ioredisWrapper(redisOptions);
     const sdk = SplitFactory(configWithShortTimeout);
     const client = sdk.client();
 
@@ -142,11 +172,12 @@ tape('NodeJS Custom Storage using Redis', function (t) {
     let redisServer;
     assert.plan(19);
 
+    // Unlike RedisAdapter, operations to ioredisWrapper fail if it is not ready.
     client.getTreatment('UT_Segment_member', 'always-on').then(treatment => {
-      assert.equal(treatment, 'on', 'Evaluations using custom storage should be correct and resolved once Redis connection is stablished');
+      assert.equal(treatment, 'control', 'Evaluations using custom storage should be control if Redis was not ready');
     });
     client.track('nicolas@split.io', 'user', 'test.redis.event', 18).then(result => {
-      assert.true(result, 'If the event was succesfully queued the promise will resolve to true once Redis connection is stablished');
+      assert.false(result, 'If the event was not queued because Redis was not ready, the promise will resolve to false');
     });
 
     // SDK_READY_TIMED_OUT event must be emitted after 100 millis
@@ -199,7 +230,7 @@ tape('NodeJS Custom Storage using Redis', function (t) {
         core: { authorizationKey: 'aaa4sb69bjv7d4d027f7ukkitd53ek6a9ai9' }
       };
       // assign a new wrapper, so that each factory has its own storage client.
-      configWithVeryShortTimeout.storage.wrapper = redisWrapper(redisOptions);
+      configWithVeryShortTimeout.storage.wrapper = ioredisWrapper(redisOptions);
       const sdk2 = SplitFactory(configWithVeryShortTimeout);
       const client2 = sdk2.client();
       client2.on(client2.Event.SDK_READY_TIMED_OUT, () => {
@@ -230,7 +261,7 @@ tape('NodeJS Custom Storage using Redis', function (t) {
   t.test('Connection error', assert => {
     initializeRedisServer()
       .then((server) => {
-        const sdk = SplitFactory({ ...config, storage: { ...config.storage, wrapper: redisWrapper(redisOptions) }, debug: true });
+        const sdk = SplitFactory({ ...config, storage: { ...config.storage, wrapper: ioredisWrapper(redisOptions) } });
         const client = sdk.client();
 
         client.once(client.Event.SDK_READY_TIMED_OUT, assert.fail);
@@ -257,18 +288,14 @@ tape('NodeJS Custom Storage using Redis', function (t) {
 
           // close server connection
           server.close().then(() => {
-            console.log('server closed');
             // we need to add a delay before doing a getTreatment
             setTimeout(async () => {
-              console.log('1 closed');
               assert.equal(await client.getTreatment('UT_Segment_member', 'UT_NOT_SET_MATCHER', {
                 permissions: ['create']
               }), 'control', 'In the event of a Redis error like a disconnection, getTreatments should not hang but resolve to "control".');
-              console.log('2 closed');
               assert.equal(await client.getTreatment('UT_Segment_member', 'UT_NOT_SET_MATCHER', {
                 permissions: ['not_matching']
               }), 'control', 'In the event of a Redis error like a disconnection, getTreatments should not hang but resolve to "control".');
-              console.log('3 closed');
               assert.equal(await client.getTreatment('UT_Segment_member', 'always-on'), 'control', 'In the event of a Redis error like a disconnection, getTreatments should not hang but resolve to "control".');
 
               assert.false(await client.track('nicolas@split.io', 'user', 'test.redis.event', 18), 'In the event of a Redis error like a disconnection, track should resolve to false.');
@@ -287,7 +314,7 @@ tape('NodeJS Custom Storage using Redis', function (t) {
       .then(async (server) => {
         const sdk = SplitFactory({
           ...config,
-          storage: { ...config.storage, wrapper: redisWrapper(redisOptions) },
+          storage: { ...config.storage, wrapper: ioredisWrapper(redisOptions) },
           debug: 'WARN' // we want to see the error/warning logs calling the actual log method (if there's any)
         });
         const client = sdk.client();
@@ -333,7 +360,7 @@ tape('NodeJS Custom Storage using Redis', function (t) {
         for (let config of configs) {
 
           // Redis client and keys required to check Redis store.
-          const setting = SettingsFactory({ ...config, storage: { ...config.storage, wrapper: redisWrapper(redisOptions) } });
+          const setting = SettingsFactory({ ...config, storage: { ...config.storage, wrapper: ioredisWrapper(redisOptions) } });
           const connection = new RedisClient(redisOptions.url);
 
           const eventKey = `${redisPrefix}.SPLITIO.impressions`;
@@ -344,8 +371,11 @@ tape('NodeJS Custom Storage using Redis', function (t) {
           connection.del(impressionsKey);
 
           // Init Split client for current config
-          const sdk = SplitFactory({ ...config, storage: { ...config.storage, wrapper: redisWrapper(redisOptions) } });
+          const sdk = SplitFactory({ ...config, storage: { ...config.storage, wrapper: ioredisWrapper(redisOptions) } });
           const client = sdk.client();
+
+          // Unlike RedisAdapter, with ioredisWrapper we need to wait SDK_READY event to properly evaluate splits and track events.
+          await client.ready();
 
           // Perform client actions to store a single event and impression objects into Redis
           assert.equal(await client.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT'), 'on', 'The treatment is not control');

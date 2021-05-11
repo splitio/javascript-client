@@ -127,7 +127,7 @@ tape('NodeJS Redis', function (t) {
       });
   });
 
-  t.test('Connection ready and timed out', assert => {
+  t.test('Connection timeout and then ready', assert => {
     const readyTimeout = 0.1; // 100 millis
     const configWithShortTimeout = { ...config, startup: { readyTimeout } };
     const sdk = SplitFactory(configWithShortTimeout);
