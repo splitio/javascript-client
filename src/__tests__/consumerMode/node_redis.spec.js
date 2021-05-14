@@ -7,11 +7,11 @@ import sinon from 'sinon';
 import RedisServer from 'redis-server';
 import RedisClient from 'ioredis';
 import { exec } from 'child_process';
-import { SplitFactory } from '../';
-import { merge } from '../utils/lang';
-import KeyBuilder from '../storage/Keys';
-import SettingsFactory from '../utils/settings';
-import { nearlyEqual } from './testUtils';
+import { SplitFactory } from '../../index';
+import { merge } from '../../utils/lang';
+import KeyBuilder from '../../storage/Keys';
+import SettingsFactory from '../../utils/settings';
+import { nearlyEqual } from '../testUtils';
 
 const IP_VALUE = ipFunction.address();
 const HOSTNAME_VALUE = osFunction.hostname();
@@ -127,7 +127,7 @@ tape('NodeJS Redis', function (t) {
       });
   });
 
-  t.test('Connection ready and timed out', assert => {
+  t.test('Connection timeout and then ready', assert => {
     const readyTimeout = 0.1; // 100 millis
     const configWithShortTimeout = { ...config, startup: { readyTimeout } };
     const sdk = SplitFactory(configWithShortTimeout);
@@ -151,7 +151,7 @@ tape('NodeJS Redis', function (t) {
       assert.true(nearlyEqual(delay, readyTimeout * 1000), 'SDK_READY_TIMED_OUT event must be emitted after 100 millis');
     });
 
-    // alse, ready promise must be rejected after 100 millis
+    // Also, ready promise must be rejected after 100 millis
     client.ready().catch(() => {
       const delay = Date.now() - start;
       assert.true(nearlyEqual(delay, readyTimeout * 1000), 'Ready promise must be rejected after 100 millis');

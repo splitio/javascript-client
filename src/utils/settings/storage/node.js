@@ -13,7 +13,45 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-import { LOCALHOST_MODE, STORAGE_MEMORY, STORAGE_REDIS, STORAGE_CUSTOM } from '../../constants';
+import { LOCALHOST_MODE, STORAGE_CUSTOM, STORAGE_MEMORY, STORAGE_REDIS } from '../../constants';
+
+export function parseRedisOptions(options) {
+  let {
+    host,
+    port,
+    db,
+    pass,
+    url,
+    connectionTimeout,
+    operationTimeout
+  } = options;
+
+  if (process.env.REDIS_HOST)
+    host = process.env.REDIS_HOST;
+  if (process.env.REDIS_PORT)
+    port = process.env.REDIS_PORT;
+  if (process.env.REDIS_DB)
+    db = process.env.REDIS_DB;
+  if (process.env.REDIS_PASS)
+    pass = process.env.REDIS_PASS;
+  if (process.env.REDIS_URL)
+    url = process.env.REDIS_URL;
+
+  const newOpts = {
+    connectionTimeout, operationTimeout
+  };
+
+  if (url) {
+    newOpts.url = url;
+  } else {
+    newOpts.host = host;
+    newOpts.port = port;
+    newOpts.db = db;
+    newOpts.pass = pass;
+  }
+  return newOpts;
+}
+
 
 const ParseStorageSettings = (settings) => {
   let {
@@ -40,44 +78,10 @@ const ParseStorageSettings = (settings) => {
   // In other cases we can have MEMORY or REDIS
   switch (type) {
     case STORAGE_REDIS: {
-      let {
-        host,
-        port,
-        db,
-        pass,
-        url,
-        connectionTimeout,
-        operationTimeout
-      } = options;
-
-      if (process.env.REDIS_HOST)
-        host = process.env.REDIS_HOST;
-      if (process.env.REDIS_PORT)
-        port = process.env.REDIS_PORT;
-      if (process.env.REDIS_DB)
-        db = process.env.REDIS_DB;
-      if (process.env.REDIS_PASS)
-        pass = process.env.REDIS_PASS;
-      if (process.env.REDIS_URL)
-        url = process.env.REDIS_URL;
-
-      const newOpts = {
-        connectionTimeout, operationTimeout
-      };
-
-      if (url) {
-        newOpts.url = url;
-      } else {
-        newOpts.host = host;
-        newOpts.port = port;
-        newOpts.db = db;
-        newOpts.pass = pass;
-      }
-
       return {
         type,
         prefix,
-        options: newOpts
+        options: parseRedisOptions(options)
       };
     }
 
