@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.13.10",
-    "@splitsoftware/splitio-commons": "0.1.1-canary.1",
+    "@splitsoftware/splitio-commons": "0.1.1-canary.2",
     "@types/google.analytics": "0.0.40",
     "events": "3.1.0",
     "ioredis": "4.18.0",

@@ -7,10 +7,11 @@ import { parseRedisOptions } from '../../utils/settings/storage/node';
  * Operations fail until `connect` is resolved when the Redis 'ready' event is emitted.
  *
  * @param {Object} redisOptions redis options with the format expected at `settings.storage.options`
- * @returns {import("../../../types/splitio").ICustomStorageWrapper} wrapper for IORedis client
+ * @returns {import("@splitsoftware/splitio-commons/types/storages/types").ICustomStorageWrapper} wrapper for IORedis client
  */
 export function ioredisWrapper(redisOptions) {
 
+  /** @type ioredis.Redis */
   let redis;
 
   return {
@@ -33,14 +34,14 @@ export function ioredisWrapper(redisOptions) {
     getByPrefix(prefix) {
       return this.getKeysByPrefix(prefix).then(keys => redis.mget(...keys));
     },
+    getMany(keys) {
+      return redis.mget(...keys);
+    },
     incr(key) {
       return redis.incr(key);
     },
     decr(key) {
       return redis.decr(key);
-    },
-    getMany(keys) {
-      return redis.mget(...keys);
     },
     pushItems(key, items) {
       return redis.rpush(key, items);
@@ -53,6 +54,15 @@ export function ioredisWrapper(redisOptions) {
     },
     itemContains(key, item) {
       return redis.sismember(key, item).then(matches => matches !== 0);
+    },
+    addItems(key, items) {
+      return redis.sadd(key, items);
+    },
+    removeItems(key, items) {
+      return redis.srem(key, items);
+    },
+    getItems(key) {
+      return redis.smembers(key);
     },
     connect() {
       const options = RedisAdapter._defineOptions(parseRedisOptions(redisOptions));
