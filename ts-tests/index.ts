@@ -167,13 +167,16 @@ class MyWrapper implements ICustomStorageWrapper {
   del(key: string) { return Promise.resolve(); };
   getKeysByPrefix(prefix: string) { return Promise.resolve(['some_key']); };
   getByPrefix(prefix: string) { return Promise.resolve(['some_value']); };
+  getMany(keys: string[]) { return Promise.resolve(['some_value']); };
   incr(key: string) { return Promise.resolve(); };
   decr(key: string) { return Promise.resolve(); };
-  getMany(keys: string[]) { return Promise.resolve(['some_value']); };
   pushItems(key: string, items: string[]) { return Promise.resolve(); };
   popItems(key: string, count: number) { return Promise.resolve(['some_value']); };
   getItemsCount(key: string) { return Promise.resolve(0); };
   itemContains(key: string, item: string) { return Promise.resolve(false); };
+  addItems(key: string, items: string[]) { return Promise.resolve(); };
+  removeItems(key: string, items: string[]) { return Promise.resolve(); };
+  getItems(key: string) { return Promise.resolve(['some_value']); };
   connect() { return Promise.resolve(); };
   close() { return Promise.resolve(); };
 }
@@ -201,17 +204,17 @@ const instantiatedSettingsCore: {
   IPAddressesEnabled: boolean
 } = SDK.settings.core;
 const instantiatedSettingsMode: ('standalone' | 'consumer') = SDK.settings.mode;
-const instantiatedSettingsScheduler: {[key: string]: number} = SDK.settings.scheduler;
-const instantiatedSettingsStartup: {[key: string]: number} = SDK.settings.startup;
+const instantiatedSettingsScheduler: { [key: string]: number } = SDK.settings.scheduler;
+const instantiatedSettingsStartup: { [key: string]: number } = SDK.settings.startup;
 const instantiatedSettingsStorage: {
   prefix: string,
   options: Object,
   // It can have any of the storages.
   type: SplitIO.NodeSyncStorage | SplitIO.NodeAsyncStorage | SplitIO.BrowserStorage
 } = SDK.settings.storage;
-const instantiatedSettingsUrls: {[key: string]: string} = SDK.settings.urls;
+const instantiatedSettingsUrls: { [key: string]: string } = SDK.settings.urls;
 const instantiatedSettingsVersion: string = SDK.settings.version;
-let instantiatedSettingsFeatures: {[key: string]: string} = SDK.settings.features;
+let instantiatedSettingsFeatures: { [key: string]: string } = SDK.settings.features;
 // We should be able to write on features prop. The rest are readonly props.
 instantiatedSettingsFeatures.something = 'something';
 
@@ -244,14 +247,14 @@ AsyncSDK.Logger.disable();
 /**** Tests for IClient interface ****/
 
 // Events constants we get
-const eventConsts: {[key: string]: SplitIO.Event} = client.Event;
+const eventConsts: { [key: string]: SplitIO.Event } = client.Event;
 splitEvent = client.Event.SDK_READY;
 splitEvent = client.Event.SDK_READY_FROM_CACHE;
 splitEvent = client.Event.SDK_READY_TIMED_OUT;
 splitEvent = client.Event.SDK_UPDATE;
 
 // Client implements methods from NodeJS.Events. Testing a few.
-client = client.on(splitEvent, () => {});
+client = client.on(splitEvent, () => { });
 const a: boolean = client.emit(splitEvent);
 client = client.removeAllListeners(splitEvent);
 client = client.removeAllListeners();
@@ -306,14 +309,14 @@ tracked = client.track('myEventType', undefined, { prop1: 1, prop2: '2', prop3: 
 /*** Repeating tests for Async Client ***/
 
 // Events constants we get (same as for sync client, just for interface checking)
-const eventConstsAsymc: {[key: string]: SplitIO.Event} = client.Event;
+const eventConstsAsymc: { [key: string]: SplitIO.Event } = client.Event;
 splitEvent = client.Event.SDK_READY;
 splitEvent = client.Event.SDK_READY_FROM_CACHE;
 splitEvent = client.Event.SDK_READY_TIMED_OUT;
 splitEvent = client.Event.SDK_UPDATE;
 
 // Client implements methods from NodeJS.Events. (same as for sync client, just for interface checking)
-client = client.on(splitEvent, () => {});
+client = client.on(splitEvent, () => { });
 const a1: boolean = client.emit(splitEvent);
 client = client.removeAllListeners(splitEvent);
 client = client.removeAllListeners();
@@ -361,7 +364,7 @@ splitViews = manager.splits();
 const managerReadyPromise: Promise<void> = manager.ready();
 
 // Manager implements methods from NodeJS.Events. Testing a few.
-manager = manager.on(splitEvent, () => {});
+manager = manager.on(splitEvent, () => { });
 const aa: boolean = manager.emit(splitEvent);
 manager = manager.removeAllListeners(splitEvent);
 manager = manager.removeAllListeners();
@@ -369,7 +372,7 @@ const bb: number = manager.listenerCount(splitEvent);
 nodeEventEmitter = manager;
 
 // manager exposes Event constants too
-const managerEventConsts: {[key: string]: SplitIO.Event} = manager.Event;
+const managerEventConsts: { [key: string]: SplitIO.Event } = manager.Event;
 splitEvent = manager.Event.SDK_READY;
 splitEvent = manager.Event.SDK_READY_FROM_CACHE;
 splitEvent = manager.Event.SDK_READY_TIMED_OUT;
@@ -385,7 +388,7 @@ splitViewsAsync = asyncManager.splits();
 const asyncManagerReadyPromise: Promise<void> = asyncManager.ready();
 
 // asyncManager implements methods from NodeJS.Events. Testing a few.
-asyncManager = asyncManager.on(splitEvent, () => {});
+asyncManager = asyncManager.on(splitEvent, () => { });
 const aaa: boolean = asyncManager.emit(splitEvent);
 asyncManager = asyncManager.removeAllListeners(splitEvent);
 asyncManager = asyncManager.removeAllListeners();
@@ -393,7 +396,7 @@ const bbb: number = asyncManager.listenerCount(splitEvent);
 nodeEventEmitter = asyncManager;
 
 // asyncManager exposes Event constants too
-const asyncManagerEventConsts: {[key: string]: SplitIO.Event} = asyncManager.Event;
+const asyncManagerEventConsts: { [key: string]: SplitIO.Event } = asyncManager.Event;
 splitEvent = asyncManager.Event.SDK_READY;
 splitEvent = asyncManager.Event.SDK_READY_FROM_CACHE;
 splitEvent = asyncManager.Event.SDK_READY_TIMED_OUT;
@@ -438,7 +441,7 @@ let customGoogleAnalyticsToSplitConfig: SplitIO.IGoogleAnalyticsToSplitConfig = 
   filter: function (model: UniversalAnalytics.Model): boolean { return true; },
   mapper: function (model: UniversalAnalytics.Model, defaultMapping: SplitIO.EventData): SplitIO.EventData { return eventDataSample; },
   prefix: 'PREFIX',
-  identities: [{ key: 'key1', trafficType: 'tt1'}, { key: 'key2', trafficType: 'tt2'}],
+  identities: [{ key: 'key1', trafficType: 'tt1' }, { key: 'key2', trafficType: 'tt2' }],
 };
 let customSplitToGoogleAnalyticsConfig: SplitIO.ISplitToGoogleAnalyticsConfig = {
   type: 'SPLIT_TO_GOOGLE_ANALYTICS',
