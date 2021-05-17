@@ -51,7 +51,7 @@ type SDKMode = 'standalone' | 'consumer';
  * Storage types.
  * @typedef {string} StorageType
  */
-type StorageType = 'MEMORY' | 'LOCALSTORAGE' | 'REDIS';
+type StorageType = 'MEMORY' | 'LOCALSTORAGE' | 'REDIS' | 'CUSTOM';
 /**
  * Settings interface. This is a representation of the settings the SDK expose, that's why
  * most of it's props are readonly. Only features should be rewritten when localhost mode is active.
@@ -327,6 +327,11 @@ interface INodeBasicSettings extends ISharedSettings {
      * @property {Object} options
      */
     options?: Object,
+    /**
+     * Custom storage wrapper. Use it with type: 'CUSTOM'
+     * @property {Object} wrapper
+     */
+    wrapper?: Object,
     /**
      * Optional prefix to prevent any kind of data collision between SDK versions.
      * @property {string} prefix
@@ -613,7 +618,7 @@ declare namespace SplitIO {
    * Asynchronous storages valid types for NodeJS.
    * @typedef {string} NodeAsyncStorage
    */
-  type NodeAsyncStorage = 'REDIS';
+  type NodeAsyncStorage = 'REDIS' | 'CUSTOM';
   /**
    * Storage valid types for the browser.
    * @typedef {string} BrowserStorage
@@ -1026,7 +1031,7 @@ declare namespace SplitIO {
   interface INodeAsyncSettings extends INodeBasicSettings {
     storage: {
       /**
-       * Redis storage type to be instantiated by the SDK.
+       * Async storage type (Redis or Custom) to be instantiated by the SDK.
        * @property {NodeAsyncStorage} type
        */
       type: NodeAsyncStorage,
@@ -1035,6 +1040,11 @@ declare namespace SplitIO {
        * @property {Object} options
        */
       options?: Object,
+      /**
+       * Custom storage wrapper. Use it with type: 'CUSTOM'
+       * @property {Object} wrapper
+       */
+      wrapper?: Object,
       /**
        * Optional prefix to prevent any kind of data collision between SDK versions.
        * @property {string} prefix
