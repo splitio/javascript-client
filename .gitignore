@@ -7,6 +7,7 @@
 **/node_modules
 *.swp
 /.vscode
+dump.rdb
 
 ## local environment setup
 /startup.sh
