@@ -19,7 +19,7 @@ import ipFunction from 'ip';
 
 import { UNKNOWN, NA } from '../../constants';
 
-export default function(isIPAddressesEnabled, isConsumerMode) {
+export default function generateRuntimeSettings(isIPAddressesEnabled, isConsumerMode) {
   // If the values are not available, default to false (for standalone) or "unknown" (for consumer mode, to be used on Redis keys)
   let ip = ipFunction.address() || (isConsumerMode ? UNKNOWN : false);
   let hostname = osFunction.hostname() || (isConsumerMode ? UNKNOWN : false);
