@@ -12,7 +12,6 @@
  */
 
 import { SplitFactory } from '@splitsoftware/splitio';
-import { ICustomStorageWrapper } from '../types/splitio';
 
 let stringPromise: Promise<string>;
 let splitNamesPromise: Promise<SplitIO.SplitNames>;
@@ -160,7 +159,7 @@ browserSettings = {
   }
 };
 // For node with async custom storage
-class MyWrapper implements ICustomStorageWrapper {
+class MyWrapper {
   get(key: string) { return Promise.resolve('some_key'); };
   set(key: string, value: string) { return Promise.resolve(); };
   getAndSet(key: string, value: string) { return Promise.resolve(null); };
