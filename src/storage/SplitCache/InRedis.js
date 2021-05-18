@@ -116,7 +116,7 @@ class SplitCacheInRedis {
     ).then(processPipelineAnswer);
   }
 
-  getKeys() {
+  getSplitNames() {
     return this.redis.keys(this.keys.searchPatternForSplitKeys()).then(
       (listOfKeys) => listOfKeys.map(this.keys.extractKey)
     );

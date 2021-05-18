@@ -24,7 +24,7 @@ tape('SPLIT CACHE / Redis', async function (assert) {
   assert.ok( values.indexOf('something') !== -1 );
   assert.ok( values.indexOf('something else') !== -1 );
 
-  let splitNames = await cache.getKeys();
+  let splitNames = await cache.getSplitNames();
 
   assert.ok( splitNames.indexOf('lol1') !== -1 );
   assert.ok( splitNames.indexOf('lol2') !== -1 );
@@ -42,7 +42,7 @@ tape('SPLIT CACHE / Redis', async function (assert) {
   await cache.setChangeNumber(123);
   assert.ok( await cache.getChangeNumber() === 123 );
 
-  splitNames = await cache.getKeys();
+  splitNames = await cache.getSplitNames();
 
   assert.ok( splitNames.indexOf('lol1') === -1 );
   assert.ok( splitNames.indexOf('lol2') !== -1 );

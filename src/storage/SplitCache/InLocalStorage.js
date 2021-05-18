@@ -191,7 +191,7 @@ class SplitCacheLocalStorage {
     return accum;
   }
 
-  getKeys() {
+  getSplitNames() {
     const len = localStorage.length;
     const accum = [];
 
@@ -299,7 +299,7 @@ class SplitCacheLocalStorage {
           localStorage.setItem(this.keys.buildSplitsTillKey(), '-1');
 
           // * remove from cache splits that doesn't match with the new filters
-          this.getKeys().forEach((splitName) => {
+          this.getSplitNames().forEach((splitName) => {
             if (queryString && (
               groupedFilters.byName.indexOf(splitName) > -1 ||
               groupedFilters.byPrefix.some(prefix => splitName.startsWith(prefix + '__'))

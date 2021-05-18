@@ -99,10 +99,10 @@ class SplitCacheInMemory {
   }
 
   getAll() {
-    return this.getKeys().map(key => this.splitCache[key]);
+    return this.getSplitNames().map(key => this.splitCache[key]);
   }
 
-  getKeys() {
+  getSplitNames() {
     return Object.keys(this.splitCache);
   }
 

@@ -38,7 +38,7 @@ tape('SPLIT CACHE / In Memory / Get Keys', assert => {
   cache.addSplit('lol1', '{ "name": "something"}');
   cache.addSplit('lol2', '{ "name": "something else"}');
 
-  let keys = cache.getKeys();
+  let keys = cache.getSplitNames();
 
   assert.true(keys.indexOf('lol1') !== -1);
   assert.true(keys.indexOf('lol2') !== -1);
