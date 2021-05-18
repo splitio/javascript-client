@@ -78,8 +78,8 @@ tape('NodeJS Redis', function (t) {
         assert.equal(await client.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT'), 'on', '`getTreatment` evaluation using Redis storage should be correct.');
         assert.equal((await client.getTreatmentWithConfig('other', 'UT_IN_SEGMENT')).treatment, 'off', '`getTreatmentWithConfig` evaluation using Redis storage should be correct.');
 
-        assert.equal((await client.getTreatments('UT_Segment_member', 'UT_NOT_IN_SEGMENT'))['UT_NOT_IN_SEGMENT'], 'off', '`getTreatments` evaluation using Redis storage should be correct.');
-        assert.equal((await client.getTreatmentsWithConfig('other', 'UT_NOT_IN_SEGMENT'))['UT_NOT_IN_SEGMENT'].treatment, 'on', '`getTreatmentsWithConfig` evaluation using Redis storage should be correct.');
+        assert.equal((await client.getTreatments('UT_Segment_member', ['UT_NOT_IN_SEGMENT']))['UT_NOT_IN_SEGMENT'], 'off', '`getTreatments` evaluation using Redis storage should be correct.');
+        assert.equal((await client.getTreatmentsWithConfig('other', ['UT_NOT_IN_SEGMENT']))['UT_NOT_IN_SEGMENT'].treatment, 'on', '`getTreatmentsWithConfig` evaluation using Redis storage should be correct.');
 
         assert.equal(await client.getTreatment('UT_Segment_member', 'UT_SET_MATCHER', {
           permissions: ['admin']
