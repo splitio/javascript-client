@@ -158,7 +158,7 @@ class SplitCacheInRedis {
   /**
    * Fetches multiple splits definitions.
    */
-  fetchMany(splitNames) {
+  getSplits(splitNames) {
     if (this.redisError) {
       log.error(this.redisError);
 

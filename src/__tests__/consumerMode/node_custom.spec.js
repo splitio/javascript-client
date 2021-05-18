@@ -118,11 +118,11 @@ tape('NodeJS Custom Storage using a wrapper for Ioredis', function (t) {
 
         await client.ready();
 
-        assert.equal(await client.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT'), 'on', 'Evaluations using custom storage should be correct.');
-        assert.equal(await client.getTreatment('other', 'UT_IN_SEGMENT'), 'off', 'Evaluations using custom storage should be correct.');
+        assert.equal(await client.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT'), 'on', '`getTreatment` evaluation using custom storage should be correct.');
+        assert.equal((await client.getTreatmentWithConfig('other', 'UT_IN_SEGMENT')).treatment, 'off', '`getTreatmentWithConfig` evaluation using custom storage should be correct.');
 
-        assert.equal(await client.getTreatment('UT_Segment_member', 'UT_NOT_IN_SEGMENT'), 'off', 'Evaluations using custom storage should be correct.');
-        assert.equal(await client.getTreatment('other', 'UT_NOT_IN_SEGMENT'), 'on', 'Evaluations using custom storage should be correct.');
+        assert.equal((await client.getTreatments('UT_Segment_member', ['UT_NOT_IN_SEGMENT']))['UT_NOT_IN_SEGMENT'], 'off', '`getTreatments` evaluation using custom storage should be correct.');
+        assert.equal((await client.getTreatmentsWithConfig('other', ['UT_NOT_IN_SEGMENT']))['UT_NOT_IN_SEGMENT'].treatment, 'on', '`getTreatmentsWithConfig` evaluation using custom storage should be correct.');
 
         assert.equal(await client.getTreatment('UT_Segment_member', 'UT_SET_MATCHER', {
           permissions: ['admin']

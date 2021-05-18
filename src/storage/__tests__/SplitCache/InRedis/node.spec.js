@@ -47,7 +47,7 @@ tape('SPLIT CACHE / Redis', async function (assert) {
   assert.ok( splitNames.indexOf('lol1') === -1 );
   assert.ok( splitNames.indexOf('lol2') !== -1 );
 
-  const splits = await cache.fetchMany(['lol1', 'lol2']);
+  const splits = await cache.getSplits(['lol1', 'lol2']);
   assert.ok( splits['lol1'] === null );
   assert.ok( splits['lol2'] === 'something else' );
 
