@@ -1,4 +1,5 @@
 import { startsWith } from '../utils/lang';
+import { SplitError } from '../utils/lang/Errors';
 
 const everythingAtTheEnd = /[^.]+$/;
 const everythingAfterCount = /count\.([^/]+)$/;
@@ -91,7 +92,7 @@ class KeyBuilder {
     if (s && s.length) {
       return s[0];
     } else {
-      throw 'Invalid latency key provided';
+      throw new SplitError('Invalid latency key provided');
     }
   }
 
@@ -101,7 +102,7 @@ class KeyBuilder {
     if (m && m.length) {
       return m[1]; // everything after count
     } else {
-      throw 'Invalid counter key provided';
+      throw new SplitError('Invalid counter key provided');
     }
   }
 
@@ -114,7 +115,7 @@ class KeyBuilder {
         bucketNumber: parts[2]
       };
     } else {
-      throw 'Invalid counter key provided';
+      throw new SplitError('Invalid counter key provided');
     }
   }
 }

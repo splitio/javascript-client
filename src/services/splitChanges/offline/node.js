@@ -20,7 +20,9 @@ import yaml from 'js-yaml';
 import logFactory from '../../../utils/logger';
 import { isString, endsWith, find, forOwn, uniq, } from '../../../utils/lang';
 import parseCondition from './parseCondition';
+import { SplitError } from '../../../utils/lang/Errors';
 const log = logFactory('splitio-offline:splits-fetcher');
+
 
 const DEFAULT_FILENAME = '.split';
 
@@ -34,7 +36,7 @@ function configFilesPath(config = {}) {
 
     if (process.env.SPLIT_CONFIG_ROOT) root = process.env.SPLIT_CONFIG_ROOT;
 
-    if (!root) throw 'Missing split mock configuration root.';
+    if (!root) throw new SplitError('Missing split mock configuration root.');
 
     configFilePath = path.join(root, DEFAULT_FILENAME);
   }
