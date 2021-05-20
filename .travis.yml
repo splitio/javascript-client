@@ -33,7 +33,7 @@ script:
   - 'npm run test-node-destroy -- --no-progress'
   - npm run test-node-errors
   - npm run test-node-push
-  - BUILD_BRANCH=$TRAVIS_BRANCH BUILD_COMMIT=$TRAVIS_COMMIT npm run rebuild:ci
+  - BUILD_BRANCH=$TRAVIS_BRANCH BUILD_COMMIT=$TRAVIS_COMMIT npm run build:ci
 
 after_success:
   - bash sonar-scanner.sh
@@ -50,7 +50,7 @@ deploy:
     acl: public_read
     cache_control: "max-age=31536000, public"
     on:
-      branch: development
+      branch: release_v10.15.6
   - provider: s3
     access_key_id: ${AWS_ACCESS_KEY_ID_PROD}
     secret_access_key: ${AWS_SECRET_ACCESS_PROD}
