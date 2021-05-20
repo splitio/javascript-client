@@ -7,7 +7,6 @@ import keyParser from './utils/key/parser';
 import logFactory, { API } from './utils/logger';
 const log = logFactory('splitio');
 import tracker from './utils/timeTracker';
-import { SplitError } from './utils/lang/Errors';
 import SplitFactoryOnline from './factory/online';
 import SplitFactoryOffline from './factory/offline';
 import sdkStatusManager from './readiness/statusManager';
@@ -84,20 +83,20 @@ export function SplitFactory(config) {
       }
 
       if (typeof storage.shared != 'function') {
-        throw new SplitError('Shared Client not supported by the storage mechanism. Create isolated instances instead.');
+        throw new Error('Shared Client not supported by the storage mechanism. Create isolated instances instead.');
       }
 
       // Validate the key value
       const validKey = validateKey(key, 'Shared Client instantiation');
       if (validKey === false) {
-        throw new SplitError('Shared Client needs a valid key.');
+        throw new Error('Shared Client needs a valid key.');
       }
 
       let validTrafficType;
       if (trafficType !== undefined) {
         validTrafficType = validateTrafficType(trafficType, 'Shared Client instantiation');
         if (validTrafficType === false) {
-          throw new SplitError('Shared Client needs a valid traffic type or no traffic type at all.');
+          throw new Error('Shared Client needs a valid traffic type or no traffic type at all.');
         }
       }
       const instanceId = buildInstanceId(validKey, validTrafficType);
