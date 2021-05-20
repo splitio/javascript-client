@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio",
-  "version": "10.15.6-canary.6",
+  "version": "10.15.6-canary.7",
   "description": "Split SDK",
   "files": [
     "README.md",
@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.13.10",
-    "@splitsoftware/splitio-commons": "0.1.1-canary.2",
+    "@splitsoftware/splitio-commons": "0.1.1-canary.3",
     "@types/google.analytics": "0.0.40",
     "events": "3.1.0",
     "ioredis": "^4.26.0",
