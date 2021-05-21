@@ -34,17 +34,17 @@ function configFilesPath(config = {}) {
 
     if (process.env.SPLIT_CONFIG_ROOT) root = process.env.SPLIT_CONFIG_ROOT;
 
-    if (!root) throw 'Missing split mock configuration root.';
+    if (!root) throw new Error('Missing split mock configuration root.');
 
     configFilePath = path.join(root, DEFAULT_FILENAME);
   }
 
   // Validate the extensions
   if (!(endsWith(configFilePath, '.yaml', true) || endsWith(configFilePath, '.yml', true) || endsWith(configFilePath, '.split', true)))
-    throw `Invalid extension specified for Splits mock file. Accepted extensions are ".yml" and ".yaml". Your specified file is ${configFilePath}`;
+    throw new Error(`Invalid extension specified for Splits mock file. Accepted extensions are ".yml" and ".yaml". Your specified file is ${configFilePath}`);
 
   if (!fs.existsSync(configFilePath))
-    throw `Split configuration not found in ${configFilePath} - Please review your Split file location.`;
+    throw new Error(`Split configuration not found in ${configFilePath} - Please review your Split file location.`);
 
   return configFilePath;
 }

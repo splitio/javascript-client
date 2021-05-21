@@ -27,7 +27,7 @@ For widespread use of the SDK with different environments and module formats, we
 * A **ES2015** modules compatible build.
 * A **CommonJS** modules compatible build.
 
-The different builds can be generated all at once with the command `npm run rebuild`. Refer to [package.json](package.json) for more insight on the build scripts.
+The different builds can be generated all at once with the command `npm run build`. Refer to [package.json](package.json) for more insight on the build scripts.
 
 ### Running tests
 
