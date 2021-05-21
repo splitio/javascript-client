@@ -191,7 +191,7 @@ class SplitCacheLocalStorage {
     return accum;
   }
 
-  getKeys() {
+  getSplitNames() {
     const len = localStorage.length;
     const accum = [];
 
@@ -252,7 +252,7 @@ class SplitCacheLocalStorage {
   /**
    * Fetches multiple splits definitions.
    */
-  fetchMany(splitNames) {
+  getSplits(splitNames) {
     const splits = {};
     splitNames.forEach(splitName => {
       splits[splitName] = localStorage.getItem(this.keys.buildSplitKey(splitName));
@@ -299,7 +299,7 @@ class SplitCacheLocalStorage {
           localStorage.setItem(this.keys.buildSplitsTillKey(), '-1');
 
           // * remove from cache splits that doesn't match with the new filters
-          this.getKeys().forEach((splitName) => {
+          this.getSplitNames().forEach((splitName) => {
             if (queryString && (
               groupedFilters.byName.indexOf(splitName) > -1 ||
               groupedFilters.byPrefix.some(prefix => splitName.startsWith(prefix + '__'))

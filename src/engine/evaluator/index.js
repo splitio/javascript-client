@@ -79,7 +79,7 @@ export function evaluateFeatures(
   let stringifiedSplits;
 
   try {
-    stringifiedSplits = storage.splits.fetchMany(splitNames);
+    stringifiedSplits = storage.splits.getSplits(splitNames);
   } catch (e) {
     // Exception on sync `getSplit` storage. ATM, it is not possible with InMemory and InLocal storages.
     return treatmentsException(splitNames);

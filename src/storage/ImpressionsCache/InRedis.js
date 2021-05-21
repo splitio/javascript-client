@@ -24,7 +24,7 @@ class ImpressionsCacheInRedis {
   track(impressions) {
     return this.redis.rpush(
       this.keys.buildImpressionsKey(),
-      this.toJSON(impressions)
+      this._toJSON(impressions)
     ).then(queuedCount => {
       // If this is the creation of the key on Redis, set the expiration for it in 1hr.
       if (queuedCount === impressions.length) {
@@ -33,7 +33,7 @@ class ImpressionsCacheInRedis {
     });
   }
 
-  toJSON(impressions) {
+  _toJSON(impressions) {
     return impressions.map(impression => {
       const {
         keyName, bucketingKey, feature, treatment, label, time, changeNumber

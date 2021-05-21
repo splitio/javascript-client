@@ -36,7 +36,7 @@ const mockStorage = {
 
       return null;
     },
-    fetchMany(names) {
+    getSplits(names) {
       const splits = {};
       names.forEach(name => {
         splits[name] = this.getSplit(name);
@@ -64,7 +64,7 @@ tape('EVALUATOR - Multiple evaluations at once  / should return label exception,
     mockStorage
   );
 
-  assert.deepEqual(evaluation, expectedOutput, 'If there was an error on the fetchMany we should get the results for exception.');
+  assert.deepEqual(evaluation, expectedOutput, 'If there was an error on the `getSplits` we should get the results for exception.');
 
   assert.end();
 });

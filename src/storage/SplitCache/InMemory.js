@@ -99,10 +99,10 @@ class SplitCacheInMemory {
   }
 
   getAll() {
-    return this.getKeys().map(key => this.splitCache[key]);
+    return this.getSplitNames().map(key => this.splitCache[key]);
   }
 
-  getKeys() {
+  getSplitNames() {
     return Object.keys(this.splitCache);
   }
 
@@ -124,7 +124,7 @@ class SplitCacheInMemory {
   /**
    * Fetches multiple splits definitions.
    */
-  fetchMany(splitNames) {
+  getSplits(splitNames) {
     const splits = {};
     splitNames.forEach(splitName => {
       splits[splitName] = this.splitCache[splitName] || null;

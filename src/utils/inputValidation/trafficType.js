@@ -42,17 +42,17 @@ export function validateTrafficTypeExistance(maybeTT, context, method) {
   // If not ready or in localhost mode, we won't run the validation
   if (!isReady || settings.mode === LOCALHOST_MODE) return true;
 
-  const res = splitsStorage.trafficTypeExists(maybeTT);
+  const res = splitsStorage.trafficTypeExists(maybeTT); // never rejects or throws error
 
   if (thenable(res)) {
-    res.then(function(isValid) {
+    return res.then(function(isValid) {
       if (!isValid) logTTExistanceWarning(method, maybeTT);
 
       return isValid; // propagate result
     });
   } else {
     if (!res) logTTExistanceWarning(method, maybeTT);
+    return res;
   }
 
-  return res;
 }

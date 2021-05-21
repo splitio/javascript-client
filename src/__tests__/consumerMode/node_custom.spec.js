@@ -13,6 +13,9 @@ import { merge } from '../../utils/lang';
 import SettingsFactory from '../../utils/settings';
 import { nearlyEqual } from '../testUtils';
 
+const expectedSplitName = 'hierarchical_splits_testing_on';
+const expectedSplitView = { name: 'hierarchical_splits_testing_on', trafficType: 'user', killed: false, changeNumber: 1487277320548, treatments: ['on', 'off'], configs: {} };
+
 const IP_VALUE = ipFunction.address();
 const HOSTNAME_VALUE = osFunction.hostname();
 const NA = 'NA';
@@ -86,9 +89,16 @@ tape('NodeJS Custom Storage using a wrapper for Ioredis', function (t) {
           }
         });
         const client = sdk.client();
+        const manager = sdk.manager();
 
-        // Evaluation and track before SDK_READY
+        /** Evaluation, track and manager methods before SDK_READY */
+
         const getTreatmentResult = client.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT');
+        const trackResult = client.track('nicolas@split.io', 'user', 'test.redis.event', 18);
+        const namesResult = manager.names();
+        const splitResult = manager.split(expectedSplitName);
+        const splitsResult = manager.splits();
+
         assert.equal(typeof getTreatmentResult.then, 'function', 'GetTreatment calls should always return a promise on Consumer mode.');
         // NOTE: unlike others, JS SDK attempts to retrieve splits from storage even if SDK_READY has not been emitted.
         // This could change in a coming breaking change, in order to return a control treatment without calling the storage wrapper.
@@ -96,18 +106,23 @@ tape('NodeJS Custom Storage using a wrapper for Ioredis', function (t) {
         // The label might be 'exception' instead of 'not ready', if the wrapper operation promise is settled after the SDK is ready.
         assert.equal(await getTreatmentResult, 'control', 'Evaluations using custom storage should be control if initiated before SDK_READY.');
 
-        const trackResult = client.track('nicolas@split.io', 'user', 'test.redis.event', 18);
         assert.equal(typeof trackResult.then, 'function', 'Track calls should always return a promise on Consumer mode.');
         assert.false(await trackResult, 'If the event failed to be queued due to a wrapper operation failure, the promise will resolve to false');
 
-        // Evaluation and track on SDK_READY
+        // Manager methods
+        assert.deepEqual(await namesResult, [], 'manager `names` method returns an empty list of split names if called before SDK_READY or wrapper operation fail');
+        assert.deepEqual(await splitResult, null, 'manager `split` method returns a null split view if called before SDK_READY or wrapper operation fail');
+        assert.deepEqual(await splitsResult, [], 'manager `splits` method returns an empty list of split views if called before SDK_READY or wrapper operation fail');
+
+        /** Evaluation, track and manager methods on SDK_READY */
+
         await client.ready();
 
-        assert.equal(await client.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT'), 'on', 'Evaluations using custom storage should be correct.');
-        assert.equal(await client.getTreatment('other', 'UT_IN_SEGMENT'), 'off', 'Evaluations using custom storage should be correct.');
+        assert.equal(await client.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT'), 'on', '`getTreatment` evaluation using custom storage should be correct.');
+        assert.equal((await client.getTreatmentWithConfig('other', 'UT_IN_SEGMENT')).treatment, 'off', '`getTreatmentWithConfig` evaluation using custom storage should be correct.');
 
-        assert.equal(await client.getTreatment('UT_Segment_member', 'UT_NOT_IN_SEGMENT'), 'off', 'Evaluations using custom storage should be correct.');
-        assert.equal(await client.getTreatment('other', 'UT_NOT_IN_SEGMENT'), 'on', 'Evaluations using custom storage should be correct.');
+        assert.equal((await client.getTreatments('UT_Segment_member', ['UT_NOT_IN_SEGMENT']))['UT_NOT_IN_SEGMENT'], 'off', '`getTreatments` evaluation using custom storage should be correct.');
+        assert.equal((await client.getTreatmentsWithConfig('other', ['UT_NOT_IN_SEGMENT']))['UT_NOT_IN_SEGMENT'].treatment, 'on', '`getTreatmentsWithConfig` evaluation using custom storage should be correct.');
 
         assert.equal(await client.getTreatment('UT_Segment_member', 'UT_SET_MATCHER', {
           permissions: ['admin']
@@ -146,6 +161,15 @@ tape('NodeJS Custom Storage using a wrapper for Ioredis', function (t) {
 
         assert.true(await client.track('nicolas@split.io', 'user', 'test.redis.event', 18), 'If the event was succesfully queued the promise will resolve to true');
         assert.false(await client.track(), 'If the event was NOT succesfully queued the promise will resolve to false');
+
+        // Manager methods
+        const splitNames = await manager.names();
+        assert.equal(splitNames.length, 25, 'manager `names` method returns the list of split names asynchronously');
+        assert.equal(splitNames.indexOf(expectedSplitName) > -1, true, 'list of split names should contain expected splits');
+        assert.deepEqual(await manager.split(expectedSplitName), expectedSplitView, 'manager `split` method returns the split view of the given split name asynchronously');
+        const splitViews = await manager.splits();
+        assert.equal(splitViews.length, 25, 'manager `splits` method returns the list of split views asynchronously');
+        assert.deepEqual(splitViews.find(splitView => splitView.name === expectedSplitName), expectedSplitView, 'manager `split` method returns the split view of the given split name asynchronously');
 
         await client.ready(); // promise already resolved
         await client.destroy();
