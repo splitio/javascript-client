@@ -83,20 +83,20 @@ export function SplitFactory(config) {
       }
 
       if (typeof storage.shared != 'function') {
-        throw 'Shared Client not supported by the storage mechanism. Create isolated instances instead.';
+        throw new Error('Shared Client not supported by the storage mechanism. Create isolated instances instead.');
       }
 
       // Validate the key value
       const validKey = validateKey(key, 'Shared Client instantiation');
       if (validKey === false) {
-        throw 'Shared Client needs a valid key.';
+        throw new Error('Shared Client needs a valid key.');
       }
 
       let validTrafficType;
       if (trafficType !== undefined) {
         validTrafficType = validateTrafficType(trafficType, 'Shared Client instantiation');
         if (validTrafficType === false) {
-          throw 'Shared Client needs a valid traffic type or no traffic type at all.';
+          throw new Error('Shared Client needs a valid traffic type or no traffic type at all.');
         }
       }
       const instanceId = buildInstanceId(validKey, validTrafficType);

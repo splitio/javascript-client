@@ -10,7 +10,7 @@ export default function Fetcher(request) {
   return getFetch()(url, request)
     // https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch#Checking_that_the_fetch_was_successful
     .then(response => {
-      if (!response.ok) {
+      if (!response.ok) { // eslint-disable-next-line no-throw-literal
         throw { response };
       }
       return response;

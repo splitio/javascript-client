@@ -38,7 +38,8 @@
       ],
       "rules": {
         "no-restricted-syntax": ["error", "ForOfStatement", "ForInStatement", "ArrayPattern"],
-        "compat/compat": ["error", "defaults, not ie < 10, not node < 6"]
+        "compat/compat": ["error", "defaults, not ie < 10, not node < 6"],
+        "no-throw-literal": "error"
       },
       "parserOptions": {
         "ecmaVersion": 2015,

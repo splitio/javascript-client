@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio",
-  "version": "10.15.5",
+  "version": "10.15.6",
   "description": "Split SDK",
   "files": [
     "README.md",
@@ -35,7 +35,7 @@
     "@babel/runtime": "^7.13.10",
     "@types/google.analytics": "0.0.40",
     "events": "3.1.0",
-    "ioredis": "4.18.0",
+    "ioredis": "^4.26.0",
     "ip": "1.1.5",
     "js-yaml": "3.13.1",
     "node-fetch": "^2.6.1",
@@ -59,14 +59,14 @@
     "eslint": "^6.8.0",
     "eslint-plugin-compat": "^3.9.0",
     "fetch-mock": "^9.11.0",
-    "karma": "^5.2.3",
+    "karma": "^6.3.2",
     "karma-chrome-launcher": "^3.1.0",
     "karma-tap": "4.1.4",
     "karma-webpack": "^4.0.2",
     "lodash": "^4.17.21",
     "proxyquire": "^2.1.3",
     "puppeteer": "^3.3.0",
-    "redis-dump": "0.1.10",
+    "redis-dumpz": "0.1.11",
     "redis-server": "1.2.2",
     "rimraf": "^3.0.2",
     "sinon": "^9.2.4",
@@ -85,9 +85,9 @@
     "postbuild-cjs": "cross-env NODE_ENV=cjs node scripts/copy.packages.json.js",
     "build-umd:ci": "webpack --config webpack.ci.dev.js --env.branch=$BUILD_BRANCH --env.commit_hash=$BUILD_COMMIT && webpack --config webpack.ci.prod.js --env.branch=$BUILD_BRANCH --env.commit_hash=$BUILD_COMMIT",
     "build-umd": "webpack --config webpack.dev.js && webpack --config webpack.prod.js",
-    "rebuild": "rimraf lib umd es && npm run build-cjs && npm run build-es && npm run build-umd",
-    "rebuild:npm": "rimraf lib es && npm run build-cjs && npm run build-es",
-    "rebuild:ci": "rimraf lib umd es && npm run build-cjs && npm run build-es && npm run build-umd:ci",
+    "build": "rimraf lib umd es && npm run build-cjs && npm run build-es && npm run build-umd",
+    "build:npm": "rimraf lib es && npm run build-cjs && npm run build-es",
+    "build:ci": "rimraf lib umd es && npm run build-cjs && npm run build-es && npm run build-umd:ci",
     "check": "npm run check:lint && npm run check:version ",
     "check:lint": "eslint src",
     "check:version": "cross-env NODE_ENV=test tape -r @babel/register src/utils/__tests__/settings/index.spec.js",
@@ -113,8 +113,8 @@
     "browser-test-suite": "npm run test-browser-ci && npm run test-browser-e2e-ci && npm run test-browser-offline && npm run test-browser-destroy && npm run test-browser-errors && npm run test-browser-gaintegration",
     "node-test-suite": "npm run test-node && npm run test-node-e2e && npm run test-node-destroy && npm run test-node-offline && npm run test-node-redis && npm run test-node-errors",
     "test": "npm run browser-test-suite && npm run node-test-suite",
-    "canary": "npm run check && npm run rebuild && npm publish --tag canary",
-    "stable": "npm run check && npm run rebuild && npm publish"
+    "publish:rc": "npm run check && npm run build && npm publish --tag canary",
+    "publish:stable": "npm run check && npm run build && npm publish"
   },
   "greenkeeper": {
     "ignore": [
