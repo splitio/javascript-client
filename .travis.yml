@@ -34,7 +34,7 @@ script:
   - 'npm run test-node-destroy -- --no-progress'
   - npm run test-node-errors
   - npm run test-node-push
-  - BUILD_BRANCH=$TRAVIS_BRANCH BUILD_COMMIT=$TRAVIS_COMMIT npm run rebuild:ci
+  - BUILD_BRANCH=$TRAVIS_BRANCH BUILD_COMMIT=$TRAVIS_COMMIT npm run build:ci
 
 after_success:
   - bash sonar-scanner.sh
