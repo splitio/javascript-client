@@ -24,6 +24,8 @@ function FromObjectUpdaterFactory(Fetcher, context) {
     [context.constants.STORAGE]: storage
   } = context.getAll();
 
+  let firstTime = true;
+
   return function ObjectUpdater() {
     const splits = [];
     let loadError = null;
@@ -60,7 +62,11 @@ function FromObjectUpdaterFactory(Fetcher, context) {
         storage.splits.addSplits(splits)
       ]).then(() => {
         readiness.splits.emit(readiness.splits.SDK_SPLITS_ARRIVED);
-        readiness.segments.emit(readiness.segments.SDK_SEGMENTS_ARRIVED);
+        // Only emits SDK_SEGMENTS_ARRIVED the first time for SDK_READY
+        if (firstTime) {
+          firstTime = false;
+          readiness.segments.emit(readiness.segments.SDK_SEGMENTS_ARRIVED);
+        }
       });
     } else {
       return Promise.resolve();
