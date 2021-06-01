@@ -78,6 +78,30 @@ tape('Browser offline mode', function (assert) {
   sharedClient.on(sharedClient.Event.SDK_READY, function () {
     assert.equal(sharedClient.getTreatment('testing_split'), 'on');
   });
+
+  // Multiple factories must handle their own `features` mock, even if instantiated with the same config.
+  const factories = [
+    SplitFactory(config),
+    SplitFactory({ ...config }),
+    SplitFactory({ ...config, features: { ...config.features } })
+  ];
+  let readyCount = 0, updateCount = 0;
+
+  for (let i = 0; i < factories.length; i++) {
+    let client = factories[i].client(), manager = factories[i].manager();
+
+    client.on(client.Event.SDK_READY, () => {
+      assert.deepEqual(manager.names(), ['testing_split', 'testing_split_with_config']);
+      assert.equal(client.getTreatment('testing_split_with_config'), 'off');
+      readyCount++;
+    });
+    client.on(client.Event.SDK_UPDATE, () => {
+      assert.equal(client.getTreatment('testing_split_with_config'), 'nope');
+      assert.deepEqual(manager.names(), ['testing_split', 'testing_split_2', 'testing_split_3', 'testing_split_with_config']);
+      updateCount++;
+    });
+  }
+
   client.once(client.Event.SDK_READY, function () {
     const readyTimestamp = Date.now();
 
@@ -153,7 +177,7 @@ tape('Browser offline mode', function (assert) {
     });
 
     setTimeout(() => {
-      // Update the features.
+      // Update the features
       factory.settings.features = {
         testing_split: 'on',
         testing_split_2: 'off',
@@ -163,6 +187,10 @@ tape('Browser offline mode', function (assert) {
           config: null
         }
       };
+      // Update the features in all factories except the last one
+      for (let i = 0; i < factories.length - 1; i++) {
+        factories[i].settings.features = factory.settings.features;
+      }
     }, 1000);
 
     setTimeout(() => { factory.settings.features = originalFeaturesMap; }, 200);
@@ -173,6 +201,8 @@ tape('Browser offline mode', function (assert) {
     // once updated, test again.
     client.once(client.Event.SDK_UPDATE, function () {
       assert.true((Date.now() - readyTimestamp) > 1000, 'Should only emit SDK_UPDATE after a real update.');
+
+      client.once(client.Event.SDK_UPDATE, function () { assert.fail('Should not emit a second SDK_UPDATE event'); });
 
       assert.equal(client.getTreatment('testing_split_2'), 'off');
       assert.equal(client.getTreatment('testing_split_3'), 'custom_treatment');
@@ -246,23 +276,32 @@ tape('Browser offline mode', function (assert) {
         testing_not_exist: { treatment: 'control', config: null }
       });
 
-      const sharedClientDestroyPromise = sharedClient.destroy();
-      const mainClientDestroyPromise = client.destroy();
+      // timeout to wait SDK_UPDATE on all factories
+      setTimeout(() => {
+        const destroyPromises = [
+          sharedClient.destroy(), client.destroy(),
+          ...factories.map(f => f.client().destroy())
+        ];
 
-      // When both promises have been resolved, we check for network activity
-      Promise.all([sharedClientDestroyPromise, mainClientDestroyPromise]).then(() => {
-        // We test the breakdown instead of just the misc because it's faster to spot where the issue is
-        assert.notOk(spySplitChanges.called, 'On offline mode we should not call the splitChanges endpoint.');
-        assert.notOk(spySegmentChanges.called, 'On offline mode we should not call the segmentChanges endpoint.');
-        assert.notOk(spyMySegments.called, 'On offline mode we should not call the mySegments endpoint.');
-        assert.notOk(spyEventsBulk.called, 'On offline mode we should not call the events endpoint.');
-        assert.notOk(spyTestImpressionsBulk.called, 'On offline mode we should not call the impressions endpoint.');
-        assert.notOk(spyTestImpressionsCount.called, 'On offline mode we should not call the impressions count endpoint.');
-        assert.notOk(spyMetricsTimes.called, 'On offline mode we should not call the metric times endpoint.');
-        assert.notOk(spyMetricsCounters.called, 'On offline mode we should not call the metric counters endpoint.');
-        assert.notOk(spyAny.called, 'On offline mode we should NOT call to ANY endpoint, we are completely isolated from BE.');
+        // When both promises have been resolved, we check for network activity
+        Promise.all(destroyPromises).then(() => {
+          // We test the breakdown instead of just the misc because it's faster to spot where the issue is
+          assert.notOk(spySplitChanges.called, 'On offline mode we should not call the splitChanges endpoint.');
+          assert.notOk(spySegmentChanges.called, 'On offline mode we should not call the segmentChanges endpoint.');
+          assert.notOk(spyMySegments.called, 'On offline mode we should not call the mySegments endpoint.');
+          assert.notOk(spyEventsBulk.called, 'On offline mode we should not call the events endpoint.');
+          assert.notOk(spyTestImpressionsBulk.called, 'On offline mode we should not call the impressions endpoint.');
+          assert.notOk(spyTestImpressionsCount.called, 'On offline mode we should not call the impressions count endpoint.');
+          assert.notOk(spyMetricsTimes.called, 'On offline mode we should not call the metric times endpoint.');
+          assert.notOk(spyMetricsCounters.called, 'On offline mode we should not call the metric counters endpoint.');
+          assert.notOk(spyAny.called, 'On offline mode we should NOT call to ANY endpoint, we are completely isolated from BE.');
 
-        assert.end();
+          // Multiple instances
+          assert.equal(readyCount, factories.length, 'All factories should emit SDK_READY');
+          assert.equal(updateCount, factories.length - 1, 'All factories except 1 should emit SDK_UPDATE');
+
+          assert.end();
+        });
       });
     }, 3500);
   });
