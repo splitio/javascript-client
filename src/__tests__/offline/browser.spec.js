@@ -75,8 +75,15 @@ tape('Browser offline mode', function (assert) {
   assert.equal(sharedClient.getTreatment('testing_split'), 'control');
   assert.equal(manager.splits().length, 0);
 
+  // SDK events on shared client
+  let sharedReadyCount = 0;
   sharedClient.on(sharedClient.Event.SDK_READY, function () {
     assert.equal(sharedClient.getTreatment('testing_split'), 'on');
+    sharedReadyCount++;
+  });
+  let sharedUpdateCount = 0;
+  sharedClient.on(sharedClient.Event.SDK_UPDATE, function () {
+    sharedUpdateCount++;
   });
 
   // Multiple factories must handle their own `features` mock, even if instantiated with the same config.
@@ -296,9 +303,13 @@ tape('Browser offline mode', function (assert) {
           assert.notOk(spyMetricsCounters.called, 'On offline mode we should not call the metric counters endpoint.');
           assert.notOk(spyAny.called, 'On offline mode we should NOT call to ANY endpoint, we are completely isolated from BE.');
 
-          // Multiple instances
-          assert.equal(readyCount, factories.length, 'All factories should emit SDK_READY');
-          assert.equal(updateCount, factories.length - 1, 'All factories except 1 should emit SDK_UPDATE');
+          // SDK events on shared client
+          assert.equal(sharedReadyCount, 1, 'Shared client should have emitted SDK_READY event once');
+          assert.equal(sharedUpdateCount, 1, 'Shared client should have emitted SDK_UPDATE event once');
+
+          // SDK events on other factory clients
+          assert.equal(readyCount, factories.length, 'Each factory client should have emitted SDK_READY event once');
+          assert.equal(updateCount, factories.length - 1, 'Each factory client except one should have emitted SDK_UPDATE event once');
 
           assert.end();
         });
