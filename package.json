@@ -40,8 +40,7 @@
     "js-yaml": "3.13.1",
     "node-fetch": "^2.6.1",
     "object-assign": "^4.1.1",
-    "unfetch": "^4.2.0",
-    "utfx": "1.0.1"
+    "unfetch": "^4.2.0"
   },
   "optionalDependencies": {
     "eventsource": "^1.0.7"
