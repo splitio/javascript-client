@@ -1,4 +1,4 @@
-import utfx from 'utfx';
+import utfx from './utfx';
 
 const stringSource = utfx.stringSource;
 const stringDestination = utfx.stringDestination;
