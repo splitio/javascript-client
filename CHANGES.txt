@@ -1,10 +1,10 @@
 10.15.7 (June 3, 2021)
- - Updated some dependencies with vulnerability fixex.
+ - Updated some dependencies with vulnerability fixes.
  - Removed "utfx" dependency to use an inline copy of it with the minimum features used by the SDK (issue #544).
  - Bugfixing - Fixed some issues of localhost mode:
-      - Support localhost mode on multiple SDK instances. Each instance handles its own "features" mock, instead of sharing a global one.
-      - SDK_UPDATE is emitted only once if "features" mock changes.
-      - On shared clients, SDK_UPDATE event is now emitted if "features" mock changes.
+      - Support localhost mode on multiple SDK instances. Each instance handles its own mocked features, instead of sharing the same mock.
+      - SDK_UPDATE is emitted only once if mocked features changes.
+      - On shared clients, SDK_UPDATE event is now emitted if mocked features changes.
 
 10.15.6 (May 21, 2021)
  - Updated error handling following the recommended practice of throwing only Error objects.
