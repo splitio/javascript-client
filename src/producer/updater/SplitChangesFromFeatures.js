@@ -17,4 +17,7 @@ limitations under the License.
 import FromSettingsFetcher from '../../services/splitChanges/offline';
 import SplitChangesFromObject from './SplitChangesFromObject';
 
-export default SplitChangesFromObject.bind(null, FromSettingsFetcher);
+export default function createSplitChangesFromObject(context) {
+  const fetcher = FromSettingsFetcher();
+  return SplitChangesFromObject(fetcher, context);
+}
