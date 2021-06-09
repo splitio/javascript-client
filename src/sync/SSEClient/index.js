@@ -7,7 +7,7 @@ const CONTROL_CHANNEL_REGEX = /^control_/;
 /**
  * Build metadata headers for SSE connection.
  *
- * @param {Object} settings validated settings.
+ * @param {Object} settings Validated settings.
  */
 function buildSSEHeaders(settings) {
   const headers = {
@@ -27,8 +27,8 @@ export default class SSEClient {
 
   /**
    * Returns a SSEClient instance, or undefined if EventSource is not available.
-   * @param {Object} settings validated SDK settings.
-   * @param {boolean} useHeaders true for Node and false for Browser, used to send metadata as headers or query params respectively.
+   * @param {Object} settings Validated SDK settings.
+   * @param {boolean} useHeaders True for Node and false for Browser, used to send metadata as headers or query params respectively.
    */
   static getInstance(settings, useHeaders) {
     const EventSource = getEventSource();
@@ -59,7 +59,7 @@ export default class SSEClient {
    * Open the connection with a given authToken
    *
    * @param {Object} authToken
-   * @throws {TypeError} if `authToken` is undefined
+   * @throws {TypeError} Will throw an error if `authToken` is undefined
    */
   open(authToken) {
     this.close(); // it closes connection if previously opened
