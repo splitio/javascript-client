@@ -28,12 +28,12 @@ export default class SSEClient {
   /**
    * Returns a SSEClient instance, or undefined if EventSource is not available.
    * @param {Object} settings validated SDK settings.
-   * @param {boolean} isNode true for Node and false for Browser, used to send metadata as headers or query params respectively.
+   * @param {boolean} useHeaders true for Node and false for Browser, used to send metadata as headers or query params respectively.
    */
-  static getInstance(settings, isNode) {
+  static getInstance(settings, useHeaders) {
     const EventSource = getEventSource();
     if (EventSource)
-      return new SSEClient(EventSource, settings, isNode);
+      return new SSEClient(EventSource, settings, useHeaders);
   }
 
   // Instance properties:
@@ -43,11 +43,11 @@ export default class SSEClient {
   //  handler: EventHandler for open, close, error and messages events
   //  authToken: Object | undefined
 
-  constructor(EventSource, settings, isNode) {
+  constructor(EventSource, settings, useHeaders) {
     this.EventSource = EventSource;
     this.streamingUrl = settings.url('/sse');
     this.reopen = this.reopen.bind(this);
-    this.isNode = isNode;
+    this.useHeaders = useHeaders;
     this.headers = buildSSEHeaders(settings);
   }
 
@@ -77,9 +77,9 @@ export default class SSEClient {
     this.connection = new this.EventSource(
       // For Browser, SplitSDKClientKey and SplitSDKClientKey headers are passed as query params,
       // because native EventSource implementations for browser doesn't support headers.
-      this.isNode ? url : url + `&SplitSDKVersion=${this.headers.SplitSDKVersion}&SplitSDKClientKey=${this.headers.SplitSDKClientKey}`,
+      this.useHeaders ? url : url + `&SplitSDKVersion=${this.headers.SplitSDKVersion}&SplitSDKClientKey=${this.headers.SplitSDKClientKey}`,
       // For Node, metadata headers are passed because 'eventsource' package supports them.
-      this.isNode ? { headers: this.headers } : undefined
+      this.useHeaders ? { headers: this.headers } : undefined
     );
 
     if (this.handler) { // no need to check if SSEClient is used only by PushManager

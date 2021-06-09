@@ -27,13 +27,14 @@ export default class EventSource {
 
   constructor(
     url,
-    configuration = defaultOptions
+    eventSourceInitDict = defaultOptions
   ) {
     this.url = url;
-    this.withCredentials = configuration.withCredentials;
+    this.withCredentials = eventSourceInitDict.withCredentials;
     this.readyState = 0;
     // eslint-disable-next-line no-undef
     this.__emitter = new EventEmitter();
+    this.__eventSourceInitDict = eventSourceInitDict;
     sources[url] = this;
     if (__listener) setTimeout(__listener, 0, this);
   }
