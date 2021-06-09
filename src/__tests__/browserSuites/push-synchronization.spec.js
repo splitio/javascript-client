@@ -17,6 +17,7 @@ import authPushEnabledNicolas from '../mocks/auth.pushEnabled.nicolas@split.io.j
 import authPushEnabledNicolasAndMarcio from '../mocks/auth.pushEnabled.nicolas@split.io.marcio@split.io.json';
 
 import { nearlyEqual, hasNoCacheHeader } from '../testUtils';
+import { triggerUnloadEvent } from '../testUtils/browser';
 import includes from 'lodash/includes';
 
 // Replace original EventSource with mock
@@ -54,6 +55,7 @@ const MILLIS_NEW_CLIENT = 600;
 const MILLIS_SECOND_SSE_OPEN = 700;
 const MILLIS_MY_SEGMENTS_UPDATE_WITH_PAYLOAD = 800;
 const MILLIS_MY_SEGMENTS_UPDATE_WITH_EMPTY_PAYLOAD = 900;
+const MILLIS_UNLOAD_BROWSER_EVENT = 1000;
 
 /**
  * Sequence of calls:
@@ -66,10 +68,11 @@ const MILLIS_MY_SEGMENTS_UPDATE_WITH_EMPTY_PAYLOAD = 900;
  *  0.6 secs: creates a new client -> new auth and SSE connection
  *  0.7 secs: SSE connection opened -> syncAll (/splitChanges, /mySegments/*)
  *  0.8 secs: MY_SEGMENTS_UPDATE event for new client (with payload).
- *  0.9 secs: MY_SEGMENTS_UPDATE event for new client (with empty payload). client destroyed
+ *  0.9 secs: MY_SEGMENTS_UPDATE event for new client (with empty payload).
+ *  1.0 secs: 'unload' browser event -> streaming connection closed
  */
 export function testSynchronization(fetchMock, assert) {
-  assert.plan(27);
+  assert.plan(29);
   fetchMock.reset();
 
   let start, splitio, client, otherClient;
@@ -159,15 +162,6 @@ export function testSynchronization(fetchMock, assert) {
               }
               window.onerror = previousErrorHandler;
 
-              // destroy shared client and then main client
-              otherClient.destroy().then(() => {
-                assert.equal(otherClient.getTreatment('whitelist'), 'control', 'evaluation returns control for shared client if it is destroyed');
-                assert.equal(client.getTreatment('whitelist'), 'not_allowed', 'evaluation returns correct tratment for main client');
-                client.destroy().then(() => {
-                  assert.equal(client.getTreatment('whitelist'), 'control', 'evaluation returns control for main client if it is destroyed');
-                  assert.end();
-                });
-              });
             };
             window.onerror = exceptionHandler;
             null.willThrowForUpdate();
@@ -175,6 +169,21 @@ export function testSynchronization(fetchMock, assert) {
           eventSourceInstance.emitMessage(mySegmentsUpdateMessageWithEmptyPayload);
         }, MILLIS_MY_SEGMENTS_UPDATE_WITH_EMPTY_PAYLOAD - MILLIS_NEW_CLIENT); // send a MY_SEGMENTS_UPDATE event with payload after 0.1 seconds from new SSE connection opened
 
+        setTimeout(() => {
+          assert.equal(eventSourceInstance.readyState, EventSourceMock.OPEN, '...');
+          triggerUnloadEvent();
+          assert.equal(eventSourceInstance.readyState, EventSourceMock.CLOSED, '...');
+
+          // destroy shared client and then main client
+          otherClient.destroy().then(() => {
+            assert.equal(otherClient.getTreatment('whitelist'), 'control', 'evaluation returns control for shared client if it is destroyed');
+            assert.equal(client.getTreatment('whitelist'), 'not_allowed', 'evaluation returns correct tratment for main client');
+            client.destroy().then(() => {
+              assert.equal(client.getTreatment('whitelist'), 'control', 'evaluation returns control for main client if it is destroyed');
+              assert.end();
+            });
+          });
+        }, MILLIS_UNLOAD_BROWSER_EVENT - MILLIS_NEW_CLIENT);
       });
 
     }, MILLIS_NEW_CLIENT); // creates a new client after 0.6 seconds
