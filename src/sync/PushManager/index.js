@@ -30,7 +30,7 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
   const { splits: splitsEventEmitter } = context.get(context.constants.READINESS);
   const settings = context.get(context.constants.SETTINGS);
   const storage = context.get(context.constants.STORAGE);
-  const sseClient = SSEClient.getInstance(settings);
+  const sseClient = SSEClient.getInstance(settings, clientContexts ? false : true);
   const sseHandler = SSEHandlerFactory(pushEmitter);
   sseClient.setEventHandler(sseHandler);
 

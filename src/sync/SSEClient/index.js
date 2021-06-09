@@ -4,16 +4,36 @@ const VERSION = '1.1';
 
 const CONTROL_CHANNEL_REGEX = /^control_/;
 
+/**
+ * Build metadata headers for SSE connection.
+ *
+ * @param {Object} settings validated settings.
+ */
+function buildSSEHeaders(settings) {
+  const headers = {
+    SplitSDKClientKey: settings.core.authorizationKey.slice(-4),
+    SplitSDKVersion: settings.version,
+  };
+
+  // ip and hostname are false if IPAddressesEnabled is false
+  const { ip, hostname } = settings.runtime;
+  if (ip) headers['SplitSDKMachineIP'] = ip;
+  if (hostname) headers['SplitSDKMachineName'] = hostname;
+
+  return headers;
+}
+
 export default class SSEClient {
 
   /**
    * Returns a SSEClient instance, or undefined if EventSource is not available.
-   * @param {*} settings Split settings used to get streaming URL
+   * @param {Object} settings validated SDK settings.
+   * @param {boolean} isNode true for Node and false for Browser, used to send metadata as headers or query params respectively.
    */
-  static getInstance(settings) {
+  static getInstance(settings, isNode) {
     const EventSource = getEventSource();
     if (EventSource)
-      return new SSEClient(EventSource, settings);
+      return new SSEClient(EventSource, settings, isNode);
   }
 
   // Instance properties:
@@ -23,10 +43,12 @@ export default class SSEClient {
   //  handler: EventHandler for open, close, error and messages events
   //  authToken: Object | undefined
 
-  constructor(EventSource, settings) {
+  constructor(EventSource, settings, isNode) {
     this.EventSource = EventSource;
     this.streamingUrl = settings.url('/sse');
     this.reopen = this.reopen.bind(this);
+    this.isNode = isNode;
+    this.headers = buildSSEHeaders(settings);
   }
 
   setEventHandler(handler) {
@@ -52,7 +74,13 @@ export default class SSEClient {
     ).join(',');
     const url = `${this.streamingUrl}?channels=${channelsQueryParam}&accessToken=${authToken.token}&v=${VERSION}&heartbeats=true`; // same results using `&heartbeats=false`
 
-    this.connection = new this.EventSource(url);
+    this.connection = new this.EventSource(
+      // For Browser, SplitSDKClientKey and SplitSDKClientKey headers are passed as query params,
+      // because native EventSource implementations for browser doesn't support headers.
+      this.isNode ? url : url + `&SplitSDKVersion=${this.headers.SplitSDKVersion}&SplitSDKClientKey=${this.headers.SplitSDKClientKey}`,
+      // For Node, metadata headers are passed because 'eventsource' package supports them.
+      this.isNode ? { headers: this.headers } : undefined
+    );
 
     if (this.handler) { // no need to check if SSEClient is used only by PushManager
       this.connection.onopen = this.handler.handleOpen;
