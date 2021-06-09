@@ -98,10 +98,10 @@ export default function BrowserSyncManagerFactory(mainContext) {
         }
       },
 
-      stop(onlySSE) {
-        if (onlySSE) {
+      stop(onlyPush) {
+        if (onlyPush) {
           // To close SSE connection in browser on 'unload' DOM event.
-          if(pushManager) pushManager.stop(onlySSE);
+          if(pushManager) pushManager.stop();
           return;
         }
 

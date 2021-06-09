@@ -106,9 +106,9 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
 
   // close SSE connection and cancel scheduled tasks
   function disconnectPush() {
+    sseClient.close();
     disconnected = true;
     log.info('Disconnecting from push streaming.');
-    sseClient.close();
 
     if (timeoutId) clearTimeout(timeoutId);
     connectPushRetryBackoff.reset();
@@ -179,15 +179,7 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
     Object.create(pushEmitter),
     {
       // Expose functionality for starting and stoping push mode:
-      stop(onlySSE) {
-        if(onlySSE) {
-          // `onlySSE` is true in browser on 'unload' DOM event, to close SSE connection but avoiding the remaining cleanup code of `disconnectPush`
-          sseClient.close();
-        } else {
-          // `handleNonRetryableError` cannot be used as `stop`, because it emits PUSH_SUBSYSTEM_DOWN event, which start polling.
-          disconnectPush();
-        }
-      },
+      stop: disconnectPush, // `handleNonRetryableError` cannot be used as `stop`, because it emits PUSH_SUBSYSTEM_DOWN event, which start polling.
 
       // used in node
       start: connectPush,
