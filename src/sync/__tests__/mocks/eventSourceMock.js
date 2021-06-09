@@ -34,7 +34,7 @@ export default class EventSource {
     this.readyState = 0;
     // eslint-disable-next-line no-undef
     this.__emitter = new EventEmitter();
-    this.__eventSourceInitDict = eventSourceInitDict;
+    this.__eventSourceInitDict = arguments[1];
     sources[url] = this;
     if (__listener) setTimeout(__listener, 0, this);
   }

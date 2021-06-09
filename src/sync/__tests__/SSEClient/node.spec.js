@@ -117,6 +117,7 @@ tape('SSEClient', t => {
     const EXPECTED_BROWSER_URL = EXPECTED_URL + `&SplitSDKVersion=${settings.version}&SplitSDKClientKey=${EXPECTED_HEADERS.SplitSDKClientKey}`;
 
     assert.equal(instance.connection.url, EXPECTED_BROWSER_URL, 'URL is properly set for streaming connection');
+    assert.equal(instance.connection.__eventSourceInitDict, undefined, 'No headers are passed for streaming connection');
     assert.end();
   });
 
