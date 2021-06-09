@@ -179,7 +179,15 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
     Object.create(pushEmitter),
     {
       // Expose functionality for starting and stoping push mode:
-      stop: disconnectPush, // `handleNonRetryableError` cannot be used as `stop`, because it emits PUSH_SUBSYSTEM_DOWN event, which start polling.
+      stop(onlySSE) {
+        if(onlySSE) {
+          // `onlySSE` is true in browser on 'unload' DOM event, to close SSE connection but avoiding the remaining cleanup code of `disconnectPush`
+          sseClient.close();
+        } else {
+          // `handleNonRetryableError` cannot be used as `stop`, because it emits PUSH_SUBSYSTEM_DOWN event, which start polling.
+          disconnectPush();
+        }
+      },
 
       // used in node
       start: connectPush,

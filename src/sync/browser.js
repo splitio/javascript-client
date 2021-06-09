@@ -98,7 +98,13 @@ export default function BrowserSyncManagerFactory(mainContext) {
         }
       },
 
-      stop() {
+      stop(onlySSE) {
+        if (onlySSE) {
+          // To close SSE connection in browser on 'unload' DOM event.
+          pushManager.stop(onlySSE);
+          return;
+        }
+
         const context = contexts[userKey];
 
         if (context) { // check in case `client.destroy()` has been invoked more than once for the same client
