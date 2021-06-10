@@ -106,9 +106,9 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
 
   // close SSE connection and cancel scheduled tasks
   function disconnectPush() {
+    sseClient.close();
     disconnected = true;
     log.info('Disconnecting from push streaming.');
-    sseClient.close();
 
     if (timeoutId) clearTimeout(timeoutId);
     connectPushRetryBackoff.reset();
