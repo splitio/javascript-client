@@ -161,7 +161,6 @@ export function testSynchronization(fetchMock, assert) {
                 assert.fail(err);
               }
               window.onerror = previousErrorHandler;
-
             };
             window.onerror = exceptionHandler;
             null.willThrowForUpdate();
@@ -170,9 +169,9 @@ export function testSynchronization(fetchMock, assert) {
         }, MILLIS_MY_SEGMENTS_UPDATE_WITH_EMPTY_PAYLOAD - MILLIS_NEW_CLIENT); // send a MY_SEGMENTS_UPDATE event with payload after 0.1 seconds from new SSE connection opened
 
         setTimeout(() => {
-          assert.equal(eventSourceInstance.readyState, EventSourceMock.OPEN, '...');
+          assert.equal(eventSourceInstance.readyState, EventSourceMock.OPEN, 'streaming is still open');
           triggerUnloadEvent();
-          assert.equal(eventSourceInstance.readyState, EventSourceMock.CLOSED, '...');
+          assert.equal(eventSourceInstance.readyState, EventSourceMock.CLOSED, 'streaming is closed after "unload" browser event');
 
           // destroy shared client and then main client
           otherClient.destroy().then(() => {
@@ -184,6 +183,7 @@ export function testSynchronization(fetchMock, assert) {
             });
           });
         }, MILLIS_UNLOAD_BROWSER_EVENT - MILLIS_NEW_CLIENT);
+
       });
 
     }, MILLIS_NEW_CLIENT); // creates a new client after 0.6 seconds
