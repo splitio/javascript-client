@@ -98,13 +98,7 @@ export default function BrowserSyncManagerFactory(mainContext) {
         }
       },
 
-      stop(onlyPush) {
-        if (onlyPush) {
-          // To close SSE connection in browser on 'unload' DOM event.
-          if(pushManager) pushManager.stop();
-          return;
-        }
-
+      stop() {
         const context = contexts[userKey];
 
         if (context) { // check in case `client.destroy()` has been invoked more than once for the same client
@@ -129,5 +123,8 @@ export default function BrowserSyncManagerFactory(mainContext) {
 
   // For the main client we return a SyncManager with 3 methods: start, stop and shared. The last is used to instantiate "partial SyncManagers".
   syncManager.shared = createInstance.bind(null, true);
+  // pushManager is exposed to close SSE connection in browser on 'unload' DOM event.
+  syncManager.pushManager = pushManager;
+
   return syncManager;
 }

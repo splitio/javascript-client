@@ -65,8 +65,8 @@ export default class BrowserSignalListener {
     if (this.impressionsCounter) {
       this._flushImpressionsCount();
     }
-    // ATM the condition is not necessary, because syncManager is always present in browser
-    if (this.syncManager) this.syncManager.stop(true);
+    // Close streaming
+    if (this.syncManager && this.syncManager.pushManager) this.syncManager.pushManager.stop();
   }
 
   _flushImpressions() {
