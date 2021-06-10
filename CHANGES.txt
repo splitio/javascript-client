@@ -1,3 +1,7 @@
+10.15.8 (June 11, 2021)
+ - Updated listener for 'unload' DOM events to close streaming connection.
+ - Added telemetry headers to SSE connection
+
 10.15.7 (June 3, 2021)
  - Updated some dependencies with vulnerability fixes.
  - Removed "utfx" dependency to use an inline copy of it with the minimum features used by the SDK (issue #544).
