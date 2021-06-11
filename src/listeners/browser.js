@@ -19,9 +19,10 @@ const UNLOAD_DOM_EVENT = 'unload';
  */
 export default class BrowserSignalListener {
 
-  constructor(context) {
+  constructor(context, syncManager) {
     this.storage = context.get(context.constants.STORAGE);
     this.settings = context.get(context.constants.SETTINGS);
+    this.syncManager = syncManager;
     this.flushData = this.flushData.bind(this);
     if (this.settings.sync.impressionsMode === OPTIMIZED) {
       this.impressionsCounter = context.get(context.constants.IMPRESSIONS_COUNTER);
@@ -64,6 +65,8 @@ export default class BrowserSignalListener {
     if (this.impressionsCounter) {
       this._flushImpressionsCount();
     }
+    // Close streaming
+    if (this.syncManager && this.syncManager.pushManager) this.syncManager.pushManager.stop();
   }
 
   _flushImpressions() {
@@ -76,7 +79,7 @@ export default class BrowserSignalListener {
         // sim stands for Sync/Split Impressions Mode
         sim: this.settings.sync.impressionsMode === OPTIMIZED ? OPTIMIZED : DEBUG
       };
-      
+
       if (!this._sendBeacon(url, impressionsPayload, extraMetadata)) {
         impressionsService(impressionsBulkRequest(this.settings, { body: JSON.stringify(impressionsPayload) }));
       }
@@ -85,7 +88,7 @@ export default class BrowserSignalListener {
   }
 
   _flushImpressionsCount() {
-    const impressionsCountPayload = { pf: fromImpressionsCountCollector(this.impressionsCounter)};
+    const impressionsCountPayload = { pf: fromImpressionsCountCollector(this.impressionsCounter) };
     const imprCounts = impressionsCountPayload.pf.length;
     if (imprCounts === 0) return;
     const url = this.settings.url('/testImpressions/count/beacon');
@@ -94,7 +97,7 @@ export default class BrowserSignalListener {
     }
   }
 
-  _flushEvents(){
+  _flushEvents() {
     const events = this.storage.events;
     // if there are events in storage, send them to backend
     if (!events.isEmpty()) {

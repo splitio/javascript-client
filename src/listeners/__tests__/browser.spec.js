@@ -1,7 +1,7 @@
 import tape from 'tape-catch';
 import sinon from 'sinon';
 import BrowserSignalListener from '../browser';
-import { DEBUG } from '../../utils/constants';
+import { DEBUG, OPTIMIZED } from '../../utils/constants';
 import ImpressionsCounter from '../../impressions/counter';
 
 const UNLOAD_DOM_EVENT = 'unload';
@@ -9,6 +9,12 @@ const UNLOAD_DOM_EVENT = 'unload';
 const windowAddEventListenerSpy = sinon.spy(window, 'addEventListener');
 const windowRemoveEventListenerSpy = sinon.spy(window, 'removeEventListener');
 const sendBeaconSpy = sinon.spy(window.navigator, 'sendBeacon');
+
+function resetHistory() {
+  windowAddEventListenerSpy.resetHistory();
+  windowRemoveEventListenerSpy.resetHistory();
+  sendBeaconSpy.resetHistory();
+}
 
 /* Mocks start */
 const generateContextMocks = () => {
@@ -34,6 +40,9 @@ const generateContextMocks = () => {
     url: sinon.stub(),
     core: {
       labelsEnabled: true
+    },
+    sync: {
+      impressionsMode: OPTIMIZED
     }
   };
   const fakeStorage = {
@@ -70,7 +79,11 @@ class ContextMock {
 
     this.fakeStorage = fakeStorage;
     this.fakeSettings = fakeSettings;
-    this.impressionsCounter = shouldCreateImpressionsCounter ? new ImpressionsCounter() : undefined;
+    if (shouldCreateImpressionsCounter) {
+      this.impressionsCounter = new ImpressionsCounter();
+      // pollute with some mock data, to use sendBeacon
+      this.impressionsCounter.inc('somefeature', Date.now(), 1);
+    }
   }
 
   get(target) {
@@ -86,6 +99,9 @@ class ContextMock {
     }
   }
 }
+
+const syncManagerMockWithPushManager = { pushManager: { stop: sinon.stub() } };
+
 /* Mocks end */
 
 function triggerUnloadEvent() {
@@ -99,7 +115,7 @@ tape('Browser JS / Browser listener class constructor, start and stop methods', 
   const { fakeStorage, fakeSettings } = generateContextMocks();
   const contextMock = new ContextMock(fakeStorage, fakeSettings, true);
 
-  const listener = new BrowserSignalListener(contextMock);
+  const listener = new BrowserSignalListener(contextMock, {} /* SyncManager mock without pushManager */);
 
   listener.start();
 
@@ -109,31 +125,30 @@ tape('Browser JS / Browser listener class constructor, start and stop methods', 
 
   triggerUnloadEvent();
 
-  setTimeout(() => {
-    // Unload event was triggered. Thus sendBeacon method should have been called three times.
-    assert.equal(sendBeaconSpy.callCount, 3);
+  // Unload event was triggered. Thus sendBeacon method should have been called three times.
+  assert.equal(sendBeaconSpy.callCount, 3);
 
-    // pre-check and call stop
-    assert.ok(windowRemoveEventListenerSpy.notCalled);
-    listener.stop();
+  // pre-check and call stop
+  assert.ok(windowRemoveEventListenerSpy.notCalled);
+  listener.stop();
 
-    // removed correct listener from correct signal on stop.
-    assert.ok(windowRemoveEventListenerSpy.calledOnce);
-    assert.ok(windowRemoveEventListenerSpy.calledOnceWithExactly(UNLOAD_DOM_EVENT, listener.flushData));
+  // removed correct listener from correct signal on stop.
+  assert.ok(windowRemoveEventListenerSpy.calledOnce);
+  assert.ok(windowRemoveEventListenerSpy.calledOnceWithExactly(UNLOAD_DOM_EVENT, listener.flushData));
 
-    assert.end();
-  }, 0);
+  assert.end();
 
 });
 
 tape('Browser JS Debug Mode / Browser listener class constructor, start and stop methods', function (assert) {
+  resetHistory();
   const { fakeStorage, fakeSettings } = generateContextMocks();
   fakeSettings.sync = {
     impressionsMode: DEBUG
   };
   const contextMock = new ContextMock(fakeStorage, fakeSettings, false);
 
-  const listener = new BrowserSignalListener(contextMock);
+  const listener = new BrowserSignalListener(contextMock, syncManagerMockWithPushManager);
 
   listener.start();
 
@@ -141,21 +156,24 @@ tape('Browser JS Debug Mode / Browser listener class constructor, start and stop
   assert.ok(windowAddEventListenerSpy.calledOnce);
   assert.ok(windowAddEventListenerSpy.calledOnceWithExactly(UNLOAD_DOM_EVENT, listener.flushData));
 
+  assert.ok(syncManagerMockWithPushManager.pushManager.stop.notCalled);
+
   triggerUnloadEvent();
 
-  setTimeout(() => {
-    // Unload event was triggered. Thus sendBeacon method should have been called twice.
-    assert.equal(sendBeaconSpy.callCount, 2);
+  // Unload event was triggered. Thus sendBeacon method should have been called twice.
+  assert.equal(sendBeaconSpy.callCount, 2);
 
-    // pre-check and call stop
-    assert.ok(windowRemoveEventListenerSpy.notCalled);
-    listener.stop();
+  // And since we passed a syncManager with a pushManager, its stop method should have been called.
+  assert.ok(syncManagerMockWithPushManager.pushManager.stop.calledOnce);
 
-    // removed correct listener from correct signal on stop.
-    assert.ok(windowRemoveEventListenerSpy.calledOnce);
-    assert.ok(windowRemoveEventListenerSpy.calledOnceWithExactly(UNLOAD_DOM_EVENT, listener.flushData));
-  
-    assert.end();
-  }, 0);
+  // pre-check and call stop
+  assert.ok(windowRemoveEventListenerSpy.notCalled);
+  listener.stop();
+
+  // removed correct listener from correct signal on stop.
+  assert.ok(windowRemoveEventListenerSpy.calledOnce);
+  assert.ok(windowRemoveEventListenerSpy.calledOnceWithExactly(UNLOAD_DOM_EVENT, listener.flushData));
+
+  assert.end();
 
 });
