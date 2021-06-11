@@ -1,6 +1,6 @@
 10.15.8 (June 11, 2021)
- - Updated listener for 'unload' DOM events to close streaming connection.
- - Added telemetry headers to SSE connection
+ - Updated listener for 'unload' DOM events to close any remaining streaming connections.
+ - Added telemetry headers in form of query params to SSE connection.
 
 10.15.7 (June 3, 2021)
  - Updated some dependencies with vulnerability fixes.
