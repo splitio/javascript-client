@@ -22905,7 +22905,7 @@ function extend() {
 /*! exports provided: name, version, description, files, repository, homepage, bugs, license, author, contributors, main, module, types, engines, dependencies, optionalDependencies, devDependencies, scripts, greenkeeper, default */
 /***/ (function(module) {
 
-module.exports = JSON.parse("{\"name\":\"@splitsoftware/splitio\",\"version\":\"10.10.1-canary.3\",\"description\":\"Split SDK\",\"files\":[\"README.md\",\"CONTRIBUTORS-GUIDE.md\",\"LICENSE\",\"CHANGES.txt\",\"lib\",\"types/*.d.ts\",\"es\",\"src\"],\"repository\":\"splitio/javascript-client\",\"homepage\":\"https://github.com/splitio/javascript-client#readme\",\"bugs\":\"https://github.com/splitio/javascript-client/issues\",\"license\":\"Apache-2.0\",\"author\":\"Facundo Cabrera <facundo@split.io>\",\"contributors\":[{\"name\":\"Nico Zelaya\",\"email\":\"nicolas.zelaya@split.io\",\"url\":\"https://github.com/NicoZelaya\"}],\"main\":\"lib/index.js\",\"module\":\"es/index.js\",\"types\":\"types\",\"engines\":{\"npm\":\">=3\",\"node\":\">=6\"},\"dependencies\":{\"@babel/runtime-corejs3\":\"^7.8.3\",\"@types/node\":\"^13.1.8\",\"axios\":\"0.19.2\",\"core-js\":\"3.6.1\",\"ip\":\"1.1.5\",\"js-yaml\":\"3.13.1\",\"utfx\":\"1.0.1\"},\"optionalDependencies\":{\"events\":\"3.1.0\",\"ioredis\":\"^4.14.1\"},\"devDependencies\":{\"@babel/cli\":\"^7.8.3\",\"@babel/core\":\"^7.8.3\",\"@babel/plugin-transform-runtime\":\"^7.8.3\",\"@babel/preset-env\":\"^7.8.3\",\"@babel/register\":\"^7.8.3\",\"axios-mock-adapter\":\"^1.17.0\",\"babel-loader\":\"^8.0.6\",\"copyfiles\":\"^2.2.0\",\"cross-env\":\"^7.0.0\",\"csv-streamify\":\"4.0.0\",\"eslint\":\"^6.8.0\",\"karma\":\"^4.4.1\",\"karma-chrome-launcher\":\"^3.1.0\",\"karma-tap\":\"4.1.4\",\"karma-webpack\":\"^4.0.2\",\"lodash\":\"4.17.15\",\"proxyquire\":\"^2.1.3\",\"puppeteer\":\"^2.0.0\",\"redis-dump\":\"0.1.10\",\"redis-server\":\"1.2.2\",\"rimraf\":\"^3.0.0\",\"sinon\":\"^8.1.1\",\"tap-summary\":\"4.0.0\",\"tape\":\"4.13.0\",\"tape-catch\":\"1.0.6\",\"webpack\":\"^4.41.5\",\"webpack-cli\":\"^3.3.10\",\"webpack-merge\":\"^4.2.2\"},\"scripts\":{\"build-es\":\"rimraf es && cross-env NODE_ENV=es babel ./src -d es --ignore '__tests__'\",\"postbuild-es\":\"cross-env NODE_ENV=es node scripts/copy.packages.json.js\",\"build-umd:stats\":\"webpack --progress --env production --json > ./stats/stat_results.json\",\"build-cjs\":\"rimraf lib && cross-env NODE_ENV=cjs babel ./src -d lib --ignore '__tests__'\",\"postbuild-cjs\":\"cross-env NODE_ENV=cjs node scripts/copy.packages.json.js\",\"build-umd:ci\":\"webpack --config webpack.ci.dev.js --env.branch=$BUILD_BRANCH --env.commit_hash=$BUILD_COMMIT && webpack --config webpack.ci.prod.js --env.branch=$BUILD_BRANCH --env.commit_hash=$BUILD_COMMIT\",\"build-umd\":\"webpack --config webpack.dev.js && webpack --config webpack.prod.js\",\"rebuild\":\"rimraf lib umd es && npm run build-cjs && npm run build-es && npm run build-umd\",\"rebuild:npm\":\"rimraf lib es && npm run build-cjs && npm run build-es\",\"rebuild:ci\":\"rimraf lib umd es && npm run build-cjs && npm run build-es && npm run build-umd:ci\",\"lint\":\"eslint src\",\"test-browser-local\":\"cross-env NODE_ENV=test karma start karma/local.karma.conf.js\",\"test-browser-e2e-local\":\"cross-env NODE_ENV=test karma start karma/e2e.local.karma.conf.js\",\"test-browser-ci\":\"cross-env NODE_ENV=test karma start karma/ci.karma.conf.js\",\"test-browser-e2e-ci\":\"cross-env NODE_ENV=test karma start karma/e2e.ci.karma.conf.js\",\"test-browser-offline\":\"cross-env NODE_ENV=test karma start karma/offline.karma.conf.js\",\"test-browser-destroy\":\"cross-env NODE_ENV=test karma start karma/destroy.ci.karma.conf.js\",\"test-browser-errors\":\"cross-env NODE_ENV=test karma start karma/errors.ci.karma.conf.js\",\"test-node\":\"cross-env NODE_ENV=test tape -r @babel/register \\\"src/*/__tests__/**/!(browser).spec.js\\\" | tap-summary\",\"test-node-e2e\":\"cross-env NODE_ENV=test tape -r @babel/register src/__tests__/node.spec.js | tap-summary\",\"test-node-destroy\":\"cross-env NODE_ENV=test tape -r @babel/register src/__tests__/destroy/node.spec.js | tap-summary\",\"test-node-errors\":\"cross-env NODE_ENV=test tape -r @babel/register src/__tests__/errorCatching/node.spec.js | tap-summary\",\"test-node-offline\":\"cross-env NODE_ENV=test tape -r @babel/register src/__tests__/offline/node.spec.js | tap-summary\",\"test-node-redis\":\"cross-env NODE_ENV=test tape -r @babel/register \\\"src/__tests__/node_redis.spec.js\\\" | tap-summary\",\"pretest-ts-decls\":\"npm run build-es && npm run build-cjs && npm link\",\"test-ts-decls\":\"./scripts/ts-tests.sh\",\"posttest-ts-decls\":\"npm unlink && npm install\",\"browser-test-suite\":\"npm run test-browser-ci && npm run test-browser-e2e-ci && npm run test-browser-offline && npm run test-browser-destroy && npm run test-browser-errors\",\"node-test-suite\":\"npm run test-node && npm run test-node-e2e && npm run test-node-destroy && npm run test-node-offline && npm run test-node-redis && npm run test-node-errors\",\"test\":\"npm run browser-test-suite && npm run node-test-suite\",\"canary\":\"npm run rebuild && npm publish --tag canary\",\"stable\":\"npm run rebuild && npm publish\"},\"greenkeeper\":{\"ignore\":[\"karma\",\"karma-tap\",\"karma-webpack\"]}}");
+module.exports = JSON.parse("{\"name\":\"@splitsoftware/splitio\",\"version\":\"10.10.1-canary.3\",\"description\":\"Split SDK\",\"files\":[\"README.md\",\"CONTRIBUTORS-GUIDE.md\",\"LICENSE\",\"CHANGES.txt\",\"lib\",\"types/*.d.ts\",\"es\",\"src\",\"umd\"],\"repository\":\"splitio/javascript-client\",\"homepage\":\"https://github.com/splitio/javascript-client#readme\",\"bugs\":\"https://github.com/splitio/javascript-client/issues\",\"license\":\"Apache-2.0\",\"author\":\"Facundo Cabrera <facundo@split.io>\",\"contributors\":[{\"name\":\"Nico Zelaya\",\"email\":\"nicolas.zelaya@split.io\",\"url\":\"https://github.com/NicoZelaya\"}],\"main\":\"lib/index.js\",\"module\":\"es/index.js\",\"types\":\"types\",\"engines\":{\"npm\":\">=3\",\"node\":\">=6\"},\"dependencies\":{\"@babel/runtime-corejs3\":\"^7.8.3\",\"@types/node\":\"^13.1.8\",\"axios\":\"0.19.2\",\"core-js\":\"3.6.1\",\"ip\":\"1.1.5\",\"js-yaml\":\"3.13.1\",\"utfx\":\"1.0.1\"},\"optionalDependencies\":{\"events\":\"3.1.0\",\"ioredis\":\"^4.14.1\"},\"devDependencies\":{\"@babel/cli\":\"^7.8.3\",\"@babel/core\":\"^7.8.3\",\"@babel/helper-compilation-targets\":\"^7.14.5\",\"@babel/plugin-transform-runtime\":\"^7.8.3\",\"@babel/preset-env\":\"^7.8.3\",\"@babel/register\":\"^7.8.3\",\"axios-mock-adapter\":\"^1.17.0\",\"babel-loader\":\"^8.0.6\",\"copyfiles\":\"^2.2.0\",\"cross-env\":\"^7.0.0\",\"csv-streamify\":\"4.0.0\",\"eslint\":\"^6.8.0\",\"karma\":\"^4.4.1\",\"karma-chrome-launcher\":\"^3.1.0\",\"karma-tap\":\"4.1.4\",\"karma-webpack\":\"^4.0.2\",\"lodash\":\"4.17.15\",\"proxyquire\":\"^2.1.3\",\"puppeteer\":\"^2.0.0\",\"redis-dump\":\"0.1.10\",\"redis-server\":\"1.2.2\",\"rimraf\":\"^3.0.0\",\"sinon\":\"^8.1.1\",\"tap-summary\":\"4.0.0\",\"tape\":\"4.13.0\",\"tape-catch\":\"1.0.6\",\"webpack\":\"^4.41.5\",\"webpack-cli\":\"^3.3.10\",\"webpack-merge\":\"^4.2.2\"},\"scripts\":{\"build-es\":\"rimraf es && cross-env NODE_ENV=es babel ./src -d es --ignore '__tests__'\",\"postbuild-es\":\"cross-env NODE_ENV=es node scripts/copy.packages.json.js\",\"build-umd:stats\":\"webpack --progress --env production --json > ./stats/stat_results.json\",\"build-cjs\":\"rimraf lib && cross-env NODE_ENV=cjs babel ./src -d lib --ignore '__tests__'\",\"postbuild-cjs\":\"cross-env NODE_ENV=cjs node scripts/copy.packages.json.js\",\"build-umd:ci\":\"webpack --config webpack.ci.dev.js --env.branch=$BUILD_BRANCH --env.commit_hash=$BUILD_COMMIT && webpack --config webpack.ci.prod.js --env.branch=$BUILD_BRANCH --env.commit_hash=$BUILD_COMMIT\",\"build-umd\":\"webpack --config webpack.dev.js && webpack --config webpack.prod.js\",\"rebuild\":\"rimraf lib umd es && npm run build-cjs && npm run build-es && npm run build-umd\",\"rebuild:npm\":\"rimraf lib es && npm run build-cjs && npm run build-es\",\"rebuild:ci\":\"rimraf lib umd es && npm run build-cjs && npm run build-es && npm run build-umd:ci\",\"lint\":\"eslint src\",\"test-browser-local\":\"cross-env NODE_ENV=test karma start karma/local.karma.conf.js\",\"test-browser-e2e-local\":\"cross-env NODE_ENV=test karma start karma/e2e.local.karma.conf.js\",\"test-browser-ci\":\"cross-env NODE_ENV=test karma start karma/ci.karma.conf.js\",\"test-browser-e2e-ci\":\"cross-env NODE_ENV=test karma start karma/e2e.ci.karma.conf.js\",\"test-browser-offline\":\"cross-env NODE_ENV=test karma start karma/offline.karma.conf.js\",\"test-browser-destroy\":\"cross-env NODE_ENV=test karma start karma/destroy.ci.karma.conf.js\",\"test-browser-errors\":\"cross-env NODE_ENV=test karma start karma/errors.ci.karma.conf.js\",\"test-node\":\"cross-env NODE_ENV=test tape -r @babel/register \\\"src/*/__tests__/**/!(browser).spec.js\\\" | tap-summary\",\"test-node-e2e\":\"cross-env NODE_ENV=test tape -r @babel/register src/__tests__/node.spec.js | tap-summary\",\"test-node-destroy\":\"cross-env NODE_ENV=test tape -r @babel/register src/__tests__/destroy/node.spec.js | tap-summary\",\"test-node-errors\":\"cross-env NODE_ENV=test tape -r @babel/register src/__tests__/errorCatching/node.spec.js | tap-summary\",\"test-node-offline\":\"cross-env NODE_ENV=test tape -r @babel/register src/__tests__/offline/node.spec.js | tap-summary\",\"test-node-redis\":\"cross-env NODE_ENV=test tape -r @babel/register \\\"src/__tests__/node_redis.spec.js\\\" | tap-summary\",\"pretest-ts-decls\":\"npm run build-es && npm run build-cjs && npm link\",\"test-ts-decls\":\"./scripts/ts-tests.sh\",\"posttest-ts-decls\":\"npm unlink && npm install\",\"browser-test-suite\":\"npm run test-browser-ci && npm run test-browser-e2e-ci && npm run test-browser-offline && npm run test-browser-destroy && npm run test-browser-errors\",\"node-test-suite\":\"npm run test-node && npm run test-node-e2e && npm run test-node-destroy && npm run test-node-offline && npm run test-node-redis && npm run test-node-errors\",\"test\":\"npm run browser-test-suite && npm run node-test-suite\",\"canary\":\"npm run rebuild && npm publish --tag canary\",\"stable\":\"npm run rebuild && npm publish\"},\"greenkeeper\":{\"ignore\":[\"karma\",\"karma-tap\",\"karma-webpack\"]}}");
 
 /***/ }),
 
@@ -29884,8 +29884,7 @@ __webpack_require__.r(__webpack_exports__);
 // import axios from 'axios';
 
 
-var log = Object(_utils_logger__WEBPACK_IMPORTED_MODULE_4__["default"])('splitio-services:service'); // const _axiosInstance = axios.create();
-
+var log = Object(_utils_logger__WEBPACK_IMPORTED_MODULE_4__["default"])('splitio-services:service');
 function Fetcher(request) {
   var result; // TODO: This will log credentials, we should strip out Authorization header
 
@@ -29942,7 +29941,7 @@ function Fetcher(request) {
 } // This function is only exposed for unit testing purposses.
 
 function __getAxiosInstance() {
-  return _axiosInstance;
+  return;
 }
 
 /***/ }),
@@ -31584,45 +31583,57 @@ function () {
     value: function () {
       var _fetchMany = _babel_runtime_corejs3_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_15___default()(
       /*#__PURE__*/
-      _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_12___default.a.mark(function _callee13(splitNames) {
-        var splits, i, splitName, value;
-        return _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_12___default.a.wrap(function _callee13$(_context15) {
+      _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_12___default.a.mark(function _callee14(splitNames) {
+        var _this3 = this;
+
+        return _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_12___default.a.wrap(function _callee14$(_context16) {
           while (1) {
-            switch (_context15.prev = _context15.next) {
+            switch (_context16.prev = _context16.next) {
               case 0:
                 log['debug']("fetchMany(".concat(splitNames, ")"));
-                splits = new _babel_runtime_corejs3_core_js_stable_map__WEBPACK_IMPORTED_MODULE_5___default.a(); // TODO: Run this in parallel rather than series
+                _context16.t0 = _babel_runtime_corejs3_core_js_stable_map__WEBPACK_IMPORTED_MODULE_5___default.a;
+                _context16.next = 4;
+                return _babel_runtime_corejs3_core_js_stable_promise__WEBPACK_IMPORTED_MODULE_11___default.a.all(_babel_runtime_corejs3_core_js_stable_instance_map__WEBPACK_IMPORTED_MODULE_7___default()(splitNames).call(splitNames,
+                /*#__PURE__*/
+                function () {
+                  var _ref = _babel_runtime_corejs3_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_15___default()(
+                  /*#__PURE__*/
+                  _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_12___default.a.mark(function _callee13(splitName) {
+                    var value;
+                    return _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_12___default.a.wrap(function _callee13$(_context15) {
+                      while (1) {
+                        switch (_context15.prev = _context15.next) {
+                          case 0:
+                            _context15.next = 2;
+                            return _this3._client.get(splitName);
 
-                i = 0;
+                          case 2:
+                            value = _context15.sent;
+                            return _context15.abrupt("return", [splitName, value || null]);
 
-              case 3:
-                if (!(i < splitNames.length)) {
-                  _context15.next = 12;
-                  break;
-                }
+                          case 4:
+                          case "end":
+                            return _context15.stop();
+                        }
+                      }
+                    }, _callee13);
+                  }));
 
-                splitName = splitNames[i];
-                _context15.next = 7;
-                return this._client.get(splitName);
+                  return function (_x10) {
+                    return _ref.apply(this, arguments);
+                  };
+                }()));
 
-              case 7:
-                value = _context15.sent;
-                splits.set(splitName, value || null);
+              case 4:
+                _context16.t1 = _context16.sent;
+                return _context16.abrupt("return", new _context16.t0(_context16.t1));
 
-              case 9:
-                i++;
-                _context15.next = 3;
-                break;
-
-              case 12:
-                return _context15.abrupt("return", splits);
-
-              case 13:
+              case 6:
               case "end":
-                return _context15.stop();
+                return _context16.stop();
             }
           }
-        }, _callee13, this);
+        }, _callee14);
       }));
 
       function fetchMany(_x9) {
@@ -31640,20 +31651,20 @@ function () {
     value: function () {
       var _checkCache = _babel_runtime_corejs3_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_15___default()(
       /*#__PURE__*/
-      _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_12___default.a.mark(function _callee14() {
-        return _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_12___default.a.wrap(function _callee14$(_context16) {
+      _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_12___default.a.mark(function _callee15() {
+        return _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_12___default.a.wrap(function _callee15$(_context17) {
           while (1) {
-            switch (_context16.prev = _context16.next) {
+            switch (_context17.prev = _context17.next) {
               case 0:
                 log['debug']("checkCache()");
-                return _context16.abrupt("return", false);
+                return _context17.abrupt("return", false);
 
               case 2:
               case "end":
-                return _context16.stop();
+                return _context17.stop();
             }
           }
-        }, _callee14);
+        }, _callee15);
       }));
 
       function checkCache() {

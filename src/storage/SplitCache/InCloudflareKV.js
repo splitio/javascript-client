@@ -149,18 +149,17 @@ class SplitCacheInCloudflareKV {
    */
   async fetchMany(splitNames) {
     log['debug'](`fetchMany(${splitNames})`);
-    const splits = new Map();
 
-    await Promise.all(
-      splitNames.map((splitName) =>
-        new Promise(async (resolve) => {
-            const value = await this._client.get(splitName)
-            splits.set(splitName, value || null);
-            resolve(splits)
-        })
-    ))
-
-    return splits;
+    return new Map(
+      await Promise.all(
+        splitNames.map(
+          async (splitName) => {
+            const value = await this._client.get(splitName);
+            return [splitName, value || null];
+          }
+        )
+      )
+    );
   }
 
   /**
