@@ -3,8 +3,6 @@ import { SplitNetworkError } from '../../utils/lang/Errors';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-services:service');
 
-// const _axiosInstance = axios.create();
-
 export default function Fetcher(request) {
   let result;
   // TODO: This will log credentials, we should strip out Authorization header
@@ -57,5 +55,5 @@ export default function Fetcher(request) {
 
 // This function is only exposed for unit testing purposses.
 export function __getAxiosInstance() {
-  return _axiosInstance;
+  return;
 }
