@@ -31015,33 +31015,25 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _babel_runtime_corejs3_core_js_stable_map__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_corejs3_core_js_stable_map__WEBPACK_IMPORTED_MODULE_5__);
 /* harmony import */ var _babel_runtime_corejs3_core_js_stable_instance_keys__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @babel/runtime-corejs3/core-js-stable/instance/keys */ "./node_modules/@babel/runtime-corejs3/core-js-stable/instance/keys.js");
 /* harmony import */ var _babel_runtime_corejs3_core_js_stable_instance_keys__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_corejs3_core_js_stable_instance_keys__WEBPACK_IMPORTED_MODULE_6__);
-/* harmony import */ var _babel_runtime_corejs3_core_js_stable_instance_map__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @babel/runtime-corejs3/core-js-stable/instance/map */ "./node_modules/@babel/runtime-corejs3/core-js-stable/instance/map.js");
-/* harmony import */ var _babel_runtime_corejs3_core_js_stable_instance_map__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_corejs3_core_js_stable_instance_map__WEBPACK_IMPORTED_MODULE_7__);
-/* harmony import */ var _babel_runtime_corejs3_core_js_stable_instance_for_each__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @babel/runtime-corejs3/core-js-stable/instance/for-each */ "./node_modules/@babel/runtime-corejs3/core-js-stable/instance/for-each.js");
-/* harmony import */ var _babel_runtime_corejs3_core_js_stable_instance_for_each__WEBPACK_IMPORTED_MODULE_8___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_corejs3_core_js_stable_instance_for_each__WEBPACK_IMPORTED_MODULE_8__);
-/* harmony import */ var _babel_runtime_corejs3_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! @babel/runtime-corejs3/helpers/slicedToArray */ "./node_modules/@babel/runtime-corejs3/helpers/slicedToArray.js");
-/* harmony import */ var _babel_runtime_corejs3_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_9___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_corejs3_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_9__);
-/* harmony import */ var _babel_runtime_corejs3_core_js_get_iterator__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! @babel/runtime-corejs3/core-js/get-iterator */ "./node_modules/@babel/runtime-corejs3/core-js/get-iterator.js");
-/* harmony import */ var _babel_runtime_corejs3_core_js_get_iterator__WEBPACK_IMPORTED_MODULE_10___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_corejs3_core_js_get_iterator__WEBPACK_IMPORTED_MODULE_10__);
-/* harmony import */ var _babel_runtime_corejs3_core_js_stable_promise__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! @babel/runtime-corejs3/core-js-stable/promise */ "./node_modules/@babel/runtime-corejs3/core-js-stable/promise.js");
-/* harmony import */ var _babel_runtime_corejs3_core_js_stable_promise__WEBPACK_IMPORTED_MODULE_11___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_corejs3_core_js_stable_promise__WEBPACK_IMPORTED_MODULE_11__);
-/* harmony import */ var _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! @babel/runtime-corejs3/regenerator */ "./node_modules/@babel/runtime-corejs3/regenerator/index.js");
-/* harmony import */ var _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_12___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_12__);
-/* harmony import */ var _babel_runtime_corejs3_core_js_stable_instance_concat__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! @babel/runtime-corejs3/core-js-stable/instance/concat */ "./node_modules/@babel/runtime-corejs3/core-js-stable/instance/concat.js");
-/* harmony import */ var _babel_runtime_corejs3_core_js_stable_instance_concat__WEBPACK_IMPORTED_MODULE_13___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_corejs3_core_js_stable_instance_concat__WEBPACK_IMPORTED_MODULE_13__);
-/* harmony import */ var regenerator_runtime_runtime__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! regenerator-runtime/runtime */ "./node_modules/regenerator-runtime/runtime.js");
-/* harmony import */ var regenerator_runtime_runtime__WEBPACK_IMPORTED_MODULE_14___default = /*#__PURE__*/__webpack_require__.n(regenerator_runtime_runtime__WEBPACK_IMPORTED_MODULE_14__);
-/* harmony import */ var _babel_runtime_corejs3_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! @babel/runtime-corejs3/helpers/asyncToGenerator */ "./node_modules/@babel/runtime-corejs3/helpers/asyncToGenerator.js");
-/* harmony import */ var _babel_runtime_corejs3_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_15___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_corejs3_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_15__);
-/* harmony import */ var _babel_runtime_corejs3_core_js_stable_json_stringify__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! @babel/runtime-corejs3/core-js-stable/json/stringify */ "./node_modules/@babel/runtime-corejs3/core-js-stable/json/stringify.js");
-/* harmony import */ var _babel_runtime_corejs3_core_js_stable_json_stringify__WEBPACK_IMPORTED_MODULE_16___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_corejs3_core_js_stable_json_stringify__WEBPACK_IMPORTED_MODULE_16__);
-/* harmony import */ var _babel_runtime_corejs3_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! @babel/runtime-corejs3/helpers/classCallCheck */ "./node_modules/@babel/runtime-corejs3/helpers/classCallCheck.js");
-/* harmony import */ var _babel_runtime_corejs3_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_17___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_corejs3_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_17__);
-/* harmony import */ var _babel_runtime_corejs3_helpers_createClass__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! @babel/runtime-corejs3/helpers/createClass */ "./node_modules/@babel/runtime-corejs3/helpers/createClass.js");
-/* harmony import */ var _babel_runtime_corejs3_helpers_createClass__WEBPACK_IMPORTED_MODULE_18___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_corejs3_helpers_createClass__WEBPACK_IMPORTED_MODULE_18__);
-/* harmony import */ var _utils_lang__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../../utils/lang */ "./src/utils/lang/index.js");
-/* harmony import */ var _utils_splits_usesSegments__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../../utils/splits/usesSegments */ "./src/utils/splits/usesSegments.js");
-/* harmony import */ var _utils_logger__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ../../utils/logger */ "./src/utils/logger/index.js");
+/* harmony import */ var _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @babel/runtime-corejs3/regenerator */ "./node_modules/@babel/runtime-corejs3/regenerator/index.js");
+/* harmony import */ var _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_7__);
+/* harmony import */ var _babel_runtime_corejs3_core_js_stable_instance_map__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @babel/runtime-corejs3/core-js-stable/instance/map */ "./node_modules/@babel/runtime-corejs3/core-js-stable/instance/map.js");
+/* harmony import */ var _babel_runtime_corejs3_core_js_stable_instance_map__WEBPACK_IMPORTED_MODULE_8___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_corejs3_core_js_stable_instance_map__WEBPACK_IMPORTED_MODULE_8__);
+/* harmony import */ var _babel_runtime_corejs3_core_js_stable_promise__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! @babel/runtime-corejs3/core-js-stable/promise */ "./node_modules/@babel/runtime-corejs3/core-js-stable/promise.js");
+/* harmony import */ var _babel_runtime_corejs3_core_js_stable_promise__WEBPACK_IMPORTED_MODULE_9___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_corejs3_core_js_stable_promise__WEBPACK_IMPORTED_MODULE_9__);
+/* harmony import */ var regenerator_runtime_runtime__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! regenerator-runtime/runtime */ "./node_modules/regenerator-runtime/runtime.js");
+/* harmony import */ var regenerator_runtime_runtime__WEBPACK_IMPORTED_MODULE_10___default = /*#__PURE__*/__webpack_require__.n(regenerator_runtime_runtime__WEBPACK_IMPORTED_MODULE_10__);
+/* harmony import */ var _babel_runtime_corejs3_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! @babel/runtime-corejs3/helpers/asyncToGenerator */ "./node_modules/@babel/runtime-corejs3/helpers/asyncToGenerator.js");
+/* harmony import */ var _babel_runtime_corejs3_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_11___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_corejs3_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_11__);
+/* harmony import */ var _babel_runtime_corejs3_core_js_stable_instance_concat__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! @babel/runtime-corejs3/core-js-stable/instance/concat */ "./node_modules/@babel/runtime-corejs3/core-js-stable/instance/concat.js");
+/* harmony import */ var _babel_runtime_corejs3_core_js_stable_instance_concat__WEBPACK_IMPORTED_MODULE_12___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_corejs3_core_js_stable_instance_concat__WEBPACK_IMPORTED_MODULE_12__);
+/* harmony import */ var _babel_runtime_corejs3_core_js_stable_json_stringify__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! @babel/runtime-corejs3/core-js-stable/json/stringify */ "./node_modules/@babel/runtime-corejs3/core-js-stable/json/stringify.js");
+/* harmony import */ var _babel_runtime_corejs3_core_js_stable_json_stringify__WEBPACK_IMPORTED_MODULE_13___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_corejs3_core_js_stable_json_stringify__WEBPACK_IMPORTED_MODULE_13__);
+/* harmony import */ var _babel_runtime_corejs3_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! @babel/runtime-corejs3/helpers/classCallCheck */ "./node_modules/@babel/runtime-corejs3/helpers/classCallCheck.js");
+/* harmony import */ var _babel_runtime_corejs3_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_14___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_corejs3_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_14__);
+/* harmony import */ var _babel_runtime_corejs3_helpers_createClass__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! @babel/runtime-corejs3/helpers/createClass */ "./node_modules/@babel/runtime-corejs3/helpers/createClass.js");
+/* harmony import */ var _babel_runtime_corejs3_helpers_createClass__WEBPACK_IMPORTED_MODULE_15___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_corejs3_helpers_createClass__WEBPACK_IMPORTED_MODULE_15__);
+/* harmony import */ var _utils_logger__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../../utils/logger */ "./src/utils/logger/index.js");
 
 
 
@@ -31059,392 +31051,94 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-
-
-
-
-
-var log = Object(_utils_logger__WEBPACK_IMPORTED_MODULE_21__["default"])('splitio-storage:cloudflarekv'); // TODO: This is essentially just a copy of in memory
-// we need to modify this to read / write to Cloudflare KV
+var log = Object(_utils_logger__WEBPACK_IMPORTED_MODULE_16__["default"])('splitio-storage:cloudflarekv');
 
 var SplitCacheInCloudflareKV =
 /*#__PURE__*/
 function () {
   function SplitCacheInCloudflareKV(binding) {
-    _babel_runtime_corejs3_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_17___default()(this, SplitCacheInCloudflareKV);
+    _babel_runtime_corejs3_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_14___default()(this, SplitCacheInCloudflareKV);
 
-    log['debug']("Constructing SplitCacheInCloudflareKV with binding: ".concat(_babel_runtime_corejs3_core_js_stable_json_stringify__WEBPACK_IMPORTED_MODULE_16___default()(binding))); // The KV binding that will be used to talk to CloudFlare KV
+    log['debug']("Constructing SplitCacheInCloudflareKV with binding: ".concat(_babel_runtime_corejs3_core_js_stable_json_stringify__WEBPACK_IMPORTED_MODULE_13___default()(binding))); // The KV binding that will be used to talk to CloudFlare KV
 
     this._client = binding;
-    this.flush();
-  }
+  } // KV is eventually consistent therefore we can't safely add/remove specific splits
+  // so let's not pretend we can
 
-  _babel_runtime_corejs3_helpers_createClass__WEBPACK_IMPORTED_MODULE_18___default()(SplitCacheInCloudflareKV, [{
+
+  _babel_runtime_corejs3_helpers_createClass__WEBPACK_IMPORTED_MODULE_15___default()(SplitCacheInCloudflareKV, [{
     key: "addSplit",
-    value: function () {
-      var _addSplit = _babel_runtime_corejs3_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_15___default()(
-      /*#__PURE__*/
-      _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_12___default.a.mark(function _callee(splitName, split) {
-        var _context;
+    value: function addSplit(splitName, split) {
+      var _context;
 
-        var splitFromMemory, previousSplit, previousTtName, parsedSplit, ttName;
-        return _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_12___default.a.wrap(function _callee$(_context2) {
+      log['debug'](_babel_runtime_corejs3_core_js_stable_instance_concat__WEBPACK_IMPORTED_MODULE_12___default()(_context = "addSplit(".concat(splitName, ", ")).call(_context, split, ")"));
+      throw new Error('Not implemented in Cloudflare KV - addSplit');
+    }
+  }, {
+    key: "addSplits",
+    value: function addSplits(entries) {
+      log['debug']("addSplits(".concat(entries, ")"));
+      throw new Error('Not implemented in Cloudflare KV - addSplits');
+    }
+  }, {
+    key: "removeSplit",
+    value: function removeSplit(splitName) {
+      log['debug']("removeSplit(".concat(splitName, ")"));
+      throw new Error('Not implemented in Cloudflare KV - removeSplit');
+    }
+  }, {
+    key: "removeSplits",
+    value: function removeSplits(splitNames) {
+      log['debug']("removeSplits(".concat(splitNames, ")"));
+      throw new Error('Not implemented in Cloudflare KV - removeSplits');
+    }
+  }, {
+    key: "getSplit",
+    value: function getSplit(splitName) {
+      log['debug']("getSplit(".concat(splitName, ")"));
+      return this._client.get(splitName);
+    }
+  }, {
+    key: "setChangeNumber",
+    value: function setChangeNumber(changeNumber) {
+      log['debug']("setChangeNumber(".concat(changeNumber, ")"));
+      return true;
+    }
+  }, {
+    key: "getChangeNumber",
+    value: function getChangeNumber() {
+      log['debug']("getChangeNumber()");
+      return -1;
+    }
+  }, {
+    key: "getAll",
+    value: function () {
+      var _getAll = _babel_runtime_corejs3_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_11___default()(
+      /*#__PURE__*/
+      _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_7___default.a.mark(function _callee() {
+        var _this = this;
+
+        var keys;
+        return _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_7___default.a.wrap(function _callee$(_context2) {
           while (1) {
             switch (_context2.prev = _context2.next) {
               case 0:
-                log['debug'](_babel_runtime_corejs3_core_js_stable_instance_concat__WEBPACK_IMPORTED_MODULE_13___default()(_context = "addSplit(".concat(splitName, ", ")).call(_context, split, ")"));
+                log['debug']("getAll()");
                 _context2.next = 3;
-                return this.getSplit(splitName);
+                return this.getKeys();
 
               case 3:
-                splitFromMemory = _context2.sent;
+                keys = _context2.sent;
+                return _context2.abrupt("return", _babel_runtime_corejs3_core_js_stable_promise__WEBPACK_IMPORTED_MODULE_9___default.a.all(_babel_runtime_corejs3_core_js_stable_instance_map__WEBPACK_IMPORTED_MODULE_8___default()(keys).call(keys, function (key) {
+                  return _this._client.get(key);
+                })));
 
-                if (splitFromMemory) {
-                  // We had this Split already
-                  previousSplit = JSON.parse(splitFromMemory);
-
-                  if (previousSplit.trafficTypeName) {
-                    previousTtName = previousSplit.trafficTypeName;
-                    this.ttCache[previousTtName]--;
-                    if (!this.ttCache[previousTtName]) delete this.ttCache[previousTtName];
-                  }
-
-                  if (Object(_utils_splits_usesSegments__WEBPACK_IMPORTED_MODULE_20__["default"])(previousSplit.conditions)) {
-                    // Substract from segments count for the previous version of this Split.
-                    this.splitsWithSegmentsCount--;
-                  }
-                }
-
-                parsedSplit = JSON.parse(split);
-
-                if (!parsedSplit) {
-                  _context2.next = 15;
-                  break;
-                }
-
-                _context2.next = 9;
-                return this._client.put(splitName, split);
-
-              case 9:
-                // Update TT cache
-                ttName = parsedSplit.trafficTypeName;
-
-                if (ttName) {
-                  // safeguard
-                  if (!this.ttCache[ttName]) this.ttCache[ttName] = 0;
-                  this.ttCache[ttName]++;
-                } // Add to segments count for the new version of the Split
-
-
-                if (Object(_utils_splits_usesSegments__WEBPACK_IMPORTED_MODULE_20__["default"])(parsedSplit.conditions)) this.splitsWithSegmentsCount++;
-                return _context2.abrupt("return", true);
-
-              case 15:
-                return _context2.abrupt("return", false);
-
-              case 16:
+              case 5:
               case "end":
                 return _context2.stop();
             }
           }
         }, _callee, this);
-      }));
-
-      function addSplit(_x, _x2) {
-        return _addSplit.apply(this, arguments);
-      }
-
-      return addSplit;
-    }()
-  }, {
-    key: "addSplits",
-    value: function () {
-      var _addSplits = _babel_runtime_corejs3_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_15___default()(
-      /*#__PURE__*/
-      _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_12___default.a.mark(function _callee2(entries) {
-        var promises, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, _step$value, key, value;
-
-        return _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_12___default.a.wrap(function _callee2$(_context3) {
-          while (1) {
-            switch (_context3.prev = _context3.next) {
-              case 0:
-                log['debug']("addSplits(".concat(entries, ")"));
-                promises = [];
-                _iteratorNormalCompletion = true;
-                _didIteratorError = false;
-                _iteratorError = undefined;
-                _context3.prev = 5;
-
-                for (_iterator = _babel_runtime_corejs3_core_js_get_iterator__WEBPACK_IMPORTED_MODULE_10___default()(entries); !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                  _step$value = _babel_runtime_corejs3_helpers_slicedToArray__WEBPACK_IMPORTED_MODULE_9___default()(_step.value, 2), key = _step$value[0], value = _step$value[1];
-                  promises.push(this.addSplit(key, value));
-                }
-
-                _context3.next = 13;
-                break;
-
-              case 9:
-                _context3.prev = 9;
-                _context3.t0 = _context3["catch"](5);
-                _didIteratorError = true;
-                _iteratorError = _context3.t0;
-
-              case 13:
-                _context3.prev = 13;
-                _context3.prev = 14;
-
-                if (!_iteratorNormalCompletion && _iterator.return != null) {
-                  _iterator.return();
-                }
-
-              case 16:
-                _context3.prev = 16;
-
-                if (!_didIteratorError) {
-                  _context3.next = 19;
-                  break;
-                }
-
-                throw _iteratorError;
-
-              case 19:
-                return _context3.finish(16);
-
-              case 20:
-                return _context3.finish(13);
-
-              case 21:
-                _context3.next = 23;
-                return _babel_runtime_corejs3_core_js_stable_promise__WEBPACK_IMPORTED_MODULE_11___default.a.all(promises);
-
-              case 23:
-                return _context3.abrupt("return", _context3.sent);
-
-              case 24:
-              case "end":
-                return _context3.stop();
-            }
-          }
-        }, _callee2, this, [[5, 9, 13, 21], [14,, 16, 20]]);
-      }));
-
-      function addSplits(_x3) {
-        return _addSplits.apply(this, arguments);
-      }
-
-      return addSplits;
-    }()
-  }, {
-    key: "removeSplit",
-    value: function () {
-      var _removeSplit = _babel_runtime_corejs3_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_15___default()(
-      /*#__PURE__*/
-      _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_12___default.a.mark(function _callee3(splitName) {
-        var split, parsedSplit, ttName;
-        return _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_12___default.a.wrap(function _callee3$(_context4) {
-          while (1) {
-            switch (_context4.prev = _context4.next) {
-              case 0:
-                log['debug']("removeSplit(".concat(splitName, ")"));
-                _context4.next = 3;
-                return this.getSplit(splitName);
-
-              case 3:
-                split = _context4.sent;
-
-                if (!split) {
-                  _context4.next = 14;
-                  break;
-                }
-
-                _context4.next = 7;
-                return this._client.delete(splitName);
-
-              case 7:
-                parsedSplit = JSON.parse(split);
-                ttName = parsedSplit.trafficTypeName;
-
-                if (ttName) {
-                  // safeguard
-                  this.ttCache[ttName]--; // Update tt cache
-
-                  if (!this.ttCache[ttName]) delete this.ttCache[ttName];
-                } // Update the segments count.
-
-
-                if (Object(_utils_splits_usesSegments__WEBPACK_IMPORTED_MODULE_20__["default"])(parsedSplit.conditions)) this.splitsWithSegmentsCount--;
-                return _context4.abrupt("return", 1);
-
-              case 14:
-                return _context4.abrupt("return", 0);
-
-              case 15:
-              case "end":
-                return _context4.stop();
-            }
-          }
-        }, _callee3, this);
-      }));
-
-      function removeSplit(_x4) {
-        return _removeSplit.apply(this, arguments);
-      }
-
-      return removeSplit;
-    }()
-  }, {
-    key: "removeSplits",
-    value: function () {
-      var _removeSplits = _babel_runtime_corejs3_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_15___default()(
-      /*#__PURE__*/
-      _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_12___default.a.mark(function _callee4(splitNames) {
-        var _this = this;
-
-        return _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_12___default.a.wrap(function _callee4$(_context5) {
-          while (1) {
-            switch (_context5.prev = _context5.next) {
-              case 0:
-                log['debug']("removeSplits(".concat(splitNames, ")"));
-
-                _babel_runtime_corejs3_core_js_stable_instance_for_each__WEBPACK_IMPORTED_MODULE_8___default()(splitNames).call(splitNames, function (n) {
-                  return _this.removeSplit(n);
-                });
-
-                return _context5.abrupt("return", splitNames.length);
-
-              case 3:
-              case "end":
-                return _context5.stop();
-            }
-          }
-        }, _callee4);
-      }));
-
-      function removeSplits(_x5) {
-        return _removeSplits.apply(this, arguments);
-      }
-
-      return removeSplits;
-    }()
-  }, {
-    key: "getSplit",
-    value: function () {
-      var _getSplit = _babel_runtime_corejs3_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_15___default()(
-      /*#__PURE__*/
-      _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_12___default.a.mark(function _callee5(splitName) {
-        return _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_12___default.a.wrap(function _callee5$(_context6) {
-          while (1) {
-            switch (_context6.prev = _context6.next) {
-              case 0:
-                log['debug']("getSplit(".concat(splitName, ")"));
-                _context6.next = 3;
-                return this._client.get(splitName);
-
-              case 3:
-                return _context6.abrupt("return", _context6.sent);
-
-              case 4:
-              case "end":
-                return _context6.stop();
-            }
-          }
-        }, _callee5, this);
-      }));
-
-      function getSplit(_x6) {
-        return _getSplit.apply(this, arguments);
-      }
-
-      return getSplit;
-    }()
-  }, {
-    key: "setChangeNumber",
-    value: function () {
-      var _setChangeNumber = _babel_runtime_corejs3_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_15___default()(
-      /*#__PURE__*/
-      _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_12___default.a.mark(function _callee6(changeNumber) {
-        return _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_12___default.a.wrap(function _callee6$(_context7) {
-          while (1) {
-            switch (_context7.prev = _context7.next) {
-              case 0:
-                log['debug']("setChangeNumber(".concat(changeNumber, ")"));
-                this.changeNumber = changeNumber;
-                return _context7.abrupt("return", true);
-
-              case 3:
-              case "end":
-                return _context7.stop();
-            }
-          }
-        }, _callee6, this);
-      }));
-
-      function setChangeNumber(_x7) {
-        return _setChangeNumber.apply(this, arguments);
-      }
-
-      return setChangeNumber;
-    }()
-  }, {
-    key: "getChangeNumber",
-    value: function () {
-      var _getChangeNumber = _babel_runtime_corejs3_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_15___default()(
-      /*#__PURE__*/
-      _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_12___default.a.mark(function _callee7() {
-        return _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_12___default.a.wrap(function _callee7$(_context8) {
-          while (1) {
-            switch (_context8.prev = _context8.next) {
-              case 0:
-                log['debug']("getChangeNumber()");
-                return _context8.abrupt("return", this.changeNumber);
-
-              case 2:
-              case "end":
-                return _context8.stop();
-            }
-          }
-        }, _callee7, this);
-      }));
-
-      function getChangeNumber() {
-        return _getChangeNumber.apply(this, arguments);
-      }
-
-      return getChangeNumber;
-    }()
-  }, {
-    key: "getAll",
-    value: function () {
-      var _getAll = _babel_runtime_corejs3_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_15___default()(
-      /*#__PURE__*/
-      _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_12___default.a.mark(function _callee8() {
-        var _this2 = this;
-
-        var keys;
-        return _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_12___default.a.wrap(function _callee8$(_context9) {
-          while (1) {
-            switch (_context9.prev = _context9.next) {
-              case 0:
-                log['debug']("getAll()");
-                _context9.next = 3;
-                return this.getKeys();
-
-              case 3:
-                keys = _context9.sent;
-                _context9.next = 6;
-                return _babel_runtime_corejs3_core_js_stable_promise__WEBPACK_IMPORTED_MODULE_11___default.a.all(_babel_runtime_corejs3_core_js_stable_instance_map__WEBPACK_IMPORTED_MODULE_7___default()(keys).call(keys, function (key) {
-                  return _this2._client.get(key);
-                }));
-
-              case 6:
-                return _context9.abrupt("return", _context9.sent);
-
-              case 7:
-              case "end":
-                return _context9.stop();
-            }
-          }
-        }, _callee8, this);
       }));
 
       function getAll() {
@@ -31456,33 +31150,33 @@ function () {
   }, {
     key: "getKeys",
     value: function () {
-      var _getKeys = _babel_runtime_corejs3_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_15___default()(
+      var _getKeys = _babel_runtime_corejs3_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_11___default()(
       /*#__PURE__*/
-      _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_12___default.a.mark(function _callee9() {
-        var _context10;
+      _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_7___default.a.mark(function _callee2() {
+        var _context3;
 
         var page;
-        return _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_12___default.a.wrap(function _callee9$(_context11) {
+        return _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_7___default.a.wrap(function _callee2$(_context4) {
           while (1) {
-            switch (_context11.prev = _context11.next) {
+            switch (_context4.prev = _context4.next) {
               case 0:
                 log['debug']("getKeys()"); // TODO: Handle pagination
 
-                _context11.next = 3;
+                _context4.next = 3;
                 return this._client.list();
 
               case 3:
-                page = _context11.sent;
-                return _context11.abrupt("return", _babel_runtime_corejs3_core_js_stable_instance_map__WEBPACK_IMPORTED_MODULE_7___default()(_context10 = _babel_runtime_corejs3_core_js_stable_instance_keys__WEBPACK_IMPORTED_MODULE_6___default()(page)).call(_context10, function (result) {
+                page = _context4.sent;
+                return _context4.abrupt("return", _babel_runtime_corejs3_core_js_stable_instance_map__WEBPACK_IMPORTED_MODULE_8___default()(_context3 = _babel_runtime_corejs3_core_js_stable_instance_keys__WEBPACK_IMPORTED_MODULE_6___default()(page)).call(_context3, function (result) {
                   return result.name;
                 }));
 
               case 5:
               case "end":
-                return _context11.stop();
+                return _context4.stop();
             }
           }
-        }, _callee9, this);
+        }, _callee2, this);
       }));
 
       function getKeys() {
@@ -31493,50 +31187,29 @@ function () {
     }()
   }, {
     key: "trafficTypeExists",
-    value: function () {
-      var _trafficTypeExists = _babel_runtime_corejs3_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_15___default()(
-      /*#__PURE__*/
-      _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_12___default.a.mark(function _callee10(trafficType) {
-        return _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_12___default.a.wrap(function _callee10$(_context12) {
-          while (1) {
-            switch (_context12.prev = _context12.next) {
-              case 0:
-                log['debug']("trafficTypeExists(".concat(trafficType, ")"));
-                return _context12.abrupt("return", Object(_utils_lang__WEBPACK_IMPORTED_MODULE_19__["isFinite"])(this.ttCache[trafficType]) && this.ttCache[trafficType] > 0);
-
-              case 2:
-              case "end":
-                return _context12.stop();
-            }
-          }
-        }, _callee10, this);
-      }));
-
-      function trafficTypeExists(_x8) {
-        return _trafficTypeExists.apply(this, arguments);
-      }
-
-      return trafficTypeExists;
-    }()
+    value: function trafficTypeExists(trafficType) {
+      log['debug']("trafficTypeExists(".concat(trafficType, ")"));
+      return false;
+    }
   }, {
     key: "usesSegments",
     value: function () {
-      var _usesSegments = _babel_runtime_corejs3_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_15___default()(
+      var _usesSegments = _babel_runtime_corejs3_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_11___default()(
       /*#__PURE__*/
-      _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_12___default.a.mark(function _callee11() {
-        return _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_12___default.a.wrap(function _callee11$(_context13) {
+      _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_7___default.a.mark(function _callee3() {
+        return _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_7___default.a.wrap(function _callee3$(_context5) {
           while (1) {
-            switch (_context13.prev = _context13.next) {
+            switch (_context5.prev = _context5.next) {
               case 0:
                 log['debug']("usesSegments()");
-                return _context13.abrupt("return", this.getChangeNumber() === -1 || this.splitsWithSegmentsCount > 0);
+                return _context5.abrupt("return", false);
 
               case 2:
               case "end":
-                return _context13.stop();
+                return _context5.stop();
             }
           }
-        }, _callee11, this);
+        }, _callee3);
       }));
 
       function usesSegments() {
@@ -31547,33 +31220,9 @@ function () {
     }()
   }, {
     key: "flush",
-    value: function () {
-      var _flush = _babel_runtime_corejs3_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_15___default()(
-      /*#__PURE__*/
-      _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_12___default.a.mark(function _callee12() {
-        return _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_12___default.a.wrap(function _callee12$(_context14) {
-          while (1) {
-            switch (_context14.prev = _context14.next) {
-              case 0:
-                log['debug']("flush()");
-                this.ttCache = {};
-                this.changeNumber = -1;
-                this.splitsWithSegmentsCount = 0;
-
-              case 4:
-              case "end":
-                return _context14.stop();
-            }
-          }
-        }, _callee12, this);
-      }));
-
-      function flush() {
-        return _flush.apply(this, arguments);
-      }
-
-      return flush;
-    }()
+    value: function flush() {
+      log['debug']("flush()");
+    }
     /**
      * Fetches multiple splits definitions.
      */
@@ -31581,62 +31230,62 @@ function () {
   }, {
     key: "fetchMany",
     value: function () {
-      var _fetchMany = _babel_runtime_corejs3_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_15___default()(
+      var _fetchMany = _babel_runtime_corejs3_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_11___default()(
       /*#__PURE__*/
-      _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_12___default.a.mark(function _callee14(splitNames) {
-        var _this3 = this;
+      _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_7___default.a.mark(function _callee5(splitNames) {
+        var _this2 = this;
 
-        return _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_12___default.a.wrap(function _callee14$(_context16) {
+        return _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_7___default.a.wrap(function _callee5$(_context7) {
           while (1) {
-            switch (_context16.prev = _context16.next) {
+            switch (_context7.prev = _context7.next) {
               case 0:
                 log['debug']("fetchMany(".concat(splitNames, ")"));
-                _context16.t0 = _babel_runtime_corejs3_core_js_stable_map__WEBPACK_IMPORTED_MODULE_5___default.a;
-                _context16.next = 4;
-                return _babel_runtime_corejs3_core_js_stable_promise__WEBPACK_IMPORTED_MODULE_11___default.a.all(_babel_runtime_corejs3_core_js_stable_instance_map__WEBPACK_IMPORTED_MODULE_7___default()(splitNames).call(splitNames,
+                _context7.t0 = _babel_runtime_corejs3_core_js_stable_map__WEBPACK_IMPORTED_MODULE_5___default.a;
+                _context7.next = 4;
+                return _babel_runtime_corejs3_core_js_stable_promise__WEBPACK_IMPORTED_MODULE_9___default.a.all(_babel_runtime_corejs3_core_js_stable_instance_map__WEBPACK_IMPORTED_MODULE_8___default()(splitNames).call(splitNames,
                 /*#__PURE__*/
                 function () {
-                  var _ref = _babel_runtime_corejs3_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_15___default()(
+                  var _ref = _babel_runtime_corejs3_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_11___default()(
                   /*#__PURE__*/
-                  _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_12___default.a.mark(function _callee13(splitName) {
+                  _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_7___default.a.mark(function _callee4(splitName) {
                     var value;
-                    return _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_12___default.a.wrap(function _callee13$(_context15) {
+                    return _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_7___default.a.wrap(function _callee4$(_context6) {
                       while (1) {
-                        switch (_context15.prev = _context15.next) {
+                        switch (_context6.prev = _context6.next) {
                           case 0:
-                            _context15.next = 2;
-                            return _this3._client.get(splitName);
+                            _context6.next = 2;
+                            return _this2._client.get(splitName);
 
                           case 2:
-                            value = _context15.sent;
-                            return _context15.abrupt("return", [splitName, value || null]);
+                            value = _context6.sent;
+                            return _context6.abrupt("return", [splitName, value || null]);
 
                           case 4:
                           case "end":
-                            return _context15.stop();
+                            return _context6.stop();
                         }
                       }
-                    }, _callee13);
+                    }, _callee4);
                   }));
 
-                  return function (_x10) {
+                  return function (_x2) {
                     return _ref.apply(this, arguments);
                   };
                 }()));
 
               case 4:
-                _context16.t1 = _context16.sent;
-                return _context16.abrupt("return", new _context16.t0(_context16.t1));
+                _context7.t1 = _context7.sent;
+                return _context7.abrupt("return", new _context7.t0(_context7.t1));
 
               case 6:
               case "end":
-                return _context16.stop();
+                return _context7.stop();
             }
           }
-        }, _callee14);
+        }, _callee5);
       }));
 
-      function fetchMany(_x9) {
+      function fetchMany(_x) {
         return _fetchMany.apply(this, arguments);
       }
 
@@ -31648,31 +31297,10 @@ function () {
 
   }, {
     key: "checkCache",
-    value: function () {
-      var _checkCache = _babel_runtime_corejs3_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_15___default()(
-      /*#__PURE__*/
-      _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_12___default.a.mark(function _callee15() {
-        return _babel_runtime_corejs3_regenerator__WEBPACK_IMPORTED_MODULE_12___default.a.wrap(function _callee15$(_context17) {
-          while (1) {
-            switch (_context17.prev = _context17.next) {
-              case 0:
-                log['debug']("checkCache()");
-                return _context17.abrupt("return", false);
-
-              case 2:
-              case "end":
-                return _context17.stop();
-            }
-          }
-        }, _callee15);
-      }));
-
-      function checkCache() {
-        return _checkCache.apply(this, arguments);
-      }
-
-      return checkCache;
-    }()
+    value: function checkCache() {
+      log['debug']("checkCache()");
+      return false;
+    }
   }]);
 
   return SplitCacheInCloudflareKV;
