@@ -1,11 +1,11 @@
 import logFactory from '../../utils/logger';
+
 const log = logFactory('splitio-storage:cloudflarekv');
 
 class SplitCacheInCloudflareKV {
 
   constructor(binding) {
-    log['debug'](`Constructing SplitCacheInCloudflareKV with binding: ${JSON.stringify(binding)}`)
-    // The KV binding that will be used to talk to CloudFlare KV
+    log['debug'](`Constructing SplitCacheInCloudflareKV`);
     this._client = binding;
   }
 
@@ -31,7 +31,7 @@ class SplitCacheInCloudflareKV {
     throw new Error('Not implemented in Cloudflare KV - removeSplits');
   }
 
-  async getSplit(splitName) {
+  getSplit(splitName) {
     log['debug'](`getSplit(${splitName})`);
     return this._client.get(splitName);
   }
@@ -46,17 +46,14 @@ class SplitCacheInCloudflareKV {
     return -1;
   }
 
-  async getAll() {
+  getAll() {
     log['debug'](`getAll()`);
-    const keys = await this.getKeys();
-    return Promise.all(keys.map(key => this._client.get(key)));
+    return this._client.getAll();
   }
 
-  async getKeys() {
+  getKeys() {
     log['debug'](`getKeys()`);
-    // TODO: Handle pagination
-    const page = await this._client.list();
-    return page.keys.map(result => result.name);
+    return this._client.keys();
   }
 
   trafficTypeExists(trafficType) {
@@ -64,7 +61,7 @@ class SplitCacheInCloudflareKV {
     return false;
   }
 
-  async usesSegments() {
+  usesSegments() {
     log['debug'](`usesSegments()`);
     return false;
   }
@@ -76,19 +73,9 @@ class SplitCacheInCloudflareKV {
   /**
    * Fetches multiple splits definitions.
    */
-  async fetchMany(splitNames) {
+  fetchMany(splitNames) {
     log['debug'](`fetchMany(${splitNames})`);
-
-    return new Map(
-      await Promise.all(
-        splitNames.map(
-          async (splitName) => {
-            const value = await this._client.get(splitName);
-            return [splitName, value || null];
-          }
-        )
-      )
-    );
+    return this._client.getMany(splitNames);
   }
 
   /**
