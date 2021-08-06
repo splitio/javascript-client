@@ -3,11 +3,14 @@ import { SplitNetworkError } from '../../utils/lang/Errors';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-services:service');
 
+const messageNoFetch = 'Global fetch API is not available.';
+
 export default function Fetcher(request) {
   // using `fetch(url, options)` signature to work with unfetch
   const url = request.url;
-  // @TODO: update to use global fetch when IE10+ is deprecated
-  return getFetch()(url, request)
+  const fetch = getFetch();
+
+  return fetch ? fetch(url, request)
     // https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch#Checking_that_the_fetch_was_successful
     .then(response => {
       if (!response.ok) {
@@ -37,5 +40,5 @@ export default function Fetcher(request) {
 
       // passes `undefined` as statusCode if not an HTTP error (resp === undefined)
       throw new SplitNetworkError(msg, resp && resp.status);
-    });
+    }) : Promise.reject(new SplitNetworkError(messageNoFetch));
 }
