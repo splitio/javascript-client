@@ -10,8 +10,8 @@ export default function Fetcher(request) {
   return getFetch()(url, request)
     // https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch#Checking_that_the_fetch_was_successful
     .then(response => {
-      if (!response.ok) { // eslint-disable-next-line no-throw-literal
-        throw { response };
+      if (!response.ok) {
+        return response.text().then(message => Promise.reject({ response, message }));
       }
       return response;
     })
@@ -23,7 +23,8 @@ export default function Fetcher(request) {
         switch (resp.status) {
           case 404: msg = 'Invalid API key or resource not found.';
             break;
-          default: msg = resp.statusText;
+          // Don't use resp.statusText since reason phrase is removed in HTTP/2
+          default: msg = error.message;
             break;
         }
       } else { // Something else, either an error making the request or a Network error.
