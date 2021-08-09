@@ -95,9 +95,10 @@ interface ISettings {
   },
   readonly debug: boolean | LogLevel,
   readonly version: string,
-  features: {
-    [featureName: string]: string
-  },
+  /**
+   * Mocked features map if using in browser, or mocked features file path string if using in Node.
+   */
+  features: SplitIO.MockedFeaturesMap | SplitIO.MockedFeaturesFilePath,
   readonly streamingEnabled: boolean,
   readonly sync: {
     splitFilters: SplitIO.SplitFilter[],

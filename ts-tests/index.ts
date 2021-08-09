@@ -181,7 +181,7 @@ const instantiatedSettingsStorage: {
 } = SDK.settings.storage;
 const instantiatedSettingsUrls: {[key: string]: string} = SDK.settings.urls;
 const instantiatedSettingsVersion: string = SDK.settings.version;
-let instantiatedSettingsFeatures: {[key: string]: string} = SDK.settings.features;
+let instantiatedSettingsFeatures = SDK.settings.features as SplitIO.MockedFeaturesMap;
 // We should be able to write on features prop. The rest are readonly props.
 instantiatedSettingsFeatures.something = 'something';
 
