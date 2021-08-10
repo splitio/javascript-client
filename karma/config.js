@@ -44,6 +44,7 @@ module.exports = {
   exclude: [
     '*/**/__tests__/**/node.spec.js',
     '*/**/__tests__/**/node_redis.spec.js',
+    '*/**/__tests__/**/*.node.spec.js',
     '*/**/__tests__/**/inputValidation/*.spec.js'
   ],
 
