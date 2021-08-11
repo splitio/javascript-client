@@ -31,9 +31,6 @@ export function ioredisWrapper(redisOptions) {
     getKeysByPrefix(prefix) {
       return redis.keys(`${prefix}*`);
     },
-    getByPrefix(prefix) {
-      return this.getKeysByPrefix(prefix).then(keys => redis.mget(...keys));
-    },
     getMany(keys) {
       return redis.mget(...keys);
     },
