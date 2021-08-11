@@ -18,7 +18,7 @@ const ObjectToView = (json) => {
 
   try {
     splitObject = JSON.parse(json);
-  } catch(e) {
+  } catch (e) {
     return null;
   }
 
@@ -65,7 +65,7 @@ function SplitManagerFactory(splits, context) {
         const split = splits.getSplit(splitName);
 
         if (thenable(split)) {
-          return split.then(result => {
+          return split.catch(() => null).then(result => { // handle possible rejections when using pluggable storage
             validateSplitExistance(context, splitName, result, SPLIT_FN_LABEL);
             return ObjectToView(result);
           });
@@ -84,8 +84,9 @@ function SplitManagerFactory(splits, context) {
         }
         const currentSplits = splits.getAll();
 
-        if (thenable(currentSplits)) return currentSplits.then(ObjectsToViews);
-        return ObjectsToViews(currentSplits);
+        return thenable(currentSplits) ?
+          currentSplits.catch(() => []).then(ObjectsToViews) : // handle possible rejections when using pluggable storage
+          ObjectsToViews(currentSplits);
       },
       /**
        * Get the Split names present on the factory storage
@@ -94,7 +95,11 @@ function SplitManagerFactory(splits, context) {
         if (!validateIfDestroyed(context) || !validateIfReady(context, 'names')) {
           return [];
         }
-        return splits.getKeys();
+        const splitNames = splits.getSplitNames();
+
+        return thenable(splitNames) ?
+          splitNames.catch(() => []) : // handle possible rejections when using pluggable storage
+          splitNames;
       }
     }
   );

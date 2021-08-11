@@ -3,7 +3,7 @@
  - Updated ioredis version now that their incompatibility with Node <10 was already fixed.
  - Updated Karma and a transitive dependency with vulnerabilities.
  - Updated dev dependency on redis-dump to redis-dumpz package to be able to fix a vulnerability on Redis transitive dependency.
- - Bugfixing - Name two anonymous functions that generate warnigns when transpiling for IE11 (issue #535)
+ - Bugfixing - Name two anonymous functions that generate warnings when transpiling for IE11 (issue #535)
 
 10.15.5 (Apr 29, 2021)
  - Updated some dependencies, including a vulnerability fix.
