@@ -23,7 +23,7 @@ const agent = new https.Agent({
   keepAliveMsecs: 1500
 });
 
-export default function() {
+export default function getOptions() {
   return {
     agent
   };

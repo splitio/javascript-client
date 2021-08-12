@@ -1,3 +1,9 @@
+10.15.9 (Aug 12, 2021)
+ - Updated some dependencies with vulnerability fixes.
+ - Updated some log messages related to HTTP request errors.
+ - Fixed internal promise wrapper to avoid an error with Meteor framework.
+ - Fixed type definitions for `ISettings['features']` (issue #560).
+
 10.15.8 (June 11, 2021)
  - Updated listener for 'unload' DOM events to close any remaining streaming connections.
  - Added telemetry headers in form of query params to SSE connection.
