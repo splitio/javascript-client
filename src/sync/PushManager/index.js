@@ -90,7 +90,7 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
       function (error) {
         if (disconnected) return;
 
-        log.error(`Failed to authenticate for streaming. Error: "${error.message}".`);
+        log.error(`Failed to authenticate for streaming. Error: ${error.message}.`);
 
         // Handle 4XX HTTP errors: 401 (invalid API Key) or 400 (using incorrect API Key, i.e., client-side API Key on server-side)
         if (error.statusCode >= 400 && error.statusCode < 500) {
