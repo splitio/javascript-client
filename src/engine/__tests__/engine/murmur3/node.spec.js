@@ -17,7 +17,7 @@ import tape from 'tape-catch';
 import fs from 'fs';
 import rl from 'readline';
 import utils from '../../../engine/murmur3/murmur3';
-import { hash128 } from '../../../engine/murmur3/murmur3_128';
+import { hash128, hash64 } from '../../../engine/murmur3/murmur3_128';
 
 [
   'murmur3-sample-v4.csv',
@@ -96,4 +96,18 @@ function dec2hex(str) {
       })
       .on('close', assert.end);
   });
+});
+
+tape('MURMUR3 128 higher 64 bits as unsigned int', assert => {
+  [
+    ['key1', 1573573083296714675],
+    ['key2', 8482869187405483569],
+    ['key3', 8031872927333060586],
+    ['key4', 6829471020522910836],
+    ['', 0],
+  ].forEach(([key, hashNumber]) => {
+    assert.equal(hash64(key), hashNumber);
+  });
+
+  assert.end();
 });
