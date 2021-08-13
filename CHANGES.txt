@@ -1,4 +1,4 @@
-10.15.9 (Aug 12, 2021)
+10.15.9 (Aug 13, 2021)
  - Updated some dependencies with vulnerability fixes.
  - Updated some log messages related to HTTP request errors.
  - Fixed internal promise wrapper to avoid an error with Meteor framework.
