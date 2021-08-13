@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# replace splitio-commons imports to use its ES modules build
+# remove unfetch source mapping url from UMD development build
 replace '//# sourceMappingURL=unfetch.module.js.map' '' ./umd -r
 
 if [ $? -eq 0 ]
