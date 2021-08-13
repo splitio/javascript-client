@@ -7,7 +7,7 @@
  see: https://github.com/dcodeIO/utfx for details
 */
 
-export default (function () {
+export default (function iifeUtfx() {
 
   /**
    * utfx namespace.
