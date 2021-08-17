@@ -98,13 +98,16 @@ function dec2hex(str) {
   });
 });
 
-tape('MURMUR3 128 higher 64 bits as unsigned int', assert => {
+tape('MURMUR3 128 higher 64 bits as decimal number', assert => {
+
   [
-    ['key1', 1573573083296714675],
-    ['key2', 8482869187405483569],
-    ['key3', 8031872927333060586],
-    ['key4', 6829471020522910836],
-    ['', 0],
+    ['key1', '1573573083296714675'],
+    ['key2', '8482869187405483569'],
+    ['key3', '8031872927333060586'],
+    ['key4', '6829471020522910836'],
+    ['key5', '12713811080036565944'],
+    ['key6', '15982449564394506332'],
+    ['', '0'],
   ].forEach(([key, hashNumber]) => {
     assert.equal(hash64(key), hashNumber);
   });
