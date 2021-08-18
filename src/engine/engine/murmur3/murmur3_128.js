@@ -271,32 +271,3 @@ function hash128x64(key /*: string */, seed /*: number */) /*: string */ {
 export function hash128(str /*: string */, seed /*: number */) /*: string */ {
   return hash128x64(UTF16ToUTF8(str), seed >>> 0);
 }
-
-/**
- * Use instead of parseInt, to not lose precision when converting big integers (greater than 2^53 - 1)
- */
-function hexToDec(s /*: string */) /*: string */ {
-  var i, j, digits = [0], carry;
-  for (i = 0; i < s.length; i += 1) {
-    carry = parseInt(s.charAt(i), 16);
-    for (j = digits.length - 1; j >= 0; j -= 1) {
-      digits[j] = digits[j] * 16 + carry;
-      carry = digits[j] / 10 | 0;
-      digits[j] %= 10;
-    }
-    while (carry > 0) {
-      digits.unshift(carry % 10);
-      carry = carry / 10 | 0;
-    }
-  }
-  return digits.join('');
-}
-
-/**
- * Gets the higher 64 bits of the x64 version of Murmur3 for 128bits as a decimal number string.
- * Used for the new mySegments channel notifications.
- * @param {string} str
- */
-export function hash64(str /*: string */) /*: string */ {
-  return hexToDec(hash128x64(UTF16ToUTF8(str)).slice(0, 16), 16);
-}
