@@ -4,15 +4,17 @@ import { keyListDataGzip, keyListData, bitmapDataGzip, bitmapData } from '../moc
 
 import { parseKeyList, parseBitmap, isInBitmap } from '../../PushManager/mySegmentsV2utils';
 
-tape('parseKeyList with GZIP', assert => {
+const GZIP = 1;
 
-  assert.deepEqual(parseKeyList(keyListDataGzip, 1), keyListData, 'decompress Gzipped KeyList');
+tape('parseKeyList', assert => {
+
+  assert.deepEqual(parseKeyList(keyListDataGzip, GZIP), keyListData, 'decompress Gzipped KeyList');
   assert.end();
 
 });
 
-tape('gzipBitmap', assert => {
-  const actualBitmap = parseBitmap(bitmapDataGzip, 1);
+tape('parseBitmap & isInBitmap', assert => {
+  const actualBitmap = parseBitmap(bitmapDataGzip, GZIP);
   assert.deepEqual(actualBitmap, bitmapData, 'decompress Gzipped Bitmap');
 
   const userKeysTrue = [
