@@ -17,7 +17,8 @@ import tape from 'tape-catch';
 import fs from 'fs';
 import rl from 'readline';
 import utils from '../../../engine/murmur3/murmur3';
-import { hash128, hash64 } from '../../../engine/murmur3/murmur3_128';
+import { hash128 } from '../../../engine/murmur3/murmur3_128';
+import { hash64 } from '../../../engine/murmur3/murmur3_64';
 
 [
   'murmur3-sample-v4.csv',
@@ -98,15 +99,18 @@ function dec2hex(str) {
   });
 });
 
-tape('MURMUR3 128 higher 64 bits as unsigned int', assert => {
+tape('MURMUR3 128 higher 64 bits as decimal number', assert => {
+
   [
-    ['key1', 1573573083296714675],
-    ['key2', 8482869187405483569],
-    ['key3', 8031872927333060586],
-    ['key4', 6829471020522910836],
-    ['', 0],
-  ].forEach(([key, hashNumber]) => {
-    assert.equal(hash64(key), hashNumber);
+    ['key1', { hex: '15d67461d2044fb3', dec: '1573573083296714675' }],
+    ['key2', { hex: '75b93494ef690e31', dec: '8482869187405483569' }],
+    ['key3', { hex: '6f76f1df6ac38fea', dec: '8031872927333060586' }],
+    ['key4', { hex: '5ec727b58617b474', dec: '6829471020522910836' }],
+    ['key5', { hex: 'b07087d10f0143b8', dec: '12713811080036565944' }],
+    ['key6', { hex: 'ddcd11333e54c85c', dec: '15982449564394506332' }],
+    ['', { hex: '0000000000000000', dec: '0' }],
+  ].forEach(([key, hash]) => {
+    assert.deepEqual(hash64(key), hash);
   });
 
   assert.end();

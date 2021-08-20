@@ -271,12 +271,3 @@ function hash128x64(key /*: string */, seed /*: number */) /*: string */ {
 export function hash128(str /*: string */, seed /*: number */) /*: string */ {
   return hash128x64(UTF16ToUTF8(str), seed >>> 0);
 }
-
-/**
- * Gets the higher 64 bits of the x64 version of Murmur3 for 128bits as unsigned int number.
- * Used for the new mySegments channel notifications.
- * @param {string} str
- */
-export function hash64(str /*: string */) /*: number */ {
-  return parseInt(hash128x64(UTF16ToUTF8(str)).slice(0, 16), 16);
-}
