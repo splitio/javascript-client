@@ -1,5 +1,5 @@
 import { gunzipSync, unzlibSync } from '../../utils/decompress';
-import { decodeFromBase64 } from '../../utils/base64/node';
+import { decodeFromBase64 } from '../../utils/base64';
 
 const GZIP = 1;
 const ZLIB = 2;
