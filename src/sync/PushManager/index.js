@@ -11,9 +11,18 @@ import SSEHandlerFactory from '../SSEHandler';
 import Backoff from '../../utils/backoff';
 import { hashUserKey } from '../../utils/jwt/hashUserKey';
 import logFactory from '../../utils/logger';
-import { SECONDS_BEFORE_EXPIRATION, PUSH_SUBSYSTEM_DOWN, PUSH_SUBSYSTEM_UP, PUSH_NONRETRYABLE_ERROR, PUSH_RETRYABLE_ERROR, SPLIT_KILL, SPLIT_UPDATE, SEGMENT_UPDATE, MY_SEGMENTS_UPDATE } from '../constants';
+import { SECONDS_BEFORE_EXPIRATION, PUSH_SUBSYSTEM_DOWN, PUSH_SUBSYSTEM_UP, PUSH_NONRETRYABLE_ERROR, PUSH_RETRYABLE_ERROR, SPLIT_KILL, SPLIT_UPDATE, SEGMENT_UPDATE, MY_SEGMENTS_UPDATE, MY_SEGMENTS_UPDATE_V2 } from '../constants';
+import { parseBitmap, parseKeyList, isInBitmap } from './mySegmentsV2utils';
+import { forOwn } from '../../utils/lang';
+import { _Set } from '../../utils/lang/Sets';
+import { hash64 } from '../../engine/engine/murmur3/murmur3_64';
 
 const log = logFactory('splitio-sync:push-manager');
+
+// const UnboundedFetchRequest = 0;
+const BoundedFetchRequest = 1;
+const KeyList = 2;
+const SegmentRemoval = 3;
 
 /**
  * Factory of the push mode manager.
@@ -36,8 +45,10 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
 
   // map of hashes to user keys, to dispatch MY_SEGMENTS_UPDATE events to the corresponding MySegmentsUpdateWorker
   const userKeyHashes = {};
-  // list of workers, used to stop them all together when push is disconnected
-  const workers = [];
+  // map of user keys to their corresponding hash64 and MySegmentsUpdateWorker.
+  // Hash64 is used to process MY_SEGMENTS_UPDATE_V2 events and dispatch actions to the corresponding worker.
+  const clients = {};
+
   // variable used on browser to reconnect only when a new client was added, saving some authentication and sse connections.
   let connectForNewClient = false;
   // flag that indicates if `disconnectPush` was called, either by the SyncManager (when the client is destroyed) or by a PUSH_NONRETRYABLE_ERROR error
@@ -116,11 +127,6 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
     stopWorkers();
   }
 
-  // cancel scheduled fetch retries of Split, Segment, and MySegment Update Workers
-  function stopWorkers() {
-    workers.forEach(worker => worker.backoff.reset());
-  }
-
   pushEmitter.on(PUSH_SUBSYSTEM_DOWN, stopWorkers);
 
   // restart backoff retry counter once push is connected
@@ -152,12 +158,20 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
 
   const producer = context.get(context.constants.PRODUCER);
   const splitUpdateWorker = new SplitUpdateWorker(storage.splits, producer, splitsEventEmitter);
+  let segmentUpdateWorker; // used in Node
 
-  workers.push(splitUpdateWorker);
+  // cancel scheduled fetch retries of Split, Segment, and MySegment Update Workers
+  function stopWorkers() {
+    splitUpdateWorker.backoff.reset();
+    if (segmentUpdateWorker) segmentUpdateWorker.backoff.reset();
+    forOwn(({ worker }) => worker.backoff.reset());
+  }
+
   pushEmitter.on(SPLIT_KILL, splitUpdateWorker.killSplit);
   pushEmitter.on(SPLIT_UPDATE, splitUpdateWorker.put);
 
   if (clientContexts) { // browser
+    // @TODO remove
     pushEmitter.on(MY_SEGMENTS_UPDATE, function handleMySegmentsUpdate(parsedData, channel) {
       const userKeyHash = channel.split('_')[2];
       const userKey = userKeyHashes[userKeyHash];
@@ -168,9 +182,70 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
           parsedData.includesPayload ? parsedData.segmentList ? parsedData.segmentList : [] : undefined);
       }
     });
+
+    pushEmitter.on(MY_SEGMENTS_UPDATE_V2, function handleMySegmentsUpdate(parsedData) {
+      switch (parsedData.u) {
+        case BoundedFetchRequest: {
+          let bitmap;
+          try {
+            bitmap = parseBitmap(parsedData.d, parsedData.c);
+          } catch (e) {
+            log.warn('Fetching MySegments due to an error parsing BoundedFetchRequest notification: ' + e);
+            break;
+          }
+          forOwn(clients, ({ hash64, worker }) => {
+            if (isInBitmap(bitmap, hash64.hex)) {
+              // fetch mySegments
+              worker.put(parsedData.changeNumber);
+            }
+          });
+          return;
+        }
+        case KeyList: {
+          let keyList;
+          try {
+            keyList = parseKeyList(parsedData.d, parsedData.c);
+          } catch (e) {
+            log.warn('Fetching MySegments due to an error parsing KeyList notification: ' + e);
+            break;
+          }
+          const added = new _Set(keyList.a);
+          const removed = new _Set(keyList.r);
+          forOwn(clients, ({ hash64, worker }) => {
+            if (added.has(hash64.dec)) {
+              worker.put(parsedData.changeNumber, {
+                name: parsedData.segmentName,
+                add: true
+              });
+            } else {
+              if (removed.has(hash64.dec)) {
+                worker.put(parsedData.changeNumber, {
+                  name: parsedData.segmentName,
+                  add: false
+                });
+              }
+            }
+          });
+          return;
+        }
+        case SegmentRemoval:
+          forOwn(clients, ({ worker }) => {
+            worker.put(parsedData.changeNumber, {
+              name: parsedData.segmentName,
+              add: false
+            });
+          });
+          return;
+      }
+
+      // `UpdateStrategy.UnboundedFetchRequest` and fallbacks of other cases
+      forOwn(clients, ({ worker }) => {
+        worker.put(parsedData.changeNumber);
+      });
+    });
+
   } else { // node
-    const segmentUpdateWorker = new SegmentUpdateWorker(storage.segments, producer);
-    workers.push(segmentUpdateWorker);
+    segmentUpdateWorker = new SegmentUpdateWorker(storage.segments, producer);
     pushEmitter.on(SEGMENT_UPDATE, segmentUpdateWorker.put);
   }
 
@@ -195,7 +270,7 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
           connectForNewClient = true; // we must reconnect on start, to listen the channel for the new user key
         }
         const mySegmentSync = new SegmentUpdateWorker(storage.segments, producer);
-        workers.push(mySegmentSync);
+        clients[userKey] = { worker: mySegmentSync, hash64: hash64(userKey) };
         context.put(context.constants.MY_SEGMENTS_CHANGE_WORKER, mySegmentSync);
 
         // Reconnects in case of a new client.
@@ -212,6 +287,7 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
       removeClient(userKey) {
         const hash = hashUserKey(userKey);
         delete userKeyHashes[hash];
+        delete clients[userKey];
       }
     }
   );

@@ -14,7 +14,7 @@ export default class MySegmentUpdateWorker {
     this.mySegmentsStorage = mySegmentsStorage;
     this.mySegmentsProducer = mySegmentsProducer;
     this.maxChangeNumber = 0; // keeps the maximum changeNumber among queued events
-    this.segmentList = undefined; // keeps the segmentList (if included in payload) from the queued event with maximum changeNumber
+    this.segmentsData = undefined; // keeps the segmentsData (if included in notification payload) from the queued event with maximum changeNumber
     this.currentChangeNumber = -1; // @TODO: remove once `/mySegments` endpoint provides the changeNumber
     this.put = this.put.bind(this);
     this.__handleMySegmentUpdateCall = this.__handleMySegmentUpdateCall.bind(this);
@@ -30,7 +30,7 @@ export default class MySegmentUpdateWorker {
       const currentMaxChangeNumber = this.maxChangeNumber;
 
       // fetch mySegments revalidating data if cached
-      this.mySegmentsProducer.synchronizeMySegments(this.segmentList, true).then((result) => {
+      this.mySegmentsProducer.synchronizeMySegments(this.segmentsData, true).then((result) => {
         if (result !== false) // Unlike `Split\SegmentUpdateWorker`, we cannot use `mySegmentsStorage.getChangeNumber` since `/mySegments` endpoint doesn't provide this value.
           this.currentChangeNumber = Math.max(this.currentChangeNumber, currentMaxChangeNumber); // use `currentMaxChangeNumber`, in case that `this.maxChangeNumber` was updated during fetch.
         if (this.handleNewEvent) {
@@ -46,9 +46,9 @@ export default class MySegmentUpdateWorker {
    * Invoked by NotificationProcessor on MY_SEGMENTS_UPDATE event
    *
    * @param {number} changeNumber change number of the MY_SEGMENTS_UPDATE notification
-   * @param {string[] | undefined} segmentList might be undefined
+   * @param {string[] | { name: string, add: boolean } | undefined} segmentsData might be undefined
    */
-  put(changeNumber, segmentList) {
+  put(changeNumber, segmentsData) {
     // @TODO uncomment next line once `/mySegments` endpoint provides the changeNumber
     // const currentChangeNumber = this.mySegmentsStorage.getChangeNumber();
 
@@ -57,7 +57,7 @@ export default class MySegmentUpdateWorker {
     this.maxChangeNumber = changeNumber;
     this.handleNewEvent = true;
     this.backoff.reset();
-    this.segmentList = segmentList;
+    this.segmentsData = segmentsData;
 
     if (this.mySegmentsProducer.isSynchronizingMySegments()) return;
 
