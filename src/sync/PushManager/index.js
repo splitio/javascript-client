@@ -24,6 +24,10 @@ const BoundedFetchRequest = 1;
 const KeyList = 2;
 const SegmentRemoval = 3;
 
+function fallbackWarning(notificationType, e) {
+  return `Fetching MySegments due to an error parsing ${notificationType} notification: ${e}`;
+}
+
 /**
  * Factory of the push mode manager.
  *
@@ -190,9 +194,10 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
           try {
             bitmap = parseBitmap(parsedData.d, parsedData.c);
           } catch (e) {
-            log.warn('Fetching MySegments due to an error parsing BoundedFetchRequest notification: ' + e);
+            log.warn(fallbackWarning('BoundedFetchRequest', e));
             break;
           }
+
           forOwn(clients, ({ hash64, worker }) => {
             if (isInBitmap(bitmap, hash64.hex)) {
               // fetch mySegments
@@ -202,15 +207,16 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
           return;
         }
         case KeyList: {
-          let keyList;
+          let keyList, added, removed;
           try {
             keyList = parseKeyList(parsedData.d, parsedData.c);
+            added = new _Set(keyList.a);
+            removed = new _Set(keyList.r);
           } catch (e) {
-            log.warn('Fetching MySegments due to an error parsing KeyList notification: ' + e);
+            log.warn(fallbackWarning('KeyList', e));
             break;
           }
-          const added = new _Set(keyList.a);
-          const removed = new _Set(keyList.r);
+
           forOwn(clients, ({ hash64, worker }) => {
             if (added.has(hash64.dec)) {
               worker.put(parsedData.changeNumber, {
@@ -229,6 +235,10 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
           return;
         }
         case SegmentRemoval:
+          if (!parsedData.segmentName) {
+            log.warn(fallbackWarning('SegmentRemoval', 'No segment name was provided'));
+            break;
+          }
           forOwn(clients, ({ worker }) => {
             worker.put(parsedData.changeNumber, {
               name: parsedData.segmentName,
