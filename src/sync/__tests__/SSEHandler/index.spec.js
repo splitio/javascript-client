@@ -8,6 +8,13 @@ import splitKillMessage from '../../../__tests__/mocks/message.SPLIT_KILL.145755
 import segmentUpdateMessage from '../../../__tests__/mocks/message.SEGMENT_UPDATE.1457552640000';
 import mySegmentsUpdateMessage from '../../../__tests__/mocks/message.MY_SEGMENTS_UPDATE.nicolas@split.io.1457552640000';
 
+// update messages MY_SEGMENTS_UPDATE_V2
+import unboundedMessage from '../../../__tests__/mocks/message.V2.UNBOUNDED.1457552650000';
+import boundedGzipMessage from '../../../__tests__/mocks/message.V2.BOUNDED.GZIP.1457552651000';
+import keylistGzipMessage from '../../../__tests__/mocks/message.V2.KEYLIST.GZIP.1457552652000';
+import segmentRemovalMessage from '../../../__tests__/mocks/message.V2.SEGMENT_REMOVAL.1457552653000';
+import { keylists, bitmaps } from '../mocks/dataMocks';
+
 // occupancy messages
 import occupancy1ControlPri from '../../../__tests__/mocks/message.OCCUPANCY.1.control_pri.1586987434450';
 import occupancy0ControlPri from '../../../__tests__/mocks/message.OCCUPANCY.0.control_pri.1586987434550';
@@ -27,7 +34,7 @@ const controlStreamingDisabledSec = {...controlStreamingDisabled, data: controlS
 
 import {
   PUSH_SUBSYSTEM_UP, PUSH_SUBSYSTEM_DOWN, PUSH_NONRETRYABLE_ERROR, PUSH_RETRYABLE_ERROR,
-  SPLIT_UPDATE, SEGMENT_UPDATE, MY_SEGMENTS_UPDATE, SPLIT_KILL
+  SPLIT_UPDATE, SEGMENT_UPDATE, MY_SEGMENTS_UPDATE, SPLIT_KILL, MY_SEGMENTS_UPDATE_V2
 } from '../../constants';
 
 tape('SSEHandler', t => {
@@ -142,6 +149,22 @@ tape('SSEHandler', t => {
     expectedParams = [{ type: 'MY_SEGMENTS_UPDATE', changeNumber: 1457552640000, includesPayload: false }, 'NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw==_NTcwOTc3MDQx_mySegments'];
     sseHandler.handleMessage(mySegmentsUpdateMessage);
     assert.true(pushEmitter.emit.lastCall.calledWithExactly(MY_SEGMENTS_UPDATE, ...expectedParams), 'must emit MY_SEGMENTS_UPDATE with the message parsed data and channel');
+
+    expectedParams = [{ type: 'MY_SEGMENTS_UPDATE_V2', changeNumber: 1457552650000, c: 0, d: '', u: 0, segmentName: '' }];
+    sseHandler.handleMessage(unboundedMessage);
+    assert.true(pushEmitter.emit.lastCall.calledWithExactly(MY_SEGMENTS_UPDATE_V2, ...expectedParams), 'must emit MY_SEGMENTS_UPDATE_V2 with the message parsed data');
+
+    expectedParams = [{ type: 'MY_SEGMENTS_UPDATE_V2', changeNumber: 1457552651000, c: 1, d: bitmaps[0].bitmapDataCompressed, u: 1, segmentName: '' }];
+    sseHandler.handleMessage(boundedGzipMessage);
+    assert.true(pushEmitter.emit.lastCall.calledWithExactly(MY_SEGMENTS_UPDATE_V2, ...expectedParams), 'must emit MY_SEGMENTS_UPDATE_V2 with the message parsed data');
+
+    expectedParams = [{ type: 'MY_SEGMENTS_UPDATE_V2', changeNumber: 1457552652000, c: 1, d: keylists[0].keyListDataCompressed, u: 2, segmentName: 'employees' }];
+    sseHandler.handleMessage(keylistGzipMessage);
+    assert.true(pushEmitter.emit.lastCall.calledWithExactly(MY_SEGMENTS_UPDATE_V2, ...expectedParams), 'must emit MY_SEGMENTS_UPDATE_V2 with the message parsed data');
+
+    expectedParams = [{ type: 'MY_SEGMENTS_UPDATE_V2', changeNumber: 1457552653000, c: 0, d: '', u: 3, segmentName: 'employees' }];
+    sseHandler.handleMessage(segmentRemovalMessage);
+    assert.true(pushEmitter.emit.lastCall.calledWithExactly(MY_SEGMENTS_UPDATE_V2, ...expectedParams), 'must emit MY_SEGMENTS_UPDATE_V2 with the message parsed data');
 
     assert.end();
   });
