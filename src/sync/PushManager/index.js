@@ -178,7 +178,7 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
   function stopWorkers() {
     splitUpdateWorker.backoff.reset();
     if (segmentUpdateWorker) segmentUpdateWorker.backoff.reset();
-    forOwn(({ worker }) => worker.backoff.reset());
+    forOwn(clients, ({ worker }) => worker.backoff.reset());
   }
 
   pushEmitter.on(SPLIT_KILL, splitUpdateWorker.killSplit);
