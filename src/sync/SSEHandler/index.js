@@ -1,6 +1,6 @@
 import { errorParser, messageParser } from './NotificationParser';
 import notificationKeeperFactory from './NotificationKeeper';
-import { PUSH_RETRYABLE_ERROR, PUSH_NONRETRYABLE_ERROR, SPLIT_UPDATE, SEGMENT_UPDATE, MY_SEGMENTS_UPDATE, MY_SEGMENTS_UPDATE_V2, SPLIT_KILL, OCCUPANCY, CONTROL } from '../constants';
+import { PUSH_RETRYABLE_ERROR, PUSH_NONRETRYABLE_ERROR, SPLIT_UPDATE, SEGMENT_UPDATE, MY_SEGMENTS_UPDATE, MY_SEGMENTS_UPDATE_V2, SPLIT_KILL, OCCUPANCY, CONTROL, STREAMING_RESET } from '../constants';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-sync:sse-handler');
 
@@ -63,7 +63,7 @@ export default function SSEHandlerFactory(pushEmitter) {
       log.debug(`New SSE message received, with data: ${data}.`);
 
       // we only handle update events if streaming is up.
-      if (!notificationKeeper.isStreamingUp() && parsedData.type !== OCCUPANCY && parsedData.type !== CONTROL)
+      if (!notificationKeeper.isStreamingUp() && [OCCUPANCY, CONTROL, STREAMING_RESET].indexOf(parsedData.type) === -1)
         return;
 
       switch (parsedData.type) {
@@ -101,6 +101,13 @@ export default function SSEHandlerFactory(pushEmitter) {
         case CONTROL:
           notificationKeeper.handleControlEvent(parsedData.controlType, channel, timestamp);
           break;
+
+        /* STREAMING_RESET event, handled by PushManager directly because it
+        doesn't require tracking timestamp and state like OCCUPANCY or CONTROL */
+        case STREAMING_RESET:
+          pushEmitter.emit(STREAMING_RESET);
+          break;
+
         default:
           break;
       }
