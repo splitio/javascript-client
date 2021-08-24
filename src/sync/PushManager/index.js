@@ -148,10 +148,10 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
 
   pushEmitter.on(PUSH_SUBSYSTEM_DOWN, stopWorkers);
 
-  // restart backoff retry counter once push is connected
+  // Only required when streaming (re-)connects after a PUSH_RETRYABLE_ERROR.
+  // Otherwise it is unnecessary (e.g, STREAMING_RESUMED).
   pushEmitter.on(PUSH_SUBSYSTEM_UP, () => {
     connectPushRetryBackoff.reset();
-    // Next is only required when streaming opens. Otherwise (e.g, STREAMING_RESUMED), it is unnecessary but not costly
     stopWorkers();
   });
 
