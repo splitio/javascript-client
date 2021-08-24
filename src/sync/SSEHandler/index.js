@@ -102,8 +102,9 @@ export default function SSEHandlerFactory(pushEmitter) {
           notificationKeeper.handleControlEvent(parsedData.controlType, channel, timestamp);
           break;
 
-        /* STREAMING_RESET event, handled by PushManager directly because it
-        doesn't require tracking timestamp and state like OCCUPANCY or CONTROL */
+        /* STREAMING_RESET event is handled by PushManager directly since it doesn't require
+         tracking timestamp and state like OCCUPANCY or CONTROL. It also ignores previous
+         OCCUPANCY and CONTROL notifications, and whether PUSH_SUBSYSTEM_DOWN has been emitted or not */
         case STREAMING_RESET:
           pushEmitter.emit(STREAMING_RESET);
           break;
