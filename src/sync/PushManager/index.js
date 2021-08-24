@@ -25,7 +25,7 @@ const KeyList = 2;
 const SegmentRemoval = 3;
 
 function fallbackWarning(notificationType, e) {
-  return `Fetching MySegments due to an error parsing ${notificationType} notification: ${e}`;
+  return `Fetching MySegments due to an error processing ${notificationType} notification: ${e}`;
 }
 
 /**
@@ -223,13 +223,14 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
                 name: parsedData.segmentName,
                 add: true
               });
-            } else {
-              if (removed.has(hash64.dec)) {
-                worker.put(parsedData.changeNumber, {
-                  name: parsedData.segmentName,
-                  add: false
-                });
-              }
+              return;
+            }
+            if (removed.has(hash64.dec)) {
+              worker.put(parsedData.changeNumber, {
+                name: parsedData.segmentName,
+                add: false
+              });
+              return;
             }
           });
           return;

@@ -42,13 +42,14 @@ export default function MySegmentsUpdaterFactory(context) {
       shouldNotifyUpdate = mySegmentsCache.resetSegments(segmentsData);
     } else {
       // Add/Delete the segment
-      const present = mySegmentsCache.isInSegment(segmentsData.name);
-      if (segmentsData.add) {
-        mySegmentsCache.addToSegment(segmentsData.name);
+      const { name, add } = segmentsData;
+      if (mySegmentsCache.isInSegment(name) !== add) {
+        shouldNotifyUpdate = true;
+        if (add) mySegmentsCache.addToSegment(name);
+        else mySegmentsCache.removeFromSegment(name);
       } else {
-        mySegmentsCache.removeFromSegment(segmentsData.name);
+        shouldNotifyUpdate = false;
       }
-      shouldNotifyUpdate = present !== segmentsData.add;
     }
 
     // Notify update if required
@@ -73,7 +74,7 @@ export default function MySegmentsUpdaterFactory(context) {
 
     if (segmentsData) {
       // If segmentsData is provided, there is no need to fetch mySegments
-      updaterPromise = new Promise((res) => { updateSegments(segmentsData); res();});
+      updaterPromise = new Promise((res) => { updateSegments(segmentsData); res(); });
     } else {
       // NOTE: We only collect metrics on startup.
       updaterPromise = mySegmentsFetcher(settings, startingUp, metricCollectors, noCache).then(segments => {
