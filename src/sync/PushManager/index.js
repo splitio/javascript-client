@@ -62,23 +62,36 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
 
   const connectPushRetryBackoff = new Backoff(connectPush, settings.scheduler.pushRetryBackoffBase);
 
-  let timeoutId;
+  let timeoutIdTokenRefresh;
+  let timeoutIdSseOpen;
 
-  function scheduleTokenRefresh(issuedAt, expirationTime) {
-    // clear scheduled token refresh if exists (needed when resuming PUSH)
-    if (timeoutId) clearTimeout(timeoutId);
+  function scheduleTokenRefreshAndSse(authData) {
+    // clear scheduled tasks if exist
+    if (timeoutIdTokenRefresh) clearTimeout(timeoutIdTokenRefresh);
+    if (timeoutIdSseOpen) clearTimeout(timeoutIdSseOpen);
 
-    // Set token refresh 10 minutes before expirationTime
-    const delayInSeconds = expirationTime - issuedAt - SECONDS_BEFORE_EXPIRATION;
+    // Set token refresh 10 minutes before expirationTime - issuedAt
+    const decodedToken = authData.decodedToken;
+    const refreshTokenDelay = decodedToken.exp - decodedToken.iat - SECONDS_BEFORE_EXPIRATION;
+    // connDelay is present in AuthV2 but not in AuthV1
+    const connDelay = authData.connDelay || 0;
 
-    log.info(`Refreshing streaming token in ${delayInSeconds} seconds.`);
+    log.info(`Refreshing streaming token in ${refreshTokenDelay} seconds, and connecting streaming in ${connDelay} seconds`);
 
-    timeoutId = setTimeout(connectPush, delayInSeconds * 1000);
+    timeoutIdTokenRefresh = setTimeout(connectPush, refreshTokenDelay * 1000);
+
+    timeoutIdSseOpen = setTimeout(() => {
+      // halt if disconnected
+      if (disconnected) return;
+      sseClient.open(authData);
+    }, connDelay * 1000);
   }
 
   function connectPush() {
+    // Halt connecting In case `stop/disconnectPush` has been called
+    if (disconnected) return;
     disconnected = false;
-    log.info('Connecting to push streaming.');
+    log.info(`${disconnected === undefined ? 'Connecting' : 'Re-connecting'} to push streaming.`);
 
     const userKeys = clientContexts ? Object.keys(clientContexts) : undefined;
     authenticate(settings, userKeys).then(
@@ -96,10 +109,8 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
         // don't open SSE connection if a new shared client was added, since it means that a new authentication is taking place
         if (userKeys && userKeys.length < Object.keys(clientContexts).length) return;
 
-        // Connect to SSE and schedule refresh token
-        const decodedToken = authData.decodedToken;
-        sseClient.open(authData);
-        scheduleTokenRefresh(decodedToken.iat, decodedToken.exp);
+        // Schedule SSE connection and refresh token
+        scheduleTokenRefreshAndSse(authData);
       }
     ).catch(
       function (error) {
@@ -121,11 +132,15 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
 
   // close SSE connection and cancel scheduled tasks
   function disconnectPush() {
-    sseClient.close();
+    // Halt disconnecting, just to avoid redundant logs if called multiple times
+    if (disconnected) return;
     disconnected = true;
+
+    sseClient.close();
     log.info('Disconnecting from push streaming.');
 
-    if (timeoutId) clearTimeout(timeoutId);
+    if (timeoutIdTokenRefresh) clearTimeout(timeoutIdTokenRefresh);
+    if (timeoutIdSseOpen) clearTimeout(timeoutIdSseOpen);
     connectPushRetryBackoff.reset();
 
     stopWorkers();
@@ -134,7 +149,11 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
   pushEmitter.on(PUSH_SUBSYSTEM_DOWN, stopWorkers);
 
   // restart backoff retry counter once push is connected
-  pushEmitter.on(PUSH_SUBSYSTEM_UP, () => { connectPushRetryBackoff.reset(); });
+  pushEmitter.on(PUSH_SUBSYSTEM_UP, () => {
+    connectPushRetryBackoff.reset();
+    // Next is only required when streaming opens. Otherwise (e.g, STREAMING_RESUMED), it is unnecessary but not costly
+    stopWorkers();
+  });
 
   /** Fallbacking without retry due to STREAMING_DISABLED control event, 'pushEnabled: false', and non-recoverable SSE and Authentication errors */
 
@@ -161,9 +180,11 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
   /** STREAMING_RESET notification. Unlike a PUSH_RETRYABLE_ERROR, it doesn't emit PUSH_SUBSYSTEM_DOWN to fallback polling */
 
   pushEmitter.on(STREAMING_RESET, function handleStreamingReset() {
+    if (disconnected) return; // should never happen
+
     // Minimum required clean-up.
     // `disconnectPush` cannot be called because it sets `disconnected` and thus `connectPush` will not execute
-    if (timeoutId) clearTimeout(timeoutId);
+    if (timeoutIdTokenRefresh) clearTimeout(timeoutIdTokenRefresh);
 
     connectPush();
   });
