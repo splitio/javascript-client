@@ -35,6 +35,8 @@ export const SPLIT_UPDATE = 'SPLIT_UPDATE';
 export const CONTROL = 'CONTROL';
 export const OCCUPANCY = 'OCCUPANCY';
 
+export const STREAMING_RESET = 'STREAMING_RESET';
+
 export const ControlTypes = {
   STREAMING_DISABLED: 'STREAMING_DISABLED',
   STREAMING_PAUSED: 'STREAMING_PAUSED',

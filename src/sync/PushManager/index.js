@@ -11,7 +11,7 @@ import SSEHandlerFactory from '../SSEHandler';
 import Backoff from '../../utils/backoff';
 import { hashUserKey } from '../../utils/jwt/hashUserKey';
 import logFactory from '../../utils/logger';
-import { SECONDS_BEFORE_EXPIRATION, PUSH_SUBSYSTEM_DOWN, PUSH_SUBSYSTEM_UP, PUSH_NONRETRYABLE_ERROR, PUSH_RETRYABLE_ERROR, SPLIT_KILL, SPLIT_UPDATE, SEGMENT_UPDATE, MY_SEGMENTS_UPDATE, MY_SEGMENTS_UPDATE_V2 } from '../constants';
+import { SECONDS_BEFORE_EXPIRATION, PUSH_SUBSYSTEM_DOWN, PUSH_SUBSYSTEM_UP, PUSH_NONRETRYABLE_ERROR, PUSH_RETRYABLE_ERROR, SPLIT_KILL, SPLIT_UPDATE, SEGMENT_UPDATE, MY_SEGMENTS_UPDATE, MY_SEGMENTS_UPDATE_V2, STREAMING_RESET } from '../constants';
 import { parseBitmap, parseKeyList, isInBitmap } from './mySegmentsV2utils';
 import { forOwn } from '../../utils/lang';
 import { _Set } from '../../utils/lang/Sets';
@@ -156,6 +156,16 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
     log.info(`Attempting to reconnect in ${delayInMillis / 1000} seconds.`);
 
     pushEmitter.emit(PUSH_SUBSYSTEM_DOWN); // no harm if polling already
+  });
+
+  /** STREAMING_RESET notification. Unlike a PUSH_RETRYABLE_ERROR, it doesn't emit PUSH_SUBSYSTEM_DOWN to fallback polling */
+
+  pushEmitter.on(STREAMING_RESET, function handleStreamingReset() {
+    // Minimum required clean-up.
+    // `disconnectPush` cannot be called because it sets `disconnected` and thus `connectPush` will not execute
+    if (timeoutId) clearTimeout(timeoutId);
+
+    connectPush();
   });
 
   /** Functions related to synchronization (Queues and Workers in the spec) */
