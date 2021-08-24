@@ -162,7 +162,7 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
 
   pushEmitter.on(STREAMING_RESET, function handleStreamingReset() {
     // Minimum required clean-up.
-    // `disconnectPush` cannot be called because it sets readyState to CLOSED, for which `connectPush` will not execute
+    // `disconnectPush` cannot be called because it sets `disconnected` and thus `connectPush` will not execute
     if (timeoutId) clearTimeout(timeoutId);
 
     connectPush();
