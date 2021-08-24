@@ -1,0 +1,4 @@
+{
+  "type": "message",
+  "data": "{\"data\":\"{\\\"type\\\":\\\"MY_SEGMENTS_UPDATE_V2\\\",\\\"changeNumber\\\":1457552653000,\\\"segmentName\\\":\\\"employees\\\",\\\"c\\\": 0,\\\"u\\\": 3,\\\"d\\\":\\\"\\\"}\"}"
+}

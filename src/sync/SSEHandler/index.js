@@ -1,6 +1,6 @@
 import { errorParser, messageParser } from './NotificationParser';
 import notificationKeeperFactory from './NotificationKeeper';
-import { PUSH_RETRYABLE_ERROR, PUSH_NONRETRYABLE_ERROR, SPLIT_UPDATE, SEGMENT_UPDATE, MY_SEGMENTS_UPDATE, SPLIT_KILL, OCCUPANCY, CONTROL } from '../constants';
+import { PUSH_RETRYABLE_ERROR, PUSH_NONRETRYABLE_ERROR, SPLIT_UPDATE, SEGMENT_UPDATE, MY_SEGMENTS_UPDATE, MY_SEGMENTS_UPDATE_V2, SPLIT_KILL, OCCUPANCY, CONTROL } from '../constants';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-sync:sse-handler');
 
@@ -77,10 +77,15 @@ export default function SSEHandlerFactory(pushEmitter) {
             parsedData.changeNumber,
             parsedData.segmentName);
           break;
+        // @TODO remove
         case MY_SEGMENTS_UPDATE:
           pushEmitter.emit(MY_SEGMENTS_UPDATE,
             parsedData,
             channel);
+          break;
+        case MY_SEGMENTS_UPDATE_V2:
+          pushEmitter.emit(MY_SEGMENTS_UPDATE_V2,
+            parsedData);
           break;
         case SPLIT_KILL:
           pushEmitter.emit(SPLIT_KILL,
