@@ -30,9 +30,9 @@ tape('## Browser JS - E2E CI Tests for PUSH ##', function (assert) {
   assert.test('E2E / PUSH synchronization: happy paths', testSynchronization.bind(null, fetchMock));
   assert.test('E2E / PUSH synchronization: retries', testSynchronizationRetries.bind(null, fetchMock));
 
-  assert.test('E2E / PUSH fallbacking', testFallbacking.bind(null, fetchMock));
+  assert.test('E2E / PUSH fallbacking, CONTROL, OCCUPANCY and STREAMING_RESET messages', testFallbacking.bind(null, fetchMock));
 
-  assert.test('E2E / PUSH refresh token', testRefreshToken.bind(null, fetchMock));
+  assert.test('E2E / PUSH refresh token and connection delay', testRefreshToken.bind(null, fetchMock));
 
   // Corner cases
   assert.test('E2E / PUSH corner case: SPLIT_KILL notification must not emit SDK_READY if the SDK is ready from cache', testSplitKillOnReadyFromCache.bind(null, fetchMock));
