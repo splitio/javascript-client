@@ -1,7 +1,7 @@
 import tape from 'tape-catch';
 import fetchMock from '../testUtils/fetchMock';
 import { testAuthWithPushDisabled, testAuthWith401, testNoEventSource, testNoBase64Support, testSSEWithNonRetryableError } from '../browserSuites/push-initialization-nopush.spec';
-import { testPushRetriesDueToAuthErrors, testPushRetriesDueToSseErrors, testSdkDestroyWhileAuthRetries, testSdkDestroyWhileAuthSuccess } from '../browserSuites/push-initialization-retries.spec';
+import { testPushRetriesDueToAuthErrors, testPushRetriesDueToSseErrors, testSdkDestroyWhileAuthRetries, testSdkDestroyWhileAuthSuccess, testSdkDestroyWhileConnDelay } from '../browserSuites/push-initialization-retries.spec';
 import { testSynchronization } from '../browserSuites/push-synchronization.spec';
 import { testSynchronizationRetries } from '../browserSuites/push-synchronization-retries.spec';
 import { testFallbacking } from '../browserSuites/push-fallbacking.spec';
@@ -26,6 +26,7 @@ tape('## Browser JS - E2E CI Tests for PUSH ##', function (assert) {
   // Graceful shutdown
   assert.test('E2E / PUSH disconnection: SDK destroyed while authenticating', testSdkDestroyWhileAuthSuccess.bind(null, fetchMock));
   assert.test('E2E / PUSH disconnection: SDK destroyed while auth was retrying', testSdkDestroyWhileAuthRetries.bind(null, fetchMock));
+  assert.test('E2E / PUSH disconnection: SDK destroyed while connection delay', testSdkDestroyWhileConnDelay.bind(null, fetchMock));
 
   assert.test('E2E / PUSH synchronization: happy paths', testSynchronization.bind(null, fetchMock));
   assert.test('E2E / PUSH synchronization: retries', testSynchronizationRetries.bind(null, fetchMock));
