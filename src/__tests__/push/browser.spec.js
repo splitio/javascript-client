@@ -25,8 +25,8 @@ tape('## Browser JS - E2E CI Tests for PUSH ##', function (assert) {
 
   // Graceful shutdown
   assert.test('E2E / PUSH disconnection: SDK destroyed while authenticating', testSdkDestroyWhileAuthSuccess.bind(null, fetchMock));
-  assert.test('E2E / PUSH disconnection: SDK destroyed while auth was retrying', testSdkDestroyWhileAuthRetries.bind(null, fetchMock));
   assert.test('E2E / PUSH disconnection: SDK destroyed while connection delay', testSdkDestroyWhileConnDelay.bind(null, fetchMock));
+  assert.test('E2E / PUSH disconnection: SDK destroyed while auth was retrying', testSdkDestroyWhileAuthRetries.bind(null, fetchMock));
 
   assert.test('E2E / PUSH synchronization: happy paths', testSynchronization.bind(null, fetchMock));
   assert.test('E2E / PUSH synchronization: retries', testSynchronizationRetries.bind(null, fetchMock));
