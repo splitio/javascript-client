@@ -170,11 +170,11 @@ tape('SSEHandler', t => {
     sseHandler.handleMessage(boundedGzipMessage);
     assert.true(pushEmitter.emit.lastCall.calledWithExactly(MY_SEGMENTS_UPDATE_V2, ...expectedParams), 'must emit MY_SEGMENTS_UPDATE_V2 with the message parsed data');
 
-    expectedParams = [{ type: 'MY_SEGMENTS_UPDATE_V2', changeNumber: 1457552652000, c: 1, d: keylists[0].keyListDataCompressed, u: 2, segmentName: 'employees' }];
+    expectedParams = [{ type: 'MY_SEGMENTS_UPDATE_V2', changeNumber: 1457552652000, c: 1, d: keylists[0].keyListDataCompressed, u: 2, segmentName: 'splitters' }];
     sseHandler.handleMessage(keylistGzipMessage);
     assert.true(pushEmitter.emit.lastCall.calledWithExactly(MY_SEGMENTS_UPDATE_V2, ...expectedParams), 'must emit MY_SEGMENTS_UPDATE_V2 with the message parsed data');
 
-    expectedParams = [{ type: 'MY_SEGMENTS_UPDATE_V2', changeNumber: 1457552653000, c: 0, d: '', u: 3, segmentName: 'employees' }];
+    expectedParams = [{ type: 'MY_SEGMENTS_UPDATE_V2', changeNumber: 1457552653000, c: 0, d: '', u: 3, segmentName: 'splitters' }];
     sseHandler.handleMessage(segmentRemovalMessage);
     assert.true(pushEmitter.emit.lastCall.calledWithExactly(MY_SEGMENTS_UPDATE_V2, ...expectedParams), 'must emit MY_SEGMENTS_UPDATE_V2 with the message parsed data');
 
