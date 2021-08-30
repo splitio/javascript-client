@@ -32,15 +32,14 @@ const config = {
 };
 const settings = SettingsFactory(config);
 
-const MILLIS_SSE_OPEN = 100;
+const MILLIS_CONNDELAY = 500;
 const MILLIS_REFRESH_TOKEN = 1000;
 
 /**
  * Sequence of calls:
- *  0.0 secs: initial SyncAll (/splitChanges, /segmentChanges/*), auth, SSE connection -> refresh token scheduled in 1 second.
- *  0.1 secs: SSE connection opened -> syncAll (/splitChanges, /segmentChanges/*)
- *  1.0 secs: refresh-token: reauth, SSE connection
- *  1.1 secs: SSE connection reopened -> syncAll (/splitChanges, /segmentChanges/*)
+ *  0.0 secs: initial SyncAll, auth, and not delayed SSE connection -> refresh token in 1 second, no connection delay (default 0 seconds).
+ *  1.0 secs: refresh-token: reauth -> refresh token in 1 second, connection delay 0.5 seconds
+ *  1.5 secs: delayed SSE connection -> syncAll
  *  2.0 secs: refresh-token: reauth with pushEnabled false --> SSE connection closed & syncAll
  *  2.2 secs: destroy the client. NO NEW REQUESTS SHOULD HAVE BEEN PERFORMED (too early for polling and push is disabled)
  */
@@ -54,18 +53,25 @@ export function testRefreshToken(fetchMock, assert) {
   let sseCount = 0;
   setMockListener(function (eventSourceInstance) {
     sseCount++;
-    if(sseCount > 2) assert.fail('expecting only 2 SSE connections');
+    switch (sseCount) {
+      case 1:
+        assert.true(nearlyEqual(Date.now() - start, 0), 'first connection is created inmediatelly');
+        break;
+      case 2:
+        assert.true(nearlyEqual(Date.now() - start, MILLIS_REFRESH_TOKEN + MILLIS_CONNDELAY), 'second connection is created with a delay');
+        break;
+      default:
+        assert.fail('expecting only 2 SSE connections');
+    }
 
     const expectedSSEurl = `${settings.url('/sse')}?channels=NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_segments,NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_splits,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_pri,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_sec&accessToken=${authPushEnabled.token}&v=1.1&heartbeats=true`;
     assert.equals(eventSourceInstance.url, expectedSSEurl, 'EventSource URL is the expected');
 
-    setTimeout(() => {
-      eventSourceInstance.emitOpen();
-    }, MILLIS_SSE_OPEN); // open SSE connection after 0.1 seconds
+    eventSourceInstance.emitOpen();
 
     setTimeout(() => {
       assert.equal(eventSourceInstance.readyState, EventSourceMock.CLOSED, 'SSE connection must be closed');
-    }, MILLIS_REFRESH_TOKEN + 50); // after refreshing the token, connections are closed
+    }, MILLIS_REFRESH_TOKEN + MILLIS_CONNDELAY + 50); // after refreshing the token and creating a new connection, previous connection is closed
   });
 
   // initial split sync
@@ -81,18 +87,18 @@ export function testRefreshToken(fetchMock, assert) {
   // split sync after SSE opened
   fetchMock.getOnce(settings.url('/splitChanges?since=1457552620999'), { status: 200, body: splitChangesMock2 });
 
-  // re-auth due to refresh token
+  // re-auth due to refresh token, with connDelay of 0.5 seconds
   fetchMock.getOnce(settings.url('/auth'), function (url, opts) {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_REFRESH_TOKEN), 'reauthentication for token refresh');
     if (!opts.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
-    return { status: 200, body: authPushEnabled };
+    return { status: 200, body: { ...authPushEnabled, connDelay: MILLIS_CONNDELAY / 1000 } };
   });
 
   // split sync after SSE reopened
   fetchMock.getOnce(settings.url('/splitChanges?since=1457552620999'), function () {
     const lapse = Date.now() - start;
-    assert.true(nearlyEqual(lapse, MILLIS_REFRESH_TOKEN + MILLIS_SSE_OPEN), 'sync after SSE connection is reopened');
+    assert.true(nearlyEqual(lapse, MILLIS_REFRESH_TOKEN + MILLIS_CONNDELAY), 'sync after SSE connection is reopened');
     return { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } };
   });
 

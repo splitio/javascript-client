@@ -180,7 +180,7 @@ export function testPushRetriesDueToSseErrors(fetchMock, assert) {
  * Sequence of calls:
  *  0.0 secs: initial SyncAll (/splitChanges, /mySegments/*) and first auth attempt
  *  0.05 secs: client destroyed
- *  0.1 secs: first auth attempt response (success) but not SSE connection opened since push was closed
+ *  0.1 secs: auth success but not SSE connection opened since push was closed
  *  0.2 secs: test finished
  */
 export function testSdkDestroyWhileAuthSuccess(fetchMock, assert) {
@@ -193,7 +193,7 @@ export function testSdkDestroyWhileAuthSuccess(fetchMock, assert) {
 
   fetchMock.getOnce(settings.url(`/auth?users=${encodeURIComponent(userKey)}`), { status: 200, body: authPushEnabledNicolas }, { delay: 100 });
 
-  fetchMock.get({ url: settings.url('/mySegments/nicolas%40split.io'), repeat: 2 }, { status: 200, body: mySegmentsNicolasMock });
+  fetchMock.getOnce(settings.url('/mySegments/nicolas%40split.io'), { status: 200, body: mySegmentsNicolasMock });
   fetchMock.getOnce(settings.url('/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
 
   setTimeout(() => {
@@ -201,7 +201,7 @@ export function testSdkDestroyWhileAuthSuccess(fetchMock, assert) {
       setTimeout(() => {
         assert.true(ready, 'client was ready before being destroyed');
         assert.end();
-      }, 150); // finish the test 50 millis after the third auth attempt would have been done if the client wasn't destroyed
+      }, 150); // finish the test after auth success
     });
   }, 50); // destroy the client 50 millis before we get a response for the auth request
 
@@ -210,7 +210,35 @@ export function testSdkDestroyWhileAuthSuccess(fetchMock, assert) {
   client.on(client.Event.SDK_READY, () => {
     ready = true;
   });
+}
 
+/**
+ * Assert that if the main client is destroyed when authentication successes, the SDK doesn't open the SSE connection
+ *
+ * Sequence of calls:
+ *  0.0 secs: initial SyncAll and auth success with SSE connection delay of 0.1 secs
+ *  0.05 secs: client destroyed
+ *  0.15 secs: test finished
+ */
+export function testSdkDestroyWhileConnDelay(fetchMock, assert) {
+  window.EventSource = EventSourceMock;
+  setMockListener(function (eventSourceInstance) {
+    assert.fail('unexpected EventSource request with url: ' + eventSourceInstance.url);
+  });
+
+  fetchMock.getOnce(settings.url(`/auth?users=${encodeURIComponent(userKey)}`), { status: 200, body: { ...authPushEnabledNicolas, connDelay: 0.1 } });
+  fetchMock.getOnce(settings.url('/mySegments/nicolas%40split.io'), { status: 200, body: mySegmentsNicolasMock });
+  fetchMock.getOnce(settings.url('/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
+
+  const client = SplitFactory(config).client();
+  setTimeout(() => {
+    client.destroy().then(() => {
+      setTimeout(() => {
+        assert.pass('test finished');
+        assert.end();
+      }, 100); // finish the test 50 millis after SSE connection would have been created
+    });
+  }, 50); // destroy the client 50 millis after auth response
 }
 
 /**

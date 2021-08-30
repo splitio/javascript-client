@@ -32,7 +32,7 @@ const controlStreamingResumedSec = {...controlStreamingResumed, data: controlStr
 const controlStreamingDisabledSec = {...controlStreamingDisabled, data: controlStreamingDisabled.data.replace('control_pri', 'control_sec')};
 
 // streaming reset message, from `{orgHash}_{envHash}_control` channel
-import streamingReset from '../../../__tests__/mocks/message.STREAMING_RESET.1457552660000';
+import streamingReset from '../../../__tests__/mocks/message.STREAMING_RESET';
 
 import {
   PUSH_SUBSYSTEM_UP, PUSH_SUBSYSTEM_DOWN, PUSH_NONRETRYABLE_ERROR, PUSH_RETRYABLE_ERROR,

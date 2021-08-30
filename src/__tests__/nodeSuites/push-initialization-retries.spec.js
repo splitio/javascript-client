@@ -196,7 +196,7 @@ export function testSdkDestroyWhileAuthSuccess(fetchMock, assert) {
       setTimeout(() => {
         assert.true(ready, 'client was ready before being destroyed');
         assert.end();
-      }, 150); // finish the test 50 millis after the third auth attempt would have been done if the client wasn't destroyed
+      }, 150); // finish the test after auth success
     });
   }, 50); // destroy the client 50 millis before we get a response for the auth request
 
