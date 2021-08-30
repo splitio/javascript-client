@@ -90,8 +90,8 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
   function connectPush() {
     // Halt connecting in case `stop/disconnectPush` has been called
     if (disconnected) return;
-    disconnected = false;
     log.info(`${disconnected === undefined ? 'Connecting' : 'Re-connecting'} to push streaming.`);
+    disconnected = false;
 
     const userKeys = clientContexts ? Object.keys(clientContexts) : undefined;
     authenticate(settings, userKeys).then(
