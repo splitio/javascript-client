@@ -1,4 +1,4 @@
-import { gunzipSync, unzlibSync } from '../../utils/decompress';
+import { algorithms } from '../../utils/decompress';
 import { decodeFromBase64 } from '../../utils/base64';
 
 const GZIP = 1;
@@ -25,9 +25,10 @@ function decompress(data, compression) {
   let compressData = decodeFromBase64(data);
   const binData = StringToUint8Array(compressData);
 
-  if (compression === GZIP) return gunzipSync(binData);
-  if (compression === ZLIB) return unzlibSync(binData);
-  throw new Error('Invalid compression algorithm');
+  if (typeof algorithms === 'string') throw new Error(algorithms);
+  if (compression === GZIP) return algorithms.gunzipSync(binData);
+  if (compression === ZLIB) return algorithms.unzlibSync(binData);
+  throw new Error(`Invalid compression algorithm #${compression}`);
 }
 
 /**
