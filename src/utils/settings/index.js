@@ -29,7 +29,7 @@ import validImpressionsMode from './impressionsMode';
 
 const version = '10.15.9';
 const eventsEndpointMatcher = /^\/(testImpressions|metrics|events)/;
-const authEndpointMatcher = /^\/auth/;
+const authEndpointMatcher = /^\/v2\/auth/;
 const streamingEndpointMatcher = /^\/(sse|event-stream)/;
 
 const base = {

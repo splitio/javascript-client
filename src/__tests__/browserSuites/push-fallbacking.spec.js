@@ -210,8 +210,8 @@ export function testFallbacking(fetchMock, assert) {
 
   });
 
-  fetchMock.getOnce(settings.url(`/auth?users=${encodeURIComponent(userKey)}`), function (url, opts) {
-    if (!opts.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
+  fetchMock.getOnce(settings.url(`/v2/auth?users=${encodeURIComponent(userKey)}`), function (url, opts) {
+    if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
     assert.pass('auth success');
     return { status: 200, body: authPushEnabledNicolas };
   });
@@ -240,8 +240,8 @@ export function testFallbacking(fetchMock, assert) {
 
   // creating of second client during streaming: initial mysegment sync, reauth and syncAll due to new client
   fetchMock.getOnce(settings.url('/mySegments/marcio%40split.io'), { status: 200, body: mySegmentsMarcio });
-  fetchMock.get({ url: settings.url(`/auth?users=${encodeURIComponent(userKey)}&users=${encodeURIComponent(secondUserKey)}`), repeat: 3 /* initial + 2 STREAMING_RESET */ }, (url, opts) => {
-    if (!opts.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
+  fetchMock.get({ url: settings.url(`/v2/auth?users=${encodeURIComponent(userKey)}&users=${encodeURIComponent(secondUserKey)}`), repeat: 3 /* initial + 2 STREAMING_RESET */ }, (url, opts) => {
+    if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
     assert.pass('second auth success');
     return { status: 200, body: authPushEnabledNicolasAndMarcio };
   });
