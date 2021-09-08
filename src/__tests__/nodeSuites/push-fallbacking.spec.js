@@ -192,8 +192,8 @@ export function testFallbacking(fetchMock, assert) {
 
   });
 
-  fetchMock.get({ url: settings.url('/auth'), repeat: 3 /* initial + 2 STREAMING_RESET */ }, function (url, opts) {
-    if (!opts.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
+  fetchMock.get({ url: settings.url('/v2/auth'), repeat: 3 /* initial + 2 STREAMING_RESET */ }, function (url, opts) {
+    if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
     assert.pass('auth success');
     return { status: 200, body: authPushEnabled };
   });

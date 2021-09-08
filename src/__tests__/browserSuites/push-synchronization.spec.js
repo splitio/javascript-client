@@ -268,23 +268,23 @@ export function testSynchronization(fetchMock, assert) {
 
   // initial auth
   let authParams = `users=${encodeURIComponent(userKey)}`;
-  fetchMock.getOnce(settings.url(`/auth?${authParams}`), function (url, opts) {
-    if (!opts.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
+  fetchMock.getOnce(settings.url(`/v2/auth?${authParams}`), function (url, opts) {
+    if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
     assert.pass('auth success');
     return { status: 200, body: authPushEnabledNicolas };
   });
 
   // reauth due to new client
   authParams += `&users=${encodeURIComponent(otherUserKey)}`;
-  fetchMock.getOnce(settings.url(`/auth?${authParams}`), function (url, opts) {
-    if (!opts.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
+  fetchMock.getOnce(settings.url(`/v2/auth?${authParams}`), function (url, opts) {
+    if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
     assert.pass('second auth success');
     return { status: 200, body: authPushEnabledNicolasAndMarcio };
   });
 
   // reauth due to more clients
   authParams += `&users=${encodeURIComponent(keylistAddKey)}&users=${encodeURIComponent(keylistRemoveKey)}&users=${encodeURIComponent(bitmapTrueKey)}`;
-  fetchMock.getOnce(settings.url(`/auth?${authParams}`), { status: 200, body: authPushEnabledNicolasAndMarcio });
+  fetchMock.getOnce(settings.url(`/v2/auth?${authParams}`), { status: 200, body: authPushEnabledNicolasAndMarcio });
 
   // initial split and mySegments sync
   fetchMock.getOnce(settings.url('/splitChanges?since=-1'), function (url, opts) {
