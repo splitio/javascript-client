@@ -271,6 +271,7 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
             log.warn(fallbackWarning('SegmentRemoval', 'No segment name was provided'));
             break;
           }
+
           forOwn(clients, ({ worker }) => {
             worker.put(parsedData.changeNumber, {
               name: parsedData.segmentName,

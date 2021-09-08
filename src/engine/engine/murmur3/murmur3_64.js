@@ -3,8 +3,8 @@ import { hash128 } from './murmur3_128';
 /**
  * Use instead of parseInt, to not lose precision when converting big integers (greater than 2^53 - 1)
  */
-function hexToDec(s /*: string */) /*: string */ {
-  var i, j, digits = [0], carry;
+function hex2dec(s /*: string */) /*: string */ {
+  let i, j, digits = [0], carry;
   for (i = 0; i < s.length; i += 1) {
     carry = parseInt(s.charAt(i), 16);
     for (j = digits.length - 1; j >= 0; j -= 1) {
@@ -29,6 +29,6 @@ export function hash64(str /*: string */) /*: { hex: string, dec: string } */ {
   const hex = hash128(str).slice(0, 16);
   return {
     hex, // BoundedFetchRequest notification
-    dec: hexToDec(hex) // KeyList notification
+    dec: hex2dec(hex) // KeyList notification
   };
 }
