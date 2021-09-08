@@ -52,14 +52,14 @@ export function testPushRetriesDueToAuthErrors(fetchMock, assert) {
 
   let start, splitio, client, ready = false;
 
-  fetchMock.getOnce(settings.url(`/auth?users=${encodeURIComponent(userKey)}`), function (url, opts) {
-    if (!opts.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
+  fetchMock.getOnce(settings.url(`/v2/auth?users=${encodeURIComponent(userKey)}`), function (url, opts) {
+    if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
     assert.pass('first auth attempt');
     return { status: 200, body: authPushBadToken };
   });
-  fetchMock.getOnce(settings.url(`/auth?users=${encodeURIComponent(userKey)}`), { throws: new TypeError('Network error') });
-  fetchMock.getOnce(settings.url(`/auth?users=${encodeURIComponent(userKey)}`), function (url, opts) {
-    if (!opts.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
+  fetchMock.getOnce(settings.url(`/v2/auth?users=${encodeURIComponent(userKey)}`), { throws: new TypeError('Network error') });
+  fetchMock.getOnce(settings.url(`/v2/auth?users=${encodeURIComponent(userKey)}`), function (url, opts) {
+    if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
     const lapse = Date.now() - start;
     const expected = (settings.scheduler.pushRetryBackoffBase * Math.pow(2, 0) + settings.scheduler.pushRetryBackoffBase * Math.pow(2, 1));
     assert.true(nearlyEqual(lapse, expected), 'third auth attempt (aproximately in 0.3 seconds from first attempt)');
@@ -132,8 +132,8 @@ export function testPushRetriesDueToSseErrors(fetchMock, assert) {
     sseattempts++;
   });
 
-  fetchMock.get({ url: settings.url(`/auth?users=${encodeURIComponent(userKey)}`), repeat: 3 /* 3 push attempts */ }, function (url, opts) {
-    if (!opts.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
+  fetchMock.get({ url: settings.url(`/v2/auth?users=${encodeURIComponent(userKey)}`), repeat: 3 /* 3 push attempts */ }, function (url, opts) {
+    if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
     assert.pass('auth success');
     return { status: 200, body: authPushEnabledNicolas };
   });
@@ -191,7 +191,7 @@ export function testSdkDestroyWhileAuthSuccess(fetchMock, assert) {
 
   let splitio, client, ready = false;
 
-  fetchMock.getOnce(settings.url(`/auth?users=${encodeURIComponent(userKey)}`), { status: 200, body: authPushEnabledNicolas }, { delay: 100 });
+  fetchMock.getOnce(settings.url(`/v2/auth?users=${encodeURIComponent(userKey)}`), { status: 200, body: authPushEnabledNicolas }, { delay: 100 });
 
   fetchMock.getOnce(settings.url('/mySegments/nicolas%40split.io'), { status: 200, body: mySegmentsNicolasMock });
   fetchMock.getOnce(settings.url('/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
@@ -226,7 +226,7 @@ export function testSdkDestroyWhileConnDelay(fetchMock, assert) {
     assert.fail('unexpected EventSource request with url: ' + eventSourceInstance.url);
   });
 
-  fetchMock.getOnce(settings.url(`/auth?users=${encodeURIComponent(userKey)}`), { status: 200, body: { ...authPushEnabledNicolas, connDelay: 0.1 } });
+  fetchMock.getOnce(settings.url(`/v2/auth?users=${encodeURIComponent(userKey)}`), { status: 200, body: { ...authPushEnabledNicolas, connDelay: 0.1 } });
   fetchMock.getOnce(settings.url('/mySegments/nicolas%40split.io'), { status: 200, body: mySegmentsNicolasMock });
   fetchMock.getOnce(settings.url('/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
 
@@ -257,8 +257,8 @@ export function testSdkDestroyWhileAuthRetries(fetchMock, assert) {
 
   let splitio, client, ready = false;
 
-  fetchMock.getOnce(settings.url(`/auth?users=${encodeURIComponent(userKey)}`), { status: 200, body: authPushBadToken });
-  fetchMock.getOnce(settings.url(`/auth?users=${encodeURIComponent(userKey)}`), { throws: new TypeError('Network error') }, { delay: 100 });
+  fetchMock.getOnce(settings.url(`/v2/auth?users=${encodeURIComponent(userKey)}`), { status: 200, body: authPushBadToken });
+  fetchMock.getOnce(settings.url(`/v2/auth?users=${encodeURIComponent(userKey)}`), { throws: new TypeError('Network error') }, { delay: 100 });
 
   fetchMock.get({ url: settings.url('/mySegments/nicolas%40split.io'), repeat: 2 }, { status: 200, body: mySegmentsNicolasMock });
   fetchMock.getOnce(settings.url('/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });

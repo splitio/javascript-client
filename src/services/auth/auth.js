@@ -11,7 +11,7 @@ function userKeyToQueryParam(userKey) {
  * @param {string[] | undefined} userKeys set of user Keys to track MY_SEGMENTS_CHANGES. It is undefined for Node.
  */
 export default function GET(settings, userKeys) {
-  let relativeUrl = '/auth';
+  let relativeUrl = '/v2/auth';
   if (userKeys) { // accounting the possibility that `userKeys` is undefined (in node)
     const queryParams = userKeys.map(userKeyToQueryParam).join('&');
     if (queryParams) // accounting the possibility that `userKeys` and thus `queryParams` are empty
