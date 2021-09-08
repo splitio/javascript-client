@@ -13,6 +13,11 @@ import mySegmentsUpdateMessageWithPayload from '../mocks/message.MY_SEGMENTS_UPD
 import mySegmentsUpdateMessageWithEmptyPayload from '../mocks/message.MY_SEGMENTS_UPDATE.marcio@split.io.1457552646000.json';
 import splitKillMessage from '../mocks/message.SPLIT_KILL.1457552650000.json';
 
+import unboundedMessage from '../mocks/message.V2.UNBOUNDED.1457552650000';
+import boundedZlibMessage from '../mocks/message.V2.BOUNDED.ZLIB.1457552651000';
+import keylistGzipMessage from '../mocks/message.V2.KEYLIST.GZIP.1457552652000';
+import segmentRemovalMessage from '../mocks/message.V2.SEGMENT_REMOVAL.1457552653000';
+
 import authPushEnabledNicolas from '../mocks/auth.pushEnabled.nicolas@split.io.json';
 import authPushEnabledNicolasAndMarcio from '../mocks/auth.pushEnabled.nicolas@split.io.marcio@split.io.json';
 
@@ -29,6 +34,9 @@ import SettingsFactory from '../../utils/settings';
 
 const userKey = 'nicolas@split.io';
 const otherUserKey = 'marcio@split.io';
+const keylistAddKey = 'key1';
+const keylistRemoveKey = 'key3';
+const bitmapTrueKey = '88f8b33b-f858-4aea-bea2-a5f066bab3ce';
 
 const baseUrls = {
   sdk: 'https://sdk.push-synchronization/api',
@@ -55,7 +63,14 @@ const MILLIS_NEW_CLIENT = 600;
 const MILLIS_SECOND_SSE_OPEN = 700;
 const MILLIS_MY_SEGMENTS_UPDATE_WITH_PAYLOAD = 800;
 const MILLIS_MY_SEGMENTS_UPDATE_WITH_EMPTY_PAYLOAD = 900;
-const MILLIS_UNLOAD_BROWSER_EVENT = 1000;
+const MILLIS_MORE_CLIENTS = 1000;
+const MILLIS_UNBOUNDED_FETCH = 1100;
+const MILLIS_BOUNDED_FALLBACK = 1200;
+const MILLIS_KEYLIST_FALLBACK = 1300;
+const MILLIS_BOUNDED = 1400;
+const MILLIS_KEYLIST = 1500;
+const MILLIS_SEGMENT_REMOVAL = 1600;
+const MILLIS_UNLOAD_BROWSER_EVENT = 1700;
 
 /**
  * Sequence of calls:
@@ -69,13 +84,20 @@ const MILLIS_UNLOAD_BROWSER_EVENT = 1000;
  *  0.7 secs: SSE connection opened -> syncAll (/splitChanges, /mySegments/*)
  *  0.8 secs: MY_SEGMENTS_UPDATE event for new client (with payload).
  *  0.9 secs: MY_SEGMENTS_UPDATE event for new client (with empty payload).
- *  1.0 secs: 'unload' browser event -> streaming connection closed
+ *  1.0 secs: creates more clients
+ *  1.1 secs: MY_SEGMENTS_UPDATE_V2 UnboundedFetchRequest event.
+ *  1.2 secs: MY_SEGMENTS_UPDATE_V2 BoundedFetchRequest event error --> UnboundedFetchRequest.
+ *  1.3 secs: MY_SEGMENTS_UPDATE_V2 KeyList event error --> UnboundedFetchRequest.
+ *  1.4 secs: MY_SEGMENTS_UPDATE_V2 BoundedFetchRequest event.
+ *  1.5 secs: MY_SEGMENTS_UPDATE_V2 KeyList event.
+ *  1.6 secs: MY_SEGMENTS_UPDATE_V2 SegmentRemoval event.
+ *  1.7 secs: 'unload' browser event -> streaming connection closed
  */
 export function testSynchronization(fetchMock, assert) {
-  assert.plan(29);
+  assert.plan(36);
   fetchMock.reset();
 
-  let start, splitio, client, otherClient;
+  let start, splitio, client, otherClient, keylistAddClient, keylistRemoveClient, bitmapTrueClient, sharedClients = [];
 
   // mock SSE open and message events
   setMockListener(function (eventSourceInstance) {
@@ -124,7 +146,7 @@ export function testSynchronization(fetchMock, assert) {
     setTimeout(() => {
       otherClient = splitio.client(otherUserKey);
 
-      setMockListener(function (eventSourceInstance) {
+      setMockListener((eventSourceInstance) => {
         const expectedSSEurl = `${settings.url('/sse')}?channels=NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_MjE0MTkxOTU2Mg%3D%3D_mySegments,NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_NTcwOTc3MDQx_mySegments,NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_splits,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_pri,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_sec&accessToken=${authPushEnabledNicolasAndMarcio.token}&v=1.1&heartbeats=true&SplitSDKVersion=${settings.version}&SplitSDKClientKey=h-1>`;
         assert.equals(eventSourceInstance.url, expectedSSEurl, 'new EventSource URL is the expected');
 
@@ -169,20 +191,74 @@ export function testSynchronization(fetchMock, assert) {
         }, MILLIS_MY_SEGMENTS_UPDATE_WITH_EMPTY_PAYLOAD - MILLIS_NEW_CLIENT); // send a MY_SEGMENTS_UPDATE event with payload after 0.1 seconds from new SSE connection opened
 
         setTimeout(() => {
-          assert.equal(eventSourceInstance.readyState, EventSourceMock.OPEN, 'streaming is still open');
-          triggerUnloadEvent();
-          assert.equal(eventSourceInstance.readyState, EventSourceMock.CLOSED, 'streaming is closed after "unload" browser event');
+          keylistAddClient = splitio.client(keylistAddKey);
+          keylistRemoveClient = splitio.client(keylistRemoveKey);
+          bitmapTrueClient = splitio.client(bitmapTrueKey);
+          sharedClients = [otherClient, keylistAddClient, keylistRemoveClient, bitmapTrueClient];
 
-          // destroy shared client and then main client
-          otherClient.destroy().then(() => {
-            assert.equal(otherClient.getTreatment('whitelist'), 'control', 'evaluation returns control for shared client if it is destroyed');
-            assert.equal(client.getTreatment('whitelist'), 'not_allowed', 'evaluation returns correct tratment for main client');
-            client.destroy().then(() => {
-              assert.equal(client.getTreatment('whitelist'), 'control', 'evaluation returns control for main client if it is destroyed');
-              assert.end();
-            });
+          setMockListener((eventSourceInstance) => {
+            eventSourceInstance.emitOpen();
+
+            setTimeout(() => {
+              eventSourceInstance.emitMessage(unboundedMessage);
+            }, MILLIS_UNBOUNDED_FETCH - MILLIS_MORE_CLIENTS);
+
+            setTimeout(() => {
+              const malformedMessage = { ...boundedZlibMessage, data: boundedZlibMessage.data.replace('eJxiGAX4AMd', '').replace('1457552651000', '1457552650100') };
+              eventSourceInstance.emitMessage(malformedMessage);
+            }, MILLIS_BOUNDED_FALLBACK - MILLIS_MORE_CLIENTS);
+
+            setTimeout(() => {
+              const malformedMessage = { ...keylistGzipMessage, data: keylistGzipMessage.data.replace('H4sIAAAAAAA', '').replace('1457552652000', '1457552650200') };
+              eventSourceInstance.emitMessage(malformedMessage);
+            }, MILLIS_KEYLIST_FALLBACK - MILLIS_MORE_CLIENTS);
+
+            setTimeout(() => {
+              assert.deepEqual(sharedClients.map(c => c.getTreatment('splitters')), ['off', 'off', 'on', 'off'], 'evaluation before bounded fetch');
+              bitmapTrueClient.once(bitmapTrueClient.Event.SDK_UPDATE, () => {
+                assert.deepEqual(sharedClients.map(c => c.getTreatment('splitters')), ['off', 'off', 'on', 'on'], 'evaluation after bounded fetch');
+              });
+              eventSourceInstance.emitMessage(boundedZlibMessage);
+            }, MILLIS_BOUNDED - MILLIS_MORE_CLIENTS);
+
+            setTimeout(() => {
+              assert.deepEqual(sharedClients.map(c => c.getTreatment('splitters')), ['off', 'off', 'on', 'on'], 'evaluation before keylist message');
+              keylistAddClient.once(keylistAddClient.Event.SDK_UPDATE, () => {
+                // This callback executes first. Thus, the treatment for `keylistRemoveClient` is still 'on'
+                assert.deepEqual(sharedClients.map(c => c.getTreatment('splitters')), ['off', 'on', 'on', 'on'], 'evaluation after keylist message (added key)');
+              });
+              keylistRemoveClient.once(keylistRemoveClient.Event.SDK_UPDATE, () => {
+                assert.deepEqual(sharedClients.map(c => c.getTreatment('splitters')), ['off', 'on', 'off', 'on'], 'evaluation after keylist message (removed key)');
+              });
+              eventSourceInstance.emitMessage(keylistGzipMessage);
+            }, MILLIS_KEYLIST - MILLIS_MORE_CLIENTS);
+
+            setTimeout(() => {
+              assert.deepEqual(sharedClients.map(c => c.getTreatment('splitters')), ['off', 'on', 'off', 'on'], 'evaluation before segment removal');
+              bitmapTrueClient.once(bitmapTrueClient.Event.SDK_UPDATE, () => {
+                assert.deepEqual(sharedClients.map(c => c.getTreatment('splitters')), ['off', 'off', 'off', 'off'], 'evaluation after segment removal');
+              });
+              eventSourceInstance.emitMessage(segmentRemovalMessage);
+            }, MILLIS_SEGMENT_REMOVAL - MILLIS_MORE_CLIENTS);
+
+            setTimeout(() => {
+              assert.equal(eventSourceInstance.readyState, EventSourceMock.OPEN, 'streaming is still open');
+              triggerUnloadEvent();
+              assert.equal(eventSourceInstance.readyState, EventSourceMock.CLOSED, 'streaming is closed after "unload" browser event');
+
+              // destroy shared clients and then main client
+              Promise.all(sharedClients.map(c => c.destroy()))
+                .then(() => {
+                  assert.equal(otherClient.getTreatment('whitelist'), 'control', 'evaluation returns control for shared client if it is destroyed');
+                  assert.equal(client.getTreatment('whitelist'), 'not_allowed', 'evaluation returns correct tratment for main client');
+                  client.destroy().then(() => {
+                    assert.equal(client.getTreatment('whitelist'), 'control', 'evaluation returns control for main client if it is destroyed');
+                    assert.end();
+                  });
+                });
+            }, MILLIS_UNLOAD_BROWSER_EVENT - MILLIS_MORE_CLIENTS);
           });
-        }, MILLIS_UNLOAD_BROWSER_EVENT - MILLIS_NEW_CLIENT);
+        }, MILLIS_MORE_CLIENTS - MILLIS_NEW_CLIENT);
 
       });
 
@@ -191,18 +267,24 @@ export function testSynchronization(fetchMock, assert) {
   });
 
   // initial auth
-  fetchMock.getOnce(settings.url(`/auth?users=${encodeURIComponent(userKey)}`), function (url, opts) {
+  let authParams = `users=${encodeURIComponent(userKey)}`;
+  fetchMock.getOnce(settings.url(`/auth?${authParams}`), function (url, opts) {
     if (!opts.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
     assert.pass('auth success');
     return { status: 200, body: authPushEnabledNicolas };
   });
 
   // reauth due to new client
-  fetchMock.getOnce(settings.url(`/auth?users=${encodeURIComponent(userKey)}&users=${encodeURIComponent(otherUserKey)}`), function (url, opts) {
+  authParams += `&users=${encodeURIComponent(otherUserKey)}`;
+  fetchMock.getOnce(settings.url(`/auth?${authParams}`), function (url, opts) {
     if (!opts.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
     assert.pass('second auth success');
     return { status: 200, body: authPushEnabledNicolasAndMarcio };
   });
+
+  // reauth due to more clients
+  authParams += `&users=${encodeURIComponent(keylistAddKey)}&users=${encodeURIComponent(keylistRemoveKey)}&users=${encodeURIComponent(bitmapTrueKey)}`;
+  fetchMock.getOnce(settings.url(`/auth?${authParams}`), { status: 200, body: authPushEnabledNicolasAndMarcio });
 
   // initial split and mySegments sync
   fetchMock.getOnce(settings.url('/splitChanges?since=-1'), function (url, opts) {
@@ -260,14 +342,32 @@ export function testSynchronization(fetchMock, assert) {
     if (hasNoCacheHeader(opts)) assert.fail('request must not include `Cache-Control` header');
     return { status: 200, body: { splits: [], since: 1457552650000, till: 1457552650000 } };
   });
-  fetchMock.getOnce(settings.url('/mySegments/nicolas%40split.io'), function (url, opts) {
+  fetchMock.get({ url: settings.url('/mySegments/nicolas%40split.io'), repeat: 2 }, function (url, opts) {
     if (hasNoCacheHeader(opts)) assert.fail('request must not include `Cache-Control` header');
     return { status: 200, body: mySegmentsNicolasMock2 };
   });
-  fetchMock.getOnce(settings.url('/mySegments/marcio%40split.io'), function (url, opts) {
+  fetchMock.get({ url: settings.url('/mySegments/marcio%40split.io'), repeat: 2 }, function (url, opts) {
     if (hasNoCacheHeader(opts)) assert.fail('request must not include `Cache-Control` header');
     return { status: 200, body: mySegmentsMarcio };
   });
+  // 3 unbounded fetch requests
+  fetchMock.get({ url: settings.url('/mySegments/nicolas%40split.io'), repeat: 3 }, function (url, opts) {
+    if (!hasNoCacheHeader(opts)) assert.fail('request must not include `Cache-Control` header');
+    return { status: 200, body: mySegmentsNicolasMock2 };
+  });
+  fetchMock.get({ url: settings.url('/mySegments/marcio%40split.io'), repeat: 3 }, function (url, opts) {
+    if (!hasNoCacheHeader(opts)) assert.fail('request must not include `Cache-Control` header');
+    return { status: 200, body: mySegmentsMarcio };
+  });
+
+  // initial fetch of mySegments for other clients + sync after third SSE opened + 3 unbounded fetch requests
+  fetchMock.getOnce(settings.url('/splitChanges?since=1457552650000'), { status: 200, body: { splits: [], since: 1457552650000, till: 1457552650000 } });
+  fetchMock.get({ url: settings.url('/mySegments/key1'), repeat: 5 }, { status: 200, body: { mySegments: [] } });
+  fetchMock.get({ url: settings.url('/mySegments/key3'), repeat: 5 }, { status: 200, body: { mySegments: [{ name: 'splitters' }] } });
+  fetchMock.get({ url: settings.url(`/mySegments/${bitmapTrueKey}`), repeat: 5 }, { status: 200, body: { mySegments: [] } });
+
+  // bounded fetch request
+  fetchMock.get(settings.url(`/mySegments/${bitmapTrueKey}`), { status: 200, body: { mySegments: [{ name: 'splitters' }] } });
 
   fetchMock.get(new RegExp('.*'), function (url) {
     assert.fail('unexpected GET request with url: ' + url);
