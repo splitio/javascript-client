@@ -71,7 +71,8 @@ module.exports = {
                 'targets': {
                   'ie': '10',
                   'node': '6'
-                }
+                },
+                'loose': true
               }]],
               plugins: [['@babel/plugin-transform-runtime', {
                 // default values
