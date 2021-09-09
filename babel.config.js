@@ -16,7 +16,8 @@ module.exports = function (api) {
         'targets': {
           'ie': '10',
           'node': '6'
-        }
+        },
+        'loose': true // produces simpler ES5 code
       }]);
       plugins.push(['@babel/plugin-transform-runtime', {
         'useESModules': false, // default value: use helpers that get run through @babel/plugin-transform-modules-commonjs
@@ -31,7 +32,8 @@ module.exports = function (api) {
         'targets': {
           'ie': '10',
           'node': '6'
-        }
+        },
+        'loose': true // produces simpler ES5 code
       }]);
       plugins.push(['@babel/plugin-transform-runtime', {
         'useESModules': true, // use helpers that not get run through @babel/plugin-transform-modules-commonjs
