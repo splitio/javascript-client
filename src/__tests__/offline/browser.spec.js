@@ -71,8 +71,8 @@ tape('Browser offline mode', function (assert) {
   assert.false(client.track({}, [], 'invalid_stuff'));
   assert.true(sharedClient.track('a_tt', 'another_ev_id', 10));
 
-  assert.equal(client.getTreatment('testing_split'), 'control');
-  assert.equal(sharedClient.getTreatment('testing_split'), 'control');
+  assert.equal(client.getTreatment('testing_split'), 'control', 'control due to not ready');
+  assert.equal(sharedClient.getTreatment('testing_split'), 'control', 'control due to not ready');
   assert.equal(manager.splits().length, 0);
 
   // SDK events on shared client
@@ -90,12 +90,29 @@ tape('Browser offline mode', function (assert) {
   const factories = [
     SplitFactory(config),
     SplitFactory({ ...config }),
-    SplitFactory({ ...config, features: { ...config.features } })
+    SplitFactory({ ...config, features: { ...config.features } }),
+    SplitFactory({ ...config, storage: { type: 'LOCALSTORAGE' } })
   ];
-  let readyCount = 0, updateCount = 0;
+  let readyCount = 0, updateCount = 0, readyFromCacheCount = 0;
 
   for (let i = 0; i < factories.length; i++) {
-    let client = factories[i].client(), manager = factories[i].manager();
+    const factory = factories[i], client = factory.client(), manager = factory.manager();
+
+    client.on(client.Event.SDK_READY_FROM_CACHE, () => {
+      assert.equal(client.__context.get(client.__context.constants.READY_FROM_CACHE, true), true, 'READY_FROM_CACHE status must be true');
+      assert.equal(client.__context.get(client.__context.constants.READY, true), undefined, 'READY status must not be set before READY_FROM_CACHE');
+      assert.equal(client.getTreatment('testing_split_with_config'), 'off');
+      readyFromCacheCount++;
+
+      const sharedClient = factory.client('other');
+      assert.equal(sharedClient.getTreatment('testing_split'), 'on', 'If ready from cache, shared clients should evaluate from cache');
+      sharedClient.on(sharedClient.Event.SDK_READY_FROM_CACHE, () => {
+        assert.fail('Shared clients should not emit a SDK_READY_FROM_CACHE event. Only the main client does');
+      });
+      sharedClient.on(sharedClient.Event.SDK_READY, () => {
+        readyCount++;
+      });
+    });
 
     client.on(client.Event.SDK_READY, () => {
       assert.deepEqual(manager.names(), ['testing_split', 'testing_split_with_config']);
@@ -103,8 +120,8 @@ tape('Browser offline mode', function (assert) {
       readyCount++;
     });
     client.on(client.Event.SDK_UPDATE, () => {
-      assert.equal(client.getTreatment('testing_split_with_config'), 'nope');
       assert.deepEqual(manager.names(), ['testing_split', 'testing_split_2', 'testing_split_3', 'testing_split_with_config']);
+      assert.equal(client.getTreatment('testing_split_with_config'), 'nope');
       updateCount++;
     });
   }
@@ -308,8 +325,9 @@ tape('Browser offline mode', function (assert) {
           assert.equal(sharedUpdateCount, 1, 'Shared client should have emitted SDK_UPDATE event once');
 
           // SDK events on other factory clients
-          assert.equal(readyCount, factories.length, 'Each factory client should have emitted SDK_READY event once');
+          assert.equal(readyCount, factories.length + 1, 'Each factory client should have emitted SDK_READY event once plus one shared client');
           assert.equal(updateCount, factories.length - 1, 'Each factory client except one should have emitted SDK_UPDATE event once');
+          assert.equal(readyFromCacheCount, 1, 'The main client of the factory with LOCALSTORAGE should have emitted SDK_READY_FROM_CACHE event');
 
           assert.end();
         });

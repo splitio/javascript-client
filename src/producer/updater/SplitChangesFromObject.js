@@ -24,7 +24,7 @@ function FromObjectUpdaterFactory(Fetcher, context) {
     [context.constants.STORAGE]: storage
   } = context.getAll();
 
-  let firstTime = true;
+  let startingUp = true;
 
   return function ObjectUpdater() {
     const splits = [];
@@ -58,13 +58,17 @@ function FromObjectUpdaterFactory(Fetcher, context) {
       });
 
       return Promise.all([
-        storage.splits.flush(),
+        storage.splits.flush(), // required to sync removed splits from mock
+        storage.splits.setChangeNumber(Date.now()),
         storage.splits.addSplits(splits)
       ]).then(() => {
         readiness.splits.emit(readiness.splits.SDK_SPLITS_ARRIVED);
-        // Only emits SDK_SEGMENTS_ARRIVED the first time for SDK_READY
-        if (firstTime) {
-          firstTime = false;
+
+        if (startingUp) {
+          startingUp = false;
+          // If we have cached splits after starting up, let's notify that before the sdk gets ready.
+          if (storage.splits.checkCache()) readiness.gate.emit(readiness.gate.SDK_READY_FROM_CACHE);
+          // Only emits SDK_SEGMENTS_ARRIVED the first time for SDK_READY
           readiness.segments.emit(readiness.segments.SDK_SEGMENTS_ARRIVED);
         }
       });
