@@ -54,6 +54,7 @@ export default function createGetConfigurationFromSettings() {
       if (config !== null) configurations[treatment] = config;
 
       splitObjects[splitName] = {
+        trafficTypeName: 'localhost',
         conditions: [parseCondition({ treatment })],
         configurations
       };

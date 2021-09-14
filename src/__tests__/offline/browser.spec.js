@@ -107,7 +107,7 @@ tape('Browser offline mode', function (assert) {
       const sharedClient = factory.client('other');
       assert.equal(sharedClient.getTreatment('testing_split'), 'on', 'If ready from cache, shared clients should evaluate from cache');
       sharedClient.on(sharedClient.Event.SDK_READY_FROM_CACHE, () => {
-        assert.fail('Shared clients should not emit a SDK_READY_FROM_CACHE event. Only the main client does');
+        assert.fail('Shared clients don\'t emit SDK_READY_FROM_CACHE event. Only the main client does');
       });
       sharedClient.on(sharedClient.Event.SDK_READY, () => {
         readyCount++;
@@ -157,10 +157,10 @@ tape('Browser offline mode', function (assert) {
 
     // Manager tests
     const expectedSplitView1 = {
-      name: 'testing_split', trafficType: null, killed: false, changeNumber: 0, treatments: ['on'], configs: {}
+      name: 'testing_split', trafficType: 'localhost', killed: false, changeNumber: 0, treatments: ['on'], configs: {}
     };
     const expectedSplitView2 = {
-      name: 'testing_split_with_config', trafficType: null, killed: false, changeNumber: 0, treatments: ['off'], configs: { off: '{ "color": "blue" }' }
+      name: 'testing_split_with_config', trafficType: 'localhost', killed: false, changeNumber: 0, treatments: ['off'], configs: { off: '{ "color": "blue" }' }
     };
     assert.deepEqual(manager.names(), ['testing_split', 'testing_split_with_config']);
     assert.deepEqual(manager.split('testing_split'), expectedSplitView1);
@@ -258,7 +258,7 @@ tape('Browser offline mode', function (assert) {
 
       // Manager tests
       const expectedSplitView3 = {
-        name: 'testing_split_with_config', trafficType: null, killed: false, changeNumber: 0, treatments: ['nope'], configs: {}
+        name: 'testing_split_with_config', trafficType: 'localhost', killed: false, changeNumber: 0, treatments: ['nope'], configs: {}
       };
       assert.deepEqual(manager.names(), ['testing_split', 'testing_split_2', 'testing_split_3', 'testing_split_with_config']);
       assert.deepEqual(manager.split('testing_split'), expectedSplitView1);
