@@ -12,8 +12,8 @@ function SplitFactoryOffline(context, sharedTrackers) {
   const storage = context.get(context.constants.STORAGE);
   const statusManager = context.get(context.constants.STATUS_MANAGER);
 
-  // In LOCALHOST mode, shared clients are ready in the next event-loop cycle than created, and then updated on
-  // each SDK_SPLITS_ARRIVED event. As in online mode, SDK_READY_FROM_CACHE is only emitted by the main client.
+  // In LOCALHOST mode, shared clients are ready in the next event-loop cycle than created
+  // and then updated on each SDK_SPLITS_ARRIVED event
   if (sharedInstance) setTimeout(() => {
     readiness.splits.on(readiness.splits.SDK_SPLITS_ARRIVED, () => {
       readiness.gate.emit(readiness.gate.SDK_UPDATE);

@@ -331,7 +331,7 @@ tape('Browser offline mode', function (assert) {
           assert.equal(sharedUpdateCount, 1, 'Shared client should have emitted SDK_UPDATE event once');
 
           // SDK events on other factory clients
-          assert.equal(readyCount, factories.length, 'Each factory client should have emitted SDK_READY event once plus two shared clients');
+          assert.equal(readyCount, factories.length, 'Each factory client should have emitted SDK_READY event once');
           assert.equal(updateCount, factories.length - 1, 'Each factory client except one should have emitted SDK_UPDATE event once');
           assert.equal(readyFromCacheCount, 2, 'The main and shared client of the factory with LOCALSTORAGE should have emitted SDK_READY_FROM_CACHE event');
 

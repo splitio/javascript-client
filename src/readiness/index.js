@@ -53,12 +53,8 @@ function GateContext() {
       gate.emit(Events.READINESS_GATE_CHECK_STATE);
     });
 
-    splits.once(Events.SDK_SPLITS_CACHE_LOADED, (localhost) => {
-      if (localhost) {
-        gate.emit(Events.SDK_READY_FROM_CACHE);
-      } else { // Make async for online mode, to let attach a cb
-        setTimeout(() => gate.emit(Events.SDK_READY_FROM_CACHE), 0);
-      }
+    splits.once(Events.SDK_SPLITS_CACHE_LOADED, () => {
+      gate.emit(Events.SDK_READY_FROM_CACHE);
     });
 
     segments.on(Events.SDK_SEGMENTS_ARRIVED, () => {

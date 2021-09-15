@@ -67,7 +67,7 @@ function FromObjectUpdaterFactory(Fetcher, context) {
         if (startingUp) {
           startingUp = false;
           // Emits SDK_READY_FROM_CACHE
-          if (storage.splits.checkCache()) readiness.splits.emit(readiness.splits.SDK_SPLITS_CACHE_LOADED, true);
+          if (storage.splits.checkCache()) readiness.splits.emit(readiness.splits.SDK_SPLITS_CACHE_LOADED);
           // Only emits SDK_SEGMENTS_ARRIVED the first time for SDK_READY
           readiness.segments.emit(readiness.segments.SDK_SEGMENTS_ARRIVED);
         }
