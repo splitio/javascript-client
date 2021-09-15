@@ -105,9 +105,12 @@ export function SplitFactory(config) {
         const sharedSettings = settings.overrideKeyAndTT(validKey, validTrafficType);
         const sharedContext = new Context();
 
-        const readiness = gateFactory(sharedSettings.startup.readyTimeout);
-        sharedContext.put(context.constants.READY_FROM_CACHE, context.get(context.constants.READY_FROM_CACHE, true));
-        sharedContext.put(context.constants.READINESS, readiness);
+        const setReadyFromCache = () => sharedContext.put(context.constants.READY_FROM_CACHE, true);
+        if (context.get(context.constants.READY_FROM_CACHE, true)) setReadyFromCache();
+        else readiness.gate.once(readiness.gate.SDK_READY_FROM_CACHE, setReadyFromCache);
+
+        const sharedReadiness = gateFactory(sharedSettings.startup.readyTimeout);
+        sharedContext.put(context.constants.READINESS, sharedReadiness);
         // for shared clients, the internal offset of added/removed SDK_READY callbacks is -1
         sharedContext.put(context.constants.STATUS_MANAGER, sdkStatusManager(sharedContext, -1));
         sharedContext.put(context.constants.SETTINGS, sharedSettings);
