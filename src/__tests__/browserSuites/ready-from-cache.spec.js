@@ -183,20 +183,20 @@ export default function (fetchMock, assert) {
     t.equal(client.getTreatment('always_on'), 'control', 'It should evaluate control treatments if not ready neither by cache nor the cloud');
     t.equal(client3.getTreatment('always_on'), 'control', 'It should evaluate control treatments if not ready neither by cache nor the cloud');
 
-    client.once(client.Event.SDK_READY_TIMED_OUT, () => {
+    client.on(client.Event.SDK_READY_TIMED_OUT, () => {
       t.fail('It should not timeout in this scenario.');
       t.end();
     });
 
-    client.once(client.Event.SDK_READY_FROM_CACHE, () => {
+    client.on(client.Event.SDK_READY_FROM_CACHE, () => {
       t.true(Date.now() - startTime < 400, 'It should emit SDK_READY_FROM_CACHE on every client if there was data in the cache and we subscribe on time. Should be considerably faster than actual readiness from the cloud.');
       t.equal(client.getTreatment('always_on'), 'off', 'It should evaluate treatments with data from cache instead of control due to Input Validation');
     });
-    client2.once(client2.Event.SDK_READY_FROM_CACHE, () => {
+    client2.on(client2.Event.SDK_READY_FROM_CACHE, () => {
       t.true(Date.now() - startTime < 400, 'It should emit SDK_READY_FROM_CACHE on every client if there was data in the cache and we subscribe on time. Should be considerably faster than actual readiness from the cloud.');
       t.equal(client2.getTreatment('always_on'), 'off', 'It should evaluate treatments with data from cache instead of control due to Input Validation');
     });
-    client3.once(client3.Event.SDK_READY_FROM_CACHE, () => {
+    client3.on(client3.Event.SDK_READY_FROM_CACHE, () => {
       t.true(Date.now() - startTime < 400, 'It should emit SDK_READY_FROM_CACHE on every client if there was data in the cache and we subscribe on time. Should be considerably faster than actual readiness from the cloud.');
       t.equal(client3.getTreatment('always_on'), 'off', 'It should evaluate treatments with data from cache instead of control due to Input Validation');
     });
@@ -248,7 +248,7 @@ export default function (fetchMock, assert) {
       events: 'https://events.baseurl/readyFromCacheWithData3'
     };
     localStorage.clear();
-    t.plan(12 * 2 + 4);
+    t.plan(12 * 2 + 5);
 
     fetchMock.get(testUrls.sdk + '/splitChanges?since=25', function () {
       t.equal(localStorage.getItem('readyFromCache_3.SPLITIO.split.always_on'), alwaysOnSplitInverted, 'splits must not be cleaned from cache');
@@ -264,6 +264,7 @@ export default function (fetchMock, assert) {
     fetchMock.get(testUrls.sdk + '/mySegments/nicolas3%40split.io', function () {
       return new Promise(res => { setTimeout(() => res({ status: 200, body: { 'mySegments': [] }, headers: {} }), 1000); }); // Third client mySegments will come after 1s
     });
+    fetchMock.get(testUrls.sdk + '/mySegments/nicolas4%40split.io', { 'mySegments': [] });
     fetchMock.postOnce(testUrls.events + '/testImpressions/bulk', 200);
     fetchMock.postOnce(testUrls.events + '/testImpressions/count', 200);
 
@@ -292,20 +293,27 @@ export default function (fetchMock, assert) {
     t.equal(client.getTreatment('always_on'), 'control', 'It should evaluate control treatments if not ready neither by cache nor the cloud');
     t.equal(client3.getTreatment('always_on'), 'control', 'It should evaluate control treatments if not ready neither by cache nor the cloud');
 
-    client.once(client.Event.SDK_READY_TIMED_OUT, () => {
+    client.on(client.Event.SDK_READY_TIMED_OUT, () => {
       t.fail('It should not timeout in this scenario.');
       t.end();
     });
 
-    client.once(client.Event.SDK_READY_FROM_CACHE, () => {
+    client.on(client.Event.SDK_READY_FROM_CACHE, () => {
       t.true(Date.now() - startTime < 400, 'It should emit SDK_READY_FROM_CACHE on every client if there was data in the cache and we subscribe on time. Should be considerably faster than actual readiness from the cloud.');
       t.equal(client.getTreatment('always_on'), 'off', 'It should evaluate treatments with data from cache instead of control due to Input Validation');
+
+      const client4 = splitio.client('nicolas4@split.io');
+      t.equal(client4.getTreatment('always_on'), 'off', 'It should evaluate treatments with data from cache instead of control');
+
+      client4.on(client4.Event.SDK_READY_FROM_CACHE, () => {
+        t.fail('It should not emit SDK_READY_FROM_CACHE if already done.');
+      });
     });
-    client2.once(client2.Event.SDK_READY_FROM_CACHE, () => {
+    client2.on(client2.Event.SDK_READY_FROM_CACHE, () => {
       t.true(Date.now() - startTime < 400, 'It should emit SDK_READY_FROM_CACHE on every client if there was data in the cache and we subscribe on time. Should be considerably faster than actual readiness from the cloud.');
       t.equal(client2.getTreatment('always_on'), 'off', 'It should evaluate treatments with data from cache instead of control due to Input Validation');
     });
-    client3.once(client3.Event.SDK_READY_FROM_CACHE, () => {
+    client3.on(client3.Event.SDK_READY_FROM_CACHE, () => {
       t.true(Date.now() - startTime < 400, 'It should emit SDK_READY_FROM_CACHE on every client if there was data in the cache and we subscribe on time. Should be considerably faster than actual readiness from the cloud.');
       t.equal(client3.getTreatment('always_on'), 'off', 'It should evaluate treatments with data from cache instead of control due to Input Validation');
     });

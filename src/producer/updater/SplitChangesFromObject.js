@@ -66,8 +66,8 @@ function FromObjectUpdaterFactory(Fetcher, context) {
 
         if (startingUp) {
           startingUp = false;
-          // If we have cached splits after starting up, let's notify that before the sdk gets ready.
-          if (storage.splits.checkCache()) readiness.gate.emit(readiness.gate.SDK_READY_FROM_CACHE);
+          // Emits SDK_READY_FROM_CACHE
+          if (storage.splits.checkCache()) readiness.splits.emit(readiness.splits.SDK_SPLITS_CACHE_LOADED, true);
           // Only emits SDK_SEGMENTS_ARRIVED the first time for SDK_READY
           readiness.segments.emit(readiness.segments.SDK_SEGMENTS_ARRIVED);
         }

@@ -96,30 +96,7 @@ tape('Browser offline mode', function (assert) {
   let readyCount = 0, updateCount = 0, readyFromCacheCount = 0;
 
   for (let i = 0; i < factories.length; i++) {
-    const factory = factories[i], client = factory.client(), manager = factory.manager(), sClient1 = factory.client('other');
-
-    client.once(client.Event.SDK_READY_FROM_CACHE, () => {
-      const sClient2 = factory.client('another');
-
-      [client, sClient1, sClient2].forEach(client => {
-        assert.equal(client.__context.get(client.__context.constants.READY_FROM_CACHE, true), true, 'If ready from cache, READY_FROM_CACHE status must be true');
-        assert.equal(client.__context.get(client.__context.constants.READY, true), undefined, 'READY status must not be set before READY_FROM_CACHE');
-        assert.equal(client.getTreatment('testing_split_with_config'), 'off', 'If ready from cache, clients should evaluate from cache');
-
-        client.on(client.Event.SDK_READY_FROM_CACHE, () => {
-          assert.fail('Shared clients don\'t emit SDK_READY_FROM_CACHE event. Only the main client does');
-        });
-      });
-
-      [sClient1, sClient2].forEach(client => {
-        client.on(client.Event.SDK_READY, () => {
-          assert.equal(client.__context.get(client.__context.constants.READY, true), true, 'READY status must be set once SDK_READY is emitted');
-          readyCount++;
-        });
-      });
-
-      readyFromCacheCount++;
-    });
+    const factory = factories[i], client = factory.client(), manager = factory.manager(), client2 = factory.client('other');
 
     client.on(client.Event.SDK_READY, () => {
       assert.deepEqual(manager.names(), ['testing_split', 'testing_split_with_config']);
@@ -131,6 +108,28 @@ tape('Browser offline mode', function (assert) {
       assert.equal(client.getTreatment('testing_split_with_config'), 'nope');
       updateCount++;
     });
+
+    const sdkReadyFromCache = (client) => () => {
+      assert.equal(client.__context.get(client.__context.constants.READY_FROM_CACHE, true), true, 'If ready from cache, READY_FROM_CACHE status must be true');
+      assert.equal(client.__context.get(client.__context.constants.READY, true), undefined, 'READY status must not be set before READY_FROM_CACHE');
+
+      assert.deepEqual(manager.names(), ['testing_split', 'testing_split_with_config']);
+      assert.equal(client.getTreatment('testing_split_with_config'), 'off');
+      readyFromCacheCount++;
+
+      client.on(client.Event.SDK_READY_FROM_CACHE, () => {
+        assert.fail('It should not emit SDK_READY_FROM_CACHE again');
+      });
+
+      const newClient = factory.client('another');
+      assert.equal(newClient.getTreatment('testing_split_with_config'), 'off', 'It should evaluate treatments with data from cache instead of control');
+      newClient.on(newClient.Event.SDK_READY_FROM_CACHE, () => {
+        assert.fail('It should not emit SDK_READY_FROM_CACHE if already done.');
+      });
+    };
+
+    client.on(client.Event.SDK_READY_FROM_CACHE, sdkReadyFromCache(client));
+    client2.on(client2.Event.SDK_READY_FROM_CACHE, sdkReadyFromCache(client2));
   }
 
   client.once(client.Event.SDK_READY, function () {
@@ -332,9 +331,9 @@ tape('Browser offline mode', function (assert) {
           assert.equal(sharedUpdateCount, 1, 'Shared client should have emitted SDK_UPDATE event once');
 
           // SDK events on other factory clients
-          assert.equal(readyCount, factories.length + 2, 'Each factory client should have emitted SDK_READY event once plus two shared clients');
+          assert.equal(readyCount, factories.length, 'Each factory client should have emitted SDK_READY event once plus two shared clients');
           assert.equal(updateCount, factories.length - 1, 'Each factory client except one should have emitted SDK_UPDATE event once');
-          assert.equal(readyFromCacheCount, 1, 'The main client of the factory with LOCALSTORAGE should have emitted SDK_READY_FROM_CACHE event');
+          assert.equal(readyFromCacheCount, 2, 'The main and shared client of the factory with LOCALSTORAGE should have emitted SDK_READY_FROM_CACHE event');
 
           assert.end();
         });
