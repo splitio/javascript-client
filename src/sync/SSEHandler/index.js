@@ -77,7 +77,6 @@ export default function SSEHandlerFactory(pushEmitter) {
             parsedData.changeNumber,
             parsedData.segmentName);
           break;
-        // @TODO remove
         case MY_SEGMENTS_UPDATE:
           pushEmitter.emit(MY_SEGMENTS_UPDATE,
             parsedData,
