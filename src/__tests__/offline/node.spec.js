@@ -251,15 +251,15 @@ function ManagerDotSplitTests(assert) {
     assert.deepEqual(manager.names(), ['testing_split', 'testing_split2', 'testing_split3']);
 
     const expectedView1 = {
-      name: 'testing_split', changeNumber: 0, killed: false, trafficType: null,
+      name: 'testing_split', changeNumber: 0, killed: false, trafficType: 'localhost',
       treatments: ['on'], configs: {}
     };
     const expectedView2 = {
-      name: 'testing_split2', changeNumber: 0, killed: false, trafficType: null,
+      name: 'testing_split2', changeNumber: 0, killed: false, trafficType: 'localhost',
       treatments: ['off'], configs: {}
     };
     const expectedView3 = {
-      name: 'testing_split3', changeNumber: 0, killed: false, trafficType: null,
+      name: 'testing_split3', changeNumber: 0, killed: false, trafficType: 'localhost',
       treatments: ['custom_treatment'], configs: {}
     };
 
@@ -397,15 +397,15 @@ function MultipleInstancesTests(assert) {
         assert.deepEqual(manager.names(), ['testing_split', 'testing_split2', 'testing_split3']);
 
         const expectedView1 = {
-          name: 'testing_split', changeNumber: 0, killed: false, trafficType: null,
+          name: 'testing_split', changeNumber: 0, killed: false, trafficType: 'localhost',
           treatments: ['on'], configs: {}
         };
         const expectedView2 = {
-          name: 'testing_split2', changeNumber: 0, killed: false, trafficType: null,
+          name: 'testing_split2', changeNumber: 0, killed: false, trafficType: 'localhost',
           treatments: ['off'], configs: {}
         };
         const expectedView3 = {
-          name: 'testing_split3', changeNumber: 0, killed: false, trafficType: null,
+          name: 'testing_split3', changeNumber: 0, killed: false, trafficType: 'localhost',
           treatments: ['custom_treatment'], configs: {}
         };
 

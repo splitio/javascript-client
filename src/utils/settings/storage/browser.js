@@ -18,14 +18,12 @@ import logFactory from '../../../utils/logger';
 const log = logFactory('splitio-settings');
 import isLocalStorageAvailable from '../../../utils/localstorage/isAvailable';
 import {
-  LOCALHOST_MODE,
   STORAGE_MEMORY,
   STORAGE_LOCALSTORAGE
 } from '../../../utils/constants';
 
 const ParseStorageSettings = settings => {
   let {
-    mode,
     storage: {
       type = STORAGE_MEMORY,
       options = {},
@@ -38,11 +36,6 @@ const ParseStorageSettings = settings => {
   } else {
     prefix = 'SPLITIO';
   }
-
-  if (mode === LOCALHOST_MODE) return {
-    type: STORAGE_MEMORY,
-    prefix
-  };
 
   // If an invalid storage type is provided OR we want to use LOCALSTORAGE and
   // it's not available, fallback into MEMORY
