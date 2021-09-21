@@ -36,7 +36,7 @@ import streamingReset from '../../../__tests__/mocks/message.STREAMING_RESET';
 
 import {
   PUSH_SUBSYSTEM_UP, PUSH_SUBSYSTEM_DOWN, PUSH_NONRETRYABLE_ERROR, PUSH_RETRYABLE_ERROR,
-  SPLIT_UPDATE, SEGMENT_UPDATE, MY_SEGMENTS_UPDATE, SPLIT_KILL, MY_SEGMENTS_UPDATE_V2, STREAMING_RESET
+  SPLIT_UPDATE, SEGMENT_UPDATE, MY_SEGMENTS_UPDATE, SPLIT_KILL, MY_SEGMENTS_UPDATE_V2, ControlTypes
 } from '../../constants';
 
 tape('SSEHandler', t => {
@@ -88,7 +88,7 @@ tape('SSEHandler', t => {
 
     assert.true(pushEmitter.emit.lastCall.calledWithExactly(SPLIT_UPDATE, 1457552620999), 'must handle update message if streaming on after an OCCUPANCY event');
     sseHandler.handleMessage(streamingReset);
-    assert.true(pushEmitter.emit.lastCall.calledWithExactly(STREAMING_RESET), 'must handle streaming reset');
+    assert.true(pushEmitter.emit.lastCall.calledWithExactly(ControlTypes.STREAMING_RESET), 'must handle streaming reset');
     assert.equal(pushEmitter.emit.callCount, 7, 'must not emit PUSH_SUBSYSTEM_UP if streaming is already on and another channel has publishers');
 
     assert.end();
@@ -124,7 +124,7 @@ tape('SSEHandler', t => {
     sseHandler.handleMessage({ data: '{ "data": "{\\"type\\":\\"SPLIT_UPDATE\\",\\"changeNumber\\":1457552620999 }" }' });
     assert.true(pushEmitter.emit.lastCall.calledWithExactly(SPLIT_UPDATE, 1457552620999), 'must handle update message if streaming on after a CONTROL event');
     sseHandler.handleMessage(streamingReset);
-    assert.true(pushEmitter.emit.lastCall.calledWithExactly(STREAMING_RESET), 'must handle streaming reset');
+    assert.true(pushEmitter.emit.lastCall.calledWithExactly(ControlTypes.STREAMING_RESET), 'must handle streaming reset');
 
     sseHandler.handleMessage(controlStreamingDisabledSec); // testing STREAMING_DISABLED with second region
     assert.true(pushEmitter.emit.lastCall.calledWithExactly(PUSH_NONRETRYABLE_ERROR), 'must emit PUSH_NONRETRYABLE_ERROR if received a STREAMING_DISABLED control message');
@@ -179,7 +179,7 @@ tape('SSEHandler', t => {
     assert.true(pushEmitter.emit.lastCall.calledWithExactly(MY_SEGMENTS_UPDATE_V2, ...expectedParams), 'must emit MY_SEGMENTS_UPDATE_V2 with the message parsed data');
 
     sseHandler.handleMessage(streamingReset);
-    assert.true(pushEmitter.emit.lastCall.calledWithExactly(STREAMING_RESET), 'must emit STREAMING_RESET');
+    assert.true(pushEmitter.emit.lastCall.calledWithExactly(ControlTypes.STREAMING_RESET), 'must emit STREAMING_RESET');
 
     assert.end();
   });

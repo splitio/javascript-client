@@ -1,4 +1,4 @@
 {
   "type": "message",
-  "data": "{\"timestamp\":1457552660000,\"data\":\"{\\\"type\\\":\\\"STREAMING_RESET\\\"}\"}"
+  "data": "{\"timestamp\":1457552660000,\"data\":\"{\\\"type\\\":\\\"CONTROL\\\",\\\"controlType\\\":\\\"STREAMING_RESET\\\"}\"}"
 }

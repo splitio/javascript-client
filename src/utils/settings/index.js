@@ -27,7 +27,7 @@ import { API } from '../../utils/logger';
 import { STANDALONE_MODE, STORAGE_MEMORY, CONSUMER_MODE, OPTIMIZED } from '../../utils/constants';
 import validImpressionsMode from './impressionsMode';
 
-const version = '10.15.10-rc.1';
+const version = '10.15.10-rc.2';
 const eventsEndpointMatcher = /^\/(testImpressions|metrics|events)/;
 const authEndpointMatcher = /^\/v2\/auth/;
 const streamingEndpointMatcher = /^\/(sse|event-stream)/;
