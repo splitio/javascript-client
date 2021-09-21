@@ -96,8 +96,8 @@ const MILLIS_DESTROY = MILLIS_STREAMING_DISABLED_CONTROL + settings.scheduler.fe
  *  1.0 secs: Streaming up (CONTROL event) -> syncAll (/splitChanges, /mySegments/nicolas, /mySegments/marcio, /mySegments/facundo)
  *  1.1 secs: MY_SEGMENTS_UPDATE event -> /mySegments/nicolas
  *  1.2 secs: Streaming down (CONTROL event) -> fetch due to fallback to polling (/splitChanges, /mySegments/nicolas, /mySegments/marcio, /mySegments/facundo)
- *  1.3 secs: STREAMING_RESET event -> auth, SSE connection, syncAll and stop polling
- *  1.5 secs: STREAMING_RESET event -> auth, SSE connection, syncAll
+ *  1.3 secs: STREAMING_RESET control event -> auth, SSE connection, syncAll and stop polling
+ *  1.5 secs: STREAMING_RESET control event -> auth, SSE connection, syncAll
  *  1.6 secs: Streaming closed (CONTROL STREAMING_DISABLED event) -> fetch due to fallback to polling (/splitChanges, /mySegments/nicolas, /mySegments/marcio, /mySegments/facundo)
  *  1.8 secs: periodic fetch due to polling (/splitChanges): due to update without segments, mySegments are not fetched
  *  2.0 secs: periodic fetch due to polling (/splitChanges)
