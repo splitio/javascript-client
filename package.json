@@ -75,7 +75,7 @@
     "tape-catch": "1.0.6",
     "webpack": "^4.46.0",
     "webpack-cli": "^3.3.12",
-    "webpack-merge": "^4.2.2"
+    "webpack-merge": "^5.8.0"
   },
   "scripts": {
     "build-es": "rimraf es && cross-env NODE_ENV=es babel ./src -d es --ignore 'src/**/__tests__/*'",
