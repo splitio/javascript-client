@@ -11,7 +11,15 @@ import objectAssign from 'object-assign';
 const log = logFactory('splitio-client:cleanup');
 
 // 'unload' event is used instead of 'beforeunload', since 'unload' is not a cancelable event, so no other listeners can stop the event from occurring.
-const UNLOAD_DOM_EVENT = 'unload';
+// In Firefox, 'beforeunload' is used to avoid issue with SSE (https://github.com/splitio/react-client/issues/71)
+export function getUnloadDomEvent() {
+  if (typeof navigator == 'object' && navigator.userAgent && navigator.userAgent.indexOf('Firefox/') !== -1) {
+    return 'beforeunload';
+  }
+  return 'unload';
+}
+
+const UNLOAD_DOM_EVENT = getUnloadDomEvent();
 
 /**
  * We'll listen for 'unload' event over the window object, since it's the standard way to listen page reload and close.

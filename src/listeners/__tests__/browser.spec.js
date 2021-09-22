@@ -3,6 +3,7 @@ import sinon from 'sinon';
 import BrowserSignalListener from '../browser';
 import { DEBUG, OPTIMIZED } from '../../utils/constants';
 import ImpressionsCounter from '../../impressions/counter';
+import { triggerUnloadEvent } from '../../__tests__/testUtils/browser';
 
 const UNLOAD_DOM_EVENT = 'unload';
 
@@ -103,13 +104,6 @@ class ContextMock {
 const syncManagerMockWithPushManager = { pushManager: { stop: sinon.stub() } };
 
 /* Mocks end */
-
-function triggerUnloadEvent() {
-  const event = document.createEvent('HTMLEvents');
-  event.initEvent('unload', true, true);
-  event.eventName = 'unload';
-  window.dispatchEvent(event);
-}
 
 tape('Browser JS / Browser listener class constructor, start and stop methods', function (assert) {
   const { fakeStorage, fakeSettings } = generateContextMocks();

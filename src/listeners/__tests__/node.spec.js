@@ -10,6 +10,7 @@ sinon.stub(process, 'removeListener').callsFake(processRemoveListenerSpy);
 sinon.stub(process, 'kill').callsFake(processKillSpy);
 
 import NodeSignalListener from '../node';
+import { getUnloadDomEvent } from '../browser';
 
 tape('Node JS / Signal Listener class methods and start/stop functionality', function (assert) {
   const listener = new NodeSignalListener();
@@ -189,4 +190,17 @@ tape('Node JS / Signal Listener SIGTERM callback with async handler that throws 
   clock.next();
 
   return handlerPromise;
+});
+
+tape('getUnloadDomEvent', function (assert) {
+  assert.equal(getUnloadDomEvent(), 'unload', 'returns `unload` if userAgent property is not available');
+
+  global.navigator = { userAgent: 'Mozilla/5.0 (Android; Mobile; rv:13.0) Gecko/13.0 Firefox/13.0' };
+  assert.equal(getUnloadDomEvent(), 'beforeunload', 'returns `beforeunload` if using Firefox browser');
+
+  global.navigator.userAgent = 'Mozilla/5.0 (compatible; MSIE 9.0; Windows Phone OS 7.5; Trident/5.0; IEMobile/9.0)';
+  assert.equal(getUnloadDomEvent(), 'unload', 'returns `unload` if using a different user agent than Firefox browser');
+
+  delete global.navigator;
+  assert.end();
 });
