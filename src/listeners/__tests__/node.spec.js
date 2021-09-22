@@ -192,7 +192,7 @@ tape('Node JS / Signal Listener SIGTERM callback with async handler that throws 
   return handlerPromise;
 });
 
-tape('getUnloadDomEvent', function (assert) {
+tape('Browser signal listener - getUnloadDomEvent', function (assert) {
   assert.equal(getUnloadDomEvent(), 'unload', 'returns `unload` if userAgent property is not available');
 
   global.navigator = { userAgent: 'Mozilla/5.0 (Android; Mobile; rv:13.0) Gecko/13.0 Firefox/13.0' };
