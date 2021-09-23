@@ -22,9 +22,9 @@ module.exports = {
 
   // list of files / patterns to load in the browser
   files: [
-    // Uncomment to run a particular UTs:
+    // Uncomment to run a particular UT:
     // '**/listeners/__tests__/browser.spec.js',
-    // Run browser UTs. Commons and Node UTs are run with `test-node` npm script
+    // Run browser UTs. Commons and Node UTs run with `test-node` npm script
     '*/**/__tests__/**/browser.spec.js',
     {
       pattern: 'engine/__tests__/engine/mocks/murmur3*.csv',
