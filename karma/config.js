@@ -3,6 +3,7 @@
 const puppeteer = require('puppeteer');
 process.env.CHROME_BIN = puppeteer.executablePath();
 
+const webpack = require('webpack');
 const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
 
 module.exports = {
@@ -89,7 +90,11 @@ module.exports = {
       ]
     },
     plugins: [
-      new NodePolyfillPlugin()
+      new NodePolyfillPlugin(),
+      new webpack.DefinePlugin({
+        'process.env.NODE_ENV': JSON.stringify('test'),
+        __DEV__: true
+      })
     ],
     resolve: {
       fallback: {
