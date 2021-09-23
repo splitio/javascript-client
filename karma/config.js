@@ -5,7 +5,6 @@ process.env.CHROME_BIN = puppeteer.executablePath();
 
 const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
 
-
 module.exports = {
   // base path, that will be used to resolve files and exclude
   basePath: '../src',
