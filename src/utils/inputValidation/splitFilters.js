@@ -69,7 +69,7 @@ export default function validateSplitFilters(splitFilters, mode) {
   const res = {
     validFilters: [],
     queryString: null,
-    groupedFilters: {}
+    groupedFilters: { byName: [], byPrefix: [] }
   };
   // do nothing if `splitFilters` param is not a non-empty array or mode is not STANDALONE
   if (!splitFilters) return res;
@@ -85,9 +85,6 @@ export default function validateSplitFilters(splitFilters, mode) {
   }
 
   // Validate filters and group their values by filter type inside `groupedFilters` object
-  FILTERS_METADATA.forEach(function (metadata) {
-    res.groupedFilters[metadata.type] = [];
-  });
   // Assign the valid filters to the output of the validator by using filter function
   res.validFilters = splitFilters.filter((filter, index) => {
     if (filter && validateFilterType(filter.type) && Array.isArray(filter.values)) {
