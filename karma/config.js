@@ -4,6 +4,7 @@ const puppeteer = require('puppeteer');
 process.env.CHROME_BIN = puppeteer.executablePath();
 
 const webpack = require('webpack');
+const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
 
 module.exports = {
   // base path, that will be used to resolve files and exclude
@@ -11,7 +12,7 @@ module.exports = {
 
   // load tap integration
   frameworks: [
-    'tap'
+    'tap', 'webpack'
   ],
 
   // Run on Chrome Headless
@@ -21,9 +22,10 @@ module.exports = {
 
   // list of files / patterns to load in the browser
   files: [
-    // To run a particular UTs
+    // Uncomment to run a particular UT:
     // '**/listeners/__tests__/browser.spec.js',
-    '*/**/__tests__/**/*.spec.js',
+    // Run browser UTs. Commons and Node UTs run with `test-node` npm script
+    '*/**/__tests__/**/browser.spec.js',
     {
       pattern: 'engine/__tests__/engine/mocks/murmur3*.csv',
       watched: false,
@@ -44,6 +46,7 @@ module.exports = {
   exclude: [
     '*/**/__tests__/**/node.spec.js',
     '*/**/__tests__/**/node_redis.spec.js',
+    '*/**/__tests__/**/*.node.spec.js',
     '*/**/__tests__/**/inputValidation/*.spec.js'
   ],
 
@@ -53,10 +56,10 @@ module.exports = {
   },
 
   webpack: {
-    mode: 'production',
+    mode: 'production', // Use 'development' to debug with not minified bundle
+    devtool: false, // Use 'inline-source-map' to debug with source map
 
-    // devtool: 'inline-source-map', // Uncomment to debug with source map
-
+    target: ['web', 'es5'], // 'web' => resolve.mainFields === ['browser', 'module', 'main']
     module: {
       rules: [
         {
@@ -70,7 +73,8 @@ module.exports = {
                 'targets': {
                   'ie': '10',
                   'node': '6'
-                }
+                },
+                'loose': true
               }]],
               plugins: [['@babel/plugin-transform-runtime', {
                 // default values
@@ -86,13 +90,16 @@ module.exports = {
       ]
     },
     plugins: [
+      new NodePolyfillPlugin(),
       new webpack.DefinePlugin({
         'process.env.NODE_ENV': JSON.stringify('test'),
         __DEV__: true
       })
     ],
-    node: {
-      fs: 'empty'
+    resolve: {
+      fallback: {
+        fs: false
+      }
     }
   },
 
@@ -117,7 +124,9 @@ module.exports = {
 
   // Which plugins to enable
   plugins: [
-    'karma-*'
+    'karma-webpack',
+    'karma-tap',
+    'karma-chrome-launcher'
   ],
 
   browserConsoleLogOptions: {

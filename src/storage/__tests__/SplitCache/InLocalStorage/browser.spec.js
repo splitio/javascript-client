@@ -1,6 +1,6 @@
 import tape from 'tape-catch';
 import SplitCacheInLocalStorage from '../../../SplitCache/InLocalStorage';
-import KeyBuilder from '../../../Keys';
+import KeyBuilder from '../../../KeysLocalStorage';
 import SettingsFactory from '../../../../utils/settings';
 
 tape('SPLIT CACHE / LocalStorage', assert => {
@@ -13,8 +13,8 @@ tape('SPLIT CACHE / LocalStorage', assert => {
 
   let values = cache.getAll();
 
-  assert.ok( values.indexOf('something') !== -1 );
-  assert.ok( values.indexOf('something else') !== -1 );
+  assert.ok(values.indexOf('something') !== -1);
+  assert.ok(values.indexOf('something else') !== -1);
 
   cache.removeSplit('lol1');
 
@@ -24,23 +24,23 @@ tape('SPLIT CACHE / LocalStorage', assert => {
 
   values = cache.getAll();
 
-  assert.ok( values.indexOf('something') === -1 );
-  assert.ok( values.indexOf('something else') !== -1 );
+  assert.ok(values.indexOf('something') === -1);
+  assert.ok(values.indexOf('something else') !== -1);
 
-  assert.ok( cache.getSplit('lol1') == null );
-  assert.ok( cache.getSplit('lol2') === 'something else' );
+  assert.ok(cache.getSplit('lol1') == null);
+  assert.ok(cache.getSplit('lol2') === 'something else');
 
-  assert.false( cache.checkCache(), 'checkCache should return false until localstorage has data.' );
+  assert.false(cache.checkCache(), 'checkCache should return false until localstorage has data.');
 
-  assert.ok( cache.getChangeNumber() === -1 );
+  assert.ok(cache.getChangeNumber() === -1);
 
-  assert.false( cache.checkCache(), 'checkCache should return false until localstorage has data.' );
+  assert.false(cache.checkCache(), 'checkCache should return false until localstorage has data.');
 
   cache.setChangeNumber(123);
 
-  assert.true( cache.checkCache(), 'checkCache should return true once localstorage has data.' );
+  assert.true(cache.checkCache(), 'checkCache should return true once localstorage has data.');
 
-  assert.ok( cache.getChangeNumber() === 123 );
+  assert.ok(cache.getChangeNumber() === 123);
 
   assert.end();
 });
@@ -124,7 +124,7 @@ tape('SPLIT CACHE / LocalStorage / killLocally', assert => {
     const nonexistentSplit = cache.getSplit('nonexistent_split');
 
     assert.equal(updated, false, 'killLocally resolves without update if split doesn\'t exist');
-    assert.equal(nonexistentSplit, undefined, 'non-existent split keeps being non-existent');
+    assert.equal(nonexistentSplit, null, 'non-existent split keeps being non-existent');
   });
 
   // kill an existent split

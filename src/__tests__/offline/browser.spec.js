@@ -71,8 +71,8 @@ tape('Browser offline mode', function (assert) {
   assert.false(client.track({}, [], 'invalid_stuff'));
   assert.true(sharedClient.track('a_tt', 'another_ev_id', 10));
 
-  assert.equal(client.getTreatment('testing_split'), 'control');
-  assert.equal(sharedClient.getTreatment('testing_split'), 'control');
+  assert.equal(client.getTreatment('testing_split'), 'control', 'control due to not ready');
+  assert.equal(sharedClient.getTreatment('testing_split'), 'control', 'control due to not ready');
   assert.equal(manager.splits().length, 0);
 
   // SDK events on shared client
@@ -90,12 +90,13 @@ tape('Browser offline mode', function (assert) {
   const factories = [
     SplitFactory(config),
     SplitFactory({ ...config }),
-    SplitFactory({ ...config, features: { ...config.features } })
+    SplitFactory({ ...config, features: { ...config.features } }),
+    SplitFactory({ ...config, storage: { type: 'LOCALSTORAGE' } })
   ];
-  let readyCount = 0, updateCount = 0;
+  let readyCount = 0, updateCount = 0, readyFromCacheCount = 0;
 
   for (let i = 0; i < factories.length; i++) {
-    let client = factories[i].client(), manager = factories[i].manager();
+    const factory = factories[i], client = factory.client(), manager = factory.manager(), client2 = factory.client('other');
 
     client.on(client.Event.SDK_READY, () => {
       assert.deepEqual(manager.names(), ['testing_split', 'testing_split_with_config']);
@@ -103,10 +104,32 @@ tape('Browser offline mode', function (assert) {
       readyCount++;
     });
     client.on(client.Event.SDK_UPDATE, () => {
-      assert.equal(client.getTreatment('testing_split_with_config'), 'nope');
       assert.deepEqual(manager.names(), ['testing_split', 'testing_split_2', 'testing_split_3', 'testing_split_with_config']);
+      assert.equal(client.getTreatment('testing_split_with_config'), 'nope');
       updateCount++;
     });
+
+    const sdkReadyFromCache = (client) => () => {
+      assert.equal(client.__context.get(client.__context.constants.READY_FROM_CACHE, true), true, 'If ready from cache, READY_FROM_CACHE status must be true');
+      assert.equal(client.__context.get(client.__context.constants.READY, true), undefined, 'READY status must not be set before READY_FROM_CACHE');
+
+      assert.deepEqual(manager.names(), ['testing_split', 'testing_split_with_config']);
+      assert.equal(client.getTreatment('testing_split_with_config'), 'off');
+      readyFromCacheCount++;
+
+      client.on(client.Event.SDK_READY_FROM_CACHE, () => {
+        assert.fail('It should not emit SDK_READY_FROM_CACHE again');
+      });
+
+      const newClient = factory.client('another');
+      assert.equal(newClient.getTreatment('testing_split_with_config'), 'off', 'It should evaluate treatments with data from cache instead of control');
+      newClient.on(newClient.Event.SDK_READY_FROM_CACHE, () => {
+        assert.fail('It should not emit SDK_READY_FROM_CACHE if already done.');
+      });
+    };
+
+    client.on(client.Event.SDK_READY_FROM_CACHE, sdkReadyFromCache(client));
+    client2.on(client2.Event.SDK_READY_FROM_CACHE, sdkReadyFromCache(client2));
   }
 
   client.once(client.Event.SDK_READY, function () {
@@ -140,10 +163,10 @@ tape('Browser offline mode', function (assert) {
 
     // Manager tests
     const expectedSplitView1 = {
-      name: 'testing_split', trafficType: null, killed: false, changeNumber: 0, treatments: ['on'], configs: {}
+      name: 'testing_split', trafficType: 'localhost', killed: false, changeNumber: 0, treatments: ['on'], configs: {}
     };
     const expectedSplitView2 = {
-      name: 'testing_split_with_config', trafficType: null, killed: false, changeNumber: 0, treatments: ['off'], configs: { off: '{ "color": "blue" }' }
+      name: 'testing_split_with_config', trafficType: 'localhost', killed: false, changeNumber: 0, treatments: ['off'], configs: { off: '{ "color": "blue" }' }
     };
     assert.deepEqual(manager.names(), ['testing_split', 'testing_split_with_config']);
     assert.deepEqual(manager.split('testing_split'), expectedSplitView1);
@@ -241,7 +264,7 @@ tape('Browser offline mode', function (assert) {
 
       // Manager tests
       const expectedSplitView3 = {
-        name: 'testing_split_with_config', trafficType: null, killed: false, changeNumber: 0, treatments: ['nope'], configs: {}
+        name: 'testing_split_with_config', trafficType: 'localhost', killed: false, changeNumber: 0, treatments: ['nope'], configs: {}
       };
       assert.deepEqual(manager.names(), ['testing_split', 'testing_split_2', 'testing_split_3', 'testing_split_with_config']);
       assert.deepEqual(manager.split('testing_split'), expectedSplitView1);
@@ -310,6 +333,7 @@ tape('Browser offline mode', function (assert) {
           // SDK events on other factory clients
           assert.equal(readyCount, factories.length, 'Each factory client should have emitted SDK_READY event once');
           assert.equal(updateCount, factories.length - 1, 'Each factory client except one should have emitted SDK_UPDATE event once');
+          assert.equal(readyFromCacheCount, 2, 'The main and shared client of the factory with LOCALSTORAGE should have emitted SDK_READY_FROM_CACHE event');
 
           assert.end();
         });
