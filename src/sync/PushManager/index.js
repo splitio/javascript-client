@@ -73,8 +73,8 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
     // Set token refresh 10 minutes before expirationTime - issuedAt
     const decodedToken = authData.decodedToken;
     const refreshTokenDelay = decodedToken.exp - decodedToken.iat - SECONDS_BEFORE_EXPIRATION;
-    // connDelay is present in AuthV2 but not in AuthV1
-    const connDelay = authData.connDelay || 0;
+    // Default connDelay of 60 secs
+    const connDelay = typeof authData.connDelay === 'number' && authData.connDelay >= 0 ? authData.connDelay : 60;
 
     log.info(`Refreshing streaming token in ${refreshTokenDelay} seconds, and connecting streaming in ${connDelay} seconds`);
 

@@ -1,6 +1,6 @@
 module.exports = {
   entry: {
-    split: ['./src/umd']
+    split: ['./src/umd.js']
   },
 
   output: {
@@ -9,7 +9,7 @@ module.exports = {
     libraryTarget: 'umd',
     libraryExport: 'default'
   },
-  devtool: 'none',
+  devtool: false, // Remove source mapping. 'eval' is used by default in Webpack 5
   module: {
     rules: [
       {
@@ -40,9 +40,6 @@ module.exports = {
     ]
   },
 
-  node: {
-    fs: 'empty',
-    module: 'empty',
-    console: false
-  }
+  node: false, // Not include Node polyfills, https://webpack.js.org/configuration/node
+  target: ['web', 'es5'], // target 'es5', since 'es2015' is the default in Webpack 5
 };

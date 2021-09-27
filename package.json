@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio",
-  "version": "10.15.10-rc.2",
+  "version": "10.15.10-rc.4",
   "description": "Split SDK",
   "files": [
     "README.md",
@@ -61,8 +61,9 @@
     "karma": "^6.3.2",
     "karma-chrome-launcher": "^3.1.0",
     "karma-tap": "4.1.4",
-    "karma-webpack": "^4.0.2",
+    "karma-webpack": "^5.0.0",
     "lodash": "^4.17.21",
+    "node-polyfill-webpack-plugin": "^1.1.4",
     "proxyquire": "^2.1.3",
     "puppeteer": "^3.3.0",
     "redis-dumpz": "0.1.11",
@@ -73,9 +74,9 @@
     "tap-min": "^2.0.0",
     "tape": "4.13.2",
     "tape-catch": "1.0.6",
-    "webpack": "^4.46.0",
-    "webpack-cli": "^3.3.12",
-    "webpack-merge": "^4.2.2"
+    "webpack": "^5.53.0",
+    "webpack-cli": "^4.8.0",
+    "webpack-merge": "^5.8.0"
   },
   "scripts": {
     "build-es": "rimraf es && cross-env NODE_ENV=es babel ./src -d es --ignore 'src/**/__tests__/*'",
@@ -83,7 +84,7 @@
     "build-umd:stats": "webpack --progress --env production --json > ./stats/stat_results.json",
     "build-cjs": "rimraf lib && cross-env NODE_ENV=cjs babel ./src -d lib --ignore 'src/**/__tests__/*'",
     "postbuild-cjs": "cross-env NODE_ENV=cjs node scripts/copy.packages.json.js",
-    "build-umd:ci": "webpack --config webpack.ci.dev.js --env.branch=$BUILD_BRANCH --env.commit_hash=$BUILD_COMMIT && webpack --config webpack.ci.prod.js --env.branch=$BUILD_BRANCH --env.commit_hash=$BUILD_COMMIT && ./scripts/clean_umd_build.sh",
+    "build-umd:ci": "webpack --config webpack.ci.dev.js --env branch=$BUILD_BRANCH --env commit_hash=$BUILD_COMMIT && webpack --config webpack.ci.prod.js --env branch=$BUILD_BRANCH --env commit_hash=$BUILD_COMMIT && ./scripts/clean_umd_build.sh",
     "build-umd": "webpack --config webpack.dev.js && webpack --config webpack.prod.js && ./scripts/clean_umd_build.sh",
     "build": "rimraf lib umd es && npm run build-cjs && npm run build-es && npm run build-umd",
     "build:npm": "rimraf lib es && npm run build-cjs && npm run build-es",
