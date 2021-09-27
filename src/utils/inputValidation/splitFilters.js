@@ -85,7 +85,6 @@ export default function validateSplitFilters(splitFilters, mode) {
   }
 
   // Validate filters and group their values by filter type inside `groupedFilters` object
-  // Assign the valid filters to the output of the validator by using filter function
   res.validFilters = splitFilters.filter((filter, index) => {
     if (filter && validateFilterType(filter.type) && Array.isArray(filter.values)) {
       res.groupedFilters[filter.type] = res.groupedFilters[filter.type].concat(filter.values);
