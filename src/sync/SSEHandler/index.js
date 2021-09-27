@@ -1,6 +1,6 @@
 import { errorParser, messageParser } from './NotificationParser';
 import notificationKeeperFactory from './NotificationKeeper';
-import { PUSH_RETRYABLE_ERROR, PUSH_NONRETRYABLE_ERROR, SPLIT_UPDATE, SEGMENT_UPDATE, MY_SEGMENTS_UPDATE, SPLIT_KILL, OCCUPANCY, CONTROL } from '../constants';
+import { PUSH_RETRYABLE_ERROR, PUSH_NONRETRYABLE_ERROR, SPLIT_UPDATE, SEGMENT_UPDATE, MY_SEGMENTS_UPDATE, MY_SEGMENTS_UPDATE_V2, SPLIT_KILL, OCCUPANCY, CONTROL } from '../constants';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-sync:sse-handler');
 
@@ -63,7 +63,7 @@ export default function SSEHandlerFactory(pushEmitter) {
       log.debug(`New SSE message received, with data: ${data}.`);
 
       // we only handle update events if streaming is up.
-      if (!notificationKeeper.isStreamingUp() && parsedData.type !== OCCUPANCY && parsedData.type !== CONTROL)
+      if (!notificationKeeper.isStreamingUp() && [OCCUPANCY, CONTROL].indexOf(parsedData.type) === -1)
         return;
 
       switch (parsedData.type) {
@@ -82,6 +82,10 @@ export default function SSEHandlerFactory(pushEmitter) {
             parsedData,
             channel);
           break;
+        case MY_SEGMENTS_UPDATE_V2:
+          pushEmitter.emit(MY_SEGMENTS_UPDATE_V2,
+            parsedData);
+          break;
         case SPLIT_KILL:
           pushEmitter.emit(SPLIT_KILL,
             parsedData.changeNumber,
@@ -96,6 +100,7 @@ export default function SSEHandlerFactory(pushEmitter) {
         case CONTROL:
           notificationKeeper.handleControlEvent(parsedData.controlType, channel, timestamp);
           break;
+
         default:
           break;
       }

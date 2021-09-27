@@ -69,7 +69,7 @@ export function testSplitKillOnReadyFromCache(fetchMock, assert) {
   });
 
   // 1 auth request
-  fetchMock.getOnce(settings.url(`/auth?users=${encodeURIComponent(userKey)}`), { status: 200, body: authPushEnabledNicolas });
+  fetchMock.getOnce(settings.url(`/v2/auth?users=${encodeURIComponent(userKey)}`), { status: 200, body: authPushEnabledNicolas });
   // 2 mySegments requests: initial sync and after SSE opened
   fetchMock.get({ url: settings.url('/mySegments/nicolas%40split.io'), repeat: 2 }, { status: 200, body: { mySegments: [] } });
 

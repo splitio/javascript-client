@@ -54,8 +54,7 @@ function GateContext() {
     });
 
     splits.once(Events.SDK_SPLITS_CACHE_LOADED, () => {
-      // Make it async
-      setTimeout(() => gate.emit(Events.SDK_READY_FROM_CACHE), 0);
+      gate.emit(Events.SDK_READY_FROM_CACHE);
     });
 
     segments.on(Events.SDK_SEGMENTS_ARRIVED, () => {

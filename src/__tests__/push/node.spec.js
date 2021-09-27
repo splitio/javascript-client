@@ -29,9 +29,9 @@ tape('## Node JS - E2E CI Tests for PUSH ##', async function (assert) {
   assert.test('E2E / PUSH synchronization: happy paths', testSynchronization.bind(null, fetchMock));
   assert.test('E2E / PUSH synchronization: retries', testSynchronizationRetries.bind(null, fetchMock));
 
-  assert.test('E2E / PUSH fallbacking', testFallbacking.bind(null, fetchMock));
+  assert.test('E2E / PUSH fallbacking, CONTROL and OCCUPANCY messages', testFallbacking.bind(null, fetchMock));
 
-  assert.test('E2E / PUSH refresh token', testRefreshToken.bind(null, fetchMock));
+  assert.test('E2E / PUSH refresh token and connection delay', testRefreshToken.bind(null, fetchMock));
 
   assert.end();
 });

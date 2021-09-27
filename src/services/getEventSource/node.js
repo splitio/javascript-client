@@ -11,9 +11,10 @@ export function __restore() {
 }
 
 export default function getEventSource() {
-  // returns EventSource at `eventsource` package or undefined
+  // returns EventSource at `eventsource` package. If not available, return global EventSource or undefined
   try {
     return __isCustom ? __eventSource : require('eventsource');
-    // eslint-disable-next-line no-empty
-  } catch (error) { }
+  } catch (error) {
+    return typeof EventSource === 'function' ? EventSource : undefined;
+  }
 }
