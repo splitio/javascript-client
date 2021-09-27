@@ -1,3 +1,8 @@
+10.15.10 (September 27, 2021)
+ - Updated streaming logic with some improvements.
+ - Updated localhost mode to emit SDK_READY_FROM_CACHE event in Browser when using localStorage.
+ - Updated some dependencies to their latest versions, including Webpack 4 to 5, which is used to build a better minified UMD bundle.
+
 10.15.9 (Aug 13, 2021)
  - Updated some dependencies with vulnerability fixes.
  - Updated some log messages related to HTTP request errors.

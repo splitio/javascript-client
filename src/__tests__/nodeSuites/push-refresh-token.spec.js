@@ -37,7 +37,7 @@ const MILLIS_REFRESH_TOKEN = 1000;
 
 /**
  * Sequence of calls:
- *  0.0 secs: initial SyncAll, auth, and not delayed SSE connection -> refresh token in 1 second, no connection delay (default 0 seconds).
+ *  0.0 secs: initial SyncAll, auth, and not delayed SSE connection -> refresh token in 1 second, connection delay 0 seconds
  *  1.0 secs: refresh-token: reauth -> refresh token in 1 second, connection delay 0.5 seconds
  *  1.5 secs: delayed SSE connection -> syncAll
  *  2.0 secs: refresh-token: reauth with pushEnabled false --> SSE connection closed & syncAll
