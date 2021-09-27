@@ -247,19 +247,12 @@ export default function PushManagerFactory(context, clientContexts /* undefined 
           }
 
           forOwn(clients, ({ hash64, worker }) => {
-            if (added.has(hash64.dec)) {
+            const add = added.has(hash64.dec) ? true : removed.has(hash64.dec) ? false : undefined;
+            if (add !== undefined) {
               worker.put(parsedData.changeNumber, {
                 name: parsedData.segmentName,
-                add: true
+                add
               });
-              return;
-            }
-            if (removed.has(hash64.dec)) {
-              worker.put(parsedData.changeNumber, {
-                name: parsedData.segmentName,
-                add: false
-              });
-              return;
             }
           });
           return;
