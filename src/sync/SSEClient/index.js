@@ -41,12 +41,10 @@ export default class SSEClient {
   //  EventSource: EventSource constructor
   //  connection: EventSource | undefined
   //  handler: EventHandler for open, close, error and messages events
-  //  authToken: Object | undefined
 
   constructor(EventSource, settings, useHeaders) {
     this.EventSource = EventSource;
     this.streamingUrl = settings.url('/sse');
-    this.reopen = this.reopen.bind(this);
     this.useHeaders = useHeaders;
     this.headers = buildSSEHeaders(settings);
   }
@@ -63,8 +61,6 @@ export default class SSEClient {
    */
   open(authToken) {
     this.close(); // it closes connection if previously opened
-
-    this.authToken = authToken;
 
     const channelsQueryParam = Object.keys(authToken.channels).map(
       function (channel) {
@@ -92,14 +88,5 @@ export default class SSEClient {
   /** Close connection  */
   close() {
     if (this.connection) this.connection.close();
-  }
-
-  /**
-   * Re-open the connection with the last given authToken.
-   *
-   * @throws {TypeError} if `open` has not been previously called with an authToken
-   */
-  reopen() {
-    this.open(this.authToken);
   }
 }

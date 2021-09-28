@@ -35,6 +35,7 @@ tape('SETTINGS / check defaults', assert => {
   });
   assert.equal(settings.sync.impressionsMode, OPTIMIZED);
   assert.equal(settings.version, `${language}-${packageJson.version}`);
+  assert.true(packageJson.version.length <= 16, 'SDK version must not exceed 16 chars length');
   assert.end();
 });
 
