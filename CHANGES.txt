@@ -1,4 +1,4 @@
-10.15.10 (September 28, 2021)
+10.16.0 (September 28, 2021)
  - Updated localhost mode to emit SDK_READY_FROM_CACHE event in Browser when using localStorage (issue https://github.com/splitio/react-client/issues/34).
  - Updated streaming logic to use the newest version of our streaming service, including:
       - Integration with Auth service V2, connecting to the new channels and applying the received connection delay.
