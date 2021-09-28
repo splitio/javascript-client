@@ -16,7 +16,7 @@ tape('SEGMENT CACHE / in memory', assert => {
     'd'
   ]);
 
-  assert.ok( cache.getChangeNumber('mocked-segment') === 1 );
+  assert.ok(cache.getChangeNumber('mocked-segment') === 1);
 
   cache.addToSegment('mocked-segment', [
     'd', 'e'
@@ -26,13 +26,13 @@ tape('SEGMENT CACHE / in memory', assert => {
     'a', 'c'
   ]);
 
-  assert.ok( cache.getChangeNumber('mocked-segment') === 1 );
+  assert.ok(cache.getChangeNumber('mocked-segment') === 1);
 
-  assert.ok( cache.isInSegment('mocked-segment', 'a') === false );
-  assert.ok( cache.isInSegment('mocked-segment', 'b') === true );
-  assert.ok( cache.isInSegment('mocked-segment', 'c') === false );
-  assert.ok( cache.isInSegment('mocked-segment', 'd') === true );
-  assert.ok( cache.isInSegment('mocked-segment', 'e') === true );
+  assert.ok(cache.isInSegment('mocked-segment', 'a') === false);
+  assert.ok(cache.isInSegment('mocked-segment', 'b') === true);
+  assert.ok(cache.isInSegment('mocked-segment', 'c') === false);
+  assert.ok(cache.isInSegment('mocked-segment', 'd') === true);
+  assert.ok(cache.isInSegment('mocked-segment', 'e') === true);
 
   assert.end();
 });

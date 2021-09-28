@@ -111,7 +111,7 @@ export default function createGetSplitConfigForFile() {
         } else {
           const splitName = tuple[SPLIT_POSITION];
           const condition = parseCondition({ treatment: tuple[TREATMENT_POSITION] });
-          accum[splitName] = { conditions: [condition], configurations: {} };
+          accum[splitName] = { conditions: [condition], configurations: {}, trafficTypeName: 'localhost' };
         }
       }
 
