@@ -1,7 +1,10 @@
-10.15.10 (September 27, 2021)
- - Updated streaming logic with some improvements.
- - Updated localhost mode to emit SDK_READY_FROM_CACHE event in Browser when using localStorage.
- - Updated some dependencies to their latest versions, including Webpack 4 to 5, which is used to build a better minified UMD bundle.
+10.16.0 (September 28, 2021)
+ - Updated localhost mode to emit SDK_READY_FROM_CACHE event in Browser when using localStorage (issue https://github.com/splitio/react-client/issues/34).
+ - Updated streaming logic to use the newest version of our streaming service, including:
+      - Integration with Auth service V2, connecting to the new channels and applying the received connection delay.
+      - Implemented handling of the new MySegmentsV2 notification types (SegmentRemoval, KeyList, Bounded and Unbounded)
+      - New control notification for environment scoped streaming reset.
+ - Updated some dependencies to their latest versions, including Webpack 4 to 5, to build a more optimized UMD bundle.
 
 10.15.9 (Aug 13, 2021)
  - Updated some dependencies with vulnerability fixes.
