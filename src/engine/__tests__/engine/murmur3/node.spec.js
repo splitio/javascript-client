@@ -17,7 +17,8 @@ import tape from 'tape-catch';
 import fs from 'fs';
 import rl from 'readline';
 import murmur3 from '../../../engine/murmur3/murmur3';
-import { hash128 } from '../../../engine/murmur3/murmur3_128';
+import { hash128 as hash128x64 } from '../../../engine/murmur3/murmur3_128';
+import { hash128 as hash128x86 } from '../../../engine/murmur3/murmur3_128_x86';
 import { hash64 } from '../../../engine/murmur3/murmur3_64';
 
 [
@@ -73,8 +74,9 @@ function dec2hex(str) {
 }
 
 [
-  'murmur3_64_uuids.csv',
-].forEach(filename => {
+  ['murmur3_86_uuids.csv', hash128x86],
+  ['murmur3_64_uuids.csv', hash128x64]
+].forEach(([filename, hash128]) => {
 
   tape('MURMUR3 128 / validate hashing behavior using sample data', assert => {
     const parser = rl.createInterface({
