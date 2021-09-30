@@ -265,7 +265,7 @@ function hash128x64(key /*: string */, seed /*: number */) /*: string */ {
 
 /**
  * x64 version of Murmur3 for 128bits.
- * Used in hashImpression128.
+ *
  * @param {string} str
  */
 export function hash128(str /*: string */, seed /*: number */) /*: string */ {
