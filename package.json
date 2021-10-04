@@ -102,7 +102,7 @@
     "test-browser-errors": "cross-env NODE_ENV=test karma start karma/errors.ci.karma.conf.js",
     "test-browser-gaintegration": "cross-env NODE_ENV=test karma start karma/gaintegration.ci.karma.conf.js",
     "test-browser-push": "cross-env NODE_ENV=test karma start karma/push.ci.karma.conf.js",
-    "test-node": "npm run test-node-unit && test-node-online && npm run test-node-redis && npm run test-node-offline && npm run test-node-destroy && npm run test-node-errors && npm run test-node-push",
+    "test-node": "npm run test-node-unit && npm run test-node-online && npm run test-node-redis && npm run test-node-offline && npm run test-node-destroy && npm run test-node-errors && npm run test-node-push",
     "test-node-unit": "cross-env NODE_ENV=test tape -r @babel/register \"src/*/**/__tests__/**/!(browser).spec.js\" | tap-min",
     "test-node-online": "cross-env NODE_ENV=test tape -r @babel/register src/__tests__/node.spec.js | tap-min",
     "test-node-destroy": "cross-env NODE_ENV=test tape -r @babel/register src/__tests__/destroy/node.spec.js | tap-min",
