@@ -22,7 +22,7 @@ jobs:
           node-version: 'lts/*'
           cache: 'npm'
 
-      - name: npm CI
+      - name: npm ci
         run: npm ci
 
       - name: npm ts tests
