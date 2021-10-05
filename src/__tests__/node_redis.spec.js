@@ -17,7 +17,7 @@ const IP_VALUE = ipFunction.address();
 const HOSTNAME_VALUE = osFunction.hostname();
 const NA = 'NA';
 
-const redisPort = '6385';
+const redisPort = '34800';
 
 const config = {
   core: {
