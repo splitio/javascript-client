@@ -3,6 +3,7 @@ import sinon from 'sinon';
 import fetchMock from '../testUtils/fetchMock';
 import { SplitFactory } from '../../';
 import SettingsFactory from '../../utils/settings';
+import { STORAGE_MEMORY } from '../../utils/constants';
 
 const settings = SettingsFactory({ core: { key: 'facundo@split.io' } });
 
@@ -90,7 +91,7 @@ tape('Browser offline mode', function (assert) {
   const factories = [
     SplitFactory(config),
     SplitFactory({ ...config }),
-    SplitFactory({ ...config, features: { ...config.features } }),
+    SplitFactory({ ...config, features: { ...config.features }, storage: { type: 'INVALID TYPE' } }),
     SplitFactory({ ...config, storage: { type: 'LOCALSTORAGE' } })
   ];
   let readyCount = 0, updateCount = 0, readyFromCacheCount = 0;
@@ -110,6 +111,8 @@ tape('Browser offline mode', function (assert) {
     });
 
     const sdkReadyFromCache = (client) => () => {
+      assert.equal(factory.settings.storage.type, STORAGE_MEMORY, 'In localhost mode, storage must fallback to memory storage');
+
       assert.equal(client.__context.get(client.__context.constants.READY_FROM_CACHE, true), true, 'If ready from cache, READY_FROM_CACHE status must be true');
       assert.equal(client.__context.get(client.__context.constants.READY, true), undefined, 'READY status must not be set before READY_FROM_CACHE');
 
