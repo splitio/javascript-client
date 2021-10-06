@@ -17,7 +17,7 @@ const IP_VALUE = ipFunction.address();
 const HOSTNAME_VALUE = osFunction.hostname();
 const NA = 'NA';
 
-const redisPort = '34800';
+const redisPort = '6385';
 
 const config = {
   core: {
@@ -45,7 +45,10 @@ const config = {
  */
 const initializeRedisServer = () => {
   // Simply pass the port that you want a Redis server to listen on.
-  const server = new RedisServer(redisPort);
+  const server = new RedisServer({
+    port: redisPort,
+    //bin: '/opt/local/bin/redis-server'
+  });
 
   const promise = new Promise((resolve, reject) => {
     server
