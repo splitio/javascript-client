@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+import { STORAGE_LOCALSTORAGE } from '../../utils/constants';
 import { forOwn } from '../../utils/lang';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-producer:offline');
@@ -59,7 +60,6 @@ function FromObjectUpdaterFactory(Fetcher, context) {
 
       return Promise.all([
         storage.splits.flush(), // required to sync removed splits from mock
-        storage.splits.setChangeNumber(Date.now()),
         storage.splits.addSplits(splits)
       ]).then(() => {
         readiness.splits.emit(readiness.splits.SDK_SPLITS_ARRIVED);
@@ -67,7 +67,7 @@ function FromObjectUpdaterFactory(Fetcher, context) {
         if (startingUp) {
           startingUp = false;
           // Emits SDK_READY_FROM_CACHE
-          if (storage.splits.checkCache()) readiness.splits.emit(readiness.splits.SDK_SPLITS_CACHE_LOADED);
+          if (settings.storage.__originalType === STORAGE_LOCALSTORAGE) readiness.splits.emit(readiness.splits.SDK_SPLITS_CACHE_LOADED);
           // Only emits SDK_SEGMENTS_ARRIVED the first time for SDK_READY
           readiness.segments.emit(readiness.segments.SDK_SEGMENTS_ARRIVED);
         }
