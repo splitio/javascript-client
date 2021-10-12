@@ -5,13 +5,13 @@ import objectAssign from 'object-assign';
 
 export const LogLevels = {
   'DEBUG': 'DEBUG',
-  'INFO':  'INFO',
-  'WARN':  'WARN',
+  'INFO': 'INFO',
+  'WARN': 'WARN',
   'ERROR': 'ERROR',
   'NONE': 'NONE'
 };
 
-const LogLevelRanks = {
+const LogLevelIndexes = {
   DEBUG: 1,
   INFO: 2,
   WARN: 3,
@@ -20,13 +20,13 @@ const LogLevelRanks = {
 };
 
 // DEBUG is the default. The log level is not specific to an SDK instance.
-let GlobalLogLevel = LogLevelRanks.DEBUG;
+let GlobalLogLevel = LogLevelIndexes.DEBUG;
 
 /**
  * @param {'DEBUG'|'INFO'|'WARN'|'ERROR'|'NONE'} level
  */
 export const setLogLevel = (level) => {
-  GlobalLogLevel = LogLevelRanks[level];
+  GlobalLogLevel = LogLevelIndexes[level];
 };
 
 const defaultOptions = {
@@ -41,22 +41,22 @@ export class Logger {
   }
 
   debug(msg) {
-    if(this._shouldLog(LogLevelRanks.DEBUG))
+    if (this._shouldLog(LogLevelIndexes.DEBUG))
       this._log(LogLevels.DEBUG, msg);
   }
 
   info(msg) {
-    if(this._shouldLog(LogLevelRanks.INFO))
+    if (this._shouldLog(LogLevelIndexes.INFO))
       this._log(LogLevels.INFO, msg);
   }
 
   warn(msg) {
-    if(this._shouldLog(LogLevelRanks.WARN))
+    if (this._shouldLog(LogLevelIndexes.WARN))
       this._log(LogLevels.WARN, msg);
   }
 
   error(msg) {
-    if(this.options.displayAllErrors || this._shouldLog(LogLevelRanks.ERROR))
+    if (this.options.displayAllErrors || this._shouldLog(LogLevelIndexes.ERROR))
       this._log(LogLevels.ERROR, msg);
   }
 
@@ -70,8 +70,8 @@ export class Logger {
     const textPre = ' => ';
     let result = '';
 
-    if(this.options.showLevel) {
-      result += '[' + level +']' + (level === LogLevels.INFO || level === LogLevels.WARN ? ' ' : '') + ' ';
+    if (this.options.showLevel) {
+      result += '[' + level + ']' + (level === LogLevels.INFO || level === LogLevels.WARN ? ' ' : '') + ' ';
     }
 
     if (this.category) {
