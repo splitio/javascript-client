@@ -15,28 +15,28 @@ limitations under the License.
 **/
 
 // @WARNING Symbol is not correctly working in PhantomJS
-export const types = {
-  ALL: 1,
-  SEGMENT: 2,
+export const matcherTypes = {
+  UNDEFINED: 0,
+  ALL_KEYS: 1,
+  IN_SEGMENT: 2,
   WHITELIST: 3,
   EQUAL_TO: 4,
   GREATER_THAN_OR_EQUAL_TO: 5,
   LESS_THAN_OR_EQUAL_TO: 6,
   BETWEEN: 7,
-  UNDEFINED: 8,
-  EQUAL_TO_SET: 9,
-  CONTAINS_ANY_OF_SET: 10,
-  CONTAINS_ALL_OF_SET: 11,
-  PART_OF_SET: 12,
-  ENDS_WITH: 13,
-  STARTS_WITH: 14,
-  CONTAINS_STRING: 15,
-  IN_SPLIT_TREATMENT: 16,
-  EQUAL_TO_BOOLEAN: 17,
-  MATCHES_STRING: 18
+  EQUAL_TO_SET: 8,
+  CONTAINS_ANY_OF_SET: 9,
+  CONTAINS_ALL_OF_SET: 10,
+  PART_OF_SET: 11,
+  ENDS_WITH: 12,
+  STARTS_WITH: 13,
+  CONTAINS_STRING: 14,
+  IN_SPLIT_TREATMENT: 15,
+  EQUAL_TO_BOOLEAN: 16,
+  MATCHES_STRING: 17
 };
 
-export const dataTypes = {
+export const matcherDataTypes = {
   BOOLEAN: 'BOOLEAN',
   STRING: 'STRING',
   NUMBER: 'NUMBER',
@@ -45,43 +45,8 @@ export const dataTypes = {
   NOT_SPECIFIED: 'NOT_SPECIFIED'
 };
 
-export const mapper = (matcherType) => {
-  switch (matcherType) {
-    case 'ALL_KEYS':
-      return types.ALL;
-    case 'IN_SEGMENT':
-      return types.SEGMENT;
-    case 'WHITELIST':
-      return types.WHITELIST;
-    case 'EQUAL_TO':
-      return types.EQUAL_TO;
-    case 'GREATER_THAN_OR_EQUAL_TO':
-      return types.GREATER_THAN_OR_EQUAL_TO;
-    case 'LESS_THAN_OR_EQUAL_TO':
-      return types.LESS_THAN_OR_EQUAL_TO;
-    case 'BETWEEN':
-      return types.BETWEEN;
-    case 'EQUAL_TO_SET':
-      return types.EQUAL_TO_SET;
-    case 'CONTAINS_ANY_OF_SET':
-      return types.CONTAINS_ANY_OF_SET;
-    case 'CONTAINS_ALL_OF_SET':
-      return types.CONTAINS_ALL_OF_SET;
-    case 'PART_OF_SET':
-      return types.PART_OF_SET;
-    case 'ENDS_WITH':
-      return types.ENDS_WITH;
-    case 'STARTS_WITH':
-      return types.STARTS_WITH;
-    case 'CONTAINS_STRING':
-      return types.CONTAINS_STRING;
-    case 'IN_SPLIT_TREATMENT':
-      return types.IN_SPLIT_TREATMENT;
-    case 'EQUAL_TO_BOOLEAN':
-      return types.EQUAL_TO_BOOLEAN;
-    case 'MATCHES_STRING':
-      return types.MATCHES_STRING;
-    default:
-      return types.UNDEFINED;
-  }
-};
+export function matcherTypesMapper(matcherType) {
+  const type = matcherTypes[matcherType];
+  if (type) return type;
+  else return matcherTypes.UNDEFINED;
+}

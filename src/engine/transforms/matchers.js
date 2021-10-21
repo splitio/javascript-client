@@ -15,11 +15,7 @@ limitations under the License.
 **/
 
 import { findIndex } from '../../utils/lang';
-import {
-  types as matcherTypes,
-  mapper as matcherTypesMapper,
-  dataTypes as matcherDataTypes
-} from '../matchers/types';
+import { matcherTypes, matcherTypesMapper, matcherDataTypes } from '../matchers/types';
 import segmentTransform from './segment';
 import whitelistTransform from './whitelist';
 import setTransform from './set';
@@ -49,7 +45,7 @@ function transform(matchers) {
     let dataType = matcherDataTypes.STRING;
     let value = undefined;
 
-    if (type === matcherTypes.SEGMENT) {
+    if (type === matcherTypes.IN_SEGMENT) {
       value = segmentTransform(segmentObject);
     } else if (type === matcherTypes.WHITELIST) {
       value = whitelistTransform(whitelistObject);

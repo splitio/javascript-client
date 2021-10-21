@@ -13,10 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-import {
-  types as matcherTypes,
-  mapper as matcherTypesMapper
-} from '../matchers/types';
+import { matcherTypes, matcherTypesMapper } from '../matchers/types';
 import segmentTransform from './segment';
 import whitelistTransform from './whitelist';
 
@@ -33,7 +30,7 @@ function transform(matcherGroup) {
   let type = matcherTypesMapper(matcherType);
   let value = undefined;
 
-  if (type === matcherTypes.SEGMENT) {
+  if (type === matcherTypes.IN_SEGMENT) {
     value = segmentTransform(segmentObject);
   } else if (type === matcherTypes.WHITELIST) {
     value = whitelistTransform(whitelistObject);

@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 import tape from 'tape-catch';
-import { types as matcherTypes } from '../../../matchers/types';
+import { matcherTypes } from '../../../matchers/types';
 import matcherFactory from '../../../matchers';
 
 tape('MATCHER REGEX / should match the attribute value only with the string starts with hello', function (assert) {
