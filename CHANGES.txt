@@ -1,3 +1,8 @@
+10.16.1 (October 25, 2021)
+ - Updated some internal modules to optimize the time efficiency of split evaluations (i.e., `getTreatment(s)` method calls)
+ - Updated some dependencies for vulnerability fixes.
+ - Bugfixing - Fixed localhost mode with localStorage, to use a mock in memory instead of localStorage API directly but keep emitting emit SDK_READY_FROM_CACHE event.
+
 10.16.0 (September 28, 2021)
  - Updated localhost mode to emit SDK_READY_FROM_CACHE event in Browser when using localStorage (issue https://github.com/splitio/react-client/issues/34).
  - Updated streaming logic to use the newest version of our streaming service, including:
