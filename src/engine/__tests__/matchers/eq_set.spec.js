@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 import tape from 'tape-catch';
-import { types as matcherTypes } from '../../matchers/types';
+import { matcherTypes } from '../../matchers/types';
 import matcherFactory from '../../matchers';
 
 tape('MATCHER EQUAL_TO_SET / should return true ONLY when value is equal to set ["update", "add"]', function (assert) {

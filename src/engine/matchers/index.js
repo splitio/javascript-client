@@ -13,7 +13,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-import { types } from './types';
 import allMatcher from './all';
 import segmentMatcher from './segment';
 import whitelistMatcher from './whitelist';
@@ -32,6 +31,27 @@ import dependencyMatcher from './dependency';
 import booleanMatcher from './boolean';
 import stringMatcher from './string';
 
+const matchers = [
+  undefined, // UNDEFINED: 0,
+  allMatcher, // ALL_KEYS: 1,
+  segmentMatcher, // IN_SEGMENT: 2,
+  whitelistMatcher, // WHITELIST: 3,
+  eqMatcher, // EQUAL_TO: 4,
+  gteMatcher, // GREATER_THAN_OR_EQUAL_TO: 5,
+  lteMatcher, // LESS_THAN_OR_EQUAL_TO: 6,
+  betweenMatcher, // BETWEEN: 7,
+  equalToSetMatcher, // EQUAL_TO_SET: 8,
+  containsAnySetMatcher, // CONTAINS_ANY_OF_SET: 9,
+  containsAllSetMatcher, // CONTAINS_ALL_OF_SET: 10,
+  partOfSetMatcher, // PART_OF_SET: 11,
+  ewMatcher, // ENDS_WITH: 12,
+  swMatcher, // STARTS_WITH: 13,
+  containsStrMatcher, // CONTAINS_STRING: 14,
+  dependencyMatcher, // IN_SPLIT_TREATMENT: 15,
+  booleanMatcher, // EQUAL_TO_BOOLEAN: 16,
+  stringMatcher // MATCHES_STRING: 17
+];
+
 /**
  * Matcher factory.
  */
@@ -43,41 +63,7 @@ function MatcherFactory(matcherDto, storage) {
 
   let matcherFn;
 
-  if (type === types.ALL) {
-    matcherFn = allMatcher(value);
-  } else if (type === types.SEGMENT) {
-    matcherFn = segmentMatcher(value, storage);
-  } else if (type === types.WHITELIST) {
-    matcherFn = whitelistMatcher(value);
-  } else if (type === types.EQUAL_TO) {
-    matcherFn = eqMatcher(value);
-  } else if (type === types.GREATER_THAN_OR_EQUAL_TO) {
-    matcherFn = gteMatcher(value);
-  } else if (type === types.LESS_THAN_OR_EQUAL_TO) {
-    matcherFn = lteMatcher(value);
-  } else if (type === types.BETWEEN) {
-    matcherFn = betweenMatcher(value);
-  } else if (type === types.EQUAL_TO_SET) {
-    matcherFn = equalToSetMatcher(value);
-  } else if (type === types.CONTAINS_ANY_OF_SET) {
-    matcherFn = containsAnySetMatcher(value);
-  } else if (type === types.CONTAINS_ALL_OF_SET) {
-    matcherFn = containsAllSetMatcher(value);
-  } else if (type === types.PART_OF_SET) {
-    matcherFn = partOfSetMatcher(value);
-  } else if (type === types.STARTS_WITH) {
-    matcherFn = swMatcher(value);
-  } else if (type === types.ENDS_WITH) {
-    matcherFn = ewMatcher(value);
-  } else if (type === types.CONTAINS_STRING) {
-    matcherFn = containsStrMatcher(value);
-  } else if (type === types.IN_SPLIT_TREATMENT) {
-    matcherFn = dependencyMatcher(value, storage);
-  } else if (type === types.EQUAL_TO_BOOLEAN) {
-    matcherFn = booleanMatcher(value);
-  } else if (type === types.MATCHES_STRING) {
-    matcherFn = stringMatcher(value);
-  }
+  if (matchers[type]) matcherFn = matchers[type](value, storage); // There is no index-out-of-bound exception in JavaScript
 
   return matcherFn;
 }
