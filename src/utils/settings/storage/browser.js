@@ -18,18 +18,21 @@ import logFactory from '../../../utils/logger';
 const log = logFactory('splitio-settings');
 import isLocalStorageAvailable from '../../../utils/localstorage/isAvailable';
 import {
+  LOCALHOST_MODE,
   STORAGE_MEMORY,
   STORAGE_LOCALSTORAGE
 } from '../../../utils/constants';
 
 const ParseStorageSettings = settings => {
   let {
+    mode,
     storage: {
       type = STORAGE_MEMORY,
       options = {},
       prefix
     },
   } = settings;
+  let __originalType;
 
   if (prefix) {
     prefix += '.SPLITIO';
@@ -37,18 +40,30 @@ const ParseStorageSettings = settings => {
     prefix = 'SPLITIO';
   }
 
+  const fallbackToMemory = () => {
+    __originalType = type;
+    type = STORAGE_MEMORY;
+  };
+
+  // In localhost mode, fallback to Memory storage and track original
+  // type to emit SDK_READY_FROM_CACHE if corresponds
+  if (mode === LOCALHOST_MODE && type === STORAGE_LOCALSTORAGE) {
+    fallbackToMemory();
+  }
+
   // If an invalid storage type is provided OR we want to use LOCALSTORAGE and
   // it's not available, fallback into MEMORY
   if (type !== STORAGE_MEMORY && type !== STORAGE_LOCALSTORAGE ||
-      type === STORAGE_LOCALSTORAGE && !isLocalStorageAvailable()) {
-    type = STORAGE_MEMORY;
+    type === STORAGE_LOCALSTORAGE && !isLocalStorageAvailable()) {
+    fallbackToMemory();
     log.warn('Invalid or unavailable storage. Fallbacking into MEMORY storage');
   }
 
   return {
     type,
     options,
-    prefix
+    prefix,
+    __originalType
   };
 };
 

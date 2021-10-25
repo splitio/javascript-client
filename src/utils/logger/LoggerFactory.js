@@ -5,17 +5,28 @@ import objectAssign from 'object-assign';
 
 export const LogLevels = {
   'DEBUG': 'DEBUG',
-  'INFO':  'INFO',
-  'WARN':  'WARN',
+  'INFO': 'INFO',
+  'WARN': 'WARN',
   'ERROR': 'ERROR',
   'NONE': 'NONE'
 };
 
-// DEBUG is the default. The log level is not specific to an SDK instance.
-let GlobalLogLevel = LogLevels.DEBUG;
+const LogLevelIndexes = {
+  DEBUG: 1,
+  INFO: 2,
+  WARN: 3,
+  ERROR: 4,
+  NONE: 5
+};
 
+// DEBUG is the default. The log level is not specific to an SDK instance.
+let GlobalLogLevel = LogLevelIndexes.DEBUG;
+
+/**
+ * @param {'DEBUG'|'INFO'|'WARN'|'ERROR'|'NONE'} level
+ */
 export const setLogLevel = (level) => {
-  GlobalLogLevel = level;
+  GlobalLogLevel = LogLevelIndexes[level];
 };
 
 const defaultOptions = {
@@ -30,22 +41,22 @@ export class Logger {
   }
 
   debug(msg) {
-    if(this._shouldLog(LogLevels.DEBUG))
+    if (this._shouldLog(LogLevelIndexes.DEBUG))
       this._log(LogLevels.DEBUG, msg);
   }
 
   info(msg) {
-    if(this._shouldLog(LogLevels.INFO))
+    if (this._shouldLog(LogLevelIndexes.INFO))
       this._log(LogLevels.INFO, msg);
   }
 
   warn(msg) {
-    if(this._shouldLog(LogLevels.WARN))
+    if (this._shouldLog(LogLevelIndexes.WARN))
       this._log(LogLevels.WARN, msg);
   }
 
   error(msg) {
-    if(this.options.displayAllErrors || this._shouldLog(LogLevels.ERROR))
+    if (this.options.displayAllErrors || this._shouldLog(LogLevelIndexes.ERROR))
       this._log(LogLevels.ERROR, msg);
   }
 
@@ -59,8 +70,8 @@ export class Logger {
     const textPre = ' => ';
     let result = '';
 
-    if(this.options.showLevel) {
-      result += '[' + level +']' + (level === LogLevels.INFO || level === LogLevels.WARN ? ' ' : '') + ' ';
+    if (this.options.showLevel) {
+      result += '[' + level + ']' + (level === LogLevels.INFO || level === LogLevels.WARN ? ' ' : '') + ' ';
     }
 
     if (this.category) {
@@ -70,12 +81,10 @@ export class Logger {
     return result += text;
   }
 
+  /**
+   * @param {number} level
+   */
   _shouldLog(level) {
-    const logLevel = GlobalLogLevel;
-    const levels = Object.keys(LogLevels).map(f => LogLevels[f]);
-    const index = levels.indexOf(level); // What's the index of what it's trying to check if it should log
-    const levelIdx = levels.indexOf(logLevel); // What's the current log level index.
-
-    return index >= levelIdx;
+    return level >= GlobalLogLevel;
   }
 }
