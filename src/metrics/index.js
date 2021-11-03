@@ -49,7 +49,7 @@ const MetricsFactory = context => {
   const pushMetrics = () => {
     if (storage.metrics.isEmpty() && storage.count.isEmpty()) return Promise.resolve();
 
-    log.info('Pushing metrics');
+    log.debug('Pushing metrics');
     const latencyTrackerStop = tracker.start(tracker.TaskNames.METRICS_PUSH);
 
     // POST latencies

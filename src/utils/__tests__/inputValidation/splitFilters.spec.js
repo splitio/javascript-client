@@ -28,10 +28,10 @@ import { splitFilters, queryStrings, groupedFilters } from '../../../__tests__/m
 
 tape('INPUT VALIDATION for splitFilters', t => {
 
-  let defaultOutput = {
+  const defaultOutput = {
     validFilters: [],
     queryString: null,
-    groupedFilters: {}
+    groupedFilters: { byName: [], byPrefix: [] }
   };
 
   t.test('Returns default output with empty values if `splitFilters` is an invalid object or `mode` is not \'standalone\'', assert => {

@@ -68,6 +68,8 @@ tape('NodeJS Offline Mode', function (t) {
   t.test('New format manager - .yaml extension', ManagerDotYamlTests.bind(null, 'split.yaml'));
   t.test('New format manager - .yml extension', ManagerDotYamlTests.bind(null, 'split2.yml'));
 
+  t.test('Evaluations and manager with multiple SDK instances', MultipleInstancesTests);
+
   t.test('Trying to specify an invalid extension it will timeout', assert => {
     const config = settingsGenerator('.forbidden');
 
@@ -249,15 +251,15 @@ function ManagerDotSplitTests(assert) {
     assert.deepEqual(manager.names(), ['testing_split', 'testing_split2', 'testing_split3']);
 
     const expectedView1 = {
-      name: 'testing_split', changeNumber: 0, killed: false, trafficType: null,
+      name: 'testing_split', changeNumber: 0, killed: false, trafficType: 'localhost',
       treatments: ['on'], configs: {}
     };
     const expectedView2 = {
-      name: 'testing_split2', changeNumber: 0, killed: false, trafficType: null,
+      name: 'testing_split2', changeNumber: 0, killed: false, trafficType: 'localhost',
       treatments: ['off'], configs: {}
     };
     const expectedView3 = {
-      name: 'testing_split3', changeNumber: 0, killed: false, trafficType: null,
+      name: 'testing_split3', changeNumber: 0, killed: false, trafficType: 'localhost',
       treatments: ['custom_treatment'], configs: {}
     };
 
@@ -330,4 +332,112 @@ function ManagerDotYamlTests(mockFileName, assert) {
       client.destroy().then(assert.end);
     });
   });
+}
+
+
+function MultipleInstancesTests(assert) {
+  configMocks();
+  const config = settingsGenerator('.split');
+
+  // Creates multiple factories with the same mock file
+  const factories = [SplitFactory(config), SplitFactory(config), SplitFactory({ ...config })];
+
+  // Creates another factory with a different mock file
+  const factoryWithYaml = SplitFactory(settingsGenerator('split.yaml'));
+  const clientWithYaml = factoryWithYaml.client();
+  let readyCount = 0, updateCount = 0;
+  clientWithYaml.on(clientWithYaml.Event.SDK_READY, () => { readyCount++; });
+  clientWithYaml.on(clientWithYaml.Event.SDK_UPDATE, () => { updateCount++; });
+
+  for (let i = 0; i < factories.length; i++) {
+    let factory = factories[i], client = factories[i].client(), manager = factories[i].manager();
+
+    /* Asserts on SDK client */
+
+    // Tracking some events to test they are not flushed.
+    client.track('a_key', 'a_tt', 'an_ev_id');
+    client.track('another_key', 'another_tt', 'another_ev_id', 25);
+
+    client.on(client.Event.SDK_READY, function () {
+      assert.equal(client.getTreatment('qa-user', 'testing_split'), 'on');
+      assert.equal(client.getTreatment('qa-user', 'testing_split_2'), 'control');
+      assert.deepEqual(client.getTreatmentWithConfig('qa-user', 'testing_split'), { treatment: 'on', config: null });
+      assert.deepEqual(client.getTreatmentWithConfig('qa-user', 'testing_split_2'), { treatment: 'control', config: null });
+
+      assert.deepEqual(client.getTreatments('qa-user', [
+        'testing_split',
+        'testing_split2',
+        'testing_split3',
+        'testing_not_exist'
+      ]), {
+        testing_split: 'on',
+        testing_split2: 'off',
+        testing_split3: 'custom_treatment',
+        testing_not_exist: 'control'
+      });
+      assert.deepEqual(client.getTreatmentsWithConfig('qa-user', [
+        'testing_split',
+        'testing_split2',
+        'testing_split3',
+        'testing_not_exist'
+      ]), {
+        testing_split: { treatment: 'on', config: null },
+        testing_split2: { treatment: 'off', config: null },
+        testing_split3: { treatment: 'custom_treatment', config: null },
+        testing_not_exist: { treatment: 'control', config: null }
+      });
+
+      setTimeout(() => { factory.settings.features = path.join(__dirname, '.split'); }, 290);
+      setTimeout(() => { factory.settings.features = path.join(__dirname, '.split'); }, 590);
+      setTimeout(() => { factory.settings.features = path.join(__dirname, '.split'); }, 890);
+      setTimeout(() => { factory.settings.features = path.join(__dirname, 'update.split'); }, 1000);
+
+      /* Asserts on SDK managers */
+      manager.on(manager.Event.SDK_READY, function () {
+        assert.deepEqual(manager.names(), ['testing_split', 'testing_split2', 'testing_split3']);
+
+        const expectedView1 = {
+          name: 'testing_split', changeNumber: 0, killed: false, trafficType: 'localhost',
+          treatments: ['on'], configs: {}
+        };
+        const expectedView2 = {
+          name: 'testing_split2', changeNumber: 0, killed: false, trafficType: 'localhost',
+          treatments: ['off'], configs: {}
+        };
+        const expectedView3 = {
+          name: 'testing_split3', changeNumber: 0, killed: false, trafficType: 'localhost',
+          treatments: ['custom_treatment'], configs: {}
+        };
+
+        assert.deepEqual(manager.split('testing_split'), expectedView1);
+        assert.deepEqual(manager.split('testing_split2'), expectedView2);
+        assert.deepEqual(manager.split('testing_split3'), expectedView3);
+        assert.equal(manager.split('split_not_existent'), null);
+
+        assert.deepEqual(manager.splits(), [expectedView1, expectedView2, expectedView3]);
+
+      });
+
+      client.once(client.Event.SDK_UPDATE, () => {
+        assert.equal(client.getTreatment('qa-user', 'testing_split4'), 'updated_treatment');
+
+        client.once(client.Event.SDK_UPDATE, function () { assert.fail('Should not emit a second SDK_UPDATE event'); });
+
+        setTimeout(() => {
+          networkAssertions(client, assert).then(() => {
+            client.destroy().then(() => {
+              // End test on the last factory
+              if (i === factories.length - 1) {
+                clientWithYaml.destroy();
+                assert.equal(readyCount, 1, 'The factory with a different mock file should have emitted SDK_READY');
+                assert.equal(updateCount, 0, 'The factory with a different mock file should not have emitted SDK_UPDATE');
+
+                assert.end();
+              }
+            });
+          });
+        });
+      });
+    });
+  }
 }

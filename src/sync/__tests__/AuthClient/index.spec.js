@@ -14,7 +14,7 @@ tape('authenticate', t => {
 
   t.test('success in node (200)', assert => {
 
-    fetchMock.getOnce(settings.url('/auth'), (url, opts) => {
+    fetchMock.getOnce(settings.url('/v2/auth'), (url, opts) => {
       assert.equal(opts.headers['Authorization'], `Bearer ${settings.core.authorizationKey}`,
         'auth request must contain Authorization header with config authorizationKey');
       return { status: 200, body: authDataResponseSample };
@@ -34,7 +34,7 @@ tape('authenticate', t => {
 
     const userKeys = ['emi@split.io', 'maldo@split.io'];
 
-    fetchMock.getOnce(settings.url('/auth?users=emi%40split.io&users=maldo%40split.io'), (url, opts) => {
+    fetchMock.getOnce(settings.url('/v2/auth?users=emi%40split.io&users=maldo%40split.io'), (url, opts) => {
       assert.equal(opts.headers['Authorization'], `Bearer ${settings.core.authorizationKey}`,
         'auth request must contain Authorization header with config authorizationKey');
       return { status: 200, body: authDataResponseSample };
@@ -52,7 +52,7 @@ tape('authenticate', t => {
 
   t.test('bad request in browser due to no user keys (400)', assert => {
 
-    fetchMock.getOnce(settings.url('/auth'), { status: 400, body: '"no user specified"' });
+    fetchMock.getOnce(settings.url('/v2/auth'), { status: 400, body: '"no user specified"' });
 
     authenticate(settings, []).then(() => {
       assert.fail('if bad request, promise is rejected');
@@ -66,7 +66,7 @@ tape('authenticate', t => {
 
   t.test('Invalid credentials (401)', assert => {
 
-    fetchMock.getOnce(settings.url('/auth'), { status: 401, body: '"Invalid credentials"' });
+    fetchMock.getOnce(settings.url('/v2/auth'), { status: 401, body: '"Invalid credentials"' });
 
     authenticate(settings, []).then(() => {
       assert.fail('if invalid credential, promise is rejected');
@@ -82,7 +82,7 @@ tape('authenticate', t => {
 
     const NOT_OK_STATUS_CODE = 500;
 
-    fetchMock.getOnce(settings.url('/auth'), { status: NOT_OK_STATUS_CODE, body: 'some error message' });
+    fetchMock.getOnce(settings.url('/v2/auth'), { status: NOT_OK_STATUS_CODE, body: 'some error message' });
 
     authenticate(settings, []).then(() => {
       assert.fail('if an HTTP error, promise is rejected');
@@ -96,7 +96,7 @@ tape('authenticate', t => {
 
   t.test('Network error (e.g., timeout)', assert => {
 
-    fetchMock.getOnce(settings.url('/auth'), { throws: new TypeError('Network error') });
+    fetchMock.getOnce(settings.url('/v2/auth'), { throws: new TypeError('Network error') });
 
     authenticate(settings, []).then(() => {
       assert.fail('if network error, promise is rejected');
@@ -110,9 +110,9 @@ tape('authenticate', t => {
 
   t.test('Error parsing token', assert => {
 
-    fetchMock.getOnce(settings.url('/auth'), { status: 200, body: { pushEnabled: true, token: jwtSampleInvalid } });
-    fetchMock.getOnce(settings.url('/auth'), { status: 200, body: { pushEnabled: true, token: jwtSampleNoChannels } });
-    fetchMock.getOnce(settings.url('/auth'), { status: 200, body: { pushEnabled: true, token: jwtSampleNoIat } });
+    fetchMock.getOnce(settings.url('/v2/auth'), { status: 200, body: { pushEnabled: true, token: jwtSampleInvalid } });
+    fetchMock.getOnce(settings.url('/v2/auth'), { status: 200, body: { pushEnabled: true, token: jwtSampleNoChannels } });
+    fetchMock.getOnce(settings.url('/v2/auth'), { status: 200, body: { pushEnabled: true, token: jwtSampleNoIat } });
 
     authenticate(settings).then(() => {
       assert.fail('if invalid token, promise is rejected');

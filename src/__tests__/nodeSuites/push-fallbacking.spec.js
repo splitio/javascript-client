@@ -13,6 +13,7 @@ import occupancy0ControlSecMessage from '../mocks/message.OCCUPANCY.0.control_se
 
 import streamingPausedControlPriMessage from '../mocks/message.CONTROL.STREAMING_PAUSED.control_pri.1586987434750.json';
 import streamingResumedControlPriMessage from '../mocks/message.CONTROL.STREAMING_RESUMED.control_pri.1586987434850.json';
+import streamingPausedControlPriMessage2 from '../mocks/message.CONTROL.STREAMING_PAUSED.control_pri.1586987434900.json';
 import streamingDisabledControlPriMessage from '../mocks/message.CONTROL.STREAMING_DISABLED.control_pri.1586987434950.json';
 
 import splitUpdateMessage from '../mocks/message.SPLIT_UPDATE.1457552649999.json';
@@ -20,6 +21,8 @@ import segmentUpdateMessage1 from '../mocks/message.SEGMENT_UPDATE.1457552640000
 import segmentUpdateMessage2 from '../mocks/message.SEGMENT_UPDATE.1457552650000.json';
 
 import authPushEnabled from '../mocks/auth.pushEnabled.node.json';
+
+import streamingResetMessage from '../mocks/message.STREAMING_RESET.json';
 
 import { nearlyEqual, mockSegmentChanges } from '../testUtils';
 
@@ -62,7 +65,11 @@ const MILLIS_STREAMING_PAUSED_CONTROL = MILLIS_SPLIT_UPDATE_EVENT_DURING_PUSH + 
 const MILLIS_SEGMENT_UPDATE_EVENT_DURING_POLLING = MILLIS_STREAMING_PAUSED_CONTROL + 100;
 const MILLIS_STREAMING_RESUMED_CONTROL = MILLIS_STREAMING_PAUSED_CONTROL + settings.scheduler.featuresRefreshRate + 100;
 const MILLIS_SEGMENT_UPDATE_EVENT_DURING_PUSH = MILLIS_STREAMING_RESUMED_CONTROL + 100;
-const MILLIS_STREAMING_DISABLED_CONTROL = MILLIS_SEGMENT_UPDATE_EVENT_DURING_PUSH + 100;
+
+const MILLIS_STREAMING_PAUSED_CONTROL_2 = MILLIS_SEGMENT_UPDATE_EVENT_DURING_PUSH + 100;
+const MILLIS_STREAMING_RESET_WHILE_PUSH_DOWN = MILLIS_STREAMING_PAUSED_CONTROL_2 + 100;
+const MILLIS_STREAMING_RESET_WHILE_PUSH_UP = MILLIS_STREAMING_RESET_WHILE_PUSH_DOWN + settings.scheduler.featuresRefreshRate;
+const MILLIS_STREAMING_DISABLED_CONTROL = MILLIS_STREAMING_RESET_WHILE_PUSH_UP + 100;
 const MILLIS_DESTROY = MILLIS_STREAMING_DISABLED_CONTROL + settings.scheduler.featuresRefreshRate * 2 + 100;
 
 /**
@@ -82,21 +89,24 @@ const MILLIS_DESTROY = MILLIS_STREAMING_DISABLED_CONTROL + settings.scheduler.fe
  *  1.0 secs: Streaming up (CONTROL event) -> syncAll (/splitChanges, /segmentChanges/*)
  *  1.1 secs: SEGMENT_UPDATE event -> /segmentChanges/*
  *  1.2 secs: Streaming down (CONTROL event) -> fetch due to fallback to polling (/splitChanges, /segmentChanges/*)
- *  1.4 secs: periodic fetch due to polling (/splitChanges)
- *  1.45 secs: periodic fetch due to polling (/segmentChanges/*)
- *  1.6 secs: periodic fetch due to polling (/splitChanges, /segmentChanges/*)
- *  1.7 secs: periodic fetch due to polling (/segmentChanges/*)
- *  1.7 secs: destroy client
+ *  1.3 secs: STREAMING_RESET control event -> auth, SSE connection, syncAll and stop polling
+ *  1.5 secs: STREAMING_RESET control event -> auth, SSE connection, syncAll
+ *  1.6 secs: Streaming closed (CONTROL STREAMING_DISABLED event) -> fetch due to fallback to polling (/splitChanges, /segmentChanges/*)
+ *  1.8 secs: periodic fetch due to polling (/splitChanges)
+ *  1.85 secs: periodic fetch due to polling (/segmentChanges/*)
+ *  2.0 secs: periodic fetch due to polling (/splitChanges, /segmentChanges/*)
+ *  2.1 secs: periodic fetch due to polling (/segmentChanges/*)
+ *  2.1 secs: destroy client
  */
 export function testFallbacking(fetchMock, assert) {
-  assert.plan(13);
+  assert.plan(17);
   fetchMock.reset();
   __setEventSource(EventSourceMock);
 
   let start, splitio, client;
 
   // mock SSE open and message events
-  setMockListener(function (eventSourceInstance) {
+  setMockListener((eventSourceInstance) => {
 
     const expectedSSEurl = `${settings.url('/sse')}?channels=NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_segments,NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_splits,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_pri,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_sec&accessToken=${authPushEnabled.token}&v=1.1&heartbeats=true`;
     assert.equals(eventSourceInstance.url, expectedSSEurl, 'EventSource URL is the expected');
@@ -112,6 +122,7 @@ export function testFallbacking(fetchMock, assert) {
     }, MILLIS_STREAMING_DOWN_OCCUPANCY); // send an OCCUPANCY event for switching to polling
 
     setTimeout(() => {
+      assert.equal(eventSourceInstance.readyState, EventSourceMock.OPEN, 'EventSource connection keeps opened on PUSH_SUBSYSTEM_DOWN (occupancy 0)');
       eventSourceInstance.emitMessage(splitUpdateMessage);
     }, MILLIS_SPLIT_UPDATE_EVENT_DURING_POLLING); // send a SPLIT_UPDATE event while polling, to check that we are ignoring it
 
@@ -148,19 +159,41 @@ export function testFallbacking(fetchMock, assert) {
     }, MILLIS_SEGMENT_UPDATE_EVENT_DURING_PUSH); // send a SEGMENT_UPDATE event when push resumed, to check that we are handling it
 
     setTimeout(() => {
-      eventSourceInstance.emitMessage(streamingDisabledControlPriMessage);
-      assert.equal(eventSourceInstance.readyState, EventSourceMock.CLOSED, 'EventSource connection closed on STREAMING_DISABLED CONTROL event');
-    }, MILLIS_STREAMING_DISABLED_CONTROL); // send a CONTROL event for disabling push and switching to polling
+      eventSourceInstance.emitMessage(streamingPausedControlPriMessage2);
+      assert.equal(eventSourceInstance.readyState, EventSourceMock.OPEN, 'EventSource connection keeps opened on PUSH_SUBSYSTEM_DOWN (STREAMING_PAUSED CONTROL event)');
+    }, MILLIS_STREAMING_PAUSED_CONTROL_2); // send a CONTROL event for switching back to polling
 
     setTimeout(() => {
-      client.destroy().then(() => {
-        assert.pass('client destroyed');
+      eventSourceInstance.emitMessage(streamingResetMessage);
+
+      setMockListener((eventSourceInstance) => {
+        eventSourceInstance.emitOpen();
+
+        setTimeout(() => {
+          eventSourceInstance.emitMessage(streamingResetMessage);
+
+          setMockListener((eventSourceInstance) => {
+            eventSourceInstance.emitOpen();
+
+            setTimeout(() => {
+              eventSourceInstance.emitMessage(streamingDisabledControlPriMessage);
+              assert.equal(eventSourceInstance.readyState, EventSourceMock.CLOSED, 'EventSource connection closed on STREAMING_DISABLED CONTROL event');
+            }, MILLIS_STREAMING_DISABLED_CONTROL - MILLIS_STREAMING_RESET_WHILE_PUSH_UP); // send a CONTROL event for disabling push and switching to polling
+
+            setTimeout(() => {
+              client.destroy().then(() => {
+                assert.pass('client destroyed');
+              });
+            }, MILLIS_DESTROY - MILLIS_STREAMING_RESET_WHILE_PUSH_UP); // destroy client
+          });
+        }, MILLIS_STREAMING_RESET_WHILE_PUSH_UP - MILLIS_STREAMING_RESET_WHILE_PUSH_DOWN); // send a new STREAMING_RESET event while PUSH is up
       });
-    }, MILLIS_DESTROY); // destroy client after 0.6 seconds
+    }, MILLIS_STREAMING_RESET_WHILE_PUSH_DOWN); // send a STREAMING_RESET event while PUSH is down, for re-connecting push
+
   });
 
-  fetchMock.getOnce(settings.url('/auth'), function (url, opts) {
-    if (!opts.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
+  fetchMock.get({ url: settings.url('/v2/auth'), repeat: 3 /* initial + 2 STREAMING_RESET */ }, function (url, opts) {
+    if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
     assert.pass('auth success');
     return { status: 200, body: authPushEnabled };
   });
@@ -217,12 +250,16 @@ export function testFallbacking(fetchMock, assert) {
   // extra retry (fetch until since === till)
   fetchMock.getOnce(settings.url('/segmentChanges/employees?since=1457552650000'), { status: 200, body: { since: 1457552650000, till: 1457552650000, name: 'employees', added: [], removed: [] } });
 
-  // fetches due to third fallback to polling
+  // Fetches due to third fallback to polling (second STREAMING_PAUSED event) and two syncAll ( SSE opened twice due to two STREAMING_RESET events)
+  fetchMock.get({ url: settings.url('/splitChanges?since=1457552649999'), repeat: 3}, { status: 200, body: { splits: [], since: 1457552649999, till: 1457552649999 } });
+  fetchMock.get({ url: settings.url('/segmentChanges/employees?since=1457552650000'), repeat: 3}, { status: 200, body: { since: 1457552650000, till: 1457552650000, name: 'employees', added: [], removed: [] } });
+
+  // fetches due to fourth fallback to polling due to STREAMING_DISABLED event
   fetchMock.getOnce(settings.url('/splitChanges?since=1457552649999'), { status: 200, body: { splits: [], since: 1457552649999, till: 1457552649999 } });
   fetchMock.getOnce(settings.url('/segmentChanges/employees?since=1457552650000'), { status: 200, body: { since: 1457552650000, till: 1457552650000, name: 'employees', added: [], removed: [] } });
   fetchMock.getOnce(settings.url('/splitChanges?since=1457552649999'), function () {
     const lapse = Date.now() - start;
-    assert.true(nearlyEqual(lapse, MILLIS_STREAMING_DISABLED_CONTROL + settings.scheduler.featuresRefreshRate), 'fetch due to third fallback to polling');
+    assert.true(nearlyEqual(lapse, MILLIS_STREAMING_DISABLED_CONTROL + settings.scheduler.featuresRefreshRate), 'fetch due to fourth fallback to polling');
     return { status: 200, body: splitChangesMock3 };
   });
   fetchMock.getOnce(settings.url('/segmentChanges/employees?since=1457552650000'), { status: 200, body: { since: 1457552650000, till: 1457552650000, name: 'employees', added: [], removed: [] } });

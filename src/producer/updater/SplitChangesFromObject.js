@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
+import { STORAGE_LOCALSTORAGE } from '../../utils/constants';
 import { forOwn } from '../../utils/lang';
 import logFactory from '../../utils/logger';
 const log = logFactory('splitio-producer:offline');
@@ -23,6 +24,8 @@ function FromObjectUpdaterFactory(Fetcher, context) {
     [context.constants.READINESS]: readiness,
     [context.constants.STORAGE]: storage
   } = context.getAll();
+
+  let startingUp = true;
 
   return function ObjectUpdater() {
     const splits = [];
@@ -56,11 +59,18 @@ function FromObjectUpdaterFactory(Fetcher, context) {
       });
 
       return Promise.all([
-        storage.splits.flush(),
+        storage.splits.flush(), // required to sync removed splits from mock
         storage.splits.addSplits(splits)
       ]).then(() => {
         readiness.splits.emit(readiness.splits.SDK_SPLITS_ARRIVED);
-        readiness.segments.emit(readiness.segments.SDK_SEGMENTS_ARRIVED);
+
+        if (startingUp) {
+          startingUp = false;
+          // Emits SDK_READY_FROM_CACHE
+          if (settings.storage.__originalType === STORAGE_LOCALSTORAGE) readiness.splits.emit(readiness.splits.SDK_SPLITS_CACHE_LOADED);
+          // Only emits SDK_SEGMENTS_ARRIVED the first time for SDK_READY
+          readiness.segments.emit(readiness.segments.SDK_SEGMENTS_ARRIVED);
+        }
       });
     } else {
       return Promise.resolve();

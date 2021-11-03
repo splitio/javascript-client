@@ -16,8 +16,10 @@ limitations under the License.
 import tape from 'tape-catch';
 import fs from 'fs';
 import rl from 'readline';
-import utils from '../../../engine/murmur3/murmur3';
-import { hash128 } from '../../../engine/murmur3/murmur3_128';
+import murmur3 from '../../../engine/murmur3/murmur3';
+import { hash128 as hash128x64 } from '../../../engine/murmur3/murmur3_128';
+import { hash128 as hash128x86 } from '../../../engine/murmur3/murmur3_128_x86';
+import { hash64 } from '../../../engine/murmur3/murmur3_64';
 
 [
   'murmur3-sample-v4.csv',
@@ -44,8 +46,8 @@ import { hash128 } from '../../../engine/murmur3/murmur3_128';
           hash = parseInt(hash, 10);
           bucket = parseInt(bucket, 10);
 
-          assert.equal(utils.hash(key, seed), hash);
-          assert.equal(utils.bucket(key, seed), bucket);
+          assert.equal(murmur3.hash(key, seed), hash);
+          assert.equal(murmur3.bucket(key, seed), bucket);
         }
       })
       .on('close', assert.end);
@@ -72,8 +74,9 @@ function dec2hex(str) {
 }
 
 [
-  'murmur3_64_uuids.csv',
-].forEach(filename => {
+  ['murmur3_86_uuids.csv', hash128x86],
+  ['murmur3_64_uuids.csv', hash128x64]
+].forEach(([filename, hash128]) => {
 
   tape('MURMUR3 128 / validate hashing behavior using sample data', assert => {
     const parser = rl.createInterface({
@@ -96,4 +99,21 @@ function dec2hex(str) {
       })
       .on('close', assert.end);
   });
+});
+
+tape('MURMUR3 128 higher 64 bits', assert => {
+
+  [
+    ['key1', { hex: '15d67461d2044fb3', dec: '1573573083296714675' }],
+    ['key2', { hex: '75b93494ef690e31', dec: '8482869187405483569' }],
+    ['key3', { hex: '6f76f1df6ac38fea', dec: '8031872927333060586' }],
+    ['key4', { hex: '5ec727b58617b474', dec: '6829471020522910836' }],
+    ['key5', { hex: 'b07087d10f0143b8', dec: '12713811080036565944' }],
+    ['key6', { hex: 'ddcd11333e54c85c', dec: '15982449564394506332' }],
+    ['', { hex: '0000000000000000', dec: '0' }],
+  ].forEach(([key, hash]) => {
+    assert.deepEqual(hash64(key), hash);
+  });
+
+  assert.end();
 });

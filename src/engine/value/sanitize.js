@@ -18,12 +18,7 @@ import logFactory from '../../utils/logger';
 const log = logFactory('splitio-engine:sanitize');
 import { isObject, uniq, toString, toNumber } from '../../utils/lang';
 import { zeroSinceHH, zeroSinceSS } from '../convertions';
-import {
-  types as matcherTypes,
-  dataTypes as matcherDataTypes
-} from '../matchers/types';
-const MATCHERS = matcherTypes;
-const DATA_TYPES = matcherDataTypes;
+import { matcherTypes, matcherDataTypes } from '../matchers/types';
 
 function sanitizeNumber(val) {
   const num = toNumber(val);
@@ -72,13 +67,13 @@ function dependencyProcessor(sanitizedValue, attributes) {
  */
 function getProcessingFunction(matcherTypeID, dataType) {
   switch (matcherTypeID) {
-    case MATCHERS.EQUAL_TO:
+    case matcherTypes.EQUAL_TO:
       return dataType === 'DATETIME' ? zeroSinceHH : undefined;
-    case MATCHERS.GREATER_THAN_OR_EQUAL_TO:
-    case MATCHERS.LESS_THAN_OR_EQUAL_TO:
-    case MATCHERS.BETWEEN:
+    case matcherTypes.GREATER_THAN_OR_EQUAL_TO:
+    case matcherTypes.LESS_THAN_OR_EQUAL_TO:
+    case matcherTypes.BETWEEN:
       return dataType === 'DATETIME' ? zeroSinceSS : undefined;
-    case MATCHERS.IN_SPLIT_TREATMENT:
+    case matcherTypes.IN_SPLIT_TREATMENT:
       return dependencyProcessor;
     default:
       return undefined;
@@ -90,20 +85,20 @@ function sanitizeValue(matcherTypeID, value, dataType, attributes) {
   let sanitizedValue;
 
   switch (dataType) {
-    case DATA_TYPES.NUMBER:
-    case DATA_TYPES.DATETIME:
+    case matcherDataTypes.NUMBER:
+    case matcherDataTypes.DATETIME:
       sanitizedValue = sanitizeNumber(value);
       break;
-    case DATA_TYPES.STRING:
+    case matcherDataTypes.STRING:
       sanitizedValue = sanitizeString(value);
       break;
-    case DATA_TYPES.SET:
+    case matcherDataTypes.SET:
       sanitizedValue = sanitizeArray(value);
       break;
-    case DATA_TYPES.BOOLEAN:
+    case matcherDataTypes.BOOLEAN:
       sanitizedValue = sanitizeBoolean(value);
       break;
-    case DATA_TYPES.NOT_SPECIFIED:
+    case matcherDataTypes.NOT_SPECIFIED:
       sanitizedValue = value;
       break;
     default:

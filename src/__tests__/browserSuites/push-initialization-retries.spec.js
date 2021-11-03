@@ -52,14 +52,14 @@ export function testPushRetriesDueToAuthErrors(fetchMock, assert) {
 
   let start, splitio, client, ready = false;
 
-  fetchMock.getOnce(settings.url(`/auth?users=${encodeURIComponent(userKey)}`), function (url, opts) {
-    if (!opts.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
+  fetchMock.getOnce(settings.url(`/v2/auth?users=${encodeURIComponent(userKey)}`), function (url, opts) {
+    if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
     assert.pass('first auth attempt');
     return { status: 200, body: authPushBadToken };
   });
-  fetchMock.getOnce(settings.url(`/auth?users=${encodeURIComponent(userKey)}`), { throws: new TypeError('Network error') });
-  fetchMock.getOnce(settings.url(`/auth?users=${encodeURIComponent(userKey)}`), function (url, opts) {
-    if (!opts.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
+  fetchMock.getOnce(settings.url(`/v2/auth?users=${encodeURIComponent(userKey)}`), { throws: new TypeError('Network error') });
+  fetchMock.getOnce(settings.url(`/v2/auth?users=${encodeURIComponent(userKey)}`), function (url, opts) {
+    if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
     const lapse = Date.now() - start;
     const expected = (settings.scheduler.pushRetryBackoffBase * Math.pow(2, 0) + settings.scheduler.pushRetryBackoffBase * Math.pow(2, 1));
     assert.true(nearlyEqual(lapse, expected), 'third auth attempt (aproximately in 0.3 seconds from first attempt)');
@@ -116,10 +116,11 @@ export function testPushRetriesDueToSseErrors(fetchMock, assert) {
   let start, splitio, client, ready = false;
   const expectedTimeToSSEsuccess = (settings.scheduler.pushRetryBackoffBase * Math.pow(2, 0) + settings.scheduler.pushRetryBackoffBase * Math.pow(2, 1));
 
-  const expectedSSEurl = `${settings.url('/sse')}?channels=NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_NTcwOTc3MDQx_mySegments,NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_splits,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_pri,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_sec&accessToken=${authPushEnabledNicolas.token}&v=1.1&heartbeats=true`;
+  const expectedSSEurl = `${settings.url('/sse')}?channels=NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_NTcwOTc3MDQx_mySegments,NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_splits,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_pri,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_sec&accessToken=${authPushEnabledNicolas.token}&v=1.1&heartbeats=true&SplitSDKVersion=${settings.version}&SplitSDKClientKey=h-1>`;
   let sseattempts = 0;
   setMockListener(function (eventSourceInstance) {
     assert.equal(eventSourceInstance.url, expectedSSEurl, 'SSE url is correct');
+
     if (sseattempts < 2) {
       eventSourceInstance.emitError('some error');
     } else {
@@ -131,8 +132,8 @@ export function testPushRetriesDueToSseErrors(fetchMock, assert) {
     sseattempts++;
   });
 
-  fetchMock.get({ url: settings.url(`/auth?users=${encodeURIComponent(userKey)}`), repeat: 3 /* 3 push attempts */ }, function (url, opts) {
-    if (!opts.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
+  fetchMock.get({ url: settings.url(`/v2/auth?users=${encodeURIComponent(userKey)}`), repeat: 3 /* 3 push attempts */ }, function (url, opts) {
+    if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
     assert.pass('auth success');
     return { status: 200, body: authPushEnabledNicolas };
   });
@@ -179,7 +180,7 @@ export function testPushRetriesDueToSseErrors(fetchMock, assert) {
  * Sequence of calls:
  *  0.0 secs: initial SyncAll (/splitChanges, /mySegments/*) and first auth attempt
  *  0.05 secs: client destroyed
- *  0.1 secs: first auth attempt response (success) but not SSE connection opened since push was closed
+ *  0.1 secs: auth success but not SSE connection opened since push was closed
  *  0.2 secs: test finished
  */
 export function testSdkDestroyWhileAuthSuccess(fetchMock, assert) {
@@ -190,9 +191,9 @@ export function testSdkDestroyWhileAuthSuccess(fetchMock, assert) {
 
   let splitio, client, ready = false;
 
-  fetchMock.getOnce(settings.url(`/auth?users=${encodeURIComponent(userKey)}`), { status: 200, body: authPushEnabledNicolas }, { delay: 100 });
+  fetchMock.getOnce(settings.url(`/v2/auth?users=${encodeURIComponent(userKey)}`), { status: 200, body: authPushEnabledNicolas }, { delay: 100 });
 
-  fetchMock.get({ url: settings.url('/mySegments/nicolas%40split.io'), repeat: 2 }, { status: 200, body: mySegmentsNicolasMock });
+  fetchMock.getOnce(settings.url('/mySegments/nicolas%40split.io'), { status: 200, body: mySegmentsNicolasMock });
   fetchMock.getOnce(settings.url('/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
 
   setTimeout(() => {
@@ -200,7 +201,7 @@ export function testSdkDestroyWhileAuthSuccess(fetchMock, assert) {
       setTimeout(() => {
         assert.true(ready, 'client was ready before being destroyed');
         assert.end();
-      }, 150); // finish the test 50 millis after the third auth attempt would have been done if the client wasn't destroyed
+      }, 150); // finish the test after auth success
     });
   }, 50); // destroy the client 50 millis before we get a response for the auth request
 
@@ -209,7 +210,35 @@ export function testSdkDestroyWhileAuthSuccess(fetchMock, assert) {
   client.on(client.Event.SDK_READY, () => {
     ready = true;
   });
+}
 
+/**
+ * Assert that if the main client is destroyed when authentication successes, the SDK doesn't open the SSE connection
+ *
+ * Sequence of calls:
+ *  0.0 secs: initial SyncAll and auth success with SSE connection delay of 0.1 secs
+ *  0.05 secs: client destroyed
+ *  0.15 secs: test finished
+ */
+export function testSdkDestroyWhileConnDelay(fetchMock, assert) {
+  window.EventSource = EventSourceMock;
+  setMockListener(function (eventSourceInstance) {
+    assert.fail('unexpected EventSource request with url: ' + eventSourceInstance.url);
+  });
+
+  fetchMock.getOnce(settings.url(`/v2/auth?users=${encodeURIComponent(userKey)}`), { status: 200, body: { ...authPushEnabledNicolas, connDelay: 0.1 } });
+  fetchMock.getOnce(settings.url('/mySegments/nicolas%40split.io'), { status: 200, body: mySegmentsNicolasMock });
+  fetchMock.getOnce(settings.url('/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
+
+  const client = SplitFactory(config).client();
+  setTimeout(() => {
+    client.destroy().then(() => {
+      setTimeout(() => {
+        assert.pass('test finished');
+        assert.end();
+      }, 100); // finish the test 50 millis after SSE connection would have been created
+    });
+  }, 50); // destroy the client 50 millis after auth response
 }
 
 /**
@@ -228,8 +257,8 @@ export function testSdkDestroyWhileAuthRetries(fetchMock, assert) {
 
   let splitio, client, ready = false;
 
-  fetchMock.getOnce(settings.url(`/auth?users=${encodeURIComponent(userKey)}`), { status: 200, body: authPushBadToken });
-  fetchMock.getOnce(settings.url(`/auth?users=${encodeURIComponent(userKey)}`), { throws: new TypeError('Network error') }, { delay: 100 });
+  fetchMock.getOnce(settings.url(`/v2/auth?users=${encodeURIComponent(userKey)}`), { status: 200, body: authPushBadToken });
+  fetchMock.getOnce(settings.url(`/v2/auth?users=${encodeURIComponent(userKey)}`), { throws: new TypeError('Network error') }, { delay: 100 });
 
   fetchMock.get({ url: settings.url('/mySegments/nicolas%40split.io'), repeat: 2 }, { status: 200, body: mySegmentsNicolasMock });
   fetchMock.getOnce(settings.url('/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });

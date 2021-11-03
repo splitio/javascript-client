@@ -1,6 +1,6 @@
-import { hash128 } from '../../engine/engine/murmur3/murmur3_128';
-import { buildKey } from './';
+import { hash128 } from '../../engine/engine/murmur3/murmur3_128_x86';
+import { buildKey } from './buildKey';
 
 export function hashImpression128(impression) {
-  return impression ? hash128(buildKey(impression)).toString() : null;
+  return hash128(buildKey(impression));
 }
