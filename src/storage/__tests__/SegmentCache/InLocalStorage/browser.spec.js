@@ -1,6 +1,6 @@
 import tape from 'tape-catch';
 import SegmentCacheInLocalStorage from '../../../SegmentCache/InLocalStorage';
-import KeyBuilder from '../../../Keys';
+import KeyBuilder from '../../../KeysLocalStorage';
 import SettingsFactory from '../../../../utils/settings';
 
 const settings = SettingsFactory({});

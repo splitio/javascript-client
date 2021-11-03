@@ -3,6 +3,7 @@ import sinon from 'sinon';
 import fetchMock from '../testUtils/fetchMock';
 import { SplitFactory } from '../../';
 import SettingsFactory from '../../utils/settings';
+import { STORAGE_MEMORY } from '../../utils/constants';
 
 const settings = SettingsFactory({ core: { key: 'facundo@split.io' } });
 
@@ -71,13 +72,69 @@ tape('Browser offline mode', function (assert) {
   assert.false(client.track({}, [], 'invalid_stuff'));
   assert.true(sharedClient.track('a_tt', 'another_ev_id', 10));
 
-  assert.equal(client.getTreatment('testing_split'), 'control');
-  assert.equal(sharedClient.getTreatment('testing_split'), 'control');
+  assert.equal(client.getTreatment('testing_split'), 'control', 'control due to not ready');
+  assert.equal(sharedClient.getTreatment('testing_split'), 'control', 'control due to not ready');
   assert.equal(manager.splits().length, 0);
 
+  // SDK events on shared client
+  let sharedReadyCount = 0;
   sharedClient.on(sharedClient.Event.SDK_READY, function () {
     assert.equal(sharedClient.getTreatment('testing_split'), 'on');
+    sharedReadyCount++;
   });
+  let sharedUpdateCount = 0;
+  sharedClient.on(sharedClient.Event.SDK_UPDATE, function () {
+    sharedUpdateCount++;
+  });
+
+  // Multiple factories must handle their own `features` mock, even if instantiated with the same config.
+  const factories = [
+    SplitFactory(config),
+    SplitFactory({ ...config }),
+    SplitFactory({ ...config, features: { ...config.features }, storage: { type: 'INVALID TYPE' } }),
+    SplitFactory({ ...config, storage: { type: 'LOCALSTORAGE' } })
+  ];
+  let readyCount = 0, updateCount = 0, readyFromCacheCount = 0;
+
+  for (let i = 0; i < factories.length; i++) {
+    const factory = factories[i], client = factory.client(), manager = factory.manager(), client2 = factory.client('other');
+
+    client.on(client.Event.SDK_READY, () => {
+      assert.deepEqual(manager.names(), ['testing_split', 'testing_split_with_config']);
+      assert.equal(client.getTreatment('testing_split_with_config'), 'off');
+      readyCount++;
+    });
+    client.on(client.Event.SDK_UPDATE, () => {
+      assert.deepEqual(manager.names(), ['testing_split', 'testing_split_2', 'testing_split_3', 'testing_split_with_config']);
+      assert.equal(client.getTreatment('testing_split_with_config'), 'nope');
+      updateCount++;
+    });
+
+    const sdkReadyFromCache = (client) => () => {
+      assert.equal(factory.settings.storage.type, STORAGE_MEMORY, 'In localhost mode, storage must fallback to memory storage');
+
+      assert.equal(client.__context.get(client.__context.constants.READY_FROM_CACHE, true), true, 'If ready from cache, READY_FROM_CACHE status must be true');
+      assert.equal(client.__context.get(client.__context.constants.READY, true), undefined, 'READY status must not be set before READY_FROM_CACHE');
+
+      assert.deepEqual(manager.names(), ['testing_split', 'testing_split_with_config']);
+      assert.equal(client.getTreatment('testing_split_with_config'), 'off');
+      readyFromCacheCount++;
+
+      client.on(client.Event.SDK_READY_FROM_CACHE, () => {
+        assert.fail('It should not emit SDK_READY_FROM_CACHE again');
+      });
+
+      const newClient = factory.client('another');
+      assert.equal(newClient.getTreatment('testing_split_with_config'), 'off', 'It should evaluate treatments with data from cache instead of control');
+      newClient.on(newClient.Event.SDK_READY_FROM_CACHE, () => {
+        assert.fail('It should not emit SDK_READY_FROM_CACHE if already done.');
+      });
+    };
+
+    client.on(client.Event.SDK_READY_FROM_CACHE, sdkReadyFromCache(client));
+    client2.on(client2.Event.SDK_READY_FROM_CACHE, sdkReadyFromCache(client2));
+  }
+
   client.once(client.Event.SDK_READY, function () {
     const readyTimestamp = Date.now();
 
@@ -109,10 +166,10 @@ tape('Browser offline mode', function (assert) {
 
     // Manager tests
     const expectedSplitView1 = {
-      name: 'testing_split', trafficType: null, killed: false, changeNumber: 0, treatments: ['on'], configs: {}
+      name: 'testing_split', trafficType: 'localhost', killed: false, changeNumber: 0, treatments: ['on'], configs: {}
     };
     const expectedSplitView2 = {
-      name: 'testing_split_with_config', trafficType: null, killed: false, changeNumber: 0, treatments: ['off'], configs: { off: '{ "color": "blue" }' }
+      name: 'testing_split_with_config', trafficType: 'localhost', killed: false, changeNumber: 0, treatments: ['off'], configs: { off: '{ "color": "blue" }' }
     };
     assert.deepEqual(manager.names(), ['testing_split', 'testing_split_with_config']);
     assert.deepEqual(manager.split('testing_split'), expectedSplitView1);
@@ -153,7 +210,7 @@ tape('Browser offline mode', function (assert) {
     });
 
     setTimeout(() => {
-      // Update the features.
+      // Update the features
       factory.settings.features = {
         testing_split: 'on',
         testing_split_2: 'off',
@@ -163,6 +220,10 @@ tape('Browser offline mode', function (assert) {
           config: null
         }
       };
+      // Update the features in all factories except the last one
+      for (let i = 0; i < factories.length - 1; i++) {
+        factories[i].settings.features = factory.settings.features;
+      }
     }, 1000);
 
     setTimeout(() => { factory.settings.features = originalFeaturesMap; }, 200);
@@ -173,6 +234,8 @@ tape('Browser offline mode', function (assert) {
     // once updated, test again.
     client.once(client.Event.SDK_UPDATE, function () {
       assert.true((Date.now() - readyTimestamp) > 1000, 'Should only emit SDK_UPDATE after a real update.');
+
+      client.once(client.Event.SDK_UPDATE, function () { assert.fail('Should not emit a second SDK_UPDATE event'); });
 
       assert.equal(client.getTreatment('testing_split_2'), 'off');
       assert.equal(client.getTreatment('testing_split_3'), 'custom_treatment');
@@ -204,7 +267,7 @@ tape('Browser offline mode', function (assert) {
 
       // Manager tests
       const expectedSplitView3 = {
-        name: 'testing_split_with_config', trafficType: null, killed: false, changeNumber: 0, treatments: ['nope'], configs: {}
+        name: 'testing_split_with_config', trafficType: 'localhost', killed: false, changeNumber: 0, treatments: ['nope'], configs: {}
       };
       assert.deepEqual(manager.names(), ['testing_split', 'testing_split_2', 'testing_split_3', 'testing_split_with_config']);
       assert.deepEqual(manager.split('testing_split'), expectedSplitView1);
@@ -246,23 +309,37 @@ tape('Browser offline mode', function (assert) {
         testing_not_exist: { treatment: 'control', config: null }
       });
 
-      const sharedClientDestroyPromise = sharedClient.destroy();
-      const mainClientDestroyPromise = client.destroy();
+      // timeout to wait SDK_UPDATE on all factories
+      setTimeout(() => {
+        const destroyPromises = [
+          sharedClient.destroy(), client.destroy(),
+          ...factories.map(f => f.client().destroy())
+        ];
 
-      // When both promises have been resolved, we check for network activity
-      Promise.all([sharedClientDestroyPromise, mainClientDestroyPromise]).then(() => {
-        // We test the breakdown instead of just the misc because it's faster to spot where the issue is
-        assert.notOk(spySplitChanges.called, 'On offline mode we should not call the splitChanges endpoint.');
-        assert.notOk(spySegmentChanges.called, 'On offline mode we should not call the segmentChanges endpoint.');
-        assert.notOk(spyMySegments.called, 'On offline mode we should not call the mySegments endpoint.');
-        assert.notOk(spyEventsBulk.called, 'On offline mode we should not call the events endpoint.');
-        assert.notOk(spyTestImpressionsBulk.called, 'On offline mode we should not call the impressions endpoint.');
-        assert.notOk(spyTestImpressionsCount.called, 'On offline mode we should not call the impressions count endpoint.');
-        assert.notOk(spyMetricsTimes.called, 'On offline mode we should not call the metric times endpoint.');
-        assert.notOk(spyMetricsCounters.called, 'On offline mode we should not call the metric counters endpoint.');
-        assert.notOk(spyAny.called, 'On offline mode we should NOT call to ANY endpoint, we are completely isolated from BE.');
+        // When both promises have been resolved, we check for network activity
+        Promise.all(destroyPromises).then(() => {
+          // We test the breakdown instead of just the misc because it's faster to spot where the issue is
+          assert.notOk(spySplitChanges.called, 'On offline mode we should not call the splitChanges endpoint.');
+          assert.notOk(spySegmentChanges.called, 'On offline mode we should not call the segmentChanges endpoint.');
+          assert.notOk(spyMySegments.called, 'On offline mode we should not call the mySegments endpoint.');
+          assert.notOk(spyEventsBulk.called, 'On offline mode we should not call the events endpoint.');
+          assert.notOk(spyTestImpressionsBulk.called, 'On offline mode we should not call the impressions endpoint.');
+          assert.notOk(spyTestImpressionsCount.called, 'On offline mode we should not call the impressions count endpoint.');
+          assert.notOk(spyMetricsTimes.called, 'On offline mode we should not call the metric times endpoint.');
+          assert.notOk(spyMetricsCounters.called, 'On offline mode we should not call the metric counters endpoint.');
+          assert.notOk(spyAny.called, 'On offline mode we should NOT call to ANY endpoint, we are completely isolated from BE.');
 
-        assert.end();
+          // SDK events on shared client
+          assert.equal(sharedReadyCount, 1, 'Shared client should have emitted SDK_READY event once');
+          assert.equal(sharedUpdateCount, 1, 'Shared client should have emitted SDK_UPDATE event once');
+
+          // SDK events on other factory clients
+          assert.equal(readyCount, factories.length, 'Each factory client should have emitted SDK_READY event once');
+          assert.equal(updateCount, factories.length - 1, 'Each factory client except one should have emitted SDK_UPDATE event once');
+          assert.equal(readyFromCacheCount, 2, 'The main and shared client of the factory with LOCALSTORAGE should have emitted SDK_READY_FROM_CACHE event');
+
+          assert.end();
+        });
       });
     }, 3500);
   });

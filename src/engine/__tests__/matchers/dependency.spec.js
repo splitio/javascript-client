@@ -17,7 +17,7 @@ limitations under the License.
 
 import tape from 'tape-catch';
 
-import { types as matcherTypes } from '../../matchers/types';
+import { matcherTypes } from '../../matchers/types';
 import matcherFactory from '../../matchers';
 import { evaluateFeature } from '../../evaluator';
 

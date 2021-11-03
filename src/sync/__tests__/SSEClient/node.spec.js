@@ -15,11 +15,22 @@ const SSClient = proxyquireStrict('../../SSEClient/index', {
 
 const settings = SettingsFactory({
   core: {
+    authorizationKey: 'aaaabbbbcccc1234',
     key: 'emi@split.io'
   }
 });
 
-tape('SSClient', t => {
+const EXPECTED_URL = settings.url('/sse') +
+  '?channels=' + channelsQueryParamSample +
+  '&accessToken=' + authDataSample.token +
+  '&v=1.1&heartbeats=true';
+
+const EXPECTED_HEADERS = {
+  SplitSDKClientKey: '1234',
+  SplitSDKVersion: settings.version
+};
+
+tape('SSEClient', t => {
 
   t.test('getInstance', assert => {
     eventSourceReference = undefined;
@@ -46,9 +57,6 @@ tape('SSClient', t => {
     eventSourceReference = EventSourceMock;
     const instance = SSClient.getInstance(settings);
     instance.setEventHandler(handler);
-
-    // error on first open without authToken
-    assert.throws(instance.reopen, 'throw error if reopen is invoked without a previous open call');
 
     // open connection
     instance.open(authDataSample);
@@ -82,12 +90,6 @@ tape('SSClient', t => {
     instance.connection.emitOpen();
     assert.ok(handler.handleOpen.calledOnce, 'handleOpen called when connection is open');
 
-    // reopen the connection
-    handler.handleOpen.resetHistory();
-    instance.reopen();
-    instance.connection.emitOpen();
-    assert.ok(handler.handleOpen.calledOnce, 'handleOpen called if connection is reopen');
-
     // remove event handler before opening a new connection
     handler.handleOpen.resetHistory();
     instance.setEventHandler(undefined);
@@ -98,19 +100,50 @@ tape('SSClient', t => {
     assert.end();
   });
 
-  t.test('open method: URL', assert => {
-
+  t.test('open method: URL with metadata query params for Browser', assert => {
     eventSourceReference = EventSourceMock;
-    const instance = SSClient.getInstance(settings);
+    const instance = SSClient.getInstance(settings, false);
     instance.open(authDataSample);
 
-    const EXPECTED_URL = settings.url('/sse') +
-      '?channels=' + channelsQueryParamSample +
-      '&accessToken=' + authDataSample.token +
-      '&v=1.1&heartbeats=true';
+    const EXPECTED_BROWSER_URL = EXPECTED_URL + `&SplitSDKVersion=${settings.version}&SplitSDKClientKey=${EXPECTED_HEADERS.SplitSDKClientKey}`;
+
+    assert.equal(instance.connection.url, EXPECTED_BROWSER_URL, 'URL is properly set for streaming connection');
+    assert.equal(instance.connection.__eventSourceInitDict, undefined, 'No headers are passed for streaming connection');
+    assert.end();
+  });
+
+  t.test('open method: URL and metadata headers for Node', assert => {
+
+    eventSourceReference = EventSourceMock;
+    const instance = SSClient.getInstance(settings, true);
+    instance.open(authDataSample);
 
     assert.equal(instance.connection.url, EXPECTED_URL, 'URL is properly set for streaming connection');
+    assert.deepEqual(instance.connection.__eventSourceInitDict, {
+      headers: {
+        ...EXPECTED_HEADERS,
+        SplitSDKMachineIP: settings.runtime.ip,
+        SplitSDKMachineName: settings.runtime.hostname
+      }
+    }, 'Headers are properly set for streaming connection');
+    assert.end();
+  });
 
+  t.test('open method: URL and metadata headers for Node, without IPAddressesEnabled', assert => {
+
+    eventSourceReference = EventSourceMock;
+    const settingsWithoutRuntime = SettingsFactory({
+      core: {
+        authorizationKey: 'aaaabbbbcccc1234',
+        key: 'emi@split.io',
+        IPAddressesEnabled: false,
+      }
+    });
+    const instance = SSClient.getInstance(settingsWithoutRuntime, true);
+    instance.open(authDataSample);
+
+    assert.equal(instance.connection.url, EXPECTED_URL, 'URL is properly set for streaming connection');
+    assert.deepEqual(instance.connection.__eventSourceInitDict, { headers: EXPECTED_HEADERS }, 'Headers are properly set for streaming connection');
     assert.end();
   });
 

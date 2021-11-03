@@ -1,8 +1,4 @@
-import utfx from 'utfx';
-
-const stringSource = utfx.stringSource;
-const stringDestination = utfx.stringDestination;
-const encodeUTF16toUTF8 = utfx.encodeUTF16toUTF8;
+import { stringSource, stringDestination, encodeUTF16toUTF8 } from './utfx';
 
 export function UTF16ToUTF8(key) {
   let sd;

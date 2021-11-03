@@ -8,11 +8,11 @@ tape('SEGMENT CACHE / in memory', assert => {
 
   cache.addToSegment('mocked-segment');
 
-  assert.ok( cache.isInSegment('mocked-segment') === true );
+  assert.ok(cache.isInSegment('mocked-segment') === true);
 
   cache.removeFromSegment('mocked-segment');
 
-  assert.ok( cache.isInSegment('mocked-segment') === false );
+  assert.ok(cache.isInSegment('mocked-segment') === false);
 
   assert.end();
 });

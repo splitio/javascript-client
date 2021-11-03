@@ -30,8 +30,6 @@ function SplitFactoryOnline(context, readyTrackers, mainClientMetricCollectors) 
   let metrics;
   // Shared instances use parent events queue
   let events;
-  // Signal listener only needed for main instances
-  const signalsListener = sharedInstance ? undefined : new SignalsListener(context);
 
   let syncManager;
 
@@ -57,6 +55,9 @@ function SplitFactoryOnline(context, readyTrackers, mainClientMetricCollectors) 
       break;
     }
   }
+
+  // Signal listener only needed for main instances
+  const signalsListener = sharedInstance ? undefined : new SignalsListener(context, syncManager);
 
   if (readyTrackers && syncManager && !sharedInstance) { // Only track ready events for non-shared and non-consumer clients
     const {

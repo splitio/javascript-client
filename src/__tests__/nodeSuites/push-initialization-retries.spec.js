@@ -50,14 +50,14 @@ export function testPushRetriesDueToAuthErrors(fetchMock, assert) {
 
   let start, splitio, client, ready = false;
 
-  fetchMock.getOnce(settings.url('/auth'), function (url, opts) {
-    if (!opts.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
+  fetchMock.getOnce(settings.url('/v2/auth'), function (url, opts) {
+    if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
     assert.pass('first auth attempt');
     return { status: 200, body: authPushBadToken };
   });
-  fetchMock.getOnce(settings.url('/auth'), { throws: new TypeError('Network error') });
-  fetchMock.getOnce(settings.url('/auth'), function (url, opts) {
-    if (!opts.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
+  fetchMock.getOnce(settings.url('/v2/auth'), { throws: new TypeError('Network error') });
+  fetchMock.getOnce(settings.url('/v2/auth'), function (url, opts) {
+    if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
     const lapse = Date.now() - start;
     const expected = (settings.scheduler.pushRetryBackoffBase * Math.pow(2, 0) + settings.scheduler.pushRetryBackoffBase * Math.pow(2, 1));
     assert.true(nearlyEqual(lapse, expected), 'third auth attempt (aproximately in 0.3 seconds from first attempt)');
@@ -127,8 +127,8 @@ export function testPushRetriesDueToSseErrors(fetchMock, assert) {
     sseattempts++;
   });
 
-  fetchMock.get({ url: settings.url('/auth'), repeat: 3 /* 3 push attempts */ }, function (url, opts) {
-    if (!opts.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
+  fetchMock.get({ url: settings.url('/v2/auth'), repeat: 3 /* 3 push attempts */ }, function (url, opts) {
+    if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
     assert.pass('auth success');
     return { status: 200, body: authPushEnabled };
   });
@@ -186,7 +186,7 @@ export function testSdkDestroyWhileAuthSuccess(fetchMock, assert) {
 
   let splitio, client, ready = false;
 
-  fetchMock.getOnce(settings.url('/auth'), { status: 200, body: authPushEnabled }, { delay: 100 });
+  fetchMock.getOnce(settings.url('/v2/auth'), { status: 200, body: authPushEnabled }, { delay: 100 });
 
   fetchMock.get(new RegExp(`${settings.url('/segmentChanges/')}.*`), { status: 200, body: { since: 10, till: 10, name: 'segmentName', added: [], removed: [] } });
   fetchMock.getOnce(settings.url('/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
@@ -196,7 +196,7 @@ export function testSdkDestroyWhileAuthSuccess(fetchMock, assert) {
       setTimeout(() => {
         assert.true(ready, 'client was ready before being destroyed');
         assert.end();
-      }, 150); // finish the test 50 millis after the third auth attempt would have been done if the client wasn't destroyed
+      }, 150); // finish the test after auth success
     });
   }, 50); // destroy the client 50 millis before we get a response for the auth request
 
@@ -224,8 +224,8 @@ export function testSdkDestroyWhileAuthRetries(fetchMock, assert) {
 
   let splitio, client, ready = false;
 
-  fetchMock.getOnce(settings.url('/auth'), { status: 200, body: authPushBadToken });
-  fetchMock.getOnce(settings.url('/auth'), { throws: new TypeError('Network error') }, { delay: 100 });
+  fetchMock.getOnce(settings.url('/v2/auth'), { status: 200, body: authPushBadToken });
+  fetchMock.getOnce(settings.url('/v2/auth'), { throws: new TypeError('Network error') }, { delay: 100 });
 
   fetchMock.get(new RegExp(`${settings.url('/segmentChanges/')}.*`), { status: 200, body: { since: 10, till: 10, name: 'segmentName', added: [], removed: [] } });
   fetchMock.getOnce(settings.url('/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
