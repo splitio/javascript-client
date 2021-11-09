@@ -148,11 +148,15 @@ export default class RedisAdapter extends ioredis {
         host: options.host,
         port: options.port,
         db: options.db,
-        password: options.pass
+        password: options.pass,
       });
     } else { // If it IS the string URL, that'll be the first param for ioredis.
       result.unshift(options.url);
     }
+    if (options.tls) {
+      merge(opts, {tls: options.tls});
+    }
+
 
     return result;
   }
@@ -160,9 +164,9 @@ export default class RedisAdapter extends ioredis {
   /**
    * Parses the options into what we care about.
    */
-  static _defineOptions({ connectionTimeout, operationTimeout, url, host, port, db, pass }) {
+  static _defineOptions({ connectionTimeout, operationTimeout, url, host, port, db, pass, tls }) {
     const parsedOptions = {
-      connectionTimeout, operationTimeout, url, host, port, db, pass
+      connectionTimeout, operationTimeout, url, host, port, db, pass, tls
     };
 
     return merge({}, DEFAULT_OPTIONS, parsedOptions);
