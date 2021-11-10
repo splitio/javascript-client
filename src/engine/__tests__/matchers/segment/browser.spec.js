@@ -14,14 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 import tape from 'tape-catch';
-import { types as matcherTypes} from '../../../matchers/types';
+import { matcherTypes} from '../../../matchers/types';
 import matcherFactory from '../../../matchers';
 
 tape('MATCHER SEGMENT / should return true ONLY when the segment is defined inside the segment storage', async function (assert) {
   const segment = 'employees';
 
   const matcherTrue = matcherFactory({
-    type: matcherTypes.SEGMENT,
+    type: matcherTypes.IN_SEGMENT,
     value: segment
   }, {
     segments: {
@@ -32,7 +32,7 @@ tape('MATCHER SEGMENT / should return true ONLY when the segment is defined insi
   });
 
   const matcherFalse = matcherFactory({
-    type: matcherTypes.SEGMENT,
+    type: matcherTypes.IN_SEGMENT,
     value: segment + 'asd'
   }, {
     segments: {
