@@ -184,7 +184,7 @@ asyncSettings = {
     authorizationKey: 'key'
   },
   storage: {
-    type: 'CUSTOM',
+    type: 'PLUGGABLE',
     wrapper: new MyWrapper()
   }
 };

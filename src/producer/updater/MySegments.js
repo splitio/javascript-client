@@ -32,7 +32,7 @@ export default function MySegmentsUpdaterFactory(context) {
   let readyOnAlreadyExistentState = true;
   let startingUp = true;
 
-  // @TODO if allowing custom storages, handle async execution and wrap errors as SplitErrors to distinguish from user callback errors
+  // @TODO if allowing pluggable storages, handle async execution and wrap errors as SplitErrors to distinguish from user callback errors
   function updateSegments(segmentsData) {
 
     const mySegmentsCache = storage.segments;

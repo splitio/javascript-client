@@ -1,4 +1,4 @@
-// Type definitions for Javascript and Node Split Software SDK v8.1.0
+// Type definitions for Javascript and Node Split Software SDK
 // Project: http://www.split.io/
 // Definitions by: Nico Zelaya <https://github.com/NicoZelaya/>
 
@@ -51,7 +51,7 @@ type SDKMode = 'standalone' | 'consumer';
  * Storage types.
  * @typedef {string} StorageType
  */
-type StorageType = 'MEMORY' | 'LOCALSTORAGE' | 'REDIS' | 'CUSTOM';
+type StorageType = 'MEMORY' | 'LOCALSTORAGE' | 'REDIS' | 'PLUGGABLE';
 /**
  * Settings interface. This is a representation of the settings the SDK expose, that's why
  * most of it's props are readonly. Only features should be rewritten when localhost mode is active.
@@ -329,7 +329,7 @@ interface INodeBasicSettings extends ISharedSettings {
      */
     options?: Object,
     /**
-     * Custom storage wrapper. Use it with type: 'CUSTOM'
+     * Storage wrapper. Use it with type: 'PLUGGABLE'
      * @property {Object} wrapper
      */
     wrapper?: Object,
@@ -619,7 +619,7 @@ declare namespace SplitIO {
    * Asynchronous storages valid types for NodeJS.
    * @typedef {string} NodeAsyncStorage
    */
-  type NodeAsyncStorage = 'REDIS' | 'CUSTOM';
+  type NodeAsyncStorage = 'REDIS' | 'PLUGGABLE';
   /**
    * Storage valid types for the browser.
    * @typedef {string} BrowserStorage
@@ -1032,7 +1032,7 @@ declare namespace SplitIO {
   interface INodeAsyncSettings extends INodeBasicSettings {
     storage: {
       /**
-       * Async storage type (Redis or Custom) to be instantiated by the SDK.
+       * Async storage type ('REDIS' or 'PLUGGABLE') to be instantiated by the SDK.
        * @property {NodeAsyncStorage} type
        */
       type: NodeAsyncStorage,
@@ -1042,7 +1042,7 @@ declare namespace SplitIO {
        */
       options?: Object,
       /**
-       * Custom storage wrapper. Use it with type: 'CUSTOM'
+       * Storage wrapper. Use it with type: 'PLUGGABLE'
        * @property {Object} wrapper
        */
       wrapper?: Object,

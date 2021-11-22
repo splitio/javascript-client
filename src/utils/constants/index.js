@@ -7,7 +7,7 @@ export const CONSUMER_MODE = 'consumer';
 export const STORAGE_MEMORY = 'MEMORY';
 export const STORAGE_REDIS = 'REDIS';
 export const STORAGE_LOCALSTORAGE = 'LOCALSTORAGE';
-export const STORAGE_CUSTOM = 'CUSTOM';
+export const STORAGE_PLUGGABLE = 'PLUGGABLE';
 // Special treatments
 export const CONTROL = 'control';
 export const CONTROL_WITH_CONFIG = {

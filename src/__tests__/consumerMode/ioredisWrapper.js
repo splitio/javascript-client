@@ -7,12 +7,21 @@ import { parseRedisOptions } from '../../utils/settings/storage/node';
  * Operations fail until `connect` is resolved when the Redis 'ready' event is emitted.
  *
  * @param {Object} redisOptions redis options with the format expected at `settings.storage.options`
- * @returns {import("@splitsoftware/splitio-commons/types/storages/types").ICustomStorageWrapper} wrapper for IORedis client
+ * @returns {import("@splitsoftware/splitio-commons/types/storages/types").IPluggableStorageWrapper} wrapper for IORedis client
  */
 export function ioredisWrapper(redisOptions) {
 
+  const options = RedisAdapter._defineOptions(parseRedisOptions(redisOptions));
+
   /** @type ioredis.Redis */
-  let redis;
+  const redis = new ioredis(...RedisAdapter._defineLibrarySettings(options));
+
+  let isConnected = false;
+  redis.on('ready', () => { isConnected = true; });
+  // There is no need to listen for redis 'error' event, because in that case ioredis calls will be rejected.
+  // It is done to avoid getting the message `Unhandled error event: Error: connect ECONNREFUSED`.
+  // Also, we cannot reject the connect promise on an error, because the SDK will not get ready if the connection is established after the error.
+  redis.on('error', () => { });
 
   return {
     get(key) {
@@ -62,20 +71,13 @@ export function ioredisWrapper(redisOptions) {
       return redis.smembers(key);
     },
     connect() {
-      const options = RedisAdapter._defineOptions(parseRedisOptions(redisOptions));
-      redis = new ioredis(...RedisAdapter._defineLibrarySettings(options));
-
       return new Promise((res) => {
-        redis.on('ready', res);
-
-        // There is no need to listen for redis 'error' event, because in that case ioredis calls will be rejected.
-        // But it is done to avoid getting the ioredis message `Unhandled error event: Error: connect ECONNREFUSED`.
-        // If we reject the promise, the SDK client will not get ready if the redis connection is established after an error.
-        redis.on('error', () => { });
+        if (isConnected) res();
+        else redis.on('ready', res);
       });
     },
-    close() {
-      return Promise.resolve(redis && redis.disconnect()); // close the connection
+    disconnect() {
+      return Promise.resolve(redis && redis.disconnect());
     }
   };
 }
