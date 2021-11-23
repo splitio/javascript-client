@@ -19,9 +19,11 @@ import sinon from 'sinon';
 import KeyBuilder from '../../../Keys';
 import ImpressionsCacheInRedis from '../../../ImpressionsCache/InRedis';
 import SettingsFactory from '../../../../utils/settings';
+import { CONSUMER_MODE } from '../../../../utils/constants';
 
 tape('IMPRESSIONS CACHE IN REDIS / should incrementally store values', async function(assert) {
   const settings = SettingsFactory({
+    mode: CONSUMER_MODE,
     storage: {
       type: 'REDIS',
       prefix: 'ut_impr_cache'
@@ -87,6 +89,7 @@ tape('IMPRESSIONS CACHE IN REDIS / should incrementally store values', async fun
 tape('IMPRESSIONS CACHE IN REDIS / should not resolve track before calling expire', async function(assert) {
   const impressionsKey = 'ut_impr_cache_2.SPLITIO.impressions';
   const settings = SettingsFactory({
+    mode: CONSUMER_MODE,
     storage: {
       type: 'REDIS',
       prefix: 'ut_impr_cache_2'

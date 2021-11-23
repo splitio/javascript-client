@@ -28,6 +28,7 @@ tape('SETTINGS / Redis options should be properly parsed', assert => {
     core: {
       authorizationKey: 'dummy token'
     },
+    mode: CONSUMER_MODE,
     storage: {
       type: 'REDIS',
       options: {
@@ -44,6 +45,7 @@ tape('SETTINGS / Redis options should be properly parsed', assert => {
     core: {
       authorizationKey: 'dummy token'
     },
+    mode: CONSUMER_MODE,
     storage: {
       type: 'REDIS',
       options: {
@@ -84,13 +86,15 @@ tape('SETTINGS / IPAddressesEnabled should be overwritable and true by default',
       authorizationKey: 'dummy token',
       IPAddressesEnabled: false
     },
-    mode: CONSUMER_MODE
+    mode: CONSUMER_MODE,
+    storage: { type: 'REDIS' }
   });
   const settingsWithIPAddressEnabledAndConsumerMode = SettingsFactory({
     core: {
       authorizationKey: 'dummy token'
     },
-    mode: CONSUMER_MODE
+    mode: CONSUMER_MODE,
+    storage: { type: 'PLUGGABLE' }
   });
 
   assert.equal(settingsWithIPAddressDisabled.core.IPAddressesEnabled, false, 'When creating a setting instance, it will have the provided value for IPAddressesEnabled');
@@ -120,6 +124,37 @@ tape('SETTINGS / streamingEnabled should be overwritable and true by default', a
 
   assert.equal(settingsWithStreamingDisabled.streamingEnabled, false, 'When creating a setting instance, it will have the provided value for streamingEnabled');
   assert.equal(settingsWithStreamingEnabled.streamingEnabled, true, 'If streamingEnabled is not provided, it will be true.');
+
+  assert.end();
+});
+
+tape('SETTINGS / Throws exception if no "REDIS" or "PLUGGABLE" storage is provided in consumer mode', (assert) => {
+  assert.throws(() => {
+    SettingsFactory({
+      core: {
+        authorizationKey: 'dummy token'
+      },
+      mode: CONSUMER_MODE,
+      storage: { type: 'invalid type' }
+    });
+  }, /A Pluggable or Redis storage is required on consumer mode/);
+
+  assert.end();
+});
+
+tape('SETTINGS / Fallback to InMemory storage if no valid storage is provided in standlone mode', (assert) => {
+  // 'REDIS' and 'PLUGGABLE' are not valid storages for standalone mode
+  const settings = [
+    SettingsFactory({
+      core: { authorizationKey: 'dummy token' },
+      storage: { type: 'REDIS' }
+    }), SettingsFactory({
+      core: { authorizationKey: 'dummy token' },
+      storage: { type: 'PLUGGABLE' }
+    })
+  ];
+
+  settings.forEach(setting => assert.equal(setting.storage.type, 'MEMORY'));
 
   assert.end();
 });

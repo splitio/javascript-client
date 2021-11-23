@@ -13,7 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-import { LOCALHOST_MODE, STORAGE_CUSTOM, STORAGE_MEMORY, STORAGE_REDIS } from '../../constants';
+import { LOCALHOST_MODE, STORAGE_PLUGGABLE, STORAGE_MEMORY, STORAGE_REDIS, CONSUMER_MODE, STANDALONE_MODE } from '../../constants';
+import logFactory from '../../../utils/logger';
+const log = logFactory('splitio-settings');
 
 export function parseRedisOptions(options) {
   let {
@@ -75,24 +77,35 @@ const ParseStorageSettings = (settings) => {
     prefix
   };
 
-  // In other cases we can have MEMORY or REDIS
+  const fallbackToMemory = () => {
+    log.error('The provided storage is invalid. It requires consumer mode. Fallbacking into default MEMORY storage.');
+    return {
+      type: STORAGE_MEMORY,
+      prefix
+    };
+  };
+
+  // In other cases we can have MEMORY, REDIS or PLUGGABLE
   switch (type) {
-    case STORAGE_REDIS: {
-      return {
+    case STORAGE_REDIS:
+      if (mode === STANDALONE_MODE) return fallbackToMemory();
+      else return {
         type,
         prefix,
         options: parseRedisOptions(options)
       };
-    }
 
-    // For custom storage, we return the original storage options, without updating
+    // For pluggable storage, we return the original storage options, without updating
     // the prefix because it is done internally by the PluggableStorage module.
-    case STORAGE_CUSTOM:
-      return settings.storage;
+    case STORAGE_PLUGGABLE:
+      if (mode === STANDALONE_MODE) return fallbackToMemory();
+      else return settings.storage;
 
     // For now, we don't have modifiers or settings for MEMORY in NodeJS
     case STORAGE_MEMORY:
     default: {
+      // Consumer mode requires an async storage
+      if (mode === CONSUMER_MODE) throw new Error('A Pluggable or Redis storage is required on consumer mode');
       return {
         type: STORAGE_MEMORY,
         prefix

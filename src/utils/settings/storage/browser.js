@@ -56,7 +56,7 @@ const ParseStorageSettings = settings => {
   if (type !== STORAGE_MEMORY && type !== STORAGE_LOCALSTORAGE ||
     type === STORAGE_LOCALSTORAGE && !isLocalStorageAvailable()) {
     fallbackToMemory();
-    log.warn('Invalid or unavailable storage. Fallbacking into MEMORY storage');
+    log.error('Invalid or unavailable storage. Fallbacking into MEMORY storage');
   }
 
   return {
