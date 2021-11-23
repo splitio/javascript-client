@@ -142,19 +142,19 @@ tape('SETTINGS / Throws exception if no "REDIS" or "PLUGGABLE" storage is provid
   assert.end();
 });
 
-tape('SETTINGS / Fallback to InMemory storage if no valid storage is provided in standlone mode', (assert) => {
-  // 'REDIS' and 'PLUGGABLE' are not valid storages for standalone mode
+tape('SETTINGS / Fallback to InMemory storage if no valid storage is provided in standlone and localhost modes', (assert) => {
+  // 'REDIS' and 'PLUGGABLE' are not valid storages for standalone and localhost modes
   const settings = [
     SettingsFactory({
-      core: { authorizationKey: 'dummy token' },
+      core: { authorizationKey: 'localhost' }, // localhost mode
       storage: { type: 'REDIS' }
     }), SettingsFactory({
-      core: { authorizationKey: 'dummy token' },
+      core: { authorizationKey: 'dummy token' }, // standalone mode
       storage: { type: 'PLUGGABLE' }
     })
   ];
 
-  settings.forEach(setting => assert.equal(setting.storage.type, 'MEMORY'));
+  settings.forEach(setting => { assert.equal(setting.storage.type, 'MEMORY'); });
 
   assert.end();
 });
