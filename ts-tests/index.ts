@@ -146,6 +146,7 @@ asyncSettings = {
   core: {
     authorizationKey: 'key'
   },
+  mode: 'consumer',
   storage: {
     type: 'REDIS',
     options: {}
@@ -183,6 +184,7 @@ asyncSettings = {
   core: {
     authorizationKey: 'key'
   },
+  mode: 'consumer',
   storage: {
     type: 'PLUGGABLE',
     wrapper: new MyWrapper()
@@ -310,23 +312,23 @@ tracked = client.track('myEventType', undefined, { prop1: 1, prop2: '2', prop3: 
 /*** Repeating tests for Async Client ***/
 
 // Events constants we get (same as for sync client, just for interface checking)
-const eventConstsAsymc: { [key: string]: SplitIO.Event } = client.Event;
-splitEvent = client.Event.SDK_READY;
-splitEvent = client.Event.SDK_READY_FROM_CACHE;
-splitEvent = client.Event.SDK_READY_TIMED_OUT;
-splitEvent = client.Event.SDK_UPDATE;
+const eventConstsAsync: { [key: string]: SplitIO.Event } = asyncClient.Event;
+splitEvent = asyncClient.Event.SDK_READY;
+splitEvent = asyncClient.Event.SDK_READY_FROM_CACHE;
+splitEvent = asyncClient.Event.SDK_READY_TIMED_OUT;
+splitEvent = asyncClient.Event.SDK_UPDATE;
 
 // Client implements methods from NodeJS.Events. (same as for sync client, just for interface checking)
-client = client.on(splitEvent, () => { });
-const a1: boolean = client.emit(splitEvent);
-client = client.removeAllListeners(splitEvent);
-client = client.removeAllListeners();
-const b1: number = client.listenerCount(splitEvent);
-nodeEventEmitter = client;
+asyncClient = asyncClient.on(splitEvent, () => { });
+const a1: boolean = asyncClient.emit(splitEvent);
+asyncClient = asyncClient.removeAllListeners(splitEvent);
+asyncClient = asyncClient.removeAllListeners();
+const b1: number = asyncClient.listenerCount(splitEvent);
+nodeEventEmitter = asyncClient;
 
 // Ready and destroy (same as for sync client, just for interface checking)
-const readyPromise1: Promise<void> = client.ready();
-client.destroy();
+const readyPromise1: Promise<void> = asyncClient.ready();
+asyncClient.destroy();
 
 // We can call getTreatment but always with a key.
 asyncTreatment = asyncClient.getTreatment(splitKey, 'mySplit');
@@ -541,7 +543,6 @@ let fullNodeSettings: SplitIO.INodeSettings = {
   }
 };
 fullNodeSettings.storage.type = 'MEMORY';
-fullNodeSettings.mode = 'consumer';
 
 let fullAsyncSettings: SplitIO.INodeAsyncSettings = {
   core: {
@@ -572,12 +573,13 @@ let fullAsyncSettings: SplitIO.INodeAsyncSettings = {
     prefix: 'PREFIX'
   },
   impressionListener: impressionListener,
-  mode: 'standalone',
+  mode: 'consumer',
   debug: true,
   sync: {
     splitFilters: splitFilters
   }
 };
+fullAsyncSettings.storage.type = 'PLUGGABLE';
 
 // debug property can be a log level
 fullBrowserSettings.debug = 'ERROR';
