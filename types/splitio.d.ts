@@ -1056,7 +1056,7 @@ declare namespace SplitIO {
        */
       wrapper?: Object,
       /**
-       * Optional prefix to prevent any kind of data collision between SDK versions.
+       * Optional prefix added to the storage keys to prevent any kind of data collision between SDK versions.
        * @property {string} prefix
        * @default SPLITIO
        */
