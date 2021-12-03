@@ -23,30 +23,28 @@ tape('ATTRIBUTES DECORATION / storage', assert => {
 
   let values = client.getAttributes();
 
-  assert.true(values['attributeName1'] === 'attributeValue1');
-  assert.true(values['attributeName2'] === 'attributeValue2');
+  assert.equal(values['attributeName1'], 'attributeValue1', 'It should be equal');
+  assert.equal(values['attributeName2'], 'attributeValue2', 'It should be equal');
 
   client.removeAttribute('attributeName1');
 
-  assert.true(client.getAttribute('attributeName1') === undefined);
-  assert.true(client.getAttribute('attributeName2') === 'attributeValue2');
+  assert.equal(client.getAttribute('attributeName1'), undefined, 'It should throw undefined');
+  assert.equal(client.getAttribute('attributeName2'), 'attributeValue2', 'It should be equal');
 
   client.setAttributes({
     'attributeName3': 'attributeValue3',
     'attributeName4': 'attributeValue4'
   });
 
-  assert.true(client.getAttribute('attributeName2') === 'attributeValue2');
-  assert.true(client.getAttribute('attributeName3') === 'attributeValue3');
-  assert.true(client.getAttribute('attributeName4') === 'attributeValue4');
+  assert.equal(values['attributeName2'], 'attributeValue2', 'It should be equal');
+  assert.equal(values['attributeName3'], 'attributeValue3', 'It should be equal');
+  assert.equal(values['attributeName4'], 'attributeValue4', 'It should be equal');
 
   client.clearAttributes();
 
   values = client.getAttributes();
 
-  assert.true(values['attributeName2'] === undefined);
-  assert.true(values['attributeName3'] === undefined);
-  assert.true(values['attributeName4'] === undefined);
+  assert.equal(Object.keys(values).length, 0, 'It should be zero after clearing attributes');
 
   assert.end();
 });
