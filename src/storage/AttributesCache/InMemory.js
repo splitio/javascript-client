@@ -35,9 +35,7 @@ class AttributesCacheInMemory {
    * @returns {boolean} attributes were stored
    */
   setAttributes(attributes) {
-
     this.attributesCache = objectAssign(this.attributesCache, attributes);
-
     return true;
   }
 
@@ -60,9 +58,8 @@ class AttributesCacheInMemory {
     if (this.attributesCache[attributeName]) {
       delete this.attributesCache[attributeName];
       return true;
-    } else {
-      return false;
     }
+    return false;
   }
 
   /**

@@ -7,33 +7,30 @@ tape('ATTRIBUTE CACHE / In Memory', assert => {
   cache.setAttribute('attributeName1', 'attributeValue1');
   cache.setAttribute('attributeName2', 'attributeValue2');
 
-
   let values = cache.getAll();
 
-  assert.true(values['attributeName1'] === 'attributeValue1');
-  assert.true(values['attributeName2'] === 'attributeValue2');
+  assert.equal(values['attributeName1'], 'attributeValue1', 'It should be equal');
+  assert.equal(values['attributeName2'], 'attributeValue2', 'It should be equal');
 
   cache.removeAttribute('attributeName1');
 
-  assert.true(cache.getAttribute('attributeName1') === undefined);
-  assert.true(cache.getAttribute('attributeName2') === 'attributeValue2');
+  assert.equal(cache.getAttribute('attributeName1'), undefined, 'It should throw undefined');
+  assert.equal(cache.getAttribute('attributeName2'), 'attributeValue2', 'It should be equal');
 
   cache.setAttributes({
     'attributeName3': 'attributeValue3',
     'attributeName4': 'attributeValue4'
   });
 
-  assert.true(cache.getAttribute('attributeName2') === 'attributeValue2');
-  assert.true(cache.getAttribute('attributeName3') === 'attributeValue3');
-  assert.true(cache.getAttribute('attributeName4') === 'attributeValue4');
+  assert.equal(values['attributeName2'], 'attributeValue2', 'It should be equal');
+  assert.equal(values['attributeName3'], 'attributeValue3', 'It should be equal');
+  assert.equal(values['attributeName4'], 'attributeValue4', 'It should be equal');
 
   cache.clear();
 
   values = cache.getAll();
 
-  assert.true(values['attributeName2'] === undefined);
-  assert.true(values['attributeName3'] === undefined);
-  assert.true(values['attributeName4'] === undefined);
+  assert.equal(Object.keys(values).length, 0, 'It should be zero after clearing attributes');
 
   assert.end();
 });
