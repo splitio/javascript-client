@@ -55,7 +55,7 @@ class AttributesCacheInMemory {
    * @returns {boolean} attribute removed
    */
   removeAttribute(attributeName) {
-    if (this.attributesCache[attributeName]) {
+    if (Object.keys(this.attributesCache).indexOf(attributeName) >= 0) {
       delete this.attributesCache[attributeName];
       return true;
     }
