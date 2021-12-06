@@ -13,10 +13,9 @@ const AttributesDecorationMockedClient = proxyquireStrict(
   }
 ).default;
 
+const client = AttributesDecorationMockedClient({});
 
 tape('ATTRIBUTES DECORATION / storage', assert => {
-
-  const client = AttributesDecorationMockedClient({});
 
   client.setAttribute('attributeName1', 'attributeValue1');
   client.setAttribute('attributeName2', 'attributeValue2');
@@ -47,4 +46,85 @@ tape('ATTRIBUTES DECORATION / storage', assert => {
   assert.equal(Object.keys(values).length, 0, 'It should be zero after clearing attributes');
 
   assert.end();
+});
+
+
+tape('ATTRIBUTES DECORATION / validation', t => {
+
+  t.test('Should return true if it is a valid attributes map without logging any errors', assert => {
+    const validAttributes = { amIvalid: 'yes', 'are_you_sure': true, howMuch: 10, 'spell':['1','0'] };
+
+    assert.equal(client.setAttributes(validAttributes), true, 'It should return true if it is valid.');
+    assert.deepEqual(client.getAttributes(), validAttributes, 'It should be the same.');
+    assert.equal(client.setAttribute('attrKey', 'attrValue'), true, 'It should return true.');
+    assert.equal(client.getAttribute('attrKey'), 'attrValue', 'It should return true.');
+
+    assert.equal(client.removeAttribute('attrKey'), true, 'It should return true.');
+    assert.deepEqual(client.getAttributes(), validAttributes, 'It should be equal to the first set.');
+
+    client.clearAttributes();
+
+    const values = client.getAttributes();
+
+    assert.equal(Object.keys(values).length, 0, 'It should be zero after clearing attributes');
+
+    assert.end();
+  });
+
+  t.test('Should return false if it is an invalid attributes map', assert => {
+    assert.equal(client.setAttribute('', 'attributeValue'), false, 'It should be invalid if the attribute key is not a string');
+    assert.equal(client.setAttribute(null, 'attributeValue'), false, 'It should be invalid if the attribute key is not a string');
+    assert.equal(client.setAttribute('attributeKey1', new Date()), false, 'It should be invalid if the attribute value is not a String, Number, Boolean or Lists.');
+    assert.equal(client.setAttribute('attributeKey2', {'some':'object'}), false, 'It should be invalid if the attribute value is not a String, Number, Boolean or Lists.');
+    assert.equal(client.setAttribute('attributeKey3', Infinity), false, 'It should be invalid if the attribute value is not a String, Number, Boolean or Lists.');
+
+    client.clearAttributes();
+
+    let values = client.getAttributes();
+
+    assert.equal(Object.keys(values).length, 0, 'It should be zero after clearing attributes');
+
+    let attributes = {
+      'attributeKey': 'attributeValue',
+      '':'attributeValue'
+    };
+
+    assert.equal(client.setAttributes(attributes), false, 'It should be invalid if the attribute key is not a string');
+    
+    values = client.getAttributes();
+
+    assert.equal(Object.keys(values).length, 0, 'It should be zero after trying to add an invalid attribute');
+
+    client.clearAttributes();
+
+    assert.end();
+  });
+
+  t.test('Should return true if attributes map is valid', assert => {
+    const validAttributes = {
+      'attributeKey1': 'attributeValue',
+      'attributeKey2': ['attribute','value'],
+      'attributeKey3': 25,
+      'attributeKey4': false
+    };
+
+    assert.equals(client.setAttribute('attributeKey1', 'attributeValue'), true, 'It should be valid if the attribute value is a String, Number, Boolean or Lists.');
+    assert.equals(client.setAttribute('attributeKey2', ['attribute','value']), true, 'It should be valid if the attribute value is a String, Number, Boolean or Lists.');
+    assert.equals(client.setAttribute('attributeKey3', 25), true, 'It should be valid if the attribute value is a String, Number, Boolean or Lists.');
+    assert.equals(client.setAttribute('attributeKey4', false), true, 'It should be valid if the attribute value is a String, Number, Boolean or Lists.');
+    assert.equals(client.setAttribute('attributeKey5', Date.now()), true, 'It should be valid if the attribute value is a String, Number, Boolean or Lists.');
+
+    assert.equals(client.removeAttribute('attributeKey5'), true, 'It should be capable of remove the attribute with that name');
+    assert.deepEquals(client.getAttributes(), validAttributes, 'It should had stored every valid attributes.');
+
+    client.clearAttributes();
+
+    assert.equals(client.setAttributes(validAttributes), true, 'It should add them all because they are valid attributes.');
+    assert.deepEquals(client.getAttributes(), validAttributes, 'It should had stored every valid attributes.');
+    
+
+    assert.end();
+  });
+
+  t.end();
 });
