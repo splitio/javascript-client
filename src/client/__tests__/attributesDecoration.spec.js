@@ -23,22 +23,20 @@ tape('ATTRIBUTES DECORATION / storage', assert => {
 
   let values = client.getAttributes();
 
-  assert.equal(values['attributeName1'], 'attributeValue1', 'It should be equal');
-  assert.equal(values['attributeName2'], 'attributeValue2', 'It should be equal');
+  assert.deepEqual(values, { attributeName1: 'attributeValue1', attributeName2: 'attributeValue2' }, 'It should be equal');
 
   client.removeAttribute('attributeName1');
+  client.setAttribute('attributeName2', 'newAttributeValue2');
 
   assert.equal(client.getAttribute('attributeName1'), undefined, 'It should throw undefined');
-  assert.equal(client.getAttribute('attributeName2'), 'attributeValue2', 'It should be equal');
+  assert.equal(client.getAttribute('attributeName2'), 'newAttributeValue2', 'It should be equal');
 
   client.setAttributes({
     'attributeName3': 'attributeValue3',
     'attributeName4': 'attributeValue4'
   });
 
-  assert.equal(values['attributeName2'], 'attributeValue2', 'It should be equal');
-  assert.equal(values['attributeName3'], 'attributeValue3', 'It should be equal');
-  assert.equal(values['attributeName4'], 'attributeValue4', 'It should be equal');
+  assert.deepEqual(values, { attributeName2: 'newAttributeValue2', attributeName3: 'attributeValue3', attributeName4: 'attributeValue4' }, 'It should be equal');
 
   client.clearAttributes();
 
