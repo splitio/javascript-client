@@ -71,7 +71,6 @@ tape('ATTRIBUTES DECORATION / validation', t => {
 
   t.test('Should return false if it is an invalid attributes map', assert => {
     assert.equal(client.setAttribute('', 'attributeValue'), false, 'It should be invalid if the attribute key is not a string');
-    assert.equal(client.setAttribute(null, 'attributeValue'), false, 'It should be invalid if the attribute key is not a string');
     assert.equal(client.setAttribute('attributeKey1', new Date()), false, 'It should be invalid if the attribute value is not a String, Number, Boolean or Lists.');
     assert.equal(client.setAttribute('attributeKey2', {'some':'object'}), false, 'It should be invalid if the attribute value is not a String, Number, Boolean or Lists.');
     assert.equal(client.setAttribute('attributeKey3', Infinity), false, 'It should be invalid if the attribute value is not a String, Number, Boolean or Lists.');

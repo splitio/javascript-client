@@ -98,7 +98,6 @@ tape('DEEP INPUT VALIDATION for Attributes', t => {
   t.test('Should return false and log error if attributes map is invalid', assert => {
     
     assert.equals(validateAttributesDeep({'': 'empty'}, 'some_method_attrs'), false, 'It should be invalid if the attribute key is not a string');
-    assert.equals(validateAttributesDeep({null: 'null'}, 'some_method_attrs'), false, 'It should be invalid if the attribute key is not a string');
     assert.equals(validateAttributesDeep({'attributeKey': new Date()}, 'some_method_attrs'), false, 'It should be invalid if the attribute value is not a String, Number, Boolean or Lists.');
     assert.equals(validateAttributesDeep({'attributeKey': {'some':'object'}}), false, 'It should be invalid if the attribute value is not a String, Number, Boolean or Lists.');
     assert.equals(validateAttributesDeep({'attributeKey': Infinity}), false, 'It should be invalid if the attribute value is not a String, Number, Boolean or Lists.');

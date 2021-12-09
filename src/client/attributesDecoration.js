@@ -1,6 +1,8 @@
 import ClientWithInputValidationLayer from './inputValidation';
 import AttributesCacheInMemory from '../storage/AttributesCache/InMemory';
 import { validateAttributesDeep } from '../utils/inputValidation/attributes';
+import logFactory from '../utils/logger';
+const log = logFactory('splitio-client');
 
 function ClientAttributesDecorationLayer(context, isKeyBinded, isTTBinded) {
 
@@ -18,6 +20,7 @@ function ClientAttributesDecorationLayer(context, isKeyBinded, isTTBinded) {
   client.setAttribute = (attributeName, attributeValue) => {
     const attribute = {};
     attribute[attributeName] = attributeValue;
+    log.debug(`[Attribute Decoration] store ${attributeValue} for attribute ${attributeName}`);
     if (!validateAttributesDeep(attribute))
       return false;
     return attributeStorage.setAttribute(attributeName, attributeValue);
@@ -30,7 +33,8 @@ function ClientAttributesDecorationLayer(context, isKeyBinded, isTTBinded) {
    * @returns {Object} Attribute with the given key
    */
   client.getAttribute = (attributeName) => {
-    return attributeStorage.getAttribute(attributeName);
+    log.debug(`[Attribute Decoration] retrieved attribute ${attributeName+''}`);
+    return attributeStorage.getAttribute(attributeName+'');
   };
 
   /**
@@ -61,7 +65,8 @@ function ClientAttributesDecorationLayer(context, isKeyBinded, isTTBinded) {
    * @returns {boolean} true if attribute was removed and false otherways
    */
   client.removeAttribute = (attributeName) => {
-    return attributeStorage.removeAttribute(attributeName);
+    log.debug(`[Attribute Decoration] removed attribute ${attributeName+''}`);
+    return attributeStorage.removeAttribute(attributeName+'');
   };
 
   /**

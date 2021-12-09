@@ -3,7 +3,7 @@ import logFactory from '../logger';
 const log = logFactory('');
 
 export function validateAttribute(attributeKey, attributeValue, method) {
-  if (!isString(attributeKey) || attributeKey.length === 0 || attributeKey === 'null'){
+  if (!isString(attributeKey) || attributeKey.length === 0){
     log.warn(`${method}: you passed an invalid attribute name, attribute name must be a non-empty string.`);
     return false;
   }
