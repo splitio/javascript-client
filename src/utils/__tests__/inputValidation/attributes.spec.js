@@ -85,14 +85,6 @@ tape('DEEP INPUT VALIDATION for Attributes', t => {
     resetStubs();
     assert.end();
   });
-
-  t.test('Should return true if it is null or undefined (since attributes are optional) without logging any errors', assert => {
-    assert.notOk(loggerMock.error.called, 'Should not log any errors.');
-    assert.notOk(loggerMock.warn.called, 'It should have not logged any warnings.');
-    
-    resetStubs();
-    assert.end();
-  });
   
   t.test('Should return false and log error if attributes map is invalid', assert => {
     
