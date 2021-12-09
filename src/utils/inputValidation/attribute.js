@@ -12,10 +12,9 @@ export function validateAttribute(attributeKey, attributeValue, method) {
   const isFiniteVal = numberIsFinite(attributeValue);
   const isBoolVal = isBoolean(attributeValue);
   const isArrayVal = Array.isArray(attributeValue);
-  const isNullVal = attributeValue === null;
 
-  if (!(isStringVal || isFiniteVal || isBoolVal || isArrayVal || isNullVal)) { // If it's not of valid type.
-    log.warn(`${method}: you passed an invalid attribute value for ${attributeKey}, acceptable types are String, Number, Boolean and Lists.`);
+  if (!(isStringVal || isFiniteVal || isBoolVal || isArrayVal)) { // If it's not of valid type.
+    log.warn(`${method}: you passed an invalid attribute value for ${attributeKey}. Acceptable types are: string, number, boolean and array of strings.`);
     return false;
   }
 

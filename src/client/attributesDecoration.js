@@ -21,8 +21,7 @@ function ClientAttributesDecorationLayer(context, isKeyBinded, isTTBinded) {
     const attribute = {};
     attribute[attributeName] = attributeValue;
     log.debug(`[Attribute Decoration] store ${attributeValue} for attribute ${attributeName}`);
-    if (!validateAttributesDeep(attribute))
-      return false;
+    if (!validateAttributesDeep(attribute)) return false;
     return attributeStorage.setAttribute(attributeName, attributeValue);
   };
 
@@ -44,8 +43,7 @@ function ClientAttributesDecorationLayer(context, isKeyBinded, isTTBinded) {
    * @returns true if attributes were stored an false otherways
    */
   client.setAttributes = (attributes) => {
-    if (!validateAttributesDeep(attributes))
-      return false;
+    if (!validateAttributesDeep(attributes)) return false;
     return attributeStorage.setAttributes(attributes);
   };
 

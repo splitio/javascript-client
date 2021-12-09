@@ -13,8 +13,7 @@ export function validateAttributes(maybeAttrs, method) {
 }
 
 export function validateAttributesDeep(maybeAttributes, method) {
-  if (!validateAttributes(maybeAttributes, method))
-    return false;
+  if (!validateAttributes(maybeAttributes, method)) return false;
   
   let result = true;
   Object.keys(maybeAttributes).forEach(attributeKey => {
