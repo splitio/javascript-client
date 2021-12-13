@@ -3,13 +3,21 @@ import sinon from 'sinon';
 import proxyquire from 'proxyquire';
 const proxyquireStrict = proxyquire.noCallThru();
 
-const inputValidation = sinon.stub();
-inputValidation.resolves({});
+const clientMock = {
+  getTreatment: sinon.stub().returnsArg(2),
+  getTreatments: sinon.stub().returnsArg(2),
+  getTreatmentWithConfig: sinon.stub().returnsArg(2),
+  getTreatmentsWithConfig: sinon.stub().returnsArg(2)
+};
+
+function ClientFactoryMock() {
+  return clientMock;
+}
 
 const AttributesDecorationMockedClient = proxyquireStrict(
   '../attributesDecoration',
   {
-    './inputValidation': inputValidation
+    './inputValidation': { ClientWithInputValidationLayer: ClientFactoryMock }
   }
 ).default;
 
@@ -119,8 +127,94 @@ tape('ATTRIBUTES DECORATION / validation', t => {
     assert.equals(client.setAttributes(validAttributes), true, 'It should add them all because they are valid attributes.');
     assert.deepEquals(client.getAttributes(), validAttributes, 'It should had stored every valid attributes.');
     
+    client.clearAttributes();
 
     assert.end();
+  });
+
+  t.end();
+});
+
+tape('ATTRIBUTES DECORATION / evaluation', t => {
+
+  t.test('Evaluation attributes logic and precedence / getTreatment', assert => {
+    client.getTreatment.resetBehaviour
+
+    // If the same attribute is “cached” and provided on the function, the value received on the function call takes precedence.
+    assert.deepEquals(client.getTreatment('key','split',{func_attr_bool: true, func_attr_str: 'true'}), {func_attr_bool: true, func_attr_str: 'true'},'Nothing changes if no attributes were provided using the new api');
+    assert.deepEquals(client.getAttributes(),{},'Attributes in memory storage must be empty');
+    client.setAttribute('func_attr_bool',false);
+    assert.deepEquals(client.getAttributes(),{'func_attr_bool': false},'In memory attribute storage must have the unique stored attribute');
+    assert.deepEquals(client.getTreatment('key','split',{func_attr_bool: true, func_attr_str: 'true'}), {func_attr_bool: true, func_attr_str: 'true'},'Function attributes has precedence against api ones');
+    assert.deepEquals(client.getTreatment('key','split',null), {func_attr_bool: false},'API attributes should be kept in memory and use for evaluations');
+    assert.deepEquals(client.getTreatment('key','split',{func_attr_str: 'true'}), {func_attr_bool: false, func_attr_str: 'true'},'API attributes should be kept in memory and use for evaluations');
+    client.setAttributes({func_attr_str: 'false'});
+    assert.deepEquals(client.getAttributes(),{'func_attr_bool': false, 'func_attr_str': 'false'},'In memory attribute storage must have two stored attributes');
+    assert.deepEquals(client.getTreatment('key','split',{func_attr_bool: true, func_attr_str: 'true', func_attr_number: 1}), {func_attr_bool: true, func_attr_str: 'true', func_attr_number: 1},'Function attributes has precedence against api ones');
+    assert.deepEquals(client.getTreatment('key','split',null), {func_attr_bool: false, func_attr_str: 'false'},'If the getTreatment function is called without attributes, stored attributes will be used to evaluate.');
+    client.clearAttributes();
+    
+    assert.end();
+  });
+
+  t.test('Evaluation attributes logic and precedence / getTreatments', assert => {
+
+    // If the same attribute is “cached” and provided on the function, the value received on the function call takes precedence.
+    assert.deepEquals(client.getTreatments('key','split',{func_attr_bool: true, func_attr_str: 'true'}), {func_attr_bool: true, func_attr_str: 'true'},'Nothing changes if no attributes were provided using the new api');
+    assert.deepEquals(client.getAttributes(),{},'Attributes in memory storage must be empty');
+    client.setAttribute('func_attr_bool',false);
+    assert.deepEquals(client.getAttributes(),{'func_attr_bool': false},'In memory attribute storage must have the unique stored attribute');
+    assert.deepEquals(client.getTreatments('key','split',{func_attr_bool: true, func_attr_str: 'true'}), {func_attr_bool: true, func_attr_str: 'true'},'Function attributes has precedence against api ones');
+    assert.deepEquals(client.getTreatments('key','split',null), {func_attr_bool: false},'API attributes should be kept in memory and use for evaluations');
+    assert.deepEquals(client.getTreatments('key','split',{func_attr_str: 'true'}), {func_attr_bool: false, func_attr_str: 'true'},'API attributes should be kept in memory and use for evaluations');
+    client.setAttributes({func_attr_str: 'false'});
+    assert.deepEquals(client.getAttributes(),{'func_attr_bool': false, 'func_attr_str': 'false'},'In memory attribute storage must have two stored attributes');
+    assert.deepEquals(client.getTreatments('key','split',{func_attr_bool: true, func_attr_str: 'true', func_attr_number: 1}), {func_attr_bool: true, func_attr_str: 'true', func_attr_number: 1},'Function attributes has precedence against api ones');
+    assert.deepEquals(client.getTreatments('key','split',null), {func_attr_bool: false, func_attr_str: 'false'},'If the getTreatment function is called without attributes, stored attributes will be used to evaluate.');
+    client.clearAttributes();
+    
+    assert.end();
+    
+  });
+
+  t.test('Evaluation attributes logic and precedence / getTreatmentWithConfig', assert => {
+
+    // If the same attribute is “cached” and provided on the function, the value received on the function call takes precedence.
+    assert.deepEquals(client.getTreatmentWithConfig('key','split',{func_attr_bool: true, func_attr_str: 'true'}), {func_attr_bool: true, func_attr_str: 'true'},'Nothing changes if no attributes were provided using the new api');
+    assert.deepEquals(client.getAttributes(),{},'Attributes in memory storage must be empty');
+    client.setAttribute('func_attr_bool',false);
+    assert.deepEquals(client.getAttributes(),{'func_attr_bool': false},'In memory attribute storage must have the unique stored attribute');
+    assert.deepEquals(client.getTreatmentWithConfig('key','split',{func_attr_bool: true, func_attr_str: 'true'}), {func_attr_bool: true, func_attr_str: 'true'},'Function attributes has precedence against api ones');
+    assert.deepEquals(client.getTreatmentWithConfig('key','split',null), {func_attr_bool: false},'API attributes should be kept in memory and use for evaluations');
+    assert.deepEquals(client.getTreatmentWithConfig('key','split',{func_attr_str: 'true'}), {func_attr_bool: false, func_attr_str: 'true'},'API attributes should be kept in memory and use for evaluations');
+    client.setAttributes({func_attr_str: 'false'});
+    assert.deepEquals(client.getAttributes(),{'func_attr_bool': false, 'func_attr_str': 'false'},'In memory attribute storage must have two stored attributes');
+    assert.deepEquals(client.getTreatmentWithConfig('key','split',{func_attr_bool: true, func_attr_str: 'true', func_attr_number: 1}), {func_attr_bool: true, func_attr_str: 'true', func_attr_number: 1},'Function attributes has precedence against api ones');
+    assert.deepEquals(client.getTreatmentWithConfig('key','split',null), {func_attr_bool: false, func_attr_str: 'false'},'If the getTreatment function is called without attributes, stored attributes will be used to evaluate.');
+    client.clearAttributes();
+    
+    assert.end();
+    
+  });
+
+  t.test('Evaluation attributes logic and precedence / getTreatmentsWithConfig', assert => {
+
+    // If the same attribute is “cached” and provided on the function, the value received on the function call takes precedence.
+    assert.deepEquals(client.getTreatmentsWithConfig('key','split',{func_attr_bool: true, func_attr_str: 'true'}), {func_attr_bool: true, func_attr_str: 'true'},'Nothing changes if no attributes were provided using the new api');
+    assert.deepEquals(client.getAttributes(),{},'Attributes in memory storage must be empty');
+    client.setAttribute('func_attr_bool',false);
+    assert.deepEquals(client.getAttributes(),{'func_attr_bool': false},'In memory attribute storage must have the unique stored attribute');
+    assert.deepEquals(client.getTreatmentsWithConfig('key','split',{func_attr_bool: true, func_attr_str: 'true'}), {func_attr_bool: true, func_attr_str: 'true'},'Function attributes has precedence against api ones');
+    assert.deepEquals(client.getTreatmentsWithConfig('key','split',null), {func_attr_bool: false},'API attributes should be kept in memory and use for evaluations');
+    assert.deepEquals(client.getTreatmentsWithConfig('key','split',{func_attr_str: 'true'}), {func_attr_bool: false, func_attr_str: 'true'},'API attributes should be kept in memory and use for evaluations');
+    client.setAttributes({func_attr_str: 'false'});
+    assert.deepEquals(client.getAttributes(),{'func_attr_bool': false, 'func_attr_str': 'false'},'In memory attribute storage must have two stored attributes');
+    assert.deepEquals(client.getTreatmentsWithConfig('key','split',{func_attr_bool: true, func_attr_str: 'true', func_attr_number: 1}), {func_attr_bool: true, func_attr_str: 'true', func_attr_number: 1},'Function attributes has precedence against api ones');
+    assert.deepEquals(client.getTreatmentsWithConfig('key','split',null), {func_attr_bool: false, func_attr_str: 'false'},'If the getTreatment function is called without attributes, stored attributes will be used to evaluate.');
+    client.clearAttributes();
+    
+    assert.end();
+    
   });
 
   t.end();

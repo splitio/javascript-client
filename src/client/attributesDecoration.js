@@ -1,15 +1,27 @@
-import ClientWithInputValidationLayer from './inputValidation';
+import { ClientWithInputValidationLayer } from './inputValidation';
 import AttributesCacheInMemory from '../storage/AttributesCache/InMemory';
 import { validateAttributesDeep } from '../utils/inputValidation/attributes';
 import logFactory from '../utils/logger';
+import objectAssign from 'object-assign';
 const log = logFactory('splitio-client');
 
+/**
+ * Add in memory attributes storage methods and combine them with any attribute received from the getTreatment/s call 
+ */
 function ClientAttributesDecorationLayer(context, isKeyBinded, isTTBinded) {
 
   const client = ClientWithInputValidationLayer(context, isKeyBinded, isTTBinded);
 
   const attributeStorage = new AttributesCacheInMemory();
 
+  // Keep a reference to the original methods
+  const clientGetTreatment = client.getTreatment;
+  const clientGetTreatmentWithConfig = client.getTreatmentWithConfig;
+  const clientGetTreatments = client.getTreatments;
+  const clientGetTreatmentsWithConfig = client.getTreatmentsWithConfig;
+
+  let combinedAttributes = {};
+  
   /**
    * Add an attribute to client's in memory attributes storage
    * 
@@ -72,6 +84,30 @@ function ClientAttributesDecorationLayer(context, isKeyBinded, isTTBinded) {
    */
   client.clearAttributes = () => {
     return attributeStorage.clear();
+  };
+
+  client.getTreatment = (maybeKey, maybeSplit, maybeAttributes) => {
+    combinedAttributes = {};
+    objectAssign(combinedAttributes, attributeStorage.getAll(), maybeAttributes);
+    return clientGetTreatment(maybeKey, maybeSplit, combinedAttributes);
+  };
+
+  client.getTreatmentWithConfig = (maybeKey, maybeSplit, maybeAttributes) => {
+    combinedAttributes = {};
+    objectAssign(combinedAttributes, attributeStorage.getAll(), maybeAttributes);
+    return clientGetTreatmentWithConfig(maybeKey, maybeSplit, combinedAttributes);
+  };
+
+  client.getTreatments = (maybeKey, maybeSplits, maybeAttributes) => {
+    combinedAttributes = {};
+    objectAssign(combinedAttributes, attributeStorage.getAll(), maybeAttributes);
+    return clientGetTreatments(maybeKey, maybeSplits, combinedAttributes);
+  };
+
+  client.getTreatmentsWithConfig = (maybeKey, maybeSplits, maybeAttributes) => {
+    combinedAttributes = {};
+    objectAssign(combinedAttributes, attributeStorage.getAll(), maybeAttributes);
+    return clientGetTreatmentsWithConfig(maybeKey, maybeSplits, combinedAttributes);
   };
 
   return client;
