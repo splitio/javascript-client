@@ -1,14 +1,24 @@
-import ClientWithInputValidationLayer from './inputValidation';
+import ClientInputValidationLayer from './inputValidation';
 import AttributesCacheInMemory from '../storage/AttributesCache/InMemory';
 import { validateAttributesDeep } from '../utils/inputValidation/attributes';
 import logFactory from '../utils/logger';
+import objectAssign from 'object-assign';
 const log = logFactory('splitio-client');
 
-function ClientAttributesDecorationLayer(context, isKeyBinded, isTTBinded) {
+/**
+ * Add in memory attributes storage methods and combine them with any attribute received from the getTreatment/s call 
+ */
+export default function ClientAttributesDecorationLayer(context, isKeyBinded, isTTBinded) {
 
-  const client = ClientWithInputValidationLayer(context, isKeyBinded, isTTBinded);
+  const client = ClientInputValidationLayer(context, isKeyBinded, isTTBinded);
 
   const attributeStorage = new AttributesCacheInMemory();
+
+  // Keep a reference to the original methods
+  const clientGetTreatment = client.getTreatment;
+  const clientGetTreatmentWithConfig = client.getTreatmentWithConfig;
+  const clientGetTreatments = client.getTreatments;
+  const clientGetTreatmentsWithConfig = client.getTreatmentsWithConfig;
 
   /**
    * Add an attribute to client's in memory attributes storage
@@ -20,8 +30,8 @@ function ClientAttributesDecorationLayer(context, isKeyBinded, isTTBinded) {
   client.setAttribute = (attributeName, attributeValue) => {
     const attribute = {};
     attribute[attributeName] = attributeValue;
-    log.debug(`[Attribute Decoration] store ${attributeValue} for attribute ${attributeName}`);
     if (!validateAttributesDeep(attribute)) return false;
+    log.debug(`stored ${attributeValue} for attribute ${attributeName}`);
     return attributeStorage.setAttribute(attributeName, attributeValue);
   };
 
@@ -32,8 +42,8 @@ function ClientAttributesDecorationLayer(context, isKeyBinded, isTTBinded) {
    * @returns {Object} Attribute with the given key
    */
   client.getAttribute = (attributeName) => {
-    log.debug(`[Attribute Decoration] retrieved attribute ${attributeName+''}`);
-    return attributeStorage.getAttribute(attributeName+'');
+    log.debug(`retrieved attribute ${attributeName}`);
+    return attributeStorage.getAttribute(attributeName + '');
   };
 
   /**
@@ -63,8 +73,8 @@ function ClientAttributesDecorationLayer(context, isKeyBinded, isTTBinded) {
    * @returns {boolean} true if attribute was removed and false otherways
    */
   client.removeAttribute = (attributeName) => {
-    log.debug(`[Attribute Decoration] removed attribute ${attributeName+''}`);
-    return attributeStorage.removeAttribute(attributeName+'');
+    log.debug(`removed attribute ${attributeName}`);
+    return attributeStorage.removeAttribute(attributeName + '');
   };
 
   /**
@@ -74,7 +84,29 @@ function ClientAttributesDecorationLayer(context, isKeyBinded, isTTBinded) {
     return attributeStorage.clear();
   };
 
+  client.getTreatment = (maybeKey, maybeSplit, maybeAttributes) => {
+    return clientGetTreatment(maybeKey, maybeSplit, combineAttributes(maybeAttributes));
+  };
+
+  client.getTreatmentWithConfig = (maybeKey, maybeSplit, maybeAttributes) => {
+    return clientGetTreatmentWithConfig(maybeKey, maybeSplit, combineAttributes(maybeAttributes));
+  };
+
+  client.getTreatments = (maybeKey, maybeSplits, maybeAttributes) => {
+    return clientGetTreatments(maybeKey, maybeSplits, combineAttributes(maybeAttributes));
+  };
+
+  client.getTreatmentsWithConfig = (maybeKey, maybeSplits, maybeAttributes) => {
+    return clientGetTreatmentsWithConfig(maybeKey, maybeSplits, combineAttributes(maybeAttributes));
+  };
+
+  function combineAttributes(maybeAttributes) {
+    const storedAttributes = attributeStorage.getAll();
+    if (Object.keys(storedAttributes).length > 0) {
+      return objectAssign({}, storedAttributes, maybeAttributes);
+    }
+    return maybeAttributes;
+  }
+
   return client;
 }
-
-export default ClientAttributesDecorationLayer;
