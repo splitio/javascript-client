@@ -20,9 +20,6 @@ export default function ClientAttributesDecorationLayer(context, isKeyBinded, is
   const clientGetTreatments = client.getTreatments;
   const clientGetTreatmentsWithConfig = client.getTreatmentsWithConfig;
 
-  let combinedAttributes = {};
-  let storedAttributes = {};
-  
   /**
    * Add an attribute to client's in memory attributes storage
    * 
@@ -45,8 +42,8 @@ export default function ClientAttributesDecorationLayer(context, isKeyBinded, is
    * @returns {Object} Attribute with the given key
    */
   client.getAttribute = (attributeName) => {
-    log.debug(`[Attribute Decoration] retrieved attribute ${attributeName+''}`);
-    return attributeStorage.getAttribute(attributeName+'');
+    log.debug(`[Attribute Decoration] retrieved attribute ${attributeName + ''}`);
+    return attributeStorage.getAttribute(attributeName + '');
   };
 
   /**
@@ -76,8 +73,8 @@ export default function ClientAttributesDecorationLayer(context, isKeyBinded, is
    * @returns {boolean} true if attribute was removed and false otherways
    */
   client.removeAttribute = (attributeName) => {
-    log.debug(`[Attribute Decoration] removed attribute ${attributeName+''}`);
-    return attributeStorage.removeAttribute(attributeName+'');
+    log.debug(`[Attribute Decoration] removed attribute ${attributeName + ''}`);
+    return attributeStorage.removeAttribute(attributeName + '');
   };
 
   /**
@@ -103,13 +100,12 @@ export default function ClientAttributesDecorationLayer(context, isKeyBinded, is
     return clientGetTreatmentsWithConfig(maybeKey, maybeSplits, combineAttributes(maybeAttributes));
   };
 
-  function combineAttributes (maybeAttributes) {
-    combinedAttributes = maybeAttributes;
-    storedAttributes = attributeStorage.getAll();
+  function combineAttributes(maybeAttributes) {
+    const storedAttributes = attributeStorage.getAll();
     if (Object.keys(storedAttributes).length > 0) {
-      combinedAttributes = objectAssign({}, storedAttributes, maybeAttributes);
+      return objectAssign({}, storedAttributes, maybeAttributes);
     }
-    return combinedAttributes;
+    return maybeAttributes;
   }
 
   return client;
