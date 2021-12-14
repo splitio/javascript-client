@@ -30,8 +30,8 @@ export default function ClientAttributesDecorationLayer(context, isKeyBinded, is
   client.setAttribute = (attributeName, attributeValue) => {
     const attribute = {};
     attribute[attributeName] = attributeValue;
-    log.debug(`[Attribute Decoration] store ${attributeValue} for attribute ${attributeName}`);
     if (!validateAttributesDeep(attribute)) return false;
+    log.debug(`stored ${attributeValue} for attribute ${attributeName}`);
     return attributeStorage.setAttribute(attributeName, attributeValue);
   };
 
@@ -42,7 +42,7 @@ export default function ClientAttributesDecorationLayer(context, isKeyBinded, is
    * @returns {Object} Attribute with the given key
    */
   client.getAttribute = (attributeName) => {
-    log.debug(`[Attribute Decoration] retrieved attribute ${attributeName + ''}`);
+    log.debug(`retrieved attribute ${attributeName}`);
     return attributeStorage.getAttribute(attributeName + '');
   };
 
@@ -73,7 +73,7 @@ export default function ClientAttributesDecorationLayer(context, isKeyBinded, is
    * @returns {boolean} true if attribute was removed and false otherways
    */
   client.removeAttribute = (attributeName) => {
-    log.debug(`[Attribute Decoration] removed attribute ${attributeName + ''}`);
+    log.debug(`removed attribute ${attributeName}`);
     return attributeStorage.removeAttribute(attributeName + '');
   };
 
