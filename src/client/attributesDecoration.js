@@ -1,4 +1,4 @@
-import { ClientWithInputValidationLayer } from './inputValidation';
+import ClientInputValidationLayer from './inputValidation';
 import AttributesCacheInMemory from '../storage/AttributesCache/InMemory';
 import { validateAttributesDeep } from '../utils/inputValidation/attributes';
 import logFactory from '../utils/logger';
@@ -8,9 +8,9 @@ const log = logFactory('splitio-client');
 /**
  * Add in memory attributes storage methods and combine them with any attribute received from the getTreatment/s call 
  */
-function ClientAttributesDecorationLayer(context, isKeyBinded, isTTBinded) {
+export default function ClientAttributesDecorationLayer(context, isKeyBinded, isTTBinded) {
 
-  const client = ClientWithInputValidationLayer(context, isKeyBinded, isTTBinded);
+  const client = ClientInputValidationLayer(context, isKeyBinded, isTTBinded);
 
   const attributeStorage = new AttributesCacheInMemory();
 
@@ -21,6 +21,7 @@ function ClientAttributesDecorationLayer(context, isKeyBinded, isTTBinded) {
   const clientGetTreatmentsWithConfig = client.getTreatmentsWithConfig;
 
   let combinedAttributes = {};
+  let storedAttributes = {};
   
   /**
    * Add an attribute to client's in memory attributes storage
@@ -87,30 +88,29 @@ function ClientAttributesDecorationLayer(context, isKeyBinded, isTTBinded) {
   };
 
   client.getTreatment = (maybeKey, maybeSplit, maybeAttributes) => {
-    combinedAttributes = {};
-    objectAssign(combinedAttributes, attributeStorage.getAll(), maybeAttributes);
-    return clientGetTreatment(maybeKey, maybeSplit, combinedAttributes);
+    return clientGetTreatment(maybeKey, maybeSplit, combineAttributes(maybeAttributes));
   };
 
   client.getTreatmentWithConfig = (maybeKey, maybeSplit, maybeAttributes) => {
-    combinedAttributes = {};
-    objectAssign(combinedAttributes, attributeStorage.getAll(), maybeAttributes);
-    return clientGetTreatmentWithConfig(maybeKey, maybeSplit, combinedAttributes);
+    return clientGetTreatmentWithConfig(maybeKey, maybeSplit, combineAttributes(maybeAttributes));
   };
 
   client.getTreatments = (maybeKey, maybeSplits, maybeAttributes) => {
-    combinedAttributes = {};
-    objectAssign(combinedAttributes, attributeStorage.getAll(), maybeAttributes);
-    return clientGetTreatments(maybeKey, maybeSplits, combinedAttributes);
+    return clientGetTreatments(maybeKey, maybeSplits, combineAttributes(maybeAttributes));
   };
 
   client.getTreatmentsWithConfig = (maybeKey, maybeSplits, maybeAttributes) => {
-    combinedAttributes = {};
-    objectAssign(combinedAttributes, attributeStorage.getAll(), maybeAttributes);
-    return clientGetTreatmentsWithConfig(maybeKey, maybeSplits, combinedAttributes);
+    return clientGetTreatmentsWithConfig(maybeKey, maybeSplits, combineAttributes(maybeAttributes));
   };
+
+  function combineAttributes (maybeAttributes) {
+    combinedAttributes = maybeAttributes;
+    storedAttributes = attributeStorage.getAll();
+    if (Object.keys(storedAttributes).length > 0) {
+      combinedAttributes = objectAssign({}, storedAttributes, maybeAttributes);
+    }
+    return combinedAttributes;
+  }
 
   return client;
 }
-
-export default ClientAttributesDecorationLayer;

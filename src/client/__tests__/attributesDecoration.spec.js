@@ -17,7 +17,7 @@ function ClientFactoryMock() {
 const AttributesDecorationMockedClient = proxyquireStrict(
   '../attributesDecoration',
   {
-    './inputValidation': { ClientWithInputValidationLayer: ClientFactoryMock }
+    './inputValidation': ClientFactoryMock
   }
 ).default;
 
@@ -138,7 +138,6 @@ tape('ATTRIBUTES DECORATION / validation', t => {
 tape('ATTRIBUTES DECORATION / evaluation', t => {
 
   t.test('Evaluation attributes logic and precedence / getTreatment', assert => {
-    client.getTreatment.resetBehaviour
 
     // If the same attribute is “cached” and provided on the function, the value received on the function call takes precedence.
     assert.deepEquals(client.getTreatment('key','split',{func_attr_bool: true, func_attr_str: 'true'}), {func_attr_bool: true, func_attr_str: 'true'},'Nothing changes if no attributes were provided using the new api');
