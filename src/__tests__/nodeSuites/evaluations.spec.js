@@ -252,6 +252,13 @@ export default async function(config, key, assert) {
 
     await client.ready();
 
+    assert.deepEqual(client.setAttribute, undefined, 'should not be available');
+    assert.deepEqual(client.getAttribute, undefined, 'should not be available');
+    assert.deepEqual(client.removeAttribute, undefined, 'should not be available');
+    assert.deepEqual(client.setAttributes, undefined, 'should not be available');
+    assert.deepEqual(client.getAttributes, undefined, 'should not be available');
+    assert.deepEqual(client.clearAttributes, undefined, 'should not be available');
+
     getTreatmentTests(client, i);
     getTreatmentsTests(client, i);
     getTreatmentsWithConfigTests(client, i);
