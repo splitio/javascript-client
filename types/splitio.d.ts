@@ -188,7 +188,7 @@ interface ISharedSettings {
      * Possible values are 'DEBUG' and 'OPTIMIZED'.
      * - DEBUG: will send all the impressions generated (recommended only for debugging purposes).
      * - OPTIMIZED: will send unique impressions to Split Servers avoiding a considerable amount of traffic that duplicated impressions could generate.
-     * @property {String} impressionsMode
+     * @property {string} impressionsMode
      * @default 'OPTIMIZED'
      */
     impressionsMode?: SplitIO.ImpressionsMode,
@@ -1245,7 +1245,7 @@ declare namespace SplitIO {
     /**
      * Add an attribute to client's in memory attributes storage
      * 
-     * @param {String} attributeName Attrinute name
+     * @param {string} attributeName Attrinute name
      * @param {AttributeType} attributeValue Attribute value
      * @returns {boolean} true if the attribute was stored and false otherways
      */
@@ -1253,14 +1253,14 @@ declare namespace SplitIO {
     /**
      * Returns the attribute with the given key
      * 
-     * @param {String} attributeName Attribute name
+     * @param {string} attributeName Attribute name
      * @returns {AttributeType} Attribute with the given key
      */
     getAttribute(attributeName: String): AttributeType,
     /**
      * Removes from client's in memory attributes storage the attribute with the given key
      * 
-     * @param {String} attributeName 
+     * @param {string} attributeName 
      * @returns {boolean} true if attribute was removed and false otherways
      */
     removeAttribute(attributeName: String): boolean,
