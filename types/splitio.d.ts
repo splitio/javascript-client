@@ -481,7 +481,7 @@ declare namespace SplitIO {
    */
   type Event = 'init::timeout' | 'init::ready' | 'init::cache-ready' | 'state::update';
   /**
-   * Split attributes should be on object with values of type string or number (dates should be sent as millis since epoch).
+   * Split attributes should be on object with values of type string, boolean, number (dates should be sent as millis since epoch) or Array of strings or numbers.
    * @typedef {Object.<number, string, boolean, string[], number[]>} Attributes
    * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#attribute-syntax}
    */
@@ -489,8 +489,13 @@ declare namespace SplitIO {
     [attributeName: string]: string | number | boolean | Array<string | number>
   };
   /**
+   * Type of an attribute value 
+   * @typedef {string | number | boolean | Array<string | number>} AttributeType
+   */
+  type AttributeType = string | number | boolean | Array<string | number>;
+  /**
    * Split properties should be an object with values of type string, number, boolean or null. Size limit of ~31kb.
-   * @typedef {Object.<number, string, boolean, null>} Attributes
+   * @typedef {Object.<number, string, boolean, null>} Properties
    * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#track
    */
   type Properties = {
@@ -1072,6 +1077,27 @@ declare namespace SplitIO {
     manager(): IManager
   }
   /**
+   * This represents the interface for the SDK instance with synchronous storage.
+   * @interface ISDK
+   * @extends IBasicSDK
+   */
+  interface IBrowserSDK extends ISDK {
+    /**
+     * Returns the default client instance of the SDK.
+     * @function client
+     * @returns {IBrowserClient} The client instance.
+     */
+    client(): IBrowserClient,
+    /**
+     * Returns a shared client of the SDK. For usage on the browser.
+     * @function client
+     * @param {SplitKey} key The key for the new client instance.
+     * @param {string=} trafficType The traffic type of the provided key.
+     * @returns {IBrowserClient} The client instance.
+     */
+    client(key: SplitKey, trafficType?: string): IBrowserClient
+  }
+  /**
    * This represents the interface for the SDK instance with asynchronous storage.
    * @interface IAsyncSDK
    * @extends IBasicSDK
@@ -1209,6 +1235,52 @@ declare namespace SplitIO {
      * @returns {boolean} Whether the event was added to the queue successfully or not.
      */
     track(eventType: string, value?: number, properties?: Properties): boolean
+  }
+  /**
+   * This represents the interface for the Client instance with attributes binding.
+   * @interface IBrowserClient
+   * @Extends IClient
+   */
+  interface IBrowserClient extends IClient {
+    /**
+     * Add an attribute to client's in memory attributes storage
+     * 
+     * @param {String} attributeName Attrinute name
+     * @param {AttributeType} attributeValue Attribute value
+     * @returns {boolean} true if the attribute was stored and false otherways
+     */
+    setAttribute(attributeName: String, attributeValue: AttributeType): boolean,
+    /**
+     * Returns the attribute with the given key
+     * 
+     * @param {String} attributeName Attribute name
+     * @returns {AttributeType} Attribute with the given key
+     */
+    getAttribute(attributeName: String): AttributeType,
+    /**
+     * Removes from client's in memory attributes storage the attribute with the given key
+     * 
+     * @param {String} attributeName 
+     * @returns {boolean} true if attribute was removed and false otherways
+     */
+    removeAttribute(attributeName: String): boolean,
+    /**
+     * Add to client's in memory attributes storage the attributes in 'attributes'
+     * 
+     * @param {Attributes} attributes Object with attributes to store
+     * @returns true if attributes were stored an false otherways
+     */
+    setAttributes(attributes: Attributes): boolean,
+    /**
+     * Return all the attributes stored in client's in memory attributes storage
+     * 
+     * @returns {Attributes} returns all the stored attributes
+     */
+    getAttributes(): Attributes,
+    /**
+     * Remove all the stored attributes in the client's in memory attribute storage
+     */
+    clearAttributes(): boolean
   }
   /**
    * This represents the interface for the Client instance with asynchronous storage.

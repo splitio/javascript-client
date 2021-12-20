@@ -12,6 +12,7 @@
  */
 
 import { SplitFactory } from '@splitsoftware/splitio';
+import SplitIO, { Attributes, AttributeType } from '../types/splitio';
 
 let stringPromise: Promise<string>;
 let splitNamesPromise: Promise<SplitIO.SplitNames>;
@@ -27,6 +28,7 @@ let trackPromise: Promise<boolean>;
 // Facade return interface
 let SDK: SplitIO.ISDK;
 let AsyncSDK: SplitIO.IAsyncSDK;
+let BrowserSDK: SplitIO.IBrowserSDK;
 // Settings interfaces
 let nodeSettings: SplitIO.INodeSettings;
 let asyncSettings: SplitIO.INodeAsyncSettings;
@@ -36,6 +38,7 @@ let client: SplitIO.IClient;
 let manager: SplitIO.IManager;
 let asyncClient: SplitIO.IAsyncClient;
 let asyncManager: SplitIO.IAsyncManager;
+let browserClient: SplitIO.IBrowserClient;
 // Utility interfaces
 let impressionListener: SplitIO.IImpressionListener;
 
@@ -161,6 +164,7 @@ browserSettings = {
 SDK = SplitFactory(browserSettings);
 SDK = SplitFactory(nodeSettings);
 AsyncSDK = SplitFactory(asyncSettings);
+BrowserSDK = SplitFactory(browserSettings);
 
 // The settings values the SDK expose.
 const instantiatedSettingsCore: {
@@ -195,6 +199,8 @@ manager = SDK.manager();
 // Today async clients are only possible on Node. Shared client creation not available here.
 asyncClient = AsyncSDK.client();
 asyncManager = AsyncSDK.manager();
+// Browser client for attributes binding
+browserClient = BrowserSDK.client();
 
 // Logger
 SDK.Logger.enable();
@@ -387,6 +393,34 @@ const MyImprListenerMap: SplitIO.IImpressionListener = {
 impressionListener = MyImprListenerMap;
 impressionListener = new MyImprListener();
 impressionListener.logImpression(impressionData);
+
+/**** Tests for attribute binding ****/
+let stored: boolean = browserClient.setAttribute('stringAttribute','value');
+stored = browserClient.setAttribute('numberAttribtue',1);
+stored = browserClient.setAttribute('booleanAttribute',true);
+stored = browserClient.setAttribute('stringArrayAttribute',['value1','value2']);
+stored = browserClient.setAttribute('numberArrayAttribute',[1,2]);
+
+let storedAttributeValue: AttributeType = browserClient.getAttribute('stringAttribute');
+storedAttributeValue = browserClient.getAttribute('numberAttribute');
+storedAttributeValue = browserClient.getAttribute('booleanAttribute');
+storedAttributeValue = browserClient.getAttribute('stringArrayAttribute');
+storedAttributeValue = browserClient.getAttribute('numberArrayAttribute');
+
+let removed: boolean = browserClient.removeAttribute('numberAttribute');
+removed = browserClient.clearAttributes();
+
+let attr: Attributes = {
+  stringAttribute: 'value',
+  numberAttribute: 1,
+  booleanAttribute: true,
+  stringArrayAttribute: ['value1','value2'],
+  numberArrayAttribute: [1,2]
+}
+
+stored = browserClient.setAttributes(attr);
+let storedAttr: Attributes = browserClient.getAttributes();
+removed = browserClient.clearAttributes()
 
 /**** Tests for fully crowded settings interfaces ****/
 
