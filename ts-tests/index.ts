@@ -12,7 +12,7 @@
  */
 
 import { SplitFactory } from '@splitsoftware/splitio';
-import SplitIO, { Attributes, AttributeType } from '../types/splitio';
+import { Attributes, AttributeType } from '../types/splitio';
 
 let stringPromise: Promise<string>;
 let splitNamesPromise: Promise<SplitIO.SplitNames>;
