@@ -1249,21 +1249,21 @@ declare namespace SplitIO {
      * @param {AttributeType} attributeValue Attribute value
      * @returns {boolean} true if the attribute was stored and false otherways
      */
-    setAttribute(attributeName: String, attributeValue: AttributeType): boolean,
+    setAttribute(attributeName: string, attributeValue: AttributeType): boolean,
     /**
      * Returns the attribute with the given key
      * 
      * @param {string} attributeName Attribute name
      * @returns {AttributeType} Attribute with the given key
      */
-    getAttribute(attributeName: String): AttributeType,
+    getAttribute(attributeName: string): AttributeType,
     /**
      * Removes from client's in memory attributes storage the attribute with the given key
      * 
      * @param {string} attributeName 
      * @returns {boolean} true if attribute was removed and false otherways
      */
-    removeAttribute(attributeName: String): boolean,
+    removeAttribute(attributeName: string): boolean,
     /**
      * Add to client's in memory attributes storage the attributes in 'attributes'
      * 
