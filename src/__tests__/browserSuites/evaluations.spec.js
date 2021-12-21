@@ -260,7 +260,7 @@ export default function (config, fetchMock, assert) {
     // Evaluate for the unitary version
     assert.deepEqual(client.getTreatmentWithConfig(null), { treatment: 'control', config: null }, 'If I try to get a treatment with invalid input, I get the config null and treatment control.');
     assert.deepEqual(client.getTreatmentWithConfig('not_existent_split'), { treatment: 'control', config: null }, 'If I try to get a treatment for a non existent Split, I get the config null and treatment control.');
-    assert.deepEqual(client.getTreatmentWithConfig('split_with_config'), { treatment: 'on', config: expectedConfig }, 'If we get the treatment for a Split WITH config, we get such config as a string and the treatment.');
+    assert.deepEqual(client.getTreatmentWithConfig('split_with_config'), { treatment: 'o.n', config: expectedConfig }, 'If we get the treatment for a Split WITH config, we get such config as a string and the treatment.');
     assert.deepEqual(client.getTreatmentWithConfig('split_with_config', { group: 'value_without_config' }), { treatment: 'off', config: null }, 'If we get the treatment for a Split without config, the config value is null.');
 
     const CONTROL_WITH_CONFIG = {
@@ -274,7 +274,7 @@ export default function (config, fetchMock, assert) {
     assert.deepEqual(client.getTreatmentsWithConfig(['not_existent', 'other']), { not_existent: CONTROL_WITH_CONFIG, other: CONTROL_WITH_CONFIG }, 'If I get a treatment for non existent Splits, I get control as treatment and config null for those split names.');
     assert.deepEqual(client.getTreatmentsWithConfig(['split_with_config', 'qc_team']), {
       qc_team: { treatment: 'no', config: null },
-      split_with_config: { treatment: 'on', config: expectedConfig }
+      split_with_config: { treatment: 'o.n', config: expectedConfig }
     }, 'If I get treatments right, I get a map of objects with those treatments and the configs when existent, null config otherwise.');
   };
 
