@@ -351,7 +351,7 @@ export default function (config, fetchMock, assert) {
 
     const expectedConfig = '{"color":"brown","dimensions":{"height":12,"width":14},"text":{"inner":"click me"}}';
 
-    assert.deepEqual(client.getTreatmentWithConfig('split_with_config'), { treatment: 'on', config: expectedConfig }, 'If we get the treatment for a Split WITH config, we get such config as a string and the treatment.');
+    assert.deepEqual(client.getTreatmentWithConfig('split_with_config'), { treatment: 'o.n', config: expectedConfig }, 'If we get the treatment for a Split WITH config, we get such config as a string and the treatment.');
     client.setAttribute('group', 'value_without_config');
     assert.deepEqual(client.getTreatmentWithConfig('split_with_config'), { treatment: 'off', config: null }, 'If we get the treatment for a Split without config, the config value is null.');
 

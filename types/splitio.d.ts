@@ -481,7 +481,7 @@ declare namespace SplitIO {
    */
   type Event = 'init::timeout' | 'init::ready' | 'init::cache-ready' | 'state::update';
   /**
-   * Split attributes should be on object with values of type string, boolean, number (dates should be sent as millis since epoch) or Array of strings or numbers.
+   * Split attributes should be on object with values of type string, boolean, number (dates should be sent as millis since epoch) or array of strings or numbers.
    * @typedef {Object.<number, string, boolean, string[], number[]>} Attributes
    * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#attribute-syntax}
    */
@@ -489,7 +489,7 @@ declare namespace SplitIO {
     [attributeName: string]: string | number | boolean | Array<string | number>
   };
   /**
-   * Type of an attribute value 
+   * Type of an attribute value
    * @typedef {string | number | boolean | Array<string | number>} AttributeType
    */
   type AttributeType = string | number | boolean | Array<string | number>;
@@ -1243,42 +1243,44 @@ declare namespace SplitIO {
    */
   interface IBrowserClient extends IClient {
     /**
-     * Add an attribute to client's in memory attributes storage
-     * 
+     * Add an attribute to client's in memory attributes storage.
+     *
      * @param {string} attributeName Attrinute name
      * @param {AttributeType} attributeValue Attribute value
-     * @returns {boolean} true if the attribute was stored and false otherways
+     * @returns {boolean} true if the attribute was stored and false otherwise
      */
     setAttribute(attributeName: string, attributeValue: AttributeType): boolean,
     /**
-     * Returns the attribute with the given key
-     * 
+     * Returns the attribute with the given key.
+     *
      * @param {string} attributeName Attribute name
      * @returns {AttributeType} Attribute with the given key
      */
     getAttribute(attributeName: string): AttributeType,
     /**
-     * Removes from client's in memory attributes storage the attribute with the given key
-     * 
-     * @param {string} attributeName 
-     * @returns {boolean} true if attribute was removed and false otherways
+     * Removes from client's in memory attributes storage the attribute with the given key.
+     *
+     * @param {string} attributeName
+     * @returns {boolean} true if attribute was removed and false otherwise
      */
     removeAttribute(attributeName: string): boolean,
     /**
-     * Add to client's in memory attributes storage the attributes in 'attributes'
-     * 
+     * Add to client's in memory attributes storage the attributes in 'attributes'.
+     *
      * @param {Attributes} attributes Object with attributes to store
-     * @returns true if attributes were stored an false otherways
+     * @returns true if attributes were stored an false otherwise
      */
     setAttributes(attributes: Attributes): boolean,
     /**
-     * Return all the attributes stored in client's in memory attributes storage
-     * 
+     * Return all the attributes stored in client's in memory attributes storage.
+     *
      * @returns {Attributes} returns all the stored attributes
      */
     getAttributes(): Attributes,
     /**
-     * Remove all the stored attributes in the client's in memory attribute storage
+     * Remove all the stored attributes in the client's in memory attribute storage.
+     *
+     * @returns {boolean} true if all attribute were removed and false otherwise
      */
     clearAttributes(): boolean
   }
