@@ -134,7 +134,7 @@ export default async function(key, fetchMock, assert) {
   assert.equal(client.getTreatment(false, 'always_on'), 'control', 'We should return control with invalid input.');
 
   assert.deepEqual(client.getTreatmentWithConfig(key, 'split_with_config'), {
-    treatment: 'on',
+    treatment: 'o.n',
     config: '{"color":"brown","dimensions":{"height":12,"width":14},"text":{"inner":"click me"}}'
   }, 'Evaluation with config was correct.');
   assert.deepEqual(client.getTreatmentWithConfig(null, 'split_with_config'), {
@@ -148,7 +148,7 @@ export default async function(key, fetchMock, assert) {
   assert.deepEqual(client.getTreatmentsWithConfig(key, ['split_with_config', 'always_on', null]),
     {
       split_with_config: {
-        treatment: 'on',
+        treatment: 'o.n',
         config: '{"color":"brown","dimensions":{"height":12,"width":14},"text":{"inner":"click me"}}'
       },
       always_on: {
