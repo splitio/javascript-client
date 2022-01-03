@@ -260,7 +260,7 @@ export default function (config, fetchMock, assert) {
     // Evaluate for the unitary version
     assert.deepEqual(client.getTreatmentWithConfig(null), { treatment: 'control', config: null }, 'If I try to get a treatment with invalid input, I get the config null and treatment control.');
     assert.deepEqual(client.getTreatmentWithConfig('not_existent_split'), { treatment: 'control', config: null }, 'If I try to get a treatment for a non existent Split, I get the config null and treatment control.');
-    assert.deepEqual(client.getTreatmentWithConfig('split_with_config'), { treatment: 'on', config: expectedConfig }, 'If we get the treatment for a Split WITH config, we get such config as a string and the treatment.');
+    assert.deepEqual(client.getTreatmentWithConfig('split_with_config'), { treatment: 'o.n', config: expectedConfig }, 'If we get the treatment for a Split WITH config, we get such config as a string and the treatment.');
     assert.deepEqual(client.getTreatmentWithConfig('split_with_config', { group: 'value_without_config' }), { treatment: 'off', config: null }, 'If we get the treatment for a Split without config, the config value is null.');
 
     const CONTROL_WITH_CONFIG = {
@@ -274,8 +274,92 @@ export default function (config, fetchMock, assert) {
     assert.deepEqual(client.getTreatmentsWithConfig(['not_existent', 'other']), { not_existent: CONTROL_WITH_CONFIG, other: CONTROL_WITH_CONFIG }, 'If I get a treatment for non existent Splits, I get control as treatment and config null for those split names.');
     assert.deepEqual(client.getTreatmentsWithConfig(['split_with_config', 'qc_team']), {
       qc_team: { treatment: 'no', config: null },
-      split_with_config: { treatment: 'on', config: expectedConfig }
+      split_with_config: { treatment: 'o.n', config: expectedConfig }
     }, 'If I get treatments right, I get a map of objects with those treatments and the configs when existent, null config otherwise.');
+  };
+
+  const getTreatmentsWithInMemoryAttributes = client => {
+
+    assert.deepEqual(client.getAttributes(), {}, 'It should not have attributes stored from previous instances');
+    client.setAttribute('agent', 'chrome');
+    assert.deepEqual(client.getTreatment('employees_between_21_and_50_and_chrome', {
+      age: 20
+    }), 'off', 'Stored attribute value for agent is correct but function attribute age is not');
+    assert.deepEqual(client.getTreatment('employees_between_21_and_50_and_chrome', {
+      age: 21,
+      agent: 'mozilla'
+    }), 'off', 'Function attribute age is correct but function attribute agent has presedence and is invalid for treatment');
+    assert.deepEqual(client.getTreatment('employees_between_21_and_50_and_chrome', {
+      age: 21
+    }), 'on', 'Stored and function attributes combined are valids');
+    client.setAttributes({ age: 21 });
+    assert.deepEqual(client.getTreatment('employees_between_21_and_50_and_chrome'), 'on', 'Stored attribute age and agent are valid for treatment');
+    client.removeAttribute('agent');
+    assert.deepEqual(client.getTreatment('employees_between_21_and_50_and_chrome'), 'off', 'In memory attribute agent was removed so it should return off');
+    client.clearAttributes();
+    assert.deepEqual(client.getAttributes(), {}, 'Empty in memory attributes storage');
+
+    client.setAttribute('account', 'key_1@split.io');
+    assert.deepEqual(client.getTreatment('user_account_in_whitelist', {
+      account: 'key_6@split.io'
+    }), 'off', 'In memory stored attribute account is in whitelist but function attribute account isnt');
+    assert.deepEqual(client.getTreatment('user_account_in_whitelist'), 'on', 'In memory stored attribute account is in whitelist');
+
+    client.setAttributes({ 'attr': new Date('2016-03-17T18:55:47.021Z').getTime() });
+    assert.deepEqual(client.getTreatment('user_attr_btw_datetime_1458240947021_and_1458246884077', {
+      attr: new Date('2016-03-17T17:55:47.021Z').getTime()
+    }), 'off', 'In memory stored attribute is valid but function attribute is not');
+    assert.deepEqual(client.getTreatment('user_attr_btw_datetime_1458240947021_and_1458246884077', {
+      attr: new Date('2016-03-17T21:34:44.077Z').getTime()
+    }), 'off', 'In memory stored attribute is valid but function attribute is not');
+    assert.deepEqual(client.getTreatment('user_attr_btw_datetime_1458240947021_and_1458246884077'), 'on', 'In memory attribute value for attr should return on for evaluation');
+
+    client.clearAttributes();
+    assert.deepEqual(client.getAttributes(), {}, 'Empty in memory attributes storage');
+
+    client.setAttributes({ age: 20, agent: 'chrome', attr2: 'bar', account: 'key_1@split.io' });
+
+    assert.deepEqual(client.getTreatments([
+      'employees_between_21_and_50_and_chrome',
+      'user_attr_gte_10_and_user_attr2_is_not_foo',
+      'user_account_in_whitelist'
+    ], {
+      // Attributes
+      age: 20,
+      attr: 55
+    }), {
+      employees_between_21_and_50_and_chrome: 'off',
+      user_attr_gte_10_and_user_attr2_is_not_foo: 'on',
+      user_account_in_whitelist: 'on'
+    },
+    'Function and in memory attributes combined should return off for employees split and on for others');
+
+    assert.deepEqual(client.getTreatments([
+      'employees_between_21_and_50_and_chrome',
+      'user_attr_gte_10_and_user_attr2_is_not_foo',
+      'user_account_in_whitelist'
+    ], {
+      // Attributes
+      age: 21,
+      account: 'key@split.io'
+    }), {
+      employees_between_21_and_50_and_chrome: 'on',
+      user_attr_gte_10_and_user_attr2_is_not_foo: 'off',
+      user_account_in_whitelist: 'off'
+    },
+    'Function and in memory attributes combined should return on for employees split and of for others');
+
+    const expectedConfig = '{"color":"brown","dimensions":{"height":12,"width":14},"text":{"inner":"click me"}}';
+
+    assert.deepEqual(client.getTreatmentWithConfig('split_with_config'), { treatment: 'o.n', config: expectedConfig }, 'If we get the treatment for a Split WITH config, we get such config as a string and the treatment.');
+    client.setAttribute('group', 'value_without_config');
+    assert.deepEqual(client.getTreatmentWithConfig('split_with_config'), { treatment: 'off', config: null }, 'If we get the treatment for a Split without config, the config value is null.');
+
+    assert.deepEqual(client.getTreatmentsWithConfig(['split_with_config', 'qc_team']), {
+      qc_team: { treatment: 'no', config: null },
+      split_with_config: { treatment: 'off', config: null }
+    }, 'If I get treatments right, I get a map of objects with those treatments and the configs when existent, null config otherwise.');
+
   };
 
   for (i; i < SDK_INSTANCES_TO_TEST; i++) {
@@ -291,6 +375,7 @@ export default function (config, fetchMock, assert) {
       getTreatmentTests(client, clientTABucket1);
       getTreatmentsTests(client);
       getTreatmentsWithConfigTests(client);
+      getTreatmentsWithInMemoryAttributes(client);
       clientTABucket1.destroy();
       client.destroy();
       tested++;

@@ -1,5 +1,5 @@
 import { get } from '../utils/lang';
-import ClientWithInputValidationLayer from './inputValidation';
+import ClientAttributesDecorationLayer from './attributesDecoration';
 import { LOCALHOST_MODE } from '../utils/constants';
 import {
   validateKey,
@@ -25,7 +25,7 @@ function BrowserClientFactory(context) {
     trackBindings.push(tt);
   }
 
-  const client = ClientWithInputValidationLayer(context, true, trackBindings.length > 1);
+  const client = ClientAttributesDecorationLayer(context, true, trackBindings.length > 1);
   client.isBrowserClient = true;
 
   // In the browser land, we can bind the key and the traffic type (if provided)
