@@ -1,3 +1,7 @@
+10.17.0 (January 3, 2022)
+ - Added Attribute binding feature to allow to optionally keep user attributes loaded within the SDK, along with the user ID, for easier usage when requesting flag.
+ - Bugfixing - Fixed an issue returning dynamic configs when the treatment name contains a dot (".").
+
 10.16.1 (October 25, 2021)
  - Updated some internal modules to optimize the time efficiency of split evaluations (i.e., `getTreatment(s)` method calls).
  - Updated some dependencies for vulnerability fixes (ioredis, @babel/cli, eslint, eslint-plugin-compat).
