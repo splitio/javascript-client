@@ -40,11 +40,12 @@ const PartialBrowserProducer = (context) => {
 
   /**
    * @param {string[] | undefined} segmentList might be undefined
+   * @param {boolean | undefined} noCache true to revalidate data to fetch
    */
-  function synchronizeMySegments(segmentList) {
+  function synchronizeMySegments(segmentList, noCache) {
     isSynchronizingMySegments = true;
     // `mySegmentsUpdater` promise always resolves, and with a false value if it fails to fetch or store mySegments
-    return mySegmentsUpdater(0, segmentList).then(function (res) {
+    return mySegmentsUpdater(0, segmentList, noCache).then(function (res) {
       isSynchronizingMySegments = false;
       return res;
     });

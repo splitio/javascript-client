@@ -22,6 +22,11 @@ import { SplitError } from '../../utils/lang/Errors';
 import { _Set, setToArray } from '../../utils/lang/Sets';
 import thenable from '../../utils/promise/thenable';
 
+// For server-side segments storage, returns true if all registered segments have been fetched (changeNumber !== -1)
+function checkAllSegmentsExist(segmentsStorage) {
+  return segmentsStorage.getRegisteredSegments().every(segmentName => segmentsStorage.getChangeNumber(segmentName) !== -1);
+}
+
 function computeSplitsMutation(entries) {
   const computed = entries.reduce((accum, split) => {
     if (split.status === 'ACTIVE') {
@@ -62,13 +67,14 @@ export default function SplitChangesUpdaterFactory(context, isNode = false) {
    * Split updater returns a promise that resolves with a `false` boolean value if it fails to fetch splits or synchronize them with the storage.
    *
    * @param {number | undefined} retry current number of retry attemps. this param is only set by SplitChangesUpdater itself.
+   * @param {boolean | undefined} noCache true to revalidate data to fetch
    */
-  return function SplitChangesUpdater(retry = 0) {
+  return function SplitChangesUpdater(retry = 0, noCache) {
 
     function splitChanges(since) {
       log.debug(`Spin up split update using since = ${since}`);
 
-      const fetcherPromise = splitChangesFetcher(settings, since, startingUp, metricCollectors, isNode)
+      const fetcherPromise = splitChangesFetcher(settings, since, startingUp, metricCollectors, isNode, noCache)
         .then(splitChanges => {
           startingUp = false;
 
@@ -87,7 +93,8 @@ export default function SplitChangesUpdaterFactory(context, isNode = false) {
             storage.splits.removeSplits(mutation.removed),
             storage.segments.registerSegments(mutation.segments)
           ]).then(() => {
-            if (since !== splitChanges.till || readyOnAlreadyExistentState) {
+            // On server-side SDK, we must check that all registered segments have been fetched
+            if (readyOnAlreadyExistentState || (since !== splitChanges.till && (!isNode || checkAllSegmentsExist(storage.segments)))) {
               readyOnAlreadyExistentState = false;
               splitsEventEmitter.emit(splitsEventEmitter.SDK_SPLITS_ARRIVED);
             }
@@ -105,7 +112,7 @@ export default function SplitChangesUpdaterFactory(context, isNode = false) {
           if (startingUp && settings.startup.retriesOnFailureBeforeReady > retry) {
             retry += 1;
             log.info(`Retrying download of splits #${retry}. Reason: ${error}`);
-            return SplitChangesUpdater(retry);
+            return SplitChangesUpdater(retry, noCache);
           } else {
             startingUp = false;
           }
@@ -113,8 +120,11 @@ export default function SplitChangesUpdaterFactory(context, isNode = false) {
           return false;
         });
 
-      // After triggering the requests, if we have cached splits information let's notify that.
-      if (startingUp && storage.splits.checkCache()) splitsEventEmitter.emit(splitsEventEmitter.SDK_SPLITS_CACHE_LOADED);
+      // After triggering the requests, if we have cached splits information let's notify
+      // that asynchronously, to let attach a listener for SDK_READY_FROM_CACHE
+      if (startingUp && storage.splits.checkCache()) {
+        setTimeout(splitsEventEmitter.emit(splitsEventEmitter.SDK_SPLITS_CACHE_LOADED), 0);
+      }
 
       return fetcherPromise;
     }

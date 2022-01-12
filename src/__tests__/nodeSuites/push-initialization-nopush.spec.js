@@ -1,13 +1,15 @@
-import { SplitFactory } from '../..';
+import { SplitFactory } from '../../';
 import SettingsFactory from '../../utils/settings';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
 import authPushDisabled from '../mocks/auth.pushDisabled.json';
+import authPushEnabled from '../mocks/auth.pushEnabled.node.json';
 import authInvalidCredentials from '../mocks/auth.invalidCredentials.txt';
 import authNoUserSpecified from '../mocks/auth.noUserSpecified.txt';
 import { nearlyEqual } from '../testUtils';
 
 import { __setEventSource, __restore } from '../../services/getEventSource/node';
+import EventSourceMock, { setMockListener } from '../../sync/__tests__/mocks/eventSourceMock';
 
 const baseUrls = {
   sdk: 'https://sdk.push-initialization-nopush/api',
@@ -23,7 +25,7 @@ const config = {
     segmentsRefreshRate: 0.1,
     metricsRefreshRate: 3000,
     impressionsRefreshRate: 3000,
-    authRetryBackoffBase: 0.01
+    pushRetryBackoffBase: 0.01 // small value to assert rapidly that push is not retried
   },
   urls: baseUrls,
   startup: {
@@ -83,8 +85,8 @@ function testInitializationFail(fetchMock, assert, fallbackToPolling) {
 export function testAuthWithPushDisabled(fetchMock, assert) {
   assert.plan(6);
 
-  fetchMock.getOnce(settings.url('/auth'), function (url, opts) {
-    if (!opts.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
+  fetchMock.getOnce('https://auth.push-initialization-nopush/api/v2/auth', function (url, opts) {
+    if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
     assert.pass('auth');
     return { status: 200, body: authPushDisabled };
   });
@@ -96,8 +98,8 @@ export function testAuthWithPushDisabled(fetchMock, assert) {
 export function testAuthWith401(fetchMock, assert) {
   assert.plan(6);
 
-  fetchMock.getOnce(settings.url('/auth'), function (url, opts) {
-    if (!opts.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
+  fetchMock.getOnce(settings.url('/v2/auth'), function (url, opts) {
+    if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
     assert.pass('auth');
     return { status: 401, body: authInvalidCredentials };
   });
@@ -109,8 +111,8 @@ export function testAuthWith401(fetchMock, assert) {
 export function testAuthWith400(fetchMock, assert) {
   assert.plan(6);
 
-  fetchMock.getOnce(settings.url('/auth'), function (url, opts) {
-    if (!opts.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
+  fetchMock.getOnce(settings.url('/v2/auth'), function (url, opts) {
+    if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
     assert.pass('auth');
     return { status: 400, body: authNoUserSpecified };
   });
@@ -123,12 +125,30 @@ export function testNoEventSource(fetchMock, assert) {
   assert.plan(3);
 
   __setEventSource(undefined);
-  fetchMock.getOnce(settings.url('/auth'), function () {
-    assert.fail('not authenticate if EventSource is not available');
-  });
 
   testInitializationFail(fetchMock, assert, false);
 
   __restore();
 
+}
+
+export function testSSEWithNonRetryableError(fetchMock, assert) {
+  assert.plan(7);
+
+  // Auth successes
+  fetchMock.getOnce(settings.url('/v2/auth'), function (url, opts) {
+    if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
+    assert.pass('auth successes');
+    return { status: 200, body: authPushEnabled };
+  });
+  // But SSE fails with a non-recoverable error
+  __setEventSource(EventSourceMock);
+  setMockListener(function (eventSourceInstance) {
+    assert.pass('sse fails');
+    const ably4XXNonRecoverableError = { data: '{"message":"Token expired","code":42910,"statusCode":429}' };
+    eventSourceInstance.emitError(ably4XXNonRecoverableError);
+  });
+
+  testInitializationFail(fetchMock, assert, true);
+  __restore();
 }

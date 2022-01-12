@@ -88,7 +88,7 @@ export default async function(key, fetchMock, assert) {
       bucketingKey: undefined, changeNumber: 2828282828
     });
     validateImpressionData(alwaysOnWithConfigImpr.i[0], {
-      keyName: 'facundo@split.io', label: 'another expected label', treatment: 'on',
+      keyName: 'facundo@split.io', label: 'another expected label', treatment: 'o.n',
       bucketingKey: 'test_buck_key', changeNumber: 828282828282
     });
 
@@ -146,7 +146,7 @@ export default async function(key, fetchMock, assert) {
   assert.deepEqual(client.getTreatmentWithConfig({
     matchingKey: key, bucketingKey: 'test_buck_key'
   }, 'split_with_config'), { // I'll run this one with bucketing key.
-    treatment: 'on',
+    treatment: 'o.n',
     config: '{"color":"brown","dimensions":{"height":12,"width":14},"text":{"inner":"click me"}}'
   }, 'We should get an evaluation as always.');
   client.getTreatmentWithConfig({ matchingKey: key, bucketingKey: 'test_buck_key'}, 'split_with_config');

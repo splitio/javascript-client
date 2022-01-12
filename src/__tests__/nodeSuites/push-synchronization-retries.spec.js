@@ -15,15 +15,15 @@ import Backoff from '../../utils/backoff';
 import EventSourceMock, { setMockListener } from '../../sync/__tests__/mocks/eventSourceMock';
 import { __setEventSource } from '../../services/getEventSource/node';
 
-import { SplitFactory } from '../../index';
+import { SplitFactory } from '../../';
 import SettingsFactory from '../../utils/settings';
 
 const key = 'nicolas@split.io';
 
 const baseUrls = {
-  sdk: 'https://sdk.push-synchronization/api',
-  events: 'https://events.push-synchronization/api',
-  auth: 'https://auth.push-synchronization/api'
+  sdk: 'https://sdk.push-synchronization-retries/api',
+  events: 'https://events.push-synchronization-retries/api',
+  auth: 'https://auth.push-synchronization-retries/api'
 };
 const config = {
   core: {
@@ -127,8 +127,8 @@ export function testSynchronizationRetries(fetchMock, assert) {
   });
 
   // initial auth
-  fetchMock.getOnce(settings.url('/auth'), function (url, opts) {
-    if (!opts.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
+  fetchMock.getOnce(settings.url('/v2/auth'), function (url, opts) {
+    if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
     assert.pass('auth success');
     return { status: 200, body: authPushEnabled };
   });

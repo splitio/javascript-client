@@ -25,12 +25,11 @@ import mode from './mode';
 import validateSplitFilters from '../inputValidation/splitFilters';
 import { API } from '../../utils/logger';
 import { STANDALONE_MODE, STORAGE_MEMORY, CONSUMER_MODE, OPTIMIZED } from '../../utils/constants';
-import packageJSON from '../../../package.json';
 import validImpressionsMode from './impressionsMode';
 
-const { version } = packageJSON;
+const version = '10.17.0';
 const eventsEndpointMatcher = /^\/(testImpressions|metrics|events)/;
-const authEndpointMatcher = /^\/auth/;
+const authEndpointMatcher = /^\/v2\/auth/;
 const streamingEndpointMatcher = /^\/(sse|event-stream)/;
 
 const base = {
@@ -65,10 +64,8 @@ const base = {
     eventsPushRate: 60,
     // how many events will be queued before flushing
     eventsQueueSize: 500,
-    // backoff base seconds to wait before re attempting to authenticate for push notifications
-    authRetryBackoffBase: 1,
-    // backoff base seconds to wait before re attempting to connect to streaming
-    streamingReconnectBackoffBase: 1
+    // backoff base seconds to wait before re attempting to connect to push notifications
+    pushRetryBackoffBase: 1,
   },
 
   urls: {
@@ -161,8 +158,7 @@ function defaults(custom) {
     withDefaults.streamingEnabled = true;
     // Backoff bases.
     // We are not checking if bases are positive numbers. Thus, we might be reauthenticating immediately (`setTimeout` with NaN or negative number)
-    withDefaults.scheduler.authRetryBackoffBase = fromSecondsToMillis(withDefaults.scheduler.authRetryBackoffBase);
-    withDefaults.scheduler.streamingReconnectBackoffBase = fromSecondsToMillis(withDefaults.scheduler.streamingReconnectBackoffBase);
+    withDefaults.scheduler.pushRetryBackoffBase = fromSecondsToMillis(withDefaults.scheduler.pushRetryBackoffBase);
   }
 
   // validate the `splitFilters` settings and parse splits query

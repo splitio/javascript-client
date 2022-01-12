@@ -27,6 +27,7 @@ let trackPromise: Promise<boolean>;
 // Facade return interface
 let SDK: SplitIO.ISDK;
 let AsyncSDK: SplitIO.IAsyncSDK;
+let BrowserSDK: SplitIO.IBrowserSDK;
 // Settings interfaces
 let nodeSettings: SplitIO.INodeSettings;
 let asyncSettings: SplitIO.INodeAsyncSettings;
@@ -36,6 +37,7 @@ let client: SplitIO.IClient;
 let manager: SplitIO.IManager;
 let asyncClient: SplitIO.IAsyncClient;
 let asyncManager: SplitIO.IAsyncManager;
+let browserClient: SplitIO.IBrowserClient;
 // Utility interfaces
 let impressionListener: SplitIO.IImpressionListener;
 
@@ -161,6 +163,7 @@ browserSettings = {
 SDK = SplitFactory(browserSettings);
 SDK = SplitFactory(nodeSettings);
 AsyncSDK = SplitFactory(asyncSettings);
+BrowserSDK = SplitFactory(browserSettings);
 
 // The settings values the SDK expose.
 const instantiatedSettingsCore: {
@@ -171,19 +174,21 @@ const instantiatedSettingsCore: {
   IPAddressesEnabled: boolean
 } = SDK.settings.core;
 const instantiatedSettingsMode: ('standalone' | 'consumer') = SDK.settings.mode;
-const instantiatedSettingsScheduler: {[key: string]: number} = SDK.settings.scheduler;
-const instantiatedSettingsStartup: {[key: string]: number} = SDK.settings.startup;
+const instantiatedSettingsScheduler: { [key: string]: number } = SDK.settings.scheduler;
+const instantiatedSettingsStartup: { [key: string]: number } = SDK.settings.startup;
 const instantiatedSettingsStorage: {
   prefix: string,
   options: Object,
   // It can have any of the storages.
   type: SplitIO.NodeSyncStorage | SplitIO.NodeAsyncStorage | SplitIO.BrowserStorage
 } = SDK.settings.storage;
-const instantiatedSettingsUrls: {[key: string]: string} = SDK.settings.urls;
+const instantiatedSettingsUrls: { [key: string]: string } = SDK.settings.urls;
 const instantiatedSettingsVersion: string = SDK.settings.version;
-let instantiatedSettingsFeatures: {[key: string]: string} = SDK.settings.features;
+let instantiatedSettingsFeatures = SDK.settings.features as SplitIO.MockedFeaturesMap;
 // We should be able to write on features prop. The rest are readonly props.
 instantiatedSettingsFeatures.something = 'something';
+SDK.settings.features = 'new_file_path'; // Node
+SDK.settings.features = { 'split_x': 'on' }; // Browser
 
 // Client and Manager
 client = SDK.client();
@@ -193,6 +198,9 @@ manager = SDK.manager();
 // Today async clients are only possible on Node. Shared client creation not available here.
 asyncClient = AsyncSDK.client();
 asyncManager = AsyncSDK.manager();
+// Browser client for attributes binding
+browserClient = BrowserSDK.client();
+browserClient = BrowserSDK.client('a customer key');
 
 // Logger
 SDK.Logger.enable();
@@ -214,18 +222,19 @@ AsyncSDK.Logger.disable();
 /**** Tests for IClient interface ****/
 
 // Events constants we get
-const eventConsts: {[key: string]: SplitIO.Event} = client.Event;
+const eventConsts: { [key: string]: SplitIO.Event } = client.Event;
 splitEvent = client.Event.SDK_READY;
 splitEvent = client.Event.SDK_READY_FROM_CACHE;
 splitEvent = client.Event.SDK_READY_TIMED_OUT;
 splitEvent = client.Event.SDK_UPDATE;
 
 // Client implements methods from NodeJS.Events. Testing a few.
-client = client.on(splitEvent, () => {});
+client = client.on(splitEvent, () => { });
 const a: boolean = client.emit(splitEvent);
 client = client.removeAllListeners(splitEvent);
 client = client.removeAllListeners();
 const b: number = client.listenerCount(splitEvent);
+let nodeEventEmitter: NodeJS.EventEmitter = client;
 
 // Ready and destroy
 const readyPromise: Promise<void> = client.ready();
@@ -275,18 +284,19 @@ tracked = client.track('myEventType', undefined, { prop1: 1, prop2: '2', prop3: 
 /*** Repeating tests for Async Client ***/
 
 // Events constants we get (same as for sync client, just for interface checking)
-const eventConstsAsymc: {[key: string]: SplitIO.Event} = client.Event;
+const eventConstsAsymc: { [key: string]: SplitIO.Event } = client.Event;
 splitEvent = client.Event.SDK_READY;
 splitEvent = client.Event.SDK_READY_FROM_CACHE;
 splitEvent = client.Event.SDK_READY_TIMED_OUT;
 splitEvent = client.Event.SDK_UPDATE;
 
 // Client implements methods from NodeJS.Events. (same as for sync client, just for interface checking)
-client = client.on(splitEvent, () => {});
+client = client.on(splitEvent, () => { });
 const a1: boolean = client.emit(splitEvent);
 client = client.removeAllListeners(splitEvent);
 client = client.removeAllListeners();
 const b1: number = client.listenerCount(splitEvent);
+nodeEventEmitter = client;
 
 // Ready and destroy (same as for sync client, just for interface checking)
 const readyPromise1: Promise<void> = client.ready();
@@ -329,14 +339,15 @@ splitViews = manager.splits();
 const managerReadyPromise: Promise<void> = manager.ready();
 
 // Manager implements methods from NodeJS.Events. Testing a few.
-manager = manager.on(splitEvent, () => {});
+manager = manager.on(splitEvent, () => { });
 const aa: boolean = manager.emit(splitEvent);
 manager = manager.removeAllListeners(splitEvent);
 manager = manager.removeAllListeners();
 const bb: number = manager.listenerCount(splitEvent);
+nodeEventEmitter = manager;
 
 // manager exposes Event constants too
-const managerEventConsts: {[key: string]: SplitIO.Event} = manager.Event;
+const managerEventConsts: { [key: string]: SplitIO.Event } = manager.Event;
 splitEvent = manager.Event.SDK_READY;
 splitEvent = manager.Event.SDK_READY_FROM_CACHE;
 splitEvent = manager.Event.SDK_READY_TIMED_OUT;
@@ -352,14 +363,15 @@ splitViewsAsync = asyncManager.splits();
 const asyncManagerReadyPromise: Promise<void> = asyncManager.ready();
 
 // asyncManager implements methods from NodeJS.Events. Testing a few.
-asyncManager = asyncManager.on(splitEvent, () => {});
+asyncManager = asyncManager.on(splitEvent, () => { });
 const aaa: boolean = asyncManager.emit(splitEvent);
 asyncManager = asyncManager.removeAllListeners(splitEvent);
 asyncManager = asyncManager.removeAllListeners();
 const bbb: number = asyncManager.listenerCount(splitEvent);
+nodeEventEmitter = asyncManager;
 
 // asyncManager exposes Event constants too
-const asyncManagerEventConsts: {[key: string]: SplitIO.Event} = asyncManager.Event;
+const asyncManagerEventConsts: { [key: string]: SplitIO.Event } = asyncManager.Event;
 splitEvent = asyncManager.Event.SDK_READY;
 splitEvent = asyncManager.Event.SDK_READY_FROM_CACHE;
 splitEvent = asyncManager.Event.SDK_READY_TIMED_OUT;
@@ -381,6 +393,34 @@ const MyImprListenerMap: SplitIO.IImpressionListener = {
 impressionListener = MyImprListenerMap;
 impressionListener = new MyImprListener();
 impressionListener.logImpression(impressionData);
+
+/**** Tests for attribute binding ****/
+let stored: boolean = browserClient.setAttribute('stringAttribute', 'value');
+stored = browserClient.setAttribute('numberAttribtue', 1);
+stored = browserClient.setAttribute('booleanAttribute', true);
+stored = browserClient.setAttribute('stringArrayAttribute', ['value1', 'value2']);
+stored = browserClient.setAttribute('numberArrayAttribute', [1, 2]);
+
+let storedAttributeValue: SplitIO.AttributeType = browserClient.getAttribute('stringAttribute');
+storedAttributeValue = browserClient.getAttribute('numberAttribute');
+storedAttributeValue = browserClient.getAttribute('booleanAttribute');
+storedAttributeValue = browserClient.getAttribute('stringArrayAttribute');
+storedAttributeValue = browserClient.getAttribute('numberArrayAttribute');
+
+let removed: boolean = browserClient.removeAttribute('numberAttribute');
+removed = browserClient.clearAttributes();
+
+let attr: SplitIO.Attributes = {
+  stringAttribute: 'value',
+  numberAttribute: 1,
+  booleanAttribute: true,
+  stringArrayAttribute: ['value1', 'value2'],
+  numberArrayAttribute: [1, 2]
+}
+
+stored = browserClient.setAttributes(attr);
+let storedAttr: SplitIO.Attributes = browserClient.getAttributes();
+removed = browserClient.clearAttributes()
 
 /**** Tests for fully crowded settings interfaces ****/
 
@@ -404,7 +444,7 @@ let customGoogleAnalyticsToSplitConfig: SplitIO.IGoogleAnalyticsToSplitConfig = 
   filter: function (model: UniversalAnalytics.Model): boolean { return true; },
   mapper: function (model: UniversalAnalytics.Model, defaultMapping: SplitIO.EventData): SplitIO.EventData { return eventDataSample; },
   prefix: 'PREFIX',
-  identities: [{ key: 'key1', trafficType: 'tt1'}, { key: 'key2', trafficType: 'tt2'}],
+  identities: [{ key: 'key1', trafficType: 'tt1' }, { key: 'key2', trafficType: 'tt2' }],
 };
 let customSplitToGoogleAnalyticsConfig: SplitIO.ISplitToGoogleAnalyticsConfig = {
   type: 'SPLIT_TO_GOOGLE_ANALYTICS',
@@ -430,8 +470,7 @@ let fullBrowserSettings: SplitIO.IBrowserSettings = {
     offlineRefreshRate: 1,
     eventsPushRate: 1,
     eventsQueueSize: 1,
-    authRetryBackoffBase: 1,
-    streamingReconnectBackoffBase: 1
+    pushRetryBackoffBase: 1
   },
   startup: {
     readyTimeout: 1,
@@ -476,8 +515,7 @@ let fullNodeSettings: SplitIO.INodeSettings = {
     offlineRefreshRate: 1,
     eventsPushRate: 1,
     eventsQueueSize: 1,
-    authRetryBackoffBase: 1,
-    streamingReconnectBackoffBase: 1
+    pushRetryBackoffBase: 1
   },
   startup: {
     readyTimeout: 1,
@@ -542,3 +580,8 @@ let fullAsyncSettings: SplitIO.INodeAsyncSettings = {
     splitFilters: splitFilters
   }
 };
+
+// debug property can be a log level
+fullBrowserSettings.debug = 'ERROR';
+fullNodeSettings.debug = 'WARN';
+fullAsyncSettings.debug = 'INFO';

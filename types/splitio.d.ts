@@ -2,12 +2,33 @@
 // Project: http://www.split.io/
 // Definitions by: Nico Zelaya <https://github.com/NicoZelaya/>
 
-/// <reference types="node" />
 /// <reference types="google.analytics" />
 
 export as namespace SplitIO;
 export = SplitIO;
 
+/**
+ * NodeJS.EventEmitter interface
+ * @see {@link https://nodejs.org/api/events.html}
+ */
+interface EventEmitter {
+  addListener(event: string | symbol, listener: (...args: any[]) => void): this;
+  on(event: string | symbol, listener: (...args: any[]) => void): this;
+  once(event: string | symbol, listener: (...args: any[]) => void): this;
+  removeListener(event: string | symbol, listener: (...args: any[]) => void): this;
+  off(event: string | symbol, listener: (...args: any[]) => void): this;
+  removeAllListeners(event?: string | symbol): this;
+  setMaxListeners(n: number): this;
+  getMaxListeners(): number;
+  listeners(event: string | symbol): Function[];
+  rawListeners(event: string | symbol): Function[];
+  emit(event: string | symbol, ...args: any[]): boolean;
+  listenerCount(type: string | symbol): number;
+  // Added in Node 6...
+  prependListener(event: string | symbol, listener: (...args: any[]) => void): this;
+  prependOnceListener(event: string | symbol, listener: (...args: any[]) => void): this;
+  eventNames(): Array<string | symbol>;
+}
 /**
  * @typedef {Object} EventConsts
  * @property {string} SDK_READY The ready event.
@@ -53,8 +74,7 @@ interface ISettings {
     offlineRefreshRate: number,
     eventsPushRate: number,
     eventsQueueSize: number,
-    authRetryBackoffBase: number,
-    streamingReconnectBackoffBase: number
+    pushRetryBackoffBase: number
   },
   readonly startup: {
     readyTimeout: number,
@@ -73,11 +93,12 @@ interface ISettings {
     auth: string,
     streaming: string
   },
-  readonly debug: boolean,
+  readonly debug: boolean | LogLevel,
   readonly version: string,
-  features: {
-    [featureName: string]: string
-  },
+  /**
+   * Mocked features map if using in browser, or mocked features file path string if using in Node.
+   */
+  features: SplitIO.MockedFeaturesMap | SplitIO.MockedFeaturesFilePath,
   readonly streamingEnabled: boolean,
   readonly sync: {
     splitFilters: SplitIO.SplitFilter[],
@@ -129,7 +150,7 @@ interface ISharedSettings {
    * @property {Boolean} debug
    * @default false
    */
-  debug?: boolean,
+  debug?: boolean | LogLevel,
   /**
    * The impression listener, which is optional. Whatever you provide here needs to comply with the SplitIO.IImpressionListener interface,
    * which will check for the logImpression method.
@@ -167,7 +188,7 @@ interface ISharedSettings {
      * Possible values are 'DEBUG' and 'OPTIMIZED'.
      * - DEBUG: will send all the impressions generated (recommended only for debugging purposes).
      * - OPTIMIZED: will send unique impressions to Split Servers avoiding a considerable amount of traffic that duplicated impressions could generate.
-     * @property {String} impressionsMode
+     * @property {string} impressionsMode
      * @default 'OPTIMIZED'
      */
     impressionsMode?: SplitIO.ImpressionsMode,
@@ -261,19 +282,12 @@ interface INodeBasicSettings extends ISharedSettings {
      */
     offlineRefreshRate?: number
     /**
-     * When using streaming mode, seconds to wait before re attempting to authenticate for push notifications.
+     * When using streaming mode, seconds to wait before re attempting to connect for push notifications.
      * Next attempts follow intervals in power of two: base seconds, base x 2 seconds, base x 4 seconds, ...
-     * @property {number} authRetryBackoffBase
+     * @property {number} pushRetryBackoffBase
      * @default 1
      */
-    authRetryBackoffBase?: number,
-    /**
-     * When using streaming mode, seconds to wait before re attempting to connect to streaming.
-     * Next attempts follow intervals in power of two: base seconds, base x 2 seconds, base x 4 seconds, ...
-     * @property {number} streamingReconnectBackoffBase
-     * @default 1
-     */
-    streamingReconnectBackoffBase?: number,
+    pushRetryBackoffBase?: number,
   },
   /**
    * SDK Core settings for NodeJS.
@@ -338,18 +352,31 @@ interface INodeBasicSettings extends ISharedSettings {
 /**
  * Common API for entities that expose status handlers.
  * @interface IStatusInterface
- * @extends NodeJS.EventEmitter
+ * @extends EventEmitter
  */
-interface IStatusInterface extends NodeJS.EventEmitter {
+interface IStatusInterface extends EventEmitter {
   /**
    * Constant object containing the SDK events for you to use.
    * @property {EventConsts} Event
    */
   Event: EventConsts,
   /**
-   * Returns a promise that will be resolved once the SDK has finished loading.
+   * Returns a promise that will be resolved once the SDK has finished loading (SDK_READY event emitted) or rejected if the SDK has timedout (SDK_READY_TIMED_OUT event emitted).
+   * As it's meant to provide similar flexibility to the event approach, given that the SDK might be eventually ready after a timeout event, calling the `ready` method after the
+   * SDK had timed out will return a new promise that should eventually resolve if the SDK gets ready.
+   *
+   * Caveats: the method was designed to avoid an unhandled Promise rejection if the rejection case is not handled, so that `onRejected` handler is optional when using promises.
+   * However, when using async/await syntax, the rejection should be explicitly propagated like in the following example:
+   * ```
+   * try {
+   *   await client.ready().catch((e) => { throw e; });
+   *   // SDK is ready
+   * } catch(e) {
+   *   // SDK has timedout
+   * }
+   * ```
+   *
    * @function ready
-   * @deprecated Use on(sdk.Event.SDK_READY, callback: () => void) instead.
    * @returns {Promise<void>}
    */
   ready(): Promise<void>
@@ -454,7 +481,7 @@ declare namespace SplitIO {
    */
   type Event = 'init::timeout' | 'init::ready' | 'init::cache-ready' | 'state::update';
   /**
-   * Split attributes should be on object with values of type string or number (dates should be sent as millis since epoch).
+   * Split attributes should be on object with values of type string, boolean, number (dates should be sent as millis since epoch) or array of strings or numbers.
    * @typedef {Object.<number, string, boolean, string[], number[]>} Attributes
    * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#attribute-syntax}
    */
@@ -462,8 +489,13 @@ declare namespace SplitIO {
     [attributeName: string]: string | number | boolean | Array<string | number>
   };
   /**
+   * Type of an attribute value
+   * @typedef {string | number | boolean | Array<string | number>} AttributeType
+   */
+  type AttributeType = string | number | boolean | Array<string | number>;
+  /**
    * Split properties should be an object with values of type string, number, boolean or null. Size limit of ~31kb.
-   * @typedef {Object.<number, string, boolean, null>} Attributes
+   * @typedef {Object.<number, string, boolean, null>} Properties
    * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#track
    */
   type Properties = {
@@ -627,7 +659,7 @@ declare namespace SplitIO {
   /**
    * Enable 'Google Analytics to Split' integration, to track Google Analytics hits as Split events.
    *
-   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#google-analytics-to-split}
+   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#integrations}
    */
   interface IGoogleAnalyticsToSplitConfig {
     type: 'GOOGLE_ANALYTICS_TO_SPLIT',
@@ -680,7 +712,7 @@ declare namespace SplitIO {
   /**
    * Enable 'Split to Google Analytics' integration, to track Split impressions and events as Google Analytics hits.
    *
-   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#split-to-google-analytics}
+   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#integrations}
    */
   interface ISplitToGoogleAnalyticsConfig {
     type: 'SPLIT_TO_GOOGLE_ANALYTICS',
@@ -744,13 +776,13 @@ declare namespace SplitIO {
    */
   type UrlSettings = {
     /**
-     * String property to override the base URL where the SDK will get feature flagging related data like a Split rollout plan or segments information. 
+     * String property to override the base URL where the SDK will get feature flagging related data like a Split rollout plan or segments information.
      * @property {string} sdk
      * @default 'https://sdk.split.io/api'
      */
     sdk?: string,
     /**
-     * String property to override the base URL where the SDK will post event-related information like impressions. 
+     * String property to override the base URL where the SDK will post event-related information like impressions.
      * @property {string} events
      * @default 'https://events.split.io/api'
      */
@@ -881,25 +913,18 @@ declare namespace SplitIO {
       eventsQueueSize?: number,
       /**
        * For mocking/testing only. The SDK will refresh the features mocked data when mode is set to "localhost" by defining the key.
-       * For more information @see {@link https://help.split.io/hc/en-us/articles/360020564931-Node-js-SDK#localhost-mode}
+       * For more information @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#localhost-mode}
        * @property {number} offlineRefreshRate
        * @default 15
        */
-      offlineRefreshRate?: number
+      offlineRefreshRate?: number,
       /**
-       * When using streaming mode, seconds to wait before re attempting to authenticate for push notifications.
+       * When using streaming mode, seconds to wait before re attempting to connect for push notifications.
        * Next attempts follow intervals in power of two: base seconds, base x 2 seconds, base x 4 seconds, ...
-       * @property {number} authRetryBackoffBase
+       * @property {number} pushRetryBackoffBase
        * @default 1
        */
-      authRetryBackoffBase?: number,
-      /**
-       * When using streaming mode, seconds to wait before re attempting to connect to streaming.
-       * Next attempts follow intervals in power of two: base seconds, base x 2 seconds, base x 4 seconds, ...
-       * @property {number} streamingReconnectBackoffBase
-       * @default 1
-       */
-      streamingReconnectBackoffBase?: number,
+      pushRetryBackoffBase?: number,
     },
     /**
      * SDK Core settings for the browser.
@@ -931,7 +956,7 @@ declare namespace SplitIO {
     },
     /**
      * Mocked features map. For testing purposses only. For using this you should specify "localhost" as authorizationKey on core settings.
-     * @see {@link https://help.split.io/hc/en-us/articles/360020564931-Node-js-SDK#localhost-mode}
+     * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#localhost-mode}
      */
     features?: MockedFeaturesMap,
     /**
@@ -999,7 +1024,7 @@ declare namespace SplitIO {
   }
   /**
    * Settings interface with async storage for SDK instances created on NodeJS.
-   * If your storage is synchronous (by defaut we use memory, which is sync) use SplitIO.INodeSyncSettings instead.
+   * If your storage is synchronous (by defaut we use memory, which is sync) use SplitIO.INodeSettings instead.
    * @interface INodeAsyncSettings
    * @extends INodeBasicSettings
    * @see {@link https://help.split.io/hc/en-us/articles/360020564931-Node-js-SDK#configuration}
@@ -1052,6 +1077,27 @@ declare namespace SplitIO {
     manager(): IManager
   }
   /**
+   * This represents the interface for the SDK instance with synchronous storage.
+   * @interface ISDK
+   * @extends IBasicSDK
+   */
+  interface IBrowserSDK extends ISDK {
+    /**
+     * Returns the default client instance of the SDK.
+     * @function client
+     * @returns {IBrowserClient} The client instance.
+     */
+    client(): IBrowserClient,
+    /**
+     * Returns a shared client of the SDK. For usage on the browser.
+     * @function client
+     * @param {SplitKey} key The key for the new client instance.
+     * @param {string=} trafficType The traffic type of the provided key.
+     * @returns {IBrowserClient} The client instance.
+     */
+    client(key: SplitKey, trafficType?: string): IBrowserClient
+  }
+  /**
    * This represents the interface for the SDK instance with asynchronous storage.
    * @interface IAsyncSDK
    * @extends IBasicSDK
@@ -1077,67 +1123,68 @@ declare namespace SplitIO {
    */
   interface IClient extends IBasicClient {
     /**
-     * Returns a Treatment value, which will be (or eventually be) the treatment string for the given feature.
+     * Returns a Treatment value, which is the treatment string for the given feature.
      * For usage on NodeJS as we don't have only one key.
      * @function getTreatment
      * @param {string} key - The string key representing the consumer.
      * @param {string} splitName - The string that represents the split we wan't to get the treatment.
      * @param {Attributes=} attributes - An object of type Attributes defining the attributes for the given key.
-     * @returns {Treatment} The treatment or treatment promise which will resolve to the treatment string.
+     * @returns {Treatment} The treatment string.
      */
     getTreatment(key: SplitKey, splitName: string, attributes?: Attributes): Treatment,
     /**
-     * Returns a Treatment value, which will be the treatment string for the given feature.
+     * Returns a Treatment value, which is the treatment string for the given feature.
      * For usage on the Browser as we defined the key on the settings.
      * @function getTreatment
      * @param {string} splitName - The string that represents the split we wan't to get the treatment.
      * @param {Attributes=} attributes - An object of type Attributes defining the attributes for the given key.
-     * @returns {Treatment} The treatment result.
+     * @returns {Treatment} The treatment string.
      */
     getTreatment(splitName: string, attributes?: Attributes): Treatment,
     /**
-     * Returns a TreatmentWithConfig value (a map of treatment and config), which will be (or eventually be) the map with treatment and config for the given feature.
+     * Returns a TreatmentWithConfig value, which is an object with both treatment and config string for the given feature.
      * For usage on NodeJS as we don't have only one key.
      * @function getTreatmentWithConfig
      * @param {string} key - The string key representing the consumer.
      * @param {string} splitName - The string that represents the split we wan't to get the treatment.
      * @param {Attributes=} attributes - An object of type Attributes defining the attributes for the given key.
-     * @returns {TreatmentWithConfig} The TreatmentWithConfig or TreatmentWithConfig promise which will resolve to the map containing
-     *                                the treatment and the configuration stringified JSON (or null if there was no config for that treatment).
+     * @returns {TreatmentWithConfig} The TreatmentWithConfig, the object containing the treatment string and the
+     *                                configuration stringified JSON (or null if there was no config for that treatment).
      */
     getTreatmentWithConfig(key: SplitKey, splitName: string, attributes?: Attributes): TreatmentWithConfig,
     /**
-     * Returns a TreatmentWithConfig value, which will be a map of treatment and the config for that treatment.
+     * Returns a TreatmentWithConfig value, which an object with both treatment and config string for the given feature.
      * For usage on the Browser as we defined the key on the settings.
      * @function getTreatment
      * @param {string} splitName - The string that represents the split we wan't to get the treatment.
      * @param {Attributes=} attributes - An object of type Attributes defining the attributes for the given key.
-     * @returns {TreatmentWithConfig} The treatment or treatment promise which will resolve to the treatment string.
+     * @returns {TreatmentWithConfig} The TreatmentWithConfig, the object containing the treatment string and the
+     *                                configuration stringified JSON (or null if there was no config for that treatment).
      */
     getTreatmentWithConfig(splitName: string, attributes?: Attributes): TreatmentWithConfig,
     /**
-     * Returns a Treatments value, whick will be (or eventually be) an object with the treatments for the given features.
+     * Returns a Treatments value, which is an object map with the treatments for the given features.
      * For usage on NodeJS as we don't have only one key.
      * NOTE: Treatment will be a promise only in async storages, like REDIS.
      * @function getTreatments
      * @param {string} key - The string key representing the consumer.
      * @param {Array<string>} splitNames - An array of the split names we wan't to get the treatments.
      * @param {Attributes=} attributes - An object of type Attributes defining the attributes for the given key.
-     * @returns {Treatments} The treatments or treatments promise which will resolve to the treatments object.
+     * @returns {Treatments} The treatments object map.
      */
     getTreatments(key: SplitKey, splitNames: string[], attributes?: Attributes): Treatments,
     /**
-     * Returns a Treatments value, whick will be (or eventually be) an object with the treatments for the given features.
+     * Returns a Treatments value, which is an object map with the treatments for the given features.
      * For usage on the Browser as we defined the key on the settings.
      * NOTE: Treatment will be a promise only in async storages, like REDIS.
      * @function getTreatments
      * @param {Array<string>} splitNames - An array of the split names we wan't to get the treatments.
      * @param {Attributes=} attributes - An object of type Attributes defining the attributes for the given key.
-     * @returns {Treatments} The treatments or treatments promise which will resolve to the treatments object.
+     * @returns {Treatments} The treatments object map.
      */
     getTreatments(splitNames: string[], attributes?: Attributes): Treatments,
     /**
-     * Returns a TreatmentsWithConfig value, whick will be an object with the TreatmentWithConfig (a map with both treatment and config string) for the given features.
+     * Returns a TreatmentsWithConfig value, which is an object map with the TreatmentWithConfig (an object with both treatment and config string) for the given features.
      * For usage on NodeJS as we don't have only one key.
      * @function getTreatmentsWithConfig
      * @param {string} key - The string key representing the consumer.
@@ -1147,7 +1194,7 @@ declare namespace SplitIO {
      */
     getTreatmentsWithConfig(key: SplitKey, splitNames: string[], attributes?: Attributes): TreatmentsWithConfig,
     /**
-     * Returns a TreatmentsWithConfig value, whick will be an object with the TreatmentWithConfig (a map with both treatment and config string) for the given features.
+     * Returns a TreatmentsWithConfig value, which is an object map with the TreatmentWithConfig (an object with both treatment and config string) for the given features.
      * For usage on the Browser as we defined the key on the settings.
      * @function getTreatmentsWithConfig
      * @param {Array<string>} splitNames - An array of the split names we wan't to get the treatments.
@@ -1164,7 +1211,7 @@ declare namespace SplitIO {
      * @param {string} eventType - The event type corresponding to this event.
      * @param {number=} value - The value of this event.
      * @param {Properties=} properties - The properties of this event. Values can be string, number, boolean or null.
-     * @returns {boolean} Whether the event was added to the queue succesfully or not.
+     * @returns {boolean} Whether the event was added to the queue successfully or not.
      */
     track(key: SplitIO.SplitKey, trafficType: string, eventType: string, value?: number, properties?: Properties): boolean,
     /**
@@ -1175,7 +1222,7 @@ declare namespace SplitIO {
      * @param {string} eventType - The event type corresponding to this event.
      * @param {number=} value - The value of this event.
      * @param {Properties=} properties - The properties of this event. Values can be string, number, boolean or null.
-     * @returns {boolean} Whether the event was added to the queue succesfully or not.
+     * @returns {boolean} Whether the event was added to the queue successfully or not.
      */
     track(trafficType: string, eventType: string, value?: number, properties?: Properties): boolean,
     /**
@@ -1185,9 +1232,57 @@ declare namespace SplitIO {
      * @param {string} eventType - The event type corresponding to this event.
      * @param {number=} value - The value of this event.
      * @param {Properties=} properties - The properties of this event. Values can be string, number, boolean or null.
-     * @returns {boolean} Whether the event was added to the queue succesfully or not.
+     * @returns {boolean} Whether the event was added to the queue successfully or not.
      */
     track(eventType: string, value?: number, properties?: Properties): boolean
+  }
+  /**
+   * This represents the interface for the Client instance with attributes binding.
+   * @interface IBrowserClient
+   * @Extends IClient
+   */
+  interface IBrowserClient extends IClient {
+    /**
+     * Add an attribute to client's in memory attributes storage.
+     *
+     * @param {string} attributeName Attrinute name
+     * @param {AttributeType} attributeValue Attribute value
+     * @returns {boolean} true if the attribute was stored and false otherwise
+     */
+    setAttribute(attributeName: string, attributeValue: AttributeType): boolean,
+    /**
+     * Returns the attribute with the given key.
+     *
+     * @param {string} attributeName Attribute name
+     * @returns {AttributeType} Attribute with the given key
+     */
+    getAttribute(attributeName: string): AttributeType,
+    /**
+     * Removes from client's in memory attributes storage the attribute with the given key.
+     *
+     * @param {string} attributeName
+     * @returns {boolean} true if attribute was removed and false otherwise
+     */
+    removeAttribute(attributeName: string): boolean,
+    /**
+     * Add to client's in memory attributes storage the attributes in 'attributes'.
+     *
+     * @param {Attributes} attributes Object with attributes to store
+     * @returns true if attributes were stored an false otherwise
+     */
+    setAttributes(attributes: Attributes): boolean,
+    /**
+     * Return all the attributes stored in client's in memory attributes storage.
+     *
+     * @returns {Attributes} returns all the stored attributes
+     */
+    getAttributes(): Attributes,
+    /**
+     * Remove all the stored attributes in the client's in memory attribute storage.
+     *
+     * @returns {boolean} true if all attribute were removed and false otherwise
+     */
+    clearAttributes(): boolean
   }
   /**
    * This represents the interface for the Client instance with asynchronous storage.
@@ -1207,7 +1302,7 @@ declare namespace SplitIO {
      */
     getTreatment(key: SplitKey, splitName: string, attributes?: Attributes): AsyncTreatment,
     /**
-     * Returns a TreatmentWithConfig value, which will be (or eventually be) a map with both treatment and config string for the given feature.
+     * Returns a TreatmentWithConfig value, which will be (or eventually be) an object with both treatment and config string for the given feature.
      * For usage on NodeJS as we don't have only one key.
      * NOTE: Treatment will be a promise only in async storages, like REDIS.
      * @function getTreatmentWithConfig
@@ -1218,17 +1313,17 @@ declare namespace SplitIO {
      */
     getTreatmentWithConfig(key: SplitKey, splitName: string, attributes?: Attributes): AsyncTreatmentWithConfig,
     /**
-     * Returns a Treatments value, whick will be (or eventually be) an object with the treatments for the given features.
+     * Returns a Treatments value, which will be (or eventually be) an object map with the treatments for the given features.
      * For usage on NodeJS as we don't have only one key.
      * @function getTreatments
      * @param {string} key - The string key representing the consumer.
      * @param {Array<string>} splitNames - An array of the split names we wan't to get the treatments.
      * @param {Attributes=} attributes - An object of type Attributes defining the attributes for the given key.
-     * @returns {AsyncTreatments} Treatments promise which will resolve to the treatments object.
+     * @returns {AsyncTreatments} Treatments promise which will resolve to the treatments object map.
      */
     getTreatments(key: SplitKey, splitNames: string[], attributes?: Attributes): AsyncTreatments,
     /**
-     * Returns a Treatments value, whick will be (or eventually be) an object with all the maps of treatment and config string for the given features.
+     * Returns a TreatmentsWithConfig value, which will be (or eventually be) an object map with the TreatmentWithConfig (an object with both treatment and config string) for the given features.
      * For usage on NodeJS as we don't have only one key.
      * @function getTreatmentsWithConfig
      * @param {string} key - The string key representing the consumer.
@@ -1245,7 +1340,7 @@ declare namespace SplitIO {
      * @param {string} eventType - The event type corresponding to this event.
      * @param {number=} value - The value of this event.
      * @param {Properties=} properties - The properties of this event. Values can be string, number, boolean or null.
-     * @returns {Promise<boolean>} A promise that resolves to a boolean indicating if the event was added to the queue succesfully or not.
+     * @returns {Promise<boolean>} A promise that resolves to a boolean indicating if the event was added to the queue successfully or not.
      */
     track(key: SplitIO.SplitKey, trafficType: string, eventType: string, value?: number, properties?: Properties): Promise<boolean>
   }

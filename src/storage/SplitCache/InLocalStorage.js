@@ -11,7 +11,7 @@ class SplitCacheLocalStorage {
    * @param {number} expirationTimestamp
    * @param {Object} splitFiltersValidation
    */
-  constructor(keys, expirationTimestamp, splitFiltersValidation) {
+  constructor(keys, expirationTimestamp, splitFiltersValidation = { validFilters: [], queryString: null, groupedFilters: { byName: [], byPrefix: [] } }) {
     this.keys = keys;
     this.splitFiltersValidation = splitFiltersValidation;
 
@@ -129,13 +129,13 @@ class SplitCacheLocalStorage {
 
   setChangeNumber(changeNumber) {
     // when cache is ready but using a new split query, we must flush all split data
-    if(this.cacheReadyButNeedsToFlush) {
+    if (this.cacheReadyButNeedsToFlush) {
       this.flush();
       this.cacheReadyButNeedsToFlush = false;
     }
 
     // when using a new split query, we must update it at the store
-    if(this.updateNewFilter) {
+    if (this.updateNewFilter) {
       log.info('Split filter query was modified. Updating cache.');
       const queryKey = this.keys.buildSplitsFilterQueryKey();
       const { queryString } = this.splitFiltersValidation;

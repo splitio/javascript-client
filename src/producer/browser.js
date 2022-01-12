@@ -14,10 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-import logFactory from '../../utils/logger';
-import TaskFactory from '../task';
-import SplitChangesUpdater from '../updater/SplitChanges';
-import PartialBrowserProducer from './Partial';
+import logFactory from '../utils/logger';
+import TaskFactory from './task';
+import SplitChangesUpdater from './updater/SplitChanges';
+import PartialBrowserProducer from './browser/Partial';
 
 const log = logFactory('splitio-producer:updater');
 
@@ -35,10 +35,13 @@ const FullBrowserProducer = (context) => {
 
   let isSynchronizingSplits = false;
 
-  function synchronizeSplits() {
+  /**
+   * @param {boolean | undefined} noCache true to revalidate data to fetch
+   */
+  function synchronizeSplits(noCache) {
     isSynchronizingSplits = true;
     // `splitsUpdater` promise always resolves, and with a false value if it fails to fetch or store splits
-    return splitsUpdater().then(function (res) {
+    return splitsUpdater(0, noCache).then(function (res) {
       isSynchronizingSplits = false;
       return res;
     });

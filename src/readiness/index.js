@@ -46,13 +46,15 @@ function GateContext() {
     });
 
     splits.on(Events.SDK_SPLITS_ARRIVED, (isSplitKill) => {
+      // `isSplitKill` condition avoids an edge-case of wrongly emitting SDK_READY if:
+      // - `/mySegments` fetch and SPLIT_KILL occurs before `/splitChanges` fetch, and
+      // - storage has cached splits (for which case `splitsStorage.killLocally` can return true)
       if (!isSplitKill) splitsStatus = SPLITS_READY;
       gate.emit(Events.READINESS_GATE_CHECK_STATE);
     });
 
     splits.once(Events.SDK_SPLITS_CACHE_LOADED, () => {
-      // Make it async
-      setTimeout(() => gate.emit(Events.SDK_READY_FROM_CACHE), 0);
+      gate.emit(Events.SDK_READY_FROM_CACHE);
     });
 
     segments.on(Events.SDK_SEGMENTS_ARRIVED, () => {

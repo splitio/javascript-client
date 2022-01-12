@@ -1,3 +1,61 @@
+10.17.0 (January 3, 2022)
+ - Added Attribute binding feature to allow to optionally keep user attributes loaded within the SDK, along with the user ID, for easier usage when requesting flag.
+ - Bugfixing - Fixed an issue returning dynamic configs when the treatment name contains a dot (".").
+
+10.16.1 (October 25, 2021)
+ - Updated some internal modules to optimize the time efficiency of split evaluations (i.e., `getTreatment(s)` method calls).
+ - Updated some dependencies for vulnerability fixes (ioredis, @babel/cli, eslint, eslint-plugin-compat).
+ - Bugfixing - Fixed localhost mode with localStorage, to use a mock in memory instead of localStorage API directly but keep emitting emit SDK_READY_FROM_CACHE event.
+
+10.16.0 (September 28, 2021)
+ - Updated localhost mode to emit SDK_READY_FROM_CACHE event in Browser when using localStorage (issue https://github.com/splitio/react-client/issues/34).
+ - Updated streaming logic to use the newest version of our streaming service, including:
+      - Integration with Auth service V2, connecting to the new channels and applying the received connection delay.
+      - Implemented handling of the new MySegmentsV2 notification types (SegmentRemoval, KeyList, Bounded and Unbounded)
+      - New control notification for environment scoped streaming reset.
+ - Updated some dependencies to their latest versions, including Webpack 4 to 5, to build a more optimized UMD bundle.
+
+10.15.9 (Aug 13, 2021)
+ - Updated some dependencies with vulnerability fixes.
+ - Updated some log messages related to HTTP request errors.
+ - Bugfixing - Fixed internal promise wrapper to avoid an error with Meteor framework.
+ - Bugfixing - Fixed type definitions for `ISettings['features']` (issue #560).
+ - Bugfixing - Name remaining anonymous functions that generate warnings when transpiling for IE11 (issue #557)
+
+10.15.8 (June 11, 2021)
+ - Updated listener for 'unload' DOM events to close any remaining streaming connections.
+ - Added telemetry headers in form of query params to SSE connection.
+
+10.15.7 (June 3, 2021)
+ - Updated some dependencies with vulnerability fixes.
+ - Removed "utfx" dependency to use an inline copy of it with the minimum features used by the SDK (issue #544).
+ - Bugfixing - Fixed some issues of localhost mode:
+      - Support localhost mode on multiple SDK instances. Each instance handles its own mocked features, instead of sharing the same mock.
+      - SDK_UPDATE is emitted only once if mocked features changes.
+      - On shared clients, SDK_UPDATE event is now emitted if mocked features changes.
+
+10.15.6 (May 21, 2021)
+ - Updated error handling following the recommended practice of throwing only Error objects.
+ - Updated ioredis version now that their incompatibility with Node <10 was already fixed.
+ - Updated Karma and a transitive dependency with vulnerabilities.
+ - Updated dev dependency on redis-dump to redis-dumpz package to be able to fix a vulnerability on Redis transitive dependency.
+ - Bugfixing - Name two anonymous functions that generate warnings when transpiling for IE11 (issue #535)
+
+10.15.5 (Apr 29, 2021)
+ - Updated some dependencies, including a vulnerability fix.
+
+10.15.4 (Mar 17, 2021)
+ - Updated Streaming logic with some improvements and fixes, including:
+      - Updated SSE error handling.
+      - Extended publishers tracking to support multiregion infrastructure.
+      - Enforced revalidation for requests stored in local caches, like proxies or browsers.
+      - Bugfixing - In NodeJS, fetch new segments captured due to streaming notifications.
+ - Updated some dependencies, including a vulnerability fix.
+
+10.15.3 (Feb 10, 2021)
+ - Updated type definitions to remove `@types/node` dependency and avoid conflicts between Node and DOM type definitions.
+ - Bugfixing - Handle issue importing node-fetch library (issue #505).
+
 10.15.2 (Dec 3, 2020)
  - Updated requests for `/testImpressions/beacon` to include the impressions mode.
 
@@ -415,7 +473,7 @@ var treatmentsMap = client.getTreatments('CUSTOMER_KEY', ['Split_1', 'Split_2'])
   ```
 
  - Added Manager API to query the state of the SDK. Please check the official
-  documenation for details.
+  documentation for details.
 
  - In Browser land, we can now enable localStorage as backend so we can reload
   the SDK quickly without downloading all the data again.

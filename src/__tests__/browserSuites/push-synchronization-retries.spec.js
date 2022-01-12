@@ -18,15 +18,15 @@ import Backoff from '../../utils/backoff';
 import EventSourceMock, { setMockListener } from '../../sync/__tests__/mocks/eventSourceMock';
 window.EventSource = EventSourceMock;
 
-import { SplitFactory } from '../../index';
+import { SplitFactory } from '../../';
 import SettingsFactory from '../../utils/settings';
 
 const userKey = 'nicolas@split.io';
 
 const baseUrls = {
-  sdk: 'https://sdk.push-synchronization/api',
-  events: 'https://events.push-synchronization/api',
-  auth: 'https://auth.push-synchronization/api'
+  sdk: 'https://sdk.push-synchronization-retries/api',
+  events: 'https://events.push-synchronization-retries/api',
+  auth: 'https://auth.push-synchronization-retries/api'
 };
 const config = {
   core: {
@@ -87,7 +87,7 @@ export function testSynchronizationRetries(fetchMock, assert) {
   setMockListener(function (eventSourceInstance) {
     start = Date.now();
 
-    const expectedSSEurl = `${settings.url('/sse')}?channels=NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_NTcwOTc3MDQx_mySegments,NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_splits,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_pri,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_sec&accessToken=${authPushEnabledNicolas.token}&v=1.1&heartbeats=true`;
+    const expectedSSEurl = `${settings.url('/sse')}?channels=NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_NTcwOTc3MDQx_mySegments,NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_splits,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_pri,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_sec&accessToken=${authPushEnabledNicolas.token}&v=1.1&heartbeats=true&SplitSDKVersion=${settings.version}&SplitSDKClientKey=h-1>`;
     assert.equals(eventSourceInstance.url, expectedSSEurl, 'EventSource URL is the expected');
 
     /* events on first SSE connection */
@@ -134,8 +134,8 @@ export function testSynchronizationRetries(fetchMock, assert) {
   });
 
   // initial auth
-  fetchMock.getOnce(settings.url(`/auth?users=${encodeURIComponent(userKey)}`), function (url, opts) {
-    if (!opts.headers['Authorization']) assert.fail('`/auth` request must include `Authorization` header');
+  fetchMock.getOnce(settings.url(`/v2/auth?users=${encodeURIComponent(userKey)}`), function (url, opts) {
+    if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
     assert.pass('auth success');
     return { status: 200, body: authPushEnabledNicolas };
   });

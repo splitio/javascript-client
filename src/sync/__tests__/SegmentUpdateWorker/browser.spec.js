@@ -4,7 +4,7 @@ import MySegmentsCacheInMemory from '../../../storage/SegmentCache/InMemory/brow
 import KeyBuilder from '../../../storage/Keys';
 import SettingsFactory from '../../../utils/settings';
 
-import MySegmentUpdateWorker from '../../SegmentUpdateWorker/MySegmentUpdateWorker';
+import MySegmentUpdateWorker from '../../SegmentUpdateWorker/browser';
 
 function ProducerMock() {
 
@@ -95,7 +95,7 @@ tape('MySegmentUpdateWorker', t => {
           producer.__resolveMySegmentsUpdaterCall(3); // fetch success
           setTimeout(() => {
             assert.true(producer.synchronizeMySegments.calledTwice, 'recalls `synchronizeMySegments` once previous event was handled');
-            assert.true(producer.synchronizeMySegments.lastCall.calledWithExactly(['some_segment']), 'calls `synchronizeMySegments` with given segmentList');
+            assert.true(producer.synchronizeMySegments.lastCall.calledWithExactly(['some_segment'], true), 'calls `synchronizeMySegments` with given segmentList');
             producer.__resolveMySegmentsUpdaterCall(4); // fetch success
             setTimeout(() => {
               assert.equal(mySegmentUpdateWorker.currentChangeNumber, 120, 'currentChangeNumber updated');
@@ -110,7 +110,7 @@ tape('MySegmentUpdateWorker', t => {
               producer.__resolveMySegmentsUpdaterCall(5); // fetch success
               setTimeout(() => {
                 assert.true(producer.synchronizeMySegments.calledTwice, 'recalls `synchronizeMySegments` once previous event was handled');
-                assert.true(producer.synchronizeMySegments.lastCall.calledWithExactly(undefined), 'calls `synchronizeMySegments` without segmentList if the event doesn\'t have payload');
+                assert.true(producer.synchronizeMySegments.lastCall.calledWithExactly(undefined, true), 'calls `synchronizeMySegments` without segmentList if the event doesn\'t have payload');
                 producer.__resolveMySegmentsUpdaterCall(6); // fetch success
                 setTimeout(() => {
                   assert.equal(mySegmentUpdateWorker.currentChangeNumber, 140, 'currentChangeNumber updated');

@@ -1,4 +1,4 @@
-import { SplitFactory } from '../..';
+import { SplitFactory } from '../../';
 import SettingsFactory from '../../utils/settings';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
@@ -65,15 +65,15 @@ export default function (fetchMock, assert) {
     }
 
     validateImpressionData(alwaysOnWithConfigImpr.i[0], {
-      keyName: 'facundo@split.io', label: 'another expected label', treatment: 'on',
+      keyName: 'facundo@split.io', label: 'another expected label', treatment: 'o.n',
       bucketingKey: undefined, changeNumber: 828282828282, pt: undefined
     });
     validateImpressionData(alwaysOnWithConfigImpr.i[1], {
-      keyName: 'facundo@split.io', label: 'another expected label', treatment: 'on',
+      keyName: 'facundo@split.io', label: 'another expected label', treatment: 'o.n',
       bucketingKey: undefined, changeNumber: 828282828282, pt: alwaysOnWithConfigImpr.i[0].m
     });
     validateImpressionData(alwaysOnWithConfigImpr.i[2], {
-      keyName: 'facundo@split.io', label: 'another expected label', treatment: 'on',
+      keyName: 'facundo@split.io', label: 'another expected label', treatment: 'o.n',
       bucketingKey: undefined, changeNumber: 828282828282, pt: alwaysOnWithConfigImpr.i[1].m
     });
   };
