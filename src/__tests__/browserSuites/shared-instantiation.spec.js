@@ -32,6 +32,7 @@ export default function (startWithTT, fetchMock, assert) {
   let marcioClient = factory.client('marcio@split.io');
   let emilianoClient = factory.client('emiliano/split.io');
   let matiasClient = factory.client('matias%split.io');
+  let emmanuelClient = factory.client('emmanuel@split.io');
 
   assert.throws(factory.client.bind(factory, null), 'Calling factory.client() with a key parameter that is not a valid key should throw.');
   assert.throws(factory.client.bind(factory, {}), 'Calling factory.client() with a key parameter that is not a valid key should throw.');
@@ -59,6 +60,7 @@ export default function (startWithTT, fetchMock, assert) {
     mainClient.destroy();
     emilianoClient.destroy();
     matiasClient.destroy();
+    emmanuelClient.destroy();
 
     assert.end();
   })();
@@ -132,6 +134,10 @@ export default function (startWithTT, fetchMock, assert) {
   getTreatmentsAssertions(nicolasClient, expectControls);
   getTreatmentsAssertions(marcioClient, expectControls);
   getTreatmentsAssertions(emilianoClient, expectControls);
+  getTreatmentsAssertions(emmanuelClient, expectControls);
+
+  emmanuelClient.setAttribute('attr', 10);
+  nicolasClient.setAttributes({ attr: 9 });
 
   // Each client is ready when splits and its segments are fetched
   mainClient.ready().then(() => {
@@ -148,10 +154,12 @@ export default function (startWithTT, fetchMock, assert) {
   nicolasClient.ready().then(() => {
     assert.comment('Shared instance - nicolas@split.io');
     getTreatmentsAssertions(nicolasClient, ['off', 'on', 'off', 'on']);
+    assert.equal(nicolasClient.getTreatment('user_attr_gte_10'), 'off');
   });
   marcioClient.ready().then(() => {
     assert.comment('Shared instance - marcio@split.io');
     getTreatmentsAssertions(marcioClient, ['off', 'on', 'off', 'off']);
+    assert.equal(marcioClient.getTreatment('user_attr_gte_10'), 'off');
   });
   matiasClient.on(matiasClient.Event.SDK_READY_TIMED_OUT, () => {
     getTreatmentsAssertions(matiasClient, expectControls);
@@ -162,9 +170,14 @@ export default function (startWithTT, fetchMock, assert) {
       matiasClient.ready().then(() => {
         assert.comment('Shared instance - matias%split.io');
         getTreatmentsAssertions(matiasClient, ['off', 'on', 'off', 'off']);
+        assert.equal(matiasClient.getTreatment('user_attr_gte_10'), 'off');
       });
     });
     assert.comment('Shared instance - matias%split.io');
     getTreatmentsAssertions(matiasClient, expectControls);
+  });
+  emmanuelClient.ready().then(() => {
+    assert.comment('Shared instance - emmanuel@split.io');
+    assert.equal(emmanuelClient.getTreatment('user_attr_gte_10'), 'on');
   });
 }
