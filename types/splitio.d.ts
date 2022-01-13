@@ -482,11 +482,11 @@ declare namespace SplitIO {
   type Event = 'init::timeout' | 'init::ready' | 'init::cache-ready' | 'state::update';
   /**
    * Split attributes should be on object with values of type string, boolean, number (dates should be sent as millis since epoch) or array of strings or numbers.
-   * @typedef {Object.<number, string, boolean, string[], number[]>} Attributes
+   * @typedef {Object.<AttributeType>} Attributes
    * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#attribute-syntax}
    */
   type Attributes = {
-    [attributeName: string]: string | number | boolean | Array<string | number>
+    [attributeName: string]: AttributeType
   };
   /**
    * Type of an attribute value
