@@ -120,10 +120,11 @@ export default function SplitChangesUpdaterFactory(context, isNode = false) {
           return false;
         });
 
-      // After triggering the requests, if we have cached splits information let's notify
-      // that asynchronously, to let attach a listener for SDK_READY_FROM_CACHE
+      // After triggering the requests, if we have cached splits information let's notify that.
+      // There is no need to emit the event asynchronously to let attach a listener for SDK_READY_FROM_CACHE,
+      // because the current event-loop callback executes after SplitFactory is created.
       if (startingUp && storage.splits.checkCache()) {
-        setTimeout(splitsEventEmitter.emit(splitsEventEmitter.SDK_SPLITS_CACHE_LOADED), 0);
+        splitsEventEmitter.emit(splitsEventEmitter.SDK_SPLITS_CACHE_LOADED);
       }
 
       return fetcherPromise;

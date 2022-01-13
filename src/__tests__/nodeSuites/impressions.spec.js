@@ -98,8 +98,9 @@ export default async function(key, fetchMock, assert) {
       'There should be impressions with valid keys, the sdk will not push a impression with invalid a key'
     );
 
-    client.destroy();
-    assert.end();
+    client.destroy().then(() => {
+      assert.end();
+    });
 
     return 200;
   });
@@ -127,7 +128,6 @@ export default async function(key, fetchMock, assert) {
 
     return 200;
   });
-  fetchMock.postOnce(settings.url('/testImpressions/count'), 200);
 
   splitio.Logger.enable();
   evaluationsStart = Date.now();

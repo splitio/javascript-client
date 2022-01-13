@@ -1,5 +1,9 @@
+10.17.1 (January 13, 2022)
+ - Updated some transitive dependencies for vulnerability fixes.
+ - Bugfixing - Fixed internal handling of SDK_READY_FROM_CACHE event, to avoid CSP issues in browsers.
+
 10.17.0 (January 3, 2022)
- - Added Attribute binding feature to allow to optionally keep user attributes loaded within the SDK, along with the user ID, for easier usage when requesting flag.
+ - Added support to SDK clients on browser to optionally bind attributes to the client, keeping these loaded within the SDK along with the user ID, for easier usage when requesting flag.
  - Bugfixing - Fixed an issue returning dynamic configs when the treatment name contains a dot (".").
 
 10.16.1 (October 25, 2021)
