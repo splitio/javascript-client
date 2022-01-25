@@ -96,8 +96,8 @@ tape('NodeJS Redis', function (t) {
           treatment: 'on',
           config: null
         }, 'Evaluations using Redis storage should be correct, including configs.');
-        assert.deepEqual(await client.getTreatmentWithConfig('UT_Segment_member', 'always-on-with-config'), {
-          treatment: 'on',
+        assert.deepEqual(await client.getTreatmentWithConfig('UT_Segment_member', 'always-o.n-with-config'), {
+          treatment: 'o.n',
           config: expectedConfig
         }, 'Evaluations using Redis storage should be correct, including configs.');
 
