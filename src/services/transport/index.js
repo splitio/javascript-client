@@ -19,7 +19,7 @@ export default function Fetcher(request) {
       return response;
     })
     .catch(error => {
-      const resp = error.response;
+      const resp = error && error.response;
       let msg = '';
 
       if (resp) { // An HTTP error
