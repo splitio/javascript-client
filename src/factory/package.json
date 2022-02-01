@@ -1,0 +1,4 @@
+{
+  "main": "./serverSide.js",
+  "browser": "./clientSide.js"
+}

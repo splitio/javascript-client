@@ -10,7 +10,7 @@ export function __restore() {
   __isCustom = false;
 }
 
-export default function getEventSource() {
+export function getEventSource() {
   // returns EventSource at `eventsource` package. If not available, return global EventSource or undefined
   try {
     return __isCustom ? __eventSource : require('eventsource');

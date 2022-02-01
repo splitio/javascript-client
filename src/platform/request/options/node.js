@@ -1,5 +1,5 @@
 /**
-Copyright 2016 Split Software
+Copyright 2022 Split Software
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ const agent = new https.Agent({
   keepAliveMsecs: 1500
 });
 
-export default function getOptions() {
+export function getOptions() {
   return {
     agent
   };

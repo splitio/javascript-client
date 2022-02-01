@@ -1,3 +1,3 @@
-export default function getEventSource() {
+export function getEventSource() {
   return typeof EventSource === 'function' ? EventSource : undefined;
 }
