@@ -6,6 +6,8 @@ process.env.CHROME_BIN = puppeteer.executablePath();
 const webpack = require('webpack');
 const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
 
+const path = require('path');
+
 module.exports = {
   // base path, that will be used to resolve files and exclude
   basePath: '../src',
@@ -63,9 +65,14 @@ module.exports = {
     module: {
       rules: [
         {
-          test: /\.js$/,
-          exclude: /node_modules/,
+          test: /\.(ts|js)$/,
+
+          // Cannot exclude 'node_modules/@splitsoftware/splitio-commons/src', in order to process TS files
+          exclude: /node_modules[/](?!@splitsoftware)/,
+
           use: {
+            // loader: 'ts-loader',
+
             loader: 'babel-loader',
             options: {
               presets: [['@babel/preset-env', {
@@ -75,7 +82,7 @@ module.exports = {
                   'node': '6'
                 },
                 'loose': true
-              }]],
+              }], '@babel/preset-typescript'],
               plugins: [['@babel/plugin-transform-runtime', {
                 // default values
                 'absoluteRuntime': false,
@@ -83,7 +90,7 @@ module.exports = {
                 'regenerator': true,
                 'useESModules': false,
                 'helpers': true
-              }]]
+              }], '@babel/plugin-proposal-class-properties']
             }
           }
         }
@@ -97,6 +104,12 @@ module.exports = {
       })
     ],
     resolve: {
+      // https://webpack.js.org/configuration/resolve/#resolvemodules
+      // Setting precedence of absolute path to root node_modules over relative path, to support linking JS-commons while using @babel/runtime helpers in JS SDK.
+      // This is required because linked dependencies doesn't scan modules in the root. Other option is to include @babel/runtime as a dev dependency in JS-commons.
+      modules: [path.resolve('node_modules'), 'node_modules'],
+
+      extensions: ['.ts', '.js'],
       fallback: {
         fs: false
       }
