@@ -1,7 +1,5 @@
 // For now, Node SDK does not support integrations,
 // thus any integrations settings is parsed into undefined.
-const validateNodeIntegrationsSettings = () => {
+export const validateIntegrations = () => {
   return [];
 };
-
-export default validateNodeIntegrationsSettings;
