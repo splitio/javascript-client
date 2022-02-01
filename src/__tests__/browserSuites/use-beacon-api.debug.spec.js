@@ -1,9 +1,10 @@
 import sinon from 'sinon';
 import { SplitFactory } from '../../';
-import SettingsFactory from '../../utils/settings';
+import { settingsFactory } from '../../settings';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import mySegmentsFacundo from '../mocks/mysegments.facundo@split.io.json';
-import { DEBUG } from '../../utils/constants';
+import { DEBUG } from '@splitsoftware/splitio-commons/src/utils/constants';
+import { url } from '../testUtils';
 import { triggerUnloadEvent } from '../testUtils/browser';
 
 const config = {
@@ -21,7 +22,7 @@ const config = {
   }
 };
 
-const settings = SettingsFactory(config);
+const settings = settingsFactory(config);
 
 // Spy calls to Beacon API method
 let sendBeaconSpyDebug;
@@ -44,7 +45,7 @@ const assertCallsToBeaconAPI = (assert) => {
 
   // The first call is for flushing impressions
   const impressionsCallArgs = sendBeaconSpyDebug.firstCall.args;
-  assert.equal(impressionsCallArgs[0], settings.url('/testImpressions/beacon'), 'assert correct url');
+  assert.equal(impressionsCallArgs[0], url(settings, '/testImpressions/beacon'), 'assert correct url');
   let parsedPayload = JSON.parse(impressionsCallArgs[1]);
   assert.equal(parsedPayload.token, '...', 'assert correct payload token');
   assert.equal(parsedPayload.sdk, settings.version, 'assert correct sdk version');
@@ -53,7 +54,7 @@ const assertCallsToBeaconAPI = (assert) => {
 
   // The second call is for flushing events
   const eventsCallArgs = sendBeaconSpyDebug.secondCall.args;
-  assert.equal(eventsCallArgs[0], settings.url('/events/beacon'), 'assert correct url');
+  assert.equal(eventsCallArgs[0], url(settings, '/events/beacon'), 'assert correct url');
   parsedPayload = JSON.parse(eventsCallArgs[1]);
   assert.equal(parsedPayload.token, '...', 'assert correct payload token');
   assert.equal(parsedPayload.sdk, settings.version, 'assert correct sdk version');
@@ -65,9 +66,9 @@ function beaconApiNotSendTestDebug(fetchMock, assert) {
   sendBeaconSpyDebug = sinon.spy(window.navigator, 'sendBeacon');
 
   // Mocking this specific route to make sure we only get the items we want to test from the handlers.
-  fetchMock.get(settings.url('/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
-  fetchMock.get(settings.url('/splitChanges?since=1457552620999'), { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
-  fetchMock.get(settings.url('/mySegments/facundo%40split.io'), { status: 200, body: mySegmentsFacundo });
+  fetchMock.get(url(settings, '/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
+  fetchMock.get(url(settings, '/splitChanges?since=1457552620999'), { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
+  fetchMock.get(url(settings, '/mySegments/facundo%40split.io'), { status: 200, body: mySegmentsFacundo });
 
   // Init and run Split client
   const splitio = SplitFactory(config);
@@ -136,14 +137,14 @@ function fallbackTest(fetchMock, assert) {
   })();
 
   // Mock endpoints used by Axios
-  fetchMock.postOnce(settings.url('/testImpressions/bulk'), (url, opts) => {
+  fetchMock.postOnce(url(settings, '/testImpressions/bulk'), (url, opts) => {
     const resp = JSON.parse(opts.body);
     assert.ok(opts, 'Fallback to /testImpressions/bulk');
     assertImpressionSent(assert, resp[0]);
     finish.next();
     return 200;
   });
-  fetchMock.postOnce(settings.url('/events/bulk'), (url, opts) => {
+  fetchMock.postOnce(url(settings, '/events/bulk'), (url, opts) => {
     const resp = JSON.parse(opts.body);
     assert.ok(opts, 'Fallback to /events/bulk');
     assertEventSent(assert, resp[0]);

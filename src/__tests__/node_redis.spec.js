@@ -8,9 +8,9 @@ import RedisServer from 'redis-server';
 import RedisClient from 'ioredis';
 import { exec } from 'child_process';
 import { SplitFactory } from '../';
-import { merge } from '../utils/lang';
-import KeyBuilder from '../storage/Keys';
-import SettingsFactory from '../utils/settings';
+import { merge } from '@splitsoftware/splitio-commons/src/utils/lang';
+import { KeyBuilderSS } from '@splitsoftware/splitio-commons/src/storages/KeyBuilderSS';
+import { settingsFactory } from '../settings';
 import { nearlyEqual } from './testUtils';
 
 const IP_VALUE = ipFunction.address();
@@ -18,6 +18,8 @@ const HOSTNAME_VALUE = osFunction.hostname();
 const NA = 'NA';
 
 const redisPort = '6385';
+
+// @TODO something should be failing here, because we are not setting READY_FROM_CACHE (operational) in consumer mode
 
 const config = {
   core: {
@@ -322,9 +324,9 @@ tape('NodeJS Redis', function (t) {
         for (let config of configs) {
 
           // Redis client and keys required to check Redis store.
-          const setting = SettingsFactory(config);
+          const setting = settingsFactory(config);
           const connection = new RedisClient(setting.storage.options.url);
-          const keys = new KeyBuilder(setting);
+          const keys = new KeyBuilderSS(setting.storage.prefix);
           const eventKey = keys.buildEventsKey();
           const impressionsKey = keys.buildImpressionsKey();
 

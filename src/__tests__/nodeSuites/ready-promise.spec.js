@@ -28,13 +28,13 @@ function assertGetTreatmentWhenReady(assert, client, key) {
 function assertGetTreatmentControlNotReady(assert, client, key) {
   consoleSpy.log.resetHistory();
   assert.equal(client.getTreatment(key, 'hierarchical_splits_test'), 'control', 'We should get control if client is not ready.');
-  assert.true(consoleSpy.log.calledWithExactly('[WARN]  getTreatment: the SDK is not ready, results may be incorrect. Make sure to wait for SDK readiness before using this method.'), 'Telling us that calling getTreatment would return CONTROL since SDK is not ready at this point.');
+  assert.true(consoleSpy.log.calledWithExactly('[WARN]  splitio => getTreatment: the SDK is not ready, results may be incorrect. Make sure to wait for SDK readiness before using this method.'), 'Telling us that calling getTreatment would return CONTROL since SDK is not ready at this point.');
 }
 
 function assertGetTreatmentControlNotReadyOnDestroy(assert, client, key) {
   consoleSpy.log.resetHistory();
   assert.equal(client.getTreatment(key, 'hierarchical_splits_test'), 'control', 'We should get control if client has been destroyed.');
-  assert.true(consoleSpy.log.calledWithExactly('[ERROR] Client has already been destroyed - no calls possible.'), 'Telling us that client has been destroyed. Calling getTreatment would return CONTROL.');
+  assert.true(consoleSpy.log.calledWithExactly('[ERROR] splitio => getTreatment: Client has already been destroyed - no calls possible.'), 'Telling us that client has been destroyed. Calling getTreatment would return CONTROL.');
 }
 
 /* Validate readiness state transitions, warning and error messages when using ready promises. */
@@ -496,16 +496,16 @@ export default function readyPromiseAssertions(key, fetchMock, assert) {
       client.ready();
 
       assertGetTreatmentWhenReady(t, client, key);
-      t.true(consoleSpy.log.calledWithExactly('[WARN]  No listeners for SDK Readiness detected. Incorrect control treatments could have been logged if you called getTreatment/s while the SDK was not yet ready.'),
+      t.true(consoleSpy.log.calledWithExactly('[WARN]  splitio => No listeners for SDK Readiness detected. Incorrect control treatments could have been logged if you called getTreatment/s while the SDK was not yet ready.'),
         'Warning that there are not listeners for SDK_READY event');
 
       // assert error messages when adding event listeners after SDK has already triggered them
       consoleSpy.log.resetHistory();
       client.on(client.Event.SDK_READY, () => { });
       client.on(client.Event.SDK_READY_TIMED_OUT, () => { });
-      t.true(consoleSpy.log.calledWithExactly('[ERROR] A listener was added for SDK_READY on the SDK, which has already fired and won\'t be emitted again. The callback won\'t be executed.'),
+      t.true(consoleSpy.log.calledWithExactly('[ERROR] splitio => A listener was added for SDK_READY on the SDK, which has already fired and won\'t be emitted again. The callback won\'t be executed.'),
         'Logging error that a listeners for SDK_READY event was added after triggered');
-      t.true(consoleSpy.log.calledWithExactly('[ERROR] A listener was added for SDK_READY_TIMED_OUT on the SDK, which has already fired and won\'t be emitted again. The callback won\'t be executed.'),
+      t.true(consoleSpy.log.calledWithExactly('[ERROR] splitio => A listener was added for SDK_READY_TIMED_OUT on the SDK, which has already fired and won\'t be emitted again. The callback won\'t be executed.'),
         'Logging error that a listeners for SDK_READY_TIMED_OUT event was added after triggered');
 
       client.destroy().then(() => {

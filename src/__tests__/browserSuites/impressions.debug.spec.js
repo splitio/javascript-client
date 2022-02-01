@@ -1,16 +1,17 @@
 import { SplitFactory } from '../../';
-import SettingsFactory from '../../utils/settings';
+import { settingsFactory } from '../../settings';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
 import mySegmentsFacundo from '../mocks/mysegments.facundo@split.io.json';
-import { DEBUG } from '../../utils/constants';
+import { DEBUG } from '@splitsoftware/splitio-commons/src/utils/constants';
+import { url } from '../testUtils';
 
 const baseUrls = {
   sdk: 'https://sdk.baseurl/impressionsSuite',
   events: 'https://events.baseurl/impressionsSuite'
 };
 
-const settings = SettingsFactory({
+const settings = settingsFactory({
   core: {
     key: 'asd'
   },
@@ -20,9 +21,9 @@ const settings = SettingsFactory({
 
 export default function (fetchMock, assert) {
   // Mocking this specific route to make sure we only get the items we want to test from the handlers.
-  fetchMock.getOnce(settings.url('/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
-  fetchMock.get(settings.url('/splitChanges?since=1457552620999'), { status: 200, body: splitChangesMock2 });
-  fetchMock.get(settings.url('/mySegments/facundo%40split.io'), { status: 200, body: mySegmentsFacundo });
+  fetchMock.getOnce(url(settings, '/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
+  fetchMock.get(url(settings, '/splitChanges?since=1457552620999'), { status: 200, body: splitChangesMock2 });
+  fetchMock.get(url(settings, '/mySegments/facundo%40split.io'), { status: 200, body: mySegmentsFacundo });
 
   const splitio = SplitFactory({
     core: {
@@ -78,7 +79,7 @@ export default function (fetchMock, assert) {
     });
   };
 
-  fetchMock.postOnce(settings.url('/testImpressions/bulk'), (url, req) => {
+  fetchMock.postOnce(url(settings, '/testImpressions/bulk'), (url, req) => {
     assert.equal(req.headers.SplitSDKImpressionsMode, DEBUG);
     assertPayload(req);
 
@@ -87,7 +88,7 @@ export default function (fetchMock, assert) {
 
     return 200;
   });
-  fetchMock.postOnce(settings.url('/testImpressions/bulk'), 200);
+  fetchMock.postOnce(url(settings, '/testImpressions/bulk'), 200);
 
   client.ready().then(() => {
     client.getTreatment('split_with_config');

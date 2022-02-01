@@ -1,12 +1,13 @@
 import tape from 'tape-catch';
 import fetchMock from './testUtils/fetchMock';
-import SettingsFactory from '../utils/settings';
+import { url } from './testUtils';
+import { settingsFactory } from '../settings';
 
 import evaluationsSuite from './nodeSuites/evaluations.spec';
 import eventsSuite from './nodeSuites/events.spec';
 import impressionsSuite from './nodeSuites/impressions.spec';
 import impressionsSuiteDebug from './nodeSuites/impressions.debug.spec';
-import metricsSuite from './nodeSuites/metrics.spec';
+// import metricsSuite from './nodeSuites/metrics.spec';
 import impressionsListenerSuite from './nodeSuites/impressions-listener.spec';
 import expectedTreatmentsSuite from './nodeSuites/expected-treatments.spec';
 import managerSuite from './nodeSuites/manager.spec';
@@ -18,7 +19,7 @@ import fetchSpecificSplits from './nodeSuites/fetch-specific-splits.spec';
 import splitChangesMock1 from './mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from './mocks/splitchanges.since.1457552620999.json';
 
-const settings = SettingsFactory({
+const settings = settingsFactory({
   core: {
     authorizationKey: '<fake-token>'
   },
@@ -40,9 +41,9 @@ const config = {
 
 const key = 'facundo@split.io';
 
-fetchMock.get(settings.url('/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
-fetchMock.get(settings.url('/splitChanges?since=1457552620999'), { status: 200, body: splitChangesMock2 });
-fetchMock.get(new RegExp(`${settings.url('/segmentChanges')}/*`), {
+fetchMock.get(url(settings, '/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
+fetchMock.get(url(settings, '/splitChanges?since=1457552620999'), { status: 200, body: splitChangesMock2 });
+fetchMock.get(new RegExp(`${url(settings, '/segmentChanges')}/*`), {
   status: 200, body: {
     'name': 'segment',
     'added': [],
@@ -51,8 +52,8 @@ fetchMock.get(new RegExp(`${settings.url('/segmentChanges')}/*`), {
     'till': 1
   }
 });
-fetchMock.post(settings.url('/testImpressions/bulk'), 200);
-fetchMock.post(settings.url('/testImpressions/count'), 200);
+fetchMock.post(url(settings, '/testImpressions/bulk'), 200);
+fetchMock.post(url(settings, '/testImpressions/count'), 200);
 
 tape('## Node JS - E2E CI Tests ##', async function (assert) {
   /* Check client evaluations. */
@@ -63,8 +64,9 @@ tape('## Node JS - E2E CI Tests ##', async function (assert) {
   assert.test('E2E / Impressions Debug Mode', impressionsSuiteDebug.bind(null, key, fetchMock));
   assert.test('E2E / Impressions listener', impressionsListenerSuite);
 
-  /* Check metrics */
-  assert.test('E2E / Metrics', metricsSuite.bind(null, key, fetchMock));
+  // /* Check metrics */
+  // @TODO uncomment when telemetry is implemented
+  // assert.test('E2E / Metrics', metricsSuite.bind(null, key, fetchMock));
 
   /* Check events in memory */
   assert.test('E2E / Events', eventsSuite.bind(null, fetchMock));

@@ -1,8 +1,9 @@
 import { SplitFactory } from '../../';
-import SettingsFactory from '../../utils/settings';
+import { settingsFactory } from '../../settings';
 import { gaSpy, gaTag } from './gaTestUtils';
 import includes from 'lodash/includes';
-import { DEBUG } from '../../utils/constants';
+import { DEBUG } from '@splitsoftware/splitio-commons/src/utils/constants';
+import { url } from '../testUtils';
 
 function countImpressions(parsedImpressionsBulkPayload) {
   return parsedImpressionsBulkPayload
@@ -24,7 +25,7 @@ const config = {
     impressionsMode: DEBUG,
   }
 };
-const settings = SettingsFactory(config);
+const settings = settingsFactory(config);
 
 export default function (fetchMock, assert) {
 
@@ -49,7 +50,7 @@ export default function (fetchMock, assert) {
       }, 0);
     })();
 
-    fetchMock.postOnce(settings.url('/testImpressions/bulk'), (url, opts) => {
+    fetchMock.postOnce(url(settings, '/testImpressions/bulk'), (url, opts) => {
       // we can assert payload and ga hits, once ga is ready and after `SplitToGa.queue`, that is timeout wrapped, make to the queue stack.
       window.ga(() => {
         setTimeout(() => {
@@ -70,7 +71,7 @@ export default function (fetchMock, assert) {
       return 200;
     });
 
-    fetchMock.postOnce(settings.url('/events/bulk'), (url, opts) => {
+    fetchMock.postOnce(url(settings, '/events/bulk'), (url, opts) => {
       window.ga(() => {
         setTimeout(() => {
           try {
