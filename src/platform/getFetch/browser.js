@@ -1,5 +1,5 @@
 import unfetch from 'unfetch';
 
-export default function getFetch() {
+export function getFetch() {
   return typeof fetch === 'function' ? fetch : unfetch;
 }

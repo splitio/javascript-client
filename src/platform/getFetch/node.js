@@ -16,6 +16,6 @@ export function __setFetch(fetch) {
   nodeFetch = fetch;
 }
 
-export default function getFetch() {
+export function getFetch() {
   return nodeFetch;
 }
