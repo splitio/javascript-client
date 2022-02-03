@@ -1,5 +1,5 @@
 /**
-Copyright 2016 Split Software
+Copyright 2022 Split Software
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,23 +14,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 **/
 
-import logFactory from '../../../utils/logger';
-const log = logFactory('splitio-settings');
-import isLocalStorageAvailable from '../../../utils/localstorage/isAvailable';
-import {
-  LOCALHOST_MODE,
-  STORAGE_MEMORY,
-  STORAGE_LOCALSTORAGE
-} from '../../../utils/constants';
+import { isLocalStorageAvailable } from '@splitsoftware/splitio-commons/src/utils/env/isLocalStorageAvailable';
+import { LOCALHOST_MODE, STORAGE_MEMORY } from '@splitsoftware/splitio-commons/src/utils/constants';
 
-const ParseStorageSettings = settings => {
+const STORAGE_LOCALSTORAGE = 'LOCALSTORAGE';
+
+export function validateStorage(settings) {
   let {
     mode,
     storage: {
-      type = STORAGE_MEMORY,
+      type,
       options = {},
       prefix
-    },
+    } = { type: STORAGE_MEMORY },
   } = settings;
   let __originalType;
 
@@ -56,7 +52,7 @@ const ParseStorageSettings = settings => {
   if (type !== STORAGE_MEMORY && type !== STORAGE_LOCALSTORAGE ||
     type === STORAGE_LOCALSTORAGE && !isLocalStorageAvailable()) {
     fallbackToMemory();
-    log.warn('Invalid or unavailable storage. Fallbacking into MEMORY storage');
+    settings.log.warn('Invalid or unavailable storage. Fallbacking into MEMORY storage');
   }
 
   return {
@@ -65,6 +61,4 @@ const ParseStorageSettings = settings => {
     prefix,
     __originalType
   };
-};
-
-export default ParseStorageSettings;
+}

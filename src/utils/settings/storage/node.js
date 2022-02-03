@@ -1,5 +1,5 @@
 /**
-Copyright 2016 Split Software
+Copyright 2022 Split Software
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -13,16 +13,18 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 **/
-import { LOCALHOST_MODE, STORAGE_MEMORY, STORAGE_REDIS } from '../../constants';
+import { LOCALHOST_MODE, STORAGE_MEMORY } from '@splitsoftware/splitio-commons/src/utils/constants';
 
-const ParseStorageSettings = (settings) => {
+const STORAGE_REDIS = 'REDIS';
+
+export function validateStorage(settings) {
   let {
     mode,
     storage: {
       type,
       options = {},
       prefix
-    }
+    } = { type: STORAGE_MEMORY }
   } = settings;
 
   if (prefix) {
@@ -90,6 +92,4 @@ const ParseStorageSettings = (settings) => {
       };
     }
   }
-};
-
-export default ParseStorageSettings;
+}

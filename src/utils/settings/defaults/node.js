@@ -1,4 +1,6 @@
-export default {
+import { packageVersion } from './version';
+
+export const defaults = {
   core: {
     // Default is true.
     IPAddressesEnabled: true
@@ -17,5 +19,8 @@ export default {
     featuresRefreshRate: 5,
     impressionsRefreshRate: 300
   },
-  features: '.split'
+  features: '.split',
+
+  // Instance version.
+  version: `nodejs-${packageVersion}`,
 };
