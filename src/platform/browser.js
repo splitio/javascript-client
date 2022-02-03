@@ -9,4 +9,4 @@ export const platform = {
   EventEmitter
 };
 
-export const signalListener = BrowserSignalListener;
+export const SignalListener = BrowserSignalListener;

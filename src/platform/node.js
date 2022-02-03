@@ -11,4 +11,4 @@ export const platform = {
   EventEmitter
 };
 
-export const signalListener = NodeSignalListener;
+export const SignalListener = NodeSignalListener;
