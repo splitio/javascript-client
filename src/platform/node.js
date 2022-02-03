@@ -1,4 +1,3 @@
-// @TODO check 'events': Node is using events API or the installed dependency?
 import EventEmitter from 'events';
 import { getFetch } from '../platform/getFetch/node';
 import { getEventSource } from '../platform/getEventSource/node';
@@ -12,4 +11,4 @@ export const platform = {
   EventEmitter
 };
 
-export const signalListener = NodeSignalListener;
+export const SignalListener = NodeSignalListener;
