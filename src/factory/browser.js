@@ -10,12 +10,21 @@ import { impressionObserverCSFactory } from '@splitsoftware/splitio-commons/src/
 import { integrationsManagerFactory } from '@splitsoftware/splitio-commons/src/integrations/browser';
 import { __InLocalStorageMockFactory } from '@splitsoftware/splitio-commons/src/utils/settingsValidation/storage/storageCS';
 import { sdkFactory } from '@splitsoftware/splitio-commons/src/sdkFactory';
+import { LOCALHOST_MODE, STORAGE_LOCALSTORAGE } from '@splitsoftware/splitio-commons/src/utils/constants';
+import { shouldAddPt } from '@splitsoftware/splitio-commons/src/trackers/impressionObserver/utils';
 
-import { settingsFactory } from '../settings/clientSide';
-import { shouldAddPt } from './commons';
-import { platform, signalListener } from '../platform';
+import { settingsFactory } from '../settings/browser';
+import { platform, SignalListener } from '../platform';
 
 const syncManagerOnlineCSFactory = syncManagerOnlineFactory(pollingManagerCSFactory, pushManagerFactory);
+
+function getStorage(settings) {
+  return settings.storage.type === STORAGE_LOCALSTORAGE ?
+    InLocalStorage(settings.storage)
+    : settings.storage.__originalType === STORAGE_LOCALSTORAGE ?
+      __InLocalStorageMockFactory
+      : InMemoryStorageCSFactory;
+}
 
 /**
  *
@@ -23,32 +32,39 @@ const syncManagerOnlineCSFactory = syncManagerOnlineFactory(pollingManagerCSFact
  */
 function getModules(settings) {
 
-  return {
+  const modules = {
     settings,
 
     platform,
 
-    storageFactory: settings.storage.type === 'LOCALSTORAGE' ?
-      InLocalStorage({
-        prefix: settings.storage.prefix,
-      })
-      : settings.storage.__originalType === 'LOCALSTORAGE' ?
-        __InLocalStorageMockFactory
-        : InMemoryStorageCSFactory,
+    storageFactory: getStorage(settings),
 
-    splitApiFactory: settings.mode === 'localhost' ? undefined : splitApiFactory,
-    syncManagerFactory: settings.mode === 'localhost' ? settings.sync.localhostMode : syncManagerOnlineCSFactory,
+    splitApiFactory,
+
+    syncManagerFactory: syncManagerOnlineCSFactory,
 
     sdkManagerFactory,
+
     sdkClientMethodFactory: sdkClientMethodCSFactory,
-    SignalListener: settings.mode === 'localhost' ? undefined : signalListener,
+
+    SignalListener,
+
     impressionListener: settings.impressionListener,
 
     integrationsManagerFactory: settings.integrations && settings.integrations.length > 0 ? integrationsManagerFactory.bind(null, settings.integrations) : undefined,
 
-    // @TODO consider not including in debug mode?
     impressionsObserverFactory: shouldAddPt(settings) ? impressionObserverCSFactory : undefined,
   };
+
+  switch (settings.mode) {
+    case LOCALHOST_MODE:
+      modules.splitApiFactory = undefined;
+      modules.syncManagerFactory = settings.sync.localhostMode;
+      modules.SignalListener = undefined;
+      break;
+  }
+
+  return modules;
 }
 
 export function SplitFactory(config) {

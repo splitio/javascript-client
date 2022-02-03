@@ -8,40 +8,60 @@ import { sdkManagerFactory } from '@splitsoftware/splitio-commons/src/sdkManager
 import { sdkClientMethodFactory } from '@splitsoftware/splitio-commons/src/sdkClient/sdkClientMethod';
 import { impressionObserverSSFactory } from '@splitsoftware/splitio-commons/src/trackers/impressionObserver/impressionObserverSS';
 import { sdkFactory } from '@splitsoftware/splitio-commons/src/sdkFactory';
+import { CONSUMER_MODE, LOCALHOST_MODE } from '@splitsoftware/splitio-commons/src/utils/constants';
+import { shouldAddPt } from '@splitsoftware/splitio-commons/src/trackers/impressionObserver/utils';
 
-import { settingsFactory } from '../settings/serverSide';
-import { shouldAddPt } from './commons';
-import { platform, signalListener } from '../platform';
+import { settingsFactory } from '../settings/node';
+import { platform, SignalListener } from '../platform';
 
 const syncManagerOnlineSSFactory = syncManagerOnlineFactory(pollingManagerSSFactory, pushManagerFactory);
+
+function getStorage(settings) {
+  return settings.storage.type === 'REDIS' ?
+    InRedisStorage(settings.storage) :
+    InMemoryStorageFactory;
+}
 
 /**
  *
  * @param {import("@splitsoftware/splitio-commons/types/types").ISettings} settings
  */
 function getModules(settings) {
-  return {
+
+  const modules = {
     settings,
 
     platform,
 
-    storageFactory: settings.storage.type === 'REDIS' ?
-      InRedisStorage({
-        prefix: settings.storage.prefix,
-        options: settings.storage.options
-      }) :
-      InMemoryStorageFactory,
+    storageFactory: getStorage(settings),
 
-    splitApiFactory: settings.mode === 'localhost' ? undefined : splitApiFactory,
-    syncManagerFactory: settings.storage.type === 'REDIS' ? undefined : settings.mode === 'localhost' ? settings.sync.localhostMode : syncManagerOnlineSSFactory,
+    splitApiFactory,
+
+    syncManagerFactory: syncManagerOnlineSSFactory,
 
     sdkManagerFactory,
-    sdkClientMethodFactory: sdkClientMethodFactory,
-    SignalListener: settings.mode === 'localhost' ? undefined : signalListener,
+
+    sdkClientMethodFactory,
+
+    SignalListener,
+
     impressionListener: settings.impressionListener,
 
     impressionsObserverFactory: shouldAddPt(settings) ? impressionObserverSSFactory : undefined,
   };
+
+  switch (settings.mode) {
+    case LOCALHOST_MODE:
+      modules.splitApiFactory = undefined;
+      modules.syncManagerFactory = settings.sync.localhostMode;
+      modules.SignalListener = undefined;
+      break;
+    case CONSUMER_MODE:
+      modules.syncManagerFactory = undefined;
+      break;
+  }
+
+  return modules;
 }
 
 export function SplitFactory(config) {
