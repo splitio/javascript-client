@@ -11,7 +11,7 @@ import { integrationsManagerFactory } from '@splitsoftware/splitio-commons/src/i
 import { __InLocalStorageMockFactory } from '@splitsoftware/splitio-commons/src/utils/settingsValidation/storage/storageCS';
 import { sdkFactory } from '@splitsoftware/splitio-commons/src/sdkFactory';
 
-import { settingsFactory } from '../settings/clientSide';
+import { settingsFactory } from '../settings/browser';
 import { shouldAddPt } from './commons';
 import { platform, signalListener } from '../platform';
 

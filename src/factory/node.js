@@ -9,7 +9,7 @@ import { sdkClientMethodFactory } from '@splitsoftware/splitio-commons/src/sdkCl
 import { impressionObserverSSFactory } from '@splitsoftware/splitio-commons/src/trackers/impressionObserver/impressionObserverSS';
 import { sdkFactory } from '@splitsoftware/splitio-commons/src/sdkFactory';
 
-import { settingsFactory } from '../settings/serverSide';
+import { settingsFactory } from '../settings/node';
 import { shouldAddPt } from './commons';
 import { platform, signalListener } from '../platform';
 
