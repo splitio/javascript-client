@@ -3,10 +3,11 @@ import path from 'path';
 import tape from 'tape-catch';
 import sinon from 'sinon';
 import fetchMock from '../testUtils/fetchMock';
+import { url } from '../testUtils';
 import { SplitFactory } from '../../';
-import SettingsFactory from '../../utils/settings';
+import { settingsFactory } from '../../settings';
 
-const settings = SettingsFactory({ core: { key: 'facundo@split.io' } });
+const settings = settingsFactory({ core: { key: 'facundo@split.io' } });
 
 const spySplitChanges = sinon.spy();
 const spySegmentChanges = sinon.spy();
@@ -26,14 +27,14 @@ const replySpy = spy => {
 };
 
 const configMocks = () => {
-  fetchMock.mock(new RegExp(`${settings.url('/splitChanges/')}.*`), () => replySpy(spySplitChanges));
-  fetchMock.mock(new RegExp(`${settings.url('/segmentChanges/')}.*`), () => replySpy(spySegmentChanges));
-  fetchMock.mock(new RegExp(`${settings.url('/mySegments/')}.*`), () => replySpy(spyMySegments));
-  fetchMock.mock(settings.url('/events/bulk'), () => replySpy(spyEventsBulk));
-  fetchMock.mock(settings.url('/testImpressions/bulk'), () => replySpy(spyTestImpressionsBulk));
-  fetchMock.mock(settings.url('/testImpressions/count'), () => replySpy(spyTestImpressionsCount));
-  fetchMock.mock(settings.url('/metrics/times'), () => replySpy(spyMetricsTimes));
-  fetchMock.mock(settings.url('/metrics/counters'), () => replySpy(spyMetricsCounters));
+  fetchMock.mock(new RegExp(`${url(settings, '/splitChanges/')}.*`), () => replySpy(spySplitChanges));
+  fetchMock.mock(new RegExp(`${url(settings, '/segmentChanges/')}.*`), () => replySpy(spySegmentChanges));
+  fetchMock.mock(new RegExp(`${url(settings, '/mySegments/')}.*`), () => replySpy(spyMySegments));
+  fetchMock.mock(url(settings, '/events/bulk'), () => replySpy(spyEventsBulk));
+  fetchMock.mock(url(settings, '/testImpressions/bulk'), () => replySpy(spyTestImpressionsBulk));
+  fetchMock.mock(url(settings, '/testImpressions/count'), () => replySpy(spyTestImpressionsCount));
+  fetchMock.mock(url(settings, '/metrics/times'), () => replySpy(spyMetricsTimes));
+  fetchMock.mock(url(settings, '/metrics/counters'), () => replySpy(spyMetricsCounters));
   fetchMock.mock('*', () => replySpy(spyAny));
 };
 
@@ -87,7 +88,7 @@ tape('NodeJS Offline Mode', function (t) {
     client.on(client.Event.SDK_READY_TIMED_OUT, () => {
       assert.pass('If tried to load a file with invalid extension, we should emit SDK_READY_TIMED_OUT.');
 
-      assert.ok(console.log.calledWithMatch(`[ERROR] splitio-producer:offline => There was an issue loading the mock Splits data, no changes will be applied to the current cache. Error: Invalid extension specified for Splits mock file. Accepted extensions are ".yml" and ".yaml". Your specified file is ${config.features}`));
+      assert.ok(console.log.calledWithMatch(`[ERROR] splitio => sync:offline: There was an issue loading the mock Splits data, no changes will be applied to the current cache. Error: Invalid extension specified for Splits mock file. Accepted extensions are ".yml" and ".yaml". Your specified file is ${config.features}`));
 
       console.log.restore();
       client.destroy();

@@ -1,6 +1,7 @@
 import { SplitFactory } from '../../';
-import SettingsFactory from '../../utils/settings';
-const settings = SettingsFactory({
+import { settingsFactory } from '../../settings';
+import { url } from '../testUtils';
+const settings = settingsFactory({
   core: {
     key: 'asd'
   },
@@ -9,8 +10,8 @@ const settings = SettingsFactory({
 
 export default function (startWithTT, fetchMock, assert) {
   // mocking mySegments endpoints with delays for new clients
-  fetchMock.get(settings.url('/mySegments/emiliano%2Fsplit.io'), { status: 200, body: { mySegments: [] } }, { delay: 100 });
-  fetchMock.get(settings.url('/mySegments/matias%25split.io'), { status: 200, body: { mySegments: [] } }, { delay: 200 });
+  fetchMock.get(url(settings, '/mySegments/emiliano%2Fsplit.io'), { status: 200, body: { mySegments: [] } }, { delay: 100 });
+  fetchMock.get(url(settings, '/mySegments/matias%25split.io'), { status: 200, body: { mySegments: [] } }, { delay: 200 });
 
   const factory = SplitFactory({
     core: {
@@ -92,7 +93,7 @@ export default function (startWithTT, fetchMock, assert) {
    */
   const trackAssertions = () => {
     // Prepare the mock to check for events having correct values
-    fetchMock.postOnce(settings.url('/events/bulk'), (url, opts) => {
+    fetchMock.postOnce(url(settings, '/events/bulk'), (url, opts) => {
       const events = JSON.parse(opts.body);
 
       assert.equal(events.length, 3, 'Tracked only valid events');

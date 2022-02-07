@@ -1,28 +1,29 @@
 import tape from 'tape-catch';
 import fetchMock from '../testUtils/fetchMock';
+import { url } from '../testUtils';
 import map from 'lodash/map';
 import pick from 'lodash/pick';
 import { SplitFactory } from '../../';
-import SettingsFactory from '../../utils/settings';
+import { settingsFactory } from '../../settings';
 
 import splitChangesMock1 from './splitChanges.since.-1.json';
 import splitChangesMock2 from './splitChanges.since.1500492097547.json';
 import mySegmentsMock from './mySegments.json';
 import impressionsMock from './impressions.json';
 
-const settings = SettingsFactory({
+const settings = settingsFactory({
   core: {
     key: 'facundo@split.io'
   },
   streamingEnabled: false
 });
 
-fetchMock.getOnce(settings.url('/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
-fetchMock.getOnce(settings.url('/splitChanges?since=-1500492097547'), { status: 200, body: splitChangesMock2 });
+fetchMock.getOnce(url(settings, '/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
+fetchMock.getOnce(url(settings, '/splitChanges?since=-1500492097547'), { status: 200, body: splitChangesMock2 });
 
-fetchMock.getOnce(settings.url('/mySegments/ut1'), { status: 200, body: mySegmentsMock });
-fetchMock.getOnce(settings.url('/mySegments/ut2'), { status: 200, body: mySegmentsMock });
-fetchMock.getOnce(settings.url('/mySegments/ut3'), { status: 200, body: mySegmentsMock });
+fetchMock.getOnce(url(settings, '/mySegments/ut1'), { status: 200, body: mySegmentsMock });
+fetchMock.getOnce(url(settings, '/mySegments/ut2'), { status: 200, body: mySegmentsMock });
+fetchMock.getOnce(url(settings, '/mySegments/ut3'), { status: 200, body: mySegmentsMock });
 
 tape('SDK destroy for BrowserJS', async function (assert) {
   const config = {
@@ -48,7 +49,7 @@ tape('SDK destroy for BrowserJS', async function (assert) {
   client3.track('tt2', 'otherEventType', 3);
 
   // Assert we are sending the impressions while doing the destroy
-  fetchMock.postOnce(settings.url('/testImpressions/bulk'), (url, opts) => {
+  fetchMock.postOnce(url(settings, '/testImpressions/bulk'), (url, opts) => {
     const impressions = JSON.parse(opts.body);
 
     impressions[0].i = map(impressions[0].i, imp => pick(imp, ['k', 't']));
@@ -59,7 +60,7 @@ tape('SDK destroy for BrowserJS', async function (assert) {
   });
 
   // Assert we are sending the impressions count while doing the destroy
-  fetchMock.postOnce(settings.url('/testImpressions/count'), (url, opts) => {
+  fetchMock.postOnce(url(settings, '/testImpressions/count'), (url, opts) => {
     const impressionsCount = JSON.parse(opts.body);
 
     assert.equal(impressionsCount.pf.length, 1);
@@ -70,7 +71,7 @@ tape('SDK destroy for BrowserJS', async function (assert) {
   });
 
   // Assert we are sending the events while doing the destroy
-  fetchMock.postOnce(settings.url('/events/bulk'), (url, opts) => {
+  fetchMock.postOnce(url(settings, '/events/bulk'), (url, opts) => {
     const events = JSON.parse(opts.body);
 
     /* 3 events were pushed */

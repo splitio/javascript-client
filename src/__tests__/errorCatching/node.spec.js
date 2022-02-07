@@ -2,9 +2,10 @@
 import tape from 'tape';
 import includes from 'lodash/includes';
 import fetchMock from '../testUtils/fetchMock';
+import { url } from '../testUtils';
 
 import { SplitFactory } from '../../';
-import SettingsFactory from '../../utils/settings';
+import { settingsFactory } from '../../settings';
 
 import splitChangesMock1 from './splitChanges.since.-1.json';
 import splitChangesMock2 from './splitChanges.since.1500492097547.json';
@@ -13,16 +14,16 @@ import splitChangesMock3 from './splitChanges.since.1500492297547.json';
 // Option object used to configure mocked routes with a delay of 1.5 seconds.
 const responseDelay = { delay: 1500 };
 
-const settings = SettingsFactory({
+const settings = settingsFactory({
   core: {
     authorizationKey: '<fake-token>'
   },
   streamingEnabled: false
 });
 
-fetchMock.get(settings.url('/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 }, responseDelay);
-fetchMock.get(settings.url('/splitChanges?since=1500492097547'), { status: 200, body: splitChangesMock2 }, responseDelay);
-fetchMock.get(settings.url('/splitChanges?since=1500492297547'), { status: 200, body: splitChangesMock3 }, responseDelay);
+fetchMock.get(url(settings, '/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 }, responseDelay);
+fetchMock.get(url(settings, '/splitChanges?since=1500492097547'), { status: 200, body: splitChangesMock2 }, responseDelay);
+fetchMock.get(url(settings, '/splitChanges?since=1500492297547'), { status: 200, body: splitChangesMock3 }, responseDelay);
 
 
 tape('Error catching on callbacks', assert => {

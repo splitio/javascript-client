@@ -1,14 +1,14 @@
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitKillMessage from '../mocks/message.SPLIT_KILL.1457552650000.json';
 import authPushEnabledNicolas from '../mocks/auth.pushEnabled.nicolas@split.io.json';
-import { nearlyEqual } from '../testUtils';
+import { nearlyEqual, url } from '../testUtils';
 
 // Replace original EventSource with mock
-import EventSourceMock, { setMockListener } from '../../sync/__tests__/mocks/eventSourceMock';
+import EventSourceMock, { setMockListener } from '../testUtils/eventSourceMock';
 window.EventSource = EventSourceMock;
 
 import { SplitFactory } from '../../';
-import SettingsFactory from '../../utils/settings';
+import { settingsFactory } from '../../settings';
 
 const userKey = 'nicolas@split.io';
 
@@ -28,7 +28,7 @@ const config = {
     prefix: 'pushCornerCase'
   },
 };
-const settings = SettingsFactory(config);
+const settings = settingsFactory(config);
 
 const MILLIS_SSE_OPEN = 100;
 const MILLIS_SPLIT_KILL_EVENT = 200;
@@ -69,13 +69,13 @@ export function testSplitKillOnReadyFromCache(fetchMock, assert) {
   });
 
   // 1 auth request
-  fetchMock.getOnce(settings.url(`/v2/auth?users=${encodeURIComponent(userKey)}`), { status: 200, body: authPushEnabledNicolas });
+  fetchMock.getOnce(url(settings, `/v2/auth?users=${encodeURIComponent(userKey)}`), { status: 200, body: authPushEnabledNicolas });
   // 2 mySegments requests: initial sync and after SSE opened
-  fetchMock.get({ url: settings.url('/mySegments/nicolas%40split.io'), repeat: 2 }, { status: 200, body: { mySegments: [] } });
+  fetchMock.get({ url: url(settings, '/mySegments/nicolas%40split.io'), repeat: 2 }, { status: 200, body: { mySegments: [] } });
 
   // 2 splitChanges request: initial sync and after SSE opened. Sync after SPLIT_KILL is not performed because SplitsSyncTask is "executing"
-  fetchMock.getOnce(settings.url('/splitChanges?since=25'), { status: 200, body: splitChangesMock1}, {delay: MILLIS_SPLIT_CHANGES_RESPONSE, /* delay response */ });
-  fetchMock.getOnce(settings.url('/splitChanges?since=25'), { status: 200, body: splitChangesMock1}, {delay: MILLIS_SPLIT_CHANGES_RESPONSE - 100, /* delay response */ });
+  fetchMock.getOnce(url(settings, '/splitChanges?since=25'), { status: 200, body: splitChangesMock1}, {delay: MILLIS_SPLIT_CHANGES_RESPONSE, /* delay response */ });
+  fetchMock.getOnce(url(settings, '/splitChanges?since=25'), { status: 200, body: splitChangesMock1}, {delay: MILLIS_SPLIT_CHANGES_RESPONSE - 100, /* delay response */ });
 
   fetchMock.get(new RegExp('.*'), function (url) {
     assert.fail('unexpected GET request with url: ' + url);

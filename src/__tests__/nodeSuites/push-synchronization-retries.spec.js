@@ -9,14 +9,14 @@ import splitKillMessage from '../mocks/message.SPLIT_KILL.1457552650000.json';
 
 import authPushEnabled from '../mocks/auth.pushEnabled.node.json';
 
-import { nearlyEqual, mockSegmentChanges } from '../testUtils';
-import Backoff from '../../utils/backoff';
+import { nearlyEqual, mockSegmentChanges, url } from '../testUtils';
+import { Backoff } from '@splitsoftware/splitio-commons/src/utils/Backoff';
 
-import EventSourceMock, { setMockListener } from '../../sync/__tests__/mocks/eventSourceMock';
-import { __setEventSource } from '../../services/getEventSource/node';
+import EventSourceMock, { setMockListener } from '../testUtils/eventSourceMock';
+import { __setEventSource } from '../../platform/getEventSource/node';
 
 import { SplitFactory } from '../../';
-import SettingsFactory from '../../utils/settings';
+import { settingsFactory } from '../../settings';
 
 const key = 'nicolas@split.io';
 
@@ -33,7 +33,7 @@ const config = {
   streamingEnabled: true,
   // debug: true,
 };
-const settings = SettingsFactory(config);
+const settings = settingsFactory(config);
 
 const MILLIS_SSE_OPEN = 100;
 
@@ -84,7 +84,7 @@ export function testSynchronizationRetries(fetchMock, assert) {
   setMockListener(function (eventSourceInstance) {
     start = Date.now();
 
-    const expectedSSEurl = `${settings.url('/sse')}?channels=NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_segments,NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_splits,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_pri,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_sec&accessToken=${authPushEnabled.token}&v=1.1&heartbeats=true`;
+    const expectedSSEurl = `${url(settings, '/sse')}?channels=NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_segments,NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_splits,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_pri,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_sec&accessToken=${authPushEnabled.token}&v=1.1&heartbeats=true`;
     assert.equals(eventSourceInstance.url, expectedSSEurl, 'EventSource URL is the expected');
 
     setTimeout(() => {
@@ -127,74 +127,74 @@ export function testSynchronizationRetries(fetchMock, assert) {
   });
 
   // initial auth
-  fetchMock.getOnce(settings.url('/v2/auth'), function (url, opts) {
+  fetchMock.getOnce(url(settings, '/v2/auth'), function (url, opts) {
     if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
     assert.pass('auth success');
     return { status: 200, body: authPushEnabled };
   });
 
   // initial split and segment sync
-  fetchMock.getOnce(settings.url('/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
-  fetchMock.getOnce(settings.url('/segmentChanges/splitters?since=-1'),
+  fetchMock.getOnce(url(settings, '/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
+  fetchMock.getOnce(url(settings, '/segmentChanges/splitters?since=-1'),
     { status: 200, body: { since: -1, till: 1457552620999, name: 'splitters', added: [key], removed: [] } }
   );
   // extra retry due to double request (greedy fetch). @TODO: remove once `SplitChangesUpdaterFactory` and `segmentChangesFetcher` are updated
-  fetchMock.getOnce(settings.url('/segmentChanges/splitters?since=1457552620999'),
+  fetchMock.getOnce(url(settings, '/segmentChanges/splitters?since=1457552620999'),
     { status: 200, body: { since: 1457552620999, till: 1457552620999, name: 'splitters', added: [], removed: [] } }
   );
 
   // split and segment sync after SSE opened
-  fetchMock.getOnce(settings.url('/splitChanges?since=1457552620999'), function () {
+  fetchMock.getOnce(url(settings, '/splitChanges?since=1457552620999'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_SSE_OPEN), 'sync after SSE connection is opened');
     return { status: 200, body: splitChangesMock2 };
   });
-  fetchMock.getOnce(settings.url('/segmentChanges/splitters?since=1457552620999'),
+  fetchMock.getOnce(url(settings, '/segmentChanges/splitters?since=1457552620999'),
     { status: 200, body: { since: 1457552620999, till: 1457552620999, name: 'splitters', added: [], removed: [] } }
   );
 
   // fetch due to SPLIT_UPDATE event
-  fetchMock.getOnce(settings.url('/splitChanges?since=1457552620999'), { throws: new TypeError('Network error') });
+  fetchMock.getOnce(url(settings, '/splitChanges?since=1457552620999'), { throws: new TypeError('Network error') });
   // fetch retry for SPLIT_UPDATE event, due to previous fail
-  fetchMock.getOnce(settings.url('/splitChanges?since=1457552620999'), function () {
+  fetchMock.getOnce(url(settings, '/splitChanges?since=1457552620999'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_RETRY_FOR_FIRST_SPLIT_UPDATE_EVENT), 'fetch retry due to SPLIT_UPDATE event');
     return { status: 200, body: splitChangesMock3 };
   });
 
   // fetch due to SEGMENT_UPDATE event
-  fetchMock.getOnce(settings.url('/segmentChanges/splitters?since=1457552620999'), function () {
+  fetchMock.getOnce(url(settings, '/segmentChanges/splitters?since=1457552620999'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_SEGMENT_UPDATE_EVENT), 'sync due to SEGMENT_UPDATE event');
     return { status: 500, body: 'server error' }; // server error
     // return { status: 200, body: { since: 1457552620999, till: 1457552620999, name: 'splitters', added: [], removed: [] } }; // outdated response is not handled currently
   });
   // first fetch retry for SEGMENT_UPDATE event, due to previous unexpected response (response till minor than SEGMENT_UPDATE changeNumber)
-  fetchMock.getOnce(settings.url('/segmentChanges/splitters?since=1457552620999'), { throws: new TypeError('Network error') });
+  fetchMock.getOnce(url(settings, '/segmentChanges/splitters?since=1457552620999'), { throws: new TypeError('Network error') });
   // second fetch retry for SEGMENT_UPDATE event, due to previous network error
-  fetchMock.getOnce(settings.url('/segmentChanges/splitters?since=1457552620999'), { status: 200, body: '{ "since": 1457552620999, "til' });
+  fetchMock.getOnce(url(settings, '/segmentChanges/splitters?since=1457552620999'), { status: 200, body: '{ "since": 1457552620999, "til' });
   // third fetch retry for SEGMENT_UPDATE event, due to previous unexpected response (invalid JSON)
-  fetchMock.getOnce(settings.url('/segmentChanges/splitters?since=1457552620999'), function () {
+  fetchMock.getOnce(url(settings, '/segmentChanges/splitters?since=1457552620999'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_THIRD_RETRY_FOR_SEGMENT_UPDATE_EVENT), 'sync third retry for SEGMENT_UPDATE event');
     return { status: 200, body: { since: 1457552620999, till: 1457552640000, name: 'splitters', added: [], removed: [key] } };
   });
   // extra retry (fetch until since === till)
-  fetchMock.getOnce(settings.url('/segmentChanges/splitters?since=1457552640000'), { status: 200, body: { since: 1457552640000, till: 1457552640000, name: 'splitters', added: [], removed: [] } });
+  fetchMock.getOnce(url(settings, '/segmentChanges/splitters?since=1457552640000'), { status: 200, body: { since: 1457552640000, till: 1457552640000, name: 'splitters', added: [], removed: [] } });
 
   // fetch due to SPLIT_KILL event
-  fetchMock.getOnce(settings.url('/splitChanges?since=1457552649999'), function () {
+  fetchMock.getOnce(url(settings, '/splitChanges?since=1457552649999'), function () {
     assert.equal(client.getTreatment(key, 'whitelist'), 'not_allowed', 'evaluation with split killed immediately, before fetch is done');
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_SPLIT_KILL_EVENT), 'sync due to SPLIT_KILL event');
     return { status: 200, body: { since: 1457552649999, till: 1457552649999, splits: [] } }; // returning old state
   });
   // first fetch retry for SPLIT_KILL event, due to previous unexpected response (response till minor than SPLIT_KILL changeNumber)
-  fetchMock.getOnce(settings.url('/splitChanges?since=1457552649999'), { status: 200, body: '{ "since": 1457552620999, "til' }); // invalid JSON
+  fetchMock.getOnce(url(settings, '/splitChanges?since=1457552649999'), { status: 200, body: '{ "since": 1457552620999, "til' }); // invalid JSON
   // second fetch retry for SPLIT_KILL event
-  fetchMock.getOnce(settings.url('/splitChanges?since=1457552649999'), { throws: new TypeError('Network error') });
+  fetchMock.getOnce(url(settings, '/splitChanges?since=1457552649999'), { throws: new TypeError('Network error') });
   // third fetch retry for SPLIT_KILL event
-  fetchMock.getOnce(settings.url('/splitChanges?since=1457552649999'), function () {
+  fetchMock.getOnce(url(settings, '/splitChanges?since=1457552649999'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_THIRD_RETRY_FOR_SPLIT_KILL_EVENT), 'third fetch retry due to SPLIT_KILL event');
 
@@ -209,7 +209,7 @@ export function testSynchronizationRetries(fetchMock, assert) {
     return { status: 408, body: 'request timeout' };
   });
 
-  mockSegmentChanges(fetchMock, new RegExp(`${settings.url('/segmentChanges')}/(employees|developers)`), [key]);
+  mockSegmentChanges(fetchMock, new RegExp(`${url(settings, '/segmentChanges')}/(employees|developers)`), [key]);
 
   fetchMock.get(new RegExp('.*'), function (url) {
     assert.fail('unexpected GET request with url: ' + url);
