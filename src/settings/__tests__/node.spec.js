@@ -1,4 +1,5 @@
 import tape from 'tape-catch';
+import sinon from 'sinon';
 import osFunction from 'os';
 import ipFunction from 'ip';
 import { settingsFactory } from '../node';
@@ -12,6 +13,7 @@ tape('SETTINGS / Redis options should be properly parsed', assert => {
     core: {
       authorizationKey: 'dummy token'
     },
+    mode: 'consumer',
     storage: {
       type: 'REDIS',
       options: {
@@ -28,6 +30,7 @@ tape('SETTINGS / Redis options should be properly parsed', assert => {
     core: {
       authorizationKey: 'dummy token'
     },
+    mode: 'consumer',
     storage: {
       type: 'REDIS',
       options: {
@@ -68,13 +71,15 @@ tape('SETTINGS / IPAddressesEnabled should be overwritable and true by default',
       authorizationKey: 'dummy token',
       IPAddressesEnabled: false
     },
-    mode: CONSUMER_MODE
+    mode: CONSUMER_MODE,
+    storage: { type: 'REDIS' }
   });
   const settingsWithIPAddressEnabledAndConsumerMode = settingsFactory({
     core: {
       authorizationKey: 'dummy token'
     },
-    mode: CONSUMER_MODE
+    mode: CONSUMER_MODE,
+    storage: { type: 'REDIS' }
   });
 
   assert.equal(settingsWithIPAddressDisabled.core.IPAddressesEnabled, false, 'When creating a setting instance, it will have the provided value for IPAddressesEnabled');
@@ -86,5 +91,53 @@ tape('SETTINGS / IPAddressesEnabled should be overwritable and true by default',
   assert.deepEqual({ ip: IP_VALUE, hostname: HOSTNAME_VALUE }, settingsWithIPAddressEnabled.runtime, 'When IP address is enabled, the runtime setting will have the current ip and hostname values.');
   assert.deepEqual({ ip: IP_VALUE, hostname: HOSTNAME_VALUE }, settingsWithIPAddressEnabledAndConsumerMode.runtime, 'When IP address is enabled, the runtime setting will have the current ip and hostname values.');
 
+  assert.end();
+});
+
+tape('SETTINGS / Throws exception if no "REDIS" storage is provided in consumer mode', (assert) => {
+  const config = {
+    core: {
+      authorizationKey: 'dummy token'
+    },
+    mode: CONSUMER_MODE
+  };
+
+  assert.throws(() => {
+    settingsFactory(config);
+  }, /A REDIS storage is required on consumer mode/);
+  assert.throws(() => {
+    settingsFactory({
+      ...config,
+      storage: { type: 'invalid type' }
+    });
+  }, /A REDIS storage is required on consumer mode/);
+
+  assert.end();
+});
+
+tape('SETTINGS / Log error and fallback to InMemory storage if no valid storage is provided in standlone and localhost modes', (assert) => {
+  const logSpy = sinon.spy(console, 'log');
+
+
+  const settings = [
+    settingsFactory({
+      core: { authorizationKey: 'localhost' }, // localhost mode
+      storage: { type: 'REDIS' }, // 'REDIS' is not a valid storage for standalone and localhost modes
+      debug: 'ERROR'
+    }), settingsFactory({
+      core: { authorizationKey: 'dummy token' }, // standalone mode
+      storage: { type: 'INVALID' },
+      debug: 'ERROR'
+    })
+  ];
+
+  assert.deepEqual(logSpy.args, [
+    ['[ERROR] splitio => The provided REDIS storage is invalid for this mode. It requires consumer mode. Fallbacking into default MEMORY storage.'],
+    ['[ERROR] splitio => The provided \'INVALID\' storage type is invalid. Fallbacking into default MEMORY storage.']
+  ], 'logs error message');
+
+  settings.forEach(setting => { assert.equal(setting.storage.type, 'MEMORY', 'fallbacks to memory storage'); });
+
+  logSpy.restore();
   assert.end();
 });
