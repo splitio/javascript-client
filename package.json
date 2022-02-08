@@ -10,7 +10,9 @@
     "lib",
     "types",
     "es",
-    "src"
+    "src",
+    "client",
+    "server"
   ],
   "repository": "splitio/javascript-client",
   "homepage": "https://github.com/splitio/javascript-client#readme",
