@@ -12,6 +12,7 @@ import { __InLocalStorageMockFactory } from '@splitsoftware/splitio-commons/src/
 import { sdkFactory } from '@splitsoftware/splitio-commons/src/sdkFactory';
 import { LOCALHOST_MODE, STORAGE_LOCALSTORAGE } from '@splitsoftware/splitio-commons/src/utils/constants';
 import { shouldAddPt } from '@splitsoftware/splitio-commons/src/trackers/impressionObserver/utils';
+import { merge } from '@splitsoftware/splitio-commons/src/utils/lang';
 
 import { settingsFactory } from '../settings/browser';
 import { platform, SignalListener } from '../platform';
@@ -67,8 +68,8 @@ function getModules(settings) {
   return modules;
 }
 
-export function SplitFactory(config) {
+export function SplitFactory(config, __customModules) {
   const settings = settingsFactory(config);
   const modules = getModules(settings);
-  return sdkFactory(modules);
+  return sdkFactory(__customModules ? merge(modules, __customModules) : modules);
 }
