@@ -3,7 +3,8 @@
  * https://babeljs.io/docs/en/babel-register
  *
  * NOTE: to use with `npm link @splitsoftware/splitio-commons` or `"@splitsoftware/splitio-commons": "file:../javascript-commons",
- * you need to run `npm install -save-dev @babel/runtime` in JS-commons.
+ * - either run `npm install -save-dev @babel/runtime` in javascript-commons.
+ * - or run `npm link ../javascript-client/node_modules/@babel/runtime` in javascript-commons, assuming that repos are siblings.
 */
 require('@babel/register')({
   extensions: ['.js', '.ts'], // `babel` doesn't consider .ts files by default
