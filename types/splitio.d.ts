@@ -1,4 +1,4 @@
-// Type definitions for Javascript and Node Split Software SDK v8.1.0
+// Type definitions for Javascript and Node Split Software SDK
 // Project: http://www.split.io/
 // Definitions by: Nico Zelaya <https://github.com/NicoZelaya/>
 
@@ -336,7 +336,8 @@ interface INodeBasicSettings extends ISharedSettings {
     prefix?: string
   },
   /**
-   * The SDK mode. Possible values are "standalone" (which is the default) and "consumer". For "localhost" mode, use "localhost" as authorizationKey.
+   * The SDK mode. Possible values are "standalone", which is the default when using a synchronous storage, like 'MEMORY' and 'LOCALSTORAGE',
+   * and "consumer", which must be set when using an asynchronous storage, like 'REDIS'. For "localhost" mode, use "localhost" as authorizationKey.
    * @property {SDKMode} mode
    * @default standalone
    */
@@ -1020,7 +1021,15 @@ declare namespace SplitIO {
        * @default SPLITIO
        */
       prefix?: string
-    }
+    },
+    /**
+     * The SDK mode. When using the default 'MEMORY' storage, the only possible value is "standalone", which is the default.
+     * For "localhost" mode, use "localhost" as authorizationKey.
+     *
+     * @property {'standalone'} mode
+     * @default standalone
+     */
+    mode?: 'standalone'
   }
   /**
    * Settings interface with async storage for SDK instances created on NodeJS.
@@ -1032,7 +1041,7 @@ declare namespace SplitIO {
   interface INodeAsyncSettings extends INodeBasicSettings {
     storage: {
       /**
-       * Redis storage type to be instantiated by the SDK.
+       * 'REDIS' storage type to be instantiated by the SDK.
        * @property {NodeAsyncStorage} type
        */
       type: NodeAsyncStorage,
@@ -1047,7 +1056,15 @@ declare namespace SplitIO {
        * @default SPLITIO
        */
       prefix?: string
-    }
+    },
+    /**
+     * The SDK mode. When using 'REDIS' storage type, the only possible value is "consumer", which is required.
+     *
+     * @see {@link https://help.split.io/hc/en-us/articles/360020564931-Node-js-SDK#state-sharing-redis-integration}
+     *
+     * @property {'consumer'} mode
+     */
+    mode: 'consumer'
   }
   /**
    * This represents the interface for the SDK instance with synchronous storage.
