@@ -18,11 +18,11 @@ module.exports = function (api) {
           'node': '6'
         },
         'loose': true // produces simpler ES5 code
-      }]);
+      }], '@babel/preset-typescript');
       plugins.push(['@babel/plugin-transform-runtime', {
         'useESModules': false, // default value: use helpers that get run through @babel/plugin-transform-modules-commonjs
         'corejs': false // default value: use `@babel/runtime` that doesn't have built-in polyfills
-      }]);
+      }], '@babel/plugin-proposal-class-properties');
       break;
 
     default: // es6 build

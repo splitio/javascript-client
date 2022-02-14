@@ -21,6 +21,7 @@ const STORAGE_LOCALSTORAGE = 'LOCALSTORAGE';
 
 export function validateStorage(settings) {
   let {
+    log,
     mode,
     storage: {
       type,
@@ -41,8 +42,8 @@ export function validateStorage(settings) {
     type = STORAGE_MEMORY;
   };
 
-  // In localhost mode, fallback to Memory storage and track original
-  // type to emit SDK_READY_FROM_CACHE if corresponds
+  // In localhost mode, fallback to Memory storage and track original type to emit SDK_READY_FROM_CACHE if corresponds.
+  // ATM, other mode settings (e.g., 'consumer') are ignored in client-side API, and so treated as standalone.
   if (mode === LOCALHOST_MODE && type === STORAGE_LOCALSTORAGE) {
     fallbackToMemory();
   }
@@ -52,7 +53,7 @@ export function validateStorage(settings) {
   if (type !== STORAGE_MEMORY && type !== STORAGE_LOCALSTORAGE ||
     type === STORAGE_LOCALSTORAGE && !isLocalStorageAvailable()) {
     fallbackToMemory();
-    settings.log.warn('Invalid or unavailable storage. Fallbacking into MEMORY storage');
+    log.error('Invalid or unavailable storage. Fallbacking into MEMORY storage');
   }
 
   return {
