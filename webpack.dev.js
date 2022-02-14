@@ -4,9 +4,9 @@ const pkg = require('./package.json');
 
 const VERSION = pkg.version;
 
-module.exports = merge(common, {
+module.exports = env => merge(common, {
   mode: 'development',
   output: {
-    filename: `[name]-${VERSION}.js`
+    filename: `[name]${env.branch !== 'master' ? `-dev-${env.commit_hash || VERSION}` : `-${VERSION}`}.js`
   }
 });

@@ -4,10 +4,10 @@ const pkg = require('./package.json');
 
 const VERSION = pkg.version;
 
-module.exports = merge(common, {
+module.exports = env => merge(common, {
   mode: 'production',
   output: {
-    filename: `[name]-${VERSION}.min.js`
+    filename: `[name]${env.branch !== 'master' ? `-dev-${env.commit_hash || VERSION}` : `-${VERSION}`}.min.js`
   },
   performance: {
     hints: 'error', // build fails if asset size exceeded
