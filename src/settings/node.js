@@ -11,7 +11,7 @@ const params = {
   storage: validateStorage,
   logger: validateLogger,
   localhost: () => LocalhostFromFile(),
-  // For now, Node SDK ignores settings.integrations, so no integration validator is passed
+  // Node SDK ignores `config.integrations`, so a validator for integrations is not required
 };
 
 export function settingsFactory(config) {
