@@ -104,7 +104,7 @@
     "test-node-destroy": "cross-env NODE_ENV=test tape -r ./ts-node.register src/__tests__/destroy/node.spec.js | tap-min",
     "test-node-errors": "cross-env NODE_ENV=test tape -r ./ts-node.register src/__tests__/errorCatching/node.spec.js | tap-min",
     "test-node-offline": "cross-env NODE_ENV=test tape -r ./ts-node.register src/__tests__/offline/node.spec.js | tap-min",
-    "test-node-redis": "cross-env NODE_ENV=test tape -r ./ts-node.register \"src/__tests__/node_redis.spec.js\" | tap-min",
+    "test-node-redis": "cross-env NODE_ENV=test tape -r ./ts-node.register src/__tests__/node_redis.spec.js | tap-min",
     "test-node-push": "cross-env NODE_ENV=test tape -r ./ts-node.register src/__tests__/push/node.spec.js | tap-min",
     "pretest-ts-decls": "npm run build-esm && npm run build-cjs && npm link",
     "test-ts-decls": "./scripts/ts-tests.sh",
