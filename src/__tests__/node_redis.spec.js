@@ -172,6 +172,7 @@ tape('NodeJS Redis', function (t) {
     // subscribe to SDK_READY event to assert regular usage
     client.on(client.Event.SDK_READY, async () => {
       const delay = Date.now() - readyTimestamp;
+      console.log(delay);
       // This assert has 200ms of error margin, to reduce test flakiness in CI-CD workflow
       assert.true(nearlyEqual(delay, 0, 200), 'SDK_READY event must be emitted soon once Redis server is connected');
 
