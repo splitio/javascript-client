@@ -17,7 +17,8 @@ export const defaults = {
   },
   scheduler: {
     featuresRefreshRate: 5,
-    impressionsRefreshRate: 300
+    impressionsRefreshRate: 300,
+    impressionsQueueSize: 0
   },
   features: '.split',
 

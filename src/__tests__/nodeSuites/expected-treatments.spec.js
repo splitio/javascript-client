@@ -8,15 +8,7 @@ import splitChangesMockReal from '../mocks/splitchanges.real.json';
 export default async function (config, settings, fetchMock, assert) {
   fetchMock.get({ url: url(settings, '/splitChanges?since=-1'), overwriteRoutes: true }, { status: 200, body: splitChangesMockReal });
 
-  const splitio = SplitFactory({
-    ...config,
-    scheduler: {
-      ...config.scheduler,
-      // This test generates more than 30000 impressions (the default impressionsQueueSize)
-      // so we set the queue size unlimited, to avoid flushing impressions
-      impressionsQueueSize: 0
-    }
-  });
+  const splitio = SplitFactory(config);
   const client = splitio.client();
 
   await client.ready();

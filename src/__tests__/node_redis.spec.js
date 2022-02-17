@@ -19,8 +19,6 @@ const NA = 'NA';
 
 const redisPort = '6385';
 
-// @TODO something should be failing here, because we are not setting READY_FROM_CACHE (operational) in consumer mode
-
 const config = {
   core: {
     authorizationKey: 'uoj4sb69bjv7d4d027f7ukkitd53ek6a9ai9'
@@ -174,8 +172,8 @@ tape('NodeJS Redis', function (t) {
     // subscribe to SDK_READY event to assert regular usage
     client.on(client.Event.SDK_READY, async () => {
       const delay = Date.now() - readyTimestamp;
-      console.log('delay ' + delay);
-      assert.true(nearlyEqual(delay, 0, 1000), 'SDK_READY event must be emitted soon once Redis server is connected');
+      // This assert has 200ms of error margin, to reduce test flakiness in CI-CD workflow
+      assert.true(nearlyEqual(delay, 0, 200), 'SDK_READY event must be emitted soon once Redis server is connected');
 
       await client.ready();
       assert.pass('Ready promise is resolved once SDK_READY is emitted');
