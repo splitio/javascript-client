@@ -18,8 +18,9 @@ const HOSTNAME_VALUE = osFunction.hostname();
 const NA = 'NA';
 
 const redisPort = '6385';
+const TIME_ERROR_MARGIN = 200; // 200 ms
 
-// @TODO something should be failing here, because we are not setting READY_FROM_CACHE (operational) in consumer mode
+// @TODO we are not setting READY_FROM_CACHE (operational) in consumer mode
 
 const config = {
   core: {
@@ -150,13 +151,13 @@ tape('NodeJS Redis', function (t) {
     // SDK_READY_TIMED_OUT event must be emitted after 100 millis
     client.on(client.Event.SDK_READY_TIMED_OUT, () => {
       const delay = Date.now() - start;
-      assert.true(nearlyEqual(delay, readyTimeout * 1000), 'SDK_READY_TIMED_OUT event must be emitted after 100 millis');
+      assert.true(nearlyEqual(delay, readyTimeout * 1000, TIME_ERROR_MARGIN), 'SDK_READY_TIMED_OUT event must be emitted after 100 millis');
     });
 
     // alse, ready promise must be rejected after 100 millis
     client.ready().catch(() => {
       const delay = Date.now() - start;
-      assert.true(nearlyEqual(delay, readyTimeout * 1000), 'Ready promise must be rejected after 100 millis');
+      assert.true(nearlyEqual(delay, readyTimeout * 1000, TIME_ERROR_MARGIN), 'Ready promise must be rejected after 100 millis');
 
       // initialize server to emit SDK_READY
       initializeRedisServer().then(async (server) => {
@@ -174,7 +175,7 @@ tape('NodeJS Redis', function (t) {
     // subscribe to SDK_READY event to assert regular usage
     client.on(client.Event.SDK_READY, async () => {
       const delay = Date.now() - readyTimestamp;
-      assert.true(nearlyEqual(delay, 0, 100), 'SDK_READY event must be emitted soon once Redis server is connected');
+      assert.true(nearlyEqual(delay, 0, TIME_ERROR_MARGIN), 'SDK_READY event must be emitted soon once Redis server is connected');
 
       await client.ready();
       assert.pass('Ready promise is resolved once SDK_READY is emitted');
@@ -237,7 +238,7 @@ tape('NodeJS Redis', function (t) {
           // ready promise is resolved
           await client.ready();
           const delay = Date.now() - start;
-          assert.true(nearlyEqual(delay, 0), 'Ready promise is resolved once SDK_READY is emitted, and it is emitted almost immediately after the SDK is created');
+          assert.true(nearlyEqual(delay, 0, TIME_ERROR_MARGIN), 'Ready promise is resolved once SDK_READY is emitted, and it is emitted almost immediately after the SDK is created');
 
           assert.equal(await client.getTreatment('UT_Segment_member', 'UT_NOT_SET_MATCHER', {
             permissions: ['create']
