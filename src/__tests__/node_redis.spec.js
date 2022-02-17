@@ -136,7 +136,7 @@ tape('NodeJS Redis', function (t) {
     const start = Date.now();
     let readyTimestamp;
     let redisServer;
-    assert.plan(19);
+    assert.plan(18);
 
     client.getTreatment('UT_Segment_member', 'always-on').then(treatment => {
       assert.equal(treatment, 'on', 'Evaluations using Redis storage should be correct and resolved once Redis connection is stablished');
@@ -171,13 +171,11 @@ tape('NodeJS Redis', function (t) {
 
     // subscribe to SDK_READY event to assert regular usage
     client.on(client.Event.SDK_READY, async () => {
-      const delay = Date.now() - readyTimestamp;
-      console.log(delay);
-      // This assert has 200ms of error margin, to reduce test flakiness in CI-CD workflow
-      assert.true(nearlyEqual(delay, 0, 200), 'SDK_READY event must be emitted soon once Redis server is connected');
-
       await client.ready();
-      assert.pass('Ready promise is resolved once SDK_READY is emitted');
+
+      // Validate delay after ready promise is resolved. Otherwise, readyTimestamp might be undefined, depending on the order in which event-loop tasks are processed
+      const delay = Date.now() - readyTimestamp;
+      assert.true(nearlyEqual(delay, 0, 100), 'SDK_READY event is emitted and Ready promise resolved soon once Redis server is connected');
 
       // some asserts to test regular usage
       assert.equal(await client.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT'), 'on', 'Evaluations using Redis storage should be correct.');
