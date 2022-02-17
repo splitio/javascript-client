@@ -174,7 +174,8 @@ tape('NodeJS Redis', function (t) {
     // subscribe to SDK_READY event to assert regular usage
     client.on(client.Event.SDK_READY, async () => {
       const delay = Date.now() - readyTimestamp;
-      assert.true(nearlyEqual(delay, 0, 100), 'SDK_READY event must be emitted soon once Redis server is connected');
+      console.log('delay ' + delay);
+      assert.true(nearlyEqual(delay, 0, 1000), 'SDK_READY event must be emitted soon once Redis server is connected');
 
       await client.ready();
       assert.pass('Ready promise is resolved once SDK_READY is emitted');
