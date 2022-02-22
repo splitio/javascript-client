@@ -118,8 +118,14 @@ tape('NodeJS Redis', function (t) {
         await client.ready(); // promise already resolved
         await client.destroy();
 
-        // close server connection
-        server.close().then(assert.end);
+        exec(`echo "LLEN ${config.storage.prefix}.SPLITIO.impressions \n LLEN ${config.storage.prefix}.SPLITIO.events" | redis-cli  -p ${redisPort}`, (error, stdout) => {
+          if (error) assert.fail('Redis server should be reachable');
+
+          const trackedImpressionsAndEvents = stdout.split('\n').filter(line => line !== '').map(line => parseInt(line));
+          assert.deepEqual(trackedImpressionsAndEvents, [14, 2], 'Tracked impressions and events should be stored in Redis');
+          // close server connection
+          server.close().then(assert.end);
+        });
       });
   });
 
