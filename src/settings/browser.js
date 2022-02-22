@@ -1,5 +1,6 @@
 import { settingsValidation } from '@splitsoftware/splitio-commons/src/utils/settingsValidation';
 import { defaults } from './defaults/browser';
+import { validateRuntime } from '@splitsoftware/splitio-commons/src/utils/settingsValidation/runtime';
 import { validateStorage } from './storage/browser';
 import { validateIntegrations } from './integrations/browser';
 import { validateLogger } from '@splitsoftware/splitio-commons/src/utils/settingsValidation/logger/builtinLogger';
@@ -7,6 +8,7 @@ import { LocalhostFromObject } from '@splitsoftware/splitio-commons/src/sync/off
 
 const params = {
   defaults,
+  runtime: validateRuntime,
   storage: validateStorage,
   integrations: validateIntegrations,
   logger: validateLogger,
