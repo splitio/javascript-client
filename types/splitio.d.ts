@@ -113,7 +113,7 @@ interface ISettings {
   /**
    * User consent status if using in browser, or undefined if using in Node.
    */
-  userConsent?: ConsentStatus
+  readonly userConsent?: ConsentStatus
 }
 /**
  * Log levels.
@@ -1149,7 +1149,7 @@ declare namespace SplitIO {
      */
     client(key: SplitKey, trafficType?: string): IBrowserClient
     /**
-     * Set the user consent status. Possible values are 'granted', 'declined' or 'unknown'.
+     * Update the user consent status. Possible values are 'granted', 'declined' or 'unknown'.
      * - 'granted': the user has granted consent for tracking events and impressions. The SDK will internally track and send them to Split cloud.
      * - 'declined': the user has declined consent for tracking events and impressions. The SDK will not internally track neither send them to Split cloud.
      * - 'unknown': the user has neither granted nor declined consent for tracking events and impressions. The SDK will track them in its storage,
