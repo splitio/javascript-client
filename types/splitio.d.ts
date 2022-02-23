@@ -1014,12 +1014,12 @@ declare namespace SplitIO {
      */
     integrations?: BrowserIntegration[],
     /**
-     * User consent status. Possible values are 'granted', which is the default, 'declined' or 'unknown'.
-     * - 'granted': the user has granted consent for tracking events and impressions. The SDK will internally track and send them to Split cloud.
-     * - 'declined': the user has declined consent for tracking events and impressions. The SDK will not internally track neither send them to Split cloud.
-     * - 'unknown': the user has neither granted nor declined consent for tracking events and impressions. The SDK will track them in its storage,
+     * User consent status. Possible values are `'granted'`, which is the default, `'declined'` or `'unknown'`.
+     * - `'granted'`: the user has granted consent for tracking events and impressions. The SDK will internally track and send them to Split cloud.
+     * - `'declined'`: the user has declined consent for tracking events and impressions. The SDK will not internally track neither send them to Split cloud.
+     * - `'unknown'`: the user has neither granted nor declined consent for tracking events and impressions. The SDK will track them in its storage,
      * and eventually send or drop them if the user consent is set to 'granted' or 'declined' respectively.
-     * User consent status can be updated dinamically with the `setUserConsent` factory method.
+     * User consent status can be changed dinamically with the `setUserConsent` client method.
      *
      * @typedef {string} ConsentStatus
      */
@@ -1148,24 +1148,6 @@ declare namespace SplitIO {
      * @returns {IBrowserClient} The client instance.
      */
     client(key: SplitKey, trafficType?: string): IBrowserClient
-    /**
-     * Update the user consent status. Possible values are 'granted', 'declined' or 'unknown'.
-     * - 'granted': the user has granted consent for tracking events and impressions. The SDK will internally track and send them to Split cloud.
-     * - 'declined': the user has declined consent for tracking events and impressions. The SDK will not internally track neither send them to Split cloud.
-     * - 'unknown': the user has neither granted nor declined consent for tracking events and impressions. The SDK will track them in its storage,
-     * and eventually send or drop them if the user consent is set to 'granted' or 'declined' respectively.
-     *
-     * @function setUserConsent
-     * @param {ConsentStatus} userConsent The user consent status.
-     */
-    setUserConsent(userConsent: ConsentStatus): void;
-    /**
-     * Get the user consent status.
-     *
-     * @function getUserConsent
-     * @returns {ConsentStatus} userConsent The user consent status.
-     */
-    getUserConsent(): ConsentStatus;
   }
   /**
    * This represents the interface for the SDK instance with asynchronous storage.
@@ -1352,7 +1334,28 @@ declare namespace SplitIO {
      *
      * @returns {boolean} true if all attribute were removed and false otherwise
      */
-    clearAttributes(): boolean
+    clearAttributes(): boolean,
+    /**
+     * Update the user consent status. Possible values are `'granted'`, `'declined'` or `'unknown'`.
+     * Other possible values are `true`, equivalent to `'granted'`, and `false`, equivalent to `'declined'`.
+     * - `'granted'`: the user has granted consent for tracking events and impressions. The SDK will internally track and send them to Split cloud.
+     * - `'declined'`: the user has declined consent for tracking events and impressions. The SDK will not internally track neither send them to Split cloud.
+     * - `'unknown'`: the user has neither granted nor declined consent for tracking events and impressions. The SDK will track them in its storage,
+     * and eventually send or drop them if the user consent is set to 'granted' or 'declined' respectively.
+     *
+     * NOTE: calling this method updates the user consent at a factory level, affecting all clients of the same factory.
+     *
+     * @function setUserConsent
+     * @param {ConsentStatus | boolean} userConsent The user consent status.
+     */
+    setUserConsent(userConsent: ConsentStatus | boolean): void;
+    /**
+     * Get the user consent status.
+     *
+     * @function getUserConsent
+     * @returns {ConsentStatus} userConsent The user consent status.
+     */
+    getUserConsent(): ConsentStatus;
   }
   /**
    * This represents the interface for the Client instance with asynchronous storage.
