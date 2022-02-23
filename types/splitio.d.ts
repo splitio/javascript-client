@@ -53,6 +53,11 @@ type SDKMode = 'standalone' | 'consumer';
  */
 type StorageType = 'MEMORY' | 'LOCALSTORAGE' | 'REDIS';
 /**
+ * User consent status.
+ * @typedef {string} ConsentStatus
+ */
+type ConsentStatus = 'granted' | 'declined' | 'unknown';
+/**
  * Settings interface. This is a representation of the settings the SDK expose, that's why
  * most of it's props are readonly. Only features should be rewritten when localhost mode is active.
  * @interface ISettings
@@ -105,6 +110,10 @@ interface ISettings {
     splitFilters: SplitIO.SplitFilter[],
     impressionsMode: SplitIO.ImpressionsMode,
   }
+  /**
+   * User consent status if using in browser, or undefined if using in Node.
+   */
+  userConsent?: ConsentStatus
 }
 /**
  * Log levels.
@@ -1004,6 +1013,17 @@ declare namespace SplitIO {
      * @property {Object} integrations
      */
     integrations?: BrowserIntegration[],
+    /**
+     * User consent status. Possible values are 'granted', which is the default, 'declined' or 'unknown'.
+     * - 'granted': the user has granted consent for tracking events and impressions. The SDK will internally track and send them to Split cloud.
+     * - 'declined': the user has declined consent for tracking events and impressions. The SDK will not internally track neither send them to Split cloud.
+     * - 'unknown': the user has neither granted nor declined consent for tracking events and impressions. The SDK will track them in its storage,
+     * and eventually send or drop them if the user consent is set to 'granted' or 'declined' respectively.
+     * User consent status can be updated dinamically with the `setUserConsent` factory method.
+     *
+     * @typedef {string} ConsentStatus
+     */
+    userConsent?: ConsentStatus
   }
   /**
    * Settings interface for SDK instances created on NodeJS.
@@ -1128,6 +1148,24 @@ declare namespace SplitIO {
      * @returns {IBrowserClient} The client instance.
      */
     client(key: SplitKey, trafficType?: string): IBrowserClient
+    /**
+     * Set the user consent status. Possible values are 'granted', 'declined' or 'unknown'.
+     * - 'granted': the user has granted consent for tracking events and impressions. The SDK will internally track and send them to Split cloud.
+     * - 'declined': the user has declined consent for tracking events and impressions. The SDK will not internally track neither send them to Split cloud.
+     * - 'unknown': the user has neither granted nor declined consent for tracking events and impressions. The SDK will track them in its storage,
+     * and eventually send or drop them if the user consent is set to 'granted' or 'declined' respectively.
+     *
+     * @function setUserConsent
+     * @param {ConsentStatus} userConsent The user consent status.
+     */
+    setUserConsent(userConsent: ConsentStatus): void;
+    /**
+     * Get the user consent status.
+     *
+     * @function getUserConsent
+     * @returns {ConsentStatus} userConsent The user consent status.
+     */
+    getUserConsent(): ConsentStatus;
   }
   /**
    * This represents the interface for the SDK instance with asynchronous storage.
