@@ -56,7 +56,7 @@ type StorageType = 'MEMORY' | 'LOCALSTORAGE' | 'REDIS';
  * User consent status.
  * @typedef {string} ConsentStatus
  */
-type ConsentStatus = 'granted' | 'declined' | 'unknown';
+type ConsentStatus = 'GRANTED' | 'DECLINED' | 'UNKNOWN';
 /**
  * Settings interface. This is a representation of the settings the SDK expose, that's why
  * most of it's props are readonly. Only features should be rewritten when localhost mode is active.
@@ -1014,13 +1014,14 @@ declare namespace SplitIO {
      */
     integrations?: BrowserIntegration[],
     /**
-     * User consent status. Possible values are `'granted'`, which is the default, `'declined'` or `'unknown'`.
-     * - `'granted'`: the user has granted consent for tracking events and impressions. The SDK will internally track and send them to Split cloud.
-     * - `'declined'`: the user has declined consent for tracking events and impressions. The SDK will not internally track neither send them to Split cloud.
-     * - `'unknown'`: the user has neither granted nor declined consent for tracking events and impressions. The SDK will track them in its storage, and eventually send
-     * them or not if the consent status is set to 'granted' or 'declined' respectively. The status can be updated at any time with the `setUserConsent` factory method.
+     * User consent status. Possible values are `'GRANTED'`, which is the default, `'DECLINED'` or `'UNKNOWN'`.
+     * - `'GRANTED'`: the user has granted consent for tracking events and impressions. The SDK will internally track and send them to Split cloud.
+     * - `'DECLINED'`: the user has declined consent for tracking events and impressions. The SDK will not internally track neither send them to Split cloud.
+     * - `'UNKNOWN'`: the user has neither granted nor declined consent for tracking events and impressions. The SDK will track them in its storage, and eventually send
+     * them or not if the consent status is set to 'GRANTED' or 'DECLINED' respectively. The status can be updated at any time with the `setUserConsent` factory method.
      *
-     * @typedef {string} ConsentStatus
+     * @typedef {string} userConsent
+     * @default 'GRANTED'
      */
     userConsent?: ConsentStatus
   }
@@ -1148,14 +1149,14 @@ declare namespace SplitIO {
      */
     client(key: SplitKey, trafficType?: string): IBrowserClient
     /**
-     * Set or update the user consent status. Possible values are `true` and `false`, which represent user consent `'granted'` and `'declined'` respectively.
-     * - `'granted'`: the user has granted consent for tracking events and impressions. The SDK will internally track and send them to Split cloud.
-     * - `'declined'`: the user has declined consent for tracking events and impressions. The SDK will not internally track neither send them to Split cloud.
+     * Set or update the user consent status. Possible values are `true` and `false`, which represent user consent `'GRANTED'` and `'DECLINED'` respectively.
+     * - `'GRANTED'`: the user has granted consent for tracking events and impressions. The SDK will internally track and send them to Split cloud.
+     * - `'DECLINED'`: the user has declined consent for tracking events and impressions. The SDK will not internally track neither send them to Split cloud.
      *
      * NOTE: calling this method updates the user consent at a factory level, affecting all clients of the same factory.
      *
      * @function setUserConsent
-     * @param {boolean} userConsent The user consent status, true for 'granted' and false for 'declined'.
+     * @param {boolean} userConsent The user consent status, true for 'GRANTED' and false for 'DECLINED'.
      * @returns {boolean} Whether the consent status was updated successfully or not. The latter occurs if the provided param is not a boolean value.
      */
     setUserConsent(userConsent: boolean): boolean;
