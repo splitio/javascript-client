@@ -1,5 +1,5 @@
 10.17.3 (XXX XX, 2022)
-- Updated format for MySegments keys in LocalStorage, keeping backwards compatibility.
+ - Updated format for MySegments keys in LocalStorage, keeping backwards compatibility.
 
 10.17.2 (January 31, 2022)
  - Updated some dependencies for vulnerability fixes.

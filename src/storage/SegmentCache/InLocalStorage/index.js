@@ -56,13 +56,17 @@ class SegmentCacheInLocalStorage {
 
         if (segmentName) { // this was an old segment key, let's clean up.
           const newSegmentKey = this.keys.buildSegmentNameKey(segmentName);
-          // If the new format key is not there, create it. 
-          if (!localStorage.getItem(newSegmentKey) && segmentNames.indexOf(segmentName) > -1) {
-            localStorage.setItem(newSegmentKey, DEFINED);
-            // we are migrating a segment, let's track it.
-            accum.push(segmentName);
+          try {
+            // If the new format key is not there, create it.
+            if (!localStorage.getItem(newSegmentKey) && segmentNames.indexOf(segmentName) > -1) {
+              localStorage.setItem(newSegmentKey, DEFINED);
+              // we are migrating a segment, let's track it.
+              accum.push(segmentName);
+            }
+            localStorage.removeItem(key); // we migrated the current key, let's delete it.
+          } catch (e) {
+            log.error(e);
           }
-          localStorage.removeItem(key); // we migrated the current key, let's delete it.
         }
       }
 
@@ -81,7 +85,7 @@ class SegmentCacheInLocalStorage {
       segmentNames.forEach(segmentName => this.addToSegment(segmentName));
     } else {
       // Slowest path => we need to find at least 1 difference because
-      for(index = 0; index < segmentNames.length && storedSegmentNames.indexOf(segmentNames[index]) !== -1; index++) {
+      for (index = 0; index < segmentNames.length && storedSegmentNames.indexOf(segmentNames[index]) !== -1; index++) {
         // TODO: why empty statement?
       }
 
