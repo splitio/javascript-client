@@ -11,12 +11,6 @@ export function validateStorage(settings) {
     } = { type: STORAGE_MEMORY }
   } = settings;
 
-  if (prefix) {
-    prefix += '.SPLITIO';
-  } else {
-    prefix = 'SPLITIO';
-  }
-
   // We can have MEMORY, REDIS or an invalid storage type
   switch (type) {
     case STORAGE_REDIS: {
