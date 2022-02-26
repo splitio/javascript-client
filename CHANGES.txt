@@ -1,5 +1,5 @@
 10.17.3 (February 28, 2022)
- - Updated format for MySegments keys in LocalStorage, keeping backwards compatibility.
+ - Updated format for MySegments keys in LocalStorage, keeping backwards compatibility (issue https://github.com/splitio/javascript-client/issues/638).
  - Updated some dependencies for vulnerability fixes.
 
 10.17.2 (January 31, 2022)
