@@ -11,6 +11,7 @@ const params = {
   storage: validateStorage,
   logger: validateLogger,
   localhost: () => LocalhostFromFile(),
+  consent: () => undefined, // resets settings.userConsent to the default
   // In Node.js the SDK ignores `config.integrations`, so a validator for integrations is not required
 };
 

@@ -1,4 +1,5 @@
 import { packageVersion } from './version';
+import { CONSENT_GRANTED } from '@splitsoftware/splitio-commons/src/utils/constants';
 
 export const defaults = {
   startup: {
@@ -11,6 +12,9 @@ export const defaults = {
     // Amount of time we will wait before the first push of events.
     eventsFirstPushWindow: 10
   },
+
+  // Consent is considered granted by default
+  userConsent: CONSENT_GRANTED,
 
   // Instance version.
   version: `javascript-${packageVersion}`,

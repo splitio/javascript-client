@@ -12,6 +12,7 @@ import { __InLocalStorageMockFactory } from '@splitsoftware/splitio-commons/src/
 import { sdkFactory } from '@splitsoftware/splitio-commons/src/sdkFactory';
 import { LOCALHOST_MODE, STORAGE_LOCALSTORAGE } from '@splitsoftware/splitio-commons/src/utils/constants';
 import { shouldAddPt } from '@splitsoftware/splitio-commons/src/trackers/impressionObserver/utils';
+import { userConsentProps } from '@splitsoftware/splitio-commons/src/sdkFactory/userConsentProps';
 
 import { settingsFactory } from '../settings/browser';
 import { platform, SignalListener } from '../platform';
@@ -54,6 +55,8 @@ function getModules(settings) {
     integrationsManagerFactory: settings.integrations && settings.integrations.length > 0 ? integrationsManagerFactory.bind(null, settings.integrations) : undefined,
 
     impressionsObserverFactory: shouldAddPt(settings) ? impressionObserverCSFactory : undefined,
+
+    extraProps: userConsentProps
   };
 
   switch (settings.mode) {
