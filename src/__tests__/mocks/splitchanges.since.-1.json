@@ -1363,7 +1363,7 @@
       "trafficAllocationSeed": -1667492163,
       "status": "ACTIVE",
       "killed": false,
-      "defaultTreatment": "on",
+      "defaultTreatment": "o.n",
       "conditions": [
         {
           "conditionType": "ROLLOUT",
@@ -1390,7 +1390,7 @@
           },
           "partitions": [
             {
-              "treatment": "on",
+              "treatment": "o.n",
               "size": 0
             },
             {
@@ -1420,7 +1420,7 @@
           },
           "partitions": [
             {
-              "treatment": "on",
+              "treatment": "o.n",
               "size": 100
             },
             {
@@ -1432,7 +1432,7 @@
         }
       ],
       "configurations": {
-        "on": "{\"color\":\"brown\",\"dimensions\":{\"height\":12,\"width\":14},\"text\":{\"inner\":\"click me\"}}"
+        "o.n": "{\"color\":\"brown\",\"dimensions\":{\"height\":12,\"width\":14},\"text\":{\"inner\":\"click me\"}}"
       }
     }
   ],

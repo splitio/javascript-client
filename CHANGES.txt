@@ -1,3 +1,19 @@
+10.17.3 (February 25, 2022)
+ - Updated format for MySegments keys in LocalStorage, keeping backwards compatibility (issue https://github.com/splitio/javascript-client/issues/638).
+ - Updated some dependencies for vulnerability fixes.
+
+10.17.2 (January 31, 2022)
+ - Updated some dependencies for vulnerability fixes.
+ - Bugfixing - Fixed internal handling of Fetch API promise rejection, to avoid unhandled exceptions on some Web browsers (issue https://github.com/splitio/javascript-client/issues/621)
+
+10.17.1 (January 13, 2022)
+ - Updated some transitive dependencies for vulnerability fixes.
+ - Bugfixing - Fixed internal handling of SDK_READY_FROM_CACHE event, to avoid CSP issues in browsers.
+
+10.17.0 (January 3, 2022)
+ - Added support to SDK clients on browser to optionally bind attributes to the client, keeping these loaded within the SDK along with the user ID, for easier usage when requesting flag.
+ - Bugfixing - Fixed an issue returning dynamic configs when the treatment name contains a dot (".").
+
 10.16.1 (October 25, 2021)
  - Updated some internal modules to optimize the time efficiency of split evaluations (i.e., `getTreatment(s)` method calls).
  - Updated some dependencies for vulnerability fixes (ioredis, @babel/cli, eslint, eslint-plugin-compat).
