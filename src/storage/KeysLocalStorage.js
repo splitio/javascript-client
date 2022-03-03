@@ -10,11 +10,11 @@ class KeyBuilderForLocalStorage extends KeyBuilder {
   }
 
   buildSegmentNameKey(segmentName) {
-    return `${matching(this.settings.core.key)}.${this.settings.storage.prefix}.segment.${segmentName}`;
+    return `${this.settings.storage.prefix}.${matching(this.settings.core.key)}.segment.${segmentName}`;
   }
 
   extractSegmentName(builtSegmentKeyName) {
-    const prefix = `${matching(this.settings.core.key)}.${this.settings.storage.prefix}.segment.`;
+    const prefix = `${this.settings.storage.prefix}.${matching(this.settings.core.key)}.segment.`;
 
     if (startsWith(builtSegmentKeyName, prefix))
       return builtSegmentKeyName.substr(prefix.length);
@@ -34,6 +34,18 @@ class KeyBuilderForLocalStorage extends KeyBuilder {
 
   buildSplitsFilterQueryKey() {
     return `${this.settings.storage.prefix}.splits.filterQuery`;
+  }
+
+  // @BREAKING: The key used to start with the matching key instead of the prefix, this was changed on version 10.17.3
+  buildOldSegmentNameKey(segmentName) {
+    return `${matching(this.settings.core.key)}.${this.settings.storage.prefix}.segment.${segmentName}`;
+  }
+  // @BREAKING: The key used to start with the matching key instead of the prefix, this was changed on version 10.17.3
+  extractOldSegmentKey(maybeOldKey) {
+    const prefix = `${matching(this.settings.core.key)}.${this.settings.storage.prefix}.segment.`;
+
+    if (startsWith(maybeOldKey, prefix))
+      return maybeOldKey.substr(prefix.length);
   }
 }
 

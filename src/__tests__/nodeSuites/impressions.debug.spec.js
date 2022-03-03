@@ -69,20 +69,21 @@ export default async function(key, fetchMock, assert) {
     }
 
     validateImpressionData(alwaysOnWithConfigImpr.i[0], {
-      keyName: 'facundo@split.io', label: 'another expected label', treatment: 'on',
+      keyName: 'facundo@split.io', label: 'another expected label', treatment: 'o.n',
       bucketingKey: 'test_buck_key', changeNumber: 828282828282, pt: undefined
     });
     validateImpressionData(alwaysOnWithConfigImpr.i[1], {
-      keyName: 'facundo@split.io', label: 'another expected label', treatment: 'on',
+      keyName: 'facundo@split.io', label: 'another expected label', treatment: 'o.n',
       bucketingKey: 'test_buck_key', changeNumber: 828282828282, pt: alwaysOnWithConfigImpr.i[0].m
     });
     validateImpressionData(alwaysOnWithConfigImpr.i[2], {
-      keyName: 'facundo@split.io', label: 'another expected label', treatment: 'on',
+      keyName: 'facundo@split.io', label: 'another expected label', treatment: 'o.n',
       bucketingKey: 'test_buck_key', changeNumber: 828282828282, pt: alwaysOnWithConfigImpr.i[1].m
     });
 
-    client.destroy();
-    assert.end();
+    client.destroy().then(() => {
+      assert.end();
+    });
 
     return 200;
   });
