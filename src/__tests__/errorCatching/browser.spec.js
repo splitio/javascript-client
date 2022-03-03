@@ -16,7 +16,11 @@ const settings = SettingsFactory({
   streamingEnabled: false
 });
 
-fetchMock.get(settings.url('/splitChanges?since=-1'), function () {
+// prepare localstorage to emit SDK_READY_FROM_CACHE
+localStorage.clear();
+localStorage.setItem('SPLITIO.splits.till', 25);
+
+fetchMock.get(settings.url('/splitChanges?since=25'), function () {
   return new Promise((res) => { setTimeout(() => res({ status: 200, body: splitChangesMock1 }), 1000); });
 });
 fetchMock.get(settings.url('/splitChanges?since=1500492097547'), { status: 200, body: splitChangesMock2 });
@@ -24,30 +28,36 @@ fetchMock.get(settings.url('/splitChanges?since=1500492297547'), { status: 200, 
 fetchMock.get(settings.url('/mySegments/nico%40split.io'), { status: 200, body: mySegmentsMock });
 fetchMock.post('*', 200);
 
-const assertionsPlanned = 3;
+const assertionsPlanned = 4;
 let errCount = 0;
-const factory = SplitFactory({
-  core: {
-    authorizationKey: '<fake-token-1>',
-    key: 'nico@split.io'
-  },
-  startup: {
-    eventsFirstPushWindow: 100000,
-    readyTimeout: 0.5,
-    requestTimeoutBeforeReady: 100000
-  },
-  scheduler: {
-    featuresRefreshRate: 1.5,
-    segmentsRefreshRate: 100000,
-    metricsRefreshRate: 100000,
-    impressionsRefreshRate: 100000,
-    eventsPushRate: 100000
-  },
-  streamingEnabled: false
-});
 
 tape('Error catching on callbacks - Browsers', assert => {
   let previousErrorHandler = window.onerror || null;
+
+  const factory = SplitFactory({
+    core: {
+      authorizationKey: '<fake-token-1>',
+      key: 'nico@split.io'
+    },
+    startup: {
+      eventsFirstPushWindow: 100000,
+      readyTimeout: 0.5,
+      requestTimeoutBeforeReady: 100000
+    },
+    scheduler: {
+      featuresRefreshRate: 1.5,
+      segmentsRefreshRate: 100000,
+      metricsRefreshRate: 100000,
+      impressionsRefreshRate: 100000,
+      eventsPushRate: 100000
+    },
+    storage: {
+      type: 'LOCALSTORAGE',
+      // Using default prefix 'SPLITIO'
+    },
+    streamingEnabled: false
+  });
+
   const client = factory.client();
 
   const exceptionHandler = err => {
@@ -78,11 +88,13 @@ tape('Error catching on callbacks - Browsers', assert => {
   }
 
   client.on(client.Event.SDK_READY_TIMED_OUT, () => {
+    assert.true(client.__context.get(client.__context.constants.HAS_TIMEDOUT, true)); // SDK status should be already updated
     attachErrorHandlerIfApplicable();
     null.willThrowForTimedOut();
   });
 
   client.once(client.Event.SDK_READY, () => {
+    assert.true(client.__context.get(client.__context.constants.READY, true)); // SDK status should be already updated
     attachErrorHandlerIfApplicable();
     null.willThrowForReady();
   });
@@ -90,6 +102,12 @@ tape('Error catching on callbacks - Browsers', assert => {
   client.once(client.Event.SDK_UPDATE, () => {
     attachErrorHandlerIfApplicable();
     null.willThrowForUpdate();
+  });
+
+  client.once(client.Event.SDK_READY_FROM_CACHE, () => {
+    assert.true(client.__context.get(client.__context.constants.READY_FROM_CACHE, true)); // SDK status should be already updated
+    attachErrorHandlerIfApplicable();
+    null.willThrowForReadyFromCache();
   });
 
   attachErrorHandlerIfApplicable();

@@ -37,6 +37,7 @@ function GateContext() {
     let status = 0;
 
     gate.on(Events.READINESS_GATE_CHECK_STATE, () => {
+      // @TODO catch and handle user callback errors. Required for localhost and consumer modes. In standalone mode, it is done in 'SplitChangesUpdater'.
       if (status !== SDK_FIRE_UPDATE && splitsStatus + segmentsStatus === SDK_FIRE_READY) {
         status = SDK_FIRE_UPDATE;
         gate.emit(Events.SDK_READY);
@@ -54,7 +55,12 @@ function GateContext() {
     });
 
     splits.once(Events.SDK_SPLITS_CACHE_LOADED, () => {
-      gate.emit(Events.SDK_READY_FROM_CACHE);
+      try {
+        gate.emit(Events.SDK_READY_FROM_CACHE);
+      } catch (e) {
+        // handle user callback errors
+        setTimeout(() => { throw e; }, 0);
+      }
     });
 
     segments.on(Events.SDK_SEGMENTS_ARRIVED, () => {

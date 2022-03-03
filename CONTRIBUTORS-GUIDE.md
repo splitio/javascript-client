@@ -7,18 +7,19 @@ Split SDK is an open source project and we welcome feedback and contribution. Th
 ### Development process
 
 1. Fork the repository and create a topic branch from `development` branch. Please use a descriptive name for your branch.
-2. While developing, use descriptive messages in your commits. Avoid short or meaningless sentences like: "fix bug".
-3. Make sure to add tests for both positive and negative cases.
-4. If your changes have any impact on the public API, make sure you update the TypeScript delcarations as well as it's related test file.
-5. Run the linter script of the project and fix any issues you find.
-6. Run the build script and make sure it runs with no errors.
-7. Run all tests and make sure there are no failures.
-8. Run the TypeScript declarations tests and make sure it compiles correctly.
-9. `git push` your changes to GitHub within your topic branch.
-10. Open a Pull Request(PR) from your forked repo and into the `development` branch of the original repository.
-11. When creating your PR, please fill out all the fields of the PR template, as applicable, for the project.
-12. Check for conflicts once the pull request is created to make sure your PR can be merged cleanly into `development`.
-13. Keep an eye out for any feedback or comments from Split's SDK team.
+2. Run `nvm use` to ensure that you are using the right npm and node version, and `npm install` to have the dependencies up to date. 
+3. While developing, use descriptive messages in your commits. Avoid short or meaningless sentences like: "fix bug".
+4. Make sure to add tests for both positive and negative cases.
+5. If your changes have any impact on the public API, make sure you update the TypeScript delcarations as well as it's related test file.
+6. Run the linter script of the project and fix any issues you find.
+7. Run the build script and make sure it runs with no errors.
+8. Run all tests and make sure there are no failures.
+9. Run the TypeScript declarations tests and make sure it compiles correctly.
+10. `git push` your changes to GitHub within your topic branch.
+11. Open a Pull Request(PR) from your forked repo and into the `development` branch of the original repository.
+12. When creating your PR, please fill out all the fields of the PR template, as applicable, for the project.
+13. Check for conflicts once the pull request is created to make sure your PR can be merged cleanly into `development`.
+14. Keep an eye out for any feedback or comments from Split's SDK team.
 
 ### Building the SDK
 

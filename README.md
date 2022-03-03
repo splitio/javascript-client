@@ -1,6 +1,6 @@
 # Split SDK for Javascript
 
-[![npm version](https://badge.fury.io/js/%40splitsoftware%2Fsplitio.svg)](https://badge.fury.io/js/%40splitsoftware%2Fsplitio) [![Build Status](https://travis-ci.com/splitio/javascript-client.svg?branch=master)](https://travis-ci.com/splitio/javascript-client) [![Greenkeeper badge](https://badges.greenkeeper.io/splitio/javascript-client.svg)](https://greenkeeper.io/)
+[![npm version](https://badge.fury.io/js/%40splitsoftware%2Fsplitio.svg)](https://badge.fury.io/js/%40splitsoftware%2Fsplitio) [![Build Status](https://github.com/splitio/javascript-client/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/splitio/javascript-client/actions/workflows/ci-cd.yml) [![Greenkeeper badge](https://badges.greenkeeper.io/splitio/javascript-client.svg)](https://greenkeeper.io/)
 
 ## Overview
 This SDK is designed to work with Split, the platform for controlled rollouts, which serves features to your users via a Split feature flag to manage your complete customer experience.
