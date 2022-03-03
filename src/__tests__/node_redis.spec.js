@@ -10,6 +10,7 @@ import { exec } from 'child_process';
 import { SplitFactory } from '../';
 import { merge } from '@splitsoftware/splitio-commons/src/utils/lang';
 import { KeyBuilderSS } from '@splitsoftware/splitio-commons/src/storages/KeyBuilderSS';
+import { validatePrefix } from '@splitsoftware/splitio-commons/src/storages/KeyBuilder';
 import { settingsFactory } from '../settings';
 import { nearlyEqual } from './testUtils';
 
@@ -327,7 +328,7 @@ tape('NodeJS Redis', function (t) {
           // Redis client and keys required to check Redis store.
           const setting = settingsFactory(config);
           const connection = new RedisClient(setting.storage.options.url);
-          const keys = new KeyBuilderSS(setting.storage.prefix);
+          const keys = new KeyBuilderSS(validatePrefix(setting.storage.prefix));
           const eventKey = keys.buildEventsKey();
           const impressionsKey = keys.buildImpressionsKey();
 

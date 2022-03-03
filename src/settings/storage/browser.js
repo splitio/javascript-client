@@ -15,12 +15,6 @@ export function validateStorage(settings) {
   } = settings;
   let __originalType;
 
-  if (prefix) {
-    prefix += '.SPLITIO';
-  } else {
-    prefix = 'SPLITIO';
-  }
-
   const fallbackToMemory = () => {
     __originalType = type;
     type = STORAGE_MEMORY;
