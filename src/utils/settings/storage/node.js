@@ -61,8 +61,6 @@ const ParseStorageSettings = (settings) => {
         pass = process.env.REDIS_PASS;
       if (process.env.REDIS_URL)
         url = process.env.REDIS_URL;
-      if (process.env.TLS)
-        tls = process.env.TLS;
 
       const newOpts = {
         connectionTimeout, operationTimeout
