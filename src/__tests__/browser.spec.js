@@ -19,6 +19,7 @@ import useBeaconApiSuite from './browserSuites/use-beacon-api.spec';
 import useBeaconDebugApiSuite from './browserSuites/use-beacon-api.debug.spec';
 import readyPromiseSuite from './browserSuites/ready-promise.spec';
 import fetchSpecificSplits from './browserSuites/fetch-specific-splits.spec';
+import userConsent from './browserSuites/user-consent.spec';
 
 import { settingsFactory } from '../settings';
 
@@ -98,6 +99,8 @@ tape('## E2E CI Tests ##', function(assert) {
   fetchMock.post(url(settings, '/testImpressions/bulk'), 200);
   fetchMock.post(url(settings, '/testImpressions/count'), 200);
 
+  /* Validate user consent */
+  assert.test('E2E / User consent', userConsent.bind(null, fetchMock));
   /* Check client evaluations. */
   assert.test('E2E / In Memory', evaluationsSuite.bind(null, configInMemory, fetchMock));
   assert.test('E2E / In Memory with Bucketing Key', evaluationsSuite.bind(null, configInMemoryWithBucketingKey, fetchMock));
