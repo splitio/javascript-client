@@ -3,6 +3,8 @@ import { SplitFactory } from '../../';
 import { triggerUnloadEvent } from '../testUtils/browser';
 import { nearlyEqual, url } from '../testUtils';
 
+const trackedImpressions = [];
+
 const baseConfig = {
   core: {
     authorizationKey: '<fake-token>',
@@ -15,6 +17,11 @@ const baseConfig = {
     events: 'https://events.user-consent.io/api'
   },
   streamingEnabled: false,
+  impressionListener: {
+    logImpression: (impression) => {
+      trackedImpressions.push(impression);
+    }
+  }
 };
 
 const usageFlows = [{
@@ -68,6 +75,7 @@ export default function userConsent(fetchMock, t) {
   // Validate trackers, submitters and browser listener behaviour on different consent status transitions
   t.test(async (assert) => {
     const sendBeaconSpy = sinon.spy(window.navigator, 'sendBeacon');
+    let expectedTrackedImpressions = 0;
 
     for (let i = 0; i < usageFlows.length; i++) {
       const { initialUserConsent, setUserConsent } = usageFlows[i];
@@ -82,6 +90,7 @@ export default function userConsent(fetchMock, t) {
       let isTracking = factory.getUserConsent() !== 'DECLINED';
       assert.deepEqual([client.track('user', 'event1'), sharedClient.track('user', 'event1')], [isTracking, isTracking], 'tracking events on SDK ready');
       assert.deepEqual([client.getTreatment('always_on'), sharedClient.getTreatment('always_on')], ['on', 'on'], 'evaluating on SDK ready');
+      if (isTracking) expectedTrackedImpressions += 2;
 
       // Trigger unload event to validate browser listener behaviour
       // Beacon API is used only if user consent is GRANTED
@@ -104,6 +113,7 @@ export default function userConsent(fetchMock, t) {
       isTracking = factory.getUserConsent() !== 'DECLINED';
       assert.deepEqual([client.track('user', 'event2'), sharedClient.track('user', 'event2')], [isTracking, isTracking], 'tracking events after updating user consent');
       assert.deepEqual([client.getTreatment('always_off'), sharedClient.getTreatment('always_off')], ['off', 'off'], 'evaluating after updating user consent');
+      if (isTracking) expectedTrackedImpressions += 2;
 
       // If destroyed while user consent is GRANTED, last tracked data is submitted
       if (factory.getUserConsent() === 'GRANTED') {
@@ -114,6 +124,7 @@ export default function userConsent(fetchMock, t) {
 
     }
 
+    assert.equal(trackedImpressions.length, expectedTrackedImpressions, 'Tracked impressions are the expected');
     sendBeaconSpy.restore();
     assert.end();
   }, 'Validate trackers, submitters and browser listener behaviour on different consent status transitions');
