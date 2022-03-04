@@ -79,11 +79,7 @@ module.exports = {
       ]
     },
     plugins: [
-      new NodePolyfillPlugin(),
-      new webpack.DefinePlugin({
-        'process.env.NODE_ENV': JSON.stringify('test'),
-        __DEV__: true
-      })
+      new NodePolyfillPlugin()
     ],
     resolve: {
       extensions: ['.ts', '.js'],
