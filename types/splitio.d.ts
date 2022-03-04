@@ -53,11 +53,6 @@ type SDKMode = 'standalone' | 'consumer';
  */
 type StorageType = 'MEMORY' | 'LOCALSTORAGE' | 'REDIS';
 /**
- * User consent status.
- * @typedef {string} ConsentStatus
- */
-type ConsentStatus = 'GRANTED' | 'DECLINED' | 'UNKNOWN';
-/**
  * Settings interface. This is a representation of the settings the SDK expose, that's why
  * most of it's props are readonly. Only features should be rewritten when localhost mode is active.
  * @interface ISettings
@@ -113,7 +108,7 @@ interface ISettings {
   /**
    * User consent status if using in browser. Undefined if using in Node.
    */
-  readonly userConsent?: ConsentStatus
+  readonly userConsent?: SplitIO.ConsentStatus
 }
 /**
  * Log levels.
@@ -848,6 +843,11 @@ declare namespace SplitIO {
   * @typedef {string} ImpressionsMode
   */
   type ImpressionsMode = 'OPTIMIZED' | 'DEBUG';
+  /**
+   * User consent status.
+   * @typedef {string} ConsentStatus
+   */
+  type ConsentStatus = 'GRANTED' | 'DECLINED' | 'UNKNOWN';
   /**
    * Settings interface for SDK instances created on the browser
    * @interface IBrowserSettings
