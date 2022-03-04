@@ -466,6 +466,7 @@ let fullBrowserSettings: SplitIO.IBrowserSettings = {
   scheduler: {
     featuresRefreshRate: 1,
     impressionsRefreshRate: 1,
+    impressionsQueueSize: 1,
     metricsRefreshRate: 1,
     segmentsRefreshRate: 1,
     offlineRefreshRate: 1,
@@ -511,6 +512,7 @@ let fullNodeSettings: SplitIO.INodeSettings = {
   scheduler: {
     featuresRefreshRate: 1,
     impressionsRefreshRate: 1,
+    impressionsQueueSize: 1,
     metricsRefreshRate: 1,
     segmentsRefreshRate: 1,
     offlineRefreshRate: 1,
@@ -555,6 +557,7 @@ let fullAsyncSettings: SplitIO.INodeAsyncSettings = {
   scheduler: {
     featuresRefreshRate: 1,
     impressionsRefreshRate: 1,
+    impressionsQueueSize: 1,
     metricsRefreshRate: 1,
     segmentsRefreshRate: 1,
     offlineRefreshRate: 1,
