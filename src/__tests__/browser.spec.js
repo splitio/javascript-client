@@ -99,8 +99,6 @@ tape('## E2E CI Tests ##', function(assert) {
   fetchMock.post(url(settings, '/testImpressions/bulk'), 200);
   fetchMock.post(url(settings, '/testImpressions/count'), 200);
 
-  /* Validate user consent */
-  assert.test('E2E / User consent', userConsent.bind(null, fetchMock));
   /* Check client evaluations. */
   assert.test('E2E / In Memory', evaluationsSuite.bind(null, configInMemory, fetchMock));
   assert.test('E2E / In Memory with Bucketing Key', evaluationsSuite.bind(null, configInMemoryWithBucketingKey, fetchMock));
@@ -119,6 +117,8 @@ tape('## E2E CI Tests ##', function(assert) {
   /* Check shared clients */
   assert.test('E2E / Shared instances', sharedInstantiationSuite.bind(null, false, fetchMock));
   assert.test('E2E / Shared instances with Traffic Type on factory settings', sharedInstantiationSuite.bind(null, true, fetchMock));
+  /* Validate user consent */
+  assert.test('E2E / User consent', userConsent.bind(null, fetchMock));
   /* Check basic manager functionality */
   assert.test('E2E / Manager API', managerSuite.bind(null, settings, fetchMock));
   /* Validate readiness */
