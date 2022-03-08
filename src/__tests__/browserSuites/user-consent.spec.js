@@ -89,8 +89,13 @@ export default function userConsent(fetchMock, t) {
 
       let isTracking = factory.getUserConsent() !== 'DECLINED';
       assert.deepEqual([client.track('user', 'event1'), sharedClient.track('user', 'event1')], [isTracking, isTracking], 'tracking events on SDK ready');
-      assert.deepEqual([client.getTreatment('always_on'), sharedClient.getTreatment('always_on')], ['on', 'on'], 'evaluating on SDK ready');
-      if (isTracking) expectedTrackedImpressions += 2;
+      assert.deepEqual([
+        client.getTreatment('always_on'), sharedClient.getTreatment('always_on'),
+        client.getTreatments(['always_on'])['always_on'], sharedClient.getTreatments(['always_on'])['always_on'],
+        client.getTreatmentWithConfig('always_on').treatment, sharedClient.getTreatmentWithConfig('always_on').treatment,
+        client.getTreatmentsWithConfig(['always_on'])['always_on'].treatment, sharedClient.getTreatmentsWithConfig(['always_on'])['always_on'].treatment,
+      ], ['on', 'on', 'on', 'on', 'on', 'on', 'on', 'on'], 'evaluating on SDK ready');
+      if (isTracking) expectedTrackedImpressions += 8;
 
       // Trigger unload event to validate browser listener behaviour
       // Beacon API is used only if user consent is GRANTED
@@ -112,8 +117,13 @@ export default function userConsent(fetchMock, t) {
       await new Promise(res => setTimeout(res));
       isTracking = factory.getUserConsent() !== 'DECLINED';
       assert.deepEqual([client.track('user', 'event2'), sharedClient.track('user', 'event2')], [isTracking, isTracking], 'tracking events after updating user consent');
-      assert.deepEqual([client.getTreatment('always_off'), sharedClient.getTreatment('always_off')], ['off', 'off'], 'evaluating after updating user consent');
-      if (isTracking) expectedTrackedImpressions += 2;
+      assert.deepEqual([
+        client.getTreatment('always_off'), sharedClient.getTreatment('always_off'),
+        client.getTreatments(['always_off'])['always_off'], sharedClient.getTreatments(['always_off'])['always_off'],
+        client.getTreatmentWithConfig('always_off').treatment, sharedClient.getTreatmentWithConfig('always_off').treatment,
+        client.getTreatmentsWithConfig(['always_off'])['always_off'].treatment, sharedClient.getTreatmentsWithConfig(['always_off'])['always_off'].treatment,
+      ], ['off', 'off', 'off', 'off', 'off', 'off', 'off', 'off'], 'evaluating after updating user consent');
+      if (isTracking) expectedTrackedImpressions += 8;
 
       // If destroyed while user consent is GRANTED, last tracked data is submitted
       if (factory.getUserConsent() === 'GRANTED') {
