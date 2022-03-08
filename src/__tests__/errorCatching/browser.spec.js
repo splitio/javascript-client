@@ -54,7 +54,7 @@ tape('Error catching on callbacks - Browsers', assert => {
     },
     storage: {
       type: 'LOCALSTORAGE',
-      // Default prefix 'SPLITIO.'
+      // Using default prefix 'SPLITIO'
     },
     streamingEnabled: false
   });

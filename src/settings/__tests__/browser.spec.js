@@ -41,5 +41,8 @@ tape('SETTINGS / Consent is overwritable and "GRANTED" by default in client-side
   settings = settingsFactory({ userConsent: 'UNKNOWN' });
   assert.equal(settings.userConsent, 'UNKNOWN', 'userConsent can be overwritten.');
 
+  settings = settingsFactory({ userConsent: 'declined' });
+  assert.equal(settings.userConsent, 'DECLINED', 'userConsent can be overwritten.');
+
   assert.end();
 });
