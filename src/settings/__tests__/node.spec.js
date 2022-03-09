@@ -44,11 +44,11 @@ tape('SETTINGS / Redis options should be properly parsed', assert => {
   });
 
   assert.deepEqual(settingsWithUrl.storage, {
-    type: 'REDIS', prefix: 'test_prefix.SPLITIO', options: { url: 'test_url', connectionTimeout: 11, operationTimeout: 22 }
+    type: 'REDIS', prefix: 'test_prefix', options: { url: 'test_url', connectionTimeout: 11, operationTimeout: 22 }
   }, 'Redis storage settings and options should be passed correctly, url settings takes precedence when we are pointing to Redis.');
 
   assert.deepEqual(settingsWithoutUrl.storage, {
-    type: 'REDIS', prefix: 'test_prefix.SPLITIO', options: { host: 'host', port: 'port', pass: 'pass', db: 'db', connectionTimeout: 33, operationTimeout: 44 }
+    type: 'REDIS', prefix: 'test_prefix', options: { host: 'host', port: 'port', pass: 'pass', db: 'db', connectionTimeout: 33, operationTimeout: 44 }
   }, 'Redis storage settings and options should be passed correctly, url settings takes precedence when we are pointing to Redis.');
 
   assert.end();
@@ -139,5 +139,12 @@ tape('SETTINGS / Log error and fallback to InMemory storage if no valid storage 
   settings.forEach(setting => { assert.equal(setting.storage.type, 'MEMORY', 'fallbacks to memory storage'); });
 
   logSpy.restore();
+  assert.end();
+});
+
+tape('SETTINGS / Consent is not overwritable in server-side', assert => {
+  const settings = settingsFactory({ userConsent: 'UNKNOWN' });
+
+  assert.equal(settings.userConsent, undefined, 'userConsent cannot be overwritten in NodeJS.');
   assert.end();
 });

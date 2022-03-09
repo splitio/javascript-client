@@ -1,6 +1,6 @@
 import { settingsValidation } from '@splitsoftware/splitio-commons/src/utils/settingsValidation';
 import { defaults } from './defaults/node';
-import { validateRuntime } from '@splitsoftware/splitio-commons/src/utils/settingsValidation/runtime/node';
+import { validateRuntime } from './runtime/node';
 import { validateStorage } from './storage/node';
 import { validateLogger } from '@splitsoftware/splitio-commons/src/utils/settingsValidation/logger/builtinLogger';
 import { LocalhostFromFile } from '@splitsoftware/splitio-commons/src/sync/offline/LocalhostFromFile';
@@ -11,7 +11,8 @@ const params = {
   storage: validateStorage,
   logger: validateLogger,
   localhost: () => LocalhostFromFile(),
-  // For now, Node SDK ignores settings.integrations, so no integration validator is passed
+  consent: () => undefined, // resets settings.userConsent to the default
+  // In Node.js the SDK ignores `config.integrations`, so a validator for integrations is not required
 };
 
 export function settingsFactory(config) {

@@ -10,6 +10,7 @@ import { exec } from 'child_process';
 import { SplitFactory } from '../';
 import { merge } from '@splitsoftware/splitio-commons/src/utils/lang';
 import { KeyBuilderSS } from '@splitsoftware/splitio-commons/src/storages/KeyBuilderSS';
+import { validatePrefix } from '@splitsoftware/splitio-commons/src/storages/KeyBuilder';
 import { settingsFactory } from '../settings';
 import { nearlyEqual } from './testUtils';
 
@@ -19,15 +20,9 @@ const NA = 'NA';
 
 const redisPort = '6385';
 
-// @TODO something should be failing here, because we are not setting READY_FROM_CACHE (operational) in consumer mode
-
 const config = {
   core: {
-    authorizationKey: 'uoj4sb69bjv7d4d027f7ukkitd53ek6a9ai9'
-  },
-  urls: {
-    sdk: 'https://sdk-aws-staging.split.io/api',
-    events: 'https://events-aws-staging.split.io/api'
+    authorizationKey: 'SOME API KEY' // in consumer mode, api key is only used to track and log warning regarding duplicated sdk instances
   },
   mode: 'consumer',
   storage: {
@@ -124,12 +119,18 @@ tape('NodeJS Redis', function (t) {
         await client.ready(); // promise already resolved
         await client.destroy();
 
-        // close server connection
-        server.close().then(assert.end);
+        exec(`echo "LLEN ${config.storage.prefix}.SPLITIO.impressions \n LLEN ${config.storage.prefix}.SPLITIO.events" | redis-cli  -p ${redisPort}`, (error, stdout) => {
+          if (error) assert.fail('Redis server should be reachable');
+
+          const trackedImpressionsAndEvents = stdout.split('\n').filter(line => line !== '').map(line => parseInt(line));
+          assert.deepEqual(trackedImpressionsAndEvents, [14, 2], 'Tracked impressions and events should be stored in Redis');
+          // close server connection
+          server.close().then(assert.end);
+        });
       });
   });
 
-  t.test('Connection ready and timed out', assert => {
+  t.test('Connection timeout and then ready', assert => {
     const readyTimeout = 0.1; // 100 millis
     const configWithShortTimeout = { ...config, startup: { readyTimeout } };
     const sdk = SplitFactory(configWithShortTimeout);
@@ -138,10 +139,10 @@ tape('NodeJS Redis', function (t) {
     const start = Date.now();
     let readyTimestamp;
     let redisServer;
-    assert.plan(19);
+    assert.plan(18);
 
     client.getTreatment('UT_Segment_member', 'always-on').then(treatment => {
-      assert.equal(treatment, 'on', 'Evaluations using Redis storage should be correct and resolved once Redis connection is stablished');
+      assert.equal(treatment, 'control', 'Evaluations using Redis storage should be resolved once Redis connection is stablished. They resolve to "control" if using Redis without data.');
     });
     client.track('nicolas@split.io', 'user', 'test.redis.event', 18).then(result => {
       assert.true(result, 'If the event was succesfully queued the promise will resolve to true once Redis connection is stablished');
@@ -153,15 +154,17 @@ tape('NodeJS Redis', function (t) {
       assert.true(nearlyEqual(delay, readyTimeout * 1000), 'SDK_READY_TIMED_OUT event must be emitted after 100 millis');
     });
 
-    // alse, ready promise must be rejected after 100 millis
+    // Also, ready promise must be rejected after 100 millis
     client.ready().catch(() => {
       const delay = Date.now() - start;
       assert.true(nearlyEqual(delay, readyTimeout * 1000), 'Ready promise must be rejected after 100 millis');
 
-      // initialize server to emit SDK_READY
-      initializeRedisServer().then(async (server) => {
+      // Initialize server to emit SDK_READY.
+      // We want to validate SDK readiness behavior here, so `initializeRedisServer` is not called because loading Redis with
+      // data takes a time, and the SDK will be ready but might evaluate with or without data, resulting in tests flakiness.
+      redisServer = new RedisServer(redisPort);
+      redisServer.open().then(async () => {
         readyTimestamp = Date.now();
-        redisServer = server;
         try {
           await client.ready();
           assert.fail('Ready promise keeps being rejected until SDK_READY is emitted');
@@ -173,15 +176,14 @@ tape('NodeJS Redis', function (t) {
 
     // subscribe to SDK_READY event to assert regular usage
     client.on(client.Event.SDK_READY, async () => {
-      const delay = Date.now() - readyTimestamp;
-      assert.true(nearlyEqual(delay, 0, 100), 'SDK_READY event must be emitted soon once Redis server is connected');
-
       await client.ready();
-      assert.pass('Ready promise is resolved once SDK_READY is emitted');
+
+      const delay = Date.now() - readyTimestamp;
+      assert.true(nearlyEqual(delay, 0, 100), 'SDK_READY event is emitted and Ready promise resolved soon once Redis server is connected');
 
       // some asserts to test regular usage
-      assert.equal(await client.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT'), 'on', 'Evaluations using Redis storage should be correct.');
-      assert.equal(await client.getTreatment('other', 'UT_IN_SEGMENT'), 'off', 'Evaluations using Redis storage should be correct.');
+      assert.equal(await client.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT'), 'control', 'Evaluations resolve to "control" if using Redis without data.');
+      assert.equal(await client.getTreatment('other', 'UT_IN_SEGMENT'), 'control', 'Evaluations resolve to "control" if using Redis without data.');
       assert.true(await client.track('nicolas@split.io', 'user', 'test.redis.event', 18), 'If the event was succesfully queued the promise will resolve to true');
       assert.false(await client.track(), 'If the event was NOT succesfully queued the promise will resolve to false');
 
@@ -206,8 +208,8 @@ tape('NodeJS Redis', function (t) {
         assert.pass('SDK_READY event must be emitted');
 
         // some asserts to test regular usage
-        assert.equal(await client2.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT'), 'on', 'Evaluations using Redis storage should be correct.');
-        assert.equal(await client2.getTreatment('other', 'UT_IN_SEGMENT'), 'off', 'Evaluations using Redis storage should be correct.');
+        assert.equal(await client2.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT'), 'control', 'Evaluations resolve to "control" if using Redis without data.');
+        assert.equal(await client2.getTreatment('other', 'UT_IN_SEGMENT'), 'control', 'Evaluations resolve to "control" if using Redis without data.');
         assert.true(await client2.track('nicolas@split.io', 'user', 'test.redis.event', 18), 'If the event was succesfully queued the promise will resolve to true');
         assert.false(await client2.track(), 'If the event was NOT succesfully queued the promise will resolve to false');
 
@@ -326,7 +328,7 @@ tape('NodeJS Redis', function (t) {
           // Redis client and keys required to check Redis store.
           const setting = settingsFactory(config);
           const connection = new RedisClient(setting.storage.options.url);
-          const keys = new KeyBuilderSS(setting.storage.prefix);
+          const keys = new KeyBuilderSS(validatePrefix(setting.storage.prefix));
           const eventKey = keys.buildEventsKey();
           const impressionsKey = keys.buildImpressionsKey();
 

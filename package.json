@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio",
-  "version": "10.17.3-rc.3",
+  "version": "10.17.4-rc.0",
   "description": "Split SDK",
   "files": [
     "README.md",
@@ -34,7 +34,7 @@
     "node": ">=6"
   },
   "dependencies": {
-    "@splitsoftware/splitio-commons": "1.2.1-rc.2",
+    "@splitsoftware/splitio-commons": "1.2.1-rc.8",
     "@types/google.analytics": "0.0.40",
     "ioredis": "^4.28.0",
     "ip": "1.1.5",
@@ -47,7 +47,6 @@
   },
   "devDependencies": {
     "@types/ioredis": "^4.28.0",
-    "@types/ip": "^1.1.0",
     "@types/node-fetch": "^2.5.12",
     "copyfiles": "^2.4.1",
     "cross-env": "^7.0.3",
@@ -107,7 +106,7 @@
     "test-node-destroy": "cross-env NODE_ENV=test tape -r ./ts-node.register src/__tests__/destroy/node.spec.js | tap-min",
     "test-node-errors": "cross-env NODE_ENV=test tape -r ./ts-node.register src/__tests__/errorCatching/node.spec.js | tap-min",
     "test-node-offline": "cross-env NODE_ENV=test tape -r ./ts-node.register src/__tests__/offline/node.spec.js | tap-min",
-    "test-node-redis": "cross-env NODE_ENV=test tape -r ./ts-node.register \"src/__tests__/node_redis.spec.js\" | tap-min",
+    "test-node-redis": "cross-env NODE_ENV=test tape -r ./ts-node.register src/__tests__/node_redis.spec.js | tap-min",
     "test-node-push": "cross-env NODE_ENV=test tape -r ./ts-node.register src/__tests__/push/node.spec.js | tap-min",
     "pretest-ts-decls": "npm run build-esm && npm run build-cjs && npm link",
     "test-ts-decls": "./scripts/ts-tests.sh",

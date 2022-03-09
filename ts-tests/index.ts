@@ -421,7 +421,14 @@ let attr: SplitIO.Attributes = {
 
 stored = browserClient.setAttributes(attr);
 let storedAttr: SplitIO.Attributes = browserClient.getAttributes();
-removed = browserClient.clearAttributes()
+removed = browserClient.clearAttributes();
+
+/**** Tests for user consent setter/getter ****/
+
+let userConsent: SplitIO.ConsentStatus;
+userConsent = BrowserSDK.getUserConsent();
+BrowserSDK.setUserConsent(true);
+BrowserSDK.setUserConsent(false);
 
 /**** Tests for fully crowded settings interfaces ****/
 
@@ -466,6 +473,7 @@ let fullBrowserSettings: SplitIO.IBrowserSettings = {
   scheduler: {
     featuresRefreshRate: 1,
     impressionsRefreshRate: 1,
+    impressionsQueueSize: 1,
     metricsRefreshRate: 1,
     segmentsRefreshRate: 1,
     offlineRefreshRate: 1,
@@ -497,10 +505,13 @@ let fullBrowserSettings: SplitIO.IBrowserSettings = {
   sync: {
     splitFilters: splitFilters,
     impressionsMode: 'DEBUG'
-  }
+  },
+  userConsent: 'GRANTED'
 };
 fullBrowserSettings.storage.type = 'MEMORY';
 fullBrowserSettings.integrations[0].type = 'GOOGLE_ANALYTICS_TO_SPLIT';
+fullBrowserSettings.userConsent = 'DECLINED';
+fullBrowserSettings.userConsent = 'UNKNOWN';
 
 let fullNodeSettings: SplitIO.INodeSettings = {
   core: {
@@ -511,6 +522,7 @@ let fullNodeSettings: SplitIO.INodeSettings = {
   scheduler: {
     featuresRefreshRate: 1,
     impressionsRefreshRate: 1,
+    impressionsQueueSize: 1,
     metricsRefreshRate: 1,
     segmentsRefreshRate: 1,
     offlineRefreshRate: 1,
@@ -555,6 +567,7 @@ let fullAsyncSettings: SplitIO.INodeAsyncSettings = {
   scheduler: {
     featuresRefreshRate: 1,
     impressionsRefreshRate: 1,
+    impressionsQueueSize: 1,
     metricsRefreshRate: 1,
     segmentsRefreshRate: 1,
     offlineRefreshRate: 1,

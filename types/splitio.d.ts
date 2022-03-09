@@ -69,6 +69,7 @@ interface ISettings {
   readonly scheduler: {
     featuresRefreshRate: number,
     impressionsRefreshRate: number,
+    impressionsQueueSize: number,
     metricsRefreshRate: number,
     segmentsRefreshRate: number,
     offlineRefreshRate: number,
@@ -104,6 +105,10 @@ interface ISettings {
     splitFilters: SplitIO.SplitFilter[],
     impressionsMode: SplitIO.ImpressionsMode,
   }
+  /**
+   * User consent status if using in browser. Undefined if using in Node.
+   */
+  readonly userConsent?: SplitIO.ConsentStatus
 }
 /**
  * Log levels.
@@ -249,6 +254,13 @@ interface INodeBasicSettings extends ISharedSettings {
      * @default 300
      */
     impressionsRefreshRate?: number,
+    /**
+     * The maximum number of impression items we want to queue. If we queue more values, it will trigger a flush and reset the timer.
+     * If you use a 0 here, the queue will have no maximum size.
+     * @property {number} impressionsQueueSize
+     * @default 30000
+     */
+    impressionsQueueSize?: number,
     /**
      * The SDK sends diagnostic metrics to Split servers. This parameters controls this metric flush period in seconds.
      * @property {number} metricsRefreshRate
@@ -832,6 +844,11 @@ declare namespace SplitIO {
   */
   type ImpressionsMode = 'OPTIMIZED' | 'DEBUG';
   /**
+   * User consent status.
+   * @typedef {string} ConsentStatus
+   */
+  type ConsentStatus = 'GRANTED' | 'DECLINED' | 'UNKNOWN';
+  /**
    * Settings interface for SDK instances created on the browser
    * @interface IBrowserSettings
    * @extends ISharedSettings
@@ -887,6 +904,13 @@ declare namespace SplitIO {
        * @default 60
        */
       impressionsRefreshRate?: number,
+      /**
+       * The maximum number of impression items we want to queue. If we queue more values, it will trigger a flush and reset the timer.
+       * If you use a 0 here, the queue will have no maximum size.
+       * @property {number} impressionsQueueSize
+       * @default 30000
+       */
+      impressionsQueueSize?: number,
       /**
        * The SDK sends diagnostic metrics to Split servers. This parameters controls this metric flush period in seconds.
        * @property {number} metricsRefreshRate
@@ -989,6 +1013,17 @@ declare namespace SplitIO {
      * @property {Object} integrations
      */
     integrations?: BrowserIntegration[],
+    /**
+     * User consent status. Possible values are `'GRANTED'`, which is the default, `'DECLINED'` or `'UNKNOWN'`.
+     * - `'GRANTED'`: the user has granted consent for tracking events and impressions. The SDK will send them to Split cloud.
+     * - `'DECLINED'`: the user has declined consent for tracking events and impressions. The SDK will not send them to Split cloud.
+     * - `'UNKNOWN'`: the user has neither granted nor declined consent for tracking events and impressions. The SDK will track them in its internal storage, and eventually send
+     * them or not if the consent status is updated to 'GRANTED' or 'DECLINED' respectively. The status can be updated at any time with the `setUserConsent` factory method.
+     *
+     * @typedef {string} userConsent
+     * @default 'GRANTED'
+     */
+    userConsent?: ConsentStatus
   }
   /**
    * Settings interface for SDK instances created on NodeJS.
@@ -1113,6 +1148,25 @@ declare namespace SplitIO {
      * @returns {IBrowserClient} The client instance.
      */
     client(key: SplitKey, trafficType?: string): IBrowserClient
+    /**
+     * Set or update the user consent status. Possible values are `true` and `false`, which represent user consent `'GRANTED'` and `'DECLINED'` respectively.
+     * - `true ('GRANTED')`: the user has granted consent for tracking events and impressions. The SDK will send them to Split cloud.
+     * - `false ('DECLINED')`: the user has declined consent for tracking events and impressions. The SDK will not send them to Split cloud.
+     *
+     * NOTE: calling this method updates the user consent at a factory level, affecting all clients of the same factory.
+     *
+     * @function setUserConsent
+     * @param {boolean} userConsent The user consent status, true for 'GRANTED' and false for 'DECLINED'.
+     * @returns {boolean} Whether the provided param is a valid value (i.e., a boolean value) or not.
+     */
+    setUserConsent(userConsent: boolean): boolean;
+    /**
+     * Get the user consent status.
+     *
+     * @function getUserConsent
+     * @returns {ConsentStatus} The user consent status.
+     */
+    getUserConsent(): ConsentStatus;
   }
   /**
    * This represents the interface for the SDK instance with asynchronous storage.
@@ -1262,7 +1316,7 @@ declare namespace SplitIO {
     /**
      * Add an attribute to client's in memory attributes storage.
      *
-     * @param {string} attributeName Attrinute name
+     * @param {string} attributeName Attribute name
      * @param {AttributeType} attributeValue Attribute value
      * @returns {boolean} true if the attribute was stored and false otherwise
      */
