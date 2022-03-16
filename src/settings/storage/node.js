@@ -30,7 +30,12 @@ export function validateStorage(settings) {
         url,
         tls,
         connectionTimeout,
-        operationTimeout
+        operationTimeout,
+        redisTlsEnabled,
+        redisTlsCaCertificates,
+        redisTlsSkipNameValidation,
+        redisTlsClientCertificate,
+        redisTlsClientKey
       } = options;
 
       if (process.env.REDIS_HOST)
@@ -56,9 +61,19 @@ export function validateStorage(settings) {
         newOpts.db = db;
         newOpts.pass = pass;
       }
-      if (tls) {
+
+      if (tls || redisTlsEnabled) {
+        // if `redisTlsEnabled`, a tls param object must be passed to enable TLS
+        if (!tls) tls = {};
+        if (redisTlsCaCertificates) tls.ca = redisTlsCaCertificates;
+        // `tls.rejectUnauthorized` is true by default, so `redisTlsSkipNameValidation` is false by default
+        if (redisTlsSkipNameValidation !== undefined) tls.rejectUnauthorized = !redisTlsSkipNameValidation;
+        if (redisTlsClientCertificate) tls.cert = redisTlsClientCertificate;
+        if (redisTlsClientKey) tls.key = redisTlsClientKey;
+
         newOpts.tls = tls;
       }
+
       return {
         type,
         prefix,
