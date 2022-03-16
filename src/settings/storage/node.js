@@ -28,6 +28,7 @@ export function validateStorage(settings) {
         db,
         pass,
         url,
+        tls,
         connectionTimeout,
         operationTimeout
       } = options;
@@ -55,7 +56,9 @@ export function validateStorage(settings) {
         newOpts.db = db;
         newOpts.pass = pass;
       }
-
+      if (tls) {
+        newOpts.tls = tls;
+      }
       return {
         type,
         prefix,
