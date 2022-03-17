@@ -34,6 +34,7 @@
   "dependencies": {
     "@splitsoftware/splitio-commons": "1.2.1-rc.5",
     "@types/google.analytics": "0.0.40",
+    "@types/ioredis": "^4.28.0",
     "ioredis": "^4.28.0",
     "ip": "1.1.5",
     "js-yaml": "3.13.1",
@@ -44,7 +45,6 @@
     "eventsource": "^1.0.7"
   },
   "devDependencies": {
-    "@types/ioredis": "^4.28.0",
     "@types/node-fetch": "^2.5.12",
     "copyfiles": "^2.4.1",
     "cross-env": "^7.0.3",

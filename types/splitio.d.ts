@@ -3,6 +3,7 @@
 // Definitions by: Nico Zelaya <https://github.com/NicoZelaya/>
 
 /// <reference types="google.analytics" />
+import { RedisOptions } from "ioredis";
 
 export as namespace SplitIO;
 export = SplitIO;
@@ -1084,7 +1085,16 @@ declare namespace SplitIO {
        * Options to be passed to the selected storage. Use it with type: 'REDIS'
        * @property {Object} options
        */
-      options?: Object,
+      options?: {
+        url?: string,
+        host?: string,
+        port?: number,
+        db?: number,
+        pass?: string,
+        connectionTimeout?: number,
+        operationTimeout?: number,
+        tls?: RedisOptions['tls'],
+      },
       /**
        * Optional prefix to prevent any kind of data collision between SDK versions.
        * @property {string} prefix

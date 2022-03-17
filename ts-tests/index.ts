@@ -583,7 +583,14 @@ let fullAsyncSettings: SplitIO.INodeAsyncSettings = {
   storage: {
     type: 'REDIS',
     options: {
-      opt1: 'whatever'
+      url: 'url',
+      host: 'host',
+      port: 1234,
+      db: 0,
+      pass: 'pass',
+      connectionTimeout: 100,
+      operationTimeout: 100,
+      tls: { ca: 'ca' }
     },
     prefix: 'PREFIX'
   },
