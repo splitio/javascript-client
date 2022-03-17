@@ -1,0 +1,45 @@
+name: Update License Year
+
+on:
+  schedule:
+    - cron: "0 3 1 1 *" # 03:00 AM on January 1
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      
+      - name: Set Current year
+        run: "echo CURRENT=$(date +%Y) >> $GITHUB_ENV"
+      
+      - name: Set Previous Year
+        run: "echo PREVIOUS=$(($CURRENT-1)) >> $GITHUB_ENV"
+
+      - name: Update LICENSE
+        uses: jacobtomlinson/gha-find-replace@v2
+        with:
+          find: ${{ env.PREVIOUS }}
+          replace: ${{ env.CURRENT }}
+          include: "LICENSE"
+          regex: false
+
+      - name: Commit files
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git commit -m "Updated License Year" -a
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          title: Update License Year
+          branch: update-license
