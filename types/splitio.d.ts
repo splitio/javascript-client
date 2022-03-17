@@ -1316,7 +1316,7 @@ declare namespace SplitIO {
     /**
      * Add an attribute to client's in memory attributes storage.
      *
-     * @param {string} attributeName Attrinute name
+     * @param {string} attributeName Attribute name
      * @param {AttributeType} attributeValue Attribute value
      * @returns {boolean} true if the attribute was stored and false otherwise
      */
