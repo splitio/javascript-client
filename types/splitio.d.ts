@@ -338,9 +338,9 @@ interface INodeBasicSettings extends ISharedSettings {
     type?: StorageType,
     /**
      * Options to be passed to the selected storage. Use it with type: 'REDIS'
-     * @property {Object} options
+     * @property {SplitIO.RedisStorageOptions} options
      */
-    options?: Object,
+    options?: SplitIO.RedisStorageOptions,
     /**
      * Optional prefix to prevent any kind of data collision between SDK versions.
      * @property {string} prefix
@@ -639,6 +639,69 @@ declare namespace SplitIO {
    * @typedef {string} BrowserStorage
    */
   type BrowserStorage = 'MEMORY' | 'LOCALSTORAGE';
+  /**
+   * Options to be passed to the Redis storage. Use it with storage type: 'REDIS'.
+   * @typedef {Object} RedisStorageOptions
+   */
+  type RedisStorageOptions = {
+    /**
+     * Redis URL. If set, `host`, `port`, `db` and `pass` params will be ignored.
+     *
+     * Examples:
+     * ```
+     *   url: 'localhost'
+     *   url: '127.0.0.1:6379'
+     *   url: 'redis://:authpassword@127.0.0.1:6379/0'
+     * ```
+     * @property {string=} url
+     */
+    url?: string,
+    /**
+     * Redis host.
+     * @property {string=} host
+     * @default 'localhost'
+     */
+    host?: string,
+    /**
+     * Redis port.
+     * @property {number=} port
+     * @default 6379
+     */
+    port?: number,
+    /**
+     * Redis database to be used.
+     * @property {number=} db
+     * @default 0
+     */
+    db?: number,
+    /**
+     * Redis password. Don't define if no password is used.
+     * @property {string=} pass
+     * @default undefined
+     */
+    pass?: string,
+    /**
+     * The milliseconds before a timeout occurs during the initial connection to the Redis server.
+     * @property {number=} connectionTimeout
+     * @default 10000
+     */
+    connectionTimeout?: number,
+    /**
+     * The milliseconds before Redis commands are timeout by the SDK.
+     * Method calls that involve Redis commands, like `client.getTreatment` or `client.track` calls, are resolved when the commands success or timeout.
+     * @property {number=} operationTimeout
+     * @default 5000
+     */
+    operationTimeout?: number,
+    /**
+     * TLS configuration for Redis connection.
+     * @see {@link https://www.npmjs.com/package/ioredis#tls-options }
+     *
+     * @property {Object=} tls
+     * @default undefined
+     */
+    tls?: RedisOptions['tls'],
+  }
   /**
    * Impression listener interface. This is the interface that needs to be implemented
    * by the element you provide to the SDK as impression listener.
@@ -1083,67 +1146,9 @@ declare namespace SplitIO {
       type: NodeAsyncStorage,
       /**
        * Options to be passed to the selected storage. Use it with type: 'REDIS'
-       * @property {Object} options
+       * @property {SplitIO.RedisStorageOptions} options
        */
-      options?: {
-        /**
-         * Redis URL. If set, `host`, `port`, `db` and `pass` params will be ignored.
-         *
-         * Examples:
-         * ```
-         *   url: 'localhost'
-         *   url: '127.0.0.1:6379'
-         *   url: 'redis://:authpassword@127.0.0.1:6379/0'
-         * ```
-         * @property {string=} url
-         */
-        url?: string,
-        /**
-         * Redis host.
-         * @property {string=} host
-         * @default 'localhost'
-         */
-        host?: string,
-        /**
-         * Redis port.
-         * @property {number=} port
-         * @default 6379
-         */
-        port?: number,
-        /**
-         * Redis database to be used.
-         * @property {number=} db
-         * @default 0
-         */
-        db?: number,
-        /**
-         * Redis password. Leave empty if no password is used.
-         * @property {string=} pass
-         * @default undefined
-         */
-        pass?: string,
-        /**
-         * The milliseconds before a timeout occurs during the initial connection to the Redis server.
-         * @property {number=} connectionTimeout
-         * @default 10000
-         */
-        connectionTimeout?: number,
-        /**
-         * The milliseconds before Redis commands are timeout by the SDK.
-         * Method calls that involve Redis commands, like `client.getTreatment` or `client.track` calls, are resolved when the commands success or timeout.
-         * @property {number=} operationTimeout
-         * @default 5000
-         */
-        operationTimeout?: number,
-        /**
-         * TLS configuration for Redis connection.
-         * @see {@link https://www.npmjs.com/package/ioredis#tls-options }
-         *
-         * @property {Object=} tls
-         * @default undefined
-         */
-        tls?: RedisOptions['tls'],
-      },
+      options?: RedisStorageOptions,
       /**
        * Optional prefix to prevent any kind of data collision between SDK versions.
        * @property {string} prefix
