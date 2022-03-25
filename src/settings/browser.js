@@ -9,6 +9,7 @@ import { validateConsent } from '@splitsoftware/splitio-commons/src/utils/settin
 
 const params = {
   defaults,
+  isClientSide: true,
   runtime: validateRuntime,
   storage: validateStorage,
   integrations: validateIntegrations,
