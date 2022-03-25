@@ -9,7 +9,7 @@ import { validateConsent } from '@splitsoftware/splitio-commons/src/utils/settin
 
 const params = {
   defaults,
-  isClientSide: true,
+  acceptKey: true, acceptTT: true, // Client with bound key and optional TT
   runtime: validateRuntime,
   storage: validateStorage,
   integrations: validateIntegrations,
