@@ -57,8 +57,8 @@ tape('SDK destroy for NodeJS', async function (assert) {
   });
 
   // Events tracking do not need to wait for ready.
-  client.track('nicolas.zelaya@split.io','tt', 'invalidEventType', 'invalid value' /* Invalid values are not tracked */);
-  client.track('nicolas.zelaya@gmail.com','tt', 'validEventType', 1);
+  client.track('nicolas.zelaya@split.io', 'tt', 'invalidEventType', 'invalid value' /* Invalid values are not tracked */);
+  client.track('nicolas.zelaya@gmail.com', 'tt', 'validEventType', 1);
 
   // Assert we are sending the events while doing the destroy
   fetchMock.postOnce(url(settings, '/events/bulk'), (url, opts) => {
@@ -86,14 +86,14 @@ tape('SDK destroy for NodeJS', async function (assert) {
 
   await destroyPromise;
 
-  assert.equal( client.getTreatment('ut1', 'Single_Test'), 'control', 'After destroy, getTreatment returns control.');
-  assert.deepEqual( client.getTreatments('ut1', ['Single_Test', 'another_split']), {
+  assert.equal(client.getTreatment('ut1', 'Single_Test'), 'control', 'After destroy, getTreatment returns control.');
+  assert.deepEqual(client.getTreatments('ut1', ['Single_Test', 'another_split']), {
     Single_Test: 'control', another_split: 'control'
   }, 'After destroy, getTreatments returns a map of control.');
-  assert.notOk( client.track('key', 'tt', 'event'),  'After destroy, track calls return false.');
-  assert.equal( manager.splits().length , 0 , 'After destroy, manager.splits returns empty array.');
-  assert.equal( manager.names().length ,  0 , 'After destroy, manager.names returns empty array.');
-  assert.equal( manager.split('Single_Test') , null , 'After destroy, manager.split returns null.');
+  assert.notOk(client.track('key', 'tt', 'event'), 'After destroy, track calls return false.');
+  assert.equal(manager.splits().length, 0, 'After destroy, manager.splits returns empty array.');
+  assert.equal(manager.names().length, 0, 'After destroy, manager.names returns empty array.');
+  assert.equal(manager.split('Single_Test'), null, 'After destroy, manager.split returns null.');
 
   assert.end();
 });

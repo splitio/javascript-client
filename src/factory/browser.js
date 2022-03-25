@@ -50,8 +50,6 @@ function getModules(settings) {
 
     SignalListener,
 
-    impressionListener: settings.impressionListener,
-
     integrationsManagerFactory: settings.integrations && settings.integrations.length > 0 ? integrationsManagerFactory.bind(null, settings.integrations) : undefined,
 
     impressionsObserverFactory: shouldAddPt(settings) ? impressionObserverCSFactory : undefined,

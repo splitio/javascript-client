@@ -45,8 +45,6 @@ function getModules(settings) {
 
     SignalListener,
 
-    impressionListener: settings.impressionListener,
-
     impressionsObserverFactory: shouldAddPt(settings) ? impressionObserverSSFactory : undefined,
   };
 
