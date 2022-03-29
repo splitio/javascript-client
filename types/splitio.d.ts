@@ -326,7 +326,7 @@ interface INodeBasicSettings extends ISharedSettings {
     IPAddressesEnabled?: boolean
   },
   /**
-   * Defines which kind of storage we should instanciate.
+   * Defines which kind of storage we should instantiate.
    * @property {Object} storage
    */
   storage?: {
@@ -1049,7 +1049,7 @@ declare namespace SplitIO {
      */
     features?: MockedFeaturesMap,
     /**
-     * Defines which kind of storage we should instanciate.
+     * Defines which kind of storage we should instantiate.
      * @property {Object} storage
      */
     storage?: {
@@ -1104,7 +1104,7 @@ declare namespace SplitIO {
      */
     urls?: UrlSettings,
     /**
-     * Defines which kind of storage we should instanciate.
+     * Defines which kind of storage we should instantiate.
      * @property {Object} storage
      */
     storage?: {
