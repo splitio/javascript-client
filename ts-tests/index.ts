@@ -590,7 +590,7 @@ let fullAsyncSettings: SplitIO.INodeAsyncSettings = {
       pass: 'pass',
       connectionTimeout: 100,
       operationTimeout: 100,
-      tls: { ca: 'ca' }
+      tls: { ca: ['ca'] }
     },
     prefix: 'PREFIX'
   },
