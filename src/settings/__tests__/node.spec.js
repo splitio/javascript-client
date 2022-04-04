@@ -21,7 +21,8 @@ tape('SETTINGS / Redis options should be properly parsed', assert => {
         host: 'h', port: 'p', db: 'bla', pass: 'nope',
         randomProp: 'I will not be present',
         connectionTimeout: 11,
-        operationTimeout: 22
+        operationTimeout: 22,
+        tls: { ca: 'ca' }
       },
       prefix: 'test_prefix'
     }
@@ -37,18 +38,19 @@ tape('SETTINGS / Redis options should be properly parsed', assert => {
         host: 'host', port: 'port', pass: 'pass', db: 'db',
         randomProp: 'I will not be present',
         connectionTimeout: 33,
-        operationTimeout: 44
+        operationTimeout: 44,
+        tls: { ca: 'ca' }
       },
       prefix: 'test_prefix'
     }
   });
 
   assert.deepEqual(settingsWithUrl.storage, {
-    type: 'REDIS', prefix: 'test_prefix', options: { url: 'test_url', connectionTimeout: 11, operationTimeout: 22 }
+    type: 'REDIS', prefix: 'test_prefix', options: { url: 'test_url', connectionTimeout: 11, operationTimeout: 22, tls: { ca: 'ca' } }
   }, 'Redis storage settings and options should be passed correctly, url settings takes precedence when we are pointing to Redis.');
 
   assert.deepEqual(settingsWithoutUrl.storage, {
-    type: 'REDIS', prefix: 'test_prefix', options: { host: 'host', port: 'port', pass: 'pass', db: 'db', connectionTimeout: 33, operationTimeout: 44 }
+    type: 'REDIS', prefix: 'test_prefix', options: { host: 'host', port: 'port', pass: 'pass', db: 'db', connectionTimeout: 33, operationTimeout: 44, tls: { ca: 'ca' } }
   }, 'Redis storage settings and options should be passed correctly, url settings takes precedence when we are pointing to Redis.');
 
   assert.end();
