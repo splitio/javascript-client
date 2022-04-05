@@ -143,7 +143,38 @@ interface ILoggerAPI {
    * Log level constants. Use this to pass them to setLogLevel function.
    */
   LogLevel: {
-    [level: string]: LogLevel
+    [level in LogLevel]: LogLevel
+  }
+}
+/**
+ * User consent API
+ * @interface IUserConsentAPI
+ */
+interface IUserConsentAPI {
+  /**
+   * Set or update the user consent status. Possible values are `true` and `false`, which represent user consent `'GRANTED'` and `'DECLINED'` respectively.
+   * - `true ('GRANTED')`: the user has granted consent for tracking events and impressions. The SDK will send them to Split cloud.
+   * - `false ('DECLINED')`: the user has declined consent for tracking events and impressions. The SDK will not send them to Split cloud.
+   *
+   * NOTE: calling this method updates the user consent at a factory level, affecting all clients of the same factory.
+   *
+   * @function setStatus
+   * @param {boolean} userConsent The user consent status, true for 'GRANTED' and false for 'DECLINED'.
+   * @returns {boolean} Whether the provided param is a valid value (i.e., a boolean value) or not.
+   */
+  setStatus(userConsent: boolean): boolean;
+  /**
+   * Get the user consent status.
+   *
+   * @function getStatus
+   * @returns {ConsentStatus} The user consent status.
+   */
+  getStatus(): SplitIO.ConsentStatus;
+  /**
+   * Consent status constants. Use this to compare with the getStatus function result.
+   */
+  Status: {
+    [status in SplitIO.ConsentStatus]: SplitIO.ConsentStatus
   }
 }
 /**
@@ -1215,24 +1246,10 @@ declare namespace SplitIO {
      */
     client(key: SplitKey, trafficType?: string): IBrowserClient
     /**
-     * Set or update the user consent status. Possible values are `true` and `false`, which represent user consent `'GRANTED'` and `'DECLINED'` respectively.
-     * - `true ('GRANTED')`: the user has granted consent for tracking events and impressions. The SDK will send them to Split cloud.
-     * - `false ('DECLINED')`: the user has declined consent for tracking events and impressions. The SDK will not send them to Split cloud.
-     *
-     * NOTE: calling this method updates the user consent at a factory level, affecting all clients of the same factory.
-     *
-     * @function setUserConsent
-     * @param {boolean} userConsent The user consent status, true for 'GRANTED' and false for 'DECLINED'.
-     * @returns {boolean} Whether the provided param is a valid value (i.e., a boolean value) or not.
+     * User consent API.
+     * @property UserConsent
      */
-    setUserConsent(userConsent: boolean): boolean;
-    /**
-     * Get the user consent status.
-     *
-     * @function getUserConsent
-     * @returns {ConsentStatus} The user consent status.
-     */
-    getUserConsent(): ConsentStatus;
+    UserConsent: IUserConsentAPI
   }
   /**
    * This represents the interface for the SDK instance with asynchronous storage.

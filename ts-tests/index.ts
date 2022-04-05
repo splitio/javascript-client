@@ -423,12 +423,15 @@ stored = browserClient.setAttributes(attr);
 let storedAttr: SplitIO.Attributes = browserClient.getAttributes();
 removed = browserClient.clearAttributes();
 
-/**** Tests for user consent setter/getter ****/
+/**** Tests for user consent API ****/
 
 let userConsent: SplitIO.ConsentStatus;
-userConsent = BrowserSDK.getUserConsent();
-BrowserSDK.setUserConsent(true);
-BrowserSDK.setUserConsent(false);
+userConsent = BrowserSDK.UserConsent.getStatus();
+BrowserSDK.UserConsent.setStatus(true);
+BrowserSDK.UserConsent.setStatus(false);
+userConsent = BrowserSDK.UserConsent.Status.DECLINED;
+userConsent = BrowserSDK.UserConsent.Status.GRANTED;
+userConsent = BrowserSDK.UserConsent.Status.UNKNOWN;
 
 /**** Tests for fully crowded settings interfaces ****/
 
