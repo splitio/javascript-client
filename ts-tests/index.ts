@@ -423,12 +423,15 @@ stored = browserClient.setAttributes(attr);
 let storedAttr: SplitIO.Attributes = browserClient.getAttributes();
 removed = browserClient.clearAttributes();
 
-/**** Tests for user consent setter/getter ****/
+/**** Tests for user consent API ****/
 
 let userConsent: SplitIO.ConsentStatus;
-userConsent = BrowserSDK.getUserConsent();
-BrowserSDK.setUserConsent(true);
-BrowserSDK.setUserConsent(false);
+userConsent = BrowserSDK.UserConsent.getStatus();
+BrowserSDK.UserConsent.setStatus(true);
+BrowserSDK.UserConsent.setStatus(false);
+userConsent = BrowserSDK.UserConsent.Status.DECLINED;
+userConsent = BrowserSDK.UserConsent.Status.GRANTED;
+userConsent = BrowserSDK.UserConsent.Status.UNKNOWN;
 
 /**** Tests for fully crowded settings interfaces ****/
 
@@ -583,7 +586,14 @@ let fullAsyncSettings: SplitIO.INodeAsyncSettings = {
   storage: {
     type: 'REDIS',
     options: {
-      opt1: 'whatever'
+      url: 'url',
+      host: 'host',
+      port: 1234,
+      db: 0,
+      pass: 'pass',
+      connectionTimeout: 100,
+      operationTimeout: 100,
+      tls: { ca: ['ca'] }
     },
     prefix: 'PREFIX'
   },

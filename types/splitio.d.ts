@@ -1,8 +1,9 @@
-// Type definitions for Javascript and Node Split Software SDK
+// Type definitions for Javascript and NodeJS Split Software SDK
 // Project: http://www.split.io/
 // Definitions by: Nico Zelaya <https://github.com/NicoZelaya/>
 
 /// <reference types="google.analytics" />
+import { RedisOptions } from "ioredis";
 
 export as namespace SplitIO;
 export = SplitIO;
@@ -97,7 +98,7 @@ interface ISettings {
   readonly debug: boolean | LogLevel,
   readonly version: string,
   /**
-   * Mocked features map if using in browser, or mocked features file path string if using in Node.
+   * Mocked features map if using in browser, or mocked features file path string if using in NodeJS.
    */
   features: SplitIO.MockedFeaturesMap | SplitIO.MockedFeaturesFilePath,
   readonly streamingEnabled: boolean,
@@ -106,7 +107,7 @@ interface ISettings {
     impressionsMode: SplitIO.ImpressionsMode,
   }
   /**
-   * User consent status if using in browser. Undefined if using in Node.
+   * User consent status if using in browser. Undefined if using in NodeJS.
    */
   readonly userConsent?: SplitIO.ConsentStatus
 }
@@ -142,7 +143,38 @@ interface ILoggerAPI {
    * Log level constants. Use this to pass them to setLogLevel function.
    */
   LogLevel: {
-    [level: string]: LogLevel
+    [level in LogLevel]: LogLevel
+  }
+}
+/**
+ * User consent API
+ * @interface IUserConsentAPI
+ */
+interface IUserConsentAPI {
+  /**
+   * Set or update the user consent status. Possible values are `true` and `false`, which represent user consent `'GRANTED'` and `'DECLINED'` respectively.
+   * - `true ('GRANTED')`: the user has granted consent for tracking events and impressions. The SDK will send them to Split cloud.
+   * - `false ('DECLINED')`: the user has declined consent for tracking events and impressions. The SDK will not send them to Split cloud.
+   *
+   * NOTE: calling this method updates the user consent at a factory level, affecting all clients of the same factory.
+   *
+   * @function setStatus
+   * @param {boolean} userConsent The user consent status, true for 'GRANTED' and false for 'DECLINED'.
+   * @returns {boolean} Whether the provided param is a valid value (i.e., a boolean value) or not.
+   */
+  setStatus(userConsent: boolean): boolean;
+  /**
+   * Get the user consent status.
+   *
+   * @function getStatus
+   * @returns {ConsentStatus} The user consent status.
+   */
+  getStatus(): SplitIO.ConsentStatus;
+  /**
+   * Consent status constants. Use this to compare with the getStatus function result.
+   */
+  Status: {
+    [status in SplitIO.ConsentStatus]: SplitIO.ConsentStatus
   }
 }
 /**
@@ -325,7 +357,7 @@ interface INodeBasicSettings extends ISharedSettings {
     IPAddressesEnabled?: boolean
   },
   /**
-   * Defines which kind of storage we should instanciate.
+   * Defines which kind of storage we should instantiate.
    * @property {Object} storage
    */
   storage?: {
@@ -336,7 +368,7 @@ interface INodeBasicSettings extends ISharedSettings {
      */
     type?: StorageType,
     /**
-     * Options to be passed to the selected storage. Use it with type: 'REDIS'
+     * Options to be passed to the selected storage.
      * @property {Object} options
      */
     options?: Object,
@@ -985,7 +1017,8 @@ declare namespace SplitIO {
      */
     features?: MockedFeaturesMap,
     /**
-     * Defines which kind of storage we should instanciate.
+     * Defines which kind of storage we can instantiate on the browser.
+     * Possible storage types are 'MEMORY', which is the default, and 'LOCALSTORAGE'.
      * @property {Object} storage
      */
     storage?: {
@@ -1040,7 +1073,8 @@ declare namespace SplitIO {
      */
     urls?: UrlSettings,
     /**
-     * Defines which kind of storage we should instanciate.
+     * Defines which kind of storage we can instantiate on NodeJS for 'standalone' mode.
+     * The only possible storage type is 'MEMORY', which is the default.
      * @property {Object} storage
      */
     storage?: {
@@ -1074,6 +1108,11 @@ declare namespace SplitIO {
    * @see {@link https://help.split.io/hc/en-us/articles/360020564931-Node-js-SDK#configuration}
    */
   interface INodeAsyncSettings extends INodeBasicSettings {
+    /**
+     * Defines which kind of async storage we can instantiate on NodeJS for 'consumer' mode.
+     * The only possible storage type is 'REDIS'.
+     * @property {Object} storage
+     */
     storage: {
       /**
        * 'REDIS' storage type to be instantiated by the SDK.
@@ -1081,10 +1120,68 @@ declare namespace SplitIO {
        */
       type: NodeAsyncStorage,
       /**
-       * Options to be passed to the selected storage. Use it with type: 'REDIS'
+       * Options to be passed to the Redis storage. Use it with storage type: 'REDIS'.
        * @property {Object} options
        */
-      options?: Object,
+      options?: {
+        /**
+         * Redis URL. If set, `host`, `port`, `db` and `pass` params will be ignored.
+         *
+         * Examples:
+         * ```
+         *   url: 'localhost'
+         *   url: '127.0.0.1:6379'
+         *   url: 'redis://:authpassword@127.0.0.1:6379/0'
+         * ```
+         * @property {string=} url
+         */
+        url?: string,
+        /**
+         * Redis host.
+         * @property {string=} host
+         * @default 'localhost'
+         */
+        host?: string,
+        /**
+         * Redis port.
+         * @property {number=} port
+         * @default 6379
+         */
+        port?: number,
+        /**
+         * Redis database to be used.
+         * @property {number=} db
+         * @default 0
+         */
+        db?: number,
+        /**
+         * Redis password. Don't define if no password is used.
+         * @property {string=} pass
+         * @default undefined
+         */
+        pass?: string,
+        /**
+         * The milliseconds before a timeout occurs during the initial connection to the Redis server.
+         * @property {number=} connectionTimeout
+         * @default 10000
+         */
+        connectionTimeout?: number,
+        /**
+         * The milliseconds before Redis commands are timeout by the SDK.
+         * Method calls that involve Redis commands, like `client.getTreatment` or `client.track` calls, are resolved when the commands success or timeout.
+         * @property {number=} operationTimeout
+         * @default 5000
+         */
+        operationTimeout?: number,
+        /**
+         * TLS configuration for Redis connection.
+         * @see {@link https://www.npmjs.com/package/ioredis#tls-options }
+         *
+         * @property {Object=} tls
+         * @default undefined
+         */
+        tls?: RedisOptions['tls'],
+      },
       /**
        * Optional prefix to prevent any kind of data collision between SDK versions.
        * @property {string} prefix
@@ -1149,24 +1246,10 @@ declare namespace SplitIO {
      */
     client(key: SplitKey, trafficType?: string): IBrowserClient
     /**
-     * Set or update the user consent status. Possible values are `true` and `false`, which represent user consent `'GRANTED'` and `'DECLINED'` respectively.
-     * - `true ('GRANTED')`: the user has granted consent for tracking events and impressions. The SDK will send them to Split cloud.
-     * - `false ('DECLINED')`: the user has declined consent for tracking events and impressions. The SDK will not send them to Split cloud.
-     *
-     * NOTE: calling this method updates the user consent at a factory level, affecting all clients of the same factory.
-     *
-     * @function setUserConsent
-     * @param {boolean} userConsent The user consent status, true for 'GRANTED' and false for 'DECLINED'.
-     * @returns {boolean} Whether the provided param is a valid value (i.e., a boolean value) or not.
+     * User consent API.
+     * @property UserConsent
      */
-    setUserConsent(userConsent: boolean): boolean;
-    /**
-     * Get the user consent status.
-     *
-     * @function getUserConsent
-     * @returns {ConsentStatus} The user consent status.
-     */
-    getUserConsent(): ConsentStatus;
+    UserConsent: IUserConsentAPI
   }
   /**
    * This represents the interface for the SDK instance with asynchronous storage.
