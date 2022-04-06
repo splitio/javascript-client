@@ -1,13 +1,22 @@
 import { SplitFactory } from '../../';
 import fs from 'fs';
 import rl from 'readline';
+import { url } from '../testUtils';
 
 import splitChangesMockReal from '../mocks/splitchanges.real.json';
 
 export default async function (config, settings, fetchMock, assert) {
-  fetchMock.get({ url: settings.url('/splitChanges?since=-1'), overwriteRoutes: true }, { status: 200, body: splitChangesMockReal });
+  fetchMock.get({ url: url(settings, '/splitChanges?since=-1'), overwriteRoutes: true }, { status: 200, body: splitChangesMockReal });
 
-  const splitio = SplitFactory(config);
+  const splitio = SplitFactory({
+    ...config,
+    scheduler: {
+      ...config.scheduler,
+      // This test generates more than 30000 impressions (the default impressionsQueueSize)
+      // so we set the queue size unlimited, to avoid flushing impressions
+      impressionsQueueSize: 0
+    }
+  });
   const client = splitio.client();
 
   await client.ready();

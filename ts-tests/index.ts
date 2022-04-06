@@ -148,6 +148,7 @@ asyncSettings = {
   core: {
     authorizationKey: 'key'
   },
+  mode: 'consumer',
   storage: {
     type: 'REDIS'
   }
@@ -284,23 +285,23 @@ tracked = client.track('myEventType', undefined, { prop1: 1, prop2: '2', prop3: 
 /*** Repeating tests for Async Client ***/
 
 // Events constants we get (same as for sync client, just for interface checking)
-const eventConstsAsymc: { [key: string]: SplitIO.Event } = client.Event;
-splitEvent = client.Event.SDK_READY;
-splitEvent = client.Event.SDK_READY_FROM_CACHE;
-splitEvent = client.Event.SDK_READY_TIMED_OUT;
-splitEvent = client.Event.SDK_UPDATE;
+const eventConstsAsync: { [key: string]: SplitIO.Event } = asyncClient.Event;
+splitEvent = asyncClient.Event.SDK_READY;
+splitEvent = asyncClient.Event.SDK_READY_FROM_CACHE;
+splitEvent = asyncClient.Event.SDK_READY_TIMED_OUT;
+splitEvent = asyncClient.Event.SDK_UPDATE;
 
 // Client implements methods from NodeJS.Events. (same as for sync client, just for interface checking)
-client = client.on(splitEvent, () => { });
-const a1: boolean = client.emit(splitEvent);
-client = client.removeAllListeners(splitEvent);
-client = client.removeAllListeners();
-const b1: number = client.listenerCount(splitEvent);
-nodeEventEmitter = client;
+asyncClient = asyncClient.on(splitEvent, () => { });
+const a1: boolean = asyncClient.emit(splitEvent);
+asyncClient = asyncClient.removeAllListeners(splitEvent);
+asyncClient = asyncClient.removeAllListeners();
+const b1: number = asyncClient.listenerCount(splitEvent);
+nodeEventEmitter = asyncClient;
 
 // Ready and destroy (same as for sync client, just for interface checking)
-const readyPromise1: Promise<void> = client.ready();
-client.destroy();
+const readyPromise1: Promise<void> = asyncClient.ready();
+asyncClient.destroy();
 
 // We can call getTreatment but always with a key.
 asyncTreatment = asyncClient.getTreatment(splitKey, 'mySplit');
@@ -420,7 +421,17 @@ let attr: SplitIO.Attributes = {
 
 stored = browserClient.setAttributes(attr);
 let storedAttr: SplitIO.Attributes = browserClient.getAttributes();
-removed = browserClient.clearAttributes()
+removed = browserClient.clearAttributes();
+
+/**** Tests for user consent API ****/
+
+let userConsent: SplitIO.ConsentStatus;
+userConsent = BrowserSDK.UserConsent.getStatus();
+BrowserSDK.UserConsent.setStatus(true);
+BrowserSDK.UserConsent.setStatus(false);
+userConsent = BrowserSDK.UserConsent.Status.DECLINED;
+userConsent = BrowserSDK.UserConsent.Status.GRANTED;
+userConsent = BrowserSDK.UserConsent.Status.UNKNOWN;
 
 /**** Tests for fully crowded settings interfaces ****/
 
@@ -465,6 +476,7 @@ let fullBrowserSettings: SplitIO.IBrowserSettings = {
   scheduler: {
     featuresRefreshRate: 1,
     impressionsRefreshRate: 1,
+    impressionsQueueSize: 1,
     metricsRefreshRate: 1,
     segmentsRefreshRate: 1,
     offlineRefreshRate: 1,
@@ -496,10 +508,13 @@ let fullBrowserSettings: SplitIO.IBrowserSettings = {
   sync: {
     splitFilters: splitFilters,
     impressionsMode: 'DEBUG'
-  }
+  },
+  userConsent: 'GRANTED'
 };
 fullBrowserSettings.storage.type = 'MEMORY';
 fullBrowserSettings.integrations[0].type = 'GOOGLE_ANALYTICS_TO_SPLIT';
+fullBrowserSettings.userConsent = 'DECLINED';
+fullBrowserSettings.userConsent = 'UNKNOWN';
 
 let fullNodeSettings: SplitIO.INodeSettings = {
   core: {
@@ -510,6 +525,7 @@ let fullNodeSettings: SplitIO.INodeSettings = {
   scheduler: {
     featuresRefreshRate: 1,
     impressionsRefreshRate: 1,
+    impressionsQueueSize: 1,
     metricsRefreshRate: 1,
     segmentsRefreshRate: 1,
     offlineRefreshRate: 1,
@@ -543,7 +559,7 @@ let fullNodeSettings: SplitIO.INodeSettings = {
   }
 };
 fullNodeSettings.storage.type = 'MEMORY';
-fullNodeSettings.mode = 'consumer';
+fullNodeSettings.mode = undefined;
 
 let fullAsyncSettings: SplitIO.INodeAsyncSettings = {
   core: {
@@ -554,6 +570,7 @@ let fullAsyncSettings: SplitIO.INodeAsyncSettings = {
   scheduler: {
     featuresRefreshRate: 1,
     impressionsRefreshRate: 1,
+    impressionsQueueSize: 1,
     metricsRefreshRate: 1,
     segmentsRefreshRate: 1,
     offlineRefreshRate: 1,
@@ -569,12 +586,19 @@ let fullAsyncSettings: SplitIO.INodeAsyncSettings = {
   storage: {
     type: 'REDIS',
     options: {
-      opt1: 'whatever'
+      url: 'url',
+      host: 'host',
+      port: 1234,
+      db: 0,
+      pass: 'pass',
+      connectionTimeout: 100,
+      operationTimeout: 100,
+      tls: { ca: ['ca'] }
     },
     prefix: 'PREFIX'
   },
   impressionListener: impressionListener,
-  mode: 'standalone',
+  mode: 'consumer',
   debug: true,
   sync: {
     splitFilters: splitFilters

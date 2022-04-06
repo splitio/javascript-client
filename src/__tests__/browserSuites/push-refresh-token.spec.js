@@ -5,14 +5,14 @@ import mySegmentsNicolasMock1 from '../mocks/mysegments.nicolas@split.io.json';
 import authPushEnabledNicolas from '../mocks/auth.pushEnabled.nicolas@split.io.601secs.json';
 import authPushDisabled from '../mocks/auth.pushDisabled.json';
 
-import { nearlyEqual } from '../testUtils';
+import { nearlyEqual, url } from '../testUtils';
 
 // Replace original EventSource with mock
-import EventSourceMock, { setMockListener } from '../../sync/__tests__/mocks/eventSourceMock';
+import EventSourceMock, { setMockListener } from '../testUtils/eventSourceMock';
 window.EventSource = EventSourceMock;
 
 import { SplitFactory } from '../../';
-import SettingsFactory from '../../utils/settings';
+import { settingsFactory } from '../../settings';
 
 const userKey = 'nicolas@split.io';
 
@@ -33,7 +33,7 @@ const config = {
   },
   // debug: true,
 };
-const settings = SettingsFactory(config);
+const settings = settingsFactory(config);
 
 const MILLIS_CONNDELAY = 500;
 const MILLIS_REFRESH_TOKEN = 1000;
@@ -66,7 +66,7 @@ export function testRefreshToken(fetchMock, assert) {
         assert.fail('expecting only 2 SSE connections');
     }
 
-    const expectedSSEurl = `${settings.url('/sse')}?channels=NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_NTcwOTc3MDQx_mySegments,NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_splits,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_pri,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_sec&accessToken=${authPushEnabledNicolas.token}&v=1.1&heartbeats=true&SplitSDKVersion=${settings.version}&SplitSDKClientKey=h-1>`;
+    const expectedSSEurl = `${url(settings, '/sse')}?channels=NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_NTcwOTc3MDQx_mySegments,NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_splits,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_pri,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_sec&accessToken=${authPushEnabledNicolas.token}&v=1.1&heartbeats=true&SplitSDKVersion=${settings.version}&SplitSDKClientKey=h-1>`;
     assert.equals(eventSourceInstance.url, expectedSSEurl, 'EventSource URL is the expected');
 
     eventSourceInstance.emitOpen();
@@ -77,22 +77,22 @@ export function testRefreshToken(fetchMock, assert) {
   });
 
   // initial sync
-  fetchMock.getOnce(settings.url('/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
-  fetchMock.getOnce(settings.url('/mySegments/nicolas%40split.io'), { status: 200, body: mySegmentsNicolasMock1 });
+  fetchMock.getOnce(url(settings, '/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
+  fetchMock.getOnce(url(settings, '/mySegments/nicolas%40split.io'), { status: 200, body: mySegmentsNicolasMock1 });
 
   // first auth
-  fetchMock.getOnce(settings.url(`/v2/auth?users=${encodeURIComponent(userKey)}`), function (url, opts) {
+  fetchMock.getOnce(url(settings, `/v2/auth?users=${encodeURIComponent(userKey)}`), function (url, opts) {
     if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
     assert.pass('auth success');
     return { status: 200, body: authPushEnabledNicolas };
   });
 
   // sync after SSE opened
-  fetchMock.getOnce(settings.url('/splitChanges?since=1457552620999'), { status: 200, body: splitChangesMock2 });
-  fetchMock.getOnce(settings.url('/mySegments/nicolas%40split.io'), { status: 200, body: mySegmentsNicolasMock1 });
+  fetchMock.getOnce(url(settings, '/splitChanges?since=1457552620999'), { status: 200, body: splitChangesMock2 });
+  fetchMock.getOnce(url(settings, '/mySegments/nicolas%40split.io'), { status: 200, body: mySegmentsNicolasMock1 });
 
   // re-auth due to refresh token, with connDelay of 0.5 seconds
-  fetchMock.getOnce(settings.url(`/v2/auth?users=${encodeURIComponent(userKey)}`), function (url, opts) {
+  fetchMock.getOnce(url(settings, `/v2/auth?users=${encodeURIComponent(userKey)}`), function (url, opts) {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_REFRESH_TOKEN), 'reauthentication for token refresh');
     if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
@@ -100,15 +100,15 @@ export function testRefreshToken(fetchMock, assert) {
   });
 
   // sync after SSE reopened
-  fetchMock.getOnce(settings.url('/splitChanges?since=1457552620999'), function () {
+  fetchMock.getOnce(url(settings, '/splitChanges?since=1457552620999'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_REFRESH_TOKEN + MILLIS_CONNDELAY), 'sync after SSE connection is reopened');
     return { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } };
   });
-  fetchMock.getOnce(settings.url('/mySegments/nicolas%40split.io'), { status: 200, body: mySegmentsNicolasMock1 });
+  fetchMock.getOnce(url(settings, '/mySegments/nicolas%40split.io'), { status: 200, body: mySegmentsNicolasMock1 });
 
   // second re-auth due to refresh token, this time responding with pushEnabled false
-  fetchMock.getOnce(settings.url(`/v2/auth?users=${encodeURIComponent(userKey)}`), function (url, opts) {
+  fetchMock.getOnce(url(settings, `/v2/auth?users=${encodeURIComponent(userKey)}`), function (url, opts) {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_REFRESH_TOKEN * 2), 'second reauthentication for token refresh');
     if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
@@ -116,7 +116,7 @@ export function testRefreshToken(fetchMock, assert) {
   });
 
   // split sync after SSE closed due to push disabled
-  fetchMock.getOnce(settings.url('/splitChanges?since=1457552620999'), function () {
+  fetchMock.getOnce(url(settings, '/splitChanges?since=1457552620999'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_REFRESH_TOKEN * 2), 'sync after SSE connection is reopened a second time');
     setTimeout(() => {
@@ -126,7 +126,7 @@ export function testRefreshToken(fetchMock, assert) {
     }, 200); // destroy the client a little bit latter, to assert that there weren't new requests
     return { status: 500, body: 'server error' };
   });
-  fetchMock.getOnce(settings.url('/mySegments/nicolas%40split.io'), { status: 200, body: mySegmentsNicolasMock1 });
+  fetchMock.getOnce(url(settings, '/mySegments/nicolas%40split.io'), { status: 200, body: mySegmentsNicolasMock1 });
 
   fetchMock.get(new RegExp('.*'), function (url) {
     assert.fail('unexpected GET request with url: ' + url);

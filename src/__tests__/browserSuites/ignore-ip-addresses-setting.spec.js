@@ -1,7 +1,8 @@
 import { SplitFactory } from '../../';
-import SettingsFactory from '../../utils/settings';
+import { settingsFactory } from '../../settings';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
-import { DEBUG } from '../../utils/constants';
+import { DEBUG } from '@splitsoftware/splitio-commons/src/utils/constants';
+import { url } from '../testUtils';
 
 // Header keys and expected values. Expected values are obtained with the runtime function evaluated with IPAddressesEnabled in true.
 const HEADER_SPLITSDKMACHINEIP = 'SplitSDKMachineIP';
@@ -70,8 +71,9 @@ const configSamples = [
 const postEndpoints = [
   '/events/bulk',
   '/testImpressions/bulk',
-  '/metrics/times',
-  '/metrics/counters'
+  // @TODO uncomment when telemetry is implemented
+  // '/metrics/times',
+  // '/metrics/counters'
 ];
 
 export default function (fetchMock, assert) {
@@ -102,10 +104,10 @@ export default function (fetchMock, assert) {
     };
 
     // Mock GET endpoints before creating the client
-    const settings = SettingsFactory(config);
-    fetchMock.getOnce(settings.url('/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
-    fetchMock.getOnce(settings.url('/splitChanges?since=1457552620999'), { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
-    fetchMock.getOnce(settings.url(`/mySegments/${encodeURIComponent(config.core.key)}`), { status: 200, body: { mySegments: [] } });
+    const settings = settingsFactory(config);
+    fetchMock.getOnce(url(settings, '/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
+    fetchMock.getOnce(url(settings, '/splitChanges?since=1457552620999'), { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
+    fetchMock.getOnce(url(settings, `/mySegments/${encodeURIComponent(config.core.key)}`), { status: 200, body: { mySegments: [] } });
 
     // Init Split client
     const splitio = SplitFactory(config);
@@ -123,7 +125,7 @@ export default function (fetchMock, assert) {
 
     // Mock and assert POST endpoints
     postEndpoints.forEach(postEndpoint => {
-      fetchMock.postOnce(settings.url(postEndpoint), (url, opts) => {
+      fetchMock.postOnce(url(settings, postEndpoint), (url, opts) => {
         assertHeaders(settings.core.IPAddressesEnabled, opts);
         finishConfig.next();
         return 200;

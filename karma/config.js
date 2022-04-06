@@ -3,7 +3,6 @@
 const puppeteer = require('puppeteer');
 process.env.CHROME_BIN = puppeteer.executablePath();
 
-const webpack = require('webpack');
 const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
 
 module.exports = {
@@ -63,40 +62,26 @@ module.exports = {
     module: {
       rules: [
         {
-          test: /\.js$/,
-          exclude: /node_modules/,
+          test: /\.(ts|js)$/,
+
+          // Cannot exclude 'node_modules/@splitsoftware/splitio-commons/src', in order to process TS files
+          exclude: /node_modules[/](?!@splitsoftware)/,
+
           use: {
-            loader: 'babel-loader',
+            loader: 'ts-loader',
             options: {
-              presets: [['@babel/preset-env', {
-                'useBuiltIns': false, // default value: don't add core-js or babel polyfills
-                'targets': {
-                  'ie': '10',
-                  'node': '6'
-                },
-                'loose': true
-              }]],
-              plugins: [['@babel/plugin-transform-runtime', {
-                // default values
-                'absoluteRuntime': false,
-                'corejs': false,
-                'regenerator': true,
-                'useESModules': false,
-                'helpers': true
-              }]]
+              transpileOnly: true, // https://webpack.js.org/guides/build-performance/#typescript-loader
+              allowTsInNodeModules: true, // https://github.com/TypeStrong/ts-loader#allowtsinnodemodules
             }
           }
         }
       ]
     },
     plugins: [
-      new NodePolyfillPlugin(),
-      new webpack.DefinePlugin({
-        'process.env.NODE_ENV': JSON.stringify('test'),
-        __DEV__: true
-      })
+      new NodePolyfillPlugin()
     ],
     resolve: {
+      extensions: ['.ts', '.js'],
       fallback: {
         fs: false
       }

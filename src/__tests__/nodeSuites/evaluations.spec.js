@@ -259,6 +259,8 @@ export default async function(config, key, assert) {
     assert.deepEqual(client.getAttributes, undefined, 'should not be available');
     assert.deepEqual(client.clearAttributes, undefined, 'should not be available');
 
+    assert.deepEqual(splitio.UserConsent, undefined, 'UserConsent API should not be available');
+
     getTreatmentTests(client, i);
     getTreatmentsTests(client, i);
     getTreatmentsWithConfigTests(client, i);

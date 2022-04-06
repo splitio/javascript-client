@@ -1,17 +1,18 @@
 import { SplitFactory } from '../../';
-import SettingsFactory from '../../utils/settings';
+import { settingsFactory } from '../../settings';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
 import mySegmentsFacundo from '../mocks/mysegments.facundo@split.io.json';
-import { OPTIMIZED } from '../../utils/constants';
-import { truncateTimeFrame } from '../../utils/time';
+import { OPTIMIZED } from '@splitsoftware/splitio-commons/src/utils/constants';
+import { truncateTimeFrame } from '@splitsoftware/splitio-commons/src/utils/time';
+import { url } from '../testUtils';
 
 const baseUrls = {
   sdk: 'https://sdk.baseurl/impressionsSuite',
   events: 'https://events.baseurl/impressionsSuite'
 };
 
-const settings = SettingsFactory({
+const settings = settingsFactory({
   core: {
     key: 'asd'
   },
@@ -23,9 +24,9 @@ let truncatedTimeFrame;
 
 export default function (fetchMock, assert) {
   // Mocking this specific route to make sure we only get the items we want to test from the handlers.
-  fetchMock.getOnce(settings.url('/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
-  fetchMock.get(settings.url('/splitChanges?since=1457552620999'), { status: 200, body: splitChangesMock2 });
-  fetchMock.get(settings.url('/mySegments/facundo%40split.io'), { status: 200, body: mySegmentsFacundo });
+  fetchMock.getOnce(url(settings, '/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
+  fetchMock.get(url(settings, '/splitChanges?since=1457552620999'), { status: 200, body: splitChangesMock2 });
+  fetchMock.get(url(settings, '/mySegments/facundo%40split.io'), { status: 200, body: mySegmentsFacundo });
 
   const splitio = SplitFactory({
     core: {
@@ -73,13 +74,13 @@ export default function (fetchMock, assert) {
     assert.equal(t, 'on', 'Present impression should have the correct treatment.');
   };
 
-  fetchMock.postOnce(settings.url('/testImpressions/bulk'), (url, req) => {
+  fetchMock.postOnce(url(settings, '/testImpressions/bulk'), (url, req) => {
     assertPayload(req);
     assert.comment('After a failure, Impressions will keep the data for the next call.');
     return 400;
   });
   // Attach again to catch the retry.
-  fetchMock.postOnce(settings.url('/testImpressions/bulk'), (url, req) => {
+  fetchMock.postOnce(url(settings, '/testImpressions/bulk'), (url, req) => {
     assert.equal(req.headers.SplitSDKImpressionsMode, OPTIMIZED);
     assert.comment('We do one retry, so after a failed impressions post we will try once more.');
     assertPayload(req);
@@ -89,9 +90,9 @@ export default function (fetchMock, assert) {
 
     return 200;
   });
-  fetchMock.postOnce(settings.url('/testImpressions/bulk'), 200);
+  fetchMock.postOnce(url(settings, '/testImpressions/bulk'), 200);
 
-  fetchMock.postOnce(settings.url('/testImpressions/count'), (url, opts) => {
+  fetchMock.postOnce(url(settings, '/testImpressions/count'), (url, opts) => {
     const data = JSON.parse(opts.body);
 
     assert.equal(data.pf.length, 2, 'We should generated 2 impressions count.');
@@ -109,7 +110,7 @@ export default function (fetchMock, assert) {
 
     return 200;
   });
-  fetchMock.postOnce(settings.url('/testImpressions/count'), 200);
+  fetchMock.postOnce(url(settings, '/testImpressions/count'), 200);
 
   client.ready().then(() => {
     truncatedTimeFrame = truncateTimeFrame(Date.now());

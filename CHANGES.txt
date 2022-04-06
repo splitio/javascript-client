@@ -1,3 +1,20 @@
+10.18.0 (April 6, 2022)
+ - Added user consent feature to allow delaying or disabling the data tracking from SDK until user consent is explicitly granted or declined. Read more in our docs.
+ - Added `scheduler.impressionsQueueSize` property to SDK configuration to limit the amount of impressions tracked in memory. Read more in our docs.
+ - Added support to accept TLS configuration options to the Redis storage in NodeJS. Read more in our docs.
+ - Updated type definitions to specialize the type of the `storage.options` object for Redis storage in NodeJS.
+ - Updated some dependencies for vulnerability fixes.
+ - Bugfixing - Updated internal isObject utility function, to avoid unexpected behaviors on frameworks and libraries that uses multiple VM contexts, like NuxtJS dev server.
+ - Bugfixing - Logging settings (i.e., the `debug` SDK configuration param and factory logger methods) are configurable per factory instance, instead of affecting all factories globally.
+ - Bugfixing - Fixed an issue with `connectionTimeout` options params of Redis storage, that was being ignored and not passed down to the underlying ioredis client.
+ - Bugfixing - Updated the validation of some SDK configuration params to log errors and throw exceptions with clear descriptions of the invalid setup:
+    - If passing a non-string value to `sync.impressionsMode`, the SDK logs the error: "you passed an invalid impressionsMode config param. It should be one of the following values: 'OPTIMIZED', 'DEBUG'. Defaulting to 'OPTIMIZED'.".
+    - If passing 'REDIS' storage type without setting `mode` to 'consumer', the SDK logs the error: "The provided REDIS storage is invalid for this mode. It requires 'consumer' mode. Fallbacking into default MEMORY storage.".
+    - If passing 'consumer' mode without setting `storage.type` to 'REDIS', the SDK throws an exception with message: "A REDIS storage is required on consumer mode.".
+
+ - NOTABLE CHANGE: since version 10.18.0, the SDK has been refactored to use @splitsoftware/splitio-commons package in order to reuse core modules shared across all JavaScript-based SDKs. Most internal modules have been moved and renamed,
+  but it does not imply a breaking change as long as the library is imported via its main entrypoint (e.g., `const { SplitFactory } = require('@splitsoftware/splitio')` or `import { SplitFactory } from '@splitsoftware/splitio'`).
+
 10.17.3 (February 25, 2022)
  - Updated format for MySegments keys in LocalStorage, keeping backwards compatibility (issue https://github.com/splitio/javascript-client/issues/638).
  - Updated some dependencies for vulnerability fixes.

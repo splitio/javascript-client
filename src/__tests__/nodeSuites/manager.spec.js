@@ -1,9 +1,10 @@
 import { SplitFactory } from '../../';
 import splitChangesMockReal from '../mocks/splitchanges.real.json';
 import map from 'lodash/map';
+import { url } from '../testUtils';
 
 export default async function(settings, fetchMock, assert) {
-  fetchMock.get({ url: settings.url('/splitChanges?since=-1'), overwriteRoutes: true }, { status: 200, body: splitChangesMockReal });
+  fetchMock.get({ url: url(settings, '/splitChanges?since=-1'), overwriteRoutes: true }, { status: 200, body: splitChangesMockReal });
 
   const mockSplits = splitChangesMockReal;
 

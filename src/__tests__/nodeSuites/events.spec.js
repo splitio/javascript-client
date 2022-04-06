@@ -1,8 +1,9 @@
 
 import { SplitFactory } from '../../';
-import SettingsFactory from '../../utils/settings';
+import { settingsFactory } from '../../settings';
+import { url } from '../testUtils';
 
-const settings = SettingsFactory({
+const settings = settingsFactory({
   core: {
     key: 'asd'
   },
@@ -32,7 +33,7 @@ export default function trackAssertions(fetchMock, assert) {
 
   let tsStart, tsEnd;
 
-  fetchMock.postOnce(settings.url('/events/bulk'), (url, opts) => {
+  fetchMock.postOnce(url(settings, '/events/bulk'), (url, opts) => {
     const resp = JSON.parse(opts.body);
 
     // We will test the first and last item in detail.

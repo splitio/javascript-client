@@ -1,28 +1,29 @@
 import tape from 'tape-catch';
 import fetchMock from '../testUtils/fetchMock';
+import { url } from '../testUtils';
 import map from 'lodash/map';
 import pick from 'lodash/pick';
 import { SplitFactory } from '../../';
-import SettingsFactory from '../../utils/settings';
+import { settingsFactory } from '../../settings';
 
 import splitChangesMock1 from './splitChanges.since.-1.json';
 import splitChangesMock2 from './splitChanges.since.1500492097547.json';
 import mySegmentsMock from './mySegments.json';
 import impressionsMock from './impressions.json';
 
-const settings = SettingsFactory({
+const settings = settingsFactory({
   core: {
     key: 'facundo@split.io'
   },
   streamingEnabled: false
 });
 
-fetchMock.getOnce(settings.url('/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
-fetchMock.getOnce(settings.url('/splitChanges?since=-1500492097547'), { status: 200, body: splitChangesMock2 });
+fetchMock.getOnce(url(settings, '/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
+fetchMock.getOnce(url(settings, '/splitChanges?since=-1500492097547'), { status: 200, body: splitChangesMock2 });
 
-fetchMock.getOnce(settings.url('/mySegments/ut1'), { status: 200, body: mySegmentsMock });
-fetchMock.getOnce(settings.url('/mySegments/ut2'), { status: 200, body: mySegmentsMock });
-fetchMock.getOnce(settings.url('/mySegments/ut3'), { status: 200, body: mySegmentsMock });
+fetchMock.getOnce(url(settings, '/mySegments/ut1'), { status: 200, body: mySegmentsMock });
+fetchMock.getOnce(url(settings, '/mySegments/ut2'), { status: 200, body: mySegmentsMock });
+fetchMock.getOnce(url(settings, '/mySegments/ut3'), { status: 200, body: mySegmentsMock });
 
 tape('SDK destroy for BrowserJS', async function (assert) {
   const config = {
@@ -48,7 +49,7 @@ tape('SDK destroy for BrowserJS', async function (assert) {
   client3.track('tt2', 'otherEventType', 3);
 
   // Assert we are sending the impressions while doing the destroy
-  fetchMock.postOnce(settings.url('/testImpressions/bulk'), (url, opts) => {
+  fetchMock.postOnce(url(settings, '/testImpressions/bulk'), (url, opts) => {
     const impressions = JSON.parse(opts.body);
 
     impressions[0].i = map(impressions[0].i, imp => pick(imp, ['k', 't']));
@@ -59,7 +60,7 @@ tape('SDK destroy for BrowserJS', async function (assert) {
   });
 
   // Assert we are sending the impressions count while doing the destroy
-  fetchMock.postOnce(settings.url('/testImpressions/count'), (url, opts) => {
+  fetchMock.postOnce(url(settings, '/testImpressions/count'), (url, opts) => {
     const impressionsCount = JSON.parse(opts.body);
 
     assert.equal(impressionsCount.pf.length, 1);
@@ -70,7 +71,7 @@ tape('SDK destroy for BrowserJS', async function (assert) {
   });
 
   // Assert we are sending the events while doing the destroy
-  fetchMock.postOnce(settings.url('/events/bulk'), (url, opts) => {
+  fetchMock.postOnce(url(settings, '/events/bulk'), (url, opts) => {
     const events = JSON.parse(opts.body);
 
     /* 3 events were pushed */
@@ -106,23 +107,23 @@ tape('SDK destroy for BrowserJS', async function (assert) {
   assert.equal(client3.getTreatment('Single_Test'), 'control', 'After destroy, getTreatment returns control for every destroyed client.');
   assert.deepEqual(client3.getTreatments(['Single_Test']), { 'Single_Test': 'control' }, 'After destroy, getTreatments returns map of controls for every destroyed client.');
   assert.ok(manager.names().length > 0, 'control assertion');
-  assert.notOk(client3.track('tt2', 'otherEventType', 3),  'After destroy, track calls return false.');
+  assert.notOk(client3.track('tt2', 'otherEventType', 3), 'After destroy, track calls return false.');
 
   await client2.destroy();
   assert.equal(client2.getTreatment('Single_Test'), 'control', 'After destroy, getTreatment returns control for every destroyed client.');
   assert.deepEqual(client2.getTreatments(['Single_Test']), { 'Single_Test': 'control' }, 'After destroy, getTreatments returns map of controls for every destroyed client.');
   assert.ok(manager.names().length > 0, 'control assertion');
-  assert.notOk(client2.track('tt', 'eventType', 2),  'After destroy, track calls return false.');
+  assert.notOk(client2.track('tt', 'eventType', 2), 'After destroy, track calls return false.');
 
   await client.destroy();
   fetchMock.restore();
 
   assert.equal(client.getTreatment('Single_Test'), 'control', 'After destroy, getTreatment returns control for every destroyed client.');
   assert.deepEqual(client.getTreatments(['Single_Test']), { 'Single_Test': 'control' }, 'After destroy, getTreatments returns map of controls for every destroyed client.');
-  assert.notOk(client2.track('tt2', 'eventType', 1),  'After destroy, track calls return false.');
+  assert.notOk(client2.track('tt2', 'eventType', 1), 'After destroy, track calls return false.');
 
   assert.equal(manager.splits().length, 0, 'After the main client is destroyed, manager.splits will return empty array');
-  assert.equal(manager.names().length,  0, 'After the main client is destroyed, manager.names will return empty array');
+  assert.equal(manager.names().length, 0, 'After the main client is destroyed, manager.names will return empty array');
   assert.equal(manager.split('Single_Test'), null, 'After the main client is destroyed, manager.split will return null');
 
   assert.end();
