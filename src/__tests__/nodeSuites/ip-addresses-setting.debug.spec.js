@@ -1,9 +1,10 @@
 import osFunction from 'os';
 import ipFunction from 'ip';
 import { SplitFactory } from '../../';
-import SettingsFactory from '../../utils/settings';
+import { settingsFactory } from '../../settings';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
-import { DEBUG, STANDALONE_MODE } from '../../utils/constants';
+import { DEBUG, STANDALONE_MODE } from '@splitsoftware/splitio-commons/src/utils/constants';
+import { url } from '../testUtils';
 
 // Header keys and expected values. Expected values are obtained with the runtime function evaluated with IPAddressesEnabled in true.
 const HEADER_SPLITSDKMACHINEIP = 'SplitSDKMachineIP';
@@ -36,8 +37,9 @@ const baseConfig = {
 const postEndpoints = [
   '/events/bulk',
   '/testImpressions/bulk',
-  '/metrics/times',
-  '/metrics/counters'
+  // @TODO uncomment when telemetry is implemented
+  // '/metrics/times',
+  // '/metrics/counters'
 ];
 
 export default function ipAddressesSettingAssertions(fetchMock, assert) {
@@ -63,7 +65,7 @@ export default function ipAddressesSettingAssertions(fetchMock, assert) {
     };
     const splitio = SplitFactory(config);
     const client = splitio.client();
-    const settings = SettingsFactory(config);
+    const settings = settingsFactory(config);
 
     // Generator to synchronize the destruction of the client when all the post endpoints where called once.
     const finishConfig = (function* () {
@@ -76,18 +78,18 @@ export default function ipAddressesSettingAssertions(fetchMock, assert) {
     })();
 
     // Mock GET endpoints to run client normally
-    fetchMock.getOnce(settings.url('/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
-    fetchMock.getOnce(settings.url('/splitChanges?since=1457552620999'), { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
-    fetchMock.get(new RegExp(`${settings.url('/segmentChanges/')}.*`), { status: 200, body: { since: 10, till: 10, name: 'segmentName', added: [], removed: [] } });
+    fetchMock.getOnce(url(settings, '/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
+    fetchMock.getOnce(url(settings, '/splitChanges?since=1457552620999'), { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
+    fetchMock.get(new RegExp(`${url(settings, '/segmentChanges/')}.*`), { status: 200, body: { since: 10, till: 10, name: 'segmentName', added: [], removed: [] } });
 
     // Mock and assert POST endpoints
     postEndpoints.forEach(postEndpoint => {
-      fetchMock.postOnce(settings.url(postEndpoint), (url, opts) => {
+      fetchMock.postOnce(url(settings, postEndpoint), (url, opts) => {
         assertHeaders(opts);
         finishConfig.next();
         return 200;
       });
-      fetchMock.post(settings.url(postEndpoint), 200);
+      fetchMock.post(url(settings, postEndpoint), 200);
     });
 
     // Run normal client flow

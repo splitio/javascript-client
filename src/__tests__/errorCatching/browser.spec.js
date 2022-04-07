@@ -2,14 +2,15 @@
 import tape from 'tape';
 import includes from 'lodash/includes';
 import fetchMock from '../testUtils/fetchMock';
+import { url } from '../testUtils';
 import splitChangesMock1 from './splitChanges.since.-1.json';
 import mySegmentsMock from './mySegments.nico@split.io.json';
 import splitChangesMock2 from './splitChanges.since.1500492097547.json';
 import splitChangesMock3 from './splitChanges.since.1500492297547.json';
 import { SplitFactory } from '../../';
-import SettingsFactory from '../../utils/settings';
+import { settingsFactory } from '../../settings';
 
-const settings = SettingsFactory({
+const settings = settingsFactory({
   core: {
     authorizationKey: '<fake-token>'
   },
@@ -20,12 +21,12 @@ const settings = SettingsFactory({
 localStorage.clear();
 localStorage.setItem('SPLITIO.splits.till', 25);
 
-fetchMock.get(settings.url('/splitChanges?since=25'), function () {
+fetchMock.get(url(settings, '/splitChanges?since=25'), function () {
   return new Promise((res) => { setTimeout(() => res({ status: 200, body: splitChangesMock1 }), 1000); });
 });
-fetchMock.get(settings.url('/splitChanges?since=1500492097547'), { status: 200, body: splitChangesMock2 });
-fetchMock.get(settings.url('/splitChanges?since=1500492297547'), { status: 200, body: splitChangesMock3 });
-fetchMock.get(settings.url('/mySegments/nico%40split.io'), { status: 200, body: mySegmentsMock });
+fetchMock.get(url(settings, '/splitChanges?since=1500492097547'), { status: 200, body: splitChangesMock2 });
+fetchMock.get(url(settings, '/splitChanges?since=1500492297547'), { status: 200, body: splitChangesMock3 });
+fetchMock.get(url(settings, '/mySegments/nico%40split.io'), { status: 200, body: mySegmentsMock });
 fetchMock.post('*', 200);
 
 const assertionsPlanned = 4;
@@ -88,13 +89,13 @@ tape('Error catching on callbacks - Browsers', assert => {
   }
 
   client.on(client.Event.SDK_READY_TIMED_OUT, () => {
-    assert.true(client.__context.get(client.__context.constants.HAS_TIMEDOUT, true)); // SDK status should be already updated
+    assert.true(client.__getStatus().hasTimedout); // SDK status should be already updated
     attachErrorHandlerIfApplicable();
     null.willThrowForTimedOut();
   });
 
   client.once(client.Event.SDK_READY, () => {
-    assert.true(client.__context.get(client.__context.constants.READY, true)); // SDK status should be already updated
+    assert.true(client.__getStatus().isReady); // SDK status should be already updated
     attachErrorHandlerIfApplicable();
     null.willThrowForReady();
   });
@@ -105,7 +106,7 @@ tape('Error catching on callbacks - Browsers', assert => {
   });
 
   client.once(client.Event.SDK_READY_FROM_CACHE, () => {
-    assert.true(client.__context.get(client.__context.constants.READY_FROM_CACHE, true)); // SDK status should be already updated
+    assert.true(client.__getStatus().isReadyFromCache); // SDK status should be already updated
     attachErrorHandlerIfApplicable();
     null.willThrowForReadyFromCache();
   });

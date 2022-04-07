@@ -4,8 +4,9 @@ import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
 import mySegmentsNicolas from '../mocks/mysegments.nicolas@split.io.json';
 
-import { DEFAULT_CACHE_EXPIRATION_IN_MILLIS } from '../../storage/browser';
 import { nearlyEqual } from '../testUtils';
+
+const DEFAULT_CACHE_EXPIRATION_IN_MILLIS = 864000000; // 10 days
 
 const alwaysOnSplitInverted = JSON.stringify({
   'environment': null,

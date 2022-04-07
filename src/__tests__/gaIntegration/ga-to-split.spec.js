@@ -1,7 +1,8 @@
 import sinon from 'sinon';
 import { SplitFactory } from '../../';
-import SettingsFactory from '../../utils/settings';
+import { settingsFactory } from '../../settings';
 import { gaSpy, gaTag, addGaTag, removeGaTag } from './gaTestUtils';
+import { url } from '../testUtils';
 
 
 const config = {
@@ -17,7 +18,7 @@ const config = {
   },
   streamingEnabled: false
 };
-const settings = SettingsFactory(config);
+const settings = settingsFactory(config);
 
 export default function (fetchMock, assert) {
 
@@ -25,7 +26,7 @@ export default function (fetchMock, assert) {
 
   // test default behavior on default tracker
   assert.test(t => {
-    fetchMock.postOnce(settings.url('/events/bulk'), (url, opts) => {
+    fetchMock.postOnce(url(settings, '/events/bulk'), (url, opts) => {
       const resp = JSON.parse(opts.body);
       const sentHits = window.gaSpy.getHits();
 
@@ -60,7 +61,7 @@ export default function (fetchMock, assert) {
     const numberOfCustomEvents = 5;
     let client;
 
-    fetchMock.postOnce(settings.url('/events/bulk'), (url, opts) => {
+    fetchMock.postOnce(url(settings, '/events/bulk'), (url, opts) => {
       const resp = JSON.parse(opts.body);
       const sentHits = window.gaSpy.getHits('myTracker');
 
@@ -117,7 +118,7 @@ export default function (fetchMock, assert) {
 
     // We must wait until ga is ready to get SplitTracker required and invoked, and to assert the test
     window.ga(() => {
-      t.ok(logSpy.calledWith('[WARN]  splitio-ga-to-split => No valid identities were provided. Please check that you are passing a valid list of identities or providing a traffic type at the SDK configuration.'));
+      t.ok(logSpy.calledWith('[WARN]  splitio => ga-to-split: No valid identities were provided. Please check that you are passing a valid list of identities or providing a traffic type at the SDK configuration.'));
       t.equal(window.gaSpy.getHits().length, numberOfCustomEvents, `Number of sent hits must be equal to ${numberOfCustomEvents}`);
 
       logSpy.restore();
@@ -134,7 +135,7 @@ export default function (fetchMock, assert) {
     const identities = [{ key: 'user1', trafficType: 'user' }, { key: 'user2', trafficType: 'user' }];
     let client;
 
-    fetchMock.postOnce(settings.url('/events/bulk'), (url, opts) => {
+    fetchMock.postOnce(url(settings, '/events/bulk'), (url, opts) => {
       const resp = JSON.parse(opts.body);
       const sentHits = window.gaSpy.getHits('myTracker3');
 
@@ -180,7 +181,7 @@ export default function (fetchMock, assert) {
 
     let client;
 
-    fetchMock.postOnce(settings.url('/events/bulk'), (url, opts) => {
+    fetchMock.postOnce(url(settings, '/events/bulk'), (url, opts) => {
       const resp = JSON.parse(opts.body);
       t.equal(resp.length, expectedNumberOfSplitEvents, 'The number of sent Split events must be equal to the number of sent hits multiply by the number of identities');
 
@@ -232,7 +233,7 @@ export default function (fetchMock, assert) {
 
     let client;
 
-    fetchMock.postOnce(settings.url('/events/bulk'), (url, opts) => {
+    fetchMock.postOnce(url(settings, '/events/bulk'), (url, opts) => {
       const resp = JSON.parse(opts.body);
       t.equal(resp.length, gaSendIterations * 2, 'The number of sent Split events must be equal to the number of no filtered sent hits');
       t.equal(resp.filter(event => event.eventTypeId === prefixSdkOpts + '.mapperSdkOpts').length, gaSendIterations, 'Custom Split events');
@@ -287,7 +288,7 @@ export default function (fetchMock, assert) {
 
   // exception in custom mapper or invalid mapper result must not block sending hits
   assert.test(t => {
-    fetchMock.postOnce(settings.url('/events/bulk'), (url, opts) => {
+    fetchMock.postOnce(url(settings, '/events/bulk'), (url, opts) => {
       const resp = JSON.parse(opts.body);
       t.equal(resp.length, 1, 'only a custom event is sent. no events associated to ga hit');
       return 200;
@@ -313,6 +314,7 @@ export default function (fetchMock, assert) {
     window.ga('myTracker.send', 'pageview');
 
     const factory = SplitFactory(config);
+    factory.Logger.enable(); // Enable debug logs. Equivalent to `config.debug` true
     client = factory.client();
     client.track('some_event');
 
@@ -321,7 +323,7 @@ export default function (fetchMock, assert) {
       const sentHitsMyTracker = window.gaSpy.getHits('myTracker');
       t.equal(sentHitsT0.length, 1, 'Hits must be sent even if a custom mapper throw an exception');
       t.equal(sentHitsMyTracker.length, 1, 'Hits must be sent even if a custom mapper return an invalid event instance');
-      t.ok(logSpy.calledWith('[ERROR] splitio-ga-to-split:mapper: value must be a finite number.'));
+      t.ok(logSpy.calledWith('[ERROR] splitio => ga-to-split:mapper: value must be a finite number.'));
       client.destroy();
       logSpy.restore();
       t.end();
@@ -334,7 +336,7 @@ export default function (fetchMock, assert) {
     const hits = [{ hitType: 'pageview' }, { hitType: 'event' }];
     const hitsAfterDestroyed = [{ hitType: 'screenview' }];
 
-    fetchMock.postOnce(settings.url('/events/bulk'), (url, opts) => {
+    fetchMock.postOnce(url(settings, '/events/bulk'), (url, opts) => {
       const resp = JSON.parse(opts.body);
       const sentHits = window.gaSpy.getHits();
 
@@ -379,7 +381,7 @@ export default function (fetchMock, assert) {
 
   // test `hits` flag
   assert.test(t => {
-    fetchMock.postOnce(settings.url('/events/bulk'), (url, opts) => {
+    fetchMock.postOnce(url(settings, '/events/bulk'), (url, opts) => {
       const resp = JSON.parse(opts.body);
       const sentHits = window.gaSpy.getHits();
 

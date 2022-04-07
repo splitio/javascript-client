@@ -1,6 +1,6 @@
 module.exports = {
   entry: {
-    split: ['./src/umd.js']
+    split: ['./es/umd.js']
   },
 
   output: {
@@ -13,33 +13,28 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.js$/,
+        test: /\.(ts|js)$/,
+
         exclude: /node_modules/,
         use: {
-          loader: 'babel-loader',
-          options: {
-            presets: [['@babel/preset-env', {
-              'useBuiltIns': false, // default value: don't add core-js or babel polyfills
-              'targets': {
-                'ie': '10',
-                'node': '6'
-              },
-              'loose': true
-            }]],
-            plugins: [['@babel/plugin-transform-runtime', {
-              // default values
-              'absoluteRuntime': false,
-              'corejs': false,
-              'regenerator': true,
-              'useESModules': false,
-              'helpers': true,
-            }]]
-          }
+          loader: 'ts-loader'
         }
+
+        /*
+        // Use next configuration to bundle from entry './src/umd.js'
+
+        exclude: /node_modules[/](?!@splitsoftware)/, // Cannot exclude 'node_modules/@splitsoftware/splitio-commons/src', in order to process TS files
+        use: {
+          loader: 'ts-loader',
+          options: { allowTsInNodeModules: true } // https://github.com/TypeStrong/ts-loader#allowtsinnodemodules
+        }
+        */
       }
     ]
   },
-
+  resolve: {
+    extensions: ['.ts', '.js']
+  },
   node: false, // Not include Node polyfills, https://webpack.js.org/configuration/node
   target: ['web', 'es5'], // target 'es5', since 'es2015' is the default in Webpack 5
 };

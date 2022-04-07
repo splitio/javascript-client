@@ -1,11 +1,12 @@
 import tape from 'tape-catch';
 import sinon from 'sinon';
 import fetchMock from '../testUtils/fetchMock';
+import { url } from '../testUtils';
 import { SplitFactory } from '../../';
-import SettingsFactory from '../../utils/settings';
-import { STORAGE_MEMORY } from '../../utils/constants';
+import { settingsFactory } from '../../settings';
+import { STORAGE_MEMORY } from '@splitsoftware/splitio-commons/src/utils/constants';
 
-const settings = SettingsFactory({ core: { key: 'facundo@split.io' } });
+const settings = settingsFactory({ core: { key: 'facundo@split.io' } });
 
 const spySplitChanges = sinon.spy();
 const spySegmentChanges = sinon.spy();
@@ -25,14 +26,14 @@ const replySpy = spy => {
 };
 
 const configMocks = () => {
-  fetchMock.mock(new RegExp(`${settings.url('/splitChanges/')}.*`), () => replySpy(spySplitChanges));
-  fetchMock.mock(new RegExp(`${settings.url('/segmentChanges/')}.*`), () => replySpy(spySegmentChanges));
-  fetchMock.mock(new RegExp(`${settings.url('/mySegments/')}.*`), () => replySpy(spyMySegments));
-  fetchMock.mock(settings.url('/events/bulk'), () => replySpy(spyEventsBulk));
-  fetchMock.mock(settings.url('/testImpressions/bulk'), () => replySpy(spyTestImpressionsBulk));
-  fetchMock.mock(settings.url('/testImpressions/count'), () => replySpy(spyTestImpressionsCount));
-  fetchMock.mock(settings.url('/metrics/times'), () => replySpy(spyMetricsTimes));
-  fetchMock.mock(settings.url('/metrics/counters'), () => replySpy(spyMetricsCounters));
+  fetchMock.mock(new RegExp(`${url(settings, '/splitChanges/')}.*`), () => replySpy(spySplitChanges));
+  fetchMock.mock(new RegExp(`${url(settings, '/segmentChanges/')}.*`), () => replySpy(spySegmentChanges));
+  fetchMock.mock(new RegExp(`${url(settings, '/mySegments/')}.*`), () => replySpy(spyMySegments));
+  fetchMock.mock(url(settings, '/events/bulk'), () => replySpy(spyEventsBulk));
+  fetchMock.mock(url(settings, '/testImpressions/bulk'), () => replySpy(spyTestImpressionsBulk));
+  fetchMock.mock(url(settings, '/testImpressions/count'), () => replySpy(spyTestImpressionsCount));
+  fetchMock.mock(url(settings, '/metrics/times'), () => replySpy(spyMetricsTimes));
+  fetchMock.mock(url(settings, '/metrics/counters'), () => replySpy(spyMetricsCounters));
   fetchMock.mock('*', () => replySpy(spyAny));
 };
 
@@ -48,6 +49,8 @@ tape('Browser offline mode', function (assert) {
 
   const config = {
     core: {
+      // Although `key` is mandatory according to TypeScript declaration files,
+      // it can be omitted in LOCALHOST mode. In that case, the value `localhost_key` is used.
       authorizationKey: 'localhost'
     },
     scheduler: {
@@ -113,8 +116,8 @@ tape('Browser offline mode', function (assert) {
     const sdkReadyFromCache = (client) => () => {
       assert.equal(factory.settings.storage.type, STORAGE_MEMORY, 'In localhost mode, storage must fallback to memory storage');
 
-      assert.equal(client.__context.get(client.__context.constants.READY_FROM_CACHE, true), true, 'If ready from cache, READY_FROM_CACHE status must be true');
-      assert.equal(client.__context.get(client.__context.constants.READY, true), undefined, 'READY status must not be set before READY_FROM_CACHE');
+      assert.equal(client.__getStatus().isReadyFromCache, true, 'If ready from cache, READY_FROM_CACHE status must be true');
+      assert.equal(client.__getStatus().isReady, false, 'READY status must not be set before READY_FROM_CACHE');
 
       assert.deepEqual(manager.names(), ['testing_split', 'testing_split_with_config']);
       assert.equal(client.getTreatment('testing_split_with_config'), 'off');

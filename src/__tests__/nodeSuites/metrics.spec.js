@@ -1,15 +1,16 @@
 import { SplitFactory } from '../../';
-import SettingsFactory from '../../utils/settings';
+import { settingsFactory } from '../../settings';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
-import { OPTIMIZED } from '../../utils/constants';
+import { OPTIMIZED } from '@splitsoftware/splitio-commons/src/utils/constants';
+import { url } from '../testUtils';
 
 const baseUrls = {
   sdk: 'https://sdk.baseurl/metricsSuite',
   events: 'https://events.baseurl/metricsSuite'
 };
 
-const settings = SettingsFactory({
+const settings = settingsFactory({
   core: {
     key: '<fake id>'
   },
@@ -37,21 +38,21 @@ const config = {
 export default async function(key, fetchMock, assert) {
   const segmentChangesUrlRegex = new RegExp(`${baseUrls.sdk}/segmentChanges/*`);
 
-  fetchMock.getOnce(settings.url('/splitChanges?since=-1'), 500);
-  fetchMock.getOnce(settings.url('/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
+  fetchMock.getOnce(url(settings, '/splitChanges?since=-1'), 500);
+  fetchMock.getOnce(url(settings, '/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
   fetchMock.getOnce(segmentChangesUrlRegex, { status: 200, body: { since:10, till:10, name: 'segmentName', added: [], removed: [] } });
   fetchMock.getOnce(segmentChangesUrlRegex, 401);
   fetchMock.getOnce(segmentChangesUrlRegex, 500);
   fetchMock.getOnce(segmentChangesUrlRegex, { status: 200, body: '{ INVALID JSON' });
   fetchMock.get(segmentChangesUrlRegex, { status: 200, body: {since:10, till:10, name: 'segmentName' + Date.now(), added: [], removed: []} });
   // Should not execute but adding just in case.
-  fetchMock.get(settings.url('/splitChanges?since=1457552620999'), { status: 200, body: splitChangesMock2 });
+  fetchMock.get(url(settings, '/splitChanges?since=1457552620999'), { status: 200, body: splitChangesMock2 });
 
-  fetchMock.postOnce(settings.url('/testImpressions/bulk'), (url, opts) => {
+  fetchMock.postOnce(url(settings, '/testImpressions/bulk'), (url, opts) => {
     assert.equal(opts.headers.SplitSDKImpressionsMode, OPTIMIZED);
     return 200;
   });
-  fetchMock.postOnce(settings.url('/testImpressions/count'), 200);
+  fetchMock.postOnce(url(settings, '/testImpressions/count'), 200);
 
   const splitio = SplitFactory(config);
   const client = splitio.client();
@@ -62,7 +63,7 @@ export default async function(key, fetchMock, assert) {
     assert.end();
   })();
 
-  fetchMock.postOnce(settings.url('/metrics/times'), (url, opts) => {
+  fetchMock.postOnce(url(settings, '/metrics/times'), (url, opts) => {
     const data = JSON.parse(opts.body);
 
     assert.equal(data.length, 7, 'We performed 4 correct evaluation requests (one per method) plus ready, splits and segments, so we should have 7 latency metrics.');
@@ -97,7 +98,7 @@ export default async function(key, fetchMock, assert) {
     return 200;
   });
 
-  fetchMock.postOnce(settings.url('/metrics/counters'), (url, opts) => {
+  fetchMock.postOnce(url(settings, '/metrics/counters'), (url, opts) => {
     const data = JSON.parse(opts.body);
 
     assert.equal(data.length, 4, 'Based on the mock setup, we should have four items.');
