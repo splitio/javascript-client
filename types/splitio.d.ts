@@ -1048,10 +1048,10 @@ declare namespace SplitIO {
     integrations?: BrowserIntegration[],
     /**
      * User consent status. Possible values are `'GRANTED'`, which is the default, `'DECLINED'` or `'UNKNOWN'`.
-     * - `'GRANTED'`: the user has granted consent for tracking events and impressions. The SDK will send them to Split cloud.
-     * - `'DECLINED'`: the user has declined consent for tracking events and impressions. The SDK will not send them to Split cloud.
-     * - `'UNKNOWN'`: the user has neither granted nor declined consent for tracking events and impressions. The SDK will track them in its internal storage, and eventually send
-     * them or not if the consent status is updated to 'GRANTED' or 'DECLINED' respectively. The status can be updated at any time with the `setUserConsent` factory method.
+     * - `'GRANTED'`: the user grants consent for tracking events and impressions. The SDK sends them to Split cloud.
+     * - `'DECLINED'`: the user declines consent for tracking events and impressions. The SDK does not send them to Split cloud.
+     * - `'UNKNOWN'`: the user neither grants nor declines consent for tracking events and impressions. The SDK tracks them in its internal storage, and eventually either sends
+     * them or not if the consent status is updated to 'GRANTED' or 'DECLINED' respectively. The status can be updated at any time with the `UserConsent.setStatus` factory method.
      *
      * @typedef {string} userConsent
      * @default 'GRANTED'

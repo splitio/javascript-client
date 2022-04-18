@@ -46,7 +46,7 @@ jobs:
         run: BUILD_BRANCH=$(echo "${GITHUB_REF#refs/heads/}") BUILD_COMMIT=${{ github.sha }} npm run build
 
       - name: Deploy S3 Development
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/development' }}
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/update_dependencies' }}
         uses: jakejarvis/s3-sync-action@v0.5.1
         with:
           args: --acl public-read --follow-symlinks --cache-control max-age=31536000,public
