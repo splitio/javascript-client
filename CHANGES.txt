@@ -1,6 +1,6 @@
 10.18.1 (April 20, 2022)
  - Updated some dependencies for vulnerability fixes.
- - Bugfixing - Added peer dependencies to avoid issues when requiring some third-party dependencies used by modules of the package (Related to issue https://github.com/splitio/javascript-client/issues/662).
+ - Bugfixing - Updated @splitsoftware/splitio-commons package to avoid an error when requiring some third-party dependencies used by the package (Related to issue https://github.com/splitio/javascript-client/issues/662).
  - Bugfixing - Updated `ready` method to rejects the promise with an Error object instead of a string value (Related to issue https://github.com/splitio/javascript-client/issues/654).
 
 10.18.0 (April 7, 2022)
