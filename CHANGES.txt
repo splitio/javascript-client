@@ -1,3 +1,8 @@
+10.18.1 (April 20, 2022)
+ - Updated some dependencies for vulnerability fixes.
+ - Bugfixing - Updated @splitsoftware/splitio-commons package to avoid an error when requiring some third-party dependencies used by the package (Related to issue https://github.com/splitio/javascript-client/issues/662).
+ - Bugfixing - Updated `ready` method to rejects the promise with an Error object instead of a string value (Related to issue https://github.com/splitio/javascript-client/issues/654).
+
 10.18.0 (April 7, 2022)
  - Added user consent feature to allow delaying or disabling the data tracking from SDK until user consent is explicitly granted or declined. Read more in our docs.
  - Added `scheduler.impressionsQueueSize` property to SDK configuration to limit the amount of impressions tracked in memory. Read more in our docs.
