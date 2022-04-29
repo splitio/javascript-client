@@ -59,9 +59,9 @@ jobs:
 
       - name: Upload to S3 (development)
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/development' }}
-        run: aws s3 sync $SOURCE_DIR s3://$AWS_S3_BUCKET $ARGS
+        run: aws s3 sync $SOURCE_DIR s3://$BUCKET/$DEST_DIR $ARGS
         env:
-          AWS_S3_BUCKET: split-public-stage
+          BUCKET: split-public-stage
           SOURCE_DIR: ./umd
           DEST_DIR: sdk
           ARGS: --acl public-read --follow-symlinks --cache-control max-age=31536000,public
@@ -89,10 +89,9 @@ jobs:
 
       - name: Upload to S3 (master)
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
-        uses: jakejarvis/s3-sync-action@v0.5.1
-        with:
-          args: --acl public-read --follow-symlinks --cache-control max-age=31536000,public
+        run: aws s3 sync $SOURCE_DIR s3://$BUCKET/$DEST_DIR $ARGS
         env:
-          AWS_S3_BUCKET: 'split-public'
-          SOURCE_DIR: './umd'
+          BUCKET: split-public
+          SOURCE_DIR: ./umd
           DEST_DIR: sdk
+          ARGS: --acl public-read --follow-symlinks --cache-control max-age=31536000,public
