@@ -18,6 +18,7 @@ jobs:
 
       - name: Install redis
         run: sudo apt-get install -y redis-tools redis-server
+
       - name: Check Redis
         run: redis-cli ping
 
@@ -45,7 +46,25 @@ jobs:
       - name: npm Build
         run: BUILD_BRANCH=$(echo "${GITHUB_REF#refs/heads/}") BUILD_COMMIT=${{ github.sha }} npm run build
 
-      - name: Deploy S3 Development
+      - name: Configure AWS credentials (development)
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/development' }}
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: arn:aws:iam::079419646996:role/public-assets
+          aws-region: us-east-1
+
+      - name: Upload to S3 (development)
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/development' }}
+        uses: jakejarvis/s3-sync-action@v0.5.1
+        with:
+          args: --acl public-read --follow-symlinks --cache-control max-age=31536000,public
+        env:
+          AWS_S3_BUCKET: 'split-public-stage'
+          SOURCE_DIR: './umd'
+          DEST_DIR: sdk
+
+      # TODO: Remove this upload step to the old (dev) Bucket
+      - name: Upload to S3 (development) (legacy)
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/development' }}
         uses: jakejarvis/s3-sync-action@v0.5.1
         with:
@@ -58,15 +77,19 @@ jobs:
           SOURCE_DIR: './umd'
           DEST_DIR: sdk
 
-      - name: Deploy S3 Master
+      - name: Configure AWS credentials (master)
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: arn:aws:iam::825951051969:role/public-assets
+          aws-region: us-east-1
+
+      - name: Upload to S3 (master)
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
         uses: jakejarvis/s3-sync-action@v0.5.1
         with:
           args: --acl public-read --follow-symlinks --cache-control max-age=31536000,public
         env:
           AWS_S3_BUCKET: 'split-public'
-          AWS_ACCESS_KEY_ID: ${{ secrets.PUBLIC_ASSETS_PROD_USER }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.PUBLIC_ASSETS_PROD_KEY }}
-          AWS_REGION: 'us-east-1'
           SOURCE_DIR: './umd'
           DEST_DIR: sdk
