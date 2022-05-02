@@ -66,20 +66,6 @@ jobs:
           DEST_DIR: sdk
           ARGS: --acl public-read --follow-symlinks --cache-control max-age=31536000,public
 
-      # TODO: Remove this upload step to the old (dev) Bucket
-      - name: Upload to S3 (development) (legacy)
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/development' }}
-        uses: jakejarvis/s3-sync-action@v0.5.1
-        with:
-          args: --acl public-read --follow-symlinks --cache-control max-age=31536000,public
-        env:
-          AWS_S3_BUCKET: 'aws-development-split-public'
-          AWS_ACCESS_KEY_ID: ${{ secrets.PUBLIC_ASSETS_STAGE_USER }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.PUBLIC_ASSETS_STAGE_KEY }}
-          AWS_REGION: 'us-east-1'
-          SOURCE_DIR: './umd'
-          DEST_DIR: sdk
-
       - name: Configure AWS credentials (master)
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
         uses: aws-actions/configure-aws-credentials@v1
