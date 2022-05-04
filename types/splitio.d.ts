@@ -97,7 +97,8 @@ interface ISettings {
     events: string,
     sdk: string,
     auth: string,
-    streaming: string
+    streaming: string,
+    telemetry: string
   },
   readonly debug: boolean | LogLevel,
   readonly version: string,
@@ -854,7 +855,13 @@ declare namespace SplitIO {
      * @property {string} streaming
      * @default 'https://streaming.split.io'
      */
-    streaming?: string
+    streaming?: string,
+    /**
+     * String property to override the base URL where the SDK will post telemetry data.
+     * @property {string} telemetry
+     * @default 'https://telemetry.split.io/api'
+     */
+    telemetry?: string
   };
 
   /**

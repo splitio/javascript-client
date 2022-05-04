@@ -43,6 +43,7 @@ export function hasNoCacheHeader(fetchMockOpts) {
   return fetchMockOpts.headers['Cache-Control'] === 'no-cache';
 }
 
+const telemetryEndpointMatcher = /^\/v1\/metrics\/(config|usage)/;
 const eventsEndpointMatcher = /^\/(testImpressions|metrics|events)/;
 const authEndpointMatcher = /^\/v2\/auth/;
 const streamingEndpointMatcher = /^\/(sse|event-stream)/;
@@ -56,6 +57,9 @@ const streamingEndpointMatcher = /^\/(sse|event-stream)/;
  * @return {String}  completed url
  */
 export function url(settings, target) {
+  if (telemetryEndpointMatcher.test(target)) {
+    return `${settings.urls.telemetry}${target}`;
+  }
   if (eventsEndpointMatcher.test(target)) {
     return `${settings.urls.events}${target}`;
   }
