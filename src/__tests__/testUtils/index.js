@@ -1,7 +1,7 @@
 const DEFAULT_ERROR_MARGIN = 50; // 0.05 secs
 
 /**
- * Assert if an `actual` and `expected` numeric values are nearlyEqual.
+ * Assert if an `actual` and `expected` numeric values are nearly equal.
  *
  * @param {number} actual actual time lapse in millis
  * @param {number} expected expected time lapse in millis
