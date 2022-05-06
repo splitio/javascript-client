@@ -23,7 +23,7 @@ const config = {
   scheduler: {
     featuresRefreshRate: 0.1,
     segmentsRefreshRate: 0.1,
-    metricsRefreshRate: 3000,
+    telemetryRefreshRate: 3000,
     impressionsRefreshRate: 3000,
     pushRetryBackoffBase: 0.01 // small value to assert rapidly that push is not retried
   },

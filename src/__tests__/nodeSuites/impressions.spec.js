@@ -27,8 +27,8 @@ const config = {
   scheduler: {
     featuresRefreshRate: 1,
     segmentsRefreshRate: 1,
-    metricsRefreshRate: 3000,
-    impressionsRefreshRate: 5
+    telemetryRefreshRate: 3000,
+    impressionsRefreshRate: 5 // No effect, since min is 300
   },
   urls: baseUrls,
   startup: {
@@ -45,7 +45,9 @@ export default async function(key, fetchMock, assert) {
   fetchMock.get(url(settings, '/splitChanges?since=1457552620999'), { status: 200, body: splitChangesMock2 });
   fetchMock.get(new RegExp(`${url(settings, '/segmentChanges/')}.*`), { status: 200, body: {since:10, till:10, name: 'segmentName', added: [], removed: []} });
 
-  const splitio = SplitFactory(config);
+  const splitio = SplitFactory(config, ({settings}) => {
+    settings.scheduler.impressionsRefreshRate = 5000; // 5 secs
+  });
   const client = splitio.client();
   let evaluationsStart = 0, readyEvaluationsStart = 0, evaluationsEnd = 0;
 

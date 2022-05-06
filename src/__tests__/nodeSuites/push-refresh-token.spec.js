@@ -45,6 +45,8 @@ const MILLIS_REFRESH_TOKEN = 1000;
  */
 export function testRefreshToken(fetchMock, assert) {
   fetchMock.reset();
+  fetchMock.postOnce('https://telemetry.split.io/api/v1/metrics/config', 200);
+  fetchMock.postOnce('https://telemetry.split.io/api/v1/metrics/usage', 200);
   __setEventSource(EventSourceMock);
 
   let start, splitio, client;

@@ -19,13 +19,6 @@ import fetchSpecificSplits from './nodeSuites/fetch-specific-splits.spec';
 import splitChangesMock1 from './mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from './mocks/splitchanges.since.1457552620999.json';
 
-const settings = settingsFactory({
-  core: {
-    authorizationKey: '<fake-token>'
-  },
-  streamingEnabled: false
-});
-
 const config = {
   core: {
     authorizationKey: '<fake-token-1>'
@@ -33,12 +26,13 @@ const config = {
   scheduler: {
     featuresRefreshRate: 1,
     segmentsRefreshRate: 1,
-    metricsRefreshRate: 3000, // for now I don't want to publish metrics during E2E run.
+    telemetryRefreshRate: 3000, // for now I don't want to publish telemetry stats during E2E run.
     impressionsRefreshRate: 3000  // for now I don't want to publish impressions during E2E run.
   },
   streamingEnabled: false
 };
 
+const settings = settingsFactory(config);
 const key = 'facundo@split.io';
 
 fetchMock.get(url(settings, '/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
@@ -54,6 +48,8 @@ fetchMock.get(new RegExp(`${url(settings, '/segmentChanges')}/*`), {
 });
 fetchMock.post(url(settings, '/testImpressions/bulk'), 200);
 fetchMock.post(url(settings, '/testImpressions/count'), 200);
+fetchMock.post(url(settings, '/v1/metrics/config'), 200);
+fetchMock.post(url(settings, '/v1/metrics/usage'), 200);
 
 tape('## Node JS - E2E CI Tests ##', async function (assert) {
   /* Check client evaluations. */
