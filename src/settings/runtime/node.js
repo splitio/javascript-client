@@ -1,5 +1,5 @@
 import osFunction from 'os';
-import ipFunction from './ip';
+import ipFunction from '../../utils/ip';
 
 import { UNKNOWN, NA, CONSUMER_MODE } from '@splitsoftware/splitio-commons/src/utils/constants';
 

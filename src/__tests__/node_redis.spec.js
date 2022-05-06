@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 
 import osFunction from 'os';
-import ipFunction from '../settings/runtime/ip';
+import ipFunction from '../utils/ip';
 import tape from 'tape';
 import sinon from 'sinon';
 import RedisServer from 'redis-server';
