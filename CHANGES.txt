@@ -1,3 +1,6 @@
+10.18.2 (May 6, 2022)
+ - Bugfixing - Removed "ip" dependency to use an inline copy of it that fixes an error when using it in Node v18 (https://github.com/indutny/node-ip/issues/113).
+
 10.18.1 (April 20, 2022)
  - Updated some dependencies for vulnerability fixes.
  - Bugfixing - Updated @splitsoftware/splitio-commons package to avoid an error when requiring some third-party dependencies used by the package (Related to issue https://github.com/splitio/javascript-client/issues/662).
