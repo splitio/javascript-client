@@ -1,6 +1,6 @@
 /* eslint-disable no-redeclare */
 /*
-Adaptation of "ip" package (https://www.npmjs.com/package/ip) that fixes an error when running in Node v18.
+Trimmed version of "ip" package (https://www.npmjs.com/package/ip) that fixes an error when running in Node v18.
 
 This software is licensed under the MIT License.
 
@@ -23,6 +23,45 @@ function _resolveFamily(family) {
 
 function _normalizeFamily(family) {
   return family ? _resolveFamily(family) : 'ipv4';
+}
+
+function isPrivate(addr) {
+  return /^(::f{4}:)?10\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})$/i
+    .test(addr) ||
+    /^(::f{4}:)?192\.168\.([0-9]{1,3})\.([0-9]{1,3})$/i.test(addr) ||
+    /^(::f{4}:)?172\.(1[6-9]|2\d|30|31)\.([0-9]{1,3})\.([0-9]{1,3})$/i
+      .test(addr) ||
+    /^(::f{4}:)?127\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})$/i.test(addr) ||
+    /^(::f{4}:)?169\.254\.([0-9]{1,3})\.([0-9]{1,3})$/i.test(addr) ||
+    /^f[cd][0-9a-f]{2}:/i.test(addr) ||
+    /^fe80:/i.test(addr) ||
+    /^::1$/.test(addr) ||
+    /^::$/.test(addr);
+}
+
+function isPublic(addr) {
+  return !isPrivate(addr);
+}
+
+function isLoopback(addr) {
+  return /^(::f{4}:)?127\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})/
+    .test(addr) ||
+    /^fe80::1$/.test(addr) ||
+    /^::1$/.test(addr) ||
+    /^::$/.test(addr);
+}
+
+function loopback(family) {
+  //
+  // Default to `ipv4`
+  //
+  family = _normalizeFamily(family);
+
+  if (family !== 'ipv4' && family !== 'ipv6') {
+    throw new Error('family must be ipv4 or ipv6');
+  }
+
+  return family === 'ipv4' ? '127.0.0.1' : 'fe80::1';
 }
 
 //
@@ -70,18 +109,18 @@ ip.address = function (name, family) {
     //
     var addresses = interfaces[nic].filter(function (details) {
       details.family = _resolveFamily(details.family);
-      if (details.family !== family || ip.isLoopback(details.address)) {
+      if (details.family !== family || isLoopback(details.address)) {
         return false;
       } else if (!name) {
         return true;
       }
 
-      return name === 'public' ? ip.isPrivate(details.address) :
-        ip.isPublic(details.address);
+      return name === 'public' ? isPrivate(details.address) :
+        isPublic(details.address);
     });
 
     return addresses.length ? addresses[0].address : undefined;
   }).filter(Boolean);
 
-  return !all.length ? ip.loopback(family) : all[0];
+  return !all.length ? loopback(family) : all[0];
 };
