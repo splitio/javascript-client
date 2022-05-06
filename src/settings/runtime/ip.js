@@ -1,4 +1,17 @@
 /* eslint-disable no-redeclare */
+/*
+Adaptation of "ip" package (https://www.npmjs.com/package/ip) that fixes an error when running in Node v18.
+
+This software is licensed under the MIT License.
+
+Copyright Fedor Indutny, 2012.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
 'use strict';
 
 var ip = exports;
@@ -96,8 +109,11 @@ ip.isV4Format = function (ip) {
 ip.isV6Format = function (ip) {
   return ipv6Regex.test(ip);
 };
+function _resolveFamily(family) {
+  return typeof family === 'number' ? 'ipv' + family : family.toLowerCase();
+}
 function _normalizeFamily(family) {
-  return family ? family.toLowerCase() : 'ipv4';
+  return family ? _resolveFamily(family) : 'ipv4';
 }
 
 ip.fromPrefixLen = function (prefixlen, family) {
@@ -369,7 +385,7 @@ ip.address = function (name, family) {
   //
   if (name && name !== 'private' && name !== 'public') {
     var res = interfaces[name].filter(function (details) {
-      var itemFamily = details.family.toLowerCase();
+      var itemFamily = _resolveFamily(details.family);
       return itemFamily === family;
     });
     if (res.length === 0)
@@ -383,7 +399,7 @@ ip.address = function (name, family) {
     // when this is called.
     //
     var addresses = interfaces[nic].filter(function (details) {
-      details.family = details.family.toLowerCase();
+      details.family = _resolveFamily(details.family);
       if (details.family !== family || ip.isLoopback(details.address)) {
         return false;
       } else if (!name) {
