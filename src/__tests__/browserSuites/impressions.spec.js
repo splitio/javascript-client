@@ -36,7 +36,6 @@ export default function (fetchMock, assert) {
     scheduler: {
       featuresRefreshRate: 0.5,
       segmentsRefreshRate: 0.5,
-      metricsRefreshRate: 3000,
       impressionsRefreshRate: 0.5
     },
     startup: {

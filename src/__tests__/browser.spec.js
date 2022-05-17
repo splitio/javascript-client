@@ -45,7 +45,6 @@ const configInMemory = {
   scheduler: {
     featuresRefreshRate: 1,
     segmentsRefreshRate: 1,
-    metricsRefreshRate: 3000, // for now I don't want to publish metrics during E2E run.
     impressionsRefreshRate: 3000  // for now I don't want to publish impressions during E2E run.
   },
   streamingEnabled: false
@@ -62,7 +61,6 @@ const configInMemoryWithBucketingKey = {
   scheduler: {
     featuresRefreshRate: 1,
     segmentsRefreshRate: 1,
-    metricsRefreshRate: 3000, // for now I don't want to publish metrics during E2E run.
     impressionsRefreshRate: 3000  // for now I don't want to publish impressions during E2E run.
   },
   streamingEnabled: false
@@ -76,7 +74,6 @@ const configInLocalStorage = {
   scheduler: {
     featuresRefreshRate: 1,
     segmentsRefreshRate: 1,
-    metricsRefreshRate: 3000, // for now I don't want to publish metrics during E2E run.
     impressionsRefreshRate: 3000  // for now I don't want to publish impressions during E2E run.
   },
   storage: {
