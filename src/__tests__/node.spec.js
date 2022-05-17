@@ -61,7 +61,7 @@ tape('## Node JS - E2E CI Tests ##', async function (assert) {
   assert.test('E2E / Impressions listener', impressionsListenerSuite);
 
   /* Check telemetry */
-  assert.test('E2E / Metrics', telemetrySuite.bind(null, key, fetchMock));
+  assert.test('E2E / Telemetry', telemetrySuite.bind(null, key, fetchMock));
 
   /* Check events in memory */
   assert.test('E2E / Events', eventsSuite.bind(null, fetchMock));
