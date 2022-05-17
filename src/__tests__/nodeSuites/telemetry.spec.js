@@ -13,6 +13,7 @@ const config = {
     authorizationKey: '<fake-token-2>'
   },
   scheduler: {
+    featuresRefreshRate: 99999,
     telemetryRefreshRate: 60
   },
   urls: baseUrls,

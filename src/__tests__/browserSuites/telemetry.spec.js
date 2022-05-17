@@ -13,6 +13,7 @@ const config = {
     key: 'user-key'
   },
   scheduler: {
+    featuresRefreshRate: 99999,
     telemetryRefreshRate: 60
   },
   urls: baseUrls,
