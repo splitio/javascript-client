@@ -11,7 +11,6 @@ const HEADER_SPLITSDKMACHINENAME = 'SplitSDKMachineName';
 // Refresh rates are set to 1 second to finish the test quickly. Otherwise, it would finish in 1 minute (60 seconds is the default value)
 const baseConfig = {
   scheduler: {
-    metricsRefreshRate: 1,
     impressionsRefreshRate: 1,
     eventsPushRate: 1
   },

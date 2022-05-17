@@ -48,7 +48,7 @@ tape('Error catching on callbacks - Browsers', assert => {
     scheduler: {
       featuresRefreshRate: 1.5,
       segmentsRefreshRate: 100000,
-      metricsRefreshRate: 100000,
+      telemetryRefreshRate: 100000,
       impressionsRefreshRate: 100000,
       eventsPushRate: 100000
     },

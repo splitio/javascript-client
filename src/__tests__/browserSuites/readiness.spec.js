@@ -22,7 +22,6 @@ const baseConfig = {
   scheduler: {
     featuresRefreshRate: 3000,
     segmentsRefreshRate: 3000,
-    metricsRefreshRate: 3000,
     impressionsRefreshRate: 3000
   },
   startup: {
@@ -164,7 +163,6 @@ export default function (fetchMock, assert) {
       scheduler: {
         featuresRefreshRate: 3.1,
         segmentsRefreshRate: 1,
-        metricsRefreshRate: 3000,
         impressionsRefreshRate: 3000
       },
       urls: testUrls
@@ -245,7 +243,6 @@ export default function (fetchMock, assert) {
       scheduler: {
         featuresRefreshRate: 3.1,
         segmentsRefreshRate: 1,
-        metricsRefreshRate: 3000,
         impressionsRefreshRate: 3000
       },
       storage: {
@@ -330,7 +327,6 @@ export default function (fetchMock, assert) {
       scheduler: {
         featuresRefreshRate: 3.1,
         segmentsRefreshRate: 1,
-        metricsRefreshRate: 3000,
         impressionsRefreshRate: 3000
       },
       urls: testUrls
@@ -411,7 +407,6 @@ export default function (fetchMock, assert) {
       scheduler: {
         featuresRefreshRate: 3.1,
         segmentsRefreshRate: 1,
-        metricsRefreshRate: 3000,
         impressionsRefreshRate: 3000
       },
       storage: {
@@ -481,7 +476,6 @@ export default function (fetchMock, assert) {
       scheduler: {
         featuresRefreshRate: 3.1,
         segmentsRefreshRate: 1,
-        metricsRefreshRate: 3000,
         impressionsRefreshRate: 3000
       },
       storage: {
@@ -529,7 +523,6 @@ export default function (fetchMock, assert) {
       scheduler: {
         featuresRefreshRate: 3.1,
         segmentsRefreshRate: 1,
-        metricsRefreshRate: 3000,
         impressionsRefreshRate: 3000
       },
       storage: {
@@ -581,7 +574,6 @@ export default function (fetchMock, assert) {
       scheduler: {
         featuresRefreshRate: 3.1,
         segmentsRefreshRate: 1,
-        metricsRefreshRate: 3000,
         impressionsRefreshRate: 3000
       },
       storage: {
@@ -629,7 +621,6 @@ export default function (fetchMock, assert) {
       scheduler: {
         featuresRefreshRate: 3.1,
         segmentsRefreshRate: 1,
-        metricsRefreshRate: 3000,
         impressionsRefreshRate: 3000
       },
       storage: {
@@ -680,7 +671,6 @@ export default function (fetchMock, assert) {
       scheduler: {
         featuresRefreshRate: 3.1,
         segmentsRefreshRate: 1,
-        metricsRefreshRate: 3000,
         impressionsRefreshRate: 3000
       },
       storage: {
