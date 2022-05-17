@@ -49,7 +49,6 @@ const settingsGenerator = mockFileName => {
       offlineRefreshRate: 0.3
     },
     startup: {
-      eventsFirstPushWindow: 0,
       readyTimeout: 3,
       retriesOnFailureBeforeReady: 0
     },

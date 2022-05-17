@@ -13,7 +13,7 @@ const config = {
     authorizationKey: '<fake-token-2>'
   },
   scheduler: {
-    featuresRefreshRate: 99999
+    telemetryRefreshRate: 60
   },
   urls: baseUrls,
   streamingEnabled: false
@@ -30,7 +30,8 @@ export default async function telemetryNodejsSuite(key, fetchMock, assert) {
   fetchMock.postOnce(url(config, '/events/bulk'), 200);
 
   const splitio = SplitFactory(config, ({ settings }) => {
-    settings.scheduler.telemetryRefreshRate = 1000; // set below minimum
+    assert.equal(settings.scheduler.telemetryRefreshRate, 60000);
+    settings.scheduler.telemetryRefreshRate = 1000; // set below minimum to validate matrics/usage requests
   });
   const client = splitio.client();
 

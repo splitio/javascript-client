@@ -23,14 +23,9 @@ const config = {
   scheduler: {
     featuresRefreshRate: 0.1,
     segmentsRefreshRate: 0.1,
-    telemetryRefreshRate: 3000,
-    impressionsRefreshRate: 3000,
     pushRetryBackoffBase: 0.01 // small value to assert rapidly that push is not retried
   },
   urls: baseUrls,
-  startup: {
-    eventsFirstPushWindow: 3000
-  },
   streamingEnabled: true,
   // debug: true,
 };

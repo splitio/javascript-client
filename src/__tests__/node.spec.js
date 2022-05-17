@@ -26,7 +26,6 @@ const config = {
   scheduler: {
     featuresRefreshRate: 1,
     segmentsRefreshRate: 1,
-    telemetryRefreshRate: 3000, // for now I don't want to publish telemetry stats during E2E run.
     impressionsRefreshRate: 3000  // for now I don't want to publish impressions during E2E run.
   },
   streamingEnabled: false

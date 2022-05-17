@@ -13,7 +13,7 @@ const config = {
     key: 'user-key'
   },
   scheduler: {
-    featuresRefreshRate: 99999
+    telemetryRefreshRate: 60
   },
   urls: baseUrls,
   streamingEnabled: false
@@ -33,7 +33,8 @@ export default async function telemetryBrowserSuite(fetchMock, assert) {
   // Overwrite Math.random to instantiate factory with telemetry
   const originalMathRandom = Math.random; Math.random = () => 0.001;
   const splitio = SplitFactory(config, ({ settings }) => {
-    settings.scheduler.telemetryRefreshRate = 1000; // set below minimum
+    assert.equal(settings.scheduler.telemetryRefreshRate, 60000);
+    settings.scheduler.telemetryRefreshRate = 1000; // set below minimum to validate matrics/usage requests
   });
   Math.random = originalMathRandom; // restore
 
