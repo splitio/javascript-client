@@ -27,13 +27,9 @@ const config = {
   scheduler: {
     featuresRefreshRate: 1,
     segmentsRefreshRate: 1,
-    telemetryRefreshRate: 3000,
     impressionsRefreshRate: 5 // No effect, since min is 300
   },
   urls: baseUrls,
-  startup: {
-    eventsFirstPushWindow: 3000
-  },
   streamingEnabled: false
 };
 

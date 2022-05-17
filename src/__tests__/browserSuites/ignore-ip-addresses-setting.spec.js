@@ -70,9 +70,6 @@ const configSamples = [
 const postEndpoints = [
   '/events/bulk',
   '/testImpressions/bulk',
-  // @TODO uncomment when telemetry is implemented
-  // '/metrics/times',
-  // '/metrics/counters'
 ];
 
 export default function (fetchMock, assert) {
