@@ -17,7 +17,6 @@ const baseSettings = {
   scheduler: {
     featuresRefreshRate: 1,
     segmentsRefreshRate: 1,
-    metricsRefreshRate: 3000,
     impressionsRefreshRate: 3000,
     eventsPushRate: 3000
   },

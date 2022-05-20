@@ -7,7 +7,7 @@ import evaluationsSuite from './nodeSuites/evaluations.spec';
 import eventsSuite from './nodeSuites/events.spec';
 import impressionsSuite from './nodeSuites/impressions.spec';
 import impressionsSuiteDebug from './nodeSuites/impressions.debug.spec';
-// import metricsSuite from './nodeSuites/metrics.spec';
+import telemetrySuite from './nodeSuites/telemetry.spec';
 import impressionsListenerSuite from './nodeSuites/impressions-listener.spec';
 import expectedTreatmentsSuite from './nodeSuites/expected-treatments.spec';
 import managerSuite from './nodeSuites/manager.spec';
@@ -19,13 +19,6 @@ import fetchSpecificSplits from './nodeSuites/fetch-specific-splits.spec';
 import splitChangesMock1 from './mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from './mocks/splitchanges.since.1457552620999.json';
 
-const settings = settingsFactory({
-  core: {
-    authorizationKey: '<fake-token>'
-  },
-  streamingEnabled: false
-});
-
 const config = {
   core: {
     authorizationKey: '<fake-token-1>'
@@ -33,12 +26,12 @@ const config = {
   scheduler: {
     featuresRefreshRate: 1,
     segmentsRefreshRate: 1,
-    metricsRefreshRate: 3000, // for now I don't want to publish metrics during E2E run.
     impressionsRefreshRate: 3000  // for now I don't want to publish impressions during E2E run.
   },
   streamingEnabled: false
 };
 
+const settings = settingsFactory(config);
 const key = 'facundo@split.io';
 
 fetchMock.get(url(settings, '/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
@@ -54,6 +47,8 @@ fetchMock.get(new RegExp(`${url(settings, '/segmentChanges')}/*`), {
 });
 fetchMock.post(url(settings, '/testImpressions/bulk'), 200);
 fetchMock.post(url(settings, '/testImpressions/count'), 200);
+fetchMock.post(url(settings, '/v1/metrics/config'), 200);
+fetchMock.post(url(settings, '/v1/metrics/usage'), 200);
 
 tape('## Node JS - E2E CI Tests ##', async function (assert) {
   /* Check client evaluations. */
@@ -64,9 +59,8 @@ tape('## Node JS - E2E CI Tests ##', async function (assert) {
   assert.test('E2E / Impressions Debug Mode', impressionsSuiteDebug.bind(null, key, fetchMock));
   assert.test('E2E / Impressions listener', impressionsListenerSuite);
 
-  // /* Check metrics */
-  // @TODO uncomment when telemetry is implemented
-  // assert.test('E2E / Metrics', metricsSuite.bind(null, key, fetchMock));
+  /* Check telemetry */
+  assert.test('E2E / Telemetry', telemetrySuite.bind(null, key, fetchMock));
 
   /* Check events in memory */
   assert.test('E2E / Events', eventsSuite.bind(null, fetchMock));

@@ -11,7 +11,6 @@ const HEADER_SPLITSDKMACHINENAME = 'SplitSDKMachineName';
 // Refresh rates are set to 1 second to finish the test quickly. Otherwise, it would finish in 1 minute (60 seconds is the default value)
 const baseConfig = {
   scheduler: {
-    metricsRefreshRate: 1,
     impressionsRefreshRate: 1,
     eventsPushRate: 1
   },
@@ -71,9 +70,6 @@ const configSamples = [
 const postEndpoints = [
   '/events/bulk',
   '/testImpressions/bulk',
-  // @TODO uncomment when telemetry is implemented
-  // '/metrics/times',
-  // '/metrics/counters'
 ];
 
 export default function (fetchMock, assert) {
