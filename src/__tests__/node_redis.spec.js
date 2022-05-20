@@ -13,6 +13,7 @@ import { KeyBuilderSS } from '@splitsoftware/splitio-commons/src/storages/KeyBui
 import { validatePrefix } from '@splitsoftware/splitio-commons/src/storages/KeyBuilder';
 import { settingsFactory } from '../settings';
 import { nearlyEqual } from './testUtils';
+import { version } from '../../package.json';
 
 const IP_VALUE = ipFunction.address();
 const HOSTNAME_VALUE = osFunction.hostname();
@@ -127,7 +128,7 @@ tape('NodeJS Redis', function (t) {
           assert.deepEqual(trackedImpressionsAndEvents, [14, 2], 'Tracked impressions and events should be stored in Redis');
 
           // Validate stored telemetry
-          exec(`echo "HLEN ${config.storage.prefix}.SPLITIO.telemetry.latencies \n HLEN ${config.storage.prefix}.SPLITIO.telemetry.exceptions \n HGET ${config.storage.prefix}.SPLITIO.telemetry.init ${'nodejs-10.18.3-rc.0'}/${HOSTNAME_VALUE}/${IP_VALUE}" | redis-cli  -p ${redisPort}`, (error, stdout) => {
+          exec(`echo "HLEN ${config.storage.prefix}.SPLITIO.telemetry.latencies \n HLEN ${config.storage.prefix}.SPLITIO.telemetry.exceptions \n HGET ${config.storage.prefix}.SPLITIO.telemetry.init nodejs-${version}/${HOSTNAME_VALUE}/${IP_VALUE}" | redis-cli  -p ${redisPort}`, (error, stdout) => {
             if (error) assert.fail('Redis server should be reachable');
 
             const [latencies, exceptions, configValue] = stdout.split('\n').filter(line => line !== '').map(JSON.parse);

@@ -102,7 +102,7 @@ export default async function telemetryBrowserSuite(fetchMock, assert) {
 
     assert.deepEqual(data, {
       oM: 0, st: 'memory', aF: 1, rF: 0, sE: false,
-      rR: { sp: 99999, se: 60, im: 300, ev: 60, te: 1 } /* override featuresRefreshRate */,
+      rR: { sp: 99999, ms: 60, im: 300, ev: 60, te: 1 } /* override featuresRefreshRate */,
       uO: { s: true, e: true, a: false, st: false, t: true } /* override sdk, events and telemetry URLs */,
       iQ: 30000, eQ: 500, iM: 0, iL: false, hP: false, nR: 1 /* 1 non ready usage */, t: [], i: [], uC: 2 /* Default GRANTED */
     }, 'metrics/config JSON payload should be the expected');
