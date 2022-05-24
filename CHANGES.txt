@@ -1,7 +1,10 @@
 10.19.0 (May 24, 2022)
  - Added `scheduler.telemetryRefreshRate` property to SDK configuration, and deprecated `scheduler.metricsRefreshRate` property.
  - Updated SDK telemetry storage, metrics and updater to be more effective and send less often.
- - Bugfixing - Updated default values for `scheduler.impressionsRefreshRate` config parameter: 300s for OPTIMIZED impression mode and 60s for DEBUG impression mode.
+ - Updated EventSource dependency used for streaming support in NodeJS, to fix vulnerabilities.
+ - Bugfixing - Updated default values for `scheduler.impressionsRefreshRate` config parameter: 300s for OPTIMIZED impression mode and 60s for DEBUG impression mode,
+   in both Browser and NodeJS (previously it was 60s and 300s in Browser and NodeJS respectively, equal for DEBUG and OPTIMIZED impression modes).
+
 
 10.18.2 (May 6, 2022)
  - Bugfixing - Removed "ip" dependency to use an inline copy of it that fixes an error when using it in Node v18 (https://github.com/indutny/node-ip/issues/113).
