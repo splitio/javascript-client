@@ -13,6 +13,7 @@ import { KeyBuilderSS } from '@splitsoftware/splitio-commons/src/storages/KeyBui
 import { validatePrefix } from '@splitsoftware/splitio-commons/src/storages/KeyBuilder';
 import { settingsFactory } from '../settings';
 import { nearlyEqual } from './testUtils';
+import { version } from '../../package.json';
 
 const IP_VALUE = ipFunction.address();
 const HOSTNAME_VALUE = osFunction.hostname();
@@ -119,13 +120,26 @@ tape('NodeJS Redis', function (t) {
         await client.ready(); // promise already resolved
         await client.destroy();
 
+        // Validate stored impressions and events
         exec(`echo "LLEN ${config.storage.prefix}.SPLITIO.impressions \n LLEN ${config.storage.prefix}.SPLITIO.events" | redis-cli  -p ${redisPort}`, (error, stdout) => {
           if (error) assert.fail('Redis server should be reachable');
 
           const trackedImpressionsAndEvents = stdout.split('\n').filter(line => line !== '').map(line => parseInt(line));
           assert.deepEqual(trackedImpressionsAndEvents, [14, 2], 'Tracked impressions and events should be stored in Redis');
-          // close server connection
-          server.close().then(assert.end);
+
+          // Validate stored telemetry
+          exec(`echo "HLEN ${config.storage.prefix}.SPLITIO.telemetry.latencies \n HLEN ${config.storage.prefix}.SPLITIO.telemetry.exceptions \n HGET ${config.storage.prefix}.SPLITIO.telemetry.init nodejs-${version}/${HOSTNAME_VALUE}/${IP_VALUE}" | redis-cli  -p ${redisPort}`, (error, stdout) => {
+            if (error) assert.fail('Redis server should be reachable');
+
+            const [latencies, exceptions, configValue] = stdout.split('\n').filter(line => line !== '').map(JSON.parse);
+
+            assert.true(latencies > 0, 'There are stored latencies');
+            assert.true(exceptions === 0, 'There aren\'t stored exceptions');
+            assert.deepEqual(configValue, { oM: 1, st: 'redis', aF: 1, rF: 0 }, 'There is stored telemetry config');
+
+            // close server connection
+            server.close().then(assert.end);
+          });
         });
       });
   });

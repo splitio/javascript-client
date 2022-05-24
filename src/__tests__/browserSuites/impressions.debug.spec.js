@@ -33,7 +33,6 @@ export default function (fetchMock, assert) {
     scheduler: {
       featuresRefreshRate: 0.5,
       segmentsRefreshRate: 0.5,
-      metricsRefreshRate: 3000,
       impressionsRefreshRate: 3000,
       impressionsQueueSize: 3 // flush impressions when 3 are queued
     },

@@ -3,7 +3,7 @@ import ipFunction from '../../utils/ip';
 import { SplitFactory } from '../../';
 import { settingsFactory } from '../../settings';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
-import { DEBUG, STANDALONE_MODE } from '@splitsoftware/splitio-commons/src/utils/constants';
+import { DEBUG } from '@splitsoftware/splitio-commons/src/utils/constants';
 import { url } from '../testUtils';
 
 // Header keys and expected values. Expected values are obtained with the runtime function evaluated with IPAddressesEnabled in true.
@@ -14,12 +14,6 @@ const HOSTNAME_VALUE = osFunction.hostname();
 
 // Refresh rates are set to 1 second to finish the test quickly. Otherwise, it would finish in 1 minute (60 seconds is the default value)
 const baseConfig = {
-  mode: STANDALONE_MODE,
-  scheduler: {
-    metricsRefreshRate: 1,
-    impressionsRefreshRate: 1,
-    eventsPushRate: 1
-  },
   streamingEnabled: false,
   sync: {
     impressionsMode: DEBUG,
@@ -30,16 +24,16 @@ const baseConfig = {
   },
   urls: {
     sdk: 'https://sdk.split-debug.io/api',
-    events: 'https://events.split-debug.io/api'
+    events: 'https://events.split-debug.io/api',
+    telemetry: 'https://telemetry.split-debug.io/api'
   }
 };
 
 const postEndpoints = [
   '/events/bulk',
   '/testImpressions/bulk',
-  // @TODO uncomment when telemetry is implemented
-  // '/metrics/times',
-  // '/metrics/counters'
+  '/v1/metrics/usage',
+  '/v1/metrics/config'
 ];
 
 export default function ipAddressesSettingAssertions(fetchMock, assert) {
@@ -63,7 +57,12 @@ export default function ipAddressesSettingAssertions(fetchMock, assert) {
         assertImpression(impression);
       }
     };
-    const splitio = SplitFactory(config);
+    const splitio = SplitFactory(config, ({ settings }) => {
+      // Refresh rates are set to 1 second (below minimum values) to finish the test quickly. Otherwise, it would finish in 1 minute (60 seconds is the default value)
+      settings.scheduler.impressionsRefreshRate = 1000;
+      settings.scheduler.eventsPushRate = 1000;
+      settings.scheduler.telemetryRefreshRate = 1000;
+    });
     const client = splitio.client();
     const settings = settingsFactory(config);
 

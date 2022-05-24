@@ -46,11 +46,9 @@ const settingsGenerator = mockFileName => {
     scheduler: {
       impressionsRefreshRate: 0.01,
       eventsPushRate: 0.01,
-      metricsRefreshRate: 0.01,
       offlineRefreshRate: 0.3
     },
     startup: {
-      eventsFirstPushWindow: 0,
       readyTimeout: 3,
       retriesOnFailureBeforeReady: 0
     },
