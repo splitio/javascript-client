@@ -478,6 +478,7 @@ let fullBrowserSettings: SplitIO.IBrowserSettings = {
     impressionsRefreshRate: 1,
     impressionsQueueSize: 1,
     metricsRefreshRate: 1,
+    telemetryRefreshRate: 1,
     segmentsRefreshRate: 1,
     offlineRefreshRate: 1,
     eventsPushRate: 1,
@@ -494,7 +495,8 @@ let fullBrowserSettings: SplitIO.IBrowserSettings = {
     sdk: 'https://asd.com/sdk',
     events: 'https://asd.com/events',
     auth: 'https://asd.com/auth',
-    streaming: 'https://asd.com/streaming'
+    streaming: 'https://asd.com/streaming',
+    telemetry: 'https://asd.com/telemetry'
   },
   features: mockedFeaturesMap,
   storage: {
@@ -527,6 +529,7 @@ let fullNodeSettings: SplitIO.INodeSettings = {
     impressionsRefreshRate: 1,
     impressionsQueueSize: 1,
     metricsRefreshRate: 1,
+    telemetryRefreshRate: 1,
     segmentsRefreshRate: 1,
     offlineRefreshRate: 1,
     eventsPushRate: 1,
@@ -543,7 +546,8 @@ let fullNodeSettings: SplitIO.INodeSettings = {
     sdk: 'https://asd.com/sdk',
     events: 'https://asd.com/events',
     auth: 'https://asd.com/auth',
-    streaming: 'https://asd.com/streaming'
+    streaming: 'https://asd.com/streaming',
+    telemetry: 'https://asd.com/telemetry'
   },
   features: mockedFeaturesPath,
   storage: {
@@ -572,6 +576,7 @@ let fullAsyncSettings: SplitIO.INodeAsyncSettings = {
     impressionsRefreshRate: 1,
     impressionsQueueSize: 1,
     metricsRefreshRate: 1,
+    telemetryRefreshRate: 1,
     segmentsRefreshRate: 1,
     offlineRefreshRate: 1,
     eventsPushRate: 1,

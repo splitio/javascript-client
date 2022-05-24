@@ -56,7 +56,6 @@ tape('Browser offline mode', function (assert) {
     scheduler: {
       impressionsRefreshRate: 0.01,
       eventsPushRate: 0.01,
-      metricsRefreshRate: 0.01,
       offlineRefreshRate: 0.19
     },
     startup: {

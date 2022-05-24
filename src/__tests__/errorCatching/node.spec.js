@@ -24,7 +24,8 @@ const settings = settingsFactory({
 fetchMock.get(url(settings, '/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 }, responseDelay);
 fetchMock.get(url(settings, '/splitChanges?since=1500492097547'), { status: 200, body: splitChangesMock2 }, responseDelay);
 fetchMock.get(url(settings, '/splitChanges?since=1500492297547'), { status: 200, body: splitChangesMock3 }, responseDelay);
-
+fetchMock.postOnce(url(settings, '/v1/metrics/config'), 200); // SDK_READY
+fetchMock.postOnce(url(settings, '/v1/metrics/usage'), 200); // SDK destroyed
 
 tape('Error catching on callbacks', assert => {
   const assertionsPlanned = 3;
@@ -40,7 +41,7 @@ tape('Error catching on callbacks', assert => {
     scheduler: {
       featuresRefreshRate: 2,
       segmentsRefreshRate: 10000,
-      metricsRefreshRate: 10000,
+      telemetryRefreshRate: 10000,
       impressionsRefreshRate: 10000,
       eventsPushRate: 10000
     },

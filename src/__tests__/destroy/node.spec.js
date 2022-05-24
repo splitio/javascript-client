@@ -19,6 +19,7 @@ import impressionsMock from './impressions.json';
 
 fetchMock.get(url(settings, '/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
 fetchMock.get(url(settings, '/splitChanges?since=-1500492097547'), { status: 200, body: splitChangesMock2 });
+fetchMock.postOnce(url(settings, '/v1/metrics/config'), 200);
 
 tape('SDK destroy for NodeJS', async function (assert) {
   const config = {
@@ -70,6 +71,15 @@ tape('SDK destroy for NodeJS', async function (assert) {
 
     assert.equal(firstEvent.key, 'nicolas.zelaya@gmail.com', 'The flushed events should match the events on the queue.');
     assert.equal(firstEvent.eventTypeId, 'validEventType', 'The flushed events should match the events on the queue.');
+
+    return 200;
+  });
+
+  // Assert we are sending telemetry stats while doing the destroy
+  fetchMock.postOnce(url(settings, '/v1/metrics/usage'), (url, opts) => {
+    const payload = JSON.parse(opts.body);
+
+    assert.true(payload.sL > 0, 'Should flush telemetry stats with session length on destroy.');
 
     return 200;
   });
