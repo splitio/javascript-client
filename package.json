@@ -41,7 +41,7 @@
     "unfetch": "^4.2.0"
   },
   "optionalDependencies": {
-    "eventsource": "^1.0.7"
+    "eventsource": "^2.0.2"
   },
   "devDependencies": {
     "@types/node-fetch": "^2.5.12",
