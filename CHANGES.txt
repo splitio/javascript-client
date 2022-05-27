@@ -1,3 +1,6 @@
+11.0.0 (May XX, 2022)
+ - BREAKING CHANGE FOR NODEJS: NodeJS >= v12.0.0 is required. Updated EventSource dependency for vulnerability fixes (Related to issues https://github.com/splitio/javascript-client/issues/665 and https://github.com/splitio/javascript-client/issues/677).
+
 10.19.0 (May 24, 2022)
  - Added `scheduler.telemetryRefreshRate` property to SDK configuration, and deprecated `scheduler.metricsRefreshRate` property.
  - Updated SDK telemetry storage, metrics and updater to be more effective and send less often.
