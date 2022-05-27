@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio",
-  "version": "10.19.0",
+  "version": "10.19.1-rc.0",
   "description": "Split SDK",
   "files": [
     "README.md",
@@ -28,8 +28,7 @@
   "module": "es/index.js",
   "types": "types",
   "engines": {
-    "npm": ">=3",
-    "node": ">=6"
+    "node": ">= 12.0.0"
   },
   "dependencies": {
     "@splitsoftware/splitio-commons": "1.4.0",
