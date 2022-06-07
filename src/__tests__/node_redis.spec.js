@@ -13,7 +13,6 @@ import { KeyBuilderSS } from '@splitsoftware/splitio-commons/src/storages/KeyBui
 import { validatePrefix } from '@splitsoftware/splitio-commons/src/storages/KeyBuilder';
 import { settingsFactory } from '../settings';
 import { nearlyEqual } from './testUtils';
-import { version } from '../../package.json';
 
 const IP_VALUE = ipFunction.address();
 const HOSTNAME_VALUE = osFunction.hostname();
@@ -120,27 +119,8 @@ tape('NodeJS Redis', function (t) {
         await client.ready(); // promise already resolved
         await client.destroy();
 
-        // Validate stored impressions and events
-        exec(`echo "LLEN ${config.storage.prefix}.SPLITIO.impressions \n LLEN ${config.storage.prefix}.SPLITIO.events" | redis-cli  -p ${redisPort}`, (error, stdout) => {
-          if (error) assert.fail('Redis server should be reachable');
-
-          const trackedImpressionsAndEvents = stdout.split('\n').filter(line => line !== '').map(line => parseInt(line));
-          assert.deepEqual(trackedImpressionsAndEvents, [15, 3], 'Tracked impressions and events should be stored in Redis');
-
-          // Validate stored telemetry
-          exec(`echo "HLEN ${config.storage.prefix}.SPLITIO.telemetry.latencies \n HLEN ${config.storage.prefix}.SPLITIO.telemetry.exceptions \n HGET ${config.storage.prefix}.SPLITIO.telemetry.init nodejs-${version}/${HOSTNAME_VALUE}/${IP_VALUE}" | redis-cli  -p ${redisPort}`, (error, stdout) => {
-            if (error) assert.fail('Redis server should be reachable');
-
-            const [latencies, exceptions, configValue] = stdout.split('\n').filter(line => line !== '').map(JSON.parse);
-
-            assert.true(latencies > 0, 'There are stored latencies');
-            assert.true(exceptions === 0, 'There aren\'t stored exceptions');
-            assert.deepEqual(configValue, { oM: 1, st: 'redis', aF: 1, rF: 0 }, 'There is stored telemetry config');
-
-            // close server connection
-            server.close().then(assert.end);
-          });
-        });
+        // close server connection
+        server.close().then(assert.end);
       });
   });
 
@@ -153,7 +133,7 @@ tape('NodeJS Redis', function (t) {
     const start = Date.now();
     let readyTimestamp;
     let redisServer;
-    assert.plan(18);
+    assert.plan(19);
 
     client.getTreatment('UT_Segment_member', 'always-on').then(treatment => {
       assert.equal(treatment, 'on', 'Evaluations using Redis storage should be correct and resolved once Redis connection is stablished.');
@@ -173,12 +153,10 @@ tape('NodeJS Redis', function (t) {
       const delay = Date.now() - start;
       assert.true(nearlyEqual(delay, readyTimeout * 1000), 'Ready promise must be rejected after 100 millis');
 
-      // Initialize server to emit SDK_READY.
-      // We want to validate SDK readiness behavior here, so `initializeRedisServer` is not called because loading Redis with
-      // data takes a time, and the SDK will be ready but might evaluate with or without data, resulting in tests flakiness.
-      redisServer = new RedisServer(redisPort);
-      redisServer.open().then(async () => {
+      // Initialize server to emit SDK_READY
+      initializeRedisServer().then(async (server) => {
         readyTimestamp = Date.now();
+        redisServer = server;
         try {
           await client.ready();
           assert.fail('Ready promise keeps being rejected until SDK_READY is emitted');
@@ -190,10 +168,11 @@ tape('NodeJS Redis', function (t) {
 
     // subscribe to SDK_READY event to assert regular usage
     client.on(client.Event.SDK_READY, async () => {
-      await client.ready();
-
       const delay = Date.now() - readyTimestamp;
-      assert.true(nearlyEqual(delay, 0, 100), 'SDK_READY event is emitted and Ready promise resolved soon once Redis server is connected');
+      assert.true(nearlyEqual(delay, 0, 100), 'SDK_READY event must be emitted soon once Redis server is connected');
+
+      await client.ready();
+      assert.pass('Ready promise is resolved once SDK_READY is emitted');
 
       // some asserts to test regular usage
       assert.equal(await client.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT'), 'on', 'Evaluations using Redis storage should be correct.');
