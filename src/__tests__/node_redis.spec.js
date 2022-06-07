@@ -173,10 +173,12 @@ tape('NodeJS Redis', function (t) {
       const delay = Date.now() - start;
       assert.true(nearlyEqual(delay, readyTimeout * 1000), 'Ready promise must be rejected after 100 millis');
 
-      // Initialize server to emit SDK_READY
-      initializeRedisServer().then(async (server) => {
+      // Initialize server to emit SDK_READY.
+      // We want to validate SDK readiness behavior here, so `initializeRedisServer` is not called because loading Redis with
+      // data takes a time, and the SDK will be ready but might evaluate with or without data, resulting in tests flakiness.
+      redisServer = new RedisServer(redisPort);
+      redisServer.open().then(async () => {
         readyTimestamp = Date.now();
-        redisServer = server;
         try {
           await client.ready();
           assert.fail('Ready promise keeps being rejected until SDK_READY is emitted');
