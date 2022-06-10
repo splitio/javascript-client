@@ -1,4 +1,4 @@
-10.19.1 (Jun 10, 2022)
+10.19.1 (Jun 13, 2022)
  - Updated eventsource dependecy range to ^1.1.2 to avoid dependency resolution to a vulnerable version of this package as much as possible when combined with other dependencies.
  - Bugfixing - Updated submitters logic, to avoid dropping impressions and events that are being tracked while POST request is pending.
 
