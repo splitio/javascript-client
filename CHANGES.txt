@@ -1,5 +1,5 @@
-10.19.1 (Jun 6, 2022)
-- Updated eventsource dependecy range to ^1.1.1 to avoid dependency resolution to a vulnerable version of this package as much as possible when combined with other dependencies.
+10.19.1 (Jun 10, 2022)
+- Updated eventsource dependecy range to ^1.1.2 to avoid dependency resolution to a vulnerable version of this package as much as possible when combined with other dependencies.
 
 10.19.0 (May 24, 2022)
  - Added `scheduler.telemetryRefreshRate` property to SDK configuration, and deprecated `scheduler.metricsRefreshRate` property.
