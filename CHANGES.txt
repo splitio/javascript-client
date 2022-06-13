@@ -1,5 +1,6 @@
 10.19.1 (Jun 13, 2022)
-- Updated eventsource dependency range to ^1.1.2 to avoid a vulnerability and dependency resolution to a vulnerable version of url-parse transitive dependency.
+ - Updated eventsource dependency range to ^1.1.2 to avoid a vulnerability and dependency resolution to a vulnerable version of url-parse transitive dependency.
+ - Bugfixing - Updated submitters logic, to avoid dropping impressions and events that are being tracked while POST request is pending.
 
 10.19.0 (May 24, 2022)
  - Added `scheduler.telemetryRefreshRate` property to SDK configuration, and deprecated `scheduler.metricsRefreshRate` property.
