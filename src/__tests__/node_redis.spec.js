@@ -156,7 +156,7 @@ tape('NodeJS Redis', function (t) {
     assert.plan(18);
 
     client.getTreatment('UT_Segment_member', 'always-on').then(treatment => {
-      assert.equal(treatment, 'control', 'Evaluations using Redis storage should be resolved once Redis connection is stablished. They resolve to "control" if using Redis without data.');
+      assert.equal(treatment, 'on', 'Evaluations using Redis storage should be correct and resolved once Redis connection is stablished.');
     });
     client.track('nicolas@split.io', 'user', 'test.redis.event', 18).then(result => {
       assert.true(result, 'If the event was succesfully queued the promise will resolve to true once Redis connection is stablished');
@@ -196,8 +196,8 @@ tape('NodeJS Redis', function (t) {
       assert.true(nearlyEqual(delay, 0, 100), 'SDK_READY event is emitted and Ready promise resolved soon once Redis server is connected');
 
       // some asserts to test regular usage
-      assert.equal(await client.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT'), 'control', 'Evaluations resolve to "control" if using Redis without data.');
-      assert.equal(await client.getTreatment('other', 'UT_IN_SEGMENT'), 'control', 'Evaluations resolve to "control" if using Redis without data.');
+      assert.equal(await client.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT'), 'on', 'Evaluations using Redis storage should be correct.');
+      assert.equal(await client.getTreatment('other', 'UT_IN_SEGMENT'), 'off', 'Evaluations using Redis storage should be correct.');
       assert.true(await client.track('nicolas@split.io', 'user', 'test.redis.event', 18), 'If the event was succesfully queued the promise will resolve to true');
       assert.false(await client.track(), 'If the event was NOT succesfully queued the promise will resolve to false');
 
@@ -222,8 +222,8 @@ tape('NodeJS Redis', function (t) {
         assert.pass('SDK_READY event must be emitted');
 
         // some asserts to test regular usage
-        assert.equal(await client2.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT'), 'control', 'Evaluations resolve to "control" if using Redis without data.');
-        assert.equal(await client2.getTreatment('other', 'UT_IN_SEGMENT'), 'control', 'Evaluations resolve to "control" if using Redis without data.');
+        assert.equal(await client2.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT'), 'on', 'Evaluations using Redis storage should be correct.');
+        assert.equal(await client2.getTreatment('other', 'UT_IN_SEGMENT'), 'off', 'Evaluations using Redis storage should be correct.');
         assert.true(await client2.track('nicolas@split.io', 'user', 'test.redis.event', 18), 'If the event was succesfully queued the promise will resolve to true');
         assert.false(await client2.track(), 'If the event was NOT succesfully queued the promise will resolve to false');
 
