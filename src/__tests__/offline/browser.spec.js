@@ -32,8 +32,6 @@ const configMocks = () => {
   fetchMock.mock(url(settings, '/events/bulk'), () => replySpy(spyEventsBulk));
   fetchMock.mock(url(settings, '/testImpressions/bulk'), () => replySpy(spyTestImpressionsBulk));
   fetchMock.mock(url(settings, '/testImpressions/count'), () => replySpy(spyTestImpressionsCount));
-  fetchMock.mock(url(settings, '/metrics/times'), () => replySpy(spyMetricsTimes));
-  fetchMock.mock(url(settings, '/metrics/counters'), () => replySpy(spyMetricsCounters));
   fetchMock.mock('*', () => replySpy(spyAny));
 };
 
