@@ -3,7 +3,7 @@ import { SplitFactory } from '../../';
 import { settingsFactory } from '../../settings';
 import { gaSpy, gaTag, addGaTag, removeGaTag } from './gaTestUtils';
 import { url } from '../testUtils';
-import { autoRequireScript } from '@splitsoftware/splitio-commons/src/integrations/ga/GaToSplit';
+import { autoRequire } from '@splitsoftware/splitio-commons/src/integrations/ga/autoRequire';
 
 
 const config = {
@@ -413,9 +413,9 @@ export default function (fetchMock, assert) {
 
   });
 
-  // test 'autoRequire' script placed manually after GA script tag.
-  // The behavior is the same if it is placed before GA script tag, and
-  // also applies for Universal Analytics configured with GTM and gtag.js tags
+  // test 'autoRequire' script placed right after GA script tag.
+  // We get same result if it is placed right before, and also applies for Universal Analytics configured with GTM and gtag.js tags.
+  // If it is executed asynchronously, trackers creation might be missed.
   assert.test(t => {
     fetchMock.postOnce(url(settings, '/events/bulk'), (url, opts) => {
       const resp = JSON.parse(opts.body);
@@ -432,7 +432,7 @@ export default function (fetchMock, assert) {
     });
 
     gaTag();
-    autoRequireScript();
+    autoRequire();
 
     window.ga('create', 'UA-00000000-1', { name: 'tracker1', cookieDomain: 'auto', siteSpeedSampleRate: 0 });
 
@@ -443,50 +443,14 @@ export default function (fetchMock, assert) {
     const factory = SplitFactory({
       ...config,
       integrations: [{
-        type: 'GOOGLE_ANALYTICS_TO_SPLIT'
+        type: 'GOOGLE_ANALYTICS_TO_SPLIT',
+        autoRequire: true
       }],
     });
 
     window.ga('tracker1.send', 'event', 'mycategory', 'myaction2'); // Captured
     window.ga('create', 'UA-00000001-1', 'auto', 'tracker2', { siteSpeedSampleRate: 0 }); // New tracker
     gaSpy(['tracker2'], false);
-    window.ga('tracker2.send', 'event', 'mycategory', 'myaction3'); // Captured
-
-    client = factory.client();
-
-  });
-
-  // test 'autoRequire' flag. The SDK runs the 'autoRequire' script after the GA script tag and before analytics.js executes
-  assert.test(t => {
-    fetchMock.postOnce(url(settings, '/events/bulk'), (url, opts) => {
-      const resp = JSON.parse(opts.body);
-      const sentHitsTracker2 = window.gaSpy.getHits('tracker2');
-      t.equal(resp.length, sentHitsTracker2.length, 'Only tracker2 hits are captured as Split events');
-
-      setTimeout(() => {
-        client.destroy();
-        t.end();
-      });
-      return 200;
-    });
-
-    gaTag();
-
-    // SDK autoRequire is not able to capture hits from trackers which 'create' command is queued before SplitFactory is executed
-    window.ga('create', 'UA-00000000-1', { name: 'tracker1', cookieDomain: 'auto', siteSpeedSampleRate: 0 });
-    window.ga('tracker1.send', 'event', 'mycategory', 'myaction1'); // No captured
-
-    const factory = SplitFactory({
-      ...config,
-      integrations: [{
-        type: 'GOOGLE_ANALYTICS_TO_SPLIT',
-        autoRequire: true,
-      }],
-    });
-
-    window.ga('tracker1.send', 'event', 'mycategory', 'myaction2'); // No captured
-    window.ga('create', 'UA-00000001-1', 'auto', 'tracker2', { siteSpeedSampleRate: 0 }); // New tracker
-    gaSpy(['tracker2']);
     window.ga('tracker2.send', 'event', 'mycategory', 'myaction3'); // Captured
 
     client = factory.client();
