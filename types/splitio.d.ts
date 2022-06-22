@@ -1545,9 +1545,9 @@ declare namespace SplitIO {
      * Get the data of a split in SplitView format.
      * @function split
      * @param {string} splitName The name of the split we wan't to get info of.
-     * @returns {SplitView} The SplitIO.SplitView of the given split.
+     * @returns {SplitView | null} The SplitIO.SplitView of the given split or null if the split is not found.
      */
-    split(splitName: string): SplitView;
+    split(splitName: string): SplitView | null;
   }
   /**
    * Representation of a manager instance with asynchronous storage of the SDK.
