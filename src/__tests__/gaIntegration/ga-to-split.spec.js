@@ -434,7 +434,7 @@ export default function (fetchMock, assert) {
 
     // Run autoRequire iife:
     // require('@splitsoftware/splitio-commons/src/integrations/ga/autoRequire');
-    require('../../../scripts/GaToSplitAutoRequire');
+    require('../../../scripts/ga-to-split-autorequire');
 
     window.ga('create', 'UA-00000000-1', { name: 'tracker1', cookieDomain: 'auto', siteSpeedSampleRate: 0 });
 
