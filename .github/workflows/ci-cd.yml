@@ -50,6 +50,9 @@ jobs:
       - name: npm Build
         run: BUILD_BRANCH=$(echo "${GITHUB_REF#refs/heads/}") BUILD_COMMIT=${{ github.sha }} npm run build
 
+      - name: npm Build GaToSplit auto-require script
+        run: npm run build:gaToSplitAutoRequire
+
       - name: Configure AWS credentials (development)
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/ga_auto_require' }}
         uses: aws-actions/configure-aws-credentials@v1

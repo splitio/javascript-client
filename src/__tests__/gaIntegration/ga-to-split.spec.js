@@ -3,7 +3,6 @@ import { SplitFactory } from '../../';
 import { settingsFactory } from '../../settings';
 import { gaSpy, gaTag, addGaTag, removeGaTag } from './gaTestUtils';
 import { url } from '../testUtils';
-import { autoRequire } from '@splitsoftware/splitio-commons/src/integrations/ga/autoRequire';
 
 
 const config = {
@@ -432,7 +431,10 @@ export default function (fetchMock, assert) {
     });
 
     gaTag();
-    autoRequire();
+
+    // Run autoRequire iife:
+    // require('@splitsoftware/splitio-commons/src/integrations/ga/autoRequire');
+    require('../../../scripts/GaToSplitAutoRequire');
 
     window.ga('create', 'UA-00000000-1', { name: 'tracker1', cookieDomain: 'auto', siteSpeedSampleRate: 0 });
 
