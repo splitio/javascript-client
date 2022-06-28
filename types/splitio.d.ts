@@ -761,9 +761,9 @@ declare namespace SplitIO {
     /**
      * Optional flag to log an error if the `auto-require` script is not detected.
      * The auto-require script automatically requires the `splitTracker` plugin for created trackers,
-     * and should be placed right after your Google Analytics, GTM or gtag.js script tag.
+     * and should be placed right after your Google Analytics, Google Tag Manager or gtag.js script tag.
      *
-     * @see {@link https://help.split.io/hc/en-us/articles/360040838752#google-tag-manager}
+     * @see {@link https://help.split.io/hc/en-us/articles/360040838752#set-up-with-gtm-and-gtag.js}
      *
      * @property {boolean} autoRequire
      * @default false

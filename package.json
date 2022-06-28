@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio",
-  "version": "10.19.2-rc.3",
+  "version": "10.19.2-rc.4",
   "description": "Split SDK",
   "files": [
     "README.md",
@@ -11,7 +11,7 @@
     "types",
     "es",
     "src",
-    "scripts/GaToSplitAutoRequire"
+    "scripts/ga-to-split-autorequire.js"
   ],
   "repository": "splitio/javascript-client",
   "homepage": "https://github.com/splitio/javascript-client#readme",
@@ -84,7 +84,7 @@
     "postbuild-cjs": "cross-env NODE_ENV=cjs node scripts/copy.packages.json.js && ./scripts/build_cjs_replace_imports.sh",
     "build-umd": "webpack --config webpack.dev.js --env branch=$BUILD_BRANCH --env commit_hash=$BUILD_COMMIT && webpack --config webpack.prod.js --env branch=$BUILD_BRANCH --env commit_hash=$BUILD_COMMIT && ./scripts/clean_umd_build.sh",
     "build:npm": "rimraf lib es && npm run build-cjs && npm run build-esm",
-    "build:gaToSplitAutoRequire": "terser ./node_modules/@splitsoftware/splitio-commons/src/integrations/ga/autoRequire.js --output ./scripts/GaToSplitAutoRequire/index.js && cp ./scripts/GaToSplitAutoRequire/index.js umd/GaToSplitAutoRequire.js",
+    "build:ga-to-split-autorequire": "terser ./node_modules/@splitsoftware/splitio-commons/src/integrations/ga/autoRequire.js --output ./scripts/ga-to-split-autorequire.js && cp ./scripts/ga-to-split-autorequire.js umd/ga-to-split-autorequire.js",
     "build": "rimraf lib umd es && npm run build-cjs && npm run build-esm && npm run build-umd",
     "check": "npm run check:lint && npm run check:version",
     "check:lint": "eslint src",
