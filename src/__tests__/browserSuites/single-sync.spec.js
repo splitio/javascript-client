@@ -2,7 +2,6 @@ import { SplitFactory } from '../../';
 import { settingsFactory } from '../../settings';
 import { url } from '../testUtils';
 
-import authPushEnabledNicolas from '../mocks/auth.pushEnabled.nicolas@split.io.json';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
 import mySegmentsNicolasMock2 from '../mocks/mysegments.nicolas@split.io.json';
@@ -10,7 +9,6 @@ import mySegmentsNicolasMock2 from '../mocks/mysegments.nicolas@split.io.json';
 const baseUrls = {
   sdk: 'https://sdk.single-sync/api',
   events: 'https://events.single-sync/api',
-  auth: 'https://auth.single-sync/api'
 };
 const userKey = 'nicolas@split.io';
 const config = {
@@ -36,10 +34,6 @@ const config = {
 const settings = settingsFactory(config);
 
 export default function singleSync(fetchMock, assert) {
-
-  fetchMock.get(url(settings, `/v2/auth?users=${encodeURIComponent(userKey)}`), function () {
-    return { status: 200, body: authPushEnabledNicolas };
-  });
   
   fetchMock.getOnce(url(settings, '/splitChanges?since=-1'), function () {  
     assert.pass('first splitChanges fetch');
@@ -64,7 +58,7 @@ export default function singleSync(fetchMock, assert) {
   splitio = SplitFactory(config);
   client = splitio.client();
   client.on(client.Event.SDK_READY, () => {
-    setTimeout(() => assert.end(), 1000);
+    setTimeout(() => client.destroy().then(() => assert.end()), 1000);
   });
 
 }
