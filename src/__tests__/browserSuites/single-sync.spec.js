@@ -23,6 +23,7 @@ const config = {
     pushRetryBackoffBase: 0.1
   },
   urls: baseUrls,
+  userConsent: 'UNKNOWN',
   startup: {
     eventsFirstPushWindow: 3000
   },
