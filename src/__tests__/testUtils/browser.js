@@ -5,7 +5,6 @@ function triggerEvent(eventName) {
   window.dispatchEvent(event);
 }
 
-// Util method to trigger 'unload' DOM event
 export function triggerUnloadEvent() {
   triggerEvent('unload');
 }
@@ -14,6 +13,7 @@ export function triggerPagehideEvent() {
   triggerEvent('pagehide');
 }
 
-export function triggerVisibilitychangeHidden() {
-  triggerEvent('visibilitychange');
+export function triggerVisibilitychange(state = 'hidden' /* 'hidden' | 'visible' */) {
+  Object.defineProperty(document, 'visibilityState', { value: state, writable: true });
+  window.dispatchEvent(new Event('visibilitychange'));
 }
