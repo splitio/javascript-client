@@ -20,6 +20,7 @@ import useBeaconDebugApiSuite from './browserSuites/use-beacon-api.debug.spec';
 import readyPromiseSuite from './browserSuites/ready-promise.spec';
 import fetchSpecificSplits from './browserSuites/fetch-specific-splits.spec';
 import userConsent from './browserSuites/user-consent.spec';
+import singleSync from './browserSuites/single-sync.spec';
 
 import { settingsFactory } from '../settings';
 
@@ -121,15 +122,17 @@ tape('## E2E CI Tests ##', function(assert) {
   assert.test('E2E / Readiness', readinessSuite.bind(null, fetchMock));
   /* Validate headers for ip and hostname are not sended with requests (ignore setting IPAddressesEnabled) */
   assert.test('E2E / Ignore setting IPAddressesEnabled', ignoreIpAddressesSettingSuite.bind(null, fetchMock));
-  /* Check that impressions and events are sended to backend via Beacon API or Fetch when page unload is triggered. */
-  assert.test('E2E / Use Beacon API (or Fetch if not available) to send remaining impressions and events when browser page is unload', useBeaconApiSuite.bind(null, fetchMock));
-  assert.test('E2E / Use Beacon API DEBUG (or Fetch if not available) to send remaining impressions and events when browser page is unload', useBeaconDebugApiSuite.bind(null, fetchMock));
+  /* Check that impressions and events are sended to backend via Beacon API or Fetch when pagehide/visibilitychange events are triggered. */
+  assert.test('E2E / Use Beacon API (or Fetch if not available) to send remaining impressions and events when browser page is unload or hidden', useBeaconApiSuite.bind(null, fetchMock));
+  assert.test('E2E / Use Beacon API DEBUG (or Fetch if not available) to send remaining impressions and events when browser page is unload or hidden', useBeaconDebugApiSuite.bind(null, fetchMock));
   /* Validate ready from cache behaviour (might be merged into another suite if we end up having simple behavior around it as expected) */
   assert.test('E2E / Readiness from cache', readyFromCache.bind(null, fetchMock));
   /* Validate readiness with ready promises */
   assert.test('E2E / Ready promise', readyPromiseSuite.bind(null, fetchMock));
   /* Validate fetching specific splits */
   assert.test('E2E / Fetch specific splits', fetchSpecificSplits.bind(null, fetchMock));
+  /* Validate single sync */
+  assert.test('E2E / Single sync', singleSync.bind(null, fetchMock));
 
   //If we change the mocks, we need to clear localstorage. Cleaning up after testing ensures "fresh data".
   localStorage.clear();

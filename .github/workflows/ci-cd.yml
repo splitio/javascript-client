@@ -54,14 +54,14 @@ jobs:
         run: npm run build:ga-to-split-autorequire
 
       - name: Configure AWS credentials (development)
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/ga_auto_require' }}
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/development' }}
         uses: aws-actions/configure-aws-credentials@v1
         with:
           role-to-assume: arn:aws:iam::079419646996:role/public-assets
           aws-region: us-east-1
 
       - name: Upload to S3 (development)
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/ga_auto_require' }}
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/development' }}
         run: aws s3 sync $SOURCE_DIR s3://$BUCKET/$DEST_DIR $ARGS
         env:
           BUCKET: split-public-stage
