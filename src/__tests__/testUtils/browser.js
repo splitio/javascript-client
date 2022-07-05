@@ -15,5 +15,5 @@ export function triggerPagehideEvent() {
 
 export function triggerVisibilitychange(state = 'hidden' /* 'hidden' | 'visible' */) {
   Object.defineProperty(document, 'visibilityState', { value: state, writable: true });
-  window.dispatchEvent(new Event('visibilitychange'));
+  document.dispatchEvent(new Event('visibilitychange'));
 }
