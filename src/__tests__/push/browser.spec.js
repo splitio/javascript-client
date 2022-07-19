@@ -9,6 +9,7 @@ import { testRefreshToken } from '../browserSuites/push-refresh-token.spec';
 import { testSplitKillOnReadyFromCache } from '../browserSuites/push-corner-cases.spec';
 
 fetchMock.config.overwriteRoutes = false;
+Math.random = () => 0.5; // SDKs without telemetry
 
 tape('## Browser JS - E2E CI Tests for PUSH ##', function (assert) {
 
