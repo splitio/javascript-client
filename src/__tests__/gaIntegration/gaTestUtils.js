@@ -2,6 +2,9 @@ export const DEFAULT_TRACKER = 't0';
 
 const HIT_FIELDS = ['hitType', 'nonInteraction'];
 const EVENT_FIELDS = ['eventCategory', 'eventAction', 'eventLabel', 'eventValue'];
+const FIELDS = [...HIT_FIELDS, ...EVENT_FIELDS];
+
+let hits = {};
 
 /**
  * Spy ga hits per tracker.
@@ -12,9 +15,9 @@ const EVENT_FIELDS = ['eventCategory', 'eventAction', 'eventLabel', 'eventValue'
  *
  * @see {@link https://developers.google.com/analytics/devguides/collection/analyticsjs/field-reference}
  */
-export function gaSpy(trackerNames = [DEFAULT_TRACKER], fieldNames = [...HIT_FIELDS, ...EVENT_FIELDS]) {
+export function gaSpy(trackerNames = [DEFAULT_TRACKER], resetSpy = true) {
 
-  const hits = {};
+  if (resetSpy) hits = {};
 
   // access ga via its gaAlias, accounting for the possibility that the global command queue
   // has been renamed or not yet defined (analytics.js mutates window[gaAlias] reference)
@@ -31,7 +34,7 @@ export function gaSpy(trackerNames = [DEFAULT_TRACKER], fieldNames = [...HIT_FIE
           trackerToSniff.set('sendHitTask', function (model) {
             originalSendHitTask(model);
             const hit = {};
-            fieldNames.forEach(fieldName => {
+            FIELDS.forEach(fieldName => {
               hit[fieldName] = model.get(fieldName);
             });
             hits[trackerName].push(hit);
