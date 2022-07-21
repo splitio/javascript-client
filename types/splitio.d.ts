@@ -716,7 +716,7 @@ declare namespace SplitIO {
   /**
    * Enable 'Google Analytics to Split' integration, to track Google Analytics hits as Split events.
    *
-   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#integrations}
+   * @see {@link https://help.split.io/hc/en-us/articles/360040838752#google-analytics-to-split}
    */
   interface IGoogleAnalyticsToSplitConfig {
     type: 'GOOGLE_ANALYTICS_TO_SPLIT',
@@ -780,7 +780,7 @@ declare namespace SplitIO {
   /**
    * Enable 'Split to Google Analytics' integration, to track Split impressions and events as Google Analytics hits.
    *
-   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#integrations}
+   * @see {@link https://help.split.io/hc/en-us/articles/360040838752#split-to-google-analytics}
    */
   interface ISplitToGoogleAnalyticsConfig {
     type: 'SPLIT_TO_GOOGLE_ANALYTICS',
