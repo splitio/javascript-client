@@ -11,7 +11,6 @@ import { integrationsManagerFactory } from '@splitsoftware/splitio-commons/src/i
 import { __InLocalStorageMockFactory } from '@splitsoftware/splitio-commons/src/utils/settingsValidation/storage/storageCS';
 import { sdkFactory } from '@splitsoftware/splitio-commons/src/sdkFactory';
 import { LOCALHOST_MODE, STORAGE_LOCALSTORAGE } from '@splitsoftware/splitio-commons/src/utils/constants';
-import { shouldAddPt } from '@splitsoftware/splitio-commons/src/trackers/impressionObserver/utils';
 import { createUserConsentAPI } from '@splitsoftware/splitio-commons/src/consent/sdkUserConsent';
 
 import { settingsFactory } from '../settings/browser';
