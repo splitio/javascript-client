@@ -76,9 +76,8 @@ const MILLIS_THIRD_RETRY_FOR_SPLIT_KILL_EVENT = 2000;
  *    (we destroy the client here, to assert that all scheduled tasks are clean)
  */
 export function testSynchronizationRetries(fetchMock, assert) {
-  // we update the backoff default base, to reduce the time of the test
-  const ORIGINAL_DEFAULT_BASE_MILLIS = Backoff.DEFAULT_BASE_MILLIS;
-  Backoff.DEFAULT_BASE_MILLIS = 100;
+  // Force the backoff base of UpdateWorkers, from 10 secs to 100 ms, to reduce test time
+  Backoff.__TEST__BASE_MILLIS = 100;
 
   assert.plan(17);
   fetchMock.reset();
@@ -196,7 +195,7 @@ export function testSynchronizationRetries(fetchMock, assert) {
     setTimeout(() => {
       Promise.all([otherClientSync.destroy(), client.destroy()]).then(() => {
         assert.equal(client.getTreatment('whitelist'), 'control', 'evaluation returns control if client is destroyed');
-        Backoff.DEFAULT_BASE_MILLIS = ORIGINAL_DEFAULT_BASE_MILLIS;
+        Backoff.__TEST__BASE_MILLIS = undefined;
         assert.end();
       });
     });

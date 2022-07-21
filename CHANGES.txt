@@ -1,3 +1,8 @@
+10.20.1 (July XX, 2022)
+- Updated browser listener to push remaining impressions and events on 'visibilitychange' and 'pagehide' DOM events, instead of 'unload', which is not reliable in mobile and modern Web browsers (See https://developer.chrome.com/blog/page-lifecycle-api/#legacy-lifecycle-apis-to-avoid).
+- Updated the synchronization flow to be more reliable in the event of an edge case generating delay in cache purge propagation, keeping the SDK cache properly synced.
+- Bugfixing - Moved js-yaml dependency from @splitsoftware/splitio-commons to avoid issues in Node v14 when installing third-party dependencies that also uses js-yaml as a transitive dependency (Related to issue https://github.com/splitio/javascript-client/issues/662)
+
 10.20.0 (June 29, 2022)
 - Added a new config option to control the tasks that listen or poll for updates on feature flags and segments, via the new config sync.enabled . Running online Split will always pull the most recent updates upon initialization, this only affects updates fetching on a running instance. Useful when a consistent session experience is a must or to save resources when updates are not being used.
 - Updated telemetry logic to track the anonymous config for user consent flag set to declined or unknown.
