@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio",
-  "version": "10.20.0",
+  "version": "10.21.0",
   "description": "Split SDK",
   "files": [
     "README.md",
@@ -10,7 +10,8 @@
     "lib",
     "types",
     "es",
-    "src"
+    "src",
+    "scripts/ga-to-split-autorequire.js"
   ],
   "repository": "splitio/javascript-client",
   "homepage": "https://github.com/splitio/javascript-client#readme",
@@ -32,11 +33,11 @@
     "node": ">=6"
   },
   "dependencies": {
-    "@splitsoftware/splitio-commons": "1.5.0",
+    "@splitsoftware/splitio-commons": "1.6.1",
     "@types/google.analytics": "0.0.40",
     "@types/ioredis": "^4.28.0",
     "ioredis": "^4.28.0",
-    "js-yaml": "3.13.1",
+    "js-yaml": "^3.13.1",
     "node-fetch": "^2.6.7",
     "unfetch": "^4.2.0"
   },
@@ -83,6 +84,7 @@
     "postbuild-cjs": "cross-env NODE_ENV=cjs node scripts/copy.packages.json.js && ./scripts/build_cjs_replace_imports.sh",
     "build-umd": "webpack --config webpack.dev.js --env branch=$BUILD_BRANCH --env commit_hash=$BUILD_COMMIT && webpack --config webpack.prod.js --env branch=$BUILD_BRANCH --env commit_hash=$BUILD_COMMIT && ./scripts/clean_umd_build.sh",
     "build:npm": "rimraf lib es && npm run build-cjs && npm run build-esm",
+    "build:ga-to-split-autorequire": "terser ./node_modules/@splitsoftware/splitio-commons/src/integrations/ga/autoRequire.js --mangle --output ./scripts/ga-to-split-autorequire.js && cp ./scripts/ga-to-split-autorequire.js umd/ga-to-split-autorequire.js",
     "build": "rimraf lib umd es && npm run build-cjs && npm run build-esm && npm run build-umd",
     "check": "npm run check:lint && npm run check:version",
     "check:lint": "eslint src",

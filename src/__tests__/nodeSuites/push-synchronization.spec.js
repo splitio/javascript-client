@@ -128,7 +128,7 @@ export function testSynchronization(fetchMock, assert) {
         assert.equal(sdkUpdateCount, 5, 'SDK_UPDATE should be emitted 5 times');
         assert.end();
       });
-    }, MILLIS_DESTROY); // destroy client after 0.6 seconds
+    }, MILLIS_DESTROY); // destroy client after 0.7 seconds
   });
 
   // initial auth

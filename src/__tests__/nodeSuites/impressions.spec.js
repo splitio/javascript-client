@@ -101,7 +101,6 @@ export default async function(key, fetchMock, assert) {
 
     return 200;
   });
-  fetchMock.postOnce(url(settings, '/testImpressions/bulk'), 200);
 
   fetchMock.postOnce(url(settings, '/testImpressions/count'), (url, opts) => {
     const data = JSON.parse(opts.body);
