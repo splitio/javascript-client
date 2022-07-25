@@ -1,3 +1,6 @@
+10.21.1 (July 27, 2022)
+- Added missed type definitions `enabled` from `sync`.
+
 10.21.0 (July 22, 2022)
 - Added `autoRequire` configuration option to the Google Analytics to Split integration, which takes care of requiring the splitTracker plugin on trackers dynamically created by Google tag managers (See https://help.split.io/hc/en-us/articles/360040838752#set-up-with-gtm-and-gtag.js).
 - Updated browser listener to push remaining impressions and events on 'visibilitychange' and 'pagehide' DOM events, instead of 'unload', which is not reliable in modern mobile and desktop Web browsers.
