@@ -57,7 +57,7 @@ const MILLIS_DESTROY = 700;
  *  0.6 secs: SPLIT_UPDATE event with new segments -> /splitChanges, /segmentChanges/{newSegments}
  */
 export function testSynchronization(fetchMock, assert) {
-  assert.plan(22);
+  assert.plan(24);
   fetchMock.reset();
   __setEventSource(EventSourceMock);
 
@@ -102,11 +102,14 @@ export function testSynchronization(fetchMock, assert) {
     }, MILLIS_SEGMENT_UPDATE_EVENT); // send a SEGMENT_UPDATE event with a new changeNumber after 0.4 seconds
     setTimeout(() => {
       assert.equal(client.getTreatment(key, 'whitelist'), 'allowed', 'evaluation with not killed Split');
-      client.once(client.Event.SDK_UPDATE, () => {
+      const onUpdateCb = () => {
         const lapse = Date.now() - start;
         assert.true(nearlyEqual(lapse, MILLIS_SPLIT_KILL_EVENT), 'SDK_UPDATE due to SPLIT_KILL event');
         assert.equal(client.getTreatment(key, 'whitelist'), 'not_allowed', 'evaluation with killed Split');
-      });
+      };
+      // SPLIT_KILL triggers two SDK_UPDATE events. The 1st due to `killLocally` and the 2nd due to `/splitChanges` fetch
+      client.once(client.Event.SDK_UPDATE, onUpdateCb);
+      client.once(client.Event.SDK_UPDATE, onUpdateCb);
       eventSourceInstance.emitMessage(splitKillMessage);
     }, MILLIS_SPLIT_KILL_EVENT); // send a SPLIT_KILL event with a new changeNumber after 0.5 seconds
     setTimeout(() => {
