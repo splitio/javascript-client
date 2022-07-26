@@ -1,17 +1,17 @@
 import { BloomFilter } from '@ably/bloomit';
 
-export function getBloomFilter(expectedInsertions = 10000000, errorRate = 0.01) {
+const EXPECTED_INSERTIONS = 10000000;
+const ERROR_RATE = 0.01;
+
+export function bloomFilterFactory(expectedInsertions = EXPECTED_INSERTIONS, errorRate = ERROR_RATE) {
   let filter = BloomFilter.create(expectedInsertions, errorRate);
   
   return {  
   
     add(data) {
-      try {
-        filter.add(data);
-        return true;
-      } catch(error){
-        return false;
-      }
+      if (filter.has(data)) return false;
+      filter.add(data);
+      return true;
     },
   
     contains(data) {

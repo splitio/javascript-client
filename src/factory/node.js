@@ -12,6 +12,7 @@ import { CONSUMER_MODE, LOCALHOST_MODE } from '@splitsoftware/splitio-commons/sr
 
 import { settingsFactory } from '../settings/node';
 import { platform, SignalListener } from '../platform';
+import { bloomFilterFactory } from '../platform/filter/bloomFilter';
 
 const syncManagerOnlineSSFactory = syncManagerOnlineFactory(pollingManagerSSFactory, pushManagerFactory);
 
@@ -45,6 +46,8 @@ function getModules(settings) {
     SignalListener,
 
     impressionsObserverFactory: impressionObserverSSFactory,
+    
+    filterAdapterFactory: bloomFilterFactory
   };
 
   switch (settings.mode) {

@@ -1,9 +1,9 @@
 import tape from 'tape-catch';
-import { getBloomFilter } from '../bloomFilter';
+import { bloomFilterFactory } from '../bloomFilter';
 
 tape('Bloom filter', (assert) => {
   
-  const bloomFilter = getBloomFilter();
+  const bloomFilter = bloomFilterFactory();
   
   assert.true(bloomFilter.add('test1'));
   assert.false(bloomFilter.contains('test2'));
