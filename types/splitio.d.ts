@@ -110,6 +110,7 @@ interface ISettings {
   readonly sync: {
     splitFilters: SplitIO.SplitFilter[],
     impressionsMode: SplitIO.ImpressionsMode,
+    enabled: boolean
   }
   /**
    * User consent status if using in browser. Undefined if using in NodeJS.
@@ -234,6 +235,16 @@ interface ISharedSettings {
      * @default 'OPTIMIZED'
      */
     impressionsMode?: SplitIO.ImpressionsMode,
+    /**
+     * Controls the SDK continuous synchronization flags.
+     *
+     * When `true` a running SDK will process rollout plan updates performed on the UI (default).
+     * When false it'll just fetch all data upon init
+     *
+     * @property {boolean} enabled
+     * @default true
+     */
+    enabled?: boolean
   }
 }
 /**
@@ -716,7 +727,7 @@ declare namespace SplitIO {
   /**
    * Enable 'Google Analytics to Split' integration, to track Google Analytics hits as Split events.
    *
-   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#integrations}
+   * @see {@link https://help.split.io/hc/en-us/articles/360040838752#google-analytics-to-split}
    */
   interface IGoogleAnalyticsToSplitConfig {
     type: 'GOOGLE_ANALYTICS_TO_SPLIT',
@@ -758,6 +769,17 @@ declare namespace SplitIO {
      * If not provided, events are sent using the key and traffic type provided at SDK config
      */
     identities?: Identity[],
+    /**
+     * Optional flag to log an error if the `auto-require` script is not detected.
+     * The auto-require script automatically requires the `splitTracker` plugin for created trackers,
+     * and should be placed right after your Google Analytics, Google Tag Manager or gtag.js script tag.
+     *
+     * @see {@link https://help.split.io/hc/en-us/articles/360040838752#set-up-with-gtm-and-gtag.js}
+     *
+     * @property {boolean} autoRequire
+     * @default false
+     */
+    autoRequire?: boolean,
   }
   /**
    * Object representing the data sent by Split (events and impressions).
@@ -769,7 +791,7 @@ declare namespace SplitIO {
   /**
    * Enable 'Split to Google Analytics' integration, to track Split impressions and events as Google Analytics hits.
    *
-   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#integrations}
+   * @see {@link https://help.split.io/hc/en-us/articles/360040838752#split-to-google-analytics}
    */
   interface ISplitToGoogleAnalyticsConfig {
     type: 'SPLIT_TO_GOOGLE_ANALYTICS',

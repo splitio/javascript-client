@@ -6,8 +6,8 @@ import { DEBUG } from '@splitsoftware/splitio-commons/src/utils/constants';
 import { url } from '../testUtils';
 
 const baseUrls = {
-  sdk: 'https://sdk.baseurl/impressionsSuite',
-  events: 'https://events.baseurl/impressionsSuite'
+  sdk: 'https://sdk.baseurl/impressionsDebugSuite',
+  events: 'https://events.baseurl/impressionsDebugSuite'
 };
 
 const settings = settingsFactory({
@@ -88,7 +88,6 @@ export default async function (key, fetchMock, assert) {
 
     return 200;
   });
-  fetchMock.postOnce(url(settings, '/testImpressions/bulk'), 200);
 
   splitio.Logger.enable();
   evaluationsStart = Date.now();

@@ -8,10 +8,7 @@ import telemetrySuite from './browserSuites/telemetry.spec';
 import impressionsListenerSuite from './browserSuites/impressions-listener.spec';
 import readinessSuite from './browserSuites/readiness.spec';
 import readyFromCache from './browserSuites/ready-from-cache.spec';
-import {
-  withoutBindingTT,
-  bindingTT
-} from './browserSuites/events.spec';
+import { withoutBindingTT, bindingTT } from './browserSuites/events.spec';
 import sharedInstantiationSuite from './browserSuites/shared-instantiation.spec';
 import managerSuite from './browserSuites/manager.spec';
 import ignoreIpAddressesSettingSuite from './browserSuites/ignore-ip-addresses-setting.spec';
@@ -84,7 +81,7 @@ const configInLocalStorage = {
   streamingEnabled: false
 };
 
-tape('## E2E CI Tests ##', function(assert) {
+tape('## E2E CI Tests ##', function (assert) {
   //If we change the mocks, we need to clear localstorage. Cleaning up after testing ensures "fresh data".
   localStorage.clear();
 
@@ -96,6 +93,7 @@ tape('## E2E CI Tests ##', function(assert) {
   fetchMock.get(url(settings, '/mySegments/emmanuel%40split.io'), { status: 200, body: mySegmentsEmmanuel });
   fetchMock.post(url(settings, '/testImpressions/bulk'), 200);
   fetchMock.post(url(settings, '/testImpressions/count'), 200);
+  Math.random = () => 0.5; // SDKs without telemetry
 
   /* Check client evaluations. */
   assert.test('E2E / In Memory', evaluationsSuite.bind(null, configInMemory, fetchMock));

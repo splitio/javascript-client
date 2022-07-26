@@ -456,6 +456,7 @@ let customGoogleAnalyticsToSplitConfig: SplitIO.IGoogleAnalyticsToSplitConfig = 
   mapper: function (model: UniversalAnalytics.Model, defaultMapping: SplitIO.EventData): SplitIO.EventData { return eventDataSample; },
   prefix: 'PREFIX',
   identities: [{ key: 'key1', trafficType: 'tt1' }, { key: 'key2', trafficType: 'tt2' }],
+  autoRequire: true
 };
 let customSplitToGoogleAnalyticsConfig: SplitIO.ISplitToGoogleAnalyticsConfig = {
   type: 'SPLIT_TO_GOOGLE_ANALYTICS',
@@ -509,7 +510,8 @@ let fullBrowserSettings: SplitIO.IBrowserSettings = {
   streamingEnabled: true,
   sync: {
     splitFilters: splitFilters,
-    impressionsMode: 'DEBUG'
+    impressionsMode: 'DEBUG',
+    enabled: true
   },
   userConsent: 'GRANTED'
 };
@@ -559,7 +561,8 @@ let fullNodeSettings: SplitIO.INodeSettings = {
   streamingEnabled: false,
   sync: {
     splitFilters: splitFilters,
-    impressionsMode: 'OPTIMIZED'
+    impressionsMode: 'OPTIMIZED',
+    enabled: true
   }
 };
 fullNodeSettings.storage.type = 'MEMORY';

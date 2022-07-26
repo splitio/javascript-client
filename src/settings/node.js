@@ -1,6 +1,6 @@
 import { settingsValidation } from '@splitsoftware/splitio-commons/src/utils/settingsValidation';
 import { validateLogger } from '@splitsoftware/splitio-commons/src/utils/settingsValidation/logger/builtinLogger';
-import { LocalhostFromFile } from '@splitsoftware/splitio-commons/src/sync/offline/LocalhostFromFile';
+import { LocalhostFromFile } from '../sync/offline/LocalhostFromFile';
 
 import { defaults } from './defaults/node';
 import { validateStorage } from './storage/node';

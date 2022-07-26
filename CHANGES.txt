@@ -1,3 +1,13 @@
+10.21.1 (July 25, 2022)
+- Bugfixing - Added missed type definitions `enabled` from `sync`.
+
+10.21.0 (July 22, 2022)
+- Added `autoRequire` configuration option to the Google Analytics to Split integration, which takes care of requiring the splitTracker plugin on trackers dynamically created by Google tag managers (See https://help.split.io/hc/en-us/articles/360040838752#set-up-with-gtm-and-gtag.js).
+- Updated browser listener to push remaining impressions and events on 'visibilitychange' and 'pagehide' DOM events, instead of 'unload', which is not reliable in modern mobile and desktop Web browsers.
+- Updated the synchronization flow to be more reliable in the event of an edge case generating delay in cache purge propagation, keeping the SDK cache properly synced.
+- Updated some dependencies for vulnerability fixes.
+- Bugfixing - Moved js-yaml dependency from @splitsoftware/splitio-commons to avoid resolution to an incompatible version on certain npm versions when installing third-party dependencies that also define js-yaml as transitive dependency (Related to issue https://github.com/splitio/javascript-client/issues/662).
+
 10.20.0 (June 29, 2022)
 - Added a new config option to control the tasks that listen or poll for updates on feature flags and segments, via the new config sync.enabled . Running online Split will always pull the most recent updates upon initialization, this only affects updates fetching on a running instance. Useful when a consistent session experience is a must or to save resources when updates are not being used.
 - Updated telemetry logic to track the anonymous config for user consent flag set to declined or unknown.

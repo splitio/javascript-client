@@ -7,8 +7,8 @@ import { DEBUG } from '@splitsoftware/splitio-commons/src/utils/constants';
 import { url } from '../testUtils';
 
 const baseUrls = {
-  sdk: 'https://sdk.baseurl/impressionsSuite',
-  events: 'https://events.baseurl/impressionsSuite'
+  sdk: 'https://sdk.baseurl/impressionsDebugSuite',
+  events: 'https://events.baseurl/impressionsDebugSuite'
 };
 
 const settings = settingsFactory({
@@ -83,12 +83,12 @@ export default function (fetchMock, assert) {
     assert.equal(req.headers.SplitSDKImpressionsMode, DEBUG);
     assertPayload(req);
 
-    client.destroy();
-    assert.end();
+    client.destroy().then(() => {
+      assert.end();
+    });
 
     return 200;
   });
-  fetchMock.postOnce(url(settings, '/testImpressions/bulk'), 200);
 
   client.ready().then(() => {
     client.getTreatment('split_with_config');
