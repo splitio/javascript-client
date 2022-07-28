@@ -7,11 +7,11 @@ import sinon from 'sinon';
 import RedisServer from 'redis-server';
 import RedisClient from 'ioredis';
 import { exec } from 'child_process';
-import { SplitFactory } from '../..';
+import { SplitFactory } from '../../index';
 import { merge } from '@splitsoftware/splitio-commons/src/utils/lang';
 import { KeyBuilderSS } from '@splitsoftware/splitio-commons/src/storages/KeyBuilderSS';
 import { validatePrefix } from '@splitsoftware/splitio-commons/src/storages/KeyBuilder';
-import { settingsFactory } from '../../settings/node';
+import { settingsValidator } from '../../settings/node';
 import { nearlyEqual } from '../testUtils';
 import { version } from '../../../package.json';
 
@@ -340,7 +340,7 @@ tape('NodeJS Redis', function (t) {
         for (let config of configs) {
 
           // Redis client and keys required to check Redis store.
-          const setting = settingsFactory(config);
+          const setting = settingsValidator(config);
           const connection = new RedisClient(setting.storage.options.url);
           const keys = new KeyBuilderSS(validatePrefix(setting.storage.prefix));
           const eventKey = keys.buildEventsKey();

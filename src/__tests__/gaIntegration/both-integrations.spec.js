@@ -1,5 +1,5 @@
-import { SplitFactory } from '../../';
-import { settingsFactory } from '../../settings';
+import { SplitFactory } from '../../index';
+import { settingsValidator } from '../../settings';
 import { gaSpy, gaTag } from './gaTestUtils';
 import includes from 'lodash/includes';
 import { DEBUG } from '@splitsoftware/splitio-commons/src/utils/constants';
@@ -25,7 +25,7 @@ const config = {
     impressionsMode: DEBUG,
   }
 };
-const settings = settingsFactory(config);
+const settings = settingsValidator(config);
 
 export default function (fetchMock, assert) {
 
@@ -35,7 +35,9 @@ export default function (fetchMock, assert) {
   assert.test(t => {
     const customHits = [{ hitType: 'pageview' }, { hitType: 'event' }];
 
+    /* [eventType] */
     const splitTrackParams = [['some_event'], ['other_event'], ['another_event']];
+    /* [splitName] */
     const splitGetTreatmentParams = [['hierarchical_splits_test']];
 
     // Generator to synchronize the call of t.end() when both impressions and events endpoints were invoked.

@@ -7,10 +7,10 @@ import splitChangesMock1 from '../mocks/splitChanges.since.-1.till.1500492097547
 import mySegmentsMock from '../mocks/mySegmentsEmpty.json';
 import splitChangesMock2 from '../mocks/splitChanges.since.1500492097547.till.1500492297547.json';
 import splitChangesMock3 from '../mocks/splitChanges.since.1500492297547.json';
-import { SplitFactory } from '../../';
-import { settingsFactory } from '../../settings';
+import { SplitFactory } from '../../index';
+import { settingsValidator } from '../../settings';
 
-const settings = settingsFactory({
+const settings = settingsValidator({
   core: {
     authorizationKey: '<fake-token>'
   },

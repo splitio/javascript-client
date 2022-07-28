@@ -19,6 +19,6 @@ const params = {
   consent: validateConsent,
 };
 
-export function settingsFactory(config) {
+export function settingsValidator(config) {
   return settingsValidation(config, params);
 }

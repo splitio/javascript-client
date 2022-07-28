@@ -2,14 +2,14 @@ import tape from 'tape-catch';
 import sinon from 'sinon';
 import osFunction from 'os';
 import ipFunction from '../../utils/ip';
-import { settingsFactory } from '../node';
+import { settingsValidator } from '../node';
 import { CONSUMER_MODE, NA } from '@splitsoftware/splitio-commons/src/utils/constants';
 
 const IP_VALUE = ipFunction.address();
 const HOSTNAME_VALUE = osFunction.hostname();
 
 tape('SETTINGS / Redis options should be properly parsed', assert => {
-  const settingsWithUrl = settingsFactory({
+  const settingsWithUrl = settingsValidator({
     core: {
       authorizationKey: 'dummy token'
     },
@@ -27,7 +27,7 @@ tape('SETTINGS / Redis options should be properly parsed', assert => {
       prefix: 'test_prefix'
     }
   });
-  const settingsWithoutUrl = settingsFactory({
+  const settingsWithoutUrl = settingsValidator({
     core: {
       authorizationKey: 'dummy token'
     },
@@ -57,18 +57,18 @@ tape('SETTINGS / Redis options should be properly parsed', assert => {
 });
 
 tape('SETTINGS / IPAddressesEnabled should be overwritable and true by default', assert => {
-  const settingsWithIPAddressDisabled = settingsFactory({
+  const settingsWithIPAddressDisabled = settingsValidator({
     core: {
       authorizationKey: 'dummy token',
       IPAddressesEnabled: false
     }
   });
-  const settingsWithIPAddressEnabled = settingsFactory({
+  const settingsWithIPAddressEnabled = settingsValidator({
     core: {
       authorizationKey: 'dummy token'
     }
   });
-  const settingsWithIPAddressDisabledAndConsumerMode = settingsFactory({
+  const settingsWithIPAddressDisabledAndConsumerMode = settingsValidator({
     core: {
       authorizationKey: 'dummy token',
       IPAddressesEnabled: false
@@ -76,7 +76,7 @@ tape('SETTINGS / IPAddressesEnabled should be overwritable and true by default',
     mode: CONSUMER_MODE,
     storage: { type: 'REDIS' }
   });
-  const settingsWithIPAddressEnabledAndConsumerMode = settingsFactory({
+  const settingsWithIPAddressEnabledAndConsumerMode = settingsValidator({
     core: {
       authorizationKey: 'dummy token'
     },
@@ -105,10 +105,10 @@ tape('SETTINGS / Throws exception if no "REDIS" storage is provided in consumer 
   };
 
   assert.throws(() => {
-    settingsFactory(config);
+    settingsValidator(config);
   }, /A REDIS storage is required on consumer mode/);
   assert.throws(() => {
-    settingsFactory({
+    settingsValidator({
       ...config,
       storage: { type: 'invalid type' }
     });
@@ -122,11 +122,11 @@ tape('SETTINGS / Log error and fallback to InMemory storage if no valid storage 
 
 
   const settings = [
-    settingsFactory({
+    settingsValidator({
       core: { authorizationKey: 'localhost' }, // localhost mode
       storage: { type: 'REDIS' }, // 'REDIS' is not a valid storage for standalone and localhost modes
       debug: 'ERROR'
-    }), settingsFactory({
+    }), settingsValidator({
       core: { authorizationKey: 'dummy token' }, // standalone mode
       storage: { type: 'INVALID' },
       debug: 'ERROR'
@@ -145,7 +145,7 @@ tape('SETTINGS / Log error and fallback to InMemory storage if no valid storage 
 });
 
 tape('SETTINGS / Consent is not overwritable in server-side', assert => {
-  const settings = settingsFactory({ userConsent: 'UNKNOWN' });
+  const settings = settingsValidator({ userConsent: 'UNKNOWN' });
 
   assert.equal(settings.userConsent, undefined, 'userConsent cannot be overwritten in NodeJS.');
   assert.end();

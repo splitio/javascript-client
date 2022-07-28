@@ -29,8 +29,8 @@ import { nearlyEqual, mockSegmentChanges, url } from '../testUtils';
 import EventSourceMock, { setMockListener } from '../testUtils/eventSourceMock';
 import { __setEventSource } from '../../platform/getEventSource/node';
 
-import { SplitFactory } from '../../';
-import { settingsFactory } from '../../settings';
+import { SplitFactory } from '../../index';
+import { settingsValidator } from '../../settings';
 
 const key = 'nicolas@split.io';
 
@@ -51,7 +51,7 @@ const config = {
   streamingEnabled: true,
   // debug: true,
 };
-const settings = settingsFactory(config);
+const settings = settingsValidator(config);
 
 const MILLIS_SSE_OPEN = 100;
 const MILLIS_STREAMING_DOWN_OCCUPANCY = MILLIS_SSE_OPEN + 100;

@@ -1,7 +1,7 @@
 import osFunction from 'os';
 import ipFunction from '../../utils/ip';
-import { SplitFactory } from '../../';
-import { settingsFactory } from '../../settings';
+import { SplitFactory } from '../../index';
+import { settingsValidator } from '../../settings';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import { DEBUG } from '@splitsoftware/splitio-commons/src/utils/constants';
 import { url } from '../testUtils';
@@ -64,7 +64,7 @@ export default function ipAddressesSettingAssertions(fetchMock, assert) {
       settings.scheduler.telemetryRefreshRate = 1000;
     });
     const client = splitio.client();
-    const settings = settingsFactory(config);
+    const settings = settingsValidator(config);
 
     // Generator to synchronize the destruction of the client when all the post endpoints where called once.
     const finishConfig = (function* () {

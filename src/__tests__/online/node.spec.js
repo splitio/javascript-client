@@ -1,7 +1,7 @@
 import tape from 'tape-catch';
-import fetchMock from '../testUtils/fetchMock/node';
+import fetchMock from '../testUtils/nodeFetchMock';
 import { url } from '../testUtils';
-import { settingsFactory } from '../../settings/node';
+import { settingsValidator } from '../../settings/node';
 
 import evaluationsSuite from '../nodeSuites/evaluations.spec';
 import eventsSuite from '../nodeSuites/events.spec';
@@ -31,7 +31,7 @@ const config = {
   streamingEnabled: false
 };
 
-const settings = settingsFactory(config);
+const settings = settingsValidator(config);
 const key = 'facundo@split.io';
 
 fetchMock.get(url(settings, '/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });

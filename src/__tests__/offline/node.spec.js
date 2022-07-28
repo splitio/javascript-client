@@ -2,12 +2,12 @@
 import path from 'path';
 import tape from 'tape-catch';
 import sinon from 'sinon';
-import fetchMock from '../testUtils/fetchMock';
+import fetchMock from '../testUtils/nodeFetchMock';
 import { url } from '../testUtils';
-import { SplitFactory } from '../../';
-import { settingsFactory } from '../../settings';
+import { SplitFactory } from '../../index';
+import { settingsValidator } from '../../settings';
 
-const settings = settingsFactory({ core: { key: 'facundo@split.io' } });
+const settings = settingsValidator({ core: { key: 'facundo@split.io' } });
 
 const spySplitChanges = sinon.spy();
 const spySegmentChanges = sinon.spy();

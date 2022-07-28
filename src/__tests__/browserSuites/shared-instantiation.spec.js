@@ -1,14 +1,19 @@
-import { SplitFactory } from '../../';
-import { settingsFactory } from '../../settings';
+import { SplitFactory } from '../../index';
+import { settingsValidator } from '../../settings';
 import { url } from '../testUtils';
-const settings = settingsFactory({
+
+const settings = settingsValidator({
   core: {
     key: 'asd'
   },
   streamingEnabled: false
 });
 
-export default function (startWithTT, fetchMock, assert) {
+/**
+ * @param {boolean} startWithTT whether the SDK settings includes a `core.trafficType` config param or not
+ * @param {boolean} sdkIgnoredTT whether the SDK ignores TT (i.e, clients without bound TT) or not (client with optional bound TT)
+ */
+export default function sharedInstantiationSuite(startWithTT, sdkIgnoresTT, fetchMock, assert) {
   // mocking mySegments endpoints with delays for new clients
   fetchMock.get(url(settings, '/mySegments/emiliano%2Fsplit.io'), { status: 200, body: { mySegments: [] } }, { delay: 100 });
   fetchMock.get(url(settings, '/mySegments/matias%25split.io'), { status: 200, body: { mySegments: [] } }, { delay: 200 });
@@ -37,8 +42,13 @@ export default function (startWithTT, fetchMock, assert) {
 
   assert.throws(factory.client.bind(factory, null), 'Calling factory.client() with a key parameter that is not a valid key should throw.');
   assert.throws(factory.client.bind(factory, {}), 'Calling factory.client() with a key parameter that is not a valid key should throw.');
-  assert.throws(factory.client.bind(factory, 'validKey', null), 'Calling factory.client() with a traffic type parameter that is not a valid should throw.');
-  assert.throws(factory.client.bind(factory, 'validKey', []), 'Calling factory.client() with a traffic type parameter that is not a valid should throw.');
+  if (sdkIgnoresTT) { // JS Browser SDK
+    assert.doesNotThrow(factory.client.bind(factory, 'facundo@split.io', null), 'Calling factory.client() with a traffic type parameter that is not valid shouldn\'t throw because it is ignored.');
+    assert.doesNotThrow(factory.client.bind(factory, 'facundo@split.io', []), 'Calling factory.client() with a traffic type parameter that is not valid shouldn\'t throw because it is ignored.');
+  } else { // JS SDK (Isomorphic)
+    assert.throws(factory.client.bind(factory, 'facundo@split.io', null), 'Calling factory.client() with a traffic type parameter that is not a valid should throw.');
+    assert.throws(factory.client.bind(factory, 'facundo@split.io', []), 'Calling factory.client() with a traffic type parameter that is not a valid should throw.');
+  }
 
   // Used for wrapping up test when we should
   const finished = (function* f() {
@@ -96,28 +106,33 @@ export default function (startWithTT, fetchMock, assert) {
     fetchMock.postOnce(url(settings, '/events/bulk'), (url, opts) => {
       const events = JSON.parse(opts.body);
 
-      assert.equal(events.length, 3, 'Tracked only valid events');
-      assert.equal(events[0].trafficTypeName, `${startWithTT ? 'start' : 'main'}_tt`, 'matching traffic types both binded and provided through client.track()');
-      assert.equal(events[1].trafficTypeName, 'nico_tt', 'matching traffic types both binded and provided through client.track()');
-      assert.equal(events[2].trafficTypeName, 'marcio_tt', 'matching traffic types both binded and provided through client.track()');
+      assert.equal(events.length, sdkIgnoresTT ? 2 : 3, 'Tracked only valid events');
+      assert.equal(events[0].trafficTypeName, `${startWithTT && !sdkIgnoresTT ? 'start' : 'main'}_tt`, 'matching traffic types both binded and provided through client.track()');
+      assert.equal(events[1].trafficTypeName, 'marcio_tt', 'matching traffic types both binded and provided through client.track()');
+      if (!sdkIgnoresTT) assert.equal(events[2].trafficTypeName, 'nico_tt', 'matching traffic types both binded and provided through client.track()');
 
       finished.next();
 
       return 200;
     });
 
-    if (startWithTT) {
+    if (startWithTT && !sdkIgnoresTT) {
       assert.true(mainClient.track('myEvent', 10), 'If we specified the TT via settings, we should be able to track events without passing it as param');
     } else {
       assert.false(mainClient.track('myEvent'), 'If we have not specified TT via settings, it should be required on client.track()');
       assert.true(mainClient.track('main_tt', 'myEvent', 10), 'If we have not specified TT via settings, it should be required on client.track()');
     }
 
-    // Shared instance with TT on instantiation
-    assert.true(nicolasClient.track('nicoEvent', 10), 'If a shared client was created passing both key and TT, the latter gets binded to it so it is not necessary to provide the traffic type to client.track()');
     // Shared instance without TT on instantiation
     assert.false(marcioClient.track('marcioEvent'), 'If a shared client was created passing only key, no traffic type is binded so we need to provide one for client.track()');
     assert.true(marcioClient.track('marcio_tt', 'marcioEvent', 10), 'If a shared client was created passing only key, no traffic type is binded so we need to provide one for client.track()');
+
+    // Shared instance with TT on instantiation
+    if (sdkIgnoresTT) {
+      assert.false(nicolasClient.track('nicoEvent', 10), 'If a shared client was created passing both key and TT but the SDK ignores TT, the latter doesn\'t get binded to it so it is necessary to provide the traffic type to client.track()');
+    } else {
+      assert.true(nicolasClient.track('nicoEvent', 10), 'If a shared client was created passing both key and TT, the latter gets binded to it so it is not necessary to provide the traffic type to client.track()');
+    }
   };
 
   /* Assert initial state */

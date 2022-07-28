@@ -1,5 +1,5 @@
-import { SplitFactory } from '../../';
-import { settingsFactory } from '../../settings';
+import { SplitFactory } from '../../index';
+import { settingsValidator } from '../../settings';
 import { url } from '../testUtils';
 
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
@@ -32,11 +32,11 @@ const config = {
   },
   streamingEnabled: true,
 };
-const settings = settingsFactory(config);
+const settings = settingsValidator(config);
 
 export default function singleSync(fetchMock, assert) {
-  
-  fetchMock.getOnce(url(settings, '/splitChanges?since=-1'), function () {  
+
+  fetchMock.getOnce(url(settings, '/splitChanges?since=-1'), function () {
     assert.pass('first splitChanges fetch');
     return { status: 200, body: splitChangesMock1 };
   });
@@ -44,7 +44,7 @@ export default function singleSync(fetchMock, assert) {
     assert.fail('splitChanges should not be called again');
     return { status: 200, body: splitChangesMock2 };
   });
-  
+
   fetchMock.getOnce(url(settings, '/mySegments/nicolas%40split.io'), function () {
     assert.pass('first mySegments fetch');
     return { status: 200, body: mySegmentsNicolasMock2 };
@@ -53,9 +53,9 @@ export default function singleSync(fetchMock, assert) {
     assert.fail('mySegments should not be called again');
     return { status: 200, body: mySegmentsNicolasMock2 };
   });
-  
+
   let splitio, client = false;
-  
+
   splitio = SplitFactory(config);
   client = splitio.client();
   client.on(client.Event.SDK_READY, () => {

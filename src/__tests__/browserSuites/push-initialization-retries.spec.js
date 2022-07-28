@@ -6,11 +6,9 @@ import authPushBadToken from '../mocks/auth.pushBadToken.json';
 import mySegmentsNicolasMock from '../mocks/mysegments.nicolas@split.io.json';
 
 import { nearlyEqual, url } from '../testUtils';
-
 import EventSourceMock, { setMockListener } from '../testUtils/eventSourceMock';
-
-import { SplitFactory } from '../../';
-import { settingsFactory } from '../../settings';
+import { SplitFactory } from '../../index';
+import { settingsValidator } from '../../settings';
 
 const baseUrls = {
   sdk: 'https://sdk.push-initialization-retries/api',
@@ -36,7 +34,7 @@ const config = {
   streamingEnabled: true,
   // debug: true,
 };
-const settings = settingsFactory(config);
+const settings = settingsValidator(config);
 
 /**
  * Sequence of calls:
@@ -67,7 +65,6 @@ export function testPushRetriesDueToAuthErrors(fetchMock, assert) {
   fetchMock.get({ url: url(settings, '/mySegments/nicolas%40split.io'), repeat: 4 }, { status: 200, body: mySegmentsNicolasMock });
 
   fetchMock.getOnce(url(settings, '/splitChanges?since=-1'), function () {
-    console.log('split changes');
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, 0), 'initial sync');
     return { status: 200, body: splitChangesMock1 };

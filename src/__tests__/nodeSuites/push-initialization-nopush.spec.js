@@ -1,5 +1,5 @@
-import { SplitFactory } from '../../';
-import { settingsFactory } from '../../settings';
+import { SplitFactory } from '../../index';
+import { settingsValidator } from '../../settings';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
 import authPushDisabled from '../mocks/auth.pushDisabled.json';
@@ -7,7 +7,6 @@ import authPushEnabled from '../mocks/auth.pushEnabled.node.json';
 import authInvalidCredentials from '../mocks/auth.invalidCredentials.txt';
 import authNoUserSpecified from '../mocks/auth.noUserSpecified.txt';
 import { nearlyEqual, url } from '../testUtils';
-
 import { __setEventSource, __restore } from '../../platform/getEventSource/node';
 import EventSourceMock, { setMockListener } from '../testUtils/eventSourceMock';
 
@@ -29,7 +28,7 @@ const config = {
   streamingEnabled: true,
   // debug: true,
 };
-const settings = settingsFactory(config);
+const settings = settingsValidator(config);
 
 /**
  * Sequence of calls:

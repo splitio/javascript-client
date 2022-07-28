@@ -1,8 +1,8 @@
 import tape from 'tape-catch';
-import { settingsFactory } from '../browser';
+import { settingsValidator } from '../browser';
 
 tape('SETTINGS / Integrations should be properly parsed', assert => {
-  const settings = settingsFactory({
+  const settings = settingsValidator({
     core: {
       authorizationKey: 'dummy token'
     },
@@ -21,7 +21,7 @@ tape('SETTINGS / Integrations should be properly parsed', assert => {
     { type: 'SPLIT_TO_GOOGLE_ANALYTICS', prefix: 'prefix3' }
   ], 'Filters invalid integrations from `integrations` array');
 
-  assert.deepEqual(settingsFactory({
+  assert.deepEqual(settingsValidator({
     core: {
       authorizationKey: 'dummy token'
     },
@@ -32,16 +32,16 @@ tape('SETTINGS / Integrations should be properly parsed', assert => {
 });
 
 tape('SETTINGS / Consent is overwritable and "GRANTED" by default in client-side', assert => {
-  let settings = settingsFactory({});
+  let settings = settingsValidator({});
   assert.equal(settings.userConsent, 'GRANTED', 'userConsent defaults to granted if not provided.');
 
-  settings = settingsFactory({ userConsent: 'INVALID-VALUE' });
+  settings = settingsValidator({ userConsent: 'INVALID-VALUE' });
   assert.equal(settings.userConsent, 'GRANTED', 'userConsent defaults to granted if a wrong value is provided.');
 
-  settings = settingsFactory({ userConsent: 'UNKNOWN' });
+  settings = settingsValidator({ userConsent: 'UNKNOWN' });
   assert.equal(settings.userConsent, 'UNKNOWN', 'userConsent can be overwritten.');
 
-  settings = settingsFactory({ userConsent: 'declined' });
+  settings = settingsValidator({ userConsent: 'declined' });
   assert.equal(settings.userConsent, 'DECLINED', 'userConsent can be overwritten.');
 
   assert.end();

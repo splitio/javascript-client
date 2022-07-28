@@ -14,7 +14,7 @@ import { LOCALHOST_MODE, STORAGE_LOCALSTORAGE } from '@splitsoftware/splitio-com
 import { shouldAddPt } from '@splitsoftware/splitio-commons/src/trackers/impressionObserver/utils';
 import { createUserConsentAPI } from '@splitsoftware/splitio-commons/src/consent/sdkUserConsent';
 
-import { settingsFactory } from '../settings/browser';
+import { settingsValidator } from '../settings/browser';
 import { platform, SignalListener } from '../platform';
 
 const syncManagerOnlineCSFactory = syncManagerOnlineFactory(pollingManagerCSFactory, pushManagerFactory);
@@ -81,7 +81,7 @@ function getModules(settings) {
  * @throws Will throw an error if the provided config is invalid.
  */
 export function SplitFactory(config, __updateModules) {
-  const settings = settingsFactory(config);
+  const settings = settingsValidator(config);
   const modules = getModules(settings);
   if (__updateModules) __updateModules(modules);
   return sdkFactory(modules);

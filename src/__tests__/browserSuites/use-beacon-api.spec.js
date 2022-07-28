@@ -1,10 +1,10 @@
 import sinon from 'sinon';
-import { SplitFactory } from '../../';
-import { settingsFactory } from '../../settings';
+import { SplitFactory } from '../../index';
+import { settingsValidator } from '../../settings';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import mySegmentsFacundo from '../mocks/mysegments.facundo@split.io.json';
-import { url } from '../testUtils';
 import { OPTIMIZED } from '@splitsoftware/splitio-commons/src/utils/constants';
+import { url } from '../testUtils';
 import { triggerPagehideEvent, triggerVisibilitychange } from '../testUtils/browser';
 
 const config = {
@@ -19,7 +19,7 @@ const config = {
   streamingEnabled: false
 };
 
-const settings = settingsFactory(config);
+const settings = settingsValidator(config);
 
 // Spy calls to Beacon API method
 let sendBeaconSpy;
@@ -142,7 +142,6 @@ function fallbackTest(fetchMock, assert) {
   const finish = (function* () {
     yield;
     yield;
-    // @TODO review why we must destroy client in a different event-loop cycle, compared to axios-mock-adapter
     setTimeout(function () {
       client.destroy().then(function () {
         sendBeaconSpy.restore();

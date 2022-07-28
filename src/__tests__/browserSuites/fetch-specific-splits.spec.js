@@ -1,6 +1,5 @@
-import { SplitFactory } from '../../';
+import { SplitFactory } from '../../index';
 import { splitFilters, queryStrings, groupedFilters } from '../mocks/fetchSpecificSplits';
-// import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 
 const baseConfig = {
   core: {

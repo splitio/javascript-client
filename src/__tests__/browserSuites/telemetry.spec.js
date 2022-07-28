@@ -1,4 +1,4 @@
-import { SplitFactory } from '../../';
+import { SplitFactory } from '../../index';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 
 const baseUrls = {

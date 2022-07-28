@@ -1,12 +1,12 @@
 import tape from 'tape-catch';
 import map from 'lodash/map';
 import pick from 'lodash/pick';
-import fetchMock from '../testUtils/fetchMock';
+import fetchMock from '../testUtils/nodeFetchMock';
 import { url } from '../testUtils';
-import { SplitFactory } from '../../';
-import { settingsFactory } from '../../settings';
+import { SplitFactory } from '../../index';
+import { settingsValidator } from '../../settings';
 
-const settings = settingsFactory({
+const settings = settingsValidator({
   core: {
     key: 'facundo@split.io'
   },

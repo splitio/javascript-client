@@ -2,11 +2,10 @@ import tape from 'tape-catch';
 import sinon from 'sinon';
 import fetchMock from '../testUtils/fetchMock';
 import { url } from '../testUtils';
-import { SplitFactory } from '../../';
-import { settingsFactory } from '../../settings';
-import { STORAGE_MEMORY } from '@splitsoftware/splitio-commons/src/utils/constants';
+import { SplitFactory } from '../../index';
+import { settingsValidator } from '../../settings';
 
-const settings = settingsFactory({ core: { key: 'facundo@split.io' } });
+const settings = settingsValidator({ core: { key: 'facundo@split.io' } });
 
 const spySplitChanges = sinon.spy();
 const spySegmentChanges = sinon.spy();
@@ -111,10 +110,11 @@ tape('Browser offline mode', function (assert) {
     });
 
     const sdkReadyFromCache = (client) => () => {
-      assert.equal(factory.settings.storage.type, STORAGE_MEMORY, 'In localhost mode, storage must fallback to memory storage');
+      assert.equal(factory.settings.storage.type, 'MEMORY', 'In localhost mode, storage must fallback to memory storage');
 
-      assert.equal(client.__getStatus().isReadyFromCache, true, 'If ready from cache, READY_FROM_CACHE status must be true');
-      assert.equal(client.__getStatus().isReady, false, 'READY status must not be set before READY_FROM_CACHE');
+      const clientStatus = client.__getStatus();
+      assert.equal(clientStatus.isReadyFromCache, true, 'If ready from cache, READY_FROM_CACHE status must be true');
+      assert.equal(clientStatus.isReady, false, 'READY status must not be set before READY_FROM_CACHE');
 
       assert.deepEqual(manager.names(), ['testing_split', 'testing_split_with_config']);
       assert.equal(client.getTreatment('testing_split_with_config'), 'off');

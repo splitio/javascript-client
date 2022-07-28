@@ -32,8 +32,8 @@ import { nearlyEqual, url } from '../testUtils';
 import EventSourceMock, { setMockListener } from '../testUtils/eventSourceMock';
 window.EventSource = EventSourceMock;
 
-import { SplitFactory } from '../../';
-import { settingsFactory } from '../../settings';
+import { SplitFactory } from '../../index';
+import { settingsValidator } from '../../settings';
 
 const userKey = 'nicolas@split.io';
 const secondUserKey = 'marcio@split.io';
@@ -57,7 +57,7 @@ const config = {
   streamingEnabled: true,
   // debug: true,
 };
-const settings = settingsFactory(config);
+const settings = settingsValidator(config);
 
 const MILLIS_SSE_OPEN = 100;
 const MILLIS_STREAMING_DOWN_OCCUPANCY = MILLIS_SSE_OPEN + 100;
@@ -106,9 +106,7 @@ export function testFallbacking(fetchMock, assert) {
   assert.plan(20);
   fetchMock.reset();
 
-  let start, splitio, client;
-  // eslint-disable-next-line no-unused-vars
-  let secondClient;
+  let start, splitio, client, secondClient;
 
   // mock SSE open and message events
   setMockListener((eventSourceInstance) => {
@@ -194,7 +192,7 @@ export function testFallbacking(fetchMock, assert) {
                 }, MILLIS_STREAMING_DISABLED_CONTROL - MILLIS_STREAMING_RESET_WHILE_PUSH_UP); // send a CONTROL event for disabling push and switching to polling
 
                 setTimeout(() => {
-                  client.destroy().then(() => {
+                  Promise.all([secondClient.destroy(), client.destroy()]).then(() => {
                     assert.pass('client destroyed');
                   });
                 }, MILLIS_DESTROY - MILLIS_STREAMING_RESET_WHILE_PUSH_UP); // destroy client
