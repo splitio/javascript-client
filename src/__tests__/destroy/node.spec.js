@@ -13,9 +13,9 @@ const settings = settingsFactory({
   streamingEnabled: false
 });
 
-import splitChangesMock1 from './splitChanges.since.-1.json';
-import splitChangesMock2 from './splitChanges.since.1500492097547.json';
-import impressionsMock from './impressions.json';
+import splitChangesMock1 from '../mocks/splitChanges.since.-1.till.1500492097547.json';
+import splitChangesMock2 from '../mocks/splitChanges.since.1500492097547.json';
+import impressionsMock from '../mocks/impressions.json';
 
 fetchMock.get(url(settings, '/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
 fetchMock.get(url(settings, '/splitChanges?since=-1500492097547'), { status: 200, body: splitChangesMock2 });

@@ -1,23 +1,23 @@
 import tape from 'tape-catch';
-import fetchMock from './testUtils/fetchMock';
-import { url } from './testUtils';
-import { settingsFactory } from '../settings';
+import fetchMock from '../testUtils/fetchMock/node';
+import { url } from '../testUtils';
+import { settingsFactory } from '../../settings/node';
 
-import evaluationsSuite from './nodeSuites/evaluations.spec';
-import eventsSuite from './nodeSuites/events.spec';
-import impressionsSuite from './nodeSuites/impressions.spec';
-import impressionsSuiteDebug from './nodeSuites/impressions.debug.spec';
-import telemetrySuite from './nodeSuites/telemetry.spec';
-import impressionsListenerSuite from './nodeSuites/impressions-listener.spec';
-import expectedTreatmentsSuite from './nodeSuites/expected-treatments.spec';
-import managerSuite from './nodeSuites/manager.spec';
-import ipAddressesSetting from './nodeSuites/ip-addresses-setting.spec';
-import ipAddressesSettingDebug from './nodeSuites/ip-addresses-setting.debug.spec';
-import readyPromiseSuite from './nodeSuites/ready-promise.spec';
-import fetchSpecificSplits from './nodeSuites/fetch-specific-splits.spec';
+import evaluationsSuite from '../nodeSuites/evaluations.spec';
+import eventsSuite from '../nodeSuites/events.spec';
+import impressionsSuite from '../nodeSuites/impressions.spec';
+import impressionsSuiteDebug from '../nodeSuites/impressions.debug.spec';
+import telemetrySuite from '../nodeSuites/telemetry.spec';
+import impressionsListenerSuite from '../nodeSuites/impressions-listener.spec';
+import expectedTreatmentsSuite from '../nodeSuites/expected-treatments.spec';
+import managerSuite from '../nodeSuites/manager.spec';
+import ipAddressesSetting from '../nodeSuites/ip-addresses-setting.spec';
+import ipAddressesSettingDebug from '../nodeSuites/ip-addresses-setting.debug.spec';
+import readyPromiseSuite from '../nodeSuites/ready-promise.spec';
+import fetchSpecificSplits from '../nodeSuites/fetch-specific-splits.spec';
 
-import splitChangesMock1 from './mocks/splitchanges.since.-1.json';
-import splitChangesMock2 from './mocks/splitchanges.since.1457552620999.json';
+import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
+import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
 
 const config = {
   core: {

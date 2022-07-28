@@ -1,19 +1,19 @@
 /* eslint-disable no-console */
 
 import osFunction from 'os';
-import ipFunction from '../utils/ip';
+import ipFunction from '../../utils/ip';
 import tape from 'tape';
 import sinon from 'sinon';
 import RedisServer from 'redis-server';
 import RedisClient from 'ioredis';
 import { exec } from 'child_process';
-import { SplitFactory } from '../';
+import { SplitFactory } from '../..';
 import { merge } from '@splitsoftware/splitio-commons/src/utils/lang';
 import { KeyBuilderSS } from '@splitsoftware/splitio-commons/src/storages/KeyBuilderSS';
 import { validatePrefix } from '@splitsoftware/splitio-commons/src/storages/KeyBuilder';
-import { settingsFactory } from '../settings';
-import { nearlyEqual } from './testUtils';
-import { version } from '../../package.json';
+import { settingsFactory } from '../../settings/node';
+import { nearlyEqual } from '../testUtils';
+import { version } from '../../../package.json';
 
 const IP_VALUE = ipFunction.address();
 const HOSTNAME_VALUE = osFunction.hostname();
