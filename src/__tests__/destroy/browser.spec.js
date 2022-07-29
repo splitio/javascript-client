@@ -30,7 +30,6 @@ tape('SDK destroy for BrowserJS', async function (assert) {
       authorizationKey: 'fake-key',
       key: 'ut1'
     },
-    debug: true,
     streamingEnabled: false
   };
 
