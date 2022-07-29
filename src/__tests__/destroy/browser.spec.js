@@ -3,14 +3,14 @@ import fetchMock from '../testUtils/fetchMock';
 import { url } from '../testUtils';
 import map from 'lodash/map';
 import pick from 'lodash/pick';
-import { SplitFactory } from '../../index';
-import { settingsValidator } from '../../settings';
+import { SplitFactory } from '../../';
+import { settingsFactory } from '../../settings';
 import splitChangesMock1 from '../mocks/splitChanges.since.-1.till.1500492097547.json';
 import splitChangesMock2 from '../mocks/splitChanges.since.1500492097547.json';
 import mySegmentsMock from '../mocks/mySegmentsEmpty.json';
 import impressionsMock from '../mocks/impressions.json';
 
-const settings = settingsValidator({
+const settings = settingsFactory({
   core: {
     key: 'facundo@split.io'
   },

@@ -1,5 +1,5 @@
-import { SplitFactory } from '../../index';
-import { settingsValidator } from '../../settings';
+import { SplitFactory } from '../../';
+import { settingsFactory } from '../../settings';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
 import authPushDisabled from '../mocks/auth.pushDisabled.json';
@@ -28,7 +28,7 @@ const config = {
   streamingEnabled: true,
   // debug: true,
 };
-const settings = settingsValidator(config);
+const settings = settingsFactory(config);
 
 /**
  * Sequence of calls:

@@ -32,8 +32,8 @@ import { nearlyEqual, url } from '../testUtils';
 import EventSourceMock, { setMockListener } from '../testUtils/eventSourceMock';
 window.EventSource = EventSourceMock;
 
-import { SplitFactory } from '../../index';
-import { settingsValidator } from '../../settings';
+import { SplitFactory } from '../../';
+import { settingsFactory } from '../../settings';
 
 const userKey = 'nicolas@split.io';
 const secondUserKey = 'marcio@split.io';
@@ -57,7 +57,7 @@ const config = {
   streamingEnabled: true,
   // debug: true,
 };
-const settings = settingsValidator(config);
+const settings = settingsFactory(config);
 
 const MILLIS_SSE_OPEN = 100;
 const MILLIS_STREAMING_DOWN_OCCUPANCY = MILLIS_SSE_OPEN + 100;

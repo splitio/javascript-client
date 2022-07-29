@@ -16,6 +16,6 @@ const params = {
   // In Node.js the SDK ignores `config.integrations`, so a validator for integrations is not required
 };
 
-export function settingsValidator(config) {
+export function settingsFactory(config) {
   return settingsValidation(config, params);
 }

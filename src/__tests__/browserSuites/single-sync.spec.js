@@ -1,5 +1,5 @@
-import { SplitFactory } from '../../index';
-import { settingsValidator } from '../../settings';
+import { SplitFactory } from '../../';
+import { settingsFactory } from '../../settings';
 import { url } from '../testUtils';
 
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
@@ -32,7 +32,7 @@ const config = {
   },
   streamingEnabled: true,
 };
-const settings = settingsValidator(config);
+const settings = settingsFactory(config);
 
 export default function singleSync(fetchMock, assert) {
 

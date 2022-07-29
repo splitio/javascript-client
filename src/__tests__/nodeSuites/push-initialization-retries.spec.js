@@ -7,8 +7,8 @@ import authPushBadToken from '../mocks/auth.pushBadToken.json';
 import { nearlyEqual, url } from '../testUtils';
 import EventSourceMock, { setMockListener } from '../testUtils/eventSourceMock';
 import { __setEventSource } from '../../platform/getEventSource/node';
-import { SplitFactory } from '../../index';
-import { settingsValidator } from '../../settings';
+import { SplitFactory } from '../../';
+import { settingsFactory } from '../../settings';
 
 const baseUrls = {
   sdk: 'https://sdk.push-initialization-retries/api',
@@ -28,7 +28,7 @@ const config = {
   streamingEnabled: true,
   // debug: true,
 };
-const settings = settingsValidator(config);
+const settings = settingsFactory(config);
 
 /**
  * Sequence of calls:

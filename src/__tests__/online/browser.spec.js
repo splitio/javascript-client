@@ -19,7 +19,7 @@ import fetchSpecificSplits from '../browserSuites/fetch-specific-splits.spec';
 import userConsent from '../browserSuites/user-consent.spec';
 import singleSync from '../browserSuites/single-sync.spec';
 
-import { settingsValidator } from '../../settings';
+import { settingsFactory } from '../../settings';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
 import mySegmentsFacundo from '../mocks/mysegments.facundo@split.io.json';
@@ -27,7 +27,7 @@ import mySegmentsNicolas from '../mocks/mysegments.nicolas@split.io.json';
 import mySegmentsMarcio from '../mocks/mysegments.marcio@split.io.json';
 import mySegmentsEmmanuel from '../mocks/mysegments.emmanuel@split.io.json';
 
-const settings = settingsValidator({
+const settings = settingsFactory({
   core: {
     key: 'facundo@split.io'
   },

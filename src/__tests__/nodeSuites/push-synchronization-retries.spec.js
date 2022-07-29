@@ -13,8 +13,8 @@ import { Backoff } from '@splitsoftware/splitio-commons/src/utils/Backoff';
 import EventSourceMock, { setMockListener } from '../testUtils/eventSourceMock';
 import { __setEventSource } from '../../platform/getEventSource/node';
 
-import { SplitFactory } from '../../index';
-import { settingsValidator } from '../../settings';
+import { SplitFactory } from '../../';
+import { settingsFactory } from '../../settings';
 
 const key = 'nicolas@split.io';
 
@@ -31,7 +31,7 @@ const config = {
   streamingEnabled: true,
   // debug: true,
 };
-const settings = settingsValidator(config);
+const settings = settingsFactory(config);
 
 const MILLIS_SSE_OPEN = 100;
 

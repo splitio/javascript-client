@@ -1,6 +1,6 @@
 import sinon from 'sinon';
-import { SplitFactory } from '../../index';
-import { settingsValidator } from '../../settings';
+import { SplitFactory } from '../../';
+import { settingsFactory } from '../../settings';
 import { gaSpy, gaTag, addGaTag, removeGaTag } from './gaTestUtils';
 import { url } from '../testUtils';
 
@@ -17,7 +17,7 @@ const config = {
   },
   streamingEnabled: false
 };
-const settings = settingsValidator(config);
+const settings = settingsFactory(config);
 
 export default function (fetchMock, assert) {
 

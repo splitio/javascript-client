@@ -1,5 +1,5 @@
-import { SplitFactory } from '../../index';
-import { settingsValidator } from '../../settings';
+import { SplitFactory } from '../../';
+import { settingsFactory } from '../../settings';
 import { gaSpy, gaTag } from './gaTestUtils';
 import includes from 'lodash/includes';
 import { DEBUG } from '@splitsoftware/splitio-commons/src/utils/constants';
@@ -25,7 +25,7 @@ const config = {
     impressionsMode: DEBUG,
   }
 };
-const settings = settingsValidator(config);
+const settings = settingsFactory(config);
 
 export default function (fetchMock, assert) {
 

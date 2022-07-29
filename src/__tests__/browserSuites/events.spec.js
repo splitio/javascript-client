@@ -1,8 +1,8 @@
-import { SplitFactory } from '../../index';
-import { settingsValidator } from '../../settings';
+import { SplitFactory } from '../../';
+import { settingsFactory } from '../../settings';
 import { url } from '../testUtils';
 
-const settings = settingsValidator({
+const settings = settingsFactory({
   core: {
     key: 'asd'
   },

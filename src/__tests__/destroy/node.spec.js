@@ -3,10 +3,10 @@ import map from 'lodash/map';
 import pick from 'lodash/pick';
 import fetchMock from '../testUtils/nodeFetchMock';
 import { url } from '../testUtils';
-import { SplitFactory } from '../../index';
-import { settingsValidator } from '../../settings';
+import { SplitFactory } from '../../';
+import { settingsFactory } from '../../settings';
 
-const settings = settingsValidator({
+const settings = settingsFactory({
   core: {
     key: 'facundo@split.io'
   },

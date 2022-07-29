@@ -4,8 +4,8 @@ import includes from 'lodash/includes';
 import fetchMock from '../testUtils/nodeFetchMock';
 import { url } from '../testUtils';
 
-import { SplitFactory } from '../../index';
-import { settingsValidator } from '../../settings';
+import { SplitFactory } from '../../';
+import { settingsFactory } from '../../settings';
 
 import splitChangesMock1 from '../mocks/splitChanges.since.-1.till.1500492097547.json';
 import splitChangesMock2 from '../mocks/splitChanges.since.1500492097547.till.1500492297547.json';
@@ -14,7 +14,7 @@ import splitChangesMock3 from '../mocks/splitChanges.since.1500492297547.json';
 // Option object used to configure mocked routes with a delay of 1.5 seconds.
 const responseDelay = { delay: 1500 };
 
-const settings = settingsValidator({
+const settings = settingsFactory({
   core: {
     authorizationKey: '<fake-token>'
   },

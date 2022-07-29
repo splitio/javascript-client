@@ -1,6 +1,6 @@
 import sinon from 'sinon';
-import { SplitFactory } from '../../index';
-import { settingsValidator } from '../../settings';
+import { SplitFactory } from '../../';
+import { settingsFactory } from '../../settings';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import mySegmentsFacundo from '../mocks/mysegments.facundo@split.io.json';
 import { DEBUG } from '@splitsoftware/splitio-commons/src/utils/constants';
@@ -22,7 +22,7 @@ const config = {
   }
 };
 
-const settings = settingsValidator(config);
+const settings = settingsFactory(config);
 
 // Spy calls to Beacon API method
 let sendBeaconSpyDebug;

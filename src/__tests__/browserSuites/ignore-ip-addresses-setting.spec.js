@@ -1,5 +1,5 @@
-import { SplitFactory } from '../../index';
-import { settingsValidator } from '../../settings';
+import { SplitFactory } from '../../';
+import { settingsFactory } from '../../settings';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import { DEBUG } from '@splitsoftware/splitio-commons/src/utils/constants';
 import { url } from '../testUtils';
@@ -100,7 +100,7 @@ export default function (fetchMock, assert) {
     };
 
     // Mock GET endpoints before creating the client
-    const settings = settingsValidator(config);
+    const settings = settingsFactory(config);
     fetchMock.getOnce(url(settings, '/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
     fetchMock.getOnce(url(settings, '/splitChanges?since=1457552620999'), { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
     fetchMock.getOnce(url(settings, `/mySegments/${encodeURIComponent(config.core.key)}`), { status: 200, body: { mySegments: [] } });

@@ -1,5 +1,5 @@
-import { SplitFactory } from '../../index';
-import { settingsValidator } from '../../settings';
+import { SplitFactory } from '../../';
+import { settingsFactory } from '../../settings';
 import { SDK_NOT_READY } from '@splitsoftware/splitio-commons/src/utils/labels';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
@@ -12,7 +12,7 @@ const baseUrls = {
   events: 'https://events.baseurl/impressionsSuite'
 };
 
-const settings = settingsValidator({
+const settings = settingsFactory({
   core: {
     key: '<fake id>'
   },

@@ -4,10 +4,10 @@ import tape from 'tape-catch';
 import sinon from 'sinon';
 import fetchMock from '../testUtils/nodeFetchMock';
 import { url } from '../testUtils';
-import { SplitFactory } from '../../index';
-import { settingsValidator } from '../../settings';
+import { SplitFactory } from '../../';
+import { settingsFactory } from '../../settings';
 
-const settings = settingsValidator({ core: { key: 'facundo@split.io' } });
+const settings = settingsFactory({ core: { key: 'facundo@split.io' } });
 
 const spySplitChanges = sinon.spy();
 const spySegmentChanges = sinon.spy();
