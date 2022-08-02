@@ -11,6 +11,7 @@
  * @author Nico Zelaya <nicolas.zelaya@split.io>
  */
 
+///<reference types="../types" />
 import { SplitFactory } from '@splitsoftware/splitio';
 
 let stringPromise: Promise<string>;

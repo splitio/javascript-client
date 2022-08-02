@@ -4,9 +4,7 @@
 
 /// <reference path="./splitio.d.ts" />
 
-export = JsSdk;
-
-declare module JsSdk {
+declare module '@splitsoftware/splitio' {
   /**
    * Split.io sdk factory function.
    * The settings parameter should be an object that complies with the SplitIO.INodeAsyncSettings.
