@@ -2,7 +2,7 @@
 // Project: http://www.split.io/
 // Definitions by: Nico Zelaya <https://github.com/NicoZelaya/>
 
-/// <reference path="./splitio.d.ts" />
+/// <reference types="@splitsoftware/splitio-commons/src/splitio" />
 
 declare module '@splitsoftware/splitio' {
   /**
