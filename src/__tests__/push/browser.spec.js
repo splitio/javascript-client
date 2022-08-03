@@ -31,7 +31,7 @@ tape('## Browser JS - E2E CI Tests for PUSH ##', function (assert) {
   assert.test('E2E / PUSH synchronization: happy paths', testSynchronization.bind(null, fetchMock));
   assert.test('E2E / PUSH synchronization: retries', testSynchronizationRetries.bind(null, fetchMock));
 
-  assert.test('E2E / PUSH fallbacking, CONTROL and OCCUPANCY messages', testFallbacking.bind(null, fetchMock));
+  assert.test('E2E / PUSH fallbacking, CONTROL, OCCUPANCY and STREAMING_RESET messages', testFallbacking.bind(null, fetchMock));
 
   assert.test('E2E / PUSH refresh token and connection delay', testRefreshToken.bind(null, fetchMock));
 

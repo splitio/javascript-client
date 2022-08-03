@@ -6,11 +6,11 @@ module.exports = function(config) {
   config.set(assign({}, require('./config'), {
     // list of files / patterns to load in the browser
     files: [
-      '__tests__/browser.spec.js'
+      '__tests__/online/browser.spec.js'
     ],
     // prepare code for the browser using webpack
     preprocessors: {
-      '__tests__/browser.spec.js': ['webpack']
+      '__tests__/online/browser.spec.js': ['webpack']
     },
 
     // level of logging

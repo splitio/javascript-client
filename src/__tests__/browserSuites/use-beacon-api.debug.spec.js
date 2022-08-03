@@ -128,7 +128,6 @@ function fallbackTest(fetchMock, assert) {
   // synchronize client destruction when both endpoints ('/testImpressions/bulk' and '/events/bulk') are called
   const finish = (function* () {
     yield;
-    // @TODO review why we must destroy client in a different event-loop cycle, compared to axios-mock-adapter
     setTimeout(function () {
       client.destroy().then(function () {
         sendBeaconSpyDebug.restore();

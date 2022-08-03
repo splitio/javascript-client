@@ -2,6 +2,7 @@ import sinon from 'sinon';
 
 import { SplitFactory } from '../../';
 import { settingsFactory } from '../../settings';
+
 const settings = settingsFactory({
   core: {
     key: '<fake id>'
