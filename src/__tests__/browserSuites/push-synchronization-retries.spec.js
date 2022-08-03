@@ -4,10 +4,12 @@ import splitChangesMock3 from '../mocks/splitchanges.since.1457552620999.till.14
 import mySegmentsNicolasMock1 from '../mocks/mysegments.nicolas@split.io.json';
 import mySegmentsNicolasMock2 from '../mocks/mysegments.nicolas@split.io.mock2.json';
 import mySegmentsMarcio from '../mocks/mysegments.marcio@split.io.json';
+
 import splitUpdateMessage from '../mocks/message.SPLIT_UPDATE.1457552649999.json';
 import oldSplitUpdateMessage from '../mocks/message.SPLIT_UPDATE.1457552620999.json';
 import mySegmentsUpdateMessage from '../mocks/message.MY_SEGMENTS_UPDATE.nicolas@split.io.1457552640000.json';
 import splitKillMessage from '../mocks/message.SPLIT_KILL.1457552650000.json';
+
 import authPushEnabledNicolas from '../mocks/auth.pushEnabled.nicolas@split.io.json';
 
 import { nearlyEqual, url } from '../testUtils';

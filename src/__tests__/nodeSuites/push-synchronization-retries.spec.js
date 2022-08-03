@@ -1,10 +1,12 @@
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
 import splitChangesMock3 from '../mocks/splitchanges.since.1457552620999.till.1457552649999.SPLIT_UPDATE.json';
+
 import splitUpdateMessage from '../mocks/message.SPLIT_UPDATE.1457552649999.json';
 import oldSplitUpdateMessage from '../mocks/message.SPLIT_UPDATE.1457552620999.json';
 import segmentUpdateMessage from '../mocks/message.SEGMENT_UPDATE.1457552640000.json';
 import splitKillMessage from '../mocks/message.SPLIT_KILL.1457552650000.json';
+
 import authPushEnabled from '../mocks/auth.pushEnabled.node.json';
 
 import { nearlyEqual, mockSegmentChanges, url } from '../testUtils';

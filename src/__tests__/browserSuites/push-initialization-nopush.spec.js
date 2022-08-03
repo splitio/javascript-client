@@ -7,6 +7,7 @@ import authPushDisabled from '../mocks/auth.pushDisabled.json';
 import authPushEnabledNicolas from '../mocks/auth.pushEnabled.nicolas@split.io.json';
 import authInvalidCredentials from '../mocks/auth.invalidCredentials.txt';
 import { nearlyEqual, url } from '../testUtils';
+
 import EventSourceMock, { setMockListener } from '../testUtils/eventSourceMock';
 
 const baseUrls = {

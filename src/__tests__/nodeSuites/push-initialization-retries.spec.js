@@ -5,8 +5,10 @@ import authPushEnabled from '../mocks/auth.pushEnabled.node.json';
 import authPushBadToken from '../mocks/auth.pushBadToken.json';
 
 import { nearlyEqual, url } from '../testUtils';
+
 import EventSourceMock, { setMockListener } from '../testUtils/eventSourceMock';
 import { __setEventSource } from '../../platform/getEventSource/node';
+
 import { SplitFactory } from '../../';
 import { settingsFactory } from '../../settings';
 

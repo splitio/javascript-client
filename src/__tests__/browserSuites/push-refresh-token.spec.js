@@ -1,6 +1,7 @@
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
 import mySegmentsNicolasMock1 from '../mocks/mysegments.nicolas@split.io.json';
+
 import authPushEnabledNicolas from '../mocks/auth.pushEnabled.nicolas@split.io.601secs.json';
 import authPushDisabled from '../mocks/auth.pushDisabled.json';
 

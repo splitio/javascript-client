@@ -1,7 +1,7 @@
 import sinon from 'sinon';
 import { SplitFactory } from '../../';
-import { nearlyEqual, url } from '../testUtils';
 import { triggerPagehideEvent } from '../testUtils/browser';
+import { nearlyEqual, url } from '../testUtils';
 
 const trackedImpressions = [];
 
