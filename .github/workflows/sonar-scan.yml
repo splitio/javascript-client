@@ -9,10 +9,6 @@ on:
       - master
       - development
 
-permissions:
-  contents: read
-  id-token: write
-
 jobs:
   build:
     name: Build
