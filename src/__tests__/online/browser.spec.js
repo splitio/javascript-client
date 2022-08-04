@@ -1,32 +1,31 @@
 import tape from 'tape-catch';
-import fetchMock from './testUtils/fetchMock';
-import { url } from './testUtils';
-import evaluationsSuite from './browserSuites/evaluations.spec';
-import impressionsSuite from './browserSuites/impressions.spec';
-import impressionsSuiteDebug from './browserSuites/impressions.debug.spec';
-import telemetrySuite from './browserSuites/telemetry.spec';
-import impressionsListenerSuite from './browserSuites/impressions-listener.spec';
-import readinessSuite from './browserSuites/readiness.spec';
-import readyFromCache from './browserSuites/ready-from-cache.spec';
-import { withoutBindingTT, bindingTT } from './browserSuites/events.spec';
-import sharedInstantiationSuite from './browserSuites/shared-instantiation.spec';
-import managerSuite from './browserSuites/manager.spec';
-import ignoreIpAddressesSettingSuite from './browserSuites/ignore-ip-addresses-setting.spec';
-import useBeaconApiSuite from './browserSuites/use-beacon-api.spec';
-import useBeaconDebugApiSuite from './browserSuites/use-beacon-api.debug.spec';
-import readyPromiseSuite from './browserSuites/ready-promise.spec';
-import fetchSpecificSplits from './browserSuites/fetch-specific-splits.spec';
-import userConsent from './browserSuites/user-consent.spec';
-import singleSync from './browserSuites/single-sync.spec';
+import fetchMock from '../testUtils/fetchMock';
+import { url } from '../testUtils';
+import evaluationsSuite from '../browserSuites/evaluations.spec';
+import impressionsSuite from '../browserSuites/impressions.spec';
+import impressionsSuiteDebug from '../browserSuites/impressions.debug.spec';
+import telemetrySuite from '../browserSuites/telemetry.spec';
+import impressionsListenerSuite from '../browserSuites/impressions-listener.spec';
+import readinessSuite from '../browserSuites/readiness.spec';
+import readyFromCache from '../browserSuites/ready-from-cache.spec';
+import { withoutBindingTT, bindingTT } from '../browserSuites/events.spec';
+import sharedInstantiationSuite from '../browserSuites/shared-instantiation.spec';
+import managerSuite from '../browserSuites/manager.spec';
+import ignoreIpAddressesSettingSuite from '../browserSuites/ignore-ip-addresses-setting.spec';
+import useBeaconApiSuite from '../browserSuites/use-beacon-api.spec';
+import useBeaconDebugApiSuite from '../browserSuites/use-beacon-api.debug.spec';
+import readyPromiseSuite from '../browserSuites/ready-promise.spec';
+import fetchSpecificSplits from '../browserSuites/fetch-specific-splits.spec';
+import userConsent from '../browserSuites/user-consent.spec';
+import singleSync from '../browserSuites/single-sync.spec';
 
-import { settingsFactory } from '../settings';
-
-import splitChangesMock1 from './mocks/splitchanges.since.-1.json';
-import splitChangesMock2 from './mocks/splitchanges.since.1457552620999.json';
-import mySegmentsFacundo from './mocks/mysegments.facundo@split.io.json';
-import mySegmentsNicolas from './mocks/mysegments.nicolas@split.io.json';
-import mySegmentsMarcio from './mocks/mysegments.marcio@split.io.json';
-import mySegmentsEmmanuel from './mocks/mysegments.emmanuel@split.io.json';
+import { settingsFactory } from '../../settings';
+import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
+import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
+import mySegmentsFacundo from '../mocks/mysegments.facundo@split.io.json';
+import mySegmentsNicolas from '../mocks/mysegments.nicolas@split.io.json';
+import mySegmentsMarcio from '../mocks/mysegments.marcio@split.io.json';
+import mySegmentsEmmanuel from '../mocks/mysegments.emmanuel@split.io.json';
 
 const settings = settingsFactory({
   core: {
@@ -110,8 +109,8 @@ tape('## E2E CI Tests ##', function (assert) {
   assert.test('E2E / Events', withoutBindingTT.bind(null, fetchMock));
   assert.test('E2E / Events with TT binded', bindingTT.bind(null, fetchMock));
   /* Check shared clients */
-  assert.test('E2E / Shared instances', sharedInstantiationSuite.bind(null, false, fetchMock));
-  assert.test('E2E / Shared instances with Traffic Type on factory settings', sharedInstantiationSuite.bind(null, true, fetchMock));
+  assert.test('E2E / Shared instances', sharedInstantiationSuite.bind(null, false, false, fetchMock));
+  assert.test('E2E / Shared instances with Traffic Type on factory settings', sharedInstantiationSuite.bind(null, true, false, fetchMock));
   /* Validate user consent */
   assert.test('E2E / User consent', userConsent.bind(null, fetchMock));
   /* Check basic manager functionality */
