@@ -85,33 +85,3 @@ jobs:
           SOURCE_DIR: ./umd
           DEST_DIR: sdk
           ARGS: --acl public-read --follow-symlinks --cache-control max-age=31536000,public
-
-      - name: SonarQube Scan (Push)
-        if: github.event_name == 'push'
-        uses: SonarSource/sonarcloud-github-action@v1.5
-        env:
-          SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
-        with:
-          projectBaseDir: .
-          args: >
-            -Dsonar.host.url=${{ secrets.SONARQUBE_HOST }}
-            -Dsonar.projectName=${{ github.event.repository.name }}
-            -Dsonar.projectKey=${{ github.event.repository.name }}
-            -Dsonar.links.ci="https://github.com/splitio/${{ github.event.repository.name }}/actions"
-            -Dsonar.links.scm="https://github.com/splitio/${{ github.event.repository.name }}"
-      - name: SonarQube Scan (Pull Request)
-        if: github.event_name == 'pull_request'
-        uses: SonarSource/sonarcloud-github-action@v1.5
-        env:
-          SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
-        with:
-          projectBaseDir: .
-          args: >
-            -Dsonar.host.url=${{ secrets.SONARQUBE_HOST }}
-            -Dsonar.projectName=${{ github.event.repository.name }}
-            -Dsonar.projectKey=${{ github.event.repository.name }}
-            -Dsonar.links.ci="https://github.com/splitio/${{ github.event.repository.name }}/actions"
-            -Dsonar.links.scm="https://github.com/splitio/${{ github.event.repository.name }}"
-            -Dsonar.pullrequest.key=${{ github.event.pull_request.number }}
-            -Dsonar.pullrequest.branch=${{ github.event.pull_request.head.ref }}
-            -Dsonar.pullrequest.base=${{ github.event.pull_request.base.ref }}
