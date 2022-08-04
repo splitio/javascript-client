@@ -1,0 +1,65 @@
+name: sonar-scan
+on:
+  pull_request:
+    branches:
+      - master
+      - development
+  push:
+    branches:
+      - master
+      - development
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up nodejs
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+          cache: 'npm'
+
+      - name: npm CI
+        run: npm ci
+
+      - name: npm Check
+        run: npm run check
+
+      - name: npm Build
+        run: BUILD_BRANCH=$(echo "${GITHUB_REF#refs/heads/}") BUILD_COMMIT=${{ github.sha }} npm run build
+
+      - name: SonarQube Scan (Push)
+        if: github.event_name == 'push'
+        uses: SonarSource/sonarcloud-github-action@v1.6
+        env:
+          SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
+        with:
+          projectBaseDir: .
+          args: >
+            -Dsonar.host.url=${{ secrets.SONARQUBE_HOST }}
+            -Dsonar.projectName=${{ github.event.repository.name }}
+            -Dsonar.projectKey=${{ github.event.repository.name }}
+            -Dsonar.links.ci="https://github.com/splitio/${{ github.event.repository.name }}/actions"
+            -Dsonar.links.scm="https://github.com/splitio/${{ github.event.repository.name }}"
+      - name: SonarQube Scan (Pull Request)
+        if: github.event_name == 'pull_request'
+        uses: SonarSource/sonarcloud-github-action@v1.6
+        env:
+          SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
+        with:
+          projectBaseDir: .
+          args: >
+            -Dsonar.host.url=${{ secrets.SONARQUBE_HOST }}
+            -Dsonar.projectName=${{ github.event.repository.name }}
+            -Dsonar.projectKey=${{ github.event.repository.name }}
+            -Dsonar.links.ci="https://github.com/splitio/${{ github.event.repository.name }}/actions"
+            -Dsonar.links.scm="https://github.com/splitio/${{ github.event.repository.name }}"
+            -Dsonar.pullrequest.key=${{ github.event.pull_request.number }}
+            -Dsonar.pullrequest.branch=${{ github.event.pull_request.head.ref }}
+            -Dsonar.pullrequest.base=${{ github.event.pull_request.base.ref }}
