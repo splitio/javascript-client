@@ -8,13 +8,17 @@ export function bloomFilterFactory(expectedInsertions = EXPECTED_INSERTIONS, err
   
   return {  
   
-    add(data) {
-      if (filter.has(data)) return false;
+    add(key, value) {
+      const data = `${key}:${value}`;
+      if (filter.has(data)) {
+        return false;
+      }
       filter.add(data);
       return true;
     },
   
-    contains(data) {
+    contains(key, value) {
+      const data = `${key}:${value}`;
       return filter.has(data);
     },
   

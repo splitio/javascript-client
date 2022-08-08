@@ -7,6 +7,7 @@ import evaluationsSuite from '../nodeSuites/evaluations.spec';
 import eventsSuite from '../nodeSuites/events.spec';
 import impressionsSuite from '../nodeSuites/impressions.spec';
 import impressionsSuiteDebug from '../nodeSuites/impressions.debug.spec';
+import impressionsSuiteNone from '../nodeSuites/impressions.none.spec';
 import telemetrySuite from '../nodeSuites/telemetry.spec';
 import impressionsListenerSuite from '../nodeSuites/impressions-listener.spec';
 import expectedTreatmentsSuite from '../nodeSuites/expected-treatments.spec';
@@ -57,6 +58,7 @@ tape('## Node JS - E2E CI Tests ##', async function (assert) {
   /* Check impressions */
   assert.test('E2E / Impressions', impressionsSuite.bind(null, key, fetchMock));
   assert.test('E2E / Impressions Debug Mode', impressionsSuiteDebug.bind(null, key, fetchMock));
+  assert.test('E2E / Impressions None Mode', impressionsSuiteNone.bind(null, key, fetchMock));
   assert.test('E2E / Impressions listener', impressionsListenerSuite);
 
   /* Check telemetry */
