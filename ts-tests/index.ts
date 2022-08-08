@@ -162,7 +162,6 @@ browserSettings = {
   }
 };
 // With sync settings should return ISDK, if settings have async storage it should return IAsyncSDK
-SDK = SplitFactory(browserSettings);
 SDK = SplitFactory(nodeSettings);
 AsyncSDK = SplitFactory(asyncSettings);
 BrowserSDK = SplitFactory(browserSettings);
@@ -170,12 +169,12 @@ BrowserSDK = SplitFactory(browserSettings);
 // The settings values the SDK expose.
 const instantiatedSettingsCore: {
   authorizationKey: string,
-  key: SplitIO.SplitKey,
-  trafficType: string,
+  key?: SplitIO.SplitKey,
+  trafficType?: string,
   labelsEnabled: boolean,
-  IPAddressesEnabled: boolean
+  IPAddressesEnabled?: boolean
 } = SDK.settings.core;
-const instantiatedSettingsMode: ('standalone' | 'consumer') = SDK.settings.mode;
+const instantiatedSettingsMode: ('standalone' | 'consumer' | 'localhost' | 'consumer_partial') = SDK.settings.mode;
 const instantiatedSettingsScheduler: { [key: string]: number } = SDK.settings.scheduler;
 const instantiatedSettingsStartup: { [key: string]: number } = SDK.settings.startup;
 const instantiatedSettingsStorage: {
@@ -183,7 +182,7 @@ const instantiatedSettingsStorage: {
   options: Object,
   // It can have any of the storages.
   type: SplitIO.NodeSyncStorage | SplitIO.NodeAsyncStorage | SplitIO.BrowserStorage
-} = SDK.settings.storage;
+} | SplitIO.StorageSyncFactory | SplitIO.StorageAsyncFactory = SDK.settings.storage;
 const instantiatedSettingsUrls: { [key: string]: string } = SDK.settings.urls;
 const instantiatedSettingsVersion: string = SDK.settings.version;
 let instantiatedSettingsFeatures = SDK.settings.features as SplitIO.MockedFeaturesMap;
@@ -192,10 +191,8 @@ instantiatedSettingsFeatures.something = 'something';
 SDK.settings.features = 'new_file_path'; // Node
 SDK.settings.features = { 'split_x': 'on' }; // Browser
 
-// Client and Manager
+// Client and Manager in Node
 client = SDK.client();
-client = SDK.client('a customer key');
-client = SDK.client('a customer key', 'a traffic type');
 manager = SDK.manager();
 // Today async clients are only possible on Node. Shared client creation not available here.
 asyncClient = AsyncSDK.client();
@@ -203,6 +200,7 @@ asyncManager = AsyncSDK.manager();
 // Browser client for attributes binding
 browserClient = BrowserSDK.client();
 browserClient = BrowserSDK.client('a customer key');
+browserClient = BrowserSDK.client('a customer key', 'a traffic type');
 
 // Logger
 SDK.Logger.enable();
@@ -244,44 +242,44 @@ const destroyPromise: Promise<void> = client.destroy();
 
 // We can call getTreatment with or without a key.
 treatment = client.getTreatment(splitKey, 'mySplit');
-treatment = client.getTreatment('mySplit');
+treatment = browserClient.getTreatment('mySplit');
 // Attributes parameter is optional on both signatures.
 treatment = client.getTreatment(splitKey, 'mySplit', attributes);
-treatment = client.getTreatment('mySplit', attributes);
+treatment = browserClient.getTreatment('mySplit', attributes);
 
 // We can call getTreatments with or without a key.
 treatments = client.getTreatments(splitKey, ['mySplit']);
-treatments = client.getTreatments(['mySplit']);
+treatments = browserClient.getTreatments(['mySplit']);
 // Attributes parameter is optional on both signatures.
 treatments = client.getTreatments(splitKey, ['mySplit'], attributes);
-treatments = client.getTreatments(['mySplit'], attributes);
+treatments = browserClient.getTreatments(['mySplit'], attributes);
 
 // We can call getTreatmentWithConfig with or without a key.
 treatmentWithConfig = client.getTreatmentWithConfig(splitKey, 'mySplit');
-treatmentWithConfig = client.getTreatmentWithConfig('mySplit');
+treatmentWithConfig = browserClient.getTreatmentWithConfig('mySplit');
 // Attributes parameter is optional on both signatures.
 treatmentWithConfig = client.getTreatmentWithConfig(splitKey, 'mySplit', attributes);
-treatmentWithConfig = client.getTreatmentWithConfig('mySplit', attributes);
+treatmentWithConfig = browserClient.getTreatmentWithConfig('mySplit', attributes);
 
 // We can call getTreatmentsWithConfig with or without a key.
 treatmentsWithConfig = client.getTreatmentsWithConfig(splitKey, ['mySplit']);
-treatmentsWithConfig = client.getTreatmentsWithConfig(['mySplit']);
+treatmentsWithConfig = browserClient.getTreatmentsWithConfig(['mySplit']);
 // Attributes parameter is optional on both signatures.
 treatmentsWithConfig = client.getTreatmentsWithConfig(splitKey, ['mySplit'], attributes);
-treatmentsWithConfig = client.getTreatmentsWithConfig(['mySplit'], attributes);
+treatmentsWithConfig = browserClient.getTreatmentsWithConfig(['mySplit'], attributes);
 
 // We can call track with or without a key. Traffic type can also be binded to the client.
 tracked = client.track(splitKey, 'myTrafficType', 'myEventType'); // all params
-tracked = client.track('myTrafficType', 'myEventType'); // key binded, tt provided.
-tracked = client.track('myEventType'); // key and tt binded.
+tracked = browserClient.track('myTrafficType', 'myEventType'); // key binded, tt provided.
+tracked = browserClient.track('myEventType'); // key and tt binded.
 // Value parameter is optional on all signatures.
 tracked = client.track(splitKey, 'myTrafficType', 'myEventType', 10);
-tracked = client.track('myTrafficType', 'myEventType', 10);
-tracked = client.track('myEventType', 10);
+tracked = browserClient.track('myTrafficType', 'myEventType', 10);
+tracked = browserClient.track('myEventType', 10);
 // Properties parameter is optional on all signatures.
 tracked = client.track(splitKey, 'myTrafficType', 'myEventType', 10, { prop1: 1, prop2: '2', prop3: false, prop4: null });
-tracked = client.track('myTrafficType', 'myEventType', null, { prop1: 1, prop2: '2', prop3: false, prop4: null });
-tracked = client.track('myEventType', undefined, { prop1: 1, prop2: '2', prop3: false, prop4: null });
+tracked = browserClient.track('myTrafficType', 'myEventType', null, { prop1: 1, prop2: '2', prop3: false, prop4: null });
+tracked = browserClient.track('myEventType', undefined, { prop1: 1, prop2: '2', prop3: false, prop4: null });
 
 /*** Repeating tests for Async Client ***/
 
