@@ -27,7 +27,7 @@ const config = {
     segmentsRefreshRate: 1,
     impressionsRefreshRate: 3000,
     impressionsQueueSize: 3, // flush impressions when 3 are queued
-    uniqueKeysCacheSize: 7 // flush impressions when 3 are queued
+    uniqueKeysCacheSize: 7 // flush impressions when 7 are queued
   },
   urls: baseUrls,
   startup: {
@@ -52,29 +52,25 @@ export default async function (key, fetchMock, assert) {
   fetchMock.postOnce(url(settings, '/v1/keys/ss'), (url, opts) => {
     const data = JSON.parse(opts.body);
 
-    assert.equal(data.keys.length, 3, 'We performed evaluations for three split, so we should have 3 item total.');
-
-    function validateImpressionData(output, expected) {
-      assert.equal(output.f, expected.featureName, 'Present impressions should have the correct featureName.');
-      assert.deepEqual(output.ks, expected.keys, 'Present impressions should have the correct key list.');
-    }
+    assert.deepEqual(data, {
+      keys: [
+        {
+          f: 'split_with_config',
+          ks:['emma@split.io','emi@split.io']
+        },
+        {
+          f: 'always_off',
+          ks:['emma@split.io','emi@split.io']
+        },
+        {
+          f: 'always_on',
+          ks:['emma@split.io','emi@split.io','nico@split.io']
+        }
+      ]
+    }, 'We performed evaluations for three split, so we should have 3 item total.');
 
     client.destroy().then(() => {
-      validateImpressionData(data.keys[0], {
-        featureName: 'split_with_config',
-        keys:['emma@split.io','emi@split.io']
-      });
-      validateImpressionData(data.keys[1], {
-        featureName: 'always_off',
-        keys:['emma@split.io','emi@split.io']
-      });
-      validateImpressionData(data.keys[2], {
-        featureName: 'always_on',
-        keys:['emma@split.io','emi@split.io','nico@split.io']
-      });
-  
       assert.end();
-
     });
     
     return 200;
@@ -89,8 +85,10 @@ export default async function (key, fetchMock, assert) {
   client.getTreatment('emma@split.io', 'always_on');
   client.getTreatment('emi@split.io', 'always_on');
   client.getTreatment('nico@split.io', 'always_on');
+  client.getTreatment('emma@split.io', 'always_off');
   client.getTreatment('emma@split.io', 'always_on');
   client.getTreatment('emi@split.io', 'always_off');
+  client.getTreatment('nico@split.io', 'always_on');
   client.getTreatment('emi@split.io', 'split_with_config');
   client.getTreatment('emma@split.io', 'split_with_config');
   

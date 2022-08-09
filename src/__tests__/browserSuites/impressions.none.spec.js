@@ -55,23 +55,20 @@ export default async function (fetchMock, assert) {
   fetchMock.postOnce(url(settings, '/v1/keys/cs'), (url, opts) => {
     const data = JSON.parse(opts.body);
 
-    assert.equal(data.keys.length, 2, 'We performed evaluations for three split, so we should have 3 item total.');
-
-    function validateImpressionData(output, expected) {
-      assert.equal(output.k, expected.key, 'Present impressions should have the correct featureName.');
-      assert.deepEqual(output.fs, expected.features, 'Present impressions should have the correct key list.');
-    }
-
-    client.destroy().then(() => {
-      validateImpressionData(data.keys[0], {
-        key: 'facundo@split.io',
-        features:['split_with_config','always_off', 'always_on']
-      });
-      validateImpressionData(data.keys[1], {
-        key: 'emma@split.io',
-        features:['always_off', 'always_on']
-      });
-  
+    assert.deepEqual(data, {
+      keys: [
+        {
+          k: 'facundo@split.io',
+          fs: ['split_with_config','always_off', 'always_on']
+        },
+        {
+          k: 'emma@split.io',
+          fs: ['always_off', 'always_on']
+        }
+      ]
+    }, 'We performed evaluations for two keys, so we should have 2 item total.');
+    
+    client.destroy().then(() => {  
       assert.end();
 
     });
@@ -87,6 +84,9 @@ export default async function (fetchMock, assert) {
   sharedClient.getTreatment('always_off');
   client.getTreatment('always_off');
   sharedClient.getTreatment('always_on');
+  sharedClient.getTreatment('always_off');
   client.getTreatment('always_on');
+  client.getTreatment('always_off');
+  client.getTreatment('split_with_config');
   
 }
