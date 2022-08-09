@@ -5,17 +5,17 @@ tape('Bloom filter', (assert) => {
   
   const bloomFilter = bloomFilterFactory();
   
-  assert.true(bloomFilter.add('test1'));
-  assert.false(bloomFilter.contains('test2'));
-  assert.true(bloomFilter.contains('test1'));
+  assert.true(bloomFilter.add('feature','key'));
+  assert.false(bloomFilter.contains('feature1','key'));
+  assert.true(bloomFilter.contains('feature','key'));
   
   bloomFilter.clear();
   
-  assert.false(bloomFilter.contains('test1'));
+  assert.false(bloomFilter.contains('feature','key'));
   
-  assert.true(bloomFilter.add('test3'));
-  assert.false(bloomFilter.contains('test4'));
-  assert.true(bloomFilter.contains('test3'));
+  assert.true(bloomFilter.add('feature2','key'));
+  assert.false(bloomFilter.contains('feature3','key'));
+  assert.true(bloomFilter.contains('feature2','key'));
   
   assert.end();
   
