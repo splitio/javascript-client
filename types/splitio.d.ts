@@ -195,10 +195,20 @@ declare namespace SplitIO {
     },
   }
   /**
+   * Representation of a manager instance with synchronous storage of the SDK.
+   * @interface IManager
+   */
+  interface IManager extends EventEmitter { }
+  /**
+   * Representation of a manager instance with asynchronous storage of the SDK.
+   * @interface IAsyncManager
+   */
+  interface IAsyncManager extends EventEmitter { }
+  /**
    * This represents the interface for the Client instance with synchronous method calls and server-side API, where we don't have only one key.
    * @interface IClient
    */
-  interface IClient extends IClientSS { }
+  interface IClient extends IClientSS, EventEmitter { }
   /**
    * This represents the interface for the SDK instance with synchronous method calls and server-side API, where we don't have only one key.
    * @interface ISDK
@@ -209,7 +219,7 @@ declare namespace SplitIO {
    * @interface IAsyncClient
    * @extends IBasicClient
    */
-  interface IAsyncClient extends IAsyncClienSS { }
+  interface IAsyncClient extends IAsyncClienSS, EventEmitter { }
   /**
    * This represents the interface for the SDK instance with asynchronous method calls and server-side API, where we don't have only one key.
    * @interface IAsyncSDK
@@ -219,7 +229,7 @@ declare namespace SplitIO {
    * This represents the interface for the Client instance with attributes binding, synchronous method calls, and client-side API, where each client has a key associated and optionally a traffic type.
    * @interface IBrowserClient
    */
-  interface IBrowserClient extends IClientWithKeyLegacy { }
+  interface IBrowserClient extends IClientWithKeyLegacy, EventEmitter { }
   /**
    * This represents the interface for the SDK instance with synchronous method calls and client-side API, where client instances have a key associated and optionally a traffic type.
    * @interface IBrowserSDK
