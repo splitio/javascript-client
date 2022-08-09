@@ -6,8 +6,7 @@
 
 /****** Exposed namespace ******/
 /**
- * @TODO update this comment and add link to merging namesapces from typescript
- * Types and interfaces for @splitsoftware/splitio package for usage when integrating javascript sdk on typescript apps.
+ * Types and interfaces for @splitsoftware/splitio package for usage when integrating Javascript SDK on Typescript apps.
  * For the SDK package information
  * @see {@link https://www.npmjs.com/package/@splitsoftware/splitio}
  */
@@ -62,19 +61,6 @@ declare namespace SplitIO {
      * @property {Object} integrations
      */
     integrations?: BrowserIntegration[],
-  }
-  /**
-   * @TODO
-   */
-  interface IBrowserSettingsWithTT extends IBrowserSettings {
-    core: IBrowserSettings['core'] & {
-      /**
-       * Traffic type associated with the customer identifier. @see {@link https://help.split.io/hc/en-us/articles/360019916311-Traffic-type}
-       * If no provided as a setting it will be required on the client.track() calls.
-       * @property {string} trafficType
-       */
-      trafficType: string,
-    }
   }
   /**
    * Settings interface for SDK instances created on NodeJS.
@@ -208,23 +194,32 @@ declare namespace SplitIO {
       prefix?: string
     },
   }
-
-  // @TODO put document comment here
-  type IClient = IClientSS;
+  /**
+   * This represents the interface for the Client instance with synchronous method calls and server-side API, where we don't have only one key.
+   * @interface IClient
+   */
+  interface IClient extends IClientSS { }
   /**
    * This represents the interface for the SDK instance with synchronous method calls and server-side API, where we don't have only one key.
    * @interface ISDK
    */
   interface ISDK extends IBasicSDK<IClient, IManager> { }
-  // @TODO put document comment here
-  type IAsyncClient = IAsyncClienSS;
+  /**
+   * This represents the interface for the Client instance with asynchronous method calls and server-side SDK, where we don't have only one key.
+   * @interface IAsyncClient
+   * @extends IBasicClient
+   */
+  interface IAsyncClient extends IAsyncClienSS { }
   /**
    * This represents the interface for the SDK instance with asynchronous method calls and server-side API, where we don't have only one key.
    * @interface IAsyncSDK
    */
   interface IAsyncSDK extends IBasicSDK<IAsyncClient, IAsyncManager> { }
-  // @TODO put document comment here
-  type IBrowserClient = IClientWithKeyLegacy;
+  /**
+   * This represents the interface for the Client instance with attributes binding, synchronous method calls, and client-side API, where each client has a key associated and optionally a traffic type.
+   * @interface IBrowserClient
+   */
+  interface IBrowserClient extends IClientWithKeyLegacy { }
   /**
    * This represents the interface for the SDK instance with synchronous method calls and client-side API, where client instances have a key associated and optionally a traffic type.
    * @interface IBrowserSDK
