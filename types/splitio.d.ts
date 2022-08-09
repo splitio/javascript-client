@@ -209,7 +209,7 @@ declare namespace SplitIO {
    * @interface IAsyncClient
    * @extends IBasicClient
    */
-  interface IAsyncClient extends IAsyncClienSS { }
+  interface IAsyncClient extends IAsyncClientSS { }
   /**
    * This represents the interface for the SDK instance with asynchronous method calls and server-side API, where we don't have only one key.
    * @interface IAsyncSDK
