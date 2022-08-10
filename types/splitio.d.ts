@@ -2,7 +2,7 @@
 // Project: http://www.split.io/
 // Definitions by: Nico Zelaya <https://github.com/NicoZelaya/>
 
-/// <reference types="@splitsoftware/splitio-commons/src/splitio" />
+/// <reference types="@splitsoftware/splitio-commons/src/types" />
 
 /****** Exposed namespace ******/
 /**

@@ -33,7 +33,7 @@
     "node": ">=6"
   },
   "dependencies": {
-    "@splitsoftware/splitio-commons": "1.6.2-rc.0",
+    "@splitsoftware/splitio-commons": "1.6.2-rc.3",
     "@types/google.analytics": "0.0.40",
     "@types/ioredis": "^4.28.0",
     "ioredis": "^4.28.0",
