@@ -4,6 +4,29 @@
 
 /// <reference types="@splitsoftware/splitio-commons/src/types" />
 
+/**
+ * NodeJS.EventEmitter interface
+ * @see {@link https://nodejs.org/api/events.html}
+ */
+interface NodeJSEventEmitter extends SplitIO.IEventEmitter {
+  addListener(event: string, listener: (...args: any[]) => void): this;
+  on(event: string, listener: (...args: any[]) => void): this;
+  once(event: string, listener: (...args: any[]) => void): this;
+  removeListener(event: string, listener: (...args: any[]) => void): this;
+  off(event: string, listener: (...args: any[]) => void): this;
+  removeAllListeners(event?: string): this;
+  setMaxListeners(n: number): this;
+  getMaxListeners(): number;
+  listeners(event: string): Function[];
+  rawListeners(event: string): Function[];
+  emit(event: string, ...args: any[]): boolean;
+  listenerCount(type: string): number;
+  // Added in Node 6...
+  prependListener(event: string, listener: (...args: any[]) => void): this;
+  prependOnceListener(event: string, listener: (...args: any[]) => void): this;
+  eventNames(): Array<string | symbol>;
+}
+
 /****** Exposed namespace ******/
 /**
  * Types and interfaces for @splitsoftware/splitio package for usage when integrating Javascript SDK on Typescript apps.
@@ -198,17 +221,17 @@ declare namespace SplitIO {
    * Representation of a manager instance with synchronous storage of the SDK.
    * @interface IManager
    */
-  interface IManager extends EventEmitter { }
+  interface IManager extends NodeJSEventEmitter { }
   /**
    * Representation of a manager instance with asynchronous storage of the SDK.
    * @interface IAsyncManager
    */
-  interface IAsyncManager extends EventEmitter { }
+  interface IAsyncManager extends NodeJSEventEmitter { }
   /**
    * This represents the interface for the Client instance with synchronous method calls and server-side API, where we don't have only one key.
    * @interface IClient
    */
-  interface IClient extends IClientSS, EventEmitter { }
+  interface IClient extends IClientSS, NodeJSEventEmitter { }
   /**
    * This represents the interface for the SDK instance with synchronous method calls and server-side API, where we don't have only one key.
    * @interface ISDK
@@ -219,7 +242,7 @@ declare namespace SplitIO {
    * @interface IAsyncClient
    * @extends IBasicClient
    */
-  interface IAsyncClient extends IAsyncClientSS, EventEmitter { }
+  interface IAsyncClient extends IAsyncClientSS, NodeJSEventEmitter { }
   /**
    * This represents the interface for the SDK instance with asynchronous method calls and server-side API, where we don't have only one key.
    * @interface IAsyncSDK
@@ -229,7 +252,7 @@ declare namespace SplitIO {
    * This represents the interface for the Client instance with attributes binding, synchronous method calls, and client-side API, where each client has a key associated and optionally a traffic type.
    * @interface IBrowserClient
    */
-  interface IBrowserClient extends IClientWithKeyLegacy, EventEmitter { }
+  interface IBrowserClient extends IClientWithKeyLegacy, NodeJSEventEmitter { }
   /**
    * This represents the interface for the SDK instance with synchronous method calls and client-side API, where client instances have a key associated and optionally a traffic type.
    * @interface IBrowserSDK
