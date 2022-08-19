@@ -252,7 +252,28 @@ declare namespace SplitIO {
    * This represents the interface for the Client instance with attributes binding, synchronous method calls, and client-side API, where each client has a key associated and optionally a traffic type.
    * @interface IBrowserClient
    */
-  interface IBrowserClient extends IClientWithKeyLegacy, NodeJSEventEmitter { }
+  interface IBrowserClient extends IClientWithKey, NodeJSEventEmitter {
+    /**
+     * Tracks an event to be fed to the results product on Split Webconsole.
+     * @function track
+     * @param {string} trafficType - The traffic type of the entity related to this event.
+     * @param {string} eventType - The event type corresponding to this event.
+     * @param {number=} value - The value of this event.
+     * @param {Properties=} properties - The properties of this event. Values can be string, number, boolean or null.
+     * @returns {boolean} Whether the event was added to the queue successfully or not.
+     */
+    track(trafficType: string, eventType: string, value?: number, properties?: Properties): boolean,
+    /**
+     * Tracks an event to be fed to the results product on Split Webconsole.
+     * For usage on the Browser if we defined the key and also the trafficType on the settings.
+     * @function track
+     * @param {string} eventType - The event type corresponding to this event.
+     * @param {number=} value - The value of this event.
+     * @param {Properties=} properties - The properties of this event. Values can be string, number, boolean or null.
+     * @returns {boolean} Whether the event was added to the queue successfully or not.
+     */
+    track(eventType: string, value?: number, properties?: Properties): boolean
+  }
   /**
    * This represents the interface for the SDK instance with synchronous method calls and client-side API, where client instances have a key associated and optionally a traffic type.
    * @interface IBrowserSDK
@@ -261,7 +282,7 @@ declare namespace SplitIO {
     /**
      * Returns the default client instance of the SDK, associated with the key and optional traffic type provided on settings.
      * @function client
-     * @returns {IClient} The client instance.
+     * @returns {IBrowserClient} The client instance.
      */
     client(): IBrowserClient,
     /**
@@ -269,7 +290,7 @@ declare namespace SplitIO {
      * @function client
      * @param {SplitKey} key The key for the new client instance.
      * @param {string=} trafficType The traffic type of the provided key.
-     * @returns {IClientWithKeyLegacy} The client instance.
+     * @returns {IBrowserClient} The client instance.
      */
     client(key: SplitKey, trafficType?: string): IBrowserClient,
   }
