@@ -2,7 +2,7 @@
 // Project: http://www.split.io/
 // Definitions by: Nico Zelaya <https://github.com/NicoZelaya/>
 
-/// <reference types="@splitsoftware/splitio-commons/src/types" />
+/// <reference types="@splitsoftware/splitio-commons" />
 
 /**
  * NodeJS.EventEmitter interface
