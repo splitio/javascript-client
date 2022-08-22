@@ -181,7 +181,7 @@ const instantiatedSettingsStorage: {
   prefix: string,
   options: Object,
   // It can have any of the storages.
-  type: SplitIO.NodeSyncStorage | SplitIO.NodeAsyncStorage | SplitIO.BrowserStorage
+  type: SplitIO.StorageType
 } | SplitIO.StorageSyncFactory | SplitIO.StorageAsyncFactory = SDK.settings.storage;
 const instantiatedSettingsUrls: { [key: string]: string } = SDK.settings.urls;
 const instantiatedSettingsVersion: string = SDK.settings.version;

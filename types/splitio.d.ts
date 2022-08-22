@@ -2,7 +2,30 @@
 // Project: http://www.split.io/
 // Definitions by: Nico Zelaya <https://github.com/NicoZelaya/>
 
-/// <reference types="@splitsoftware/splitio-commons/src/splitio" />
+/// <reference types="@splitsoftware/splitio-commons" />
+
+/**
+ * NodeJS.EventEmitter interface
+ * @see {@link https://nodejs.org/api/events.html}
+ */
+interface NodeJSEventEmitter extends SplitIO.IEventEmitter {
+  addListener(event: string, listener: (...args: any[]) => void): this;
+  on(event: string, listener: (...args: any[]) => void): this;
+  once(event: string, listener: (...args: any[]) => void): this;
+  removeListener(event: string, listener: (...args: any[]) => void): this;
+  off(event: string, listener: (...args: any[]) => void): this;
+  removeAllListeners(event?: string): this;
+  setMaxListeners(n: number): this;
+  getMaxListeners(): number;
+  listeners(event: string): Function[];
+  rawListeners(event: string): Function[];
+  emit(event: string, ...args: any[]): boolean;
+  listenerCount(type: string): number;
+  // Added in Node 6...
+  prependListener(event: string, listener: (...args: any[]) => void): this;
+  prependOnceListener(event: string, listener: (...args: any[]) => void): this;
+  eventNames(): Array<string | symbol>;
+}
 
 /****** Exposed namespace ******/
 /**
@@ -195,10 +218,20 @@ declare namespace SplitIO {
     },
   }
   /**
+   * Representation of a manager instance with synchronous storage of the SDK.
+   * @interface IManager
+   */
+  interface IManager extends NodeJSEventEmitter { }
+  /**
+   * Representation of a manager instance with asynchronous storage of the SDK.
+   * @interface IAsyncManager
+   */
+  interface IAsyncManager extends NodeJSEventEmitter { }
+  /**
    * This represents the interface for the Client instance with synchronous method calls and server-side API, where we don't have only one key.
    * @interface IClient
    */
-  interface IClient extends IClientSS { }
+  interface IClient extends IClientSS, NodeJSEventEmitter { }
   /**
    * This represents the interface for the SDK instance with synchronous method calls and server-side API, where we don't have only one key.
    * @interface ISDK
@@ -209,7 +242,7 @@ declare namespace SplitIO {
    * @interface IAsyncClient
    * @extends IBasicClient
    */
-  interface IAsyncClient extends IAsyncClientSS { }
+  interface IAsyncClient extends IAsyncClientSS, NodeJSEventEmitter { }
   /**
    * This represents the interface for the SDK instance with asynchronous method calls and server-side API, where we don't have only one key.
    * @interface IAsyncSDK
@@ -219,7 +252,28 @@ declare namespace SplitIO {
    * This represents the interface for the Client instance with attributes binding, synchronous method calls, and client-side API, where each client has a key associated and optionally a traffic type.
    * @interface IBrowserClient
    */
-  interface IBrowserClient extends IClientWithKeyLegacy { }
+  interface IBrowserClient extends IClientWithKey, NodeJSEventEmitter {
+    /**
+     * Tracks an event to be fed to the results product on Split Webconsole.
+     * @function track
+     * @param {string} trafficType - The traffic type of the entity related to this event.
+     * @param {string} eventType - The event type corresponding to this event.
+     * @param {number=} value - The value of this event.
+     * @param {Properties=} properties - The properties of this event. Values can be string, number, boolean or null.
+     * @returns {boolean} Whether the event was added to the queue successfully or not.
+     */
+    track(trafficType: string, eventType: string, value?: number, properties?: Properties): boolean,
+    /**
+     * Tracks an event to be fed to the results product on Split Webconsole.
+     * For usage on the Browser if we defined the key and also the trafficType on the settings.
+     * @function track
+     * @param {string} eventType - The event type corresponding to this event.
+     * @param {number=} value - The value of this event.
+     * @param {Properties=} properties - The properties of this event. Values can be string, number, boolean or null.
+     * @returns {boolean} Whether the event was added to the queue successfully or not.
+     */
+    track(eventType: string, value?: number, properties?: Properties): boolean
+  }
   /**
    * This represents the interface for the SDK instance with synchronous method calls and client-side API, where client instances have a key associated and optionally a traffic type.
    * @interface IBrowserSDK
@@ -228,7 +282,7 @@ declare namespace SplitIO {
     /**
      * Returns the default client instance of the SDK, associated with the key and optional traffic type provided on settings.
      * @function client
-     * @returns {IClient} The client instance.
+     * @returns {IBrowserClient} The client instance.
      */
     client(): IBrowserClient,
     /**
@@ -236,7 +290,7 @@ declare namespace SplitIO {
      * @function client
      * @param {SplitKey} key The key for the new client instance.
      * @param {string=} trafficType The traffic type of the provided key.
-     * @returns {IClientWithKeyLegacy} The client instance.
+     * @returns {IBrowserClient} The client instance.
      */
     client(key: SplitKey, trafficType?: string): IBrowserClient,
   }
