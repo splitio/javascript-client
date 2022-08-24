@@ -74,15 +74,6 @@ browserClient = BrowserSDK.client('a customer key', 'a traffic type');
 
 /**** Tests for Client and Manager interfaces ****/
 
-// IClient implements methods from NodeJS.Events. Testing a few.
-let splitEvent: SplitIO.Event;
-client = client.on(splitEvent, () => { });
-const a: boolean = client.emit(splitEvent);
-client = client.removeAllListeners(splitEvent);
-client = client.removeAllListeners();
-const b: number = client.listenerCount(splitEvent);
-let nodeEventEmitter: NodeJS.EventEmitter = client;
-
 // Traffic type can be binded or not to the Browser client.
 let tracked: boolean;
 tracked = browserClient.track('myTrafficType', 'myEventType'); // key binded, tt provided.
@@ -94,29 +85,16 @@ tracked = browserClient.track('myEventType', 10);
 tracked = browserClient.track('myTrafficType', 'myEventType', null, { prop1: 1, prop2: '2', prop3: false, prop4: null });
 tracked = browserClient.track('myEventType', undefined, { prop1: 1, prop2: '2', prop3: false, prop4: null });
 
-// IAsyncClient implements methods from NodeJS.Events. (same as for sync client, just for interface checking)
-asyncClient = asyncClient.on(splitEvent, () => { });
-const a1: boolean = asyncClient.emit(splitEvent);
-asyncClient = asyncClient.removeAllListeners(splitEvent);
-asyncClient = asyncClient.removeAllListeners();
-const b1: number = asyncClient.listenerCount(splitEvent);
-nodeEventEmitter = asyncClient;
-
-// Manager implements methods from NodeJS.Events. Testing a few.
-manager = manager.on(splitEvent, () => { });
-const aa: boolean = manager.emit(splitEvent);
-manager = manager.removeAllListeners(splitEvent);
-manager = manager.removeAllListeners();
-const bb: number = manager.listenerCount(splitEvent);
-nodeEventEmitter = manager;
-
-// asyncManager implements methods from NodeJS.Events. Testing a few.
-asyncManager = asyncManager.on(splitEvent, () => { });
-const aaa: boolean = asyncManager.emit(splitEvent);
-asyncManager = asyncManager.removeAllListeners(splitEvent);
-asyncManager = asyncManager.removeAllListeners();
-const bbb: number = asyncManager.listenerCount(splitEvent);
-nodeEventEmitter = asyncManager;
+// Client and manager interfaces implement methods from NodeJS.EventEmitter. Testing a few.
+let splitEvent: SplitIO.Event;
+[client, asyncClient, manager, asyncManager].forEach(eventEmitter => {
+  eventEmitter = eventEmitter.on(splitEvent, () => { });
+  const a: boolean = eventEmitter.emit(splitEvent);
+  eventEmitter = eventEmitter.removeAllListeners(splitEvent);
+  eventEmitter = eventEmitter.removeAllListeners();
+  const b: number = eventEmitter.listenerCount(splitEvent);
+  let nodeEventEmitter: NodeJS.EventEmitter = eventEmitter;
+})
 
 /**** Tests for fully crowded settings interfaces ****/
 
