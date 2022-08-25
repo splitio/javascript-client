@@ -33,6 +33,9 @@ const config = {
       url: `redis://localhost:${redisPort}/0`
     }
   },
+  sync: {
+    impressionsMode: 'DEBUG'
+  },
   startup: {
     readyTimeout: 36000 // 10hs
   }
