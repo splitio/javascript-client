@@ -64,9 +64,10 @@ export default async function telemetryNodejsSuite(key, fetchMock, assert) {
     assert.equal(getLatencyCount(data.mL.tr), 1, 'One latency metric for track');
     delete data.hL; delete data.mL;
 
-    // assert.deepEqual(data, {
-    //   mE: {}, hE: { sp: { 500: 1 } }, tR: 0, aR: 0, iQ: 4, iDe: 3, iDr: 0, spC: 31, seC: 3, skC: 3, eQ: 1, eD: 0, sE: [], t: []
-    // }, 'metrics/usage JSON payload should be the expected');
+    // @TODO check if iDe value is correct
+    assert.deepEqual(data, {
+      mE: {}, hE: { sp: { 500: 1 } }, tR: 0, aR: 0, iQ: 4, iDe: 1, iDr: 0, spC: 31, seC: 3, skC: 3, eQ: 1, eD: 0, sE: [], t: []
+    }, 'metrics/usage JSON payload should be the expected');
 
     finish.next();
     return 200;
@@ -81,11 +82,11 @@ export default async function telemetryNodejsSuite(key, fetchMock, assert) {
 
     assert.true(data.sL > 0, 'sessionLengthMs must be defined');
     delete data.sL;
-
-    // assert.deepEqual(data, {
-    //   mL: {}, mE: {}, hE: {}, hL: {}, // errors and latencies were popped
-    //   tR: 0, aR: 0, iQ: 4, iDe: 3, iDr: 0, spC: 31, seC: 3, skC: 3, eQ: 1, eD: 0, sE: [], t: []
-    // }, '2nd metrics/usage JSON payload should be the expected');
+    // @TODO check if iDe value is correct
+    assert.deepEqual(data, {
+      mL: {}, mE: {}, hE: {}, hL: {}, // errors and latencies were popped
+      tR: 0, aR: 0, iQ: 4, iDe: 1, iDr: 0, spC: 31, seC: 3, skC: 3, eQ: 1, eD: 0, sE: [], t: []
+    }, '2nd metrics/usage JSON payload should be the expected');
     return 200;
   });
 
