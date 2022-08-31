@@ -1,3 +1,6 @@
+10.21.2 (September XXX, 2022)
+- Updated @splitsoftware/splitio-commons package to version 1.6.2, that improves the performance of split evaluations (i.e., `getTreatment(s)` method calls) when using the default storage in memory.
+
 10.21.1 (July 25, 2022)
 - Bugfixing - Added missed type definitions `enabled` from `sync`.
 
