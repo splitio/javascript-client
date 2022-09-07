@@ -695,7 +695,7 @@ export default function (fetchMock, assert) {
         localStorage.setItem('readyFromCache_8.SPLITIO.splits.till', 25);
         localStorage.setItem('readyFromCache_8.SPLITIO.split.p1__split', JSON.stringify(splitDeclarations.p1__split));
         localStorage.setItem('readyFromCache_8.SPLITIO.split.p2__split', JSON.stringify(splitDeclarations.p2__split));
-        localStorage.setItem('readyFromCache_8.SPLITIO.split.deleted__split', 'deleted_split');
+        localStorage.setItem('readyFromCache_8.SPLITIO.split.deleted__split', '{ "name": "deleted_split" }');
         localStorage.setItem('readyFromCache_8.SPLITIO.splits.filterQuery', '&names=p2__split&prefixes=p1');
 
         const splitio = SplitFactory({
