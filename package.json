@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio",
-  "version": "10.21.2-rc.2",
+  "version": "10.21.2-rc.3",
   "description": "Split SDK",
   "files": [
     "README.md",
@@ -34,7 +34,7 @@
   },
   "dependencies": {
     "@ably/bloomit": "^1.4.2",
-    "@splitsoftware/splitio-commons": "1.6.2-rc.5",
+    "@splitsoftware/splitio-commons": "1.6.2-rc.6",
     "@types/google.analytics": "0.0.40",
     "@types/ioredis": "^4.28.0",
     "ioredis": "^4.28.0",
