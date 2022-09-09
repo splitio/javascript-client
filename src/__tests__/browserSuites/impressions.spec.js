@@ -94,7 +94,7 @@ export default function (fetchMock, assert) {
   fetchMock.postOnce(url(settings, '/testImpressions/count'), (url, opts) => {
     const data = JSON.parse(opts.body);
 
-    assert.equal(data.pf.length, 2, 'We should generated 2 impressions count.');
+    assert.equal(data.pf.length, 1, 'We should generate impressions count for one feature.');
 
     // finding these validate the feature names collection too
     const dependencyChildImpr = data.pf.filter(e => e.f === 'hierarchical_splits_test')[0];

@@ -15,6 +15,7 @@ import { settingsFactory } from '../../settings/node';
 import { nearlyEqual } from '../testUtils';
 import { version } from '../../../package.json';
 import { OPTIMIZED, NONE, DEBUG } from '@splitsoftware/splitio-commons/src/utils/constants';
+import { truncateTimeFrame } from '@splitsoftware/splitio-commons/src/utils/time';
 
 const IP_VALUE = ipFunction.address();
 const HOSTNAME_VALUE = osFunction.hostname();
@@ -153,10 +154,23 @@ tape('NodeJS Redis', function (t) {
     initializeRedisServer()
       .then(async (server) => {
         const expectedConfig = '{"color":"brown"}';
+        const timeFrame = Date.now();
+        const expectedImpressionCount = [
+          `UT_IN_SEGMENT::${truncateTimeFrame(timeFrame)}`, '2',
+          `UT_NOT_IN_SEGMENT::${truncateTimeFrame(timeFrame)}`, '1',
+          `UT_SET_MATCHER::${truncateTimeFrame(timeFrame)}`, '1',
+          `UT_NOT_SET_MATCHER::${truncateTimeFrame(timeFrame)}`, '1',
+          `always-on::${truncateTimeFrame(timeFrame)}`, '1',
+          `hierarchical_splits_testing_on::${truncateTimeFrame(timeFrame)}`, '2',
+          `hierarchical_splits_testing_off::${truncateTimeFrame(timeFrame)}`, '1',
+          `hierarchical_splits_testing_on_negated::${truncateTimeFrame(timeFrame)}`, '2',
+        ];
         assert.equal(config.sync.impressionsMode, OPTIMIZED, 'impressionsMode should be OPTIMIZED');
         const sdk = SplitFactory(config);
         const client = sdk.client();
         assert.equal(await client.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT'), 'on', 'Evaluations using Redis storage should be correct.');
+        assert.equal(await client.getTreatment('other', 'UT_IN_SEGMENT'), 'off', 'Evaluations using Redis storage should be correct.');
+        // this  should be deduped
         assert.equal(await client.getTreatment('other', 'UT_IN_SEGMENT'), 'off', 'Evaluations using Redis storage should be correct.');
         // this  should be deduped
         assert.equal(await client.getTreatment('other', 'UT_IN_SEGMENT'), 'off', 'Evaluations using Redis storage should be correct.');
@@ -204,9 +218,13 @@ tape('NodeJS Redis', function (t) {
         assert.equal(await client.getTreatment('UT_Segment_member', 'hierarchical_splits_testing_on'), 'on', 'Evaluations using Redis storage should be correct.');
         // this  should be deduped
         assert.equal(await client.getTreatment('UT_Segment_member', 'hierarchical_splits_testing_on'), 'on', 'Evaluations using Redis storage should be correct.');
+        // this  should be deduped
+        assert.equal(await client.getTreatment('UT_Segment_member', 'hierarchical_splits_testing_on'), 'on', 'Evaluations using Redis storage should be correct.');
         assert.equal(await client.getTreatment('UT_Segment_member', 'hierarchical_splits_testing_off'), 'off', 'Evaluations using Redis storage should be correct.');
         // this  should be deduped
         assert.equal(await client.getTreatment('UT_Segment_member', 'hierarchical_splits_testing_off'), 'off', 'Evaluations using Redis storage should be correct.');
+        assert.equal(await client.getTreatment('UT_Segment_member', 'hierarchical_splits_testing_on_negated'), 'off', 'Evaluations using Redis storage should be correct.');
+        // this  should be deduped
         assert.equal(await client.getTreatment('UT_Segment_member', 'hierarchical_splits_testing_on_negated'), 'off', 'Evaluations using Redis storage should be correct.');
         // this  should be deduped
         assert.equal(await client.getTreatment('UT_Segment_member', 'hierarchical_splits_testing_on_negated'), 'off', 'Evaluations using Redis storage should be correct.');
@@ -219,26 +237,32 @@ tape('NodeJS Redis', function (t) {
 
         await client.ready(); // promise already resolved
         await client.destroy();
+        
+        exec(`echo "HGETALL ${config.storage.prefix}.SPLITIO.impressions.count" | redis-cli  -p ${redisPort}`, async (error, stdout) => {
 
-        // Validate stored impressions and events
-        exec(`echo "LLEN ${config.storage.prefix}.SPLITIO.impressions \n LLEN ${config.storage.prefix}.SPLITIO.events" | redis-cli  -p ${redisPort}`, (error, stdout) => {
-          if (error) assert.fail('Redis server should be reachable');
+          const trackedImpressionCounts = stdout.split('\n').filter(line => line !== '');
+          assert.deepEqual(trackedImpressionCounts, expectedImpressionCount, 'Tracked impression counts should be stored in Redis');
 
-          const trackedImpressionsAndEvents = stdout.split('\n').filter(line => line !== '').map(line => parseInt(line));
-          assert.deepEqual(trackedImpressionsAndEvents, [13, 2], 'Tracked impressions and events should be stored in Redis');
-
-          // Validate stored telemetry
-          exec(`echo "HLEN ${config.storage.prefix}.SPLITIO.telemetry.latencies \n HLEN ${config.storage.prefix}.SPLITIO.telemetry.exceptions \n HGET ${config.storage.prefix}.SPLITIO.telemetry.init nodejs-${version}/${HOSTNAME_VALUE}/${IP_VALUE}" | redis-cli  -p ${redisPort}`, (error, stdout) => {
+          // Validate stored impressions and events
+          exec(`echo "LLEN ${config.storage.prefix}.SPLITIO.impressions \n LLEN ${config.storage.prefix}.SPLITIO.events" | redis-cli  -p ${redisPort}`, (error, stdout) => {
             if (error) assert.fail('Redis server should be reachable');
 
-            const [latencies, exceptions, configValue] = stdout.split('\n').filter(line => line !== '').map(JSON.parse);
+            const trackedImpressionsAndEvents = stdout.split('\n').filter(line => line !== '').map(line => parseInt(line));
+            assert.deepEqual(trackedImpressionsAndEvents, [13, 2], 'Tracked impressions and events should be stored in Redis');
 
-            assert.true(latencies > 0, 'There are stored latencies');
-            assert.true(exceptions === 0, 'There aren\'t stored exceptions');
-            assert.deepEqual(configValue, { oM: 1, st: 'redis', aF: 1, rF: 0 }, 'There is stored telemetry config');
+            // Validate stored telemetry
+            exec(`echo "HLEN ${config.storage.prefix}.SPLITIO.telemetry.latencies \n HLEN ${config.storage.prefix}.SPLITIO.telemetry.exceptions \n HGET ${config.storage.prefix}.SPLITIO.telemetry.init nodejs-${version}/${HOSTNAME_VALUE}/${IP_VALUE}" | redis-cli  -p ${redisPort}`, (error, stdout) => {
+              if (error) assert.fail('Redis server should be reachable');
 
-            // close server connection
-            server.close().then(assert.end);
+              const [latencies, exceptions, configValue] = stdout.split('\n').filter(line => line !== '').map(JSON.parse);
+
+              assert.true(latencies > 0, 'There are stored latencies');
+              assert.true(exceptions === 0, 'There aren\'t stored exceptions');
+              assert.deepEqual(configValue, { oM: 1, st: 'redis', aF: 1, rF: 0 }, 'There is stored telemetry config');
+
+              // close server connection
+              server.close().then(assert.end);
+            });
           });
         });
       });
@@ -249,6 +273,29 @@ tape('NodeJS Redis', function (t) {
     initializeRedisServer()
       .then(async (server) => {
         const expectedConfig = '{"color":"brown"}';
+        const timeFrame = Date.now();
+        const expectedImpressionCount = [
+          `UT_IN_SEGMENT::${truncateTimeFrame(timeFrame)}`, '2',
+          `UT_NOT_IN_SEGMENT::${truncateTimeFrame(timeFrame)}`, '2',
+          `UT_SET_MATCHER::${truncateTimeFrame(timeFrame)}`, '2',
+          `UT_NOT_SET_MATCHER::${truncateTimeFrame(timeFrame)}`, '3',
+          `always-o.n-with-config::${truncateTimeFrame(timeFrame)}`, '1',
+          `always-on::${truncateTimeFrame(timeFrame)}`, '1',
+          `hierarchical_splits_testing_on::${truncateTimeFrame(timeFrame)}`, '1',
+          `hierarchical_splits_testing_off::${truncateTimeFrame(timeFrame)}`, '1',
+          `hierarchical_splits_testing_on_negated::${truncateTimeFrame(timeFrame)}`, '1',
+        ];
+        const expectedUniqueKeys = [
+          {'f':'UT_IN_SEGMENT','ks':['UT_Segment_member','other']},
+          {'f':'UT_NOT_IN_SEGMENT','ks':['UT_Segment_member','other']},
+          {'f':'UT_SET_MATCHER','ks':['UT_Segment_member']},
+          {'f':'UT_NOT_SET_MATCHER','ks':['UT_Segment_member']},
+          {'f':'always-o.n-with-config','ks':['UT_Segment_member']},
+          {'f':'always-on','ks':['UT_Segment_member']},
+          {'f':'hierarchical_splits_testing_on','ks':['UT_Segment_member']},
+          {'f':'hierarchical_splits_testing_off','ks':['UT_Segment_member']},
+          {'f':'hierarchical_splits_testing_on_negated','ks':['UT_Segment_member']},
+        ];
         assert.equal(config.sync.impressionsMode, NONE, 'impressionsMode should be OPTIMIZED');
         const sdk = SplitFactory(config);
         const client = sdk.client();
@@ -297,28 +344,41 @@ tape('NodeJS Redis', function (t) {
 
         await client.ready(); // promise already resolved
         await client.destroy();
-
-        // Validate stored impressions and events
-        exec(`echo "LLEN ${config.storage.prefix}.SPLITIO.impressions \n LLEN ${config.storage.prefix}.SPLITIO.events" | redis-cli  -p ${redisPort}`, (error, stdout) => {
-          if (error) assert.fail('Redis server should be reachable');
-
-          const trackedImpressionsAndEvents = stdout.split('\n').filter(line => line !== '').map(line => parseInt(line));
-          assert.deepEqual(trackedImpressionsAndEvents, [0, 2], 'Tracked impressions and events should not be stored in Redis');
-
-          // Validate stored telemetry
-          exec(`echo "HLEN ${config.storage.prefix}.SPLITIO.telemetry.latencies \n HLEN ${config.storage.prefix}.SPLITIO.telemetry.exceptions \n HGET ${config.storage.prefix}.SPLITIO.telemetry.init nodejs-${version}/${HOSTNAME_VALUE}/${IP_VALUE}" | redis-cli  -p ${redisPort}`, (error, stdout) => {
-            if (error) assert.fail('Redis server should be reachable');
-
-            const [latencies, exceptions, configValue] = stdout.split('\n').filter(line => line !== '').map(JSON.parse);
-
-            assert.true(latencies > 0, 'There are stored latencies');
-            assert.true(exceptions === 0, 'There aren\'t stored exceptions');
-            assert.deepEqual(configValue, { oM: 1, st: 'redis', aF: 1, rF: 0 }, 'There is stored telemetry config');
             
-            config.sync.impressionsMode = DEBUG;
+        // Validate Impression Counts
+        exec(`echo "HGETALL ${config.storage.prefix}.SPLITIO.impressions.count" | redis-cli  -p ${redisPort}`, async (error, stdout) => {
 
-            // close server connection
-            server.close().then(assert.end);
+          const trackedImpressionCounts = stdout.split('\n').filter(line => line !== '');
+          assert.deepEqual(trackedImpressionCounts, expectedImpressionCount, 'Tracked impression counts should be stored in Redis');
+
+          // Validate unique Keys
+          exec(`echo "LRANGE ${config.storage.prefix}.SPLITIO.uniquekeys 0 20" | redis-cli  -p ${redisPort}`, async (error, stdout) => {
+            const storedUniqueKeys = stdout.split('\n').filter(line => line !== '').map(JSON.parse);
+            assert.deepEqual(storedUniqueKeys, expectedUniqueKeys, 'Unique keys should be stored in Redis');
+
+            // Validate stored impressions and events
+            exec(`echo "LLEN ${config.storage.prefix}.SPLITIO.impressions \n LLEN ${config.storage.prefix}.SPLITIO.events" | redis-cli  -p ${redisPort}`, (error, stdout) => {
+              if (error) assert.fail('Redis server should be reachable');
+
+              const trackedImpressionsAndEvents = stdout.split('\n').filter(line => line !== '').map(line => parseInt(line));
+              assert.deepEqual(trackedImpressionsAndEvents, [0, 2], 'Tracked impressions and events should not be stored in Redis');
+
+              // Validate stored telemetry
+              exec(`echo "HLEN ${config.storage.prefix}.SPLITIO.telemetry.latencies \n HLEN ${config.storage.prefix}.SPLITIO.telemetry.exceptions \n HGET ${config.storage.prefix}.SPLITIO.telemetry.init nodejs-${version}/${HOSTNAME_VALUE}/${IP_VALUE}" | redis-cli  -p ${redisPort}`, (error, stdout) => {
+                if (error) assert.fail('Redis server should be reachable');
+
+                const [latencies, exceptions, configValue] = stdout.split('\n').filter(line => line !== '').map(JSON.parse);
+
+                assert.true(latencies > 0, 'There are stored latencies');
+                assert.true(exceptions === 0, 'There aren\'t stored exceptions');
+                assert.deepEqual(configValue, { oM: 1, st: 'redis', aF: 1, rF: 0 }, 'There is stored telemetry config');
+            
+                config.sync.impressionsMode = DEBUG;
+
+                // close server connection
+                server.close().then(assert.end);
+              });
+            });
           });
         });
       });
