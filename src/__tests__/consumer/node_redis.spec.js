@@ -296,7 +296,7 @@ tape('NodeJS Redis', function (t) {
           {'f':'hierarchical_splits_testing_off','ks':['UT_Segment_member']},
           {'f':'hierarchical_splits_testing_on_negated','ks':['UT_Segment_member']},
         ];
-        assert.equal(config.sync.impressionsMode, NONE, 'impressionsMode should be OPTIMIZED');
+        assert.equal(config.sync.impressionsMode, NONE, 'impressionsMode should be NONE');
         const sdk = SplitFactory(config);
         const client = sdk.client();
         assert.equal(await client.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT'), 'on', 'Evaluations using Redis storage should be correct.');
