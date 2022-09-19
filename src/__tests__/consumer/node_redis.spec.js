@@ -160,7 +160,7 @@ tape('NodeJS Redis', function (t) {
         });
       });
   });
-  
+
   t.test('Regular usage - OPTIMIZED strategy', assert => {
     config.sync.impressionsMode = OPTIMIZED;
     initializeRedisServer()
@@ -170,16 +170,16 @@ tape('NodeJS Redis', function (t) {
         const client = sdk.client();
         assert.equal(await client.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT'), 'on', 'Evaluations using Redis storage should be correct.');
         assert.equal(await client.getTreatment('other', 'UT_IN_SEGMENT'), 'off', 'Evaluations using Redis storage should be correct.');
-        // this  should be deduped
+        // this should be deduped
         assert.equal(await client.getTreatment('other', 'UT_IN_SEGMENT'), 'off', 'Evaluations using Redis storage should be correct.');
-        // this  should be deduped
+        // this should be deduped
         assert.equal(await client.getTreatment('other', 'UT_IN_SEGMENT'), 'off', 'Evaluations using Redis storage should be correct.');
 
         assert.equal(await client.getTreatment('UT_Segment_member', 'UT_NOT_IN_SEGMENT'), 'off', 'Evaluations using Redis storage should be correct.');
         assert.equal(await client.getTreatment('other', 'UT_NOT_IN_SEGMENT'), 'on', 'Evaluations using Redis storage should be correct.');
-        // this  should be deduped
+        // this should be deduped
         assert.equal(await client.getTreatment('other', 'UT_NOT_IN_SEGMENT'), 'on', 'Evaluations using Redis storage should be correct.');
-        // this  should be deduped
+        // this should be deduped
         assert.equal(await client.getTreatment('other', 'UT_NOT_IN_SEGMENT'), 'on', 'Evaluations using Redis storage should be correct.');
 
         assert.equal(await client.getTreatment('UT_Segment_member', 'UT_SET_MATCHER', {
@@ -188,11 +188,11 @@ tape('NodeJS Redis', function (t) {
         assert.equal(await client.getTreatment('UT_Segment_member', 'UT_SET_MATCHER', {
           permissions: ['not_matching']
         }), 'off', 'Evaluations using Redis storage should be correct.');
-        // this  should be deduped
+        // this should be deduped
         assert.equal(await client.getTreatment('UT_Segment_member', 'UT_SET_MATCHER', {
           permissions: ['not_matching']
         }), 'off', 'Evaluations using Redis storage should be correct.');
-        // this  should be deduped
+        // this should be deduped
         assert.equal(await client.getTreatment('UT_Segment_member', 'UT_SET_MATCHER', {
           permissions: ['not_matching']
         }), 'off', 'Evaluations using Redis storage should be correct.');
@@ -200,18 +200,18 @@ tape('NodeJS Redis', function (t) {
         assert.equal(await client.getTreatment('UT_Segment_member', 'UT_NOT_SET_MATCHER', {
           permissions: ['create']
         }), 'off', 'Evaluations using Redis storage should be correct.');
-        // this  should be deduped
+        // this should be deduped
         assert.equal(await client.getTreatment('UT_Segment_member', 'UT_NOT_SET_MATCHER', {
           permissions: ['create']
         }), 'off', 'Evaluations using Redis storage should be correct.');
-        // this  should be deduped
+        // this should be deduped
         assert.equal(await client.getTreatment('UT_Segment_member', 'UT_NOT_SET_MATCHER', {
           permissions: ['create']
         }), 'off', 'Evaluations using Redis storage should be correct.');
         assert.equal(await client.getTreatment('UT_Segment_member', 'UT_NOT_SET_MATCHER', {
           permissions: ['not_matching']
         }), 'on', 'Evaluations using Redis storage should be correct.');
-        // this  should be deduped
+        // this should be deduped
         assert.deepEqual(await client.getTreatmentWithConfig('UT_Segment_member', 'UT_NOT_SET_MATCHER', {
           permissions: ['not_matching']
         }), {
@@ -222,28 +222,28 @@ tape('NodeJS Redis', function (t) {
           treatment: 'o.n',
           config: expectedConfig
         }, 'Evaluations using Redis storage should be correct, including configs.');
-        // this  should be deduped
+        // this should be deduped
         assert.deepEqual(await client.getTreatmentWithConfig('UT_Segment_member', 'always-o.n-with-config'), {
           treatment: 'o.n',
           config: expectedConfig
         }, 'Evaluations using Redis storage should be correct, including configs.');
 
         assert.equal(await client.getTreatment('UT_Segment_member', 'always-on'), 'on', 'Evaluations using Redis storage should be correct.');
-        // this  should be deduped
+        // this should be deduped
         assert.equal(await client.getTreatment('UT_Segment_member', 'always-on'), 'on', 'Evaluations using Redis storage should be correct.');
 
         // Below splits were added manually to the redis_mock.json file.
         // They are all_keys (always evaluate to on) which depend from always-on split. the _on/off is what treatment they are expecting there.
         assert.equal(await client.getTreatment('UT_Segment_member', 'hierarchical_splits_testing_on'), 'on', 'Evaluations using Redis storage should be correct.');
-        // this  should be deduped
+        // this should be deduped
         assert.equal(await client.getTreatment('UT_Segment_member', 'hierarchical_splits_testing_on'), 'on', 'Evaluations using Redis storage should be correct.');
         assert.equal(await client.getTreatment('UT_Segment_member', 'hierarchical_splits_testing_off'), 'off', 'Evaluations using Redis storage should be correct.');
-        // this  should be deduped
+        // this should be deduped
         assert.equal(await client.getTreatment('UT_Segment_member', 'hierarchical_splits_testing_off'), 'off', 'Evaluations using Redis storage should be correct.');
         assert.equal(await client.getTreatment('UT_Segment_member', 'hierarchical_splits_testing_on_negated'), 'off', 'Evaluations using Redis storage should be correct.');
-        // this  should be deduped
+        // this should be deduped
         assert.equal(await client.getTreatment('UT_Segment_member', 'hierarchical_splits_testing_on_negated'), 'off', 'Evaluations using Redis storage should be correct.');
-        
+
         assert.equal(typeof client.track('nicolas@split.io', 'user', 'test.redis.event', 18).then, 'function', 'Track calls should always return a promise on Redis mode.');
         assert.equal(typeof client.track().then, 'function', 'Track calls should always return a promise on Redis mode, even when parameters are incorrect.');
 
@@ -252,7 +252,7 @@ tape('NodeJS Redis', function (t) {
 
         await client.ready(); // promise already resolved
         await client.destroy();
-        
+
         exec(`echo "HGETALL ${config.storage.prefix}.SPLITIO.impressions.count" | redis-cli  -p ${redisPort}`, async (error, stdout) => {
 
           const trackedImpressionCounts = stdout.split('\n').filter(line => line !== '');
@@ -282,7 +282,7 @@ tape('NodeJS Redis', function (t) {
         });
       });
   });
-  
+
   t.test('Regular usage - NONE strategy', assert => {
     config.sync.impressionsMode = NONE;
     initializeRedisServer()
@@ -331,7 +331,7 @@ tape('NodeJS Redis', function (t) {
         }, 'Evaluations using Redis storage should be correct, including configs.');
 
         assert.equal(await client.getTreatment('UT_Segment_member', 'always-on'), 'on', 'Evaluations using Redis storage should be correct.');
- 
+
         // Below splits were added manually to the redis_mock.json file.
         // They are all_keys (always evaluate to on) which depend from always-on split. the _on/off is what treatment they are expecting there.
         assert.equal(await client.getTreatment('UT_Segment_member', 'hierarchical_splits_testing_on'), 'on', 'Evaluations using Redis storage should be correct.');
@@ -346,7 +346,7 @@ tape('NodeJS Redis', function (t) {
 
         await client.ready(); // promise already resolved
         await client.destroy();
-            
+
         // Validate Impression Counts
         exec(`echo "HGETALL ${config.storage.prefix}.SPLITIO.impressions.count" | redis-cli  -p ${redisPort}`, async (error, stdout) => {
 
@@ -363,7 +363,7 @@ tape('NodeJS Redis', function (t) {
               if (error) assert.fail('Redis server should be reachable');
 
               const trackedImpressionsAndEvents = stdout.split('\n').filter(line => line !== '').map(line => parseInt(line));
-              assert.deepEqual(trackedImpressionsAndEvents, [0, 2], 'Tracked impressions and events should not be stored in Redis');
+              assert.deepEqual(trackedImpressionsAndEvents, [0, 2], 'No impressions are stored in Redis in NONE impressions mode');
 
               // Validate stored telemetry
               exec(`echo "HLEN ${config.storage.prefix}.SPLITIO.telemetry.latencies \n HLEN ${config.storage.prefix}.SPLITIO.telemetry.exceptions \n HGET ${config.storage.prefix}.SPLITIO.telemetry.init nodejs-${version}/${HOSTNAME_VALUE}/${IP_VALUE}" | redis-cli  -p ${redisPort}`, (error, stdout) => {
@@ -374,7 +374,7 @@ tape('NodeJS Redis', function (t) {
                 assert.true(latencies > 0, 'There are stored latencies');
                 assert.true(exceptions === 0, 'There aren\'t stored exceptions');
                 assert.deepEqual(configValue, { oM: 1, st: 'redis', aF: 1, rF: 0 }, 'There is stored telemetry config');
-            
+
                 config.sync.impressionsMode = DEBUG;
 
                 // close server connection
