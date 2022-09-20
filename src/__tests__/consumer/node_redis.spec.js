@@ -172,6 +172,8 @@ tape('NodeJS Redis', function (t) {
         assert.equal(config.sync.impressionsMode, OPTIMIZED, 'impressionsMode should be OPTIMIZED');
         const sdk = SplitFactory(config);
         const client = sdk.client();
+        await client.ready();
+
         assert.equal(await client.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT'), 'on', 'Evaluations using Redis storage should be correct.');
         assert.equal(await client.getTreatment('other', 'UT_IN_SEGMENT'), 'off', 'Evaluations using Redis storage should be correct.');
         // this should be deduped
@@ -305,6 +307,8 @@ tape('NodeJS Redis', function (t) {
         assert.equal(config.sync.impressionsMode, NONE, 'impressionsMode should be NONE');
         const sdk = SplitFactory(config);
         const client = sdk.client();
+        await client.ready();
+
         assert.equal(await client.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT'), 'on', 'Evaluations using Redis storage should be correct.');
         assert.equal(await client.getTreatment('other', 'UT_IN_SEGMENT'), 'off', 'Evaluations using Redis storage should be correct.');
 
@@ -389,7 +393,6 @@ tape('NodeJS Redis', function (t) {
         });
       });
   });
-
 
   t.test('Connection timeout and then ready', assert => {
     const readyTimeout = 0.1; // 100 millis

@@ -125,7 +125,6 @@ export default async function(key, fetchMock, assert) {
     return 200;
   });
 
-  splitio.Logger.enable();
   evaluationsStart = Date.now();
 
   assert.equal(client.getTreatment(key, 'not_existent_split'), 'control', `If we try to get an evaluation BEFORE the client is ready, we expect ${SDK_NOT_READY} label on the impression.`);
@@ -147,7 +146,6 @@ export default async function(key, fetchMock, assert) {
   }, 'We should get an evaluation as always.');
   client.getTreatmentWithConfig({ matchingKey: key, bucketingKey: 'test_buck_key'}, 'split_with_config');
   client.getTreatmentWithConfig({ matchingKey: 'different', bucketingKey: 'test_buck_key'}, 'split_with_config');
-  splitio.Logger.disable();
 
   evaluationsEnd = Date.now();
 }

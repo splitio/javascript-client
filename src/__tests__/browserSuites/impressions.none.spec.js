@@ -4,6 +4,7 @@ import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
 import mySegmentsFacundo from '../mocks/mysegments.facundo@split.io.json';
 import { NONE } from '@splitsoftware/splitio-commons/src/utils/constants';
+import { truncateTimeFrame } from '@splitsoftware/splitio-commons/src/utils/time';
 import { url } from '../testUtils';
 
 const baseUrls = {
@@ -27,9 +28,6 @@ const config = {
   scheduler: {
     featuresRefreshRate: 1,
     segmentsRefreshRate: 1,
-    impressionsRefreshRate: 3000,
-    impressionsQueueSize: 3, // flush impressions when 3 are queued
-    uniqueKeysCacheSize: 3 // flush impressions when 3 are queued
   },
   urls: baseUrls,
   startup: {
@@ -47,10 +45,24 @@ export default async function (fetchMock, assert) {
   fetchMock.get(url(settings, '/splitChanges?since=1457552620999'), { status: 200, body: splitChangesMock2 });
   fetchMock.get(url(settings, '/mySegments/facundo%40split.io'), { status: 200, body: mySegmentsFacundo });
   fetchMock.get(url(settings, '/mySegments/emma%40split.io'), { status: 200, body: mySegmentsFacundo });
-  fetchMock.postOnce(baseUrls.events + '/testImpressions/count', 200);
+
   const splitio = SplitFactory(config);
   const client = splitio.client();
   const sharedClient = splitio.client('emma@split.io');
+
+  fetchMock.postOnce(baseUrls.events + '/testImpressions/count', (url, opts) => {
+    const data = JSON.parse(opts.body);
+    const truncatedTimeFrame = truncateTimeFrame(Date.now());
+
+    assert.deepEqual(data, {
+      pf: [
+        { f: 'split_with_config', m: truncatedTimeFrame, rc: 2 },
+        { f: 'always_off', m: truncatedTimeFrame, rc: 4 },
+        { f: 'always_on', m: truncatedTimeFrame, rc: 2 }
+      ]
+    });
+    return 200;
+  });
 
   fetchMock.postOnce(url(settings, '/v1/keys/cs'), (url, opts) => {
     const data = JSON.parse(opts.body);
@@ -59,7 +71,7 @@ export default async function (fetchMock, assert) {
       keys: [
         {
           k: 'facundo@split.io',
-          fs: ['split_with_config','always_off', 'always_on']
+          fs: ['split_with_config', 'always_off', 'always_on']
         },
         {
           k: 'emma@split.io',
@@ -67,16 +79,9 @@ export default async function (fetchMock, assert) {
         }
       ]
     }, 'We performed evaluations for two keys, so we should have 2 item total.');
-    
-    client.destroy().then(() => {  
-      assert.end();
 
-    });
-    
     return 200;
   });
-
-  splitio.Logger.enable();
 
   await client.ready();
 
@@ -88,5 +93,8 @@ export default async function (fetchMock, assert) {
   client.getTreatment('always_on');
   client.getTreatment('always_off');
   client.getTreatment('split_with_config');
-  
+
+  client.destroy().then(() => {
+    assert.end();
+  });
 }
