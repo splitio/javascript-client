@@ -60,13 +60,15 @@ export default class BrowserSignalListener {
    * using beacon API if possible, or falling back to regular post transport.
    */
   flushData() {
+    if (!this.syncManager) return;
+
     this._flushImpressions();
     this._flushEvents();
     if (this.impressionsCounter) {
       this._flushImpressionsCount();
     }
     // Close streaming
-    if (this.syncManager && this.syncManager.pushManager) this.syncManager.pushManager.stop();
+    if (this.syncManager.pushManager) this.syncManager.pushManager.stop();
   }
 
   _flushImpressions() {

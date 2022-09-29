@@ -51,7 +51,7 @@ function SplitFactoryOnline(context, readyTrackers, mainClientMetricCollectors) 
       break;
     }
     case CONSUMER_MODE: {
-      context.put(context.constants.READY_FROM_CACHE, true); // For SDK inner workings it's supposed to be ready from cache.
+      context.put(context.constants.READY_FROM_CACHE, true); // For SDK inner workings it's supposed to be ready from cache, to be operational for evaluations immediately
       break;
     }
   }

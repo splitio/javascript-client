@@ -10,7 +10,6 @@ import { ioredisWrapper } from './ioredisWrapper';
 import { exec } from 'child_process';
 import { SplitFactory } from '../../index';
 import { merge } from '../../utils/lang';
-import SettingsFactory from '../../utils/settings';
 import { nearlyEqual } from '../testUtils';
 
 const expectedSplitName = 'hierarchical_splits_testing_on';
@@ -30,15 +29,11 @@ const redisOptions = {
 /** @type SplitIO.INodeAsyncSettings */
 const config = {
   core: {
-    authorizationKey: 'uoj4sb69bjv7d4d027f7ukkitd53ek6a9ai9'
-  },
-  urls: {
-    sdk: 'https://sdk-aws-staging.split.io/api',
-    events: 'https://events-aws-staging.split.io/api'
+    authorizationKey: 'SOME API KEY' // in consumer mode, api key is only used to identify the sdk instance
   },
   mode: 'consumer',
   storage: {
-    type: 'CUSTOM',
+    type: 'PLUGGABLE',
     prefix: redisPrefix,
     wrapper: ioredisWrapper(redisOptions)
   },
@@ -73,7 +68,7 @@ const initializeRedisServer = () => {
   return promise;
 };
 
-tape('NodeJS Custom Storage using a wrapper for Ioredis', function (t) {
+tape('NodeJS Pluggable Storage using a wrapper for Ioredis', function (t) {
 
   t.test('Regular usage', assert => {
     initializeRedisServer()
@@ -100,11 +95,16 @@ tape('NodeJS Custom Storage using a wrapper for Ioredis', function (t) {
         const splitsResult = manager.splits();
 
         assert.equal(typeof getTreatmentResult.then, 'function', 'GetTreatment calls should always return a promise on Consumer mode.');
-        // NOTE: unlike others, JS SDK attempts to retrieve splits from storage even if SDK_READY has not been emitted.
-        // This could change in a coming breaking change, in order to return a control treatment without calling the storage wrapper.
-        // ATM, we have to set `enableOfflineQueue: false` in our ioredisWrapper, to make wrapper calls fail immediately if Redis 'ready' event was not emitted.
-        // The label might be 'exception' instead of 'not ready', if the wrapper operation promise is settled after the SDK is ready.
-        assert.equal(await getTreatmentResult, 'control', 'Evaluations using custom storage should be control if initiated before SDK_READY.');
+        // NOTE: unlike spec, JS SDK attempts to retrieve splits from storage even if SDK_READY has not been emitted, because it is flagged ready from cache.
+        // This could change to return control treatment without calling the storage wrapper (Breaking change).
+        // ATM, ioredisWrapper sets `enableOfflineQueue` to false (https://github.com/luin/ioredis#offline-queue), to make wrapper calls fail immediately until Redis 'ready' event is emitted.
+        // Therefore, the impression label is 'exception' instead of 'not ready'.
+        assert.equal(await getTreatmentResult, 'control', 'Evaluations using pluggable storage should be control if initiated before SDK_READY.');
+        // @TODO SDK should not be operational, until wrapper connects
+        assert.deepEqual({
+          isReadyFromCache: client.__context.get(client.__context.constants.READY_FROM_CACHE, true),
+          isReady: client.__context.get(client.__context.constants.READY, true)
+        }, { isReadyFromCache: true, isReady: undefined }, 'SDK in consumer mode is operational inmediatelly');
 
         assert.equal(typeof trackResult.then, 'function', 'Track calls should always return a promise on Consumer mode.');
         assert.false(await trackResult, 'If the event failed to be queued due to a wrapper operation failure, the promise will resolve to false');
@@ -118,43 +118,43 @@ tape('NodeJS Custom Storage using a wrapper for Ioredis', function (t) {
 
         await client.ready();
 
-        assert.equal(await client.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT'), 'on', '`getTreatment` evaluation using custom storage should be correct.');
-        assert.equal((await client.getTreatmentWithConfig('other', 'UT_IN_SEGMENT')).treatment, 'off', '`getTreatmentWithConfig` evaluation using custom storage should be correct.');
+        assert.equal(await client.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT'), 'on', '`getTreatment` evaluation using pluggable storage should be correct.');
+        assert.equal((await client.getTreatmentWithConfig('other', 'UT_IN_SEGMENT')).treatment, 'off', '`getTreatmentWithConfig` evaluation using pluggable storage should be correct.');
 
-        assert.equal((await client.getTreatments('UT_Segment_member', ['UT_NOT_IN_SEGMENT']))['UT_NOT_IN_SEGMENT'], 'off', '`getTreatments` evaluation using custom storage should be correct.');
-        assert.equal((await client.getTreatmentsWithConfig('other', ['UT_NOT_IN_SEGMENT']))['UT_NOT_IN_SEGMENT'].treatment, 'on', '`getTreatmentsWithConfig` evaluation using custom storage should be correct.');
+        assert.equal((await client.getTreatments('UT_Segment_member', ['UT_NOT_IN_SEGMENT']))['UT_NOT_IN_SEGMENT'], 'off', '`getTreatments` evaluation using pluggable storage should be correct.');
+        assert.equal((await client.getTreatmentsWithConfig('other', ['UT_NOT_IN_SEGMENT']))['UT_NOT_IN_SEGMENT'].treatment, 'on', '`getTreatmentsWithConfig` evaluation using pluggable storage should be correct.');
 
         assert.equal(await client.getTreatment('UT_Segment_member', 'UT_SET_MATCHER', {
           permissions: ['admin']
-        }), 'on', 'Evaluations using custom storage should be correct.');
+        }), 'on', 'Evaluations using pluggable storage should be correct.');
         assert.equal(await client.getTreatment('UT_Segment_member', 'UT_SET_MATCHER', {
           permissions: ['not_matching']
-        }), 'off', 'Evaluations using custom storage should be correct.');
+        }), 'off', 'Evaluations using pluggable storage should be correct.');
 
         assert.equal(await client.getTreatment('UT_Segment_member', 'UT_NOT_SET_MATCHER', {
           permissions: ['create']
-        }), 'off', 'Evaluations using custom storage should be correct.');
+        }), 'off', 'Evaluations using pluggable storage should be correct.');
         assert.equal(await client.getTreatment('UT_Segment_member', 'UT_NOT_SET_MATCHER', {
           permissions: ['not_matching']
-        }), 'on', 'Evaluations using custom storage should be correct.');
+        }), 'on', 'Evaluations using pluggable storage should be correct.');
         assert.deepEqual(await client.getTreatmentWithConfig('UT_Segment_member', 'UT_NOT_SET_MATCHER', {
           permissions: ['not_matching']
         }), {
           treatment: 'on',
           config: null
-        }, 'Evaluations using custom storage should be correct, including configs.');
+        }, 'Evaluations using pluggable storage should be correct, including configs.');
         assert.deepEqual(await client.getTreatmentWithConfig('UT_Segment_member', 'always-on-with-config'), {
           treatment: 'on',
           config: expectedConfig
-        }, 'Evaluations using custom storage should be correct, including configs.');
+        }, 'Evaluations using pluggable storage should be correct, including configs.');
 
-        assert.equal(await client.getTreatment('UT_Segment_member', 'always-on'), 'on', 'Evaluations using custom storage should be correct.');
+        assert.equal(await client.getTreatment('UT_Segment_member', 'always-on'), 'on', 'Evaluations using pluggable storage should be correct.');
 
         // Below splits were added manually to the redis_mock.json file.
         // They are all_keys (always evaluate to on) which depend from always-on split. the _on/off is what treatment they are expecting there.
-        assert.equal(await client.getTreatment('UT_Segment_member', 'hierarchical_splits_testing_on'), 'on', 'Evaluations using custom storage should be correct.');
-        assert.equal(await client.getTreatment('UT_Segment_member', 'hierarchical_splits_testing_off'), 'off', 'Evaluations using custom storage should be correct.');
-        assert.equal(await client.getTreatment('UT_Segment_member', 'hierarchical_splits_testing_on_negated'), 'off', 'Evaluations using custom storage should be correct.');
+        assert.equal(await client.getTreatment('UT_Segment_member', 'hierarchical_splits_testing_on'), 'on', 'Evaluations using pluggable storage should be correct.');
+        assert.equal(await client.getTreatment('UT_Segment_member', 'hierarchical_splits_testing_off'), 'off', 'Evaluations using pluggable storage should be correct.');
+        assert.equal(await client.getTreatment('UT_Segment_member', 'hierarchical_splits_testing_on_negated'), 'off', 'Evaluations using pluggable storage should be correct.');
 
         assert.equal(typeof client.track('nicolas@split.io', 'user', 'test.redis.event', 18).then, 'function', 'Track calls should always return a promise on Consumer mode.');
         assert.equal(typeof client.track().then, 'function', 'Track calls should always return a promise on Consumer mode, even when parameters are incorrect.');
@@ -198,7 +198,7 @@ tape('NodeJS Custom Storage using a wrapper for Ioredis', function (t) {
 
     // Unlike RedisAdapter, operations to ioredisWrapper fail if it is not ready.
     client.getTreatment('UT_Segment_member', 'always-on').then(treatment => {
-      assert.equal(treatment, 'control', 'Evaluations using custom storage should be control if Redis was not ready');
+      assert.equal(treatment, 'control', 'Evaluations using pluggable storage should be control if Redis was not ready');
     });
     client.track('nicolas@split.io', 'user', 'test.redis.event', 18).then(result => {
       assert.false(result, 'If the event was not queued because Redis was not ready, the promise will resolve to false');
@@ -237,8 +237,8 @@ tape('NodeJS Custom Storage using a wrapper for Ioredis', function (t) {
       assert.pass('Ready promise is resolved once SDK_READY is emitted');
 
       // some asserts to test regular usage
-      assert.equal(await client.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT'), 'on', 'Evaluations using custom storage should be correct.');
-      assert.equal(await client.getTreatment('other', 'UT_IN_SEGMENT'), 'off', 'Evaluations using custom storage should be correct.');
+      assert.equal(await client.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT'), 'on', 'Evaluations using pluggable storage should be correct.');
+      assert.equal(await client.getTreatment('other', 'UT_IN_SEGMENT'), 'off', 'Evaluations using pluggable storage should be correct.');
       assert.true(await client.track('nicolas@split.io', 'user', 'test.redis.event', 18), 'If the event was succesfully queued the promise will resolve to true');
       assert.false(await client.track(), 'If the event was NOT succesfully queued the promise will resolve to false');
 
@@ -265,8 +265,8 @@ tape('NodeJS Custom Storage using a wrapper for Ioredis', function (t) {
         assert.pass('SDK_READY event must be emitted');
 
         // some asserts to test regular usage
-        assert.equal(await client2.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT'), 'on', 'Evaluations using custom storage should be correct.');
-        assert.equal(await client2.getTreatment('other', 'UT_IN_SEGMENT'), 'off', 'Evaluations using custom storage should be correct.');
+        assert.equal(await client2.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT'), 'on', 'Evaluations using pluggable storage should be correct.');
+        assert.equal(await client2.getTreatment('other', 'UT_IN_SEGMENT'), 'off', 'Evaluations using pluggable storage should be correct.');
         assert.true(await client2.track('nicolas@split.io', 'user', 'test.redis.event', 18), 'If the event was succesfully queued the promise will resolve to true');
         assert.false(await client2.track(), 'If the event was NOT succesfully queued the promise will resolve to false');
 
@@ -384,7 +384,6 @@ tape('NodeJS Custom Storage using a wrapper for Ioredis', function (t) {
         for (let config of configs) {
 
           // Redis client and keys required to check Redis store.
-          const setting = SettingsFactory({ ...config, storage: { ...config.storage, wrapper: ioredisWrapper(redisOptions) } });
           const connection = new RedisClient(redisOptions.url);
 
           const eventKey = `${redisPrefix}.SPLITIO.impressions`;
@@ -409,15 +408,15 @@ tape('NodeJS Custom Storage using a wrapper for Ioredis', function (t) {
           let redisImpressions = await connection.lrange(impressionsKey, 0, -1);
           assert.equal(redisImpressions.length, 1, 'After getting a treatment, we should have one impression on Redis.');
           const parsedImpression = JSON.parse(redisImpressions[0]);
-          assert.equal(parsedImpression.m.i, setting.core.IPAddressesEnabled ? IP_VALUE : NA, `If IPAddressesEnabled is true, the property .m.i of the impression object must be equal to the machine ip, or "${NA}" otherwise.`);
-          assert.equal(parsedImpression.m.n, setting.core.IPAddressesEnabled ? HOSTNAME_VALUE : NA, `If IPAddressesEnabled is true, the property .m.n of the impression object must be equal to the machine hostname, or "${NA}" otherwise.`);
+          assert.equal(parsedImpression.m.i, sdk.settings.core.IPAddressesEnabled ? IP_VALUE : NA, `If IPAddressesEnabled is true, the property .m.i of the impression object must be equal to the machine ip, or "${NA}" otherwise.`);
+          assert.equal(parsedImpression.m.n, sdk.settings.core.IPAddressesEnabled ? HOSTNAME_VALUE : NA, `If IPAddressesEnabled is true, the property .m.n of the impression object must be equal to the machine hostname, or "${NA}" otherwise.`);
 
           // Assert if the event object was stored properly
           let redisEvents = await connection.lrange(eventKey, 0, -1);
           assert.equal(redisEvents.length, 1, 'After tracking an event, we should have one event on Redis.');
           const parsedEvent = JSON.parse(redisEvents[0]);
-          assert.equal(parsedEvent.m.i, setting.core.IPAddressesEnabled ? IP_VALUE : NA, `If IPAddressesEnabled is true, the property .m.i of the event object must be equal to the machine ip, or "${NA}" otherwise.`);
-          assert.equal(parsedEvent.m.n, setting.core.IPAddressesEnabled ? HOSTNAME_VALUE : NA, `If IPAddressesEnabled is true, the property .m.n of the event object must be equal to the machine hostname, or "${NA}" otherwise.`);
+          assert.equal(parsedEvent.m.i, sdk.settings.core.IPAddressesEnabled ? IP_VALUE : NA, `If IPAddressesEnabled is true, the property .m.i of the event object must be equal to the machine ip, or "${NA}" otherwise.`);
+          assert.equal(parsedEvent.m.n, sdk.settings.core.IPAddressesEnabled ? HOSTNAME_VALUE : NA, `If IPAddressesEnabled is true, the property .m.n of the event object must be equal to the machine hostname, or "${NA}" otherwise.`);
 
           // Deallocate Split and Redis clients
           await client.destroy();

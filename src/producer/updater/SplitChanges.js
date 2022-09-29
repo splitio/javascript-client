@@ -85,7 +85,7 @@ export default function SplitChangesUpdaterFactory(context, isNode = false) {
           log.debug(`Segment names collected ${mutation.segments}`);
 
           // Write into storage
-          // @TODO if allowing custom storages, wrap errors as SplitErrors to distinguish from user callback errors
+          // @TODO wrap errors as SplitErrors or migrate error handling as in JS-commons
           return Promise.all([
             // calling first `setChangenumber` method, to perform cache flush if split filter queryString changed
             storage.splits.setChangeNumber(splitChanges.till),

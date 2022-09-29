@@ -389,7 +389,7 @@ export default function readyPromiseAssertions(key, fetchMock, assert) {
     // We also use the manager to get some of the promises
     const manager = splitio.manager();
 
-    // promise1 is handled inmediately. Thus, the 'reject' callback is expected to be called in 0.15 seconds aprox.
+    // promise1 is handled immediately. Thus, the 'reject' callback is expected to be called in 0.15 seconds aprox.
     setTimeout(() => {
       const promise1 = client.ready();
       const tStart = Date.now();
@@ -405,7 +405,7 @@ export default function readyPromiseAssertions(key, fetchMock, assert) {
         });
     }, 0);
 
-    // promise2 is handled in 0.15 seconds, when the promise is just rejected. Thus, the 'reject' callback is expected to be called inmediately (0 seconds aprox).
+    // promise2 is handled in 0.15 seconds, when the promise is just rejected. Thus, the 'reject' callback is expected to be called immediately (0 seconds aprox).
     setTimeout(() => {
       const promise2 = manager.ready();
       const tStart = Date.now();
@@ -417,11 +417,11 @@ export default function readyPromiseAssertions(key, fetchMock, assert) {
           t.pass('### SDK TIMED OUT - time out is triggered before retry attempt finishes');
           assertGetTreatmentControlNotReady(t, client, key);
           const tDelta = Date.now() - tStart;
-          assert.ok(tDelta < 20, 'The "reject" callback is expected to be called inmediately (0 seconds aprox).');
+          assert.ok(tDelta < 20, 'The "reject" callback is expected to be called immediately (0 seconds aprox).');
         });
     }, fromSecondsToMillis(0.15));
 
-    // promise3 is handled in 0.2 seconds, when the promise is just resolved. Thus, the 'resolve' callback is expected to be called inmediately (0 seconds aprox).
+    // promise3 is handled in 0.2 seconds, when the promise is just resolved. Thus, the 'resolve' callback is expected to be called immediately (0 seconds aprox).
     setTimeout(() => {
       const promise3 = manager.ready();
       const tStart = Date.now();
@@ -430,7 +430,7 @@ export default function readyPromiseAssertions(key, fetchMock, assert) {
           t.pass('### SDK IS READY - retry attempt finishes before the requestTimeoutBeforeReady limit');
           assertGetTreatmentWhenReady(t, client, key);
           const tDelta = Date.now() - tStart;
-          assert.ok(tDelta < 20, 'The "resolve" callback is expected to be called inmediately (0 seconds aprox).');
+          assert.ok(tDelta < 20, 'The "resolve" callback is expected to be called immediately (0 seconds aprox).');
 
           return Promise.resolve();
         }, () => {

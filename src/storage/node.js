@@ -13,7 +13,7 @@ import EventsCacheInMemory from './EventsCache/InMemory';
 import EventsCacheInRedis from './EventsCache/InRedis';
 import KeyBuilder from './Keys';
 import MetaBuilder from './Meta';
-import { STORAGE_MEMORY, STORAGE_REDIS, STORAGE_CUSTOM } from '../utils/constants';
+import { STORAGE_MEMORY, STORAGE_REDIS, STORAGE_PLUGGABLE } from '../utils/constants';
 import { PluggableStorage } from '@splitsoftware/splitio-commons';
 import LogFactory from '../utils/logger';
 
@@ -60,7 +60,7 @@ const NodeStorageFactory = context => {
       };
     }
 
-    case STORAGE_CUSTOM: {
+    case STORAGE_PLUGGABLE: {
 
       const storageFactory = PluggableStorage(storage);
 

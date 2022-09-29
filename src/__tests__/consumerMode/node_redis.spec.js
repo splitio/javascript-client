@@ -21,11 +21,7 @@ const redisPort = '6385';
 
 const config = {
   core: {
-    authorizationKey: 'uoj4sb69bjv7d4d027f7ukkitd53ek6a9ai9'
-  },
-  urls: {
-    sdk: 'https://sdk-aws-staging.split.io/api',
-    events: 'https://events-aws-staging.split.io/api'
+    authorizationKey: 'SOME API KEY' // in consumer mode, api key is only used to identify the sdk instance
   },
   mode: 'consumer',
   storage: {
