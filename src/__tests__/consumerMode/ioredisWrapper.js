@@ -43,11 +43,11 @@ export function ioredisWrapper(redisOptions) {
     getMany(keys) {
       return redis.mget(...keys);
     },
-    incr(key) {
-      return redis.incr(key);
+    incr(key, increment = 1) {
+      return redis.incrby(key, increment);
     },
-    decr(key) {
-      return redis.decr(key);
+    decr(key, decrement = 1) {
+      return redis.decrby(key, decrement);
     },
     pushItems(key, items) {
       return redis.rpush(key, items);
