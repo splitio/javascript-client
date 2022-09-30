@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio",
-  "version": "10.21.2-rc.4",
+  "version": "10.21.2-rc.6",
   "description": "Split SDK",
   "files": [
     "README.md",
@@ -34,7 +34,7 @@
   },
   "dependencies": {
     "@ably/bloomit": "^1.4.2",
-    "@splitsoftware/splitio-commons": "1.6.2-rc.10",
+    "@splitsoftware/splitio-commons": "1.6.2-rc.14",
     "@types/google.analytics": "0.0.40",
     "@types/ioredis": "^4.28.0",
     "ioredis": "^4.28.0",
@@ -112,6 +112,7 @@
     "test-ts-decls": "./scripts/ts-tests.sh",
     "posttest-ts-decls": "npm unlink && npm install",
     "test": "npm run test-node && npm run test-browser",
+    "all": "npm run check && npm run build && npm run test-ts-decls && npm run test",
     "publish:rc": "npm run check && npm run build && npm publish --tag canary",
     "publish:stable": "npm run check && npm run build && npm publish"
   },

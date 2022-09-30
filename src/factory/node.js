@@ -46,7 +46,7 @@ function getModules(settings) {
     SignalListener,
 
     impressionsObserverFactory: impressionObserverSSFactory,
-    
+
     filterAdapterFactory: bloomFilterFactory
   };
 

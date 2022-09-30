@@ -90,6 +90,10 @@ tape('NodeJS Redis', function (t) {
         const sdk = SplitFactory(config);
         const client = sdk.client();
 
+        assert.equal(await client.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT'), 'control', 'Evaluations using Redis storage should be control until connection is stablished.');
+        assert.equal(await client.getTreatment('other', 'UT_IN_SEGMENT'), 'control', 'Evaluations using Redis storage should be control until connection is stablished.');
+        await client.ready();
+
         assert.equal(await client.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT'), 'on', 'Evaluations using Redis storage should be correct.');
         assert.equal(await client.getTreatment('other', 'UT_IN_SEGMENT'), 'off', 'Evaluations using Redis storage should be correct.');
 
@@ -142,7 +146,7 @@ tape('NodeJS Redis', function (t) {
           if (error) assert.fail('Redis server should be reachable');
 
           const trackedImpressionsAndEvents = stdout.split('\n').filter(line => line !== '').map(line => parseInt(line));
-          assert.deepEqual(trackedImpressionsAndEvents, [14, 2], 'Tracked impressions and events should be stored in Redis');
+          assert.deepEqual(trackedImpressionsAndEvents, [16, 2], 'Tracked impressions and events should be stored in Redis');
 
           // Validate stored telemetry
           exec(`echo "HLEN ${config.storage.prefix}.SPLITIO.telemetry.latencies \n HLEN ${config.storage.prefix}.SPLITIO.telemetry.exceptions \n HGET ${config.storage.prefix}.SPLITIO.telemetry.init nodejs-${version}/${HOSTNAME_VALUE}/${IP_VALUE}" | redis-cli  -p ${redisPort}`, (error, stdout) => {
@@ -168,6 +172,8 @@ tape('NodeJS Redis', function (t) {
         assert.equal(config.sync.impressionsMode, OPTIMIZED, 'impressionsMode should be OPTIMIZED');
         const sdk = SplitFactory(config);
         const client = sdk.client();
+        await client.ready();
+
         assert.equal(await client.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT'), 'on', 'Evaluations using Redis storage should be correct.');
         assert.equal(await client.getTreatment('other', 'UT_IN_SEGMENT'), 'off', 'Evaluations using Redis storage should be correct.');
         // this should be deduped
@@ -301,6 +307,8 @@ tape('NodeJS Redis', function (t) {
         assert.equal(config.sync.impressionsMode, NONE, 'impressionsMode should be NONE');
         const sdk = SplitFactory(config);
         const client = sdk.client();
+        await client.ready();
+
         assert.equal(await client.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT'), 'on', 'Evaluations using Redis storage should be correct.');
         assert.equal(await client.getTreatment('other', 'UT_IN_SEGMENT'), 'off', 'Evaluations using Redis storage should be correct.');
 
@@ -386,7 +394,6 @@ tape('NodeJS Redis', function (t) {
       });
   });
 
-
   t.test('Connection timeout and then ready', assert => {
     const readyTimeout = 0.1; // 100 millis
     const configWithShortTimeout = { ...config, startup: { readyTimeout } };
@@ -399,7 +406,7 @@ tape('NodeJS Redis', function (t) {
     assert.plan(18);
 
     client.getTreatment('UT_Segment_member', 'always-on').then(treatment => {
-      assert.equal(treatment, 'on', 'Evaluations using Redis storage should be correct and resolved once Redis connection is stablished.');
+      assert.equal(treatment, 'control', 'Evaluations using Redis storage should be control until Redis connection is stablished.');
     });
     client.track('nicolas@split.io', 'user', 'test.redis.event', 18).then(result => {
       assert.true(result, 'If the event was succesfully queued the promise will resolve to true once Redis connection is stablished');
@@ -585,7 +592,7 @@ tape('NodeJS Redis', function (t) {
           // Redis client and keys required to check Redis store.
           const setting = settingsFactory(config);
           const connection = new RedisClient(setting.storage.options.url);
-          const keys = new KeyBuilderSS(validatePrefix(setting.storage.prefix));
+          const keys = new KeyBuilderSS(validatePrefix(setting.storage.prefix), { s: 'js_someversion', i: 'some_ip', n: 'some_hostname' });
           const eventKey = keys.buildEventsKey();
           const impressionsKey = keys.buildImpressionsKey();
 
@@ -596,6 +603,7 @@ tape('NodeJS Redis', function (t) {
           // Init Split client for current config
           const sdk = SplitFactory(config);
           const client = sdk.client();
+          await client.ready();
 
           // Perform client actions to store a single event and impression objects into Redis
           await client.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT');
