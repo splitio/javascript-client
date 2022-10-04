@@ -231,7 +231,7 @@ interface ISharedSettings {
      * Possible values are 'DEBUG', 'OPTIMIZED', and 'NONE'.
      * - DEBUG: will send all the impressions generated (recommended only for debugging purposes).
      * - OPTIMIZED: will send unique impressions to Split Servers, avoiding a considerable amount of traffic that duplicated impressions could generate.
-     * - NONE: will send unique keys evaluated per feature to Split Servers, avoiding a considerable amount of traffic that impressions could generate.
+     * - NONE: will send unique keys evaluated per feature to Split Servers instead of full blown impressions, avoiding a considerable amount of traffic that impressions could generate.
      *
      * @property {string} impressionsMode
      * @default 'OPTIMIZED'
