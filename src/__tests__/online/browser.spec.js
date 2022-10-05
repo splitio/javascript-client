@@ -4,6 +4,7 @@ import { url } from '../testUtils';
 import evaluationsSuite from '../browserSuites/evaluations.spec';
 import impressionsSuite from '../browserSuites/impressions.spec';
 import impressionsSuiteDebug from '../browserSuites/impressions.debug.spec';
+import impressionsSuiteNone from '../browserSuites/impressions.none.spec';
 import telemetrySuite from '../browserSuites/telemetry.spec';
 import impressionsListenerSuite from '../browserSuites/impressions-listener.spec';
 import readinessSuite from '../browserSuites/readiness.spec';
@@ -101,6 +102,7 @@ tape('## E2E CI Tests ##', function (assert) {
   /* Check impressions */
   assert.test('E2E / Impressions', impressionsSuite.bind(null, fetchMock));
   assert.test('E2E / Impressions Debug Mode', impressionsSuiteDebug.bind(null, fetchMock));
+  assert.test('E2E / Impressions None Mode', impressionsSuiteNone.bind(null, fetchMock));
   /* Check impression listener */
   assert.test('E2E / Impression listener', impressionsListenerSuite);
   /* Check telemetry */

@@ -89,7 +89,6 @@ export default async function (key, fetchMock, assert) {
     return 200;
   });
 
-  splitio.Logger.enable();
   evaluationsStart = Date.now();
 
   await client.ready();
@@ -99,7 +98,6 @@ export default async function (key, fetchMock, assert) {
   client.getTreatment({ matchingKey: key, bucketingKey: 'test_buck_key' }, 'split_with_config');
   client.getTreatment({ matchingKey: key, bucketingKey: 'test_buck_key' }, 'split_with_config');
   client.getTreatment({ matchingKey: key, bucketingKey: 'test_buck_key' }, 'split_with_config');
-  splitio.Logger.disable();
 
   evaluationsEnd = Date.now();
 }

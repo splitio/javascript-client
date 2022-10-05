@@ -228,9 +228,11 @@ interface ISharedSettings {
     splitFilters?: SplitIO.SplitFilter[]
     /**
      * Impressions Collection Mode. Option to determine how impressions are going to be sent to Split Servers.
-     * Possible values are 'DEBUG' and 'OPTIMIZED'.
+     * Possible values are 'DEBUG', 'OPTIMIZED', and 'NONE'.
      * - DEBUG: will send all the impressions generated (recommended only for debugging purposes).
-     * - OPTIMIZED: will send unique impressions to Split Servers avoiding a considerable amount of traffic that duplicated impressions could generate.
+     * - OPTIMIZED: will send unique impressions to Split Servers, avoiding a considerable amount of traffic that duplicated impressions could generate.
+     * - NONE: will send unique keys evaluated per feature to Split Servers instead of full blown impressions, avoiding a considerable amount of traffic that impressions could generate.
+     *
      * @property {string} impressionsMode
      * @default 'OPTIMIZED'
      */
@@ -293,7 +295,7 @@ interface INodeBasicSettings extends ISharedSettings {
     /**
      * The SDK polls Split servers for changes to feature roll-out plans. This parameter controls this polling period in seconds.
      * @property {number} featuresRefreshRate
-     * @default 5
+     * @default 60
      */
     featuresRefreshRate?: number,
     /**
@@ -914,7 +916,7 @@ declare namespace SplitIO {
   * ImpressionsMode type
   * @typedef {string} ImpressionsMode
   */
-  type ImpressionsMode = 'OPTIMIZED' | 'DEBUG';
+  type ImpressionsMode = 'OPTIMIZED' | 'DEBUG' | 'NONE';
   /**
    * User consent status.
    * @typedef {string} ConsentStatus
@@ -967,7 +969,7 @@ declare namespace SplitIO {
       /**
        * The SDK polls Split servers for changes to feature roll-out plans. This parameter controls this polling period in seconds.
        * @property {number} featuresRefreshRate
-       * @default 30
+       * @default 60
        */
       featuresRefreshRate?: number,
       /**
