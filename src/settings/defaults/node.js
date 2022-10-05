@@ -15,9 +15,7 @@ export const defaults = {
     // Don't wait a specific time for first flush on Node, no page load here.
     eventsFirstPushWindow: 0
   },
-  scheduler: {
-    featuresRefreshRate: 60,
-  },
+
   features: '.split',
 
   // Instance version.
