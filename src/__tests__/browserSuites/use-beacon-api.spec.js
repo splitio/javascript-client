@@ -110,7 +110,8 @@ function beaconApiSendTest(fetchMock, assert) {
   const splitio = SplitFactory(config);
   const client = splitio.client();
   client.on(client.Event.SDK_READY, () => {
-    client.getTreatment('hierarchical_splits_test');
+    client.getTreatment('hierarchical_splits_test'); // first impression counted in backend
+    client.getTreatment('hierarchical_splits_test'); // impression counted in sdk
     client.track('sometraffictype', 'someEvent', 10);
 
     // trigger both events inmmediatly, before scheduled push of events and impressions, to assert that beacon requests are not duplicated
@@ -142,7 +143,6 @@ function fallbackTest(fetchMock, assert) {
   const finish = (function* () {
     yield;
     yield;
-    // @TODO review why we must destroy client in a different event-loop cycle, compared to axios-mock-adapter
     setTimeout(function () {
       client.destroy().then(function () {
         sendBeaconSpy.restore();
@@ -175,7 +175,8 @@ function fallbackTest(fetchMock, assert) {
   });
 
   client.on(client.Event.SDK_READY, () => {
-    client.getTreatment('hierarchical_splits_test');
+    client.getTreatment('hierarchical_splits_test');// first impression counted in backend
+    client.getTreatment('hierarchical_splits_test');// impression counted in sdk
     client.track('sometraffictype', 'someEvent', 10);
     // trigger both events inmmediatly, before scheduled push of events and impressions, to assert that POST requests are not duplicated
     triggerPagehideEvent();

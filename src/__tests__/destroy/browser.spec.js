@@ -6,10 +6,10 @@ import pick from 'lodash/pick';
 import { SplitFactory } from '../../';
 import { settingsFactory } from '../../settings';
 
-import splitChangesMock1 from './splitChanges.since.-1.json';
-import splitChangesMock2 from './splitChanges.since.1500492097547.json';
-import mySegmentsMock from './mySegments.json';
-import impressionsMock from './impressions.json';
+import splitChangesMock1 from '../mocks/splitChanges.since.-1.till.1500492097547.json';
+import splitChangesMock2 from '../mocks/splitChanges.since.1500492097547.json';
+import mySegmentsMock from '../mocks/mySegmentsEmpty.json';
+import impressionsMock from '../mocks/impressions.json';
 
 const settings = settingsFactory({
   core: {
@@ -31,7 +31,6 @@ tape('SDK destroy for BrowserJS', async function (assert) {
       authorizationKey: 'fake-key',
       key: 'ut1'
     },
-    debug: true,
     streamingEnabled: false
   };
 

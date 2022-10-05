@@ -1,5 +1,5 @@
 import tape from 'tape-catch';
-import fetchMock from '../testUtils/fetchMock';
+import fetchMock from '../testUtils/nodeFetchMock';
 import { testAuthWithPushDisabled, testAuthWith401, testAuthWith400, testNoEventSource, testSSEWithNonRetryableError } from '../nodeSuites/push-initialization-nopush.spec';
 import { testPushRetriesDueToAuthErrors, testPushRetriesDueToSseErrors, testSdkDestroyWhileAuthRetries, testSdkDestroyWhileAuthSuccess } from '../nodeSuites/push-initialization-retries.spec';
 import { testSynchronization } from '../nodeSuites/push-synchronization.spec';

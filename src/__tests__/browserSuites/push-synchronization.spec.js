@@ -50,7 +50,6 @@ const config = {
   },
   urls: baseUrls,
   streamingEnabled: true,
-  // debug: true,
 };
 const settings = settingsFactory(config);
 

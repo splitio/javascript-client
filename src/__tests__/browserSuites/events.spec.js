@@ -93,6 +93,7 @@ export function withoutBindingTT(fetchMock, assert) {
   assert.notOk(client.track('othertraffictype', 'my.checkout.event', null, 'asd'), 'client.track returns false if an event properties was incorrect and it could not be added to the queue.');
 }
 
+// Not for JS Browser SDK, because it doesn't let bind traffic types to clients
 export function bindingTT(fetchMock, assert) {
   const localSettings = Object.assign({}, baseSettings);
   localSettings.core.trafficType = 'binded_tt';

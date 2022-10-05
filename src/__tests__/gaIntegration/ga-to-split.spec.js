@@ -4,7 +4,6 @@ import { settingsFactory } from '../../settings';
 import { gaSpy, gaTag, addGaTag, removeGaTag } from './gaTestUtils';
 import { url } from '../testUtils';
 
-
 const config = {
   core: {
     key: 'facundo@split.io',

@@ -16,10 +16,10 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      
+
       - name: Set Current year
         run: "echo CURRENT=$(date +%Y) >> $GITHUB_ENV"
-      
+
       - name: Set Previous Year
         run: "echo PREVIOUS=$(($CURRENT-1)) >> $GITHUB_ENV"
 
