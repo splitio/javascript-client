@@ -16,7 +16,7 @@ export const defaults = {
     eventsFirstPushWindow: 0
   },
   scheduler: {
-    featuresRefreshRate: 5
+    featuresRefreshRate: 60,
   },
   features: '.split',
 

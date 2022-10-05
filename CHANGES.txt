@@ -1,5 +1,6 @@
 10.22.0 (October 5, 2022)
 - Added a new impressions mode for the SDK called NONE, to be used in factory when there is no desire to capture impressions on an SDK factory to feed Split's analytics engine. Running NONE mode, the SDK will only capture unique keys evaluated for a particular feature flag instead of full blown impressions.
+- Updated default value of `scheduler.featuresRefreshRate` config parameter for NodeJS from 5 seconds to 60 seconds.
 - Updated @splitsoftware/splitio-commons package to version 1.7.0, that improves the performance of split evaluations (i.e., `getTreatment(s)` method calls) when using the default storage in memory, among other improvements.
 
 10.21.1 (July 25, 2022)
