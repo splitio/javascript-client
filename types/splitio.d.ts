@@ -295,7 +295,7 @@ interface INodeBasicSettings extends ISharedSettings {
     /**
      * The SDK polls Split servers for changes to feature roll-out plans. This parameter controls this polling period in seconds.
      * @property {number} featuresRefreshRate
-     * @default 5
+     * @default 60
      */
     featuresRefreshRate?: number,
     /**
@@ -969,7 +969,7 @@ declare namespace SplitIO {
       /**
        * The SDK polls Split servers for changes to feature roll-out plans. This parameter controls this polling period in seconds.
        * @property {number} featuresRefreshRate
-       * @default 30
+       * @default 60
        */
       featuresRefreshRate?: number,
       /**
