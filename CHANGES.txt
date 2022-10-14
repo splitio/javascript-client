@@ -1,4 +1,4 @@
-1.7.2 (October 14, 2022)
+10.22.1 (October 14, 2022)
 - Bugfixing - Upgrade @splitsoftware/splitio-commons package to version 1.7.2, that handles `Navigator.sendBeacon` API exceptions in the browser, and fallback to regular Fetch/XHR transport in case of error.
 
 10.22.0 (October 5, 2022)
