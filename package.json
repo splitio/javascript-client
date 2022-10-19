@@ -110,7 +110,7 @@
     "test-node-e2e-redis": "cross-env NODE_ENV=test tape -r ./ts-node.register src/__tests__/consumer/node_redis.spec.js | tap-min",
     "pretest-ts-decls": "npm run build-esm && npm run build-cjs && npm link",
     "test-ts-decls": "./scripts/ts-tests.sh",
-    "posttest-ts-decls": "npm unlink && npm install",
+    "posttest-ts-decls": "npm rm --location=global @splitsoftware/splitio && npm install",
     "test": "npm run test-node && npm run test-browser",
     "all": "npm run check && npm run build && npm run test-ts-decls && npm run test",
     "publish:rc": "npm run check && npm run build && npm publish --tag canary",
