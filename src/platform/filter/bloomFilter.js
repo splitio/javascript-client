@@ -1,4 +1,4 @@
-import { BloomFilter } from '@ably/bloomit';
+import { BloomFilter } from 'bloom-filters';
 
 const EXPECTED_INSERTIONS = 10000000;
 const ERROR_RATE = 0.01;
