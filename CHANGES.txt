@@ -1,3 +1,6 @@
+10.22.2 (November 3, 2022)
+- Bugfixing - Replaced bloom filter dependency that caused dependency conflicts (with farmhash lib) in AWS Lambda. This change only affects Node flavor.
+
 10.22.1 (October 14, 2022)
 - Bugfixing - Upgrade @splitsoftware/splitio-commons package to version 1.7.2, that handles `Navigator.sendBeacon` API exceptions in the browser, and fallback to regular Fetch/XHR transport in case of error.
 
