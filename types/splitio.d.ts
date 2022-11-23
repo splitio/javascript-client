@@ -341,7 +341,8 @@ interface INodeBasicSettings extends ISharedSettings {
     prefix?: string
   },
   /**
-   * The SDK mode. Possible values are "standalone" (which is the default) and "consumer". For "localhost" mode, use "localhost" as authorizationKey.
+   * The SDK mode. Possible values are "standalone", which is the default when using a synchronous storage, like 'MEMORY' and 'LOCALSTORAGE',
+   * and "consumer", which must be set when using an asynchronous storage, like 'REDIS' and 'PLUGGABLE'. For "localhost" mode, use "localhost" as authorizationKey.
    * @property {SDKMode} mode
    * @default standalone
    */
@@ -1025,7 +1026,15 @@ declare namespace SplitIO {
        * @default SPLITIO
        */
       prefix?: string
-    }
+    },
+    /**
+     * The SDK mode. When using the default 'MEMORY' storage or `LOCALSTORAGE` as storage type, the only possible value is "standalone", which is the default.
+     * For "localhost" mode, use "localhost" as authorizationKey.
+     *
+     * @property {'standalone'} mode
+     * @default standalone
+     */
+    mode?: 'standalone'
   }
   /**
    * Settings interface with async storage for SDK instances created on NodeJS.
@@ -1052,12 +1061,20 @@ declare namespace SplitIO {
        */
       wrapper?: Object,
       /**
-       * Optional prefix to prevent any kind of data collision between SDK versions.
+       * Optional prefix added to the storage keys to prevent any kind of data collision between SDK versions.
        * @property {string} prefix
        * @default SPLITIO
        */
       prefix?: string
-    }
+    },
+    /**
+     * The SDK mode. When using 'REDIS' or 'PLUGGABLE' storage type, the only possible value is "consumer", which is required.
+     *
+     * @see {@link @TODO}
+     *
+     * @property {'consumer'} mode
+     */
+    mode: 'consumer'
   }
   /**
    * This represents the interface for the SDK instance with synchronous storage.
