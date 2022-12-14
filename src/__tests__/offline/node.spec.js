@@ -2,7 +2,7 @@
 import path from 'path';
 import tape from 'tape-catch';
 import sinon from 'sinon';
-import fetchMock from '../testUtils/fetchMock';
+import fetchMock from '../testUtils/nodeFetchMock';
 import { url } from '../testUtils';
 import { SplitFactory } from '../../';
 import { settingsFactory } from '../../settings';
@@ -33,8 +33,6 @@ const configMocks = () => {
   fetchMock.mock(url(settings, '/events/bulk'), () => replySpy(spyEventsBulk));
   fetchMock.mock(url(settings, '/testImpressions/bulk'), () => replySpy(spyTestImpressionsBulk));
   fetchMock.mock(url(settings, '/testImpressions/count'), () => replySpy(spyTestImpressionsCount));
-  fetchMock.mock(url(settings, '/metrics/times'), () => replySpy(spyMetricsTimes));
-  fetchMock.mock(url(settings, '/metrics/counters'), () => replySpy(spyMetricsCounters));
   fetchMock.mock('*', () => replySpy(spyAny));
 };
 
@@ -46,11 +44,9 @@ const settingsGenerator = mockFileName => {
     scheduler: {
       impressionsRefreshRate: 0.01,
       eventsPushRate: 0.01,
-      metricsRefreshRate: 0.01,
       offlineRefreshRate: 0.3
     },
     startup: {
-      eventsFirstPushWindow: 0,
       readyTimeout: 3,
       retriesOnFailureBeforeReady: 0
     },

@@ -4,7 +4,6 @@ import { settingsFactory } from '../../settings';
 import { gaSpy, gaTag, addGaTag, removeGaTag } from './gaTestUtils';
 import { url } from '../testUtils';
 
-
 const config = {
   core: {
     key: 'facundo@split.io',
@@ -409,6 +408,53 @@ export default function (fetchMock, assert) {
     const factory = SplitFactory(config);
     client = factory.client();
     client.track('some_event');
+
+  });
+
+  // test 'autoRequire' script placed right after GA script tag.
+  // We get same result if it is placed right before, and also applies for Universal Analytics configured with GTM and gtag.js tags.
+  // If it is executed asynchronously, trackers creation might be missed.
+  assert.test(t => {
+    fetchMock.postOnce(url(settings, '/events/bulk'), (url, opts) => {
+      const resp = JSON.parse(opts.body);
+      const sentHitsTracker1 = window.gaSpy.getHits('tracker1');
+      const sentHitsTracker2 = window.gaSpy.getHits('tracker2');
+
+      t.equal(resp.length, sentHitsTracker1.length + sentHitsTracker2.length, 'All hits of all trackers are captured as Split events');
+
+      setTimeout(() => {
+        client.destroy();
+        t.end();
+      });
+      return 200;
+    });
+
+    gaTag();
+
+    // Run autoRequire iife:
+    // require('@splitsoftware/splitio-commons/src/integrations/ga/autoRequire');
+    require('../../../scripts/ga-to-split-autorequire');
+
+    window.ga('create', 'UA-00000000-1', { name: 'tracker1', cookieDomain: 'auto', siteSpeedSampleRate: 0 });
+
+    gaSpy(['tracker1']);
+
+    window.ga('tracker1.send', 'event', 'mycategory', 'myaction1'); // Captured
+
+    const factory = SplitFactory({
+      ...config,
+      integrations: [{
+        type: 'GOOGLE_ANALYTICS_TO_SPLIT',
+        autoRequire: true
+      }],
+    });
+
+    window.ga('tracker1.send', 'event', 'mycategory', 'myaction2'); // Captured
+    window.ga('create', 'UA-00000001-1', 'auto', 'tracker2', { siteSpeedSampleRate: 0 }); // New tracker
+    gaSpy(['tracker2'], false);
+    window.ga('tracker2.send', 'event', 'mycategory', 'myaction3'); // Captured
+
+    client = factory.client();
 
   });
 

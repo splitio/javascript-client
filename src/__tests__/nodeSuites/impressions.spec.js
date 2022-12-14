@@ -27,13 +27,9 @@ const config = {
   scheduler: {
     featuresRefreshRate: 1,
     segmentsRefreshRate: 1,
-    metricsRefreshRate: 3000,
     impressionsRefreshRate: 5
   },
   urls: baseUrls,
-  startup: {
-    eventsFirstPushWindow: 3000
-  },
   streamingEnabled: false
 };
 
@@ -105,12 +101,11 @@ export default async function(key, fetchMock, assert) {
 
     return 200;
   });
-  fetchMock.postOnce(url(settings, '/testImpressions/bulk'), 200);
 
   fetchMock.postOnce(url(settings, '/testImpressions/count'), (url, opts) => {
     const data = JSON.parse(opts.body);
 
-    assert.equal(data.pf.length, 3, 'We should generated impressions for three features.');
+    assert.equal(data.pf.length, 1, 'We should generate impression count for one feature.');
 
     // finding these validate the feature names collection too
     const dependencyChildImpr = data.pf.filter(e => e.f === 'hierarchical_splits_test')[0];
@@ -130,7 +125,6 @@ export default async function(key, fetchMock, assert) {
     return 200;
   });
 
-  splitio.Logger.enable();
   evaluationsStart = Date.now();
 
   assert.equal(client.getTreatment(key, 'not_existent_split'), 'control', `If we try to get an evaluation BEFORE the client is ready, we expect ${SDK_NOT_READY} label on the impression.`);
@@ -152,7 +146,6 @@ export default async function(key, fetchMock, assert) {
   }, 'We should get an evaluation as always.');
   client.getTreatmentWithConfig({ matchingKey: key, bucketingKey: 'test_buck_key'}, 'split_with_config');
   client.getTreatmentWithConfig({ matchingKey: 'different', bucketingKey: 'test_buck_key'}, 'split_with_config');
-  splitio.Logger.disable();
 
   evaluationsEnd = Date.now();
 }

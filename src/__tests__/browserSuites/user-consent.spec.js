@@ -1,6 +1,6 @@
 import sinon from 'sinon';
 import { SplitFactory } from '../../';
-import { triggerUnloadEvent } from '../testUtils/browser';
+import { triggerPagehideEvent } from '../testUtils/browser';
 import { nearlyEqual, url } from '../testUtils';
 
 const trackedImpressions = [];
@@ -97,9 +97,9 @@ export default function userConsent(fetchMock, t) {
       ], ['on', 'on', 'on', 'on', 'on', 'on', 'on', 'on'], 'evaluating on SDK ready');
       if (isTracking) expectedTrackedImpressions += 8;
 
-      // Trigger unload event to validate browser listener behaviour
+      // Trigger pagehide event to validate browser listener behaviour
       // Beacon API is used only if user consent is GRANTED
-      triggerUnloadEvent();
+      triggerPagehideEvent();
       if (factory.UserConsent.getStatus() === factory.UserConsent.Status.GRANTED) {
         assert.ok(sendBeaconSpy.calledThrice, 'sendBeacon should have been called thrice');
       } else {
@@ -158,7 +158,8 @@ export default function userConsent(fetchMock, t) {
     await client.ready();
 
     assert.equal(client.track('user', 'event1'), true, 'Events queue is full, but submitter is not executed');
-    assert.equal(client.getTreatment('always_on'), 'on', 'Impressions queue is full, but submitter is not executed');
+    assert.equal(client.getTreatment('always_on'), 'on', 'Impressions queue is full, but submitter is not executed');// First impression counted in backend
+    assert.equal(client.getTreatment('always_on'), 'on', 'Impressions queue is full, but submitter is not executed');// impression counted in sdk
 
     let submitterCalls = 0;
     const start = Date.now();

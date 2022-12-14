@@ -1,5 +1,5 @@
 import osFunction from 'os';
-import ipFunction from 'ip';
+import ipFunction from '../../utils/ip';
 import { SplitFactory } from '../../';
 import { settingsFactory } from '../../settings';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
@@ -13,51 +13,44 @@ const IP_VALUE = ipFunction.address();
 const HOSTNAME_VALUE = osFunction.hostname();
 const NA = 'NA';
 
-// Refresh rates are set to 1 second to finish the test quickly. Otherwise, it would finish in 1 minute (60 seconds is the default value)
-const baseConfig = {
-  scheduler: {
-    metricsRefreshRate: 1,
-    impressionsRefreshRate: 1,
-    eventsPushRate: 1
-  },
-  streamingEnabled: false
-};
-
 // Config with IPAddressesEnabled set to false
 const configWithIPAddressesDisabled = {
-  ...baseConfig,
+  streamingEnabled: false,
   core: {
     authorizationKey: '<fake-token>',
     IPAddressesEnabled: false
   },
   urls: {
     sdk: 'https://sdk.split-ipdisabled.io/api',
-    events: 'https://events.split-ipdisabled.io/api'
+    events: 'https://events.split-ipdisabled.io/api',
+    telemetry: 'https://telemetry.split-ipdisabled.io/api',
   }
 };
 
 // Config with IPAddressesEnabled set to true
 const configWithIPAddressesEnabled = {
-  ...baseConfig,
+  streamingEnabled: false,
   core: {
     authorizationKey: '<fake-token>',
     IPAddressesEnabled: true
   },
   urls: {
     sdk: 'https://sdk.split-ipenabled.io/api',
-    events: 'https://events.split-ipenabled.io/api'
+    events: 'https://events.split-ipenabled.io/api',
+    telemetry: 'https://telemetry.split-ipenabled.io/api'
   }
 };
 
 // Config with default IPAddressesEnabled (true)
 const configWithIPAddressesDefault = {
-  ...baseConfig,
+  streamingEnabled: false,
   core: {
     authorizationKey: '<fake-token>'
   },
   urls: {
     sdk: 'https://sdk.split-ipdefault.io/api',
-    events: 'https://events.split-ipdefault.io/api'
+    events: 'https://events.split-ipdefault.io/api',
+    telemetry: 'https://telemetry.split-ipdefault.io/api'
   }
 };
 
@@ -70,9 +63,8 @@ const configSamples = [
 const postEndpoints = [
   '/events/bulk',
   '/testImpressions/bulk',
-  // @TODO uncomment when telemetry is implemented
-  // '/metrics/times',
-  // '/metrics/counters'
+  '/v1/metrics/usage',
+  '/v1/metrics/config'
 ];
 
 export default function ipAddressesSettingAssertions(fetchMock, assert) {
@@ -109,7 +101,12 @@ export default function ipAddressesSettingAssertions(fetchMock, assert) {
         assertImpression(config.core.IPAddressesEnabled === undefined ? true : config.core.IPAddressesEnabled, config.mode === undefined ? STANDALONE_MODE : config.mode, impression);
       }
     };
-    const splitio = SplitFactory(config);
+    const splitio = SplitFactory(config, ({ settings }) => {
+      // Refresh rates are set to 1 second (below minimum values) to finish the test quickly. Otherwise, it would finish in 1 minute (60 seconds is the default value)
+      settings.scheduler.impressionsRefreshRate = 1000;
+      settings.scheduler.eventsPushRate = 1000;
+      settings.scheduler.telemetryRefreshRate = 1000;
+    });
     const client = splitio.client();
     const settings = settingsFactory(config);
 

@@ -6,8 +6,8 @@ import { DEBUG } from '@splitsoftware/splitio-commons/src/utils/constants';
 import { url } from '../testUtils';
 
 const baseUrls = {
-  sdk: 'https://sdk.baseurl/impressionsSuite',
-  events: 'https://events.baseurl/impressionsSuite'
+  sdk: 'https://sdk.baseurl/impressionsDebugSuite',
+  events: 'https://events.baseurl/impressionsDebugSuite'
 };
 
 const settings = settingsFactory({
@@ -25,7 +25,6 @@ const config = {
   scheduler: {
     featuresRefreshRate: 1,
     segmentsRefreshRate: 1,
-    metricsRefreshRate: 3000,
     impressionsRefreshRate: 3000,
     impressionsQueueSize: 3 // flush impressions when 3 are queued
   },
@@ -89,9 +88,7 @@ export default async function (key, fetchMock, assert) {
 
     return 200;
   });
-  fetchMock.postOnce(url(settings, '/testImpressions/bulk'), 200);
 
-  splitio.Logger.enable();
   evaluationsStart = Date.now();
 
   await client.ready();
@@ -101,7 +98,6 @@ export default async function (key, fetchMock, assert) {
   client.getTreatment({ matchingKey: key, bucketingKey: 'test_buck_key' }, 'split_with_config');
   client.getTreatment({ matchingKey: key, bucketingKey: 'test_buck_key' }, 'split_with_config');
   client.getTreatment({ matchingKey: key, bucketingKey: 'test_buck_key' }, 'split_with_config');
-  splitio.Logger.disable();
 
   evaluationsEnd = Date.now();
 }

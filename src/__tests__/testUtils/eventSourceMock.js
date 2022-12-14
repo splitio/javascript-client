@@ -11,7 +11,7 @@
  *
  */
 
-import EventEmitter from 'events';
+import { EventEmitter } from '@splitsoftware/splitio-commons/src/utils/MinEvents';
 
 const defaultOptions = {
   withCredentials: false
@@ -23,6 +23,7 @@ export function setMockListener(listener) {
   __listener = listener;
 }
 
+// eslint-disable-next-line no-redeclare
 export default class EventSource {
 
   constructor(

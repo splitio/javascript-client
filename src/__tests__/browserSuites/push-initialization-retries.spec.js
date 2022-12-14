@@ -26,7 +26,6 @@ const config = {
   scheduler: {
     featuresRefreshRate: 0.2,
     segmentsRefreshRate: 0.2,
-    metricsRefreshRate: 3000,
     impressionsRefreshRate: 3000,
     pushRetryBackoffBase: 0.1
   },
@@ -68,7 +67,6 @@ export function testPushRetriesDueToAuthErrors(fetchMock, assert) {
   fetchMock.get({ url: url(settings, '/mySegments/nicolas%40split.io'), repeat: 4 }, { status: 200, body: mySegmentsNicolasMock });
 
   fetchMock.getOnce(url(settings, '/splitChanges?since=-1'), function () {
-    console.log('split changes');
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, 0), 'initial sync');
     return { status: 200, body: splitChangesMock1 };

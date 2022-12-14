@@ -4,7 +4,6 @@ import fetchMock from '../testUtils/fetchMock';
 import { url } from '../testUtils';
 import { SplitFactory } from '../../';
 import { settingsFactory } from '../../settings';
-import { STORAGE_MEMORY } from '@splitsoftware/splitio-commons/src/utils/constants';
 
 const settings = settingsFactory({ core: { key: 'facundo@split.io' } });
 
@@ -32,8 +31,6 @@ const configMocks = () => {
   fetchMock.mock(url(settings, '/events/bulk'), () => replySpy(spyEventsBulk));
   fetchMock.mock(url(settings, '/testImpressions/bulk'), () => replySpy(spyTestImpressionsBulk));
   fetchMock.mock(url(settings, '/testImpressions/count'), () => replySpy(spyTestImpressionsCount));
-  fetchMock.mock(url(settings, '/metrics/times'), () => replySpy(spyMetricsTimes));
-  fetchMock.mock(url(settings, '/metrics/counters'), () => replySpy(spyMetricsCounters));
   fetchMock.mock('*', () => replySpy(spyAny));
 };
 
@@ -56,7 +53,6 @@ tape('Browser offline mode', function (assert) {
     scheduler: {
       impressionsRefreshRate: 0.01,
       eventsPushRate: 0.01,
-      metricsRefreshRate: 0.01,
       offlineRefreshRate: 0.19
     },
     startup: {
@@ -114,10 +110,11 @@ tape('Browser offline mode', function (assert) {
     });
 
     const sdkReadyFromCache = (client) => () => {
-      assert.equal(factory.settings.storage.type, STORAGE_MEMORY, 'In localhost mode, storage must fallback to memory storage');
+      assert.equal(factory.settings.storage.type, 'MEMORY', 'In localhost mode, storage must fallback to memory storage');
 
-      assert.equal(client.__getStatus().isReadyFromCache, true, 'If ready from cache, READY_FROM_CACHE status must be true');
-      assert.equal(client.__getStatus().isReady, false, 'READY status must not be set before READY_FROM_CACHE');
+      const clientStatus = client.__getStatus();
+      assert.equal(clientStatus.isReadyFromCache, true, 'If ready from cache, READY_FROM_CACHE status must be true');
+      assert.equal(clientStatus.isReady, false, 'READY status must not be set before READY_FROM_CACHE');
 
       assert.deepEqual(manager.names(), ['testing_split', 'testing_split_with_config']);
       assert.equal(client.getTreatment('testing_split_with_config'), 'off');

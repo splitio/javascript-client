@@ -71,7 +71,11 @@ interface ISettings {
     featuresRefreshRate: number,
     impressionsRefreshRate: number,
     impressionsQueueSize: number,
-    metricsRefreshRate: number,
+    /**
+     * @deprecated
+     */
+    metricsRefreshRate?: number,
+    telemetryRefreshRate: number,
     segmentsRefreshRate: number,
     offlineRefreshRate: number,
     eventsPushRate: number,
@@ -93,7 +97,8 @@ interface ISettings {
     events: string,
     sdk: string,
     auth: string,
-    streaming: string
+    streaming: string,
+    telemetry: string
   },
   readonly debug: boolean | LogLevel,
   readonly version: string,
@@ -105,6 +110,7 @@ interface ISettings {
   readonly sync: {
     splitFilters: SplitIO.SplitFilter[],
     impressionsMode: SplitIO.ImpressionsMode,
+    enabled: boolean
   }
   /**
    * User consent status if using in browser. Undefined if using in NodeJS.
@@ -222,13 +228,25 @@ interface ISharedSettings {
     splitFilters?: SplitIO.SplitFilter[]
     /**
      * Impressions Collection Mode. Option to determine how impressions are going to be sent to Split Servers.
-     * Possible values are 'DEBUG' and 'OPTIMIZED'.
+     * Possible values are 'DEBUG', 'OPTIMIZED', and 'NONE'.
      * - DEBUG: will send all the impressions generated (recommended only for debugging purposes).
-     * - OPTIMIZED: will send unique impressions to Split Servers avoiding a considerable amount of traffic that duplicated impressions could generate.
+     * - OPTIMIZED: will send unique impressions to Split Servers, avoiding a considerable amount of traffic that duplicated impressions could generate.
+     * - NONE: will send unique keys evaluated per feature to Split Servers instead of full blown impressions, avoiding a considerable amount of traffic that impressions could generate.
+     *
      * @property {string} impressionsMode
      * @default 'OPTIMIZED'
      */
     impressionsMode?: SplitIO.ImpressionsMode,
+    /**
+     * Controls the SDK continuous synchronization flags.
+     *
+     * When `true` a running SDK will process rollout plan updates performed on the UI (default).
+     * When false it'll just fetch all data upon init
+     *
+     * @property {boolean} enabled
+     * @default true
+     */
+    enabled?: boolean
   }
 }
 /**
@@ -277,7 +295,7 @@ interface INodeBasicSettings extends ISharedSettings {
     /**
      * The SDK polls Split servers for changes to feature roll-out plans. This parameter controls this polling period in seconds.
      * @property {number} featuresRefreshRate
-     * @default 5
+     * @default 60
      */
     featuresRefreshRate?: number,
     /**
@@ -297,8 +315,15 @@ interface INodeBasicSettings extends ISharedSettings {
      * The SDK sends diagnostic metrics to Split servers. This parameters controls this metric flush period in seconds.
      * @property {number} metricsRefreshRate
      * @default 120
+     * @deprecated This parameter is ignored now. Use `telemetryRefreshRate` instead.
      */
     metricsRefreshRate?: number,
+    /**
+     * The SDK sends diagnostic metrics to Split servers. This parameters controls this metric flush period in seconds.
+     * @property {number} telemetryRefreshRate
+     * @default 3600
+     */
+    telemetryRefreshRate?: number,
     /**
      * The SDK polls Split servers for changes to segment definitions. This parameter controls this polling period in seconds.
      * @property {number} segmentsRefreshRate
@@ -704,7 +729,7 @@ declare namespace SplitIO {
   /**
    * Enable 'Google Analytics to Split' integration, to track Google Analytics hits as Split events.
    *
-   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#integrations}
+   * @see {@link https://help.split.io/hc/en-us/articles/360040838752#google-analytics-to-split}
    */
   interface IGoogleAnalyticsToSplitConfig {
     type: 'GOOGLE_ANALYTICS_TO_SPLIT',
@@ -746,6 +771,17 @@ declare namespace SplitIO {
      * If not provided, events are sent using the key and traffic type provided at SDK config
      */
     identities?: Identity[],
+    /**
+     * Optional flag to log an error if the `auto-require` script is not detected.
+     * The auto-require script automatically requires the `splitTracker` plugin for created trackers,
+     * and should be placed right after your Google Analytics, Google Tag Manager or gtag.js script tag.
+     *
+     * @see {@link https://help.split.io/hc/en-us/articles/360040838752#set-up-with-gtm-and-gtag.js}
+     *
+     * @property {boolean} autoRequire
+     * @default false
+     */
+    autoRequire?: boolean,
   }
   /**
    * Object representing the data sent by Split (events and impressions).
@@ -757,7 +793,7 @@ declare namespace SplitIO {
   /**
    * Enable 'Split to Google Analytics' integration, to track Split impressions and events as Google Analytics hits.
    *
-   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#integrations}
+   * @see {@link https://help.split.io/hc/en-us/articles/360040838752#split-to-google-analytics}
    */
   interface ISplitToGoogleAnalyticsConfig {
     type: 'SPLIT_TO_GOOGLE_ANALYTICS',
@@ -843,7 +879,13 @@ declare namespace SplitIO {
      * @property {string} streaming
      * @default 'https://streaming.split.io'
      */
-    streaming?: string
+    streaming?: string,
+    /**
+     * String property to override the base URL where the SDK will post telemetry data.
+     * @property {string} telemetry
+     * @default 'https://telemetry.split.io/api'
+     */
+    telemetry?: string
   };
 
   /**
@@ -874,7 +916,7 @@ declare namespace SplitIO {
   * ImpressionsMode type
   * @typedef {string} ImpressionsMode
   */
-  type ImpressionsMode = 'OPTIMIZED' | 'DEBUG';
+  type ImpressionsMode = 'OPTIMIZED' | 'DEBUG' | 'NONE';
   /**
    * User consent status.
    * @typedef {string} ConsentStatus
@@ -927,7 +969,7 @@ declare namespace SplitIO {
       /**
        * The SDK polls Split servers for changes to feature roll-out plans. This parameter controls this polling period in seconds.
        * @property {number} featuresRefreshRate
-       * @default 30
+       * @default 60
        */
       featuresRefreshRate?: number,
       /**
@@ -947,8 +989,15 @@ declare namespace SplitIO {
        * The SDK sends diagnostic metrics to Split servers. This parameters controls this metric flush period in seconds.
        * @property {number} metricsRefreshRate
        * @default 120
+       * @deprecated This parameter is ignored now. Use `telemetryRefreshRate` instead.
        */
       metricsRefreshRate?: number,
+      /**
+       * The SDK sends diagnostic metrics to Split servers. This parameters controls this metric flush period in seconds.
+       * @property {number} telemetryRefreshRate
+       * @default 3600
+       */
+      telemetryRefreshRate?: number,
       /**
        * The SDK polls Split servers for changes to segment definitions. This parameter controls this polling period in seconds.
        * @property {number} segmentsRefreshRate
@@ -1048,10 +1097,10 @@ declare namespace SplitIO {
     integrations?: BrowserIntegration[],
     /**
      * User consent status. Possible values are `'GRANTED'`, which is the default, `'DECLINED'` or `'UNKNOWN'`.
-     * - `'GRANTED'`: the user has granted consent for tracking events and impressions. The SDK will send them to Split cloud.
-     * - `'DECLINED'`: the user has declined consent for tracking events and impressions. The SDK will not send them to Split cloud.
-     * - `'UNKNOWN'`: the user has neither granted nor declined consent for tracking events and impressions. The SDK will track them in its internal storage, and eventually send
-     * them or not if the consent status is updated to 'GRANTED' or 'DECLINED' respectively. The status can be updated at any time with the `setUserConsent` factory method.
+     * - `'GRANTED'`: the user grants consent for tracking events and impressions. The SDK sends them to Split cloud.
+     * - `'DECLINED'`: the user declines consent for tracking events and impressions. The SDK does not send them to Split cloud.
+     * - `'UNKNOWN'`: the user neither grants nor declines consent for tracking events and impressions. The SDK tracks them in its internal storage, and eventually either sends
+     * them or not if the consent status is updated to 'GRANTED' or 'DECLINED' respectively. The status can be updated at any time with the `UserConsent.setStatus` factory method.
      *
      * @typedef {string} userConsent
      * @default 'GRANTED'
@@ -1520,9 +1569,9 @@ declare namespace SplitIO {
      * Get the data of a split in SplitView format.
      * @function split
      * @param {string} splitName The name of the split we wan't to get info of.
-     * @returns {SplitView} The SplitIO.SplitView of the given split.
+     * @returns {SplitView | null} The SplitIO.SplitView of the given split or null if the split is not found.
      */
-    split(splitName: string): SplitView;
+    split(splitName: string): SplitView | null;
   }
   /**
    * Representation of a manager instance with asynchronous storage of the SDK.

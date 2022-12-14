@@ -50,7 +50,6 @@ const config = {
   },
   urls: baseUrls,
   streamingEnabled: true,
-  // debug: true,
 };
 const settings = settingsFactory(config);
 
@@ -94,7 +93,7 @@ const MILLIS_UNLOAD_BROWSER_EVENT = 1700;
  *  1.7 secs: 'unload' browser event -> streaming connection closed
  */
 export function testSynchronization(fetchMock, assert) {
-  assert.plan(36);
+  assert.plan(38);
   fetchMock.reset();
 
   let start, splitio, client, otherClient, keylistAddClient, keylistRemoveClient, bitmapTrueClient, sharedClients = [];
@@ -135,11 +134,14 @@ export function testSynchronization(fetchMock, assert) {
 
     setTimeout(() => {
       assert.equal(client.getTreatment('whitelist'), 'allowed', 'evaluation with not killed Split');
-      client.once(client.Event.SDK_UPDATE, () => {
+      const onUpdateCb = () => {
         const lapse = Date.now() - start;
         assert.true(nearlyEqual(lapse, MILLIS_SPLIT_KILL_EVENT), 'SDK_UPDATE due to SPLIT_KILL event');
         assert.equal(client.getTreatment('whitelist'), 'not_allowed', 'evaluation with killed Split');
-      });
+      };
+      // SPLIT_KILL triggers two SDK_UPDATE events. The 1st due to `killLocally` and the 2nd due to `/splitChanges` fetch
+      client.once(client.Event.SDK_UPDATE, onUpdateCb);
+      client.once(client.Event.SDK_UPDATE, onUpdateCb);
       eventSourceInstance.emitMessage(splitKillMessage);
     }, MILLIS_SPLIT_KILL_EVENT); // send a SPLIT_KILL event with a new changeNumber after 0.5 seconds
 

@@ -36,7 +36,6 @@ export default function (fetchMock, assert) {
     scheduler: {
       featuresRefreshRate: 0.5,
       segmentsRefreshRate: 0.5,
-      metricsRefreshRate: 3000,
       impressionsRefreshRate: 0.5
     },
     startup: {
@@ -85,17 +84,17 @@ export default function (fetchMock, assert) {
     assert.comment('We do one retry, so after a failed impressions post we will try once more.');
     assertPayload(req);
 
-    client.destroy();
-    assert.end();
+    client.destroy().then(() => {
+      assert.end();
+    });
 
     return 200;
   });
-  fetchMock.postOnce(url(settings, '/testImpressions/bulk'), 200);
 
   fetchMock.postOnce(url(settings, '/testImpressions/count'), (url, opts) => {
     const data = JSON.parse(opts.body);
 
-    assert.equal(data.pf.length, 2, 'We should generated 2 impressions count.');
+    assert.equal(data.pf.length, 1, 'We should generate impressions count for one feature.');
 
     // finding these validate the feature names collection too
     const dependencyChildImpr = data.pf.filter(e => e.f === 'hierarchical_splits_test')[0];
@@ -110,7 +109,6 @@ export default function (fetchMock, assert) {
 
     return 200;
   });
-  fetchMock.postOnce(url(settings, '/testImpressions/count'), 200);
 
   client.ready().then(() => {
     truncatedTimeFrame = truncateTimeFrame(Date.now());

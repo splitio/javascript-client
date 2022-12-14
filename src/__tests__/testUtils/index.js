@@ -1,7 +1,7 @@
 const DEFAULT_ERROR_MARGIN = 50; // 0.05 secs
 
 /**
- * Assert if an `actual` and `expected` numeric values are nearlyEqual.
+ * Assert if an `actual` and `expected` numeric values are nearly equal.
  *
  * @param {number} actual actual time lapse in millis
  * @param {number} expected expected time lapse in millis
@@ -43,6 +43,7 @@ export function hasNoCacheHeader(fetchMockOpts) {
   return fetchMockOpts.headers['Cache-Control'] === 'no-cache';
 }
 
+const telemetryEndpointMatcher = /^\/v1\/(metrics|keys)\/(config|usage|ss|cs)/;
 const eventsEndpointMatcher = /^\/(testImpressions|metrics|events)/;
 const authEndpointMatcher = /^\/v2\/auth/;
 const streamingEndpointMatcher = /^\/(sse|event-stream)/;
@@ -56,6 +57,9 @@ const streamingEndpointMatcher = /^\/(sse|event-stream)/;
  * @return {String}  completed url
  */
 export function url(settings, target) {
+  if (telemetryEndpointMatcher.test(target)) {
+    return `${settings.urls.telemetry}${target}`;
+  }
   if (eventsEndpointMatcher.test(target)) {
     return `${settings.urls.events}${target}`;
   }

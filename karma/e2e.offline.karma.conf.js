@@ -8,7 +8,6 @@ module.exports = function(config) {
     files: [
       '__tests__/offline/browser.spec.js'
     ],
-
     // prepare code for the browser using webpack
     preprocessors: {
       '__tests__/offline/browser.spec.js': ['webpack']

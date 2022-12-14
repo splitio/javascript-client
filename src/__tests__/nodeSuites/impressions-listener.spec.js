@@ -2,6 +2,7 @@ import sinon from 'sinon';
 
 import { SplitFactory } from '../../';
 import { settingsFactory } from '../../settings';
+
 const settings = settingsFactory({
   core: {
     key: '<fake id>'
@@ -20,11 +21,6 @@ const config = {
   scheduler: {
     featuresRefreshRate: 1,
     segmentsRefreshRate: 1,
-    metricsRefreshRate: 3000,
-    impressionsRefreshRate: 3000
-  },
-  startup: {
-    eventsFirstPushWindow: 3000
   },
   impressionListener: listener,
   streamingEnabled: false

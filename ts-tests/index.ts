@@ -456,6 +456,7 @@ let customGoogleAnalyticsToSplitConfig: SplitIO.IGoogleAnalyticsToSplitConfig = 
   mapper: function (model: UniversalAnalytics.Model, defaultMapping: SplitIO.EventData): SplitIO.EventData { return eventDataSample; },
   prefix: 'PREFIX',
   identities: [{ key: 'key1', trafficType: 'tt1' }, { key: 'key2', trafficType: 'tt2' }],
+  autoRequire: true
 };
 let customSplitToGoogleAnalyticsConfig: SplitIO.ISplitToGoogleAnalyticsConfig = {
   type: 'SPLIT_TO_GOOGLE_ANALYTICS',
@@ -478,6 +479,7 @@ let fullBrowserSettings: SplitIO.IBrowserSettings = {
     impressionsRefreshRate: 1,
     impressionsQueueSize: 1,
     metricsRefreshRate: 1,
+    telemetryRefreshRate: 1,
     segmentsRefreshRate: 1,
     offlineRefreshRate: 1,
     eventsPushRate: 1,
@@ -494,7 +496,8 @@ let fullBrowserSettings: SplitIO.IBrowserSettings = {
     sdk: 'https://asd.com/sdk',
     events: 'https://asd.com/events',
     auth: 'https://asd.com/auth',
-    streaming: 'https://asd.com/streaming'
+    streaming: 'https://asd.com/streaming',
+    telemetry: 'https://asd.com/telemetry'
   },
   features: mockedFeaturesMap,
   storage: {
@@ -507,7 +510,8 @@ let fullBrowserSettings: SplitIO.IBrowserSettings = {
   streamingEnabled: true,
   sync: {
     splitFilters: splitFilters,
-    impressionsMode: 'DEBUG'
+    impressionsMode: 'DEBUG',
+    enabled: true
   },
   userConsent: 'GRANTED'
 };
@@ -527,6 +531,7 @@ let fullNodeSettings: SplitIO.INodeSettings = {
     impressionsRefreshRate: 1,
     impressionsQueueSize: 1,
     metricsRefreshRate: 1,
+    telemetryRefreshRate: 1,
     segmentsRefreshRate: 1,
     offlineRefreshRate: 1,
     eventsPushRate: 1,
@@ -543,7 +548,8 @@ let fullNodeSettings: SplitIO.INodeSettings = {
     sdk: 'https://asd.com/sdk',
     events: 'https://asd.com/events',
     auth: 'https://asd.com/auth',
-    streaming: 'https://asd.com/streaming'
+    streaming: 'https://asd.com/streaming',
+    telemetry: 'https://asd.com/telemetry'
   },
   features: mockedFeaturesPath,
   storage: {
@@ -555,7 +561,8 @@ let fullNodeSettings: SplitIO.INodeSettings = {
   streamingEnabled: false,
   sync: {
     splitFilters: splitFilters,
-    impressionsMode: 'OPTIMIZED'
+    impressionsMode: 'OPTIMIZED',
+    enabled: true
   }
 };
 fullNodeSettings.storage.type = 'MEMORY';
@@ -572,6 +579,7 @@ let fullAsyncSettings: SplitIO.INodeAsyncSettings = {
     impressionsRefreshRate: 1,
     impressionsQueueSize: 1,
     metricsRefreshRate: 1,
+    telemetryRefreshRate: 1,
     segmentsRefreshRate: 1,
     offlineRefreshRate: 1,
     eventsPushRate: 1,
