@@ -47,8 +47,8 @@ jobs:
       - name: npm check
         run: npm run check
 
-      - name: npm test-browser
-        run: npm run test-browser
+      # - name: npm test-browser
+      #   run: npm run test-browser
 
       - name: npm test-node
         run: npm run test-node
