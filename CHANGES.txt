@@ -1,28 +1,31 @@
+10.22.3 (December 15, 2022)
+ - Updated some transitive dependencies for vulnerability fixes.
+
 10.22.2 (November 3, 2022)
-- Bugfixing - Replaced bloom filter dependency that caused dependency conflicts (with farmhash lib) in AWS Lambda. This change only affects Node flavor.
+ - Bugfixing - Replaced bloom filter dependency that caused dependency conflicts (with farmhash lib) in AWS Lambda. This change only affects Node flavor.
 
 10.22.1 (October 14, 2022)
-- Bugfixing - Upgrade @splitsoftware/splitio-commons package to version 1.7.2, that handles `Navigator.sendBeacon` API exceptions in the browser, and fallback to regular Fetch/XHR transport in case of error.
+ - Bugfixing - Upgrade @splitsoftware/splitio-commons package to version 1.7.2, that handles `Navigator.sendBeacon` API exceptions in the browser, and fallback to regular Fetch/XHR transport in case of error.
 
 10.22.0 (October 5, 2022)
-- Added a new impressions mode for the SDK called NONE, to be used in factory when there is no desire to capture impressions on an SDK factory to feed Split's analytics engine. Running NONE mode, the SDK will only capture unique keys evaluated for a particular feature flag instead of full blown impressions.
-- Updated default value of `scheduler.featuresRefreshRate` config parameter from 5 seconds to 60 seconds for NodeJS and from 30 seconds to 60 seconds for Browser.
-- Updated @splitsoftware/splitio-commons package to version 1.7.1, that improves the performance of split evaluations (i.e., `getTreatment(s)` method calls) when using the default storage in memory, among other improvements.
+ - Added a new impressions mode for the SDK called NONE, to be used in factory when there is no desire to capture impressions on an SDK factory to feed Split's analytics engine. Running NONE mode, the SDK will only capture unique keys evaluated for a particular feature flag instead of full blown impressions.
+ - Updated default value of `scheduler.featuresRefreshRate` config parameter from 5 seconds to 60 seconds for NodeJS and from 30 seconds to 60 seconds for Browser.
+ - Updated @splitsoftware/splitio-commons package to version 1.7.1, that improves the performance of split evaluations (i.e., `getTreatment(s)` method calls) when using the default storage in memory, among other improvements.
 
 10.21.1 (July 25, 2022)
-- Bugfixing - Added missed type definitions `enabled` from `sync`.
+ - Bugfixing - Added missed type definitions `enabled` from `sync`.
 
 10.21.0 (July 22, 2022)
-- Added `autoRequire` configuration option to the Google Analytics to Split integration, which takes care of requiring the splitTracker plugin on trackers dynamically created by Google tag managers (See https://help.split.io/hc/en-us/articles/360040838752#set-up-with-gtm-and-gtag.js).
-- Updated browser listener to push remaining impressions and events on 'visibilitychange' and 'pagehide' DOM events, instead of 'unload', which is not reliable in modern mobile and desktop Web browsers.
-- Updated the synchronization flow to be more reliable in the event of an edge case generating delay in cache purge propagation, keeping the SDK cache properly synced.
-- Updated some dependencies for vulnerability fixes.
-- Bugfixing - Moved js-yaml dependency from @splitsoftware/splitio-commons to avoid resolution to an incompatible version on certain npm versions when installing third-party dependencies that also define js-yaml as transitive dependency (Related to issue https://github.com/splitio/javascript-client/issues/662).
+ - Added `autoRequire` configuration option to the Google Analytics to Split integration, which takes care of requiring the splitTracker plugin on trackers dynamically created by Google tag managers (See https://help.split.io/hc/en-us/articles/360040838752#set-up-with-gtm-and-gtag.js).
+ - Updated browser listener to push remaining impressions and events on 'visibilitychange' and 'pagehide' DOM events, instead of 'unload', which is not reliable in modern mobile and desktop Web browsers.
+ - Updated the synchronization flow to be more reliable in the event of an edge case generating delay in cache purge propagation, keeping the SDK cache properly synced.
+ - Updated some dependencies for vulnerability fixes.
+ - Bugfixing - Moved js-yaml dependency from @splitsoftware/splitio-commons to avoid resolution to an incompatible version on certain npm versions when installing third-party dependencies that also define js-yaml as transitive dependency (Related to issue https://github.com/splitio/javascript-client/issues/662).
 
 10.20.0 (June 29, 2022)
-- Added a new config option to control the tasks that listen or poll for updates on feature flags and segments, via the new config sync.enabled . Running online Split will always pull the most recent updates upon initialization, this only affects updates fetching on a running instance. Useful when a consistent session experience is a must or to save resources when updates are not being used.
-- Updated telemetry logic to track the anonymous config for user consent flag set to declined or unknown.
-- Updated submitters logic, to avoid duplicating the post of impressions to Split cloud when the SDK is destroyed while its periodic post of impressions is running.
+ - Added a new config option to control the tasks that listen or poll for updates on feature flags and segments, via the new config sync.enabled . Running online Split will always pull the most recent updates upon initialization, this only affects updates fetching on a running instance. Useful when a consistent session experience is a must or to save resources when updates are not being used.
+ - Updated telemetry logic to track the anonymous config for user consent flag set to declined or unknown.
+ - Updated submitters logic, to avoid duplicating the post of impressions to Split cloud when the SDK is destroyed while its periodic post of impressions is running.
 
 10.19.1 (Jun 13, 2022)
  - Updated eventsource dependency range to ^1.1.2 to avoid a vulnerability and dependency resolution to a vulnerable version of url-parse transitive dependency.
