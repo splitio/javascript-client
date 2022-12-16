@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio",
-  "version": "10.22.2",
+  "version": "10.22.3",
   "description": "Split SDK",
   "files": [
     "README.md",
@@ -11,7 +11,9 @@
     "types",
     "es",
     "src",
-    "scripts/ga-to-split-autorequire.js"
+    "scripts/ga-to-split-autorequire.js",
+    "client",
+    "server"
   ],
   "repository": "splitio/javascript-client",
   "homepage": "https://github.com/splitio/javascript-client#readme",
@@ -33,7 +35,7 @@
     "node": ">=6"
   },
   "dependencies": {
-    "@splitsoftware/splitio-commons": "1.7.2",
+    "@splitsoftware/splitio-commons": "1.7.3",
     "@types/google.analytics": "0.0.40",
     "@types/ioredis": "^4.28.0",
     "bloom-filters": "^3.0.0",
