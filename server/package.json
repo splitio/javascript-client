@@ -1,0 +1,5 @@
+{
+  "main": "../lib/factory/node.js",
+  "module": "../es/factory/node.js",
+  "types": "../types/server/index.d.ts"
+}

@@ -1,0 +1,5 @@
+{
+  "main": "../lib/factory/browser.js",
+  "module": "../es/factory/browser.js",
+  "types": "../types/client/index.d.ts"
+}

@@ -443,7 +443,7 @@ tape('NodeJS Redis', function (t) {
       await client.ready();
 
       const delay = Date.now() - readyTimestamp;
-      assert.true(nearlyEqual(delay, 0, 100), 'SDK_READY event is emitted and Ready promise resolved soon once Redis server is connected');
+      assert.true(nearlyEqual(delay, 0), 'SDK_READY event is emitted and Ready promise resolved soon once Redis server is connected');
 
       // some asserts to test regular usage
       assert.equal(await client.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT'), 'on', 'Evaluations using Redis storage should be correct.');
