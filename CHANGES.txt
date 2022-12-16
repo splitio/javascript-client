@@ -1,5 +1,6 @@
-10.22.3 (December 15, 2022)
+10.22.3 (December 16, 2022)
  - Updated some transitive dependencies for vulnerability fixes.
+ - Bugfixing - Upgrade @splitsoftware/splitio-commons package to version 1.7.3 which includes a memory leak fix for localhost mode (Related to issue https://github.com/splitio/javascript-commons/issues/181) among other improvements.
 
 10.22.2 (November 3, 2022)
  - Bugfixing - Replaced bloom filter dependency that caused dependency conflicts (with farmhash lib) in AWS Lambda. This change only affects Node flavor.
