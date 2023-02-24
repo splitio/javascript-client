@@ -1,3 +1,8 @@
+10.23.0 (February 28, 2023)
+ - Added `flush` method to client, to instruct the SDK to send impressions and events to Split backend.
+ - Updated @splitsoftware/splitio-commons package to version 1.8.2 that includes minor improvements.
+ - Updated some transitive dependencies for vulnerability fixes.
+
 10.22.3 (December 16, 2022)
  - Updated some transitive dependencies for vulnerability fixes.
  - Bugfixing - Upgrade @splitsoftware/splitio-commons package to version 1.7.3 which includes a memory leak fix for localhost mode (Related to issue https://github.com/splitio/javascript-commons/issues/181) among other improvements.
@@ -141,7 +146,7 @@
  - Updated TypeScript declarations to include the `urls` settings object (to connect to Split Synchronizer in proxy mode) for the non-async settings where it would be applicable.
  - Bugfixing - Updating some imports of hashing utilities to use safe relative paths and avoid module resolution issues.
  - Bugfixing - Updating logic to avoid a corner case issue with the sendHitTask callback handling of the GOOGLE_ANALYTICS_TO_SPLIT integration.
- - Bugfixing - Updating the package.json version import to be compatible with latest standards (thanks @andrew-t-james-hm).
+ - Bugfixing - Updating the package.json version import to be compatible with latest standards (Related to issue https://github.com/splitio/javascript-client/pull/495, thanks @andrew-t-james-hm).
 
 10.15.0 (Oct 6, 2020)
  - Added impressions dedupe logic to avoid sending duplicated impressions:
