@@ -1130,13 +1130,13 @@ declare namespace SplitIO {
       /**
        * Synchronous storage type to be instantiated by the SDK.
        * @property {NodeSyncStorage} type
-       * @default MEMORY
+       * @default 'MEMORY'
        */
       type?: NodeSyncStorage,
       /**
        * Optional prefix to prevent any kind of data collision between SDK versions.
        * @property {string} prefix
-       * @default SPLITIO
+       * @default 'SPLITIO'
        */
       prefix?: string
     },
@@ -1145,7 +1145,7 @@ declare namespace SplitIO {
      * For "localhost" mode, use "localhost" as authorizationKey.
      *
      * @property {'standalone'} mode
-     * @default standalone
+     * @default 'standalone'
      */
     mode?: 'standalone'
   }
@@ -1234,7 +1234,7 @@ declare namespace SplitIO {
       /**
        * Optional prefix to prevent any kind of data collision between SDK versions.
        * @property {string} prefix
-       * @default SPLITIO
+       * @default 'SPLITIO'
        */
       prefix?: string
     },
