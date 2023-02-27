@@ -237,9 +237,10 @@ client = client.removeAllListeners();
 const b: number = client.listenerCount(splitEvent);
 let nodeEventEmitter: NodeJS.EventEmitter = client;
 
-// Ready and destroy
+// Ready, destroy and flush
 const readyPromise: Promise<void> = client.ready();
 const destroyPromise: Promise<void> = client.destroy();
+const flushPromise: Promise<void> = client.flush();
 
 // We can call getTreatment with or without a key.
 treatment = client.getTreatment(splitKey, 'mySplit');
@@ -299,9 +300,10 @@ asyncClient = asyncClient.removeAllListeners();
 const b1: number = asyncClient.listenerCount(splitEvent);
 nodeEventEmitter = asyncClient;
 
-// Ready and destroy (same as for sync client, just for interface checking)
+// Ready, destroy and flush (same as for sync client, just for interface checking)
 const readyPromise1: Promise<void> = asyncClient.ready();
 asyncClient.destroy();
+asyncClient.flush();
 
 // We can call getTreatment but always with a key.
 asyncTreatment = asyncClient.getTreatment(splitKey, 'mySplit');

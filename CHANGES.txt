@@ -1,6 +1,6 @@
 10.23.0 (February 28, 2023)
  - Added `flush` method to client, to instruct the SDK to send impressions and events to Split backend.
- - Updated @splitsoftware/splitio-commons package to version 1.8.2 that includes minor improvements.
+ - Updated @splitsoftware/splitio-commons package to version 1.8.1 that includes `flush` method and other minor improvements.
  - Updated some transitive dependencies for vulnerability fixes.
 
 10.22.3 (December 16, 2022)
@@ -96,6 +96,7 @@
       - Implemented handling of the new MySegmentsV2 notification types (SegmentRemoval, KeyList, Bounded and Unbounded)
       - New control notification for environment scoped streaming reset.
  - Updated some dependencies to their latest versions, including Webpack 4 to 5, to build a more optimized UMD bundle.
+ - NOTE: build script is configured to transpile to ES5 with Babel loose mode (https://2ality.com/2015/12/babel6-loose-mode.html), that results in a smaller bundle size and faster code execution but with some differences in the transpiled code, that may affect old browser versions like some builds of IE10.
 
 10.15.9 (Aug 13, 2021)
  - Updated some dependencies with vulnerability fixes.
@@ -174,6 +175,7 @@
  - Added `sync.splitFilters` property to SDK configuration to pass a list of filters for the splits that will be downloaded. Read more in our docs.
  - Added expiration policy to split cache for browsers using localStorage: cache is cleared after 10 days of the last successful update.
  - Updated babel configuration to remove core-js dependency and refactored code in favor of size reduction of UMD, ESM and CommonJS builds.
+ - NOTE: removed some polyfills of global objects not available in some builds of IE10.
 
 10.13.0 (Jun 25, 2020)
  - Updated client.ready() and manager.ready() functions to be consumed on demand and return a promise reflecting the current status of the SDK at the time the method was invoked.
