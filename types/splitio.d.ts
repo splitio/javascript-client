@@ -460,7 +460,7 @@ interface IBasicClient extends IStatusInterface {
   /**
    * Flushes pending impressions and events.
    * In 'standalone' mode, events and impressions are periodically flushed to the backend at intervals determined by the `scheduler.impressionsRefreshRate`
-   * and `scheduler.eventsPushRate` options respectivaly, but you can use this method to force a flush.
+   * and `scheduler.eventsPushRate` options respectively, but you can use this method to force a flush.
    * In 'consumer' and 'localhost' modes, this method is a no-op and returns a resolved promise.
    *
    * @function flush
