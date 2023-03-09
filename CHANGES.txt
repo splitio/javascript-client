@@ -95,7 +95,7 @@
       - Implemented handling of the new MySegmentsV2 notification types (SegmentRemoval, KeyList, Bounded and Unbounded)
       - New control notification for environment scoped streaming reset.
  - Updated some dependencies to their latest versions, including Webpack 4 to 5, to build a more optimized UMD bundle.
- - NOTE: build script is configured to transpile to ES5 with Babel loose mode (https://2ality.com/2015/12/babel6-loose-mode.html), that results in a smaller bundle size and faster code execution but with some differences in the transpiled code, that may affect old browser versions like some builds of IE10.
+ - NOTE: build script is configured to transpile to ES5 with Babel loose mode (https://2ality.com/2015/12/babel6-loose-mode.html). It results in a smaller bundle size and faster code execution but with some differences in the transpiled code, that may affect old browser versions like some builds of IE10.
 
 10.15.9 (Aug 13, 2021)
  - Updated some dependencies with vulnerability fixes.
