@@ -458,9 +458,12 @@ interface IStatusInterface extends EventEmitter {
  */
 interface IBasicClient extends IStatusInterface {
   /**
-   * Destroy the client instance.
+   * Destroys the client instance.
+   * In 'standalone' mode, this method will flush any pending impressions and events, and stop the synchronization of feature flag definitions with the backend.
+   * In 'consumer' mode, this method will disconnect the SDK from the Redis or Pluggable storage.
+   *
    * @function destroy
-   * @returns {Promise<void>}
+   * @returns {Promise<void>} A promise that will be resolved once the client is destroyed.
    */
   destroy(): Promise<void>
 }
@@ -1130,13 +1133,13 @@ declare namespace SplitIO {
       /**
        * Synchronous storage type to be instantiated by the SDK.
        * @property {NodeSyncStorage} type
-       * @default MEMORY
+       * @default 'MEMORY'
        */
       type?: NodeSyncStorage,
       /**
        * Optional prefix to prevent any kind of data collision between SDK versions.
        * @property {string} prefix
-       * @default SPLITIO
+       * @default 'SPLITIO'
        */
       prefix?: string
     },
@@ -1145,7 +1148,7 @@ declare namespace SplitIO {
      * For "localhost" mode, use "localhost" as authorizationKey.
      *
      * @property {'standalone'} mode
-     * @default standalone
+     * @default 'standalone'
      */
     mode?: 'standalone'
   }
@@ -1234,7 +1237,7 @@ declare namespace SplitIO {
       /**
        * Optional prefix to prevent any kind of data collision between SDK versions.
        * @property {string} prefix
-       * @default SPLITIO
+       * @default 'SPLITIO'
        */
       prefix?: string
     },
