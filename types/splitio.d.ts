@@ -458,16 +458,6 @@ interface IStatusInterface extends EventEmitter {
  */
 interface IBasicClient extends IStatusInterface {
   /**
-   * Flushes pending impressions and events.
-   * In 'standalone' mode, events and impressions are periodically flushed to the backend at intervals determined by the `scheduler.impressionsRefreshRate`
-   * and `scheduler.eventsPushRate` options respectivaly, but you can use this method to force a flush.
-   * In 'consumer' and 'localhost' modes, this method is a no-op and returns a resolved promise.
-   *
-   * @function flush
-   * @returns {Promise<void>} A promise that will be resolved once the flush is completed.
-   */
-  flush(): Promise<void>
-  /**
    * Destroys the client instance.
    * In 'standalone' mode, this method will flush any pending impressions and events, and stop the synchronization of feature flag definitions with the backend.
    * In 'consumer' mode, this method will disconnect the SDK from the Redis or Pluggable storage.

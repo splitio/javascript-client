@@ -1,6 +1,5 @@
-10.23.0 (February 28, 2023)
- - Added `flush` method to client, to instruct the SDK to send impressions and events to Split backend.
- - Updated @splitsoftware/splitio-commons package to version 1.8.1 that includes `flush` method and other minor improvements.
+10.22.3 (March 9, 2023)
+ - Updated @splitsoftware/splitio-commons package to version 1.8.1 that includes minor improvements.
  - Updated some transitive dependencies for vulnerability fixes.
 
 10.22.3 (December 16, 2022)

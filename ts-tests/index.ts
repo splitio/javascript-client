@@ -240,6 +240,7 @@ let nodeEventEmitter: NodeJS.EventEmitter = client;
 // Ready, destroy and flush
 const readyPromise: Promise<void> = client.ready();
 const destroyPromise: Promise<void> = client.destroy();
+// @ts-ignore
 const flushPromise: Promise<void> = client.flush();
 
 // We can call getTreatment with or without a key.
@@ -303,6 +304,7 @@ nodeEventEmitter = asyncClient;
 // Ready, destroy and flush (same as for sync client, just for interface checking)
 const readyPromise1: Promise<void> = asyncClient.ready();
 asyncClient.destroy();
+// @ts-ignore
 asyncClient.flush();
 
 // We can call getTreatment but always with a key.
