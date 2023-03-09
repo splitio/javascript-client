@@ -35,6 +35,17 @@ tape('SDK destroy for NodeJS', async function (assert) {
   const client = factory.client();
   const manager = factory.manager();
 
+  // Assert we are sending the impressions while doing the flush
+  fetchMock.once(url(settings, '/testImpressions/bulk'), (url, opts) => {
+    const impressions = JSON.parse(opts.body);
+
+    impressions[0].i = map(impressions[0].i, imp => pick(imp, ['k', 't']));
+
+    assert.deepEqual(impressions, [{'f': 'Single_Test', 'i': [ { 'k': 'ut4', 't': 'on' } ] } ]);
+
+    return 200;
+  });
+
   // Assert we are sending the impressions while doing the destroy
   fetchMock.postOnce(url(settings, '/testImpressions/bulk'), (url, opts) => {
     const impressions = JSON.parse(opts.body);
@@ -75,6 +86,9 @@ tape('SDK destroy for NodeJS', async function (assert) {
     return 200;
   });
 
+  // Avoid assert for flush fetch
+  fetchMock.once(url(settings, '/v1/metrics/usage'), () => {return 200;});
+
   // Assert we are sending telemetry stats while doing the destroy
   fetchMock.postOnce(url(settings, '/v1/metrics/usage'), (url, opts) => {
     const payload = JSON.parse(opts.body);
@@ -85,6 +99,9 @@ tape('SDK destroy for NodeJS', async function (assert) {
   });
 
   await client.ready();
+
+  assert.equal(client.getTreatment('ut4', 'Single_Test'), 'on');
+  await client.flush();
 
   assert.equal(client.getTreatment('ut1', 'Single_Test'), 'on');
   assert.equal(client.getTreatment('ut2', 'Single_Test'), 'on');
