@@ -245,7 +245,7 @@ export default async function(config, key, assert) {
     }, 'If I get treatments right, I get a map of objects with those treatments and the configs when existent, null config otherwise.');
   };
 
-  for(i; i < SDK_INSTANCES_TO_TEST; i++) {
+  for (i; i < SDK_INSTANCES_TO_TEST; i++) {
     let splitio = SplitFactory(config);
 
     let client = splitio.client();
