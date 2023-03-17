@@ -26,7 +26,7 @@ const config = {
   streamingEnabled: false
 };
 
-export default function(assert) {
+export default function (assert) {
   const splitio = SplitFactory(config);
   const client = splitio.client();
 

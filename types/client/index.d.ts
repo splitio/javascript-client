@@ -1,4 +1,4 @@
-// Declaration file for Javascript Split Software SDK
+// Declaration file for JavaScript Split Software SDK
 // Project: http://www.split.io/
 
 /// <reference path="../splitio.d.ts" />

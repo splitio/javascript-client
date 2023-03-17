@@ -94,6 +94,6 @@ export default function trackAssertions(fetchMock, assert) {
   assert.notOk(client.track('facundo@split.io', 10, 'sometraffictype', 'someEvent'), 'client.track returns false if an event data was incorrect and it could not be added to the queue.');
   assert.notOk(client.track('facundo@split.io', 'asd', 20, 'trafficType'), 'client.track returns false if an event data was incorrect and it could not be added to the queue.');
   assert.notOk(client.track('marcio@split.io', 'othertraffictype', 'my.checkout.event', null, []), 'client.track returns false if an event data was incorrect and it could not be added to the queue.');
-  assert.notOk(client.track('marcio@split.io', 'othertraffictype', 'my.checkout.event', null, function() {}), 'client.track returns false if an event data was incorrect and it could not be added to the queue.');
+  assert.notOk(client.track('marcio@split.io', 'othertraffictype', 'my.checkout.event', null, function () { }), 'client.track returns false if an event data was incorrect and it could not be added to the queue.');
   assert.notOk(client.track('marcio@split.io', 'othertraffictype', 'my.checkout.event', null, 'asd'), 'client.track returns false if an event data was incorrect and it could not be added to the queue.');
 }

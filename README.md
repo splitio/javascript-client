@@ -1,4 +1,4 @@
-# Split SDK for Javascript
+# Split SDK for JavaScript
 
 [![npm version](https://badge.fury.io/js/%40splitsoftware%2Fsplitio.svg)](https://badge.fury.io/js/%40splitsoftware%2Fsplitio) [![Build Status](https://github.com/splitio/javascript-client/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/splitio/javascript-client/actions/workflows/ci-cd.yml) [![Greenkeeper badge](https://badges.greenkeeper.io/splitio/javascript-client.svg)](https://greenkeeper.io/)
 

@@ -37,7 +37,7 @@ export default function fetchSpecificSplits(fetchMock, assert) {
     } else { // tests where validateSplitFilters throws an exception
       try {
         SplitFactory(config);
-      } catch(e) {
+      } catch (e) {
         assert.equal(e.message, queryStrings[i]);
       }
     }
