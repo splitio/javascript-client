@@ -35,11 +35,11 @@ const config = {
 
 let truncatedTimeFrame;
 
-export default async function(key, fetchMock, assert) {
+export default async function (key, fetchMock, assert) {
   // Mocking this specific route to make sure we only get the items we want to test from the handlers.
   fetchMock.getOnce(url(settings, '/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
   fetchMock.get(url(settings, '/splitChanges?since=1457552620999'), { status: 200, body: splitChangesMock2 });
-  fetchMock.get(new RegExp(`${url(settings, '/segmentChanges/')}.*`), { status: 200, body: {since:10, till:10, name: 'segmentName', added: [], removed: []} });
+  fetchMock.get(new RegExp(`${url(settings, '/segmentChanges/')}.*`), { status: 200, body: { since: 10, till: 10, name: 'segmentName', added: [], removed: [] } });
 
   const splitio = SplitFactory(config);
   const client = splitio.client();
@@ -144,8 +144,8 @@ export default async function(key, fetchMock, assert) {
     treatment: 'o.n',
     config: '{"color":"brown","dimensions":{"height":12,"width":14},"text":{"inner":"click me"}}'
   }, 'We should get an evaluation as always.');
-  client.getTreatmentWithConfig({ matchingKey: key, bucketingKey: 'test_buck_key'}, 'split_with_config');
-  client.getTreatmentWithConfig({ matchingKey: 'different', bucketingKey: 'test_buck_key'}, 'split_with_config');
+  client.getTreatmentWithConfig({ matchingKey: key, bucketingKey: 'test_buck_key' }, 'split_with_config');
+  client.getTreatmentWithConfig({ matchingKey: 'different', bucketingKey: 'test_buck_key' }, 'split_with_config');
 
   evaluationsEnd = Date.now();
 }

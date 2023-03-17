@@ -294,15 +294,15 @@ tape('NodeJS Redis', function (t) {
     initializeRedisServer()
       .then(async (server) => {
         const expectedUniqueKeys = [
-          {'f':'UT_IN_SEGMENT','ks':['UT_Segment_member','other']},
-          {'f':'UT_NOT_IN_SEGMENT','ks':['UT_Segment_member','other']},
-          {'f':'UT_SET_MATCHER','ks':['UT_Segment_member']},
-          {'f':'UT_NOT_SET_MATCHER','ks':['UT_Segment_member']},
-          {'f':'always-o.n-with-config','ks':['UT_Segment_member']},
-          {'f':'always-on','ks':['UT_Segment_member']},
-          {'f':'hierarchical_splits_testing_on','ks':['UT_Segment_member']},
-          {'f':'hierarchical_splits_testing_off','ks':['UT_Segment_member']},
-          {'f':'hierarchical_splits_testing_on_negated','ks':['UT_Segment_member']},
+          { 'f': 'UT_IN_SEGMENT', 'ks': ['UT_Segment_member', 'other'] },
+          { 'f': 'UT_NOT_IN_SEGMENT', 'ks': ['UT_Segment_member', 'other'] },
+          { 'f': 'UT_SET_MATCHER', 'ks': ['UT_Segment_member'] },
+          { 'f': 'UT_NOT_SET_MATCHER', 'ks': ['UT_Segment_member'] },
+          { 'f': 'always-o.n-with-config', 'ks': ['UT_Segment_member'] },
+          { 'f': 'always-on', 'ks': ['UT_Segment_member'] },
+          { 'f': 'hierarchical_splits_testing_on', 'ks': ['UT_Segment_member'] },
+          { 'f': 'hierarchical_splits_testing_off', 'ks': ['UT_Segment_member'] },
+          { 'f': 'hierarchical_splits_testing_on_negated', 'ks': ['UT_Segment_member'] },
         ];
         assert.equal(config.sync.impressionsMode, NONE, 'impressionsMode should be NONE');
         const sdk = SplitFactory(config);

@@ -2,7 +2,7 @@ import { SplitFactory } from '../../';
 
 const SDK_INSTANCES_TO_TEST = 4;
 
-export default async function(config, key, assert) {
+export default async function (config, key, assert) {
   let i = 0, tested = 0;
 
   const getTreatmentTests = (client, sdkInstance) => {

@@ -28,7 +28,8 @@
     "eol-last": ["error", "always"],
     "keyword-spacing": "error",
     "comma-style": "error",
-    "no-trailing-spaces": "error"
+    "no-trailing-spaces": "error",
+    "space-before-function-paren": ["error", {"named": "never"}]
   },
 
   "parserOptions": {

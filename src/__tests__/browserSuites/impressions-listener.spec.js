@@ -31,7 +31,7 @@ const config = {
   streamingEnabled: false
 };
 
-export default function(assert) {
+export default function (assert) {
   const splitio = SplitFactory(config);
   const client = splitio.client();
   const client2 = splitio.client({ matchingKey: 'marcio@split.io', bucketingKey: 'impr_bucketing_2' });
