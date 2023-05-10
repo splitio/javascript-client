@@ -4,7 +4,7 @@ import yaml from 'js-yaml';
 import { isString, endsWith, find, forOwn, uniq, } from '@splitsoftware/splitio-commons/src/utils/lang';
 import { parseCondition } from '@splitsoftware/splitio-commons/src/sync/offline/splitsParser/parseCondition';
 
-const logPrefix = 'sync:offline:splits-fetcher: ';
+const logPrefix = 'sync:offline:fetcher: ';
 
 const DEFAULT_FILENAME = '.split';
 
