@@ -27,6 +27,11 @@
       "url": "https://github.com/NicoZelaya"
     }
   ],
+  "keywords": [
+    "splitio",
+    "sdk",
+    "javascript"
+  ],
   "main": "lib/index.js",
   "module": "es/index.js",
   "types": "types",
