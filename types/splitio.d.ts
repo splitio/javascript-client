@@ -519,7 +519,7 @@ declare namespace SplitIO {
   /**
    * Feature flag evaluation result with treatment and configuration, returned by getTreatmentWithConfig.
    * @typedef {Object} TreatmentWithConfig
-   * @property {string} treatment The treatment result
+   * @property {string} treatment The treatment string
    * @property {string | null} config The stringified version of the JSON config defined for that treatment, null if there is no config for the resulting treatment.
    */
   type TreatmentWithConfig = {

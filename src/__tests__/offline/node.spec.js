@@ -84,7 +84,7 @@ tape('NodeJS Offline Mode', function (t) {
     client.on(client.Event.SDK_READY_TIMED_OUT, () => {
       assert.pass('If tried to load a file with invalid extension, we should emit SDK_READY_TIMED_OUT.');
 
-      assert.ok(console.log.calledWithMatch(`[ERROR] splitio => sync:offline: There was an issue loading the mock Splits data, no changes will be applied to the current cache. Error: Invalid extension specified for Splits mock file. Accepted extensions are ".yml" and ".yaml". Your specified file is ${config.features}`));
+      assert.ok(console.log.calledWithMatch(`[ERROR] splitio => sync:offline: There was an issue loading the mock feature flags data. No changes will be applied to the current cache. Error: Invalid extension specified for feature flags mock file. Accepted extensions are ".yml" and ".yaml". Your specified file is ${config.features}`));
 
       console.log.restore();
       client.destroy();
