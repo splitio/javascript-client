@@ -4,7 +4,7 @@ import yaml from 'js-yaml';
 import { isString, endsWith, find, forOwn, uniq, } from '@splitsoftware/splitio-commons/src/utils/lang';
 import { parseCondition } from '@splitsoftware/splitio-commons/src/sync/offline/splitsParser/parseCondition';
 
-const logPrefix = 'sync:offline:splits-fetcher: ';
+const logPrefix = 'sync:offline:fetcher: ';
 
 const DEFAULT_FILENAME = '.split';
 
@@ -12,19 +12,20 @@ function configFilesPath(configFilePath) {
   if (configFilePath === DEFAULT_FILENAME || !isString(configFilePath)) {
     let root = process.env.HOME;
 
+    // @TODO env var not documented in help center
     if (process.env.SPLIT_CONFIG_ROOT) root = process.env.SPLIT_CONFIG_ROOT;
 
-    if (!root) throw new Error('Missing split mock configuration root.');
+    if (!root) throw new Error('Missing root of the feature flags mock file.');
 
     configFilePath = path.join(root, DEFAULT_FILENAME);
   }
 
   // Validate the extensions
   if (!(endsWith(configFilePath, '.yaml', true) || endsWith(configFilePath, '.yml', true) || endsWith(configFilePath, '.split', true)))
-    throw new Error(`Invalid extension specified for Splits mock file. Accepted extensions are ".yml" and ".yaml". Your specified file is ${configFilePath}`);
+    throw new Error(`Invalid extension specified for feature flags mock file. Accepted extensions are ".yml" and ".yaml". Your specified file is ${configFilePath}`);
 
   if (!fs.existsSync(configFilePath))
-    throw new Error(`Split configuration not found in ${configFilePath} - Please review your Split file location.`);
+    throw new Error(`Feature flags mock file not found in ${configFilePath} - Please review the file location.`);
 
   return configFilePath;
 }
@@ -32,11 +33,11 @@ function configFilesPath(configFilePath) {
 // This function is not pure nor meant to be. Here we apply modifications to cover
 // for behaviour that's ensured by the BE.
 function arrangeConditions(mocksData) {
-  // Iterate through each Split data
+  // Iterate through each feature flag data
   forOwn(mocksData, data => {
     const conditions = data.conditions;
 
-    // On the manager, as the split jsons come with all treatments on the partitions prop,
+    // On the manager, as feature flag JSONs come with all treatments on the partitions prop,
     // we'll add all the treatments to the first condition.
     const firstRolloutCondition = find(conditions, cond => cond.conditionType === 'ROLLOUT');
     // Malformed mocks may have
@@ -63,9 +64,9 @@ export function splitsParserFromFileFactory() {
 
   let previousMock = 'NO_MOCK_LOADED';
 
-  // Parse `.split` configuration file and return a map of "Split Objects"
-  function readSplitConfigFile(log, filePath) {
-    const SPLIT_POSITION = 0;
+  // Parse `.split` configuration file and return a map of feature flag objects
+  function readFeatureFlagConfigFile(log, filePath) {
+    const FEATURE_FLAG_POSITION = 0;
     const TREATMENT_POSITION = 1;
     let data;
 
@@ -80,7 +81,7 @@ export function splitsParserFromFileFactory() {
     if (data === previousMock) return false;
     previousMock = data;
 
-    const splitObjects = data.split(/\r?\n/).reduce((accum, line, index) => {
+    const featureFlagObjects = data.split(/\r?\n/).reduce((accum, line, index) => {
       let tuple = line.trim();
 
       if (tuple === '' || tuple.charAt(0) === '#') {
@@ -91,19 +92,19 @@ export function splitsParserFromFileFactory() {
         if (tuple.length !== 2) {
           log.debug(logPrefix + `Ignoring line since it does not have exactly two columns #${index}`);
         } else {
-          const splitName = tuple[SPLIT_POSITION];
+          const featureFlagName = tuple[FEATURE_FLAG_POSITION];
           const condition = parseCondition({ treatment: tuple[TREATMENT_POSITION] });
-          accum[splitName] = { conditions: [condition], configurations: {}, trafficTypeName: 'localhost' };
+          accum[featureFlagName] = { conditions: [condition], configurations: {}, trafficTypeName: 'localhost' };
         }
       }
 
       return accum;
     }, {});
 
-    return splitObjects;
+    return featureFlagObjects;
   }
 
-  // Parse `.yml` or `.yaml` configuration files and return a map of "Split Objects"
+  // Parse `.yml` or `.yaml` configuration files and return a map of feature flag objects
   function readYAMLConfigFile(log, filePath) {
     let data = '';
     let yamldoc = null;
@@ -122,28 +123,28 @@ export function splitsParserFromFileFactory() {
     }
 
     // Each entry will be mapped to a condition, but we'll also keep the configurations map.
-    const mocksData = (yamldoc).reduce((accum, splitEntry) => {
-      const splitName = Object.keys(splitEntry)[0];
+    const mocksData = (yamldoc).reduce((accum, featureFlagEntry) => {
+      const featureFlagName = Object.keys(featureFlagEntry)[0];
 
-      if (!splitName || !isString(splitEntry[splitName].treatment))
+      if (!featureFlagName || !isString(featureFlagEntry[featureFlagName].treatment))
         log.error(logPrefix + 'Ignoring entry on YAML since the format is incorrect.');
 
-      const mockData = splitEntry[splitName];
+      const mockData = featureFlagEntry[featureFlagName];
 
-      // "Template" for each split accumulated data
-      if (!accum[splitName]) {
-        accum[splitName] = {
+      // "Template" for each feature flag accumulated data
+      if (!accum[featureFlagName]) {
+        accum[featureFlagName] = {
           configurations: {}, conditions: [], treatments: [], trafficTypeName: 'localhost'
         };
       }
 
       // Assign the config if there is one on the mock
-      if (mockData.config) accum[splitName].configurations[mockData.treatment] = mockData.config;
+      if (mockData.config) accum[featureFlagName].configurations[mockData.treatment] = mockData.config;
       // Parse the condition from the entry.
       const condition = parseCondition(mockData);
-      accum[splitName].conditions[condition.conditionType === 'ROLLOUT' ? 'push' : 'unshift'](condition);
+      accum[featureFlagName].conditions[condition.conditionType === 'ROLLOUT' ? 'push' : 'unshift'](condition);
       // Also keep track of the treatments, will be useful for manager functionality.
-      accum[splitName].treatments.push(mockData.treatment);
+      accum[featureFlagName].treatments.push(mockData.treatment);
 
       return accum;
     }, {});
@@ -154,14 +155,14 @@ export function splitsParserFromFileFactory() {
   }
 
   // Load the content of a configuration file into an Object
-  return function splitsParserFromFile({ features, log }) {
+  return function featureFlagsParserFromFile({ features, log }) {
     const filePath = configFilesPath(features);
     let mockData;
 
     // If we have a filePath, it means the extension is correct, choose the parser.
     if (endsWith(filePath, '.split')) {
       log.warn(logPrefix + '.split mocks will be deprecated soon in favor of YAML files, which provide more targeting power. Take a look in our documentation.');
-      mockData = readSplitConfigFile(log, filePath);
+      mockData = readFeatureFlagConfigFile(log, filePath);
     } else {
       mockData = readYAMLConfigFile(log, filePath);
     }

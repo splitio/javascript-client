@@ -1,3 +1,9 @@
+10.22.5 (May 15, 2023)
+ - Updated @splitsoftware/splitio-commons package to version 1.8.2 that includes minor improvements.
+    - Updated terminology on the SDKs codebase to be more aligned with current standard without causing a breaking change. The core change is the term split for feature flag on things like logs and IntelliSense comments.
+    - Updated split storage modules to optimize some operations when using Redis and pluggable storages.
+ - Updated some transitive dependencies for vulnerability fixes.
+
 10.22.4 (March 9, 2023)
  - Updated @splitsoftware/splitio-commons package to version 1.8.1 that includes minor improvements.
  - Updated some transitive dependencies for vulnerability fixes.
@@ -15,7 +21,7 @@
 10.22.0 (October 5, 2022)
  - Added a new impressions mode for the SDK called NONE, to be used in factory when there is no desire to capture impressions on an SDK factory to feed Split's analytics engine. Running NONE mode, the SDK will only capture unique keys evaluated for a particular feature flag instead of full blown impressions.
  - Updated default value of `scheduler.featuresRefreshRate` config parameter from 5 seconds to 60 seconds for NodeJS and from 30 seconds to 60 seconds for Browser.
- - Updated @splitsoftware/splitio-commons package to version 1.7.1, that improves the performance of split evaluations (i.e., `getTreatment(s)` method calls) when using the default storage in memory, among other improvements.
+ - Updated @splitsoftware/splitio-commons package to version 1.7.1, that improves the performance of feature flag evaluations (i.e., `getTreatment(s)` method calls) when using the default storage in memory, among other improvements.
 
 10.21.1 (July 25, 2022)
  - Bugfixing - Added missed type definitions `enabled` from `sync`.
@@ -84,7 +90,7 @@
  - Bugfixing - Fixed an issue returning dynamic configs when the treatment name contains a dot (".").
 
 10.16.1 (October 25, 2021)
- - Updated some internal modules to optimize the time efficiency of split evaluations (i.e., `getTreatment(s)` method calls).
+ - Updated some internal modules to optimize the time efficiency of feature flag evaluations (i.e., `getTreatment(s)` method calls).
  - Updated some dependencies for vulnerability fixes (ioredis, @babel/cli, eslint, eslint-plugin-compat).
  - Bugfixing - Fixed localhost mode with localStorage, to use a mock in memory instead of localStorage API directly but keep emitting emit SDK_READY_FROM_CACHE event.
 
@@ -171,8 +177,8 @@
  - Bugfixing - Replaced the use of `for...in` statements since it iterates over enumerable properties on the prototype chain, which might be polluted by code external to the library.
 
 10.14.0 (Jul 31, 2020)
- - Added `sync.splitFilters` property to SDK configuration to pass a list of filters for the splits that will be downloaded. Read more in our docs.
- - Added expiration policy to split cache for browsers using localStorage: cache is cleared after 10 days of the last successful update.
+ - Added `sync.splitFilters` property to SDK configuration to pass a list of filters for the feature flags that will be downloaded. Read more in our docs.
+ - Added expiration policy to SDK cache for browsers using localStorage: cache is cleared after 10 days of the last successful update.
  - Updated babel configuration to remove core-js dependency and refactored code in favor of size reduction of UMD, ESM and CommonJS builds.
  - NOTE: removed some polyfills of global objects not available in some builds of IE10.
 
@@ -205,7 +211,7 @@
  - Bugfixing - Emit SDK_UPDATE in localhost only when mock was actually updated.
 
 10.10.0 (Jan 10, 2020)
- - Added SDK_READY_FROM_CACHE event, which will be emitted in LocalStorage mode when the SDK finds split cache in the storage of the browser.
+ - Added SDK_READY_FROM_CACHE event, which will be emitted in LocalStorage mode when the SDK finds feature flag definitions in the storage of the browser.
  - Updated a dependency to fix a vulnerability (serialize-javascript).
  - Updated multiple dependencies and dev dependencies (@types/node, axios, core-js, events, sinon, tape and the babel cli, core, preset-env, register and plugin-transform-runtime)
 
@@ -220,14 +226,14 @@
 10.9.0 (Oct 24, 2019)
  - Added listener for 'unload' DOM events to push remaining impressions and events when the browser page is closed or reloaded.
  - Added setting core.IPAddressesEnabled to disable reporting IP Addresses and Machine name back to Split cloud.
- - Updated Redis storage to fetch multiple splits at once for getTreatments/getTreatmentsWithConfig.
+ - Updated Redis storage to fetch multiple feature flags at once for getTreatments/getTreatmentsWithConfig.
  - Updated most dependencies to their latest versions. Biggest change is babel (from 6 to 7), Webpack 3 to 4, Karma and ioredis.
 
 10.8.4 (Sep 24, 2019)
  - Added module "events" as optional dependency.
  - Removed dependency on "util" module.
  - Updated transport module to use a local axios instance instead of the global one, to avoid polluting the shared one.
- - Updated input validation log when trying to get data of a non-existent split to have level WARN instead of ERROR.
+ - Updated input validation log when trying to get data of a non-existent feature flag to have level WARN instead of ERROR.
 
 10.8.3 (Sep 16, 2019)
  - Updated two default values on startup configuration for Browsers:
@@ -350,7 +356,7 @@
  - Updated SDK labels.
  - Bugfixing - Shared clients (browser) were ready even if the main client was not.
  - Bugfixing - Shared clients (browser) from different SDK instances should be separate.
- - Bugfixing - When using API key with wrong permissions, Node was throwing a false ready event (without segments).
+ - Bugfixing - When using SDK key with wrong permissions, Node was throwing a false ready event (without segments).
  - Bugfixing - Localhost mode was trying to flush impressions when client.destroy was invoked.
 
 9.3.7 (Dec 22, 2017)
@@ -407,7 +413,7 @@
 
     var settings = {
       core: {
-        authorizationKey: 'YOUR_API_KEY',
+        authorizationKey: 'YOUR_SDK_KEY',
         key: 'CUSTOMER_KEY'  // If on the browser.
       },
       debug: true  // Boolean flag for enabling logs. Default value is false.
@@ -423,7 +429,7 @@
 
     var sdk = splitio({
       core: {
-        authorizationKey: 'YOUR_API_KEY',
+        authorizationKey: 'YOUR_SDK_KEY',
         key: 'CUSTOMER_KEY'  // If on the browser.
       }
     });
@@ -460,13 +466,13 @@
  - Adding getTreatments method to client API. For example:
 
 ```js
-var treatmentsMap = client.getTreatments('CUSTOMER_KEY', ['Split_1', 'Split_2']);
+var treatmentsMap = client.getTreatments('CUSTOMER_KEY', ['Feature_flag_1', 'Feature_flag_2']);
 
 /*
-* treatmentsMap will be an object mapping splits with treatments. For example:
+* treatmentsMap will be an object mapping feature flags with treatments. For example:
 * {
-*   Split_1: 'on',
-*   Split_2: 'off
+*   Feature_flag_1: 'on',
+*   Feature_flag_2: 'off
 * }
 */
 ```
@@ -633,7 +639,7 @@ var treatmentsMap = client.getTreatments('CUSTOMER_KEY', ['Split_1', 'Split_2'])
 
 6.0.0 (June 24, 2016)
  - In the browser land we allow quick retries before start using the refresh
-  rates defined for segments and splits, plus the possibility of receive an
+  rates defined for segments and feature flags, plus the possibility of receive an
   event when the SDK is taking to much time to startup.
 
   ```html
@@ -698,8 +704,8 @@ var treatmentsMap = client.getTreatments('CUSTOMER_KEY', ['Split_1', 'Split_2'])
     });
 
     // usage
-    var t1 = dynamic1.getTreatment('split-name');
-    var t2 = dynamic2.getTreatment('another-split-name');
+    var t1 = dynamic1.getTreatment('feature-flag-name');
+    var t2 = dynamic2.getTreatment('another-feature-flag-name');
 
     // stop SDK
     dynamic1.destroy();
@@ -776,7 +782,7 @@ var treatmentsMap = client.getTreatments('CUSTOMER_KEY', ['Split_1', 'Split_2'])
 ```js
 var sdk = splitio({
   core: {
-    authorizationKey: 'c1l5vkd50gimccout3c03pntbu', // your API key
+    authorizationKey: 'c1l5vkd50gimccout3c03pntbu', // your SDK key
     key: '4a2c4490-ced1-11e5-9b97-d8a25e8b1578'     // your customer id
   }
 });
@@ -805,7 +811,7 @@ seconds:
 ```js
 var sdk = splitio({
   core: {
-    authorizationKey: 'c1l5vkd50gimccout3c03pntbu', // your API key
+    authorizationKey: 'c1l5vkd50gimccout3c03pntbu', // your SDK key
     key: '4a2c4490-ced1-11e5-9b97-d8a25e8b1578'     // your customer id
   },
   scheduler: {

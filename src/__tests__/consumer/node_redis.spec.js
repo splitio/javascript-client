@@ -25,7 +25,7 @@ const redisPort = '6385';
 
 const config = {
   core: {
-    authorizationKey: 'SOME API KEY' // in consumer mode, api key is only used to track and log warning regarding duplicated sdk instances
+    authorizationKey: 'SOME SDK KEY' // in consumer mode, SDK key is only used to track and log warning regarding duplicated SDK instances
   },
   mode: 'consumer',
   storage: {
