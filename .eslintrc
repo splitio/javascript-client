@@ -14,18 +14,22 @@
   },
 
   "rules": {
-    "indent": [2, 2, {"SwitchCase": 1}],
-    "quotes": [1, "single", "avoid-escape"],
-    "linebreak-style": [2, "unix"],
-    "semi": [2, "always"],
-    "no-underscore-dangle": 0,
-    "eqeqeq": [2, "smart"],
-    "no-unused-expressions": 0,
-    "new-cap" : 0,
-    "no-mixed-requires": 0,
-    "camelcase": [2, {"properties": "never"}],
-    "no-use-before-define": [2, "nofunc"],
-    "no-trailing-spaces": "error"
+    "indent": ["error", 2, {"SwitchCase": 1}],
+    "quotes": ["warn", "single", "avoid-escape"],
+    "linebreak-style": ["error", "unix"],
+    "semi": ["error", "always"],
+    "no-underscore-dangle": "off",
+    "eqeqeq": ["error", "smart"],
+    "no-unused-expressions": "off",
+    "new-cap" : "off",
+    "no-mixed-requires": "off",
+    "camelcase": ["error", {"properties": "never"}],
+    "no-use-before-define": ["error", "nofunc"],
+    "eol-last": ["error", "always"],
+    "keyword-spacing": "error",
+    "comma-style": "error",
+    "no-trailing-spaces": "error",
+    "space-before-function-paren": ["error", {"named": "never"}]
   },
 
   "parserOptions": {
@@ -38,7 +42,6 @@
       "files": ["src/**/*.js"],
       "excludedFiles": ["src/**/__tests__/**"],
       "extends": [
-        "eslint:recommended",
         "plugin:compat/recommended"
       ],
       "rules": {

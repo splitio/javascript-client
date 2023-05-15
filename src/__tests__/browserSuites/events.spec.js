@@ -72,9 +72,9 @@ export function withoutBindingTT(fetchMock, assert) {
   // Key binded as with getTreatment.
   tsStart = Date.now();
   assert.ok(client.track('sometraffictype', 'someEvent', 10), 'client.track returns true if an event is added to the queue.');
-  assert.ok(client.track('othertraffictype', 'genericEvent',  25), 'client.track returns true if event value is null and is added to the queue.');
-  assert.ok(client.track('othertraffictype', 'genericEvent',  25, null), 'client.track returns true if event properties is null and is added to the queue.');
-  assert.ok(client.track('othertraffictype', 'genericEvent',  24, { prop1: true, prop2: 'a', prop3: 2, prop4: null, willBeNulled: {} }), 'client.track returns true if event properties is an object and is added to the queue.');
+  assert.ok(client.track('othertraffictype', 'genericEvent', 25), 'client.track returns true if event value is null and is added to the queue.');
+  assert.ok(client.track('othertraffictype', 'genericEvent', 25, null), 'client.track returns true if event properties is null and is added to the queue.');
+  assert.ok(client.track('othertraffictype', 'genericEvent', 24, { prop1: true, prop2: 'a', prop3: 2, prop4: null, willBeNulled: {} }), 'client.track returns true if event properties is an object and is added to the queue.');
   assert.ok(client.track('othertraffictype', 'my.click.event'), 'client.track returns true if an event is added to the queue.');
   assert.ok(client.track('othertraffictype', 'my.checkout.event', null), 'client.track returns true if an event is added to the queue.');
   tsEnd = Date.now();
@@ -89,7 +89,7 @@ export function withoutBindingTT(fetchMock, assert) {
   assert.notOk(client.track(10, 'sometraffictype', 'someEvent'), 'client.track returns false if an event data was incorrect and it could not be added to the queue.');
   assert.notOk(client.track('asd', 20, 'trafficType'), 'client.track returns false if an event data was incorrect and it could not be added to the queue.');
   assert.notOk(client.track('othertraffictype', 'my.checkout.event', null, []), 'client.track returns false if an event properties was incorrect and it could not be added to the queue.');
-  assert.notOk(client.track('othertraffictype', 'my.checkout.event', null, function() {}), 'client.track returns false if an event properties was incorrect and it could not be added to the queue.');
+  assert.notOk(client.track('othertraffictype', 'my.checkout.event', null, function () { }), 'client.track returns false if an event properties was incorrect and it could not be added to the queue.');
   assert.notOk(client.track('othertraffictype', 'my.checkout.event', null, 'asd'), 'client.track returns false if an event properties was incorrect and it could not be added to the queue.');
 }
 
@@ -143,8 +143,8 @@ export function bindingTT(fetchMock, assert) {
   tsStart = Date.now();
   assert.ok(client.track('someEvent', 10), 'client.track returns true if an event is added to the queue.');
   assert.ok(client.track('genericEvent', 25), 'client.track returns true if an event is added to the queue');
-  assert.ok(client.track('genericEvent',  25, null), 'client.track returns true if event properties is null and is added to the queue.');
-  assert.ok(client.track('genericEvent',  24, { prop1: true, prop2: 'a', prop3: 2, prop4: null, willBeNulled: {} }), 'client.track returns true if event properties is an object and is added to the queue.');
+  assert.ok(client.track('genericEvent', 25, null), 'client.track returns true if event properties is null and is added to the queue.');
+  assert.ok(client.track('genericEvent', 24, { prop1: true, prop2: 'a', prop3: 2, prop4: null, willBeNulled: {} }), 'client.track returns true if event properties is an object and is added to the queue.');
   assert.ok(client.track('my.click.event'), 'client.track returns true if an event is added to the queue.');
   assert.ok(client.track('my.checkout.event', null), 'client.track returns true if an event is added to the queue.');
   tsEnd = Date.now();
@@ -158,6 +158,6 @@ export function bindingTT(fetchMock, assert) {
   assert.notOk(client.track('randomEvent', 'invalid value'), 'client.track returns false if event value is invalid and it could not be added to the queue.');
   assert.notOk(client.track('my.checkout.event', ['some', 'stuff']), 'client.track returns false if event value is invalid and it could not be added to the queue.');
   assert.notOk(client.track('my.checkout.event', null, []), 'client.track returns false if an event properties was incorrect and it could not be added to the queue.');
-  assert.notOk(client.track('my.checkout.event', null, function() {}), 'client.track returns false if an event properties was incorrect and it could not be added to the queue.');
+  assert.notOk(client.track('my.checkout.event', null, function () { }), 'client.track returns false if an event properties was incorrect and it could not be added to the queue.');
   assert.notOk(client.track('my.checkout.event', null, 'asd'), 'client.track returns false if an event properties was incorrect and it could not be added to the queue.');
 }

@@ -389,11 +389,10 @@ export default function readyPromiseAssertions(key, fetchMock, assert) {
     // We also use the manager to get some of the promises
     const manager = splitio.manager();
 
-    // promise1 is handled immediately. Thus, the 'reject' callback is expected to be called in 0.15 seconds aprox.
+    // `ready` is called immediately. Thus, the 'reject' callback is expected to be called in 0.15 seconds aprox.
     setTimeout(() => {
-      const promise1 = client.ready();
       const tStart = Date.now();
-      promise1
+      client.ready()
         .then(() => {
           t.fail('### SDK IS READY - not TIMED OUT when it should.');
         })
@@ -405,11 +404,10 @@ export default function readyPromiseAssertions(key, fetchMock, assert) {
         });
     }, 0);
 
-    // promise2 is handled in 0.15 seconds, when the promise is just rejected. Thus, the 'reject' callback is expected to be called immediately (0 seconds aprox).
+    // `ready` is called in 0.15 seconds, when the promise is just rejected. Thus, the 'reject' callback is expected to be called immediately (0 seconds aprox).
     setTimeout(() => {
-      const promise2 = manager.ready();
       const tStart = Date.now();
-      promise2
+      manager.ready()
         .then(() => {
           t.fail('### SDK IS READY - not TIMED OUT when it should.');
         })
@@ -421,11 +419,10 @@ export default function readyPromiseAssertions(key, fetchMock, assert) {
         });
     }, fromSecondsToMillis(0.15));
 
-    // promise3 is handled in 0.2 seconds, when the promise is just resolved. Thus, the 'resolve' callback is expected to be called immediately (0 seconds aprox).
+    // `ready` is called in 0.25 seconds, right after the promise is resolved (0.2 secs). Thus, the 'resolve' callback is expected to be called immediately (0 seconds aprox).
     setTimeout(() => {
-      const promise3 = manager.ready();
       const tStart = Date.now();
-      promise3
+      manager.ready()
         .then(() => {
           t.pass('### SDK IS READY - retry attempt finishes before the requestTimeoutBeforeReady limit');
           assertGetTreatmentWhenReady(t, client, key);
@@ -451,7 +448,7 @@ export default function readyPromiseAssertions(key, fetchMock, assert) {
               });
           });
         });
-    }, fromSecondsToMillis(0.2));
+    }, fromSecondsToMillis(0.25));
   }, 'Evaluate that multiple promises are resolved/rejected on expected times.');
 
   // Validate that warning messages are properly sent.
