@@ -1460,14 +1460,14 @@ declare namespace SplitIO {
      */
     setAttribute(attributeName: string, attributeValue: AttributeType): boolean,
     /**
-     * Returns the attribute with the given key.
+     * Returns the attribute with the given name.
      *
      * @param {string} attributeName Attribute name
-     * @returns {AttributeType} Attribute with the given key
+     * @returns {AttributeType} Attribute with the given name
      */
     getAttribute(attributeName: string): AttributeType,
     /**
-     * Removes from client's in memory attributes storage the attribute with the given key.
+     * Removes from client's in memory attributes storage the attribute with the given name.
      *
      * @param {string} attributeName
      * @returns {boolean} true if attribute was removed and false otherwise
