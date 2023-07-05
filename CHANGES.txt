@@ -1,4 +1,4 @@
-10.22.6 (June XX, 2023)
+10.22.6 (July 6, 2023)
  - Updated some transitive dependencies for vulnerability fixes.
  - Updated @splitsoftware/splitio-commons package to version 1.8.3 that includes the following bug fix:
     - Bugfix - The `destroy` method has been updated to immediately flag the SDK client as destroyed, to prevent access to the storage when `getTreatment` and `track` methods are called after the SDK is destroyed.
