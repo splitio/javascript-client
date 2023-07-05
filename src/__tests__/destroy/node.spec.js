@@ -109,10 +109,6 @@ tape('SDK destroy for NodeJS', async function (assert) {
 
   const destroyPromise = client.destroy();
 
-  assert.true(destroyPromise instanceof Promise, 'client.destroy() should return a promise.');
-
-  await destroyPromise;
-
   assert.equal(client.getTreatment('ut1', 'Single_Test'), 'control', 'After destroy, getTreatment returns control.');
   assert.deepEqual(client.getTreatments('ut1', ['Single_Test', 'another_split']), {
     Single_Test: 'control', another_split: 'control'
@@ -121,6 +117,10 @@ tape('SDK destroy for NodeJS', async function (assert) {
   assert.equal(manager.splits().length, 0, 'After destroy, manager.splits returns empty array.');
   assert.equal(manager.names().length, 0, 'After destroy, manager.names returns empty array.');
   assert.equal(manager.split('Single_Test'), null, 'After destroy, manager.split returns null.');
+
+  assert.true(destroyPromise instanceof Promise, 'client.destroy() should return a promise.');
+
+  await destroyPromise;
 
   assert.end();
 });

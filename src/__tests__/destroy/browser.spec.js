@@ -130,8 +130,7 @@ tape('SDK destroy for BrowserJS', async function (assert) {
   assert.ok(manager.names().length > 0, 'control assertion');
   assert.notOk(client2.track('tt', 'eventType', 2), 'After destroy, track calls return false.');
 
-  await client.destroy();
-  fetchMock.restore();
+  const destroyPromise = client.destroy();
 
   assert.equal(client.getTreatment('Single_Test'), 'control', 'After destroy, getTreatment returns control for every destroyed client.');
   assert.deepEqual(client.getTreatments(['Single_Test']), { 'Single_Test': 'control' }, 'After destroy, getTreatments returns map of controls for every destroyed client.');
@@ -140,6 +139,9 @@ tape('SDK destroy for BrowserJS', async function (assert) {
   assert.equal(manager.splits().length, 0, 'After the main client is destroyed, manager.splits will return empty array');
   assert.equal(manager.names().length, 0, 'After the main client is destroyed, manager.names will return empty array');
   assert.equal(manager.split('Single_Test'), null, 'After the main client is destroyed, manager.split will return null');
+
+  await destroyPromise;
+  fetchMock.restore();
 
   assert.end();
 });
