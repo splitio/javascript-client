@@ -1,0 +1,193 @@
+{
+  "splits": [
+    {
+      "orgId": null,
+      "environment": null,
+      "trafficTypeId": null,
+      "trafficTypeName": null,
+      "name": "qc_team",
+      "seed": -1984784937,
+      "status": "ACTIVE",
+      "killed": false,
+      "defaultTreatment": "no",
+      "conditions": [
+        {
+          "matcherGroup": {
+            "combiner": "AND",
+            "matchers": [
+              {
+                "keySelector": null,
+                "matcherType": "WHITELIST",
+                "negate": false,
+                "userDefinedSegmentMatcherData": null,
+                "whitelistMatcherData": {
+                  "whitelist": [
+                    "tia@split.io",
+                    "trevor@split.io"
+                  ]
+                },
+                "unaryNumericMatcherData": null,
+                "betweenMatcherData": null
+              }
+            ]
+          },
+          "partitions": [
+            {
+              "treatment": "yes",
+              "size": 100
+            }
+          ]
+        },
+        {
+          "matcherGroup": {
+            "combiner": "AND",
+            "matchers": [
+              {
+                "keySelector": {
+                  "trafficType": "user",
+                  "attribute": null
+                },
+                "matcherType": "IN_SEGMENT",
+                "negate": false,
+                "userDefinedSegmentMatcherData": {
+                  "segmentName": "new_segment"
+                },
+                "whitelistMatcherData": null,
+                "unaryNumericMatcherData": null,
+                "betweenMatcherData": null,
+                "unaryStringMatcherData": null
+              }
+            ]
+          },
+          "partitions": [
+            {
+              "treatment": "yes",
+              "size": 100
+            },
+            {
+              "treatment": "no",
+              "size": 0
+            }
+          ]
+        }
+      ],
+      "configurations": {}
+    },
+    {
+      "trafficTypeName": null,
+      "name":"mauro_java",
+      "orgId": null,
+      "environment": null,
+      "trafficTypeId": null,
+      "seed":-1769377604,
+      "status": "ACTIVE",
+      "killed": false,
+      "defaultTreatment": "off",
+      "conditions": [
+         {
+            "matcherGroup": {
+               "combiner": "AND",
+               "matchers": [
+               {
+                  "keySelector": null,
+                  "matcherType": "WHITELIST",
+                  "negate": false,
+                  "userDefinedSegmentMatcherData": null,
+                  "whitelistMatcherData": {
+                     "whitelist":[
+                        "admin",
+                        "mauro",
+                        "nico"
+                     ]
+                  },
+                  "unaryNumericMatcherData": null,
+                  "betweenMatcherData": null
+               }
+               ]
+            },
+            "partitions": [
+               {
+                  "treatment": "v5",
+                  "size": 100
+               }
+            ]
+         },
+         {
+            "matcherGroup": {
+               "combiner": "AND",
+               "matchers": [
+               {
+                  "keySelector": {
+                     "trafficType": "user",
+                     "attribute": null
+                  },
+                  "matcherType": "IN_SEGMENT",
+                  "negate": false,
+                  "userDefinedSegmentMatcherData": {
+                     "segmentName": "maur-2"
+                  },
+                  "whitelistMatcherData": null,
+                  "unaryNumericMatcherData": null,
+                  "betweenMatcherData": null,
+                  "unaryStringMatcherData": null
+               }
+               ]
+            },
+            "partitions": [
+               {
+                  "treatment": "on",
+                  "size": 0
+               },
+               {
+                  "treatment": "off",
+                  "size": 0
+               },
+               {
+                  "treatment": "V4",
+                  "size": 0
+               },
+               {
+                  "treatment": "v5",
+                  "size": 100
+               }
+            ]
+         },
+         {
+            "matcherGroup": {
+               "combiner": "AND",
+               "matchers": [
+               {
+                  "keySelector": {
+                     "trafficType":"user",
+                     "attribute": null
+                  },
+                  "matcherType":"ALL_KEYS",
+                  "negate":false
+               }
+               ]
+            },
+            "partitions": [
+               {
+                  "treatment": "on",
+                  "size": 100
+               },
+               {
+                  "treatment": "off",
+                  "size": 0
+               },
+               {
+                  "treatment": "V4",
+                  "size": 0
+               },
+               {
+                  "treatment": "v5",
+                  "size": 0
+               }
+            ]
+         }
+      ]
+   }
+  ],
+  "since": 1684265694505,
+  "till": 1684265694506
+}
