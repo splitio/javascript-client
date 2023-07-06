@@ -71,7 +71,7 @@ export default async function telemetryBrowserSuite(fetchMock, assert) {
 
     // @TODO check if iDe value is correct
     assert.deepEqual(data, {
-      mE: {}, hE: { sp: { 500: 1 }, ms: { 500: 1 } }, tR: 0, aR: 0, iQ: 4, iDe: 1, iDr: 0, spC: 31, seC: 1, skC: 1, eQ: 1, eD: 0, sE: [], t: []
+      mE: {}, hE: { sp: { 500: 1 }, ms: { 500: 1 } }, tR: 0, aR: 0, iQ: 4, iDe: 1, iDr: 0, spC: 31, seC: 1, skC: 1, eQ: 1, eD: 0, sE: [], t: [], ufs: { sp: 0, ms: 0 }
     }, 'metrics/usage JSON payload should be the expected');
 
     finish.next();
@@ -91,7 +91,7 @@ export default async function telemetryBrowserSuite(fetchMock, assert) {
     // @TODO check if iDe value is correct
     assert.deepEqual(data, {
       mL: {}, mE: {}, hE: {}, hL: {}, // errors and latencies were popped
-      tR: 0, aR: 0, iQ: 4, iDe: 1, iDr: 0, spC: 31, seC: 1, skC: 1, eQ: 1, eD: 0, sE: [], t: []
+      tR: 0, aR: 0, iQ: 4, iDe: 1, iDr: 0, spC: 31, seC: 1, skC: 1, eQ: 1, eD: 0, sE: [], t: [], ufs: { sp: 0, ms: 0 }
     }, '2nd metrics/usage JSON payload should be the expected');
     return 200;
   });
