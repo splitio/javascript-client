@@ -1,7 +1,7 @@
 import { LOCALHOST_MODE, STORAGE_MEMORY, STORAGE_REDIS, CONSUMER_MODE, STANDALONE_MODE } from '@splitsoftware/splitio-commons/src/utils/constants';
 
 export function validateStorage(settings) {
-  let {
+  const {
     log,
     mode,
     storage: {
