@@ -4,6 +4,7 @@
 
 /// <reference types="google.analytics" />
 import { RedisOptions } from "ioredis";
+import { SplitRumConfig, EventCollector } from '@splitsoftware/rum-agent';
 
 export as namespace SplitIO;
 export = SplitIO;
@@ -1114,6 +1115,27 @@ declare namespace SplitIO {
     userConsent?: ConsentStatus
   }
   /**
+   * @TODO
+   */
+  interface IBrowserSuiteSettings extends IBrowserSettings {
+    rumAgent?: SplitRumConfig & {
+      /**
+       * Optional properties to be added to the events sent to Split.
+       *
+       * @property {Properties} properties
+       * @default undefined
+       */
+      properties?: Properties,
+      /**
+       * List of event collectors to be registered.
+       *
+       * @property {EventCollector[]} register
+       * @default []
+       */
+      register?: EventCollector[],
+    }
+  }
+  /**
    * Settings interface for SDK instances created on NodeJS.
    * If your storage is asynchronous (Redis for example) use SplitIO.INodeAsyncSettings instead.
    * @interface INodeSettings
@@ -1305,6 +1327,23 @@ declare namespace SplitIO {
      * @property UserConsent
      */
     UserConsent: IUserConsentAPI
+  }
+  /**
+   * @TODO
+   */
+  interface IBrowserSuiteSDK extends IBrowserSDK {
+    /**
+     * @TODO
+     */
+    addIdentity(key: string, trafficType?: string): IBrowserClient,
+    /**
+     * @TODO
+     */
+    removeIdentity(key: string, trafficType?: string): Promise<void>,
+    /**
+     * @TODO
+     */
+    destroy(): Promise<void>
   }
   /**
    * This represents the interface for the SDK instance with asynchronous storage.

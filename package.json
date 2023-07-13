@@ -40,6 +40,7 @@
     "node": ">=6"
   },
   "dependencies": {
+    "@splitsoftware/rum-agent": "0.2.2-rc.4",
     "@splitsoftware/splitio-commons": "1.8.3",
     "@types/google.analytics": "0.0.40",
     "@types/ioredis": "^4.28.0",

@@ -1,0 +1,5 @@
+{
+  "main": "../lib/factory/browserSuite.js",
+  "module": "../es/factory/browserSuite.js",
+  "types": "../types/suite/index.d.ts"
+}

@@ -12,6 +12,8 @@
  */
 
 import { SplitFactory } from '@splitsoftware/splitio';
+import { SplitSuite } from '@splitsoftware/splitio/suite';
+import { EventData } from '@splitsoftware/rum-agent';
 
 let stringPromise: Promise<string>;
 let splitNamesPromise: Promise<SplitIO.SplitNames>;
@@ -621,3 +623,26 @@ let fullAsyncSettings: SplitIO.INodeAsyncSettings = {
 fullBrowserSettings.debug = 'ERROR';
 fullNodeSettings.debug = 'WARN';
 fullAsyncSettings.debug = 'INFO';
+
+// Suite
+const suiteConfig: SplitIO.IBrowserSuiteSettings = {
+  ...browserSettings,
+  rumAgent: {
+    prefix: 'prefix',
+    pushRate: 1,
+    queueSize: 1,
+    properties: {
+      'prop1': 'value1',
+    },
+    register: [(cb: (event: EventData) => void) => {}]
+  }
+}
+const suite = SplitSuite(suiteConfig);
+
+SDK = suite; // The Suite interface extends the SDK interface
+
+client = suite.addIdentity('key');
+client = suite.addIdentity('key', 'trafficType');
+let promise: Promise<void> = suite.removeIdentity('key');
+promise = suite.removeIdentity('key', 'trafficType');
+promise = suite.destroy();
