@@ -60,6 +60,7 @@ export function SplitSuite(config, __updateModules) {
   if (register) register.forEach(eventCollector => SplitRum.register(eventCollector));
   if (properties) SplitRum.setProperties(properties);
 
+  SplitRum.__getConfig().log = settings.log;
   SplitRum.setup(settings.core.authorizationKey, {
     prefix,
     url: settings.urls.events,
