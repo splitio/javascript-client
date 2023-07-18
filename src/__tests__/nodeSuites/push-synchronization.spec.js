@@ -3,12 +3,21 @@ import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
 import splitChangesMock3 from '../mocks/splitchanges.since.1457552620999.till.1457552649999.SPLIT_UPDATE.json';
 import splitChangesMock4 from '../mocks/splitchanges.since.1457552649999.till.1457552650000.SPLIT_KILL.json';
 import splitChangesMock5 from '../mocks/splitchanges.since.1457552650000.till.1457552650001.SPLIT_UPDATE.json';
+import splitChangesMock6 from '../mocks/splitchanges.since.1684265694505.till.1684265694506.SPLIT_UPDATE.json';
+import splitChangesMock7 from '../mocks/splitchanges.since.1684265694506.till.1684265694526.SPLIT_UPDATE.json';
+import splitChangesMock8 from '../mocks/splitchanges.since.1684265694526.till.1684265694546.SPLIT_UPDATE.json';
+import splitChangesMock9 from '../mocks/splitchanges.since.1684265694546.till.1684265694556.SPLIT_UPDATE.json';
 
 import splitUpdateMessage from '../mocks/message.SPLIT_UPDATE.1457552649999.json';
 import oldSplitUpdateMessage from '../mocks/message.SPLIT_UPDATE.1457552620999.json';
 import segmentUpdateMessage from '../mocks/message.SEGMENT_UPDATE.1457552640000.json';
 import splitKillMessage from '../mocks/message.SPLIT_KILL.1457552650000.json';
 import splitUpdateWithNewSegmentsMessage from '../mocks/message.SPLIT_UPDATE.1457552650001.json';
+import iffuSplitUpdateMessage from '../mocks/message.SPLIT_UPDATE.IFFU.1684265694505.json';
+import iffuSplitUpdateMessageWrongCompressionCode from '../mocks/message.SPLIT_UPDATE.IFFU.1684265694515.json';
+import iffuSplitUpdateMessageZeroPCN from '../mocks/message.SPLIT_UPDATE.IFFU.1684265694525.json';
+import iffuSplitUpdateMessageMissingPCN from '../mocks/message.SPLIT_UPDATE.IFFU.1684265694545.json';
+import iffuSplitUpdateMessageArchivedFF from '../mocks/message.SPLIT_UPDATE.IFFU.1684265694555.json';
 
 import authPushEnabled from '../mocks/auth.pushEnabled.node.json';
 
@@ -22,6 +31,7 @@ import { settingsFactory } from '../../settings';
 
 const key = 'nicolas@split.io';
 const otherUserKey = 'marcio@split.io';
+const adminUserKey = 'admin';
 
 const baseUrls = {
   sdk: 'https://sdk.push-synchronization/api',
@@ -44,7 +54,13 @@ const MILLIS_SECOND_SPLIT_UPDATE_EVENT = 300;
 const MILLIS_SEGMENT_UPDATE_EVENT = 400;
 const MILLIS_SPLIT_KILL_EVENT = 500;
 const MILLIS_SPLIT_UPDATE_EVENT_WITH_NEW_SEGMENTS = 600;
-const MILLIS_DESTROY = 700;
+const MILLIS_IFFU_UPDATE_EVENT_WITH_NEW_SEGMENTS = 700;
+const MILLIS_IFFU_UPDATE_EVENT_WITH_WRONG_COMPRESS = 800;
+const MILLIS_IFFU_UPDATE_EVENT_WITH_OLD_CHANGENUMBER = 900;
+const MILLIS_IFFU_UPDATE_EVENT_WITH_ZERO_PCN = 1000;
+const MILLIS_IFFU_UPDATE_EVENT_WITH_MISSING_PCN= 1100;
+const MILLIS_IFFU_UPDATE_EVENT_WITH_ARCHIVED = 1200;
+const MILLIS_DESTROY = 1300;
 
 /**
  * Sequence of calls:
@@ -55,9 +71,15 @@ const MILLIS_DESTROY = 700;
  *  0.4 secs: SEGMENT_UPDATE event -> /segmentChanges/
  *  0.5 secs: SPLIT_KILL event -> /splitChanges
  *  0.6 secs: SPLIT_UPDATE event with new segments -> /splitChanges, /segmentChanges/{newSegments}
+ *  0.7 secs: SPLIT_UPDATE IFFU event with new segments and Base64 encoded + Gzip (c==1) -> /segmentChanges/{newSegments}
+ *  0.8 secs: SPLIT_UPDATE IFFU event with wrong compress code (c==3) -> /splitChanges
+ *  0.9 secs: SPLIT_UPDATE IFFU event with old changeNumber
+ *  1.0 secs: SPLIT_UPDATE IFFU event with pcn = 0 -> /splitChanges
+ *  1.1 secs: SPLIT_UPDATE IFFU event with previous change number !== current change number -> /splitChanges
+ *  1.2 secs: SPLIT_UPDATE IFFU event with ARCHIVED feature flag in notification and Base64 encoded + zLib (c==2) -> /splitChanges
  */
 export function testSynchronization(fetchMock, assert) {
-  assert.plan(24);
+  assert.plan(49);
   fetchMock.reset();
   __setEventSource(EventSourceMock);
 
@@ -125,13 +147,74 @@ export function testSynchronization(fetchMock, assert) {
       eventSourceInstance.emitMessage(splitUpdateWithNewSegmentsMessage);
     }, MILLIS_SPLIT_UPDATE_EVENT_WITH_NEW_SEGMENTS); // send a SPLIT_UPDATE event with new segments after 0.6 seconds
     setTimeout(() => {
+      assert.equal(client.getTreatment(key, 'mauro_java'), 'control', 'evaluation previous to split update');
+      assert.equal(client.getTreatment(adminUserKey, 'mauro_java'), 'control', 'evaluation previous to split update');
+
+      client.once(client.Event.SDK_UPDATE, () => {
+        const lapse = Date.now() - start;
+        assert.true(nearlyEqual(lapse, MILLIS_IFFU_UPDATE_EVENT_WITH_NEW_SEGMENTS), 'SDK_UPDATE due to SPLIT_UPDATE IFFU event');
+        assert.equal(client.getTreatment(key, 'mauro_java'), 'off', 'evaluation of updated Split');
+        assert.equal(client.getTreatment(adminUserKey, 'mauro_java'), 'v5', 'evaluation of updated Split');
+      });
+      eventSourceInstance.emitMessage(iffuSplitUpdateMessage);
+    }, MILLIS_IFFU_UPDATE_EVENT_WITH_NEW_SEGMENTS); // send a SPLIT_UPDATE event with new segments after 0.7 seconds
+    setTimeout(() => {
+      assert.equal(client.getTreatment(key, 'mauro_java'), 'off', 'evaluation previous to split update');
+      assert.equal(client.getTreatment(adminUserKey, 'mauro_java'), 'v5', 'evaluation of updated Split');
+
+      client.once(client.Event.SDK_UPDATE, () => {
+        const lapse = Date.now() - start;
+        assert.true(nearlyEqual(lapse, MILLIS_IFFU_UPDATE_EVENT_WITH_WRONG_COMPRESS), 'SDK_UPDATE due to SPLIT_UPDATE IFFU event');
+        assert.equal(client.getTreatment(key, 'mauro_java'), 'on', 'evaluation of updated Split');
+        assert.equal(client.getTreatment(adminUserKey, 'mauro_java'), 'v5', 'evaluation of updated Split');
+      });
+      eventSourceInstance.emitMessage(iffuSplitUpdateMessageWrongCompressionCode);
+    }, MILLIS_IFFU_UPDATE_EVENT_WITH_WRONG_COMPRESS); // send a SPLIT_UPDATE event with wrong compress code after 0.8 seconds
+    setTimeout(() => {
+      eventSourceInstance.emitMessage(iffuSplitUpdateMessage);
+    }, MILLIS_IFFU_UPDATE_EVENT_WITH_OLD_CHANGENUMBER); // send a SPLIT_UPDATE event with old change number after 0.9 seconds
+    setTimeout(() => {
+      assert.equal(client.getTreatment(key, 'mauro_java'), 'on', 'evaluation previous to split update');
+      assert.equal(client.getTreatment(adminUserKey, 'mauro_java'), 'v5', 'evaluation of updated Split');
+      client.once(client.Event.SDK_UPDATE, () => {
+        const lapse = Date.now() - start;
+        assert.true(nearlyEqual(lapse, MILLIS_IFFU_UPDATE_EVENT_WITH_ZERO_PCN), 'SDK_UPDATE due to SPLIT_UPDATE IFFU event');
+        assert.equal(client.getTreatment(key, 'mauro_java'), 'v5', 'evaluation of updated Split');
+        assert.equal(client.getTreatment(adminUserKey, 'mauro_java'), 'v4', 'evaluation of updated Split');
+      });
+      eventSourceInstance.emitMessage(iffuSplitUpdateMessageZeroPCN);
+    }, MILLIS_IFFU_UPDATE_EVENT_WITH_ZERO_PCN); // send a SPLIT_UPDATE event with pcn = 0 after 1.0 seconds
+    setTimeout(() => {
+      assert.equal(client.getTreatment(key, 'mauro_java'), 'v5', 'evaluation previous to split update');
+      assert.equal(client.getTreatment(adminUserKey, 'mauro_java'), 'v4', 'evaluation of updated Split');
+      client.once(client.Event.SDK_UPDATE, () => {
+        const lapse = Date.now() - start;
+        assert.true(nearlyEqual(lapse, MILLIS_IFFU_UPDATE_EVENT_WITH_MISSING_PCN), 'SDK_UPDATE due to SPLIT_UPDATE IFFU event');
+        assert.equal(client.getTreatment(key, 'mauro_java'), 'off', 'evaluation of updated Split');
+        assert.equal(client.getTreatment(adminUserKey, 'mauro_java'), 'v4', 'evaluation of updated Split');
+      });
+      eventSourceInstance.emitMessage(iffuSplitUpdateMessageMissingPCN);
+    }, MILLIS_IFFU_UPDATE_EVENT_WITH_MISSING_PCN); // send a SPLIT_UPDATE event with pcn = 0 after 1.1 seconds
+    setTimeout(() => {
+      assert.equal(client.getTreatment(key, 'mauro_java'), 'off', 'evaluation previous to split update');
+      assert.equal(client.getTreatment(adminUserKey, 'mauro_java'), 'v4', 'evaluation of updated Split');
+      client.once(client.Event.SDK_UPDATE, () => {
+        const lapse = Date.now() - start;
+        assert.true(nearlyEqual(lapse, MILLIS_IFFU_UPDATE_EVENT_WITH_ARCHIVED), 'SDK_UPDATE due to SPLIT_UPDATE IFFU event');
+        assert.equal(client.getTreatment(key, 'mauro_java'), 'control', 'evaluation of updated Split');
+        assert.equal(client.getTreatment(adminUserKey, 'mauro_java'), 'control', 'evaluation of updated Split');
+      });
+      eventSourceInstance.emitMessage(iffuSplitUpdateMessageArchivedFF);
+    }, MILLIS_IFFU_UPDATE_EVENT_WITH_ARCHIVED); // send a SPLIT_UPDATE event with pcn = 0 after 1.1 seconds
+
+    setTimeout(() => {
       client.destroy().then(() => {
         assert.equal(client.getTreatment(key, 'whitelist'), 'control', 'evaluation returns control if client is destroyed');
-        // @TODO SDK_UPDATE should be emitted 4 times, but currently it is being emitted twice on SPLIT_KILL
-        assert.equal(sdkUpdateCount, 5, 'SDK_UPDATE should be emitted 5 times');
+        // @TODO SDK_UPDATE should be emitted 9 times, but currently it is being emitted twice on SPLIT_KILL
+        assert.equal(sdkUpdateCount, 10, 'SDK_UPDATE should be emitted 10 times');
         assert.end();
       });
-    }, MILLIS_DESTROY); // destroy client after 0.7 seconds
+    }, MILLIS_DESTROY); // destroy client after 1.3 second
   });
 
   // initial auth
@@ -198,6 +281,35 @@ export function testSynchronization(fetchMock, assert) {
   fetchMock.getOnce(url(settings, '/splitChanges?since=1457552650000'), function (url, opts) {
     if (!hasNoCacheHeader(opts)) assert.fail('request must include `Cache-Control` header');
     return { status: 200, body: splitChangesMock5 };
+  });
+
+  // fetch segments due to IFFU SPLIT_UPDATE event with new segments
+  fetchMock.getOnce(url(settings, '/segmentChanges/maur-2?since=-1'), function () {
+    return { status: 200, body: { since: 1457552650000, till: 1457552650000, name: 'maur-2', added: ['admin','mauro','nico'], removed: [] } };
+  });
+
+  // fetch feature flags due to IFFU SPLIT_UPDATE event with wrong compress code
+  fetchMock.getOnce(url(settings, '/splitChanges?since=1684265694505'), function (url, opts) {
+    if (!hasNoCacheHeader(opts)) assert.fail('request must include `Cache-Control` header');
+    return { status: 200, body: splitChangesMock6 };
+  });
+
+  // fetch feature flags due to IFFU SPLIT_UPDATE event with previous change number = 0
+  fetchMock.getOnce(url(settings, '/splitChanges?since=1684265694506'), function (url, opts) {
+    if (!hasNoCacheHeader(opts)) assert.fail('request must include `Cache-Control` header');
+    return { status: 200, body: splitChangesMock7 };
+  });
+
+  // fetch feature flags due to IFFU SPLIT_UPDATE event with previous change number !== current change number
+  fetchMock.getOnce(url(settings, '/splitChanges?since=1684265694526'), function (url, opts) {
+    if (!hasNoCacheHeader(opts)) assert.fail('request must include `Cache-Control` header');
+    return { status: 200, body: splitChangesMock8 };
+  });
+
+  // fetch feature flags due to IFFU SPLIT_UPDATE event with ARCHIVED feature flag
+  fetchMock.getOnce(url(settings, '/splitChanges?since=1684265694546'), function (url, opts) {
+    if (!hasNoCacheHeader(opts)) assert.fail('request must include `Cache-Control` header');
+    return { status: 200, body: splitChangesMock9 };
   });
 
   mockSegmentChanges(fetchMock, new RegExp(`${url(settings, '/segmentChanges')}/(employees|developers)`), [key]);

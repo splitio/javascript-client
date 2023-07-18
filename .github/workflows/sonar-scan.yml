@@ -32,7 +32,7 @@ jobs:
         run: npm run check
 
       - name: npm Build
-        run: BUILD_BRANCH=$(echo "${GITHUB_REF#refs/heads/}") BUILD_COMMIT=${{ github.sha }} npm run build
+        run: BUILD_BRANCH=$(echo "${GITHUB_REF#refs/heads/}") npm run build
 
       - name: SonarQube Scan (Push)
         if: github.event_name == 'push'
