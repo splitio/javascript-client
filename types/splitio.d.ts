@@ -158,7 +158,7 @@ interface ILoggerAPI {
  */
 interface IUserConsentAPI {
   /**
-   * Set or update the user consent status. Possible values are `true` and `false`, which represent user consent `'GRANTED'` and `'DECLINED'` respectively.
+   * Sets or updates the user consent status. Possible values are `true` and `false`, which represent user consent `'GRANTED'` and `'DECLINED'` respectively.
    * - `true ('GRANTED')`: the user has granted consent for tracking events and impressions. The SDK will send them to Split cloud.
    * - `false ('DECLINED')`: the user has declined consent for tracking events and impressions. The SDK will not send them to Split cloud.
    *
@@ -170,7 +170,7 @@ interface IUserConsentAPI {
    */
   setStatus(userConsent: boolean): boolean;
   /**
-   * Get the user consent status.
+   * Gets the user consent status.
    *
    * @function getStatus
    * @returns {ConsentStatus} The user consent status.
