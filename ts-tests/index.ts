@@ -13,7 +13,7 @@
 
 import { SplitFactory } from '@splitsoftware/splitio';
 import { SplitSuite } from '@splitsoftware/splitio/suite';
-import { EventData } from '@splitsoftware/rum-agent';
+import { EventData } from '@splitsoftware/browser-rum-agent';
 
 let stringPromise: Promise<string>;
 let splitNamesPromise: Promise<SplitIO.SplitNames>;

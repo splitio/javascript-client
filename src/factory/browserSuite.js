@@ -1,7 +1,7 @@
 import { objectAssign } from '@splitsoftware/splitio-commons/src/utils/lang/objectAssign';
 import { _Map } from '@splitsoftware/splitio-commons/src/utils/lang/maps';
 import { isObject, isNumber, isString } from '@splitsoftware/splitio-commons/src/utils/lang';
-import { SplitRum } from '@splitsoftware/rum-agent';
+import { SplitRumAgent } from '@splitsoftware/browser-rum-agent';
 
 import { SplitFactory } from './browser';
 
@@ -57,11 +57,11 @@ export function SplitSuite(config, __updateModules) {
   // @TODO import RumAgent internally or users should import it?
   const { prefix, properties, register } = settings.rumAgent;
 
-  if (register) register.forEach(eventCollector => SplitRum.register(eventCollector));
-  if (properties) SplitRum.setProperties(properties);
+  if (register) register.forEach(eventCollector => SplitRumAgent.register(eventCollector));
+  if (properties) SplitRumAgent.setProperties(properties);
 
-  SplitRum.__getConfig().log = settings.log;
-  SplitRum.setup(settings.core.authorizationKey, {
+  SplitRumAgent.__getConfig().log = settings.log;
+  SplitRumAgent.setup(settings.core.authorizationKey, {
     prefix,
     url: settings.urls.events,
     pushRate: settings.scheduler.eventsPushRate,
@@ -70,7 +70,7 @@ export function SplitSuite(config, __updateModules) {
 
   // Set identity for main client, with 'user' TT if not provided
   const mainIdentity = validateIdentity(settings.core);
-  SplitRum.addIdentity(mainIdentity);
+  SplitRumAgent.addIdentity(mainIdentity);
   const clients = new _Map();
   clients.set(JSON.stringify(mainIdentity), sdk.client());
 
@@ -82,7 +82,7 @@ export function SplitSuite(config, __updateModules) {
     const sIdentity = JSON.stringify(identity);
 
     if (!clients.has(sIdentity)) {
-      SplitRum.addIdentity(identity);
+      SplitRumAgent.addIdentity(identity);
       const client = sdk.client(identity.key, identity.trafficType);
       clients.set(sIdentity, client);
     }
@@ -94,7 +94,7 @@ export function SplitSuite(config, __updateModules) {
     const sIdentity = JSON.stringify(identity);
 
     if (clients.has(sIdentity)) {
-      SplitRum.removeIdentity(identity);
+      SplitRumAgent.removeIdentity(identity);
       const client = clients.get(sIdentity);
       clients.delete(sIdentity);
       return client.destroy();

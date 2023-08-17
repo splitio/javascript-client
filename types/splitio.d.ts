@@ -4,7 +4,7 @@
 
 /// <reference types="google.analytics" />
 import { RedisOptions } from "ioredis";
-import { SplitRumConfig, EventCollector } from '@splitsoftware/rum-agent';
+import { SplitRumAgentConfig, EventCollector } from '@splitsoftware/browser-rum-agent';
 
 export as namespace SplitIO;
 export = SplitIO;
@@ -1118,7 +1118,7 @@ declare namespace SplitIO {
    * @TODO
    */
   interface IBrowserSuiteSettings extends IBrowserSettings {
-    rumAgent?: SplitRumConfig & {
+    rumAgent?: SplitRumAgentConfig & {
       /**
        * Optional properties to be added to the events sent to Split.
        *
