@@ -189,8 +189,14 @@ interface IUserConsentAPI {
  */
 interface ISharedSettings {
   /**
-   * Whether the logger should be enabled or disabled by default.
-   * @property {Boolean} debug
+   * Boolean value to indicate whether the logger should be enabled or disabled, or a log level string.
+   *
+   * Examples:
+   * ```javascript
+   * config.debug = true
+   * config.debug = 'WARN'
+   * ```
+   * @property {boolean | LogLevel} debug
    * @default false
    */
   debug?: boolean | LogLevel,
