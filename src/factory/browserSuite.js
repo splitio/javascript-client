@@ -1,6 +1,6 @@
 import { objectAssign } from '@splitsoftware/splitio-commons/src/utils/lang/objectAssign';
 import { _Map } from '@splitsoftware/splitio-commons/src/utils/lang/maps';
-import { isObject, isNumber, isString } from '@splitsoftware/splitio-commons/src/utils/lang';
+import { isObject, isFiniteNumber, isString } from '@splitsoftware/splitio-commons/src/utils/lang';
 import { SplitRumAgent } from '@splitsoftware/browser-rum-agent';
 
 import { SplitFactory } from './browser';
@@ -21,7 +21,7 @@ function validateIdentity(identity, logger) {
 
   let { key, trafficType } = identity;
 
-  if (isNumber(key)) key = key + '';
+  if (isFiniteNumber(key)) key = key + '';
   if (!isString(key)) {
     logger.error('Key must be a string or number.');
     return;
