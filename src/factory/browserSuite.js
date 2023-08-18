@@ -1,6 +1,7 @@
 import { objectAssign } from '@splitsoftware/splitio-commons/src/utils/lang/objectAssign';
 import { _Map } from '@splitsoftware/splitio-commons/src/utils/lang/maps';
 import { isObject, isFiniteNumber, isString } from '@splitsoftware/splitio-commons/src/utils/lang';
+// @TODO import RumAgent internally or users should import it?
 import { SplitRumAgent } from '@splitsoftware/browser-rum-agent';
 
 import { SplitFactory } from './browser';
@@ -10,12 +11,12 @@ const DEFAULT_TRAFFIC_TYPE = 'user';
 /**
  * Validates an identity object.
  * @param {import('@splitsoftware/splitio-commons/src/types').ISettings['core']} identity
- * @param {import('@splitsoftware/splitio-commons/src/types').ISettings['log']} logger
+ * @param {import('@splitsoftware/splitio-commons/src/types').ISettings['log']} log
  * @returns {SplitIO.Identity | undefined}
  */
-function validateIdentity(identity, logger) {
+function validateIdentity(identity, log) {
   if (!isObject(identity)) {
-    logger.error('Identity must be an objects with key and optional trafficType.');
+    log.error('Identity must be an objects with key and optional trafficType.');
     return;
   }
 
@@ -23,12 +24,12 @@ function validateIdentity(identity, logger) {
 
   if (isFiniteNumber(key)) key = key + '';
   if (!isString(key)) {
-    logger.error('Key must be a string or number.');
+    log.error('Key must be a string or number.');
     return;
   }
 
   if (!isString(trafficType) && key) {
-    logger.error('Traffic Type must be a string or nullish.');
+    log.error('Traffic Type must be a string or nullish.');
     return;
   }
 
@@ -49,13 +50,17 @@ function validateIdentity(identity, logger) {
 export function SplitSuite(config, __updateModules) {
   const sdk = SplitFactory(config, __updateModules);
 
+  // Validate settings
   /** @type {import('../../types/splitio').IBrowserSuiteSettings} */
   const settings = sdk.settings;
+  const { log, rumAgent } = settings;
+  if (rumAgent !== undefined && !isObject(rumAgent)) {
+    log.error('settings: invalid `rumAgent` config. It must be undefined or an object.');
+    settings.rumAgent = undefined;
+  }
 
   // Configure RUM Agent
-  // @TODO Defaults and validation of settings.rumAgent
-  // @TODO import RumAgent internally or users should import it?
-  const { prefix, properties, register } = settings.rumAgent;
+  const { prefix, properties, register } = settings.rumAgent || {};
 
   if (register) register.forEach(eventCollector => SplitRumAgent.register(eventCollector));
   if (properties) SplitRumAgent.setProperties(properties);
@@ -69,7 +74,7 @@ export function SplitSuite(config, __updateModules) {
   });
 
   // Set identity for main client, with 'user' TT if not provided
-  const mainIdentity = validateIdentity(settings.core);
+  const mainIdentity = validateIdentity(settings.core, log);
   SplitRumAgent.addIdentity(mainIdentity);
   const clients = new _Map();
   clients.set(JSON.stringify(mainIdentity), sdk.client());
@@ -77,7 +82,7 @@ export function SplitSuite(config, __updateModules) {
   // Suite methods: addIdentity, removeIdentity, destroy
 
   function addIdentity(key, trafficType) {
-    const identity = validateIdentity({ key, trafficType });
+    const identity = validateIdentity({ key, trafficType }, log);
     if (!identity) return;
     const sIdentity = JSON.stringify(identity);
 
@@ -90,7 +95,7 @@ export function SplitSuite(config, __updateModules) {
   }
 
   function removeIdentity(key, trafficType) {
-    const identity = validateIdentity({ key, trafficType });
+    const identity = validateIdentity({ key, trafficType }, log);
     const sIdentity = JSON.stringify(identity);
 
     if (clients.has(sIdentity)) {
