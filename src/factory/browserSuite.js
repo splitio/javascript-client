@@ -28,7 +28,7 @@ function validateIdentity(identity, log) {
     return;
   }
 
-  if (!isString(trafficType) && key) {
+  if (trafficType && !isString(trafficType)) {
     log.error('Traffic Type must be a string or nullish.');
     return;
   }
@@ -108,10 +108,14 @@ export function SplitSuite(config, __updateModules) {
   }
 
   function destroy() {
-    return Promise.all(clients.keys().map((sIdentity) => {
+    const promises = [];
+
+    clients.forEach((_, sIdentity) => {
       const identity = JSON.parse(sIdentity);
-      return removeIdentity(identity);
-    }));
+      promises.push(removeIdentity(identity.key, identity.trafficType));
+    });
+
+    return Promise.all(promises);
   }
 
   return objectAssign(sdk, {

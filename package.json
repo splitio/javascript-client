@@ -108,6 +108,7 @@
     "test-browser-e2e-errorCatching": "cross-env NODE_ENV=test karma start karma/e2e.errorCatching.karma.conf.js",
     "test-browser-e2e-push": "cross-env NODE_ENV=test karma start karma/e2e.push.karma.conf.js",
     "test-browser-e2e-gaIntegration": "cross-env NODE_ENV=test karma start karma/e2e.gaIntegration.karma.conf.js",
+    "test-browser-e2e-suite": "cross-env NODE_ENV=test karma start karma/e2e.suite.karma.conf.js",
     "test-node": "npm run test-node-unit && npm run test-node-e2e",
     "test-node-unit": "cross-env NODE_ENV=test tape -r ./ts-node.register \"src/*/**/__tests__/**/!(browser).spec.js\" | tap-min",
     "test-node-e2e": "npm run test-node-e2e-online && npm run test-node-e2e-offline && npm run test-node-e2e-destroy && npm run test-node-e2e-errorCatching && npm run test-node-e2e-push && npm run test-node-e2e-redis",
