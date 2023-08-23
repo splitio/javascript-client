@@ -1,43 +1,12 @@
 import { objectAssign } from '@splitsoftware/splitio-commons/src/utils/lang/objectAssign';
-import { _Map } from '@splitsoftware/splitio-commons/src/utils/lang/maps';
-import { isObject, isFiniteNumber, isString } from '@splitsoftware/splitio-commons/src/utils/lang';
+import { _Set, setToArray } from '@splitsoftware/splitio-commons/src/utils/lang/sets';
+import { isObject } from '@splitsoftware/splitio-commons/src/utils/lang';
 // @TODO import RumAgent internally or users should import it?
 import { SplitRumAgent } from '@splitsoftware/browser-rum-agent';
 
 import { SplitFactory } from './browser';
 
 const DEFAULT_TRAFFIC_TYPE = 'user';
-
-/**
- * Validates an identity object.
- * @param {import('@splitsoftware/splitio-commons/src/types').ISettings['core']} identity
- * @param {import('@splitsoftware/splitio-commons/src/types').ISettings['log']} log
- * @returns {SplitIO.Identity | undefined}
- */
-function validateIdentity(identity, log) {
-  if (!isObject(identity)) {
-    log.error('Identity must be an objects with key and optional trafficType.');
-    return;
-  }
-
-  let { key, trafficType } = identity;
-
-  if (isFiniteNumber(key)) key = key + '';
-  if (!isString(key)) {
-    log.error('Key must be a string or number.');
-    return;
-  }
-
-  if (trafficType && !isString(trafficType)) {
-    log.error('Traffic Type must be a string or nullish.');
-    return;
-  }
-
-  return {
-    key: key.trim(),
-    trafficType: trafficType ? trafficType.trim().toLowerCase() : DEFAULT_TRAFFIC_TYPE
-  };
-}
 
 /**
  * SplitFactory for client-side with RUM Agent.
@@ -73,54 +42,37 @@ export function SplitSuite(config, __updateModules) {
     queueSize: settings.scheduler.eventsQueueSize
   });
 
-  // Set identity for main client, with 'user' TT if not provided
-  const mainIdentity = validateIdentity(settings.core, log);
-  SplitRumAgent.addIdentity(mainIdentity);
-  const clients = new _Map();
-  clients.set(JSON.stringify(mainIdentity), sdk.client());
+  const clients = new _Set();
 
-  // Suite methods: addIdentity, removeIdentity, destroy
+  // Create Suite instance extending SDK
+  return objectAssign({}, sdk, {
+    client() {
+      const client = sdk.client.apply(sdk, arguments);
 
-  function addIdentity(key, trafficType) {
-    const identity = validateIdentity({ key, trafficType }, log);
-    if (!identity) return;
-    const sIdentity = JSON.stringify(identity);
+      if (!clients.has(client)) {
+        clients.add(client);
 
-    if (!clients.has(sIdentity)) {
-      SplitRumAgent.addIdentity(identity);
-      const client = sdk.client(identity.key, identity.trafficType);
-      clients.set(sIdentity, client);
+        SplitRumAgent.addIdentity({
+          key: client.key,
+          trafficType: client.trafficType || DEFAULT_TRAFFIC_TYPE
+        });
+
+        // override client.destroy to remove identity from RUM Agent
+        const originalDestroy = client.destroy;
+        client.destroy = function () {
+          SplitRumAgent.removeIdentity({
+            key: client.key,
+            trafficType: client.trafficType || DEFAULT_TRAFFIC_TYPE
+          });
+          return originalDestroy.apply(client, arguments);
+        };
+      }
+
+      return client;
+    },
+
+    destroy() {
+      return Promise.all(setToArray(clients).map(client => client.destroy()))
     }
-    return clients.get(sIdentity);
-  }
-
-  function removeIdentity(key, trafficType) {
-    const identity = validateIdentity({ key, trafficType }, log);
-    const sIdentity = JSON.stringify(identity);
-
-    if (clients.has(sIdentity)) {
-      SplitRumAgent.removeIdentity(identity);
-      const client = clients.get(sIdentity);
-      clients.delete(sIdentity);
-      return client.destroy();
-    }
-    return Promise.resolve();
-  }
-
-  function destroy() {
-    const promises = [];
-
-    clients.forEach((_, sIdentity) => {
-      const identity = JSON.parse(sIdentity);
-      promises.push(removeIdentity(identity.key, identity.trafficType));
-    });
-
-    return Promise.all(promises);
-  }
-
-  return objectAssign(sdk, {
-    addIdentity,
-    removeIdentity,
-    destroy
   });
 }

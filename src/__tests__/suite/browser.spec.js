@@ -31,12 +31,12 @@ tape('SDK destroy for BrowserJS', async function (assert) {
   fetchMock.getOnce(url(settings, '/mySegments/ut3'), { status: 200, body: mySegmentsMock });
   fetchMock.postOnce(url(settings, '/v1/metrics/config'), 200); // 0.1% sample rate
 
-  const factory = SplitSuite(config);
-  const client = factory.client();
-  const client2 = factory.client('ut2');
-  const client3 = factory.client('ut3', 'tt2');
+  const suite = SplitSuite(config);
+  const client = suite.client();
+  const client2 = suite.client('ut2');
+  const client3 = suite.client('ut3', 'tt2');
 
-  const manager = factory.manager();
+  const manager = suite.manager();
 
   client.track('tt2', 'eventType', 1);
   client2.track('tt', 'eventType', 2);
@@ -97,19 +97,11 @@ tape('SDK destroy for BrowserJS', async function (assert) {
   assert.ok(manager.names().length > 0, 'control assertion');
   assert.ok(manager.split('Single_Test'), 'control assertion');
 
-  await client3.destroy();
-  await client2.destroy();
-  assert.equal(client2.getTreatment('Single_Test'), 'control', 'After destroy, getTreatment returns control for every destroyed client.');
-  assert.deepEqual(client2.getTreatments(['Single_Test']), { 'Single_Test': 'control' }, 'After destroy, getTreatments returns map of controls for every destroyed client.');
-  assert.ok(manager.names().length > 0, 'control assertion');
-  assert.notOk(client2.track('tt', 'eventType', 2), 'After destroy, track calls return false.');
-
-  const destroyPromise = client.destroy();
-
+  // Calls `client.destroy()` for all clients
+  const destroyPromise = suite.destroy();
   assert.equal(client.getTreatment('Single_Test'), 'control', 'After destroy, getTreatment returns control for every destroyed client.');
-  assert.deepEqual(client.getTreatments(['Single_Test']), { 'Single_Test': 'control' }, 'After destroy, getTreatments returns map of controls for every destroyed client.');
-  assert.notOk(client2.track('tt2', 'eventType', 1), 'After destroy, track calls return false.');
-
+  assert.deepEqual(client2.getTreatments(['Single_Test']), { 'Single_Test': 'control' }, 'After destroy, getTreatments returns map of controls for every destroyed client.');
+  assert.notOk(client3.track('tt', 'eventType', 2), 'After destroy, track calls return false.');
   assert.equal(manager.splits().length, 0, 'After the main client is destroyed, manager.splits will return empty array');
   assert.equal(manager.names().length, 0, 'After the main client is destroyed, manager.names will return empty array');
   assert.equal(manager.split('Single_Test'), null, 'After the main client is destroyed, manager.split will return null');
