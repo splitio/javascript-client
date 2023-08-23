@@ -19,7 +19,10 @@ tape('SDK destroy for BrowserJS', async function (assert) {
       authorizationKey: 'fake-key',
       key: 'ut1'
     },
-    streamingEnabled: false
+    streamingEnabled: false,
+    rumAgent: {
+      prefix: 'prefix'
+    }
   };
 
   // Mock fetch requests
@@ -32,9 +35,30 @@ tape('SDK destroy for BrowserJS', async function (assert) {
   fetchMock.postOnce(url(settings, '/v1/metrics/config'), 200); // 0.1% sample rate
 
   const suite = SplitSuite(config);
+
+  // Assert RUM-Agent is properly configured
+  assert.deepEqual(window.SplitRumAgent.__getConfig(), {
+    i: [], a: 'fake-key', p: {},
+    prefix: settings.rumAgent.prefix,
+    url: settings.urls.events,
+    pushRate: settings.scheduler.eventsPushRate,
+    queueSize: settings.scheduler.eventsQueueSize,
+    log: settings.log
+  }, 'RUM Agent is properly configured.');
+  assert.deepEqual(window.SplitRumAgent.getIdentities(), [], 'No identities are added to the RUM Agent until clients are retrieved.');
+
   const client = suite.client();
+  assert.deepEqual(window.SplitRumAgent.getIdentities(), [{ key: config.core.key, trafficType: 'user' }], 'Identity for the main client.');
+
   const client2 = suite.client('ut2');
   const client3 = suite.client('ut3', 'tt2');
+  assert.deepEqual(window.SplitRumAgent.getIdentities(), [{
+    key: config.core.key, trafficType: 'user'
+  }, {
+    key: 'ut2', trafficType: 'user'
+  }, {
+    key: 'ut3', trafficType: 'tt2'
+  }], 'Identity for the main and shared clients.');
 
   const manager = suite.manager();
 
