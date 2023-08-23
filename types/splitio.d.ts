@@ -1115,25 +1115,17 @@ declare namespace SplitIO {
     userConsent?: ConsentStatus
   }
   /**
-   * @TODO
+   * Settings interface for Suite instances created on the browser.
+   * @interface IBrowserSuiteSettings
+   * @extends IBrowserSettings
+   * @see {@link https://help.split.io/hc/en-us/articles/360020448791-JavaScript-SDK#configuration}
    */
   interface IBrowserSuiteSettings extends IBrowserSettings {
-    rumAgent?: SplitRumAgentConfig & {
-      /**
-       * Optional properties to be added to the events sent to Split.
-       *
-       * @property {Properties} properties
-       * @default undefined
-       */
-      properties?: Properties,
-      /**
-       * List of event collectors to be registered.
-       *
-       * @property {EventCollector[]} register
-       * @default []
-       */
-      register?: EventCollector[],
-    }
+    /**
+     * Optional configuration object for the RUM agent.
+     * @see {@link https://help.split.io/hc/en-us/articles/360030898431-Browser-RUM-agent#configuration}
+     */
+    rumAgent?: SplitRumAgentConfig
   }
   /**
    * Settings interface for SDK instances created on NodeJS.
@@ -1304,8 +1296,8 @@ declare namespace SplitIO {
   }
   /**
    * This represents the interface for the SDK instance with synchronous storage.
-   * @interface ISDK
-   * @extends IBasicSDK
+   * @interface IBrowserSDK
+   * @extends ISDK
    */
   interface IBrowserSDK extends ISDK {
     /**
@@ -1329,19 +1321,37 @@ declare namespace SplitIO {
     UserConsent: IUserConsentAPI
   }
   /**
-   * @TODO
+   * This represents the interface for the Suite instance, that is an extension of the SDK interface.
+   * @interface IBrowserSuiteSDK
+   * @extends IBrowserSDK
    */
   interface IBrowserSuiteSDK extends IBrowserSDK {
     /**
-     * @TODO
+     * Returns the default client instance of the SDK, and adds its identity (i.e., user key and traffic type pair) to the RUM agent to track events for it.
+     *
+     * NOTE: if no traffic type was provided to the config, 'user' will be used as default for the RUM Agent.
+     *
+     * @function client
+     * @returns {IBrowserClient} The client instance.
      */
-    addIdentity(key: string, trafficType?: string): IBrowserClient,
+    client(): IBrowserClient,
     /**
-     * @TODO
+     * Returns a shared client of the SDK, and adds its identity (i.e., user key and traffic type pair) to the RUM agent to track events for it.
+     *
+     * NOTE: if no traffic type is provided as second argument, 'user' will be used as default for the RUM Agent.
+     *
+     * @function client
+     * @param {SplitKey} key The key for the new client instance.
+     * @param {string=} trafficType The traffic type of the provided key.
+     * @returns {IBrowserClient} The client instance.
      */
-    removeIdentity(key: string, trafficType?: string): Promise<void>,
+    client(key: SplitKey, trafficType?: string): IBrowserClient
     /**
-     * @TODO
+     * Destroys all client instances and remove identities from the RUM agent to stop tracking events for them.
+     * This method will flush any pending impressions and events, and stop the synchronization of feature flag definitions with the backend.
+     *
+     * @function destroy
+     * @returns {Promise<void>} A promise that resolves once the client is destroyed.
      */
     destroy(): Promise<void>
   }

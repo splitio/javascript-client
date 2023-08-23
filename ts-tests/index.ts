@@ -630,19 +630,14 @@ const suiteConfig: SplitIO.IBrowserSuiteSettings = {
   rumAgent: {
     prefix: 'prefix',
     pushRate: 1,
-    queueSize: 1,
-    properties: {
-      'prop1': 'value1',
-    },
-    register: [(cb: (event: EventData) => void) => {}]
+    queueSize: 1
   }
 }
 const suite = SplitSuite(suiteConfig);
 
 SDK = suite; // The Suite interface extends the SDK interface
 
-client = suite.addIdentity('key');
-client = suite.addIdentity('key', 'trafficType');
-let promise: Promise<void> = suite.removeIdentity('key');
-promise = suite.removeIdentity('key', 'trafficType');
-promise = suite.destroy();
+client = suite.client();
+client = suite.client('key');
+client = suite.client('key', 'trafficType');
+let promise: Promise<void> = suite.destroy();

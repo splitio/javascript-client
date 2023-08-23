@@ -1,6 +1,5 @@
 import { objectAssign } from '@splitsoftware/splitio-commons/src/utils/lang/objectAssign';
 import { _Set, setToArray } from '@splitsoftware/splitio-commons/src/utils/lang/sets';
-import { isObject } from '@splitsoftware/splitio-commons/src/utils/lang';
 // @TODO import RumAgent internally or users should import it?
 import { SplitRumAgent } from '@splitsoftware/browser-rum-agent';
 
@@ -19,28 +18,15 @@ const DEFAULT_TRAFFIC_TYPE = 'user';
 export function SplitSuite(config, __updateModules) {
   const sdk = SplitFactory(config, __updateModules);
 
-  // Validate settings
+  // Configure RUM Agent
   /** @type {import('../../types/splitio').IBrowserSuiteSettings} */
   const settings = sdk.settings;
-  const { log, rumAgent } = settings;
-  if (rumAgent !== undefined && !isObject(rumAgent)) {
-    log.error('settings: invalid `rumAgent` config. It must be undefined or an object.');
-    settings.rumAgent = undefined;
-  }
-
-  // Configure RUM Agent
-  const { prefix, properties, register } = settings.rumAgent || {};
-
-  if (register) register.forEach(eventCollector => SplitRumAgent.register(eventCollector));
-  if (properties) SplitRumAgent.setProperties(properties);
-
   SplitRumAgent.__getConfig().log = settings.log;
   SplitRumAgent.setup(settings.core.authorizationKey, {
-    prefix,
     url: settings.urls.events,
     pushRate: settings.scheduler.eventsPushRate,
     queueSize: settings.scheduler.eventsQueueSize
-  });
+  }, settings.rumAgent);
 
   const clients = new _Set();
 
