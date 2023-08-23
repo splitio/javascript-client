@@ -1,9 +1,8 @@
 import { objectAssign } from '@splitsoftware/splitio-commons/src/utils/lang/objectAssign';
 import { _Set, setToArray } from '@splitsoftware/splitio-commons/src/utils/lang/sets';
 import { STANDALONE_MODE } from '@splitsoftware/splitio-commons/src/utils/constants';
-// @TODO import RumAgent internally or users should import it?
+// @TODO import RumAgent automatically or users should import it?
 import { SplitRumAgent } from '@splitsoftware/browser-rum-agent';
-
 import { SplitFactory } from './browser';
 
 const DEFAULT_TRAFFIC_TYPE = 'user';
@@ -19,17 +18,19 @@ const DEFAULT_TRAFFIC_TYPE = 'user';
 export function SplitSuite(config, __updateModules) {
   const sdk = SplitFactory(config, __updateModules);
 
-  // Configure RUM Agent
   /** @type {import('../../types/splitio').IBrowserSuiteSettings} */
   const settings = sdk.settings;
-  if (settings.mode === STANDALONE_MODE) {
-    SplitRumAgent.__getConfig().log = settings.log;
-    SplitRumAgent.setup(settings.core.authorizationKey, objectAssign({
-      url: settings.urls.events,
-      pushRate: settings.scheduler.eventsPushRate,
-      queueSize: settings.scheduler.eventsQueueSize
-    }, settings.rumAgent));
-  }
+
+  // Do not setup RUM Agent if not in standalone mode
+  if (settings.mode !== STANDALONE_MODE) return sdk;
+
+  // Setup RUM Agent
+  SplitRumAgent.__getConfig().log = settings.log;
+  SplitRumAgent.setup(settings.core.authorizationKey, objectAssign({
+    url: settings.urls.events,
+    pushRate: settings.scheduler.eventsPushRate,
+    queueSize: settings.scheduler.eventsQueueSize
+  }, settings.rumAgent));
 
   const clients = new _Set();
 
@@ -41,22 +42,18 @@ export function SplitSuite(config, __updateModules) {
       if (!clients.has(client)) {
         clients.add(client);
 
-        if (settings.mode === STANDALONE_MODE) {
-          SplitRumAgent.addIdentity({
-            key: client.key,
-            trafficType: client.trafficType || DEFAULT_TRAFFIC_TYPE
-          });
-        }
+        SplitRumAgent.addIdentity({
+          key: client.key,
+          trafficType: client.trafficType || DEFAULT_TRAFFIC_TYPE
+        });
 
         // override client.destroy to remove identity from RUM Agent
         const originalDestroy = client.destroy;
         client.destroy = function () {
-          if (settings.mode === STANDALONE_MODE) {
-            SplitRumAgent.removeIdentity({
-              key: client.key,
-              trafficType: client.trafficType || DEFAULT_TRAFFIC_TYPE
-            });
-          }
+          SplitRumAgent.removeIdentity({
+            key: client.key,
+            trafficType: client.trafficType || DEFAULT_TRAFFIC_TYPE
+          });
           return originalDestroy.apply(client, arguments);
         };
       }
@@ -65,7 +62,7 @@ export function SplitSuite(config, __updateModules) {
     },
 
     destroy() {
-      return Promise.all(setToArray(clients).map(client => client.destroy()))
+      return Promise.all(setToArray(clients).map(client => client.destroy()));
     }
   });
 }

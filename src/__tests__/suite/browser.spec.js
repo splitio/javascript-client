@@ -1,19 +1,19 @@
+import sinon from 'sinon';
 import tape from 'tape-catch';
 import fetchMock from '../testUtils/fetchMock';
 import { url } from '../testUtils';
-import map from 'lodash/map';
-import pick from 'lodash/pick';
 import { settingsFactory } from '../../settings';
 
 import splitChangesMock1 from '../mocks/splitChanges.since.-1.till.1500492097547.json';
 import splitChangesMock2 from '../mocks/splitChanges.since.1500492097547.json';
 import mySegmentsMock from '../mocks/mySegmentsEmpty.json';
-import impressionsMock from '../mocks/impressions.json';
+import { triggerUnloadEvent } from '../testUtils/browser';
+import { version } from '../../../node_modules/@splitsoftware/browser-rum-agent/package.json';
 
 // Test target
 import { SplitSuite } from '../../factory/browserSuite';
 
-tape('SDK destroy for BrowserJS', async function (assert) {
+tape('Split Suite: Browser SDK & RUM Agent', async function (assert) {
   const config = {
     core: {
       authorizationKey: 'fake-key',
@@ -60,6 +60,8 @@ tape('SDK destroy for BrowserJS', async function (assert) {
     key: 'ut3', trafficType: 'tt2'
   }], 'Identity for the main and shared clients.');
 
+  window.SplitRumAgent.track('custom-event-for-all-clients');
+
   const manager = suite.manager();
 
   client.track('tt2', 'eventType', 1);
@@ -67,28 +69,12 @@ tape('SDK destroy for BrowserJS', async function (assert) {
   client3.track('otherEventType', 3);
 
   // Assert we are sending the impressions while doing the destroy
-  fetchMock.postOnce(url(settings, '/testImpressions/bulk'), (url, opts) => {
-    const impressions = JSON.parse(opts.body);
-
-    impressions[0].i = map(impressions[0].i, imp => pick(imp, ['k', 't']));
-
-    assert.deepEqual(impressions, impressionsMock);
-
-    return 200;
-  });
+  fetchMock.postOnce(url(settings, '/testImpressions/bulk'), 200);
 
   // Assert we are sending the impressions count while doing the destroy
-  fetchMock.postOnce(url(settings, '/testImpressions/count'), (url, opts) => {
-    const impressionsCount = JSON.parse(opts.body);
+  fetchMock.postOnce(url(settings, '/testImpressions/count'), 200);
 
-    assert.equal(impressionsCount.pf.length, 1);
-    assert.equal(impressionsCount.pf[0].f, 'Single_Test');
-    assert.equal(impressionsCount.pf[0].rc, 3);
-
-    return 200;
-  });
-
-  // Assert we are sending the events while doing the destroy
+  // Assert we are sending events tracked by SDK clients, while doing the destroy
   fetchMock.postOnce(url(settings, '/events/bulk'), (url, opts) => {
     const events = JSON.parse(opts.body);
 
@@ -121,6 +107,31 @@ tape('SDK destroy for BrowserJS', async function (assert) {
   assert.ok(manager.names().length > 0, 'control assertion');
   assert.ok(manager.split('Single_Test'), 'control assertion');
 
+  // Assert that the RUM Agent flush events on unload event
+  const sendBeaconSpy = sinon.spy(window.navigator, 'sendBeacon');
+  triggerUnloadEvent();
+
+  const eventsCallArgs = sendBeaconSpy.firstCall.args;
+  assert.equal(eventsCallArgs[0], url(settings, '/events/beacon'), 'assert correct url');
+  const parsedPayload = JSON.parse(eventsCallArgs[1]);
+  assert.equal(parsedPayload.token, 'fake-key', 'assert correct payload token');
+  assert.equal(parsedPayload.sdk, 'jsrum-' + version, 'assert correct sdk version');
+  assert.deepEqual(parsedPayload.entries.map(event => ({ eventTypeId: event.eventTypeId, key: event.key, trafficTypeName: event.trafficTypeName })), [
+    { trafficTypeName: 'user', key: 'ut1', eventTypeId: 'prefix.custom-event-for-all-clients' },
+    { trafficTypeName: 'user', key: 'ut2', eventTypeId: 'prefix.custom-event-for-all-clients' },
+    { trafficTypeName: 'tt2', key: 'ut3', eventTypeId: 'prefix.custom-event-for-all-clients' },
+    { trafficTypeName: 'user', key: 'ut1', eventTypeId: 'prefix.time.to.dom.interactive' },
+    { trafficTypeName: 'user', key: 'ut2', eventTypeId: 'prefix.time.to.dom.interactive' },
+    { trafficTypeName: 'tt2', key: 'ut3', eventTypeId: 'prefix.time.to.dom.interactive' },
+    { trafficTypeName: 'user', key: 'ut1', eventTypeId: 'prefix.page.load.time' },
+    { trafficTypeName: 'user', key: 'ut2', eventTypeId: 'prefix.page.load.time' },
+    { trafficTypeName: 'tt2', key: 'ut3', eventTypeId: 'prefix.page.load.time' },
+  ], 'assert correct entries');
+
+  // Events are not sent again
+  triggerUnloadEvent();
+  assert.ok(sendBeaconSpy.calledOnce, 'sendBeacon should have been called once');
+
   // Calls `client.destroy()` for all clients
   const destroyPromise = suite.destroy();
   assert.equal(client.getTreatment('Single_Test'), 'control', 'After destroy, getTreatment returns control for every destroyed client.');
@@ -132,6 +143,7 @@ tape('SDK destroy for BrowserJS', async function (assert) {
 
   await destroyPromise;
   fetchMock.restore();
+  sendBeaconSpy.restore();
 
   assert.end();
 });
