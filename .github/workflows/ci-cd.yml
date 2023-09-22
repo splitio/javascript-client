@@ -58,7 +58,7 @@ jobs:
         run: BUILD_BRANCH=$(echo "${GITHUB_REF#refs/heads/}") npm run build
 
       - name: Store assets
-        if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/remove_unload_event_handler' || github.ref == 'refs/heads/master') }}
+        if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/development' || github.ref == 'refs/heads/master') }}
         uses: actions/upload-artifact@v3
         with:
           name: assets
@@ -69,7 +69,7 @@ jobs:
     name: Upload assets
     runs-on: ubuntu-20.04
     needs: build
-    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/remove_unload_event_handler' }}
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/development' }}
     strategy:
       matrix:
         environment:
