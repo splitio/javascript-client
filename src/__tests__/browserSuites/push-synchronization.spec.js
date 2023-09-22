@@ -22,7 +22,6 @@ import authPushEnabledNicolas from '../mocks/auth.pushEnabled.nicolas@split.io.j
 import authPushEnabledNicolasAndMarcio from '../mocks/auth.pushEnabled.nicolas@split.io.marcio@split.io.json';
 
 import { nearlyEqual, url, hasNoCacheHeader } from '../testUtils';
-import { triggerUnloadEvent } from '../testUtils/browser';
 import includes from 'lodash/includes';
 
 // Replace original EventSource with mock
@@ -69,7 +68,6 @@ const MILLIS_KEYLIST_FALLBACK = 1300;
 const MILLIS_BOUNDED = 1400;
 const MILLIS_KEYLIST = 1500;
 const MILLIS_SEGMENT_REMOVAL = 1600;
-const MILLIS_UNLOAD_BROWSER_EVENT = 1700;
 
 /**
  * Sequence of calls:
@@ -90,7 +88,6 @@ const MILLIS_UNLOAD_BROWSER_EVENT = 1700;
  *  1.4 secs: MY_SEGMENTS_UPDATE_V2 BoundedFetchRequest event.
  *  1.5 secs: MY_SEGMENTS_UPDATE_V2 KeyList event.
  *  1.6 secs: MY_SEGMENTS_UPDATE_V2 SegmentRemoval event.
- *  1.7 secs: 'unload' browser event -> streaming connection closed
  */
 export function testSynchronization(fetchMock, assert) {
   assert.plan(38);
@@ -239,26 +236,24 @@ export function testSynchronization(fetchMock, assert) {
               assert.deepEqual(sharedClients.map(c => c.getTreatment('splitters')), ['off', 'on', 'off', 'on'], 'evaluation before segment removal');
               bitmapTrueClient.once(bitmapTrueClient.Event.SDK_UPDATE, () => {
                 assert.deepEqual(sharedClients.map(c => c.getTreatment('splitters')), ['off', 'off', 'off', 'off'], 'evaluation after segment removal');
+
+                // destroy shared clients and then main client
+                Promise.all(sharedClients.map(c => c.destroy()))
+                  .then(() => {
+                    assert.equal(otherClient.getTreatment('whitelist'), 'control', 'evaluation returns control for shared client if it is destroyed');
+                    assert.equal(client.getTreatment('whitelist'), 'not_allowed', 'evaluation returns correct tratment for main client');
+                    assert.equal(eventSourceInstance.readyState, EventSourceMock.OPEN, 'streaming is still open');
+
+                    client.destroy().then(() => {
+                      assert.equal(client.getTreatment('whitelist'), 'control', 'evaluation returns control for main client if it is destroyed');
+                      assert.equal(eventSourceInstance.readyState, EventSourceMock.CLOSED, 'streaming is closed after destroy');
+                      assert.end();
+                    });
+                  });
               });
+
               eventSourceInstance.emitMessage(segmentRemovalMessage);
             }, MILLIS_SEGMENT_REMOVAL - MILLIS_MORE_CLIENTS);
-
-            setTimeout(() => {
-              assert.equal(eventSourceInstance.readyState, EventSourceMock.OPEN, 'streaming is still open');
-              triggerUnloadEvent();
-              assert.equal(eventSourceInstance.readyState, EventSourceMock.CLOSED, 'streaming is closed after "unload" browser event');
-
-              // destroy shared clients and then main client
-              Promise.all(sharedClients.map(c => c.destroy()))
-                .then(() => {
-                  assert.equal(otherClient.getTreatment('whitelist'), 'control', 'evaluation returns control for shared client if it is destroyed');
-                  assert.equal(client.getTreatment('whitelist'), 'not_allowed', 'evaluation returns correct tratment for main client');
-                  client.destroy().then(() => {
-                    assert.equal(client.getTreatment('whitelist'), 'control', 'evaluation returns control for main client if it is destroyed');
-                    assert.end();
-                  });
-                });
-            }, MILLIS_UNLOAD_BROWSER_EVENT - MILLIS_MORE_CLIENTS);
           });
         }, MILLIS_MORE_CLIENTS - MILLIS_NEW_CLIENT);
 
