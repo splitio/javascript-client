@@ -48,6 +48,7 @@ function ProcessEmitWarning(warning) {
   if (console && console.warn) console.warn(warning);
 }
 
+// eslint-disable-next-line compat/compat
 var NumberIsNaN = Number.isNaN || function NumberIsNaN(value) {
   return value !== value;
 };
