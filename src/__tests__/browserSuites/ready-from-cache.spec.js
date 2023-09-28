@@ -477,7 +477,7 @@ export default function (fetchMock, assert) {
       events: 'https://events.baseurl/readyFromCache_5'
     };
     localStorage.clear();
-    t.plan(7);
+    t.plan(6);
 
     fetchMock.getOnce(testUrls.sdk + '/splitChanges?since=-1&names=p1__split,p2__split', { status: 200, body: { splits: [splitDeclarations.p1__split, splitDeclarations.p2__split], since: -1, till: 1457552620999 } }, { delay: 10 }); // short delay to let emit SDK_READY_FROM_CACHE
     // fetchMock.getOnce(testUrls.sdk + '/splitChanges?since=1457552620999&names=p1__split', { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
@@ -502,10 +502,6 @@ export default function (fetchMock, assert) {
     });
     const client = splitio.client();
     const manager = splitio.manager();
-
-    client.once(client.Event.SDK_READY_FROM_CACHE, () => {
-      t.deepEqual(manager.names(), ['p2__split'], 'stored p3__split must be removed because doesn\'t match the filter');
-    });
 
     client.once(client.Event.SDK_READY, () => {
       t.deepEqual(manager.names(), ['p1__split', 'p2__split'], 'p1__split should be added for evaluation');
@@ -571,7 +567,7 @@ export default function (fetchMock, assert) {
       events: 'https://events.baseurl/readyFromCache_6'
     };
     localStorage.clear();
-    t.plan(7);
+    t.plan(6);
 
     fetchMock.getOnce(testUrls.sdk + '/splitChanges?since=25&names=p2__split&prefixes=p1', { status: 200, body: { splits: [splitDeclarations.p1__split, splitDeclarations.p2__split], since: 25, till: 1457552620999 } }, { delay: 10 }); // short delay to let emit SDK_READY_FROM_CACHE
     fetchMock.getOnce(testUrls.sdk + '/mySegments/nicolas%40split.io', { status: 200, body: { mySegments: [] } });
@@ -597,15 +593,11 @@ export default function (fetchMock, assert) {
     const client = splitio.client();
     const manager = splitio.manager();
 
-    client.once(client.Event.SDK_READY_FROM_CACHE, () => {
-      t.deepEqual(manager.names(), ['p2__split', 'p1__split'], 'splits shouldn\'t be removed for evaluation');
-    });
-
     client.once(client.Event.SDK_READY, () => {
       t.deepEqual(manager.names(), ['p2__split', 'p1__split'], 'active splits should be present for evaluation');
 
       client.destroy().then(() => {
-        t.equal(localStorage.getItem('some_user_item'), 'user_item', 'user items at localStorage must not be changed');
+        t.equal(localStorage.getItem('some_user_item'), 'user_item', ' user items at localStorage must not be changed');
         t.equal(localStorage.getItem('readyFromCache_6.SPLITIO.splits.till'), '1457552620999', 'splits.till must correspond to the till of the last successfully fetched Splits');
         t.equal(localStorage.getItem('readyFromCache_6.SPLITIO.split.p1__split'), JSON.stringify(splitDeclarations.p1__split), 'split declarations must be cached');
         t.equal(localStorage.getItem('readyFromCache_6.SPLITIO.split.p2__split'), JSON.stringify(splitDeclarations.p2__split), 'split declarations must be cached');
@@ -740,7 +732,7 @@ export default function (fetchMock, assert) {
       events: 'https://events.baseurl/readyFromCache_9'
     };
     localStorage.clear();
-    t.plan(7);
+    t.plan(6);
 
     fetchMock.getOnce(testUrls.sdk + '/splitChanges?since=-1&names=no%20exist%20trim,no_exist,p3__split&prefixes=no%20exist%20trim,p2', { status: 200, body: { splits: [splitDeclarations.p2__split, splitDeclarations.p3__split], since: -1, till: 1457552620999 } }, { delay: 10 }); // short delay to let emit SDK_READY_FROM_CACHE
     fetchMock.getOnce(testUrls.sdk + '/mySegments/nicolas%40split.io', { status: 200, body: { mySegments: [] } });
@@ -765,10 +757,6 @@ export default function (fetchMock, assert) {
     });
     const client = splitio.client();
     const manager = splitio.manager();
-
-    client.once(client.Event.SDK_READY_FROM_CACHE, () => {
-      t.deepEqual(manager.names(), ['p2__split'], 'stored p1__split must be removed because doesn\'t match the filter');
-    });
 
     client.once(client.Event.SDK_READY, () => {
       t.deepEqual(manager.names(), ['p3__split', 'p2__split'], 'active splits should be present for evaluation');

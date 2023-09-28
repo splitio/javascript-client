@@ -100,7 +100,8 @@ export default async function telemetryNodejsSuite(key, fetchMock, assert) {
       oM: 0, st: 'memory', aF: 1, rF: 0, sE: false,
       rR: { sp: 99999, se: 60, im: 300, ev: 60, te: 1 } /* override featuresRefreshRate */,
       uO: { s: true, e: true, a: false, st: false, t: true } /* override sdk, events and telemetry URLs */,
-      iQ: 30000, eQ: 500, iM: 0, iL: false, hP: false, nR: 1 /* 1 non ready usage */, t: [], uC: 0 /* NA */
+      iQ: 30000, eQ: 500, iM: 0, iL: false, hP: false, nR: 1 /* 1 non ready usage */, t: [], uC: 0 /* NA */,
+      fsT: 0, fsI: 0
     }, 'metrics/config JSON payload should be the expected');
 
     finish.next();
