@@ -19,6 +19,7 @@ import readyPromiseSuite from '../browserSuites/ready-promise.spec';
 import fetchSpecificSplits from '../browserSuites/fetch-specific-splits.spec';
 import userConsent from '../browserSuites/user-consent.spec';
 import singleSync from '../browserSuites/single-sync.spec';
+import flagSets from '../browserSuites/flag-sets.spec';
 
 import { settingsFactory } from '../../settings';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
@@ -132,6 +133,8 @@ tape('## E2E CI Tests ##', function (assert) {
   assert.test('E2E / Fetch specific splits', fetchSpecificSplits.bind(null, fetchMock));
   /* Validate single sync */
   assert.test('E2E / Single sync', singleSync.bind(null, fetchMock));
+  /* Validate flag sets */
+  assert.test('E2E / flag sets', flagSets.bind(null, fetchMock));
 
   //If we change the mocks, we need to clear localstorage. Cleaning up after testing ensures "fresh data".
   localStorage.clear();

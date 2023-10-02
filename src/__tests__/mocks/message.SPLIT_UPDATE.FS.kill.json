@@ -1,0 +1,4 @@
+{
+  "type": "message",
+  "data": "{\"id\":\"-OT-rGuSwz:0:0\",\"clientId\":\"NDEzMTY5Mzg0MA==:NDIxNjU0NTUyNw==\",\"timestamp\":1694549324214,\"encoding\":\"json\",\"channel\":\"NzM2MDI5Mzc0_MTgyNTg1MTgwNg==_splits\",\"data\":\"{\\\"type\\\":\\\"SPLIT_KILL\\\",\\\"changeNumber\\\":5,\\\"defaultTreatment\\\":\\\"off\\\",\\\"splitName\\\":\\\"workm\\\"}\"}"
+}

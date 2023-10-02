@@ -19,6 +19,7 @@ import fetchSpecificSplits from '../nodeSuites/fetch-specific-splits.spec';
 
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
+import flagSets from '../nodeSuites/flag-sets.spec';
 
 const config = {
   core: {
@@ -82,6 +83,9 @@ tape('## Node JS - E2E CI Tests ##', async function (assert) {
 
   /* Validate fetching specific splits */
   assert.test('E2E / Fetch specific splits', fetchSpecificSplits.bind(null, fetchMock));
+
+  /* Validate flag sets */
+  assert.test('E2E / Flag sets', flagSets.bind(null, fetchMock));
 
   assert.end();
 });

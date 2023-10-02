@@ -13,7 +13,7 @@ const baseConfig = {
 
 export default function fetchSpecificSplits(fetchMock, assert) {
 
-  assert.plan(splitFilters.length);
+  assert.plan(splitFilters.length+1);
 
   for (let i = 0; i < splitFilters.length; i++) {
     const urls = { sdk: 'https://sdkurl' + i };
@@ -43,4 +43,32 @@ export default function fetchSpecificSplits(fetchMock, assert) {
     }
 
   }
+
+  // Flag sets
+  assert.test(async (t) => {
+
+    const splitFilters = [{ type: 'bySet', values: ['set_x ', 'set_x', 'set_3', 'set_2', 'set_3', 'set_ww', 'invalid+', '_invalid', '4_valid'] }];
+    const baseUrls = { sdk: 'https://sdk.baseurl' };
+
+    const config = {
+      ...baseConfig,
+      urls: baseUrls,
+      sync: {
+        splitFilters
+      }
+    };
+
+    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?since=-1&sets=4_valid,set_2,set_3,set_ww,set_x',  async function () {
+      t.pass('flag set query correctly formed');
+      return { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } };
+    });
+
+    const factory = SplitFactory(config);
+    const client = factory.client();
+
+    client.ready().then(async () => {
+      await client.destroy();
+      t.end();
+    });
+  }, 'FlagSets config');
 }

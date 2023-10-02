@@ -7,6 +7,7 @@ import { testSynchronizationRetries } from '../browserSuites/push-synchronizatio
 import { testFallbacking } from '../browserSuites/push-fallbacking.spec';
 import { testRefreshToken } from '../browserSuites/push-refresh-token.spec';
 import { testSplitKillOnReadyFromCache } from '../browserSuites/push-corner-cases.spec';
+import { testFlagSets } from '../browserSuites/push-flag-sets.spec';
 
 fetchMock.config.overwriteRoutes = false;
 Math.random = () => 0.5; // SDKs without telemetry
@@ -37,6 +38,9 @@ tape('## Browser JS - E2E CI Tests for PUSH ##', function (assert) {
 
   // Corner cases
   assert.test('E2E / PUSH corner case: SPLIT_KILL notification must not emit SDK_READY if the SDK is ready from cache', testSplitKillOnReadyFromCache.bind(null, fetchMock));
+
+  // Validate flag sets
+  assert.test('E2E / PUSH flag sets', testFlagSets.bind(null, fetchMock));
 
   assert.end();
 });
