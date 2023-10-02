@@ -38,7 +38,8 @@ export default async function (settings, fetchMock, assert) {
     'killed': mockSplits.splits[index].killed,
     'changeNumber': mockSplits.splits[index].changeNumber,
     'treatments': map(mockSplits.splits[index].conditions[0].partitions, partition => partition.treatment),
-    'configs': mockSplits.splits[index].configurations || {}
+    'configs': mockSplits.splits[index].configurations || {},
+    'sets': mockSplits.splits[index].sets || []
   });
 
   assert.equal(manager.split('non_existent'), null, 'Trying to get a manager.split() of a Split that does not exist returns null.');
