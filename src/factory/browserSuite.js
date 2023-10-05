@@ -32,10 +32,18 @@ export function SplitSuite(config, __updateModules) {
   agentConfig.log = settings.log;
   SplitRumAgent.removeIdentities(); // reset identities for new Suite
   SplitRumAgent.setup(settings.core.authorizationKey, objectAssign({
-    url: settings.urls.events
+    url: settings.urls.events,
+    userConsent: settings.userConsent
   }, settings.rumAgent));
 
   const clients = new _Set();
+
+  // Override UserConsent.setStatus to update RUM Agent consent
+  const originalSetStatus = sdk.UserConsent.setStatus;
+  sdk.UserConsent.setStatus = function (newStatus) {
+    SplitRumAgent.setUserConsent(newStatus);
+    return originalSetStatus.apply(this, arguments);
+  };
 
   // Create Suite instance extending SDK
   return objectAssign({}, sdk, {

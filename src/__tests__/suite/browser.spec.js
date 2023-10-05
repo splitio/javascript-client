@@ -135,6 +135,19 @@ tape('Split Suite: Browser SDK & RUM Agent', async function (assert) {
   assert.ok(sendBeaconSpy.secondCall.calledWith(url(settings, '/testImpressions/beacon')), 'SDK impressions');
   assert.ok(sendBeaconSpy.thirdCall.calledWith(url(settings, '/events/beacon')), 'SDK events');
 
+  // Updating user consent should update the RUM Agent user consent
+  assert.ok(suite.UserConsent.setStatus(false));
+  assert.equal(suite.UserConsent.getStatus(), 'DECLINED');
+  assert.equal(window.SplitRumAgent.getUserConsent(), 'DECLINED');
+
+  assert.ok(suite.UserConsent.setStatus(true));
+  assert.equal(suite.UserConsent.getStatus(), 'GRANTED');
+  assert.equal(window.SplitRumAgent.getUserConsent(), 'GRANTED');
+
+  assert.notOk(suite.UserConsent.setStatus('invalid'));
+  assert.equal(suite.UserConsent.getStatus(), 'GRANTED');
+  assert.equal(window.SplitRumAgent.getUserConsent(), 'GRANTED');
+
   // Calls `client.destroy()` for all clients
   const destroyPromise = suite.destroy();
   assert.equal(client.getTreatment('Single_Test'), 'control', 'After destroy, getTreatment returns control for every destroyed client.');
