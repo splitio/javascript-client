@@ -25,11 +25,14 @@ export function SplitSuite(config, __updateModules) {
   if (settings.mode !== STANDALONE_MODE) return sdk;
 
   // Setup RUM Agent
-  SplitRumAgent.__getConfig().log = settings.log;
+  const agentConfig = SplitRumAgent.__getConfig();
+  if (agentConfig.a) {
+    settings.log.warn('RUM Agent already setup. The new Suite instance will reset the RUM Agent configuration.');
+  }
+  agentConfig.log = settings.log;
+  SplitRumAgent.removeIdentities(); // reset identities for new Suite
   SplitRumAgent.setup(settings.core.authorizationKey, objectAssign({
-    url: settings.urls.events,
-    pushRate: settings.scheduler.eventsPushRate,
-    queueSize: settings.scheduler.eventsQueueSize
+    url: settings.urls.events
   }, settings.rumAgent));
 
   const clients = new _Set();
