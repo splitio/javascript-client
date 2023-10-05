@@ -7,7 +7,7 @@ import { settingsFactory } from '../../settings';
 import splitChangesMock1 from '../mocks/splitChanges.since.-1.till.1500492097547.json';
 import splitChangesMock2 from '../mocks/splitChanges.since.1500492097547.json';
 import mySegmentsMock from '../mocks/mySegmentsEmpty.json';
-import { triggerUnloadEvent } from '../testUtils/browser';
+import { triggerPagehideEvent } from '../testUtils/browser';
 import { version } from '../../../node_modules/@splitsoftware/browser-rum-agent/package.json';
 
 // Test target
@@ -41,9 +41,9 @@ tape('Split Suite: Browser SDK & RUM Agent', async function (assert) {
     i: [], a: 'fake-key', p: {},
     prefix: settings.rumAgent.prefix,
     url: settings.urls.events,
-    pushRate: settings.scheduler.eventsPushRate,
-    queueSize: settings.scheduler.eventsQueueSize,
-    log: settings.log
+    log: settings.log,
+    userConsent: settings.userConsent,
+    pushRate: 30, queueSize: 5000, // RUM Agent has its own push rate and queue size
   }, 'RUM Agent is properly configured.');
   assert.deepEqual(window.SplitRumAgent.getIdentities(), [], 'No identities are added to the RUM Agent until clients are retrieved.');
 
@@ -107,9 +107,9 @@ tape('Split Suite: Browser SDK & RUM Agent', async function (assert) {
   assert.ok(manager.names().length > 0, 'control assertion');
   assert.ok(manager.split('Single_Test'), 'control assertion');
 
-  // Assert that the RUM Agent flush events on unload event
+  // Assert that the RUM Agent flush events on pagehide event
   const sendBeaconSpy = sinon.spy(window.navigator, 'sendBeacon');
-  triggerUnloadEvent();
+  triggerPagehideEvent();
 
   const eventsCallArgs = sendBeaconSpy.firstCall.args;
   assert.equal(eventsCallArgs[0], url(settings, '/events/beacon'), 'assert correct url');
@@ -129,8 +129,11 @@ tape('Split Suite: Browser SDK & RUM Agent', async function (assert) {
   ], 'assert correct entries');
 
   // Events are not sent again
-  triggerUnloadEvent();
-  assert.ok(sendBeaconSpy.calledOnce, 'sendBeacon should have been called once');
+  triggerPagehideEvent();
+  assert.equal(sendBeaconSpy.callCount, 3, 'sendBeacon should have been called 3 times');
+  assert.ok(sendBeaconSpy.firstCall.calledWith(url(settings, '/events/beacon')), 'RUM Agent events');
+  assert.ok(sendBeaconSpy.secondCall.calledWith(url(settings, '/testImpressions/beacon')), 'SDK impressions');
+  assert.ok(sendBeaconSpy.thirdCall.calledWith(url(settings, '/events/beacon')), 'SDK events');
 
   // Calls `client.destroy()` for all clients
   const destroyPromise = suite.destroy();
