@@ -1,6 +1,6 @@
 import { SplitFactory } from '../..';
 
-import splitChange2 from '../mocks/splitChanges.since.-1.till.1602796638344.json';
+import splitChange2 from '../mocks/splitchanges.since.-1.till.1602796638344.json';
 import splitChange1 from '../mocks/splitchanges.since.1602796638344.till.1602797638344.json';
 import splitChange0 from '../mocks/splitchanges.since.1602797638344.till.1602798638344.json';
 
