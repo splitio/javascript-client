@@ -6,7 +6,9 @@ export = JsSdk;
 
 declare module JsSdk {
   /**
-   * @TODO
+   * Split.io Suite factory function.
+   * The settings parameter should be an object that complies with the SplitIO.IBrowserSuiteSettings.
+   * For more information read the corresponding article: @see {@link https://help.split.io/hc/en-us/articles/360030898431-Browser-RUM-agent#sdk-integration}
    */
   export function SplitSuite(settings: SplitIO.IBrowserSuiteSettings): SplitIO.IBrowserSuiteSDK;
 }
