@@ -23,7 +23,6 @@ export default function flagSets(fetchMock, t) {
   mockSegmentChanges(fetchMock, new RegExp(baseUrls.sdk + '/segmentChanges/*'), ['some_key']);
 
   t.test(async (assert) => {
-    assert.plan(7);
     let factory, manager, client = [];
 
     // Receive split change with 1 split belonging to set_1 & set_2 and one belonging to set_3
@@ -76,7 +75,6 @@ export default function flagSets(fetchMock, t) {
   }, 'Polling - SDK with sets configured updates flags according to sets');
 
   t.test(async (assert) => {
-    assert.plan(15);
 
     let factory, manager, client = [];
 
@@ -138,7 +136,6 @@ export default function flagSets(fetchMock, t) {
 
   t.test(async (assert) => {
     fetchMock.reset();
-    assert.plan(8);
 
     let factory, client = [];
 
@@ -176,7 +173,6 @@ export default function flagSets(fetchMock, t) {
 
   t.test(async (assert) => {
     fetchMock.reset();
-    assert.plan(8);
 
     let factory, client = [];
 

@@ -131,7 +131,6 @@ export default function flagSets(fetchMock, t) {
 
   t.test(async (assert) => {
     fetchMock.reset();
-    assert.plan(8);
 
     let factory, client = [];
 
@@ -168,7 +167,6 @@ export default function flagSets(fetchMock, t) {
 
   t.test(async (assert) => {
     fetchMock.reset();
-    assert.plan(8);
 
     let factory, client = [];
 

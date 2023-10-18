@@ -11,9 +11,9 @@ const baseConfig = {
   streamingEnabled: false,
 };
 
-export default function fetchSpecificSplits(fetchMock, assert) {
+export function fetchSpecificSplits(fetchMock, assert) {
 
-  assert.plan(splitFilters.length+1);
+  assert.plan(splitFilters.length);
 
   for (let i = 0; i < splitFilters.length; i++) {
     const urls = { sdk: 'https://sdkurl' + i };
@@ -43,6 +43,9 @@ export default function fetchSpecificSplits(fetchMock, assert) {
     }
 
   }
+}
+
+export function fetchSpecificSplitsForFlagSets(fetchMock, assert) {
 
   // Flag sets
   assert.test(async (t) => {

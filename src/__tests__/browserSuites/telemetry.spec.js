@@ -189,30 +189,16 @@ export default async function telemetryBrowserSuite(fetchMock, t) {
 
     fetchMock.get(baseUrls.sdk + '/mySegments/nicolas%40split.io', { status: 200, body: { 'mySegments': [] } });
     fetchMock.getOnce(baseUrls.sdk + '/splitChanges?since=-1&sets=a,c,d',  { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
-    fetchMock.postOnce(baseUrls.telemetry + '/v1/metrics/usage', 200);
     fetchMock.postOnce(baseUrls.telemetry + '/v1/metrics/config', (url, opts) => {
       const data = JSON.parse(opts.body);
 
       assert.true(data.tR > 0, 'timeUntilReady is larger than 0');
       assert.equal(data.fsT, 7, 'unique flag sets total should be 7');
       assert.equal(data.fsI, 4, 'flagset ignored should be 4');
-      factory.client().destroy().then(() => {
-        assert.end();
-      });
 
       return 200;
     });
 
-    factory = SplitFactoryForTest({...baseConfig, sync: {splitFilters}});
-
-  }, 'SDK with sets configured has sets information in config POST');
-
-  t.test(async (assert) => {
-    assert.plan(8);
-    let factory;
-    const splitFilters = [{ type: 'bySet', values: ['a', 'b'] }];
-
-    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?since=-1&sets=a,c,d',  { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
     fetchMock.postOnce(baseUrls.telemetry + '/v1/metrics/usage', (url, opts) => {
       const data = JSON.parse(opts.body);
 
@@ -236,6 +222,6 @@ export default async function telemetryBrowserSuite(fetchMock, t) {
     assert.deepEqual(client.getTreatmentsWithConfigByFlagSet('a'),[]);
     assert.deepEqual(client.getTreatmentsWithConfigByFlagSets(['a']),[]);
 
-  }, 'SDK with sets configured has evaluation by sets telemetry in stats POST');
+  }, 'SDK with sets configured has sets information in config POST and evaluation by sets telemetry in stats POST');
 
 }

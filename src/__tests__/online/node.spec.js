@@ -15,7 +15,7 @@ import managerSuite from '../nodeSuites/manager.spec';
 import ipAddressesSetting from '../nodeSuites/ip-addresses-setting.spec';
 import ipAddressesSettingDebug from '../nodeSuites/ip-addresses-setting.debug.spec';
 import readyPromiseSuite from '../nodeSuites/ready-promise.spec';
-import fetchSpecificSplits from '../nodeSuites/fetch-specific-splits.spec';
+import { fetchSpecificSplits, fetchSpecificSplitsForFlagSets } from '../nodeSuites/fetch-specific-splits.spec';
 
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
@@ -83,6 +83,7 @@ tape('## Node JS - E2E CI Tests ##', async function (assert) {
 
   /* Validate fetching specific splits */
   assert.test('E2E / Fetch specific splits', fetchSpecificSplits.bind(null, fetchMock));
+  assert.test('E2E / Fetch specific splits for flag sets', fetchSpecificSplitsForFlagSets.bind(null, fetchMock));
 
   /* Validate flag sets */
   assert.test('E2E / Flag sets', flagSets.bind(null, fetchMock));
