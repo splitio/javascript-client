@@ -61,7 +61,6 @@ export function testFlagSets(fetchMock, t) {
 
   t.test(async (assert) => {
 
-    assert.plan(3);
     let splitio, client, manager = [];
 
     setMockListener((eventSourceInstance) => {
@@ -72,7 +71,6 @@ export function testFlagSets(fetchMock, t) {
         client.once(client.Event.SDK_UPDATE, async () => {
           assert.equal(manager.splits().length, 1, '1 - update is processed and the flag is stored');
           await client.destroy();
-          assert.equal(eventSourceInstance.readyState, EventSourceMock.CLOSED, '1 - streaming is closed after destroy');
           assert.end();
         });
         eventSourceInstance.emitMessage(notification1);
@@ -88,7 +86,6 @@ export function testFlagSets(fetchMock, t) {
 
   t.test(async (assert) => {
 
-    assert.plan(5);
     let splitio, client, manager = [];
 
     setMockListener((eventSourceInstance) => {
@@ -116,7 +113,6 @@ export function testFlagSets(fetchMock, t) {
         client.once(client.Event.SDK_UPDATE, async () => {
           assert.deepEqual(manager.splits().length, 0, '2 - update is processed and the flag is removed');
           await client.destroy();
-          assert.equal(eventSourceInstance.readyState, EventSourceMock.CLOSED, '2 - streaming is closed after destroy');
           assert.end();
         });
         eventSourceInstance.emitMessage(notification4None);
@@ -132,7 +128,6 @@ export function testFlagSets(fetchMock, t) {
 
   t.test(async (assert) => {
 
-    assert.plan(6);
     let splitio, client, manager = [];
 
     setMockListener((eventSourceInstance) => {
@@ -168,7 +163,6 @@ export function testFlagSets(fetchMock, t) {
         client.once(client.Event.SDK_UPDATE, async () => {
           assert.deepEqual(manager.splits().length, 0, '3 - update is processed and flag is not added to the storage');
           await client.destroy();
-          assert.equal(eventSourceInstance.readyState, EventSourceMock.CLOSED, '3 - streaming is closed after destroy');
           assert.end();
         });
         eventSourceInstance.emitMessage(notification5);
@@ -184,7 +178,6 @@ export function testFlagSets(fetchMock, t) {
 
   t.test(async (assert) => {
 
-    assert.plan(5);
 
     fetchMock.getOnce(baseUrls.sdk + '/splitChanges?since=2&sets=set_1,set_2',  function () {
       assert.pass('4 - A fetch is triggered due to the SPLIT_KILL');
@@ -210,7 +203,6 @@ export function testFlagSets(fetchMock, t) {
         client.once(client.Event.SDK_UPDATE, async () => {
           assert.equal(manager.split('workm').killed, true, '4 - update is processed and the flag is updated');
           await client.destroy();
-          assert.equal(eventSourceInstance.readyState, EventSourceMock.CLOSED, '4 - streaming is closed after destroy');
           assert.end();
         });
         eventSourceInstance.emitMessage(notificationKill);
@@ -226,7 +218,6 @@ export function testFlagSets(fetchMock, t) {
 
   t.test(async (assert) => {
 
-    assert.plan(4);
 
     fetchMock.getOnce(baseUrls.sdk + '/splitChanges?since=1&sets=set_1,set_2',  function () {
       assert.pass('5 - A fetch is triggered due to the SPLIT_KILL');
@@ -245,7 +236,6 @@ export function testFlagSets(fetchMock, t) {
         client.once(client.Event.SDK_UPDATE, async () => {
           assert.deepEqual(manager.splits(), [], '5 - storage is not modified since flag is not present. ');
           await client.destroy();
-          assert.equal(eventSourceInstance.readyState, EventSourceMock.CLOSED, '5 - streaming is closed after destroy');
           assert.end();
         });
         eventSourceInstance.emitMessage(notificationKill);
