@@ -663,7 +663,12 @@ declare namespace SplitIO {
      */
     configs: {
       [treatmentName: string]: string
-    }
+    },
+    /**
+     * The default treatment of the feature flag.
+     * @property {string} defaultTreatment
+     */
+    defaultTreatment: string,
   };
   /**
    * A promise that resolves to a feature flag view.

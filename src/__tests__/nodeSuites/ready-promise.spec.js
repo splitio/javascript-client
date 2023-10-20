@@ -28,7 +28,7 @@ function assertGetTreatmentWhenReady(assert, client, key) {
 function assertGetTreatmentControlNotReady(assert, client, key) {
   consoleSpy.log.resetHistory();
   assert.equal(client.getTreatment(key, 'hierarchical_splits_test'), 'control', 'We should get control if client is not ready.');
-  assert.true(consoleSpy.log.calledWithExactly('[WARN]  splitio => getTreatment: the SDK is not ready, results may be incorrect. Make sure to wait for SDK readiness before using this method.'), 'Telling us that calling getTreatment would return CONTROL since SDK is not ready at this point.');
+  assert.true(consoleSpy.log.calledWithExactly('[WARN]  splitio => getTreatment: the SDK is not ready, results may be incorrect for feature flag hierarchical_splits_test. Make sure to wait for SDK readiness before using this method.'), 'Telling us that calling getTreatment would return CONTROL since SDK is not ready at this point.');
 }
 
 function assertGetTreatmentControlNotReadyOnDestroy(assert, client, key) {

@@ -123,7 +123,8 @@ splitView = {
   changeNumber: 18294,
   configs: {
     off: '{"dimensions":"{\"height\":20,\"width\":40}"}'
-  }
+  },
+  defaultTreatment: 'off'
 };
 splitViews = [splitView];
 
