@@ -40,7 +40,7 @@
     "node": ">=6"
   },
   "dependencies": {
-    "@splitsoftware/splitio-commons": "1.9.1",
+    "@splitsoftware/splitio-commons": "1.10.0",
     "@types/google.analytics": "0.0.40",
     "@types/ioredis": "^4.28.0",
     "bloom-filters": "^3.0.0",
@@ -100,7 +100,7 @@
     "check:version": "cross-env NODE_ENV=test tape -r ./ts-node.register src/settings/__tests__/defaults.spec.js",
     "test-browser": "npm run test-browser-unit && npm run test-browser-e2e",
     "test-browser-unit": "cross-env NODE_ENV=test karma start karma/unit.karma.conf.js",
-    "test-browser-e2e": "npm run test-browser-e2e-online && npm run test-browser-e2e-offline && npm run test-browser-e2e-destroy && npm run test-browser-e2e-errorCatching && npm run test-browser-e2e-push && npm run test-browser-e2e-gaIntegration",
+    "test-browser-e2e": "npm run test-browser-e2e-online && npm run test-browser-e2e-offline && npm run test-browser-e2e-destroy && npm run test-browser-e2e-errorCatching && npm run test-browser-e2e-push",
     "test-browser-e2e-online": "cross-env NODE_ENV=test karma start karma/e2e.online.karma.conf.js",
     "test-browser-e2e-offline": "cross-env NODE_ENV=test karma start karma/e2e.offline.karma.conf.js",
     "test-browser-e2e-destroy": "cross-env NODE_ENV=test karma start karma/e2e.destroy.karma.conf.js",

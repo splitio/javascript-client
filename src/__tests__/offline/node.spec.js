@@ -249,15 +249,15 @@ function ManagerDotSplitTests(assert) {
 
     const expectedView1 = {
       name: 'testing_split', changeNumber: 0, killed: false, trafficType: 'localhost',
-      treatments: ['on'], configs: {}
+      treatments: ['on'], configs: {}, defaultTreatment: 'control'
     };
     const expectedView2 = {
       name: 'testing_split2', changeNumber: 0, killed: false, trafficType: 'localhost',
-      treatments: ['off'], configs: {}
+      treatments: ['off'], configs: {}, defaultTreatment: 'control'
     };
     const expectedView3 = {
       name: 'testing_split3', changeNumber: 0, killed: false, trafficType: 'localhost',
-      treatments: ['custom_treatment'], configs: {}
+      treatments: ['custom_treatment'], configs: {}, defaultTreatment: 'control'
     };
 
     assert.deepEqual(manager.split('testing_split'), expectedView1);
@@ -289,7 +289,8 @@ function ManagerDotYamlTests(mockFileName, assert) {
       killed: false,
       trafficType: 'localhost',
       treatments: ['on'],
-      configs: {}
+      configs: {},
+      defaultTreatment: 'control'
     };
     const expectedView2 = {
       name: 'testing_split_only_wl',
@@ -297,7 +298,8 @@ function ManagerDotYamlTests(mockFileName, assert) {
       killed: false,
       trafficType: 'localhost',
       treatments: ['whitelisted'],
-      configs: {}
+      configs: {},
+      defaultTreatment: 'control'
     };
     const expectedView3 = {
       name: 'testing_split_with_wl',
@@ -308,13 +310,19 @@ function ManagerDotYamlTests(mockFileName, assert) {
       configs: {
         not_in_whitelist: '{"color": "green"}',
         multi_key_wl: '{"color": "brown"}'
-      }
+      },
+      defaultTreatment: 'control'
     };
     const expectedView4 = {
-      name: 'testing_split_off_with_config', changeNumber: 0, killed: false, trafficType: 'localhost',
-      treatments: ['off'], configs: {
+      name: 'testing_split_off_with_config',
+      changeNumber: 0,
+      killed: false,
+      trafficType: 'localhost',
+      treatments: ['off'],
+      configs: {
         off: '{"color": "green"}'
-      }
+      },
+      defaultTreatment: 'control'
     };
 
     assert.deepEqual(manager.split('testing_split_on'), expectedView1);
