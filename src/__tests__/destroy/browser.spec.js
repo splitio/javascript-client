@@ -19,7 +19,7 @@ const settings = settingsFactory({
 });
 
 fetchMock.getOnce(url(settings, '/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
-fetchMock.getOnce(url(settings, '/splitChanges?since=-1500492097547'), { status: 200, body: splitChangesMock2 });
+fetchMock.getOnce(url(settings, '/splitChanges?since=1500492097547'), { status: 200, body: splitChangesMock2 });
 fetchMock.getOnce(url(settings, '/mySegments/ut1'), { status: 200, body: mySegmentsMock });
 fetchMock.getOnce(url(settings, '/mySegments/ut2'), { status: 200, body: mySegmentsMock });
 fetchMock.getOnce(url(settings, '/mySegments/ut3'), { status: 200, body: mySegmentsMock });
