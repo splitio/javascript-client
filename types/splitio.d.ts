@@ -665,6 +665,11 @@ declare namespace SplitIO {
       [treatmentName: string]: string
     },
     /**
+     * List of sets of the feature flag.
+     * @property {string[]} sets
+     */
+    sets?: string[],
+    /**
      * The default treatment of the feature flag.
      * @property {string} defaultTreatment
      */
@@ -1440,7 +1445,7 @@ declare namespace SplitIO {
      */
     getTreatmentsByFlagSet(flagSet: string, attributes?: Attributes): Treatments,
     /**
-     * Returns a TreatmentsWithConfig value, which is an object map with the TreatmentWithConfig (an object with both treatment and config string) for the feature flags related to the given flag sets.
+     * Returns a TreatmentsWithConfig value, which is an object map with the TreatmentWithConfig (an object with both treatment and config string) for the feature flags related to the given flag set.
      * @function getTreatmentsWithConfigByFlagSet
      * @param {string} key - The string key representing the consumer.
      * @param {string} flagSet - The flag set name we want to get the treatments.
