@@ -8,6 +8,7 @@ import notification3 from '../mocks/message.SPLIT_UPDATE.FS.3.json';
 import notification4None from '../mocks/message.SPLIT_UPDATE.FS.4None.json';
 import notification4 from '../mocks/message.SPLIT_UPDATE.FS.4.json';
 import notification5 from '../mocks/message.SPLIT_UPDATE.FS.5.json';
+import notification6 from '../mocks/message.SPLIT_UPDATE.FS.6.json';
 import notificationKill from '../mocks/message.SPLIT_UPDATE.FS.kill.json';
 
 import authPushEnabled from '../mocks/auth.pushEnabled.nicolas@split.io.json';
@@ -29,6 +30,8 @@ const MILLIS_FIRST_SPLIT_UPDATE_EVENT = 100;
 const MILLIS_SECOND_SPLIT_UPDATE_EVENT = 200;
 const MILLIS_THIRD_SPLIT_UPDATE_EVENT = 300;
 const MILLIS_FOURTH_SPLIT_UPDATE_EVENT = 400;
+const MILLIS_FIFTH_SPLIT_UPDATE_EVENT = 500;
+
 
 export function testFlagSets(fetchMock, t) {
   fetchMock.reset();
@@ -160,13 +163,20 @@ export function testFlagSets(fetchMock, t) {
 
       setTimeout(() => {
         // Receive a SPLIT_UPDATE with "sets":["set_3", "set_4"]
+        // should not emit SPLIT_UPDATE
+        // Receive a SPLIT_UPDATE with "sets":["set_1", "set_2"] from next test notification
         client.once(client.Event.SDK_UPDATE, async () => {
-          assert.deepEqual(manager.splits().length, 0, '3 - update is processed and flag is not added to the storage');
+          assert.deepEqual(manager.split('workm').sets, ['set_1', 'set_2'], '3 - update is processed and the flag is stored');
           await client.destroy();
           assert.end();
         });
         eventSourceInstance.emitMessage(notification5);
       }, MILLIS_FOURTH_SPLIT_UPDATE_EVENT);
+
+      setTimeout(() => {
+        // emit  a SPLIT_UPDATE with "sets":["set_1", "set_2"]
+        eventSourceInstance.emitMessage(notification6);
+      }, MILLIS_FIFTH_SPLIT_UPDATE_EVENT);
 
     });
 
@@ -232,14 +242,17 @@ export function testFlagSets(fetchMock, t) {
       setTimeout(() => {
         assert.deepEqual(manager.splits(), [], '5 - initialized without flags');
 
-        // Receive a SPLIT_KILL for flag
+        // Receive a SPLIT_KILL for flag that does not belongs to configured sets
         client.once(client.Event.SDK_UPDATE, async () => {
-          assert.deepEqual(manager.splits(), [], '5 - storage is not modified since flag is not present. ');
-          await client.destroy();
-          assert.end();
+          assert.fail('5 - SDK_UPDATE should not be emitted for flags that are not in configured sets ');
         });
         eventSourceInstance.emitMessage(notificationKill);
       }, MILLIS_FIRST_SPLIT_UPDATE_EVENT);
+
+      setTimeout(async () => {
+        await client.destroy();
+        assert.end();
+      }, MILLIS_SECOND_SPLIT_UPDATE_EVENT);
 
     });
 

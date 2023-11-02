@@ -61,17 +61,16 @@ export function fetchSpecificSplitsForFlagSets(fetchMock, assert) {
       }
     };
 
-    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?since=-1&sets=4_valid,set_2,set_3,set_ww,set_x',  async function () {
+    let factory;
+    const queryString = '&sets=4_valid,set_2,set_3,set_ww,set_x';
+
+    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?since=-1' + queryString, { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 }});
+    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?since=1457552620999' + queryString, async function () {
       t.pass('flag set query correctly formed');
-      return { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } };
+      factory.client().destroy().then(() => {
+        t.end();
+      });
     });
-
-    const factory = SplitFactory(config);
-    const client = factory.client();
-
-    client.ready().then(async () => {
-      await client.destroy();
-      t.end();
-    });
+    factory = SplitFactory(config);
   }, 'FlagSets config');
 }
