@@ -668,7 +668,7 @@ declare namespace SplitIO {
      * List of sets of the feature flag.
      * @property {string[]} sets
      */
-    sets?: string[],
+    sets: string[],
     /**
      * The default treatment of the feature flag.
      * @property {string} defaultTreatment
