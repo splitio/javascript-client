@@ -1298,8 +1298,8 @@ declare namespace SplitIO {
   }
   /**
    * This represents the interface for the SDK instance with synchronous storage.
-   * @interface ISDK
-   * @extends IBasicSDK
+   * @interface IBrowserSDK
+   * @extends ISDK
    */
   interface IBrowserSDK extends ISDK {
     /**
