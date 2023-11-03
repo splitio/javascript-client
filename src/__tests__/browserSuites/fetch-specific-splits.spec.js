@@ -66,16 +66,13 @@ export function fetchSpecificSplitsForFlagSets(fetchMock, assert) {
 
     const logSpy = sinon.spy(console, 'log');
 
+    let factory;
+    const queryString = '&sets=4_valid,set_2,set_3,set_ww,set_x';
     fetchMock.get(baseUrls.sdk + '/mySegments/nicolas%40split.io', { status: 200, body: { 'mySegments': [] } });
-    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?since=-1&sets=4_valid,set_2,set_3,set_ww,set_x',  function () {
+
+    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?since=-1' + queryString, { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 }});
+    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?since=1457552620999' + queryString, async function () {
       t.pass('flag set query correctly formed');
-      return { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } };
-    });
-
-    const factory = SplitFactory(config);
-
-    const client = factory.client();
-    client.ready().then(() => {
       t.true(logSpy.calledWithExactly('[WARN]  splitio => settings: bySet filter value "set_x " has extra whitespace, trimming.'));
       t.true(logSpy.calledWithExactly('[WARN]  splitio => settings: you passed invalid+, flag set must adhere to the regular expressions /^[a-z0-9][_a-z0-9]{0,49}$/. This means a flag set must start with a letter or number, be in lowercase, alphanumeric and have a max length of 50 characters. invalid+ was discarded.'));
       t.true(logSpy.calledWithExactly('[WARN]  splitio => settings: you passed _invalid, flag set must adhere to the regular expressions /^[a-z0-9][_a-z0-9]{0,49}$/. This means a flag set must start with a letter or number, be in lowercase, alphanumeric and have a max length of 50 characters. _invalid was discarded.'));
@@ -84,5 +81,6 @@ export function fetchSpecificSplitsForFlagSets(fetchMock, assert) {
         t.end();
       });
     });
+    factory = SplitFactory(config);
   }, 'FlagSets config');
 }
