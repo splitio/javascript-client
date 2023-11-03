@@ -8,6 +8,7 @@
     - Updated the following SDK manager methods to expose flag sets on flag views.
  - Added `defaultTreatment` property to the `SplitView` object returned by the `split` and `splits` methods of the SDK manager (Related to issue https://github.com/splitio/javascript-commons/issues/225).
  - Updated @splitsoftware/splitio-commons package to version 1.11.0 that includes vulnerability fixes, and adds the `defaultTreatment` property to the `SplitView` object.
+ - Bugfixing - Fixed SDK key validation in NodeJS to ensure the SDK_READY_TIMED_OUT event is emitted when a client-side type SDK key is provided instead of a server-side one (Related to issue https://github.com/splitio/javascript-client/issues/768).
 
 10.23.1 (September 22, 2023)
  - Updated @splitsoftware/splitio-commons package to version 1.9.1. This update removes the handler for 'unload' DOM events, that can prevent browsers from being able to put pages in the back/forward cache for faster back and forward loads (Related to issue https://github.com/splitio/javascript-client/issues/759).
