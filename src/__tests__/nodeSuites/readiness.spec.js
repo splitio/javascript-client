@@ -39,12 +39,19 @@ export default function (fetchMock, assert) {
       t.fail('### IS READY - NOT TIMED OUT when it should.');
       t.end();
     });
-    client.once(client.Event.SDK_READY_TIMED_OUT, () => {
+    client.once(client.Event.SDK_READY_TIMED_OUT, async () => {
       t.pass('### SDK TIMED OUT - SegmentChanges requests with client-side SDK key should fail with 403. Timed out.');
 
       t.false(client.track('some_key', 'some_tt', 'some_event_type'), 'since client is flagged as destroyed, client.track returns false');
+      t.equal(client.getTreatment('hierarchical_splits_test'), 'control', 'since client is flagged as destroyed, client.getTreatment returns control');
 
-      client.destroy().then(() => { t.end(); });
+      // ready promise should reject
+      try {
+        await client.ready();
+      } catch (e) {
+        await client.destroy();
+        t.end();
+      }
     });
   });
 
