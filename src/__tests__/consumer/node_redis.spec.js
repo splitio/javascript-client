@@ -658,6 +658,12 @@ tape('NodeJS Redis', function (t) {
           );
 
           assert.deepEqual(
+            await client.getTreatmentsWithConfigByFlagSet('nico@test', 'set_one'),
+            { 'always-on': { treatment: 'on', config: null }, 'always-off': { treatment: 'off', config: null } },
+            'Evaluations with configs using Redis storage should be correct for a set.'
+          );
+
+          assert.deepEqual(
             await client.getTreatmentsByFlagSet('nico@test', 'set_two'),
             { 'always-off': 'off', 'nico_not': 'off' },
             'Evaluations using Redis storage should be correct for a set.'
@@ -676,6 +682,12 @@ tape('NodeJS Redis', function (t) {
           );
 
           assert.deepEqual(
+            await client.getTreatmentsWithConfigByFlagSets('nico@test', ['set_two', 'set_one']),
+            { 'always-on': { treatment: 'on', config: null }, 'always-off': { treatment: 'off', config: null }, 'nico_not': { treatment: 'off', config: '{"text":"Gallardiola"}' } },
+            'Evaluations with configs using Redis storage should be correct for multiple sets.'
+          );
+
+          assert.deepEqual(
             await client.getTreatmentsByFlagSets('nico@test', [243, null, 'set_two', 'set_one', 'invalid_set']),
             { 'always-on': 'on', 'always-off': 'off', 'nico_not': 'off' },
             'Evaluations using Redis storage should be correct for multiple sets, discarding invalids.'
@@ -690,8 +702,20 @@ tape('NodeJS Redis', function (t) {
           await client.ready(); // promise already resolved
           await client.destroy();
 
-          // close server connection
-          server.close().then(assert.end);
+          // Validate stored telemetry
+          exec(`echo "HLEN ${config.storage.prefix}.SPLITIO.telemetry.latencies \n HKEYS ${config.storage.prefix}.SPLITIO.telemetry.latencies" | redis-cli  -p ${redisPort}`, (error, stdout) => {
+            if (error) assert.fail('Redis server should be reachable');
+
+            const [latenciesCount, ...latenciesForFlagSets] = stdout.split('\n').filter(line => line !== '');
+
+            assert.true(parseInt(latenciesCount) > 0, 'There are stored latencies');
+            assert.true(latenciesForFlagSets.some(s => s.match(`nodejs-${version}/${HOSTNAME_VALUE}/${IP_VALUE}/treatmentsByFlagSet/`), 'The latency entry for treatmentsByFlagSet should be there.'));
+            assert.true(latenciesForFlagSets.some(s => s.match(`nodejs-${version}/${HOSTNAME_VALUE}/${IP_VALUE}/treatmentsByFlagSets/`), 'The latency entry for treatmentsByFlagSets should be there.'));
+
+            // close server connection
+            server.close().then(assert.end);
+          });
+
         },1000);
       });
   });
