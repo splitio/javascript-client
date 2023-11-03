@@ -56,18 +56,24 @@ const expectedImpressionCount = [
   `hierarchical_splits_testing_on_negated::${truncateTimeFrame(timeFrame)}`, '1',
 ];
 
+const MOCKS = {
+  '': 'redis-commands',
+  'flag_sets': 'redis-commands-sets'
+};
+
 /**
  * Initialize redis server and run a cli bash command to load redis with data to do the proper tests
  */
-const initializeRedisServer = () => {
+const initializeRedisServer = (mock = '') => {
   // Simply pass the port that you want a Redis server to listen on.
   const server = new RedisServer(redisPort);
+  const mockFileName = MOCKS[mock];
 
   const promise = new Promise((resolve, reject) => {
     server
       .open()
       .then(() => {
-        exec(`cat ./src/__tests__/mocks/redis-commands.txt | redis-cli -p ${redisPort}`, err => {
+        exec(`cat ./src/__tests__/mocks/${mockFileName}.txt | redis-cli -p ${redisPort}`, err => {
           if (err) {
             reject(server);
             // node couldn't execute the command
@@ -630,6 +636,63 @@ tape('NodeJS Redis', function (t) {
 
         // close server connection
         server.close().then(assert.end);
+      });
+  });
+
+  t.test('Getting treatments with flag sets', assert => {
+    initializeRedisServer('flag_sets')
+      .then(async (server) => {
+        const sdk = SplitFactory(config);
+
+        const client = sdk.client();
+        await client.ready();
+
+        // @TODO: Working to remove this crap, debugging RedisAdapter queueing and why it doesnt like the pipeline exec.
+        setTimeout(async function () {
+
+
+          assert.deepEqual(
+            await client.getTreatmentsByFlagSet('nico@test', 'set_one'),
+            { 'always-on': 'on', 'always-off': 'off' },
+            'Evaluations using Redis storage should be correct for a set.'
+          );
+
+          assert.deepEqual(
+            await client.getTreatmentsByFlagSet('nico@test', 'set_two'),
+            { 'always-off': 'off', 'nico_not': 'off' },
+            'Evaluations using Redis storage should be correct for a set.'
+          );
+
+          assert.deepEqual(
+            await client.getTreatmentsByFlagSet('nico@test', 'set_invalid'),
+            {},
+            'Evaluations using Redis storage should properly handle all invalid sets.'
+          );
+
+          assert.deepEqual(
+            await client.getTreatmentsByFlagSets('nico@test', ['set_two', 'set_one']),
+            { 'always-on': 'on', 'always-off': 'off', 'nico_not': 'off' },
+            'Evaluations using Redis storage should be correct for multiple sets.'
+          );
+
+          assert.deepEqual(
+            await client.getTreatmentsByFlagSets('nico@test', [243, null, 'set_two', 'set_one', 'invalid_set']),
+            { 'always-on': 'on', 'always-off': 'off', 'nico_not': 'off' },
+            'Evaluations using Redis storage should be correct for multiple sets, discarding invalids.'
+          );
+
+          assert.deepEqual(
+            await client.getTreatmentsByFlagSets('nico@test', [243, null, 'invalid_set']),
+            {},
+            'Evaluations using Redis storage should properly handle all invalid sets.'
+          );
+
+          await client.ready(); // promise already resolved
+          await client.destroy();
+
+          // close server connection
+          server.close().then(assert.end);
+        },1000);
       });
   });
 });
