@@ -1,3 +1,7 @@
+10.25.0 (December XX, 2023)
+ - Added support for Flag Sets in "consumer" mode (Redis storage).
+ - Updated @splitsoftware/splitio-commons package to version 1.12.0 that includes flag sets support for "consumer" and "partial consumer" modes.
+
 10.24.0 (November XX, 2023)
   - Added support for Flag Sets on the SDK, which enables grouping feature flags and interacting with the group rather than individually (more details in our documentation):
     - Added new variations of the get treatment methods to support evaluating flags in given flag set/s.
@@ -5,7 +9,7 @@
       - getTreatmentsWithConfigByFlagSets and getTreatmentsWithConfigByFlagSets
     - Added a new optional Split Filter configuration option. This allows the SDK and Split services to only synchronize the flags in the specified flag sets, avoiding unused or unwanted flags from being synced on the SDK instance, bringing all the benefits from a reduced payload.
       - Note: Only applicable when the SDK is in charge of the rollout data synchronization. When not applicable, the SDK will log a warning on init.
-    - Updated the following SDK manager methods to expose flag sets on flag views.
+    - Added `sets` property to the `SplitView` object returned by the `split` and `splits` methods of the SDK manager to expose flag sets on flag views.
  - Added `defaultTreatment` property to the `SplitView` object returned by the `split` and `splits` methods of the SDK manager (Related to issue https://github.com/splitio/javascript-commons/issues/225).
  - Updated @splitsoftware/splitio-commons package to version 1.11.0 that includes vulnerability fixes, and adds the `defaultTreatment` property to the `SplitView` object.
 
