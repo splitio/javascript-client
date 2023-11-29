@@ -60,6 +60,9 @@ const expectedImpressionCount = [
   `hierarchical_splits_testing_on_negated::${truncateTimeFrame(timeFrame)}`, '1',
 ];
 
+const expectedSplitName = 'hierarchical_splits_testing_on';
+const expectedSplitView = { name: 'hierarchical_splits_testing_on', trafficType: 'user', killed: false, changeNumber: 1487277320548, treatments: ['on', 'off'], configs: {}, sets: [], defaultTreatment: 'off' };
+
 /**
  * Initialize redis server and run a cli bash command to load redis with data to do the proper tests
  */
@@ -93,12 +96,22 @@ tape('NodeJS Redis', function (t) {
       .then(async (server) => {
         const sdk = SplitFactory(config);
         const client = sdk.client();
+        const manager = sdk.manager();
 
-        assert.equal(await client.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT'), 'control', 'Evaluations using Redis storage should be control until connection is stablished.');
-        assert.equal(await client.getTreatment('other', 'UT_IN_SEGMENT'), 'control', 'Evaluations using Redis storage should be control until connection is stablished.');
-        assert.deepEqual(await client.getTreatmentsWithConfigByFlagSets('other', ['set_a']), {}, 'Flag sets evaluations using Redis storage should be empty until connection is stablished.');
+        /** Evaluation, track and manager methods before SDK_READY */
+        client.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT').then(result => assert.equal(result, 'control', 'Evaluations using Redis storage should be control until connection is stablished.'));
+        client.getTreatment('other', 'UT_IN_SEGMENT').then(result => assert.equal(result, 'control', 'Evaluations using Redis storage should be control until connection is stablished.'));
+        client.getTreatmentsWithConfigByFlagSets('other', ['set_a']).then(result => assert.deepEqual(result, {}, 'Flag sets evaluations using Redis storage should be empty until connection is stablished.'));
+
+        manager.names().then((result) => assert.deepEqual(result, [], 'manager `names` method returns an empty list of split names if called before SDK_READY or Redis operation fail'));
+        manager.split(expectedSplitName).then((result) => assert.deepEqual(result, null, 'manager `split` method returns a null split view if called before SDK_READY or Redis operation fail'));
+        manager.splits().then((result) => assert.deepEqual(result, [], 'manager `splits` method returns an empty list of split views if called before SDK_READY or Redis operation fail'));
+
+        client.track('nicolas@split.io', 'user', 'before.ready', 18).then((result) => assert.true(result, 'Redis adapter queue "rpush" operations until it is ready.'));
 
         await client.ready();
+
+        /** Evaluation, track and manager methods on SDK_READY */
 
         assert.equal(await client.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT'), 'on', 'Evaluations using Redis storage should be correct.');
         assert.equal(await client.getTreatment('other', 'UT_IN_SEGMENT'), 'off', 'Evaluations using Redis storage should be correct.');
@@ -153,6 +166,15 @@ tape('NodeJS Redis', function (t) {
         assert.deepEqual(await client.getTreatmentsByFlagSet('other'), {}, 'Evaluations without flag set should be empty.');
         assert.deepEqual(await client.getTreatmentsByFlagSets('other', []), {}, 'Evaluations without flag sets should be empty.');
         assert.deepEqual(await client.getTreatmentsByFlagSets('other', ['non_existent_set']), {}, 'Evaluations with non existent flag sets should be empty.');
+
+        // Manager methods
+        const splitNames = await manager.names();
+        assert.equal(splitNames.length, 28, 'manager `names` method returns the list of split names asynchronously');
+        assert.equal(splitNames.indexOf(expectedSplitName) > -1, true, 'list of split names should contain expected splits');
+        assert.deepEqual(await manager.split(expectedSplitName), expectedSplitView, 'manager `split` method returns the split view of the given split name asynchronously');
+        const splitViews = await manager.splits();
+        assert.equal(splitViews.length, 28, 'manager `splits` method returns the list of split views asynchronously');
+        assert.deepEqual(splitViews.find(splitView => splitView.name === expectedSplitName), expectedSplitView, 'manager `split` method returns the split view of the given split name asynchronously');
 
         await client.ready(); // promise already resolved
         await client.destroy();
@@ -266,7 +288,6 @@ tape('NodeJS Redis', function (t) {
         // this should be deduped
         assert.equal(await client.getTreatment('UT_Segment_member', 'hierarchical_splits_testing_on_negated'), 'off', 'Evaluations using Redis storage should be correct.');
 
-        assert.equal(typeof client.track('nicolas@split.io', 'user', 'test.redis.event', 18).then, 'function', 'Track calls should always return a promise on Redis mode.');
         assert.equal(typeof client.track().then, 'function', 'Track calls should always return a promise on Redis mode, even when parameters are incorrect.');
 
         assert.true(await client.track('nicolas@split.io', 'user', 'test.redis.event', 18), 'If the event was successfully queued the promise will resolve to true');
