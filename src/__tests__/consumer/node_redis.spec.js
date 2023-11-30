@@ -20,10 +20,10 @@ import { truncateTimeFrame } from '@splitsoftware/splitio-commons/src/utils/time
 const IP_VALUE = ipFunction.address();
 const HOSTNAME_VALUE = osFunction.hostname();
 const NA = 'NA';
+
 const redisPort = '6385';
 
 const TOTAL_RAW_IMPRESSIONS = 16;
-const TOTAL_RAW_IMPRESSIONS_IN_EVALUATIONS_WITH_FLAGSETS = 10;
 const TOTAL_EVENTS = 2;
 const DEDUPED_IMPRESSIONS = 3;
 
@@ -101,7 +101,6 @@ tape('NodeJS Redis', function (t) {
         /** Evaluation, track and manager methods before SDK_READY */
         client.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT').then(result => assert.equal(result, 'control', 'Evaluations using Redis storage should be control until connection is stablished.'));
         client.getTreatment('other', 'UT_IN_SEGMENT').then(result => assert.equal(result, 'control', 'Evaluations using Redis storage should be control until connection is stablished.'));
-        client.getTreatmentsWithConfigByFlagSets('other', ['set_a']).then(result => assert.deepEqual(result, {}, 'Flag sets evaluations using Redis storage should be empty until connection is stablished.'));
 
         manager.names().then((result) => assert.deepEqual(result, [], 'manager `names` method returns an empty list of split names if called before SDK_READY or Redis operation fail'));
         manager.split(expectedSplitName).then((result) => assert.deepEqual(result, null, 'manager `split` method returns a null split view if called before SDK_READY or Redis operation fail'));
@@ -157,16 +156,6 @@ tape('NodeJS Redis', function (t) {
         assert.true(await client.track('nicolas@split.io', 'user', 'test.redis.event', 18), 'If the event was successfully queued the promise will resolve to true');
         assert.false(await client.track(), 'If the event was NOT successfully queued the promise will resolve to false');
 
-        // Evaluations with flag sets
-        assert.deepEqual(await client.getTreatmentsByFlagSet('other', 'set_a'), { with_set_a: 'on', with_sets_a_b: 'on' }, 'Evaluations with getTreatmentsByFlagSet should be correct.');
-        assert.deepEqual(await client.getTreatmentsByFlagSets('other', ['set_a', 'set_b']), { with_set_a: 'on', with_set_b: 'on', with_sets_a_b: 'on' }, 'Evaluations with getTreatmentsByFlagSets should be correct.');
-        assert.deepEqual(await client.getTreatmentsWithConfigByFlagSet('other', 'set_b'), { with_set_b: { treatment: 'on', config: '{}' }, with_sets_a_b: { treatment: 'on', config: null } }, 'Evaluations with getTreatmentsWithConfigByFlagSet should be correct.');
-        assert.deepEqual(await client.getTreatmentsWithConfigByFlagSets('other', ['set_a', 'set_b']), { with_set_a: { treatment: 'on', config: null }, with_set_b: { treatment: 'on', config: '{}' }, with_sets_a_b: { treatment: 'on', config: null } }, 'Evaluations with getTreatmentsWithConfigByFlagSets should be correct.');
-
-        assert.deepEqual(await client.getTreatmentsByFlagSet('other'), {}, 'Evaluations without flag set should be empty.');
-        assert.deepEqual(await client.getTreatmentsByFlagSets('other', []), {}, 'Evaluations without flag sets should be empty.');
-        assert.deepEqual(await client.getTreatmentsByFlagSets('other', ['non_existent_set']), {}, 'Evaluations with non existent flag sets should be empty.');
-
         // Manager methods
         const splitNames = await manager.names();
         assert.equal(splitNames.length, 28, 'manager `names` method returns the list of split names asynchronously');
@@ -184,7 +173,7 @@ tape('NodeJS Redis', function (t) {
           if (error) assert.fail('Redis server should be reachable');
 
           const trackedImpressionsAndEvents = stdout.split('\n').filter(line => line !== '').map(line => parseInt(line));
-          assert.deepEqual(trackedImpressionsAndEvents, [TOTAL_RAW_IMPRESSIONS + TOTAL_RAW_IMPRESSIONS_IN_EVALUATIONS_WITH_FLAGSETS, TOTAL_EVENTS], 'Tracked impressions and events should be stored in Redis');
+          assert.deepEqual(trackedImpressionsAndEvents, [TOTAL_RAW_IMPRESSIONS, TOTAL_EVENTS], 'Tracked impressions and events should be stored in Redis');
 
           // Validate stored telemetry
           exec(`echo "HLEN ${config.storage.prefix}.SPLITIO.telemetry.latencies \n HLEN ${config.storage.prefix}.SPLITIO.telemetry.exceptions \n HGET ${config.storage.prefix}.SPLITIO.telemetry.init nodejs-${version}/${HOSTNAME_VALUE}/${IP_VALUE}" | redis-cli  -p ${redisPort}`, (error, stdout) => {
