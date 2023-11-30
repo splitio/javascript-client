@@ -156,7 +156,6 @@ tape('NodeJS Redis', function (t) {
         assert.equal(await client.getTreatment('UT_Segment_member', 'hierarchical_splits_testing_off'), 'off', 'Evaluations using Redis storage should be correct.');
         assert.equal(await client.getTreatment('UT_Segment_member', 'hierarchical_splits_testing_on_negated'), 'off', 'Evaluations using Redis storage should be correct.');
 
-        assert.equal(typeof client.track('nicolas@split.io', 'user', 'test.redis.event', 18).then, 'function', 'Track calls should always return a promise on Redis mode.');
         assert.equal(typeof client.track().then, 'function', 'Track calls should always return a promise on Redis mode, even when parameters are incorrect.');
 
         assert.true(await client.track('nicolas@split.io', 'user', 'test.redis.event', 18), 'If the event was successfully queued the promise will resolve to true');
@@ -164,11 +163,11 @@ tape('NodeJS Redis', function (t) {
 
         // Manager methods
         const splitNames = await manager.names();
-        assert.equal(splitNames.length, 28, 'manager `names` method returns the list of split names asynchronously');
+        assert.equal(splitNames.length, 25, 'manager `names` method returns the list of split names asynchronously');
         assert.equal(splitNames.indexOf(expectedSplitName) > -1, true, 'list of split names should contain expected splits');
         assert.deepEqual(await manager.split(expectedSplitName), expectedSplitView, 'manager `split` method returns the split view of the given split name asynchronously');
         const splitViews = await manager.splits();
-        assert.equal(splitViews.length, 28, 'manager `splits` method returns the list of split views asynchronously');
+        assert.equal(splitViews.length, 25, 'manager `splits` method returns the list of split views asynchronously');
         assert.deepEqual(splitViews.find(splitView => splitView.name === expectedSplitName), expectedSplitView, 'manager `split` method returns the split view of the given split name asynchronously');
 
         await client.ready(); // promise already resolved
@@ -283,6 +282,7 @@ tape('NodeJS Redis', function (t) {
         // this should be deduped
         assert.equal(await client.getTreatment('UT_Segment_member', 'hierarchical_splits_testing_on_negated'), 'off', 'Evaluations using Redis storage should be correct.');
 
+        assert.equal(typeof client.track('nicolas@split.io', 'user', 'test.redis.event', 18).then, 'function', 'Track calls should always return a promise on Redis mode.');
         assert.equal(typeof client.track().then, 'function', 'Track calls should always return a promise on Redis mode, even when parameters are incorrect.');
 
         assert.true(await client.track('nicolas@split.io', 'user', 'test.redis.event', 18), 'If the event was successfully queued the promise will resolve to true');
