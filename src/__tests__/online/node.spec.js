@@ -14,11 +14,13 @@ import expectedTreatmentsSuite from '../nodeSuites/expected-treatments.spec';
 import managerSuite from '../nodeSuites/manager.spec';
 import ipAddressesSetting from '../nodeSuites/ip-addresses-setting.spec';
 import ipAddressesSettingDebug from '../nodeSuites/ip-addresses-setting.debug.spec';
+import readinessSuite from '../nodeSuites/readiness.spec';
 import readyPromiseSuite from '../nodeSuites/ready-promise.spec';
-import fetchSpecificSplits from '../nodeSuites/fetch-specific-splits.spec';
+import { fetchSpecificSplits, fetchSpecificSplitsForFlagSets } from '../nodeSuites/fetch-specific-splits.spec';
 
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
+import flagSets from '../nodeSuites/flag-sets.spec';
 
 const config = {
   core: {
@@ -77,11 +79,18 @@ tape('## Node JS - E2E CI Tests ##', async function (assert) {
   assert.test('E2E / IP Addresses Setting', ipAddressesSetting.bind(null, fetchMock));
   assert.test('E2E / IP Addresses Setting Debug', ipAddressesSettingDebug.bind(null, fetchMock));
 
+  /* Validate readiness */
+  assert.test('E2E / Readiness', readinessSuite.bind(null, fetchMock));
+
   /* Validate readiness with ready promises */
   assert.test('E2E / Ready promise', readyPromiseSuite.bind(null, key, fetchMock));
 
   /* Validate fetching specific splits */
   assert.test('E2E / Fetch specific splits', fetchSpecificSplits.bind(null, fetchMock));
+  assert.test('E2E / Fetch specific splits for flag sets', fetchSpecificSplitsForFlagSets.bind(null, fetchMock));
+
+  /* Validate flag sets */
+  assert.test('E2E / Flag sets', flagSets.bind(null, fetchMock));
 
   assert.end();
 });

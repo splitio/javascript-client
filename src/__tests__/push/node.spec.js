@@ -6,6 +6,7 @@ import { testSynchronization } from '../nodeSuites/push-synchronization.spec';
 import { testSynchronizationRetries } from '../nodeSuites/push-synchronization-retries.spec';
 import { testFallbacking } from '../nodeSuites/push-fallbacking.spec';
 import { testRefreshToken } from '../nodeSuites/push-refresh-token.spec';
+import { testFlagSets } from '../nodeSuites/push-flag-sets.spec';
 
 fetchMock.config.overwriteRoutes = false;
 
@@ -35,6 +36,9 @@ tape('## Node JS - E2E CI Tests for PUSH ##', async function (assert) {
   assert.test('E2E / PUSH fallbacking, CONTROL and OCCUPANCY messages', testFallbacking.bind(null, fetchMock));
 
   assert.test('E2E / PUSH refresh token and connection delay', testRefreshToken.bind(null, fetchMock));
+
+  /* Validate flag sets */
+  assert.test('E2E / PUSH flag sets', testFlagSets.bind(null, fetchMock));
 
   assert.end();
 });

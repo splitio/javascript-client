@@ -1,3 +1,4 @@
+import sinon from 'sinon';
 import { SplitFactory } from '../../';
 import { splitFilters, queryStrings, groupedFilters } from '../mocks/fetchSpecificSplits';
 
@@ -12,7 +13,7 @@ const baseConfig = {
   streamingEnabled: false,
 };
 
-export default function fetchSpecificSplits(fetchMock, assert) {
+export function fetchSpecificSplits(fetchMock, assert) {
 
   assert.plan(splitFilters.length);
 
@@ -45,4 +46,41 @@ export default function fetchSpecificSplits(fetchMock, assert) {
     }
 
   }
+}
+
+export function fetchSpecificSplitsForFlagSets(fetchMock, assert) {
+  // Flag sets
+  assert.test(async (t) => {
+
+    const splitFilters = [{ type: 'bySet', values: ['set_x ', 'set_x', 'set_3', 'set_2', 'set_3', 'set_ww', 'invalid+', '_invalid', '4_valid'] }];
+    const baseUrls = { sdk: 'https://sdk.baseurl' };
+
+    const config = {
+      ...baseConfig,
+      urls: baseUrls,
+      debug: 'WARN',
+      sync: {
+        splitFilters
+      }
+    };
+
+    const logSpy = sinon.spy(console, 'log');
+
+    let factory;
+    const queryString = '&sets=4_valid,set_2,set_3,set_ww,set_x';
+    fetchMock.get(baseUrls.sdk + '/mySegments/nicolas%40split.io', { status: 200, body: { 'mySegments': [] } });
+
+    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?since=-1' + queryString, { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 }});
+    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?since=1457552620999' + queryString, async function () {
+      t.pass('flag set query correctly formed');
+      t.true(logSpy.calledWithExactly('[WARN]  splitio => settings: bySet filter value "set_x " has extra whitespace, trimming.'));
+      t.true(logSpy.calledWithExactly('[WARN]  splitio => settings: you passed invalid+, flag set must adhere to the regular expressions /^[a-z0-9][_a-z0-9]{0,49}$/. This means a flag set must start with a letter or number, be in lowercase, alphanumeric and have a max length of 50 characters. invalid+ was discarded.'));
+      t.true(logSpy.calledWithExactly('[WARN]  splitio => settings: you passed _invalid, flag set must adhere to the regular expressions /^[a-z0-9][_a-z0-9]{0,49}$/. This means a flag set must start with a letter or number, be in lowercase, alphanumeric and have a max length of 50 characters. _invalid was discarded.'));
+      logSpy.restore();
+      factory.client().destroy().then(() => {
+        t.end();
+      });
+    });
+    factory = SplitFactory(config);
+  }, 'FlagSets config');
 }
