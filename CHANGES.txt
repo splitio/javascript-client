@@ -1,6 +1,16 @@
-10.24.0 (October XX, 2023)
+10.24.0 (December 4, 2023)
+ - Added support for Flag Sets on the SDK, which enables grouping feature flags and interacting with the group rather than individually (more details in our documentation):
+    - Added new variations of the get treatment methods to support evaluating flags in given flag set/s.
+      - getTreatmentsByFlagSet and getTreatmentsByFlagSets
+      - getTreatmentsWithConfigByFlagSets and getTreatmentsWithConfigByFlagSets
+    - Added a new optional Split Filter configuration option. This allows the SDK and Split services to only synchronize the flags in the specified flag sets, avoiding unused or unwanted flags from being synced on the SDK instance, bringing all the benefits from a reduced payload.
+      - Note: Only applicable when the SDK is in charge of the rollout data synchronization. When not applicable, the SDK will log a warning on init.
+    - Added `sets` property to the `SplitView` object returned by the `split` and `splits` methods of the SDK manager to expose flag sets on flag views.
  - Added `defaultTreatment` property to the `SplitView` object returned by the `split` and `splits` methods of the SDK manager (Related to issue https://github.com/splitio/javascript-commons/issues/225).
- - Updated @splitsoftware/splitio-commons package to version 1.10.0 that includes vulnerability fixes, and adds the `defaultTreatment` property to the `SplitView` object.
+ - Updated @splitsoftware/splitio-commons package to version 1.12.0 that includes vulnerability fixes, flag sets support, and other improvements.
+ - Updated Redis adapter to handle timeouts and queueing of some missing commands: 'hincrby', 'popNRaw', and 'pipeline.exec'.
+ - Bugfixing - Fixed manager methods in consumer modes to return results in a promise when the SDK is not operational (not ready or destroyed).
+ - Bugfixing - Fixed SDK key validation in NodeJS to ensure the SDK_READY_TIMED_OUT event is emitted when a client-side type SDK key is provided instead of a server-side one (Related to issue https://github.com/splitio/javascript-client/issues/768).
 
 10.23.1 (September 22, 2023)
  - Updated @splitsoftware/splitio-commons package to version 1.9.1. This update removes the handler for 'unload' DOM events, that can prevent browsers from being able to put pages in the back/forward cache for faster back and forward loads (Related to issue https://github.com/splitio/javascript-client/issues/759).

@@ -39,6 +39,7 @@ export default async function (settings, fetchMock, assert) {
     'changeNumber': mockSplits.splits[index].changeNumber,
     'treatments': map(mockSplits.splits[index].conditions[0].partitions, partition => partition.treatment),
     'configs': mockSplits.splits[index].configurations || {},
+    'sets': mockSplits.splits[index].sets || [],
     'defaultTreatment': mockSplits.splits[index].defaultTreatment
   });
 
