@@ -223,8 +223,6 @@ interface ISharedSettings {
      * List of feature flag filters. These filters are used to fetch a subset of the feature flag definitions in your environment, in order to reduce the delay of the SDK to be ready.
      * This configuration is only meaningful when the SDK is working in "standalone" mode.
      *
-     * At the moment, only one type of feature flag filter is supported: by name.
-     *
      * Example:
      *  `splitFilter: [
      *    { type: 'byName', values: ['my_feature_flag_1', 'my_feature_flag_2'] }, // will fetch feature flags named 'my_feature_flag_1' and 'my_feature_flag_2'
