@@ -9,6 +9,7 @@ window.EventSource = EventSourceMock;
 
 import { SplitFactory } from '../../';
 import { settingsFactory } from '../../settings';
+import { getStorageHash } from '@splitsoftware/splitio-commons/src/storages/KeyBuilder';
 
 const userKey = 'nicolas@split.io';
 
@@ -47,6 +48,7 @@ export function testSplitKillOnReadyFromCache(fetchMock, assert) {
 
   // prepare localstorage to allow SPLIT_KILL kill locally
   localStorage.clear();
+  localStorage.setItem('pushCornerCase.SPLITIO.hash', getStorageHash(settings));
   localStorage.setItem('pushCornerCase.SPLITIO.splits.till', 25);
   localStorage.setItem('pushCornerCase.SPLITIO.split.whitelist', JSON.stringify({
     'name': 'whitelist',

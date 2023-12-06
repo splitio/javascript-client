@@ -9,6 +9,7 @@ import splitChangesMock2 from '../mocks/splitChanges.since.1500492097547.till.15
 import splitChangesMock3 from '../mocks/splitChanges.since.1500492297547.json';
 import { SplitFactory } from '../../';
 import { settingsFactory } from '../../settings';
+import { getStorageHash } from '@splitsoftware/splitio-commons/src/storages/KeyBuilder';
 
 const settings = settingsFactory({
   core: {
@@ -20,6 +21,7 @@ const settings = settingsFactory({
 // prepare localstorage to emit SDK_READY_FROM_CACHE
 localStorage.clear();
 localStorage.setItem('SPLITIO.splits.till', 25);
+localStorage.setItem('SPLITIO.hash', getStorageHash({ core: { authorizationKey: '<fake-token-1>' }, sync: { __splitFiltersValidation: { queryString: null } } }));
 
 fetchMock.get(url(settings, '/splitChanges?since=25'), function () {
   return new Promise((res) => { setTimeout(() => res({ status: 200, body: splitChangesMock1 }), 1000); });

@@ -3,6 +3,7 @@ import { SplitFactory } from '../../';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
 import mySegmentsNicolas from '../mocks/mysegments.nicolas@split.io.json';
+import { getStorageHash } from '@splitsoftware/splitio-commons/src/storages/KeyBuilder';
 
 import { nearlyEqual } from '../testUtils';
 
@@ -82,6 +83,9 @@ const baseConfig = {
   streamingEnabled: false
 };
 
+const expectedHashNullFilter = '9507ef4'; // for SDK key '<fake-token-rfc>' and filter query null
+const expectedHashWithFilter = '6a596ded'; // for SDK key '<fake-token-rfc>' and filter query '&names=p1__split,p2__split'
+
 export default function (fetchMock, assert) {
 
   assert.test(t => { // Testing when we start from scratch
@@ -102,7 +106,7 @@ export default function (fetchMock, assert) {
       ...baseConfig,
       core: {
         ...baseConfig.core,
-        authorizationKey: '<fake-token-rfc2>',
+        authorizationKey: '<fake-token-rfc>',
       },
       storage: {
         type: 'LOCALSTORAGE',
@@ -162,6 +166,7 @@ export default function (fetchMock, assert) {
     localStorage.setItem('some_user_item', 'user_item');
     localStorage.setItem('readyFromCache_2.SPLITIO.splits.till', 25);
     localStorage.setItem('readyFromCache_2.SPLITIO.split.always_on', alwaysOnSplitInverted);
+    localStorage.setItem('readyFromCache_2.SPLITIO.hash', expectedHashNullFilter);
 
     const startTime = Date.now();
     const splitio = SplitFactory({
@@ -272,6 +277,7 @@ export default function (fetchMock, assert) {
     localStorage.setItem('readyFromCache_3.SPLITIO.splits.till', 25);
     localStorage.setItem('readyFromCache_3.SPLITIO.splits.lastUpdated', Date.now());
     localStorage.setItem('readyFromCache_3.SPLITIO.split.always_on', alwaysOnSplitInverted);
+    localStorage.setItem('readyFromCache_3.SPLITIO.hash', expectedHashNullFilter);
 
     const startTime = Date.now();
     const splitio = SplitFactory({
@@ -389,6 +395,7 @@ export default function (fetchMock, assert) {
     localStorage.setItem('readyFromCache_4.SPLITIO.splits.till', 25);
     localStorage.setItem('readyFromCache_4.SPLITIO.splits.lastUpdated', Date.now() - DEFAULT_CACHE_EXPIRATION_IN_MILLIS - 1); // -1 to ensure having an expired lastUpdated item
     localStorage.setItem('readyFromCache_4.SPLITIO.split.always_on', alwaysOnSplitInverted);
+    localStorage.setItem('readyFromCache_4.SPLITIO.hash', expectedHashNullFilter);
 
     const startTime = Date.now();
     const splitio = SplitFactory({
@@ -471,13 +478,13 @@ export default function (fetchMock, assert) {
 
   /** Fetch specific splits **/
 
-  assert.test(t => { // Testing when we start with cached data without split filter, and a valid split filter config
+  assert.test(t => { // Testing when we start with cached data without storage hash (previous version), and a valid split filter config
     const testUrls = {
       sdk: 'https://sdk.baseurl/readyFromCache_5',
       events: 'https://events.baseurl/readyFromCache_5'
     };
     localStorage.clear();
-    t.plan(6);
+    t.plan(7);
 
     fetchMock.getOnce(testUrls.sdk + '/splitChanges?since=-1&names=p1__split,p2__split', { status: 200, body: { splits: [splitDeclarations.p1__split, splitDeclarations.p2__split], since: -1, till: 1457552620999 } }, { delay: 10 }); // short delay to let emit SDK_READY_FROM_CACHE
     // fetchMock.getOnce(testUrls.sdk + '/splitChanges?since=1457552620999&names=p1__split', { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
@@ -487,6 +494,7 @@ export default function (fetchMock, assert) {
     localStorage.setItem('readyFromCache_5.SPLITIO.splits.till', 25);
     localStorage.setItem('readyFromCache_5.SPLITIO.split.p2__split', JSON.stringify(splitDeclarations.p2__split));
     localStorage.setItem('readyFromCache_5.SPLITIO.split.p3__split', JSON.stringify(splitDeclarations.p3__split));
+    localStorage.setItem('readyFromCache_5.SPLITIO.splits.filterQuery', '&names=p2__split,p3__split'); // Deprecated item, should be cleaned
 
     const splitio = SplitFactory({
       ...baseConfig,
@@ -509,54 +517,15 @@ export default function (fetchMock, assert) {
     });
 
     client.once(client.Event.SDK_READY, () => {
-      t.deepEqual(manager.names(), ['p1__split', 'p2__split'], 'p1__split should be added for evaluation');
+      t.deepEqual(manager.names().sort(), ['p1__split', 'p2__split'], 'p1__split should be added for evaluation');
 
       client.destroy().then(() => {
         t.equal(localStorage.getItem('some_user_item'), 'user_item', 'user items at localStorage must not be changed');
         t.equal(localStorage.getItem('readyFromCache_5.SPLITIO.splits.till'), '1457552620999', 'splits.till must correspond to the till of the last successfully fetched Splits');
         t.equal(localStorage.getItem('readyFromCache_5.SPLITIO.split.p1__split'), JSON.stringify(splitDeclarations.p1__split), 'split declarations must be cached');
         t.equal(localStorage.getItem('readyFromCache_5.SPLITIO.split.p2__split'), JSON.stringify(splitDeclarations.p2__split), 'split declarations must be cached');
-        t.equal(localStorage.getItem('readyFromCache_5.SPLITIO.splits.filterQuery'), '&names=p1__split,p2__split', 'splits.filterQuery must correspond to the split filter query');
-        t.end();
-      });
-    });
-  });
-
-  assert.test(t => { // Testing when we start with cached data with split filter, and the same split filter is provided in the config
-    const testUrls = {
-      sdk: 'https://sdk.baseurl/readyFromCache_5',
-      events: 'https://events.baseurl/readyFromCache_5'
-    };
-
-    localStorage.clear();
-    t.plan(1);
-
-    fetchMock.getOnce(testUrls.sdk + '/splitChanges?since=25&names=p2__split,p3__split', { status: 200, body: { splits: [splitDeclarations.p2__split, splitDeclarations.p3__split], since: -1, till: 1457552620999 } }, { delay: 10 }); // short delay to let emit SDK_READY_FROM_CACHE
-    fetchMock.getOnce(testUrls.sdk + '/mySegments/nicolas%40split.io', { status: 200, body: { mySegments: [] } });
-
-    localStorage.setItem('some_user_item', 'user_item');
-    localStorage.setItem('readyFromCache_5.SPLITIO.splits.till', 25);
-    localStorage.setItem('readyFromCache_5.SPLITIO.splits.filterQuery', '&names=p2__split,p3__split');
-    localStorage.setItem('readyFromCache_5.SPLITIO.split.p2__split', JSON.stringify(splitDeclarations.p2__split));
-    localStorage.setItem('readyFromCache_5.SPLITIO.split.p3__split', JSON.stringify(splitDeclarations.p3__split));
-
-    const splitio = SplitFactory({
-      ...baseConfig,
-      storage: {
-        type: 'LOCALSTORAGE',
-        prefix: 'readyFromCache_5'
-      },
-      urls: testUrls,
-      sync: {
-        splitFilters: [{ type: 'byName', values: ['p2__split', 'p3__split'] }]
-      },
-      debug: true
-    });
-    const client = splitio.client();
-
-    client.once(client.Event.SDK_READY_FROM_CACHE, () => {
-      t.assert('It should emit SDK_READY_FROM_CACHE because there is cached data for the same queryFilter');
-      client.destroy().then(() => {
+        t.equal(localStorage.getItem('readyFromCache_5.SPLITIO.hash'), expectedHashWithFilter, 'Storage hash must correspond to the one for the SDK key and feature flag filter query');
+        t.equal(localStorage.getItem('readyFromCache_5.SPLITIO.splits.filterQuery'), null);
         t.end();
       });
     });
@@ -600,13 +569,13 @@ export default function (fetchMock, assert) {
         t.equal(localStorage.getItem('readyFromCache_5B.SPLITIO.splits.till'), '1457552620999', 'splits.till must correspond to the till of the last successfully fetched Splits');
         t.equal(localStorage.getItem('readyFromCache_5B.SPLITIO.split.p1__split'), JSON.stringify(splitDeclarations.p1__split), 'split declarations must be cached');
         t.equal(localStorage.getItem('readyFromCache_5B.SPLITIO.split.p2__split'), JSON.stringify(splitDeclarations.p2__split), 'split declarations must be cached');
-        t.equal(localStorage.getItem('readyFromCache_5B.SPLITIO.splits.filterQuery'), '&names=p1__split,p2__split', 'splits.filterQuery must correspond to the split filter query');
+        t.equal(localStorage.getItem('readyFromCache_5B.SPLITIO.hash'), expectedHashWithFilter, 'Storage hash must correspond to the split filter query and SDK key');
         t.end();
       });
     });
   });
 
-  assert.test(t => { // Testing when we start with cached data with split filter, and the same split filter config
+  assert.test(t => { // Testing when we start with cached data with split filter, and the same split filter is provided in the config
     const testUrls = {
       sdk: 'https://sdk.baseurl/readyFromCache_6',
       events: 'https://events.baseurl/readyFromCache_6'
@@ -617,11 +586,12 @@ export default function (fetchMock, assert) {
     fetchMock.getOnce(testUrls.sdk + '/splitChanges?since=25&names=p2__split&prefixes=p1', { status: 200, body: { splits: [splitDeclarations.p1__split, splitDeclarations.p2__split], since: 25, till: 1457552620999 } }, { delay: 10 }); // short delay to let emit SDK_READY_FROM_CACHE
     fetchMock.getOnce(testUrls.sdk + '/mySegments/nicolas%40split.io', { status: 200, body: { mySegments: [] } });
 
+    const expectedHash = getStorageHash({ ...baseConfig, sync: { __splitFiltersValidation: { queryString: '&names=p2__split&prefixes=p1' } } });
     localStorage.setItem('some_user_item', 'user_item');
     localStorage.setItem('readyFromCache_6.SPLITIO.splits.till', 25);
     localStorage.setItem('readyFromCache_6.SPLITIO.split.p1__split', JSON.stringify(splitDeclarations.p1__split));
     localStorage.setItem('readyFromCache_6.SPLITIO.split.p2__split', JSON.stringify(splitDeclarations.p2__split));
-    localStorage.setItem('readyFromCache_6.SPLITIO.splits.filterQuery', '&names=p2__split&prefixes=p1');
+    localStorage.setItem('readyFromCache_6.SPLITIO.hash', expectedHash);
 
     const splitio = SplitFactory({
       ...baseConfig,
@@ -650,13 +620,13 @@ export default function (fetchMock, assert) {
         t.equal(localStorage.getItem('readyFromCache_6.SPLITIO.splits.till'), '1457552620999', 'splits.till must correspond to the till of the last successfully fetched Splits');
         t.equal(localStorage.getItem('readyFromCache_6.SPLITIO.split.p1__split'), JSON.stringify(splitDeclarations.p1__split), 'split declarations must be cached');
         t.equal(localStorage.getItem('readyFromCache_6.SPLITIO.split.p2__split'), JSON.stringify(splitDeclarations.p2__split), 'split declarations must be cached');
-        t.equal(localStorage.getItem('readyFromCache_6.SPLITIO.splits.filterQuery'), '&names=p2__split&prefixes=p1', 'splits.filterQuery must correspond to the split filter query');
+        t.equal(localStorage.getItem('readyFromCache_6.SPLITIO.hash'), expectedHash, 'Storage hash must correspond to the split filter query and SDK key');
         t.end();
       });
     });
   });
 
-  assert.test(t => { // Testing when we start with cached data with split filter but expired, and the same split filter config
+  assert.test(t => { // Testing when we start with cached data with split filter but expired, and the same split filter is provided in the config
     const testUrls = {
       sdk: 'https://sdk.baseurl/readyFromCache_7',
       events: 'https://events.baseurl/readyFromCache_7'
@@ -667,11 +637,12 @@ export default function (fetchMock, assert) {
     fetchMock.getOnce(testUrls.sdk + '/splitChanges?since=-1&prefixes=p1,p2', { status: 200, body: { splits: [splitDeclarations.p1__split, splitDeclarations.p2__split], since: -1, till: 1457552620999 } }, { delay: 10 }); // short delay to let emit SDK_READY_FROM_CACHE
     fetchMock.getOnce(testUrls.sdk + '/mySegments/nicolas%40split.io', { status: 200, body: { mySegments: [] } });
 
+    const expectedHash = getStorageHash({ ...baseConfig, sync: { __splitFiltersValidation: { queryString: '&prefixes=p1,p2' } } });
     localStorage.setItem('some_user_item', 'user_item');
     localStorage.setItem('readyFromCache_7.SPLITIO.splits.till', 25);
     localStorage.setItem('readyFromCache_7.SPLITIO.split.p1__split', JSON.stringify(splitDeclarations.p1__split));
     localStorage.setItem('readyFromCache_7.SPLITIO.split.p2__split', JSON.stringify(splitDeclarations.p2__split));
-    localStorage.setItem('readyFromCache_7.SPLITIO.splits.filterQuery', '&prefixes=p1,p2');
+    localStorage.setItem('readyFromCache_7.SPLITIO.hash', expectedHash);
     localStorage.setItem('readyFromCache_7.SPLITIO.splits.lastUpdated', Date.now() - DEFAULT_CACHE_EXPIRATION_IN_MILLIS - 1); // -1 to ensure having an expired lastUpdated item
 
     const splitio = SplitFactory({
@@ -702,7 +673,7 @@ export default function (fetchMock, assert) {
         t.equal(localStorage.getItem('readyFromCache_7.SPLITIO.splits.till'), '1457552620999', 'splits.till must correspond to the till of the last successfully fetched Splits');
         t.equal(localStorage.getItem('readyFromCache_7.SPLITIO.split.p1__split'), JSON.stringify(splitDeclarations.p1__split), 'split declarations must be cached');
         t.equal(localStorage.getItem('readyFromCache_7.SPLITIO.split.p2__split'), JSON.stringify(splitDeclarations.p2__split), 'split declarations must be cached');
-        t.equal(localStorage.getItem('readyFromCache_7.SPLITIO.splits.filterQuery'), '&prefixes=p1,p2', 'splits.filterQuery must correspond to the split filter query');
+        t.equal(localStorage.getItem('readyFromCache_7.SPLITIO.hash'), expectedHash, 'Storage hash must correspond to the split filter query and SDK key');
         t.end();
       });
     });
@@ -737,7 +708,7 @@ export default function (fetchMock, assert) {
         localStorage.setItem('readyFromCache_8.SPLITIO.split.p1__split', JSON.stringify(splitDeclarations.p1__split));
         localStorage.setItem('readyFromCache_8.SPLITIO.split.p2__split', JSON.stringify(splitDeclarations.p2__split));
         localStorage.setItem('readyFromCache_8.SPLITIO.split.deleted__split', '{ "name": "deleted_split" }');
-        localStorage.setItem('readyFromCache_8.SPLITIO.splits.filterQuery', '&names=p2__split&prefixes=p1');
+        localStorage.setItem('readyFromCache_8.SPLITIO.hash', expectedHashWithFilter);
 
         const splitio = SplitFactory({
           ...baseConfig,
@@ -758,7 +729,7 @@ export default function (fetchMock, assert) {
         });
 
         client.once(client.Event.SDK_READY, () => {
-          t.deepEqual(manager.names(), ['p1__split', 'p2__split', 'p3__split'], 'active splits should be present for evaluation');
+          t.deepEqual(manager.names().sort(), ['p1__split', 'p2__split', 'p3__split'], 'active splits should be present for evaluation');
 
           client.destroy().then(() => {
             t.equal(localStorage.getItem('some_user_item'), 'user_item', 'user items at localStorage must not be changed');
@@ -766,7 +737,7 @@ export default function (fetchMock, assert) {
             t.equal(localStorage.getItem('readyFromCache_8.SPLITIO.split.p1__split'), JSON.stringify(splitDeclarations.p1__split), 'split declarations must be cached');
             t.equal(localStorage.getItem('readyFromCache_8.SPLITIO.split.p2__split'), JSON.stringify(splitDeclarations.p2__split), 'split declarations must be cached');
             t.equal(localStorage.getItem('readyFromCache_8.SPLITIO.split.p3__split'), JSON.stringify(splitDeclarations.p3__split), 'split declarations must be cached');
-            t.equal(localStorage.getItem('readyFromCache_8.SPLITIO.splits.filterQuery'), null, 'splits.filterQuery must correspond to the split filter query');
+            t.equal(localStorage.getItem('readyFromCache_8.SPLITIO.hash'), expectedHashNullFilter, 'Storage hash must correspond to the split filter query and SDK key');
             t.end();
           });
         });
@@ -775,7 +746,7 @@ export default function (fetchMock, assert) {
     });
   });
 
-  assert.test(t => { // Testing when we start with cached data with split filter, and a new valid split filter config
+  assert.test(t => { // Testing when we start with cached data with split filter, and a new split filter is provided in the config
     const testUrls = {
       sdk: 'https://sdk.baseurl/readyFromCache_9',
       events: 'https://events.baseurl/readyFromCache_9'
@@ -790,7 +761,7 @@ export default function (fetchMock, assert) {
     localStorage.setItem('readyFromCache_9.SPLITIO.splits.till', 25);
     localStorage.setItem('readyFromCache_9.SPLITIO.split.p1__split', JSON.stringify(splitDeclarations.p1__split));
     localStorage.setItem('readyFromCache_9.SPLITIO.split.p2__split', JSON.stringify(splitDeclarations.p2__split));
-    localStorage.setItem('readyFromCache_9.SPLITIO.splits.filterQuery', '&names=p2__split&prefixes=p1');
+    localStorage.setItem('readyFromCache_9.SPLITIO.hash', getStorageHash({ ...baseConfig, sync: { __splitFiltersValidation: { queryString: '&names=p2__split&prefixes=p1' } } }));
 
     const splitio = SplitFactory({
       ...baseConfig,
@@ -815,7 +786,7 @@ export default function (fetchMock, assert) {
         t.equal(localStorage.getItem('readyFromCache_9.SPLITIO.splits.till'), '1457552620999', 'splits.till must correspond to the till of the last successfully fetched Splits');
         t.equal(localStorage.getItem('readyFromCache_9.SPLITIO.split.p2__split'), JSON.stringify(splitDeclarations.p2__split), 'split declarations must be cached');
         t.equal(localStorage.getItem('readyFromCache_9.SPLITIO.split.p3__split'), JSON.stringify(splitDeclarations.p3__split), 'split declarations must be cached');
-        t.equal(localStorage.getItem('readyFromCache_9.SPLITIO.splits.filterQuery'), '&names=no%20exist%20trim,no_exist,p3__split&prefixes=no%20exist%20trim,p2', 'splits.filterQuery must correspond to the split filter query');
+        t.equal(localStorage.getItem('readyFromCache_9.SPLITIO.hash'), getStorageHash({ ...baseConfig, sync: { __splitFiltersValidation: { queryString: '&names=no%20exist%20trim,no_exist,p3__split&prefixes=no%20exist%20trim,p2' } } }), 'splits.filterQuery must correspond to the split filter query');
         t.end();
       });
     });
