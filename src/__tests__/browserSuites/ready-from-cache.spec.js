@@ -139,7 +139,7 @@ export default function (fetchMock, assert) {
 
   });
 
-  assert.test(t => { // Testing when we start with cached data but without lastUpdate item (previous version)
+  assert.test(t => { // Testing when we start with cached data but without lastUpdate item (JS SDK version 10.13.0 and below)
     const testUrls = {
       sdk: 'https://sdk.baseurl/readyFromCacheWithData',
       events: 'https://events.baseurl/readyFromCacheWithData'
@@ -478,7 +478,7 @@ export default function (fetchMock, assert) {
 
   /** Fetch specific splits **/
 
-  assert.test(t => { // Testing when we start with cached data without storage hash (previous version), and a valid split filter config
+  assert.test(t => { // Testing when we start with cached data but without storage hash (JS SDK version 10.24.0 and below), and a valid split filter config
     const testUrls = {
       sdk: 'https://sdk.baseurl/readyFromCache_5',
       events: 'https://events.baseurl/readyFromCache_5'

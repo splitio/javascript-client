@@ -1,3 +1,7 @@
+10.24.1 (December XX, 2023)
+ - Updated SDK cache for browsers using localStorage, to clear cached feature flag definitions before initiating the synchronization process, if the cache was previously synchronized with a different SDK key (i.e., a different environment) or different Split Filter criteria.
+ - Updated @splitsoftware/splitio-commons package to version 1.12.1.
+
 10.24.0 (December 4, 2023)
  - Added support for Flag Sets on the SDK, which enables grouping feature flags and interacting with the group rather than individually (more details in our documentation):
     - Added new variations of the get treatment methods to support evaluating flags in given flag set/s.
