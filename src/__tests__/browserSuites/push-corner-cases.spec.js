@@ -1,3 +1,4 @@
+import { getStorageHash } from '@splitsoftware/splitio-commons/src/storages/KeyBuilder';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitKillMessage from '../mocks/message.SPLIT_KILL.1457552650000.json';
 import authPushEnabledNicolas from '../mocks/auth.pushEnabled.nicolas@split.io.json';
@@ -9,7 +10,6 @@ window.EventSource = EventSourceMock;
 
 import { SplitFactory } from '../../';
 import { settingsFactory } from '../../settings';
-import { getStorageHash } from '@splitsoftware/splitio-commons/src/storages/KeyBuilder';
 
 const userKey = 'nicolas@split.io';
 

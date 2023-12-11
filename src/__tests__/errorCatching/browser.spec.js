@@ -1,4 +1,5 @@
 // Here we are testing exceptions and the handler should be ours, we need to avoid tape-catch
+import { getStorageHash } from '@splitsoftware/splitio-commons/src/storages/KeyBuilder';
 import tape from 'tape';
 import includes from 'lodash/includes';
 import fetchMock from '../testUtils/fetchMock';
@@ -9,7 +10,6 @@ import splitChangesMock2 from '../mocks/splitChanges.since.1500492097547.till.15
 import splitChangesMock3 from '../mocks/splitChanges.since.1500492297547.json';
 import { SplitFactory } from '../../';
 import { settingsFactory } from '../../settings';
-import { getStorageHash } from '@splitsoftware/splitio-commons/src/storages/KeyBuilder';
 
 const settings = settingsFactory({
   core: {
