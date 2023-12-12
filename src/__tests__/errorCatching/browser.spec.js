@@ -1,4 +1,5 @@
 // Here we are testing exceptions and the handler should be ours, we need to avoid tape-catch
+import { getStorageHash } from '@splitsoftware/splitio-commons/src/storages/KeyBuilder';
 import tape from 'tape';
 import includes from 'lodash/includes';
 import fetchMock from '../testUtils/fetchMock';
@@ -20,6 +21,7 @@ const settings = settingsFactory({
 // prepare localstorage to emit SDK_READY_FROM_CACHE
 localStorage.clear();
 localStorage.setItem('SPLITIO.splits.till', 25);
+localStorage.setItem('SPLITIO.hash', getStorageHash({ core: { authorizationKey: '<fake-token-1>' }, sync: { __splitFiltersValidation: { queryString: null } } }));
 
 fetchMock.get(url(settings, '/splitChanges?since=25'), function () {
   return new Promise((res) => { setTimeout(() => res({ status: 200, body: splitChangesMock1 }), 1000); });

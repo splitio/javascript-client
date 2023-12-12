@@ -1,3 +1,4 @@
+import { getStorageHash } from '@splitsoftware/splitio-commons/src/storages/KeyBuilder';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitKillMessage from '../mocks/message.SPLIT_KILL.1457552650000.json';
 import authPushEnabledNicolas from '../mocks/auth.pushEnabled.nicolas@split.io.json';
@@ -47,6 +48,7 @@ export function testSplitKillOnReadyFromCache(fetchMock, assert) {
 
   // prepare localstorage to allow SPLIT_KILL kill locally
   localStorage.clear();
+  localStorage.setItem('pushCornerCase.SPLITIO.hash', getStorageHash(settings));
   localStorage.setItem('pushCornerCase.SPLITIO.splits.till', 25);
   localStorage.setItem('pushCornerCase.SPLITIO.split.whitelist', JSON.stringify({
     'name': 'whitelist',
