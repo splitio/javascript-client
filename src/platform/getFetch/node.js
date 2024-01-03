@@ -28,17 +28,13 @@ export function __setFetch(fetch) {
 }
 
 /**
- * Retrieves 'node-fetch', a Fetch API polyfill for NodeJS.
- *
- * @param {import("@splitsoftware/splitio-commons/types/types").ISettings} settings - The settings object used to determine the options.
- * @returns {Object} The options derived from the provided settings.
+ * Retrieves 'node-fetch', a Fetch API polyfill for NodeJS, with fallback to global 'fetch' if available.
+ * It passes an https agent with keepAlive enabled if URL is https.
  */
-export function getFetch(settings) {
-  const useHttpsAgent = Object.values(settings.urls).every((url) => url.startsWith('https'));
-
-  return nodeFetch && useHttpsAgent ?
-    (url, options) => {
-      return nodeFetch(url, Object.assign({ agent }, options));
-    } :
-    nodeFetch;
+export function getFetch() {
+  if (nodeFetch) {
+    return (url, options) => {
+      return nodeFetch(url, Object.assign({ agent: url.startsWith('https://') ? agent : undefined }, options));
+    };
+  }
 }

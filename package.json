@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio",
-  "version": "10.24.1",
+  "version": "10.24.2-rc.0",
   "description": "Split SDK",
   "files": [
     "README.md",
@@ -40,20 +40,20 @@
     "node": ">=6"
   },
   "dependencies": {
-    "@splitsoftware/splitio-commons": "1.12.1",
+    "@splitsoftware/splitio-commons": "1.12.2-rc.0",
     "@types/google.analytics": "0.0.40",
     "@types/ioredis": "^4.28.0",
     "bloom-filters": "^3.0.0",
     "ioredis": "^4.28.0",
     "js-yaml": "^3.13.1",
-    "node-fetch": "^2.6.7",
+    "node-fetch": "^2.7.0",
     "unfetch": "^4.2.0"
   },
   "optionalDependencies": {
     "eventsource": "^1.1.2"
   },
   "devDependencies": {
-    "@types/node-fetch": "^2.5.12",
+    "@types/node-fetch": "^2.6.10",
     "@types/seedrandom": "^3.0.2",
     "copyfiles": "^2.4.1",
     "cross-env": "^7.0.3",
