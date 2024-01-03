@@ -1,5 +1,5 @@
 10.25.0 (January 4, 2024)
- - Updated SDK to support URLs using 'http://' scheme in NodeJS, for connecting to the Split Synchronizer in proxy mode using HTTP.
+ - Updated SDK to support URLs using 'http://' protocol in NodeJS, for connecting to the Split Synchronizer in proxy mode using non-secure HTTP.
 
 10.24.1 (December 12, 2023)
  - Updated SDK cache for browsers using localStorage, to clear cached feature flag definitions before initiating the synchronization process if the cache was previously synchronized with a different SDK key (i.e., a different environment) or different Split Filter criteria, to avoid using invalid cached data when the SDK is ready from cache.

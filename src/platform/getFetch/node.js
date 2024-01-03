@@ -34,7 +34,7 @@ export function __setFetch(fetch) {
 export function getFetch() {
   if (nodeFetch) {
     return (url, options) => {
-      return nodeFetch(url, Object.assign({ agent: url.startsWith('https://') ? agent : undefined }, options));
+      return nodeFetch(url, Object.assign({ agent: url.startsWith('https:') ? agent : undefined }, options));
     };
   }
 }
