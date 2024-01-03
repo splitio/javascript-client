@@ -1,3 +1,5 @@
+import { forOwn } from '@splitsoftware/splitio-commons/src/utils/lang';
+
 // @TODO
 // 1- handle multiple protocols automatically
 // 2- destroy it once the sdk is destroyed
@@ -8,8 +10,20 @@ const agent = new https.Agent({
   keepAliveMsecs: 1500
 });
 
-export function getOptions() {
+/**
+ * Retrieves fetch options for NodeJS
+ *
+ * @param {import("@splitsoftware/splitio-commons/types/types").ISettings} settings - The settings object used to determine the options.
+ * @returns {Object} The options derived from the provided settings.
+ */
+export function getOptions(settings) {
+  let useHttpsAgent = true;
+
+  forOwn(settings.urls, (url) => {
+    if (url.indexOf('https') !== 0) useHttpsAgent = false;
+  });
+
   return {
-    agent
+    agent: useHttpsAgent ? agent : false,
   };
 }
