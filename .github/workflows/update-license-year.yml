@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -24,7 +24,7 @@ jobs:
         run: "echo PREVIOUS=$(($CURRENT-1)) >> $GITHUB_ENV"
 
       - name: Update LICENSE
-        uses: jacobtomlinson/gha-find-replace@v2
+        uses: jacobtomlinson/gha-find-replace@v3
         with:
           find: ${{ env.PREVIOUS }}
           replace: ${{ env.CURRENT }}
@@ -38,7 +38,7 @@ jobs:
           git commit -m "Updated License Year" -a
 
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v3
+        uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           title: Update License Year
