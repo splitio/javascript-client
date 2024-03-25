@@ -1,3 +1,7 @@
+10.25.2 (March 26, 2024)
+ - Updated some transitive dependencies for vulnerability fixes.
+ - Bugfixing - Added tslib as an explicit dependency to avoid issues with some package managers that don't resolve it automatically as a transitive dependency from @splitsoftware/splitio-commons (Related to issue https://github.com/splitio/javascript-client/issues/795).
+
 10.25.1 (January 16, 2024)
  - Updated @splitsoftware/splitio-commons package to version 1.13.1 and some transitive dependencies for vulnerability fixes.
 
