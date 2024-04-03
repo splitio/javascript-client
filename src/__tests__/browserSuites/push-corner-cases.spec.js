@@ -76,8 +76,8 @@ export function testSplitKillOnReadyFromCache(fetchMock, assert) {
   fetchMock.get({ url: url(settings, '/mySegments/nicolas%40split.io'), repeat: 2 }, { status: 200, body: { mySegments: [] } });
 
   // 2 splitChanges request: initial sync and after SSE opened. Sync after SPLIT_KILL is not performed because SplitsSyncTask is "executing"
-  fetchMock.getOnce(url(settings, '/splitChanges?since=25'), { status: 200, body: splitChangesMock1 }, { delay: MILLIS_SPLIT_CHANGES_RESPONSE, /* delay response */ });
-  fetchMock.getOnce(url(settings, `/splitChanges?since=${splitChangesMock1.till}`), { status: 200, body: { splits: [], since: splitChangesMock1.till, till: splitChangesMock1.till } }, { delay: MILLIS_SPLIT_CHANGES_RESPONSE - 100, /* delay response */ });
+  fetchMock.getOnce(url(settings, '/splitChanges?v=1.0&since=25'), { status: 200, body: splitChangesMock1 }, { delay: MILLIS_SPLIT_CHANGES_RESPONSE, /* delay response */ });
+  fetchMock.getOnce(url(settings, `/splitChanges?v=1.0&since=${splitChangesMock1.till}`), { status: 200, body: { splits: [], since: splitChangesMock1.till, till: splitChangesMock1.till } }, { delay: MILLIS_SPLIT_CHANGES_RESPONSE - 100, /* delay response */ });
 
   fetchMock.get(new RegExp('.*'), function (url) {
     assert.fail('unexpected GET request with url: ' + url);

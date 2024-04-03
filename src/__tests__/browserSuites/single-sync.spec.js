@@ -36,7 +36,7 @@ const settings = settingsFactory(config);
 
 export default function singleSync(fetchMock, assert) {
 
-  fetchMock.getOnce(url(settings, '/splitChanges?since=-1'), function () {
+  fetchMock.getOnce(url(settings, '/splitChanges?v=1.0&since=-1'), function () {
     assert.pass('first splitChanges fetch');
     return { status: 200, body: splitChangesMock1 };
   });

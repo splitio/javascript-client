@@ -23,8 +23,8 @@ export default function (fetchMock, assert) {
       events: 'https://events.baseurl/readinessSuite1'
     };
 
-    fetchMock.getOnce(testUrls.sdk + '/splitChanges?since=-1', { status: 200, body: splitChangesMock1 });
-    fetchMock.getOnce(testUrls.sdk + '/splitChanges?since=1457552620999', { status: 200, body: splitChangesMock2 });
+    fetchMock.getOnce(testUrls.sdk + '/splitChanges?v=1.0&since=-1', { status: 200, body: splitChangesMock1 });
+    fetchMock.getOnce(testUrls.sdk + '/splitChanges?v=1.0&since=1457552620999', { status: 200, body: splitChangesMock2 });
     fetchMock.get(new RegExp(testUrls.sdk + '/segmentChanges/*'), 403);
     fetchMock.postOnce(testUrls.events + '/events/bulk', 200);
 

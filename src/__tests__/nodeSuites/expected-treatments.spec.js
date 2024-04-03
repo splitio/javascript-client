@@ -6,7 +6,7 @@ import { url } from '../testUtils';
 import splitChangesMockReal from '../mocks/splitchanges.real.json';
 
 export default async function (config, settings, fetchMock, assert) {
-  fetchMock.get({ url: url(settings, '/splitChanges?since=-1'), overwriteRoutes: true }, { status: 200, body: splitChangesMockReal });
+  fetchMock.get({ url: url(settings, '/splitChanges?v=1.0&since=-1'), overwriteRoutes: true }, { status: 200, body: splitChangesMockReal });
 
   const splitio = SplitFactory({
     ...config,

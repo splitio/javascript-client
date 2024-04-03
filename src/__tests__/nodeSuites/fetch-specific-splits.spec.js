@@ -23,9 +23,9 @@ export function fetchSpecificSplits(fetchMock, assert) {
       const queryString = queryStrings[i] || '';
       let factory;
 
-      fetchMock.getOnce(urls.sdk + '/splitChanges?since=-1' + queryString, { status: 200, body: { splits: [], since: -1, till: 1457552620999 } });
-      fetchMock.getOnce(urls.sdk + '/splitChanges?since=1457552620999' + queryString, { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
-      fetchMock.getOnce(urls.sdk + '/splitChanges?since=1457552620999' + queryString, function () {
+      fetchMock.getOnce(urls.sdk + '/splitChanges?v=1.0&since=-1' + queryString, { status: 200, body: { splits: [], since: -1, till: 1457552620999 } });
+      fetchMock.getOnce(urls.sdk + '/splitChanges?v=1.0&since=1457552620999' + queryString, { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
+      fetchMock.getOnce(urls.sdk + '/splitChanges?v=1.0&since=1457552620999' + queryString, function () {
         factory.client().destroy().then(() => {
           assert.pass(`splitFilters #${i}`);
         });
@@ -64,8 +64,8 @@ export function fetchSpecificSplitsForFlagSets(fetchMock, assert) {
     let factory;
     const queryString = '&sets=4_valid,set_2,set_3,set_ww,set_x';
 
-    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?since=-1' + queryString, { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 }});
-    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?since=1457552620999' + queryString, async function () {
+    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?v=1.0&since=-1' + queryString, { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 }});
+    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?v=1.0&since=1457552620999' + queryString, async function () {
       t.pass('flag set query correctly formed');
       factory.client().destroy().then(() => {
         t.end();
