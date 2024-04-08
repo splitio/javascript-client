@@ -66,23 +66,23 @@ export function testPushRetriesDueToAuthErrors(fetchMock, assert) {
   });
   fetchMock.get({ url: url(settings, '/mySegments/nicolas%40split.io'), repeat: 4 }, { status: 200, body: mySegmentsNicolasMock });
 
-  fetchMock.getOnce(url(settings, '/splitChanges?v=1.0&since=-1'), function () {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=-1'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, 0), 'initial sync');
     return { status: 200, body: splitChangesMock1 };
   });
-  fetchMock.getOnce(url(settings, '/splitChanges?v=1.0&since=1457552620999'), function () {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=1457552620999'), function () {
     assert.true(ready, 'client ready before first polling fetch');
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, 0), 'fallback to polling');
     return { status: 200, body: splitChangesMock2 };
   });
-  fetchMock.getOnce(url(settings, '/splitChanges?v=1.0&since=1457552620999'), function () {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=1457552620999'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, settings.scheduler.featuresRefreshRate), 'polling');
     return { status: 200, body: splitChangesMock2 };
   });
-  fetchMock.getOnce(url(settings, '/splitChanges?v=1.0&since=1457552620999'), function () {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=1457552620999'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, settings.scheduler.featuresRefreshRate * 2), 'keep polling since auth success buth with push disabled');
     client.destroy().then(() => {
@@ -137,23 +137,23 @@ export function testPushRetriesDueToSseErrors(fetchMock, assert) {
   });
   fetchMock.get({ url: url(settings, '/mySegments/nicolas%40split.io'), repeat: 4 }, { status: 200, body: mySegmentsNicolasMock });
 
-  fetchMock.getOnce(url(settings, '/splitChanges?v=1.0&since=-1'), function () {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=-1'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, 0), 'initial sync');
     return { status: 200, body: splitChangesMock1 };
   });
-  fetchMock.getOnce(url(settings, '/splitChanges?v=1.0&since=1457552620999'), function () {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=1457552620999'), function () {
     assert.true(ready, 'client ready before first polling fetch');
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, 0), 'fallback to polling');
     return { status: 200, body: splitChangesMock2 };
   });
-  fetchMock.getOnce(url(settings, '/splitChanges?v=1.0&since=1457552620999'), function () {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=1457552620999'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, settings.scheduler.featuresRefreshRate), 'polling');
     return { status: 200, body: splitChangesMock2 };
   });
-  fetchMock.getOnce(url(settings, '/splitChanges?v=1.0&since=1457552620999'), function () {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=1457552620999'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, expectedTimeToSSEsuccess), 'sync due to success SSE connection');
     client.destroy().then(() => {
@@ -192,7 +192,7 @@ export function testSdkDestroyWhileAuthSuccess(fetchMock, assert) {
   fetchMock.getOnce(url(settings, `/v2/auth?users=${encodeURIComponent(userKey)}`), { status: 200, body: authPushEnabledNicolas }, { delay: 100 });
 
   fetchMock.getOnce(url(settings, '/mySegments/nicolas%40split.io'), { status: 200, body: mySegmentsNicolasMock });
-  fetchMock.getOnce(url(settings, '/splitChanges?v=1.0&since=-1'), { status: 200, body: splitChangesMock1 });
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=-1'), { status: 200, body: splitChangesMock1 });
 
   setTimeout(() => {
     client.destroy().then(() => {
@@ -226,7 +226,7 @@ export function testSdkDestroyWhileConnDelay(fetchMock, assert) {
 
   fetchMock.getOnce(url(settings, `/v2/auth?users=${encodeURIComponent(userKey)}`), { status: 200, body: { ...authPushEnabledNicolas, connDelay: 0.1 } });
   fetchMock.getOnce(url(settings, '/mySegments/nicolas%40split.io'), { status: 200, body: mySegmentsNicolasMock });
-  fetchMock.getOnce(url(settings, '/splitChanges?v=1.0&since=-1'), { status: 200, body: splitChangesMock1 });
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=-1'), { status: 200, body: splitChangesMock1 });
 
   const client = SplitFactory(config).client();
   setTimeout(() => {
@@ -259,8 +259,8 @@ export function testSdkDestroyWhileAuthRetries(fetchMock, assert) {
   fetchMock.getOnce(url(settings, `/v2/auth?users=${encodeURIComponent(userKey)}`), { throws: new TypeError('Network error') }, { delay: 100 });
 
   fetchMock.get({ url: url(settings, '/mySegments/nicolas%40split.io'), repeat: 2 }, { status: 200, body: mySegmentsNicolasMock });
-  fetchMock.getOnce(url(settings, '/splitChanges?v=1.0&since=-1'), { status: 200, body: splitChangesMock1 });
-  fetchMock.getOnce(url(settings, '/splitChanges?v=1.0&since=1457552620999'), { status: 200, body: splitChangesMock2 });
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=-1'), { status: 200, body: splitChangesMock1 });
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=1457552620999'), { status: 200, body: splitChangesMock2 });
 
   fetchMock.get(new RegExp('.*'), function (url) {
     assert.fail('unexpected GET request with url: ' + url);

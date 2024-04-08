@@ -42,7 +42,7 @@ function testInitializationFail(fetchMock, assert, fallbackToPolling) {
 
   fetchMock.get(new RegExp(`${url(settings, '/segmentChanges/')}.*`),
     { status: 200, body: { since: 10, till: 10, name: 'segmentName', added: [], removed: [] } });
-  fetchMock.getOnce(url(settings, '/splitChanges?v=1.0&since=-1'), function () {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=-1'), function () {
     const lapse = Date.now() - start;
     // using a higher error margin for Travis, due to a lower performance than local execution
     assert.true(nearlyEqual(lapse, 0), 'initial sync');
@@ -50,7 +50,7 @@ function testInitializationFail(fetchMock, assert, fallbackToPolling) {
   });
 
   if (fallbackToPolling) {
-    fetchMock.getOnce(url(settings, '/splitChanges?v=1.0&since=1457552620999'), function () {
+    fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=1457552620999'), function () {
       assert.true(ready, 'client ready');
       const lapse = Date.now() - start;
       assert.true(nearlyEqual(lapse, 0), 'polling (first fetch)');
@@ -58,7 +58,7 @@ function testInitializationFail(fetchMock, assert, fallbackToPolling) {
     });
   }
 
-  fetchMock.getOnce(url(settings, '/splitChanges?v=1.0&since=1457552620999'), function () {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=1457552620999'), function () {
     assert.true(ready, 'client ready');
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, settings.scheduler.featuresRefreshRate), 'polling (second fetch)');

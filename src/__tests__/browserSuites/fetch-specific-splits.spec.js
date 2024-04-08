@@ -25,9 +25,9 @@ export function fetchSpecificSplits(fetchMock, assert) {
       const queryString = queryStrings[i] || '';
       let factory;
 
-      fetchMock.getOnce(urls.sdk + '/splitChanges?v=1.0&since=-1' + queryString, { status: 200, body: { splits: [], since: -1, till: 1457552620999 } });
-      fetchMock.getOnce(urls.sdk + '/splitChanges?v=1.0&since=1457552620999' + queryString, { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
-      fetchMock.getOnce(urls.sdk + '/splitChanges?v=1.0&since=1457552620999' + queryString, function () {
+      fetchMock.getOnce(urls.sdk + '/splitChanges?s=1.1&since=-1' + queryString, { status: 200, body: { splits: [], since: -1, till: 1457552620999 } });
+      fetchMock.getOnce(urls.sdk + '/splitChanges?s=1.1&since=1457552620999' + queryString, { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
+      fetchMock.getOnce(urls.sdk + '/splitChanges?s=1.1&since=1457552620999' + queryString, function () {
         factory.client().destroy().then(() => {
           assert.pass(`splitFilters #${i}`);
         });
@@ -70,8 +70,8 @@ export function fetchSpecificSplitsForFlagSets(fetchMock, assert) {
     const queryString = '&sets=4_valid,set_2,set_3,set_ww,set_x';
     fetchMock.get(baseUrls.sdk + '/mySegments/nicolas%40split.io', { status: 200, body: { 'mySegments': [] } });
 
-    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?v=1.0&since=-1' + queryString, { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 }});
-    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?v=1.0&since=1457552620999' + queryString, async function () {
+    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.1&since=-1' + queryString, { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 }});
+    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.1&since=1457552620999' + queryString, async function () {
       t.pass('flag set query correctly formed');
       t.true(logSpy.calledWithExactly('[WARN]  splitio => settings: bySet filter value "set_x " has extra whitespace, trimming.'));
       t.true(logSpy.calledWithExactly('[WARN]  splitio => settings: you passed invalid+, flag set must adhere to the regular expressions /^[a-z0-9][_a-z0-9]{0,49}$/. This means a flag set must start with a letter or number, be in lowercase, alphanumeric and have a max length of 50 characters. invalid+ was discarded.'));

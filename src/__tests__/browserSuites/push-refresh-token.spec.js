@@ -77,7 +77,7 @@ export function testRefreshToken(fetchMock, assert) {
   });
 
   // initial sync
-  fetchMock.getOnce(url(settings, '/splitChanges?v=1.0&since=-1'), { status: 200, body: splitChangesMock1 });
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=-1'), { status: 200, body: splitChangesMock1 });
   fetchMock.getOnce(url(settings, '/mySegments/nicolas%40split.io'), { status: 200, body: mySegmentsNicolasMock1 });
 
   // first auth
@@ -88,7 +88,7 @@ export function testRefreshToken(fetchMock, assert) {
   });
 
   // sync after SSE opened
-  fetchMock.getOnce(url(settings, '/splitChanges?v=1.0&since=1457552620999'), { status: 200, body: splitChangesMock2 });
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=1457552620999'), { status: 200, body: splitChangesMock2 });
   fetchMock.getOnce(url(settings, '/mySegments/nicolas%40split.io'), { status: 200, body: mySegmentsNicolasMock1 });
 
   // re-auth due to refresh token, with connDelay of 0.5 seconds
@@ -100,7 +100,7 @@ export function testRefreshToken(fetchMock, assert) {
   });
 
   // sync after SSE reopened
-  fetchMock.getOnce(url(settings, '/splitChanges?v=1.0&since=1457552620999'), function () {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=1457552620999'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_REFRESH_TOKEN + MILLIS_CONNDELAY), 'sync after SSE connection is reopened');
     return { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } };
@@ -116,7 +116,7 @@ export function testRefreshToken(fetchMock, assert) {
   });
 
   // split sync after SSE closed due to push disabled
-  fetchMock.getOnce(url(settings, '/splitChanges?v=1.0&since=1457552620999'), function () {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=1457552620999'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_REFRESH_TOKEN * 2), 'sync after SSE connection is reopened a second time');
     setTimeout(() => {

@@ -46,14 +46,14 @@ function testInitializationFail(fetchMock, assert, fallbackToPolling) {
   let start, splitio, client, ready = false;
 
   fetchMock.get(url(settings, '/mySegments/nicolas%40split.io'), { status: 200, body: mySegmentsNicolas });
-  fetchMock.getOnce(url(settings, '/splitChanges?v=1.0&since=-1'), function () {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=-1'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, 0), 'initial sync');
     return { status: 200, body: splitChangesMock1 };
   });
 
   if (fallbackToPolling) {
-    fetchMock.getOnce(url(settings, '/splitChanges?v=1.0&since=1457552620999'), function () {
+    fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=1457552620999'), function () {
       assert.true(ready, 'client ready');
       const lapse = Date.now() - start;
       assert.true(nearlyEqual(lapse, 0), 'polling (first fetch)');
@@ -61,7 +61,7 @@ function testInitializationFail(fetchMock, assert, fallbackToPolling) {
     });
   }
 
-  fetchMock.getOnce(url(settings, '/splitChanges?v=1.0&since=1457552620999'), function () {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=1457552620999'), function () {
     assert.true(ready, 'client ready');
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, settings.scheduler.featuresRefreshRate), 'polling (second fetch)');

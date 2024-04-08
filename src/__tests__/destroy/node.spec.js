@@ -17,8 +17,8 @@ import splitChangesMock1 from '../mocks/splitChanges.since.-1.till.1500492097547
 import splitChangesMock2 from '../mocks/splitChanges.since.1500492097547.json';
 import impressionsMock from '../mocks/impressions.json';
 
-fetchMock.get(url(settings, '/splitChanges?v=1.0&since=-1'), { status: 200, body: splitChangesMock1 });
-fetchMock.get(url(settings, '/splitChanges?v=1.0&since=1500492097547'), { status: 200, body: splitChangesMock2 });
+fetchMock.get(url(settings, '/splitChanges?s=1.1&since=-1'), { status: 200, body: splitChangesMock1 });
+fetchMock.get(url(settings, '/splitChanges?s=1.1&since=1500492097547'), { status: 200, body: splitChangesMock2 });
 fetchMock.postOnce(url(settings, '/v1/metrics/config'), 200);
 
 tape('SDK destroy for NodeJS', async function (assert) {
