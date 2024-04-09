@@ -39,7 +39,7 @@ export function testFlagSets(fetchMock, t) {
   mockSegmentChanges(fetchMock, new RegExp(baseUrls.sdk + '/segmentChanges/*'), ['some-key']);
   fetchMock.post('*', 200);
 
-  fetchMock.get(baseUrls.auth + '/v2/auth', function (url, opts) {
+  fetchMock.get(baseUrls.auth + '/v2/auth?s=1.1', function (url, opts) {
     if (!opts.headers['Authorization']) t.fail('`/v2/auth` request must include `Authorization` header');
     t.pass('auth success');
     return { status: 200, body: authPushEnabled };

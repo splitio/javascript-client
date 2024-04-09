@@ -51,13 +51,13 @@ export function testPushRetriesDueToAuthErrors(fetchMock, assert) {
 
   let start, splitio, client, ready = false;
 
-  fetchMock.getOnce(url(settings, `/v2/auth?users=${encodeURIComponent(userKey)}`), function (url, opts) {
+  fetchMock.getOnce(url(settings, `/v2/auth?s=1.1&users=${encodeURIComponent(userKey)}`), function (url, opts) {
     if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
     assert.pass('first auth attempt');
     return { status: 200, body: authPushBadToken };
   });
-  fetchMock.getOnce(url(settings, `/v2/auth?users=${encodeURIComponent(userKey)}`), { throws: new TypeError('Network error') });
-  fetchMock.getOnce(url(settings, `/v2/auth?users=${encodeURIComponent(userKey)}`), function (url, opts) {
+  fetchMock.getOnce(url(settings, `/v2/auth?s=1.1&users=${encodeURIComponent(userKey)}`), { throws: new TypeError('Network error') });
+  fetchMock.getOnce(url(settings, `/v2/auth?s=1.1&users=${encodeURIComponent(userKey)}`), function (url, opts) {
     if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
     const lapse = Date.now() - start;
     const expected = (settings.scheduler.pushRetryBackoffBase * Math.pow(2, 0) + settings.scheduler.pushRetryBackoffBase * Math.pow(2, 1));
@@ -130,7 +130,7 @@ export function testPushRetriesDueToSseErrors(fetchMock, assert) {
     sseattempts++;
   });
 
-  fetchMock.get({ url: url(settings, `/v2/auth?users=${encodeURIComponent(userKey)}`), repeat: 3 /* 3 push attempts */ }, function (url, opts) {
+  fetchMock.get({ url: url(settings, `/v2/auth?s=1.1&users=${encodeURIComponent(userKey)}`), repeat: 3 /* 3 push attempts */ }, function (url, opts) {
     if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
     assert.pass('auth success');
     return { status: 200, body: authPushEnabledNicolas };
@@ -189,7 +189,7 @@ export function testSdkDestroyWhileAuthSuccess(fetchMock, assert) {
 
   let splitio, client, ready = false;
 
-  fetchMock.getOnce(url(settings, `/v2/auth?users=${encodeURIComponent(userKey)}`), { status: 200, body: authPushEnabledNicolas }, { delay: 100 });
+  fetchMock.getOnce(url(settings, `/v2/auth?s=1.1&users=${encodeURIComponent(userKey)}`), { status: 200, body: authPushEnabledNicolas }, { delay: 100 });
 
   fetchMock.getOnce(url(settings, '/mySegments/nicolas%40split.io'), { status: 200, body: mySegmentsNicolasMock });
   fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=-1'), { status: 200, body: splitChangesMock1 });
@@ -224,7 +224,7 @@ export function testSdkDestroyWhileConnDelay(fetchMock, assert) {
     assert.fail('unexpected EventSource request with url: ' + eventSourceInstance.url);
   });
 
-  fetchMock.getOnce(url(settings, `/v2/auth?users=${encodeURIComponent(userKey)}`), { status: 200, body: { ...authPushEnabledNicolas, connDelay: 0.1 } });
+  fetchMock.getOnce(url(settings, `/v2/auth?s=1.1&users=${encodeURIComponent(userKey)}`), { status: 200, body: { ...authPushEnabledNicolas, connDelay: 0.1 } });
   fetchMock.getOnce(url(settings, '/mySegments/nicolas%40split.io'), { status: 200, body: mySegmentsNicolasMock });
   fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=-1'), { status: 200, body: splitChangesMock1 });
 
@@ -255,8 +255,8 @@ export function testSdkDestroyWhileAuthRetries(fetchMock, assert) {
 
   let splitio, client, ready = false;
 
-  fetchMock.getOnce(url(settings, `/v2/auth?users=${encodeURIComponent(userKey)}`), { status: 200, body: authPushBadToken });
-  fetchMock.getOnce(url(settings, `/v2/auth?users=${encodeURIComponent(userKey)}`), { throws: new TypeError('Network error') }, { delay: 100 });
+  fetchMock.getOnce(url(settings, `/v2/auth?s=1.1&users=${encodeURIComponent(userKey)}`), { status: 200, body: authPushBadToken });
+  fetchMock.getOnce(url(settings, `/v2/auth?s=1.1&users=${encodeURIComponent(userKey)}`), { throws: new TypeError('Network error') }, { delay: 100 });
 
   fetchMock.get({ url: url(settings, '/mySegments/nicolas%40split.io'), repeat: 2 }, { status: 200, body: mySegmentsNicolasMock });
   fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=-1'), { status: 200, body: splitChangesMock1 });

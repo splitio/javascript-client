@@ -45,13 +45,13 @@ export function testPushRetriesDueToAuthErrors(fetchMock, assert) {
 
   let start, splitio, client, ready = false;
 
-  fetchMock.getOnce(url(settings, '/v2/auth'), function (url, opts) {
+  fetchMock.getOnce(url(settings, '/v2/auth?s=1.1'), function (url, opts) {
     if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
     assert.pass('first auth attempt');
     return { status: 200, body: authPushBadToken };
   });
-  fetchMock.getOnce(url(settings, '/v2/auth'), { throws: new TypeError('Network error') });
-  fetchMock.getOnce(url(settings, '/v2/auth'), function (url, opts) {
+  fetchMock.getOnce(url(settings, '/v2/auth?s=1.1'), { throws: new TypeError('Network error') });
+  fetchMock.getOnce(url(settings, '/v2/auth?s=1.1'), function (url, opts) {
     if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
     const lapse = Date.now() - start;
     const expected = (settings.scheduler.pushRetryBackoffBase * Math.pow(2, 0) + settings.scheduler.pushRetryBackoffBase * Math.pow(2, 1));
@@ -122,7 +122,7 @@ export function testPushRetriesDueToSseErrors(fetchMock, assert) {
     sseattempts++;
   });
 
-  fetchMock.get({ url: url(settings, '/v2/auth'), repeat: 3 /* 3 push attempts */ }, function (url, opts) {
+  fetchMock.get({ url: url(settings, '/v2/auth?s=1.1'), repeat: 3 /* 3 push attempts */ }, function (url, opts) {
     if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
     assert.pass('auth success');
     return { status: 200, body: authPushEnabled };
@@ -181,7 +181,7 @@ export function testSdkDestroyWhileAuthSuccess(fetchMock, assert) {
 
   let splitio, client, ready = false;
 
-  fetchMock.getOnce(url(settings, '/v2/auth'), { status: 200, body: authPushEnabled }, { delay: 100 });
+  fetchMock.getOnce(url(settings, '/v2/auth?s=1.1'), { status: 200, body: authPushEnabled }, { delay: 100 });
 
   fetchMock.get(new RegExp(`${url(settings, '/segmentChanges/')}.*`), { status: 200, body: { since: 10, till: 10, name: 'segmentName', added: [], removed: [] } });
   fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=-1'), { status: 200, body: splitChangesMock1 });
@@ -219,8 +219,8 @@ export function testSdkDestroyWhileAuthRetries(fetchMock, assert) {
 
   let splitio, client, ready = false;
 
-  fetchMock.getOnce(url(settings, '/v2/auth'), { status: 200, body: authPushBadToken });
-  fetchMock.getOnce(url(settings, '/v2/auth'), { throws: new TypeError('Network error') }, { delay: 100 });
+  fetchMock.getOnce(url(settings, '/v2/auth?s=1.1'), { status: 200, body: authPushBadToken });
+  fetchMock.getOnce(url(settings, '/v2/auth?s=1.1'), { throws: new TypeError('Network error') }, { delay: 100 });
 
   fetchMock.get(new RegExp(`${url(settings, '/segmentChanges/')}.*`), { status: 200, body: { since: 10, till: 10, name: 'segmentName', added: [], removed: [] } });
   fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=-1'), { status: 200, body: splitChangesMock1 });

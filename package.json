@@ -40,7 +40,7 @@
     "node": ">=6"
   },
   "dependencies": {
-    "@splitsoftware/splitio-commons": "1.13.2-rc.1",
+    "@splitsoftware/splitio-commons": "1.13.2-rc.2",
     "@types/google.analytics": "0.0.40",
     "@types/ioredis": "^4.28.0",
     "bloom-filters": "^3.0.0",

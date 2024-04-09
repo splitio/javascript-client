@@ -218,7 +218,7 @@ export function testSynchronization(fetchMock, assert) {
   });
 
   // initial auth
-  fetchMock.getOnce(url(settings, '/v2/auth'), function (url, opts) {
+  fetchMock.getOnce(url(settings, '/v2/auth?s=1.1'), function (url, opts) {
     if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
     assert.pass('auth success');
     return { status: 200, body: authPushEnabled };

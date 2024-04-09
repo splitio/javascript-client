@@ -38,7 +38,7 @@ export function testFlagSets(fetchMock, t) {
 
   fetchMock.get(baseUrls.sdk + '/mySegments/nicolas%40split.io', { status: 200, body: { 'mySegments': [] } });
 
-  fetchMock.get(baseUrls.auth + '/v2/auth?users=nicolas%40split.io', function () {
+  fetchMock.get(baseUrls.auth + '/v2/auth?s=1.1&users=nicolas%40split.io', function () {
     return { status: 200, body: authPushEnabled };
   });
   fetchMock.get(baseUrls.sdk + '/splitChanges?s=1.1&since=-1',  function () {

@@ -83,7 +83,7 @@ function testInitializationFail(fetchMock, assert, fallbackToPolling) {
 export function testAuthWithPushDisabled(fetchMock, assert) {
   assert.plan(6);
 
-  fetchMock.getOnce(`https://auth.push-initialization-nopush/api/v2/auth?users=${encodeURIComponent(userKey)}`, function (url, opts) {
+  fetchMock.getOnce(`https://auth.push-initialization-nopush/api/v2/auth?s=1.1&users=${encodeURIComponent(userKey)}`, function (url, opts) {
     if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
     assert.pass('auth');
     return { status: 200, body: authPushDisabled };
@@ -96,7 +96,7 @@ export function testAuthWithPushDisabled(fetchMock, assert) {
 export function testAuthWith401(fetchMock, assert) {
   assert.plan(6);
 
-  fetchMock.getOnce(url(settings, `/v2/auth?users=${encodeURIComponent(userKey)}`), function (url, opts) {
+  fetchMock.getOnce(url(settings, `/v2/auth?s=1.1&users=${encodeURIComponent(userKey)}`), function (url, opts) {
     if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
     assert.pass('auth');
     return { status: 401, body: authInvalidCredentials };
@@ -122,7 +122,7 @@ export function testSSEWithNonRetryableError(fetchMock, assert) {
   assert.plan(7);
 
   // Auth successes
-  fetchMock.getOnce(url(settings, `/v2/auth?users=${encodeURIComponent(userKey)}`), function (url, opts) {
+  fetchMock.getOnce(url(settings, `/v2/auth?s=1.1&users=${encodeURIComponent(userKey)}`), function (url, opts) {
     if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
     assert.pass('auth successes');
     return { status: 200, body: authPushEnabledNicolas };
