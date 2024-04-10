@@ -55,7 +55,7 @@ export function testPushRetriesDueToAuthErrors(fetchMock, assert) {
     if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
     const lapse = Date.now() - start;
     const expected = (settings.scheduler.pushRetryBackoffBase * Math.pow(2, 0) + settings.scheduler.pushRetryBackoffBase * Math.pow(2, 1));
-    assert.true(nearlyEqual(lapse, expected), 'third auth attempt (aproximately in 0.3 seconds from first attempt)');
+    assert.true(nearlyEqual(lapse, expected), 'third auth attempt (approximately in 0.3 seconds from first attempt)');
     return { status: 200, body: authPushDisabled };
   });
   fetchMock.get(new RegExp(`${url(settings, '/segmentChanges/')}.*`), { status: 200, body: { since: 10, till: 10, name: 'segmentName', added: [], removed: [] } });
@@ -116,7 +116,7 @@ export function testPushRetriesDueToSseErrors(fetchMock, assert) {
     } else {
       const lapse = Date.now() - start;
 
-      assert.true(nearlyEqual(lapse, expectedTimeToSSEsuccess), 'third auth attempt (aproximately in 0.3 seconds from first attempt)');
+      assert.true(nearlyEqual(lapse, expectedTimeToSSEsuccess), 'third auth attempt (approximately in 0.3 seconds from first attempt)');
       eventSourceInstance.emitOpen();
     }
     sseattempts++;
