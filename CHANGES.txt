@@ -107,7 +107,7 @@
  - Bugfixing - Fixed an issue with `connectionTimeout` options params of Redis storage, that was being ignored and not passed down to the underlying ioredis client.
  - Bugfixing - Updated the validation of some SDK configuration params to log errors and throw exceptions with clear descriptions of the invalid setup:
     - If passing a non-string value to `sync.impressionsMode`, the SDK logs the error: "you passed an invalid impressionsMode config param. It should be one of the following values: 'OPTIMIZED', 'DEBUG'. Defaulting to 'OPTIMIZED'.".
-    - If passing 'REDIS' storage type without setting `mode` to 'consumer', the SDK logs the error: "The provided REDIS storage is invalid for this mode. It requires 'consumer' mode. Fallbacking into default MEMORY storage.".
+    - If passing 'REDIS' storage type without setting `mode` to 'consumer', the SDK logs the error: "The provided REDIS storage is invalid for this mode. It requires 'consumer' mode. Fallback into default MEMORY storage.".
     - If passing 'consumer' mode without setting `storage.type` to 'REDIS', the SDK throws an exception with message: "A REDIS storage is required on consumer mode.".
 
  - NOTABLE CHANGE: since version 10.18.0, the SDK has been refactored to use @splitsoftware/splitio-commons package in order to reuse core modules shared across all JavaScript-based SDKs. Most internal modules have been moved and renamed,
@@ -175,7 +175,7 @@
 10.15.4 (Mar 17, 2021)
  - Updated Streaming logic with some improvements and fixes, including:
       - Updated SSE error handling.
-      - Extended publishers tracking to support multiregion infrastructure.
+      - Extended publishers tracking to support multi-region infrastructure.
       - Enforced revalidation for requests stored in local caches, like proxies or browsers.
       - Bugfixing - In NodeJS, fetch new segments captured due to streaming notifications.
  - Updated some dependencies, including a vulnerability fix.
@@ -300,11 +300,11 @@
  - Added Block Until Ready functionality support for consumer clients (Redis mode on Node) to make integration code work the same between modes.
  - Added more Input and Usage Validation rules, including an extra label for impressions when the SDK is not ready.
  - Updated the SDK Redis adapter to handle pending commands when disconnecting from the Redis server.
- - Bugfixing - Clearing up readyTimeout after we don't need it anymore. It also fixes the missleading SDK_READY_TIMED_OUT error log when using Redis.
+ - Bugfixing - Clearing up readyTimeout after we don't need it anymore. It also fixes the misleading SDK_READY_TIMED_OUT error log when using Redis.
 
 10.7.0 (Apr 30, 2019)
  - Added Block Until Ready functionality to the manager, shared with the main client. Now you can subscribe to SDK events or use the .ready() promise from the manager as well.
- - Added Dynamic Configurations support through two new methods that mimick the regular ones, changing the type of what is returned.
+ - Added Dynamic Configurations support through two new methods that mimic the regular ones, changing the type of what is returned.
    - getTreatmentWithConfig: Same as getTreatment, but instead of a string it returns a map with treatment and config as a stringified JSON.
    - getTreatmentWithConfig: Same as getTreatments, but instead of a map of string it returns a map of objects with treatment and config as a stringified JSON.
  - Added configs to SplitViews returned by the manager module.
@@ -318,7 +318,7 @@
 
 10.6.0 (Feb 12, 2019)
  - BREAKING CHANGE: Updated impressions cache for Redis storage to reduce the amount of Redis operations by using a single queue (Must use Synchronizer 2.x or above with this or newer SDK versions).
- - Added stricter validations to the input of the SDK api to provide better and faster feedback in case of missuse. We want our users to be able to diagnose issues sooner,
+ - Added stricter validations to the input of the SDK api to provide better and faster feedback in case of misuse. We want our users to be able to diagnose issues sooner,
   instead of when you can't find the data you're looking for. As part of this, some error logs (just logs) will be visible even with the SDK Logger disabled.
  - Updated getTreatments to have it's own latency metric for the whole operation, instead of one per each feature evaluation.
  - Updated default values on configuration for NodeJS.
@@ -385,13 +385,13 @@
  - Migrated source code to es modules.
  - Localhost mode uses fewer dependencies now.
  - Removed flowtype since it was not used anymore.
- - Udpated to last node LTS.
+ - Updated to last node LTS.
  - Added package-lock.json.
  - Fixed eslint configuration.
 
 9.4.0 (Jan 12, 2018)
  - Adding support for client.track method, for tracking custom events.
- - Adding trafficType as an optional core setting. If provided on the browser it will be binded to the client as the key.
+ - Adding trafficType as an optional core setting. If provided on the browser it will be bound to the client as the key.
  - TypeScript declarations polishing.
  - Updated SDK labels.
  - Bugfixing - Shared clients (browser) were ready even if the main client was not.
@@ -593,10 +593,10 @@ var treatmentsMap = client.getTreatments('CUSTOMER_KEY', ['Feature_flag_1', 'Fea
   const client = SplitFactory(config);
 
   // Redis in NodeJS is async so we can use async/await syntax
-  const treatment = await client.getTreatment('my-feature-comming-from-localstorage');
+  const treatment = await client.getTreatment('my-feature-coming-from-localstorage');
 
   // or just use the returned promise
-  client.getTreatment('my-feature-comming-from-localstorage').then(treatment => {
+  client.getTreatment('my-feature-coming-from-localstorage').then(treatment => {
     // do something with the treatment
   });
   ```
@@ -652,7 +652,7 @@ var treatmentsMap = client.getTreatments('CUSTOMER_KEY', ['Feature_flag_1', 'Fea
 
   client.getTreatment('my_feature') === 'on'; // true
 
-  factory.settings.features.my_feature = 'off'; // Apply this cache programatically
+  factory.settings.features.my_feature = 'off'; // Apply this cache programmatically
 
   client.getTreatment('my_feature') === 'off'; // Some time after you will be able to verify this
   ```
@@ -728,7 +728,7 @@ var treatmentsMap = client.getTreatments('CUSTOMER_KEY', ['Feature_flag_1', 'Fea
   ```html
   <script src="//cdn.split.io/sdk/split-5.0.0.min.js"></script>
   <script>
-    // instanciation
+    // instantiation
     var dynamic1 = splitio({
       core: {
         authorizationKey: '<your-token>',

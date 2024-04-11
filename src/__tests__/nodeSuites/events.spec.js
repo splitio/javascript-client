@@ -75,7 +75,7 @@ export default function trackAssertions(fetchMock, assert) {
   assert.equal(typeof client.track, 'function', 'client.track should be a function.');
 
   tsStart = Date.now();
-  // Key binded as with getTreatment.
+  // Key bound as with getTreatment.
   assert.ok(client.track('nicolas@split.io', 'sometraffictype', 'someEvent', 10), 'client.track returns true if an event is added to the queue.');
   assert.ok(client.track('nicolas@split.io', 'othertraffictype', 'genericEvent', 25), 'client.track returns true if event value is null and is added to the queue.');
   assert.ok(client.track('nicolas@split.io', 'othertraffictype', 'genericEvent', 25, null), 'client.track returns true if event properties is null and is added to the queue.');

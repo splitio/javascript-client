@@ -110,7 +110,7 @@ tape('## E2E CI Tests ##', function (assert) {
   assert.test('E2E / Telemetry', telemetrySuite.bind(null, fetchMock));
   /* Check events */
   assert.test('E2E / Events', withoutBindingTT.bind(null, fetchMock));
-  assert.test('E2E / Events with TT binded', bindingTT.bind(null, fetchMock));
+  assert.test('E2E / Events with TT bound', bindingTT.bind(null, fetchMock));
   /* Check shared clients */
   assert.test('E2E / Shared instances', sharedInstantiationSuite.bind(null, false, false, fetchMock));
   assert.test('E2E / Shared instances with Traffic Type on factory settings', sharedInstantiationSuite.bind(null, true, false, fetchMock));
