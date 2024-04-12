@@ -2,6 +2,7 @@ import tape from 'tape-catch';
 import fetchMock from '../testUtils/fetchMock';
 import { url } from '../testUtils';
 import evaluationsSuite from '../browserSuites/evaluations.spec';
+import evaluationsSemverSuite from '../browserSuites/evaluations-semver.spec';
 import impressionsSuite from '../browserSuites/impressions.spec';
 import impressionsSuiteDebug from '../browserSuites/impressions.debug.spec';
 import impressionsSuiteNone from '../browserSuites/impressions.none.spec';
@@ -100,6 +101,7 @@ tape('## E2E CI Tests ##', function (assert) {
   assert.test('E2E / In Memory', evaluationsSuite.bind(null, configInMemory, fetchMock));
   assert.test('E2E / In Memory with Bucketing Key', evaluationsSuite.bind(null, configInMemoryWithBucketingKey, fetchMock));
   assert.test('E2E / In LocalStorage with In Memory Fallback', evaluationsSuite.bind(null, configInLocalStorage, fetchMock));
+  assert.test('E2E / In Memory - Semver', evaluationsSemverSuite.bind(null, fetchMock));
   /* Check impressions */
   assert.test('E2E / Impressions', impressionsSuite.bind(null, fetchMock));
   assert.test('E2E / Impressions Debug Mode', impressionsSuiteDebug.bind(null, fetchMock));
