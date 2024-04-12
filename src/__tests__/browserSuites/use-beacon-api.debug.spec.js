@@ -37,7 +37,7 @@ const assertImpressionSent = (assert, impression) => {
 const assertEventSent = (assert, event) => {
   assert.equal(event.key, 'facundo@split.io', 'Key should match received value.');
   assert.equal(event.eventTypeId, 'someEvent', 'EventTypeId should match received value.');
-  assert.equal(event.trafficTypeName, 'sometraffictype', 'TrafficTypeName should match the binded value.');
+  assert.equal(event.trafficTypeName, 'sometraffictype', 'TrafficTypeName should match the bound value.');
 };
 
 const assertCallsToBeaconAPI = (assert) => {

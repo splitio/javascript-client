@@ -301,10 +301,10 @@ treatmentsWithConfig = client.getTreatmentsWithConfigByFlagSets(['set_a']);
 treatmentsWithConfig = client.getTreatmentsWithConfigByFlagSets(splitKey, ['set_a'], attributes);
 treatmentsWithConfig = client.getTreatmentsWithConfigByFlagSets(['set_a'], attributes);
 
-// We can call track with or without a key. Traffic type can also be binded to the client.
+// We can call track with or without a key. Traffic type can also be bound to the client.
 tracked = client.track(splitKey, 'myTrafficType', 'myEventType'); // all params
-tracked = client.track('myTrafficType', 'myEventType'); // key binded, tt provided.
-tracked = client.track('myEventType'); // key and tt binded.
+tracked = client.track('myTrafficType', 'myEventType'); // key bound, tt provided.
+tracked = client.track('myEventType'); // key and tt bound.
 // Value parameter is optional on all signatures.
 tracked = client.track(splitKey, 'myTrafficType', 'myEventType', 10);
 tracked = client.track('myTrafficType', 'myEventType', 10);
