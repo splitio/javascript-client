@@ -69,7 +69,7 @@ export function withoutBindingTT(fetchMock, assert) {
   assert.ok(client.track, 'client.track should be defined.');
   assert.equal(typeof client.track, 'function', 'client.track should be a function.');
 
-  // Key binded as with getTreatment.
+  // Key bound as with getTreatment.
   tsStart = Date.now();
   assert.ok(client.track('sometraffictype', 'someEvent', 10), 'client.track returns true if an event is added to the queue.');
   assert.ok(client.track('othertraffictype', 'genericEvent', 25), 'client.track returns true if event value is null and is added to the queue.');
@@ -96,7 +96,7 @@ export function withoutBindingTT(fetchMock, assert) {
 // Not for JS Browser SDK, because it doesn't let bind traffic types to clients
 export function bindingTT(fetchMock, assert) {
   const localSettings = Object.assign({}, baseSettings);
-  localSettings.core.trafficType = 'binded_tt';
+  localSettings.core.trafficType = 'bound_tt';
   const splitio = SplitFactory(localSettings);
   const client = splitio.client();
 
@@ -113,20 +113,20 @@ export function bindingTT(fetchMock, assert) {
 
     assert.equal(firstEvent.key, 'facundo@split.io', 'Key should match received value.');
     assert.equal(firstEvent.eventTypeId, 'someEvent', 'EventTypeId should match received value.');
-    assert.equal(firstEvent.trafficTypeName, 'binded_tt', 'TrafficTypeName should match the binded value.');
+    assert.equal(firstEvent.trafficTypeName, 'bound_tt', 'TrafficTypeName should match the bound value.');
     assert.equal(firstEvent.value, 10, 'Value should match the value received on the .track() function.');
     assert.equal(typeof firstEvent.timestamp, 'number', 'The timestamp should be a number.');
 
     assert.equal(midEvent.key, 'facundo@split.io', 'Key should match received value.');
     assert.equal(midEvent.eventTypeId, 'genericEvent', 'EventTypeId should match received value.');
-    assert.equal(midEvent.trafficTypeName, 'binded_tt', 'TrafficTypeName should match received value in lowercases.');
+    assert.equal(midEvent.trafficTypeName, 'bound_tt', 'TrafficTypeName should match received value in lowercases.');
     assert.equal(midEvent.value, 24, 'Value should match the value received on the .track() function.');
     assert.true(midEvent.timestamp >= tsStart && midEvent.timestamp <= tsEnd, 'The timestamp should be a number with the right value.');
     assert.deepEqual(midEvent.properties, { prop1: true, prop2: 'a', prop3: 2, prop4: null, willBeNulled: null }, 'The properties should be correct.');
 
     assert.equal(lastEvent.key, 'facundo@split.io', 'Key should match received value.');
     assert.equal(lastEvent.eventTypeId, 'my.checkout.event', 'EventTypeId should match received value.');
-    assert.equal(lastEvent.trafficTypeName, 'binded_tt', 'TrafficTypeName should match the binded value.');
+    assert.equal(lastEvent.trafficTypeName, 'bound_tt', 'TrafficTypeName should match the bound value.');
     assert.equal(lastEvent.value, null, 'Should have null as value.');
     assert.equal(typeof lastEvent.timestamp, 'number', 'The timestamp should be a number.');
 
@@ -139,7 +139,7 @@ export function bindingTT(fetchMock, assert) {
   assert.ok(client.track, 'client.track should be defined.');
   assert.equal(typeof client.track, 'function', 'client.track should be a function.');
 
-  // Key binded as with getTreatment.
+  // Key bound as with getTreatment.
   tsStart = Date.now();
   assert.ok(client.track('someEvent', 10), 'client.track returns true if an event is added to the queue.');
   assert.ok(client.track('genericEvent', 25), 'client.track returns true if an event is added to the queue');

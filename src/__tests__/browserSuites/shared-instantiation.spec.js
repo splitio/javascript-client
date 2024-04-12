@@ -107,9 +107,9 @@ export default function sharedInstantiationSuite(startWithTT, sdkIgnoresTT, fetc
       const events = JSON.parse(opts.body);
 
       assert.equal(events.length, sdkIgnoresTT ? 2 : 3, 'Tracked only valid events');
-      assert.equal(events[0].trafficTypeName, `${startWithTT && !sdkIgnoresTT ? 'start' : 'main'}_tt`, 'matching traffic types both binded and provided through client.track()');
-      assert.equal(events[1].trafficTypeName, 'marcio_tt', 'matching traffic types both binded and provided through client.track()');
-      if (!sdkIgnoresTT) assert.equal(events[2].trafficTypeName, 'nico_tt', 'matching traffic types both binded and provided through client.track()');
+      assert.equal(events[0].trafficTypeName, `${startWithTT && !sdkIgnoresTT ? 'start' : 'main'}_tt`, 'matching traffic type provided through client.track()');
+      assert.equal(events[1].trafficTypeName, 'marcio_tt', 'matching traffic type provided through client.track()');
+      if (!sdkIgnoresTT) assert.equal(events[2].trafficTypeName, 'nico_tt', 'matching traffic type provided through client.track()');
 
       finished.next();
 
@@ -124,14 +124,14 @@ export default function sharedInstantiationSuite(startWithTT, sdkIgnoresTT, fetc
     }
 
     // Shared instance without TT on instantiation
-    assert.false(marcioClient.track('marcioEvent'), 'If a shared client was created passing only key, no traffic type is binded so we need to provide one for client.track()');
-    assert.true(marcioClient.track('marcio_tt', 'marcioEvent', 10), 'If a shared client was created passing only key, no traffic type is binded so we need to provide one for client.track()');
+    assert.false(marcioClient.track('marcioEvent'), 'If a shared client was created passing only key, no traffic type is bound so we need to provide one for client.track()');
+    assert.true(marcioClient.track('marcio_tt', 'marcioEvent', 10), 'If a shared client was created passing only key, no traffic type is bound so we need to provide one for client.track()');
 
     // Shared instance with TT on instantiation
     if (sdkIgnoresTT) {
-      assert.false(nicolasClient.track('nicoEvent', 10), 'If a shared client was created passing both key and TT but the SDK ignores TT, the latter doesn\'t get binded to it so it is necessary to provide the traffic type to client.track()');
+      assert.false(nicolasClient.track('nicoEvent', 10), 'If a shared client was created passing both key and TT but the SDK ignores TT, the latter doesn\'t get bound to it so it is necessary to provide the traffic type to client.track()');
     } else {
-      assert.true(nicolasClient.track('nicoEvent', 10), 'If a shared client was created passing both key and TT, the latter gets binded to it so it is not necessary to provide the traffic type to client.track()');
+      assert.true(nicolasClient.track('nicoEvent', 10), 'If a shared client was created passing both key and TT, the latter gets bound to it so it is not necessary to provide the traffic type to client.track()');
     }
   };
 
