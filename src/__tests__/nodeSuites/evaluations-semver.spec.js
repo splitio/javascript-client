@@ -37,6 +37,7 @@ export default async function (fetchMock, assert) {
   assert.equal(client.getTreatment('emi@split.io', 'semver_equalto', { 'version': '1.22.9+build' }), 'off', 'build metadata is not ignored');
   assert.equal(client.getTreatment('emi@split.io', 'semver_equalto', { 'version': '1.22.9-rc.0' }), 'off', 'the rule will return `off` if attribute `version` is not equal to `1.22.9`');
   assert.equal(client.getTreatment('emi@split.io', 'semver_equalto', { 'version': null }), 'off', 'the rule will return `off` if attribute `version` is not the expected type');
+  assert.equal(client.getTreatment('emi@split.io', 'semver_equalto'), 'off', 'the rule will return `off` if attribute `version` is not provided');
 
   // IN_LIST_SEMVER matcher
   assert.equal(client.getTreatment('emi@split.io', 'semver_inlist', { 'version': '2.1.0' }), 'on', 'the rule will return `on` if attribute `version` is in list (`1.22.9`, `2.1.0`)');
@@ -51,7 +52,7 @@ export default async function (fetchMock, assert) {
   assert.equal(client.getTreatments({ matchingKey: 'rulo@split.io', bucketingKey: 'some_bucket' }, ['semver_greater_or_equalto'], { 'version': '1.22.9+build' }).semver_greater_or_equalto, 'on', 'build metadata is ignored');
   assert.equal(client.getTreatments({ matchingKey: 'rulo@split.io', bucketingKey: 'some_bucket' }, ['semver_greater_or_equalto'], { 'version': '1.22.9-rc.0' }).semver_greater_or_equalto, 'off', 'the rule will return `off` if attribute `version` is not greater than or equal to `1.22.9`');
   assert.equal(client.getTreatments({ matchingKey: 'rulo@split.io', bucketingKey: 'some_bucket' }, ['semver_greater_or_equalto'], { 'version': '1.21.9' }).semver_greater_or_equalto, 'off', 'the rule will return `off` if attribute `version` is not greater than or equal to `1.22.9`');
-  assert.equal(client.getTreatments({ matchingKey: 'rulo@split.io', bucketingKey: 'some_bucket' }, ['semver_greater_or_equalto'], { 'version': false }).semver_greater_or_equalto, 'off', 'the rule will return `off` if attribute `version` is not the expected type');
+  assert.equal(client.getTreatments({ matchingKey: 'rulo@split.io', bucketingKey: 'some_bucket' }, ['semver_greater_or_equalto'], { 'version': 'invalid' }).semver_greater_or_equalto, 'off', 'the rule will return `off` if attribute `version` is an invalid semver value');
 
   // LESS_THAN_OR_EQUAL_TO_SEMVER matcher
   assert.deepEqual(client.getTreatmentWithConfig('emi@split.io', 'semver_less_or_equalto', { 'version': '1.22.11' }), { treatment: 'off', config: null }, 'the rule will return `off` if attribute `version` is not less than or equal to `1.22.9`');
@@ -85,7 +86,7 @@ export default async function (fetchMock, assert) {
       assert.equal(impressions.filter((imp) => imp.r === expectedLabel && imp.t === expectedTreatment).length, expectedOnCount, `${expectedOnCount} impression with 'on' treatment and label ${expectedLabel}`);
     }
 
-    validateImpressionData('semver_equalto', 4, 1, 'equal to semver');
+    validateImpressionData('semver_equalto', 5, 1, 'equal to semver');
     validateImpressionData('semver_inlist', 5, 2, 'in list semver');
     validateImpressionData('semver_greater_or_equalto', 6, 3, 'greater than or equal to semver');
     validateImpressionData('semver_less_or_equalto', 6, 4, 'less than or equal to semver');
