@@ -4,6 +4,7 @@ import { url } from '../testUtils';
 import { settingsFactory } from '../../settings/node';
 
 import evaluationsSuite from '../nodeSuites/evaluations.spec';
+import evaluationsSemverSuite from '../nodeSuites/evaluations-semver.spec';
 import eventsSuite from '../nodeSuites/events.spec';
 import impressionsSuite from '../nodeSuites/impressions.spec';
 import impressionsSuiteDebug from '../nodeSuites/impressions.debug.spec';
@@ -56,6 +57,7 @@ fetchMock.post(url(settings, '/v1/metrics/usage'), 200);
 tape('## Node JS - E2E CI Tests ##', async function (assert) {
   /* Check client evaluations. */
   assert.test('E2E / In Memory', evaluationsSuite.bind(null, config, key));
+  assert.test('E2E / In Memory - Semver', evaluationsSemverSuite.bind(null, fetchMock));
 
   /* Check impressions */
   assert.test('E2E / Impressions', impressionsSuite.bind(null, key, fetchMock));
