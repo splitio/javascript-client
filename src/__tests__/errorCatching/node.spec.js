@@ -21,9 +21,9 @@ const settings = settingsFactory({
   streamingEnabled: false
 });
 
-fetchMock.get(url(settings, '/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 }, responseDelay);
-fetchMock.get(url(settings, '/splitChanges?since=1500492097547'), { status: 200, body: splitChangesMock2 }, responseDelay);
-fetchMock.get(url(settings, '/splitChanges?since=1500492297547'), { status: 200, body: splitChangesMock3 }, responseDelay);
+fetchMock.get(url(settings, '/splitChanges?s=1.1&since=-1'), { status: 200, body: splitChangesMock1 }, responseDelay);
+fetchMock.get(url(settings, '/splitChanges?s=1.1&since=1500492097547'), { status: 200, body: splitChangesMock2 }, responseDelay);
+fetchMock.get(url(settings, '/splitChanges?s=1.1&since=1500492297547'), { status: 200, body: splitChangesMock3 }, responseDelay);
 fetchMock.postOnce(url(settings, '/v1/metrics/config'), 200); // SDK_READY
 fetchMock.postOnce(url(settings, '/v1/metrics/usage'), 200); // SDK destroyed
 

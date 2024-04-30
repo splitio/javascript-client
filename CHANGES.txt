@@ -1,6 +1,7 @@
 10.26.0 (April XX, 2024)
  - Updated @splitsoftware/splitio-commons package to version 1.14.0 that includes minor updates:
     - Added support for Semver matchers.
+    - Updated Split API client to include the flags spec version query parameter for the `splitChanges` and `auth` endpoints.
 
 10.25.2 (March 26, 2024)
  - Updated some transitive dependencies for vulnerability fixes.
