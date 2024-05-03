@@ -1,6 +1,7 @@
-10.26.0 (April XX, 2024)
+10.26.0 (May 3, 2024)
  - Updated @splitsoftware/splitio-commons package to version 1.14.0 that includes minor updates:
-    - Added support for Semver matchers.
+    - Added support for targeting rules based on semantic versions (https://semver.org/).
+    - Added special impression label "targeting rule type unsupported by sdk" when the matcher type is not supported by the SDK, which returns 'control' treatment.
     - Updated Split API client to include the flags spec version query parameter for the `splitChanges` and `auth` endpoints.
 
 10.25.2 (March 26, 2024)

@@ -97,7 +97,7 @@ export default async function (fetchMock, assert) {
     validateImpressionData('semver_greater_or_equalto', 6, 3, 'greater than or equal to semver');
     validateImpressionData('semver_less_or_equalto', 6, 4, 'less than or equal to semver');
     validateImpressionData('semver_between', 6, 3, 'between semver');
-    validateImpressionData('flag_with_unsupported_matcher', 1, 1, 'unsupported matcher type', 'control');
+    validateImpressionData('flag_with_unsupported_matcher', 1, 1, 'targeting rule type unsupported by sdk', 'control');
 
     POSTED_IMPRESSIONS_COUNT = payload.reduce((acc, curr) => acc + curr.i.length, 0);
 
