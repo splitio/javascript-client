@@ -37,7 +37,7 @@ const assertImpressionSent = (assert, impression) => {
 const assertEventSent = (assert, event) => {
   assert.equal(event.key, 'facundo@split.io', 'Key should match received value.');
   assert.equal(event.eventTypeId, 'someEvent', 'EventTypeId should match received value.');
-  assert.equal(event.trafficTypeName, 'sometraffictype', 'TrafficTypeName should match the binded value.');
+  assert.equal(event.trafficTypeName, 'sometraffictype', 'TrafficTypeName should match the bound value.');
 };
 
 const assertCallsToBeaconAPI = (assert) => {
@@ -66,8 +66,8 @@ function beaconApiNotSendTestDebug(fetchMock, assert) {
   sendBeaconSpyDebug = sinon.spy(window.navigator, 'sendBeacon');
 
   // Mocking this specific route to make sure we only get the items we want to test from the handlers.
-  fetchMock.get(url(settings, '/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
-  fetchMock.get(url(settings, '/splitChanges?since=1457552620999'), { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
+  fetchMock.get(url(settings, '/splitChanges?s=1.1&since=-1'), { status: 200, body: splitChangesMock1 });
+  fetchMock.get(url(settings, '/splitChanges?s=1.1&since=1457552620999'), { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
   fetchMock.get(url(settings, '/mySegments/facundo%40split.io'), { status: 200, body: mySegmentsFacundo });
 
   // Init and run Split client

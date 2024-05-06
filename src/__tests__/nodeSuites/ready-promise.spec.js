@@ -56,8 +56,8 @@ export default function readyPromiseAssertions(key, fetchMock, assert) {
     };
 
     // /splitChanges takes longer than 'requestTimeoutBeforeReady' in both attempts
-    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20 });
-    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20 });
+    fetchMock.getOnce(config.urls.sdk + '/splitChanges?s=1.1&since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20 });
+    fetchMock.getOnce(config.urls.sdk + '/splitChanges?s=1.1&since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20 });
     fetchMock.postOnce(config.urls.events + '/testImpressions/bulk', 200);
     fetchMock.postOnce(config.urls.events + '/testImpressions/count', 200);
 
@@ -103,8 +103,8 @@ export default function readyPromiseAssertions(key, fetchMock, assert) {
     };
 
     // /splitChanges takes longer than 'requestTimeoutBeforeReady' only for the first attempt
-    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20 });
-    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20 });
+    fetchMock.getOnce(config.urls.sdk + '/splitChanges?s=1.1&since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20 });
+    fetchMock.getOnce(config.urls.sdk + '/splitChanges?s=1.1&since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20 });
     mockSegmentChanges(fetchMock, new RegExp(config.urls.sdk + '/segmentChanges/*'), ['some_key']);
     fetchMock.postOnce(config.urls.events + '/testImpressions/bulk', 200);
     fetchMock.postOnce(config.urls.events + '/testImpressions/count', 200);
@@ -153,8 +153,8 @@ export default function readyPromiseAssertions(key, fetchMock, assert) {
     };
 
     // /splitChanges takes longer than 'requestTimeoutBeforeReady' only for the first attempt
-    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20 });
-    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20 });
+    fetchMock.getOnce(config.urls.sdk + '/splitChanges?s=1.1&since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20 });
+    fetchMock.getOnce(config.urls.sdk + '/splitChanges?s=1.1&since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20 });
     mockSegmentChanges(fetchMock, new RegExp(config.urls.sdk + '/segmentChanges/*'), ['some_key']);
     fetchMock.postOnce(config.urls.events + '/testImpressions/bulk', 200);
     fetchMock.postOnce(config.urls.events + '/testImpressions/count', 200);
@@ -222,9 +222,9 @@ export default function readyPromiseAssertions(key, fetchMock, assert) {
         config.scheduler.featuresRefreshRate) - config.startup.readyTimeout) + refreshTimeMillis;
 
     // /splitChanges takes longer than 'requestTimeoutBeforeReady' in both initial attempts
-    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20 });
-    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20 });
-    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: refreshTimeMillis });
+    fetchMock.getOnce(config.urls.sdk + '/splitChanges?s=1.1&since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20 });
+    fetchMock.getOnce(config.urls.sdk + '/splitChanges?s=1.1&since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20 });
+    fetchMock.getOnce(config.urls.sdk + '/splitChanges?s=1.1&since=-1', splitChangesMock1, { delay: refreshTimeMillis });
     mockSegmentChanges(fetchMock, new RegExp(config.urls.sdk + '/segmentChanges/*'), ['some_key']);
     fetchMock.postOnce(config.urls.events + '/testImpressions/bulk', 200);
     fetchMock.postOnce(config.urls.events + '/testImpressions/count', 200);
@@ -281,7 +281,7 @@ export default function readyPromiseAssertions(key, fetchMock, assert) {
     };
 
     // /splitChanges takes longer than 'requestTimeoutBeforeReady'
-    fetchMock.get(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20 });
+    fetchMock.get(config.urls.sdk + '/splitChanges?s=1.1&since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20 });
     mockSegmentChanges(fetchMock, new RegExp(config.urls.sdk + '/segmentChanges/*'), ['some_key']);
     fetchMock.postOnce(config.urls.events + '/testImpressions/bulk', 200);
     fetchMock.postOnce(config.urls.events + '/testImpressions/count', 200);
@@ -331,7 +331,7 @@ export default function readyPromiseAssertions(key, fetchMock, assert) {
     };
 
     // /splitChanges takes less than 'requestTimeoutBeforeReady'
-    fetchMock.get(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20 });
+    fetchMock.get(config.urls.sdk + '/splitChanges?s=1.1&since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20 });
     mockSegmentChanges(fetchMock, new RegExp(config.urls.sdk + '/segmentChanges/*'), ['some_key']);
     fetchMock.postOnce(config.urls.events + '/testImpressions/bulk', 200);
     fetchMock.postOnce(config.urls.events + '/testImpressions/count', 200);
@@ -378,8 +378,8 @@ export default function readyPromiseAssertions(key, fetchMock, assert) {
     };
 
     // /splitChanges takes longer than 'requestTimeoutBeforeReady' only for the first attempt
-    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20 });
-    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20 });
+    fetchMock.getOnce(config.urls.sdk + '/splitChanges?s=1.1&since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20 });
+    fetchMock.getOnce(config.urls.sdk + '/splitChanges?s=1.1&since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20 });
     mockSegmentChanges(fetchMock, new RegExp(config.urls.sdk + '/segmentChanges/*'), ['some_key']);
     fetchMock.postOnce(config.urls.events + '/testImpressions/bulk', 200);
     fetchMock.postOnce(config.urls.events + '/testImpressions/count', 200);
@@ -467,8 +467,8 @@ export default function readyPromiseAssertions(key, fetchMock, assert) {
     };
 
     // /splitChanges takes longer than 'requestTimeoutBeforeReady' only for the first attempt
-    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20 });
-    fetchMock.getOnce(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20 });
+    fetchMock.getOnce(config.urls.sdk + '/splitChanges?s=1.1&since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20 });
+    fetchMock.getOnce(config.urls.sdk + '/splitChanges?s=1.1&since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20 });
     mockSegmentChanges(fetchMock, new RegExp(config.urls.sdk + '/segmentChanges/*'), ['some_key']);
     fetchMock.postOnce(config.urls.events + '/testImpressions/bulk', 200);
     fetchMock.postOnce(config.urls.events + '/testImpressions/count', 200);
@@ -538,7 +538,7 @@ export default function readyPromiseAssertions(key, fetchMock, assert) {
     };
 
     // /splitChanges takes longer than 'requestTimeoutBeforeReady'
-    fetchMock.get(config.urls.sdk + '/splitChanges?since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20 });
+    fetchMock.get(config.urls.sdk + '/splitChanges?s=1.1&since=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20 });
     mockSegmentChanges(fetchMock, new RegExp(config.urls.sdk + '/segmentChanges/*'), ['some_key']);
     fetchMock.postOnce(config.urls.events + '/testImpressions/bulk', 200);
     fetchMock.postOnce(config.urls.events + '/testImpressions/count', 200);

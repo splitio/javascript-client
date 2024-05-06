@@ -2,6 +2,7 @@ import tape from 'tape-catch';
 import fetchMock from '../testUtils/fetchMock';
 import { url } from '../testUtils';
 import evaluationsSuite from '../browserSuites/evaluations.spec';
+import evaluationsSemverSuite from '../browserSuites/evaluations-semver.spec';
 import impressionsSuite from '../browserSuites/impressions.spec';
 import impressionsSuiteDebug from '../browserSuites/impressions.debug.spec';
 import impressionsSuiteNone from '../browserSuites/impressions.none.spec';
@@ -86,8 +87,8 @@ tape('## E2E CI Tests ##', function (assert) {
   //If we change the mocks, we need to clear localstorage. Cleaning up after testing ensures "fresh data".
   localStorage.clear();
 
-  fetchMock.get(url(settings, '/splitChanges?since=-1'), { status: 200, body: splitChangesMock1 });
-  fetchMock.get(url(settings, '/splitChanges?since=1457552620999'), { status: 200, body: splitChangesMock2 });
+  fetchMock.get(url(settings, '/splitChanges?s=1.1&since=-1'), { status: 200, body: splitChangesMock1 });
+  fetchMock.get(url(settings, '/splitChanges?s=1.1&since=1457552620999'), { status: 200, body: splitChangesMock2 });
   fetchMock.get(url(settings, '/mySegments/facundo%40split.io'), { status: 200, body: mySegmentsFacundo });
   fetchMock.get(url(settings, '/mySegments/nicolas%40split.io'), { status: 200, body: mySegmentsNicolas });
   fetchMock.get(url(settings, '/mySegments/marcio%40split.io'), { status: 200, body: mySegmentsMarcio });
@@ -100,6 +101,7 @@ tape('## E2E CI Tests ##', function (assert) {
   assert.test('E2E / In Memory', evaluationsSuite.bind(null, configInMemory, fetchMock));
   assert.test('E2E / In Memory with Bucketing Key', evaluationsSuite.bind(null, configInMemoryWithBucketingKey, fetchMock));
   assert.test('E2E / In LocalStorage with In Memory Fallback', evaluationsSuite.bind(null, configInLocalStorage, fetchMock));
+  assert.test('E2E / In Memory - Semver', evaluationsSemverSuite.bind(null, fetchMock));
   /* Check impressions */
   assert.test('E2E / Impressions', impressionsSuite.bind(null, fetchMock));
   assert.test('E2E / Impressions Debug Mode', impressionsSuiteDebug.bind(null, fetchMock));
@@ -110,7 +112,7 @@ tape('## E2E CI Tests ##', function (assert) {
   assert.test('E2E / Telemetry', telemetrySuite.bind(null, fetchMock));
   /* Check events */
   assert.test('E2E / Events', withoutBindingTT.bind(null, fetchMock));
-  assert.test('E2E / Events with TT binded', bindingTT.bind(null, fetchMock));
+  assert.test('E2E / Events with TT bound', bindingTT.bind(null, fetchMock));
   /* Check shared clients */
   assert.test('E2E / Shared instances', sharedInstantiationSuite.bind(null, false, false, fetchMock));
   assert.test('E2E / Shared instances with Traffic Type on factory settings', sharedInstantiationSuite.bind(null, true, false, fetchMock));
