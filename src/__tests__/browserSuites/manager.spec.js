@@ -4,7 +4,7 @@ import map from 'lodash/map';
 import { url } from '../testUtils';
 
 export default async function (settings, fetchMock, assert) {
-  fetchMock.getOnce({ url: url(settings, '/splitChanges?since=-1'), overwriteRoutes: true }, { status: 200, body: splitChangesMockReal });
+  fetchMock.getOnce({ url: url(settings, '/splitChanges?s=1.1&since=-1'), overwriteRoutes: true }, { status: 200, body: splitChangesMockReal });
 
   const mockSplits = splitChangesMockReal;
 
