@@ -588,7 +588,7 @@ export default function (fetchMock, assert) {
     fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.1&since=25&names=p2__split&prefixes=p1', { status: 200, body: { splits: [splitDeclarations.p1__split, splitDeclarations.p2__split], since: 25, till: 1457552620999 } }, { delay: 10 }); // short delay to let emit SDK_READY_FROM_CACHE
     fetchMock.getOnce(testUrls.sdk + '/mySegments/nicolas%40split.io', { status: 200, body: { mySegments: [] } });
 
-    const expectedHash = getStorageHash({ ...baseConfig, sync: { __splitFiltersValidation: { queryString: '&names=p2__split&prefixes=p1' } } });
+    const expectedHash = getStorageHash({ ...baseConfig, sync: { __splitFiltersValidation: { queryString: '&names=p2__split&prefixes=p1' }, flagSpecVersion: '1.1' } });
     localStorage.setItem('some_user_item', 'user_item');
     localStorage.setItem('readyFromCache_6.SPLITIO.splits.till', 25);
     localStorage.setItem('readyFromCache_6.SPLITIO.split.p1__split', JSON.stringify(splitDeclarations.p1__split));
@@ -639,7 +639,7 @@ export default function (fetchMock, assert) {
     fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.1&since=-1&prefixes=p1,p2', { status: 200, body: { splits: [splitDeclarations.p1__split, splitDeclarations.p2__split], since: -1, till: 1457552620999 } }, { delay: 10 }); // short delay to let emit SDK_READY_FROM_CACHE
     fetchMock.getOnce(testUrls.sdk + '/mySegments/nicolas%40split.io', { status: 200, body: { mySegments: [] } });
 
-    const expectedHash = getStorageHash({ ...baseConfig, sync: { __splitFiltersValidation: { queryString: '&prefixes=p1,p2' } } });
+    const expectedHash = getStorageHash({ ...baseConfig, sync: { __splitFiltersValidation: { queryString: '&prefixes=p1,p2' }, flagSpecVersion: '1.1' } });
     localStorage.setItem('some_user_item', 'user_item');
     localStorage.setItem('readyFromCache_7.SPLITIO.splits.till', 25);
     localStorage.setItem('readyFromCache_7.SPLITIO.split.p1__split', JSON.stringify(splitDeclarations.p1__split));
@@ -763,7 +763,7 @@ export default function (fetchMock, assert) {
     localStorage.setItem('readyFromCache_9.SPLITIO.splits.till', 25);
     localStorage.setItem('readyFromCache_9.SPLITIO.split.p1__split', JSON.stringify(splitDeclarations.p1__split));
     localStorage.setItem('readyFromCache_9.SPLITIO.split.p2__split', JSON.stringify(splitDeclarations.p2__split));
-    localStorage.setItem('readyFromCache_9.SPLITIO.hash', getStorageHash({ ...baseConfig, sync: { __splitFiltersValidation: { queryString: '&names=p2__split&prefixes=p1' } } }));
+    localStorage.setItem('readyFromCache_9.SPLITIO.hash', getStorageHash({ ...baseConfig, sync: { __splitFiltersValidation: { queryString: '&names=p2__split&prefixes=p1' }, flagSpecVersion: '1.1' } }));
 
     const splitio = SplitFactory({
       ...baseConfig,
@@ -788,7 +788,7 @@ export default function (fetchMock, assert) {
         t.equal(localStorage.getItem('readyFromCache_9.SPLITIO.splits.till'), '1457552620999', 'splits.till must correspond to the till of the last successfully fetched Splits');
         t.equal(localStorage.getItem('readyFromCache_9.SPLITIO.split.p2__split'), JSON.stringify(splitDeclarations.p2__split), 'feature flag declarations must be cached');
         t.equal(localStorage.getItem('readyFromCache_9.SPLITIO.split.p3__split'), JSON.stringify(splitDeclarations.p3__split), 'feature flag declarations must be cached');
-        t.equal(localStorage.getItem('readyFromCache_9.SPLITIO.hash'), getStorageHash({ ...baseConfig, sync: { __splitFiltersValidation: { queryString: '&names=no%20exist%20trim,no_exist,p3__split&prefixes=no%20exist%20trim,p2' } } }), 'Storage hash must correspond to the split filter query and SDK key');
+        t.equal(localStorage.getItem('readyFromCache_9.SPLITIO.hash'), getStorageHash({ ...baseConfig, sync: { __splitFiltersValidation: { queryString: '&names=no%20exist%20trim,no_exist,p3__split&prefixes=no%20exist%20trim,p2' }, flagSpecVersion: '1.1' } }), 'Storage hash must correspond to the split filter query and SDK key');
         t.end();
       });
     });

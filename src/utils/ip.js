@@ -76,7 +76,6 @@ function loopback(family) {
 //   * 'private': the first private ip address of family.
 //   * undefined: First address with `ipv4` or loopback address `127.0.0.1`.
 //
-
 export function address(name, family) {
   var interfaces = os.networkInterfaces();
   var all;
