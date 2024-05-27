@@ -12,10 +12,7 @@ The above copyright notice and this permission notice shall be included in all c
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-'use strict';
-
-var ip = exports;
-var os = require('os');
+import os from 'os';
 
 function _resolveFamily(family) {
   return typeof family === 'number' ? 'ipv' + family : family.toLowerCase();
@@ -79,7 +76,8 @@ function loopback(family) {
 //   * 'private': the first private ip address of family.
 //   * undefined: First address with `ipv4` or loopback address `127.0.0.1`.
 //
-ip.address = function (name, family) {
+
+export function address(name, family) {
   var interfaces = os.networkInterfaces();
   var all;
 
@@ -123,4 +121,4 @@ ip.address = function (name, family) {
   }).filter(Boolean);
 
   return !all.length ? loopback(family) : all[0];
-};
+}
