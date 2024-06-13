@@ -58,7 +58,7 @@ const MILLIS_IFFU_UPDATE_EVENT_WITH_NEW_SEGMENTS = 700;
 const MILLIS_IFFU_UPDATE_EVENT_WITH_WRONG_COMPRESS = 800;
 const MILLIS_IFFU_UPDATE_EVENT_WITH_OLD_CHANGENUMBER = 900;
 const MILLIS_IFFU_UPDATE_EVENT_WITH_ZERO_PCN = 1000;
-const MILLIS_IFFU_UPDATE_EVENT_WITH_MISSING_PCN= 1100;
+const MILLIS_IFFU_UPDATE_EVENT_WITH_MISSING_PCN = 1100;
 const MILLIS_IFFU_UPDATE_EVENT_WITH_ARCHIVED = 1200;
 const MILLIS_DESTROY = 1300;
 
@@ -89,13 +89,11 @@ export function testSynchronization(fetchMock, assert) {
   setMockListener(function (eventSourceInstance) {
     const expectedSSEurl = `${url(settings, '/sse')}?channels=NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_segments,NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_splits,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_pri,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_sec&accessToken=${authPushEnabled.token}&v=1.1&heartbeats=true`;
     assert.equals(eventSourceInstance.url, expectedSSEurl, 'EventSource URL is the expected');
-    assert.deepEqual(eventSourceInstance.__eventSourceInitDict, {
-      headers: {
-        SplitSDKClientKey: 'h-1>',
-        SplitSDKVersion: settings.version,
-        SplitSDKMachineIP: settings.runtime.ip,
-        SplitSDKMachineName: settings.runtime.hostname
-      }
+    assert.deepEqual(eventSourceInstance.__eventSourceInitDict.headers, {
+      SplitSDKClientKey: 'h-1>',
+      SplitSDKVersion: settings.version,
+      SplitSDKMachineIP: settings.runtime.ip,
+      SplitSDKMachineName: settings.runtime.hostname
     }, 'EventSource headers are the expected');
 
     setTimeout(() => {
@@ -285,7 +283,7 @@ export function testSynchronization(fetchMock, assert) {
 
   // fetch segments due to IFFU SPLIT_UPDATE event with new segments
   fetchMock.getOnce(url(settings, '/segmentChanges/maur-2?since=-1'), function () {
-    return { status: 200, body: { since: 1457552650000, till: 1457552650000, name: 'maur-2', added: ['admin','mauro','nico'], removed: [] } };
+    return { status: 200, body: { since: 1457552650000, till: 1457552650000, name: 'maur-2', added: ['admin', 'mauro', 'nico'], removed: [] } };
   });
 
   // fetch feature flags due to IFFU SPLIT_UPDATE event with wrong compress code
