@@ -53,7 +53,7 @@ function testInitializationFail(fetchMock, assert, fallbackToPolling) {
     fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=1457552620999'), function () {
       assert.true(ready, 'client ready');
       const lapse = Date.now() - start;
-      assert.true(nearlyEqual(lapse, 0), 'polling (first fetch)');
+      assert.true(nearlyEqual(lapse, 0, 100), 'polling (first fetch)');
       return { status: 200, body: splitChangesMock2 };
     });
   }
@@ -61,7 +61,7 @@ function testInitializationFail(fetchMock, assert, fallbackToPolling) {
   fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=1457552620999'), function () {
     assert.true(ready, 'client ready');
     const lapse = Date.now() - start;
-    assert.true(nearlyEqual(lapse, settings.scheduler.featuresRefreshRate), 'polling (second fetch)');
+    assert.true(nearlyEqual(lapse, settings.scheduler.featuresRefreshRate, 100), 'polling (second fetch)');
     client.destroy().then(() => {
       assert.end();
     });

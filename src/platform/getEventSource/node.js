@@ -13,7 +13,7 @@ export function __restore() {
 export function getEventSource() {
   // returns EventSource at `eventsource` package. If not available, return global EventSource or undefined
   try {
-    return __isCustom ? __eventSource : require('eventsource');
+    return __isCustom ? __eventSource : require('./eventsource');
   } catch (error) {
     return typeof EventSource === 'function' ? EventSource : undefined;
   }
