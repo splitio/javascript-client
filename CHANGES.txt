@@ -1,4 +1,4 @@
-10.26.1 (June 13, 2024)
+10.26.1 (June 14, 2024)
  - Updated the internal imports of 'os' and 'ioredis' modules for NodeJS, to use EcmaScript 'import' rather than CommonJS 'require' for the ES modules build. This avoids runtime errors on some scenarios when bundling the SDK into a .mjs file or importing it from a .mjs file.
  - Updated @splitsoftware/splitio-commons package to version 1.16.0 that includes some vulnerability and bug fixes.
  - Bugfixing - Restored some input validation error logs that were removed in version 10.24.0. The logs inform the user when the `getTreatment(s)` methods are called with an invalid value as feature flag name or flag set name.
