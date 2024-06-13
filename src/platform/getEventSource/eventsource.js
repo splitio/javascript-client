@@ -82,7 +82,7 @@ function EventSource(url, eventSourceInitDict) {
   function onConnectionClosed(message) {
     if (readyState === EventSource.CLOSED) return;
     readyState = EventSource.CONNECTING;
-    _emit('error', new Event('error', {message: message}));
+    _emit('error', new Event('error', { message: message }));
 
     // The url may have been changed by a temporary redirect. If that's the case,
     // revert it now, and flag that we are no longer pointing to a new origin
@@ -177,7 +177,7 @@ function EventSource(url, eventSourceInitDict) {
       self.connectionInProgress = false;
       // Handle HTTP errors
       if (res.statusCode === 500 || res.statusCode === 502 || res.statusCode === 503 || res.statusCode === 504) {
-        _emit('error', new Event('error', {status: res.statusCode, message: res.statusMessage}));
+        _emit('error', new Event('error', { status: res.statusCode, message: res.statusMessage }));
         onConnectionClosed();
         return;
       }
@@ -187,7 +187,7 @@ function EventSource(url, eventSourceInitDict) {
         var location = res.headers.location;
         if (!location) {
           // Server sent redirect response without Location header.
-          _emit('error', new Event('error', {status: res.statusCode, message: res.statusMessage}));
+          _emit('error', new Event('error', { status: res.statusCode, message: res.statusMessage }));
           return;
         }
         var prevOrigin = getOrigin(url);
@@ -200,7 +200,7 @@ function EventSource(url, eventSourceInitDict) {
       }
 
       if (res.statusCode !== 200) {
-        _emit('error', new Event('error', {status: res.statusCode, message: res.statusMessage}));
+        _emit('error', new Event('error', { status: res.statusCode, message: res.statusMessage }));
         return self.close();
       }
 
@@ -386,9 +386,9 @@ EventSource.prototype.constructor = EventSource; // make stacktraces readable
 /**
  * Ready states
  */
-Object.defineProperty(EventSource, 'CONNECTING', {enumerable: true, value: 0});
-Object.defineProperty(EventSource, 'OPEN', {enumerable: true, value: 1});
-Object.defineProperty(EventSource, 'CLOSED', {enumerable: true, value: 2});
+Object.defineProperty(EventSource, 'CONNECTING', { enumerable: true, value: 0 });
+Object.defineProperty(EventSource, 'OPEN', { enumerable: true, value: 1 });
+Object.defineProperty(EventSource, 'CLOSED', { enumerable: true, value: 2 });
 
 EventSource.prototype.CONNECTING = 0;
 EventSource.prototype.OPEN = 1;
