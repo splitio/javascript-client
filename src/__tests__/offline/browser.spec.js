@@ -87,13 +87,14 @@ tape('Browser offline mode', function (assert) {
     sharedUpdateCount++;
   });
 
-  // Multiple factories must handle their own `features` mock, even if instantiated with the same config.
-  const factories = [
-    SplitFactory(config),
-    SplitFactory({ ...config }),
-    SplitFactory({ ...config, features: { ...config.features }, storage: { type: 'INVALID TYPE' } }),
-    SplitFactory({ ...config, storage: { type: 'LOCALSTORAGE' } })
+  const configs = [
+    { ...config, features: { ...config.features }, storage: { type: 'INVALID TYPE' } },
+    { ...config, storage: { type: 'LOCALSTORAGE' } },
+    { ...config },
+    config,
   ];
+  const factories = configs.map(config => SplitFactory(config));
+
   let readyCount = 0, updateCount = 0, readyFromCacheCount = 0;
 
   for (let i = 0; i < factories.length; i++) {
@@ -105,7 +106,7 @@ tape('Browser offline mode', function (assert) {
       readyCount++;
     });
     client.on(client.Event.SDK_UPDATE, () => {
-      assert.deepEqual(manager.names(), ['testing_split', 'testing_split_2', 'testing_split_3', 'testing_split_with_config']);
+      assert.deepEqual(manager.names().sort(), ['testing_split', 'testing_split_2', 'testing_split_3', 'testing_split_with_config']);
       assert.equal(client.getTreatment('testing_split_with_config'), 'nope');
       updateCount++;
     });
@@ -211,7 +212,7 @@ tape('Browser offline mode', function (assert) {
     });
 
     setTimeout(() => {
-      // Update the features
+      // Update features reference in settings
       factory.settings.features = {
         testing_split: 'on',
         testing_split_2: 'off',
@@ -221,10 +222,23 @@ tape('Browser offline mode', function (assert) {
           config: null
         }
       };
-      // Update the features in all factories except the last one
-      for (let i = 0; i < factories.length - 1; i++) {
+
+      // Update features properties in config
+      configs[0].features['testing_split'] = 'on';
+      configs[0].features['testing_split_2'] = 'off';
+      configs[0].features['testing_split_3'] = 'custom_treatment';
+      configs[0].features['testing_split_with_config'] = {
+        treatment: 'nope',
+        config: null
+      };
+
+      // Update the features in all remaining factories except the last one
+      for (let i = 1; i < factories.length - 1; i++) {
         factories[i].settings.features = factory.settings.features;
       }
+
+      // Assigning a new object to the features property in the config doesn't trigger an update
+      configs[configs.length - 1].features = { ...factory.settings.features };
     }, 1000);
 
     setTimeout(() => { factory.settings.features = originalFeaturesMap; }, 200);

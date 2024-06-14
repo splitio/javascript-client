@@ -1,14 +1,3 @@
-/* eslint-disable compat/compat */
-import https from 'https';
-
-// @TODO
-// 1- handle multiple protocols automatically
-// 2- destroy it once the sdk is destroyed
-const agent = new https.Agent({
-  keepAlive: true,
-  keepAliveMsecs: 1500
-});
-
 let nodeFetch;
 
 try {
@@ -29,12 +18,7 @@ export function __setFetch(fetch) {
 
 /**
  * Retrieves 'node-fetch', a Fetch API polyfill for NodeJS, with fallback to global 'fetch' if available.
- * It passes an https agent with keepAlive enabled if URL is https.
  */
 export function getFetch() {
-  if (nodeFetch) {
-    return (url, options) => {
-      return nodeFetch(url, Object.assign({ agent: url.startsWith('https:') ? agent : undefined }, options));
-    };
-  }
+  return nodeFetch;
 }

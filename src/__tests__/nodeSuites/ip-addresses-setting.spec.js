@@ -1,5 +1,5 @@
 import osFunction from 'os';
-import ipFunction from '../../utils/ip';
+import * as ipFunction from '../../utils/ip';
 import { SplitFactory } from '../../';
 import { settingsFactory } from '../../settings';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';

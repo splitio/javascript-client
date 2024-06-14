@@ -1,7 +1,7 @@
 import tape from 'tape-catch';
 import sinon from 'sinon';
 import osFunction from 'os';
-import ipFunction from '../../utils/ip';
+import * as ipFunction from '../../utils/ip';
 import { settingsFactory } from '../node';
 import { CONSUMER_MODE, NA } from '@splitsoftware/splitio-commons/src/utils/constants';
 
