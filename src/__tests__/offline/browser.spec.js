@@ -87,7 +87,6 @@ tape('Browser offline mode', function (assert) {
     sharedUpdateCount++;
   });
 
-  // Multiple factories must handle their own `features` mock, even if instantiated with the same config.
   const configs = [
     { ...config, features: { ...config.features }, storage: { type: 'INVALID TYPE' } },
     { ...config, storage: { type: 'LOCALSTORAGE' } },
