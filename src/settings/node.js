@@ -17,5 +17,9 @@ const params = {
 };
 
 export function settingsFactory(config) {
-  return settingsValidation(config, params);
+  const settings = settingsValidation(config, params);
+
+  // if provided, keeps reference to the `requestOptions` object
+  if (settings.sync.requestOptions) settings.sync.requestOptions = config.sync.requestOptions;
+  return settings;
 }
