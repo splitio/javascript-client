@@ -1,3 +1,6 @@
+10.27.0 (June 25, 2024)
+ - Added `sync.requestOptions.agent` property to SDK configuration, to pass a custom HTTP(S) Agent to the SDK requests in NodeJS. This allows the SDK to use a custom agent with specific configurations, like a network proxy or custom TLS settings (See https://help.split.io/hc/en-us/articles/360020564931-Node-js-SDK#proxy).
+
 10.26.1 (June 14, 2024)
  - Updated the internal imports of 'os' and 'ioredis' modules for NodeJS, to use EcmaScript 'import' rather than CommonJS 'require' for the ES modules build. This avoids runtime errors on some scenarios when bundling the SDK into a .mjs file or importing it from a .mjs file.
  - Updated eventsource dependency for NodeJS. The eventsource v1.1.2 dependency was removed, and the SDK now uses an embedded adaptation that can accept an HTTP(S) agent option, like other HTTP(S) requests.
