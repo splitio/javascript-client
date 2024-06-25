@@ -616,7 +616,10 @@ let fullNodeSettings: SplitIO.INodeSettings = {
   sync: {
     splitFilters: splitFilters,
     impressionsMode: 'OPTIMIZED',
-    enabled: true
+    enabled: true,
+    requestOptions: {
+      agent: new (require('https')).Agent(),
+    }
   }
 };
 fullNodeSettings.storage.type = 'MEMORY';

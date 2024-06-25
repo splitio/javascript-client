@@ -15,3 +15,11 @@ tape('getOptions returns undefined if some url is not https', assert => {
 
   assert.end();
 });
+
+tape('getOptions returns the provided options from settings', assert => {
+  const customRequestOptions = { agent: false };
+  const settings = settingsFactory({ sync: { requestOptions: customRequestOptions } });
+  assert.equal(getOptions(settings), customRequestOptions);
+
+  assert.end();
+});

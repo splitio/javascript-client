@@ -4,6 +4,7 @@
 
 /// <reference types="google.analytics" />
 import { RedisOptions } from "ioredis";
+import { RequestOptions } from "http";
 
 export as namespace SplitIO;
 export = SplitIO;
@@ -1168,6 +1169,41 @@ declare namespace SplitIO {
      * @default 'standalone'
      */
     mode?: 'standalone'
+    sync?: INodeBasicSettings['sync'] & {
+      /**
+       * Custom options object for HTTP(S) requests in NodeJS.
+       * If provided, this object is merged with the options object passed by the SDK for EventSource and Node-Fetch calls.
+       * @see {@link https://www.npmjs.com/package/node-fetch#options}
+       */
+      requestOptions?: {
+        /**
+         * Custom NodeJS HTTP(S) Agent used by the SDK for HTTP(S) requests.
+         *
+         * You can use it, for example, for certificate pinning or setting a network proxy:
+         *
+         * ```javascript
+         * const { HttpsProxyAgent } = require('https-proxy-agent');
+         *
+         * const proxyAgent = new HttpsProxyAgent(process.env.HTTPS_PROXY || 'http://10.10.1.10:1080');
+         *
+         * const factory = SplitFactory({
+         *   ...
+         *   sync: {
+         *     requestOptions: {
+         *       agent: proxyAgent
+         *     }
+         *   }
+         * })
+         * ```
+         *
+         * @see {@link https://nodejs.org/api/https.html#class-httpsagent}
+         *
+         * @property {http.Agent | https.Agent} agent
+         * @default undefined
+         */
+        agent?: RequestOptions["agent"]
+      },
+    }
   }
   /**
    * Settings interface with async storage for SDK instances created on NodeJS.
