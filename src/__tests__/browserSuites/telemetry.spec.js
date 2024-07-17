@@ -36,7 +36,7 @@ export default async function telemetryBrowserSuite(fetchMock, t) {
     fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.1&since=-1', 500);
     fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.1&since=-1', { status: 200, body: splitChangesMock1 });
     fetchMock.getOnce(baseUrls.sdk + '/mySegments/user-key', 500);
-    fetchMock.getOnce(baseUrls.sdk + '/mySegments/user-key', { status: 200, body: { 'mySegments': [ 'one_segment'] } });
+    fetchMock.getOnce(baseUrls.sdk + '/mySegments/user-key', { status: 200, body: { 'mySegments': ['one_segment'] } });
 
     // We need to handle all requests properly
     fetchMock.postOnce(baseUrls.events + '/testImpressions/bulk', 200);
@@ -76,7 +76,7 @@ export default async function telemetryBrowserSuite(fetchMock, t) {
 
       // @TODO check if iDe value is correct
       assert.deepEqual(data, {
-        mE: {}, hE: { sp: { 500: 1 }, ms: { 500: 1 } }, tR: 0, aR: 0, iQ: 4, iDe: 1, iDr: 0, spC: 31, seC: 1, skC: 1, eQ: 1, eD: 0, sE: [], t: [], ufs: { sp: 0, ms: 0 }
+        mE: {}, hE: { sp: { 500: 1 }, ms: { 500: 1 } }, tR: 0, aR: 0, iQ: 4, iDe: 1, iDr: 0, spC: 31, seC: 1, skC: 1, eQ: 1, eD: 0, sE: [], t: [], ufs: {}
       }, 'metrics/usage JSON payload should be the expected');
 
       finish.next();
@@ -96,7 +96,7 @@ export default async function telemetryBrowserSuite(fetchMock, t) {
       // @TODO check if iDe value is correct
       assert.deepEqual(data, {
         mL: {}, mE: {}, hE: {}, hL: {}, // errors and latencies were popped
-        tR: 0, aR: 0, iQ: 4, iDe: 1, iDr: 0, spC: 31, seC: 1, skC: 1, eQ: 1, eD: 0, sE: [], t: [], ufs: { sp: 0, ms: 0 }
+        tR: 0, aR: 0, iQ: 4, iDe: 1, iDr: 0, spC: 31, seC: 1, skC: 1, eQ: 1, eD: 0, sE: [], t: [], ufs: {}
       }, '2nd metrics/usage JSON payload should be the expected');
       return 200;
     });
@@ -108,7 +108,7 @@ export default async function telemetryBrowserSuite(fetchMock, t) {
       delete data.tR; // delete to validate other properties
 
       assert.deepEqual(data, {
-        oM: 0, st: 'memory', aF: 1, rF: 0, sE: false,
+        oM: 0, st: 'memory', aF: 1, rF: 0, sE: false, lE: false,
         rR: { sp: 99999, ms: 60, im: 300, ev: 60, te: 1 } /* override featuresRefreshRate */,
         uO: { s: true, e: true, a: false, st: false, t: true } /* override sdk, events and telemetry URLs */,
         iQ: 30000, eQ: 500, iM: 0, iL: false, hP: false, nR: 1 /* 1 non ready usage */, t: [], i: [], uC: 2 /* Default GRANTED */,
@@ -188,7 +188,7 @@ export default async function telemetryBrowserSuite(fetchMock, t) {
     const splitFilters = [{ type: 'bySet', values: ['a', '_b', 'a', 'a', 'c', 'd', '_d'] }];
 
     fetchMock.get(baseUrls.sdk + '/mySegments/nicolas%40split.io', { status: 200, body: { 'mySegments': [] } });
-    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.1&since=-1&sets=a,c,d',  { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
+    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.1&since=-1&sets=a,c,d', { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
     fetchMock.postOnce(baseUrls.telemetry + '/v1/metrics/config', (url, opts) => {
       const data = JSON.parse(opts.body);
 
@@ -202,10 +202,10 @@ export default async function telemetryBrowserSuite(fetchMock, t) {
     fetchMock.postOnce(baseUrls.telemetry + '/v1/metrics/usage', (url, opts) => {
       const data = JSON.parse(opts.body);
 
-      assert.deepEqual(data.mL.tf, [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], 'Latencies stats');
-      assert.deepEqual(data.mL.tfs, [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], 'Latencies stats');
-      assert.deepEqual(data.mL.tcf, [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], 'Latencies stats');
-      assert.deepEqual(data.mL.tcfs, [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], 'Latencies stats');
+      assert.deepEqual(data.mL.tf, [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 'Latencies stats');
+      assert.deepEqual(data.mL.tfs, [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 'Latencies stats');
+      assert.deepEqual(data.mL.tcf, [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 'Latencies stats');
+      assert.deepEqual(data.mL.tcfs, [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 'Latencies stats');
 
       factory.client().destroy().then(() => {
         assert.end();
@@ -213,14 +213,14 @@ export default async function telemetryBrowserSuite(fetchMock, t) {
 
       return 200;
     });
-    fetchMock.postOnce(baseUrls.telemetry + '/v1/metrics/usage',  200);
+    fetchMock.postOnce(baseUrls.telemetry + '/v1/metrics/usage', 200);
 
-    factory = SplitFactoryForTest({...baseConfig, sync: {splitFilters}});
+    factory = SplitFactoryForTest({ ...baseConfig, sync: { splitFilters } });
     const client = factory.client();
-    assert.deepEqual(client.getTreatmentsByFlagSet('a'),[]);
-    assert.deepEqual(client.getTreatmentsByFlagSets(['a']),[]);
-    assert.deepEqual(client.getTreatmentsWithConfigByFlagSet('a'),[]);
-    assert.deepEqual(client.getTreatmentsWithConfigByFlagSets(['a']),[]);
+    assert.deepEqual(client.getTreatmentsByFlagSet('a'), []);
+    assert.deepEqual(client.getTreatmentsByFlagSets(['a']), []);
+    assert.deepEqual(client.getTreatmentsWithConfigByFlagSet('a'), []);
+    assert.deepEqual(client.getTreatmentsWithConfigByFlagSets(['a']), []);
 
   }, 'SDK with sets configured has sets information in config POST and evaluation by sets telemetry in stats POST');
 

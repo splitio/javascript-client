@@ -13,7 +13,9 @@ export const defaults = {
     // Maximum amount of time used before notifies me a timeout.
     readyTimeout: 15,
     // Don't wait a specific time for first flush on Node, no page load here.
-    eventsFirstPushWindow: 0
+    eventsFirstPushWindow: 0,
+    // Don't wait for large segments to emit SDK_READY event.
+    waitForLargeSegments: false,
   },
 
   features: '.split',
