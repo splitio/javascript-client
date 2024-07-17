@@ -5,6 +5,79 @@
       "environment": null,
       "trafficTypeId": null,
       "trafficTypeName": null,
+      "name": "in_employees_large_segment",
+      "seed": -1984784937,
+      "status": "ACTIVE",
+      "killed": false,
+      "defaultTreatment": "no",
+      "conditions": [
+        {
+          "matcherGroup": {
+            "combiner": "AND",
+            "matchers": [
+              {
+                "keySelector": null,
+                "matcherType": "WHITELIST",
+                "negate": false,
+                "userDefinedSegmentMatcherData": null,
+                "whitelistMatcherData": {
+                  "whitelist": [
+                    "tia@split.io",
+                    "trevor@split.io"
+                  ]
+                },
+                "unaryNumericMatcherData": null,
+                "betweenMatcherData": null
+              }
+            ]
+          },
+          "partitions": [
+            {
+              "treatment": "yes",
+              "size": 100
+            }
+          ]
+        },
+        {
+          "matcherGroup": {
+            "combiner": "AND",
+            "matchers": [
+              {
+                "keySelector": {
+                  "trafficType": "user",
+                  "attribute": null
+                },
+                "matcherType": "IN_LARGE_SEGMENT",
+                "negate": false,
+                "userDefinedSegmentMatcherData": {
+                  "segmentName": "employees"
+                },
+                "whitelistMatcherData": null,
+                "unaryNumericMatcherData": null,
+                "betweenMatcherData": null,
+                "unaryStringMatcherData": null
+              }
+            ]
+          },
+          "partitions": [
+            {
+              "treatment": "yes",
+              "size": 0
+            },
+            {
+              "treatment": "no",
+              "size": 100
+            }
+          ]
+        }
+      ],
+      "configurations": {}
+    },
+    {
+      "orgId": null,
+      "environment": null,
+      "trafficTypeId": null,
+      "trafficTypeName": null,
       "name": "qc_team",
       "seed": -1984784937,
       "status": "ACTIVE",
