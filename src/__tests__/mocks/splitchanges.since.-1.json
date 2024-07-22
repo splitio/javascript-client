@@ -16,33 +16,6 @@
             "combiner": "AND",
             "matchers": [
               {
-                "keySelector": null,
-                "matcherType": "WHITELIST",
-                "negate": false,
-                "userDefinedSegmentMatcherData": null,
-                "whitelistMatcherData": {
-                  "whitelist": [
-                    "tia@split.io",
-                    "trevor@split.io"
-                  ]
-                },
-                "unaryNumericMatcherData": null,
-                "betweenMatcherData": null
-              }
-            ]
-          },
-          "partitions": [
-            {
-              "treatment": "yes",
-              "size": 100
-            }
-          ]
-        },
-        {
-          "matcherGroup": {
-            "combiner": "AND",
-            "matchers": [
-              {
                 "keySelector": {
                   "trafficType": "user",
                   "attribute": null
@@ -62,10 +35,6 @@
           "partitions": [
             {
               "treatment": "yes",
-              "size": 0
-            },
-            {
-              "treatment": "no",
               "size": 100
             }
           ]
