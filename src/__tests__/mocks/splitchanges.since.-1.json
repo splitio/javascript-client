@@ -5,7 +5,7 @@
       "environment": null,
       "trafficTypeId": null,
       "trafficTypeName": null,
-      "name": "in_employees_large_segment",
+      "name": "in_large_segment",
       "seed": -1984784937,
       "status": "ACTIVE",
       "killed": false,
@@ -23,7 +23,35 @@
                 "matcherType": "IN_LARGE_SEGMENT",
                 "negate": false,
                 "userDefinedSegmentMatcherData": {
-                  "segmentName": "employees"
+                  "segmentName": "harnessians"
+                },
+                "whitelistMatcherData": null,
+                "unaryNumericMatcherData": null,
+                "betweenMatcherData": null,
+                "unaryStringMatcherData": null
+              }
+            ]
+          },
+          "partitions": [
+            {
+              "treatment": "yes",
+              "size": 100
+            }
+          ]
+        },
+        {
+          "matcherGroup": {
+            "combiner": "AND",
+            "matchers": [
+              {
+                "keySelector": {
+                  "trafficType": "user",
+                  "attribute": null
+                },
+                "matcherType": "IN_LARGE_SEGMENT",
+                "negate": false,
+                "userDefinedSegmentMatcherData": {
+                  "segmentName": "splitters"
                 },
                 "whitelistMatcherData": null,
                 "unaryNumericMatcherData": null,
