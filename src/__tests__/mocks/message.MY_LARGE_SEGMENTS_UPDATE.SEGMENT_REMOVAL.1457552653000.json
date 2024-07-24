@@ -1,0 +1,4 @@
+{
+  "type": "message",
+  "data": "{\"data\":\"{\\\"type\\\":\\\"MY_LARGE_SEGMENTS_UPDATE\\\",\\\"changeNumber\\\":1457552653000,\\\"largeSegments\\\":[\\\"harnessians\\\",\\\"splitters\\\"],\\\"c\\\": 0,\\\"u\\\": 3,\\\"d\\\":\\\"\\\"}\"}"
+}
