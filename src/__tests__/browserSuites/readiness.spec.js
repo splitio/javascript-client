@@ -62,7 +62,7 @@ export default function (fetchMock, assert) {
     });
   });
 
-  assert.test(t => { // Timeout test, we have retries but mySegmnets takes too long
+  assert.test(t => { // Timeout test, we have retries but mySegments takes too long
     const testUrls = {
       sdk: 'https://sdk.baseurl/readinessSuite2',
       events: 'https://events.baseurl/readinessSuite2'
