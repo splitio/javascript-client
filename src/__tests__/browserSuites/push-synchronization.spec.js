@@ -74,7 +74,7 @@ const MILLIS_BOUNDED = 1400;
 const MILLIS_KEYLIST = 1500;
 const MILLIS_SEGMENT_REMOVAL = 1600;
 const MILLIS_UNBOUNDED_FETCH_LS = 1700;
-const MILLIS_SEGMENT_REMOVAL_LS = 2000;
+const MILLIS_SEGMENT_REMOVAL_LS = 2100;
 
 /**
  * Sequence of calls:
@@ -97,7 +97,7 @@ const MILLIS_SEGMENT_REMOVAL_LS = 2000;
  *  1.6 secs: MY_SEGMENTS_UPDATE_V2 SegmentRemoval event.
  *  1.7 secs: MY_LARGE_SEGMENTS_UPDATE UnboundedFetchRequest event, with 241 ms delay for 'nicolas@split.io' (hash('nicolas@split.io') % 300)
  *  1.941 secs: /myLargeSegments/* fetch due to unbounded MY_LARGE_SEGMENTS_UPDATE event -> SPLIT_UPDATE event
- *  2.0 secs: MY_LARGE_SEGMENTS_UPDATE SegmentRemoval event -> SPLIT_UPDATE event
+ *  2.1 secs: MY_LARGE_SEGMENTS_UPDATE SegmentRemoval event -> SPLIT_UPDATE event
  */
 export function testSynchronization(fetchMock, assert) {
   assert.plan(44);
