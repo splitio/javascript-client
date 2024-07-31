@@ -21,13 +21,13 @@ const settings = settingsFactory({
 // prepare localstorage to emit SDK_READY_FROM_CACHE
 localStorage.clear();
 localStorage.setItem('SPLITIO.splits.till', 25);
-localStorage.setItem('SPLITIO.hash', getStorageHash({ core: { authorizationKey: '<fake-token-1>' }, sync: { __splitFiltersValidation: { queryString: null }, flagSpecVersion: '1.1' } }));
+localStorage.setItem('SPLITIO.hash', getStorageHash({ core: { authorizationKey: '<fake-token-1>' }, sync: { __splitFiltersValidation: { queryString: null }, flagSpecVersion: '1.2' } }));
 
-fetchMock.get(url(settings, '/splitChanges?s=1.1&since=25'), function () {
+fetchMock.get(url(settings, '/splitChanges?s=1.2&since=25'), function () {
   return new Promise((res) => { setTimeout(() => res({ status: 200, body: splitChangesMock1 }), 1000); });
 });
-fetchMock.get(url(settings, '/splitChanges?s=1.1&since=1500492097547'), { status: 200, body: splitChangesMock2 });
-fetchMock.get(url(settings, '/splitChanges?s=1.1&since=1500492297547'), { status: 200, body: splitChangesMock3 });
+fetchMock.get(url(settings, '/splitChanges?s=1.2&since=1500492097547'), { status: 200, body: splitChangesMock2 });
+fetchMock.get(url(settings, '/splitChanges?s=1.2&since=1500492297547'), { status: 200, body: splitChangesMock3 });
 fetchMock.get(url(settings, '/mySegments/nico%40split.io'), { status: 200, body: mySegmentsMock });
 fetchMock.post('*', 200);
 

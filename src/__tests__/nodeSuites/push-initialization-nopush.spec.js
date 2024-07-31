@@ -42,7 +42,7 @@ function testInitializationFail(fetchMock, assert, fallbackToPolling) {
 
   fetchMock.get(new RegExp(`${url(settings, '/segmentChanges/')}.*`),
     { status: 200, body: { since: 10, till: 10, name: 'segmentName', added: [], removed: [] } });
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=-1'), function () {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=-1'), function () {
     const lapse = Date.now() - start;
     // using a higher error margin for Travis, due to a lower performance than local execution
     assert.true(nearlyEqual(lapse, 0), 'initial sync');
@@ -50,7 +50,7 @@ function testInitializationFail(fetchMock, assert, fallbackToPolling) {
   });
 
   if (fallbackToPolling) {
-    fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=1457552620999'), function () {
+    fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=1457552620999'), function () {
       assert.true(ready, 'client ready');
       const lapse = Date.now() - start;
       assert.true(nearlyEqual(lapse, 0, 100), 'polling (first fetch)');
@@ -58,7 +58,7 @@ function testInitializationFail(fetchMock, assert, fallbackToPolling) {
     });
   }
 
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=1457552620999'), function () {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=1457552620999'), function () {
     assert.true(ready, 'client ready');
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, settings.scheduler.featuresRefreshRate, 100), 'polling (second fetch)');
@@ -80,7 +80,7 @@ function testInitializationFail(fetchMock, assert, fallbackToPolling) {
 export function testAuthWithPushDisabled(fetchMock, assert) {
   assert.plan(6);
 
-  fetchMock.getOnce('https://auth.push-initialization-nopush/api/v2/auth?s=1.1', function (url, opts) {
+  fetchMock.getOnce('https://auth.push-initialization-nopush/api/v2/auth?s=1.2', function (url, opts) {
     if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
     assert.pass('auth');
     return { status: 200, body: authPushDisabled };
@@ -93,7 +93,7 @@ export function testAuthWithPushDisabled(fetchMock, assert) {
 export function testAuthWith401(fetchMock, assert) {
   assert.plan(6);
 
-  fetchMock.getOnce(url(settings, '/v2/auth?s=1.1'), function (url, opts) {
+  fetchMock.getOnce(url(settings, '/v2/auth?s=1.2'), function (url, opts) {
     if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
     assert.pass('auth');
     return { status: 401, body: authInvalidCredentials };
@@ -106,7 +106,7 @@ export function testAuthWith401(fetchMock, assert) {
 export function testAuthWith400(fetchMock, assert) {
   assert.plan(6);
 
-  fetchMock.getOnce(url(settings, '/v2/auth?s=1.1'), function (url, opts) {
+  fetchMock.getOnce(url(settings, '/v2/auth?s=1.2'), function (url, opts) {
     if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
     assert.pass('auth');
     return { status: 400, body: authNoUserSpecified };
@@ -131,7 +131,7 @@ export function testSSEWithNonRetryableError(fetchMock, assert) {
   assert.plan(7);
 
   // Auth successes
-  fetchMock.getOnce(url(settings, '/v2/auth?s=1.1'), function (url, opts) {
+  fetchMock.getOnce(url(settings, '/v2/auth?s=1.2'), function (url, opts) {
     if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
     assert.pass('auth successes');
     return { status: 200, body: authPushEnabled };

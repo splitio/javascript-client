@@ -38,13 +38,13 @@ export default function (fetchMock, assert) {
       sdk: 'https://sdk.baseurl/readinessSuite1',
       events: 'https://events.baseurl/readinessSuite1'
     };
-    fetchMock.get(testUrls.sdk + '/splitChanges?s=1.1&since=-1', function () {
+    fetchMock.get(testUrls.sdk + '/splitChanges?s=1.2&since=-1', function () {
       return new Promise((res) => { setTimeout(() => { res({ status: 200, body: splitChangesMock1, headers: {} }); }, requestTimeoutBeforeReady * 1000 + 50); });
     });
     fetchMock.get(testUrls.sdk + '/mySegments/nicolas%40split.io', function () {
       return new Promise((res) => { setTimeout(() => { res({ status: 200, body: mySegmentsNicolas, headers: {} }); }, requestTimeoutBeforeReady * 1000 - 50); });
     });
-    fetchMock.get(testUrls.sdk + '/splitChanges?s=1.1&since=1457552620999', { status: 200, body: splitChangesMock2 });
+    fetchMock.get(testUrls.sdk + '/splitChanges?s=1.2&since=1457552620999', { status: 200, body: splitChangesMock2 });
 
     const splitio = SplitFactory({
       ...baseConfig, urls: testUrls
@@ -67,13 +67,13 @@ export default function (fetchMock, assert) {
       sdk: 'https://sdk.baseurl/readinessSuite2',
       events: 'https://events.baseurl/readinessSuite2'
     };
-    fetchMock.get(testUrls.sdk + '/splitChanges?s=1.1&since=-1', function () {
+    fetchMock.get(testUrls.sdk + '/splitChanges?s=1.2&since=-1', function () {
       return new Promise((res) => { setTimeout(() => { res({ status: 200, body: splitChangesMock1, headers: {} }); }, requestTimeoutBeforeReady * 1000 - 50); });
     });
     fetchMock.get(testUrls.sdk + '/mySegments/nicolas%40split.io', function () {
       return new Promise((res) => { setTimeout(() => { res({ status: 200, body: mySegmentsNicolas, headers: {} }); }, requestTimeoutBeforeReady * 1000 + 50); });
     });
-    fetchMock.get(testUrls.sdk + '/splitChanges?s=1.1&since=1457552620999', { status: 200, body: splitChangesMock2 });
+    fetchMock.get(testUrls.sdk + '/splitChanges?s=1.2&since=1457552620999', { status: 200, body: splitChangesMock2 });
 
     const splitio = SplitFactory({ ...baseConfig, urls: testUrls });
     const client = splitio.client();
@@ -95,16 +95,16 @@ export default function (fetchMock, assert) {
       events: 'https://events.baseurl/readinessSuite3'
     };
 
-    fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.1&since=-1', function () {
+    fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.2&since=-1', function () {
       return new Promise((res) => { setTimeout(() => { res({ status: 200, body: splitChangesMock1, headers: {} }); }, requestTimeoutBeforeReady * 1000 + 50); });
     });
-    fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.1&since=-1', function () {
+    fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.2&since=-1', function () {
       return new Promise((res) => { setTimeout(() => { res({ status: 200, body: splitChangesMock1, headers: {} }); }, requestTimeoutBeforeReady * 1000 - 50); }); // Faster, it should get ready on the retry.
     });
     fetchMock.get(testUrls.sdk + '/mySegments/nicolas%40split.io', function () {
       return new Promise((res) => { setTimeout(() => { res({ status: 200, body: mySegmentsNicolas, headers: {} }); }, requestTimeoutBeforeReady * 1000 - 50); });
     });
-    fetchMock.get(testUrls.sdk + '/splitChanges?s=1.1&since=1457552620999', { status: 200, body: splitChangesMock2 });
+    fetchMock.get(testUrls.sdk + '/splitChanges?s=1.2&since=1457552620999', { status: 200, body: splitChangesMock2 });
 
     const splitio = SplitFactory({ ...baseConfig, urls: testUrls });
     const client = splitio.client();
@@ -130,18 +130,18 @@ export default function (fetchMock, assert) {
       return new Promise((res) => { setTimeout(() => { res({ status: 200, body: { mySegments: [] } }); }, mySegmentsEndpointDelay); });
     });
     // Now mock the no more updates state
-    fetchMock.get(testUrls.sdk + '/splitChanges?s=1.1&since=1457552669999', { status: 200, body: { splits: [], since: 1457552669999, till: 1457552669999 } });
+    fetchMock.get(testUrls.sdk + '/splitChanges?s=1.2&since=1457552669999', { status: 200, body: { splits: [], since: 1457552669999, till: 1457552669999 } });
 
 
     if (startWithSegments) {
       // Adjust since and till so the order is inverted.
-      fetchMock.get(testUrls.sdk + '/splitChanges?s=1.1&since=-1', { status: 200, body: splitChangesStartWithSegmentsMock });
-      fetchMock.get(testUrls.sdk + '/splitChanges?s=1.1&since=1457552620999', { status: 200, body: { ...splitChangesUpdateWithoutSegmentsMock, since: 1457552620999, till: 1457552649999 } });
-      fetchMock.get(testUrls.sdk + '/splitChanges?s=1.1&since=1457552649999', { status: 200, body: { ...splitChangesUpdateWithSegmentsMock, since: 1457552649999, till: 1457552669999 } });
+      fetchMock.get(testUrls.sdk + '/splitChanges?s=1.2&since=-1', { status: 200, body: splitChangesStartWithSegmentsMock });
+      fetchMock.get(testUrls.sdk + '/splitChanges?s=1.2&since=1457552620999', { status: 200, body: { ...splitChangesUpdateWithoutSegmentsMock, since: 1457552620999, till: 1457552649999 } });
+      fetchMock.get(testUrls.sdk + '/splitChanges?s=1.2&since=1457552649999', { status: 200, body: { ...splitChangesUpdateWithSegmentsMock, since: 1457552649999, till: 1457552669999 } });
     } else {
-      fetchMock.get(testUrls.sdk + '/splitChanges?s=1.1&since=-1', { status: 200, body: splitChangesStartWithoutSegmentsMock });
-      fetchMock.get(testUrls.sdk + '/splitChanges?s=1.1&since=1457552620999', { status: 200, body: splitChangesUpdateWithSegmentsMock });
-      fetchMock.get(testUrls.sdk + '/splitChanges?s=1.1&since=1457552649999', { status: 200, body: splitChangesUpdateWithoutSegmentsMock });
+      fetchMock.get(testUrls.sdk + '/splitChanges?s=1.2&since=-1', { status: 200, body: splitChangesStartWithoutSegmentsMock });
+      fetchMock.get(testUrls.sdk + '/splitChanges?s=1.2&since=1457552620999', { status: 200, body: splitChangesUpdateWithSegmentsMock });
+      fetchMock.get(testUrls.sdk + '/splitChanges?s=1.2&since=1457552649999', { status: 200, body: splitChangesUpdateWithoutSegmentsMock });
     }
 
     return () => mySegmentsHits;
@@ -562,8 +562,8 @@ export default function (fetchMock, assert) {
     const getMySegmentsHits = mockForSegmentsPauseTest(testUrls, false);
 
     // I'm having the first update of Splits come with segments. In this scenario it'll wait for mySegments to download before being ready.
-    fetchMock.get({ url: testUrls.sdk + '/splitChanges?s=1.1&since=1457552669999', overwriteRoutes: true }, { status: 200, body: { ...splitChangesUpdateWithSegmentsMock, since: 1457552669999, till: 1457552679999 } });
-    fetchMock.get(testUrls.sdk + '/splitChanges?s=1.1&since=1457552679999', { status: 200, body: { splits: [], since: 1457552679999, till: 1457552679999 } });
+    fetchMock.get({ url: testUrls.sdk + '/splitChanges?s=1.2&since=1457552669999', overwriteRoutes: true }, { status: 200, body: { ...splitChangesUpdateWithSegmentsMock, since: 1457552669999, till: 1457552679999 } });
+    fetchMock.get(testUrls.sdk + '/splitChanges?s=1.2&since=1457552679999', { status: 200, body: { splits: [], since: 1457552679999, till: 1457552679999 } });
 
     const start = Date.now();
     const splitio = SplitFactory({
@@ -659,8 +659,8 @@ export default function (fetchMock, assert) {
     };
     const getMySegmentsHits = mockForSegmentsPauseTest(testUrls, false);
     // I'm having the first update of Splits come without segments. In this scenario it'll NOT wait for mySegments to download before being ready.
-    fetchMock.get({ url: testUrls.sdk + '/splitChanges?s=1.1&since=1457552669999', overwriteRoutes: true }, { status: 200, body: { ...splitChangesUpdateWithoutSegmentsMock, since: 1457552669999, till: 1457552679999 } });
-    fetchMock.get(testUrls.sdk + '/splitChanges?s=1.1&since=1457552679999', { status: 200, body: { splits: [], since: 1457552679999, till: 1457552679999 } });
+    fetchMock.get({ url: testUrls.sdk + '/splitChanges?s=1.2&since=1457552669999', overwriteRoutes: true }, { status: 200, body: { ...splitChangesUpdateWithoutSegmentsMock, since: 1457552669999, till: 1457552679999 } });
+    fetchMock.get(testUrls.sdk + '/splitChanges?s=1.2&since=1457552679999', { status: 200, body: { splits: [], since: 1457552679999, till: 1457552679999 } });
 
     const start = Date.now();
     const splitio = SplitFactory({

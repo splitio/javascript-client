@@ -110,8 +110,8 @@ export default function (fetchMock, assert) {
     const shouldEmitSdkUpdate = waitForLargeSegments === false && featureFlagsWithLS === true && (LARGE_SEGMENTS_DELAY > SEGMENTS_DELAY || featureFlagsWithSegments === false);
 
     assert.test(t => {
-      fetchMock.getOnce(config.urls.sdk + '/splitChanges?s=1.1&since=-1', { status: 200, body: splitChangesMock });
-      fetchMock.getOnce(config.urls.sdk + '/splitChanges?s=1.1&since=1457552620999', { status: 200, body: { since: 1457552620999, till: 1457552620999, splits: [] } });
+      fetchMock.getOnce(config.urls.sdk + '/splitChanges?s=1.2&since=-1', { status: 200, body: splitChangesMock });
+      fetchMock.getOnce(config.urls.sdk + '/splitChanges?s=1.2&since=1457552620999', { status: 200, body: { since: 1457552620999, till: 1457552620999, splits: [] } });
       fetchMock.getOnce(config.urls.sdk + '/mySegments/emi%40split.io', { status: 200, body: mySegments }, { delay: SEGMENTS_DELAY });
       fetchMock.getOnce(config.urls.sdk + '/myLargeSegments/emi%40split.io', { status: myLargeSegmentsForbidden ? 403 : 200, body: myLargeSegments }, { delay: LARGE_SEGMENTS_DELAY });
 

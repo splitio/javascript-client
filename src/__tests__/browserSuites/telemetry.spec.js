@@ -33,8 +33,8 @@ const SplitFactoryForTest = (config) => {
 export default async function telemetryBrowserSuite(fetchMock, t) {
 
   t.test(async (assert) => {
-    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.1&since=-1', 500);
-    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.1&since=-1', { status: 200, body: splitChangesMock1 });
+    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.2&since=-1', 500);
+    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.2&since=-1', { status: 200, body: splitChangesMock1 });
     fetchMock.getOnce(baseUrls.sdk + '/mySegments/user-key', 500);
     fetchMock.getOnce(baseUrls.sdk + '/mySegments/user-key', { status: 200, body: { 'mySegments': ['one_segment'] } });
 
@@ -188,7 +188,7 @@ export default async function telemetryBrowserSuite(fetchMock, t) {
     const splitFilters = [{ type: 'bySet', values: ['a', '_b', 'a', 'a', 'c', 'd', '_d'] }];
 
     fetchMock.get(baseUrls.sdk + '/mySegments/nicolas%40split.io', { status: 200, body: { 'mySegments': [] } });
-    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.1&since=-1&sets=a,c,d', { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
+    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.2&since=-1&sets=a,c,d', { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
     fetchMock.postOnce(baseUrls.telemetry + '/v1/metrics/config', (url, opts) => {
       const data = JSON.parse(opts.body);
 

@@ -18,7 +18,7 @@ const settings = settingsFactory({
 
 tape('## E2E CI Tests ##', function (assert) {
 
-  fetchMock.get(url(settings, '/splitChanges?s=1.1&since=-1'), { status: 200, body: splitChangesMock1 });
+  fetchMock.get(url(settings, '/splitChanges?s=1.2&since=-1'), { status: 200, body: splitChangesMock1 });
   fetchMock.get(url(settings, '/mySegments/facundo%40split.io'), { status: 200, body: mySegmentsFacundo });
   fetchMock.post(/\/v1\/metrics/, 200); // 0.1% sample rate
 
