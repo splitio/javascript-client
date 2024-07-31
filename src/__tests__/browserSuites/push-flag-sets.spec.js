@@ -38,19 +38,19 @@ export function testFlagSets(fetchMock, t) {
 
   fetchMock.get(baseUrls.sdk + '/mySegments/nicolas%40split.io', { status: 200, body: { 'mySegments': [] } });
 
-  fetchMock.get(baseUrls.auth + '/v2/auth?s=1.1&users=nicolas%40split.io', function () {
+  fetchMock.get(baseUrls.auth + '/v2/auth?s=1.2&users=nicolas%40split.io', function () {
     return { status: 200, body: authPushEnabled };
   });
-  fetchMock.get(baseUrls.sdk + '/splitChanges?s=1.1&since=-1',  function () {
+  fetchMock.get(baseUrls.sdk + '/splitChanges?s=1.2&since=-1',  function () {
     return { status: 200, body: { splits: [], since: -1, till: 0}};
   });
-  fetchMock.get(baseUrls.sdk + '/splitChanges?s=1.1&since=0',  function () {
+  fetchMock.get(baseUrls.sdk + '/splitChanges?s=1.2&since=0',  function () {
     return { status: 200, body: { splits: [], since: 0, till: 1 }};
   });
-  fetchMock.get(baseUrls.sdk + '/splitChanges?s=1.1&since=-1&sets=set_1,set_2',  function () {
+  fetchMock.get(baseUrls.sdk + '/splitChanges?s=1.2&since=-1&sets=set_1,set_2',  function () {
     return { status: 200, body: { splits: [], since: -1, till: 0 }};
   });
-  fetchMock.get(baseUrls.sdk + '/splitChanges?s=1.1&since=0&sets=set_1,set_2',  function () {
+  fetchMock.get(baseUrls.sdk + '/splitChanges?s=1.2&since=0&sets=set_1,set_2',  function () {
     return { status: 200, body: { splits: [], since: 0, till: 1 }};
   });
 
@@ -189,7 +189,7 @@ export function testFlagSets(fetchMock, t) {
   t.test(async (assert) => {
 
 
-    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.1&since=2&sets=set_1,set_2',  function () {
+    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.2&since=2&sets=set_1,set_2',  function () {
       assert.pass('4 - A fetch is triggered due to the SPLIT_KILL');
       return { status: 200, body: { splits: [], since: 2, till: 3 }};
     });
@@ -229,7 +229,7 @@ export function testFlagSets(fetchMock, t) {
   t.test(async (assert) => {
 
 
-    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.1&since=1&sets=set_1,set_2',  function () {
+    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.2&since=1&sets=set_1,set_2',  function () {
       assert.pass('5 - A fetch is triggered due to the SPLIT_KILL');
       return { status: 200, body: { splits: [], since: 1, till: 5 }};
     });

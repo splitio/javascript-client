@@ -24,12 +24,12 @@ export default function flagSets(fetchMock, t) {
     let manager;
 
     // Receive split change with 1 split belonging to set_1 & set_2 and one belonging to set_3
-    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.1&since=-1&sets=set_1,set_2',  function () {
+    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.2&since=-1&sets=set_1,set_2',  function () {
       return { status: 200, body: splitChange2};
     });
 
     // Receive split change with 1 split belonging to set_1 only
-    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.1&since=1602796638344&sets=set_1,set_2',  function () {
+    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.2&since=1602796638344&sets=set_1,set_2',  function () {
       // stored feature flags before update
       const storedFlags = manager.splits();
       assert.true(storedFlags.length === 1, 'only one feature flag should be added');
@@ -41,7 +41,7 @@ export default function flagSets(fetchMock, t) {
     });
 
     // Receive split change with 1 split belonging to set_3 only
-    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.1&since=1602797638344&sets=set_1,set_2',  function () {
+    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.2&since=1602797638344&sets=set_1,set_2',  function () {
       // stored feature flags before update
       const storedFlags = manager.splits();
       assert.true(storedFlags.length === 1);
@@ -52,7 +52,7 @@ export default function flagSets(fetchMock, t) {
       return { status: 200, body: splitChange0};
     });
 
-    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.1&since=1602798638344&sets=set_1,set_2',  async function () {
+    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.2&since=1602798638344&sets=set_1,set_2',  async function () {
       // stored feature flags before update
       const storedFlags = manager.splits();
       assert.true(storedFlags.length === 0, 'the feature flag should be removed');
@@ -75,12 +75,12 @@ export default function flagSets(fetchMock, t) {
     let manager;
 
     // Receive split change with 1 split belonging to set_1 & set_2 and one belonging to set_3
-    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.1&since=-1',  function () {
+    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.2&since=-1',  function () {
       return { status: 200, body: splitChange2};
     });
 
     // Receive split change with 1 split belonging to set_1 only
-    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.1&since=1602796638344',  function () {
+    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.2&since=1602796638344',  function () {
       // stored feature flags before update
       const storedFlags = manager.splits();
       assert.true(storedFlags.length === 2, 'every feature flag should be added');
@@ -94,7 +94,7 @@ export default function flagSets(fetchMock, t) {
     });
 
     // Receive split change with 1 split belonging to set_3 only
-    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.1&since=1602797638344',  function () {
+    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.2&since=1602797638344',  function () {
       // stored feature flags before update
       const storedFlags = manager.splits();
       assert.true(storedFlags.length === 2);
@@ -107,7 +107,7 @@ export default function flagSets(fetchMock, t) {
       return { status: 200, body: splitChange0};
     });
 
-    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.1&since=1602798638344',  async function () {
+    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.2&since=1602798638344',  async function () {
       // stored feature flags before update
       const storedFlags = manager.splits();
       assert.true(storedFlags.length === 2);
@@ -137,11 +137,11 @@ export default function flagSets(fetchMock, t) {
 
     fetchMock.get(baseUrls.sdk + '/mySegments/nicolas%40split.io', { status: 200, body: { 'mySegments': [] } });
     // Receive split change with 1 split belonging to set_1 & set_2 and one belonging to set_3
-    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.1&since=-1&sets=set_1',  function () {
+    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.2&since=-1&sets=set_1',  function () {
       return { status: 200, body: splitChange2};
     });
 
-    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.1&since=1602796638344&sets=set_1',  async function () {
+    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.2&since=1602796638344&sets=set_1',  async function () {
       // stored feature flags before update
       assert.deepEqual(client.getTreatmentsByFlagSet('set_1'), {workm: 'on'}, 'only the flag in set_1 can be evaluated');
       assert.deepEqual(client.getTreatmentsByFlagSet('set_2'), {}, 'only the flag in set_1 can be evaluated');
@@ -174,11 +174,11 @@ export default function flagSets(fetchMock, t) {
 
     fetchMock.get(baseUrls.sdk + '/mySegments/nicolas%40split.io', { status: 200, body: { 'mySegments': [] } });
     // Receive split change with 1 split belonging to set_1 & set_2 and one belonging to set_3
-    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.1&since=-1',  function () {
+    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.2&since=-1',  function () {
       return { status: 200, body: splitChange2};
     });
 
-    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.1&since=1602796638344',  async function () {
+    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.2&since=1602796638344',  async function () {
       // stored feature flags before update
       assert.deepEqual(client.getTreatmentsByFlagSet('set_1'), {workm: 'on'}, 'all flags can be evaluated');
       assert.deepEqual(client.getTreatmentsByFlagSet('set_2'), {workm: 'on'}, 'all flags can be evaluated');

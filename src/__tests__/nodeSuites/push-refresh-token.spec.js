@@ -77,20 +77,20 @@ export function testRefreshToken(fetchMock, assert) {
   });
 
   // initial split sync
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=-1'), { status: 200, body: splitChangesMock1 });
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=-1'), { status: 200, body: splitChangesMock1 });
 
   // first auth
-  fetchMock.getOnce(url(settings, '/v2/auth?s=1.1'), function (url, opts) {
+  fetchMock.getOnce(url(settings, '/v2/auth?s=1.2'), function (url, opts) {
     if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
     assert.pass('auth success');
     return { status: 200, body: authPushEnabled };
   });
 
   // split sync after SSE opened
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=1457552620999'), { status: 200, body: splitChangesMock2 });
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=1457552620999'), { status: 200, body: splitChangesMock2 });
 
   // re-auth due to refresh token, with connDelay of 0.5 seconds
-  fetchMock.getOnce(url(settings, '/v2/auth?s=1.1'), function (url, opts) {
+  fetchMock.getOnce(url(settings, '/v2/auth?s=1.2'), function (url, opts) {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_REFRESH_TOKEN), 'reauthentication for token refresh');
     if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
@@ -98,14 +98,14 @@ export function testRefreshToken(fetchMock, assert) {
   });
 
   // split sync after SSE reopened
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=1457552620999'), function () {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=1457552620999'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_REFRESH_TOKEN + MILLIS_CONNDELAY), 'sync after SSE connection is reopened');
     return { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } };
   });
 
   // second re-auth due to refresh token, this time responding with pushEnabled false
-  fetchMock.getOnce(url(settings, '/v2/auth?s=1.1'), function (url, opts) {
+  fetchMock.getOnce(url(settings, '/v2/auth?s=1.2'), function (url, opts) {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_REFRESH_TOKEN * 2), 'second reauthentication for token refresh');
     if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
@@ -113,7 +113,7 @@ export function testRefreshToken(fetchMock, assert) {
   });
 
   // split sync after SSE closed due to push disabled
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=1457552620999'), function () {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=1457552620999'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_REFRESH_TOKEN * 2), 'sync after SSE connection is reopened a second time');
     setTimeout(() => {
