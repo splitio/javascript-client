@@ -1126,7 +1126,25 @@ declare namespace SplitIO {
      * @typedef {string} userConsent
      * @default 'GRANTED'
      */
-    userConsent?: ConsentStatus
+    userConsent?: ConsentStatus,
+    sync?: ISharedSettings['sync'] & {
+      /**
+       * Custom options object for HTTP(S) requests in the Browser.
+       * If provided, this object is merged with the options object passed by the SDK for EventSource and Fetch calls.
+       * @see {@link https://www.npmjs.com/package/node-fetch#options}
+       */
+      requestOptions?: {
+        /**
+         * Custom function called before each request, allowing you to add or update custom headers on the SDK requests.
+         *
+         * @TODO pass context to `getHeaderOverrides`. Add `validUntil` property?
+         *
+         * @property getHeaderOverrides
+         * @default undefined
+         */
+        getHeaderOverrides?: () => Record<string, string>,
+      },
+    }
   }
   /**
    * Settings interface for SDK instances created on NodeJS.
@@ -1176,6 +1194,15 @@ declare namespace SplitIO {
        * @see {@link https://www.npmjs.com/package/node-fetch#options}
        */
       requestOptions?: {
+        /**
+         * Custom function called before each request, allowing you to add or update custom headers on the SDK requests.
+         *
+         * @TODO pass context to `getHeaderOverrides`. Add `validUntil` property?
+         *
+         * @property getHeaderOverrides
+         * @default undefined
+         */
+        getHeaderOverrides?: () => Record<string, string>,
         /**
          * Custom NodeJS HTTP(S) Agent used by the SDK for HTTP(S) requests.
          *
