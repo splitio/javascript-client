@@ -111,7 +111,11 @@ interface ISettings {
   readonly sync: {
     splitFilters: SplitIO.SplitFilter[],
     impressionsMode: SplitIO.ImpressionsMode,
-    enabled: boolean
+    enabled: boolean,
+    flagSpecVersion: string,
+    requestOptions?: {
+      getHeaderOverrides?: (context: { headers: Record<string, string> }) => Record<string, string>
+    }
   }
   /**
    * User consent status if using in browser. Undefined if using in NodeJS.
@@ -1135,14 +1139,12 @@ declare namespace SplitIO {
        */
       requestOptions?: {
         /**
-         * Custom function called before each request, allowing you to add or update custom headers on the SDK requests.
-         *
-         * @TODO pass context to `getHeaderOverrides`. Add `validUntil` property?
+         * Custom function called before each request, allowing you to add or update custom headers on the SDK HTTP requests.
          *
          * @property getHeaderOverrides
          * @default undefined
          */
-        getHeaderOverrides?: () => Record<string, string>,
+        getHeaderOverrides?: (context: { headers: Record<string, string> }) => Record<string, string>
       },
     }
   }
@@ -1195,14 +1197,12 @@ declare namespace SplitIO {
        */
       requestOptions?: {
         /**
-         * Custom function called before each request, allowing you to add or update custom headers on the SDK requests.
-         *
-         * @TODO pass context to `getHeaderOverrides`. Add `validUntil` property?
+         * Custom function called before each request, allowing you to add or update custom headers on the SDK HTTP requests.
          *
          * @property getHeaderOverrides
          * @default undefined
          */
-        getHeaderOverrides?: () => Record<string, string>,
+        getHeaderOverrides?: (context: { headers: Record<string, string> }) => Record<string, string>
         /**
          * Custom NodeJS HTTP(S) Agent used by the SDK for HTTP(S) requests.
          *
