@@ -124,7 +124,7 @@ splitView = {
   configs: {
     off: '{"dimensions":"{\"height\":20,\"width\":40}"}'
   },
-  sets: ['set_a','set_b'],
+  sets: ['set_a', 'set_b'],
   defaultTreatment: 'off'
 };
 splitViews = [splitView];
@@ -567,7 +567,7 @@ let fullBrowserSettings: SplitIO.IBrowserSettings = {
     impressionsMode: 'DEBUG',
     enabled: true,
     requestOptions: {
-      getHeaderOverrides() { return { 'header': 'value' } },
+      getHeaderOverrides(context) { return { ...context.headers, 'header': 'value' } },
     }
   },
   userConsent: 'GRANTED'
@@ -621,7 +621,7 @@ let fullNodeSettings: SplitIO.INodeSettings = {
     impressionsMode: 'OPTIMIZED',
     enabled: true,
     requestOptions: {
-      getHeaderOverrides() { return { 'header': 'value' } },
+      getHeaderOverrides(context) { return { ...context.headers, 'header': 'value' } },
       agent: new (require('https')).Agent(),
     }
   }
