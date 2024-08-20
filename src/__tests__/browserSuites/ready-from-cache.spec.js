@@ -489,7 +489,6 @@ export default function (fetchMock, assert) {
     t.plan(7);
 
     fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.2&since=-1&names=p1__split,p2__split', { status: 200, body: { splits: [splitDeclarations.p1__split, splitDeclarations.p2__split], since: -1, till: 1457552620999 } }, { delay: 10 }); // short delay to let emit SDK_READY_FROM_CACHE
-    // fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.2&since=1457552620999&names=p1__split', { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
     fetchMock.getOnce(testUrls.sdk + '/mySegments/nicolas%40split.io', { status: 200, body: { mySegments: [] } });
 
     localStorage.setItem('some_user_item', 'user_item');

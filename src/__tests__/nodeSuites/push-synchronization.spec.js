@@ -44,9 +44,6 @@ const config = {
   },
   urls: baseUrls,
   streamingEnabled: true,
-  sync: {
-    largeSegmentsEnabled: true // ignored in node
-  }
 };
 const settings = settingsFactory(config);
 

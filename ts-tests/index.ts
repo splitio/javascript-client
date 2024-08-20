@@ -124,7 +124,7 @@ splitView = {
   configs: {
     off: '{"dimensions":"{\"height\":20,\"width\":40}"}'
   },
-  sets: ['set_a','set_b'],
+  sets: ['set_a', 'set_b'],
   defaultTreatment: 'off'
 };
 splitViews = [splitView];
@@ -178,7 +178,7 @@ const instantiatedSettingsCore: {
 } = SDK.settings.core;
 const instantiatedSettingsMode: ('standalone' | 'consumer') = SDK.settings.mode;
 const instantiatedSettingsScheduler: { [key: string]: number } = SDK.settings.scheduler;
-const instantiatedSettingsStartup: { [key: string]: number | boolean } = SDK.settings.startup;
+const instantiatedSettingsStartup: { [key: string]: number } = SDK.settings.startup;
 const instantiatedSettingsStorage: {
   prefix: string,
   options: Object,
@@ -535,7 +535,6 @@ let fullBrowserSettings: SplitIO.IBrowserSettings = {
     metricsRefreshRate: 1,
     telemetryRefreshRate: 1,
     segmentsRefreshRate: 1,
-    largeSegmentsRefreshRate: 1,
     offlineRefreshRate: 1,
     eventsPushRate: 1,
     eventsQueueSize: 1,
@@ -545,8 +544,7 @@ let fullBrowserSettings: SplitIO.IBrowserSettings = {
     readyTimeout: 1,
     requestTimeoutBeforeReady: 1,
     retriesOnFailureBeforeReady: 1,
-    eventsFirstPushWindow: 1,
-    waitForLargeSegments: true,
+    eventsFirstPushWindow: 1
   },
   urls: {
     sdk: 'https://asd.com/sdk',
@@ -567,8 +565,7 @@ let fullBrowserSettings: SplitIO.IBrowserSettings = {
   sync: {
     splitFilters: splitFilters,
     impressionsMode: 'DEBUG',
-    enabled: true,
-    largeSegmentsEnabled: true,
+    enabled: true
   },
   userConsent: 'GRANTED'
 };

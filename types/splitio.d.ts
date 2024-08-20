@@ -78,7 +78,6 @@ interface ISettings {
     metricsRefreshRate?: number,
     telemetryRefreshRate: number,
     segmentsRefreshRate: number,
-    largeSegmentsRefreshRate: number,
     offlineRefreshRate: number,
     eventsPushRate: number,
     eventsQueueSize: number,
@@ -88,8 +87,7 @@ interface ISettings {
     readyTimeout: number,
     requestTimeoutBeforeReady: number,
     retriesOnFailureBeforeReady: number,
-    eventsFirstPushWindow: number,
-    waitForLargeSegments: boolean
+    eventsFirstPushWindow: number
   },
   readonly storage: {
     prefix: string,
@@ -114,7 +112,6 @@ interface ISettings {
     splitFilters: SplitIO.SplitFilter[],
     impressionsMode: SplitIO.ImpressionsMode,
     enabled: boolean,
-    largeSegmentsEnabled: boolean,
     flagSpecVersion: string
   }
   /**
@@ -985,13 +982,6 @@ declare namespace SplitIO {
        * @default 10
        */
       eventsFirstPushWindow?: number,
-      /**
-       * Whether the SDK should wait for large segments to be ready before emitting SDK_READY event.
-       * It only applies if largeSegmentsEnabled is true.
-       * @property {boolean} waitForLargeSegments
-       * @default true
-       */
-      waitForLargeSegments?: boolean
     },
     /**
      * SDK scheduler settings.
@@ -1036,13 +1026,6 @@ declare namespace SplitIO {
        * @default 60
        */
       segmentsRefreshRate?: number,
-      /**
-       * The SDK polls Split servers for changes to large segment definitions. This parameter controls this polling period in seconds.
-       * It only applies if largeSegmentsEnabled is true.
-       * @property {number} largeSegmentsRefreshRate
-       * @default 60
-       */
-      largeSegmentsRefreshRate?: number,
       /**
        * The SDK posts the queued events data in bulks. This parameter controls the posting rate in seconds.
        * @property {number} eventsPushRate
@@ -1144,15 +1127,7 @@ declare namespace SplitIO {
      * @typedef {string} userConsent
      * @default 'GRANTED'
      */
-    userConsent?: ConsentStatus,
-    sync?: ISharedSettings['sync'] & {
-      /**
-       * Enables synchronization of large segments.
-       * @property {boolean} largeSegmentsEnabled
-       * @default false
-       */
-      largeSegmentsEnabled?: boolean
-    }
+    userConsent?: ConsentStatus
   }
   /**
    * Settings interface for SDK instances created on NodeJS.

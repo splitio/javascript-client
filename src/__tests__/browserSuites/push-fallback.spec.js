@@ -51,14 +51,10 @@ const config = {
   scheduler: {
     featuresRefreshRate: 0.2,
     segmentsRefreshRate: 0.25,
-    largeSegmentsRefreshRate: 0.25,
     impressionsRefreshRate: 3000
   },
   urls: baseUrls,
   streamingEnabled: true,
-  sync: {
-    largeSegmentsEnabled: true
-  }
 };
 const settings = settingsFactory(config);
 
@@ -82,27 +78,26 @@ const MILLIS_DESTROY = MILLIS_STREAMING_DISABLED_CONTROL + settings.scheduler.fe
 
 /**
  * Sequence of calls:
- *  0.0 secs: initial SyncAll (/splitChanges, /my(Large)Segments/nicolas), auth, SSE connection
- *  0.1 secs: SSE connection opened -> syncAll (/splitChanges, /my(Large)Segments/nicolas)
- *  0.2 secs: Streaming down (OCCUPANCY event) -> fetch due to fallback to polling (/splitChanges, /my(Large)Segments/nicolas)
+ *  0.0 secs: initial SyncAll (/splitChanges, /mySegments/nicolas), auth, SSE connection
+ *  0.1 secs: SSE connection opened -> syncAll (/splitChanges, /mySegments/nicolas)
+ *  0.2 secs: Streaming down (OCCUPANCY event) -> fetch due to fallback to polling (/splitChanges, /mySegments/nicolas)
  *  0.3 secs: SPLIT_UPDATE event ignored
  *  0.4 secs: periodic fetch due to polling (/splitChanges)
- *  0.45 secs: periodic fetch due to polling (/my(Large)Segments/*)
- *  0.5 secs: Streaming up (OCCUPANCY event) -> syncAll (/splitChanges, /my(Large)Segments/nicolas)
- *  0.55 secs: create a new client while streaming -> initial fetch (/my(Large)Segments/marcio), auth, SSE connection and syncAll (/splitChanges, /my(Large)Segments/nicolas, /my(Large)Segments/marcio)
+ *  0.45 secs: periodic fetch due to polling (/mySegments/nicolas)
+ *  0.5 secs: Streaming up (OCCUPANCY event) -> syncAll (/splitChanges, /mySegments/nicolas)
+ *  0.55 secs: create a new client while streaming -> initial fetch (/mySegments/marcio), auth, SSE connection and syncAll (/splitChanges, /mySegments/nicolas, /mySegments/marcio)
  *  0.6 secs: SPLIT_UPDATE event -> /splitChanges
- *  0.7 secs: Streaming down (CONTROL event) -> fetch due to fallback to polling (/splitChanges, /my(Large)Segments/nicolas, /my(Large)Segments/marcio)
+ *  0.7 secs: Streaming down (CONTROL event) -> fetch due to fallback to polling (/splitChanges, /mySegments/nicolas, /mySegments/marcio)
  *  0.8 secs: MY_SEGMENTS_UPDATE event ignored
  *  0.9 secs: periodic fetch due to polling (/splitChanges)
- *  0.95 secs: periodic fetch due to polling (/my(Large)Segments/nicolas, /my(Large)Segments/marcio, /my(Large)Segments/facundo)
- *  1.0 secs: Streaming up (CONTROL event) -> syncAll (/splitChanges, /my(Large)Segments/nicolas, /my(Large)Segments/marcio, /my(Large)Segments/facundo)
+ *  0.95 secs: periodic fetch due to polling (/mySegments/nicolas, /mySegments/marcio, /mySegments/facundo)
+ *  1.0 secs: Streaming up (CONTROL event) -> syncAll (/splitChanges, /mySegments/nicolas, /mySegments/marcio, /mySegments/facundo)
  *  1.1 secs: MY_SEGMENTS_UPDATE event -> /mySegments/nicolas
- *  1.2 secs: Streaming down (CONTROL event) -> fetch due to fallback to polling (/splitChanges, /my(Large)Segments/nicolas, /my(Large)Segments/marcio, /my(Large)Segments/facundo)
+ *  1.2 secs: Streaming down (CONTROL event) -> fetch due to fallback to polling (/splitChanges, /mySegments/nicolas, /mySegments/marcio, /mySegments/facundo)
  *  1.3 secs: STREAMING_RESET control event -> auth, SSE connection, syncAll and stop polling
  *  1.5 secs: STREAMING_RESET control event -> auth, SSE connection, syncAll
  *  1.6 secs: Streaming closed (CONTROL STREAMING_DISABLED event) -> fetch due to fallback to polling (/splitChanges, /mySegments/nicolas, /mySegments/marcio, /mySegments/facundo)
- *  1.8 secs: periodic fetch due to polling (/splitChanges)
- *  1.85 secs: periodic fetch due to polling (/myLargeSegments/*). /mySegments/* are not fetched due to update without segments
+ *  1.8 secs: periodic fetch due to polling (/splitChanges): due to update without segments, mySegments are not fetched
  *  2.0 secs: periodic fetch due to polling (/splitChanges)
  *  2.1 secs: destroy client
  */
@@ -216,10 +211,6 @@ export function testFallback(fetchMock, assert) {
     assert.pass('auth success');
     return { status: 200, body: authPushEnabledNicolas };
   });
-
-  // MyLargeSegments are fetched one more time than MySegments due to smart pausing of MySegments sync at the end of the test
-  fetchMock.get({ url: url(settings, '/myLargeSegments/nicolas%40split.io'), repeat: 14 }, { status: 200, body: { myLargeSegments: [] } });
-  fetchMock.get({ url: url(settings, '/myLargeSegments/marcio%40split.io'), repeat: 10 }, { status: 200, body: { myLargeSegments: [] } });
 
   // initial split and mySegment sync
   fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=-1'), { status: 200, body: splitChangesMock1 });

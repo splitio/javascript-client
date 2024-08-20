@@ -9,7 +9,6 @@ import impressionsSuiteNone from '../browserSuites/impressions.none.spec';
 import telemetrySuite from '../browserSuites/telemetry.spec';
 import impressionsListenerSuite from '../browserSuites/impressions-listener.spec';
 import readinessSuite from '../browserSuites/readiness.spec';
-import readinessWithLargeSegmentsSuite from '../browserSuites/readiness-large-segments.spec';
 import readyFromCache from '../browserSuites/ready-from-cache.spec';
 import { withoutBindingTT, bindingTT } from '../browserSuites/events.spec';
 import sharedInstantiationSuite from '../browserSuites/shared-instantiation.spec';
@@ -123,7 +122,6 @@ tape('## E2E CI Tests ##', function (assert) {
   assert.test('E2E / Manager API', managerSuite.bind(null, settings, fetchMock));
   /* Validate readiness */
   assert.test('E2E / Readiness', readinessSuite.bind(null, fetchMock));
-  assert.test('E2E / Readiness with large segments', readinessWithLargeSegmentsSuite.bind(null, fetchMock));
   /* Validate headers for ip and hostname are not sended with requests (ignore setting IPAddressesEnabled) */
   assert.test('E2E / Ignore setting IPAddressesEnabled', ignoreIpAddressesSettingSuite.bind(null, fetchMock));
   /* Check that impressions and events are sended to backend via Beacon API or Fetch when pagehide/visibilitychange events are triggered. */

@@ -3,7 +3,6 @@ import { validateRuntime } from '@splitsoftware/splitio-commons/src/utils/settin
 import { validateLogger } from '@splitsoftware/splitio-commons/src/utils/settingsValidation/logger/builtinLogger';
 import { LocalhostFromObject } from '@splitsoftware/splitio-commons/src/sync/offline/LocalhostFromObject';
 import { validateConsent } from '@splitsoftware/splitio-commons/src/utils/settingsValidation/consent';
-import { STANDALONE_MODE } from '@splitsoftware/splitio-commons/src/utils/constants';
 
 import { defaults } from './defaults/browser';
 import { validateStorage } from './storage/browser';
@@ -21,10 +20,5 @@ const params = {
 };
 
 export function settingsFactory(config) {
-  const settings = settingsValidation(config, params);
-
-  // Override in localhost mode to emit SDK_READY event
-  if (settings.mode !== STANDALONE_MODE) settings.sync.largeSegmentsEnabled = false;
-
-  return settings;
+  return settingsValidation(config, params);
 }
