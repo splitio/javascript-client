@@ -1140,6 +1140,9 @@ declare namespace SplitIO {
       requestOptions?: {
         /**
          * Custom function called before each request, allowing you to add or update custom headers on the SDK HTTP requests.
+         * Some headers are required by the SDK, like 'SplitSDKVersion', and cannot be overridden.
+         * To pass multiple headers with the same name, you can combine them into a single line separated by commas.
+         * Example: `{ 'Authorization': 'value1, value2' }`.
          *
          * @property getHeaderOverrides
          * @default undefined
@@ -1198,6 +1201,9 @@ declare namespace SplitIO {
       requestOptions?: {
         /**
          * Custom function called before each request, allowing you to add or update custom headers on the SDK HTTP requests.
+         * Some headers are required by the SDK, like 'SplitSDKVersion', and cannot be overridden.
+         * To pass multiple headers with the same name, you can combine them into a single line separated by commas.
+         * Example: `{ 'Authorization': 'value1, value2' }`.
          *
          * @property getHeaderOverrides
          * @default undefined
