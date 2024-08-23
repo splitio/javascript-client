@@ -1135,7 +1135,6 @@ declare namespace SplitIO {
       /**
        * Custom options object for HTTP(S) requests in the Browser.
        * If provided, this object is merged with the options object passed by the SDK for EventSource and Fetch calls.
-       * @see {@link https://www.npmjs.com/package/node-fetch#options}
        */
       requestOptions?: {
         /**
