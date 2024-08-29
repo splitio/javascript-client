@@ -25,10 +25,10 @@ import flagSets from '../browserSuites/flag-sets.spec';
 import { settingsFactory } from '../../settings';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
-import mySegmentsFacundo from '../mocks/mysegments.facundo@split.io.json';
-import mySegmentsNicolas from '../mocks/mysegments.nicolas@split.io.json';
-import mySegmentsMarcio from '../mocks/mysegments.marcio@split.io.json';
-import mySegmentsEmmanuel from '../mocks/mysegments.emmanuel@split.io.json';
+import membershipsFacundo from '../mocks/memberships.facundo@split.io.json';
+import membershipsNicolas from '../mocks/memberships.nicolas@split.io.json';
+import membershipsMarcio from '../mocks/memberships.marcio@split.io.json';
+import membershipsEmmanuel from '../mocks/memberships.emmanuel@split.io.json';
 
 const settings = settingsFactory({
   core: {
@@ -89,10 +89,10 @@ tape('## E2E CI Tests ##', function (assert) {
 
   fetchMock.get(url(settings, '/splitChanges?s=1.2&since=-1'), { status: 200, body: splitChangesMock1 });
   fetchMock.get(url(settings, '/splitChanges?s=1.2&since=1457552620999'), { status: 200, body: splitChangesMock2 });
-  fetchMock.get(url(settings, '/mySegments/facundo%40split.io'), { status: 200, body: mySegmentsFacundo });
-  fetchMock.get(url(settings, '/mySegments/nicolas%40split.io'), { status: 200, body: mySegmentsNicolas });
-  fetchMock.get(url(settings, '/mySegments/marcio%40split.io'), { status: 200, body: mySegmentsMarcio });
-  fetchMock.get(url(settings, '/mySegments/emmanuel%40split.io'), { status: 200, body: mySegmentsEmmanuel });
+  fetchMock.get(url(settings, '/memberships/facundo%40split.io'), { status: 200, body: membershipsFacundo });
+  fetchMock.get(url(settings, '/memberships/nicolas%40split.io'), { status: 200, body: membershipsNicolas });
+  fetchMock.get(url(settings, '/memberships/marcio%40split.io'), { status: 200, body: membershipsMarcio });
+  fetchMock.get(url(settings, '/memberships/emmanuel%40split.io'), { status: 200, body: membershipsEmmanuel });
   fetchMock.post(url(settings, '/testImpressions/bulk'), 200);
   fetchMock.post(url(settings, '/testImpressions/count'), 200);
   Math.random = () => 0.5; // SDKs without telemetry

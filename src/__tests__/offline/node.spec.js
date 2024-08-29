@@ -11,7 +11,7 @@ const settings = settingsFactory({ core: { key: 'facundo@split.io' } });
 
 const spySplitChanges = sinon.spy();
 const spySegmentChanges = sinon.spy();
-const spyMySegments = sinon.spy();
+const spyMemberships = sinon.spy();
 const spyEventsBulk = sinon.spy();
 const spyTestImpressionsBulk = sinon.spy();
 const spyTestImpressionsCount = sinon.spy();
@@ -29,7 +29,7 @@ const replySpy = spy => {
 const configMocks = () => {
   fetchMock.mock(new RegExp(`${url(settings, '/splitChanges/')}.*`), () => replySpy(spySplitChanges));
   fetchMock.mock(new RegExp(`${url(settings, '/segmentChanges/')}.*`), () => replySpy(spySegmentChanges));
-  fetchMock.mock(new RegExp(`${url(settings, '/mySegments/')}.*`), () => replySpy(spyMySegments));
+  fetchMock.mock(new RegExp(`${url(settings, '/memberships/')}.*`), () => replySpy(spyMemberships));
   fetchMock.mock(url(settings, '/events/bulk'), () => replySpy(spyEventsBulk));
   fetchMock.mock(url(settings, '/testImpressions/bulk'), () => replySpy(spyTestImpressionsBulk));
   fetchMock.mock(url(settings, '/testImpressions/count'), () => replySpy(spyTestImpressionsCount));
@@ -98,7 +98,7 @@ function networkAssertions(client, assert) {
     // We test the breakdown instead of just the misc because it's faster to spot where the issue is
     assert.notOk(spySplitChanges.called, 'On offline mode we should not call the splitChanges endpoint.');
     assert.notOk(spySegmentChanges.called, 'On offline mode we should not call the segmentChanges endpoint.');
-    assert.notOk(spyMySegments.called, 'On offline mode we should not call the mySegments endpoint.');
+    assert.notOk(spyMemberships.called, 'On offline mode we should not call the memberships endpoint.');
     assert.notOk(spyEventsBulk.called, 'On offline mode we should not call the events endpoint.');
     assert.notOk(spyTestImpressionsBulk.called, 'On offline mode we should not call the impressions endpoint.');
     assert.notOk(spyTestImpressionsCount.called, 'On offline mode we should not call the impressions count endpoint.');

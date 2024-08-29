@@ -36,7 +36,7 @@ const MILLIS_FIFTH_SPLIT_UPDATE_EVENT = 500;
 export function testFlagSets(fetchMock, t) {
   fetchMock.reset();
 
-  fetchMock.get(baseUrls.sdk + '/mySegments/nicolas%40split.io', { status: 200, body: { 'mySegments': [] } });
+  fetchMock.get(baseUrls.sdk + '/memberships/nicolas%40split.io', { status: 200, body: { 'ms': {} } });
 
   fetchMock.get(baseUrls.auth + '/v2/auth?s=1.2&users=nicolas%40split.io', function () {
     return { status: 200, body: authPushEnabled };

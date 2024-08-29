@@ -37,8 +37,8 @@ const MILLIS_SPLIT_CHANGES_RESPONSE = 400;
 
 /**
  * Sequence of calls:
- *  0.0 secs: initial SyncAll (/splitChanges, /mySegments/*), auth, SSE connection, SDK_READY_FROM_CACHE
- *  0.1 secs: SSE connection opened -> syncAll (/splitChanges, /mySegments/*)
+ *  0.0 secs: initial SyncAll (/splitChanges, /memberships/*), auth, SSE connection, SDK_READY_FROM_CACHE
+ *  0.1 secs: SSE connection opened -> syncAll (/splitChanges, /memberships/*)
  *  0.2 secs: SPLIT_KILL event -> /splitChanges
  *  0.4 secs: /splitChanges response --> SDK_READY
  */
@@ -72,8 +72,8 @@ export function testSplitKillOnReadyFromCache(fetchMock, assert) {
 
   // 1 auth request
   fetchMock.getOnce(url(settings, `/v2/auth?s=1.2&users=${encodeURIComponent(userKey)}`), { status: 200, body: authPushEnabledNicolas });
-  // 2 mySegments requests: initial sync and after SSE opened
-  fetchMock.get({ url: url(settings, '/mySegments/nicolas%40split.io'), repeat: 2 }, { status: 200, body: { mySegments: [] } });
+  // 2 memberships requests: initial sync and after SSE opened
+  fetchMock.get({ url: url(settings, '/memberships/nicolas%40split.io'), repeat: 2 }, { status: 200, body: { ms: {} } });
 
   // 2 splitChanges request: initial sync and after SSE opened. Sync after SPLIT_KILL is not performed because SplitsSyncTask is "executing"
   fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=25'), { status: 200, body: splitChangesMock1 }, { delay: MILLIS_SPLIT_CHANGES_RESPONSE, /* delay response */ });

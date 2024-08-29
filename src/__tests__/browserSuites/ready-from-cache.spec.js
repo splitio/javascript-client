@@ -3,7 +3,7 @@ import { SplitFactory } from '../../';
 
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
-import mySegmentsNicolas from '../mocks/mysegments.nicolas@split.io.json';
+import membershipsNicolas from '../mocks/memberships.nicolas@split.io.json';
 
 import { nearlyEqual } from '../testUtils';
 
@@ -98,9 +98,9 @@ export default function (fetchMock, assert) {
 
     fetchMock.get(testUrls.sdk + '/splitChanges?s=1.2&since=-1', { status: 200, body: splitChangesMock1 });
     fetchMock.get(testUrls.sdk + '/splitChanges?s=1.2&since=1457552620999', { status: 200, body: splitChangesMock2 });
-    fetchMock.get(testUrls.sdk + '/mySegments/nicolas%40split.io', { status: 200, body: mySegmentsNicolas });
-    fetchMock.get(testUrls.sdk + '/mySegments/nicolas2%40split.io', { status: 200, body: { 'mySegments': [] } });
-    fetchMock.get(testUrls.sdk + '/mySegments/nicolas3%40split.io', { status: 200, body: { 'mySegments': [] } });
+    fetchMock.get(testUrls.sdk + '/memberships/nicolas%40split.io', { status: 200, body: membershipsNicolas });
+    fetchMock.get(testUrls.sdk + '/memberships/nicolas2%40split.io', { status: 200, body: { 'ms': {} } });
+    fetchMock.get(testUrls.sdk + '/memberships/nicolas3%40split.io', { status: 200, body: { 'ms': {} } });
 
     const splitio = SplitFactory({
       ...baseConfig,
@@ -151,14 +151,14 @@ export default function (fetchMock, assert) {
       return new Promise(res => { setTimeout(() => res({ status: 200, body: { ...splitChangesMock1, since: 25 }, headers: {} }), 200); }); // 400ms is how long it'll take to reply with Splits, no SDK_READY should be emitted before that.
     });
     fetchMock.get(testUrls.sdk + '/splitChanges?s=1.2&since=1457552620999', { status: 200, body: splitChangesMock2 });
-    fetchMock.get(testUrls.sdk + '/mySegments/nicolas%40split.io', function () {
-      return new Promise(res => { setTimeout(() => res({ status: 200, body: mySegmentsNicolas, headers: {} }), 400); }); // First client gets segments before splits. No segment cache loading (yet)
+    fetchMock.get(testUrls.sdk + '/memberships/nicolas%40split.io', function () {
+      return new Promise(res => { setTimeout(() => res({ status: 200, body: membershipsNicolas, headers: {} }), 400); }); // First client gets segments before splits. No segment cache loading (yet)
     });
-    fetchMock.get(testUrls.sdk + '/mySegments/nicolas2%40split.io', function () {
-      return new Promise(res => { setTimeout(() => res({ status: 200, body: { 'mySegments': [] }, headers: {} }), 700); }); // Second client gets segments after 700ms
+    fetchMock.get(testUrls.sdk + '/memberships/nicolas2%40split.io', function () {
+      return new Promise(res => { setTimeout(() => res({ status: 200, body: { 'ms': {} }, headers: {} }), 700); }); // Second client gets segments after 700ms
     });
-    fetchMock.get(testUrls.sdk + '/mySegments/nicolas3%40split.io', function () {
-      return new Promise(res => { setTimeout(() => res({ status: 200, body: { 'mySegments': [] }, headers: {} }), 1000); }); // Third client mySegments will come after 1s
+    fetchMock.get(testUrls.sdk + '/memberships/nicolas3%40split.io', function () {
+      return new Promise(res => { setTimeout(() => res({ status: 200, body: { 'ms': {} }, headers: {} }), 1000); }); // Third client memberships will come after 1s
     });
     fetchMock.postOnce(testUrls.events + '/testImpressions/bulk', 200);
     fetchMock.postOnce(testUrls.events + '/testImpressions/count', 200);
@@ -231,7 +231,7 @@ export default function (fetchMock, assert) {
         Promise.all([client3.destroy(), client2.destroy(), client.destroy()]).then(() => {
           t.equal(localStorage.getItem('some_user_item'), 'user_item', 'user items at localStorage must not be changed');
           t.equal(localStorage.getItem('readyFromCache_2.SPLITIO.splits.till'), '1457552620999', 'splits.till must correspond to the till of the last successfully fetched Splits');
-          t.true(nearlyEqual(parseInt(localStorage.getItem('readyFromCache_2.SPLITIO.splits.lastUpdated')), Date.now() - 800 /* 800 ms between last Split and MySegments fetch */), 'lastUpdated is added and must correspond to the timestamp of the last successfully fetched Splits');
+          t.true(nearlyEqual(parseInt(localStorage.getItem('readyFromCache_2.SPLITIO.splits.lastUpdated')), Date.now() - 800 /* 800 ms between last splitChanges and memberships fetch */), 'lastUpdated is added and must correspond to the timestamp of the last successfully fetched Splits');
         });
       });
       t.true(Date.now() - startTime >= 1000, 'It should emit SDK_READY too but after syncing with the cloud.');
@@ -239,11 +239,11 @@ export default function (fetchMock, assert) {
     });
     client3.on(client3.Event.SDK_READY_TIMED_OUT, () => {
       client3.ready().catch(() => {
-        t.true(Date.now() - startTime >= 850, 'It should reject ready promise before syncing mySegments data with the cloud.');
-        t.equal(client3.getTreatment('always_on'), 'on', 'It should evaluate treatments with mySegments data from cache.');
+        t.true(Date.now() - startTime >= 850, 'It should reject ready promise before syncing memberships data with the cloud.');
+        t.equal(client3.getTreatment('always_on'), 'on', 'It should evaluate treatments with memberships data from cache.');
       });
-      t.true(Date.now() - startTime >= 850, 'It should emit SDK_READY_TIMED_OUT before syncing mySegments data with the cloud.');
-      t.equal(client3.getTreatment('always_on'), 'on', 'It should evaluate treatments with mySegments data from cache.');
+      t.true(Date.now() - startTime >= 850, 'It should emit SDK_READY_TIMED_OUT before syncing memberships data with the cloud.');
+      t.equal(client3.getTreatment('always_on'), 'on', 'It should evaluate treatments with memberships data from cache.');
     });
   });
 
@@ -260,16 +260,16 @@ export default function (fetchMock, assert) {
       return new Promise(res => { setTimeout(() => res({ status: 200, body: { ...splitChangesMock1, since: 25 }, headers: {} }), 200); }); // 400ms is how long it'll take to reply with Splits, no SDK_READY should be emitted before that.
     });
     fetchMock.get(testUrls.sdk + '/splitChanges?s=1.2&since=1457552620999', { status: 200, body: splitChangesMock2 });
-    fetchMock.get(testUrls.sdk + '/mySegments/nicolas%40split.io', function () {
-      return new Promise(res => { setTimeout(() => res({ status: 200, body: mySegmentsNicolas, headers: {} }), 400); }); // First client gets segments before splits. No segment cache loading (yet)
+    fetchMock.get(testUrls.sdk + '/memberships/nicolas%40split.io', function () {
+      return new Promise(res => { setTimeout(() => res({ status: 200, body: membershipsNicolas, headers: {} }), 400); }); // First client gets segments before splits. No segment cache loading (yet)
     });
-    fetchMock.get(testUrls.sdk + '/mySegments/nicolas2%40split.io', function () {
-      return new Promise(res => { setTimeout(() => res({ status: 200, body: { 'mySegments': [] }, headers: {} }), 700); }); // Second client gets segments after 700ms
+    fetchMock.get(testUrls.sdk + '/memberships/nicolas2%40split.io', function () {
+      return new Promise(res => { setTimeout(() => res({ status: 200, body: { 'ms': {} }, headers: {} }), 700); }); // Second client gets segments after 700ms
     });
-    fetchMock.get(testUrls.sdk + '/mySegments/nicolas3%40split.io', function () {
-      return new Promise(res => { setTimeout(() => res({ status: 200, body: { 'mySegments': [] }, headers: {} }), 1000); }); // Third client mySegments will come after 1s
+    fetchMock.get(testUrls.sdk + '/memberships/nicolas3%40split.io', function () {
+      return new Promise(res => { setTimeout(() => res({ status: 200, body: { 'ms': {} }, headers: {} }), 1000); }); // Third client memberships will come after 1s
     });
-    fetchMock.get(testUrls.sdk + '/mySegments/nicolas4%40split.io', { 'mySegments': [] });
+    fetchMock.get(testUrls.sdk + '/memberships/nicolas4%40split.io', { 'ms': {} });
     fetchMock.postOnce(testUrls.events + '/testImpressions/bulk', 200);
     fetchMock.postOnce(testUrls.events + '/testImpressions/count', 200);
 
@@ -349,7 +349,7 @@ export default function (fetchMock, assert) {
         Promise.all([client3.destroy(), client2.destroy(), client.destroy()]).then(() => {
           t.equal(localStorage.getItem('some_user_item'), 'user_item', 'user items at localStorage must not be changed');
           t.equal(localStorage.getItem('readyFromCache_3.SPLITIO.splits.till'), '1457552620999', 'splits.till must correspond to the till of the last successfully fetched Splits');
-          t.true(nearlyEqual(parseInt(localStorage.getItem('readyFromCache_3.SPLITIO.splits.lastUpdated')), Date.now() - 800 /* 800 ms between last Split and MySegments fetch */), 'lastUpdated must correspond to the timestamp of the last successfully fetched Splits');
+          t.true(nearlyEqual(parseInt(localStorage.getItem('readyFromCache_3.SPLITIO.splits.lastUpdated')), Date.now() - 800 /* 800 ms between last Split and memberships fetch */), 'lastUpdated must correspond to the timestamp of the last successfully fetched Splits');
         });
       });
       t.true(Date.now() - startTime >= 1000, 'It should emit SDK_READY too but after syncing with the cloud.');
@@ -357,11 +357,11 @@ export default function (fetchMock, assert) {
     });
     client3.on(client3.Event.SDK_READY_TIMED_OUT, () => {
       client3.ready().catch(() => {
-        t.true(Date.now() - startTime >= 850, 'It should reject ready promise before syncing mySegments data with the cloud.');
-        t.equal(client3.getTreatment('always_on'), 'on', 'It should evaluate treatments with mySegments data from cache.');
+        t.true(Date.now() - startTime >= 850, 'It should reject ready promise before syncing memberships data with the cloud.');
+        t.equal(client3.getTreatment('always_on'), 'on', 'It should evaluate treatments with memberships data from cache.');
       });
-      t.true(Date.now() - startTime >= 850, 'It should emit SDK_READY_TIMED_OUT before syncing mySegments data with the cloud.');
-      t.equal(client3.getTreatment('always_on'), 'on', 'It should evaluate treatments with mySegments data from cache.');
+      t.true(Date.now() - startTime >= 850, 'It should emit SDK_READY_TIMED_OUT before syncing memberships data with the cloud.');
+      t.equal(client3.getTreatment('always_on'), 'on', 'It should evaluate treatments with memberships data from cache.');
     });
   });
 
@@ -379,14 +379,14 @@ export default function (fetchMock, assert) {
       return { status: 200, body: splitChangesMock1 };
     });
     fetchMock.get(testUrls.sdk + '/splitChanges?s=1.2&since=1457552620999', { status: 200, body: splitChangesMock2 });
-    fetchMock.get(testUrls.sdk + '/mySegments/nicolas%40split.io', function () {
-      return new Promise(res => { setTimeout(() => res({ status: 200, body: mySegmentsNicolas, headers: {} }), 400); }); // First client gets segments before splits. No segment cache loading (yet)
+    fetchMock.get(testUrls.sdk + '/memberships/nicolas%40split.io', function () {
+      return new Promise(res => { setTimeout(() => res({ status: 200, body: membershipsNicolas, headers: {} }), 400); }); // First client gets segments before splits. No segment cache loading (yet)
     });
-    fetchMock.get(testUrls.sdk + '/mySegments/nicolas2%40split.io', function () {
-      return new Promise(res => { setTimeout(() => res({ status: 200, body: { 'mySegments': [] }, headers: {} }), 700); }); // Second client gets segments after 700ms
+    fetchMock.get(testUrls.sdk + '/memberships/nicolas2%40split.io', function () {
+      return new Promise(res => { setTimeout(() => res({ status: 200, body: { 'ms': {} }, headers: {} }), 700); }); // Second client gets segments after 700ms
     });
-    fetchMock.get(testUrls.sdk + '/mySegments/nicolas3%40split.io', function () {
-      return new Promise(res => { setTimeout(() => res({ status: 200, body: { 'mySegments': [] }, headers: {} }), 1000); }); // Third client mySegments will come after 1s
+    fetchMock.get(testUrls.sdk + '/memberships/nicolas3%40split.io', function () {
+      return new Promise(res => { setTimeout(() => res({ status: 200, body: { 'ms': {} }, headers: {} }), 1000); }); // Third client memberships will come after 1s
     });
     fetchMock.postOnce(testUrls.events + '/testImpressions/bulk', 200);
     fetchMock.postOnce(testUrls.events + '/testImpressions/count', 200);
@@ -460,7 +460,7 @@ export default function (fetchMock, assert) {
         Promise.all([client3.destroy(), client2.destroy(), client.destroy()]).then(() => {
           t.equal(localStorage.getItem('some_user_item'), 'user_item', 'user items at localStorage must not be changed');
           t.equal(localStorage.getItem('readyFromCache_4.SPLITIO.splits.till'), '1457552620999', 'splits.till must correspond to the till of the last successfully fetched Splits');
-          t.true(nearlyEqual(parseInt(localStorage.getItem('readyFromCache_4.SPLITIO.splits.lastUpdated')), Date.now() - 1000 /* 1000 ms between last Split and MySegments fetch */), 'lastUpdated must correspond to the timestamp of the last successfully fetched Splits');
+          t.true(nearlyEqual(parseInt(localStorage.getItem('readyFromCache_4.SPLITIO.splits.lastUpdated')), Date.now() - 1000 /* 1000 ms between last Split and memberships fetch */), 'lastUpdated must correspond to the timestamp of the last successfully fetched Splits');
 
           t.end();
         });
@@ -470,11 +470,11 @@ export default function (fetchMock, assert) {
     });
     client3.on(client3.Event.SDK_READY_TIMED_OUT, () => {
       client3.ready().catch(() => {
-        t.true(Date.now() - startTime >= 850, 'It should reject ready promise before syncing mySegments data with the cloud.');
-        t.equal(client3.getTreatment('always_on'), 'control', 'It should not evaluate treatments with mySegments data from cache.');
+        t.true(Date.now() - startTime >= 850, 'It should reject ready promise before syncing memberships data with the cloud.');
+        t.equal(client3.getTreatment('always_on'), 'control', 'It should not evaluate treatments with memberships data from cache.');
       });
-      t.true(Date.now() - startTime >= 850, 'It should emit SDK_READY_TIMED_OUT before syncing mySegments data with the cloud.');
-      t.equal(client3.getTreatment('always_on'), 'control', 'It should evaluate treatments with mySegments data from cache.');
+      t.true(Date.now() - startTime >= 850, 'It should emit SDK_READY_TIMED_OUT before syncing memberships data with the cloud.');
+      t.equal(client3.getTreatment('always_on'), 'control', 'It should evaluate treatments with memberships data from cache.');
     });
   });
 
@@ -489,7 +489,7 @@ export default function (fetchMock, assert) {
     t.plan(7);
 
     fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.2&since=-1&names=p1__split,p2__split', { status: 200, body: { splits: [splitDeclarations.p1__split, splitDeclarations.p2__split], since: -1, till: 1457552620999 } }, { delay: 10 }); // short delay to let emit SDK_READY_FROM_CACHE
-    fetchMock.getOnce(testUrls.sdk + '/mySegments/nicolas%40split.io', { status: 200, body: { mySegments: [] } });
+    fetchMock.getOnce(testUrls.sdk + '/memberships/nicolas%40split.io', { status: 200, body: { ms: {} } });
 
     localStorage.setItem('some_user_item', 'user_item');
     localStorage.setItem('readyFromCache_5.SPLITIO.splits.till', 25);
@@ -541,7 +541,7 @@ export default function (fetchMock, assert) {
     t.plan(5);
 
     fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.2&since=-1&names=p1__split,p2__split', { status: 200, body: { splits: [splitDeclarations.p1__split, splitDeclarations.p2__split], since: -1, till: 1457552620999 } }, { delay: 10 }); // short delay to let emit SDK_READY_FROM_CACHE
-    fetchMock.getOnce(testUrls.sdk + '/mySegments/nicolas%40split.io', { status: 200, body: { mySegments: [] } });
+    fetchMock.getOnce(testUrls.sdk + '/memberships/nicolas%40split.io', { status: 200, body: { ms: {} } });
 
     const splitio = SplitFactory({
       ...baseConfig,
@@ -585,7 +585,7 @@ export default function (fetchMock, assert) {
     t.plan(7);
 
     fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.2&since=25&names=p2__split&prefixes=p1', { status: 200, body: { splits: [splitDeclarations.p1__split, splitDeclarations.p2__split], since: 25, till: 1457552620999 } }, { delay: 10 }); // short delay to let emit SDK_READY_FROM_CACHE
-    fetchMock.getOnce(testUrls.sdk + '/mySegments/nicolas%40split.io', { status: 200, body: { mySegments: [] } });
+    fetchMock.getOnce(testUrls.sdk + '/memberships/nicolas%40split.io', { status: 200, body: { ms: {} } });
 
     const expectedHash = getStorageHash({ ...baseConfig, sync: { __splitFiltersValidation: { queryString: '&names=p2__split&prefixes=p1' }, flagSpecVersion: '1.2' } });
     localStorage.setItem('some_user_item', 'user_item');
@@ -636,7 +636,7 @@ export default function (fetchMock, assert) {
     t.plan(6);
 
     fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.2&since=-1&prefixes=p1,p2', { status: 200, body: { splits: [splitDeclarations.p1__split, splitDeclarations.p2__split], since: -1, till: 1457552620999 } }, { delay: 10 }); // short delay to let emit SDK_READY_FROM_CACHE
-    fetchMock.getOnce(testUrls.sdk + '/mySegments/nicolas%40split.io', { status: 200, body: { mySegments: [] } });
+    fetchMock.getOnce(testUrls.sdk + '/memberships/nicolas%40split.io', { status: 200, body: { ms: {} } });
 
     const expectedHash = getStorageHash({ ...baseConfig, sync: { __splitFiltersValidation: { queryString: '&prefixes=p1,p2' }, flagSpecVersion: '1.2' } });
     localStorage.setItem('some_user_item', 'user_item');
@@ -702,7 +702,7 @@ export default function (fetchMock, assert) {
         t.plan(7);
 
         fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.2&since=-1', { status: 200, body: { splits: [splitDeclarations.p1__split, splitDeclarations.p2__split, splitDeclarations.p3__split], since: -1, till: 1457552620999 } }, { delay: 10 }); // short delay to let emit SDK_READY_FROM_CACHE
-        fetchMock.getOnce(testUrls.sdk + '/mySegments/nicolas%40split.io', { status: 200, body: { mySegments: [] } });
+        fetchMock.getOnce(testUrls.sdk + '/memberships/nicolas%40split.io', { status: 200, body: { ms: {} } });
 
         localStorage.setItem('some_user_item', 'user_item');
         localStorage.setItem('readyFromCache_8.SPLITIO.splits.till', 25);
@@ -756,7 +756,7 @@ export default function (fetchMock, assert) {
     t.plan(6);
 
     fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.2&since=-1&names=no%20exist%20trim,no_exist,p3__split&prefixes=no%20exist%20trim,p2', { status: 200, body: { splits: [splitDeclarations.p2__split, splitDeclarations.p3__split], since: -1, till: 1457552620999 } }, { delay: 10 }); // short delay to let emit SDK_READY_FROM_CACHE
-    fetchMock.getOnce(testUrls.sdk + '/mySegments/nicolas%40split.io', { status: 200, body: { mySegments: [] } });
+    fetchMock.getOnce(testUrls.sdk + '/memberships/nicolas%40split.io', { status: 200, body: { ms: {} } });
 
     localStorage.setItem('some_user_item', 'user_item');
     localStorage.setItem('readyFromCache_9.SPLITIO.splits.till', 25);

@@ -2,29 +2,24 @@ import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
 import splitChangesMock3 from '../mocks/splitchanges.since.1457552620999.till.1457552649999.SPLIT_UPDATE.json';
 import splitChangesMock4 from '../mocks/splitchanges.since.1457552649999.till.1457552650000.SPLIT_KILL.json';
-import mySegmentsNicolasMock1 from '../mocks/mysegments.nicolas@split.io.json';
-import mySegmentsNicolasMock2 from '../mocks/mysegments.nicolas@split.io.mock2.json';
-import mySegmentsMarcio from '../mocks/mysegments.marcio@split.io.json';
+import membershipsNicolasMock2 from '../mocks/memberships.nicolas@split.io.mock2.json';
+import membershipsMarcio from '../mocks/memberships.marcio@split.io.json';
 
 import splitUpdateMessage from '../mocks/message.SPLIT_UPDATE.1457552649999.json';
 import oldSplitUpdateMessage from '../mocks/message.SPLIT_UPDATE.1457552620999.json';
-import mySegmentsUpdateMessageNoPayload from '../mocks/message.MY_SEGMENTS_UPDATE.nicolas@split.io.1457552640000.json';
-import mySegmentsUpdateMessageWithPayload from '../mocks/message.MY_SEGMENTS_UPDATE.marcio@split.io.1457552645000.json';
-import mySegmentsUpdateMessageWithEmptyPayload from '../mocks/message.MY_SEGMENTS_UPDATE.marcio@split.io.1457552646000.json';
 import splitKillMessage from '../mocks/message.SPLIT_KILL.1457552650000.json';
 
-import unboundedMessage from '../mocks/message.V2.UNBOUNDED.1457552650000.json';
-import boundedZlibMessage from '../mocks/message.V2.BOUNDED.ZLIB.1457552651000.json';
-import keylistGzipMessage from '../mocks/message.V2.KEYLIST.GZIP.1457552652000.json';
-import segmentRemovalMessage from '../mocks/message.V2.SEGMENT_REMOVAL.1457552653000.json';
-import unboundedMyLargeSegmentsMessage from '../mocks/message.MY_LARGE_SEGMENTS_UPDATE.UNBOUNDED.1457552650000.json';
+import unboundedMessage from '../mocks/message.MY_SEGMENTS_UPDATE_V3.UNBOUNDED.1457552650000.json';
+import boundedZlibMessage from '../mocks/message.MY_SEGMENTS_UPDATE_V3.BOUNDED.ZLIB.1457552651000.json';
+import keylistGzipMessage from '../mocks/message.MY_SEGMENTS_UPDATE_V3.KEYLIST.GZIP.1457552652000.json';
+import segmentRemovalMessage from '../mocks/message.MY_SEGMENTS_UPDATE_V3.SEGMENT_REMOVAL.1457552653000.json';
+import unboundedMyLargeSegmentsMessage from '../mocks/message.MY_LARGE_SEGMENTS_UPDATE.UNBOUNDED.DELAY.1457552650000.json';
 import myLargeSegmentRemovalMessage from '../mocks/message.MY_LARGE_SEGMENTS_UPDATE.SEGMENT_REMOVAL.1457552653000.json';
 
 import authPushEnabledNicolas from '../mocks/auth.pushEnabled.nicolas@split.io.json';
 import authPushEnabledNicolasAndMarcio from '../mocks/auth.pushEnabled.nicolas@split.io.marcio@split.io.json';
 
 import { nearlyEqual, url, hasNoCacheHeader } from '../testUtils';
-import includes from 'lodash/includes';
 
 // Replace original EventSource with mock
 import EventSourceMock, { setMockListener } from '../testUtils/eventSourceMock';
@@ -51,53 +46,48 @@ const config = {
   },
   urls: baseUrls,
   streamingEnabled: true,
+  debug: true
 };
 const settings = settingsFactory(config);
 
 const MILLIS_SSE_OPEN = 100;
 const MILLIS_FIRST_SPLIT_UPDATE_EVENT = 200;
 const MILLIS_SECOND_SPLIT_UPDATE_EVENT = 300;
-const MILLIS_MY_SEGMENTS_UPDATE_EVENT_NO_PAYLOAD = 400;
-const MILLIS_SPLIT_KILL_EVENT = 500;
-const MILLIS_NEW_CLIENT = 600;
-const MILLIS_SECOND_SSE_OPEN = 700;
-const MILLIS_MY_SEGMENTS_UPDATE_WITH_PAYLOAD = 800;
-const MILLIS_MY_SEGMENTS_UPDATE_WITH_EMPTY_PAYLOAD = 900;
-const MILLIS_MORE_CLIENTS = 1000;
-const MILLIS_UNBOUNDED_FETCH = 1100;
-const MILLIS_BOUNDED_FALLBACK = 1200;
-const MILLIS_KEYLIST_FALLBACK = 1300;
-const MILLIS_BOUNDED = 1400;
-const MILLIS_KEYLIST = 1500;
-const MILLIS_SEGMENT_REMOVAL = 1600;
-const MILLIS_UNBOUNDED_FETCH_LS = 1700;
-const MILLIS_SEGMENT_REMOVAL_LS = 2100;
+const MILLIS_SPLIT_KILL_EVENT = 400;
+const MILLIS_NEW_CLIENT = 500;
+const MILLIS_SECOND_SSE_OPEN = 600;
+const MILLIS_MORE_CLIENTS = 700;
+const MILLIS_UNBOUNDED_FETCH = 800;
+const MILLIS_BOUNDED_FALLBACK = 900;
+const MILLIS_KEYLIST_FALLBACK = 1000;
+const MILLIS_BOUNDED = 1100;
+const MILLIS_KEYLIST = 1200;
+const MILLIS_SEGMENT_REMOVAL = 1300;
+const MILLIS_UNBOUNDED_FETCH_LS = 1400;
+const MILLIS_SEGMENT_REMOVAL_LS = 1800;
 
 /**
  * Sequence of calls:
- *  0.0 secs: initial SyncAll (/splitChanges, /mySegments/*), auth, SSE connection
- *  0.1 secs: SSE connection opened -> syncAll (/splitChanges, /mySegments/*)
+ *  0.0 secs: initial SyncAll (/splitChanges, /memberships/*), auth, SSE connection
+ *  0.1 secs: SSE connection opened -> syncAll (/splitChanges, /memberships/*)
  *  0.2 secs: SPLIT_UPDATE event -> /splitChanges
  *  0.3 secs: SPLIT_UPDATE event with old changeNumber
- *  0.4 secs: MY_SEGMENTS_UPDATE event -> /mySegments/nicolas@split.io
- *  0.5 secs: SPLIT_KILL event -> /splitChanges
- *  0.6 secs: creates a new client -> new auth and SSE connection
- *  0.7 secs: SSE connection opened -> syncAll (/splitChanges, /mySegments/*)
- *  0.8 secs: MY_SEGMENTS_UPDATE event for new client (with payload).
- *  0.9 secs: MY_SEGMENTS_UPDATE event for new client (with empty payload).
- *  1.0 secs: creates more clients
- *  1.1 secs: MY_SEGMENTS_UPDATE_V2 UnboundedFetchRequest event.
- *  1.2 secs: MY_SEGMENTS_UPDATE_V2 BoundedFetchRequest event error --> UnboundedFetchRequest.
- *  1.3 secs: MY_SEGMENTS_UPDATE_V2 KeyList event error --> UnboundedFetchRequest.
- *  1.4 secs: MY_SEGMENTS_UPDATE_V2 BoundedFetchRequest event.
- *  1.5 secs: MY_SEGMENTS_UPDATE_V2 KeyList event.
- *  1.6 secs: MY_SEGMENTS_UPDATE_V2 SegmentRemoval event.
- *  1.7 secs: MY_LARGE_SEGMENTS_UPDATE UnboundedFetchRequest event, with 241 ms delay for 'nicolas@split.io' (hash('nicolas@split.io') % 300)
- *  1.941 secs: /mySegments/* fetch due to unbounded MY_LARGE_SEGMENTS_UPDATE event -> SDK_UPDATE event
- *  2.2 secs: MY_LARGE_SEGMENTS_UPDATE SegmentRemoval event -> SPLIT_UPDATE event
+ *  0.4 secs: SPLIT_KILL event -> /splitChanges
+ *  0.5 secs: creates a new client -> new auth and SSE connection
+ *  0.6 secs: SSE connection opened -> syncAll (/splitChanges, /memberships/*)
+ *  0.7 secs: creates more clients
+ *  0.8 secs: MY_SEGMENTS_UPDATE_V3 UnboundedFetchRequest event.
+ *  0.9 secs: MY_SEGMENTS_UPDATE_V3 BoundedFetchRequest event error --> UnboundedFetchRequest.
+ *  1.0 secs: MY_SEGMENTS_UPDATE_V3 KeyList event error --> UnboundedFetchRequest.
+ *  1.1 secs: MY_SEGMENTS_UPDATE_V3 BoundedFetchRequest event.
+ *  1.2 secs: MY_SEGMENTS_UPDATE_V3 KeyList event.
+ *  1.3 secs: MY_SEGMENTS_UPDATE_V3 SegmentRemoval event.
+ *  1.4 secs: MY_LARGE_SEGMENTS_UPDATE UnboundedFetchRequest event, with 241 ms delay for 'nicolas@split.io' (hash('nicolas@split.io') % 300)
+ *  1.641 secs: /memberships/* fetch due to unbounded MY_LARGE_SEGMENTS_UPDATE event -> SDK_UPDATE event
+ *  1.8 secs: MY_LARGE_SEGMENTS_UPDATE SegmentRemoval event -> SPLIT_UPDATE event
  */
 export function testSynchronization(fetchMock, assert) {
-  assert.plan(44);
+  assert.plan(34);
   fetchMock.reset();
 
   let start, splitio, client, otherClient, keylistAddClient, keylistRemoveClient, bitmapTrueClient, sharedClients = [];
@@ -127,16 +117,6 @@ export function testSynchronization(fetchMock, assert) {
     }, MILLIS_SECOND_SPLIT_UPDATE_EVENT); // send a SPLIT_UPDATE event with an old changeNumber after 0.3 seconds
 
     setTimeout(() => {
-      assert.equal(client.getTreatment('splitters'), 'off', 'evaluation with initial MySegments list');
-      client.once(client.Event.SDK_UPDATE, () => {
-        const lapse = Date.now() - start;
-        assert.true(nearlyEqual(lapse, MILLIS_MY_SEGMENTS_UPDATE_EVENT_NO_PAYLOAD), 'SDK_UPDATE due to MY_SEGMENTS_UPDATE event');
-        assert.equal(client.getTreatment('splitters'), 'on', 'evaluation with updated MySegments list');
-      });
-      eventSourceInstance.emitMessage(mySegmentsUpdateMessageNoPayload);
-    }, MILLIS_MY_SEGMENTS_UPDATE_EVENT_NO_PAYLOAD); // send a MY_SEGMENTS_UPDATE event with a new changeNumber after 0.4 seconds
-
-    setTimeout(() => {
       assert.equal(client.getTreatment('whitelist'), 'allowed', 'evaluation with not killed Split');
       const onUpdateCb = () => {
         const lapse = Date.now() - start;
@@ -160,41 +140,6 @@ export function testSynchronization(fetchMock, assert) {
         setTimeout(() => {
           eventSourceInstance.emitOpen();
         }, MILLIS_SECOND_SSE_OPEN - MILLIS_NEW_CLIENT); // open new SSE connection
-
-        setTimeout(() => {
-          assert.equal(otherClient.getTreatment('qc_team'), 'no', 'evaluation with initial MySegments list (shared client)');
-          otherClient.once(otherClient.Event.SDK_UPDATE, () => {
-            const lapse = Date.now() - start;
-            assert.true(nearlyEqual(lapse, MILLIS_MY_SEGMENTS_UPDATE_WITH_PAYLOAD), 'SDK_UPDATE due to MY_SEGMENTS_UPDATE event (with payload)');
-            assert.equal(otherClient.getTreatment('qc_team'), 'yes', 'evaluation with updated MySegments list (shared client)');
-          });
-          eventSourceInstance.emitMessage(mySegmentsUpdateMessageWithPayload);
-        }, MILLIS_MY_SEGMENTS_UPDATE_WITH_PAYLOAD - MILLIS_NEW_CLIENT); // send a MY_SEGMENTS_UPDATE event with payload after 0.1 seconds from new SSE connection opened
-
-        setTimeout(() => {
-          assert.equal(otherClient.getTreatment('qc_team'), 'yes', 'evaluation with updated MySegments list (shared client)');
-          otherClient.once(otherClient.Event.SDK_UPDATE, () => {
-            const lapse = Date.now() - start;
-            assert.true(nearlyEqual(lapse, MILLIS_MY_SEGMENTS_UPDATE_WITH_EMPTY_PAYLOAD), 'SDK_UPDATE due to MY_SEGMENTS_UPDATE event (with empty payload)');
-            assert.equal(otherClient.getTreatment('qc_team'), 'no', 'evaluation with re-updated MySegments list (shared client)');
-          });
-
-          // assert that user error on callback is an Uncaught Exception
-          otherClient.once(otherClient.Event.SDK_UPDATE, () => {
-            const previousErrorHandler = window.onerror;
-            const exceptionHandler = err => {
-              if (includes(err, 'willThrowFor')) {
-                assert.pass(`User error on SDK_UPDATE callback should throw as Uncaught Exception: ${err}`);
-              } else {
-                assert.fail(err);
-              }
-              window.onerror = previousErrorHandler;
-            };
-            window.onerror = exceptionHandler;
-            null.willThrowForUpdate();
-          });
-          eventSourceInstance.emitMessage(mySegmentsUpdateMessageWithEmptyPayload);
-        }, MILLIS_MY_SEGMENTS_UPDATE_WITH_EMPTY_PAYLOAD - MILLIS_NEW_CLIENT); // send a MY_SEGMENTS_UPDATE event with payload after 0.1 seconds from new SSE connection opened
 
         setTimeout(() => {
           keylistAddClient = splitio.client(keylistAddKey);
@@ -255,7 +200,7 @@ export function testSynchronization(fetchMock, assert) {
               const EXPECTED_DELAY = 241;
 
               client.once(client.Event.SDK_UPDATE, () => {
-                assert.true(nearlyEqual(Date.now() - timestampUnboundEvent, EXPECTED_DELAY), 'SDK_UPDATE after fetching mySegments with a delay');
+                assert.true(nearlyEqual(Date.now() - timestampUnboundEvent, EXPECTED_DELAY), 'SDK_UPDATE after fetching memberships with a delay');
                 assert.equal(client.getTreatment('in_large_segment'), 'yes', 'evaluation after myLargeSegment fetch');
               });
 
@@ -273,7 +218,7 @@ export function testSynchronization(fetchMock, assert) {
                 Promise.all(sharedClients.map(c => c.destroy()))
                   .then(() => {
                     assert.equal(otherClient.getTreatment('whitelist'), 'control', 'evaluation returns control for shared client if it is destroyed');
-                    assert.equal(client.getTreatment('whitelist'), 'not_allowed', 'evaluation returns correct tratment for main client');
+                    assert.equal(client.getTreatment('whitelist'), 'not_allowed', 'evaluation returns correct treatment for main client');
                     assert.equal(eventSourceInstance.readyState, EventSourceMock.OPEN, 'streaming is still open');
 
                     client.destroy().then(() => {
@@ -322,9 +267,9 @@ export function testSynchronization(fetchMock, assert) {
     if (hasNoCacheHeader(opts)) assert.fail('request must not include `Cache-Control` header');
     return { status: 200, body: splitChangesMock1 };
   });
-  fetchMock.getOnce(url(settings, '/mySegments/nicolas%40split.io'), function (url, opts) {
+  fetchMock.getOnce(url(settings, '/memberships/nicolas%40split.io'), function (url, opts) {
     if (hasNoCacheHeader(opts)) assert.fail('request must not include `Cache-Control` header');
-    return { status: 200, body: mySegmentsNicolasMock1 };
+    return { status: 200, body: membershipsNicolasMock2 };
   });
 
   // sync all after SSE opened
@@ -334,21 +279,15 @@ export function testSynchronization(fetchMock, assert) {
     if (hasNoCacheHeader(opts)) assert.fail('request must not include `Cache-Control` header');
     return { status: 200, body: splitChangesMock2 };
   });
-  fetchMock.getOnce(url(settings, '/mySegments/nicolas%40split.io'), function (url, opts) {
+  fetchMock.getOnce(url(settings, '/memberships/nicolas%40split.io'), function (url, opts) {
     if (hasNoCacheHeader(opts)) assert.fail('request must not include `Cache-Control` header');
-    return { status: 200, body: mySegmentsNicolasMock1 };
+    return { status: 200, body: membershipsNicolasMock2 };
   });
 
   // fetch due to SPLIT_UPDATE event
   fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=1457552620999'), function (url, opts) {
     if (!hasNoCacheHeader(opts)) assert.fail('request must include `Cache-Control` header');
     return { status: 200, body: splitChangesMock3 };
-  });
-
-  // fetch due to first MY_SEGMENTS_UPDATE event
-  fetchMock.getOnce(url(settings, '/mySegments/nicolas%40split.io'), function (url, opts) {
-    if (!hasNoCacheHeader(opts)) assert.fail('request must include `Cache-Control` header');
-    return { status: 200, body: mySegmentsNicolasMock2 };
   });
 
   // fetch due to SPLIT_KILL event
@@ -358,10 +297,10 @@ export function testSynchronization(fetchMock, assert) {
     return { status: 200, body: splitChangesMock4 };
   });
 
-  // initial fetch of mySegments for new client
-  fetchMock.getOnce(url(settings, '/mySegments/marcio%40split.io'), function (url, opts) {
+  // initial fetch of memberships for new client
+  fetchMock.getOnce(url(settings, '/memberships/marcio%40split.io'), function (url, opts) {
     if (hasNoCacheHeader(opts)) assert.fail('request must not include `Cache-Control` header');
-    return { status: 200, body: mySegmentsMarcio };
+    return { status: 200, body: membershipsMarcio };
   });
 
   // sync all after second SSE opened
@@ -371,34 +310,34 @@ export function testSynchronization(fetchMock, assert) {
     if (hasNoCacheHeader(opts)) assert.fail('request must not include `Cache-Control` header');
     return { status: 200, body: { splits: [], since: 1457552650000, till: 1457552650000 } };
   });
-  fetchMock.get({ url: url(settings, '/mySegments/nicolas%40split.io'), repeat: 2 }, function (url, opts) {
+  fetchMock.get({ url: url(settings, '/memberships/nicolas%40split.io'), repeat: 2 }, function (url, opts) {
     if (hasNoCacheHeader(opts)) assert.fail('request must not include `Cache-Control` header');
-    return { status: 200, body: mySegmentsNicolasMock2 };
+    return { status: 200, body: membershipsNicolasMock2 };
   });
-  fetchMock.get({ url: url(settings, '/mySegments/marcio%40split.io'), repeat: 2 }, function (url, opts) {
+  fetchMock.get({ url: url(settings, '/memberships/marcio%40split.io'), repeat: 2 }, function (url, opts) {
     if (hasNoCacheHeader(opts)) assert.fail('request must not include `Cache-Control` header');
-    return { status: 200, body: mySegmentsMarcio };
+    return { status: 200, body: membershipsMarcio };
   });
 
-  // 3 unbounded fetch for MY_SEGMENTS_UPDATE_V2 + 1 unbounded fetch for MY_LARGE_SEGMENTS_UPDATE
-  fetchMock.get({ url: url(settings, '/mySegments/nicolas%40split.io'), repeat: 3 }, function (url, opts) {
+  // 3 unbounded fetch for MY_SEGMENTS_UPDATE_V3 + 1 unbounded fetch for MY_LARGE_SEGMENTS_UPDATE
+  fetchMock.get({ url: url(settings, '/memberships/nicolas%40split.io'), repeat: 3 }, function (url, opts) {
     if (!hasNoCacheHeader(opts)) assert.fail('request must not include `Cache-Control` header');
-    return { status: 200, body: mySegmentsNicolasMock2 };
+    return { status: 200, body: membershipsNicolasMock2 };
   });
-  fetchMock.getOnce(url(settings, '/mySegments/nicolas%40split.io'), { status: 200, body: { ...mySegmentsNicolasMock2, myLargeSegments: ['employees', 'splitters'] } });
-  fetchMock.get({ url: url(settings, '/mySegments/marcio%40split.io'), repeat: 4 }, function (url, opts) {
+  fetchMock.getOnce(url(settings, '/memberships/nicolas%40split.io'), { status: 200, body: { ...membershipsNicolasMock2, ls: { k: [{ n: 'employees' }, { n: 'splitters' }] } } });
+  fetchMock.get({ url: url(settings, '/memberships/marcio%40split.io'), repeat: 4 }, function (url, opts) {
     if (!hasNoCacheHeader(opts)) assert.fail('request must not include `Cache-Control` header');
-    return { status: 200, body: mySegmentsMarcio };
+    return { status: 200, body: membershipsMarcio };
   });
 
-  // initial fetch of mySegments for other clients + sync all after third SSE opened + 3 unbounded fetch for MY_SEGMENTS_UPDATE_V2 + 1 unbounded fetch for MY_LARGE_SEGMENTS_UPDATE
+  // initial fetch of memberships for other clients + sync all after third SSE opened + 3 unbounded fetch for MY_SEGMENTS_UPDATE_V3 + 1 unbounded fetch for MY_LARGE_SEGMENTS_UPDATE
   fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=1457552650000'), { status: 200, body: { splits: [], since: 1457552650000, till: 1457552650000 } });
-  fetchMock.get({ url: url(settings, '/mySegments/key1'), repeat: 6 }, { status: 200, body: { mySegments: [] } });
-  fetchMock.get({ url: url(settings, '/mySegments/key3'), repeat: 6 }, { status: 200, body: { mySegments: [{ name: 'splitters' }] } });
-  fetchMock.get({ url: url(settings, `/mySegments/${bitmapTrueKey}`), repeat: 5 }, { status: 200, body: { mySegments: [] } });
+  fetchMock.get({ url: url(settings, '/memberships/key1'), repeat: 6 }, { status: 200, body: { ms: {} } });
+  fetchMock.get({ url: url(settings, '/memberships/key3'), repeat: 6 }, { status: 200, body: { ms: { k: [{ n: 'splitters' }] } } });
+  fetchMock.get({ url: url(settings, `/memberships/${bitmapTrueKey}`), repeat: 5 }, { status: 200, body: { ms: { k: [] } } });
 
   // bounded fetch request
-  fetchMock.get(url(settings, `/mySegments/${bitmapTrueKey}`), { status: 200, body: { mySegments: [{ name: 'splitters' }] } });
+  fetchMock.get(url(settings, `/memberships/${bitmapTrueKey}`), { status: 200, body: { ms: { k: [{ n: 'splitters' }] } } });
 
   fetchMock.get(new RegExp('.*'), function (url) {
     assert.fail('unexpected GET request with url: ' + url);

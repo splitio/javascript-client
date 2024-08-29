@@ -1,13 +1,13 @@
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
 import splitChangesMock3 from '../mocks/splitchanges.since.1457552620999.till.1457552649999.SPLIT_UPDATE.json';
-import mySegmentsNicolasMock1 from '../mocks/mysegments.nicolas@split.io.json';
-import mySegmentsNicolasMock2 from '../mocks/mysegments.nicolas@split.io.mock2.json';
-import mySegmentsMarcio from '../mocks/mysegments.marcio@split.io.json';
+import membershipsNicolasMock1 from '../mocks/memberships.nicolas@split.io.json';
+import membershipsNicolasMock2 from '../mocks/memberships.nicolas@split.io.mock2.json';
+import membershipsMarcio from '../mocks/memberships.marcio@split.io.json';
 
 import splitUpdateMessage from '../mocks/message.SPLIT_UPDATE.1457552649999.json';
 import oldSplitUpdateMessage from '../mocks/message.SPLIT_UPDATE.1457552620999.json';
-import mySegmentsUpdateMessage from '../mocks/message.MY_SEGMENTS_UPDATE.nicolas@split.io.1457552640000.json';
+import mySegmentsUpdateMessage from '../mocks/message.MY_SEGMENTS_UPDATE_V3.UNBOUNDED.1457552640000.json';
 import splitKillMessage from '../mocks/message.SPLIT_KILL.1457552650000.json';
 
 import authPushEnabledNicolas from '../mocks/auth.pushEnabled.nicolas@split.io.json';
@@ -48,7 +48,7 @@ const MILLIS_RETRY_FOR_FIRST_SPLIT_UPDATE_EVENT = 300;
 
 const MILLIS_SECOND_SPLIT_UPDATE_EVENT = 400;
 
-const MILLIS_MYSEGMENT_UPDATE_EVENT = 500;
+const MILLIS_MYSEGMENTS_UPDATE_V3_EVENT = 500;
 const MILLIS_THIRD_RETRY_FOR_MYSEGMENT_UPDATE_EVENT = 1200;
 
 const MILLIS_SPLIT_KILL_EVENT = 1300;
@@ -56,18 +56,18 @@ const MILLIS_THIRD_RETRY_FOR_SPLIT_KILL_EVENT = 2000;
 
 /**
  * Sequence of calls:
- *  0.0 secs: initial SyncAll (/splitChanges, /mySegments/*), auth, SSE connection
- *  0.1 secs: SSE connection opened -> syncAll (/splitChanges, /mySegments/*)
+ *  0.0 secs: initial SyncAll (/splitChanges, /memberships/*), auth, SSE connection
+ *  0.1 secs: SSE connection opened -> syncAll (/splitChanges, /memberships/*)
  *
  *  0.2 secs: SPLIT_UPDATE event -> /splitChanges: bad response -> SDK_UPDATE triggered
  *  0.3 secs: SPLIT_UPDATE event -> /splitChanges retry: success
  *
  *  0.4 secs: SPLIT_UPDATE event with old changeNumber -> SDK_UPDATE not triggered
  *
- *  0.5 secs: MY_SEGMENTS_UPDATE event -> /mySegments/nicolas@split.io: network error
- *  0.6 secs: MY_SEGMENTS_UPDATE event -> /mySegments/nicolas@split.io retry: invalid JSON response
- *  0.8 secs: MY_SEGMENTS_UPDATE event -> /mySegments/nicolas@split.io: server error
- *  1.2 secs: MY_SEGMENTS_UPDATE event -> /mySegments/nicolas@split.io retry: success -> SDK_UPDATE triggered
+ *  0.5 secs: Unbounded MY_SEGMENTS_UPDATE_V3 event -> /memberships/marcio@split.io OK, /memberships/nicolas@split.io: network error
+ *  0.6 secs: Unbounded MY_SEGMENTS_UPDATE_V3 event -> /memberships/nicolas@split.io retry: invalid JSON response
+ *  0.8 secs: Unbounded MY_SEGMENTS_UPDATE_V3 event -> /memberships/nicolas@split.io: server error
+ *  1.2 secs: Unbounded MY_SEGMENTS_UPDATE_V3 event -> /memberships/nicolas@split.io retry: success -> SDK_UPDATE triggered
  *
  *  1.3 secs: SPLIT_KILL event -> /splitChanges: outdated response -> SDK_UPDATE triggered although fetches fail
  *  1.4 secs: SPLIT_KILL event -> /splitChanges retry: network error
@@ -118,7 +118,7 @@ export function testSynchronizationRetries(fetchMock, assert) {
         assert.equal(client.getTreatment('splitters'), 'on', 'evaluation with updated MySegments list');
       });
       eventSourceInstance.emitMessage(mySegmentsUpdateMessage);
-    }, MILLIS_MYSEGMENT_UPDATE_EVENT); // send a MY_SEGMENTS_UPDATE event with a new changeNumber after 0.4 seconds
+    }, MILLIS_MYSEGMENTS_UPDATE_V3_EVENT); // send a MY_SEGMENTS_UPDATE_V3 event with a new changeNumber after 0.4 seconds
 
     setTimeout(() => {
       client.once(client.Event.SDK_UPDATE, () => {
@@ -141,10 +141,10 @@ export function testSynchronizationRetries(fetchMock, assert) {
     return { status: 200, body: authPushEnabledNicolas };
   });
 
-  // initial split and mySegments sync
+  // initial split and memberships sync
   fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=-1'), { status: 200, body: splitChangesMock1 });
-  fetchMock.getOnce(url(settings, '/mySegments/nicolas%40split.io'), { status: 200, body: mySegmentsNicolasMock1 });
-  fetchMock.get({ url: url(settings, '/mySegments/marcio%40split.io'), repeat: 2 }, { status: 200, body: mySegmentsMarcio });
+  fetchMock.getOnce(url(settings, '/memberships/nicolas%40split.io'), { status: 200, body: membershipsNicolasMock1 });
+  fetchMock.get({ url: url(settings, '/memberships/marcio%40split.io'), repeat: 3 }, { status: 200, body: membershipsMarcio });
 
   // split and segment sync after SSE opened
   fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=1457552620999'), function () {
@@ -152,7 +152,7 @@ export function testSynchronizationRetries(fetchMock, assert) {
     assert.true(nearlyEqual(lapse, MILLIS_SSE_OPEN), 'sync after SSE connection is opened');
     return { status: 200, body: splitChangesMock2 };
   });
-  fetchMock.getOnce(url(settings, '/mySegments/nicolas%40split.io'), { status: 200, body: mySegmentsNicolasMock1 });
+  fetchMock.getOnce(url(settings, '/memberships/nicolas%40split.io'), { status: 200, body: membershipsNicolasMock1 });
 
   // fetch due to SPLIT_UPDATE event
   fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=1457552620999'), { status: 200, body: splitChangesMock2 });
@@ -164,16 +164,16 @@ export function testSynchronizationRetries(fetchMock, assert) {
   });
 
   // fetch due to first MY_SEGMENTS_UPDATE event
-  fetchMock.getOnce(url(settings, '/mySegments/nicolas%40split.io'), { throws: new TypeError('Network error') });
+  fetchMock.getOnce(url(settings, '/memberships/nicolas%40split.io'), { throws: new TypeError('Network error') });
   // fetch retry for MY_SEGMENTS_UPDATE event, due to previous fail
-  fetchMock.getOnce(url(settings, '/mySegments/nicolas%40split.io'), { status: 200, body: '{ "since": 1457552620999, "til' }); // invalid JSON response
+  fetchMock.getOnce(url(settings, '/memberships/nicolas%40split.io'), { status: 200, body: '{ "since": 1457552620999, "til' }); // invalid JSON response
   // fetch retry for MY_SEGMENTS_UPDATE event, due to previous fail
-  fetchMock.getOnce(url(settings, '/mySegments/nicolas%40split.io'), { status: 500, body: 'server error' });
+  fetchMock.getOnce(url(settings, '/memberships/nicolas%40split.io'), { status: 500, body: 'server error' });
   // second fetch retry for MY_SEGMENTS_UPDATE event, due to previous fail
-  fetchMock.getOnce(url(settings, '/mySegments/nicolas%40split.io'), function () {
+  fetchMock.getOnce(url(settings, '/memberships/nicolas%40split.io'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_THIRD_RETRY_FOR_MYSEGMENT_UPDATE_EVENT), 'sync second retry for MY_SEGMENTS_UPDATE event');
-    return { status: 200, body: mySegmentsNicolasMock2 };
+    return { status: 200, body: membershipsNicolasMock2 };
   });
 
   // fetch due to SPLIT_KILL event

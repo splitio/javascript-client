@@ -35,8 +35,8 @@ export default async function telemetryBrowserSuite(fetchMock, t) {
   t.test(async (assert) => {
     fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.2&since=-1', 500);
     fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.2&since=-1', { status: 200, body: splitChangesMock1 });
-    fetchMock.getOnce(baseUrls.sdk + '/mySegments/user-key', 500);
-    fetchMock.getOnce(baseUrls.sdk + '/mySegments/user-key', { status: 200, body: { 'mySegments': ['one_segment'] } });
+    fetchMock.getOnce(baseUrls.sdk + '/memberships/user-key', 500);
+    fetchMock.getOnce(baseUrls.sdk + '/memberships/user-key', { status: 200, body: { 'ms': { k: [{ n: 'one_segment' }] } } });
 
     // We need to handle all requests properly
     fetchMock.postOnce(baseUrls.events + '/testImpressions/bulk', 200);
@@ -59,13 +59,13 @@ export default async function telemetryBrowserSuite(fetchMock, t) {
       const data = JSON.parse(opts.body);
 
       // Validate last successful sync
-      assert.deepEqual(Object.keys(data.lS), ['ms', 'sp', 'te'], 'Successful splitChanges, mySegments and metrics/config requests');
+      assert.deepEqual(Object.keys(data.lS), ['ms', 'sp', 'te'], 'Successful splitChanges, memberships and metrics/config requests');
       lastSync = data.lS; delete data.lS;
 
       // Validate http and method latencies
       const getLatencyCount = buckets => buckets ? buckets.reduce((accum, entry) => accum + entry, 0) : 0;
       assert.equal(getLatencyCount(data.hL.sp), 2, 'Two latency metrics for splitChanges GET request');
-      assert.equal(getLatencyCount(data.hL.ms), 2, 'Two latency metrics for mySegments GET request');
+      assert.equal(getLatencyCount(data.hL.ms), 2, 'Two latency metrics for memberships GET request');
       assert.equal(getLatencyCount(data.hL.te), 1, 'One latency metric for telemetry config POST request');
       assert.equal(getLatencyCount(data.mL.t), 2, 'Two latency metrics for getTreatment (one not ready usage');
       assert.equal(getLatencyCount(data.mL.ts), 1, 'One latency metric for getTreatments');
@@ -187,7 +187,7 @@ export default async function telemetryBrowserSuite(fetchMock, t) {
     let factory;
     const splitFilters = [{ type: 'bySet', values: ['a', '_b', 'a', 'a', 'c', 'd', '_d'] }];
 
-    fetchMock.get(baseUrls.sdk + '/mySegments/nicolas%40split.io', { status: 200, body: { 'mySegments': [] } });
+    fetchMock.get(baseUrls.sdk + '/memberships/nicolas%40split.io', { status: 200, body: { 'ms': {} } });
     fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.2&since=-1&sets=a,c,d', { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
     fetchMock.postOnce(baseUrls.telemetry + '/v1/metrics/config', (url, opts) => {
       const data = JSON.parse(opts.body);

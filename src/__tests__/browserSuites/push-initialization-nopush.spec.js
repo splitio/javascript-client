@@ -2,7 +2,7 @@ import { SplitFactory } from '../../';
 import { settingsFactory } from '../../settings';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
-import mySegmentsNicolas from '../mocks/mysegments.nicolas@split.io.json';
+import membershipsNicolas from '../mocks/memberships.nicolas@split.io.json';
 import authPushDisabled from '../mocks/auth.pushDisabled.json';
 import authPushEnabledNicolas from '../mocks/auth.pushEnabled.nicolas@split.io.json';
 import authInvalidCredentials from '../mocks/auth.invalidCredentials.txt';
@@ -38,14 +38,14 @@ const settings = settingsFactory(config);
 
 /**
  * Sequence of calls:
- *  0.0 secs: initial SyncAll (/splitChanges, /mySegments/*) and auth (success but push disabled)
- *  0.0 secs: syncAll if falling back to polling (/splitChanges, /mySegments/*)
- *  0.1 secs: polling (/splitChanges, /mySegments/*)
+ *  0.0 secs: initial SyncAll (/splitChanges, /memberships/*) and auth (success but push disabled)
+ *  0.0 secs: syncAll if falling back to polling (/splitChanges, /memberships/*)
+ *  0.1 secs: polling (/splitChanges, /memberships/*)
  */
 function testInitializationFail(fetchMock, assert, fallbackToPolling) {
   let start, splitio, client, ready = false;
 
-  fetchMock.get(url(settings, '/mySegments/nicolas%40split.io'), { status: 200, body: mySegmentsNicolas });
+  fetchMock.get(url(settings, '/memberships/nicolas%40split.io'), { status: 200, body: membershipsNicolas });
   fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=-1'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, 0), 'initial sync');
