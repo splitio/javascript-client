@@ -9,12 +9,12 @@ import splitUpdateMessage from '../mocks/message.SPLIT_UPDATE.1457552649999.json
 import oldSplitUpdateMessage from '../mocks/message.SPLIT_UPDATE.1457552620999.json';
 import splitKillMessage from '../mocks/message.SPLIT_KILL.1457552650000.json';
 
-import unboundedMessage from '../mocks/message.MY_SEGMENTS_UPDATE_V3.UNBOUNDED.1457552650000.json';
-import boundedZlibMessage from '../mocks/message.MY_SEGMENTS_UPDATE_V3.BOUNDED.ZLIB.1457552651000.json';
-import keylistGzipMessage from '../mocks/message.MY_SEGMENTS_UPDATE_V3.KEYLIST.GZIP.1457552652000.json';
-import segmentRemovalMessage from '../mocks/message.MY_SEGMENTS_UPDATE_V3.SEGMENT_REMOVAL.1457552653000.json';
-import unboundedMyLargeSegmentsMessage from '../mocks/message.MY_LARGE_SEGMENTS_UPDATE.UNBOUNDED.DELAY.1457552650000.json';
-import myLargeSegmentRemovalMessage from '../mocks/message.MY_LARGE_SEGMENTS_UPDATE.SEGMENT_REMOVAL.1457552653000.json';
+import unboundedMessage from '../mocks/message.MEMBERSHIP_MS_UPDATE.UNBOUNDED.1457552650000.json';
+import boundedZlibMessage from '../mocks/message.MEMBERSHIP_MS_UPDATE.BOUNDED.ZLIB.1457552651000.json';
+import keylistGzipMessage from '../mocks/message.MEMBERSHIP_MS_UPDATE.KEYLIST.GZIP.1457552652000.json';
+import segmentRemovalMessage from '../mocks/message.MEMBERSHIP_MS_UPDATE.SEGMENT_REMOVAL.1457552653000.json';
+import unboundedMyLargeSegmentsMessage from '../mocks/message.MEMBERSHIP_LS_UPDATE.UNBOUNDED.DELAY.1457552650000.json';
+import myLargeSegmentRemovalMessage from '../mocks/message.MEMBERSHIP_LS_UPDATE.SEGMENT_REMOVAL.1457552653000.json';
 
 import authPushEnabledNicolas from '../mocks/auth.pushEnabled.nicolas@split.io.json';
 import authPushEnabledNicolasAndMarcio from '../mocks/auth.pushEnabled.nicolas@split.io.marcio@split.io.json';
@@ -76,15 +76,15 @@ const MILLIS_SEGMENT_REMOVAL_LS = 1800;
  *  0.5 secs: creates a new client -> new auth and SSE connection
  *  0.6 secs: SSE connection opened -> syncAll (/splitChanges, /memberships/*)
  *  0.7 secs: creates more clients
- *  0.8 secs: MY_SEGMENTS_UPDATE_V3 UnboundedFetchRequest event.
- *  0.9 secs: MY_SEGMENTS_UPDATE_V3 BoundedFetchRequest event error --> UnboundedFetchRequest.
- *  1.0 secs: MY_SEGMENTS_UPDATE_V3 KeyList event error --> UnboundedFetchRequest.
- *  1.1 secs: MY_SEGMENTS_UPDATE_V3 BoundedFetchRequest event.
- *  1.2 secs: MY_SEGMENTS_UPDATE_V3 KeyList event.
- *  1.3 secs: MY_SEGMENTS_UPDATE_V3 SegmentRemoval event.
- *  1.4 secs: MY_LARGE_SEGMENTS_UPDATE UnboundedFetchRequest event, with 241 ms delay for 'nicolas@split.io' (hash('nicolas@split.io') % 300)
- *  1.641 secs: /memberships/* fetch due to unbounded MY_LARGE_SEGMENTS_UPDATE event -> SDK_UPDATE event
- *  1.8 secs: MY_LARGE_SEGMENTS_UPDATE SegmentRemoval event -> SPLIT_UPDATE event
+ *  0.8 secs: MEMBERSHIP_MS_UPDATE UnboundedFetchRequest event.
+ *  0.9 secs: MEMBERSHIP_MS_UPDATE BoundedFetchRequest event error --> UnboundedFetchRequest.
+ *  1.0 secs: MEMBERSHIP_MS_UPDATE KeyList event error --> UnboundedFetchRequest.
+ *  1.1 secs: MEMBERSHIP_MS_UPDATE BoundedFetchRequest event.
+ *  1.2 secs: MEMBERSHIP_MS_UPDATE KeyList event.
+ *  1.3 secs: MEMBERSHIP_MS_UPDATE SegmentRemoval event.
+ *  1.4 secs: MEMBERSHIP_LS_UPDATE UnboundedFetchRequest event, with 241 ms delay for 'nicolas@split.io' (hash('nicolas@split.io') % 300)
+ *  1.641 secs: /memberships/* fetch due to unbounded MEMBERSHIP_LS_UPDATE event -> SDK_UPDATE event
+ *  1.8 secs: MEMBERSHIP_LS_UPDATE SegmentRemoval event -> SPLIT_UPDATE event
  */
 export function testSynchronization(fetchMock, assert) {
   assert.plan(34);
@@ -319,7 +319,7 @@ export function testSynchronization(fetchMock, assert) {
     return { status: 200, body: membershipsMarcio };
   });
 
-  // 3 unbounded fetch for MY_SEGMENTS_UPDATE_V3 + 1 unbounded fetch for MY_LARGE_SEGMENTS_UPDATE
+  // 3 unbounded fetch for MEMBERSHIP_MS_UPDATE + 1 unbounded fetch for MEMBERSHIP_LS_UPDATE
   fetchMock.get({ url: url(settings, '/memberships/nicolas%40split.io'), repeat: 3 }, function (url, opts) {
     if (!hasNoCacheHeader(opts)) assert.fail('request must not include `Cache-Control` header');
     return { status: 200, body: membershipsNicolasMock2 };
@@ -330,7 +330,7 @@ export function testSynchronization(fetchMock, assert) {
     return { status: 200, body: membershipsMarcio };
   });
 
-  // initial fetch of memberships for other clients + sync all after third SSE opened + 3 unbounded fetch for MY_SEGMENTS_UPDATE_V3 + 1 unbounded fetch for MY_LARGE_SEGMENTS_UPDATE
+  // initial fetch of memberships for other clients + sync all after third SSE opened + 3 unbounded fetch for MEMBERSHIP_MS_UPDATE + 1 unbounded fetch for MEMBERSHIP_LS_UPDATE
   fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=1457552650000'), { status: 200, body: { splits: [], since: 1457552650000, till: 1457552650000 } });
   fetchMock.get({ url: url(settings, '/memberships/key1'), repeat: 6 }, { status: 200, body: { ms: {} } });
   fetchMock.get({ url: url(settings, '/memberships/key3'), repeat: 6 }, { status: 200, body: { ms: { k: [{ n: 'splitters' }] } } });
