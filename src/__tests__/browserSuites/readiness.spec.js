@@ -199,7 +199,7 @@ export default function (fetchMock, assert) {
           t.equal(getMembershipsHits(), 2 * CLIENTS_COUNT - 1, 'It should have tried to synchronize memberships as soon as it received a new Split with segments.');
         }, 0);
 
-        setTimeout(() => { // Nasty ugly crap to avoid listening to the update coming from mySegment calls.
+        setTimeout(() => { // Nasty ugly code to avoid listening to the update coming from membership calls.
           client.once(client.Event.SDK_UPDATE, () => {
             setTimeout(() => {
               // This update left us in an state with no segments (removed the matcher we fetched on the previous one), it should stop the producer and not trigger more requests.
@@ -283,7 +283,7 @@ export default function (fetchMock, assert) {
           t.equal(getMembershipsHits(), 2 * CLIENTS_COUNT - 1, 'It should have tried to synchronize memberships as soon as it received a new Split with segments.');
         }, 0);
 
-        setTimeout(() => { // Nasty ugly crap to avoid listening to the update coming from mySegment calls.
+        setTimeout(() => { // Nasty ugly code to avoid listening to the update coming from membership calls.
           client.once(client.Event.SDK_UPDATE, () => {
             setTimeout(() => {
               // This update left us in an state with no segments (removed the matcher we fetched on the previous one), it should stop the producer and not trigger more requests.

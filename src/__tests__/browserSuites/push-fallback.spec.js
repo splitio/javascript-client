@@ -20,7 +20,7 @@ import streamingPausedControlPriMessage2 from '../mocks/message.CONTROL.STREAMIN
 import streamingDisabledControlPriMessage from '../mocks/message.CONTROL.STREAMING_DISABLED.control_pri.1586987434950.json';
 
 import splitUpdateMessage from '../mocks/message.SPLIT_UPDATE.1457552649999.json';
-import mySegmentsUpdateMessage from '../mocks/message.MEMBERSHIP_MS_UPDATE.UNBOUNDED.1457552640000.json';
+import mySegmentsUpdateMessage from '../mocks/message.MEMBERSHIPS_MS_UPDATE.UNBOUNDED.1457552640000.json';
 
 import authPushEnabledNicolas from '../mocks/auth.pushEnabled.nicolas@split.io.json';
 import authPushEnabledNicolasAndMarcio from '../mocks/auth.pushEnabled.nicolas@split.io.marcio@split.io.json';
@@ -66,11 +66,11 @@ const MILLIS_CREATE_CLIENT_DURING_PUSH = MILLIS_STREAMING_UP_OCCUPANCY + 50;
 const MILLIS_SPLIT_UPDATE_EVENT_DURING_PUSH = MILLIS_STREAMING_UP_OCCUPANCY + 100;
 
 const MILLIS_STREAMING_PAUSED_CONTROL = MILLIS_SPLIT_UPDATE_EVENT_DURING_PUSH + 100;
-const MILLIS_MEMBERSHIP_MS_UPDATE_EVENT_DURING_POLLING = MILLIS_STREAMING_PAUSED_CONTROL + 100;
+const MILLIS_MEMBERSHIPS_MS_UPDATE_EVENT_DURING_POLLING = MILLIS_STREAMING_PAUSED_CONTROL + 100;
 const MILLIS_STREAMING_RESUMED_CONTROL = MILLIS_STREAMING_PAUSED_CONTROL + settings.scheduler.featuresRefreshRate + 100;
-const MILLIS_MEMBERSHIP_MS_UPDATE_EVENT_DURING_PUSH = MILLIS_STREAMING_RESUMED_CONTROL + 100;
+const MILLIS_MEMBERSHIPS_MS_UPDATE_EVENT_DURING_PUSH = MILLIS_STREAMING_RESUMED_CONTROL + 100;
 
-const MILLIS_STREAMING_PAUSED_CONTROL_2 = MILLIS_MEMBERSHIP_MS_UPDATE_EVENT_DURING_PUSH + 100;
+const MILLIS_STREAMING_PAUSED_CONTROL_2 = MILLIS_MEMBERSHIPS_MS_UPDATE_EVENT_DURING_PUSH + 100;
 const MILLIS_STREAMING_RESET_WHILE_PUSH_DOWN = MILLIS_STREAMING_PAUSED_CONTROL_2 + 100;
 const MILLIS_STREAMING_RESET_WHILE_PUSH_UP = MILLIS_STREAMING_RESET_WHILE_PUSH_DOWN + settings.scheduler.featuresRefreshRate;
 const MILLIS_STREAMING_DISABLED_CONTROL = MILLIS_STREAMING_RESET_WHILE_PUSH_UP + 100;
@@ -88,11 +88,11 @@ const MILLIS_DESTROY = MILLIS_STREAMING_DISABLED_CONTROL + settings.scheduler.fe
  *  0.55 secs: create a new client while streaming -> initial fetch (/memberships/marcio), auth, SSE connection and syncAll (/splitChanges, /memberships/nicolas, /memberships/marcio)
  *  0.6 secs: SPLIT_UPDATE event -> /splitChanges
  *  0.7 secs: Streaming down (CONTROL event) -> fetch due to fallback to polling (/splitChanges, /memberships/nicolas, /memberships/marcio)
- *  0.8 secs: MEMBERSHIP_MS_UPDATE event ignored
+ *  0.8 secs: MEMBERSHIPS_MS_UPDATE event ignored
  *  0.9 secs: periodic fetch due to polling (/splitChanges)
  *  0.95 secs: periodic fetch due to polling (/memberships/nicolas, /memberships/marcio)
  *  1.0 secs: Streaming up (CONTROL event) -> syncAll (/splitChanges, /memberships/nicolas, /memberships/marcio)
- *  1.1 secs: Unbounded MEMBERSHIP_MS_UPDATE event -> /memberships/nicolas, /memberships/marcio
+ *  1.1 secs: Unbounded MEMBERSHIPS_MS_UPDATE event -> /memberships/nicolas, /memberships/marcio
  *  1.2 secs: Streaming down (CONTROL event) -> fetch due to fallback to polling (/splitChanges, /memberships/nicolas, /memberships/marcio)
  *  1.3 secs: STREAMING_RESET control event -> auth, SSE connection, syncAll and stop polling
  *  1.5 secs: STREAMING_RESET control event -> auth, SSE connection, syncAll
@@ -110,7 +110,7 @@ export function testFallback(fetchMock, assert) {
   // mock SSE open and message events
   setMockListener((eventSourceInstance) => {
 
-    const expectedSSEurl = `${url(settings, '/sse')}?channels=NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_NTcwOTc3MDQx_mySegments,NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_splits,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_pri,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_sec&accessToken=${authPushEnabledNicolas.token}&v=1.1&heartbeats=true&SplitSDKVersion=${settings.version}&SplitSDKClientKey=h-1>`;
+    const expectedSSEurl = `${url(settings, '/sse')}?channels=NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_control,NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_flags,NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_memberships,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_pri,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_sec&accessToken=${authPushEnabledNicolas.token}&v=1.1&heartbeats=true&SplitSDKVersion=${settings.version}&SplitSDKClientKey=h-1>`;
     assert.equals(eventSourceInstance.url, expectedSSEurl, 'EventSource URL is the expected');
 
     setTimeout(() => {
@@ -136,7 +136,7 @@ export function testFallback(fetchMock, assert) {
       secondClient = splitio.client(secondUserKey);
 
       setMockListener((eventSourceInstance) => {
-        const expectedSSEurl = `${url(settings, '/sse')}?channels=NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_MjE0MTkxOTU2Mg%3D%3D_mySegments,NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_NTcwOTc3MDQx_mySegments,NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_splits,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_pri,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_sec&accessToken=${authPushEnabledNicolasAndMarcio.token}&v=1.1&heartbeats=true&SplitSDKVersion=${settings.version}&SplitSDKClientKey=h-1>`;
+        const expectedSSEurl = `${url(settings, '/sse')}?channels=NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_control,NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_flags,NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_memberships,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_pri,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_sec&accessToken=${authPushEnabledNicolasAndMarcio.token}&v=1.1&heartbeats=true&SplitSDKVersion=${settings.version}&SplitSDKClientKey=h-1>`;
         assert.equals(eventSourceInstance.url, expectedSSEurl, 'new EventSource URL is the expected');
         eventSourceInstance.emitOpen();
 
@@ -155,7 +155,7 @@ export function testFallback(fetchMock, assert) {
         setTimeout(() => {
           assert.equal(eventSourceInstance.readyState, EventSourceMock.OPEN, 'EventSource connection keeps opened after PUSH_SUBSYSTEM_DOWN (STREAMING_PAUSED event)');
           eventSourceInstance.emitMessage(mySegmentsUpdateMessage);
-        }, MILLIS_MEMBERSHIP_MS_UPDATE_EVENT_DURING_POLLING - MILLIS_CREATE_CLIENT_DURING_PUSH); // send a MEMBERSHIP_MS_UPDATE event while polling, to check that we are ignoring it
+        }, MILLIS_MEMBERSHIPS_MS_UPDATE_EVENT_DURING_POLLING - MILLIS_CREATE_CLIENT_DURING_PUSH); // send a MEMBERSHIPS_MS_UPDATE event while polling, to check that we are ignoring it
 
         setTimeout(() => {
           eventSourceInstance.emitMessage(streamingResumedControlPriMessage);
@@ -167,7 +167,7 @@ export function testFallback(fetchMock, assert) {
             assert.equal(client.getTreatment('real_split'), 'on', 'evaluation with updated segment');
           });
           eventSourceInstance.emitMessage(mySegmentsUpdateMessage);
-        }, MILLIS_MEMBERSHIP_MS_UPDATE_EVENT_DURING_PUSH - MILLIS_CREATE_CLIENT_DURING_PUSH); // send a MEMBERSHIP_MS_UPDATE event
+        }, MILLIS_MEMBERSHIPS_MS_UPDATE_EVENT_DURING_PUSH - MILLIS_CREATE_CLIENT_DURING_PUSH); // send a MEMBERSHIPS_MS_UPDATE event
 
         setTimeout(() => {
           eventSourceInstance.emitMessage(streamingPausedControlPriMessage2);
@@ -271,10 +271,10 @@ export function testFallback(fetchMock, assert) {
   fetchMock.getOnce(url(settings, '/memberships/nicolas%40split.io'), { status: 200, body: membershipsNicolasMock1 });
   fetchMock.getOnce(url(settings, '/memberships/marcio%40split.io'), { status: 200, body: membershipsMarcio });
 
-  // fetch due to MEMBERSHIP_MS_UPDATE event
+  // fetch due to MEMBERSHIPS_MS_UPDATE event
   fetchMock.getOnce(url(settings, '/memberships/nicolas%40split.io'), function () {
     const lapse = Date.now() - start;
-    assert.true(nearlyEqual(lapse, MILLIS_MEMBERSHIP_MS_UPDATE_EVENT_DURING_PUSH), 'sync due to MEMBERSHIP_MS_UPDATE event');
+    assert.true(nearlyEqual(lapse, MILLIS_MEMBERSHIPS_MS_UPDATE_EVENT_DURING_PUSH), 'sync due to MEMBERSHIPS_MS_UPDATE event');
     return { status: 200, body: membershipsNicolasMock2 };
   });
   fetchMock.getOnce(url(settings, '/memberships/marcio%40split.io'), { status: 200, body: membershipsMarcio });

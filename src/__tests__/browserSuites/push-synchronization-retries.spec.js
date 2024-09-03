@@ -7,7 +7,7 @@ import membershipsMarcio from '../mocks/memberships.marcio@split.io.json';
 
 import splitUpdateMessage from '../mocks/message.SPLIT_UPDATE.1457552649999.json';
 import oldSplitUpdateMessage from '../mocks/message.SPLIT_UPDATE.1457552620999.json';
-import mySegmentsUpdateMessage from '../mocks/message.MEMBERSHIP_MS_UPDATE.UNBOUNDED.1457552640000.json';
+import mySegmentsUpdateMessage from '../mocks/message.MEMBERSHIPS_MS_UPDATE.UNBOUNDED.1457552640000.json';
 import splitKillMessage from '../mocks/message.SPLIT_KILL.1457552650000.json';
 
 import authPushEnabledNicolas from '../mocks/auth.pushEnabled.nicolas@split.io.json';
@@ -48,8 +48,8 @@ const MILLIS_RETRY_FOR_FIRST_SPLIT_UPDATE_EVENT = 300;
 
 const MILLIS_SECOND_SPLIT_UPDATE_EVENT = 400;
 
-const MILLIS_MYSEGMENTS_UPDATE_V3_EVENT = 500;
-const MILLIS_THIRD_RETRY_FOR_MYSEGMENT_UPDATE_EVENT = 1200;
+const MILLIS_MEMBERSHIPS_MS_UPDATE = 500;
+const MILLIS_THIRD_RETRY_FOR_MEMBERSHIPS_MS_UPDATE = 1200;
 
 const MILLIS_SPLIT_KILL_EVENT = 1300;
 const MILLIS_THIRD_RETRY_FOR_SPLIT_KILL_EVENT = 2000;
@@ -64,10 +64,10 @@ const MILLIS_THIRD_RETRY_FOR_SPLIT_KILL_EVENT = 2000;
  *
  *  0.4 secs: SPLIT_UPDATE event with old changeNumber -> SDK_UPDATE not triggered
  *
- *  0.5 secs: Unbounded MEMBERSHIP_MS_UPDATE event -> /memberships/marcio@split.io OK, /memberships/nicolas@split.io: network error
- *  0.6 secs: Unbounded MEMBERSHIP_MS_UPDATE event -> /memberships/nicolas@split.io retry: invalid JSON response
- *  0.8 secs: Unbounded MEMBERSHIP_MS_UPDATE event -> /memberships/nicolas@split.io: server error
- *  1.2 secs: Unbounded MEMBERSHIP_MS_UPDATE event -> /memberships/nicolas@split.io retry: success -> SDK_UPDATE triggered
+ *  0.5 secs: Unbounded MEMBERSHIPS_MS_UPDATE event -> /memberships/marcio@split.io OK, /memberships/nicolas@split.io: network error
+ *  0.6 secs: Unbounded MEMBERSHIPS_MS_UPDATE event -> /memberships/nicolas@split.io retry: invalid JSON response
+ *  0.8 secs: Unbounded MEMBERSHIPS_MS_UPDATE event -> /memberships/nicolas@split.io: server error
+ *  1.2 secs: Unbounded MEMBERSHIPS_MS_UPDATE event -> /memberships/nicolas@split.io retry: success -> SDK_UPDATE triggered
  *
  *  1.3 secs: SPLIT_KILL event -> /splitChanges: outdated response -> SDK_UPDATE triggered although fetches fail
  *  1.4 secs: SPLIT_KILL event -> /splitChanges retry: network error
@@ -88,7 +88,7 @@ export function testSynchronizationRetries(fetchMock, assert) {
   setMockListener(function (eventSourceInstance) {
     start = Date.now();
 
-    const expectedSSEurl = `${url(settings, '/sse')}?channels=NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_NTcwOTc3MDQx_mySegments,NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_splits,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_pri,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_sec&accessToken=${authPushEnabledNicolas.token}&v=1.1&heartbeats=true&SplitSDKVersion=${settings.version}&SplitSDKClientKey=h-1>`;
+    const expectedSSEurl = `${url(settings, '/sse')}?channels=NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_control,NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_flags,NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_memberships,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_pri,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_sec&accessToken=${authPushEnabledNicolas.token}&v=1.1&heartbeats=true&SplitSDKVersion=${settings.version}&SplitSDKClientKey=h-1>`;
     assert.equals(eventSourceInstance.url, expectedSSEurl, 'EventSource URL is the expected');
 
     /* events on first SSE connection */
@@ -114,11 +114,11 @@ export function testSynchronizationRetries(fetchMock, assert) {
       assert.equal(client.getTreatment('splitters'), 'off', 'evaluation with initial MySegments list');
       client.once(client.Event.SDK_UPDATE, () => {
         const lapse = Date.now() - start;
-        assert.true(nearlyEqual(lapse, MILLIS_THIRD_RETRY_FOR_MYSEGMENT_UPDATE_EVENT), 'SDK_UPDATE due to MEMBERSHIP_MS_UPDATE event');
+        assert.true(nearlyEqual(lapse, MILLIS_THIRD_RETRY_FOR_MEMBERSHIPS_MS_UPDATE), 'SDK_UPDATE due to MEMBERSHIPS_MS_UPDATE event');
         assert.equal(client.getTreatment('splitters'), 'on', 'evaluation with updated MySegments list');
       });
       eventSourceInstance.emitMessage(mySegmentsUpdateMessage);
-    }, MILLIS_MYSEGMENTS_UPDATE_V3_EVENT); // send a MEMBERSHIP_MS_UPDATE event with a new changeNumber after 0.4 seconds
+    }, MILLIS_MEMBERSHIPS_MS_UPDATE); // send a MEMBERSHIPS_MS_UPDATE event with a new changeNumber after 0.4 seconds
 
     setTimeout(() => {
       client.once(client.Event.SDK_UPDATE, () => {
@@ -163,16 +163,16 @@ export function testSynchronizationRetries(fetchMock, assert) {
     return { status: 200, body: splitChangesMock3 };
   });
 
-  // fetch due to first MEMBERSHIP_MS_UPDATE event
+  // fetch due to first MEMBERSHIPS_MS_UPDATE event
   fetchMock.getOnce(url(settings, '/memberships/nicolas%40split.io'), { throws: new TypeError('Network error') });
-  // fetch retry for MEMBERSHIP_MS_UPDATE event, due to previous fail
+  // fetch retry for MEMBERSHIPS_MS_UPDATE event, due to previous fail
   fetchMock.getOnce(url(settings, '/memberships/nicolas%40split.io'), { status: 200, body: '{ "since": 1457552620999, "til' }); // invalid JSON response
-  // fetch retry for MEMBERSHIP_MS_UPDATE event, due to previous fail
+  // fetch retry for MEMBERSHIPS_MS_UPDATE event, due to previous fail
   fetchMock.getOnce(url(settings, '/memberships/nicolas%40split.io'), { status: 500, body: 'server error' });
-  // second fetch retry for MEMBERSHIP_MS_UPDATE event, due to previous fail
+  // second fetch retry for MEMBERSHIPS_MS_UPDATE event, due to previous fail
   fetchMock.getOnce(url(settings, '/memberships/nicolas%40split.io'), function () {
     const lapse = Date.now() - start;
-    assert.true(nearlyEqual(lapse, MILLIS_THIRD_RETRY_FOR_MYSEGMENT_UPDATE_EVENT), 'sync second retry for MEMBERSHIP_MS_UPDATE event');
+    assert.true(nearlyEqual(lapse, MILLIS_THIRD_RETRY_FOR_MEMBERSHIPS_MS_UPDATE), 'sync second retry for MEMBERSHIPS_MS_UPDATE event');
     return { status: 200, body: membershipsNicolasMock2 };
   });
 

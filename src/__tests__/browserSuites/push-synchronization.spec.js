@@ -9,12 +9,12 @@ import splitUpdateMessage from '../mocks/message.SPLIT_UPDATE.1457552649999.json
 import oldSplitUpdateMessage from '../mocks/message.SPLIT_UPDATE.1457552620999.json';
 import splitKillMessage from '../mocks/message.SPLIT_KILL.1457552650000.json';
 
-import unboundedMessage from '../mocks/message.MEMBERSHIP_MS_UPDATE.UNBOUNDED.1457552650000.json';
-import boundedZlibMessage from '../mocks/message.MEMBERSHIP_MS_UPDATE.BOUNDED.ZLIB.1457552651000.json';
-import keylistGzipMessage from '../mocks/message.MEMBERSHIP_MS_UPDATE.KEYLIST.GZIP.1457552652000.json';
-import segmentRemovalMessage from '../mocks/message.MEMBERSHIP_MS_UPDATE.SEGMENT_REMOVAL.1457552653000.json';
-import unboundedMyLargeSegmentsMessage from '../mocks/message.MEMBERSHIP_LS_UPDATE.UNBOUNDED.DELAY.1457552650000.json';
-import myLargeSegmentRemovalMessage from '../mocks/message.MEMBERSHIP_LS_UPDATE.SEGMENT_REMOVAL.1457552653000.json';
+import unboundedMessage from '../mocks/message.MEMBERSHIPS_MS_UPDATE.UNBOUNDED.1457552650000.json';
+import boundedZlibMessage from '../mocks/message.MEMBERSHIPS_MS_UPDATE.BOUNDED.ZLIB.1457552651000.json';
+import keylistGzipMessage from '../mocks/message.MEMBERSHIPS_MS_UPDATE.KEYLIST.GZIP.1457552652000.json';
+import segmentRemovalMessage from '../mocks/message.MEMBERSHIPS_MS_UPDATE.SEGMENT_REMOVAL.1457552653000.json';
+import unboundedMyLargeSegmentsMessage from '../mocks/message.MEMBERSHIPS_LS_UPDATE.UNBOUNDED.DELAY.1457552650000.json';
+import myLargeSegmentRemovalMessage from '../mocks/message.MEMBERSHIPS_LS_UPDATE.SEGMENT_REMOVAL.1457552653000.json';
 
 import authPushEnabledNicolas from '../mocks/auth.pushEnabled.nicolas@split.io.json';
 import authPushEnabledNicolasAndMarcio from '../mocks/auth.pushEnabled.nicolas@split.io.marcio@split.io.json';
@@ -57,14 +57,14 @@ const MILLIS_SPLIT_KILL_EVENT = 400;
 const MILLIS_NEW_CLIENT = 500;
 const MILLIS_SECOND_SSE_OPEN = 600;
 const MILLIS_MORE_CLIENTS = 700;
-const MILLIS_UNBOUNDED_FETCH = 800;
-const MILLIS_BOUNDED_FALLBACK = 900;
-const MILLIS_KEYLIST_FALLBACK = 1000;
-const MILLIS_BOUNDED = 1100;
-const MILLIS_KEYLIST = 1200;
-const MILLIS_SEGMENT_REMOVAL = 1300;
-const MILLIS_UNBOUNDED_FETCH_LS = 1400;
-const MILLIS_SEGMENT_REMOVAL_LS = 1800;
+const MILLIS_MEMBERSHIPS_MS_UPDATE_UNBOUNDED_FETCH = 800;
+const MILLIS_MEMBERSHIPS_MS_UPDATE_BOUNDED_FALLBACK = 900;
+const MILLIS_MEMBERSHIPS_MS_UPDATE_KEYLIST_FALLBACK = 1000;
+const MILLIS_MEMBERSHIPS_MS_UPDATE_BOUNDED = 1100;
+const MILLIS_MEMBERSHIPS_MS_UPDATE_KEYLIST = 1200;
+const MILLIS_MEMBERSHIPS_MS_UPDATE_SEGMENT_REMOVAL = 1300;
+const MILLIS_MEMBERSHIPS_LS_UPDATE_UNBOUNDED_FETCH = 1400;
+const MILLIS_MEMBERSHIPS_LS_UPDATE_SEGMENT_REMOVAL = 1800;
 
 /**
  * Sequence of calls:
@@ -76,15 +76,16 @@ const MILLIS_SEGMENT_REMOVAL_LS = 1800;
  *  0.5 secs: creates a new client -> new auth and SSE connection
  *  0.6 secs: SSE connection opened -> syncAll (/splitChanges, /memberships/*)
  *  0.7 secs: creates more clients
- *  0.8 secs: MEMBERSHIP_MS_UPDATE UnboundedFetchRequest event.
- *  0.9 secs: MEMBERSHIP_MS_UPDATE BoundedFetchRequest event error --> UnboundedFetchRequest.
- *  1.0 secs: MEMBERSHIP_MS_UPDATE KeyList event error --> UnboundedFetchRequest.
- *  1.1 secs: MEMBERSHIP_MS_UPDATE BoundedFetchRequest event.
- *  1.2 secs: MEMBERSHIP_MS_UPDATE KeyList event.
- *  1.3 secs: MEMBERSHIP_MS_UPDATE SegmentRemoval event.
- *  1.4 secs: MEMBERSHIP_LS_UPDATE UnboundedFetchRequest event, with 241 ms delay for 'nicolas@split.io' (hash('nicolas@split.io') % 300)
- *  1.641 secs: /memberships/* fetch due to unbounded MEMBERSHIP_LS_UPDATE event -> SDK_UPDATE event
- *  1.8 secs: MEMBERSHIP_LS_UPDATE SegmentRemoval event -> SPLIT_UPDATE event
+ *  0.8 secs: MEMBERSHIPS_MS_UPDATE UnboundedFetchRequest event.
+ *  0.9 secs: MEMBERSHIPS_MS_UPDATE BoundedFetchRequest event error --> UnboundedFetchRequest.
+ *  1.0 secs: MEMBERSHIPS_MS_UPDATE KeyList event error --> UnboundedFetchRequest.
+ *  1.1 secs: MEMBERSHIPS_MS_UPDATE BoundedFetchRequest event.
+ *  1.2 secs: MEMBERSHIPS_MS_UPDATE KeyList event.
+ *  1.3 secs: MEMBERSHIPS_MS_UPDATE SegmentRemoval event.
+// WITH CN IN THE RESPONSE
+ *  1.4 secs: MEMBERSHIPS_LS_UPDATE UnboundedFetchRequest event, with 241 ms delay for 'nicolas@split.io' (hash('nicolas@split.io') % 300)
+ *  1.641 secs: /memberships/* fetch due to unbounded MEMBERSHIPS_LS_UPDATE event -> SDK_UPDATE event
+ *  1.8 secs: MEMBERSHIPS_LS_UPDATE SegmentRemoval event -> SPLIT_UPDATE event
  */
 export function testSynchronization(fetchMock, assert) {
   assert.plan(34);
@@ -94,7 +95,7 @@ export function testSynchronization(fetchMock, assert) {
 
   // mock SSE open and message events
   setMockListener((eventSourceInstance) => {
-    const expectedSSEurl = `${url(settings, '/sse')}?channels=NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_NTcwOTc3MDQx_mySegments,NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_splits,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_pri,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_sec&accessToken=${authPushEnabledNicolas.token}&v=1.1&heartbeats=true&SplitSDKVersion=${settings.version}&SplitSDKClientKey=h-1>`;
+    const expectedSSEurl = `${url(settings, '/sse')}?channels=NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_control,NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_flags,NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_memberships,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_pri,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_sec&accessToken=${authPushEnabledNicolas.token}&v=1.1&heartbeats=true&SplitSDKVersion=${settings.version}&SplitSDKClientKey=h-1>`;
     assert.equals(eventSourceInstance.url, expectedSSEurl, 'EventSource URL is the expected');
 
     /* events on first SSE connection */
@@ -133,7 +134,7 @@ export function testSynchronization(fetchMock, assert) {
       otherClient = splitio.client(otherUserKey);
 
       setMockListener((eventSourceInstance) => {
-        const expectedSSEurl = `${url(settings, '/sse')}?channels=NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_MjE0MTkxOTU2Mg%3D%3D_mySegments,NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_NTcwOTc3MDQx_mySegments,NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_splits,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_pri,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_sec&accessToken=${authPushEnabledNicolasAndMarcio.token}&v=1.1&heartbeats=true&SplitSDKVersion=${settings.version}&SplitSDKClientKey=h-1>`;
+        const expectedSSEurl = `${url(settings, '/sse')}?channels=NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_control,NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_flags,NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_memberships,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_pri,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_sec&accessToken=${authPushEnabledNicolasAndMarcio.token}&v=1.1&heartbeats=true&SplitSDKVersion=${settings.version}&SplitSDKClientKey=h-1>`;
         assert.equals(eventSourceInstance.url, expectedSSEurl, 'new EventSource URL is the expected');
 
         /* events on second SSE connection */
@@ -152,17 +153,17 @@ export function testSynchronization(fetchMock, assert) {
 
             setTimeout(() => {
               eventSourceInstance.emitMessage(unboundedMessage);
-            }, MILLIS_UNBOUNDED_FETCH - MILLIS_MORE_CLIENTS);
+            }, MILLIS_MEMBERSHIPS_MS_UPDATE_UNBOUNDED_FETCH - MILLIS_MORE_CLIENTS);
 
             setTimeout(() => {
               const malformedMessage = { ...boundedZlibMessage, data: boundedZlibMessage.data.replace('eJxiGAX4AMd', '').replace('1457552651000', '1457552650100') };
               eventSourceInstance.emitMessage(malformedMessage);
-            }, MILLIS_BOUNDED_FALLBACK - MILLIS_MORE_CLIENTS);
+            }, MILLIS_MEMBERSHIPS_MS_UPDATE_BOUNDED_FALLBACK - MILLIS_MORE_CLIENTS);
 
             setTimeout(() => {
               const malformedMessage = { ...keylistGzipMessage, data: keylistGzipMessage.data.replace('H4sIAAAAAAA', '').replace('1457552652000', '1457552650200') };
               eventSourceInstance.emitMessage(malformedMessage);
-            }, MILLIS_KEYLIST_FALLBACK - MILLIS_MORE_CLIENTS);
+            }, MILLIS_MEMBERSHIPS_MS_UPDATE_KEYLIST_FALLBACK - MILLIS_MORE_CLIENTS);
 
             setTimeout(() => {
               assert.deepEqual(sharedClients.map(c => c.getTreatment('splitters')), ['off', 'off', 'on', 'off'], 'evaluation before bounded fetch');
@@ -170,7 +171,7 @@ export function testSynchronization(fetchMock, assert) {
                 assert.deepEqual(sharedClients.map(c => c.getTreatment('splitters')), ['off', 'off', 'on', 'on'], 'evaluation after bounded fetch');
               });
               eventSourceInstance.emitMessage(boundedZlibMessage);
-            }, MILLIS_BOUNDED - MILLIS_MORE_CLIENTS);
+            }, MILLIS_MEMBERSHIPS_MS_UPDATE_BOUNDED - MILLIS_MORE_CLIENTS);
 
             setTimeout(() => {
               assert.deepEqual(sharedClients.map(c => c.getTreatment('splitters')), ['off', 'off', 'on', 'on'], 'evaluation before keylist message');
@@ -182,7 +183,7 @@ export function testSynchronization(fetchMock, assert) {
                 assert.deepEqual(sharedClients.map(c => c.getTreatment('splitters')), ['off', 'on', 'off', 'on'], 'evaluation after keylist message (removed key)');
               });
               eventSourceInstance.emitMessage(keylistGzipMessage);
-            }, MILLIS_KEYLIST - MILLIS_MORE_CLIENTS);
+            }, MILLIS_MEMBERSHIPS_MS_UPDATE_KEYLIST - MILLIS_MORE_CLIENTS);
 
             setTimeout(() => {
               assert.deepEqual(sharedClients.map(c => c.getTreatment('splitters')), ['off', 'on', 'off', 'on'], 'evaluation before segment removal');
@@ -191,7 +192,7 @@ export function testSynchronization(fetchMock, assert) {
               });
 
               eventSourceInstance.emitMessage(segmentRemovalMessage);
-            }, MILLIS_SEGMENT_REMOVAL - MILLIS_MORE_CLIENTS);
+            }, MILLIS_MEMBERSHIPS_MS_UPDATE_SEGMENT_REMOVAL - MILLIS_MORE_CLIENTS);
 
             setTimeout(() => {
               assert.equal(client.getTreatment('in_large_segment'), 'no', 'evaluation before myLargeSegment fetch');
@@ -205,7 +206,7 @@ export function testSynchronization(fetchMock, assert) {
               });
 
               eventSourceInstance.emitMessage(unboundedMyLargeSegmentsMessage);
-            }, MILLIS_UNBOUNDED_FETCH_LS - MILLIS_MORE_CLIENTS);
+            }, MILLIS_MEMBERSHIPS_LS_UPDATE_UNBOUNDED_FETCH - MILLIS_MORE_CLIENTS);
 
             setTimeout(() => {
               assert.equal(client.getTreatment('in_large_segment'), 'yes', 'evaluation before large segment removal');
@@ -230,7 +231,7 @@ export function testSynchronization(fetchMock, assert) {
               });
 
               eventSourceInstance.emitMessage(myLargeSegmentRemovalMessage);
-            }, MILLIS_SEGMENT_REMOVAL_LS - MILLIS_MORE_CLIENTS);
+            }, MILLIS_MEMBERSHIPS_LS_UPDATE_SEGMENT_REMOVAL - MILLIS_MORE_CLIENTS);
           });
         }, MILLIS_MORE_CLIENTS - MILLIS_NEW_CLIENT);
 
@@ -319,7 +320,7 @@ export function testSynchronization(fetchMock, assert) {
     return { status: 200, body: membershipsMarcio };
   });
 
-  // 3 unbounded fetch for MEMBERSHIP_MS_UPDATE + 1 unbounded fetch for MEMBERSHIP_LS_UPDATE
+  // 3 unbounded fetch for MEMBERSHIPS_MS_UPDATE + 1 unbounded fetch for MEMBERSHIPS_LS_UPDATE
   fetchMock.get({ url: url(settings, '/memberships/nicolas%40split.io'), repeat: 3 }, function (url, opts) {
     if (!hasNoCacheHeader(opts)) assert.fail('request must not include `Cache-Control` header');
     return { status: 200, body: membershipsNicolasMock2 };
@@ -330,7 +331,7 @@ export function testSynchronization(fetchMock, assert) {
     return { status: 200, body: membershipsMarcio };
   });
 
-  // initial fetch of memberships for other clients + sync all after third SSE opened + 3 unbounded fetch for MEMBERSHIP_MS_UPDATE + 1 unbounded fetch for MEMBERSHIP_LS_UPDATE
+  // initial fetch of memberships for other clients + sync all after third SSE opened + 3 unbounded fetch for MEMBERSHIPS_MS_UPDATE + 1 unbounded fetch for MEMBERSHIPS_LS_UPDATE
   fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=1457552650000'), { status: 200, body: { splits: [], since: 1457552650000, till: 1457552650000 } });
   fetchMock.get({ url: url(settings, '/memberships/key1'), repeat: 6 }, { status: 200, body: { ms: {} } });
   fetchMock.get({ url: url(settings, '/memberships/key3'), repeat: 6 }, { status: 200, body: { ms: { k: [{ n: 'splitters' }] } } });
