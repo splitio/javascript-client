@@ -13,12 +13,13 @@ import unboundedMessage from '../mocks/message.MEMBERSHIPS_MS_UPDATE.UNBOUNDED.1
 import boundedZlibMessage from '../mocks/message.MEMBERSHIPS_MS_UPDATE.BOUNDED.ZLIB.1457552651000.json';
 import keylistGzipMessage from '../mocks/message.MEMBERSHIPS_MS_UPDATE.KEYLIST.GZIP.1457552652000.json';
 import segmentRemovalMessage from '../mocks/message.MEMBERSHIPS_MS_UPDATE.SEGMENT_REMOVAL.1457552653000.json';
-import unboundedMyLargeSegmentsMessage from '../mocks/message.MEMBERSHIPS_LS_UPDATE.UNBOUNDED.DELAY.1457552650000.json';
-import myLargeSegmentRemovalMessage from '../mocks/message.MEMBERSHIPS_LS_UPDATE.SEGMENT_REMOVAL.1457552653000.json';
+import unboundedLSMessage from '../mocks/message.MEMBERSHIPS_LS_UPDATE.UNBOUNDED.DELAY.1457552650000.json';
+import segmentRemovalLSMessage from '../mocks/message.MEMBERSHIPS_LS_UPDATE.SEGMENT_REMOVAL.1457552653000.json';
 
 import authPushEnabledNicolas from '../mocks/auth.pushEnabled.nicolas@split.io.json';
 import authPushEnabledNicolasAndMarcio from '../mocks/auth.pushEnabled.nicolas@split.io.marcio@split.io.json';
 
+import { Backoff } from '@splitsoftware/splitio-commons/src/utils/Backoff';
 import { nearlyEqual, url, hasNoCacheHeader } from '../testUtils';
 
 // Replace original EventSource with mock
@@ -64,7 +65,8 @@ const MILLIS_MEMBERSHIPS_MS_UPDATE_BOUNDED = 1100;
 const MILLIS_MEMBERSHIPS_MS_UPDATE_KEYLIST = 1200;
 const MILLIS_MEMBERSHIPS_MS_UPDATE_SEGMENT_REMOVAL = 1300;
 const MILLIS_MEMBERSHIPS_LS_UPDATE_UNBOUNDED_FETCH = 1400;
-const MILLIS_MEMBERSHIPS_LS_UPDATE_SEGMENT_REMOVAL = 1800;
+const MILLIS_MEMBERSHIPS_LS_UPDATE_SEGMENT_REMOVAL = 1900;
+const EXPECTED_DELAY_AND_BACKOFF = 241 + 100;
 
 /**
  * Sequence of calls:
@@ -82,12 +84,14 @@ const MILLIS_MEMBERSHIPS_LS_UPDATE_SEGMENT_REMOVAL = 1800;
  *  1.1 secs: MEMBERSHIPS_MS_UPDATE BoundedFetchRequest event.
  *  1.2 secs: MEMBERSHIPS_MS_UPDATE KeyList event.
  *  1.3 secs: MEMBERSHIPS_MS_UPDATE SegmentRemoval event.
-// WITH CN IN THE RESPONSE
  *  1.4 secs: MEMBERSHIPS_LS_UPDATE UnboundedFetchRequest event, with 241 ms delay for 'nicolas@split.io' (hash('nicolas@split.io') % 300)
- *  1.641 secs: /memberships/* fetch due to unbounded MEMBERSHIPS_LS_UPDATE event -> SDK_UPDATE event
- *  1.8 secs: MEMBERSHIPS_LS_UPDATE SegmentRemoval event -> SPLIT_UPDATE event
+ *  1.641 secs: /memberships/* fetch due to unbounded MEMBERSHIPS_LS_UPDATE event, with an old changeNumber
+ *  1.741 secs: /memberships/* fetch due to unbounded MEMBERSHIPS_LS_UPDATE event, with the target changeNumber -> SDK_UPDATE event
+ *  1.9 secs: MEMBERSHIPS_LS_UPDATE SegmentRemoval event -> SPLIT_UPDATE event
  */
 export function testSynchronization(fetchMock, assert) {
+  // Force the backoff base of UpdateWorkers to reduce test time
+  Backoff.__TEST__BASE_MILLIS = 100;
   assert.plan(34);
   fetchMock.reset();
 
@@ -198,14 +202,13 @@ export function testSynchronization(fetchMock, assert) {
               assert.equal(client.getTreatment('in_large_segment'), 'no', 'evaluation before myLargeSegment fetch');
 
               const timestampUnboundEvent = Date.now();
-              const EXPECTED_DELAY = 241;
 
               client.once(client.Event.SDK_UPDATE, () => {
-                assert.true(nearlyEqual(Date.now() - timestampUnboundEvent, EXPECTED_DELAY), 'SDK_UPDATE after fetching memberships with a delay');
+                assert.true(nearlyEqual(Date.now() - timestampUnboundEvent, EXPECTED_DELAY_AND_BACKOFF), 'SDK_UPDATE after fetching memberships with a delay');
                 assert.equal(client.getTreatment('in_large_segment'), 'yes', 'evaluation after myLargeSegment fetch');
               });
 
-              eventSourceInstance.emitMessage(unboundedMyLargeSegmentsMessage);
+              eventSourceInstance.emitMessage(unboundedLSMessage);
             }, MILLIS_MEMBERSHIPS_LS_UPDATE_UNBOUNDED_FETCH - MILLIS_MORE_CLIENTS);
 
             setTimeout(() => {
@@ -225,12 +228,14 @@ export function testSynchronization(fetchMock, assert) {
                     client.destroy().then(() => {
                       assert.equal(client.getTreatment('whitelist'), 'control', 'evaluation returns control for main client if it is destroyed');
                       assert.equal(eventSourceInstance.readyState, EventSourceMock.CLOSED, 'streaming is closed after destroy');
+
+                      Backoff.__TEST__BASE_MILLIS = undefined;
                       assert.end();
                     });
                   });
               });
 
-              eventSourceInstance.emitMessage(myLargeSegmentRemovalMessage);
+              eventSourceInstance.emitMessage(segmentRemovalLSMessage);
             }, MILLIS_MEMBERSHIPS_LS_UPDATE_SEGMENT_REMOVAL - MILLIS_MORE_CLIENTS);
           });
         }, MILLIS_MORE_CLIENTS - MILLIS_NEW_CLIENT);
@@ -321,15 +326,16 @@ export function testSynchronization(fetchMock, assert) {
   });
 
   // 3 unbounded fetch for MEMBERSHIPS_MS_UPDATE + 1 unbounded fetch for MEMBERSHIPS_LS_UPDATE
-  fetchMock.get({ url: url(settings, '/memberships/nicolas%40split.io'), repeat: 3 }, function (url, opts) {
-    if (!hasNoCacheHeader(opts)) assert.fail('request must not include `Cache-Control` header');
-    return { status: 200, body: membershipsNicolasMock2 };
-  });
-  fetchMock.getOnce(url(settings, '/memberships/nicolas%40split.io'), { status: 200, body: { ...membershipsNicolasMock2, ls: { k: [{ n: 'employees' }, { n: 'splitters' }] } } });
   fetchMock.get({ url: url(settings, '/memberships/marcio%40split.io'), repeat: 4 }, function (url, opts) {
     if (!hasNoCacheHeader(opts)) assert.fail('request must not include `Cache-Control` header');
     return { status: 200, body: membershipsMarcio };
   });
+  fetchMock.get({ url: url(settings, '/memberships/nicolas%40split.io'), repeat: 3 }, function (url, opts) {
+    if (!hasNoCacheHeader(opts)) assert.fail('request must not include `Cache-Control` header');
+    return { status: 200, body: membershipsNicolasMock2 };
+  });
+  fetchMock.getOnce(url(settings, '/memberships/nicolas%40split.io'), { status: 200, body: { ms: { k: [{ n: 'developers' }, { n: 'engineers' }] }, ls: { k: [], cn: 1457552640000 } } }); // not target changeNumber
+  fetchMock.getOnce(url(settings, '/memberships/nicolas%40split.io'), { status: 200, body: { ms: { k: [{ n: 'developers' }, { n: 'engineers' }] }, ls: { k: [{ n: 'employees' }, { n: 'splitters' }], cn: 1457552650000 } } }); // target changeNumber
 
   // initial fetch of memberships for other clients + sync all after third SSE opened + 3 unbounded fetch for MEMBERSHIPS_MS_UPDATE + 1 unbounded fetch for MEMBERSHIPS_LS_UPDATE
   fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=1457552650000'), { status: 200, body: { splits: [], since: 1457552650000, till: 1457552650000 } });
