@@ -1,6 +1,7 @@
-10.28.0 (August XXX, 2024)
+10.28.0 (September XXX, 2024)
  - Updated @splitsoftware/splitio-commons package to version 1.17.0 that includes minor updates:
     - Added `sync.requestOptions.getHeaderOverrides` configuration option to enhance SDK HTTP request Headers for Authorization Frameworks.
+    - Updated some transitive dependencies for vulnerability fixes.
 
 10.27.0 (June 25, 2024)
  - Added `sync.requestOptions.agent` option to SDK configuration for NodeJS. This allows passing a custom NodeJS HTTP(S) Agent with specific configurations for the SDK requests, like custom TLS settings or a network proxy (See https://help.split.io/hc/en-us/articles/360020564931-Node-js-SDK#proxy).
