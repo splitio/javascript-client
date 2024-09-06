@@ -81,7 +81,7 @@ jobs:
 
     steps:
       - name: Download assets
-        uses: actions/download-artifact@v4.1.7
+        uses: actions/download-artifact@v3
         with:
           name: assets
           path: umd
@@ -120,7 +120,7 @@ jobs:
 
     steps:
       - name: Download assets
-        uses: actions/download-artifact@v4.1.7
+        uses: actions/download-artifact@v3
         with:
           name: assets
           path: umd
