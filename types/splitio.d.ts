@@ -1144,7 +1144,7 @@ declare namespace SplitIO {
          * Or provide keys with different case since headers are case-insensitive. Example: `{ 'authorization': 'value1', 'Authorization': 'value2' }`
          *
          * NOTE: to pass custom headers to the streaming connection in Browser, you should polyfill the `window.EventSource` object with a library that supports headers,
-         * like https://www.npmjs.com/package/eventsource, since the native EventSource object does not support them in general and will be ignored.
+         * like https://www.npmjs.com/package/event-source-polyfill, since native EventSource does not support them and will be ignored.
          *
          * @property getHeaderOverrides
          * @default undefined
