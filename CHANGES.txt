@@ -1,3 +1,6 @@
+10.28.1 (September XX, 2024)
+ - Updated fetch-mock dependency for vulnerability fixes.
+
 10.28.0 (September 6, 2024)
  - Updated @splitsoftware/splitio-commons package to version 1.17.0 that includes minor updates:
     - Added `sync.requestOptions.getHeaderOverrides` configuration option to enhance SDK HTTP request Headers for Authorization Frameworks.
