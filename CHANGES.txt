@@ -1,3 +1,8 @@
+10.29.0 (September XX, 2024)
+ - Updated @splitsoftware/splitio-commons package to version 1.18.0 that includes minor updates:
+    - Added support for targeting rules based on large segments for browsers.
+    - Updated some transitive dependencies for vulnerability fixes.
+
 10.28.0 (September 6, 2024)
  - Updated @splitsoftware/splitio-commons package to version 1.17.0 that includes minor updates:
     - Added `sync.requestOptions.getHeaderOverrides` configuration option to enhance SDK HTTP request Headers for Authorization Frameworks.
