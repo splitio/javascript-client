@@ -565,7 +565,10 @@ let fullBrowserSettings: SplitIO.IBrowserSettings = {
   sync: {
     splitFilters: splitFilters,
     impressionsMode: 'DEBUG',
-    enabled: true
+    enabled: true,
+    requestOptions: {
+      getHeaderOverrides(context) { return { ...context.headers, 'header': 'value' } },
+    }
   },
   userConsent: 'GRANTED'
 };
@@ -618,6 +621,7 @@ let fullNodeSettings: SplitIO.INodeSettings = {
     impressionsMode: 'OPTIMIZED',
     enabled: true,
     requestOptions: {
+      getHeaderOverrides(context) { return { ...context.headers, 'header': 'value' } },
       agent: new (require('https')).Agent(),
     }
   }
@@ -666,7 +670,7 @@ let fullAsyncSettings: SplitIO.INodeAsyncSettings = {
   mode: 'consumer',
   debug: true,
   sync: {
-    splitFilters: splitFilters
+    splitFilters: splitFilters,
   }
 };
 
