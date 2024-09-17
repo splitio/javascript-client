@@ -20,10 +20,5 @@ export function settingsFactory(config) {
 
   // if provided, keeps reference to the `requestOptions` object
   if (settings.sync.requestOptions) settings.sync.requestOptions = config.sync.requestOptions;
-
-  // Reset config options not supported in Node.js
-  if (settings.sync.largeSegmentsEnabled) settings.log.warn('Client instantiation: config.sync.largeSegmentsEnabled option is not supported in NodeJS. Ignoring it.');
-  settings.sync.largeSegmentsEnabled = false;
-
   return settings;
 }

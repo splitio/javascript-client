@@ -33,7 +33,7 @@ export function fetchSpecificSplits(fetchMock, assert) {
         });
         return { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } };
       });
-      fetchMock.get(urls.sdk + '/mySegments/nicolas%40split.io', { status: 200, body: { 'mySegments': [] } });
+      fetchMock.get(urls.sdk + '/memberships/nicolas%40split.io', { status: 200, body: { 'ms': {} } });
 
       factory = SplitFactory(config);
 
@@ -68,7 +68,7 @@ export function fetchSpecificSplitsForFlagSets(fetchMock, assert) {
 
     let factory;
     const queryString = '&sets=4_valid,set_2,set_3,set_ww,set_x';
-    fetchMock.get(baseUrls.sdk + '/mySegments/nicolas%40split.io', { status: 200, body: { 'mySegments': [] } });
+    fetchMock.get(baseUrls.sdk + '/memberships/nicolas%40split.io', { status: 200, body: { 'ms': {} } });
 
     fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.2&since=-1' + queryString, { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 }});
     fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.2&since=1457552620999' + queryString, async function () {

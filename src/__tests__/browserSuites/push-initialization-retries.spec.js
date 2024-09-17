@@ -3,7 +3,7 @@ import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
 import authPushDisabled from '../mocks/auth.pushDisabled.json';
 import authPushEnabledNicolas from '../mocks/auth.pushEnabled.nicolas@split.io.json';
 import authPushBadToken from '../mocks/auth.pushBadToken.json';
-import mySegmentsNicolasMock from '../mocks/mysegments.nicolas@split.io.json';
+import membershipsNicolasMock from '../mocks/memberships.nicolas@split.io.json';
 
 import { nearlyEqual, url } from '../testUtils';
 
@@ -40,12 +40,12 @@ const settings = settingsFactory(config);
 
 /**
  * Sequence of calls:
- *  0.0 secs: initial SyncAll (/splitChanges, /mySegments/*) and first auth attempt (fail due to bad token)
- *  0.0 secs: polling (/splitChanges, /mySegments/*)
+ *  0.0 secs: initial SyncAll (/splitChanges, /memberships/*) and first auth attempt (fail due to bad token)
+ *  0.0 secs: polling (/splitChanges, /memberships/*)
  *  0.1 secs: second push connect attempt (auth fail due to network error)
- *  0.2 secs: polling (/splitChanges, /mySegments/*)
+ *  0.2 secs: polling (/splitChanges, /memberships/*)
  *  0.3 secs: third push connect attempt (auth success but push disabled)
- *  0.4 secs: polling (/splitChanges, /mySegments/*)
+ *  0.4 secs: polling (/splitChanges, /memberships/*)
  */
 export function testPushRetriesDueToAuthErrors(fetchMock, assert) {
 
@@ -64,7 +64,7 @@ export function testPushRetriesDueToAuthErrors(fetchMock, assert) {
     assert.true(nearlyEqual(lapse, expected), 'third auth attempt (approximately in 0.3 seconds from first attempt)');
     return { status: 200, body: authPushDisabled };
   });
-  fetchMock.get({ url: url(settings, '/mySegments/nicolas%40split.io'), repeat: 4 }, { status: 200, body: mySegmentsNicolasMock });
+  fetchMock.get({ url: url(settings, '/memberships/nicolas%40split.io'), repeat: 4 }, { status: 200, body: membershipsNicolasMock });
 
   fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=-1'), function () {
     const lapse = Date.now() - start;
@@ -102,11 +102,11 @@ export function testPushRetriesDueToAuthErrors(fetchMock, assert) {
 
 /**
  * Sequence of calls:
- *  0.0 secs: initial SyncAll (/splitChanges, /mySegments/*), auth successes and sse fails
- *  0.0 secs: polling (/splitChanges, /mySegments/*)
+ *  0.0 secs: initial SyncAll (/splitChanges, /memberships/*), auth successes and sse fails
+ *  0.0 secs: polling (/splitChanges, /memberships/*)
  *  0.1 secs: second push connect attempt (auth successes and sse fails again)
- *  0.2 secs: polling (/splitChanges, /mySegments/*)
- *  0.3 secs: third push connect attempt (auth and sse success), syncAll (/splitChanges, /mySegments/*)
+ *  0.2 secs: polling (/splitChanges, /memberships/*)
+ *  0.3 secs: third push connect attempt (auth and sse success), syncAll (/splitChanges, /memberships/*)
  */
 export function testPushRetriesDueToSseErrors(fetchMock, assert) {
   window.EventSource = EventSourceMock;
@@ -114,7 +114,7 @@ export function testPushRetriesDueToSseErrors(fetchMock, assert) {
   let start, splitio, client, ready = false;
   const expectedTimeToSSEsuccess = (settings.scheduler.pushRetryBackoffBase * Math.pow(2, 0) + settings.scheduler.pushRetryBackoffBase * Math.pow(2, 1));
 
-  const expectedSSEurl = `${url(settings, '/sse')}?channels=NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_NTcwOTc3MDQx_mySegments,NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_splits,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_pri,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_sec&accessToken=${authPushEnabledNicolas.token}&v=1.1&heartbeats=true&SplitSDKVersion=${settings.version}&SplitSDKClientKey=h-1>`;
+  const expectedSSEurl = `${url(settings, '/sse')}?channels=NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_control,NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_flags,NzM2MDI5Mzc0_NDEzMjQ1MzA0Nw%3D%3D_memberships,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_pri,%5B%3Foccupancy%3Dmetrics.publishers%5Dcontrol_sec&accessToken=${authPushEnabledNicolas.token}&v=1.1&heartbeats=true&SplitSDKVersion=${settings.version}&SplitSDKClientKey=h-1>`;
   let sseattempts = 0;
   setMockListener(function (eventSourceInstance) {
     assert.equal(eventSourceInstance.url, expectedSSEurl, 'SSE url is correct');
@@ -135,7 +135,7 @@ export function testPushRetriesDueToSseErrors(fetchMock, assert) {
     assert.pass('auth success');
     return { status: 200, body: authPushEnabledNicolas };
   });
-  fetchMock.get({ url: url(settings, '/mySegments/nicolas%40split.io'), repeat: 4 }, { status: 200, body: mySegmentsNicolasMock });
+  fetchMock.get({ url: url(settings, '/memberships/nicolas%40split.io'), repeat: 4 }, { status: 200, body: membershipsNicolasMock });
 
   fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=-1'), function () {
     const lapse = Date.now() - start;
@@ -176,7 +176,7 @@ export function testPushRetriesDueToSseErrors(fetchMock, assert) {
  * Assert that if the main client is destroyed while authentication request is in progress and successes, the SDK doesn't open the SSE connection
  *
  * Sequence of calls:
- *  0.0 secs: initial SyncAll (/splitChanges, /mySegments/*) and first auth attempt
+ *  0.0 secs: initial SyncAll (/splitChanges, /memberships/*) and first auth attempt
  *  0.05 secs: client destroyed
  *  0.1 secs: auth success but not SSE connection opened since push was closed
  *  0.2 secs: test finished
@@ -191,7 +191,7 @@ export function testSdkDestroyWhileAuthSuccess(fetchMock, assert) {
 
   fetchMock.getOnce(url(settings, `/v2/auth?s=1.2&users=${encodeURIComponent(userKey)}`), { status: 200, body: authPushEnabledNicolas }, { delay: 100 });
 
-  fetchMock.getOnce(url(settings, '/mySegments/nicolas%40split.io'), { status: 200, body: mySegmentsNicolasMock });
+  fetchMock.getOnce(url(settings, '/memberships/nicolas%40split.io'), { status: 200, body: membershipsNicolasMock });
   fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=-1'), { status: 200, body: splitChangesMock1 });
 
   setTimeout(() => {
@@ -225,7 +225,7 @@ export function testSdkDestroyWhileConnDelay(fetchMock, assert) {
   });
 
   fetchMock.getOnce(url(settings, `/v2/auth?s=1.2&users=${encodeURIComponent(userKey)}`), { status: 200, body: { ...authPushEnabledNicolas, connDelay: 0.1 } });
-  fetchMock.getOnce(url(settings, '/mySegments/nicolas%40split.io'), { status: 200, body: mySegmentsNicolasMock });
+  fetchMock.getOnce(url(settings, '/memberships/nicolas%40split.io'), { status: 200, body: membershipsNicolasMock });
   fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=-1'), { status: 200, body: splitChangesMock1 });
 
   const client = SplitFactory(config).client();
@@ -243,8 +243,8 @@ export function testSdkDestroyWhileConnDelay(fetchMock, assert) {
  * Asserts that if the client is destroyed while authentication request is in progress and fails, the SDK doesn't schedule an auth retry
  *
  * Sequence of calls:
- *  0.0 secs: initial SyncAll (/splitChanges, /mySegments/*) and first auth attempt (fail due to bad token)
- *  0.0 secs: polling (/splitChanges, /mySegments/*)
+ *  0.0 secs: initial SyncAll (/splitChanges, /memberships/*) and first auth attempt (fail due to bad token)
+ *  0.0 secs: polling (/splitChanges, /memberships/*)
  *  0.1 secs: second auth attempt request
  *  0.15 secs: client destroyed
  *  0.2 secs: second auth attempt response (fail due to network error)
@@ -258,7 +258,7 @@ export function testSdkDestroyWhileAuthRetries(fetchMock, assert) {
   fetchMock.getOnce(url(settings, `/v2/auth?s=1.2&users=${encodeURIComponent(userKey)}`), { status: 200, body: authPushBadToken });
   fetchMock.getOnce(url(settings, `/v2/auth?s=1.2&users=${encodeURIComponent(userKey)}`), { throws: new TypeError('Network error') }, { delay: 100 });
 
-  fetchMock.get({ url: url(settings, '/mySegments/nicolas%40split.io'), repeat: 2 }, { status: 200, body: mySegmentsNicolasMock });
+  fetchMock.get({ url: url(settings, '/memberships/nicolas%40split.io'), repeat: 2 }, { status: 200, body: membershipsNicolasMock });
   fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=-1'), { status: 200, body: splitChangesMock1 });
   fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=1457552620999'), { status: 200, body: splitChangesMock2 });
 

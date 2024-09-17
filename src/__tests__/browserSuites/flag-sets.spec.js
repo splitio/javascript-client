@@ -17,7 +17,7 @@ const baseConfig = {
 };
 
 export default function flagSets(fetchMock, t) {
-  fetchMock.get(baseUrls.sdk + '/mySegments/nicolas%40split.io', { status: 200, body: { 'mySegments': [] } });
+  fetchMock.get(baseUrls.sdk + '/memberships/nicolas%40split.io', { status: 200, body: { 'ms': {} } });
 
   t.test(async (assert) => {
     let factory;
@@ -135,7 +135,7 @@ export default function flagSets(fetchMock, t) {
 
     let factory, client = [];
 
-    fetchMock.get(baseUrls.sdk + '/mySegments/nicolas%40split.io', { status: 200, body: { 'mySegments': [] } });
+    fetchMock.get(baseUrls.sdk + '/memberships/nicolas%40split.io', { status: 200, body: { 'ms': {} } });
     // Receive split change with 1 split belonging to set_1 & set_2 and one belonging to set_3
     fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.2&since=-1&sets=set_1',  function () {
       return { status: 200, body: splitChange2};
@@ -172,7 +172,7 @@ export default function flagSets(fetchMock, t) {
 
     let factory, client = [];
 
-    fetchMock.get(baseUrls.sdk + '/mySegments/nicolas%40split.io', { status: 200, body: { 'mySegments': [] } });
+    fetchMock.get(baseUrls.sdk + '/memberships/nicolas%40split.io', { status: 200, body: { 'ms': {} } });
     // Receive split change with 1 split belonging to set_1 & set_2 and one belonging to set_3
     fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.2&since=-1',  function () {
       return { status: 200, body: splitChange2};

@@ -22,8 +22,8 @@
                 },
                 "matcherType": "IN_LARGE_SEGMENT",
                 "negate": false,
-                "userDefinedSegmentMatcherData": {
-                  "segmentName": "harnessians"
+                "userDefinedLargeSegmentMatcherData": {
+                  "largeSegmentName": "harnessians"
                 },
                 "whitelistMatcherData": null,
                 "unaryNumericMatcherData": null,
@@ -50,8 +50,8 @@
                 },
                 "matcherType": "IN_LARGE_SEGMENT",
                 "negate": false,
-                "userDefinedSegmentMatcherData": {
-                  "segmentName": "splitters"
+                "userDefinedLargeSegmentMatcherData": {
+                  "largeSegmentName": "splitters"
                 },
                 "whitelistMatcherData": null,
                 "unaryNumericMatcherData": null,

@@ -8,7 +8,7 @@ import bothIntegrationsSuite from './both-integrations.spec';
 import { settingsFactory } from '../../settings';
 
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
-import mySegmentsFacundo from '../mocks/mysegments.facundo@split.io.json';
+import membershipsFacundo from '../mocks/memberships.facundo@split.io.json';
 
 const settings = settingsFactory({
   core: {
@@ -19,7 +19,7 @@ const settings = settingsFactory({
 tape('## E2E CI Tests ##', function (assert) {
 
   fetchMock.get(url(settings, '/splitChanges?s=1.2&since=-1'), { status: 200, body: splitChangesMock1 });
-  fetchMock.get(url(settings, '/mySegments/facundo%40split.io'), { status: 200, body: mySegmentsFacundo });
+  fetchMock.get(url(settings, '/memberships/facundo%40split.io'), { status: 200, body: membershipsFacundo });
   fetchMock.post(/\/v1\/metrics/, 200); // 0.1% sample rate
 
   /* Validate GA integration */

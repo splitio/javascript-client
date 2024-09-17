@@ -4,7 +4,7 @@ import { url } from '../testUtils';
 
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
-import mySegmentsNicolasMock2 from '../mocks/mysegments.nicolas@split.io.json';
+import membershipsNicolasMock2 from '../mocks/memberships.nicolas@split.io.json';
 
 const baseUrls = {
   sdk: 'https://sdk.single-sync/api',
@@ -45,13 +45,13 @@ export default function singleSync(fetchMock, assert) {
     return { status: 200, body: splitChangesMock2 };
   });
 
-  fetchMock.getOnce(url(settings, '/mySegments/nicolas%40split.io'), function () {
-    assert.pass('first mySegments fetch');
-    return { status: 200, body: mySegmentsNicolasMock2 };
+  fetchMock.getOnce(url(settings, '/memberships/nicolas%40split.io'), function () {
+    assert.pass('first memberships fetch');
+    return { status: 200, body: membershipsNicolasMock2 };
   });
-  fetchMock.getOnce(url(settings, '/mySegments/nicolas%40split.io'), function () {
-    assert.fail('mySegments should not be called again');
-    return { status: 200, body: mySegmentsNicolasMock2 };
+  fetchMock.getOnce(url(settings, '/memberships/nicolas%40split.io'), function () {
+    assert.fail('memberships should not be called again');
+    return { status: 200, body: membershipsNicolasMock2 };
   });
 
   let splitio, client = false;
