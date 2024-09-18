@@ -2,7 +2,7 @@ import { SplitFactory } from '../../';
 import { settingsFactory } from '../../settings';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
-import mySegmentsNicolas from '../mocks/mysegments.nicolas@split.io.json';
+import membershipsNicolas from '../mocks/memberships.nicolas@split.io.json';
 import authPushDisabled from '../mocks/auth.pushDisabled.json';
 import authPushEnabledNicolas from '../mocks/auth.pushEnabled.nicolas@split.io.json';
 import authInvalidCredentials from '../mocks/auth.invalidCredentials.txt';
@@ -38,22 +38,22 @@ const settings = settingsFactory(config);
 
 /**
  * Sequence of calls:
- *  0.0 secs: initial SyncAll (/splitChanges, /mySegments/*) and auth (success but push disabled)
- *  0.0 secs: syncAll if falling back to polling (/splitChanges, /mySegments/*)
- *  0.1 secs: polling (/splitChanges, /mySegments/*)
+ *  0.0 secs: initial SyncAll (/splitChanges, /memberships/*) and auth (success but push disabled)
+ *  0.0 secs: syncAll if falling back to polling (/splitChanges, /memberships/*)
+ *  0.1 secs: polling (/splitChanges, /memberships/*)
  */
 function testInitializationFail(fetchMock, assert, fallbackToPolling) {
   let start, splitio, client, ready = false;
 
-  fetchMock.get(url(settings, '/mySegments/nicolas%40split.io'), { status: 200, body: mySegmentsNicolas });
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=-1'), function () {
+  fetchMock.get(url(settings, '/memberships/nicolas%40split.io'), { status: 200, body: membershipsNicolas });
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=-1'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, 0), 'initial sync');
     return { status: 200, body: splitChangesMock1 };
   });
 
   if (fallbackToPolling) {
-    fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=1457552620999'), function () {
+    fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=1457552620999'), function () {
       assert.true(ready, 'client ready');
       const lapse = Date.now() - start;
       assert.true(nearlyEqual(lapse, 0), 'polling (first fetch)');
@@ -61,7 +61,7 @@ function testInitializationFail(fetchMock, assert, fallbackToPolling) {
     });
   }
 
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=1457552620999'), function () {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=1457552620999'), function () {
     assert.true(ready, 'client ready');
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, settings.scheduler.featuresRefreshRate), 'polling (second fetch)');
@@ -83,7 +83,7 @@ function testInitializationFail(fetchMock, assert, fallbackToPolling) {
 export function testAuthWithPushDisabled(fetchMock, assert) {
   assert.plan(6);
 
-  fetchMock.getOnce(`https://auth.push-initialization-nopush/api/v2/auth?s=1.1&users=${encodeURIComponent(userKey)}`, function (url, opts) {
+  fetchMock.getOnce(`https://auth.push-initialization-nopush/api/v2/auth?s=1.2&users=${encodeURIComponent(userKey)}`, function (url, opts) {
     if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
     assert.pass('auth');
     return { status: 200, body: authPushDisabled };
@@ -96,7 +96,7 @@ export function testAuthWithPushDisabled(fetchMock, assert) {
 export function testAuthWith401(fetchMock, assert) {
   assert.plan(6);
 
-  fetchMock.getOnce(url(settings, `/v2/auth?s=1.1&users=${encodeURIComponent(userKey)}`), function (url, opts) {
+  fetchMock.getOnce(url(settings, `/v2/auth?s=1.2&users=${encodeURIComponent(userKey)}`), function (url, opts) {
     if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
     assert.pass('auth');
     return { status: 401, body: authInvalidCredentials };
@@ -122,7 +122,7 @@ export function testSSEWithNonRetryableError(fetchMock, assert) {
   assert.plan(7);
 
   // Auth successes
-  fetchMock.getOnce(url(settings, `/v2/auth?s=1.1&users=${encodeURIComponent(userKey)}`), function (url, opts) {
+  fetchMock.getOnce(url(settings, `/v2/auth?s=1.2&users=${encodeURIComponent(userKey)}`), function (url, opts) {
     if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
     assert.pass('auth successes');
     return { status: 200, body: authPushEnabledNicolas };

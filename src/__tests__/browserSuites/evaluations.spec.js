@@ -365,7 +365,7 @@ export default function (config, fetchMock, assert) {
   for (i; i < SDK_INSTANCES_TO_TEST; i++) {
     let splitio = SplitFactory(config);
 
-    fetchMock.getOnce('https://sdk.split.io/api/mySegments/aaaaaaklmnbv', { status: 200, body: { mySegments: [] } });
+    fetchMock.getOnce('https://sdk.split.io/api/memberships/aaaaaaklmnbv', { status: 200, body: { ms: {} } });
 
     // on TA tests, this is going to return one against the mocked seed.
     let clientTABucket1 = splitio.client('aaaaaaklmnbv');

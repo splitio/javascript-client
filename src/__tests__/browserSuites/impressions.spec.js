@@ -2,7 +2,7 @@ import { SplitFactory } from '../../';
 import { settingsFactory } from '../../settings';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
-import mySegmentsFacundo from '../mocks/mysegments.facundo@split.io.json';
+import membershipsFacundo from '../mocks/memberships.facundo@split.io.json';
 import { OPTIMIZED } from '@splitsoftware/splitio-commons/src/utils/constants';
 import { truncateTimeFrame } from '@splitsoftware/splitio-commons/src/utils/time';
 import { url } from '../testUtils';
@@ -24,9 +24,9 @@ let truncatedTimeFrame;
 
 export default function (fetchMock, assert) {
   // Mocking this specific route to make sure we only get the items we want to test from the handlers.
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=-1'), { status: 200, body: splitChangesMock1 });
-  fetchMock.get(url(settings, '/splitChanges?s=1.1&since=1457552620999'), { status: 200, body: splitChangesMock2 });
-  fetchMock.get(url(settings, '/mySegments/facundo%40split.io'), { status: 200, body: mySegmentsFacundo });
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=-1'), { status: 200, body: splitChangesMock1 });
+  fetchMock.get(url(settings, '/splitChanges?s=1.2&since=1457552620999'), { status: 200, body: splitChangesMock2 });
+  fetchMock.get(url(settings, '/memberships/facundo%40split.io'), { status: 200, body: membershipsFacundo });
 
   const splitio = SplitFactory({
     core: {

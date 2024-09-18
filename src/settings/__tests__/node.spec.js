@@ -134,8 +134,8 @@ tape('SETTINGS / Log error and fallback to InMemory storage if no valid storage 
   ];
 
   assert.deepEqual(logSpy.args, [
-    ['[ERROR] splitio => The provided REDIS storage is invalid for this mode. It requires consumer mode. Fallbacking into default MEMORY storage.'],
-    ['[ERROR] splitio => The provided \'INVALID\' storage type is invalid. Fallbacking into default MEMORY storage.']
+    ['[ERROR] splitio => The provided REDIS storage is invalid for this mode. It requires consumer mode. Fallback into default MEMORY storage.'],
+    ['[ERROR] splitio => The provided \'INVALID\' storage type is invalid. Fallback into default MEMORY storage.']
   ], 'logs error message');
 
   settings.forEach(setting => { assert.equal(setting.storage.type, 'MEMORY', 'fallbacks to memory storage'); });

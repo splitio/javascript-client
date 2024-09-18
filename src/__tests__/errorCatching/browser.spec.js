@@ -5,7 +5,7 @@ import includes from 'lodash/includes';
 import fetchMock from '../testUtils/fetchMock';
 import { url } from '../testUtils';
 import splitChangesMock1 from '../mocks/splitChanges.since.-1.till.1500492097547.json';
-import mySegmentsMock from '../mocks/mySegmentsEmpty.json';
+import membershipsMock from '../mocks/membershipsEmpty.json';
 import splitChangesMock2 from '../mocks/splitChanges.since.1500492097547.till.1500492297547.json';
 import splitChangesMock3 from '../mocks/splitChanges.since.1500492297547.json';
 import { SplitFactory } from '../../';
@@ -21,14 +21,14 @@ const settings = settingsFactory({
 // prepare localstorage to emit SDK_READY_FROM_CACHE
 localStorage.clear();
 localStorage.setItem('SPLITIO.splits.till', 25);
-localStorage.setItem('SPLITIO.hash', getStorageHash({ core: { authorizationKey: '<fake-token-1>' }, sync: { __splitFiltersValidation: { queryString: null }, flagSpecVersion: '1.1' } }));
+localStorage.setItem('SPLITIO.hash', getStorageHash({ core: { authorizationKey: '<fake-token-1>' }, sync: { __splitFiltersValidation: { queryString: null }, flagSpecVersion: '1.2' } }));
 
-fetchMock.get(url(settings, '/splitChanges?s=1.1&since=25'), function () {
+fetchMock.get(url(settings, '/splitChanges?s=1.2&since=25'), function () {
   return new Promise((res) => { setTimeout(() => res({ status: 200, body: splitChangesMock1 }), 1000); });
 });
-fetchMock.get(url(settings, '/splitChanges?s=1.1&since=1500492097547'), { status: 200, body: splitChangesMock2 });
-fetchMock.get(url(settings, '/splitChanges?s=1.1&since=1500492297547'), { status: 200, body: splitChangesMock3 });
-fetchMock.get(url(settings, '/mySegments/nico%40split.io'), { status: 200, body: mySegmentsMock });
+fetchMock.get(url(settings, '/splitChanges?s=1.2&since=1500492097547'), { status: 200, body: splitChangesMock2 });
+fetchMock.get(url(settings, '/splitChanges?s=1.2&since=1500492297547'), { status: 200, body: splitChangesMock3 });
+fetchMock.get(url(settings, '/memberships/nico%40split.io'), { status: 200, body: membershipsMock });
 fetchMock.post('*', 200);
 
 const assertionsPlanned = 4;

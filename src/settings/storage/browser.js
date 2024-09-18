@@ -31,7 +31,7 @@ export function validateStorage(settings) {
   if (type !== STORAGE_MEMORY && type !== STORAGE_LOCALSTORAGE ||
     type === STORAGE_LOCALSTORAGE && !isLocalStorageAvailable()) {
     fallbackToMemory();
-    log.error('Invalid or unavailable storage. Fallbacking into MEMORY storage');
+    log.error('Invalid or unavailable storage. Fallback into MEMORY storage');
   }
 
   return {

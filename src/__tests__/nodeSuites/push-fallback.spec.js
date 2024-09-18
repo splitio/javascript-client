@@ -35,9 +35,9 @@ import { settingsFactory } from '../../settings';
 const key = 'nicolas@split.io';
 
 const baseUrls = {
-  sdk: 'https://sdk.push-fallbacking/api',
-  events: 'https://events.push-fallbacking/api',
-  auth: 'https://auth.push-fallbacking/api'
+  sdk: 'https://sdk.push-fallback/api',
+  events: 'https://events.push-fallback/api',
+  auth: 'https://auth.push-fallback/api'
 };
 const config = {
   core: {
@@ -96,7 +96,7 @@ const MILLIS_DESTROY = MILLIS_STREAMING_DISABLED_CONTROL + settings.scheduler.fe
  *  2.1 secs: periodic fetch due to polling (/segmentChanges/*)
  *  2.1 secs: destroy client
  */
-export function testFallbacking(fetchMock, assert) {
+export function testFallback(fetchMock, assert) {
   assert.plan(17);
   fetchMock.reset();
   __setEventSource(EventSourceMock);
