@@ -24,8 +24,8 @@ const config = {
 
 export default async function (fetchMock, assert) {
 
-  fetchMock.getOnce(config.urls.sdk + '/splitChanges?s=1.2&since=-1', { status: 200, body: splitChangesMock1 });
-  fetchMock.get(config.urls.sdk + '/splitChanges?s=1.2&since=1675259356568', { status: 200, body: { splits: [], since: 1675259356568, till: 1675259356568 } });
+  fetchMock.getOnce(config.urls.sdk + '/splitChanges?s=1.1&since=-1', { status: 200, body: splitChangesMock1 });
+  fetchMock.get(config.urls.sdk + '/splitChanges?s=1.1&since=1675259356568', { status: 200, body: { splits: [], since: 1675259356568, till: 1675259356568 } });
 
   const splitio = SplitFactory(config);
   const client = splitio.client();

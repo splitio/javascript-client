@@ -190,26 +190,26 @@ export function testFallback(fetchMock, assert) {
 
   });
 
-  fetchMock.get({ url: url(settings, '/v2/auth?s=1.2'), repeat: 3 /* initial + 2 STREAMING_RESET */ }, function (url, opts) {
+  fetchMock.get({ url: url(settings, '/v2/auth?s=1.1'), repeat: 3 /* initial + 2 STREAMING_RESET */ }, function (url, opts) {
     if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
     assert.pass('auth success');
     return { status: 200, body: authPushEnabled };
   });
 
   // initial split and segment sync
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=-1'), { status: 200, body: splitChangesMock1 });
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=-1'), { status: 200, body: splitChangesMock1 });
   fetchMock.getOnce(url(settings, '/segmentChanges/employees?since=-1'), { status: 200, body: { since: -1, till: 1457552620999, name: 'employees', added: [key], removed: [] } });
   // extra retry due to double request (greedy fetch until since === till)
   fetchMock.getOnce(url(settings, '/segmentChanges/employees?since=1457552620999'), { status: 200, body: { since: 1457552620999, till: 1457552620999, name: 'employees', added: [], removed: [] } });
 
   // split and segment sync after SSE opened
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=1457552620999'), { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=1457552620999'), { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
   fetchMock.getOnce(url(settings, '/segmentChanges/employees?since=1457552620999'), { status: 200, body: { since: 1457552620999, till: 1457552620999, name: 'employees', added: [], removed: [] } });
 
   // fetches due to first fallback to polling
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=1457552620999'), { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=1457552620999'), { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
   fetchMock.getOnce(url(settings, '/segmentChanges/employees?since=1457552620999'), { status: 200, body: { since: 1457552620999, till: 1457552620999, name: 'employees', added: [], removed: [] } });
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=1457552620999'), function () {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=1457552620999'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_STREAMING_DOWN_OCCUPANCY + settings.scheduler.featuresRefreshRate), 'fetch due to first fallback to polling');
     return { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } };
@@ -217,22 +217,22 @@ export function testFallback(fetchMock, assert) {
   fetchMock.getOnce(url(settings, '/segmentChanges/employees?since=1457552620999'), { status: 200, body: { since: 1457552620999, till: 1457552620999, name: 'employees', added: [], removed: [] } });
 
   // split and segment sync due to streaming up (OCCUPANCY event)
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=1457552620999'), { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=1457552620999'), { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
   fetchMock.getOnce(url(settings, '/segmentChanges/employees?since=1457552620999'), { status: 200, body: { since: 1457552620999, till: 1457552621999, name: 'employees', added: ['other_key'], removed: [] } });
   // extra retry due to double request (greedy fetch until since === till)
   fetchMock.getOnce(url(settings, '/segmentChanges/employees?since=1457552621999'), { status: 200, body: { since: 1457552621999, till: 1457552621999, name: 'employees', added: [], removed: [] } });
 
   // fetch due to SPLIT_UPDATE event
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=1457552620999'), function () {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=1457552620999'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_SPLIT_UPDATE_EVENT_DURING_PUSH), 'sync due to SPLIT_UPDATE event');
     return { status: 200, body: splitChangesMock2 };
   });
 
   // fetches due to second fallback to polling
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=1457552649999'), { status: 200, body: { splits: [], since: 1457552649999, till: 1457552649999 } });
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=1457552649999'), { status: 200, body: { splits: [], since: 1457552649999, till: 1457552649999 } });
   fetchMock.getOnce(url(settings, '/segmentChanges/employees?since=1457552621999'), { status: 200, body: { since: 1457552621999, till: 1457552621999, name: 'employees', added: [], removed: [] } });
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=1457552649999'), function () {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=1457552649999'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_STREAMING_PAUSED_CONTROL + settings.scheduler.featuresRefreshRate), 'fetch due to second fallback to polling');
     return { status: 200, body: { splits: [], since: 1457552649999, till: 1457552649999 } };
@@ -240,7 +240,7 @@ export function testFallback(fetchMock, assert) {
   fetchMock.getOnce(url(settings, '/segmentChanges/employees?since=1457552621999'), { status: 200, body: { since: 1457552621999, till: 1457552621999, name: 'employees', added: [], removed: [] } });
 
   // split and segment sync due to streaming up (CONTROL event)
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=1457552649999'), { status: 200, body: { splits: [], since: 1457552649999, till: 1457552649999 } });
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=1457552649999'), { status: 200, body: { splits: [], since: 1457552649999, till: 1457552649999 } });
   fetchMock.getOnce(url(settings, '/segmentChanges/employees?since=1457552621999'), { status: 200, body: { since: 1457552621999, till: 1457552621999, name: 'employees', added: [], removed: [] } });
 
   // fetch due to SEGMENT_UPDATE event
@@ -249,19 +249,19 @@ export function testFallback(fetchMock, assert) {
   fetchMock.getOnce(url(settings, '/segmentChanges/employees?since=1457552650000'), { status: 200, body: { since: 1457552650000, till: 1457552650000, name: 'employees', added: [], removed: [] } });
 
   // Fetches due to third fallback to polling (second STREAMING_PAUSED event) and two syncAll ( SSE opened twice due to two STREAMING_RESET events)
-  fetchMock.get({ url: url(settings, '/splitChanges?s=1.2&since=1457552649999'), repeat: 3 }, { status: 200, body: { splits: [], since: 1457552649999, till: 1457552649999 } });
+  fetchMock.get({ url: url(settings, '/splitChanges?s=1.1&since=1457552649999'), repeat: 3 }, { status: 200, body: { splits: [], since: 1457552649999, till: 1457552649999 } });
   fetchMock.get({ url: url(settings, '/segmentChanges/employees?since=1457552650000'), repeat: 3 }, { status: 200, body: { since: 1457552650000, till: 1457552650000, name: 'employees', added: [], removed: [] } });
 
   // fetches due to fourth fallback to polling due to STREAMING_DISABLED event
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=1457552649999'), { status: 200, body: { splits: [], since: 1457552649999, till: 1457552649999 } });
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=1457552649999'), { status: 200, body: { splits: [], since: 1457552649999, till: 1457552649999 } });
   fetchMock.getOnce(url(settings, '/segmentChanges/employees?since=1457552650000'), { status: 200, body: { since: 1457552650000, till: 1457552650000, name: 'employees', added: [], removed: [] } });
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=1457552649999'), function () {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=1457552649999'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_STREAMING_DISABLED_CONTROL + settings.scheduler.featuresRefreshRate), 'fetch due to fourth fallback to polling');
     return { status: 200, body: splitChangesMock3 };
   });
   fetchMock.getOnce(url(settings, '/segmentChanges/employees?since=1457552650000'), { status: 200, body: { since: 1457552650000, till: 1457552650000, name: 'employees', added: [], removed: [] } });
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=1457552669999'), function () {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=1457552669999'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_STREAMING_DISABLED_CONTROL + settings.scheduler.featuresRefreshRate * 2), 'fetch due to third fallback to polling');
     return { status: 200, body: { splits: [], since: 1457552669999, till: 1457552669999 } };
