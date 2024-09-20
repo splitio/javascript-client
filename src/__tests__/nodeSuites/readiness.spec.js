@@ -49,7 +49,7 @@ export default function (fetchMock, assert) {
       try {
         await client.ready();
       } catch (e) {
-        await client.destroy();
+        await splitio.destroy();
         t.end();
       }
     });

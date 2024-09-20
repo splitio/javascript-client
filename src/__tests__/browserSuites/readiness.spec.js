@@ -209,12 +209,7 @@ export default function (fetchMock, assert) {
                 t.equal(getMembershipsHits(), 4 * CLIENTS_COUNT - 1, 'It should have not tried to synchronize segments again after the last update that left us in a no segment state.');
                 t.equal(readyCount, CLIENTS_COUNT, 'all clients must be ready');
 
-                Promise.all([
-                  client2.destroy(),
-                  client3.destroy(),
-                  client.destroy()
-                ]).then(() => { t.end(); });
-
+                splitio.destroy().then(() => { t.end(); });
               }, 10000);
             }, 0);
           });
@@ -293,12 +288,7 @@ export default function (fetchMock, assert) {
                 t.equal(getMembershipsHits(), 4 * CLIENTS_COUNT - 1, 'It should have not tried to synchronize segments again after the last update that left us in a no segment state.');
                 t.equal(readyCount, CLIENTS_COUNT, 'all clients must be ready');
 
-                Promise.all([
-                  client2.destroy(),
-                  client3.destroy(),
-                  client.destroy()
-                ]).then(() => { t.end(); });
-
+                splitio.destroy().then(() => { t.end(); });
               }, 10000);
             }, 0);
           });
@@ -373,12 +363,7 @@ export default function (fetchMock, assert) {
                 t.equal(getMembershipsHits(), 6 * CLIENTS_COUNT - 1, 'It should keep the producer synchronizing periodically..');
                 t.equal(readyCount, CLIENTS_COUNT, 'all clients must be ready');
 
-                Promise.all([
-                  client2.destroy(),
-                  client3.destroy(),
-                  client.destroy()
-                ]).then(() => { t.end(); });
-
+                splitio.destroy().then(() => { t.end(); });
               }, 3000);
             }, 0);
           });
@@ -417,8 +402,8 @@ export default function (fetchMock, assert) {
     });
     const CLIENTS_COUNT = 3; // Just so it's easier to read the assertions.
     const client = splitio.client();
-    const client2 = splitio.client('nicolas2@split.io');
-    const client3 = splitio.client('nicolas3@split.io');
+    splitio.client('nicolas2@split.io');
+    splitio.client('nicolas3@split.io');
 
     client.once(client.Event.SDK_READY, () => {
       t.ok(Date.now() - start >= membershipsEndpointDelay, 'It should not be ready without waiting for memberships, as there are segments in the first splits payload.');
@@ -442,12 +427,7 @@ export default function (fetchMock, assert) {
               setTimeout(() => {
                 t.equal(getMembershipsHits(), 6 * CLIENTS_COUNT, 'It should keep the producer synchronizing periodically..');
 
-                Promise.all([
-                  client2.destroy(),
-                  client3.destroy(),
-                  client.destroy()
-                ]).then(() => { t.end(); });
-
+                splitio.destroy().then(() => { t.end(); });
               }, 3000);
             }, 0);
           });
@@ -486,19 +466,15 @@ export default function (fetchMock, assert) {
     });
     const CLIENTS_COUNT = 3; // Just so it's easier to read the assertions.
     const client = splitio.client();
-    const client2 = splitio.client('nicolas2@split.io');
-    const client3 = splitio.client('nicolas3@split.io');
+    splitio.client('nicolas2@split.io');
+    splitio.client('nicolas3@split.io');
 
     client.once(client.Event.SDK_READY, () => {
       t.ok(Date.now() - start >= membershipsEndpointDelay, 'It should not be ready without waiting for memberships, when we start from cache it might be stale.');
 
       setTimeout(() => {
         t.equal(getMembershipsHits(), 3 * CLIENTS_COUNT, 'memberships should had been hit once per client on the first attempt and keep syncing afterwards.');
-        Promise.all([
-          client2.destroy(),
-          client3.destroy(),
-          client.destroy()
-        ]).then(() => { t.end(); });
+        splitio.destroy().then(() => { t.end(); });
       }, 2500);
     });
     client.once(client.Event.SDK_READY_TIMED_OUT, () => {
@@ -533,19 +509,15 @@ export default function (fetchMock, assert) {
     });
     const CLIENTS_COUNT = 3; // Just so it's easier to read the assertions.
     const client = splitio.client();
-    const client2 = splitio.client('nicolas2@split.io');
-    const client3 = splitio.client('nicolas3@split.io');
+    splitio.client('nicolas2@split.io');
+    splitio.client('nicolas3@split.io');
 
     client.once(client.Event.SDK_READY, () => {
       t.ok(Date.now() - start < 50, 'It should be ready quickly, since it had no segments and update has no segments either.');
 
       setTimeout(() => {
         t.equal(getMembershipsHits(), 1 * CLIENTS_COUNT, 'memberships should had been hit once per client on the first attempt but stopped syncing afterwards');
-        Promise.all([
-          client2.destroy(),
-          client3.destroy(),
-          client.destroy()
-        ]).then(() => { t.end(); });
+        splitio.destroy().then(() => { t.end(); });
       }, 4500);
     });
     client.once(client.Event.SDK_READY_TIMED_OUT, () => {
@@ -584,19 +556,15 @@ export default function (fetchMock, assert) {
     });
     const CLIENTS_COUNT = 3; // Just so it's easier to read the assertions.
     const client = splitio.client();
-    const client2 = splitio.client('nicolas2@split.io');
-    const client3 = splitio.client('nicolas3@split.io');
+    splitio.client('nicolas2@split.io');
+    splitio.client('nicolas3@split.io');
 
     client.once(client.Event.SDK_READY, () => {
       const delay = Date.now() - start;
       t.ok(delay >= membershipsEndpointDelay, 'It should not be ready without waiting for memberships, when we start from cache it might be stale.');
       setTimeout(() => {
         t.equal(getMembershipsHits(), 3 * CLIENTS_COUNT, 'memberships should had been hit once per client on the first attempt but stopped syncing afterwards');
-        Promise.all([
-          client2.destroy(),
-          client3.destroy(),
-          client.destroy()
-        ]).then(() => { t.end(); });
+        splitio.destroy().then(() => { t.end(); });
       }, 3000);
     });
     client.once(client.Event.SDK_READY_TIMED_OUT, () => {
@@ -631,19 +599,15 @@ export default function (fetchMock, assert) {
     });
     const CLIENTS_COUNT = 3; // Just so it's easier to read the assertions.
     const client = splitio.client();
-    const client2 = splitio.client('nicolas2@split.io');
-    const client3 = splitio.client('nicolas3@split.io');
+    splitio.client('nicolas2@split.io');
+    splitio.client('nicolas3@split.io');
 
     client.once(client.Event.SDK_READY, () => {
       t.ok(Date.now() - start >= membershipsEndpointDelay, 'It should not be ready without waiting for memberships, when we start from cache it might be stale and we had segments even though the update has nothing.');
 
       setTimeout(() => {
         t.equal(getMembershipsHits(), 3 * CLIENTS_COUNT, 'memberships should had been hit once per client on the first attempt and kept syncing afterwards');
-        Promise.all([
-          client2.destroy(),
-          client3.destroy(),
-          client.destroy()
-        ]).then(() => { t.end(); });
+        splitio.destroy().then(() => { t.end(); });
       }, 3000);
     });
     client.once(client.Event.SDK_READY_TIMED_OUT, () => {
@@ -681,19 +645,15 @@ export default function (fetchMock, assert) {
     });
     const CLIENTS_COUNT = 3; // Just so it's easier to read the assertions.
     const client = splitio.client();
-    const client2 = splitio.client('nicolas2@split.io');
-    const client3 = splitio.client('nicolas3@split.io');
+    splitio.client('nicolas2@split.io');
+    splitio.client('nicolas3@split.io');
 
     client.once(client.Event.SDK_READY, () => {
       t.ok(Date.now() - start < 50, 'It should be ready without waiting for memberships, since when it downloads changes it will have no more use for them.');
 
       setTimeout(() => {
         t.equal(getMembershipsHits(), 1 * CLIENTS_COUNT, 'memberships should had been hit once per client on the first attempt and stopped syncing afterwards');
-        Promise.all([
-          client2.destroy(),
-          client3.destroy(),
-          client.destroy()
-        ]).then(() => { t.end(); });
+        splitio.destroy().then(() => { t.end(); });
       }, 3000);
     });
     client.once(client.Event.SDK_READY_TIMED_OUT, () => {
