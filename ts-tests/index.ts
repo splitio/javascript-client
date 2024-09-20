@@ -240,10 +240,11 @@ const b: number = client.listenerCount(splitEvent);
 let nodeEventEmitter: NodeJS.EventEmitter = client;
 
 // Ready, destroy and flush
-const readyPromise: Promise<void> = client.ready();
-const destroyPromise: Promise<void> = client.destroy();
-// @ts-ignore
-const flushPromise: Promise<void> = client.flush();
+let promise: Promise<void> = client.ready();
+promise = client.destroy();
+promise = SDK.destroy();
+// @TODO not public yet
+// promise = client.flush();
 
 // We can call getTreatment with or without a key.
 treatment = client.getTreatment(splitKey, 'mySplit');
@@ -332,10 +333,11 @@ const b1: number = asyncClient.listenerCount(splitEvent);
 nodeEventEmitter = asyncClient;
 
 // Ready, destroy and flush (same as for sync client, just for interface checking)
-const readyPromise1: Promise<void> = asyncClient.ready();
-asyncClient.destroy();
-// @ts-ignore
-asyncClient.flush();
+promise = asyncClient.ready();
+promise = asyncClient.destroy();
+promise = AsyncSDK.destroy();
+// @TODO not public yet
+// promise = asyncClient.flush();
 
 // We can call getTreatment but always with a key.
 asyncTreatment = asyncClient.getTreatment(splitKey, 'mySplit');
@@ -391,7 +393,7 @@ splitView = manager.split('mySplit');
 splitViews = manager.splits();
 
 // Manager implements ready promise.
-const managerReadyPromise: Promise<void> = manager.ready();
+promise = manager.ready();
 
 // Manager implements methods from NodeJS.Events. Testing a few.
 manager = manager.on(splitEvent, () => { });
@@ -415,7 +417,7 @@ splitViewAsync = asyncManager.split('mySplit');
 splitViewsAsync = asyncManager.splits();
 
 // asyncManager implements ready promise.
-const asyncManagerReadyPromise: Promise<void> = asyncManager.ready();
+promise = asyncManager.ready();
 
 // asyncManager implements methods from NodeJS.Events. Testing a few.
 asyncManager = asyncManager.on(splitEvent, () => { });
