@@ -402,8 +402,8 @@ export default function (fetchMock, assert) {
     });
     const CLIENTS_COUNT = 3; // Just so it's easier to read the assertions.
     const client = splitio.client();
-    const client2 = splitio.client('nicolas2@split.io');
-    const client3 = splitio.client('nicolas3@split.io');
+    splitio.client('nicolas2@split.io');
+    splitio.client('nicolas3@split.io');
 
     client.once(client.Event.SDK_READY, () => {
       t.ok(Date.now() - start >= membershipsEndpointDelay, 'It should not be ready without waiting for memberships, as there are segments in the first splits payload.');
@@ -466,8 +466,8 @@ export default function (fetchMock, assert) {
     });
     const CLIENTS_COUNT = 3; // Just so it's easier to read the assertions.
     const client = splitio.client();
-    const client2 = splitio.client('nicolas2@split.io');
-    const client3 = splitio.client('nicolas3@split.io');
+    splitio.client('nicolas2@split.io');
+    splitio.client('nicolas3@split.io');
 
     client.once(client.Event.SDK_READY, () => {
       t.ok(Date.now() - start >= membershipsEndpointDelay, 'It should not be ready without waiting for memberships, when we start from cache it might be stale.');
@@ -509,8 +509,8 @@ export default function (fetchMock, assert) {
     });
     const CLIENTS_COUNT = 3; // Just so it's easier to read the assertions.
     const client = splitio.client();
-    const client2 = splitio.client('nicolas2@split.io');
-    const client3 = splitio.client('nicolas3@split.io');
+    splitio.client('nicolas2@split.io');
+    splitio.client('nicolas3@split.io');
 
     client.once(client.Event.SDK_READY, () => {
       t.ok(Date.now() - start < 50, 'It should be ready quickly, since it had no segments and update has no segments either.');
@@ -556,8 +556,8 @@ export default function (fetchMock, assert) {
     });
     const CLIENTS_COUNT = 3; // Just so it's easier to read the assertions.
     const client = splitio.client();
-    const client2 = splitio.client('nicolas2@split.io');
-    const client3 = splitio.client('nicolas3@split.io');
+    splitio.client('nicolas2@split.io');
+    splitio.client('nicolas3@split.io');
 
     client.once(client.Event.SDK_READY, () => {
       const delay = Date.now() - start;
@@ -599,8 +599,8 @@ export default function (fetchMock, assert) {
     });
     const CLIENTS_COUNT = 3; // Just so it's easier to read the assertions.
     const client = splitio.client();
-    const client2 = splitio.client('nicolas2@split.io');
-    const client3 = splitio.client('nicolas3@split.io');
+    splitio.client('nicolas2@split.io');
+    splitio.client('nicolas3@split.io');
 
     client.once(client.Event.SDK_READY, () => {
       t.ok(Date.now() - start >= membershipsEndpointDelay, 'It should not be ready without waiting for memberships, when we start from cache it might be stale and we had segments even though the update has nothing.');
@@ -645,8 +645,8 @@ export default function (fetchMock, assert) {
     });
     const CLIENTS_COUNT = 3; // Just so it's easier to read the assertions.
     const client = splitio.client();
-    const client2 = splitio.client('nicolas2@split.io');
-    const client3 = splitio.client('nicolas3@split.io');
+    splitio.client('nicolas2@split.io');
+    splitio.client('nicolas3@split.io');
 
     client.once(client.Event.SDK_READY, () => {
       t.ok(Date.now() - start < 50, 'It should be ready without waiting for memberships, since when it downloads changes it will have no more use for them.');
