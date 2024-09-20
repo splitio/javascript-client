@@ -209,12 +209,7 @@ export default function (fetchMock, assert) {
                 t.equal(getMembershipsHits(), 4 * CLIENTS_COUNT - 1, 'It should have not tried to synchronize segments again after the last update that left us in a no segment state.');
                 t.equal(readyCount, CLIENTS_COUNT, 'all clients must be ready');
 
-                Promise.all([
-                  client2.destroy(),
-                  client3.destroy(),
-                  client.destroy()
-                ]).then(() => { t.end(); });
-
+                splitio.destroy().then(() => { t.end(); });
               }, 10000);
             }, 0);
           });
@@ -293,12 +288,7 @@ export default function (fetchMock, assert) {
                 t.equal(getMembershipsHits(), 4 * CLIENTS_COUNT - 1, 'It should have not tried to synchronize segments again after the last update that left us in a no segment state.');
                 t.equal(readyCount, CLIENTS_COUNT, 'all clients must be ready');
 
-                Promise.all([
-                  client2.destroy(),
-                  client3.destroy(),
-                  client.destroy()
-                ]).then(() => { t.end(); });
-
+                splitio.destroy().then(() => { t.end(); });
               }, 10000);
             }, 0);
           });
@@ -373,12 +363,7 @@ export default function (fetchMock, assert) {
                 t.equal(getMembershipsHits(), 6 * CLIENTS_COUNT - 1, 'It should keep the producer synchronizing periodically..');
                 t.equal(readyCount, CLIENTS_COUNT, 'all clients must be ready');
 
-                Promise.all([
-                  client2.destroy(),
-                  client3.destroy(),
-                  client.destroy()
-                ]).then(() => { t.end(); });
-
+                splitio.destroy().then(() => { t.end(); });
               }, 3000);
             }, 0);
           });
@@ -442,12 +427,7 @@ export default function (fetchMock, assert) {
               setTimeout(() => {
                 t.equal(getMembershipsHits(), 6 * CLIENTS_COUNT, 'It should keep the producer synchronizing periodically..');
 
-                Promise.all([
-                  client2.destroy(),
-                  client3.destroy(),
-                  client.destroy()
-                ]).then(() => { t.end(); });
-
+                splitio.destroy().then(() => { t.end(); });
               }, 3000);
             }, 0);
           });
@@ -494,11 +474,7 @@ export default function (fetchMock, assert) {
 
       setTimeout(() => {
         t.equal(getMembershipsHits(), 3 * CLIENTS_COUNT, 'memberships should had been hit once per client on the first attempt and keep syncing afterwards.');
-        Promise.all([
-          client2.destroy(),
-          client3.destroy(),
-          client.destroy()
-        ]).then(() => { t.end(); });
+        splitio.destroy().then(() => { t.end(); });
       }, 2500);
     });
     client.once(client.Event.SDK_READY_TIMED_OUT, () => {
@@ -541,11 +517,7 @@ export default function (fetchMock, assert) {
 
       setTimeout(() => {
         t.equal(getMembershipsHits(), 1 * CLIENTS_COUNT, 'memberships should had been hit once per client on the first attempt but stopped syncing afterwards');
-        Promise.all([
-          client2.destroy(),
-          client3.destroy(),
-          client.destroy()
-        ]).then(() => { t.end(); });
+        splitio.destroy().then(() => { t.end(); });
       }, 4500);
     });
     client.once(client.Event.SDK_READY_TIMED_OUT, () => {
@@ -592,11 +564,7 @@ export default function (fetchMock, assert) {
       t.ok(delay >= membershipsEndpointDelay, 'It should not be ready without waiting for memberships, when we start from cache it might be stale.');
       setTimeout(() => {
         t.equal(getMembershipsHits(), 3 * CLIENTS_COUNT, 'memberships should had been hit once per client on the first attempt but stopped syncing afterwards');
-        Promise.all([
-          client2.destroy(),
-          client3.destroy(),
-          client.destroy()
-        ]).then(() => { t.end(); });
+        splitio.destroy().then(() => { t.end(); });
       }, 3000);
     });
     client.once(client.Event.SDK_READY_TIMED_OUT, () => {
@@ -639,11 +607,7 @@ export default function (fetchMock, assert) {
 
       setTimeout(() => {
         t.equal(getMembershipsHits(), 3 * CLIENTS_COUNT, 'memberships should had been hit once per client on the first attempt and kept syncing afterwards');
-        Promise.all([
-          client2.destroy(),
-          client3.destroy(),
-          client.destroy()
-        ]).then(() => { t.end(); });
+        splitio.destroy().then(() => { t.end(); });
       }, 3000);
     });
     client.once(client.Event.SDK_READY_TIMED_OUT, () => {
@@ -689,11 +653,7 @@ export default function (fetchMock, assert) {
 
       setTimeout(() => {
         t.equal(getMembershipsHits(), 1 * CLIENTS_COUNT, 'memberships should had been hit once per client on the first attempt and stopped syncing afterwards');
-        Promise.all([
-          client2.destroy(),
-          client3.destroy(),
-          client.destroy()
-        ]).then(() => { t.end(); });
+        splitio.destroy().then(() => { t.end(); });
       }, 3000);
     });
     client.once(client.Event.SDK_READY_TIMED_OUT, () => {
