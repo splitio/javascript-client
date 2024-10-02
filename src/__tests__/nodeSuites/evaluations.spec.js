@@ -1,4 +1,5 @@
 import { SplitFactory } from '../../';
+import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 
 const SDK_INSTANCES_TO_TEST = 4;
 
@@ -264,6 +265,18 @@ export default async function (config, key, assert) {
     getTreatmentTests(client, i);
     getTreatmentsTests(client, i);
     getTreatmentsWithConfigTests(client, i);
+
+    // getState method
+    const serverSideState = splitio.getState();
+    assert.equal(serverSideState.since, 1457552620999);
+    assert.equal(serverSideState.splitsData.length, splitChangesMock1.splits.length);
+    assert.deepEqual(serverSideState.segmentsData, { employees: [], splitters: [], developers: [] });
+    assert.deepEqual(serverSideState.mySegmentsData, undefined);
+    const clientSideState = splitio.getState(['user1']);
+    assert.equal(clientSideState.since, 1457552620999);
+    assert.equal(clientSideState.splitsData.length, splitChangesMock1.splits.length);
+    assert.deepEqual(clientSideState.segmentsData, undefined);
+    assert.deepEqual(clientSideState.mySegmentsData, { user1: [] });
 
     await client.destroy();
 

@@ -478,6 +478,64 @@ export default function (fetchMock, assert) {
     });
   });
 
+  assert.test(t => { // Testing when we start with preloaded data and MEMORY storage type (is ready from cache immediately)
+    const testUrls = {
+      sdk: 'https://sdk.baseurl/readyFromCacheWithPreloadedData',
+      events: 'https://events.baseurl/readyFromCacheWithPreloadedData'
+    };
+
+    t.plan(5);
+
+    fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.2&since=25', { status: 200, body: { ...splitChangesMock1, since: 25 } });
+    fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.2&since=1457552620999', { status: 200, body: splitChangesMock2 });
+    fetchMock.getOnce(testUrls.sdk + '/memberships/nicolas%40split.io', { status: 200, body: membershipsNicolas });
+    fetchMock.getOnce(testUrls.sdk + '/memberships/nicolas2%40split.io', { status: 200, body: { 'ms': {} } });
+
+    fetchMock.postOnce(testUrls.events + '/testImpressions/bulk', 200);
+    fetchMock.postOnce(testUrls.events + '/testImpressions/count', 200);
+
+    const splitio = SplitFactory({
+      ...baseConfig,
+      storage: {
+        type: 'MEMORY',
+      },
+      urls: testUrls,
+      preloadedData: {
+        since: 25,
+        splitsData: [JSON.parse(alwaysOnSplitInverted)]
+      }
+    });
+
+    const client = splitio.client();
+    const client2 = splitio.client('nicolas2@split.io');
+
+    t.equal(client.__getStatus().isReadyFromCache, true, 'Client is ready from cache');
+
+    t.equal(client.getTreatment('always_on'), 'off', 'It should evaluate treatments with data from cache instead of control due to Input Validation');
+    t.equal(client2.getTreatment('always_on'), 'off', 'It should evaluate treatments with data from cache instead of control due to Input Validation');
+
+    client.on(client.Event.SDK_READY_TIMED_OUT, () => {
+      t.fail('It should not timeout in this scenario.');
+      t.end();
+    });
+
+    client.on(client.Event.SDK_READY_FROM_CACHE, () => {
+      t.fail('SDK is ready from cache immediately. SDK_READY_FROM_CACHE not emitted.');
+      t.end();
+    });
+
+    client.on(client.Event.SDK_READY, () => {
+      t.equal(client.getTreatment('always_on'), 'on', 'It should evaluate treatments with updated data after syncing with the cloud.');
+    });
+    client2.on(client2.Event.SDK_READY, () => {
+      t.equal(client2.getTreatment('always_on'), 'on', 'It should evaluate treatments with updated data after syncing with the cloud.');
+
+      splitio.destroy().then(() => {
+        t.end();
+      });
+    });
+  });
+
   /** Fetch specific splits **/
 
   assert.test(t => { // Testing when we start with cached data but without storage hash (JS SDK <=v10.24.0 and Browser SDK <=v0.12.0), and a valid split filter config

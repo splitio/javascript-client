@@ -94,6 +94,7 @@ interface ISettings {
     options: Object,
     type: StorageType
   },
+  readonly preloadedData?: SplitIO.PreloadedData,
   readonly urls: {
     events: string,
     sdk: string,
@@ -954,6 +955,10 @@ declare namespace SplitIO {
    */
   type ConsentStatus = 'GRANTED' | 'DECLINED' | 'UNKNOWN';
   /**
+   * Defines the format of rollout plan data to preload on the factory storage (cache).
+   */
+  type PreloadedData = Object;
+  /**
    * Settings interface for SDK instances created on the browser
    * @interface IBrowserSettings
    * @extends ISharedSettings
@@ -1385,7 +1390,11 @@ declare namespace SplitIO {
      * @function manager
      * @returns {IManager} The manager instance.
      */
-    manager(): IManager
+    manager(): IManager,
+    /**
+     * @TODO add description
+     */
+    getState(): PreloadedData,
   }
   /**
    * This represents the interface for the SDK instance with synchronous storage.
