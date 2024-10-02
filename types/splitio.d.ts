@@ -1381,14 +1381,6 @@ declare namespace SplitIO {
      */
     client(): IClient,
     /**
-     * Returns a shared client of the SDK. For usage on the browser.
-     * @function client
-     * @param {SplitKey} key The key for the new client instance.
-     * @param {string=} trafficType The traffic type of the provided key.
-     * @returns {IClient} The client instance.
-     */
-    client(key: SplitKey, trafficType?: string): IClient,
-    /**
      * Returns a manager instance of the SDK to explore available information.
      * @function manager
      * @returns {IManager} The manager instance.
@@ -1398,9 +1390,9 @@ declare namespace SplitIO {
   /**
    * This represents the interface for the SDK instance with synchronous storage.
    * @interface IBrowserSDK
-   * @extends ISDK
+   * @extends IBasicSDK
    */
-  interface IBrowserSDK extends ISDK {
+  interface IBrowserSDK extends IBasicSDK {
     /**
      * Returns the default client instance of the SDK.
      * @function client
@@ -1408,7 +1400,7 @@ declare namespace SplitIO {
      */
     client(): IBrowserClient,
     /**
-     * Returns a shared client of the SDK. For usage on the browser.
+     * Returns a shared client of the SDK.
      * @function client
      * @param {SplitKey} key The key for the new client instance.
      * @param {string=} trafficType The traffic type of the provided key.

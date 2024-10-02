@@ -195,8 +195,6 @@ SDK.settings.features = { 'split_x': 'on' }; // Browser
 
 // Client and Manager
 client = SDK.client();
-client = SDK.client('a customer key');
-client = SDK.client('a customer key', 'a traffic type');
 manager = SDK.manager();
 // Today async clients are only possible on Node. Shared client creation not available here.
 asyncClient = AsyncSDK.client();
@@ -204,6 +202,7 @@ asyncManager = AsyncSDK.manager();
 // Browser client for attributes binding
 browserClient = BrowserSDK.client();
 browserClient = BrowserSDK.client('a customer key');
+browserClient = BrowserSDK.client('a customer key', 'a traffic type');
 
 // Logger
 SDK.Logger.enable();
