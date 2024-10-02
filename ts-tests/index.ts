@@ -163,7 +163,6 @@ browserSettings = {
   }
 };
 // With sync settings should return ISDK, if settings have async storage it should return IAsyncSDK
-SDK = SplitFactory(browserSettings);
 SDK = SplitFactory(nodeSettings);
 AsyncSDK = SplitFactory(asyncSettings);
 BrowserSDK = SplitFactory(browserSettings);
