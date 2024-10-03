@@ -94,6 +94,7 @@ interface ISettings {
     options: Object,
     type: StorageType
   },
+  readonly preloadedData?: SplitIO.PreloadedData,
   readonly urls: {
     events: string,
     sdk: string,
@@ -954,6 +955,10 @@ declare namespace SplitIO {
    */
   type ConsentStatus = 'GRANTED' | 'DECLINED' | 'UNKNOWN';
   /**
+   * Defines the format of rollout plan data to preload on the factory storage (cache).
+   */
+  type PreloadedData = Object;
+  /**
    * Settings interface for SDK instances created on the browser
    * @interface IBrowserSettings
    * @extends ISharedSettings
@@ -1115,6 +1120,10 @@ declare namespace SplitIO {
        */
       prefix?: string
     },
+    /**
+     * @TODO Add description. Should be inside storage?
+     */
+    preloadedData?: SplitIO.PreloadedData,
     /**
      * List of URLs that the SDK will use as base for it's synchronization functionalities, applicable only when running as standalone.
      * Do not change these settings unless you're working an advanced use case, like connecting to the Split proxy.
@@ -1381,26 +1390,22 @@ declare namespace SplitIO {
      */
     client(): IClient,
     /**
-     * Returns a shared client of the SDK. For usage on the browser.
-     * @function client
-     * @param {SplitKey} key The key for the new client instance.
-     * @param {string=} trafficType The traffic type of the provided key.
-     * @returns {IClient} The client instance.
-     */
-    client(key: SplitKey, trafficType?: string): IClient,
-    /**
      * Returns a manager instance of the SDK to explore available information.
      * @function manager
      * @returns {IManager} The manager instance.
      */
-    manager(): IManager
+    manager(): IManager,
+    /**
+     * @TODO add description
+     */
+    getState(keys?: SplitKey[]): PreloadedData,
   }
   /**
    * This represents the interface for the SDK instance with synchronous storage.
    * @interface IBrowserSDK
-   * @extends ISDK
+   * @extends IBasicSDK
    */
-  interface IBrowserSDK extends ISDK {
+  interface IBrowserSDK extends IBasicSDK {
     /**
      * Returns the default client instance of the SDK.
      * @function client
@@ -1408,13 +1413,19 @@ declare namespace SplitIO {
      */
     client(): IBrowserClient,
     /**
-     * Returns a shared client of the SDK. For usage on the browser.
+     * Returns a shared client of the SDK.
      * @function client
      * @param {SplitKey} key The key for the new client instance.
      * @param {string=} trafficType The traffic type of the provided key.
      * @returns {IBrowserClient} The client instance.
      */
     client(key: SplitKey, trafficType?: string): IBrowserClient
+    /**
+     * Returns a manager instance of the SDK to explore available information.
+     * @function manager
+     * @returns {IManager} The manager instance.
+     */
+    manager(): IManager,
     /**
      * User consent API.
      * @property UserConsent
