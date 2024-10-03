@@ -1121,6 +1121,10 @@ declare namespace SplitIO {
       prefix?: string
     },
     /**
+     * @TODO Add description. Should be inside storage?
+     */
+    preloadedData?: SplitIO.PreloadedData,
+    /**
      * List of URLs that the SDK will use as base for it's synchronization functionalities, applicable only when running as standalone.
      * Do not change these settings unless you're working an advanced use case, like connecting to the Split proxy.
      * @property {Object} urls
@@ -1394,7 +1398,7 @@ declare namespace SplitIO {
     /**
      * @TODO add description
      */
-    getState(): PreloadedData,
+    getState(keys?: SplitKey[]): PreloadedData,
   }
   /**
    * This represents the interface for the SDK instance with synchronous storage.
@@ -1416,6 +1420,12 @@ declare namespace SplitIO {
      * @returns {IBrowserClient} The client instance.
      */
     client(key: SplitKey, trafficType?: string): IBrowserClient
+    /**
+     * Returns a manager instance of the SDK to explore available information.
+     * @function manager
+     * @returns {IManager} The manager instance.
+     */
+    manager(): IManager,
     /**
      * User consent API.
      * @property UserConsent
