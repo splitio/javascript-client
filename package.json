@@ -36,8 +36,7 @@
   "module": "esm/index.js",
   "types": "types",
   "engines": {
-    "npm": ">=3",
-    "node": ">=6"
+    "node": ">=14.0.0"
   },
   "dependencies": {
     "@splitsoftware/splitio-commons": "1.17.1-rc.0",

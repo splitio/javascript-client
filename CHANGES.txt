@@ -4,6 +4,7 @@
     - Updated some transitive dependencies for vulnerability fixes.
  - BREAKING CHANGES:
     - Renamed distribution folders from `/lib` to `/cjs` for CommonJS build, and `/es` to `/esm` for EcmaScript Modules build.
+    - Drop support for NodeJS v6. The SDK now requires NodeJS v14 or above.
 
 10.28.0 (September 6, 2024)
  - Updated @splitsoftware/splitio-commons package to version 1.17.0 that includes minor updates:
