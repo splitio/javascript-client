@@ -7,9 +7,9 @@
     "CONTRIBUTORS-GUIDE.md",
     "LICENSE",
     "CHANGES.txt",
-    "lib",
+    "cjs",
     "types",
-    "es",
+    "esm",
     "src",
     "scripts/ga-to-split-autorequire.js",
     "client",
@@ -32,8 +32,8 @@
     "sdk",
     "javascript"
   ],
-  "main": "lib/index.js",
-  "module": "es/index.js",
+  "main": "cjs/index.js",
+  "module": "esm/index.js",
   "types": "types",
   "engines": {
     "npm": ">=3",
@@ -84,10 +84,10 @@
     "webpack-merge": "^5.8.0"
   },
   "scripts": {
-    "build-esm": "rimraf es && tsc -outDir es",
-    "postbuild-esm": "cross-env NODE_ENV=es node scripts/copy.packages.json.js && ./scripts/build_esm_replace_imports.sh",
+    "build-esm": "rimraf esm && tsc -outDir esm",
+    "postbuild-esm": "cross-env NODE_ENV=esm node scripts/copy.packages.json.js && ./scripts/build_esm_replace_imports.sh",
     "build-umd:stats": "webpack --progress --env production --json > ./stats/stat_results.json",
-    "build-cjs": "rimraf lib && tsc -outDir lib -m CommonJS",
+    "build-cjs": "rimraf cjs && tsc -outDir cjs -m CommonJS",
     "postbuild-cjs": "cross-env NODE_ENV=cjs node scripts/copy.packages.json.js && ./scripts/build_cjs_replace_imports.sh",
     "build-umd": "rimraf umd && webpack --config webpack.dev.js --env branch=$BUILD_BRANCH && webpack --config webpack.prod.js --env branch=$BUILD_BRANCH && ./scripts/clean_umd_build.sh",
     "build:npm": "npm run build-cjs && npm run build-esm",
