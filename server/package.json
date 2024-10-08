@@ -1,5 +1,5 @@
 {
-  "main": "../lib/factory/node.js",
-  "module": "../es/factory/node.js",
+  "main": "../cjs/factory/node.js",
+  "module": "../esm/factory/node.js",
   "types": "../types/server/index.d.ts"
 }
