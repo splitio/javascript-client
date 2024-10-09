@@ -11,6 +11,7 @@
     - TypeScript definitions:
        - Removed an overloaded `client` method in the `SplitIO.ISDK` interface that accepted `key` and `trafficType` parameters. This interface corresponds to the SDK factory instance in NodeJS, which, unlike `SplitIO.IBrowserSDK` for the Browser, does not handle multiple client instances based on keys.
        - Updated the `SplitIO.IBrowserSDK` and `SplitIO.IBrowserClient` interfaces to no longer extend the `SplitIO.ISDK` and `SplitIO.IClient` interfaces respectively, as the SDK factory instance in NodeJS or server-side (`SplitIO.ISDK`) has a different API than the SDK client instance in the Browser or client-side (`SplitIO.IBrowserClient`).
+    - Bugfixing - Fixed an issue with the client `ready` method that was causing the returned promise to hang on async/await syntax if the promise was rejected. The fix implies a breaking change, since now the user must handle the promise rejection explicitly or set the `startup.readyTimeout` configuration option to 0 to avoid the timeout and thus the rejection.
 
 10.28.0 (September 6, 2024)
  - Updated @splitsoftware/splitio-commons package to version 1.17.0 that includes minor updates:
