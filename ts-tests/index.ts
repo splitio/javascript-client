@@ -201,7 +201,6 @@ asyncManager = AsyncSDK.manager();
 // Browser client for attributes binding
 browserClient = BrowserSDK.client();
 browserClient = BrowserSDK.client('a customer key');
-browserClient = BrowserSDK.client('a customer key', 'a traffic type');
 
 // Logger
 SDK.Logger.enable();
