@@ -1408,6 +1408,12 @@ declare namespace SplitIO {
      */
     client(key: SplitKey, trafficType?: string): IBrowserClient
     /**
+     * Returns a manager instance of the SDK to explore available information.
+     * @function manager
+     * @returns {IManager} The manager instance.
+     */
+    manager(): IManager,
+    /**
      * User consent API.
      * @property UserConsent
      */

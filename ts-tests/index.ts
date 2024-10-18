@@ -163,7 +163,6 @@ browserSettings = {
   }
 };
 // With sync settings should return ISDK, if settings have async storage it should return IAsyncSDK
-SDK = SplitFactory(browserSettings);
 SDK = SplitFactory(nodeSettings);
 AsyncSDK = SplitFactory(asyncSettings);
 BrowserSDK = SplitFactory(browserSettings);
@@ -196,6 +195,7 @@ SDK.settings.features = { 'split_x': 'on' }; // Browser
 // Client and Manager
 client = SDK.client();
 manager = SDK.manager();
+manager = BrowserSDK.manager();
 // Today async clients are only possible on Node. Shared client creation not available here.
 asyncClient = AsyncSDK.client();
 asyncManager = AsyncSDK.manager();
