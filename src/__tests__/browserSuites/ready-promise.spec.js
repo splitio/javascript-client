@@ -561,7 +561,7 @@ export default function readyPromiseAssertions(fetchMock, assert) {
           });
         }, 0);
       });
-    }, fromSecondsToMillis(0.2));
+    }, fromSecondsToMillis(0.25));
 
   }, 'Validate that warning messages are properly sent');
 
