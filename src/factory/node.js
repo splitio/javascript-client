@@ -4,6 +4,7 @@ import { pushManagerFactory } from '@splitsoftware/splitio-commons/src/sync/stre
 import { pollingManagerSSFactory } from '@splitsoftware/splitio-commons/src/sync/polling/pollingManagerSS';
 import { InRedisStorage } from '@splitsoftware/splitio-commons/src/storages/inRedis';
 import { InMemoryStorageFactory } from '@splitsoftware/splitio-commons/src/storages/inMemory/InMemoryStorage';
+import { getSnapshot } from '@splitsoftware/splitio-commons/src/storages/dataLoader';
 import { sdkManagerFactory } from '@splitsoftware/splitio-commons/src/sdkManager';
 import { sdkClientMethodFactory } from '@splitsoftware/splitio-commons/src/sdkClient/sdkClientMethod';
 import { impressionObserverSSFactory } from '@splitsoftware/splitio-commons/src/trackers/impressionObserver/impressionObserverSS';
@@ -47,7 +48,17 @@ function getModules(settings) {
 
     impressionsObserverFactory: impressionObserverSSFactory,
 
-    filterAdapterFactory: bloomFilterFactory
+    filterAdapterFactory: bloomFilterFactory,
+
+    extraProps: (params) => {
+      if (params.settings.mode !== CONSUMER_MODE) {
+        return {
+          getState(userKeys) {
+            return getSnapshot(params.storage, userKeys);
+          }
+        };
+      }
+    }
   };
 
   switch (settings.mode) {
