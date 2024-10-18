@@ -1,11 +1,18 @@
-10.29.0 (September XX, 2024)
+11.0.0 (October XX, 2024)
+ - Added support for targeting rules based on large segments for browsers.
  - Added `factory.getState()` method for standalone server-side SDKs, which returns the rollout plan snapshot from the storage.
  - Added `preloadedData` configuration option for standalone client-side SDKs, which allows preloading the SDK storage with a snapshot of the rollout plan.
- - Added `factory.destroy()` method, which invokes the `destroy` method on all SDK clients created by the factory.
- - Updated @splitsoftware/splitio-commons package to version 1.18.0 that includes minor updates:
-    - Added support for targeting rules based on large segments for browsers.
-    - Updated some transitive dependencies for vulnerability fixes.
- - Bugfixing - Removed an overloaded `client` method in the `SplitIO.ISDK` interface that accepted a key and trafficType parameters. This interface corresponds to the SDK factory instance in NodeJS, which, unlike `SplitIO.IBrowserSDK` for the Browser, does not handle multiple client instances based on keys or traffic types.
+ - Added `factory.destroy()` method, which invokes the `destroy` method of all clients created by the factory.
+ - Updated @splitsoftware/splitio-commons package to version 2.0.0 that includes major updates and updated some transitive dependencies for vulnerability fixes.
+ - Renamed distribution folders from `/lib` to `/cjs` for CommonJS build, and `/es` to `/esm` for EcmaScript Modules build.
+ - BREAKING CHANGES:
+    - Dropped support for NodeJS v6. The SDK now requires NodeJS v14 or above.
+    - Removed internal ponyfills for the `Map` and `Set` global objects, dropping support for IE and other outdated browsers. The SDK now requires the runtime environment to support these features natively or provide a polyfill.
+    - Removed the deprecated `GOOGLE_ANALYTICS_TO_SPLIT` and `SPLIT_TO_GOOGLE_ANALYTICS` integrations. The `integrations` configuration option has been removed from the SDK factory configuration, along with the associated interfaces in the TypeScript definitions.
+    - Removed the `core.trafficType` configuration option (`SplitIO.IBrowserSettings['core']['trafficType]`) and the `trafficType` parameter from the SDK `client()` method in Browser (`SplitIO.IBrowserSDK['client']`). As a result, traffic types can no longer be bound to SDK clients, and the traffic type must be provided in the `track` method.
+    - TypeScript definitions:
+       - Removed an overloaded `client` method in the `SplitIO.ISDK` interface that accepted `key` and `trafficType` parameters. This interface corresponds to the SDK factory instance in NodeJS, which, unlike `SplitIO.IBrowserSDK` for the Browser, does not handle multiple client instances based on keys.
+       - Updated the `SplitIO.IBrowserSDK` and `SplitIO.IBrowserClient` interfaces to no longer extend the `SplitIO.ISDK` and `SplitIO.IClient` interfaces respectively, as the SDK factory instance in NodeJS or server-side (`SplitIO.ISDK`) has a different API than the SDK client instance in the Browser or client-side (`SplitIO.IBrowserClient`).
 
 10.28.0 (September 6, 2024)
  - Updated @splitsoftware/splitio-commons package to version 1.17.0 that includes minor updates:
@@ -516,7 +523,7 @@
  - Bugfixing - Return correct label when consulted Split is not found.
 
 9.1.1 (May 03, 2017)
- - Bugfixing - Fixed invalid behaviour when using native Fetch API and comparing statusText
+ - Bugfixing - Fixed invalid behavior when using native Fetch API and comparing statusText
   instead of resp.ok
 
 9.1.0 (April 21, 2017)

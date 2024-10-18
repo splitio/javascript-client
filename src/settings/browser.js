@@ -6,14 +6,12 @@ import { validateConsent } from '@splitsoftware/splitio-commons/src/utils/settin
 
 import { defaults } from './defaults/browser';
 import { validateStorage } from './storage/browser';
-import { validateIntegrations } from './integrations/browser';
 
 const params = {
   defaults,
-  acceptKey: true, acceptTT: true, // Client with bound key and optional TT
+  acceptKey: true, // Client with bound key
   runtime: validateRuntime,
   storage: validateStorage,
-  integrations: validateIntegrations,
   logger: validateLogger,
   localhost: () => LocalhostFromObject(),
   consent: validateConsent,

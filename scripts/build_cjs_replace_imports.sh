@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# replace splitio-commons imports to use ES modules
-replace '@splitsoftware/splitio-commons/src' '@splitsoftware/splitio-commons/cjs' ./lib -r
+# replace splitio-commons imports to use CommonJS
+replace '@splitsoftware/splitio-commons/src' '@splitsoftware/splitio-commons/cjs' ./cjs -r
 
 if [ $? -eq 0 ]
 then
