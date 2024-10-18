@@ -72,7 +72,7 @@ function mockSubmittersRequests(fetchMock, assert, impressionFeature, eventTypeI
 
 export default function userConsent(fetchMock, t) {
 
-  // Validate trackers, submitters and browser listener behaviour on different consent status transitions
+  // Validate trackers, submitters and browser listener behavior on different consent status transitions
   t.test(async (assert) => {
     const sendBeaconSpy = sinon.spy(window.navigator, 'sendBeacon');
     let expectedTrackedImpressions = 0;
@@ -97,7 +97,7 @@ export default function userConsent(fetchMock, t) {
       ], ['on', 'on', 'on', 'on', 'on', 'on', 'on', 'on'], 'evaluating on SDK ready');
       if (isTracking) expectedTrackedImpressions += 8;
 
-      // Trigger pagehide event to validate browser listener behaviour
+      // Trigger pagehide event to validate browser listener behavior
       // Beacon API is used only if user consent is GRANTED
       triggerPagehideEvent();
       if (factory.UserConsent.getStatus() === factory.UserConsent.Status.GRANTED) {
@@ -137,9 +137,9 @@ export default function userConsent(fetchMock, t) {
     assert.equal(trackedImpressions.length, expectedTrackedImpressions, 'Tracked impressions are the expected');
     sendBeaconSpy.restore();
     assert.end();
-  }, 'Validate trackers, submitters and browser listener behaviour on different consent status transitions');
+  }, 'Validate trackers, submitters and browser listener behavior on different consent status transitions');
 
-  // Validate submitter's behaviour with full queues and with events first push window
+  // Validate submitter's behavior with full queues and with events first push window
   t.test(async (assert) => {
     const config = {
       ...baseConfig,
@@ -182,6 +182,6 @@ export default function userConsent(fetchMock, t) {
     await client.destroy();
 
     assert.end();
-  }, 'Validate submitter\'s behaviour with full queues and with events first push window');
+  }, 'Validate submitter\'s behavior with full queues and with events first push window');
 
 }

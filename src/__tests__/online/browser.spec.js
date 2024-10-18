@@ -10,7 +10,7 @@ import telemetrySuite from '../browserSuites/telemetry.spec';
 import impressionsListenerSuite from '../browserSuites/impressions-listener.spec';
 import readinessSuite from '../browserSuites/readiness.spec';
 import readyFromCache from '../browserSuites/ready-from-cache.spec';
-import { withoutBindingTT, bindingTT } from '../browserSuites/events.spec';
+import { withoutBindingTT } from '../browserSuites/events.spec';
 import sharedInstantiationSuite from '../browserSuites/shared-instantiation.spec';
 import managerSuite from '../browserSuites/manager.spec';
 import ignoreIpAddressesSettingSuite from '../browserSuites/ignore-ip-addresses-setting.spec';
@@ -112,10 +112,8 @@ tape('## E2E CI Tests ##', function (assert) {
   assert.test('E2E / Telemetry', telemetrySuite.bind(null, fetchMock));
   /* Check events */
   assert.test('E2E / Events', withoutBindingTT.bind(null, fetchMock));
-  assert.test('E2E / Events with TT bound', bindingTT.bind(null, fetchMock));
   /* Check shared clients */
-  assert.test('E2E / Shared instances', sharedInstantiationSuite.bind(null, false, false, fetchMock));
-  assert.test('E2E / Shared instances with Traffic Type on factory settings', sharedInstantiationSuite.bind(null, true, false, fetchMock));
+  assert.test('E2E / Shared instances', sharedInstantiationSuite.bind(null, false, true, fetchMock));
   /* Validate user consent */
   assert.test('E2E / User consent', userConsent.bind(null, fetchMock));
   /* Check basic manager functionality */
@@ -127,7 +125,7 @@ tape('## E2E CI Tests ##', function (assert) {
   /* Check that impressions and events are sended to backend via Beacon API or Fetch when pagehide/visibilitychange events are triggered. */
   assert.test('E2E / Use Beacon API (or Fetch if not available) to send remaining impressions and events when browser page is unload or hidden', useBeaconApiSuite.bind(null, fetchMock));
   assert.test('E2E / Use Beacon API DEBUG (or Fetch if not available) to send remaining impressions and events when browser page is unload or hidden', useBeaconDebugApiSuite.bind(null, fetchMock));
-  /* Validate ready from cache behaviour (might be merged into another suite if we end up having simple behavior around it as expected) */
+  /* Validate ready from cache behavior (might be merged into another suite if we end up having simple behavior around it as expected) */
   assert.test('E2E / Readiness from cache', readyFromCache.bind(null, fetchMock));
   /* Validate readiness with ready promises */
   assert.test('E2E / Ready promise', readyPromiseSuite.bind(null, fetchMock));

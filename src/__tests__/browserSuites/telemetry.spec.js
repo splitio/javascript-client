@@ -111,7 +111,7 @@ export default async function telemetryBrowserSuite(fetchMock, t) {
         oM: 0, st: 'memory', aF: 1, rF: 0, sE: false,
         rR: { sp: 99999, ms: 60, im: 300, ev: 60, te: 1 } /* override featuresRefreshRate */,
         uO: { s: true, e: true, a: false, st: false, t: true } /* override sdk, events and telemetry URLs */,
-        iQ: 30000, eQ: 500, iM: 0, iL: false, hP: false, nR: 1 /* 1 non ready usage */, t: [], i: [], uC: 2 /* Default GRANTED */,
+        iQ: 30000, eQ: 500, iM: 0, iL: false, hP: false, nR: 1 /* 1 non ready usage */, t: [], uC: 2 /* Default GRANTED */,
         fsT: 0, fsI: 0
       }, 'metrics/config JSON payload should be the expected');
 
