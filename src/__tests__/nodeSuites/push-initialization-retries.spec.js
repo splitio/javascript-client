@@ -168,7 +168,7 @@ export function testPushRetriesDueToSseErrors(fetchMock, assert) {
  * Assert that if the main client is destroyed while authentication request is in progress and successes, the SDK doesn't open the SSE connection
  *
  * Sequence of calls:
- *  0.0 secs: initial SyncAll (/splitChanges, /mySegments/*) and first auth attempt
+ *  0.0 secs: initial SyncAll (/splitChanges, /memberships/*) and first auth attempt
  *  0.05 secs: client destroyed
  *  0.1 secs: first auth attempt response (success) but not SSE connection opened since push was closed
  *  0.2 secs: test finished
@@ -207,8 +207,8 @@ export function testSdkDestroyWhileAuthSuccess(fetchMock, assert) {
  * Asserts that if the client is destroyed while authentication request is in progress and fails, the SDK doesn't schedule an auth retry
  *
  * Sequence of calls:
- *  0.0 secs: initial SyncAll (/splitChanges, /mySegments/*) and first auth attempt (fail due to bad token)
- *  0.0 secs: polling (/splitChanges, /mySegments/*)
+ *  0.0 secs: initial SyncAll (/splitChanges, /memberships/*) and first auth attempt (fail due to bad token)
+ *  0.0 secs: polling (/splitChanges, /memberships/*)
  *  0.1 secs: second auth attempt request
  *  0.15 secs: client destroyed
  *  0.2 secs: second auth attempt response (fail due to network error)

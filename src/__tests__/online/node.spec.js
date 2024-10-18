@@ -3,6 +3,9 @@ import fetchMock from '../testUtils/nodeFetchMock';
 import { url } from '../testUtils';
 import { settingsFactory } from '../../settings/node';
 
+import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
+import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
+
 import evaluationsSuite from '../nodeSuites/evaluations.spec';
 import evaluationsSemverSuite from '../nodeSuites/evaluations-semver.spec';
 import eventsSuite from '../nodeSuites/events.spec';
@@ -18,10 +21,8 @@ import ipAddressesSettingDebug from '../nodeSuites/ip-addresses-setting.debug.sp
 import readinessSuite from '../nodeSuites/readiness.spec';
 import readyPromiseSuite from '../nodeSuites/ready-promise.spec';
 import { fetchSpecificSplits, fetchSpecificSplitsForFlagSets } from '../nodeSuites/fetch-specific-splits.spec';
-
-import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
-import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
 import flagSets from '../nodeSuites/flag-sets.spec';
+import lazyInitSuite from '../nodeSuites/lazy-init.spec';
 
 const config = {
   core: {
@@ -93,6 +94,8 @@ tape('## Node JS - E2E CI Tests ##', async function (assert) {
 
   /* Validate flag sets */
   assert.test('E2E / Flag sets', flagSets.bind(null, fetchMock));
+
+  assert.test('E2E / SplitFactory with lazy init', lazyInitSuite.bind(null, settings, fetchMock));
 
   assert.end();
 });
