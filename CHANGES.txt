@@ -2,6 +2,7 @@
  - Added support for targeting rules based on large segments for browsers.
  - Added `factory.destroy()` method, which invokes the `destroy` method of all clients created by the factory.
  - Updated @splitsoftware/splitio-commons package to version 2.0.0 that includes major updates and updated some transitive dependencies for vulnerability fixes.
+ - Bugfixing - Removed an overloaded `client` method in the `SplitIO.ISDK` interface that accepted a key and trafficType parameters. This interface corresponds to the SDK factory instance in NodeJS, which, unlike `SplitIO.IBrowserSDK` for the Browser, does not handle multiple client instances based on keys or traffic types.
  - BREAKING CHANGES:
     - Renamed distribution folders from `/lib` to `/cjs` for CommonJS build, and `/es` to `/esm` for EcmaScript Modules build.
 
