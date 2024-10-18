@@ -1249,12 +1249,6 @@ declare namespace SplitIO {
      */
     manager(): IManager,
     /**
-     * Returns a manager instance of the SDK to explore available information.
-     * @function manager
-     * @returns {IManager} The manager instance.
-     */
-    manager(): IManager,
-    /**
      * User consent API.
      * @property UserConsent
      */
