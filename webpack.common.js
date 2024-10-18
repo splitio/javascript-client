@@ -1,6 +1,6 @@
 module.exports = {
   entry: {
-    split: ['./es/umd.js']
+    split: ['./esm/umd.js']
   },
 
   output: {
