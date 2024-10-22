@@ -9,28 +9,6 @@ export as namespace SplitIO;
 export = SplitIO;
 
 /**
- * NodeJS.EventEmitter interface
- * @see {@link https://nodejs.org/api/events.html}
- */
-interface EventEmitter {
-  addListener(event: string | symbol, listener: (...args: any[]) => void): this;
-  on(event: string | symbol, listener: (...args: any[]) => void): this;
-  once(event: string | symbol, listener: (...args: any[]) => void): this;
-  removeListener(event: string | symbol, listener: (...args: any[]) => void): this;
-  off(event: string | symbol, listener: (...args: any[]) => void): this;
-  removeAllListeners(event?: string | symbol): this;
-  setMaxListeners(n: number): this;
-  getMaxListeners(): number;
-  listeners(event: string | symbol): Function[];
-  rawListeners(event: string | symbol): Function[];
-  emit(event: string | symbol, ...args: any[]): boolean;
-  listenerCount(type: string | symbol): number;
-  // Added in Node 6...
-  prependListener(event: string | symbol, listener: (...args: any[]) => void): this;
-  prependOnceListener(event: string | symbol, listener: (...args: any[]) => void): this;
-  eventNames(): Array<string | symbol>;
-}
-/**
  * @typedef {Object} EventConsts
  * @property {string} SDK_READY The ready event.
  * @property {string} SDK_READY_FROM_CACHE The ready event when fired with cached data.
@@ -430,10 +408,9 @@ interface INodeBasicSettings extends ISharedSettings {
 }
 /**
  * Common API for entities that expose status handlers.
- * @interface IStatusInterface
- * @extends EventEmitter
+ * @typedef IStatusInterface
  */
-interface IStatusInterface extends EventEmitter {
+type IStatusInterface<TEventEmitter extends SplitIO.IEventEmitter = SplitIO.EventEmitter> = TEventEmitter & {
   /**
    * Constant object containing the SDK events for you to use.
    * @property {EventConsts} Event
@@ -461,10 +438,9 @@ interface IStatusInterface extends EventEmitter {
 }
 /**
  * Common definitions between clients for different environments interface.
- * @interface IBasicClient
- * @extends IStatusInterface
+ * @typedef IBasicClient
  */
-interface IBasicClient extends IStatusInterface {
+type IBasicClient<TEventEmitter extends SplitIO.IEventEmitter = SplitIO.EventEmitter> = IStatusInterface<TEventEmitter> & {
   /**
    * Destroys the client instance.
    * In 'standalone' mode, this method will flush any pending impressions and events, and stop the synchronization of feature flag definitions with the backend.
@@ -503,6 +479,42 @@ interface IBasicSDK {
  * For the SDK package information see {@link https://www.npmjs.com/package/@splitsoftware/splitio}
  */
 declare namespace SplitIO {
+  /**
+   * EventEmitter interface based on a subset of the NodeJS.EventEmitter methods. Used by the JavaScript Browser SDK and React Native SDK.
+   */
+  interface IEventEmitter {
+    addListener(event: string, listener: (...args: any[]) => void): this
+    on(event: string, listener: (...args: any[]) => void): this
+    once(event: string, listener: (...args: any[]) => void): this
+    removeListener(event: string, listener: (...args: any[]) => void): this
+    off(event: string, listener: (...args: any[]) => void): this
+    removeAllListeners(event?: string): this
+    emit(event: string, ...args: any[]): boolean
+  }
+
+  /**
+   * NodeJS.EventEmitter interface. Used by the JavaScript SDK for both flavours: server-side (NodeJS) and client-side (Browser).
+   *
+   * @see {@link https://nodejs.org/api/events.html}
+   */
+  interface EventEmitter extends IEventEmitter {
+    addListener(event: string | symbol, listener: (...args: any[]) => void): this;
+    on(event: string | symbol, listener: (...args: any[]) => void): this;
+    once(event: string | symbol, listener: (...args: any[]) => void): this;
+    removeListener(event: string | symbol, listener: (...args: any[]) => void): this;
+    off(event: string | symbol, listener: (...args: any[]) => void): this;
+    removeAllListeners(event?: string | symbol): this;
+    emit(event: string | symbol, ...args: any[]): boolean;
+    setMaxListeners(n: number): this;
+    getMaxListeners(): number;
+    listeners(event: string | symbol): Function[];
+    rawListeners(event: string | symbol): Function[];
+    listenerCount(type: string | symbol): number;
+    // Added in Node 6...
+    prependListener(event: string | symbol, listener: (...args: any[]) => void): this;
+    prependOnceListener(event: string | symbol, listener: (...args: any[]) => void): this;
+    eventNames(): Array<string | symbol>;
+  }
   /**
    * Feature flag treatment value, returned by getTreatment.
    * @typedef {string} Treatment
@@ -1237,30 +1249,30 @@ declare namespace SplitIO {
     getState(keys?: SplitKey[]): PreloadedData,
   }
   /**
-   * This represents the interface for the SDK instance with synchronous storage.
+   * This represents the interface for the SDK instance with synchronous storage and client-side API.
    * @interface IBrowserSDK
    * @extends IBasicSDK
    */
-  interface IBrowserSDK extends IBasicSDK {
+  interface IBrowserSDK<TEventEmitter extends IEventEmitter = EventEmitter> extends IBasicSDK {
     /**
      * Returns the default client instance of the SDK.
      * @function client
      * @returns {IBrowserClient} The client instance.
      */
-    client(): IBrowserClient,
+    client(): IBrowserClient<TEventEmitter>,
     /**
      * Returns a shared client of the SDK.
      * @function client
      * @param {SplitKey} key The key for the new client instance.
      * @returns {IBrowserClient} The client instance.
      */
-    client(key: SplitKey): IBrowserClient
+    client(key: SplitKey): IBrowserClient<TEventEmitter>
     /**
      * Returns a manager instance of the SDK to explore available information.
      * @function manager
      * @returns {IManager} The manager instance.
      */
-    manager(): IManager,
+    manager(): IManager<TEventEmitter>,
     /**
      * User consent API.
      * @property UserConsent
@@ -1392,10 +1404,9 @@ declare namespace SplitIO {
    * This represents the interface for the Client instance on client-side, where the user key is bound to the instance on creation and does not need to be provided on each method call.
    * This interface is the default when importing the SDK in the Browser, or when importing the 'client' sub-package (e.g., `import { SplitFactory } from '@splitsoftware/splitio/client'`).
    *
-   * @interface IBrowserClient
-   * @extends IBasicClient
+   * @typedef IBrowserClient
    */
-  interface IBrowserClient extends IBasicClient {
+  type IBrowserClient<TEventEmitter extends IEventEmitter = EventEmitter> = IBasicClient<TEventEmitter> & {
     /**
      * Returns a Treatment value, which is the treatment string for the given feature.
      *
@@ -1626,10 +1637,9 @@ declare namespace SplitIO {
   }
   /**
    * Representation of a manager instance with synchronous storage of the SDK.
-   * @interface IManager
-   * @extends IStatusInterface
+   * @typedef IManager
    */
-  interface IManager extends IStatusInterface {
+  type IManager<TEventEmitter extends IEventEmitter = EventEmitter> = IStatusInterface<TEventEmitter> & {
     /**
      * Get the array of feature flag names.
      * @function names
