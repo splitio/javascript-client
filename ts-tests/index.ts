@@ -11,7 +11,7 @@
  * @author Nico Zelaya <nicolas.zelaya@split.io>
  */
 
-import { SplitFactory } from '@splitsoftware/splitio';
+import { SplitFactory } from '../types/index';
 
 let stringPromise: Promise<string>;
 let splitNamesPromise: Promise<SplitIO.SplitNames>;
@@ -25,19 +25,19 @@ let trackPromise: Promise<boolean>;
 /**** Interfaces ****/
 
 // Facade return interface
-let SDK: SplitIO.ISDK;
-let AsyncSDK: SplitIO.IAsyncSDK;
-let BrowserSDK: SplitIO.IBrowserSDK;
+let NodeSDK: SplitIO.INodeSDK;
+let AsyncSDK: SplitIO.INodeAsyncSDK;
+let BrowserSDK: SplitIO.ISDK;
 // Settings interfaces
 let nodeSettings: SplitIO.INodeSettings;
 let asyncSettings: SplitIO.INodeAsyncSettings;
 let browserSettings: SplitIO.IBrowserSettings;
 // Client & Manager APIs
-let client: SplitIO.IClient;
+let nodeClient: SplitIO.INodeClient;
 let manager: SplitIO.IManager;
-let asyncClient: SplitIO.IAsyncClient;
+let nodeAsyncClient: SplitIO.INodeAsyncClient;
 let asyncManager: SplitIO.IAsyncManager;
-let browserClient: SplitIO.IBrowserClient;
+let browserClient: SplitIO.IClient;
 // Utility interfaces
 let impressionListener: SplitIO.IImpressionListener;
 
@@ -137,7 +137,7 @@ splitViewsAsync = splitViewsPromise;
 splitKey = 'someKey';
 splitKey = splitKeyObj;
 
-/**** Tests for ISDK interface ****/
+/**** Tests for INodeSDK interface ****/
 
 // For node with sync storage
 nodeSettings = {
@@ -162,8 +162,8 @@ browserSettings = {
     key: 'customer-key'
   }
 };
-// With sync settings should return ISDK, if settings have async storage it should return IAsyncSDK
-SDK = SplitFactory(nodeSettings);
+// With sync settings should return INodeSDK, if settings have async storage it should return INodeAsyncSDK
+NodeSDK = SplitFactory(nodeSettings);
 AsyncSDK = SplitFactory(asyncSettings);
 BrowserSDK = SplitFactory(browserSettings);
 
@@ -173,43 +173,38 @@ const instantiatedSettingsCore: {
   key: SplitIO.SplitKey,
   labelsEnabled: boolean,
   IPAddressesEnabled: boolean
-} = SDK.settings.core;
-const instantiatedSettingsMode: ('standalone' | 'consumer') = SDK.settings.mode;
-const instantiatedSettingsScheduler: { [key: string]: number } = SDK.settings.scheduler;
-const instantiatedSettingsStartup: { [key: string]: number } = SDK.settings.startup;
-const instantiatedSettingsStorage: {
-  prefix: string,
-  options: Object,
-  // It can have any of the storages.
-  type: SplitIO.NodeSyncStorage | SplitIO.NodeAsyncStorage | SplitIO.BrowserStorage
-} = SDK.settings.storage;
-const instantiatedSettingsUrls: { [key: string]: string } = SDK.settings.urls;
-const instantiatedSettingsVersion: string = SDK.settings.version;
-let instantiatedSettingsFeatures = SDK.settings.features as SplitIO.MockedFeaturesMap;
+} = NodeSDK.settings.core;
+const instantiatedSettingsMode: ('standalone' | 'consumer' | 'consumer_partial' | 'localhost') = NodeSDK.settings.mode;
+const instantiatedSettingsScheduler: { [key: string]: number } = NodeSDK.settings.scheduler;
+const instantiatedSettingsStartup: { [key: string]: number } = NodeSDK.settings.startup;
+const instantiatedSettingsStorage = NodeSDK.settings.storage as SplitIO.StorageOptions;
+const instantiatedSettingsUrls: { [key: string]: string } = NodeSDK.settings.urls;
+const instantiatedSettingsVersion: string = NodeSDK.settings.version;
+let instantiatedSettingsFeatures = NodeSDK.settings.features as SplitIO.MockedFeaturesMap;
 // We should be able to write on features prop. The rest are readonly props.
 instantiatedSettingsFeatures.something = 'something';
-SDK.settings.features = 'new_file_path'; // Node
-SDK.settings.features = { 'split_x': 'on' }; // Browser
+NodeSDK.settings.features = 'new_file_path'; // Node
+NodeSDK.settings.features = { 'split_x': 'on' }; // Browser
 
 // Client and Manager
-client = SDK.client();
-manager = SDK.manager();
+nodeClient = NodeSDK.client();
+manager = NodeSDK.manager();
 manager = BrowserSDK.manager();
 // Today async clients are only possible on Node. Shared client creation not available here.
-asyncClient = AsyncSDK.client();
+nodeAsyncClient = AsyncSDK.client();
 asyncManager = AsyncSDK.manager();
 // Browser client for attributes binding
 browserClient = BrowserSDK.client();
 browserClient = BrowserSDK.client('a customer key');
 
 // Logger
-SDK.Logger.enable();
-SDK.Logger.setLogLevel(SDK.Logger.LogLevel.DEBUG);
-SDK.Logger.setLogLevel(SDK.Logger.LogLevel.INFO);
-SDK.Logger.setLogLevel(SDK.Logger.LogLevel.WARN);
-SDK.Logger.setLogLevel(SDK.Logger.LogLevel.ERROR);
-SDK.Logger.setLogLevel(SDK.Logger.LogLevel.NONE);
-SDK.Logger.disable();
+NodeSDK.Logger.enable();
+NodeSDK.Logger.setLogLevel(NodeSDK.Logger.LogLevel.DEBUG);
+NodeSDK.Logger.setLogLevel(NodeSDK.Logger.LogLevel.INFO);
+NodeSDK.Logger.setLogLevel(NodeSDK.Logger.LogLevel.WARN);
+NodeSDK.Logger.setLogLevel(NodeSDK.Logger.LogLevel.ERROR);
+NodeSDK.Logger.setLogLevel(NodeSDK.Logger.LogLevel.NONE);
+NodeSDK.Logger.disable();
 
 AsyncSDK.Logger.enable();
 AsyncSDK.Logger.setLogLevel(AsyncSDK.Logger.LogLevel.DEBUG);
@@ -222,163 +217,163 @@ AsyncSDK.Logger.disable();
 /**** Tests for IClient interface ****/
 
 // Events constants we get
-const eventConsts: { [key: string]: SplitIO.Event } = client.Event;
-splitEvent = client.Event.SDK_READY;
-splitEvent = client.Event.SDK_READY_FROM_CACHE;
-splitEvent = client.Event.SDK_READY_TIMED_OUT;
-splitEvent = client.Event.SDK_UPDATE;
+const eventConsts: { [key: string]: SplitIO.Event } = nodeClient.Event;
+splitEvent = nodeClient.Event.SDK_READY;
+splitEvent = nodeClient.Event.SDK_READY_FROM_CACHE;
+splitEvent = nodeClient.Event.SDK_READY_TIMED_OUT;
+splitEvent = nodeClient.Event.SDK_UPDATE;
 
 // Client implements methods from NodeJS.Events. Testing a few.
-client = client.on(splitEvent, () => { });
-const a: boolean = client.emit(splitEvent);
-client = client.removeAllListeners(splitEvent);
-client = client.removeAllListeners();
-const b: number = client.listenerCount(splitEvent);
-let nodeEventEmitter: NodeJS.EventEmitter = client;
+nodeClient = nodeClient.on(splitEvent, () => { });
+const a: boolean = nodeClient.emit(splitEvent);
+nodeClient = nodeClient.removeAllListeners(splitEvent);
+nodeClient = nodeClient.removeAllListeners();
+const b: number = nodeClient.listenerCount(splitEvent);
+let nodeEventEmitter: NodeJS.EventEmitter = nodeClient;
 
 // Ready, destroy and flush
-let promise: Promise<void> = client.ready();
-promise = client.destroy();
-promise = SDK.destroy();
+let promise: Promise<void> = nodeClient.ready();
+promise = nodeClient.destroy();
+promise = NodeSDK.destroy();
 // @TODO not public yet
-// promise = client.flush();
+// promise = nodeClient.flush();
 
 // We can call getTreatment with or without a key.
-treatment = client.getTreatment(splitKey, 'mySplit');
+treatment = nodeClient.getTreatment(splitKey, 'mySplit');
 treatment = browserClient.getTreatment('mySplit');
 // Attributes parameter is optional on both signatures.
-treatment = client.getTreatment(splitKey, 'mySplit', attributes);
+treatment = nodeClient.getTreatment(splitKey, 'mySplit', attributes);
 treatment = browserClient.getTreatment('mySplit', attributes);
 
 // We can call getTreatments with or without a key.
-treatments = client.getTreatments(splitKey, ['mySplit']);
+treatments = nodeClient.getTreatments(splitKey, ['mySplit']);
 treatments = browserClient.getTreatments(['mySplit']);
 // Attributes parameter is optional on both signatures.
-treatments = client.getTreatments(splitKey, ['mySplit'], attributes);
+treatments = nodeClient.getTreatments(splitKey, ['mySplit'], attributes);
 treatments = browserClient.getTreatments(['mySplit'], attributes);
 
 // We can call getTreatmentWithConfig with or without a key.
-treatmentWithConfig = client.getTreatmentWithConfig(splitKey, 'mySplit');
+treatmentWithConfig = nodeClient.getTreatmentWithConfig(splitKey, 'mySplit');
 treatmentWithConfig = browserClient.getTreatmentWithConfig('mySplit');
 // Attributes parameter is optional on both signatures.
-treatmentWithConfig = client.getTreatmentWithConfig(splitKey, 'mySplit', attributes);
+treatmentWithConfig = nodeClient.getTreatmentWithConfig(splitKey, 'mySplit', attributes);
 treatmentWithConfig = browserClient.getTreatmentWithConfig('mySplit', attributes);
 
 // We can call getTreatmentsWithConfig with or without a key.
-treatmentsWithConfig = client.getTreatmentsWithConfig(splitKey, ['mySplit']);
+treatmentsWithConfig = nodeClient.getTreatmentsWithConfig(splitKey, ['mySplit']);
 treatmentsWithConfig = browserClient.getTreatmentsWithConfig(['mySplit']);
 // Attributes parameter is optional on both signatures.
-treatmentsWithConfig = client.getTreatmentsWithConfig(splitKey, ['mySplit'], attributes);
+treatmentsWithConfig = nodeClient.getTreatmentsWithConfig(splitKey, ['mySplit'], attributes);
 treatmentsWithConfig = browserClient.getTreatmentsWithConfig(['mySplit'], attributes);
 
 // We can call getTreatmentsByFlagSet with or without a key.
-treatments = client.getTreatmentsByFlagSet(splitKey, 'set_a');
+treatments = nodeClient.getTreatmentsByFlagSet(splitKey, 'set_a');
 treatments = browserClient.getTreatmentsByFlagSet('set_a');
 // Attributes parameter is optional.
-treatments = client.getTreatmentsByFlagSet(splitKey, 'set_a', attributes);
+treatments = nodeClient.getTreatmentsByFlagSet(splitKey, 'set_a', attributes);
 treatments = browserClient.getTreatmentsByFlagSet('set_a', attributes);
 
 // We can call getTreatmentsByFlagSets with or without a key.
-treatments = client.getTreatmentsByFlagSets(splitKey, ['set_a']);
+treatments = nodeClient.getTreatmentsByFlagSets(splitKey, ['set_a']);
 treatments = browserClient.getTreatmentsByFlagSets(['set_a']);
 // Attributes parameter is optional.
-treatments = client.getTreatmentsByFlagSets(splitKey, ['set_a'], attributes);
+treatments = nodeClient.getTreatmentsByFlagSets(splitKey, ['set_a'], attributes);
 treatments = browserClient.getTreatmentsByFlagSets(['set_a'], attributes);
 
 // We can call getTreatmentsWithConfigByFlagSet with or without a key.
-treatmentsWithConfig = client.getTreatmentsWithConfigByFlagSet(splitKey, 'set_a');
+treatmentsWithConfig = nodeClient.getTreatmentsWithConfigByFlagSet(splitKey, 'set_a');
 treatmentsWithConfig = browserClient.getTreatmentsWithConfigByFlagSet('set_a');
 // Attributes parameter is optional.
-treatmentsWithConfig = client.getTreatmentsWithConfigByFlagSet(splitKey, 'set_a', attributes);
+treatmentsWithConfig = nodeClient.getTreatmentsWithConfigByFlagSet(splitKey, 'set_a', attributes);
 treatmentsWithConfig = browserClient.getTreatmentsWithConfigByFlagSet('set_a', attributes);
 
 // We can call getTreatmentsWithConfigByFlagSets with or without a key.
-treatmentsWithConfig = client.getTreatmentsWithConfigByFlagSets(splitKey, ['set_a']);
+treatmentsWithConfig = nodeClient.getTreatmentsWithConfigByFlagSets(splitKey, ['set_a']);
 treatmentsWithConfig = browserClient.getTreatmentsWithConfigByFlagSets(['set_a']);
 // Attributes parameter is optional.
-treatmentsWithConfig = client.getTreatmentsWithConfigByFlagSets(splitKey, ['set_a'], attributes);
+treatmentsWithConfig = nodeClient.getTreatmentsWithConfigByFlagSets(splitKey, ['set_a'], attributes);
 treatmentsWithConfig = browserClient.getTreatmentsWithConfigByFlagSets(['set_a'], attributes);
 
 // We can call track with or without a key.
-tracked = client.track(splitKey, 'myTrafficType', 'myEventType'); // all params
+tracked = nodeClient.track(splitKey, 'myTrafficType', 'myEventType'); // all params
 tracked = browserClient.track('myTrafficType', 'myEventType'); // key bound, tt provided.
 // Value parameter is optional on all signatures.
-tracked = client.track(splitKey, 'myTrafficType', 'myEventType', 10);
+tracked = nodeClient.track(splitKey, 'myTrafficType', 'myEventType', 10);
 tracked = browserClient.track('myTrafficType', 'myEventType', 10);
 // Properties parameter is optional on all signatures.
-tracked = client.track(splitKey, 'myTrafficType', 'myEventType', 10, { prop1: 1, prop2: '2', prop3: false, prop4: null });
+tracked = nodeClient.track(splitKey, 'myTrafficType', 'myEventType', 10, { prop1: 1, prop2: '2', prop3: false, prop4: null });
 tracked = browserClient.track('myTrafficType', 'myEventType', undefined, { prop1: 1, prop2: '2', prop3: false, prop4: null });
 
 /*** Repeating tests for Async Client ***/
 
 // Events constants we get (same as for sync client, just for interface checking)
-const eventConstsAsync: { [key: string]: SplitIO.Event } = asyncClient.Event;
-splitEvent = asyncClient.Event.SDK_READY;
-splitEvent = asyncClient.Event.SDK_READY_FROM_CACHE;
-splitEvent = asyncClient.Event.SDK_READY_TIMED_OUT;
-splitEvent = asyncClient.Event.SDK_UPDATE;
+const eventConstsAsync: { [key: string]: SplitIO.Event } = nodeAsyncClient.Event;
+splitEvent = nodeAsyncClient.Event.SDK_READY;
+splitEvent = nodeAsyncClient.Event.SDK_READY_FROM_CACHE;
+splitEvent = nodeAsyncClient.Event.SDK_READY_TIMED_OUT;
+splitEvent = nodeAsyncClient.Event.SDK_UPDATE;
 
 // Client implements methods from NodeJS.Events. (same as for sync client, just for interface checking)
-asyncClient = asyncClient.on(splitEvent, () => { });
-const a1: boolean = asyncClient.emit(splitEvent);
-asyncClient = asyncClient.removeAllListeners(splitEvent);
-asyncClient = asyncClient.removeAllListeners();
-const b1: number = asyncClient.listenerCount(splitEvent);
-nodeEventEmitter = asyncClient;
+nodeAsyncClient = nodeAsyncClient.on(splitEvent, () => { });
+const a1: boolean = nodeAsyncClient.emit(splitEvent);
+nodeAsyncClient = nodeAsyncClient.removeAllListeners(splitEvent);
+nodeAsyncClient = nodeAsyncClient.removeAllListeners();
+const b1: number = nodeAsyncClient.listenerCount(splitEvent);
+nodeEventEmitter = nodeAsyncClient;
 
 // Ready, destroy and flush (same as for sync client, just for interface checking)
-promise = asyncClient.ready();
-promise = asyncClient.destroy();
+promise = nodeAsyncClient.ready();
+promise = nodeAsyncClient.destroy();
 promise = AsyncSDK.destroy();
 // @TODO not public yet
-// promise = asyncClient.flush();
+// promise = nodeAsyncClient.flush();
 
 // We can call getTreatment but always with a key.
-asyncTreatment = asyncClient.getTreatment(splitKey, 'mySplit');
+asyncTreatment = nodeAsyncClient.getTreatment(splitKey, 'mySplit');
 // Attributes parameter is optional
-asyncTreatment = asyncClient.getTreatment(splitKey, 'mySplit', attributes);
+asyncTreatment = nodeAsyncClient.getTreatment(splitKey, 'mySplit', attributes);
 
 // We can call getTreatments but always with a key.
-asyncTreatments = asyncClient.getTreatments(splitKey, ['mySplit']);
+asyncTreatments = nodeAsyncClient.getTreatments(splitKey, ['mySplit']);
 // Attributes parameter is optional
-asyncTreatments = asyncClient.getTreatments(splitKey, ['mySplit'], attributes);
+asyncTreatments = nodeAsyncClient.getTreatments(splitKey, ['mySplit'], attributes);
 
 // We can call getTreatmentWithConfig but always with a key.
-asyncTreatmentWithConfig = asyncClient.getTreatmentWithConfig(splitKey, 'mySplit');
+asyncTreatmentWithConfig = nodeAsyncClient.getTreatmentWithConfig(splitKey, 'mySplit');
 // Attributes parameter is optional
-asyncTreatmentWithConfig = asyncClient.getTreatmentWithConfig(splitKey, 'mySplit', attributes);
+asyncTreatmentWithConfig = nodeAsyncClient.getTreatmentWithConfig(splitKey, 'mySplit', attributes);
 
 // We can call getTreatments but always with a key.
-asyncTreatmentsWithConfig = asyncClient.getTreatmentsWithConfig(splitKey, ['mySplit']);
+asyncTreatmentsWithConfig = nodeAsyncClient.getTreatmentsWithConfig(splitKey, ['mySplit']);
 // Attributes parameter is optional
-asyncTreatmentsWithConfig = asyncClient.getTreatmentsWithConfig(splitKey, ['mySplit'], attributes);
+asyncTreatmentsWithConfig = nodeAsyncClient.getTreatmentsWithConfig(splitKey, ['mySplit'], attributes);
 
 // We can call getTreatmentsByFlagSet
-asyncTreatments = asyncClient.getTreatmentsByFlagSet(splitKey, 'set_a');
+asyncTreatments = nodeAsyncClient.getTreatmentsByFlagSet(splitKey, 'set_a');
 // Attributes parameter is optional
-asyncTreatments = asyncClient.getTreatmentsByFlagSet(splitKey, 'set_a', attributes);
+asyncTreatments = nodeAsyncClient.getTreatmentsByFlagSet(splitKey, 'set_a', attributes);
 
 // We can call getTreatmentsByFlagSets
-asyncTreatments = asyncClient.getTreatmentsByFlagSets(splitKey, ['set_a']);
+asyncTreatments = nodeAsyncClient.getTreatmentsByFlagSets(splitKey, ['set_a']);
 // Attributes parameter is optional
-asyncTreatments = asyncClient.getTreatmentsByFlagSets(splitKey, ['set_a'], attributes);
+asyncTreatments = nodeAsyncClient.getTreatmentsByFlagSets(splitKey, ['set_a'], attributes);
 
 // We can call getTreatmentsWithConfigByFlagSet
-asyncTreatmentsWithConfig = asyncClient.getTreatmentsWithConfigByFlagSet(splitKey, 'set_a');
+asyncTreatmentsWithConfig = nodeAsyncClient.getTreatmentsWithConfigByFlagSet(splitKey, 'set_a');
 // Attributes parameter is optional
-asyncTreatmentsWithConfig = asyncClient.getTreatmentsWithConfigByFlagSet(splitKey, 'set_a', attributes);
+asyncTreatmentsWithConfig = nodeAsyncClient.getTreatmentsWithConfigByFlagSet(splitKey, 'set_a', attributes);
 
 // We can call getTreatmentsByFlagSets but always with a key.
-asyncTreatmentsWithConfig = asyncClient.getTreatmentsWithConfigByFlagSets(splitKey, ['set_a']);
+asyncTreatmentsWithConfig = nodeAsyncClient.getTreatmentsWithConfigByFlagSets(splitKey, ['set_a']);
 // Attributes parameter is optional
-asyncTreatmentsWithConfig = asyncClient.getTreatmentsWithConfigByFlagSets(splitKey, ['set_a'], attributes);
+asyncTreatmentsWithConfig = nodeAsyncClient.getTreatmentsWithConfigByFlagSets(splitKey, ['set_a'], attributes);
 
 // We can call track only with a key.
-trackPromise = asyncClient.track(splitKey, 'myTrafficType', 'myEventType'); // all required params
+trackPromise = nodeAsyncClient.track(splitKey, 'myTrafficType', 'myEventType'); // all required params
 // Value parameter is optional.
-trackPromise = asyncClient.track(splitKey, 'myTrafficType', 'myEventType', 10);
+trackPromise = nodeAsyncClient.track(splitKey, 'myTrafficType', 'myEventType', 10);
 // Properties parameter is optional
-trackPromise = asyncClient.track(splitKey, 'myTrafficType', 'myEventType', 10, { prop1: 1, prop2: '2', prop3: true, prop4: null });
+trackPromise = nodeAsyncClient.track(splitKey, 'myTrafficType', 'myEventType', 10, { prop1: 1, prop2: '2', prop3: true, prop4: null });
 
 /**** Tests for IManager interface ****/
 
