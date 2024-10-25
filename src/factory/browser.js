@@ -11,6 +11,7 @@ import { __InLocalStorageMockFactory } from '@splitsoftware/splitio-commons/src/
 import { sdkFactory } from '@splitsoftware/splitio-commons/src/sdkFactory';
 import { LOCALHOST_MODE, STORAGE_LOCALSTORAGE } from '@splitsoftware/splitio-commons/src/utils/constants';
 import { createUserConsentAPI } from '@splitsoftware/splitio-commons/src/consent/sdkUserConsent';
+import { localhostFromObjectFactory } from '@splitsoftware/splitio-commons/src/sync/offline/LocalhostFromObject';
 
 import { settingsFactory } from '../settings/browser';
 import { platform, SignalListener } from '../platform';
@@ -60,7 +61,7 @@ function getModules(settings) {
   switch (settings.mode) {
     case LOCALHOST_MODE:
       modules.splitApiFactory = undefined;
-      modules.syncManagerFactory = settings.sync.localhostMode;
+      modules.syncManagerFactory = localhostFromObjectFactory;
       modules.SignalListener = undefined;
       break;
   }
