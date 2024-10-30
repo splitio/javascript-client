@@ -2,7 +2,7 @@
  - Added support for targeting rules based on large segments for browsers.
  - Added `factory.destroy()` method, which invokes the `destroy` method of all clients created by the factory.
  - Updated @splitsoftware/splitio-commons package to version 2.0.0 that includes major updates and updated some transitive dependencies for vulnerability fixes.
- - Renamed distribution folders from `/lib` to `/cjs` for CommonJS build, and `/es` to `/esm` for EcmaScript Modules build.
+ - Renamed distribution folders from `/lib` to `/cjs` for CommonJS build, and `/es` to `/esm` for ECMAScript Modules build.
  - BREAKING CHANGES:
     - Dropped support for NodeJS v6. The SDK now requires NodeJS v14 or above.
     - Renamed some TypeScript definitions in the SplitIO namespace to avoid conflicts with other libraries: `ISDK` to `INodeSDK`, `IAsyncSDK` to `INodeAsyncSDK`, `IBrowserSDK` to `ISDK`, `IClient` to `INodeClient`, `IAsyncClient` to `INodeAsyncClient`, `IBrowserClient` to `IClient`.
