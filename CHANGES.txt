@@ -5,7 +5,6 @@
  - Renamed distribution folders from `/lib` to `/cjs` for CommonJS build, and `/es` to `/esm` for ECMAScript Modules build.
  - BREAKING CHANGES:
     - Dropped support for NodeJS v6. The SDK now requires NodeJS v14 or above.
-    - Renamed some TypeScript definitions in the SplitIO namespace to avoid conflicts with other libraries: `ISDK` to `INodeSDK`, `IAsyncSDK` to `INodeAsyncSDK`, `IBrowserSDK` to `ISDK`, `IClient` to `INodeClient`, `IAsyncClient` to `INodeAsyncClient`, `IBrowserClient` to `IClient`.
     - Removed internal ponyfills for the `Map` and `Set` global objects, dropping support for IE and other outdated browsers. The SDK now requires the runtime environment to support these features natively or provide a polyfill.
     - Removed the deprecated `GOOGLE_ANALYTICS_TO_SPLIT` and `SPLIT_TO_GOOGLE_ANALYTICS` integrations. The `integrations` configuration option has been removed from the SDK factory configuration, along with the associated interfaces in the TypeScript definitions.
     - Removed the `core.trafficType` configuration option (`SplitIO.IBrowserSettings['core']['trafficType]`) and the `trafficType` parameter from the SDK `client()` method in Browser (`SplitIO.IBrowserSDK['client']`). As a result, traffic types can no longer be bound to SDK clients, and the traffic type must be provided in the `track` method.
