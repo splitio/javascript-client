@@ -12,6 +12,8 @@
  */
 
 import { SplitFactory } from '../types/index';
+import { SplitFactory as SplitFactoryCS } from '../types/client';
+import { SplitFactory as SplitFactorySS } from '../types/server';
 
 let stringPromise: Promise<string>;
 let splitNamesPromise: Promise<SplitIO.SplitNames>;
@@ -166,6 +168,9 @@ browserSettings = {
 SDK = SplitFactory(nodeSettings);
 AsyncSDK = SplitFactory(asyncSettings);
 BrowserSDK = SplitFactory(browserSettings);
+SDK = SplitFactorySS(nodeSettings);
+AsyncSDK = SplitFactorySS(asyncSettings);
+BrowserSDK = SplitFactoryCS(browserSettings);
 
 // The settings values the SDK expose.
 const instantiatedSettingsCore: {
