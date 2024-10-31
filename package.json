@@ -38,7 +38,7 @@
     "node": ">=14.0.0"
   },
   "dependencies": {
-    "@splitsoftware/splitio-commons": "2.0.0-rc.1",
+    "@splitsoftware/splitio-commons": "2.0.0-rc.3",
     "@types/ioredis": "^4.28.0",
     "bloom-filters": "^3.0.0",
     "ioredis": "^4.28.0",
