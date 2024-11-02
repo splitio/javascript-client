@@ -16,7 +16,7 @@ export function validateStorage(settings) {
     case STORAGE_REDIS: {
       // If passing REDIS storage in localhost or standalone mode, we log an error and fallback to MEMORY storage
       if (mode === STANDALONE_MODE || mode === LOCALHOST_MODE) {
-        log.error('The provided REDIS storage is invalid for this mode. It requires consumer mode. Fallbacking into default MEMORY storage.');
+        log.error('The provided REDIS storage is invalid for this mode. It requires consumer mode. Fallback into default MEMORY storage.');
         return {
           type: STORAGE_MEMORY,
           prefix
@@ -74,7 +74,7 @@ export function validateStorage(settings) {
       // If passing MEMORY storage in consumer mode, throw an error (no way to fallback to REDIS storage)
       if (mode === CONSUMER_MODE) throw new Error('A REDIS storage is required on consumer mode');
       // If passing an invalid storage type, log an error
-      if (type !== STORAGE_MEMORY) log.error(`The provided '${type}' storage type is invalid. Fallbacking into default MEMORY storage.`);
+      if (type !== STORAGE_MEMORY) log.error(`The provided '${type}' storage type is invalid. Fallback into default MEMORY storage.`);
       return {
         type: STORAGE_MEMORY,
         prefix

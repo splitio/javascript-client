@@ -2,7 +2,7 @@ import sinon from 'sinon';
 import { SplitFactory } from '../../';
 import { settingsFactory } from '../../settings';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
-import mySegmentsFacundo from '../mocks/mysegments.facundo@split.io.json';
+import membershipsFacundo from '../mocks/memberships.facundo@split.io.json';
 import { url } from '../testUtils';
 import { OPTIMIZED } from '@splitsoftware/splitio-commons/src/utils/constants';
 import { triggerPagehideEvent, triggerVisibilitychange } from '../testUtils/browser';
@@ -78,9 +78,9 @@ function beaconApiNotSendTest(fetchMock, assert) {
   sendBeaconSpy = sinon.spy(window.navigator, 'sendBeacon');
 
   // Mocking this specific route to make sure we only get the items we want to test from the handlers.
-  fetchMock.get(url(settings, '/splitChanges?s=1.1&since=-1'), { status: 200, body: splitChangesMock1 });
-  fetchMock.get(url(settings, '/splitChanges?s=1.1&since=1457552620999'), { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
-  fetchMock.get(url(settings, '/mySegments/facundo%40split.io'), { status: 200, body: mySegmentsFacundo });
+  fetchMock.get(url(settings, '/splitChanges?s=1.2&since=-1'), { status: 200, body: splitChangesMock1 });
+  fetchMock.get(url(settings, '/splitChanges?s=1.2&since=1457552620999'), { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
+  fetchMock.get(url(settings, '/memberships/facundo%40split.io'), { status: 200, body: membershipsFacundo });
 
   // Init and run Split client
   const splitio = SplitFactory(config);

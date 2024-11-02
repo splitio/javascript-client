@@ -10,9 +10,9 @@ This SDK is designed to work with Split, the platform for controlled rollouts, w
 ## Compatibility
 The JavaScript SDK is an isomorphic library for both Node.js and Web browser environments.
 
-It supports **Node.js version 6.x and npm 3.x or later**.
+It supports **Node.js version 14.x or later**.
 
-For browsers it supports **IE10+ and all the other major browsers**. *However, IE doesn't have native support for Promises, which we require to properly work. If you're targeting IE it's up to you to provide Promises support. You should include a polyfill like [es6-promise](https://github.com/stefanpenner/es6-promise).*
+For browsers, the library was build to support ES5 syntax and all major browsers. *However, there are a few polyfills that would be required when targeting old browsers that don't have native support for Promises, Map and Set global objects. You should include polyfills for those, like [es6-promise](https://github.com/stefanpenner/es6-promise) for promises.*
 
 ## Getting started
 Below is a simple Node.js example that describes the instantiation and most basic usage of our SDK:

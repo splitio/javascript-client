@@ -14,7 +14,7 @@ export function nearlyEqual(actual, expected, epsilon = DEFAULT_ERROR_MARGIN) {
 }
 
 /**
- * mock the basic behaviour for `/segmentChanges` endpoint:
+ * mock the basic behavior for `/segmentChanges` endpoint:
  *  - when `?since=-1`, it returns the given segment `keys` in `added` list.
  *  - otherwise, it returns empty `added` and `removed` lists, and the same since and till values.
  *

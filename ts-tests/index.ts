@@ -11,7 +11,9 @@
  * @author Nico Zelaya <nicolas.zelaya@split.io>
  */
 
-import { SplitFactory } from '@splitsoftware/splitio';
+import { SplitFactory } from '../types/index';
+import { SplitFactory as SplitFactoryCS } from '../types/client';
+import { SplitFactory as SplitFactorySS } from '../types/server';
 
 let stringPromise: Promise<string>;
 let splitNamesPromise: Promise<SplitIO.SplitNames>;
@@ -163,28 +165,24 @@ browserSettings = {
   }
 };
 // With sync settings should return ISDK, if settings have async storage it should return IAsyncSDK
-SDK = SplitFactory(browserSettings);
 SDK = SplitFactory(nodeSettings);
 AsyncSDK = SplitFactory(asyncSettings);
 BrowserSDK = SplitFactory(browserSettings);
+SDK = SplitFactorySS(nodeSettings);
+AsyncSDK = SplitFactorySS(asyncSettings);
+BrowserSDK = SplitFactoryCS(browserSettings);
 
 // The settings values the SDK expose.
 const instantiatedSettingsCore: {
   authorizationKey: string,
   key: SplitIO.SplitKey,
-  trafficType: string,
   labelsEnabled: boolean,
   IPAddressesEnabled: boolean
 } = SDK.settings.core;
-const instantiatedSettingsMode: ('standalone' | 'consumer') = SDK.settings.mode;
+const instantiatedSettingsMode: ('standalone' | 'consumer' | 'consumer_partial' | 'localhost') = SDK.settings.mode;
 const instantiatedSettingsScheduler: { [key: string]: number } = SDK.settings.scheduler;
 const instantiatedSettingsStartup: { [key: string]: number } = SDK.settings.startup;
-const instantiatedSettingsStorage: {
-  prefix: string,
-  options: Object,
-  // It can have any of the storages.
-  type: SplitIO.NodeSyncStorage | SplitIO.NodeAsyncStorage | SplitIO.BrowserStorage
-} = SDK.settings.storage;
+const instantiatedSettingsStorage = SDK.settings.storage as SplitIO.StorageOptions;
 const instantiatedSettingsUrls: { [key: string]: string } = SDK.settings.urls;
 const instantiatedSettingsVersion: string = SDK.settings.version;
 let instantiatedSettingsFeatures = SDK.settings.features as SplitIO.MockedFeaturesMap;
@@ -195,9 +193,8 @@ SDK.settings.features = { 'split_x': 'on' }; // Browser
 
 // Client and Manager
 client = SDK.client();
-client = SDK.client('a customer key');
-client = SDK.client('a customer key', 'a traffic type');
 manager = SDK.manager();
+manager = BrowserSDK.manager();
 // Today async clients are only possible on Node. Shared client creation not available here.
 asyncClient = AsyncSDK.client();
 asyncManager = AsyncSDK.manager();
@@ -240,79 +237,77 @@ const b: number = client.listenerCount(splitEvent);
 let nodeEventEmitter: NodeJS.EventEmitter = client;
 
 // Ready, destroy and flush
-const readyPromise: Promise<void> = client.ready();
-const destroyPromise: Promise<void> = client.destroy();
-// @ts-ignore
-const flushPromise: Promise<void> = client.flush();
+let promise: Promise<void> = client.ready();
+promise = client.destroy();
+promise = SDK.destroy();
+// @TODO not public yet
+// promise = client.flush();
 
 // We can call getTreatment with or without a key.
 treatment = client.getTreatment(splitKey, 'mySplit');
-treatment = client.getTreatment('mySplit');
+treatment = browserClient.getTreatment('mySplit');
 // Attributes parameter is optional on both signatures.
 treatment = client.getTreatment(splitKey, 'mySplit', attributes);
-treatment = client.getTreatment('mySplit', attributes);
+treatment = browserClient.getTreatment('mySplit', attributes);
 
 // We can call getTreatments with or without a key.
 treatments = client.getTreatments(splitKey, ['mySplit']);
-treatments = client.getTreatments(['mySplit']);
+treatments = browserClient.getTreatments(['mySplit']);
 // Attributes parameter is optional on both signatures.
 treatments = client.getTreatments(splitKey, ['mySplit'], attributes);
-treatments = client.getTreatments(['mySplit'], attributes);
+treatments = browserClient.getTreatments(['mySplit'], attributes);
 
 // We can call getTreatmentWithConfig with or without a key.
 treatmentWithConfig = client.getTreatmentWithConfig(splitKey, 'mySplit');
-treatmentWithConfig = client.getTreatmentWithConfig('mySplit');
+treatmentWithConfig = browserClient.getTreatmentWithConfig('mySplit');
 // Attributes parameter is optional on both signatures.
 treatmentWithConfig = client.getTreatmentWithConfig(splitKey, 'mySplit', attributes);
-treatmentWithConfig = client.getTreatmentWithConfig('mySplit', attributes);
+treatmentWithConfig = browserClient.getTreatmentWithConfig('mySplit', attributes);
 
 // We can call getTreatmentsWithConfig with or without a key.
 treatmentsWithConfig = client.getTreatmentsWithConfig(splitKey, ['mySplit']);
-treatmentsWithConfig = client.getTreatmentsWithConfig(['mySplit']);
+treatmentsWithConfig = browserClient.getTreatmentsWithConfig(['mySplit']);
 // Attributes parameter is optional on both signatures.
 treatmentsWithConfig = client.getTreatmentsWithConfig(splitKey, ['mySplit'], attributes);
-treatmentsWithConfig = client.getTreatmentsWithConfig(['mySplit'], attributes);
+treatmentsWithConfig = browserClient.getTreatmentsWithConfig(['mySplit'], attributes);
 
-// We can call getTreatmentsByFlagSet without a key.
+// We can call getTreatmentsByFlagSet with or without a key.
 treatments = client.getTreatmentsByFlagSet(splitKey, 'set_a');
-treatments = client.getTreatmentsByFlagSet('set_a');
+treatments = browserClient.getTreatmentsByFlagSet('set_a');
 // Attributes parameter is optional.
 treatments = client.getTreatmentsByFlagSet(splitKey, 'set_a', attributes);
-treatments = client.getTreatmentsByFlagSet('set_a', attributes);
+treatments = browserClient.getTreatmentsByFlagSet('set_a', attributes);
 
-// We can call getTreatmentsByFlagSets without a key.
+// We can call getTreatmentsByFlagSets with or without a key.
 treatments = client.getTreatmentsByFlagSets(splitKey, ['set_a']);
-treatments = client.getTreatmentsByFlagSets(['set_a']);
+treatments = browserClient.getTreatmentsByFlagSets(['set_a']);
 // Attributes parameter is optional.
 treatments = client.getTreatmentsByFlagSets(splitKey, ['set_a'], attributes);
-treatments = client.getTreatmentsByFlagSets(['set_a'], attributes);
+treatments = browserClient.getTreatmentsByFlagSets(['set_a'], attributes);
 
-// We can call getTreatmentsWithConfigByFlagSet without a key.
+// We can call getTreatmentsWithConfigByFlagSet with or without a key.
 treatmentsWithConfig = client.getTreatmentsWithConfigByFlagSet(splitKey, 'set_a');
-treatmentsWithConfig = client.getTreatmentsWithConfigByFlagSet('set_a');
+treatmentsWithConfig = browserClient.getTreatmentsWithConfigByFlagSet('set_a');
 // Attributes parameter is optional.
 treatmentsWithConfig = client.getTreatmentsWithConfigByFlagSet(splitKey, 'set_a', attributes);
-treatmentsWithConfig = client.getTreatmentsWithConfigByFlagSet('set_a', attributes);
+treatmentsWithConfig = browserClient.getTreatmentsWithConfigByFlagSet('set_a', attributes);
 
-// We can call getTreatmentsWithConfigByFlagSets without a key.
+// We can call getTreatmentsWithConfigByFlagSets with or without a key.
 treatmentsWithConfig = client.getTreatmentsWithConfigByFlagSets(splitKey, ['set_a']);
-treatmentsWithConfig = client.getTreatmentsWithConfigByFlagSets(['set_a']);
+treatmentsWithConfig = browserClient.getTreatmentsWithConfigByFlagSets(['set_a']);
 // Attributes parameter is optional.
 treatmentsWithConfig = client.getTreatmentsWithConfigByFlagSets(splitKey, ['set_a'], attributes);
-treatmentsWithConfig = client.getTreatmentsWithConfigByFlagSets(['set_a'], attributes);
+treatmentsWithConfig = browserClient.getTreatmentsWithConfigByFlagSets(['set_a'], attributes);
 
-// We can call track with or without a key. Traffic type can also be bound to the client.
+// We can call track with or without a key.
 tracked = client.track(splitKey, 'myTrafficType', 'myEventType'); // all params
-tracked = client.track('myTrafficType', 'myEventType'); // key bound, tt provided.
-tracked = client.track('myEventType'); // key and tt bound.
+tracked = browserClient.track('myTrafficType', 'myEventType'); // key bound, tt provided.
 // Value parameter is optional on all signatures.
 tracked = client.track(splitKey, 'myTrafficType', 'myEventType', 10);
-tracked = client.track('myTrafficType', 'myEventType', 10);
-tracked = client.track('myEventType', 10);
+tracked = browserClient.track('myTrafficType', 'myEventType', 10);
 // Properties parameter is optional on all signatures.
 tracked = client.track(splitKey, 'myTrafficType', 'myEventType', 10, { prop1: 1, prop2: '2', prop3: false, prop4: null });
-tracked = client.track('myTrafficType', 'myEventType', null, { prop1: 1, prop2: '2', prop3: false, prop4: null });
-tracked = client.track('myEventType', undefined, { prop1: 1, prop2: '2', prop3: false, prop4: null });
+tracked = browserClient.track('myTrafficType', 'myEventType', undefined, { prop1: 1, prop2: '2', prop3: false, prop4: null });
 
 /*** Repeating tests for Async Client ***/
 
@@ -332,10 +327,11 @@ const b1: number = asyncClient.listenerCount(splitEvent);
 nodeEventEmitter = asyncClient;
 
 // Ready, destroy and flush (same as for sync client, just for interface checking)
-const readyPromise1: Promise<void> = asyncClient.ready();
-asyncClient.destroy();
-// @ts-ignore
-asyncClient.flush();
+promise = asyncClient.ready();
+promise = asyncClient.destroy();
+promise = AsyncSDK.destroy();
+// @TODO not public yet
+// promise = asyncClient.flush();
 
 // We can call getTreatment but always with a key.
 asyncTreatment = asyncClient.getTreatment(splitKey, 'mySplit');
@@ -391,7 +387,7 @@ splitView = manager.split('mySplit');
 splitViews = manager.splits();
 
 // Manager implements ready promise.
-const managerReadyPromise: Promise<void> = manager.ready();
+promise = manager.ready();
 
 // Manager implements methods from NodeJS.Events. Testing a few.
 manager = manager.on(splitEvent, () => { });
@@ -415,7 +411,7 @@ splitViewAsync = asyncManager.split('mySplit');
 splitViewsAsync = asyncManager.splits();
 
 // asyncManager implements ready promise.
-const asyncManagerReadyPromise: Promise<void> = asyncManager.ready();
+promise = asyncManager.ready();
 
 // asyncManager implements methods from NodeJS.Events. Testing a few.
 asyncManager = asyncManager.on(splitEvent, () => { });
@@ -492,40 +488,10 @@ userConsent = BrowserSDK.UserConsent.Status.UNKNOWN;
 // Split filters
 let splitFilters: SplitIO.SplitFilter[] = [{ type: 'bySet', values: ['set_a', 'set_b'] }, { type: 'byName', values: ['my_split_1', 'my_split_1'] }, { type: 'byPrefix', values: ['my_split', 'test_split_'] }]
 
-// Browser integrations
-let fieldsObjectSample: UniversalAnalytics.FieldsObject = { hitType: 'event', eventAction: 'action' };
-let eventDataSample: SplitIO.EventData = { eventTypeId: 'someEventTypeId', value: 10, properties: {} }
-
-let googleAnalyticsToSplitConfig: SplitIO.IGoogleAnalyticsToSplitConfig = {
-  type: 'GOOGLE_ANALYTICS_TO_SPLIT',
-};
-let splitToGoogleAnalyticsConfig: SplitIO.ISplitToGoogleAnalyticsConfig = {
-  type: 'SPLIT_TO_GOOGLE_ANALYTICS',
-};
-
-let customGoogleAnalyticsToSplitConfig: SplitIO.IGoogleAnalyticsToSplitConfig = {
-  type: 'GOOGLE_ANALYTICS_TO_SPLIT',
-  hits: false,
-  filter: function (model: UniversalAnalytics.Model): boolean { return true; },
-  mapper: function (model: UniversalAnalytics.Model, defaultMapping: SplitIO.EventData): SplitIO.EventData { return eventDataSample; },
-  prefix: 'PREFIX',
-  identities: [{ key: 'key1', trafficType: 'tt1' }, { key: 'key2', trafficType: 'tt2' }],
-  autoRequire: true
-};
-let customSplitToGoogleAnalyticsConfig: SplitIO.ISplitToGoogleAnalyticsConfig = {
-  type: 'SPLIT_TO_GOOGLE_ANALYTICS',
-  events: false,
-  impressions: true,
-  filter: function (model: SplitIO.IntegrationData): boolean { return true; },
-  mapper: function (model: SplitIO.IntegrationData, defaultMapping: UniversalAnalytics.FieldsObject): UniversalAnalytics.FieldsObject { return fieldsObjectSample; },
-  trackerNames: ['t0', 'myTracker'],
-}
-
 let fullBrowserSettings: SplitIO.IBrowserSettings = {
   core: {
     authorizationKey: 'asd',
     key: 'asd',
-    trafficType: 'myTT',
     labelsEnabled: false
   },
   scheduler: {
@@ -560,7 +526,6 @@ let fullBrowserSettings: SplitIO.IBrowserSettings = {
   },
   impressionListener: impressionListener,
   debug: true,
-  integrations: [googleAnalyticsToSplitConfig, splitToGoogleAnalyticsConfig, customGoogleAnalyticsToSplitConfig, customSplitToGoogleAnalyticsConfig],
   streamingEnabled: true,
   sync: {
     splitFilters: splitFilters,
@@ -573,7 +538,6 @@ let fullBrowserSettings: SplitIO.IBrowserSettings = {
   userConsent: 'GRANTED'
 };
 fullBrowserSettings.storage.type = 'MEMORY';
-fullBrowserSettings.integrations[0].type = 'GOOGLE_ANALYTICS_TO_SPLIT';
 fullBrowserSettings.userConsent = 'DECLINED';
 fullBrowserSettings.userConsent = 'UNKNOWN';
 
@@ -671,6 +635,7 @@ let fullAsyncSettings: SplitIO.INodeAsyncSettings = {
   debug: true,
   sync: {
     splitFilters: splitFilters,
+    impressionsMode: 'DEBUG',
   }
 };
 
