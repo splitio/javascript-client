@@ -11,7 +11,9 @@
  * @author Nico Zelaya <nicolas.zelaya@split.io>
  */
 
-import { SplitFactory } from '@splitsoftware/splitio';
+import { SplitFactory } from '../types/index';
+import { SplitFactory as SplitFactoryCS } from '../types/client';
+import { SplitFactory as SplitFactorySS } from '../types/server';
 
 let stringPromise: Promise<string>;
 let splitNamesPromise: Promise<SplitIO.SplitNames>;
@@ -166,6 +168,9 @@ browserSettings = {
 SDK = SplitFactory(nodeSettings);
 AsyncSDK = SplitFactory(asyncSettings);
 BrowserSDK = SplitFactory(browserSettings);
+SDK = SplitFactorySS(nodeSettings);
+AsyncSDK = SplitFactorySS(asyncSettings);
+BrowserSDK = SplitFactoryCS(browserSettings);
 
 // The settings values the SDK expose.
 const instantiatedSettingsCore: {
@@ -174,15 +179,10 @@ const instantiatedSettingsCore: {
   labelsEnabled: boolean,
   IPAddressesEnabled: boolean
 } = SDK.settings.core;
-const instantiatedSettingsMode: ('standalone' | 'consumer') = SDK.settings.mode;
+const instantiatedSettingsMode: ('standalone' | 'consumer' | 'consumer_partial' | 'localhost') = SDK.settings.mode;
 const instantiatedSettingsScheduler: { [key: string]: number } = SDK.settings.scheduler;
 const instantiatedSettingsStartup: { [key: string]: number } = SDK.settings.startup;
-const instantiatedSettingsStorage: {
-  prefix: string,
-  options: Object,
-  // It can have any of the storages.
-  type: SplitIO.NodeSyncStorage | SplitIO.NodeAsyncStorage | SplitIO.BrowserStorage
-} = SDK.settings.storage;
+const instantiatedSettingsStorage = SDK.settings.storage as SplitIO.StorageOptions;
 const instantiatedSettingsUrls: { [key: string]: string } = SDK.settings.urls;
 const instantiatedSettingsVersion: string = SDK.settings.version;
 let instantiatedSettingsFeatures = SDK.settings.features as SplitIO.MockedFeaturesMap;
@@ -635,6 +635,7 @@ let fullAsyncSettings: SplitIO.INodeAsyncSettings = {
   debug: true,
   sync: {
     splitFilters: splitFilters,
+    impressionsMode: 'DEBUG',
   }
 };
 
