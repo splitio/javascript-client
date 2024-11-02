@@ -57,7 +57,7 @@ export function testRefreshToken(fetchMock, assert) {
     sseCount++;
     switch (sseCount) {
       case 1:
-        assert.true(nearlyEqual(Date.now() - start, 0), 'first connection is created inmediatelly');
+        assert.true(nearlyEqual(Date.now() - start, 0), 'first connection is created immediately');
         break;
       case 2:
         assert.true(nearlyEqual(Date.now() - start, MILLIS_REFRESH_TOKEN + MILLIS_CONNDELAY), 'second connection is created with a delay');

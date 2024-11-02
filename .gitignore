@@ -19,8 +19,8 @@ dump.rdb
 /stats
 
 ## transpiled code
-/lib
-/es
+/cjs
+/esm
 /umd
 
 ## TS tests compilated files

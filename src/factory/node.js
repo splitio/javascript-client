@@ -10,6 +10,7 @@ import { impressionObserverSSFactory } from '@splitsoftware/splitio-commons/src/
 import { sdkFactory } from '@splitsoftware/splitio-commons/src/sdkFactory';
 import { CONSUMER_MODE, LOCALHOST_MODE } from '@splitsoftware/splitio-commons/src/utils/constants';
 
+import { localhostFromFileFactory } from '../sync/offline/LocalhostFromFile';
 import { settingsFactory } from '../settings/node';
 import { platform, SignalListener } from '../platform';
 import { bloomFilterFactory } from '../platform/filter/bloomFilter';
@@ -53,7 +54,7 @@ function getModules(settings) {
   switch (settings.mode) {
     case LOCALHOST_MODE:
       modules.splitApiFactory = undefined;
-      modules.syncManagerFactory = settings.sync.localhostMode;
+      modules.syncManagerFactory = localhostFromFileFactory;
       modules.SignalListener = undefined;
       break;
     case CONSUMER_MODE:

@@ -31,7 +31,7 @@ function configFilesPath(configFilePath) {
 }
 
 // This function is not pure nor meant to be. Here we apply modifications to cover
-// for behaviour that's ensured by the BE.
+// for behavior that's ensured by the BE.
 function arrangeConditions(mocksData) {
   // Iterate through each feature flag data
   forOwn(mocksData, data => {

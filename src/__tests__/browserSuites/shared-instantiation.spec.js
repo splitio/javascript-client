@@ -14,9 +14,9 @@ const settings = settingsFactory({
  * @param {boolean} sdkIgnoredTT whether the SDK ignores TT (i.e, clients without bound TT) or not (client with optional bound TT)
  */
 export default function sharedInstantiationSuite(startWithTT, sdkIgnoresTT, fetchMock, assert) {
-  // mocking mySegments endpoints with delays for new clients
-  fetchMock.get(url(settings, '/mySegments/emiliano%2Fsplit.io'), { status: 200, body: { mySegments: [] } }, { delay: 100 });
-  fetchMock.get(url(settings, '/mySegments/matias%25split.io'), { status: 200, body: { mySegments: [] } }, { delay: 200 });
+  // mocking memberships endpoints with delays for new clients
+  fetchMock.get(url(settings, '/memberships/emiliano%2Fsplit.io'), { status: 200, body: { ms: {} } }, { delay: 100 });
+  fetchMock.get(url(settings, '/memberships/matias%25split.io'), { status: 200, body: { ms: {} } }, { delay: 200 });
 
   const factory = SplitFactory({
     core: {
