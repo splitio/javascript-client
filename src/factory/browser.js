@@ -5,13 +5,13 @@ import { pollingManagerCSFactory } from '@splitsoftware/splitio-commons/src/sync
 import { InLocalStorage } from '@splitsoftware/splitio-commons/src/storages/inLocalStorage';
 import { InMemoryStorageCSFactory } from '@splitsoftware/splitio-commons/src/storages/inMemory/InMemoryStorageCS';
 import { sdkManagerFactory } from '@splitsoftware/splitio-commons/src/sdkManager';
-import { sdkClientMethodCSFactory } from '@splitsoftware/splitio-commons/src/sdkClient/sdkClientMethodCSWithTT';
+import { sdkClientMethodCSFactory } from '@splitsoftware/splitio-commons/src/sdkClient/sdkClientMethodCS';
 import { impressionObserverCSFactory } from '@splitsoftware/splitio-commons/src/trackers/impressionObserver/impressionObserverCS';
-import { integrationsManagerFactory } from '@splitsoftware/splitio-commons/src/integrations/browser';
 import { __InLocalStorageMockFactory } from '@splitsoftware/splitio-commons/src/utils/settingsValidation/storage/storageCS';
 import { sdkFactory } from '@splitsoftware/splitio-commons/src/sdkFactory';
 import { LOCALHOST_MODE, STORAGE_LOCALSTORAGE } from '@splitsoftware/splitio-commons/src/utils/constants';
 import { createUserConsentAPI } from '@splitsoftware/splitio-commons/src/consent/sdkUserConsent';
+import { localhostFromObjectFactory } from '@splitsoftware/splitio-commons/src/sync/offline/LocalhostFromObject';
 
 import { settingsFactory } from '../settings/browser';
 import { platform, SignalListener } from '../platform';
@@ -49,8 +49,6 @@ function getModules(settings) {
 
     SignalListener,
 
-    integrationsManagerFactory: settings.integrations && settings.integrations.length > 0 ? integrationsManagerFactory.bind(null, settings.integrations) : undefined,
-
     impressionsObserverFactory: impressionObserverCSFactory,
 
     extraProps: (params) => {
@@ -63,7 +61,7 @@ function getModules(settings) {
   switch (settings.mode) {
     case LOCALHOST_MODE:
       modules.splitApiFactory = undefined;
-      modules.syncManagerFactory = settings.sync.localhostMode;
+      modules.syncManagerFactory = localhostFromObjectFactory;
       modules.SignalListener = undefined;
       break;
   }

@@ -1,6 +1,5 @@
 import { settingsValidation } from '@splitsoftware/splitio-commons/src/utils/settingsValidation';
 import { validateLogger } from '@splitsoftware/splitio-commons/src/utils/settingsValidation/logger/builtinLogger';
-import { LocalhostFromFile } from '../sync/offline/LocalhostFromFile';
 
 import { defaults } from './defaults/node';
 import { validateStorage } from './storage/node';
@@ -13,7 +12,6 @@ const params = {
   runtime: validateRuntime,
   storage: validateStorage,
   logger: validateLogger,
-  localhost: () => LocalhostFromFile(),
   flagSpec: () => FLAG_SPEC_VERSION
   // In Node.js the SDK ignores `config.integrations`, so a validator for integrations is not required
 };
