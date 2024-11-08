@@ -141,13 +141,13 @@ splitKey = splitKeyObj;
 
 /**** Tests for ISDK interface ****/
 
-// For node with sync storage
+// For Node.js with sync storage
 nodeSettings = {
   core: {
     authorizationKey: 'key'
   }
 };
-// For node with async storage
+// For Node.js with async storage
 asyncSettings = {
   core: {
     authorizationKey: 'key'
@@ -188,14 +188,14 @@ const instantiatedSettingsVersion: string = SDK.settings.version;
 let instantiatedSettingsFeatures = SDK.settings.features as SplitIO.MockedFeaturesMap;
 // We should be able to write on features prop. The rest are readonly props.
 instantiatedSettingsFeatures.something = 'something';
-SDK.settings.features = 'new_file_path'; // Node
+SDK.settings.features = 'new_file_path'; // Node.js
 SDK.settings.features = { 'split_x': 'on' }; // Browser
 
 // Client and Manager
 client = SDK.client();
 manager = SDK.manager();
 manager = BrowserSDK.manager();
-// Today async clients are only possible on Node. Shared client creation not available here.
+// Today async clients are only possible on Node.js. Shared client creation not available here.
 asyncClient = AsyncSDK.client();
 asyncManager = AsyncSDK.manager();
 // Browser client for attributes binding
@@ -228,7 +228,7 @@ splitEvent = client.Event.SDK_READY_FROM_CACHE;
 splitEvent = client.Event.SDK_READY_TIMED_OUT;
 splitEvent = client.Event.SDK_UPDATE;
 
-// Client implements methods from NodeJS.Events. Testing a few.
+// Client implements methods from Node.js EventEmitter. Testing a few.
 client = client.on(splitEvent, () => { });
 const a: boolean = client.emit(splitEvent);
 client = client.removeAllListeners(splitEvent);
@@ -318,7 +318,7 @@ splitEvent = asyncClient.Event.SDK_READY_FROM_CACHE;
 splitEvent = asyncClient.Event.SDK_READY_TIMED_OUT;
 splitEvent = asyncClient.Event.SDK_UPDATE;
 
-// Client implements methods from NodeJS.Events. (same as for sync client, just for interface checking)
+// Client implements methods from Node.js EventEmitter. (same as for sync client, just for interface checking)
 asyncClient = asyncClient.on(splitEvent, () => { });
 const a1: boolean = asyncClient.emit(splitEvent);
 asyncClient = asyncClient.removeAllListeners(splitEvent);
@@ -389,7 +389,7 @@ splitViews = manager.splits();
 // Manager implements ready promise.
 promise = manager.ready();
 
-// Manager implements methods from NodeJS.Events. Testing a few.
+// Manager implements methods from Node.js EventEmitter. Testing a few.
 manager = manager.on(splitEvent, () => { });
 const aa: boolean = manager.emit(splitEvent);
 manager = manager.removeAllListeners(splitEvent);
@@ -413,7 +413,7 @@ splitViewsAsync = asyncManager.splits();
 // asyncManager implements ready promise.
 promise = asyncManager.ready();
 
-// asyncManager implements methods from NodeJS.Events. Testing a few.
+// asyncManager implements methods from Node.js EventEmitter. Testing a few.
 asyncManager = asyncManager.on(splitEvent, () => { });
 const aaa: boolean = asyncManager.emit(splitEvent);
 asyncManager = asyncManager.removeAllListeners(splitEvent);

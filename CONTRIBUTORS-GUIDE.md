@@ -7,7 +7,7 @@ Split SDK is an open source project and we welcome feedback and contribution. Th
 ### Development process
 
 1. Fork the repository and create a topic branch from `development` branch. Please use a descriptive name for your branch.
-2. Run `nvm use` to ensure that you are using the right npm and node version, and `npm install` to have the dependencies up to date.
+2. Run `nvm use` to ensure that you are using the right npm and Node.js version, and `npm install` to have the dependencies up to date.
 3. While developing, use descriptive messages in your commits. Avoid short or meaningless sentences like: "fix bug".
 4. Make sure to add tests for both positive and negative cases.
 5. If your changes have any impact on the public API, make sure you update the TypeScript declarations as well as it's related test file.
@@ -46,7 +46,7 @@ Consider running the linter script (`npm run check:lint`) and fixing any issues 
 
 If you want to debug your changes consuming it from a test application, you could:
 - For browsers, import the **UMD** bundle from an HTML document. To debug you can use the browser dev tools.
-- For Node, you could use symlinks via [npm link command](https://docs.npmjs.com/cli/link.html) and then import the package as usual. To debug you could use the [Node inspector](https://nodejs.org/en/docs/guides/debugging-getting-started/).
+- For Node.js, you could use symlinks via [npm link command](https://docs.npmjs.com/cli/link.html) and then import the package as usual. To debug you could use the [Node.js inspector](https://nodejs.org/en/docs/guides/debugging-getting-started/).
 
 # Contact
 

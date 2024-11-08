@@ -4,8 +4,9 @@
  - Updated @splitsoftware/splitio-commons package to version 2.0.0 that includes major updates and updated some transitive dependencies for vulnerability fixes.
  - Renamed distribution folders from `/lib` to `/cjs` for CommonJS build, and `/es` to `/esm` for ECMAScript Modules build.
  - BREAKING CHANGES:
+    - NOTE: Refer to ./MIGRATION-GUIDE.md for instructions on how to migrate your codebase from version 0.x to 1.0.0.
     - Dropped support for Split Proxy below version 5.9.0, when using in the browser (client-side API). The SDK now requires Split Proxy 5.9.0 or above.
-    - Dropped support for NodeJS v6. The SDK now requires NodeJS v14 or above.
+    - Dropped support for Node.js v6. The SDK now requires Node.js v14 or above.
     - Removed internal ponyfills for the `Map` and `Set` global objects, dropping support for IE and other outdated browsers. The SDK now requires the runtime environment to support these features natively or provide a polyfill.
     - Removed the deprecated `GOOGLE_ANALYTICS_TO_SPLIT` and `SPLIT_TO_GOOGLE_ANALYTICS` integrations. The `integrations` configuration option has been removed from the SDK factory configuration, along with the associated interfaces in the TypeScript definitions.
     - Removed the `core.trafficType` configuration option (`SplitIO.IBrowserSettings['core']['trafficType]`) and the `trafficType` parameter from the SDK `client()` method in Browser (`SplitIO.IBrowserSDK['client']`). As a result, traffic types can no longer be bound to SDK clients, and the traffic type must be provided in the `track` method.
@@ -16,12 +17,12 @@
     - Updated some transitive dependencies for vulnerability fixes.
 
 10.27.0 (June 25, 2024)
- - Added `sync.requestOptions.agent` option to SDK configuration for NodeJS. This allows passing a custom NodeJS HTTP(S) Agent with specific configurations for the SDK requests, like custom TLS settings or a network proxy (See https://help.split.io/hc/en-us/articles/360020564931-Node-js-SDK#proxy).
+ - Added `sync.requestOptions.agent` option to SDK configuration for Node.js. This allows passing a custom Node.js HTTP(S) Agent with specific configurations for the SDK requests, like custom TLS settings or a network proxy (See https://help.split.io/hc/en-us/articles/360020564931-Node-js-SDK#proxy).
  - Updated some transitive dependencies for vulnerability fixes.
 
 10.26.1 (June 14, 2024)
- - Updated the internal imports of 'os' and 'ioredis' modules for NodeJS, to use EcmaScript 'import' rather than CommonJS 'require' for the ES modules build. This avoids runtime errors on some scenarios when bundling the SDK into a .mjs file or importing it from a .mjs file.
- - Updated eventsource dependency for NodeJS. The eventsource v1.1.2 dependency was removed, and the SDK now uses an embedded adaptation that can accept an HTTP(S) agent option, like other HTTP(S) requests.
+ - Updated the internal imports of 'os' and 'ioredis' modules for Node.js, to use EcmaScript 'import' rather than CommonJS 'require' for the ES modules build. This avoids runtime errors on some scenarios when bundling the SDK into a .mjs file or importing it from a .mjs file.
+ - Updated eventsource dependency for Node.js. The eventsource v1.1.2 dependency was removed, and the SDK now uses an embedded adaptation that can accept an HTTP(S) agent option, like other HTTP(S) requests.
  - Updated @splitsoftware/splitio-commons package to version 1.16.0 that includes some vulnerability and bug fixes.
  - Bugfixing - Restored some input validation error logs that were removed in version 10.24.0. The logs inform the user when the `getTreatment(s)` methods are called with an invalid value as feature flag name or flag set name.
  - Bugfixing - Fixed localhost mode to emit SDK_UPDATE when mocked feature flags are updated in the `features` object map of the config object (Related to issue https://github.com/splitio/javascript-browser-client/issues/119).
@@ -40,7 +41,7 @@
  - Updated @splitsoftware/splitio-commons package to version 1.13.1 and some transitive dependencies for vulnerability fixes.
 
 10.25.0 (January 4, 2024)
- - Updated SDK to support URLs without TLS protocol in NodeJS, to simplify proxy usage inside private networks.
+ - Updated SDK to support URLs without TLS protocol in Node.js, to simplify proxy usage inside private networks.
 
 10.24.1 (December 12, 2023)
  - Updated SDK cache for browsers using localStorage, to clear cached feature flag definitions before initiating the synchronization process if the cache was previously synchronized with a different SDK key (i.e., a different environment) or different Split Filter criteria, to avoid using invalid cached data when the SDK is ready from cache.
@@ -58,7 +59,7 @@
  - Updated @splitsoftware/splitio-commons package to version 1.12.0 that includes vulnerability fixes, flag sets support, and other improvements.
  - Updated Redis adapter to handle timeouts and queueing of some missing commands: 'hincrby', 'popNRaw', and 'pipeline.exec'.
  - Bugfixing - Fixed manager methods in consumer modes to return results in a promise when the SDK is not operational (not ready or destroyed).
- - Bugfixing - Fixed SDK key validation in NodeJS to ensure the SDK_READY_TIMED_OUT event is emitted when a client-side type SDK key is provided instead of a server-side one (Related to issue https://github.com/splitio/javascript-client/issues/768).
+ - Bugfixing - Fixed SDK key validation in Node.js to ensure the SDK_READY_TIMED_OUT event is emitted when a client-side type SDK key is provided instead of a server-side one (Related to issue https://github.com/splitio/javascript-client/issues/768).
 
 10.23.1 (September 22, 2023)
  - Updated @splitsoftware/splitio-commons package to version 1.9.1. This update removes the handler for 'unload' DOM events, that can prevent browsers from being able to put pages in the back/forward cache for faster back and forward loads (Related to issue https://github.com/splitio/javascript-client/issues/759).
@@ -87,14 +88,14 @@
  - Bugfixing - Upgrade @splitsoftware/splitio-commons package to version 1.7.3 which includes a memory leak fix for localhost mode (Related to issue https://github.com/splitio/javascript-commons/issues/181) among other improvements.
 
 10.22.2 (November 3, 2022)
- - Bugfixing - Replaced bloom filter dependency that caused dependency conflicts (with farmhash lib) in AWS Lambda. This change only affects Node flavor.
+ - Bugfixing - Replaced bloom filter dependency that caused dependency conflicts (with farmhash lib) in AWS Lambda. This change only affects Node.js flavor.
 
 10.22.1 (October 14, 2022)
  - Bugfixing - Upgrade @splitsoftware/splitio-commons package to version 1.7.2, that handles `Navigator.sendBeacon` API exceptions in the browser, and fallback to regular Fetch/XHR transport in case of error.
 
 10.22.0 (October 5, 2022)
  - Added a new impressions mode for the SDK called NONE, to be used in factory when there is no desire to capture impressions on an SDK factory to feed Split's analytics engine. Running NONE mode, the SDK will only capture unique keys evaluated for a particular feature flag instead of full blown impressions.
- - Updated default value of `scheduler.featuresRefreshRate` config parameter from 5 seconds to 60 seconds for NodeJS and from 30 seconds to 60 seconds for Browser.
+ - Updated default value of `scheduler.featuresRefreshRate` config parameter from 5 seconds to 60 seconds for Node.js and from 30 seconds to 60 seconds for Browser.
  - Updated @splitsoftware/splitio-commons package to version 1.7.1, that improves the performance of feature flag evaluations (i.e., `getTreatment(s)` method calls) when using the default storage in memory, among other improvements.
 
 10.21.1 (July 25, 2022)
@@ -120,10 +121,10 @@
  - Added `scheduler.telemetryRefreshRate` property to SDK configuration, and deprecated `scheduler.metricsRefreshRate` property.
  - Updated SDK telemetry storage, metrics and updater to be more effective and send less often.
  - Bugfixing - Updated default values for `scheduler.impressionsRefreshRate` config parameter: 300s for OPTIMIZED impression mode and 60s for DEBUG impression mode,
-   in both Browser and NodeJS (previously it was 60s and 300s in Browser and NodeJS respectively, equal for DEBUG and OPTIMIZED impression modes).
+   in both Browser and Node.js (previously it was 60s and 300s in Browser and Node.js respectively, equal for DEBUG and OPTIMIZED impression modes).
 
 10.18.2 (May 6, 2022)
- - Bugfixing - Removed "ip" dependency to use an inline copy of it that fixes an error when using it in Node v18 (https://github.com/indutny/node-ip/issues/113).
+ - Bugfixing - Removed "ip" dependency to use an inline copy of it that fixes an error when using it in Node.js v18 (https://github.com/indutny/node-ip/issues/113).
 
 10.18.1 (April 20, 2022)
  - Updated some dependencies for vulnerability fixes.
@@ -133,8 +134,8 @@
 10.18.0 (April 7, 2022)
  - Added user consent feature to allow delaying or disabling the data tracking from SDK until user consent is explicitly granted or declined. Read more in our docs.
  - Added `scheduler.impressionsQueueSize` property to SDK configuration to limit the amount of impressions tracked in memory. Read more in our docs.
- - Added support to accept TLS configuration options to the Redis storage in NodeJS. Read more in our docs.
- - Updated type definitions to specialize the type of the `storage.options` object for Redis storage in NodeJS.
+ - Added support to accept TLS configuration options to the Redis storage in Node.js. Read more in our docs.
+ - Updated type definitions to specialize the type of the `storage.options` object for Redis storage in Node.js.
  - Updated some dependencies for vulnerability fixes.
  - Bugfixing - Updated internal isObject utility function, to avoid unexpected behaviors on frameworks and libraries that uses multiple VM contexts, like NuxtJS dev server.
  - Bugfixing - Logging settings (i.e., the `debug` SDK configuration param and factory logger methods) are configurable per factory instance, instead of affecting all factories globally.
@@ -198,7 +199,7 @@
 
 10.15.6 (May 21, 2021)
  - Updated error handling following the recommended practice of throwing only Error objects.
- - Updated ioredis version now that their incompatibility with Node <10 was already fixed.
+ - Updated ioredis version now that their incompatibility with Node.js <10 was already fixed.
  - Updated Karma and a transitive dependency with vulnerabilities.
  - Updated dev dependency on redis-dump to redis-dumpz package to be able to fix a vulnerability on Redis transitive dependency.
  - Bugfixing - Name two anonymous functions that generate warnings when transpiling for IE11 (issue #535)
@@ -211,18 +212,18 @@
       - Updated SSE error handling.
       - Extended publishers tracking to support multi-region infrastructure.
       - Enforced revalidation for requests stored in local caches, like proxies or browsers.
-      - Bugfixing - In NodeJS, fetch new segments captured due to streaming notifications.
+      - Bugfixing - In Node.js, fetch new segments captured due to streaming notifications.
  - Updated some dependencies, including a vulnerability fix.
 
 10.15.3 (Feb 10, 2021)
- - Updated type definitions to remove `@types/node` dependency and avoid conflicts between Node and DOM type definitions.
+ - Updated type definitions to remove `@types/node` dependency and avoid conflicts between Node.js and DOM type definitions.
  - Bugfixing - Handle issue importing node-fetch library (issue #505).
 
 10.15.2 (Dec 3, 2020)
  - Updated requests for `/testImpressions/beacon` to include the impressions mode.
 
 10.15.1 (Nov 12, 2020)
- - Updated the version for ioredis in the package.json to be fixed to 4.18.0 given after 4.19.0 it requires Node 10, in case this SDK is installed without considering our package-lock.json file on an old Node.
+ - Updated the version for ioredis in the package.json to be fixed to 4.18.0 given after 4.19.0 it requires Node.js 10, in case this SDK is installed without considering our package-lock.json file on an old Node.js.
  - Updated TypeScript declarations to include the `urls` settings object (to connect to Split Synchronizer in proxy mode) for the non-async settings where it would be applicable.
  - Bugfixing - Updating some imports of hashing utilities to use safe relative paths and avoid module resolution issues.
  - Bugfixing - Updating logic to avoid a corner case issue with the sendHitTask callback handling of the GOOGLE_ANALYTICS_TO_SPLIT integration.
@@ -234,7 +235,7 @@
     - Added `ImpressionObserver` to detect previous generated impression.
     - Added new endpoint (`testImpressions/count`) to send all the generated impressions in a time frame.
     - Added beacon endpoint for ImpressionsCount.
-    - Added murmur3 128 bits hashing and splitted logic between browser and node.
+    - Added murmur3 128 bits hashing and splitted logic between browser and Node.js.
     - Added `OPTIMIZED` and `DEBUG` modes in order to enabling/disabling how impressions are going to be sent into Split servers,
         - `OPTIMIZED`: will send unique impressions in a timeframe in order to reduce how many times impressions are posted to Split.
         - `DEBUG`: will send every impression generated to Split.
@@ -247,7 +248,7 @@
  - Bugfixing - updated the feature detection of Set global constructor to avoid possible reference errors.
 
 10.14.1 (Aug 13, 2020)
- - Updated push streaming support for Node to optimize requests to Split services.
+ - Updated push streaming support for Node.js to optimize requests to Split services.
  - Bugfixing - Replaced the use of `for...in` statements since it iterates over enumerable properties on the prototype chain, which might be polluted by code external to the library.
 
 10.14.0 (Jul 31, 2020)
@@ -265,7 +266,7 @@
 10.12.1 (May 18, 2020)
  - Updated logging messages for streaming notifications to DEBUG log level.
  - Updated asynchronous logic handling to avoid async/await syntax in order to remove regenerator-runtime dependency.
- - Removed axios HTTP library in favor of fetch for browsers (with XHR as fallback) and node-fetch for Node JS.
+ - Removed axios HTTP library in favor of fetch for browsers (with XHR as fallback) and node-fetch for Node.js.
 
 10.12.0 (April 30, 2020)
  - Added support for the new Split streaming architecture. When enabled, the SDK will not poll for updates but instead receive notifications every time there's a change in your environments,
@@ -331,7 +332,7 @@
  - Bugfixing - Fixing ES6 import syntax for LabelConstants module.
 
 10.7.1 (May 10, 2019)
- - Added Block Until Ready functionality support for consumer clients (Redis mode on Node) to make integration code work the same between modes.
+ - Added Block Until Ready functionality support for consumer clients (Redis mode on Node.js) to make integration code work the same between modes.
  - Added more Input and Usage Validation rules, including an extra label for impressions when the SDK is not ready.
  - Updated the SDK Redis adapter to handle pending commands when disconnecting from the Redis server.
  - Bugfixing - Clearing up readyTimeout after we don't need it anymore. It also fixes the misleading SDK_READY_TIMED_OUT error log when using Redis.
@@ -348,14 +349,14 @@
  - Updated how we handle timeout per request, setting startup.requestTimeoutBeforeReady to less than 1 applies no timeout per request.
 
 10.6.1 (Mar 15, 2019)
- - Updated default value for scheduler.featuresRefreshRate on NodeJS. New default is 5 seconds.
+ - Updated default value for scheduler.featuresRefreshRate on Node.js. New default is 5 seconds.
 
 10.6.0 (Feb 12, 2019)
  - BREAKING CHANGE: Updated impressions cache for Redis storage to reduce the amount of Redis operations by using a single queue (Must use Synchronizer 2.x or above with this or newer SDK versions).
  - Added stricter validations to the input of the SDK api to provide better and faster feedback in case of misuse. We want our users to be able to diagnose issues sooner,
   instead of when you can't find the data you're looking for. As part of this, some error logs (just logs) will be visible even with the SDK Logger disabled.
  - Updated getTreatments to have it's own latency metric for the whole operation, instead of one per each feature evaluation.
- - Updated default values on configuration for NodeJS.
+ - Updated default values on configuration for Node.js.
    - startup.readyTimeout default value went up from 0s (no timeout limit) to 15s.
    - startup.retriesOnFailureBeforeReady default value went up from 0 (no retries) to 1.
  - Bugfixing - Preventing "Uncaught in promise (undefined)" error for .ready() promise when no error handlers are attached to it.
@@ -368,7 +369,7 @@
  - Added custom impression listener feature, so customers can receive all the impressions data on a callback to handle as they place.
   Completely optional, the only requirement is that the element being set as impression listener should have a method called `logImpression`
   where they'll receive all the data. Read more in our docs!
- - Added Redis support for track events. Now if you're running the `split-synchronizer` and the Node SDK on `consumer mode`, your track events
+ - Added Redis support for track events. Now if you're running the `split-synchronizer` and the Node.js SDK on `consumer mode`, your track events
   will go to Redis and be sent to Split by the synchronizer.
  - Added a wrapper on top of ioredis to better handle operations and reduce unwanted library effects.
  - Removed unnecessary keys/scans on Redis.
@@ -380,7 +381,7 @@
  - Removed dependency on lodash.
  - Added log level support for SDK logs using our own Logger implementation. Now besides just enable/disable,
   you can set the log level as a string (more information on our docs or on Detailed-README.md).
- - Added automatic cleanup and data flush for NodeJS on SIGTERM signals.
+ - Added automatic cleanup and data flush for Node.js on SIGTERM signals.
  - Updated default value for startup.requestTimeoutBeforeReady on the Browser from 0.8 seconds to 1.5 seconds to match startup.readyTimeout.
  - Updated dependency versions.
  - Bugfixing - Capturing uncaught exception on some http and network errors.
@@ -390,17 +391,17 @@
  - Removing logplease dependency hosted on GitHub.
 
 10.3.2 (Jun 19, 2018)
- - Updating logging utility check for Node environments.
+ - Updating logging utility check for Node.js environments.
 
 10.3.1 (Jun 4, 2018)
  - Added events npm package as a dependency.
 
 10.3.0 (May 10, 2018)
  - Input and output validations.
- - Improved how the sdk parse the key.
+ - Improved how the SDK parse the key.
  - Not push impressions if matchingKey is invalid.
  - Fixed memory leak on events factory.
- - Improved UT for the node sdk.
+ - Improved UT for the Node.js SDK.
  - TS declarations now accept boolean properties on Attributes.
 
 10.2.0 (April 3, 2018)
@@ -419,7 +420,7 @@
  - Migrated source code to es modules.
  - Localhost mode uses fewer dependencies now.
  - Removed flowtype since it was not used anymore.
- - Updated to last node LTS.
+ - Updated to last Node.js LTS.
  - Added package-lock.json.
  - Fixed eslint configuration.
 
@@ -430,7 +431,7 @@
  - Updated SDK labels.
  - Bugfixing - Shared clients (browser) were ready even if the main client was not.
  - Bugfixing - Shared clients (browser) from different SDK instances should be separate.
- - Bugfixing - When using SDK key with wrong permissions, Node was throwing a false ready event (without segments).
+ - Bugfixing - When using SDK key with wrong permissions, Node.js was throwing a false ready event (without segments).
  - Bugfixing - Localhost mode was trying to flush impressions when client.destroy was invoked.
 
 9.3.7 (Dec 22, 2017)
@@ -440,7 +441,7 @@
  - Fixed an issue that was not rejecting client.ready() on SDK_READY_TIMED_OUT event.
  - Fixed an issue where the SDK required a key even on localhost mode.
  - Added custom message for 404 errors.
- - Updated TypeScript declaration files for exposing startup settings on NodeJS.
+ - Updated TypeScript declaration files for exposing startup settings on Node.js.
 
 9.3.5 (Sep 13, 2017)
  - Internal context module added.
@@ -454,7 +455,7 @@
  - Improved metrics collection.
 
 9.3.2 (Aug 9, 2017)
- - Adding support for Node v0.10.X
+ - Adding support for Node.js v0.10.X
 
 9.3.1 (Jul 28, 2017)
  - Bugfixing - Fixed a bug on Manager API which was not retrieving the right treatments for a Split on some cases.
@@ -470,14 +471,14 @@
 
 9.2.1 (May 19, 2017)
  - Bugfixing - Issue with dependency that exposes untranspiled code through cjs require, causes
-  problems on IE and Node 3.
+  problems on IE and Node.js 3.
 
 9.2.0 (May 11, 2017)
  - Dropped migration build. Migration packages will no longer receive updates.
  - Updated logging functionality. SDK will handle logging with a minimalistic enable/disable approach.
   Now you have three ways to enable/disable SDK logging:
 
-  1. By setting the localStorage.splitio_debug (browser) or SPLITIO_DEBUG environment var (node)
+  1. By setting the localStorage.splitio_debug (browser) or SPLITIO_DEBUG environment var (Node.js)
     with 'on', 'enable' or 'enabled'.
 
   2. By passing an extra setting when instantiating the SDK.
@@ -590,7 +591,7 @@ var treatmentsMap = client.getTreatments('CUSTOMER_KEY', ['Feature_flag_1', 'Fea
   <script src="//cdn.split.io/sdk/split-migration-8.0.0.min.js"></script>
   ```
 
-  In NodeJS or CommonJS environments:
+  In Node.js or CommonJS environments:
 
   ```js
   var sdk = require('@splitsoftware/splitio');
@@ -602,7 +603,7 @@ var treatmentsMap = client.getTreatments('CUSTOMER_KEY', ['Feature_flag_1', 'Fea
   var sdk = require('@splitsoftware/splitio/migration');
   ```
 
- - NodeJS now added support for Redis to keep consistency across multiple SDK
+ - Node.js now added support for Redis to keep consistency across multiple SDK
   instances.
 
   We have added a new setting parameter to control which storage use, and how
@@ -626,7 +627,7 @@ var treatmentsMap = client.getTreatments('CUSTOMER_KEY', ['Feature_flag_1', 'Fea
 
   const client = SplitFactory(config);
 
-  // Redis in NodeJS is async so we can use async/await syntax
+  // Redis in Node.js is async so we can use async/await syntax
   const treatment = await client.getTreatment('my-feature-coming-from-localstorage');
 
   // or just use the returned promise
@@ -662,7 +663,7 @@ var treatmentsMap = client.getTreatments('CUSTOMER_KEY', ['Feature_flag_1', 'Fea
   ```
 
  - Added support for offline changes release to improve development experience,
-  specially in NodeJS where we used to have a server running and spin it up each
+  specially in Node.js where we used to have a server running and spin it up each
   time we change a treatment is a headache.
 
   ```js
