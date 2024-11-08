@@ -83,7 +83,7 @@ const initializeRedisServer = (mock = '') => {
         exec(`cat ./src/__tests__/mocks/${mockFileName}.txt | redis-cli -p ${redisPort}`, err => {
           if (err) {
             reject(server);
-            // node couldn't execute the command
+            // Node.js couldn't execute the command
             return;
           }
 
@@ -95,7 +95,7 @@ const initializeRedisServer = (mock = '') => {
   return promise;
 };
 
-tape('NodeJS Redis', function (t) {
+tape('Node.js Redis', function (t) {
 
   t.test('Regular usage - DEBUG strategy', assert => {
     initializeRedisServer()

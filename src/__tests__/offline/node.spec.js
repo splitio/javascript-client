@@ -55,7 +55,7 @@ const settingsGenerator = mockFileName => {
 };
 
 
-tape('NodeJS Offline Mode', function (t) {
+tape('Node.js Offline Mode', function (t) {
 
   t.test('Old format evaluations - .split', DotSplitTests);
   t.test('New format evaluations - .yaml extension', DotYAMLTests.bind(null, 'split', 'yaml'));
