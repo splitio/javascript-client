@@ -1,4 +1,4 @@
-// Declaration file for JavaScript and Node Split Software SDK v8.1.0
+// Declaration file for JavaScript and Node.js Split Software SDK v8.1.0
 // Project: http://www.split.io/
 // Definitions by: Nico Zelaya <https://github.com/NicoZelaya/>
 

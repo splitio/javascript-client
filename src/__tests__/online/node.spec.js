@@ -55,7 +55,7 @@ fetchMock.post(url(settings, '/testImpressions/count'), 200);
 fetchMock.post(url(settings, '/v1/metrics/config'), 200);
 fetchMock.post(url(settings, '/v1/metrics/usage'), 200);
 
-tape('## Node JS - E2E CI Tests ##', async function (assert) {
+tape('## Node.js - E2E CI Tests ##', async function (assert) {
   /* Check client evaluations. */
   assert.test('E2E / In Memory', evaluationsSuite.bind(null, config, key));
   assert.test('E2E / In Memory - Semver', evaluationsSemverSuite.bind(null, fetchMock));

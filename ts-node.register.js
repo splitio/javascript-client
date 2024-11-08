@@ -1,5 +1,5 @@
 /**
- * Run tests and scripts in Node while transpiling typescript files from `@splitsoftware/splitio-commons/src`
+ * Run tests and scripts in Node.js while transpiling typescript files from `@splitsoftware/splitio-commons/src`
  * https://www.npmjs.com/package/ts-node
  *
  * NOTE: can be used with `npm link @splitsoftware/splitio-commons` or `"@splitsoftware/splitio-commons": "file:../javascript-commons" without extra steps

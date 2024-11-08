@@ -17,7 +17,7 @@ export function __setFetch(fetch) {
 }
 
 /**
- * Retrieves 'node-fetch', a Fetch API polyfill for NodeJS, with fallback to global 'fetch' if available.
+ * Retrieves 'node-fetch', a Fetch API polyfill for Node.js, with fallback to global 'fetch' if available.
  */
 export function getFetch() {
   return nodeFetch;
