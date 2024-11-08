@@ -2,9 +2,9 @@
 
 JavaScript SDK v11.0.0 has a few breaking changes that you should consider when migrating from version 10.x.x.
 
-## Changes that affect server-side API (NodeJS)
+## Changes that affect server-side API (Node.js)
 
-While JavaScript SDK previously supported NodeJS v6 and above, the SDK now requires NodeJS v14 or above.
+While JavaScript SDK previously supported Node.js v6 and above, the SDK now requires Node.js v14 or above.
 
 ## Changes that affect client-side API (Browser)
 
