@@ -147,6 +147,6 @@ tape('SETTINGS / Log error and fallback to InMemory storage if no valid storage 
 tape('SETTINGS / Consent is not overwritable in server-side', assert => {
   const settings = settingsFactory({ userConsent: 'UNKNOWN' });
 
-  assert.equal(settings.userConsent, undefined, 'userConsent cannot be overwritten in NodeJS.');
+  assert.equal(settings.userConsent, undefined, 'userConsent cannot be overwritten in Node.js.');
   assert.end();
 });

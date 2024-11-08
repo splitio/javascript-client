@@ -68,7 +68,7 @@ export function validateStorage(settings) {
       };
     }
 
-    // For now, we don't have modifiers or settings for MEMORY in NodeJS
+    // For now, we don't have modifiers or settings for MEMORY in Node.js
     case STORAGE_MEMORY:
     default: {
       // If passing MEMORY storage in consumer mode, throw an error (no way to fallback to REDIS storage)

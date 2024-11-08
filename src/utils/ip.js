@@ -1,6 +1,6 @@
 /* eslint-disable no-redeclare */
 /*
-Trimmed version of "ip" package (https://www.npmjs.com/package/ip) that fixes an error when running in Node v18.
+Trimmed version of "ip" package (https://www.npmjs.com/package/ip) that fixes an error when running in Node.js v18.
 
 This software is licensed under the MIT License.
 

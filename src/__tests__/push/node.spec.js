@@ -13,7 +13,7 @@ fetchMock.config.overwriteRoutes = false;
 fetchMock.post('https://telemetry.split.io/api/v1/metrics/config', 200);
 fetchMock.post('https://telemetry.split.io/api/v1/metrics/usage', 200);
 
-tape('## Node JS - E2E CI Tests for PUSH ##', async function (assert) {
+tape('## Node.js - E2E CI Tests for PUSH ##', async function (assert) {
 
   // Non-recoverable issues on inizialization
   assert.test('E2E / PUSH initialization: auth with push disabled', testAuthWithPushDisabled.bind(null, fetchMock));

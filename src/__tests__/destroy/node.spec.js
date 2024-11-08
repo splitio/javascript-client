@@ -21,7 +21,7 @@ fetchMock.get(url(settings, '/splitChanges?s=1.1&since=-1'), { status: 200, body
 fetchMock.get(url(settings, '/splitChanges?s=1.1&since=1500492097547'), { status: 200, body: splitChangesMock2 });
 fetchMock.postOnce(url(settings, '/v1/metrics/config'), 200);
 
-tape('SDK destroy for NodeJS', async function (assert) {
+tape('SDK destroy for Node.js', async function (assert) {
   const config = {
     core: {
       authorizationKey: 'fake-key',
