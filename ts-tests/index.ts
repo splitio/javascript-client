@@ -11,9 +11,16 @@
  * @author Nico Zelaya <nicolas.zelaya@split.io>
  */
 
+import type * as SplitTypes from '../types/splitio';
+
 import { SplitFactory } from '../types/index';
 import { SplitFactory as SplitFactoryCS } from '../types/client';
 import { SplitFactory as SplitFactorySS } from '../types/server';
+
+// Validate that the SplitIO namespace is available and matches the types when imported explicitly
+let ambientType: SplitIO.ISDK;
+let importedType: SplitTypes.ISDK;
+ambientType = importedType;
 
 let stringPromise: Promise<string>;
 let splitNamesPromise: Promise<SplitIO.SplitNames>;
@@ -468,6 +475,7 @@ let attr: SplitIO.Attributes = {
   stringArrayAttribute: ['value1', 'value2'],
   numberArrayAttribute: [1, 2]
 }
+let attr2: SplitTypes.Attributes = attr;
 
 stored = browserClient.setAttributes(attr);
 let storedAttr: SplitIO.Attributes = browserClient.getAttributes();

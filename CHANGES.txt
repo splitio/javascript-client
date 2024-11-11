@@ -1,3 +1,6 @@
+11.0.1 (November 8, 2024)
+ - Bugfixing - Revert removal of TypeScript `SplitIO` namespace at `/types/splitio.d.ts` to allow explicit imports of types from the JavaScript SDK package. E.g., `import type { IBrowserSettings } from '@splitsoftware/splitio/types/splitio';`.
+
 11.0.0 (November 1, 2024)
  - Added support for targeting rules based on large segments for browsers (client-side API).
  - Added `factory.destroy()` method, which invokes the `destroy` method of all clients created by the factory.
@@ -7,6 +10,7 @@
     - NOTE: Refer to ./MIGRATION-GUIDE.md for instructions on how to migrate your codebase from version 0.x to 1.0.0.
     - Dropped support for Split Proxy below version 5.9.0, when using in the browser (client-side API). The SDK now requires Split Proxy 5.9.0 or above.
     - Dropped support for Node.js v6. The SDK now requires Node.js v14 or above.
+    - Removed TypeScript `SplitIO` namespace from `@splitsoftware/splitio/types/splitio`. Reverted in 11.0.1.
     - Removed internal ponyfills for the `Map` and `Set` global objects, dropping support for IE and other outdated browsers. The SDK now requires the runtime environment to support these features natively or provide a polyfill.
     - Removed the deprecated `GOOGLE_ANALYTICS_TO_SPLIT` and `SPLIT_TO_GOOGLE_ANALYTICS` integrations. The `integrations` configuration option has been removed from the SDK factory configuration, along with the associated interfaces in the TypeScript definitions.
     - Removed the `core.trafficType` configuration option (`SplitIO.IBrowserSettings['core']['trafficType]`) and the `trafficType` parameter from the SDK `client()` method in Browser (`SplitIO.IBrowserSDK['client']`). As a result, traffic types can no longer be bound to SDK clients, and the traffic type must be provided in the `track` method.

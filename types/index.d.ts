@@ -2,7 +2,7 @@
 // Project: http://www.split.io/
 // Definitions by: Nico Zelaya <https://github.com/NicoZelaya/>
 
-import '@splitsoftware/splitio-commons';
+/// <reference path="./splitio.d.ts" />
 
 export = JsSdk;
 
