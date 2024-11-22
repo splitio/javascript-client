@@ -1,5 +1,5 @@
 11.0.2 (November 22, 2024)
- - Updated bloom-filters and other dependencies for vulnerability fixes.
+ - Updated bloom-filters, fetch-mock and other dependencies for vulnerability fixes.
 
 11.0.1 (November 11, 2024)
  - Bugfixing - Revert removal of TypeScript `SplitIO` namespace at `/types/splitio.d.ts` to allow explicit imports of types from the JavaScript SDK package. E.g., `import type { IBrowserSettings } from '@splitsoftware/splitio/types/splitio';`.
