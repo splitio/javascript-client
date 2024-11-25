@@ -309,7 +309,9 @@ export function testSynchronization(fetchMock, assert) {
     return { status: 200, body: splitChangesMock9 };
   });
 
-  mockSegmentChanges(fetchMock, new RegExp(`${url(settings, '/segmentChanges')}/(employees|developers)`), [key]);
+  mockSegmentChanges(fetchMock, new RegExp(`${url(settings, '/segmentChanges')}/employees`), [key]);
+  // Special case: empty segment with -1 till
+  mockSegmentChanges(fetchMock, new RegExp(`${url(settings, '/segmentChanges')}/developers`), [], -1);
   mockSegmentChanges(fetchMock, { url: new RegExp(`${url(settings, '/segmentChanges')}/new_segment`), repeat: 2 }, [otherUserKey]);
 
   fetchMock.get(new RegExp('.*'), function (url) {
