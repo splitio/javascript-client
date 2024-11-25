@@ -1,6 +1,6 @@
 11.0.2 (November 25, 2024)
  - Updated bloom-filters, fetch-mock and other dependencies for vulnerability fixes.
- - Bugfixing - Updated @splitsoftware/splitio-commons package to version 2.0.1 that fixes an issue with the SDK_UPDATE event on server-side, where it was not being emitted if there was an empty segment and the SDK received a feature flag update notification.
+ - Bugfixing - Updated @splitsoftware/splitio-commons package to version 2.0.1 that fixes an issue with the SDK_UPDATE event on Node.js, where it was not being emitted if there was an empty segment and the SDK received a feature flag update notification.
 
 11.0.1 (November 11, 2024)
  - Bugfixing - Revert removal of TypeScript `SplitIO` namespace at `/types/splitio.d.ts` to allow explicit imports of types from the JavaScript SDK package. E.g., `import type { IBrowserSettings } from '@splitsoftware/splitio/types/splitio';`.
