@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio",
-  "version": "11.0.3-rc.0",
+  "version": "11.0.3",
   "description": "Split SDK",
   "files": [
     "README.md",
