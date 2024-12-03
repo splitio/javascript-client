@@ -1,3 +1,6 @@
+11.0.3 (December 4, 2024)
+ - Bugfixing - Updated @splitsoftware/splitio-commons package to version 2.0.2 that sanitizes the `SplitSDKMachineName` header value to avoid exceptions on HTTP/S requests when it contains non ISO-8859-1 characters (Related to issue https://github.com/splitio/javascript-client/issues/847).
+
 11.0.2 (November 25, 2024)
  - Updated bloom-filters and fetch-mock dependencies for vulnerability fixes.
  - Bugfixing - Updated @splitsoftware/splitio-commons package to version 2.0.1 that fixes an issue with the SDK_UPDATE event on Node.js, where it was not being emitted if there was an empty segment and the SDK received a feature flag update notification.
