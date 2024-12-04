@@ -34,7 +34,9 @@ export default function (settings, fetchMock, t) {
     fetchMock.postOnce('https://not-called/api/testImpressions/bulk', 200);
     fetchMock.postOnce('https://not-called/api/events/bulk', 200);
 
+    // Validate that init and destroy are idempotent
     for (let i = 0; i < 3; i++) { splitio.init(); splitio.init(); splitio.destroy(); splitio.destroy(); }
+
     splitio.init();
     await splitio.client().ready();
     assert.true(splitio.client().__getStatus().isReady, 'Split SDK is ready');
@@ -80,7 +82,9 @@ export default function (settings, fetchMock, t) {
     fetchMock.postOnce('https://not-called/api/testImpressions/bulk', 200);
     fetchMock.postOnce('https://not-called/api/events/bulk', 200);
 
+    // Validate that init and destroy are idempotent
     for (let i = 0; i < 3; i++) { splitio.init(); splitio.init(); splitio.destroy(); splitio.destroy(); }
+
     splitio.init();
     await splitio.client().ready();
     assert.true(splitio.client().__getStatus().isReady, 'Split SDK is ready');
