@@ -4,6 +4,7 @@ import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
 import membershipsFacundo from '../mocks/memberships.facundo@split.io.json';
 import { DEBUG } from '@splitsoftware/splitio-commons/src/utils/constants';
+import { truncateTimeFrame } from '@splitsoftware/splitio-commons/src/utils/time';
 import { url } from '../testUtils';
 
 const baseUrls = {
@@ -18,6 +19,8 @@ const settings = settingsFactory({
   urls: baseUrls,
   streamingEnabled: false
 });
+
+let truncatedTimeFrame;
 
 export default function (fetchMock, assert) {
   // Mocking this specific route to make sure we only get the items we want to test from the handlers.
@@ -47,41 +50,21 @@ export default function (fetchMock, assert) {
   });
 
   const client = splitio.client();
-  const assertPayload = req => {
-    const resp = JSON.parse(req.body);
-
-    assert.equal(resp.length, 1, 'We performed three evaluations so we should have 1 impressions type');
-
-    const alwaysOnWithConfigImpr = resp.filter(e => e.f === 'split_with_config')[0];
-
-    assert.equal(alwaysOnWithConfigImpr.i.length, 3);
-
-    function validateImpressionData(output, expected) {
-      assert.equal(output.k, expected.keyName, 'Present impressions should have the correct key.');
-      assert.equal(output.b, expected.bucketingKey, 'Present impressions should have the correct bucketingKey.');
-      assert.equal(output.t, expected.treatment, 'Present impressions should have the correct treatment.');
-      assert.equal(output.r, expected.label, 'Present impressions should have the correct label.');
-      assert.equal(output.c, expected.changeNumber, 'Present impressions should have the correct changeNumber.');
-      assert.equal(output.pt, expected.pt, 'Present impressions should have the correct previousTime.');
-    }
-
-    validateImpressionData(alwaysOnWithConfigImpr.i[0], {
-      keyName: 'facundo@split.io', label: 'another expected label', treatment: 'o.n',
-      bucketingKey: undefined, changeNumber: 828282828282, pt: undefined
-    });
-    validateImpressionData(alwaysOnWithConfigImpr.i[1], {
-      keyName: 'facundo@split.io', label: 'another expected label', treatment: 'o.n',
-      bucketingKey: undefined, changeNumber: 828282828282, pt: alwaysOnWithConfigImpr.i[0].m
-    });
-    validateImpressionData(alwaysOnWithConfigImpr.i[2], {
-      keyName: 'facundo@split.io', label: 'another expected label', treatment: 'o.n',
-      bucketingKey: undefined, changeNumber: 828282828282, pt: alwaysOnWithConfigImpr.i[1].m
-    });
-  };
 
   fetchMock.postOnce(url(settings, '/testImpressions/bulk'), (url, req) => {
     assert.equal(req.headers.SplitSDKImpressionsMode, DEBUG);
-    assertPayload(req);
+    const data = JSON.parse(req.body);
+
+    assert.deepEqual(data, [{
+      f: 'split_with_config',
+      i: [{
+        k: 'facundo@split.io', t: 'o.n', m: data[0].i[0].m, c: 828282828282, r: 'another expected label'
+      }, {
+        k: 'facundo@split.io', t: 'o.n', m: data[0].i[1].m, c: 828282828282, r: 'another expected label', pt: data[0].i[0].m,
+      }, {
+        k: 'facundo@split.io', t: 'o.n', m: data[0].i[2].m, c: 828282828282, r: 'another expected label', pt: data[0].i[1].m
+      }]
+    }]);
 
     client.destroy().then(() => {
       assert.end();
@@ -90,9 +73,28 @@ export default function (fetchMock, assert) {
     return 200;
   });
 
+  fetchMock.postOnce(url(settings, '/testImpressions/count'), (url, opts) => {
+    assert.deepEqual(JSON.parse(opts.body), {
+      pf: [{ f: 'always_on_track_impressions_false', m: truncatedTimeFrame, rc: 1 }]
+    }, 'We should generate impression count for the feature with track impressions disabled.');
+
+    return 200;
+  });
+
+  fetchMock.postOnce(url(settings, '/v1/keys/cs'), (url, opts) => {
+    assert.deepEqual(JSON.parse(opts.body), {
+      keys: [{ fs: ['always_on_track_impressions_false'], k: 'facundo@split.io' }]
+    }, 'We should track unique keys for the feature with track impressions disabled.');
+
+    return 200;
+  });
+
   client.ready().then(() => {
+    truncatedTimeFrame = truncateTimeFrame(Date.now());
+
     client.getTreatment('split_with_config');
     client.getTreatment('split_with_config');
     client.getTreatment('split_with_config');
+    assert.equal(client.getTreatment('always_on_track_impressions_false'), 'on');
   });
 }
