@@ -46,13 +46,16 @@ export default function (assert) {
 
     setTimeout(() => {
       assert.true(listener.logImpression.callCount, 4, 'Impression listener logImpression method should be called after we call client.getTreatment, once per each impression generated.');
-      assert.true(listener.logImpression.getCall(0).calledWithMatch({
+      assert.true(listener.logImpression.getCall(0).calledWithExactly({
         impression: {
           feature: 'hierarchical_splits_test',
           keyName: 'nicolas@split.io',
           treatment: 'on',
+          time: listener.logImpression.getCall(0).args[0].impression.time,
           bucketingKey: undefined,
           label: 'expected label',
+          changeNumber: 2828282828,
+          pt: undefined
         },
         attributes: undefined,
         ...metaData

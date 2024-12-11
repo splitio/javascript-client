@@ -1265,6 +1265,7 @@
       "trafficTypeId": null,
       "trafficTypeName": null,
       "name": "hierarchical_splits_test",
+      "trackImpressions": true,
       "seed": 1276793945,
       "changeNumber": 2828282828,
       "status": "ACTIVE",
@@ -1386,6 +1387,45 @@
       "environment": null,
       "trafficTypeId": null,
       "trafficTypeName": null,
+      "name": "always_on_track_impressions_false",
+      "trackImpressions": false,
+      "seed": -790401604,
+      "status": "ACTIVE",
+      "killed": false,
+      "defaultTreatment": "off",
+      "conditions": [
+        {
+          "matcherGroup": {
+            "combiner": "AND",
+            "matchers": [
+              {
+                "keySelector": {
+                  "trafficType": "user",
+                  "attribute": null
+                },
+                "matcherType": "ALL_KEYS",
+                "negate": false,
+                "userDefinedSegmentMatcherData": null,
+                "whitelistMatcherData": null,
+                "unaryNumericMatcherData": null,
+                "betweenMatcherData": null
+              }
+            ]
+          },
+          "partitions": [
+            {
+              "treatment": "on",
+              "size": 100
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "orgId": null,
+      "environment": null,
+      "trafficTypeId": null,
+      "trafficTypeName": null,
       "name": "ta_bucket1_test",
       "algo": 2,
       "seed": -1222652054,
@@ -1426,6 +1466,7 @@
     {
       "trafficTypeName": null,
       "name": "split_with_config",
+      "trackImpressions": true,
       "algo": 2,
       "seed": -1222652064,
       "trafficAllocation": 100,
