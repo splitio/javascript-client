@@ -1,3 +1,8 @@
+11.1.0 (January XX, 2025)
+ - Added two new configuration options for the SDK storage in browsers when using storage type `LOCALSTORAGE`:
+    - `storage.expirationDays` to specify the validity period of the rollout cache.
+    - `storage.clearOnInit` to clear the rollout cache on SDK initialization.
+
 11.0.3 (December 4, 2024)
  - Bugfixing - Updated @splitsoftware/splitio-commons package to version 2.0.2 that sanitizes the `SplitSDKMachineName` header value to avoid exceptions on HTTP/S requests when it contains non ISO-8859-1 characters (Related to issue https://github.com/splitio/javascript-client/issues/847).
 
