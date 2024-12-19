@@ -247,7 +247,7 @@ export default function (fetchMock, assert) {
     });
   });
 
-  assert.test(t => { // Testing when we start with cached data and not expired (lastUpdate item higher than expirationTimestamp)
+  assert.test(t => { // Testing when we start with cached data and not expired (lastUpdate timestamp higher than default (10) expirationDays ago)
     const testUrls = {
       sdk: 'https://sdk.baseurl/readyFromCacheWithData3',
       events: 'https://events.baseurl/readyFromCacheWithData3'
@@ -365,7 +365,7 @@ export default function (fetchMock, assert) {
     });
   });
 
-  assert.test(t => { // Testing when we start with cached data but expired (lastUpdate item lower than expirationTimestamp)
+  assert.test(t => { // Testing when we start with cached data but expired (lastUpdate timestamp lower than custom (1) expirationDays ago)
     const testUrls = {
       sdk: 'https://sdk.baseurl/readyFromCacheWithData4',
       events: 'https://events.baseurl/readyFromCacheWithData4'
@@ -375,7 +375,8 @@ export default function (fetchMock, assert) {
     fetchMock.get(testUrls.sdk + '/splitChanges?s=1.2&since=-1', function () {
       t.equal(localStorage.getItem('some_user_item'), 'user_item', 'user items at localStorage must not be changed');
       t.equal(localStorage.getItem('readyFromCache_4.SPLITIO.hash'), expectedHashNullFilter, 'storage hash must not be changed');
-      t.equal(localStorage.length, 2, 'feature flags cache data must be cleaned from localStorage');
+      t.true(nearlyEqual(parseInt(localStorage.getItem('readyFromCache_4.SPLITIO.lastClear'), 10), Date.now()), 'storage lastClear timestamp must be updated');
+      t.equal(localStorage.length, 3, 'feature flags cache data must be cleaned from localStorage');
       return { status: 200, body: splitChangesMock1 };
     });
     fetchMock.get(testUrls.sdk + '/splitChanges?s=1.2&since=1457552620999', { status: 200, body: splitChangesMock2 });
@@ -393,7 +394,7 @@ export default function (fetchMock, assert) {
 
     localStorage.setItem('some_user_item', 'user_item');
     localStorage.setItem('readyFromCache_4.SPLITIO.splits.till', 25);
-    localStorage.setItem('readyFromCache_4.SPLITIO.splits.lastUpdated', Date.now() - DEFAULT_CACHE_EXPIRATION_IN_MILLIS - 1); // -1 to ensure having an expired lastUpdated item
+    localStorage.setItem('readyFromCache_4.SPLITIO.splits.lastUpdated', Date.now() - DEFAULT_CACHE_EXPIRATION_IN_MILLIS / 10 - 1); // -1 to ensure having an expired lastUpdated item
     localStorage.setItem('readyFromCache_4.SPLITIO.split.always_on', alwaysOnSplitInverted);
     localStorage.setItem('readyFromCache_4.SPLITIO.hash', expectedHashNullFilter);
 
@@ -402,7 +403,8 @@ export default function (fetchMock, assert) {
       ...baseConfig,
       storage: {
         type: 'LOCALSTORAGE',
-        prefix: 'readyFromCache_4'
+        prefix: 'readyFromCache_4',
+        expirationDays: 1,
       },
       startup: {
         readyTimeout: 0.85
@@ -650,7 +652,8 @@ export default function (fetchMock, assert) {
       ...baseConfig,
       storage: {
         type: 'LOCALSTORAGE',
-        prefix: 'readyFromCache_7'
+        prefix: 'readyFromCache_7',
+        expirationDays: 0, // invalid value, will use default (10)
       },
       urls: testUrls,
       sync: {
