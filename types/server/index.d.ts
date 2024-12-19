@@ -1,5 +1,5 @@
 // Declaration file for JavaScript Split Software SDK
-// Project: http://www.split.io/
+// Project: https://www.split.io/
 
 import '@splitsoftware/splitio-commons';
 
