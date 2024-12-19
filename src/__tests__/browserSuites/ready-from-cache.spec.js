@@ -1,3 +1,5 @@
+import sinon from 'sinon';
+import { nearlyEqual } from '../testUtils';
 import { getStorageHash } from '@splitsoftware/splitio-commons/src/storages/KeyBuilder';
 import { SplitFactory } from '../../';
 
@@ -5,7 +7,6 @@ import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
 import membershipsNicolas from '../mocks/memberships.nicolas@split.io.json';
 
-import { nearlyEqual } from '../testUtils';
 
 const DEFAULT_CACHE_EXPIRATION_IN_MILLIS = 864000000; // 10 days
 
@@ -179,7 +180,6 @@ export default function (fetchMock, assert) {
         readyTimeout: 0.85
       },
       urls: testUrls,
-      debug: true
     });
     const client = splitio.client();
     const client2 = splitio.client('nicolas2@split.io');
@@ -290,7 +290,6 @@ export default function (fetchMock, assert) {
         readyTimeout: 0.85
       },
       urls: testUrls,
-      debug: true
     });
     const client = splitio.client();
     const client2 = splitio.client('nicolas2@split.io');
@@ -410,7 +409,6 @@ export default function (fetchMock, assert) {
         readyTimeout: 0.85
       },
       urls: testUrls,
-      debug: true
     });
     const client = splitio.client();
     const client2 = splitio.client('nicolas2@split.io');
@@ -509,7 +507,6 @@ export default function (fetchMock, assert) {
       sync: {
         splitFilters: [{ type: 'byName', values: ['p2__split', 'p1__split'] }, { type: 'byName', values: ['p2__split', null] }]
       },
-      debug: true
     });
     const client = splitio.client();
     const manager = splitio.manager();
@@ -555,7 +552,6 @@ export default function (fetchMock, assert) {
       sync: {
         splitFilters: [{ type: 'byName', values: ['p2__split', 'p1__split'] }, { type: 'byName', values: ['p2__split', null] }]
       },
-      debug: true
     });
     const client = splitio.client();
     const manager = splitio.manager();
@@ -606,7 +602,6 @@ export default function (fetchMock, assert) {
       sync: {
         splitFilters: [{ type: 'byName', values: [undefined, true, 'p2__split'] }, { type: 'byPrefix', values: ['p1'] }, { type: 'byName', values: ['p2__split'] }]
       },
-      debug: true
     });
     const client = splitio.client();
     const manager = splitio.manager();
@@ -659,7 +654,6 @@ export default function (fetchMock, assert) {
       sync: {
         splitFilters: [{ type: 'byPrefix', values: ['p2'] }, { type: 'byPrefix', values: ['p1', ''] }, { type: '', values: [] }, {}, { type: 'byPrefix' }]
       },
-      debug: true
     });
     const client = splitio.client();
     const manager = splitio.manager();
@@ -722,7 +716,6 @@ export default function (fetchMock, assert) {
           },
           urls: testUrls,
           sync: syncParam,
-          debug: true
         });
         const client = splitio.client();
         const manager = splitio.manager();
@@ -777,7 +770,6 @@ export default function (fetchMock, assert) {
       sync: {
         splitFilters: [{ type: 'byName', values: ['p3__split'] }, { type: 'byPrefix', values: ['    p2', '   p2', '  p2', ' p2', 'no exist trim      '] }, { type: 'byName', values: ['no_exist', ' no exist trim     '] }]
       },
-      debug: true
     });
     const client = splitio.client();
     const manager = splitio.manager();
@@ -794,6 +786,90 @@ export default function (fetchMock, assert) {
         t.end();
       });
     });
+  });
+
+  assert.test(async t => { // Testing clearOnInit config true
+    sinon.spy(console, 'log');
+
+    const testUrls = {
+      sdk: 'https://sdk.baseurl/readyFromCache_10',
+      events: 'https://events.baseurl/readyFromCache_10'
+    };
+    const clearOnInitConfig = {
+      ...baseConfig,
+      storage: {
+        type: 'LOCALSTORAGE',
+        prefix: 'readyFromCache_10',
+        clearOnInit: true
+      },
+      urls: testUrls,
+      debug: true
+    };
+
+    // Start with cached data but without lastClear item (JS SDK below 11.1.0) -> cache cleanup
+    localStorage.clear();
+    localStorage.setItem('readyFromCache_10.SPLITIO.splits.till', 25);
+    localStorage.setItem('readyFromCache_10.SPLITIO.split.p1__split', JSON.stringify(splitDeclarations.p1__split));
+    localStorage.setItem('readyFromCache_10.SPLITIO.split.p2__split', JSON.stringify(splitDeclarations.p2__split));
+    localStorage.setItem('readyFromCache_10.SPLITIO.hash', expectedHashNullFilter);
+
+    fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.2&since=-1', { status: 200, body: splitChangesMock1 });
+    fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.2&since=1457552620999', { status: 200, body: splitChangesMock2 });
+    fetchMock.get(testUrls.sdk + '/memberships/nicolas%40split.io', { status: 200, body: { ms: {} } });
+
+    let splitio = SplitFactory(clearOnInitConfig);
+    let client = splitio.client();
+    let manager = splitio.manager();
+
+    t.true(console.log.calledWithMatch('clearOnInit was set and cache was not cleared in the last 24 hours. Cleaning up cache'), 'It should log a message about cleaning up cache');
+
+    client.once(client.Event.SDK_READY_FROM_CACHE, () => t.fail('It should not emit SDK_READY_FROM_CACHE because clearOnInit is true.'));
+
+    await client.ready();
+    t.equal(manager.names().sort().length, 32, 'active splits should be present for evaluation');
+
+    await splitio.destroy();
+    t.equal(localStorage.getItem('readyFromCache_10.SPLITIO.splits.till'), '1457552620999', 'splits.till must correspond to the till of the last successfully fetched Splits');
+    t.equal(localStorage.getItem('readyFromCache_10.SPLITIO.hash'), expectedHashNullFilter, 'Storage hash must not be changed');
+    t.true(nearlyEqual(parseInt(localStorage.getItem('readyFromCache_10.SPLITIO.lastClear')), Date.now()), 'lastClear timestamp must be set');
+
+    // Start again with cached data and lastClear item within the last 24 hours -> no cache cleanup
+    console.log.resetHistory();
+    fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.2&since=1457552620999', { status: 200, body: splitChangesMock2 });
+
+    splitio = SplitFactory(clearOnInitConfig);
+    client = splitio.client();
+    manager = splitio.manager();
+
+    await new Promise(res => client.once(client.Event.SDK_READY_FROM_CACHE, res));
+
+    t.equal(manager.names().sort().length, 32, 'active splits should be present for evaluation');
+    t.false(console.log.calledWithMatch('clearOnInit was set and cache was not cleared in the last 24 hours. Cleaning up cache'), 'It should log a message about cleaning up cache');
+
+    await splitio.destroy();
+
+
+    // Start again with cached data and lastClear item older than 24 hours -> cache cleanup
+    console.log.resetHistory();
+    localStorage.setItem('readyFromCache_10.SPLITIO.lastClear', Date.now() - 25 * 60 * 60 * 1000); // 25 hours ago
+    fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.2&since=-1', { status: 200, body: splitChangesMock1 });
+    fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.2&since=1457552620999', { status: 200, body: splitChangesMock2 });
+
+    splitio = SplitFactory(clearOnInitConfig);
+    client = splitio.client();
+    manager = splitio.manager();
+
+    client.once(client.Event.SDK_READY_FROM_CACHE, () => t.fail('It should not emit SDK_READY_FROM_CACHE because clearOnInit is true.'));
+
+    await new Promise(res => client.once(client.Event.SDK_READY, res));
+
+    t.equal(manager.names().sort().length, 32, 'active splits should be present for evaluation');
+    t.true(console.log.calledWithMatch('clearOnInit was set and cache was not cleared in the last 24 hours. Cleaning up cache'), 'It should log a message about cleaning up cache');
+
+    await splitio.destroy();
+
+    console.log.restore();
+    t.end();
   });
 
 }
