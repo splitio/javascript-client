@@ -848,7 +848,6 @@ export default function (fetchMock, assert) {
 
     await splitio.destroy();
 
-
     // Start again with cached data and lastClear item older than 24 hours -> cache cleanup
     console.log.resetHistory();
     localStorage.setItem('readyFromCache_10.SPLITIO.lastClear', Date.now() - 25 * 60 * 60 * 1000); // 25 hours ago
