@@ -2,6 +2,7 @@
  - Added two new configuration options for the SDK's `LOCALSTORAGE` storage type to control the behavior of the persisted rollout plan cache in the browser:
     - `storage.expirationDays` to specify the validity period of the rollout plan cache in days.
     - `storage.clearOnInit` to clear the rollout plan cache on SDK initialization.
+ - Updated SDK_READY_FROM_CACHE event when using the `LOCALSTORAGE` storage type to be emitted alongside the SDK_READY event if it has not already been emitted.
  - Updated @splitsoftware/splitio-commons package to version 2.1.0.
 
 11.0.3 (December 4, 2024)
