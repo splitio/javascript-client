@@ -1,3 +1,6 @@
+11.0.4 (January 9, 2025)
+ - Bugfixing - Updated @splitsoftware/splitio-commons package to version 2.0.3, which properly handles rejected promises when using targeting rules with segment matchers in consumer modes (e.g., Redis and Pluggable storages).
+
 11.0.3 (December 4, 2024)
  - Bugfixing - Updated @splitsoftware/splitio-commons package to version 2.0.2 that sanitizes the `SplitSDKMachineName` header value to avoid exceptions on HTTP/S requests when it contains non ISO-8859-1 characters (Related to issue https://github.com/splitio/javascript-client/issues/847).
 
