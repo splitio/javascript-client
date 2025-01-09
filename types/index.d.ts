@@ -1,5 +1,5 @@
 // Declaration file for JavaScript and Node.js Split Software SDK v8.1.0
-// Project: http://www.split.io/
+// Project: https://www.split.io/
 // Definitions by: Nico Zelaya <https://github.com/NicoZelaya/>
 
 /// <reference path="./splitio.d.ts" />
