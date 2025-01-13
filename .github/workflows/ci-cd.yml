@@ -34,7 +34,7 @@ jobs:
         run: redis-cli ping
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 'lts/*'
           cache: 'npm'
@@ -59,7 +59,7 @@ jobs:
 
       - name: Store assets
         if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/development' || github.ref == 'refs/heads/master') }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: assets
           path: umd/
@@ -81,7 +81,7 @@ jobs:
 
     steps:
       - name: Download assets
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: assets
           path: umd
@@ -91,7 +91,7 @@ jobs:
         working-directory: umd
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1-node16
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::${{ matrix.account_id }}:role/gha-public-assets-role
           aws-region: us-east-1
@@ -120,7 +120,7 @@ jobs:
 
     steps:
       - name: Download assets
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: assets
           path: umd
@@ -130,7 +130,7 @@ jobs:
         working-directory: umd
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1-node16
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::${{ matrix.account_id }}:role/gha-public-assets-role
           aws-region: us-east-1
