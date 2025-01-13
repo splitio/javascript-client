@@ -531,7 +531,9 @@ let fullBrowserSettings: SplitIO.IBrowserSettings = {
   features: mockedFeaturesMap,
   storage: {
     type: 'LOCALSTORAGE',
-    prefix: 'PREFIX'
+    prefix: 'PREFIX',
+    expirationDays: 1,
+    clearOnInit: true
   },
   impressionListener: impressionListener,
   debug: true,
