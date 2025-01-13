@@ -822,7 +822,7 @@ export default function (fetchMock, assert) {
     });
 
     await client.ready();
-    t.equal(manager.names().sort().length, 32, 'active splits should be present for evaluation');
+    t.equal(manager.names().sort().length, 33, 'active splits should be present for evaluation');
 
     await splitio.destroy();
     t.equal(localStorage.getItem('readyFromCache_10.SPLITIO.splits.till'), '1457552620999', 'splits.till must correspond to the till of the last successfully fetched Splits');
@@ -839,7 +839,7 @@ export default function (fetchMock, assert) {
 
     await new Promise(res => client.once(client.Event.SDK_READY_FROM_CACHE, res));
 
-    t.equal(manager.names().sort().length, 32, 'active splits should be present for evaluation');
+    t.equal(manager.names().sort().length, 33, 'active splits should be present for evaluation');
     t.false(console.log.calledWithMatch('clearOnInit was set and cache was not cleared in the last 24 hours. Cleaning up cache'), 'It should log a message about cleaning up cache');
 
     await splitio.destroy();
@@ -860,7 +860,7 @@ export default function (fetchMock, assert) {
 
     await new Promise(res => client.once(client.Event.SDK_READY, res));
 
-    t.equal(manager.names().sort().length, 32, 'active splits should be present for evaluation');
+    t.equal(manager.names().sort().length, 33, 'active splits should be present for evaluation');
     t.true(console.log.calledWithMatch('clearOnInit was set and cache was not cleared in the last 24 hours. Cleaning up cache'), 'It should log a message about cleaning up cache');
 
     await splitio.destroy();
