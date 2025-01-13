@@ -49,7 +49,7 @@ export default async function (key, fetchMock, assert) {
     assert.equal(opts.headers.SplitSDKImpressionsMode, OPTIMIZED);
     const data = JSON.parse(opts.body);
 
-    assert.equal(data.length, 3, 'We performed evaluations for 4 features, but one with `trackImpressions` false, so we should have 3 items total.');
+    assert.equal(data.length, 3, 'We performed evaluations for 4 features, but one with `impressionsDisabled` true, so we should have 3 items total.');
 
     // finding these validate the feature names collection too
     const dependencyChildImpr = data.filter(e => e.f === 'hierarchical_splits_test')[0];

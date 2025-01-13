@@ -49,7 +49,7 @@ export default function (fetchMock, assert) {
   const assertPayload = req => {
     const resp = JSON.parse(req.body);
 
-    assert.equal(resp.length, 2, 'We performed evaluations for 3 features, but one with `trackImpressions` false, so we should have 2 items total');
+    assert.equal(resp.length, 2, 'We performed evaluations for 3 features, but one with `impressionsDisabled` true, so we should have 2 items total');
 
     const dependencyChildImpr = resp.filter(e => e.f === 'hierarchical_splits_test')[0];
     const splitWithConfigImpr = resp.filter(e => e.f === 'split_with_config')[0];
