@@ -1,3 +1,6 @@
+11.1.0 (January XX, 2025)
+ - Added support for the new impressions tracking toggle available on feature flags, both respecting the setting and including the new field being returned on `SplitView` type objects. Read more in our docs.
+
 11.0.4 (January 9, 2025)
  - Bugfixing - Updated @splitsoftware/splitio-commons package to version 2.0.3, which properly handles rejected promises when using targeting rules with segment matchers in consumer modes (e.g., Redis and Pluggable storages).
 
