@@ -282,7 +282,7 @@ tape('Node.js Redis', function (t) {
         // this should be deduped
         assert.equal(await client.getTreatment('UT_Segment_member', 'always-on'), 'on', 'Evaluations using Redis storage should be correct.');
 
-        // Below splits were added manually to the redis_mock.json file.
+        // Below feature flags were added manually to the redis_mock.json file.
         // They are all_keys (always evaluate to on) which depend from always-on split. the _on/off is what treatment they are expecting there.
         assert.equal(await client.getTreatment('UT_Segment_member', 'hierarchical_splits_testing_on'), 'on', 'Evaluations using Redis storage should be correct.');
         // this should be deduped
@@ -384,7 +384,7 @@ tape('Node.js Redis', function (t) {
 
         assert.equal(await client.getTreatment('UT_Segment_member', 'always-on'), 'on', 'Evaluations using Redis storage should be correct.');
 
-        // Below splits were added manually to the redis_mock.json file.
+        // Below feature flags were added manually to the redis_mock.json file.
         // They are all_keys (always evaluate to on) which depend from always-on split. the _on/off is what treatment they are expecting there.
         assert.equal(await client.getTreatment('UT_Segment_member', 'hierarchical_splits_testing_on'), 'on', 'Evaluations using Redis storage should be correct.');
         assert.equal(await client.getTreatment('UT_Segment_member', 'hierarchical_splits_testing_off'), 'off', 'Evaluations using Redis storage should be correct.');
