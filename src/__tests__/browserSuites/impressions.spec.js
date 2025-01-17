@@ -49,17 +49,19 @@ export default function (fetchMock, assert) {
   const assertPayload = req => {
     const resp = JSON.parse(req.body);
 
-    assert.equal(resp.length, 2, 'We performed three evaluations so we should have 2 impressions type');
+    assert.equal(resp.length, 2, 'We performed evaluations for 3 features, but one with `impressionsDisabled` true, so we should have 2 items total');
 
     const dependencyChildImpr = resp.filter(e => e.f === 'hierarchical_splits_test')[0];
-    const alwaysOnWithConfigImpr = resp.filter(e => e.f === 'split_with_config')[0];
+    const splitWithConfigImpr = resp.filter(e => e.f === 'split_with_config')[0];
+    const alwaysOnWithTrackImpressionsFalse = resp.filter(e => e.f === 'always_on_track_impressions_false');
 
     assert.true(dependencyChildImpr, 'Split we wanted to evaluate should be present on the impressions.');
     assert.false(resp.some(e => e.f === 'hierarchical_dep_always_on'), 'Parent split evaluations should not result in impressions.');
     assert.false(resp.some(e => e.f === 'hierarchical_dep_hierarchical'), 'No matter how deep is the chain.');
-    assert.true(alwaysOnWithConfigImpr, 'Split evaluated with config should have generated an impression too.');
-    assert.false(Object.prototype.hasOwnProperty.call(alwaysOnWithConfigImpr.i[0], 'configuration'), 'Impressions do not change with configuration evaluations.');
-    assert.false(Object.prototype.hasOwnProperty.call(alwaysOnWithConfigImpr.i[0], 'config'), 'Impressions do not change with configuration evaluations.');
+    assert.true(splitWithConfigImpr, 'Split evaluated with config should have generated an impression too.');
+    assert.false(Object.prototype.hasOwnProperty.call(splitWithConfigImpr.i[0], 'configuration'), 'Impressions do not change with configuration evaluations.');
+    assert.false(Object.prototype.hasOwnProperty.call(splitWithConfigImpr.i[0], 'config'), 'Impressions do not change with configuration evaluations.');
+    assert.equal(alwaysOnWithTrackImpressionsFalse.length, 0);
 
     const {
       k,
@@ -94,18 +96,26 @@ export default function (fetchMock, assert) {
   fetchMock.postOnce(url(settings, '/testImpressions/count'), (url, opts) => {
     const data = JSON.parse(opts.body);
 
-    assert.equal(data.pf.length, 1, 'We should generate impressions count for one feature.');
+    assert.equal(data.pf.length, 2, 'We should generate impressions count for 2 features.');
 
     // finding these validate the feature names collection too
-    const dependencyChildImpr = data.pf.filter(e => e.f === 'hierarchical_splits_test')[0];
-    const alwaysOnWithConfigImpr = data.pf.filter(e => e.f === 'split_with_config')[0];
+    const splitWithConfigImpr = data.pf.filter(e => e.f === 'split_with_config')[0];
+    const alwaysOnWithTrackImpressionsFalse = data.pf.filter(e => e.f === 'always_on_track_impressions_false')[0];
 
-    assert.equal(dependencyChildImpr.rc, 1);
-    assert.equal(typeof dependencyChildImpr.m, 'number');
-    assert.equal(dependencyChildImpr.m, truncatedTimeFrame);
-    assert.equal(alwaysOnWithConfigImpr.rc, 3);
-    assert.equal(typeof alwaysOnWithConfigImpr.m, 'number');
-    assert.equal(alwaysOnWithConfigImpr.m, truncatedTimeFrame);
+    assert.equal(splitWithConfigImpr.rc, 2);
+    assert.equal(typeof splitWithConfigImpr.m, 'number');
+    assert.equal(splitWithConfigImpr.m, truncatedTimeFrame);
+    assert.equal(alwaysOnWithTrackImpressionsFalse.rc, 1);
+    assert.equal(typeof alwaysOnWithTrackImpressionsFalse.m, 'number');
+    assert.equal(alwaysOnWithTrackImpressionsFalse.m, truncatedTimeFrame);
+
+    return 200;
+  });
+
+  fetchMock.postOnce(url(settings, '/v1/keys/cs'), (url, opts) => {
+    assert.deepEqual(JSON.parse(opts.body), {
+      keys: [{ fs: [ 'always_on_track_impressions_false' ], k: 'facundo@split.io' }]
+    }, 'We should only track unique keys for features flags with track impressions disabled.');
 
     return 200;
   });
@@ -120,5 +130,8 @@ export default function (fetchMock, assert) {
     }, 'We should get an evaluation as always.');
     client.getTreatmentWithConfig('split_with_config');
     client.getTreatmentWithConfig('split_with_config');
+
+    // Impression should not be tracked
+    assert.equal(client.getTreatment('always_on_track_impressions_false'), 'on');
   });
 }
