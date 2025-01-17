@@ -58,7 +58,8 @@ export default async function (fetchMock, assert) {
       pf: [
         { f: 'split_with_config', m: truncatedTimeFrame, rc: 2 },
         { f: 'always_off', m: truncatedTimeFrame, rc: 4 },
-        { f: 'always_on', m: truncatedTimeFrame, rc: 2 }
+        { f: 'always_on', m: truncatedTimeFrame, rc: 2 },
+        { f: 'always_on_track_impressions_false', m: truncatedTimeFrame, rc: 1 }
       ]
     });
     return 200;
@@ -75,7 +76,7 @@ export default async function (fetchMock, assert) {
         },
         {
           k: 'emma@split.io',
-          fs: ['always_off', 'always_on']
+          fs: ['always_off', 'always_on', 'always_on_track_impressions_false']
         }
       ]
     }, 'We performed evaluations for two keys, so we should have 2 item total.');
@@ -93,6 +94,7 @@ export default async function (fetchMock, assert) {
   client.getTreatment('always_on');
   client.getTreatment('always_off');
   client.getTreatment('split_with_config');
+  sharedClient.getTreatment('always_on_track_impressions_false');
 
   client.destroy().then(() => {
     assert.end();
