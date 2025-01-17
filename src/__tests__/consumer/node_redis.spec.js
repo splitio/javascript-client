@@ -155,7 +155,7 @@ tape('Node.js Redis', function (t) {
         assert.equal(await client.getTreatment('UT_Segment_member', 'hierarchical_splits_testing_on'), 'on', 'Evaluations using Redis storage should be correct.');
         assert.equal(await client.getTreatment('UT_Segment_member', 'hierarchical_splits_testing_off'), 'off', 'Evaluations using Redis storage should be correct.');
         assert.equal(await client.getTreatment('UT_Segment_member', 'hierarchical_splits_testing_on_negated'), 'off', 'Evaluations using Redis storage should be correct.');
-        assert.equal(await client.getTreatment('other_key', 'always-on-track-impressions-false'), 'on', 'Evaluations using Redis storage should be correct.');
+        assert.equal(await client.getTreatment('other_key', 'always-on-impressions-disabled-true'), 'on', 'Evaluations using Redis storage should be correct.');
 
         assert.equal(typeof client.track().then, 'function', 'Track calls should always return a promise on Redis mode, even when parameters are incorrect.');
 
@@ -174,14 +174,14 @@ tape('Node.js Redis', function (t) {
         await client.ready(); // promise already resolved
         await client.destroy();
 
-        // Validate Impression Counts and Unique Keys for 'always-on-track-impressions-false'
+        // Validate Impression Counts and Unique Keys for 'always-on-impressions-disabled-true'
         exec(`echo "HGETALL ${config.storage.prefix}.SPLITIO.impressions.count" | redis-cli  -p ${redisPort}`, async (error, stdout) => {
           const trackedImpressionCounts = stdout.split('\n').filter(line => line !== '');
-          assert.deepEqual(trackedImpressionCounts, [`always-on-track-impressions-false::${truncateTimeFrame(timeFrame)}`, '1',], 'Tracked impression counts should be stored in Redis TODO');
+          assert.deepEqual(trackedImpressionCounts, [`always-on-impressions-disabled-true::${truncateTimeFrame(timeFrame)}`, '1',], 'Tracked impression counts should be stored in Redis TODO');
 
           exec(`echo "LRANGE ${config.storage.prefix}.SPLITIO.uniquekeys 0 20" | redis-cli  -p ${redisPort}`, async (error, stdout) => {
             const storedUniqueKeys = stdout.split('\n').filter(line => line !== '').map(JSON.parse);
-            assert.deepEqual(storedUniqueKeys, [{ 'f': 'always-on-track-impressions-false', 'ks': ['other_key'] }], 'Unique keys should be stored in Redis TODO');
+            assert.deepEqual(storedUniqueKeys, [{ 'f': 'always-on-impressions-disabled-true', 'ks': ['other_key'] }], 'Unique keys should be stored in Redis TODO');
 
             // Validate stored impressions and events
             exec(`echo "LLEN ${config.storage.prefix}.SPLITIO.impressions \n LLEN ${config.storage.prefix}.SPLITIO.events" | redis-cli  -p ${redisPort}`, (error, stdout) => {
