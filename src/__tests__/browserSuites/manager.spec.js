@@ -42,7 +42,7 @@ export default async function (settings, fetchMock, assert) {
     'configs': mockSplits.splits[index].configurations || {},
     'sets': mockSplits.splits[index].sets || [],
     'defaultTreatment': mockSplits.splits[index].defaultTreatment,
-    'trackImpressions': true
+    'impressionsDisabled': false
   });
 
   assert.equal(manager.split('non_existent'), null, 'Trying to get a manager.split() of a Split that does not exist returns null.');
