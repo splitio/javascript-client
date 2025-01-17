@@ -1,4 +1,4 @@
-11.1.0 (January XX, 2025)
+11.1.0 (January 17, 2025)
  - Added support for the new impressions tracking toggle available on feature flags, both respecting the setting and including the new field being returned on `SplitView` type objects. Read more in our docs.
 
 11.0.4 (January 9, 2025)
