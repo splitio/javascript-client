@@ -15,9 +15,14 @@ module.exports = {
   ],
 
   // Run on Chrome Headless
-  browsers: [
-    'ChromeHeadless'
-  ],
+  customLaunchers: {
+    ChromeHeadlessNoSandbox: {
+      base: 'ChromeHeadless',
+      // Flags required to run in ubuntu-22.04 or above (https://chromium.googlesource.com/chromium/src/+/master/docs/linux/suid_sandbox_development.md)
+      flags: ['--no-sandbox', '--disable-setuid-sandbox']
+    }
+  },
+  browsers: ['ChromeHeadlessNoSandbox'],
 
   // list of files / patterns to load in the browser
   files: [
