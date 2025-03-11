@@ -247,7 +247,7 @@ export function testSynchronization(fetchMock, assert) {
 
   // initial auth
   let authParams = `users=${encodeURIComponent(userKey)}`;
-  fetchMock.getOnce(url(settings, `/v2/auth?s=1.2&${authParams}`), function (url, opts) {
+  fetchMock.getOnce(url(settings, `/v2/auth?s=1.3&${authParams}`), function (url, opts) {
     if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
     assert.pass('auth success');
     return { status: 200, body: authPushEnabledNicolas };
@@ -255,7 +255,7 @@ export function testSynchronization(fetchMock, assert) {
 
   // reauth due to new client
   authParams += `&users=${encodeURIComponent(otherUserKey)}`;
-  fetchMock.getOnce(url(settings, `/v2/auth?s=1.2&${authParams}`), function (url, opts) {
+  fetchMock.getOnce(url(settings, `/v2/auth?s=1.3&${authParams}`), function (url, opts) {
     if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
     assert.pass('second auth success');
     return { status: 200, body: authPushEnabledNicolasAndMarcio };
@@ -263,10 +263,10 @@ export function testSynchronization(fetchMock, assert) {
 
   // reauth due to more clients
   authParams += `&users=${encodeURIComponent(keylistAddKey)}&users=${encodeURIComponent(keylistRemoveKey)}&users=${encodeURIComponent(bitmapTrueKey)}`;
-  fetchMock.getOnce(url(settings, `/v2/auth?s=1.2&${authParams}`), { status: 200, body: authPushEnabledNicolasAndMarcio });
+  fetchMock.getOnce(url(settings, `/v2/auth?s=1.3&${authParams}`), { status: 200, body: authPushEnabledNicolasAndMarcio });
 
   // initial sync
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=-1'), function (url, opts) {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=-1&rbSince=-1'), function (url, opts) {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, 0), 'initial sync');
     if (hasNoCacheHeader(opts)) assert.fail('request must not include `Cache-Control` header');
@@ -278,7 +278,7 @@ export function testSynchronization(fetchMock, assert) {
   });
 
   // sync all after SSE opened
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=1457552620999'), function (url, opts) {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1457552620999&rbSince=-1'), function (url, opts) {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_SSE_OPEN), 'sync after SSE connection is opened');
     if (hasNoCacheHeader(opts)) assert.fail('request must not include `Cache-Control` header');
@@ -290,13 +290,13 @@ export function testSynchronization(fetchMock, assert) {
   });
 
   // fetch due to SPLIT_UPDATE event
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=1457552620999'), function (url, opts) {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1457552620999&rbSince=-1'), function (url, opts) {
     if (!hasNoCacheHeader(opts)) assert.fail('request must include `Cache-Control` header');
     return { status: 200, body: splitChangesMock3 };
   });
 
   // fetch due to SPLIT_KILL event
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=1457552649999'), function (url, opts) {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1457552649999&rbSince=-1'), function (url, opts) {
     if (!hasNoCacheHeader(opts)) assert.fail('request must include `Cache-Control` header');
     assert.equal(client.getTreatment('whitelist'), 'not_allowed', 'evaluation with split killed immediately, before fetch is done');
     return { status: 200, body: splitChangesMock4 };
@@ -309,11 +309,11 @@ export function testSynchronization(fetchMock, assert) {
   });
 
   // sync all after second SSE opened
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=1457552650000'), function (url, opts) {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1457552650000&rbSince=-1'), function (url, opts) {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_SECOND_SSE_OPEN), 'sync after second SSE connection is opened');
     if (hasNoCacheHeader(opts)) assert.fail('request must not include `Cache-Control` header');
-    return { status: 200, body: { splits: [], since: 1457552650000, till: 1457552650000 } };
+    return { status: 200, body: { ff: { d: [], s: 1457552650000, t: 1457552650000 } } };
   });
   fetchMock.get({ url: url(settings, '/memberships/nicolas%40split.io'), repeat: 2 }, function (url, opts) {
     if (hasNoCacheHeader(opts)) assert.fail('request must not include `Cache-Control` header');
@@ -337,7 +337,7 @@ export function testSynchronization(fetchMock, assert) {
   fetchMock.getOnce(url(settings, '/memberships/nicolas%40split.io'), { status: 200, body: { ms: { k: [{ n: 'developers' }, { n: 'engineers' }] }, ls: { k: [{ n: 'employees' }, { n: 'splitters' }], cn: 1457552650000 } } }); // target changeNumber
 
   // initial fetch of memberships for other clients + sync all after third SSE opened + 3 unbounded fetch for MEMBERSHIPS_MS_UPDATE + 1 unbounded fetch for MEMBERSHIPS_LS_UPDATE
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=1457552650000'), { status: 200, body: { splits: [], since: 1457552650000, till: 1457552650000 } });
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1457552650000&rbSince=-1'), { status: 200, body: { ff: { d: [], s: 1457552650000, t: 1457552650000 } } });
   fetchMock.get({ url: url(settings, '/memberships/key1'), repeat: 6 }, { status: 200, body: { ms: {} } });
   fetchMock.get({ url: url(settings, '/memberships/key3'), repeat: 6 }, { status: 200, body: { ms: { k: [{ n: 'splitters' }] } } });
   fetchMock.get({ url: url(settings, `/memberships/${bitmapTrueKey}`), repeat: 5 }, { status: 200, body: { ms: { k: [] } } });

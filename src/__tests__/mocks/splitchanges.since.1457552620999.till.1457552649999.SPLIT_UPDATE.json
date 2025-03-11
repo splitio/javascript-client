@@ -1,147 +1,149 @@
 {
-  "splits": [
-    {
-      "orgId": null,
-      "environment": null,
-      "trafficTypeId": null,
-      "trafficTypeName": null,
-      "name": "qc_team",
-      "seed": -1984784937,
-      "status": "ACTIVE",
-      "killed": false,
-      "defaultTreatment": "no",
-      "conditions": [
-        {
-          "matcherGroup": {
-            "combiner": "AND",
-            "matchers": [
-              {
-                "keySelector": null,
-                "matcherType": "WHITELIST",
-                "negate": false,
-                "userDefinedSegmentMatcherData": null,
-                "whitelistMatcherData": {
-                  "whitelist": [
-                    "tia@split.io",
-                    "trevor@split.io"
-                  ]
-                },
-                "unaryNumericMatcherData": null,
-                "betweenMatcherData": null
-              }
-            ]
-          },
-          "partitions": [
-            {
-              "treatment": "yes",
-              "size": 100
-            }
-          ]
-        },
-        {
-          "matcherGroup": {
-            "combiner": "AND",
-            "matchers": [
-              {
-                "keySelector": {
-                  "trafficType": "user",
-                  "attribute": null
-                },
-                "matcherType": "IN_SEGMENT",
-                "negate": false,
-                "userDefinedSegmentMatcherData": {
-                  "segmentName": "employees"
-                },
-                "whitelistMatcherData": null,
-                "unaryNumericMatcherData": null,
-                "betweenMatcherData": null,
-                "unaryStringMatcherData": null
-              }
-            ]
-          },
-          "partitions": [
-            {
-              "treatment": "yes",
-              "size": 100
+  "ff": {
+    "d": [
+      {
+        "orgId": null,
+        "environment": null,
+        "trafficTypeId": null,
+        "trafficTypeName": null,
+        "name": "qc_team",
+        "seed": -1984784937,
+        "status": "ACTIVE",
+        "killed": false,
+        "defaultTreatment": "no",
+        "conditions": [
+          {
+            "matcherGroup": {
+              "combiner": "AND",
+              "matchers": [
+                {
+                  "keySelector": null,
+                  "matcherType": "WHITELIST",
+                  "negate": false,
+                  "userDefinedSegmentMatcherData": null,
+                  "whitelistMatcherData": {
+                    "whitelist": [
+                      "tia@split.io",
+                      "trevor@split.io"
+                    ]
+                  },
+                  "unaryNumericMatcherData": null,
+                  "betweenMatcherData": null
+                }
+              ]
             },
-            {
-              "treatment": "no",
-              "size": 0
-            }
-          ]
-        }
-      ],
-      "configurations": {}
-    },
-    {
-      "orgId": null,
-      "environment": null,
-      "trafficTypeId": null,
-      "trafficTypeName": null,
-      "name": "whitelist",
-      "seed": 104328192,
-      "status": "ACTIVE",
-      "killed": false,
-      "defaultTreatment": "not_allowed",
-      "conditions": [
-        {
-          "matcherGroup": {
-            "combiner": "AND",
-            "matchers": [
+            "partitions": [
               {
-                "keySelector": null,
-                "matcherType": "WHITELIST",
-                "negate": false,
-                "userDefinedSegmentMatcherData": null,
-                "whitelistMatcherData": {
-                  "whitelist": [
-                    "facundo@split.io"
-                  ]
-                },
-                "unaryNumericMatcherData": null,
-                "betweenMatcherData": null
+                "treatment": "yes",
+                "size": 100
               }
             ]
           },
-          "partitions": [
-            {
-              "treatment": "allowed",
-              "size": 100
-            }
-          ]
-        },
-        {
-          "matcherGroup": {
-            "combiner": "AND",
-            "matchers": [
-              {
-                "keySelector": {
-                  "trafficType": "user",
-                  "attribute": null
-                },
-                "matcherType": "ALL_KEYS",
-                "negate": false,
-                "userDefinedSegmentMatcherData": null,
-                "whitelistMatcherData": null,
-                "unaryNumericMatcherData": null,
-                "betweenMatcherData": null
-              }
-            ]
-          },
-          "partitions": [
-            {
-              "treatment": "allowed",
-              "size": 100
+          {
+            "matcherGroup": {
+              "combiner": "AND",
+              "matchers": [
+                {
+                  "keySelector": {
+                    "trafficType": "user",
+                    "attribute": null
+                  },
+                  "matcherType": "IN_SEGMENT",
+                  "negate": false,
+                  "userDefinedSegmentMatcherData": {
+                    "segmentName": "employees"
+                  },
+                  "whitelistMatcherData": null,
+                  "unaryNumericMatcherData": null,
+                  "betweenMatcherData": null,
+                  "unaryStringMatcherData": null
+                }
+              ]
             },
-            {
-              "treatment": "not_allowed",
-              "size": 0
-            }
-          ]
-        }
-      ]
-    }
-  ],
-  "since": 1457552620999,
-  "till": 1457552649999
+            "partitions": [
+              {
+                "treatment": "yes",
+                "size": 100
+              },
+              {
+                "treatment": "no",
+                "size": 0
+              }
+            ]
+          }
+        ],
+        "configurations": {}
+      },
+      {
+        "orgId": null,
+        "environment": null,
+        "trafficTypeId": null,
+        "trafficTypeName": null,
+        "name": "whitelist",
+        "seed": 104328192,
+        "status": "ACTIVE",
+        "killed": false,
+        "defaultTreatment": "not_allowed",
+        "conditions": [
+          {
+            "matcherGroup": {
+              "combiner": "AND",
+              "matchers": [
+                {
+                  "keySelector": null,
+                  "matcherType": "WHITELIST",
+                  "negate": false,
+                  "userDefinedSegmentMatcherData": null,
+                  "whitelistMatcherData": {
+                    "whitelist": [
+                      "facundo@split.io"
+                    ]
+                  },
+                  "unaryNumericMatcherData": null,
+                  "betweenMatcherData": null
+                }
+              ]
+            },
+            "partitions": [
+              {
+                "treatment": "allowed",
+                "size": 100
+              }
+            ]
+          },
+          {
+            "matcherGroup": {
+              "combiner": "AND",
+              "matchers": [
+                {
+                  "keySelector": {
+                    "trafficType": "user",
+                    "attribute": null
+                  },
+                  "matcherType": "ALL_KEYS",
+                  "negate": false,
+                  "userDefinedSegmentMatcherData": null,
+                  "whitelistMatcherData": null,
+                  "unaryNumericMatcherData": null,
+                  "betweenMatcherData": null
+                }
+              ]
+            },
+            "partitions": [
+              {
+                "treatment": "allowed",
+                "size": 100
+              },
+              {
+                "treatment": "not_allowed",
+                "size": 0
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "s": 1457552620999,
+    "t": 1457552649999
+  }
 }
