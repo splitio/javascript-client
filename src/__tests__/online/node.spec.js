@@ -40,7 +40,7 @@ const settings = settingsFactory(config);
 const key = 'facundo@split.io';
 
 fetchMock.get(url(settings, '/splitChanges?s=1.3&since=-1&rbSince=-1'), { status: 200, body: splitChangesMock1 });
-fetchMock.get(url(settings, '/splitChanges?s=1.3&since=1457552620999&rbSince=-1'), { status: 200, body: splitChangesMock2 });
+fetchMock.get(url(settings, '/splitChanges?s=1.3&since=1457552620999&rbSince=100'), { status: 200, body: splitChangesMock2 });
 fetchMock.get(new RegExp(`${url(settings, '/segmentChanges')}/*`), {
   status: 200, body: {
     'name': 'segment',

@@ -1,0 +1,4 @@
+{
+  "type": "message",
+  "data": "{\"id\":\"1111\",\"clientId\":\"pri:ODc1NjQyNzY1\",\"timestamp\":1588254699236,\"encoding\":\"json\",\"channel\":\"xxxx_xxxx_flags\",\"data\":\"{\\\"type\\\":\\\"RB_SEGMENT_UPDATE\\\",\\\"changeNumber\\\":1684265694505,\\\"pcn\\\":111,\\\"c\\\":2,\\\"d\\\":\\\"eJx0kkGLnEAQhf9LnT3k7G2ISwiZeHEIhLAsZft0mm27pbqaRRb/e+hxohNwbt2+9z58Vf1J5sp+QJ3GFkLll4JUuO+tucwTah5BJaUIoYL8epM2vimi0mY9ORcMqw3+EbB/bYDupsTtoKwpUkmnr5fvv16ooHfrXBZ7dhEFdeg5Ob0IWEd4pZKoIHZDuOVN8J3N6Ejln8/9mn96tY6s5gr5JiFNVGbL2FqfK9KprnbDCnjH3MDBaJBsfhjBXp9VxbZJQaVPzi0b4m47nc9vP15+N3lSGDj77mUyoEJvPboGQ67zc01WrLzSCvq4WoWz8UhLnmWu0wix5kBuoR+Af640KtYPB3qHCb6DN/NROAQHPsLGZ7yHpmeWAc/qLq9LQROL/lviGnfcwuX9La+3Hfd2SML/WSJ0O9txEsSY5cpGbvcHtPwNAAD//9u9Atc=\\\"}\"}"
+}

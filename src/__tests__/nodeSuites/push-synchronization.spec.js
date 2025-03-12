@@ -239,7 +239,7 @@ export function testSynchronization(fetchMock, assert) {
   });
 
   // split and segment sync after SSE opened
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1457552620999&rbSince=-1'), function (url, opts) {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1457552620999&rbSince=100'), function (url, opts) {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_SSE_OPEN), 'sync after SSE connection is opened');
     if (hasNoCacheHeader(opts)) assert.fail('request must not include `Cache-Control` header');
@@ -251,7 +251,7 @@ export function testSynchronization(fetchMock, assert) {
   });
 
   // fetch due to SPLIT_UPDATE event
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1457552620999&rbSince=-1'), function (url, opts) {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1457552620999&rbSince=100'), function (url, opts) {
     if (!hasNoCacheHeader(opts)) assert.fail('request must include `Cache-Control` header');
     return { status: 200, body: splitChangesMock3 };
   });
@@ -268,14 +268,14 @@ export function testSynchronization(fetchMock, assert) {
   });
 
   // fetch due to SPLIT_KILL event
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1457552649999&rbSince=-1'), function (url, opts) {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1457552649999&rbSince=100'), function (url, opts) {
     if (!hasNoCacheHeader(opts)) assert.fail('request must include `Cache-Control` header');
     assert.equal(client.getTreatment(key, 'whitelist'), 'not_allowed', 'evaluation with split killed immediately, before fetch is done');
     return { status: 200, body: splitChangesMock4 };
   });
 
   // fetch due to SPLIT_UPDATE event, with an update that involves a new segment
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1457552650000&rbSince=-1'), function (url, opts) {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1457552650000&rbSince=100'), function (url, opts) {
     if (!hasNoCacheHeader(opts)) assert.fail('request must include `Cache-Control` header');
     return { status: 200, body: splitChangesMock5 };
   });
@@ -286,25 +286,25 @@ export function testSynchronization(fetchMock, assert) {
   });
 
   // fetch feature flags due to IFFU SPLIT_UPDATE event with wrong compress code
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1684265694505&rbSince=-1'), function (url, opts) {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1684265694505&rbSince=100'), function (url, opts) {
     if (!hasNoCacheHeader(opts)) assert.fail('request must include `Cache-Control` header');
     return { status: 200, body: splitChangesMock6 };
   });
 
   // fetch feature flags due to IFFU SPLIT_UPDATE event with previous change number = 0
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1684265694506&rbSince=-1'), function (url, opts) {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1684265694506&rbSince=100'), function (url, opts) {
     if (!hasNoCacheHeader(opts)) assert.fail('request must include `Cache-Control` header');
     return { status: 200, body: splitChangesMock7 };
   });
 
   // fetch feature flags due to IFFU SPLIT_UPDATE event with previous change number !== current change number
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1684265694526&rbSince=-1'), function (url, opts) {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1684265694526&rbSince=100'), function (url, opts) {
     if (!hasNoCacheHeader(opts)) assert.fail('request must include `Cache-Control` header');
     return { status: 200, body: splitChangesMock8 };
   });
 
   // fetch feature flags due to IFFU SPLIT_UPDATE event with ARCHIVED feature flag
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1684265694546&rbSince=-1'), function (url, opts) {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1684265694546&rbSince=100'), function (url, opts) {
     if (!hasNoCacheHeader(opts)) assert.fail('request must include `Cache-Control` header');
     return { status: 200, body: splitChangesMock9 };
   });
