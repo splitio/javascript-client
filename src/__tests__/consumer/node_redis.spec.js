@@ -157,6 +157,17 @@ tape('Node.js Redis', function (t) {
         assert.equal(await client.getTreatment('UT_Segment_member', 'hierarchical_splits_testing_on_negated'), 'off', 'Evaluations using Redis storage should be correct.');
         assert.equal(await client.getTreatment('other_key', 'always-on-impressions-disabled-true'), 'on', 'Evaluations using Redis storage should be correct.');
 
+        // Evaluations with rule-based segments
+        assert.equal(await client.getTreatment('emi@split.io', 'rbs_test_flag'), 'v2', 'key in excluded segment');
+        assert.equal(await client.getTreatment('mauro@split.io', 'rbs_test_flag'), 'v2', 'excluded key');
+        assert.equal(await client.getTreatment('bilal@split.io', 'rbs_test_flag'), 'v1', 'key satisfies the rbs condition');
+        assert.equal(await client.getTreatment('other_key', 'rbs_test_flag'), 'v2', 'key not in segment');
+
+        assert.equal(await client.getTreatment('emi@split.io', 'rbs_test_flag_negated'), 'v1', 'key in excluded segment');
+        assert.equal(await client.getTreatment('mauro@split.io', 'rbs_test_flag_negated'), 'v1', 'excluded key');
+        assert.equal(await client.getTreatment('bilal@split.io', 'rbs_test_flag_negated'), 'v2', 'key satisfies the rbs condition');
+        assert.equal(await client.getTreatment('other_key', 'rbs_test_flag_negated'), 'v1', 'key not in segment');
+
         assert.equal(typeof client.track().then, 'function', 'Track calls should always return a promise on Redis mode, even when parameters are incorrect.');
 
         assert.true(await client.track('nicolas@split.io', 'user', 'test.redis.event', 18), 'If the event was successfully queued the promise will resolve to true');
@@ -164,11 +175,11 @@ tape('Node.js Redis', function (t) {
 
         // Manager methods
         const splitNames = await manager.names();
-        assert.equal(splitNames.length, 26, 'manager `names` method returns the list of split names asynchronously');
+        assert.equal(splitNames.length, 28, 'manager `names` method returns the list of split names asynchronously');
         assert.equal(splitNames.indexOf(expectedSplitName) > -1, true, 'list of split names should contain expected splits');
         assert.deepEqual(await manager.split(expectedSplitName), expectedSplitView, 'manager `split` method returns the split view of the given split name asynchronously');
         const splitViews = await manager.splits();
-        assert.equal(splitViews.length, 26, 'manager `splits` method returns the list of split views asynchronously');
+        assert.equal(splitViews.length, 28, 'manager `splits` method returns the list of split views asynchronously');
         assert.deepEqual(splitViews.find(splitView => splitView.name === expectedSplitName), expectedSplitView, 'manager `split` method returns the split view of the given split name asynchronously');
 
         await client.ready(); // promise already resolved
@@ -188,7 +199,7 @@ tape('Node.js Redis', function (t) {
               if (error) assert.fail('Redis server should be reachable');
 
               const trackedImpressionsAndEvents = stdout.split('\n').filter(line => line !== '').map(line => parseInt(line));
-              assert.deepEqual(trackedImpressionsAndEvents, [TOTAL_RAW_IMPRESSIONS, TOTAL_EVENTS], 'Tracked impressions and events should be stored in Redis');
+              assert.deepEqual(trackedImpressionsAndEvents, [TOTAL_RAW_IMPRESSIONS + 8 /* evaluations with rule-based segments */, TOTAL_EVENTS], 'Tracked impressions and events should be stored in Redis');
 
               // Validate stored telemetry
               exec(`echo "HLEN ${config.storage.prefix}.SPLITIO.telemetry.latencies \n HLEN ${config.storage.prefix}.SPLITIO.telemetry.exceptions \n HGET ${config.storage.prefix}.SPLITIO.telemetry.init 'nodejs-${version}/${HOSTNAME_VALUE}/${IP_VALUE}'" | redis-cli  -p ${redisPort}`, (error, stdout) => {
