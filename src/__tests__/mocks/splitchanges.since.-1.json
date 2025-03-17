@@ -10,7 +10,7 @@
         "trafficTypeName": "user",
         "excluded": {
           "keys": [ "mauro@split.io", "gaston@split.io" ],
-          "segments": [ "segment_test" ]
+          "segments": [ "segment_excluded_by_rbs" ]
         },
         "conditions": [
           {

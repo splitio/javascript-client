@@ -41,15 +41,14 @@ const key = 'facundo@split.io';
 
 fetchMock.get(url(settings, '/splitChanges?s=1.3&since=-1&rbSince=-1'), { status: 200, body: splitChangesMock1 });
 fetchMock.get(url(settings, '/splitChanges?s=1.3&since=1457552620999&rbSince=100'), { status: 200, body: splitChangesMock2 });
-fetchMock.get(new RegExp(`${url(settings, '/segmentChanges')}/*`), {
-  status: 200, body: {
-    'name': 'segment',
-    'added': [],
-    'removed': [],
-    'since': 1,
-    'till': 1
-  }
-});
+
+const emptySegmentResponse = { added: [], removed: [], since: 1, till: 1 };
+fetchMock.get(new RegExp(`${url(settings, '/segmentChanges/employees')}*`), { status: 200, body: emptySegmentResponse });
+fetchMock.get(new RegExp(`${url(settings, '/segmentChanges/splitters')}*`), { status: 200, body: emptySegmentResponse });
+fetchMock.get(new RegExp(`${url(settings, '/segmentChanges/developers')}*`), { status: 200, body: emptySegmentResponse });
+fetchMock.get(url(settings, '/segmentChanges/segment_excluded_by_rbs?since=-1'), { status: 200, body: { added: ['emi@split.io'], removed: [], since: -1, till: 1 } });
+fetchMock.get(url(settings, '/segmentChanges/segment_excluded_by_rbs?since=1'), { status: 200, body: { added: [], removed: [], since: 1, till: 1 } });
+
 fetchMock.post(url(settings, '/testImpressions/bulk'), 200);
 fetchMock.post(url(settings, '/testImpressions/count'), 200);
 fetchMock.post(url(settings, '/v1/metrics/config'), 200);
