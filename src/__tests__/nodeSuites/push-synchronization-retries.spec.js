@@ -208,7 +208,7 @@ export function testSynchronizationRetries(fetchMock, assert) {
     return { status: 408, body: 'request timeout' };
   });
 
-  mockSegmentChanges(fetchMock, new RegExp(`${url(settings, '/segmentChanges')}/(employees|developers)`), [key]);
+  mockSegmentChanges(fetchMock, new RegExp(`${url(settings, '/segmentChanges')}/(employees|developers|segment_excluded_by_rbs)`), [key]);
 
   fetchMock.get(new RegExp('.*'), function (url) {
     assert.fail('unexpected GET request with url: ' + url);
