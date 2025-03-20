@@ -66,8 +66,8 @@ function beaconApiNotSendTestDebug(fetchMock, assert) {
   sendBeaconSpyDebug = sinon.spy(window.navigator, 'sendBeacon');
 
   // Mocking this specific route to make sure we only get the items we want to test from the handlers.
-  fetchMock.get(url(settings, '/splitChanges?s=1.2&since=-1'), { status: 200, body: splitChangesMock1 });
-  fetchMock.get(url(settings, '/splitChanges?s=1.2&since=1457552620999'), { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
+  fetchMock.get(url(settings, '/splitChanges?s=1.3&since=-1&rbSince=-1'), { status: 200, body: splitChangesMock1 });
+  fetchMock.get(url(settings, '/splitChanges?s=1.3&since=1457552620999&rbSince=-1'), { status: 200, body: { ff: { d: [], s: 1457552620999, t: 1457552620999 } } });
   fetchMock.get(url(settings, '/memberships/facundo%40split.io'), { status: 200, body: membershipsFacundo });
 
   // Init and run Split client

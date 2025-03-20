@@ -71,13 +71,13 @@ export function testSplitKillOnReadyFromCache(fetchMock, assert) {
   });
 
   // 1 auth request
-  fetchMock.getOnce(url(settings, `/v2/auth?s=1.2&users=${encodeURIComponent(userKey)}`), { status: 200, body: authPushEnabledNicolas });
+  fetchMock.getOnce(url(settings, `/v2/auth?s=1.3&users=${encodeURIComponent(userKey)}`), { status: 200, body: authPushEnabledNicolas });
   // 2 memberships requests: initial sync and after SSE opened
   fetchMock.get({ url: url(settings, '/memberships/nicolas%40split.io'), repeat: 2 }, { status: 200, body: { ms: {} } });
 
   // 2 splitChanges request: initial sync and after SSE opened. Sync after SPLIT_KILL is not performed because SplitsSyncTask is "executing"
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=25'), { status: 200, body: splitChangesMock1 }, { delay: MILLIS_SPLIT_CHANGES_RESPONSE, /* delay response */ });
-  fetchMock.getOnce(url(settings, `/splitChanges?s=1.2&since=${splitChangesMock1.till}`), { status: 200, body: { splits: [], since: splitChangesMock1.till, till: splitChangesMock1.till } }, { delay: MILLIS_SPLIT_CHANGES_RESPONSE - 100, /* delay response */ });
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=25&rbSince=-1'), { status: 200, body: splitChangesMock1 }, { delay: MILLIS_SPLIT_CHANGES_RESPONSE, /* delay response */ });
+  fetchMock.getOnce(url(settings, `/splitChanges?s=1.3&since=${splitChangesMock1.ff.t}&rbSince=-1`), { status: 200, body: { ff: { d: [], s: splitChangesMock1.ff.t, t: splitChangesMock1.ff.t } } }, { delay: MILLIS_SPLIT_CHANGES_RESPONSE - 100, /* delay response */ });
 
   fetchMock.get(new RegExp('.*'), function (url) {
     assert.fail('unexpected GET request with url: ' + url);

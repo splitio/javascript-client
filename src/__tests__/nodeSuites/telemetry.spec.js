@@ -22,8 +22,8 @@ const config = {
 
 export default async function telemetryNodejsSuite(key, fetchMock, assert) {
 
-  fetchMock.getOnce(url(config, '/splitChanges?s=1.1&since=-1'), 500); // record http exception
-  fetchMock.getOnce(url(config, '/splitChanges?s=1.1&since=-1'), { status: 200, body: splitChangesMock1 });
+  fetchMock.getOnce(url(config, '/splitChanges?s=1.3&since=-1&rbSince=-1'), 500); // record http exception
+  fetchMock.getOnce(url(config, '/splitChanges?s=1.3&since=-1&rbSince=-1'), { status: 200, body: splitChangesMock1 });
   mockSegmentChanges(fetchMock, new RegExp(config.urls.sdk + '/segmentChanges/*'), ['some_key']);
 
   fetchMock.postOnce(url(config, '/testImpressions/bulk'), 200);
