@@ -88,7 +88,7 @@ export function testRefreshToken(fetchMock, assert) {
   });
 
   // sync after SSE opened
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1457552620999&rbSince=-1'), { status: 200, body: splitChangesMock2 });
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1457552620999&rbSince=100'), { status: 200, body: splitChangesMock2 });
   fetchMock.getOnce(url(settings, '/memberships/nicolas%40split.io'), { status: 200, body: membershipsNicolasMock1 });
 
   // re-auth due to refresh token, with connDelay of 0.5 seconds
@@ -100,7 +100,7 @@ export function testRefreshToken(fetchMock, assert) {
   });
 
   // sync after SSE reopened
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1457552620999&rbSince=-1'), function () {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1457552620999&rbSince=100'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_REFRESH_TOKEN + MILLIS_CONNDELAY), 'sync after SSE connection is reopened');
     return { status: 200, body: { ff: { d: [], s: 1457552620999, t: 1457552620999 } } };
@@ -116,7 +116,7 @@ export function testRefreshToken(fetchMock, assert) {
   });
 
   // split sync after SSE closed due to push disabled
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1457552620999&rbSince=-1'), function () {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1457552620999&rbSince=100'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_REFRESH_TOKEN * 2), 'sync after SSE connection is reopened a second time');
     setTimeout(() => {
