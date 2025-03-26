@@ -75,7 +75,7 @@ export default function (fetchMock, assert) {
 
   fetchMock.postOnce(url(settings, '/testImpressions/count'), (url, opts) => {
     assert.deepEqual(JSON.parse(opts.body), {
-      pf: [{ f: 'always_on_track_impressions_false', m: truncatedTimeFrame, rc: 1 }]
+      pf: [{ f: 'always_on_impressions_disabled_true', m: truncatedTimeFrame, rc: 1 }]
     }, 'We should generate impression count for the feature with track impressions disabled.');
 
     return 200;
@@ -83,7 +83,7 @@ export default function (fetchMock, assert) {
 
   fetchMock.postOnce(url(settings, '/v1/keys/cs'), (url, opts) => {
     assert.deepEqual(JSON.parse(opts.body), {
-      keys: [{ fs: ['always_on_track_impressions_false'], k: 'facundo@split.io' }]
+      keys: [{ fs: ['always_on_impressions_disabled_true'], k: 'facundo@split.io' }]
     }, 'We should track unique keys for the feature with track impressions disabled.');
 
     return 200;
@@ -95,6 +95,6 @@ export default function (fetchMock, assert) {
     client.getTreatment('split_with_config');
     client.getTreatment('split_with_config');
     client.getTreatment('split_with_config');
-    assert.equal(client.getTreatment('always_on_track_impressions_false'), 'on');
+    assert.equal(client.getTreatment('always_on_impressions_disabled_true'), 'on');
   });
 }

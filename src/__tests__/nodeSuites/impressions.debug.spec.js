@@ -75,7 +75,7 @@ export default async function (key, fetchMock, assert) {
 
   fetchMock.postOnce(url(settings, '/testImpressions/count'), (url, opts) => {
     assert.deepEqual(JSON.parse(opts.body), {
-      pf: [{ f: 'always_on_track_impressions_false', m: truncatedTimeFrame, rc: 1 }]
+      pf: [{ f: 'always_on_impressions_disabled_true', m: truncatedTimeFrame, rc: 1 }]
     }, 'We should generate impression count for the feature with track impressions disabled.');
 
     return 200;
@@ -83,7 +83,7 @@ export default async function (key, fetchMock, assert) {
 
   fetchMock.postOnce(url(settings, '/v1/keys/ss'), (url, opts) => {
     assert.deepEqual(JSON.parse(opts.body), {
-      keys: [{ f: 'always_on_track_impressions_false', ks: ['other_key'] }]
+      keys: [{ f: 'always_on_impressions_disabled_true', ks: ['other_key'] }]
     }, 'We should track unique keys for the feature with track impressions disabled.');
 
     return 200;
@@ -97,5 +97,5 @@ export default async function (key, fetchMock, assert) {
   assert.equal(client.getTreatment({ matchingKey: key, bucketingKey: 'test_buck_key' }, 'split_with_config'), 'o.n');
   assert.equal(client.getTreatment({ matchingKey: key, bucketingKey: 'test_buck_key' }, 'split_with_config'), 'o.n');
   assert.equal(client.getTreatment({ matchingKey: key, bucketingKey: 'test_buck_key' }, 'split_with_config'), 'o.n');
-  assert.equal(client.getTreatment({ matchingKey: 'other_key', bucketingKey: 'test_buck_key' }, 'always_on_track_impressions_false'), 'on');
+  assert.equal(client.getTreatment({ matchingKey: 'other_key', bucketingKey: 'test_buck_key' }, 'always_on_impressions_disabled_true'), 'on');
 }
