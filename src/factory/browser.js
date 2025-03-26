@@ -7,7 +7,6 @@ import { InMemoryStorageCSFactory } from '@splitsoftware/splitio-commons/src/sto
 import { sdkManagerFactory } from '@splitsoftware/splitio-commons/src/sdkManager';
 import { sdkClientMethodCSFactory } from '@splitsoftware/splitio-commons/src/sdkClient/sdkClientMethodCS';
 import { impressionObserverCSFactory } from '@splitsoftware/splitio-commons/src/trackers/impressionObserver/impressionObserverCS';
-import { __InLocalStorageMockFactory } from '@splitsoftware/splitio-commons/src/utils/settingsValidation/storage/storageCS';
 import { sdkFactory } from '@splitsoftware/splitio-commons/src/sdkFactory';
 import { LOCALHOST_MODE, STORAGE_LOCALSTORAGE } from '@splitsoftware/splitio-commons/src/utils/constants';
 import { createUserConsentAPI } from '@splitsoftware/splitio-commons/src/consent/sdkUserConsent';
@@ -20,10 +19,8 @@ const syncManagerOnlineCSFactory = syncManagerOnlineFactory(pollingManagerCSFact
 
 function getStorage(settings) {
   return settings.storage.type === STORAGE_LOCALSTORAGE ?
-    InLocalStorage(settings.storage)
-    : settings.storage.__originalType === STORAGE_LOCALSTORAGE ?
-      __InLocalStorageMockFactory
-      : InMemoryStorageCSFactory;
+    InLocalStorage(settings.storage) :
+    InMemoryStorageCSFactory;
 }
 
 /**
