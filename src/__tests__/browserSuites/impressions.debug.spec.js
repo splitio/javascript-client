@@ -63,6 +63,14 @@ export default function (fetchMock, assert) {
         k: 'facundo@split.io', t: 'o.n', m: data[0].i[1].m, c: 828282828282, r: 'another expected label', pt: data[0].i[0].m,
       }, {
         k: 'facundo@split.io', t: 'o.n', m: data[0].i[2].m, c: 828282828282, r: 'another expected label', pt: data[0].i[1].m
+      }, {
+        k: 'facundo@split.io', t: 'o.n', m: data[0].i[3].m, c: 828282828282, r: 'another expected label', pt: data[0].i[2].m, properties: '{"prop1":"value1"}'
+      }, {
+        k: 'facundo@split.io', t: 'o.n', m: data[0].i[4].m, c: 828282828282, r: 'another expected label', pt: data[0].i[3].m, properties: '{"prop1":"value2"}'
+      }, {
+        k: 'facundo@split.io', t: 'o.n', m: data[0].i[5].m, c: 828282828282, r: 'another expected label', pt: data[0].i[4].m, properties: '{"prop1":"value3"}'
+      }, {
+        k: 'facundo@split.io', t: 'o.n', m: data[0].i[6].m, c: 828282828282, r: 'another expected label', pt: data[0].i[5].m, properties: '{"prop1":"value4"}'
       }]
     }]);
 
@@ -96,5 +104,11 @@ export default function (fetchMock, assert) {
     client.getTreatment('split_with_config');
     client.getTreatment('split_with_config');
     assert.equal(client.getTreatment('always_on_impressions_disabled_true'), 'on');
+
+    // with properties
+    assert.equal(client.getTreatment('split_with_config', undefined, { properties: { prop1: 'value1' } }), 'o.n');
+    assert.equal(client.getTreatments(['split_with_config'], undefined, { properties: { prop1: 'value2' } }).split_with_config, 'o.n');
+    assert.equal(client.getTreatmentWithConfig('split_with_config', undefined, { properties: { prop1: 'value3' } }).treatment, 'o.n');
+    assert.equal(client.getTreatmentsWithConfig(['split_with_config'], undefined, { properties: { prop1: 'value4' } }).split_with_config.treatment, 'o.n');
   });
 }
