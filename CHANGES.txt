@@ -1,3 +1,6 @@
+11.2.0 (March 28, 2025)
+ - Added new optional argument to the client `getTreatment` methods to allow passing additional evaluation options, such as a map of properties to append to the generated impression object sent to Split's backend. Read more in our docs.
+
 11.1.0 (January 17, 2025)
  - Added support for the new impressions tracking toggle available on feature flags, both respecting the setting and including the new field being returned on `SplitView` type objects. Read more in our docs.
  - Updated @splitsoftware/splitio-commons package to version 2.1.0.
