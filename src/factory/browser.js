@@ -20,10 +20,10 @@ const syncManagerOnlineCSFactory = syncManagerOnlineFactory(pollingManagerCSFact
 
 function getStorage(settings) {
   return settings.storage.type === STORAGE_LOCALSTORAGE ?
-    InLocalStorage(settings.storage)
-    : settings.storage.__originalType === STORAGE_LOCALSTORAGE ?
-      __InLocalStorageMockFactory
-      : InMemoryStorageCSFactory;
+    InLocalStorage(settings.storage) :
+    settings.storage.__originalType === STORAGE_LOCALSTORAGE ?
+      __InLocalStorageMockFactory :
+      InMemoryStorageCSFactory;
 }
 
 /**

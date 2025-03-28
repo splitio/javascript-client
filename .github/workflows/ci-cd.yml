@@ -19,8 +19,7 @@ permissions:
 jobs:
   build:
     name: Build
-    # @TODO rollback to ubuntu-latest eventually. ATM, `npm run test-browser` fails when using ubuntu-latest (ubuntu-22.04) with "ERROR [launcher]: Cannot start ChromeHeadless"
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
