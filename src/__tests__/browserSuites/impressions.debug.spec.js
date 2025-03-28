@@ -64,13 +64,13 @@ export default function (fetchMock, assert) {
       }, {
         k: 'facundo@split.io', t: 'o.n', m: data[0].i[2].m, c: 828282828282, r: 'another expected label', pt: data[0].i[1].m
       }, {
-        k: 'facundo@split.io', t: 'o.n', m: data[0].i[3].m, c: 828282828282, r: 'another expected label', pt: data[0].i[2].m, properties: '{"prop1":"value1"}'
+        k: 'facundo@split.io', t: 'o.n', m: data[0].i[3].m, c: 828282828282, r: 'another expected label', properties: '{"prop1":"value1"}'
       }, {
-        k: 'facundo@split.io', t: 'o.n', m: data[0].i[4].m, c: 828282828282, r: 'another expected label', pt: data[0].i[3].m, properties: '{"prop1":"value2"}'
+        k: 'facundo@split.io', t: 'o.n', m: data[0].i[4].m, c: 828282828282, r: 'another expected label', properties: '{"prop1":"value2"}'
       }, {
-        k: 'facundo@split.io', t: 'o.n', m: data[0].i[5].m, c: 828282828282, r: 'another expected label', pt: data[0].i[4].m, properties: '{"prop1":"value3"}'
+        k: 'facundo@split.io', t: 'o.n', m: data[0].i[5].m, c: 828282828282, r: 'another expected label', properties: '{"prop1":"value3"}'
       }, {
-        k: 'facundo@split.io', t: 'o.n', m: data[0].i[6].m, c: 828282828282, r: 'another expected label', pt: data[0].i[5].m, properties: '{"prop1":"value4"}'
+        k: 'facundo@split.io', t: 'o.n', m: data[0].i[6].m, c: 828282828282, r: 'another expected label', properties: '{"prop1":"value4"}'
       }]
     }]);
 
