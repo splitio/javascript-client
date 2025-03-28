@@ -58,7 +58,7 @@ export default async function (key, fetchMock, assert) {
     const alwaysOnWithImpressionsDisabledTrue = data.filter(e => e.f === 'always_on_impressions_disabled_true');
 
     assert.equal(notExistentSplitImpr.i.length, 1); // Only one, the split not found is filtered by the non existent Split check.
-    assert.equal(splitWithConfigImpr.i.length, 2);
+    assert.equal(splitWithConfigImpr.i.length, 3);
     assert.equal(dependencyChildImpr.i.length, 1);
     assert.equal(alwaysOnWithImpressionsDisabledTrue.length, 0);
 
@@ -75,6 +75,7 @@ export default async function (key, fetchMock, assert) {
       assert.equal(output.t, expected.treatment, 'Present impressions should have the correct treatment.');
       assert.equal(output.r, expected.label, 'Present impressions should have the correct label.');
       assert.equal(output.c, expected.changeNumber, 'Present impressions should have the correct changeNumber.');
+      assert.equal(output.properties, expected.properties, 'Present impressions should have the correct properties.');
       assert.true(output.m >= (performedWhenReady ? readyEvaluationsStart : evaluationsStart) && output.m <= evaluationsEnd, 'Present impressions should have the correct timestamp (test with error margin).');
     }
 
@@ -89,6 +90,10 @@ export default async function (key, fetchMock, assert) {
     validateImpressionData(splitWithConfigImpr.i[0], {
       keyName: 'facundo@split.io', label: 'another expected label', treatment: 'o.n',
       bucketingKey: 'test_buck_key', changeNumber: 828282828282
+    });
+    validateImpressionData(splitWithConfigImpr.i[2], {
+      keyName: 'other_key', label: 'another expected label', treatment: 'o.n',
+      changeNumber: 828282828282, properties: '{"some":"value2"}'
     });
 
     // Not push impressions with a invalid key (aka matching key)
@@ -153,8 +158,11 @@ export default async function (key, fetchMock, assert) {
   client.getTreatmentWithConfig({ matchingKey: key, bucketingKey: 'test_buck_key' }, 'split_with_config');
   client.getTreatmentWithConfig({ matchingKey: 'different', bucketingKey: 'test_buck_key' }, 'split_with_config');
 
-  // Impression should not be tracked
-  assert.equal(client.getTreatment('other_key', 'always_on_impressions_disabled_true'), 'on');
+  // Impression should not be tracked (passed properties will not be submitted)
+  assert.equal(client.getTreatment('other_key', 'always_on_impressions_disabled_true'), 'on', undefined, { properties: { some: 'value1' } });
+
+  // Tracked impression with properties should be handled in DEBUG mode
+  assert.equal(client.getTreatment('other_key', 'split_with_config', undefined, { properties: { some: 'value2' } }), 'o.n');
 
   evaluationsEnd = Date.now();
 }
