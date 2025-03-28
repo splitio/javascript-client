@@ -1,5 +1,5 @@
 11.2.0 (March 28, 2025)
- - Added new optional argument to the client `getTreatment` methods to allow passing additional evaluation options, such as a map of properties to append to the generated impression object sent to Split's backend. Read more in our docs.
+ - Added a new optional argument to the client `getTreatment` methods to allow passing additional evaluation options, such as a map of properties to append to the generated impressions sent to Split backend. Read more in our docs.
  - Added two new configuration options for the SDK's `LOCALSTORAGE` storage type to control the behavior of the persisted rollout plan cache in the browser:
     - `storage.expirationDays` to specify the validity period of the rollout plan cache in days.
     - `storage.clearOnInit` to clear the rollout plan cache on SDK initialization.
