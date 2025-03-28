@@ -66,11 +66,11 @@ export default async function (key, fetchMock, assert) {
       }, {
         k: 'emi@split.io', t: 'o.n', m: data[0].i[3].m, c: 828282828282, r: 'another expected label', properties: '{"prop1":"value1"}'
       }, {
-        k: 'emi@split.io', t: 'o.n', m: data[0].i[4].m, c: 828282828282, r: 'another expected label', pt: data[0].i[3].m, properties: '{"prop1":"value2"}'
+        k: 'emi@split.io', t: 'o.n', m: data[0].i[4].m, c: 828282828282, r: 'another expected label', properties: '{"prop1":"value2"}'
       }, {
-        k: 'emi@split.io', t: 'o.n', m: data[0].i[5].m, c: 828282828282, r: 'another expected label', pt: data[0].i[4].m, properties: '{"prop1":"value3"}'
+        k: 'emi@split.io', t: 'o.n', m: data[0].i[5].m, c: 828282828282, r: 'another expected label', properties: '{"prop1":"value3"}'
       }, {
-        k: 'emi@split.io', t: 'o.n', m: data[0].i[6].m, c: 828282828282, r: 'another expected label', pt: data[0].i[5].m, properties: '{"prop1":"value4"}'
+        k: 'emi@split.io', t: 'o.n', m: data[0].i[6].m, c: 828282828282, r: 'another expected label', properties: '{"prop1":"value4"}'
       }]
     }], 'We performed evaluations for one split, so we should have 1 item total.');
 
