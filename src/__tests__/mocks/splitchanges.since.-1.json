@@ -1391,7 +1391,7 @@
         "environment": null,
         "trafficTypeId": null,
         "trafficTypeName": null,
-        "name": "always_on_track_impressions_false",
+        "name": "always_on_impressions_disabled_true",
         "impressionsDisabled": true,
         "seed": -790401604,
         "status": "ACTIVE",
