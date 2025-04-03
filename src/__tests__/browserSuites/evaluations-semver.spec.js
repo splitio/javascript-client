@@ -26,7 +26,6 @@ const config = {
 export default async function (fetchMock, assert) {
 
   fetchMock.getOnce(config.urls.sdk + '/splitChanges?s=1.3&since=-1&rbSince=-1', { status: 200, body: splitChangesMock1 });
-  fetchMock.getOnce(config.urls.sdk + '/splitChanges?s=1.3&since=1675259356568&rbSince=-1', { status: 200, body: { ff: { d: [], s: 1675259356568, t: 1675259356568 } } });
   fetchMock.getOnce(config.urls.sdk + '/memberships/emi%40split.io', { status: 200, body: { ms: {} } });
   fetchMock.getOnce(config.urls.sdk + '/memberships/2nd', { status: 200, body: { ms: {} } });
 

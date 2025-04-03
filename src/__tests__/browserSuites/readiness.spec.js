@@ -1,7 +1,6 @@
 import { SplitFactory } from '../../';
 
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
-import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
 import membershipsNicolas from '../mocks/memberships.nicolas@split.io.json';
 
 // mocks for memberships readiness tests
@@ -44,7 +43,6 @@ export default function (fetchMock, assert) {
     fetchMock.get(testUrls.sdk + '/memberships/nicolas%40split.io', function () {
       return new Promise((res) => { setTimeout(() => { res({ status: 200, body: membershipsNicolas, headers: {} }); }, requestTimeoutBeforeReady * 1000 - 50); });
     });
-    fetchMock.get(testUrls.sdk + '/splitChanges?s=1.3&since=1457552620999&rbSince=-1', { status: 200, body: splitChangesMock2 });
 
     const splitio = SplitFactory({
       ...baseConfig, urls: testUrls
@@ -73,7 +71,6 @@ export default function (fetchMock, assert) {
     fetchMock.get(testUrls.sdk + '/memberships/nicolas%40split.io', function () {
       return new Promise((res) => { setTimeout(() => { res({ status: 200, body: membershipsNicolas, headers: {} }); }, requestTimeoutBeforeReady * 1000 + 50); });
     });
-    fetchMock.get(testUrls.sdk + '/splitChanges?s=1.3&since=1457552620999&rbSince=-1', { status: 200, body: splitChangesMock2 });
 
     const splitio = SplitFactory({ ...baseConfig, urls: testUrls });
     const client = splitio.client();
@@ -104,7 +101,6 @@ export default function (fetchMock, assert) {
     fetchMock.get(testUrls.sdk + '/memberships/nicolas%40split.io', function () {
       return new Promise((res) => { setTimeout(() => { res({ status: 200, body: membershipsNicolas, headers: {} }); }, requestTimeoutBeforeReady * 1000 - 50); });
     });
-    fetchMock.get(testUrls.sdk + '/splitChanges?s=1.3&since=1457552620999&rbSince=-1', { status: 200, body: splitChangesMock2 });
 
     const splitio = SplitFactory({ ...baseConfig, urls: testUrls });
     const client = splitio.client();
@@ -129,8 +125,6 @@ export default function (fetchMock, assert) {
       membershipsHits++;
       return new Promise((res) => { setTimeout(() => { res({ status: 200, body: { ms: {} } }); }, membershipsEndpointDelay); });
     });
-    // Now mock the no more updates state
-
 
     if (startWithSegments) {
       // Adjust since and till so the order is inverted.

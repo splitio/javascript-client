@@ -1,5 +1,6 @@
 import { getStorageHash } from '@splitsoftware/splitio-commons/src/storages/KeyBuilder';
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
+import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
 import splitKillMessage from '../mocks/message.SPLIT_KILL.1457552650000.json';
 import authPushEnabledNicolas from '../mocks/auth.pushEnabled.nicolas@split.io.json';
 import { nearlyEqual, url } from '../testUtils';
@@ -77,7 +78,7 @@ export function testSplitKillOnReadyFromCache(fetchMock, assert) {
 
   // 2 splitChanges request: initial sync and after SSE opened. Sync after SPLIT_KILL is not performed because SplitsSyncTask is "executing"
   fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=25&rbSince=-1'), { status: 200, body: splitChangesMock1 }, { delay: MILLIS_SPLIT_CHANGES_RESPONSE, /* delay response */ });
-  fetchMock.getOnce(url(settings, `/splitChanges?s=1.3&since=${splitChangesMock1.ff.t}&rbSince=-1`), { status: 200, body: { ff: { d: [], s: splitChangesMock1.ff.t, t: splitChangesMock1.ff.t } } }, { delay: MILLIS_SPLIT_CHANGES_RESPONSE - 100, /* delay response */ });
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1457552620999&rbSince=100'), { status: 200, body: splitChangesMock2 }, { delay: MILLIS_SPLIT_CHANGES_RESPONSE - 100, /* delay response */ });
 
   fetchMock.get(new RegExp('.*'), function (url) {
     assert.fail('unexpected GET request with url: ' + url);
