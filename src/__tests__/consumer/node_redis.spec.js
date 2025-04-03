@@ -23,7 +23,7 @@ const NA = 'NA';
 
 const redisPort = '6385';
 
-const TOTAL_RAW_IMPRESSIONS = 16;
+const TOTAL_RAW_IMPRESSIONS = 17;
 const TOTAL_EVENTS = 2;
 const DEDUPED_IMPRESSIONS = 3;
 
@@ -118,7 +118,8 @@ tape('Node.js Redis', function (t) {
 
         /** Evaluation, track and manager methods on SDK_READY */
 
-        assert.equal(await client.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT'), 'on', 'Evaluations using Redis storage should be correct.');
+        assert.equal(await client.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT', undefined, { properties: { /* empty properties are ignored */ } }), 'on', 'Evaluations using Redis storage should be correct.');
+        assert.equal(await client.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT', undefined, { properties: { some: 'value1' } }), 'on', 'Evaluations using Redis storage should be correct.');
         assert.equal(await client.getTreatment('other', 'UT_IN_SEGMENT'), 'off', 'Evaluations using Redis storage should be correct.');
 
         assert.equal(await client.getTreatment('UT_Segment_member', 'UT_NOT_IN_SEGMENT'), 'off', 'Evaluations using Redis storage should be correct.');
@@ -234,7 +235,9 @@ tape('Node.js Redis', function (t) {
         // this should be deduped
         assert.equal(await client.getTreatment('other', 'UT_IN_SEGMENT'), 'off', 'Evaluations using Redis storage should be correct.');
         // this should be deduped
-        assert.equal(await client.getTreatment('other', 'UT_IN_SEGMENT'), 'off', 'Evaluations using Redis storage should be correct.');
+        assert.equal(await client.getTreatment('other', 'UT_IN_SEGMENT', undefined, { properties: { /* empty properties are ignored */ } }), 'off', 'Evaluations using Redis storage should be correct.');
+        // this should not be deduped because of properties
+        assert.equal(await client.getTreatment('other', 'UT_IN_SEGMENT', undefined, { properties: { some: 'value1' } }), 'off', 'Evaluations using Redis storage should be correct.');
 
         assert.equal(await client.getTreatment('UT_Segment_member', 'UT_NOT_IN_SEGMENT'), 'off', 'Evaluations using Redis storage should be correct.');
         assert.equal(await client.getTreatment('other', 'UT_NOT_IN_SEGMENT'), 'on', 'Evaluations using Redis storage should be correct.');

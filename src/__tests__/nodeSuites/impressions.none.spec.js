@@ -53,7 +53,7 @@ export default async function (key, fetchMock, assert) {
         { f: 'split_with_config', m: truncatedTimeFrame, rc: 3 },
         { f: 'always_off', m: truncatedTimeFrame, rc: 3 },
         { f: 'always_on', m: truncatedTimeFrame, rc: 5 },
-        { f: 'always_on_track_impressions_false', m: truncatedTimeFrame, rc: 1 }
+        { f: 'always_on_impressions_disabled_true', m: truncatedTimeFrame, rc: 1 }
       ]
     });
     return 200;
@@ -77,7 +77,7 @@ export default async function (key, fetchMock, assert) {
           ks: ['emma@split.io', 'emi@split.io', 'nico@split.io']
         },
         {
-          f: 'always_on_track_impressions_false',
+          f: 'always_on_impressions_disabled_true',
           ks: ['emi@split.io']
         }
       ]
@@ -98,7 +98,7 @@ export default async function (key, fetchMock, assert) {
   client.getTreatment('nico@split.io', 'always_on');
   client.getTreatment('emi@split.io', 'split_with_config');
   client.getTreatment('emma@split.io', 'split_with_config');
-  client.getTreatment('emi@split.io', 'always_on_track_impressions_false');
+  client.getTreatment('emi@split.io', 'always_on_impressions_disabled_true');
 
   client.destroy().then(() => {
     assert.end();
