@@ -23,6 +23,7 @@ import readyPromiseSuite from '../nodeSuites/ready-promise.spec';
 import { fetchSpecificSplits, fetchSpecificSplitsForFlagSets } from '../nodeSuites/fetch-specific-splits.spec';
 import flagSets from '../nodeSuites/flag-sets.spec';
 import lazyInitSuite from '../nodeSuites/lazy-init.spec';
+import { proxyFallbackSuite } from '../nodeSuites/proxy-fallback.spec';
 
 const config = {
   core: {
@@ -95,6 +96,9 @@ tape('## Node.js - E2E CI Tests ##', async function (assert) {
   assert.test('E2E / Flag sets', flagSets.bind(null, fetchMock));
 
   assert.test('E2E / SplitFactory with lazy init', lazyInitSuite.bind(null, settings, fetchMock));
+
+  // @TODO remove when dropping support for Split Proxy v5.10.0 or below
+  assert.test('E2E / Proxy fallback', proxyFallbackSuite.bind(null, fetchMock, assert));
 
   assert.end();
 });
