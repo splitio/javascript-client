@@ -98,7 +98,7 @@ tape('## Node.js - E2E CI Tests ##', async function (assert) {
   assert.test('E2E / SplitFactory with lazy init', lazyInitSuite.bind(null, settings, fetchMock));
 
   // @TODO remove when dropping support for Split Proxy v5.10.0 or below
-  assert.test('E2E / Proxy fallback', proxyFallbackSuite.bind(null, fetchMock, assert));
+  assert.test('E2E / Proxy fallback', proxyFallbackSuite.bind(null, fetchMock));
 
   assert.end();
 });
