@@ -175,6 +175,10 @@ export default async function (config, key, assert) {
     assert.equal(client.getTreatment('mauro@split.io', 'rbs_test_flag_negated'), 'v1', 'excluded key');
     assert.equal(client.getTreatment('bilal@split.io', 'rbs_test_flag_negated'), 'v2', 'key satisfies the rbs condition');
     assert.equal(client.getTreatment('other_key', 'rbs_test_flag_negated'), 'v1', 'key not in segment');
+
+    // Prerequisites
+    assert.equal(client.getTreatment('bilal@split.io', 'always_on_if_prerequisite'), 'on', 'prerequisite satisfied (key satisfies the rbs condition)');
+    assert.equal(client.getTreatment('emi@split.io', 'always_on_if_prerequisite'), 'off', 'prerequisite not satisfied (key in excluded segment)');
   };
 
   const getTreatmentsTests = (client, sdkInstance) => {
