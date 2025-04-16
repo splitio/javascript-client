@@ -24,8 +24,8 @@ let truncatedTimeFrame;
 
 export default function (fetchMock, assert) {
   // Mocking this specific route to make sure we only get the items we want to test from the handlers.
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=-1'), { status: 200, body: splitChangesMock1 });
-  fetchMock.get(url(settings, '/splitChanges?s=1.2&since=1457552620999'), { status: 200, body: splitChangesMock2 });
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=-1&rbSince=-1'), { status: 200, body: splitChangesMock1 });
+  fetchMock.get(url(settings, '/splitChanges?s=1.3&since=1457552620999&rbSince=-1'), { status: 200, body: splitChangesMock2 });
   fetchMock.get(url(settings, '/memberships/facundo%40split.io'), { status: 200, body: membershipsFacundo });
 
   const splitio = SplitFactory({
@@ -63,6 +63,14 @@ export default function (fetchMock, assert) {
         k: 'facundo@split.io', t: 'o.n', m: data[0].i[1].m, c: 828282828282, r: 'another expected label', pt: data[0].i[0].m,
       }, {
         k: 'facundo@split.io', t: 'o.n', m: data[0].i[2].m, c: 828282828282, r: 'another expected label', pt: data[0].i[1].m
+      }, {
+        k: 'facundo@split.io', t: 'o.n', m: data[0].i[3].m, c: 828282828282, r: 'another expected label', properties: '{"prop1":"value1"}'
+      }, {
+        k: 'facundo@split.io', t: 'o.n', m: data[0].i[4].m, c: 828282828282, r: 'another expected label', properties: '{"prop1":"value2"}'
+      }, {
+        k: 'facundo@split.io', t: 'o.n', m: data[0].i[5].m, c: 828282828282, r: 'another expected label', properties: '{"prop1":"value3"}'
+      }, {
+        k: 'facundo@split.io', t: 'o.n', m: data[0].i[6].m, c: 828282828282, r: 'another expected label', properties: '{"prop1":"value4"}'
       }]
     }]);
 
@@ -75,7 +83,7 @@ export default function (fetchMock, assert) {
 
   fetchMock.postOnce(url(settings, '/testImpressions/count'), (url, opts) => {
     assert.deepEqual(JSON.parse(opts.body), {
-      pf: [{ f: 'always_on_track_impressions_false', m: truncatedTimeFrame, rc: 1 }]
+      pf: [{ f: 'always_on_impressions_disabled_true', m: truncatedTimeFrame, rc: 1 }]
     }, 'We should generate impression count for the feature with track impressions disabled.');
 
     return 200;
@@ -83,7 +91,7 @@ export default function (fetchMock, assert) {
 
   fetchMock.postOnce(url(settings, '/v1/keys/cs'), (url, opts) => {
     assert.deepEqual(JSON.parse(opts.body), {
-      keys: [{ fs: ['always_on_track_impressions_false'], k: 'facundo@split.io' }]
+      keys: [{ fs: ['always_on_impressions_disabled_true'], k: 'facundo@split.io' }]
     }, 'We should track unique keys for the feature with track impressions disabled.');
 
     return 200;
@@ -95,6 +103,12 @@ export default function (fetchMock, assert) {
     client.getTreatment('split_with_config');
     client.getTreatment('split_with_config');
     client.getTreatment('split_with_config');
-    assert.equal(client.getTreatment('always_on_track_impressions_false'), 'on');
+    assert.equal(client.getTreatment('always_on_impressions_disabled_true'), 'on');
+
+    // with properties
+    assert.equal(client.getTreatment('split_with_config', undefined, { properties: { prop1: 'value1' } }), 'o.n');
+    assert.equal(client.getTreatments(['split_with_config'], undefined, { properties: { prop1: 'value2' } }).split_with_config, 'o.n');
+    assert.equal(client.getTreatmentWithConfig('split_with_config', undefined, { properties: { prop1: 'value3' } }).treatment, 'o.n');
+    assert.equal(client.getTreatmentsWithConfig(['split_with_config'], undefined, { properties: { prop1: 'value4' } }).split_with_config.treatment, 'o.n');
   });
 }

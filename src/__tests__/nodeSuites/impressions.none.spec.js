@@ -39,8 +39,8 @@ const config = {
 
 export default async function (key, fetchMock, assert) {
   // Mocking this specific route to make sure we only get the items we want to test from the handlers.
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=-1'), { status: 200, body: splitChangesMock1 });
-  fetchMock.get(url(settings, '/splitChanges?s=1.1&since=1457552620999'), { status: 200, body: splitChangesMock2 });
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=-1&rbSince=-1'), { status: 200, body: splitChangesMock1 });
+  fetchMock.get(url(settings, '/splitChanges?s=1.3&since=1457552620999&rbSince=-1'), { status: 200, body: splitChangesMock2 });
   fetchMock.get(new RegExp(`${url(settings, '/segmentChanges/')}.*`), { status: 200, body: { since: 10, till: 10, name: 'segmentName', added: [], removed: [] } });
 
   const splitio = SplitFactory(config);
@@ -55,7 +55,7 @@ export default async function (key, fetchMock, assert) {
         { f: 'split_with_config', m: truncatedTimeFrame, rc: 3 },
         { f: 'always_off', m: truncatedTimeFrame, rc: 3 },
         { f: 'always_on', m: truncatedTimeFrame, rc: 5 },
-        { f: 'always_on_track_impressions_false', m: truncatedTimeFrame, rc: 1 }
+        { f: 'always_on_impressions_disabled_true', m: truncatedTimeFrame, rc: 1 }
       ]
     });
     return 200;
@@ -79,7 +79,7 @@ export default async function (key, fetchMock, assert) {
           ks: ['emma@split.io', 'emi@split.io', 'nico@split.io']
         },
         {
-          f: 'always_on_track_impressions_false',
+          f: 'always_on_impressions_disabled_true',
           ks: ['emi@split.io']
         }
       ]
@@ -100,7 +100,7 @@ export default async function (key, fetchMock, assert) {
   client.getTreatment('nico@split.io', 'always_on');
   client.getTreatment('emi@split.io', 'split_with_config');
   client.getTreatment('emma@split.io', 'split_with_config');
-  client.getTreatment('emi@split.io', 'always_on_track_impressions_false');
+  client.getTreatment('emi@split.io', 'always_on_impressions_disabled_true');
 
   client.destroy().then(() => {
     assert.end();
