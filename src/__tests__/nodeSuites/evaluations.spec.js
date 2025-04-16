@@ -164,6 +164,17 @@ export default async function (config, key, assert) {
     assert.equal(client.getTreatment('aaaaaaklmnbv', 'ta_bucket1_test'), 'rollout_treatment');
     // With a higher bucket it's ok to get default treatment
     assert.equal(client.getTreatment('nico_test', 'ta_bucket1_test'), 'default_treatment');
+
+    // Rule-based segments
+    assert.equal(client.getTreatment('emi@split.io', 'rbs_test_flag'), 'v2', 'key in excluded segment');
+    assert.equal(client.getTreatment('mauro@split.io', 'rbs_test_flag'), 'v2', 'excluded key');
+    assert.equal(client.getTreatment('bilal@split.io', 'rbs_test_flag'), 'v1', 'key satisfies the rbs condition');
+    assert.equal(client.getTreatment('other_key', 'rbs_test_flag'), 'v2', 'key not in segment');
+
+    assert.equal(client.getTreatment('emi@split.io', 'rbs_test_flag_negated'), 'v1', 'key in excluded segment');
+    assert.equal(client.getTreatment('mauro@split.io', 'rbs_test_flag_negated'), 'v1', 'excluded key');
+    assert.equal(client.getTreatment('bilal@split.io', 'rbs_test_flag_negated'), 'v2', 'key satisfies the rbs condition');
+    assert.equal(client.getTreatment('other_key', 'rbs_test_flag_negated'), 'v1', 'key not in segment');
   };
 
   const getTreatmentsTests = (client, sdkInstance) => {

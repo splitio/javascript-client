@@ -231,7 +231,7 @@ export default function readyPromiseAssertions(fetchMock, assert) {
     fetchMock.getOnce(config.urls.sdk + '/splitChanges?s=1.3&since=-1&rbSince=-1', splitChangesMock1, { delay: refreshTimeMillis });
     // main client endpoint configured to fetch segments before request timeout
     fetchMock.get(config.urls.sdk + '/memberships/facundo%40split.io', membershipsFacundo, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20 });
-    fetchMock.get(config.urls.sdk + '/splitChanges?s=1.3&since=1457552620999&rbSince=-1', { ff: { d: [], s: 1457552620999, t: 1457552620999 } });
+    fetchMock.get(config.urls.sdk + '/splitChanges?s=1.3&since=1457552620999&rbSince=100', { ff: { d: [], s: 1457552620999, t: 1457552620999 } });
     // shared client endpoint configured to fetch segments immediately, in order to emit SDK_READY as soon as splits arrives
     fetchMock.get(config.urls.sdk + '/memberships/nicolas%40split.io', membershipsFacundo);
     // shared client endpoint configured to emit SDK_READY_TIMED_OUT

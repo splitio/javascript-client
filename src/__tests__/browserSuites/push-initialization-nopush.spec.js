@@ -53,7 +53,7 @@ function testInitializationFail(fetchMock, assert, fallbackToPolling) {
   });
 
   if (fallbackToPolling) {
-    fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1457552620999&rbSince=-1'), function () {
+    fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1457552620999&rbSince=100'), function () {
       assert.true(ready, 'client ready');
       const lapse = Date.now() - start;
       assert.true(nearlyEqual(lapse, 0), 'polling (first fetch)');
@@ -61,7 +61,7 @@ function testInitializationFail(fetchMock, assert, fallbackToPolling) {
     });
   }
 
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1457552620999&rbSince=-1'), function () {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1457552620999&rbSince=100'), function () {
     assert.true(ready, 'client ready');
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, settings.scheduler.featuresRefreshRate), 'polling (second fetch)');

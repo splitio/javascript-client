@@ -1,4 +1,41 @@
 {
+  "rbs": {
+    "s": -1,
+    "t": 100,
+    "d": [
+      {
+        "changeNumber": 5,
+        "name": "test_rule_based_segment",
+        "status": "ACTIVE",
+        "trafficTypeName": "user",
+        "excluded": {
+          "keys": [ "mauro@split.io", "gaston@split.io" ],
+          "segments": [ "segment_excluded_by_rbs" ]
+        },
+        "conditions": [
+          {
+            "matcherGroup": {
+              "combiner": "AND",
+              "matchers": [
+                {
+                  "keySelector": {
+                    "trafficType": "user"
+                  },
+                  "matcherType": "ENDS_WITH",
+                  "negate": false,
+                  "whitelistMatcherData": {
+                    "whitelist": [
+                      "@split.io"
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
   "ff": {
     "d": [
       {
@@ -1549,6 +1586,150 @@
         "configurations": {
           "o.n": "{\"color\":\"brown\",\"dimensions\":{\"height\":12,\"width\":14},\"text\":{\"inner\":\"click me\"}}"
         }
+      },
+      {
+        "changeNumber": 10,
+        "trafficTypeName": "user",
+        "name": "rbs_test_flag",
+        "trafficAllocation": 100,
+        "trafficAllocationSeed": 1828377380,
+        "seed": -286617921,
+        "status": "ACTIVE",
+        "killed": false,
+        "defaultTreatment": "off",
+        "algo": 2,
+        "conditions": [
+          {
+            "conditionType": "ROLLOUT",
+            "matcherGroup": {
+              "combiner": "AND",
+              "matchers": [
+                {
+                  "keySelector": {
+                    "trafficType": "user"
+                  },
+                  "matcherType": "IN_RULE_BASED_SEGMENT",
+                  "negate": false,
+                  "userDefinedSegmentMatcherData": {
+                    "segmentName": "test_rule_based_segment"
+                  }
+                }
+              ]
+            },
+            "partitions": [
+              {
+                "treatment": "v1",
+                "size": 100
+              },
+              {
+                "treatment": "v2",
+                "size": 0
+              }
+            ],
+            "label": "in rule based segment test_rule_based_segment"
+          },
+          {
+            "conditionType": "ROLLOUT",
+            "matcherGroup": {
+              "combiner": "AND",
+              "matchers": [
+                {
+                  "keySelector": {
+                    "trafficType": "user"
+                  },
+                  "matcherType": "ALL_KEYS",
+                  "negate": false
+                }
+              ]
+            },
+            "partitions": [
+              {
+                "treatment": "v1",
+                "size": 0
+              },
+              {
+                "treatment": "v2",
+                "size": 100
+              }
+            ],
+            "label": "default rule"
+          }
+        ],
+        "configurations": {},
+        "sets": [],
+        "impressionsDisabled": false
+      },
+      {
+        "changeNumber": 10,
+        "trafficTypeName": "user",
+        "name": "rbs_test_flag_negated",
+        "trafficAllocation": 100,
+        "trafficAllocationSeed": 1828377380,
+        "seed": -286617921,
+        "status": "ACTIVE",
+        "killed": false,
+        "defaultTreatment": "off",
+        "algo": 2,
+        "conditions": [
+          {
+            "conditionType": "ROLLOUT",
+            "matcherGroup": {
+              "combiner": "AND",
+              "matchers": [
+                {
+                  "keySelector": {
+                    "trafficType": "user"
+                  },
+                  "matcherType": "IN_RULE_BASED_SEGMENT",
+                  "negate": true,
+                  "userDefinedSegmentMatcherData": {
+                    "segmentName": "test_rule_based_segment"
+                  }
+                }
+              ]
+            },
+            "partitions": [
+              {
+                "treatment": "v1",
+                "size": 100
+              },
+              {
+                "treatment": "v2",
+                "size": 0
+              }
+            ],
+            "label": "not in rule based segment test_rule_based_segment"
+          },
+          {
+            "conditionType": "ROLLOUT",
+            "matcherGroup": {
+              "combiner": "AND",
+              "matchers": [
+                {
+                  "keySelector": {
+                    "trafficType": "user"
+                  },
+                  "matcherType": "ALL_KEYS",
+                  "negate": false
+                }
+              ]
+            },
+            "partitions": [
+              {
+                "treatment": "v1",
+                "size": 0
+              },
+              {
+                "treatment": "v2",
+                "size": 100
+              }
+            ],
+            "label": "default rule"
+          }
+        ],
+        "configurations": {},
+        "sets": [],
+        "impressionsDisabled": false
       }
     ],
     "s": -1,
