@@ -1,5 +1,5 @@
 11.2.1 (May 7, 2025)
- - Updated @splitsoftware/splitio-commons package to version 2.2.1, which optimizes Redis storage to avoid lazy require of the `ioredis` dependency when the SDK is initialized.
+ - Updated @splitsoftware/splitio-commons package to version 2.2.1, which optimizes the Redis storage to avoid lazy require of the `ioredis` dependency and allow queueing feature flag evaluations before SDK_READY event is emitted (Reverted in v10.22.0).
 
 11.2.0 (March 28, 2025)
  - Added a new optional argument to the client `getTreatment` methods to allow passing additional evaluation options, such as a map of properties to append to the generated impressions sent to Split backend. Read more in our docs.
@@ -124,7 +124,8 @@
 10.22.0 (October 5, 2022)
  - Added a new impressions mode for the SDK called NONE, to be used in factory when there is no desire to capture impressions on an SDK factory to feed Split's analytics engine. Running NONE mode, the SDK will only capture unique keys evaluated for a particular feature flag instead of full blown impressions.
  - Updated default value of `scheduler.featuresRefreshRate` config parameter from 5 seconds to 60 seconds for Node.js and from 30 seconds to 60 seconds for Browser.
- - Updated @splitsoftware/splitio-commons package to version 1.7.1, that improves the performance of feature flag evaluations (i.e., `getTreatment(s)` method calls) when using the default storage in memory, among other improvements.
+ - Updated @splitsoftware/splitio-commons package to version 1.7.1, that improves the performance of feature flag evaluations (i.e., `getTreatment(s)` method calls) when using the default storage in memory,
+   and avoid calling the storage for cached feature flags when the SDK is not ready or ready from cache, among other improvements.
 
 10.21.1 (July 25, 2022)
  - Bugfixing - Added missed type definitions `enabled` from `sync`.
