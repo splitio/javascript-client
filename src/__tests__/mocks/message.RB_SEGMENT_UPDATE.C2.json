@@ -1,0 +1,4 @@
+{
+  "type": "message",
+  "data": "{\"id\":\"1111\",\"clientId\":\"pri:ODc1NjQyNzY1\",\"timestamp\":1588254699236,\"encoding\":\"json\",\"channel\":\"xxxx_xxxx_flags\",\"data\":\"{\\\"type\\\":\\\"RB_SEGMENT_UPDATE\\\",\\\"changeNumber\\\":1684265694507,\\\"pcn\\\":1684265694506,\\\"c\\\":2,\\\"d\\\":\\\"eJxMzsFqwzAQBNB/mbO+QLfQhlIackkolGKCIo9TE0sK2hXUGP17UVOXHHd4w86C6AJhkc9yUorCQNRpEVhsno6v71sYaHbDMPrjfOP+zosww4Dffio9e9gFV84C+9kZCC+BUX+vauBT7EcdU2zBguDUfzG/5FRuredTOI+RuT3cP8Os4K6vnA+c6DXlhh+WrCvqf+Mv3ex2p7ftxwEGkRenhB3cJKxdrV39CQAA//8FrVMM\\\"}\"}"
+}

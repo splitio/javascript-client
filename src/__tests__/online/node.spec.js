@@ -23,6 +23,7 @@ import readyPromiseSuite from '../nodeSuites/ready-promise.spec';
 import { fetchSpecificSplits, fetchSpecificSplitsForFlagSets } from '../nodeSuites/fetch-specific-splits.spec';
 import flagSets from '../nodeSuites/flag-sets.spec';
 import lazyInitSuite from '../nodeSuites/lazy-init.spec';
+import { proxyFallbackSuite } from '../nodeSuites/proxy-fallback.spec';
 
 const config = {
   core: {
@@ -39,17 +40,16 @@ const config = {
 const settings = settingsFactory(config);
 const key = 'facundo@split.io';
 
-fetchMock.get(url(settings, '/splitChanges?s=1.1&since=-1'), { status: 200, body: splitChangesMock1 });
-fetchMock.get(url(settings, '/splitChanges?s=1.1&since=1457552620999'), { status: 200, body: splitChangesMock2 });
-fetchMock.get(new RegExp(`${url(settings, '/segmentChanges')}/*`), {
-  status: 200, body: {
-    'name': 'segment',
-    'added': [],
-    'removed': [],
-    'since': 1,
-    'till': 1
-  }
-});
+fetchMock.get(url(settings, '/splitChanges?s=1.3&since=-1&rbSince=-1'), { status: 200, body: splitChangesMock1 });
+fetchMock.get(url(settings, '/splitChanges?s=1.3&since=1457552620999&rbSince=100'), { status: 200, body: splitChangesMock2 });
+
+const emptySegmentResponse = { added: [], removed: [], since: 1, till: 1 };
+fetchMock.get(new RegExp(`${url(settings, '/segmentChanges/employees')}*`), { status: 200, body: emptySegmentResponse });
+fetchMock.get(new RegExp(`${url(settings, '/segmentChanges/splitters')}*`), { status: 200, body: emptySegmentResponse });
+fetchMock.get(new RegExp(`${url(settings, '/segmentChanges/developers')}*`), { status: 200, body: emptySegmentResponse });
+fetchMock.get(url(settings, '/segmentChanges/segment_excluded_by_rbs?since=-1'), { status: 200, body: { added: ['emi@split.io'], removed: [], since: -1, till: 1 } });
+fetchMock.get(url(settings, '/segmentChanges/segment_excluded_by_rbs?since=1'), { status: 200, body: { added: [], removed: [], since: 1, till: 1 } });
+
 fetchMock.post(url(settings, '/testImpressions/bulk'), 200);
 fetchMock.post(url(settings, '/testImpressions/count'), 200);
 fetchMock.post(url(settings, '/v1/metrics/config'), 200);
@@ -96,6 +96,9 @@ tape('## Node.js - E2E CI Tests ##', async function (assert) {
   assert.test('E2E / Flag sets', flagSets.bind(null, fetchMock));
 
   assert.test('E2E / SplitFactory with lazy init', lazyInitSuite.bind(null, settings, fetchMock));
+
+  // @TODO remove when dropping support for Split Proxy v5.10.0 or below
+  assert.test('E2E / Proxy fallback', proxyFallbackSuite.bind(null, fetchMock));
 
   assert.end();
 });

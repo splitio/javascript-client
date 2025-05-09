@@ -1,0 +1,46 @@
+{
+  "rbs": {
+    "s": 100,
+    "t": 1457552649999,
+    "d": [
+      {
+        "changeNumber": 1457552649999,
+        "name": "test_rule_based_segment",
+        "status": "ACTIVE",
+        "trafficTypeName": "user",
+        "excluded": {
+          "keys": [
+            "mauro@split.io"
+          ],
+          "segments": [
+            {
+              "type": "standard",
+              "name": "segment_excluded_by_rbs"
+            }
+          ]
+        },
+        "conditions": [
+          {
+            "matcherGroup": {
+              "combiner": "AND",
+              "matchers": [
+                {
+                  "keySelector": {
+                    "trafficType": "user"
+                  },
+                  "matcherType": "ENDS_WITH",
+                  "negate": false,
+                  "whitelistMatcherData": {
+                    "whitelist": [
+                      "@split.io"
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

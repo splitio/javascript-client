@@ -1,7 +1,6 @@
 import { SplitFactory } from '../../';
 
 import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
-import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
 import membershipsNicolas from '../mocks/memberships.nicolas@split.io.json';
 
 // mocks for memberships readiness tests
@@ -38,13 +37,12 @@ export default function (fetchMock, assert) {
       sdk: 'https://sdk.baseurl/readinessSuite1',
       events: 'https://events.baseurl/readinessSuite1'
     };
-    fetchMock.get(testUrls.sdk + '/splitChanges?s=1.2&since=-1', function () {
+    fetchMock.get(testUrls.sdk + '/splitChanges?s=1.3&since=-1&rbSince=-1', function () {
       return new Promise((res) => { setTimeout(() => { res({ status: 200, body: splitChangesMock1, headers: {} }); }, requestTimeoutBeforeReady * 1000 + 50); });
     });
     fetchMock.get(testUrls.sdk + '/memberships/nicolas%40split.io', function () {
       return new Promise((res) => { setTimeout(() => { res({ status: 200, body: membershipsNicolas, headers: {} }); }, requestTimeoutBeforeReady * 1000 - 50); });
     });
-    fetchMock.get(testUrls.sdk + '/splitChanges?s=1.2&since=1457552620999', { status: 200, body: splitChangesMock2 });
 
     const splitio = SplitFactory({
       ...baseConfig, urls: testUrls
@@ -67,13 +65,12 @@ export default function (fetchMock, assert) {
       sdk: 'https://sdk.baseurl/readinessSuite2',
       events: 'https://events.baseurl/readinessSuite2'
     };
-    fetchMock.get(testUrls.sdk + '/splitChanges?s=1.2&since=-1', function () {
+    fetchMock.get(testUrls.sdk + '/splitChanges?s=1.3&since=-1&rbSince=-1', function () {
       return new Promise((res) => { setTimeout(() => { res({ status: 200, body: splitChangesMock1, headers: {} }); }, requestTimeoutBeforeReady * 1000 - 50); });
     });
     fetchMock.get(testUrls.sdk + '/memberships/nicolas%40split.io', function () {
       return new Promise((res) => { setTimeout(() => { res({ status: 200, body: membershipsNicolas, headers: {} }); }, requestTimeoutBeforeReady * 1000 + 50); });
     });
-    fetchMock.get(testUrls.sdk + '/splitChanges?s=1.2&since=1457552620999', { status: 200, body: splitChangesMock2 });
 
     const splitio = SplitFactory({ ...baseConfig, urls: testUrls });
     const client = splitio.client();
@@ -95,16 +92,15 @@ export default function (fetchMock, assert) {
       events: 'https://events.baseurl/readinessSuite3'
     };
 
-    fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.2&since=-1', function () {
+    fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.3&since=-1&rbSince=-1', function () {
       return new Promise((res) => { setTimeout(() => { res({ status: 200, body: splitChangesMock1, headers: {} }); }, requestTimeoutBeforeReady * 1000 + 50); });
     });
-    fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.2&since=-1', function () {
+    fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.3&since=-1&rbSince=-1', function () {
       return new Promise((res) => { setTimeout(() => { res({ status: 200, body: splitChangesMock1, headers: {} }); }, requestTimeoutBeforeReady * 1000 - 50); }); // Faster, it should get ready on the retry.
     });
     fetchMock.get(testUrls.sdk + '/memberships/nicolas%40split.io', function () {
       return new Promise((res) => { setTimeout(() => { res({ status: 200, body: membershipsNicolas, headers: {} }); }, requestTimeoutBeforeReady * 1000 - 50); });
     });
-    fetchMock.get(testUrls.sdk + '/splitChanges?s=1.2&since=1457552620999', { status: 200, body: splitChangesMock2 });
 
     const splitio = SplitFactory({ ...baseConfig, urls: testUrls });
     const client = splitio.client();
@@ -122,26 +118,25 @@ export default function (fetchMock, assert) {
   /************** Now we will validate the intelligent memberships pausing, which requires lots of code. Related code below. **************/
   localStorage.clear();
   const membershipsEndpointDelay = 450;
-  function mockForSegmentsPauseTest(testUrls, startWithSegments = false) {
+  function mockForSegmentsPauseTest(testUrls, startWithSegments) {
     let membershipsHits = 0;
 
     fetchMock.get(new RegExp(`${testUrls.sdk}/memberships/nicolas\\d?%40split.io`), function () { // Mock any memberships call, so we can test with multiple clients.
       membershipsHits++;
       return new Promise((res) => { setTimeout(() => { res({ status: 200, body: { ms: {} } }); }, membershipsEndpointDelay); });
     });
-    // Now mock the no more updates state
-    fetchMock.get(testUrls.sdk + '/splitChanges?s=1.2&since=1457552669999', { status: 200, body: { splits: [], since: 1457552669999, till: 1457552669999 } });
-
 
     if (startWithSegments) {
       // Adjust since and till so the order is inverted.
-      fetchMock.get(testUrls.sdk + '/splitChanges?s=1.2&since=-1', { status: 200, body: splitChangesStartWithSegmentsMock });
-      fetchMock.get(testUrls.sdk + '/splitChanges?s=1.2&since=1457552620999', { status: 200, body: { ...splitChangesUpdateWithoutSegmentsMock, since: 1457552620999, till: 1457552649999 } });
-      fetchMock.get(testUrls.sdk + '/splitChanges?s=1.2&since=1457552649999', { status: 200, body: { ...splitChangesUpdateWithSegmentsMock, since: 1457552649999, till: 1457552669999 } });
+      fetchMock.get(testUrls.sdk + '/splitChanges?s=1.3&since=-1&rbSince=-1', { status: 200, body: splitChangesStartWithSegmentsMock });
+      fetchMock.get(testUrls.sdk + '/splitChanges?s=1.3&since=1457552620999&rbSince=-1', { status: 200, body: { ff: { ...splitChangesUpdateWithoutSegmentsMock.ff, s: 1457552620999, t: 1457552649999 } } });
+      fetchMock.get(testUrls.sdk + '/splitChanges?s=1.3&since=1457552649999&rbSince=-1', { status: 200, body: { ff: { ...splitChangesUpdateWithSegmentsMock.ff, s: 1457552649999, t: 1457552669999 } } });
+      fetchMock.get(testUrls.sdk + '/splitChanges?s=1.3&since=1457552669999&rbSince=-1', { status: 200, body: { ff: { d: [], s: 1457552669999, t: 1457552669999 } } });
     } else {
-      fetchMock.get(testUrls.sdk + '/splitChanges?s=1.2&since=-1', { status: 200, body: splitChangesStartWithoutSegmentsMock });
-      fetchMock.get(testUrls.sdk + '/splitChanges?s=1.2&since=1457552620999', { status: 200, body: splitChangesUpdateWithSegmentsMock });
-      fetchMock.get(testUrls.sdk + '/splitChanges?s=1.2&since=1457552649999', { status: 200, body: splitChangesUpdateWithoutSegmentsMock });
+      fetchMock.get(testUrls.sdk + '/splitChanges?s=1.3&since=-1&rbSince=-1', { status: 200, body: splitChangesStartWithoutSegmentsMock });
+      fetchMock.get(testUrls.sdk + '/splitChanges?s=1.3&since=1457552620999&rbSince=-1', { status: 200, body: { ff: splitChangesUpdateWithSegmentsMock.ff } });
+      fetchMock.get(testUrls.sdk + '/splitChanges?s=1.3&since=1457552649999&rbSince=-1', { status: 200, body: { ff: splitChangesUpdateWithoutSegmentsMock.ff } });
+      fetchMock.get(testUrls.sdk + '/splitChanges?s=1.3&since=1457552669999&rbSince=-1', { status: 200, body: { ff: { d: [], s: 1457552669999, t: 1457552669999 } } });
     }
 
     return () => membershipsHits;
@@ -269,7 +264,7 @@ export default function (fetchMock, assert) {
       });
 
       setTimeout(() => {
-        t.equal(getMembershipsHits(), 1 * CLIENTS_COUNT -1, 'memberships should had been hit once per client on the first attempt (excluding client3), but it stopped syncing afterwards.');
+        t.equal(getMembershipsHits(), 1 * CLIENTS_COUNT - 1, 'memberships should had been hit once per client on the first attempt (excluding client3), but it stopped syncing afterwards.');
       }, 2500);
       // Now we will wait until it picks up Splits, using the SDK_UPDATE event. Features are refreshed every 3s, but segments every 1s.
       client.once(client.Event.SDK_UPDATE, () => {
@@ -534,8 +529,8 @@ export default function (fetchMock, assert) {
     const getMembershipsHits = mockForSegmentsPauseTest(testUrls, false);
 
     // I'm having the first update of Splits come with segments. In this scenario it'll wait for memberships to download before being ready.
-    fetchMock.get({ url: testUrls.sdk + '/splitChanges?s=1.2&since=1457552669999', overwriteRoutes: true }, { status: 200, body: { ...splitChangesUpdateWithSegmentsMock, since: 1457552669999, till: 1457552679999 } });
-    fetchMock.get(testUrls.sdk + '/splitChanges?s=1.2&since=1457552679999', { status: 200, body: { splits: [], since: 1457552679999, till: 1457552679999 } });
+    fetchMock.get({ url: testUrls.sdk + '/splitChanges?s=1.3&since=1457552669999&rbSince=-1', overwriteRoutes: true }, { status: 200, body: { ff: { ...splitChangesUpdateWithSegmentsMock.ff, s: 1457552669999, t: 1457552679999 } } });
+    fetchMock.get(testUrls.sdk + '/splitChanges?s=1.3&since=1457552679999&rbSince=-1', { status: 200, body: { ff: { d: [], s: 1457552679999, t: 1457552679999 } } });
 
     const start = Date.now();
     const splitio = SplitFactory({
@@ -623,8 +618,8 @@ export default function (fetchMock, assert) {
     };
     const getMembershipsHits = mockForSegmentsPauseTest(testUrls, false);
     // I'm having the first update of Splits come without segments. In this scenario it'll NOT wait for memberships to download before being ready.
-    fetchMock.get({ url: testUrls.sdk + '/splitChanges?s=1.2&since=1457552669999', overwriteRoutes: true }, { status: 200, body: { ...splitChangesUpdateWithoutSegmentsMock, since: 1457552669999, till: 1457552679999 } });
-    fetchMock.get(testUrls.sdk + '/splitChanges?s=1.2&since=1457552679999', { status: 200, body: { splits: [], since: 1457552679999, till: 1457552679999 } });
+    fetchMock.get({ url: testUrls.sdk + '/splitChanges?s=1.3&since=1457552669999&rbSince=-1', overwriteRoutes: true }, { status: 200, body: { ff: { ...splitChangesUpdateWithoutSegmentsMock.ff, s: 1457552669999, t: 1457552679999 } } });
+    fetchMock.get(testUrls.sdk + '/splitChanges?s=1.3&since=1457552679999&rbSince=-1', { status: 200, body: { ff: { d: [], s: 1457552679999, t: 1457552679999 } } });
 
     const start = Date.now();
     const splitio = SplitFactory({

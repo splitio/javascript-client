@@ -121,8 +121,7 @@ export default function ipAddressesSettingAssertions(fetchMock, assert) {
     })();
 
     // Mock GET endpoints to run client normally
-    fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=-1'), { status: 200, body: splitChangesMock1 });
-    fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=1457552620999'), { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
+    fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=-1&rbSince=-1'), { status: 200, body: splitChangesMock1 });
     fetchMock.get(new RegExp(`${url(settings, '/segmentChanges/')}.*`), { status: 200, body: { since: 10, till: 10, name: 'segmentName', added: [], removed: [] } });
 
     // Mock and assert POST endpoints

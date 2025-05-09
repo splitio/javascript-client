@@ -1,56 +1,57 @@
 {
-  "splits": [
-    {
-      "trafficTypeName": "user",
-      "name": "real_split",
-      "trafficAllocation": 100,
-      "trafficAllocationSeed": -1757484928,
-      "seed": 764645059,
-      "status": "ARCHIVED",
-      "killed": false,
-      "defaultTreatment": "on",
-      "changeNumber": 1550099287313,
-      "algo": 2,
-      "conditions": [
-        {
-          "conditionType": "ROLLOUT",
-          "matcherGroup": {
-            "combiner": "AND",
-            "matchers": [
-              {
-                "keySelector": {
-                  "trafficType": "user",
-                  "attribute": null
-                },
-                "matcherType": "ALL_KEYS",
-                "negate": false,
-                "userDefinedSegmentMatcherData": null,
-                "whitelistMatcherData": null,
-                "unaryNumericMatcherData": null,
-                "betweenMatcherData": null,
-                "booleanMatcherData": null,
-                "dependencyMatcherData": null,
-                "stringMatcherData": null
-              }
-            ]
-          },
-          "partitions": [
-            {
-              "treatment": "on",
-              "size": 50
+  "ff": {
+    "d": [
+      {
+        "trafficTypeName": "user",
+        "name": "real_split",
+        "trafficAllocation": 100,
+        "trafficAllocationSeed": -1757484928,
+        "seed": 764645059,
+        "status": "ARCHIVED",
+        "killed": false,
+        "defaultTreatment": "on",
+        "changeNumber": 1550099287313,
+        "algo": 2,
+        "conditions": [
+          {
+            "conditionType": "ROLLOUT",
+            "matcherGroup": {
+              "combiner": "AND",
+              "matchers": [
+                {
+                  "keySelector": {
+                    "trafficType": "user",
+                    "attribute": null
+                  },
+                  "matcherType": "ALL_KEYS",
+                  "negate": false,
+                  "userDefinedSegmentMatcherData": null,
+                  "whitelistMatcherData": null,
+                  "unaryNumericMatcherData": null,
+                  "betweenMatcherData": null,
+                  "booleanMatcherData": null,
+                  "dependencyMatcherData": null,
+                  "stringMatcherData": null
+                }
+              ]
             },
-            {
-              "treatment": "off",
-              "size": 50
-            }
-          ],
-          "label": "default rule"
-        }
-      ],
-      "configurations": {}
-    }
-  ],
-  "since": 1457552649999,
-  "till": 1457552669999
+            "partitions": [
+              {
+                "treatment": "on",
+                "size": 50
+              },
+              {
+                "treatment": "off",
+                "size": 50
+              }
+            ],
+            "label": "default rule"
+          }
+        ],
+        "configurations": {}
+      }
+    ],
+    "s": 1457552649999,
+    "t": 1457552669999
+  }
 }
-

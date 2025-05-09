@@ -1,0 +1,4 @@
+{
+  "type": "message",
+  "data": "{\"id\":\"1111\",\"clientId\":\"pri:ODc1NjQyNzY1\",\"timestamp\":1588254699236,\"encoding\":\"json\",\"channel\":\"xxxx_xxxx_flags\",\"data\": \"{\\\"type\\\":\\\"RB_SEGMENT_UPDATE\\\",\\\"changeNumber\\\":1457552649999}\"}"
+}

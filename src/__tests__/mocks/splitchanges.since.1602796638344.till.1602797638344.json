@@ -1,78 +1,112 @@
 {
-  "splits": [
-    {
-      "trafficTypeName": "client",
-      "name": "workm",
-      "trafficAllocation": 100,
-      "trafficAllocationSeed": 147392224,
-      "seed": 524417105,
-      "status": "ACTIVE",
-      "killed": false,
-      "defaultTreatment": "on",
-      "changeNumber": 1602797638344,
-      "algo": 2,
-      "configurations": {},
-      "sets": ["set_1"],
-      "conditions": [
-        {
-          "conditionType": "ROLLOUT",
-          "matcherGroup": {
-            "combiner": "AND",
-            "matchers": [
+  "ff": {
+    "d": [
+      {
+        "trafficTypeName": "client",
+        "name": "workm",
+        "trafficAllocation": 100,
+        "trafficAllocationSeed": 147392224,
+        "seed": 524417105,
+        "status": "ACTIVE",
+        "killed": false,
+        "defaultTreatment": "on",
+        "changeNumber": 1602797638344,
+        "algo": 2,
+        "configurations": {},
+        "sets": [
+          "set_1"
+        ],
+        "conditions": [
+          {
+            "conditionType": "ROLLOUT",
+            "matcherGroup": {
+              "combiner": "AND",
+              "matchers": [
+                {
+                  "keySelector": {
+                    "trafficType": "client",
+                    "attribute": null
+                  },
+                  "matcherType": "IN_SEGMENT",
+                  "negate": false,
+                  "userDefinedSegmentMatcherData": {
+                    "segmentName": "new_segment"
+                  },
+                  "whitelistMatcherData": null,
+                  "unaryNumericMatcherData": null,
+                  "betweenMatcherData": null,
+                  "booleanMatcherData": null,
+                  "dependencyMatcherData": null,
+                  "stringMatcherData": null
+                }
+              ]
+            },
+            "partitions": [
               {
-                "keySelector": { "trafficType": "client", "attribute": null },
-                "matcherType": "IN_SEGMENT",
-                "negate": false,
-                "userDefinedSegmentMatcherData": {
-                  "segmentName": "new_segment"
-                },
-                "whitelistMatcherData": null,
-                "unaryNumericMatcherData": null,
-                "betweenMatcherData": null,
-                "booleanMatcherData": null,
-                "dependencyMatcherData": null,
-                "stringMatcherData": null
-              }
-            ]
-          },
-          "partitions": [
-            { "treatment": "on", "size": 0 },
-            { "treatment": "off", "size": 0 },
-            { "treatment": "free", "size": 100 },
-            { "treatment": "conta", "size": 0 }
-          ],
-          "label": "in segment new_segment"
-        },
-        {
-          "conditionType": "ROLLOUT",
-          "matcherGroup": {
-            "combiner": "AND",
-            "matchers": [
+                "treatment": "on",
+                "size": 0
+              },
               {
-                "keySelector": { "trafficType": "client", "attribute": null },
-                "matcherType": "ALL_KEYS",
-                "negate": false,
-                "userDefinedSegmentMatcherData": null,
-                "whitelistMatcherData": null,
-                "unaryNumericMatcherData": null,
-                "betweenMatcherData": null,
-                "booleanMatcherData": null,
-                "dependencyMatcherData": null,
-                "stringMatcherData": null
+                "treatment": "off",
+                "size": 0
+              },
+              {
+                "treatment": "free",
+                "size": 100
+              },
+              {
+                "treatment": "conta",
+                "size": 0
               }
-            ]
+            ],
+            "label": "in segment new_segment"
           },
-          "partitions": [
-            { "treatment": "on", "size": 100 },
-            { "treatment": "off", "size": 0 },
-            { "treatment": "free", "size": 0 },
-            { "treatment": "conta", "size": 0 }
-          ],
-          "label": "default rule"
-        }
-      ]
-    }
-  ],
-  "since": 1602796638344,
-  "till": 1602797638344
+          {
+            "conditionType": "ROLLOUT",
+            "matcherGroup": {
+              "combiner": "AND",
+              "matchers": [
+                {
+                  "keySelector": {
+                    "trafficType": "client",
+                    "attribute": null
+                  },
+                  "matcherType": "ALL_KEYS",
+                  "negate": false,
+                  "userDefinedSegmentMatcherData": null,
+                  "whitelistMatcherData": null,
+                  "unaryNumericMatcherData": null,
+                  "betweenMatcherData": null,
+                  "booleanMatcherData": null,
+                  "dependencyMatcherData": null,
+                  "stringMatcherData": null
+                }
+              ]
+            },
+            "partitions": [
+              {
+                "treatment": "on",
+                "size": 100
+              },
+              {
+                "treatment": "off",
+                "size": 0
+              },
+              {
+                "treatment": "free",
+                "size": 0
+              },
+              {
+                "treatment": "conta",
+                "size": 0
+              }
+            ],
+            "label": "default rule"
+          }
+        ]
+      }
+    ],
+    "s": 1602796638344,
+    "t": 1602797638344
+  }
 }
