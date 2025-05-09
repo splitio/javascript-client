@@ -1,5 +1,7 @@
-11.2.1 (May 7, 2025)
- - Updated @splitsoftware/splitio-commons package to version 2.2.1, which optimizes the Redis storage to avoid lazy require of the `ioredis` dependency and allow queueing feature flag evaluations before SDK_READY event is emitted (Reverted in v10.22.0).
+11.2.1 (May XX, 2025)
+ - Updated @splitsoftware/splitio-commons package to version 2.2.1, which optimizes the Redis storage to:
+    - Avoid lazy require of the `ioredis` dependency when the SDK is initialized, and
+    - Flag the SDK as ready from cache immediately to allow queueing feature flag evaluations before SDK_READY event is emitted.
 
 11.2.0 (March 28, 2025)
  - Added a new optional argument to the client `getTreatment` methods to allow passing additional evaluation options, such as a map of properties to append to the generated impressions sent to Split backend. Read more in our docs.
