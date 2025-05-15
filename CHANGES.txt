@@ -1,7 +1,8 @@
-11.2.1 (May XX, 2025)
- - Updated @splitsoftware/splitio-commons package to version 2.2.1, which optimizes the Redis storage to:
+11.3.0 (May 16, 2025)
+ - Updated @splitsoftware/splitio-commons package to version 2.3.0, which optimizes the Redis storage to:
     - Avoid lazy require of the `ioredis` dependency when the SDK is initialized, and
     - Flag the SDK as ready from cache immediately to allow queueing feature flag evaluations before SDK_READY event is emitted.
+ - Bugfix - Enhanced HTTP client module to implement timeouts for failing requests that might otherwise remain pending indefinitely on some Fetch API implementations.
 
 11.2.0 (March 28, 2025)
  - Added a new optional argument to the client `getTreatment` methods to allow passing additional evaluation options, such as a map of properties to append to the generated impressions sent to Split backend. Read more in our docs.
@@ -35,7 +36,7 @@
  - Renamed distribution folders from `/lib` to `/cjs` for CommonJS build, and `/es` to `/esm` for ECMAScript Modules build.
  - BREAKING CHANGES:
     - NOTE: Refer to ./MIGRATION-GUIDE.md for instructions on how to migrate your codebase from version 0.x to 1.0.0.
-    - Dropped support for Split Proxy below version 5.9.0, when using in the browser (client-side API). The SDK now requires Split Proxy 5.9.0 or above.
+    - Dropped support for Split Proxy below version 5.9.0 when the SDK runs in the browser (client-side API). The SDK now requires Split Proxy 5.9.0 or above for browser usage.
     - Dropped support for Node.js v6. The SDK now requires Node.js v14 or above.
     - Removed TypeScript `SplitIO` namespace from `@splitsoftware/splitio/types/splitio`. Reverted in 11.0.1.
     - Removed internal ponyfills for the `Map` and `Set` global objects, dropping support for IE and other outdated browsers. The SDK now requires the runtime environment to support these features natively or provide a polyfill.
