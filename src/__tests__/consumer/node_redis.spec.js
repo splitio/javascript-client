@@ -104,13 +104,13 @@ tape('Node.js Redis', function (t) {
         const client = sdk.client();
         const manager = sdk.manager();
 
-        /** Evaluation, track and manager methods before SDK_READY */
-        client.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT').then(result => assert.equal(result, 'control', 'Evaluations using Redis storage should be control until connection is stablished.'));
-        client.getTreatment('other', 'UT_IN_SEGMENT').then(result => assert.equal(result, 'control', 'Evaluations using Redis storage should be control until connection is stablished.'));
+        /** Evaluation, track and manager methods before SDK_READY (but SDK_READY_FROM_CACHE) */
+        client.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT').then(result => assert.equal(result, 'on', 'Evaluations using Redis storage should be control until connection is stablished.'));
+        client.getTreatment('other', 'UT_IN_SEGMENT').then(result => assert.equal(result, 'off', 'Evaluations using Redis storage should be control until connection is stablished.'));
 
-        manager.names().then((result) => assert.deepEqual(result, [], 'manager `names` method returns an empty list of split names if called before SDK_READY or Redis operation fail'));
-        manager.split(expectedSplitName).then((result) => assert.deepEqual(result, null, 'manager `split` method returns a null split view if called before SDK_READY or Redis operation fail'));
-        manager.splits().then((result) => assert.deepEqual(result, [], 'manager `splits` method returns an empty list of split views if called before SDK_READY or Redis operation fail'));
+        manager.names().then((result) => assert.equal(result.length, 26, 'manager `names` method returns an empty list of split names if called before SDK_READY or Redis operation fail'));
+        manager.split(expectedSplitName).then((result) => assert.deepEqual(result, expectedSplitView, 'manager `split` method returns a null split view if called before SDK_READY or Redis operation fail'));
+        manager.splits().then((result) => assert.equal(result.length, 26, 'manager `splits` method returns an empty list of split views if called before SDK_READY or Redis operation fail'));
 
         client.track('nicolas@split.io', 'user', 'before.ready', 18).then((result) => assert.true(result, 'Redis adapter queue "rpush" operations until it is ready.'));
 
@@ -453,7 +453,7 @@ tape('Node.js Redis', function (t) {
     assert.plan(18);
 
     client.getTreatment('UT_Segment_member', 'always-on').then(treatment => {
-      assert.equal(treatment, 'control', 'Evaluations using Redis storage should be control until Redis connection is stablished.');
+      assert.equal(treatment, 'on', 'Evaluations using Redis storage should be control until Redis connection is stablished.');
     });
     client.track('nicolas@split.io', 'user', 'test.redis.event', 18).then(result => {
       assert.true(result, 'If the event was successfully queued the promise will resolve to true once Redis connection is stablished');
@@ -687,7 +687,7 @@ tape('Node.js Redis', function (t) {
 
         const client = sdk.client();
 
-        client.getTreatmentsWithConfigByFlagSets('other', ['set_one']).then(result => assert.deepEqual(result, {}, 'Flag sets evaluations using Redis storage should be empty until connection is ready.'));
+        client.getTreatmentsWithConfigByFlagSets('other', ['set_one']).then(result => assert.deepEqual(result, { 'always-on': { treatment: 'on', config: null }, 'always-off': { treatment: 'off', config: null } }, 'Flag sets evaluations using Redis storage should be empty until connection is ready.'));
 
         await client.ready();
 
