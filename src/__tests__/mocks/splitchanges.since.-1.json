@@ -14,7 +14,10 @@
             "gaston@split.io"
           ],
           "segments": [
-            "segment_excluded_by_rbs"
+            {
+              "type": "standard",
+              "name": "segment_excluded_by_rbs"
+            }
           ]
         },
         "conditions": [

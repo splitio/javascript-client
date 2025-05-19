@@ -9,8 +9,15 @@
         "status": "ACTIVE",
         "trafficTypeName": "user",
         "excluded": {
-          "keys": [ "mauro@split.io" ],
-          "segments": [ "segment_excluded_by_rbs" ]
+          "keys": [
+            "mauro@split.io"
+          ],
+          "segments": [
+            {
+              "type": "standard",
+              "name": "segment_excluded_by_rbs"
+            }
+          ]
         },
         "conditions": [
           {
