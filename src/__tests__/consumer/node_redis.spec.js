@@ -61,7 +61,7 @@ const expectedImpressionCount = [
 ];
 
 const expectedSplitName = 'hierarchical_splits_testing_on';
-const expectedSplitView = { name: 'hierarchical_splits_testing_on', trafficType: 'user', killed: false, changeNumber: 1487277320548, treatments: ['on', 'off'], configs: {}, sets: [], defaultTreatment: 'off', impressionsDisabled: false };
+const expectedSplitView = { name: 'hierarchical_splits_testing_on', trafficType: 'user', killed: false, changeNumber: 1487277320548, treatments: ['on', 'off'], configs: {}, sets: [], defaultTreatment: 'off', impressionsDisabled: false, prerequisites: [] };
 
 const MOCKS = {
   '': 'redis-commands',
