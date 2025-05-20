@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio",
-  "version": "11.3.0",
+  "version": "11.3.1-rc.0",
   "description": "Split SDK",
   "files": [
     "README.md",
@@ -38,7 +38,7 @@
     "node": ">=14.0.0"
   },
   "dependencies": {
-    "@splitsoftware/splitio-commons": "2.3.0",
+    "@splitsoftware/splitio-commons": "2.3.1-rc.0",
     "bloom-filters": "^3.0.4",
     "ioredis": "^4.28.0",
     "js-yaml": "^3.13.1",
