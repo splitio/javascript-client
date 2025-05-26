@@ -1745,6 +1745,8 @@
         "trafficTypeId": null,
         "trafficTypeName": null,
         "name": "always_on_if_prerequisite",
+        "trafficAllocation": 100,
+        "trafficAllocationSeed": 1828377380,
         "seed": -790401604,
         "status": "ACTIVE",
         "killed": false,
