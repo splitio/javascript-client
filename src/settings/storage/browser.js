@@ -12,7 +12,8 @@ export function validateStorage(settings) {
       options = {},
       prefix,
       expirationDays,
-      clearOnInit
+      clearOnInit,
+      storage
     } = { type: STORAGE_MEMORY },
   } = settings;
   let __originalType;
@@ -42,6 +43,7 @@ export function validateStorage(settings) {
     prefix,
     expirationDays,
     clearOnInit,
+    storage,
     __originalType
   };
 }

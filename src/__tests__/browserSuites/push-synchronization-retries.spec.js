@@ -135,7 +135,7 @@ export function testSynchronizationRetries(fetchMock, assert) {
   });
 
   // initial auth
-  fetchMock.getOnce(url(settings, `/v2/auth?s=1.3&users=${encodeURIComponent(userKey)}&users=${encodeURIComponent(otherUserKeySync)}`), function (url, opts) {
+  fetchMock.getOnce(url(settings, `/v2/auth?s=1.3&users=${encodeURIComponent(otherUserKeySync)}&users=${encodeURIComponent(userKey)}`), function (url, opts) {
     if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
     assert.pass('auth success');
     return { status: 200, body: authPushEnabledNicolas };
@@ -144,7 +144,7 @@ export function testSynchronizationRetries(fetchMock, assert) {
   // initial split and memberships sync
   fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=-1&rbSince=-1'), { status: 200, body: splitChangesMock1 });
   fetchMock.getOnce(url(settings, '/memberships/nicolas%40split.io'), { status: 200, body: membershipsNicolasMock1 });
-  fetchMock.get({ url: url(settings, '/memberships/marcio%40split.io'), repeat: 3 }, { status: 200, body: membershipsMarcio });
+  fetchMock.get({ url: url(settings, '/memberships/marcio%40split.io'), repeat: 4 }, { status: 200, body: membershipsMarcio });
 
   // split and segment sync after SSE opened
   fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1457552620999&rbSince=100'), function () {
