@@ -1,6 +1,6 @@
-11.4.0 (May 20, 2025)
- - Added support for targeting rules based on rule-based segments.
- - Added support for feature flag prerequisites.
+11.4.0 (May 28, 2025)
+ - Added support for rule-based segments. These segments determine membership at runtime by evaluating their configured rules against the user attributes provided to the SDK.
+ - Added support for feature flag prerequisites. This allows customers to define dependency conditions between flags, which are evaluated before any allowlists or targeting rules.
  - Updated @splitsoftware/splitio-commons package to version 2.4.0.
 
 11.3.0 (May 16, 2025)
