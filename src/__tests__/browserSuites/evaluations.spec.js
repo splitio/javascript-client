@@ -362,7 +362,7 @@ export default function (config, fetchMock, assert) {
 
   };
 
-  const evaluationsWithRuleBasedSegments = async (splitio) => {
+  const evaluationsWithRuleBasedSegmentsAndPrerequisites = async (splitio) => {
     fetchMock.getOnce('https://sdk.split.io/api/memberships/emi%40split.io', { status: 200, body: { ms: { k: [{ n: 'segment_excluded_by_rbs' }] } } });
     fetchMock.getOnce('https://sdk.split.io/api/memberships/mauro%40split.io', { status: 200, body: { ms: {} } });
     fetchMock.getOnce('https://sdk.split.io/api/memberships/bilal%40split.io', { status: 200, body: { ms: {} } });
@@ -372,24 +372,28 @@ export default function (config, fetchMock, assert) {
     await client1.ready();
     assert.equal(client1.getTreatment('rbs_test_flag'), 'v2', 'key in excluded segment');
     assert.equal(client1.getTreatment('rbs_test_flag_negated'), 'v1', 'key in excluded segment');
+    assert.equal(client1.getTreatment('always_on_if_prerequisite'), 'off', 'prerequisite not satisfied (key in excluded segment)');
     await client1.destroy();
 
     const client2 = splitio.client('mauro@split.io');
     await client2.ready();
     assert.equal(client2.getTreatment('rbs_test_flag'), 'v2', 'excluded key');
     assert.equal(client2.getTreatment('rbs_test_flag_negated'), 'v1', 'excluded key');
+    assert.equal(client2.getTreatment('always_on_if_prerequisite'), 'off', 'prerequisite not satisfied (excluded key)');
     await client2.destroy();
 
     const client3 = splitio.client('bilal@split.io');
     await client3.ready();
     assert.equal(client3.getTreatment('rbs_test_flag'), 'v1', 'key satisfies the rbs condition');
     assert.equal(client3.getTreatment('rbs_test_flag_negated'), 'v2', 'key satisfies the rbs condition');
+    assert.equal(client3.getTreatment('always_on_if_prerequisite'), 'on', 'prerequisite satisfied (key satisfies the rbs condition)');
     await client3.destroy();
 
     const client4 = splitio.client('other_key');
     await client4.ready();
     assert.equal(client4.getTreatment('rbs_test_flag'), 'v2', 'key not in segment');
     assert.equal(client4.getTreatment('rbs_test_flag_negated'), 'v1', 'key not in segment');
+    assert.equal(client4.getTreatment('always_on_if_prerequisite'), 'off', 'prerequisite not satisfied (key not in segment)');
     await client4.destroy();
   };
 
@@ -408,7 +412,7 @@ export default function (config, fetchMock, assert) {
       getTreatmentsWithConfigTests(client);
       getTreatmentsWithInMemoryAttributes(client);
 
-      evaluationsWithRuleBasedSegments(splitio).then(() => {
+      evaluationsWithRuleBasedSegmentsAndPrerequisites(splitio).then(() => {
         clientTABucket1.destroy();
         client.destroy();
         tested++;

@@ -250,17 +250,17 @@ function ManagerDotSplitTests(assert) {
     const expectedView1 = {
       name: 'testing_split', changeNumber: 0, killed: false, trafficType: 'localhost',
       treatments: ['on'], configs: {}, defaultTreatment: 'control',
-      sets: [], impressionsDisabled: false
+      sets: [], impressionsDisabled: false, prerequisites: []
     };
     const expectedView2 = {
       name: 'testing_split2', changeNumber: 0, killed: false, trafficType: 'localhost',
       treatments: ['off'], configs: {}, defaultTreatment: 'control',
-      sets: [], impressionsDisabled: false
+      sets: [], impressionsDisabled: false, prerequisites: []
     };
     const expectedView3 = {
       name: 'testing_split3', changeNumber: 0, killed: false, trafficType: 'localhost',
       treatments: ['custom_treatment'], configs: {}, defaultTreatment: 'control',
-      sets: [], impressionsDisabled: false
+      sets: [], impressionsDisabled: false, prerequisites: []
     };
 
     assert.deepEqual(manager.split('testing_split'), expectedView1);
@@ -295,7 +295,8 @@ function ManagerDotYamlTests(mockFileName, assert) {
       configs: {},
       sets: [],
       defaultTreatment: 'control',
-      impressionsDisabled: false
+      impressionsDisabled: false,
+      prerequisites: []
     };
     const expectedView2 = {
       name: 'testing_split_only_wl',
@@ -306,7 +307,8 @@ function ManagerDotYamlTests(mockFileName, assert) {
       configs: {},
       sets: [],
       defaultTreatment: 'control',
-      impressionsDisabled: false
+      impressionsDisabled: false,
+      prerequisites: []
     };
     const expectedView3 = {
       name: 'testing_split_with_wl',
@@ -320,7 +322,8 @@ function ManagerDotYamlTests(mockFileName, assert) {
       },
       sets: [],
       defaultTreatment: 'control',
-      impressionsDisabled: false
+      impressionsDisabled: false,
+      prerequisites: []
     };
     const expectedView4 = {
       name: 'testing_split_off_with_config',
@@ -333,7 +336,8 @@ function ManagerDotYamlTests(mockFileName, assert) {
       },
       sets: [],
       defaultTreatment: 'control',
-      impressionsDisabled: false
+      impressionsDisabled: false,
+      prerequisites: []
     };
 
     assert.deepEqual(manager.split('testing_split_on'), expectedView1);
@@ -414,15 +418,15 @@ function MultipleInstancesTests(assert) {
 
         const expectedView1 = {
           name: 'testing_split', changeNumber: 0, killed: false, trafficType: 'localhost',
-          treatments: ['on'], configs: {}, sets: [], impressionsDisabled: false
+          treatments: ['on'], configs: {}, sets: [], impressionsDisabled: false, prerequisites: []
         };
         const expectedView2 = {
           name: 'testing_split2', changeNumber: 0, killed: false, trafficType: 'localhost',
-          treatments: ['off'], configs: {}, sets: [], impressionsDisabled: false
+          treatments: ['off'], configs: {}, sets: [], impressionsDisabled: false, prerequisites: []
         };
         const expectedView3 = {
           name: 'testing_split3', changeNumber: 0, killed: false, trafficType: 'localhost',
-          treatments: ['custom_treatment'], configs: {}, sets: [], impressionsDisabled: false
+          treatments: ['custom_treatment'], configs: {}, sets: [], impressionsDisabled: false, prerequisites: []
         };
 
         assert.deepEqual(manager.split('testing_split'), expectedView1);

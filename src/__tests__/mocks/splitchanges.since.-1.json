@@ -1738,6 +1738,54 @@
         "configurations": {},
         "sets": [],
         "impressionsDisabled": false
+      },
+      {
+        "orgId": null,
+        "environment": null,
+        "trafficTypeId": null,
+        "trafficTypeName": null,
+        "name": "always_on_if_prerequisite",
+        "trafficAllocation": 100,
+        "trafficAllocationSeed": 1828377380,
+        "seed": -790401604,
+        "status": "ACTIVE",
+        "killed": false,
+        "defaultTreatment": "off",
+        "prerequisites": [
+          {
+            "n": "rbs_test_flag",
+            "ts": [
+              "v1"
+            ]
+          }
+        ],
+        "conditions": [
+          {
+            "matcherGroup": {
+              "combiner": "AND",
+              "matchers": [
+                {
+                  "keySelector": {
+                    "trafficType": "user",
+                    "attribute": null
+                  },
+                  "matcherType": "ALL_KEYS",
+                  "negate": false,
+                  "userDefinedSegmentMatcherData": null,
+                  "whitelistMatcherData": null,
+                  "unaryNumericMatcherData": null,
+                  "betweenMatcherData": null
+                }
+              ]
+            },
+            "partitions": [
+              {
+                "treatment": "on",
+                "size": 100
+              }
+            ]
+          }
+        ]
       }
     ],
     "s": -1,
