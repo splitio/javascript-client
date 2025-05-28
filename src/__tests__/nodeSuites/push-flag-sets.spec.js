@@ -39,22 +39,22 @@ export function testFlagSets(fetchMock, t) {
   mockSegmentChanges(fetchMock, new RegExp(baseUrls.sdk + '/segmentChanges/*'), ['some-key']);
   fetchMock.post('*', 200);
 
-  fetchMock.get(baseUrls.auth + '/v2/auth?s=1.1', function (url, opts) {
+  fetchMock.get(baseUrls.auth + '/v2/auth?s=1.3', function (url, opts) {
     if (!opts.headers['Authorization']) t.fail('`/v2/auth` request must include `Authorization` header');
     t.pass('auth success');
     return { status: 200, body: authPushEnabled };
   });
-  fetchMock.get(baseUrls.sdk + '/splitChanges?s=1.1&since=-1',  function () {
-    return { status: 200, body: { splits: [], since: -1, till: 0}};
+  fetchMock.get(baseUrls.sdk + '/splitChanges?s=1.3&since=-1&rbSince=-1',  function () {
+    return { status: 200, body: { ff: { d: [], s: -1, t: 0 }}};
   });
-  fetchMock.get(baseUrls.sdk + '/splitChanges?s=1.1&since=0',  function () {
-    return { status: 200, body: { splits: [], since: 0, till: 1 }};
+  fetchMock.get(baseUrls.sdk + '/splitChanges?s=1.3&since=0&rbSince=-1',  function () {
+    return { status: 200, body: { ff: { d: [], s: 0, t: 1 } }};
   });
-  fetchMock.get(baseUrls.sdk + '/splitChanges?s=1.1&since=-1&sets=set_1,set_2',  function () {
-    return { status: 200, body: { splits: [], since: -1, till: 0 }};
+  fetchMock.get(baseUrls.sdk + '/splitChanges?s=1.3&since=-1&rbSince=-1&sets=set_1,set_2',  function () {
+    return { status: 200, body: { ff: { d: [], s: -1, t: 0 } }};
   });
-  fetchMock.get(baseUrls.sdk + '/splitChanges?s=1.1&since=0&sets=set_1,set_2',  function () {
-    return { status: 200, body: { splits: [], since: 0, till: 1 }};
+  fetchMock.get(baseUrls.sdk + '/splitChanges?s=1.3&since=0&rbSince=-1&sets=set_1,set_2',  function () {
+    return { status: 200, body: { ff: { d: [], s: 0, t: 1 } }};
   });
 
   const configWithSets = {
@@ -194,11 +194,11 @@ export function testFlagSets(fetchMock, t) {
 
     setMockListener((eventSourceInstance) => {
 
-      fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.1&since=2&sets=set_1,set_2',  async function () {
+      fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.3&since=2&rbSince=-1&sets=set_1,set_2',  async function () {
         assert.pass('4 - A fetch is triggered due to the SPLIT_KILL');
         await client.destroy();
         assert.end();
-        return { status: 200, body: { splits: [], since: 2, till: 3 }};
+        return { status: 200, body: { ff: { d: [], s: 2, t: 3 } }};
       });
 
       eventSourceInstance.emitOpen();
@@ -232,9 +232,9 @@ export function testFlagSets(fetchMock, t) {
 
   t.test(async (assert) => {
 
-    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.1&since=1&sets=set_1,set_2',  function () {
+    fetchMock.getOnce(baseUrls.sdk + '/splitChanges?s=1.3&since=1&rbSince=-1&sets=set_1,set_2',  function () {
       assert.pass('5 - A fetch is triggered due to the SPLIT_KILL');
-      return { status: 200, body: { splits: [], since: 1, till: 5 }};
+      return { status: 200, body: { ff: { d: [], s: 1, t: 5 } }};
     });
 
     let splitio, client, manager = [];

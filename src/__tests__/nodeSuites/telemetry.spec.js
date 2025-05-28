@@ -22,8 +22,8 @@ const config = {
 
 export default async function telemetryNodejsSuite(key, fetchMock, assert) {
 
-  fetchMock.getOnce(url(config, '/splitChanges?s=1.1&since=-1'), 500); // record http exception
-  fetchMock.getOnce(url(config, '/splitChanges?s=1.1&since=-1'), { status: 200, body: splitChangesMock1 });
+  fetchMock.getOnce(url(config, '/splitChanges?s=1.3&since=-1&rbSince=-1'), 500); // record http exception
+  fetchMock.getOnce(url(config, '/splitChanges?s=1.3&since=-1&rbSince=-1'), { status: 200, body: splitChangesMock1 });
   mockSegmentChanges(fetchMock, new RegExp(config.urls.sdk + '/segmentChanges/*'), ['some_key']);
 
   fetchMock.postOnce(url(config, '/testImpressions/bulk'), 200);
@@ -55,7 +55,7 @@ export default async function telemetryNodejsSuite(key, fetchMock, assert) {
     // Validate http and method latencies
     const getLatencyCount = buckets => buckets ? buckets.reduce((accum, entry) => accum + entry, 0) : 0;
     assert.equal(getLatencyCount(data.hL.sp), 2, 'Two latency metrics for splitChanges GET request');
-    assert.equal(getLatencyCount(data.hL.se), 6, 'Six latency metrics for segmentChanges GET request');
+    assert.equal(getLatencyCount(data.hL.se), 8, 'Six latency metrics for segmentChanges GET request');
     assert.equal(getLatencyCount(data.hL.te), 1, 'One latency metric for telemetry config POST request');
     assert.equal(getLatencyCount(data.mL.t), 2, 'Two latency metrics for getTreatment (one not ready usage');
     assert.equal(getLatencyCount(data.mL.ts), 1, 'One latency metric for getTreatments');
@@ -66,7 +66,7 @@ export default async function telemetryNodejsSuite(key, fetchMock, assert) {
 
     // @TODO check if iDe value is correct
     assert.deepEqual(data, {
-      mE: {}, hE: { sp: { 500: 1 } }, tR: 0, aR: 0, iQ: 4, iDe: 1, iDr: 0, spC: 33, seC: 3, skC: 3, eQ: 1, eD: 0, sE: [], t: [], ufs: {}
+      mE: {}, hE: { sp: { 500: 1 } }, tR: 0, aR: 0, iQ: 4, iDe: 1, iDr: 0, spC: 36, seC: 4, skC: 4, eQ: 1, eD: 0, sE: [], t: [], ufs: {}
     }, 'metrics/usage JSON payload should be the expected');
 
     finish.next();
@@ -85,7 +85,7 @@ export default async function telemetryNodejsSuite(key, fetchMock, assert) {
     // @TODO check if iDe value is correct
     assert.deepEqual(data, {
       mL: {}, mE: {}, hE: {}, hL: {}, // errors and latencies were popped
-      tR: 0, aR: 0, iQ: 4, iDe: 1, iDr: 0, spC: 33, seC: 3, skC: 3, eQ: 1, eD: 0, sE: [], t: [], ufs: {}
+      tR: 0, aR: 0, iQ: 4, iDe: 1, iDr: 0, spC: 36, seC: 4, skC: 4, eQ: 1, eD: 0, sE: [], t: [], ufs: {}
     }, '2nd metrics/usage JSON payload should be the expected');
     return 200;
   });
