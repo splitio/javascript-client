@@ -18,8 +18,8 @@ const settings = settingsFactory({
   streamingEnabled: false
 });
 
-fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=-1'), { status: 200, body: splitChangesMock1 });
-fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=1500492097547'), { status: 200, body: splitChangesMock2 });
+fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=-1&rbSince=-1'), { status: 200, body: splitChangesMock1 });
+fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1500492097547&rbSince=-1'), { status: 200, body: splitChangesMock2 });
 fetchMock.getOnce(url(settings, '/memberships/ut1'), { status: 200, body: membershipsMock });
 fetchMock.getOnce(url(settings, '/memberships/ut2'), { status: 200, body: membershipsMock });
 fetchMock.getOnce(url(settings, '/memberships/ut3'), { status: 200, body: membershipsMock });

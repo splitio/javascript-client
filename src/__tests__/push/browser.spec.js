@@ -14,13 +14,13 @@ Math.random = () => 0.5; // SDKs without telemetry
 
 tape('## Browser JS - E2E CI Tests for PUSH ##', function (assert) {
 
-  // Non-recoverable issues on inizialization
+  // Non-recoverable issues on initialization
   assert.test('E2E / PUSH initialization: auth with push disabled', testAuthWithPushDisabled.bind(null, fetchMock));
   assert.test('E2E / PUSH initialization: auth with 401', testAuthWith401.bind(null, fetchMock));
   assert.test('E2E / PUSH initialization: fallback to polling if EventSource is not available', testNoEventSource.bind(null, fetchMock));
   assert.test('E2E / PUSH initialization: sse with non-recoverable Ably error', testSSEWithNonRetryableError.bind(null, fetchMock));
 
-  // Recoverable issues on inizialization
+  // Recoverable issues on initialization
   assert.test('E2E / PUSH initialization: auth failures and then success', testPushRetriesDueToAuthErrors.bind(null, fetchMock));
   assert.test('E2E / PUSH initialization: SSE connection failures and then success', testPushRetriesDueToSseErrors.bind(null, fetchMock));
 

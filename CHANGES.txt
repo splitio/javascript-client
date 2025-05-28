@@ -1,3 +1,8 @@
+11.4.0 (May 28, 2025)
+ - Added support for rule-based segments. These segments determine membership at runtime by evaluating their configured rules against the user attributes provided to the SDK.
+ - Added support for feature flag prerequisites. This allows customers to define dependency conditions between flags, which are evaluated before any allowlists or targeting rules.
+ - Updated @splitsoftware/splitio-commons package to version 2.4.0.
+
 11.3.0 (May 16, 2025)
  - Updated @splitsoftware/splitio-commons package to version 2.3.0, which optimizes the Redis storage to:
     - Avoid lazy require of the `ioredis` dependency when the SDK is initialized, and

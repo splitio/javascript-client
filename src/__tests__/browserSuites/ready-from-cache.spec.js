@@ -84,8 +84,8 @@ const baseConfig = {
   streamingEnabled: false
 };
 
-const expectedHashNullFilter = 'db8943b4'; // for SDK key '<fake-token-rfc>', filter query null, and flags spec version '1.2'
-const expectedHashWithFilter = '7ccd6b31'; // for SDK key '<fake-token-rfc>', filter query '&names=p1__split,p2__split', and flags spec version '1.2'
+const expectedHashNullFilter = '193e6f3f'; // for SDK key '<fake-token-rfc>', filter query null, and flags spec version '1.3'
+const expectedHashWithFilter = '2ce5cc38'; // for SDK key '<fake-token-rfc>', filter query '&names=p1__split,p2__split', and flags spec version '1.3'
 
 export default function (fetchMock, assert) {
 
@@ -97,8 +97,7 @@ export default function (fetchMock, assert) {
     localStorage.clear();
     t.plan(4);
 
-    fetchMock.get(testUrls.sdk + '/splitChanges?s=1.2&since=-1', { status: 200, body: splitChangesMock1 });
-    fetchMock.get(testUrls.sdk + '/splitChanges?s=1.2&since=1457552620999', { status: 200, body: splitChangesMock2 });
+    fetchMock.get(testUrls.sdk + '/splitChanges?s=1.3&since=-1&rbSince=-1', { status: 200, body: splitChangesMock1 });
     fetchMock.get(testUrls.sdk + '/memberships/nicolas%40split.io', { status: 200, body: membershipsNicolas });
     fetchMock.get(testUrls.sdk + '/memberships/nicolas2%40split.io', { status: 200, body: { 'ms': {} } });
     fetchMock.get(testUrls.sdk + '/memberships/nicolas3%40split.io', { status: 200, body: { 'ms': {} } });
@@ -147,10 +146,9 @@ export default function (fetchMock, assert) {
     localStorage.clear();
     t.plan(12 * 2 + 3);
 
-    fetchMock.get(testUrls.sdk + '/splitChanges?s=1.2&since=25', () => {
-      return new Promise(res => { setTimeout(() => res({ status: 200, body: { ...splitChangesMock1, since: 25 }, headers: {} }), 200); }); // 400ms is how long it'll take to reply with Splits, no SDK_READY should be emitted before that.
+    fetchMock.get(testUrls.sdk + '/splitChanges?s=1.3&since=25&rbSince=-1', () => {
+      return new Promise(res => { setTimeout(() => res({ status: 200, body: { ff: { ...splitChangesMock1.ff, s: 25 } }, headers: {} }), 200); }); // 400ms is how long it'll take to reply with Splits, no SDK_READY should be emitted before that.
     });
-    fetchMock.get(testUrls.sdk + '/splitChanges?s=1.2&since=1457552620999', { status: 200, body: splitChangesMock2 });
     fetchMock.get(testUrls.sdk + '/memberships/nicolas%40split.io', () => {
       return new Promise(res => { setTimeout(() => res({ status: 200, body: membershipsNicolas, headers: {} }), 400); }); // First client gets segments before splits. No segment cache loading (yet)
     });
@@ -254,11 +252,10 @@ export default function (fetchMock, assert) {
     localStorage.clear();
     t.plan(12 * 2 + 5);
 
-    fetchMock.get(testUrls.sdk + '/splitChanges?s=1.2&since=25', () => {
+    fetchMock.get(testUrls.sdk + '/splitChanges?s=1.3&since=25&rbSince=-1', () => {
       t.equal(localStorage.getItem('readyFromCache_3.SPLITIO.split.always_on'), alwaysOnSplitInverted, 'feature flags must not be cleaned from cache');
-      return new Promise(res => { setTimeout(() => res({ status: 200, body: { ...splitChangesMock1, since: 25 }, headers: {} }), 200); }); // 400ms is how long it'll take to reply with Splits, no SDK_READY should be emitted before that.
+      return new Promise(res => { setTimeout(() => res({ status: 200, body: { ff: { ...splitChangesMock1.ff, s: 25 } }, headers: {} }), 200); }); // 400ms is how long it'll take to reply with Splits, no SDK_READY should be emitted before that.
     });
-    fetchMock.get(testUrls.sdk + '/splitChanges?s=1.2&since=1457552620999', { status: 200, body: splitChangesMock2 });
     fetchMock.get(testUrls.sdk + '/memberships/nicolas%40split.io', () => {
       return new Promise(res => { setTimeout(() => res({ status: 200, body: membershipsNicolas, headers: {} }), 400); }); // First client gets segments before splits. No segment cache loading (yet)
     });
@@ -372,14 +369,13 @@ export default function (fetchMock, assert) {
     };
     localStorage.clear();
 
-    fetchMock.get(testUrls.sdk + '/splitChanges?s=1.2&since=-1', () => {
+    fetchMock.get(testUrls.sdk + '/splitChanges?s=1.3&since=-1&rbSince=-1', () => {
       t.equal(localStorage.getItem('some_user_item'), 'user_item', 'user items at localStorage must not be changed');
       t.equal(localStorage.getItem('readyFromCache_4.SPLITIO.hash'), expectedHashNullFilter, 'storage hash must not be changed');
       t.true(nearlyEqual(parseInt(localStorage.getItem('readyFromCache_4.SPLITIO.lastClear'), 10), Date.now()), 'storage lastClear timestamp must be updated');
       t.equal(localStorage.length, 3, 'feature flags cache data must be cleaned from localStorage');
       return { status: 200, body: splitChangesMock1 };
     });
-    fetchMock.get(testUrls.sdk + '/splitChanges?s=1.2&since=1457552620999', { status: 200, body: splitChangesMock2 });
     fetchMock.get(testUrls.sdk + '/memberships/nicolas%40split.io', () => {
       return new Promise(res => { setTimeout(() => res({ status: 200, body: membershipsNicolas, headers: {} }), CLIENT_READY_MS); }); // First client gets segments before splits. No segment cache loading (yet)
     });
@@ -486,7 +482,7 @@ export default function (fetchMock, assert) {
     localStorage.clear();
     t.plan(8);
 
-    fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.2&since=-1&names=p1__split,p2__split', { status: 200, body: { splits: [splitDeclarations.p1__split, splitDeclarations.p2__split], since: -1, till: 1457552620999 } }, { delay: 10 }); // short delay to let emit SDK_READY_FROM_CACHE
+    fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.3&since=-1&rbSince=-1&names=p1__split,p2__split', { status: 200, body: { ff: { d: [splitDeclarations.p1__split, splitDeclarations.p2__split], s: -1, t: 1457552620999 } } }, { delay: 10 }); // short delay to let emit SDK_READY_FROM_CACHE
     fetchMock.getOnce(testUrls.sdk + '/memberships/nicolas%40split.io', { status: 200, body: { ms: {} } });
 
     localStorage.setItem('some_user_item', 'user_item');
@@ -536,7 +532,7 @@ export default function (fetchMock, assert) {
     localStorage.clear();
     t.plan(6);
 
-    fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.2&since=-1&names=p1__split,p2__split', { status: 200, body: { splits: [splitDeclarations.p1__split, splitDeclarations.p2__split], since: -1, till: 1457552620999 } }, { delay: 10 }); // short delay to let emit SDK_READY_FROM_CACHE
+    fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.3&since=-1&rbSince=-1&names=p1__split,p2__split', { status: 200, body: { ff: { d: [splitDeclarations.p1__split, splitDeclarations.p2__split], s: -1, t: 1457552620999 } } }, { delay: 10 }); // short delay to let emit SDK_READY_FROM_CACHE
     fetchMock.getOnce(testUrls.sdk + '/memberships/nicolas%40split.io', { status: 200, body: { ms: {} } });
 
     const splitio = SplitFactory({
@@ -578,10 +574,10 @@ export default function (fetchMock, assert) {
     localStorage.clear();
     t.plan(7);
 
-    fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.2&since=25&names=p2__split&prefixes=p1', { status: 200, body: { splits: [splitDeclarations.p1__split, splitDeclarations.p2__split], since: 25, till: 1457552620999 } }, { delay: 10 }); // short delay to let emit SDK_READY_FROM_CACHE
+    fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.3&since=25&rbSince=-1&names=p2__split&prefixes=p1', { status: 200, body: { ff: { d: [splitDeclarations.p1__split, splitDeclarations.p2__split], s: 25, t: 1457552620999 } } }, { delay: 10 }); // short delay to let emit SDK_READY_FROM_CACHE
     fetchMock.getOnce(testUrls.sdk + '/memberships/nicolas%40split.io', { status: 200, body: { ms: {} } });
 
-    const expectedHash = getStorageHash({ ...baseConfig, sync: { __splitFiltersValidation: { queryString: '&names=p2__split&prefixes=p1' }, flagSpecVersion: '1.2' } });
+    const expectedHash = getStorageHash({ ...baseConfig, sync: { __splitFiltersValidation: { queryString: '&names=p2__split&prefixes=p1' }, flagSpecVersion: '1.3' } });
     localStorage.setItem('some_user_item', 'user_item');
     localStorage.setItem('readyFromCache_6.SPLITIO.splits.till', 25);
     localStorage.setItem('readyFromCache_6.SPLITIO.split.p1__split', JSON.stringify(splitDeclarations.p1__split));
@@ -628,10 +624,10 @@ export default function (fetchMock, assert) {
     localStorage.clear();
     t.plan(7);
 
-    fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.2&since=-1&prefixes=p1,p2', { status: 200, body: { splits: [splitDeclarations.p1__split, splitDeclarations.p2__split], since: -1, till: 1457552620999 } }, { delay: 10 }); // short delay to let emit SDK_READY_FROM_CACHE
+    fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.3&since=-1&rbSince=-1&prefixes=p1,p2', { status: 200, body: { ff: { d: [splitDeclarations.p1__split, splitDeclarations.p2__split], s: -1, t: 1457552620999 } } }, { delay: 10 }); // short delay to let emit SDK_READY_FROM_CACHE
     fetchMock.getOnce(testUrls.sdk + '/memberships/nicolas%40split.io', { status: 200, body: { ms: {} } });
 
-    const expectedHash = getStorageHash({ ...baseConfig, sync: { __splitFiltersValidation: { queryString: '&prefixes=p1,p2' }, flagSpecVersion: '1.2' } });
+    const expectedHash = getStorageHash({ ...baseConfig, sync: { __splitFiltersValidation: { queryString: '&prefixes=p1,p2' }, flagSpecVersion: '1.3' } });
     localStorage.setItem('some_user_item', 'user_item');
     localStorage.setItem('readyFromCache_7.SPLITIO.splits.till', 25);
     localStorage.setItem('readyFromCache_7.SPLITIO.split.p1__split', JSON.stringify(splitDeclarations.p1__split));
@@ -693,7 +689,7 @@ export default function (fetchMock, assert) {
         localStorage.clear();
         t.plan(8);
 
-        fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.2&since=-1', { status: 200, body: { splits: [splitDeclarations.p1__split, splitDeclarations.p2__split, splitDeclarations.p3__split], since: -1, till: 1457552620999 } }, { delay: 10 }); // short delay to let emit SDK_READY_FROM_CACHE
+        fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.3&since=-1&rbSince=-1', { status: 200, body: { ff: { d: [splitDeclarations.p1__split, splitDeclarations.p2__split, splitDeclarations.p3__split], s: -1, t: 1457552620999 } } }, { delay: 10 }); // short delay to let emit SDK_READY_FROM_CACHE
         fetchMock.getOnce(testUrls.sdk + '/memberships/nicolas%40split.io', { status: 200, body: { ms: {} } });
 
         localStorage.setItem('some_user_item', 'user_item');
@@ -745,14 +741,14 @@ export default function (fetchMock, assert) {
     localStorage.clear();
     t.plan(6);
 
-    fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.2&since=-1&names=no%20exist%20trim,no_exist,p3__split&prefixes=no%20exist%20trim,p2', { status: 200, body: { splits: [splitDeclarations.p2__split, splitDeclarations.p3__split], since: -1, till: 1457552620999 } }, { delay: 10 }); // short delay to let emit SDK_READY_FROM_CACHE
+    fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.3&since=-1&rbSince=-1&names=no%20exist%20trim,no_exist,p3__split&prefixes=no%20exist%20trim,p2', { status: 200, body: { ff: { d: [splitDeclarations.p2__split, splitDeclarations.p3__split], s: -1, t: 1457552620999 } } }, { delay: 10 }); // short delay to let emit SDK_READY_FROM_CACHE
     fetchMock.getOnce(testUrls.sdk + '/memberships/nicolas%40split.io', { status: 200, body: { ms: {} } });
 
     localStorage.setItem('some_user_item', 'user_item');
     localStorage.setItem('readyFromCache_9.SPLITIO.splits.till', 25);
     localStorage.setItem('readyFromCache_9.SPLITIO.split.p1__split', JSON.stringify(splitDeclarations.p1__split));
     localStorage.setItem('readyFromCache_9.SPLITIO.split.p2__split', JSON.stringify(splitDeclarations.p2__split));
-    localStorage.setItem('readyFromCache_9.SPLITIO.hash', getStorageHash({ ...baseConfig, sync: { __splitFiltersValidation: { queryString: '&names=p2__split&prefixes=p1' }, flagSpecVersion: '1.2' } }));
+    localStorage.setItem('readyFromCache_9.SPLITIO.hash', getStorageHash({ ...baseConfig, sync: { __splitFiltersValidation: { queryString: '&names=p2__split&prefixes=p1' }, flagSpecVersion: '1.3' } }));
 
     const splitio = SplitFactory({
       ...baseConfig,
@@ -776,7 +772,7 @@ export default function (fetchMock, assert) {
         t.equal(localStorage.getItem('readyFromCache_9.SPLITIO.splits.till'), '1457552620999', 'splits.till must correspond to the till of the last successfully fetched Splits');
         t.equal(localStorage.getItem('readyFromCache_9.SPLITIO.split.p2__split'), JSON.stringify(splitDeclarations.p2__split), 'feature flag declarations must be cached');
         t.equal(localStorage.getItem('readyFromCache_9.SPLITIO.split.p3__split'), JSON.stringify(splitDeclarations.p3__split), 'feature flag declarations must be cached');
-        t.equal(localStorage.getItem('readyFromCache_9.SPLITIO.hash'), getStorageHash({ ...baseConfig, sync: { __splitFiltersValidation: { queryString: '&names=no%20exist%20trim,no_exist,p3__split&prefixes=no%20exist%20trim,p2' }, flagSpecVersion: '1.2' } }), 'Storage hash must correspond to the split filter query and SDK key');
+        t.equal(localStorage.getItem('readyFromCache_9.SPLITIO.hash'), getStorageHash({ ...baseConfig, sync: { __splitFiltersValidation: { queryString: '&names=no%20exist%20trim,no_exist,p3__split&prefixes=no%20exist%20trim,p2' }, flagSpecVersion: '1.3' } }), 'Storage hash must correspond to the split filter query and SDK key');
         t.end();
       });
     });
@@ -807,8 +803,8 @@ export default function (fetchMock, assert) {
     localStorage.setItem('readyFromCache_10.SPLITIO.split.p2__split', JSON.stringify(splitDeclarations.p2__split));
     localStorage.setItem('readyFromCache_10.SPLITIO.hash', expectedHashNullFilter);
 
-    fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.2&since=-1', { status: 200, body: splitChangesMock1 });
-    fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.2&since=1457552620999', { status: 200, body: splitChangesMock2 });
+    fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.3&since=-1&rbSince=-1', { status: 200, body: splitChangesMock1 });
+    fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.3&since=1457552620999&rbSince=100', { status: 200, body: splitChangesMock2 });
     fetchMock.get(testUrls.sdk + '/memberships/nicolas%40split.io', { status: 200, body: { ms: {} } });
 
     let splitio = SplitFactory(clearOnInitConfig);
@@ -822,7 +818,7 @@ export default function (fetchMock, assert) {
     });
 
     await client.ready();
-    t.equal(manager.names().sort().length, 33, 'active splits should be present for evaluation');
+    t.equal(manager.names().sort().length, 36, 'active splits should be present for evaluation');
 
     await splitio.destroy();
     t.equal(localStorage.getItem('readyFromCache_10.SPLITIO.splits.till'), '1457552620999', 'splits.till must correspond to the till of the last successfully fetched Splits');
@@ -831,7 +827,7 @@ export default function (fetchMock, assert) {
 
     // Start again with cached data and lastClear item within the last 24 hours -> no cache cleanup
     console.log.resetHistory();
-    fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.2&since=1457552620999', { status: 200, body: splitChangesMock2 });
+    fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.3&since=1457552620999&rbSince=-1', { status: 200, body: splitChangesMock2 });
 
     splitio = SplitFactory(clearOnInitConfig);
     client = splitio.client();
@@ -839,7 +835,7 @@ export default function (fetchMock, assert) {
 
     await new Promise(res => client.once(client.Event.SDK_READY_FROM_CACHE, res));
 
-    t.equal(manager.names().sort().length, 33, 'active splits should be present for evaluation');
+    t.equal(manager.names().sort().length, 36, 'active splits should be present for evaluation');
     t.false(console.log.calledWithMatch('clearOnInit was set and cache was not cleared in the last 24 hours. Cleaning up cache'), 'It should log a message about cleaning up cache');
 
     await splitio.destroy();
@@ -847,8 +843,8 @@ export default function (fetchMock, assert) {
     // Start again with cached data and lastClear item older than 24 hours -> cache cleanup
     console.log.resetHistory();
     localStorage.setItem('readyFromCache_10.SPLITIO.lastClear', Date.now() - 25 * 60 * 60 * 1000); // 25 hours ago
-    fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.2&since=-1', { status: 200, body: splitChangesMock1 });
-    fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.2&since=1457552620999', { status: 200, body: splitChangesMock2 });
+    fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.3&since=-1&rbSince=-1', { status: 200, body: splitChangesMock1 });
+    fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.3&since=1457552620999&rbSince=-1', { status: 200, body: splitChangesMock2 });
 
     splitio = SplitFactory(clearOnInitConfig);
     client = splitio.client();
@@ -860,7 +856,7 @@ export default function (fetchMock, assert) {
 
     await new Promise(res => client.once(client.Event.SDK_READY, res));
 
-    t.equal(manager.names().sort().length, 33, 'active splits should be present for evaluation');
+    t.equal(manager.names().sort().length, 36, 'active splits should be present for evaluation');
     t.true(console.log.calledWithMatch('clearOnInit was set and cache was not cleared in the last 24 hours. Cleaning up cache'), 'It should log a message about cleaning up cache');
 
     await splitio.destroy();
