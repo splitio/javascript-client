@@ -1,3 +1,6 @@
+11.4.1 (June 3, 2025)
+ - Updated @splitsoftware/splitio-commons package to version 2.4.1, which improves the Proxy fallback to flag spec version 1.2 by handling the case when the Proxy does not return an end-of-stream marker in 400 status code responses.
+
 11.4.0 (May 28, 2025)
  - Added support for rule-based segments. These segments determine membership at runtime by evaluating their configured rules against the user attributes provided to the SDK.
  - Added support for feature flag prerequisites. This allows customers to define dependency conditions between flags, which are evaluated before any allowlists or targeting rules.
