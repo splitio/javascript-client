@@ -1,3 +1,12 @@
+10.28.1 (July 25, 2025)
+ - Updated @splitsoftware/splitio-commons package to version 1.17.1 that includes some vulnerability and bug fixes.
+ - Updated the Redis storage to avoid lazy require of the `ioredis` dependency when the SDK is initialized.
+ - Bugfix - Enhanced HTTP client module to implement timeouts for failing requests that might otherwise remain pending indefinitely on some Fetch API implementations, pausing the SDK synchronization process.
+ - Bugfix - Properly handle rejected promises when using targeting rules with segment matchers in consumer modes (e.g., Redis and Pluggable storages).
+ - Bugfix - Sanitize the `SplitSDKMachineName` header value to avoid exceptions on HTTP/S requests when it contains non ISO-8859-1 characters (Related to issue https://github.com/splitio/javascript-client/issues/847).
+ - Bugfix - Fixed an issue with the SDK_UPDATE event on server-side, where it was not being emitted if there was an empty segment and the SDK received a feature flag update notification.
+ - Bugfix - Fixed an issue with the server-side polling manager that caused dangling timers when the SDK was destroyed before it was ready.
+
 10.28.0 (September 6, 2024)
  - Updated @splitsoftware/splitio-commons package to version 1.17.0 that includes minor updates:
     - Added `sync.requestOptions.getHeaderOverrides` configuration option to enhance SDK HTTP request Headers for Authorization Frameworks.
