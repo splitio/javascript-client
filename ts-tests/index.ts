@@ -566,7 +566,8 @@ let fullBrowserSettings: SplitIO.IBrowserSettings = {
     type: 'LOCALSTORAGE',
     prefix: 'PREFIX',
     expirationDays: 1,
-    clearOnInit: true
+    clearOnInit: true,
+    wrapper: window.sessionStorage
   },
   impressionListener: impressionListener,
   debug: true,
