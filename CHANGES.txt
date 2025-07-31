@@ -1,13 +1,16 @@
-11.4.0 (May 20, 2025)
- - Added support for targeting rules based on rule-based segments.
- - Added support for feature flag prerequisites.
+11.4.1 (June 3, 2025)
+ - Updated @splitsoftware/splitio-commons package to version 2.4.1, which improves the Proxy fallback to flag spec version 1.2 by handling the case when the Proxy does not return an end-of-stream marker in 400 status code responses.
+
+11.4.0 (May 28, 2025)
+ - Added support for rule-based segments. These segments determine membership at runtime by evaluating their configured rules against the user attributes provided to the SDK.
+ - Added support for feature flag prerequisites. This allows customers to define dependency conditions between flags, which are evaluated before any allowlists or targeting rules.
  - Updated @splitsoftware/splitio-commons package to version 2.4.0.
 
 11.3.0 (May 16, 2025)
  - Updated @splitsoftware/splitio-commons package to version 2.3.0, which optimizes the Redis storage to:
     - Avoid lazy require of the `ioredis` dependency when the SDK is initialized, and
     - Flag the SDK as ready from cache immediately to allow queueing feature flag evaluations before SDK_READY event is emitted.
- - Bugfix - Enhanced HTTP client module to implement timeouts for failing requests that might otherwise remain pending indefinitely on some Fetch API implementations.
+ - Bugfix - Enhanced HTTP client module to implement timeouts for failing requests that might otherwise remain pending indefinitely on some Fetch API implementations, pausing the SDK synchronization process.
 
 11.2.0 (March 28, 2025)
  - Added a new optional argument to the client `getTreatment` methods to allow passing additional evaluation options, such as a map of properties to append to the generated impressions sent to Split backend. Read more in our docs.
@@ -47,6 +50,15 @@
     - Removed internal ponyfills for the `Map` and `Set` global objects, dropping support for IE and other outdated browsers. The SDK now requires the runtime environment to support these features natively or provide a polyfill.
     - Removed the deprecated `GOOGLE_ANALYTICS_TO_SPLIT` and `SPLIT_TO_GOOGLE_ANALYTICS` integrations. The `integrations` configuration option has been removed from the SDK factory configuration, along with the associated interfaces in the TypeScript definitions.
     - Removed the `core.trafficType` configuration option (`SplitIO.IBrowserSettings['core']['trafficType]`) and the `trafficType` parameter from the SDK `client()` method in Browser (`SplitIO.IBrowserSDK['client']`). As a result, traffic types can no longer be bound to SDK clients, and the traffic type must be provided in the `track` method.
+
+10.28.1 (July 25, 2025)
+ - Updated @splitsoftware/splitio-commons package to version 1.17.1 that includes some vulnerability and bug fixes.
+ - Updated the Redis storage to avoid lazy require of the `ioredis` dependency when the SDK is initialized.
+ - Bugfix - Enhanced HTTP client module to implement timeouts for failing requests that might otherwise remain pending indefinitely on some Fetch API implementations, pausing the SDK synchronization process.
+ - Bugfix - Properly handle rejected promises when using targeting rules with segment matchers in consumer modes (e.g., Redis and Pluggable storages).
+ - Bugfix - Sanitize the `SplitSDKMachineName` header value to avoid exceptions on HTTP/S requests when it contains non ISO-8859-1 characters (Related to issue https://github.com/splitio/javascript-client/issues/847).
+ - Bugfix - Fixed an issue with the SDK_UPDATE event on server-side, where it was not being emitted if there was an empty segment and the SDK received a feature flag update notification.
+ - Bugfix - Fixed an issue with the server-side polling manager that caused dangling timers when the SDK was destroyed before it was ready.
 
 10.28.0 (September 6, 2024)
  - Updated @splitsoftware/splitio-commons package to version 1.17.0 that includes minor updates:

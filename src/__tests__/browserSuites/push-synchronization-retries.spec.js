@@ -66,11 +66,11 @@ const MILLIS_THIRD_RETRY_FOR_SPLIT_KILL_EVENT = 2000;
  *
  *  0.5 secs: Unbounded MEMBERSHIPS_MS_UPDATE event -> /memberships/marcio@split.io OK, /memberships/nicolas@split.io: network error
  *  0.6 secs: Unbounded MEMBERSHIPS_MS_UPDATE event -> /memberships/nicolas@split.io retry: invalid JSON response
- *  0.8 secs: Unbounded MEMBERSHIPS_MS_UPDATE event -> /memberships/nicolas@split.io: server error
+ *  0.8 secs: Unbounded MEMBERSHIPS_MS_UPDATE event -> /memberships/nicolas@split.io: 500 server error
  *  1.2 secs: Unbounded MEMBERSHIPS_MS_UPDATE event -> /memberships/nicolas@split.io retry: success -> SDK_UPDATE triggered
  *
  *  1.3 secs: SPLIT_KILL event -> /splitChanges: outdated response -> SDK_UPDATE triggered although fetches fail
- *  1.4 secs: SPLIT_KILL event -> /splitChanges retry: network error
+ *  1.4 secs: SPLIT_KILL event -> /splitChanges retry: 500 server error
  *  1.6 secs: SPLIT_KILL event -> /splitChanges retry: invalid JSON response
  *  2.0 secs: SPLIT_KILL event -> /splitChanges retry: 408 request timeout
  *    (we destroy the client here, to assert that all scheduled tasks are clean)
@@ -184,7 +184,7 @@ export function testSynchronizationRetries(fetchMock, assert) {
     return { status: 200, body: { ff: { d: [], s: 1457552649999, t: 1457552649999 } } }; // returning old state
   });
   // first fetch retry for SPLIT_KILL event, due to previous unexpected response (response till minor than SPLIT_KILL changeNumber)
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1457552649999&rbSince=100'), { throws: new TypeError('Network error') });
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1457552649999&rbSince=100'), { status: 500, body: 'server error' });
   // second fetch retry for SPLIT_KILL event
   fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1457552649999&rbSince=100'), { status: 200, body: '{ "since": 1457552620999, "til' }); // invalid JSON response
   // third fetch retry for SPLIT_KILL event
