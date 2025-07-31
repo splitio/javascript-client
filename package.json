@@ -111,7 +111,7 @@
     "test-ts-decls": "tsc --build ts-tests",
     "test": "npm run test-node && npm run test-browser",
     "all": "npm run check && npm run build && npm run test-ts-decls && npm run test",
-    "publish:rc": "npm run check && npm run build && npm publish --tag canary",
+    "publish:rc": "npm run check && npm run build && npm publish --tag rc",
     "publish:stable": "npm run check && npm run build && npm publish"
   },
   "greenkeeper": {
