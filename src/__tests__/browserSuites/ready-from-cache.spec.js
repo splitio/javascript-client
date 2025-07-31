@@ -811,13 +811,14 @@ export default function (fetchMock, assert) {
     let client = splitio.client();
     let manager = splitio.manager();
 
-    t.true(console.log.calledWithMatch('clearOnInit was set and cache was not cleared in the last 24 hours. Cleaning up cache'), 'It should log a message about cleaning up cache');
-
     client.once(client.Event.SDK_READY_FROM_CACHE, () => {
       t.true(client.__getStatus().isReady, 'Client should emit SDK_READY_FROM_CACHE alongside SDK_READY, because clearOnInit is true');
     });
 
     await client.ready();
+
+    t.true(console.log.calledWithMatch('clearOnInit was set and cache was not cleared in the last 24 hours. Cleaning up cache'), 'It should log a message about cleaning up cache');
+
     t.equal(manager.names().sort().length, 36, 'active splits should be present for evaluation');
 
     await splitio.destroy();
