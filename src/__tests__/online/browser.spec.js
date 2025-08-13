@@ -10,6 +10,7 @@ import telemetrySuite from '../browserSuites/telemetry.spec';
 import impressionsListenerSuite from '../browserSuites/impressions-listener.spec';
 import readinessSuite from '../browserSuites/readiness.spec';
 import readyFromCache from '../browserSuites/ready-from-cache.spec';
+import readyFromCacheAsyncWrapper from '../browserSuites/ready-from-cache-async-wrapper.spec';
 import { withoutBindingTT } from '../browserSuites/events.spec';
 import sharedInstantiationSuite from '../browserSuites/shared-instantiation.spec';
 import managerSuite from '../browserSuites/manager.spec';
@@ -127,6 +128,7 @@ tape('## E2E CI Tests ##', function (assert) {
   assert.test('E2E / Use Beacon API DEBUG (or Fetch if not available) to send remaining impressions and events when browser page is unload or hidden', useBeaconDebugApiSuite.bind(null, fetchMock));
   /* Validate ready from cache behavior (might be merged into another suite if we end up having simple behavior around it as expected) */
   assert.test('E2E / Readiness from cache', readyFromCache.bind(null, fetchMock));
+  assert.test('E2E / Readiness from cache with custom async wrapper', readyFromCacheAsyncWrapper.bind(null, fetchMock));
   /* Validate readiness with ready promises */
   assert.test('E2E / Ready promise', readyPromiseSuite.bind(null, fetchMock));
   /* Validate fetching specific splits */
