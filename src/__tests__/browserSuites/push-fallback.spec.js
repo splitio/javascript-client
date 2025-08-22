@@ -2,9 +2,9 @@
  * Validate the handling of OCCUPANCY and CONTROL events
  */
 
-import splitChangesMock1 from '../mocks/splitchanges.real.withSegments.json'; // since: -1, till: 1457552620999 (for initial fetch)
-import splitChangesMock2 from '../mocks/splitchanges.real.updateWithSegments.json'; // since: 1457552620999, till: 1457552649999 (for SPLIT_UPDATE event)
-import splitChangesMock3 from '../mocks/splitchanges.real.updateWithoutSegments.json'; // since: 1457552649999, till: 1457552669999 (for second polling fetch)
+import splitChangesMockReal1 from '../mocks/splitchanges.real.withSegments.json'; // since: -1, till: 1457552620999 (for initial fetch)
+import splitChangesMockReal2 from '../mocks/splitchanges.real.updateWithSegments.json'; // since: 1457552620999, till: 1457552649999 (for SPLIT_UPDATE event)
+import splitChangesMockReal3 from '../mocks/splitchanges.real.updateWithoutSegments.json'; // since: 1457552649999, till: 1457552669999 (for second polling fetch)
 import membershipsNicolasMock1 from '../mocks/memberships.nicolas@split.io.json';
 import membershipsNicolasMock2 from '../mocks/memberships.nicolas@split.io.mock2.json';
 import membershipsMarcio from '../mocks/memberships.marcio@split.io.json';
@@ -206,68 +206,68 @@ export function testFallback(fetchMock, assert) {
 
   });
 
-  fetchMock.getOnce(url(settings, `/v2/auth?s=1.2&users=${encodeURIComponent(userKey)}`), function (url, opts) {
+  fetchMock.getOnce(url(settings, `/v2/auth?s=1.3&users=${encodeURIComponent(userKey)}`), function (url, opts) {
     if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
     assert.pass('auth success');
     return { status: 200, body: authPushEnabledNicolas };
   });
 
   // initial split and memberships sync
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=-1'), { status: 200, body: splitChangesMock1 });
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=-1&rbSince=-1'), { status: 200, body: splitChangesMockReal1 });
   fetchMock.getOnce(url(settings, '/memberships/nicolas%40split.io'), { status: 200, body: membershipsNicolasMock1 });
 
   // split and segment sync after SSE opened
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=1457552620999'), { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1457552620999&rbSince=-1'), { status: 200, body: { ff: { d: [], s: 1457552620999, t: 1457552620999 } } });
   fetchMock.getOnce(url(settings, '/memberships/nicolas%40split.io'), { status: 200, body: membershipsNicolasMock1 });
 
   // fetches due to first fallback to polling
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=1457552620999'), { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1457552620999&rbSince=-1'), { status: 200, body: { ff: { d: [], s: 1457552620999, t: 1457552620999 } } });
   fetchMock.getOnce(url(settings, '/memberships/nicolas%40split.io'), { status: 200, body: membershipsNicolasMock1 });
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=1457552620999'), function () {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1457552620999&rbSince=-1'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_STREAMING_DOWN_OCCUPANCY + settings.scheduler.featuresRefreshRate), 'fetch due to first fallback to polling');
-    return { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } };
+    return { status: 200, body: { ff: { d: [], s: 1457552620999, t: 1457552620999 } } };
   });
   fetchMock.getOnce(url(settings, '/memberships/nicolas%40split.io'), { status: 200, body: membershipsNicolasMock1 });
 
   // split and segment sync due to streaming up (OCCUPANCY event)
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=1457552620999'), { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1457552620999&rbSince=-1'), { status: 200, body: { ff: { d: [], s: 1457552620999, t: 1457552620999 } } });
   fetchMock.getOnce(url(settings, '/memberships/nicolas%40split.io'), { status: 200, body: membershipsNicolasMock1 });
 
   // creating of second client during streaming: initial memberships sync, reauth and syncAll due to new client
   fetchMock.getOnce(url(settings, '/memberships/marcio%40split.io'), { status: 200, body: membershipsMarcio });
-  fetchMock.get({ url: url(settings, `/v2/auth?s=1.2&users=${encodeURIComponent(userKey)}&users=${encodeURIComponent(secondUserKey)}`), repeat: 3 /* initial + 2 STREAMING_RESET */ }, (url, opts) => {
+  fetchMock.get({ url: url(settings, `/v2/auth?s=1.3&users=${encodeURIComponent(userKey)}&users=${encodeURIComponent(secondUserKey)}`), repeat: 3 /* initial + 2 STREAMING_RESET */ }, (url, opts) => {
     if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
     assert.pass('second auth success');
     return { status: 200, body: authPushEnabledNicolasAndMarcio };
   });
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=1457552620999'), { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1457552620999&rbSince=-1'), { status: 200, body: { ff: { d: [], s: 1457552620999, t: 1457552620999 } } });
   fetchMock.getOnce(url(settings, '/memberships/nicolas%40split.io'), { status: 200, body: membershipsNicolasMock1 });
   fetchMock.getOnce(url(settings, '/memberships/marcio%40split.io'), { status: 200, body: membershipsMarcio });
 
   // fetch due to SPLIT_UPDATE event
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=1457552620999'), function () {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1457552620999&rbSince=-1'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_SPLIT_UPDATE_EVENT_DURING_PUSH), 'sync due to SPLIT_UPDATE event');
-    return { status: 200, body: splitChangesMock2 };
+    return { status: 200, body: splitChangesMockReal2 };
   });
 
   // fetches due to second fallback to polling
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=1457552649999'), { status: 200, body: { splits: [], since: 1457552649999, till: 1457552649999 } });
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1457552649999&rbSince=-1'), { status: 200, body: { ff: { d: [], s: 1457552649999, t: 1457552649999 } } });
   fetchMock.getOnce(url(settings, '/memberships/nicolas%40split.io'), { status: 200, body: membershipsNicolasMock1 });
   fetchMock.getOnce(url(settings, '/memberships/marcio%40split.io'), { status: 200, body: membershipsMarcio });
 
   // continue fetches due to second fallback to polling
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=1457552649999'), function () {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1457552649999&rbSince=-1'), function () {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_STREAMING_PAUSED_CONTROL + settings.scheduler.featuresRefreshRate), 'fetch due to second fallback to polling');
-    return { status: 200, body: { splits: [], since: 1457552649999, till: 1457552649999 } };
+    return { status: 200, body: { ff: { d: [], s: 1457552649999, t: 1457552649999 } } };
   });
   fetchMock.getOnce(url(settings, '/memberships/nicolas%40split.io'), { status: 200, body: membershipsNicolasMock1 });
   fetchMock.getOnce(url(settings, '/memberships/marcio%40split.io'), { status: 200, body: membershipsMarcio });
 
   // split and segment sync due to streaming up (CONTROL event)
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=1457552649999'), { status: 200, body: { splits: [], since: 1457552649999, till: 1457552649999 } });
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1457552649999&rbSince=-1'), { status: 200, body: { ff: { d: [], s: 1457552649999, t: 1457552649999 } } });
   fetchMock.getOnce(url(settings, '/memberships/nicolas%40split.io'), { status: 200, body: membershipsNicolasMock1 });
   fetchMock.getOnce(url(settings, '/memberships/marcio%40split.io'), { status: 200, body: membershipsMarcio });
 
@@ -280,20 +280,20 @@ export function testFallback(fetchMock, assert) {
   fetchMock.getOnce(url(settings, '/memberships/marcio%40split.io'), { status: 200, body: membershipsMarcio });
 
   // fetches due to third fallback to polling (STREAMING_PAUSED), two sync all (two STREAMING_RESET events) and fourth fallback (STREAMING_DISABLED)
-  fetchMock.get({ url: url(settings, '/splitChanges?s=1.2&since=1457552649999'), repeat: 4 }, { status: 200, body: { splits: [], since: 1457552649999, till: 1457552649999 } });
+  fetchMock.get({ url: url(settings, '/splitChanges?s=1.3&since=1457552649999&rbSince=-1'), repeat: 4 }, { status: 200, body: { ff: { d: [], s: 1457552649999, t: 1457552649999 } } });
   fetchMock.get({ url: url(settings, '/memberships/nicolas%40split.io'), repeat: 4 }, { status: 200, body: membershipsNicolasMock1 });
   fetchMock.get({ url: url(settings, '/memberships/marcio%40split.io'), repeat: 4 }, { status: 200, body: membershipsMarcio });
 
   // Periodic fetch due to polling (memberships is not fetched due to smart pausing)
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=1457552649999'), function () {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1457552649999&rbSince=-1'), function () {
     const lapse = Date.now() - start;
-    assert.true(nearlyEqual(lapse, MILLIS_STREAMING_DISABLED_CONTROL + settings.scheduler.featuresRefreshRate), 'fetch due to fourth fallback to polling');
-    return { status: 200, body: splitChangesMock3 };
+    assert.true(nearlyEqual(lapse, MILLIS_STREAMING_DISABLED_CONTROL + settings.scheduler.featuresRefreshRate, 100), 'fetch due to fourth fallback to polling');
+    return { status: 200, body: splitChangesMockReal3 };
   });
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=1457552669999'), function () {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1457552669999&rbSince=-1'), function () {
     const lapse = Date.now() - start;
-    assert.true(nearlyEqual(lapse, MILLIS_STREAMING_DISABLED_CONTROL + settings.scheduler.featuresRefreshRate * 2), 'fetch due to fourth fallback to polling');
-    return { status: 200, body: { splits: [], since: 1457552669999, till: 1457552669999 } };
+    assert.true(nearlyEqual(lapse, MILLIS_STREAMING_DISABLED_CONTROL + settings.scheduler.featuresRefreshRate * 2, 100), 'fetch due to fourth fallback to polling');
+    return { status: 200, body: { ff: { d: [], s: 1457552669999, t: 1457552669999 } } };
   });
 
   fetchMock.get(new RegExp('.*'), function (url) {

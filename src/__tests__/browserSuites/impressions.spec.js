@@ -24,8 +24,8 @@ let truncatedTimeFrame;
 
 export default function (fetchMock, assert) {
   // Mocking this specific route to make sure we only get the items we want to test from the handlers.
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.2&since=-1'), { status: 200, body: splitChangesMock1 });
-  fetchMock.get(url(settings, '/splitChanges?s=1.2&since=1457552620999'), { status: 200, body: splitChangesMock2 });
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=-1&rbSince=-1'), { status: 200, body: splitChangesMock1 });
+  fetchMock.get(url(settings, '/splitChanges?s=1.3&since=1457552620999&rbSince=100'), { status: 200, body: splitChangesMock2 });
   fetchMock.get(url(settings, '/memberships/facundo%40split.io'), { status: 200, body: membershipsFacundo });
 
   const splitio = SplitFactory({
@@ -47,30 +47,21 @@ export default function (fetchMock, assert) {
 
   const client = splitio.client();
   const assertPayload = req => {
-    const resp = JSON.parse(req.body);
+    const reqBody = JSON.parse(req.body);
 
-    assert.equal(resp.length, 2, 'We performed three evaluations so we should have 2 impressions type');
-
-    const dependencyChildImpr = resp.filter(e => e.f === 'hierarchical_splits_test')[0];
-    const alwaysOnWithConfigImpr = resp.filter(e => e.f === 'split_with_config')[0];
-
-    assert.true(dependencyChildImpr, 'Split we wanted to evaluate should be present on the impressions.');
-    assert.false(resp.some(e => e.f === 'hierarchical_dep_always_on'), 'Parent split evaluations should not result in impressions.');
-    assert.false(resp.some(e => e.f === 'hierarchical_dep_hierarchical'), 'No matter how deep is the chain.');
-    assert.true(alwaysOnWithConfigImpr, 'Split evaluated with config should have generated an impression too.');
-    assert.false(Object.prototype.hasOwnProperty.call(alwaysOnWithConfigImpr.i[0], 'configuration'), 'Impressions do not change with configuration evaluations.');
-    assert.false(Object.prototype.hasOwnProperty.call(alwaysOnWithConfigImpr.i[0], 'config'), 'Impressions do not change with configuration evaluations.');
-
-    const {
-      k,
-      r,
-      t
-    } = dependencyChildImpr.i[0];
-
-    assert.equal(k, 'facundo@split.io', 'Present impression should have the correct key.');
-    // The label present on the mock.
-    assert.equal(r, 'expected label', 'Present impression should have the correct label.');
-    assert.equal(t, 'on', 'Present impression should have the correct treatment.');
+    assert.deepEqual(reqBody, [{
+      f: 'hierarchical_splits_test',
+      i: [{
+        k: 'facundo@split.io', t: 'on', m: reqBody[0].i[0].m, c: 2828282828, r: 'expected label'
+      }]
+    }, {
+      f: 'split_with_config',
+      i: [{
+        k: 'facundo@split.io', t: 'o.n', m: reqBody[1].i[0].m, c: 828282828282, r: 'another expected label'
+      }, {
+        k: 'facundo@split.io', t: 'o.n', m: reqBody[1].i[1].m, c: 828282828282, r: 'another expected label', properties: '{"some":"value2"}'
+      }]
+    }], 'We performed evaluations for 3 features, but one with `impressionsDisabled` true, so we should have 2 items total');
   };
 
   fetchMock.postOnce(url(settings, '/testImpressions/bulk'), (url, req) => {
@@ -91,21 +82,24 @@ export default function (fetchMock, assert) {
     return 200;
   });
 
-  fetchMock.postOnce(url(settings, '/testImpressions/count'), (url, opts) => {
-    const data = JSON.parse(opts.body);
+  fetchMock.postOnce(url(settings, '/testImpressions/count'), (url, req) => {
+    const reqBody = JSON.parse(req.body);
 
-    assert.equal(data.pf.length, 1, 'We should generate impressions count for one feature.');
+    assert.deepEqual(reqBody, {
+      pf: [{
+        f: 'split_with_config', m: truncatedTimeFrame, rc: 2
+      }, {
+        f: 'always_on_impressions_disabled_true', m: truncatedTimeFrame, rc: 1
+      }]
+    }, 'We should generate impressions count for 2 features.');
 
-    // finding these validate the feature names collection too
-    const dependencyChildImpr = data.pf.filter(e => e.f === 'hierarchical_splits_test')[0];
-    const alwaysOnWithConfigImpr = data.pf.filter(e => e.f === 'split_with_config')[0];
+    return 200;
+  });
 
-    assert.equal(dependencyChildImpr.rc, 1);
-    assert.equal(typeof dependencyChildImpr.m, 'number');
-    assert.equal(dependencyChildImpr.m, truncatedTimeFrame);
-    assert.equal(alwaysOnWithConfigImpr.rc, 3);
-    assert.equal(typeof alwaysOnWithConfigImpr.m, 'number');
-    assert.equal(alwaysOnWithConfigImpr.m, truncatedTimeFrame);
+  fetchMock.postOnce(url(settings, '/v1/keys/cs'), (url, opts) => {
+    assert.deepEqual(JSON.parse(opts.body), {
+      keys: [{ fs: ['always_on_impressions_disabled_true'], k: 'facundo@split.io' }]
+    }, 'We should only track unique keys for features flags with track impressions disabled.');
 
     return 200;
   });
@@ -119,6 +113,12 @@ export default function (fetchMock, assert) {
       config: '{"color":"brown","dimensions":{"height":12,"width":14},"text":{"inner":"click me"}}'
     }, 'We should get an evaluation as always.');
     client.getTreatmentWithConfig('split_with_config');
-    client.getTreatmentWithConfig('split_with_config');
+    client.getTreatmentWithConfig('split_with_config', undefined, { properties: { /* empty properties are ignored */ } });
+
+    // Impression should not be tracked (passed properties will not be submitted)
+    assert.equal(client.getTreatment('always_on_impressions_disabled_true'), 'on', undefined, { properties: { some: 'value1' } });
+
+    // Tracked impression with properties should be handled in DEBUG mode (doesn't increase `rc` count but adds an impression)
+    assert.equal(client.getTreatment('split_with_config', undefined, { properties: { some: 'value2' } }), 'o.n');
   });
 }

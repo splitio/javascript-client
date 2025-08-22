@@ -1,7 +1,8 @@
 // Declaration file for JavaScript Split Software SDK
-// Project: http://www.split.io/
+// Project: https://www.split.io/
 
-/// <reference path="../splitio.d.ts" />
+import '@splitsoftware/splitio-commons';
+
 export = JsSdk;
 
 declare module JsSdk {

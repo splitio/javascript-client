@@ -3,8 +3,14 @@
 const merge = require('lodash/merge');
 
 module.exports = merge({}, require('./config'), {
+  customLaunchers: {
+    ChromeNoSandbox: {
+      base: 'Chrome',
+      flags: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu']
+    }
+  },
   browsers: [
-    'Chrome'
+    'ChromeNoSandbox'
   ],
   webpack: {
     mode: 'development'

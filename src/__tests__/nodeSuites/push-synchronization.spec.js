@@ -7,6 +7,7 @@ import splitChangesMock6 from '../mocks/splitchanges.since.1684265694505.till.16
 import splitChangesMock7 from '../mocks/splitchanges.since.1684265694506.till.1684265694526.SPLIT_UPDATE.json';
 import splitChangesMock8 from '../mocks/splitchanges.since.1684265694526.till.1684265694546.SPLIT_UPDATE.json';
 import splitChangesMock9 from '../mocks/splitchanges.since.1684265694546.till.1684265694556.SPLIT_UPDATE.json';
+import splitChangesMock10 from '../mocks/splitchanges.since.100.till.1457552649999.RB_SEGMENT_UPDATE.json';
 
 import splitUpdateMessage from '../mocks/message.SPLIT_UPDATE.1457552649999.json';
 import oldSplitUpdateMessage from '../mocks/message.SPLIT_UPDATE.1457552620999.json';
@@ -18,6 +19,11 @@ import iffuSplitUpdateMessageWrongCompressionCode from '../mocks/message.SPLIT_U
 import iffuSplitUpdateMessageZeroPCN from '../mocks/message.SPLIT_UPDATE.IFFU.1684265694525.json';
 import iffuSplitUpdateMessageMissingPCN from '../mocks/message.SPLIT_UPDATE.IFFU.1684265694545.json';
 import iffuSplitUpdateMessageArchivedFF from '../mocks/message.SPLIT_UPDATE.IFFU.1684265694555.json';
+
+import rbsUpdateMessage from '../mocks/message.RB_SEGMENT_UPDATE.1457552649999.json';
+import iffuRbsUpdateNoCompressionMessage from '../mocks/message.RB_SEGMENT_UPDATE.C0.json';
+import iffuRbsUpdateGZipMessage from '../mocks/message.RB_SEGMENT_UPDATE.C1.json';
+import iffuRbsUpdateZLibMessage from '../mocks/message.RB_SEGMENT_UPDATE.C2.json';
 
 import authPushEnabled from '../mocks/auth.pushEnabled.node.json';
 
@@ -59,7 +65,11 @@ const MILLIS_IFFU_UPDATE_EVENT_WITH_OLD_CHANGENUMBER = 900;
 const MILLIS_IFFU_UPDATE_EVENT_WITH_ZERO_PCN = 1000;
 const MILLIS_IFFU_UPDATE_EVENT_WITH_MISSING_PCN = 1100;
 const MILLIS_IFFU_UPDATE_EVENT_WITH_ARCHIVED = 1200;
-const MILLIS_DESTROY = 1300;
+const MILLIS_FIRST_RB_SEGMENT_UPDATE_EVENT = 1300;
+const MILLIS_IFFU_RB_SEGMENT_UPDATE_C0_EVENT = 1400;
+const MILLIS_IFFU_RB_SEGMENT_UPDATE_C1_EVENT = 1500;
+const MILLIS_IFFU_RB_SEGMENT_UPDATE_C2_EVENT = 1600;
+const MILLIS_DESTROY = 1700;
 
 /**
  * Sequence of calls:
@@ -76,9 +86,13 @@ const MILLIS_DESTROY = 1300;
  *  1.0 secs: SPLIT_UPDATE IFFU event with pcn = 0 -> /splitChanges
  *  1.1 secs: SPLIT_UPDATE IFFU event with previous change number !== current change number -> /splitChanges
  *  1.2 secs: SPLIT_UPDATE IFFU event with ARCHIVED feature flag in notification and Base64 encoded + zLib (c==2) -> /splitChanges
+ *  1.3 secs: RB_SEGMENT_UPDATE event -> /splitChanges
+ *  1.4 secs: RB_SEGMENT_UPDATE IFFU event with no compression
+ *  1.5 secs: RB_SEGMENT_UPDATE IFFU event with Gzip compression
+ *  1.6 secs: RB_SEGMENT_UPDATE IFFU event with ZLib compression
  */
 export function testSynchronization(fetchMock, assert) {
-  assert.plan(49);
+  assert.plan(53);
   fetchMock.reset();
   __setEventSource(EventSourceMock);
 
@@ -205,24 +219,56 @@ export function testSynchronization(fetchMock, assert) {
     }, MILLIS_IFFU_UPDATE_EVENT_WITH_ARCHIVED); // send a SPLIT_UPDATE event with pcn = 0 after 1.1 seconds
 
     setTimeout(() => {
+      client.once(client.Event.SDK_UPDATE, () => {
+        const lapse = Date.now() - start;
+        assert.true(nearlyEqual(lapse, MILLIS_FIRST_RB_SEGMENT_UPDATE_EVENT), 'SDK_UPDATE due to RB_SEGMENT_UPDATE event');
+      });
+      eventSourceInstance.emitMessage(rbsUpdateMessage);
+    }, MILLIS_FIRST_RB_SEGMENT_UPDATE_EVENT); // send a RB_SEGMENT_UPDATE event with a new changeNumber
+
+    setTimeout(() => {
+      client.once(client.Event.SDK_UPDATE, () => {
+        const lapse = Date.now() - start;
+        assert.true(nearlyEqual(lapse, MILLIS_IFFU_RB_SEGMENT_UPDATE_C0_EVENT), 'SDK_UPDATE due to RB_SEGMENT_UPDATE IFFU event with no compression');
+      });
+      eventSourceInstance.emitMessage(iffuRbsUpdateNoCompressionMessage);
+    }, MILLIS_IFFU_RB_SEGMENT_UPDATE_C0_EVENT); // send a IFFU RB_SEGMENT_UPDATE event
+
+    setTimeout(() => {
+      client.once(client.Event.SDK_UPDATE, () => {
+        const lapse = Date.now() - start;
+        assert.true(nearlyEqual(lapse, MILLIS_IFFU_RB_SEGMENT_UPDATE_C1_EVENT), 'SDK_UPDATE due to RB_SEGMENT_UPDATE IFFU event with GZip compression');
+      });
+      eventSourceInstance.emitMessage(iffuRbsUpdateGZipMessage);
+    }, MILLIS_IFFU_RB_SEGMENT_UPDATE_C1_EVENT); // send a IFFU RB_SEGMENT_UPDATE event
+
+    setTimeout(() => {
+      client.once(client.Event.SDK_UPDATE, () => {
+        const lapse = Date.now() - start;
+        assert.true(nearlyEqual(lapse, MILLIS_IFFU_RB_SEGMENT_UPDATE_C2_EVENT), 'SDK_UPDATE due to RB_SEGMENT_UPDATE IFFU event with ZLib compression');
+      });
+      eventSourceInstance.emitMessage(iffuRbsUpdateZLibMessage);
+    }, MILLIS_IFFU_RB_SEGMENT_UPDATE_C2_EVENT); // send a IFFU RB_SEGMENT_UPDATE event
+
+    setTimeout(() => {
       client.destroy().then(() => {
         assert.equal(client.getTreatment(key, 'whitelist'), 'control', 'evaluation returns control if client is destroyed');
-        // @TODO SDK_UPDATE should be emitted 9 times, but currently it is being emitted twice on SPLIT_KILL
-        assert.equal(sdkUpdateCount, 10, 'SDK_UPDATE should be emitted 10 times');
+        // @TODO SDK_UPDATE should be emitted 13 times, but currently it is being emitted twice on SPLIT_KILL
+        assert.equal(sdkUpdateCount, 14, 'SDK_UPDATE should be emitted 14 times');
         assert.end();
       });
-    }, MILLIS_DESTROY); // destroy client after 1.3 second
+    }, MILLIS_DESTROY); // destroy client
   });
 
   // initial auth
-  fetchMock.getOnce(url(settings, '/v2/auth?s=1.1'), function (url, opts) {
+  fetchMock.getOnce(url(settings, '/v2/auth?s=1.3'), function (url, opts) {
     if (!opts.headers['Authorization']) assert.fail('`/v2/auth` request must include `Authorization` header');
     assert.pass('auth success');
     return { status: 200, body: authPushEnabled };
   });
 
   // initial split and segment sync
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=-1'), function (url, opts) {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=-1&rbSince=-1'), function (url, opts) {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, 0), 'initial sync');
     if (hasNoCacheHeader(opts)) assert.fail('request must not include `Cache-Control` header');
@@ -239,7 +285,7 @@ export function testSynchronization(fetchMock, assert) {
   });
 
   // split and segment sync after SSE opened
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=1457552620999'), function (url, opts) {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1457552620999&rbSince=100'), function (url, opts) {
     const lapse = Date.now() - start;
     assert.true(nearlyEqual(lapse, MILLIS_SSE_OPEN), 'sync after SSE connection is opened');
     if (hasNoCacheHeader(opts)) assert.fail('request must not include `Cache-Control` header');
@@ -251,7 +297,7 @@ export function testSynchronization(fetchMock, assert) {
   });
 
   // fetch due to SPLIT_UPDATE event
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=1457552620999'), function (url, opts) {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1457552620999&rbSince=100'), function (url, opts) {
     if (!hasNoCacheHeader(opts)) assert.fail('request must include `Cache-Control` header');
     return { status: 200, body: splitChangesMock3 };
   });
@@ -268,14 +314,14 @@ export function testSynchronization(fetchMock, assert) {
   });
 
   // fetch due to SPLIT_KILL event
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=1457552649999'), function (url, opts) {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1457552649999&rbSince=100'), function (url, opts) {
     if (!hasNoCacheHeader(opts)) assert.fail('request must include `Cache-Control` header');
     assert.equal(client.getTreatment(key, 'whitelist'), 'not_allowed', 'evaluation with split killed immediately, before fetch is done');
     return { status: 200, body: splitChangesMock4 };
   });
 
   // fetch due to SPLIT_UPDATE event, with an update that involves a new segment
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=1457552650000'), function (url, opts) {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1457552650000&rbSince=100'), function (url, opts) {
     if (!hasNoCacheHeader(opts)) assert.fail('request must include `Cache-Control` header');
     return { status: 200, body: splitChangesMock5 };
   });
@@ -286,30 +332,36 @@ export function testSynchronization(fetchMock, assert) {
   });
 
   // fetch feature flags due to IFFU SPLIT_UPDATE event with wrong compress code
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=1684265694505'), function (url, opts) {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1684265694505&rbSince=100'), function (url, opts) {
     if (!hasNoCacheHeader(opts)) assert.fail('request must include `Cache-Control` header');
     return { status: 200, body: splitChangesMock6 };
   });
 
   // fetch feature flags due to IFFU SPLIT_UPDATE event with previous change number = 0
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=1684265694506'), function (url, opts) {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1684265694506&rbSince=100'), function (url, opts) {
     if (!hasNoCacheHeader(opts)) assert.fail('request must include `Cache-Control` header');
     return { status: 200, body: splitChangesMock7 };
   });
 
   // fetch feature flags due to IFFU SPLIT_UPDATE event with previous change number !== current change number
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=1684265694526'), function (url, opts) {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1684265694526&rbSince=100'), function (url, opts) {
     if (!hasNoCacheHeader(opts)) assert.fail('request must include `Cache-Control` header');
     return { status: 200, body: splitChangesMock8 };
   });
 
   // fetch feature flags due to IFFU SPLIT_UPDATE event with ARCHIVED feature flag
-  fetchMock.getOnce(url(settings, '/splitChanges?s=1.1&since=1684265694546'), function (url, opts) {
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1684265694546&rbSince=100'), function (url, opts) {
     if (!hasNoCacheHeader(opts)) assert.fail('request must include `Cache-Control` header');
     return { status: 200, body: splitChangesMock9 };
   });
 
-  mockSegmentChanges(fetchMock, new RegExp(`${url(settings, '/segmentChanges')}/(employees|developers)`), [key]);
+  // fetch due to RB_SEGMENTS_UPDATE event
+  fetchMock.getOnce(url(settings, '/splitChanges?s=1.3&since=1684265694556&rbSince=100'), { status: 200, body: splitChangesMock10 });
+
+  mockSegmentChanges(fetchMock, new RegExp(`${url(settings, '/segmentChanges')}/employees`), [key]);
+  mockSegmentChanges(fetchMock, new RegExp(`${url(settings, '/segmentChanges')}/segment_excluded_by_rbs`), []);
+  // Special case: empty segment with -1 till
+  mockSegmentChanges(fetchMock, new RegExp(`${url(settings, '/segmentChanges')}/developers`), [], -1);
   mockSegmentChanges(fetchMock, { url: new RegExp(`${url(settings, '/segmentChanges')}/new_segment`), repeat: 2 }, [otherUserKey]);
 
   fetchMock.get(new RegExp('.*'), function (url) {

@@ -11,7 +11,16 @@
  * @author Nico Zelaya <nicolas.zelaya@split.io>
  */
 
-import { SplitFactory } from '@splitsoftware/splitio';
+import type * as SplitTypes from '../types/splitio';
+
+import { SplitFactory } from '../types/index';
+import { SplitFactory as SplitFactoryCS } from '../types/client';
+import { SplitFactory as SplitFactorySS } from '../types/server';
+
+// Validate that the SplitIO namespace is available and matches the types when imported explicitly
+let ambientType: SplitIO.ISDK;
+let importedType: SplitTypes.ISDK;
+ambientType = importedType;
 
 let stringPromise: Promise<string>;
 let splitNamesPromise: Promise<SplitIO.SplitNames>;
@@ -75,6 +84,14 @@ const attributes: SplitIO.Attributes = {
   attr6: [1, 2],
   attr7: true
 };
+const evaluationOptions: SplitIO.EvaluationOptions = {
+  properties: {
+    prop1: 1,
+    prop2: '2',
+    prop3: true,
+    prop4: null
+  }
+};
 const splitKeyObj: SplitIO.SplitKeyObject = {
   matchingKey: 'matchingKey',
   bucketingKey: 'bucketingKey'
@@ -125,7 +142,9 @@ splitView = {
     off: '{"dimensions":"{\"height\":20,\"width\":40}"}'
   },
   sets: ['set_a', 'set_b'],
-  defaultTreatment: 'off'
+  defaultTreatment: 'off',
+  impressionsDisabled: false,
+  prerequisites: [{ flagName: 'flag1', treatments: ['on'] }]
 };
 splitViews = [splitView];
 
@@ -139,13 +158,13 @@ splitKey = splitKeyObj;
 
 /**** Tests for ISDK interface ****/
 
-// For node with sync storage
+// For Node.js with sync storage
 nodeSettings = {
   core: {
     authorizationKey: 'key'
   }
 };
-// For node with async storage
+// For Node.js with async storage
 asyncSettings = {
   core: {
     authorizationKey: 'key'
@@ -166,6 +185,9 @@ browserSettings = {
 SDK = SplitFactory(nodeSettings);
 AsyncSDK = SplitFactory(asyncSettings);
 BrowserSDK = SplitFactory(browserSettings);
+SDK = SplitFactorySS(nodeSettings);
+AsyncSDK = SplitFactorySS(asyncSettings);
+BrowserSDK = SplitFactoryCS(browserSettings);
 
 // The settings values the SDK expose.
 const instantiatedSettingsCore: {
@@ -174,28 +196,23 @@ const instantiatedSettingsCore: {
   labelsEnabled: boolean,
   IPAddressesEnabled: boolean
 } = SDK.settings.core;
-const instantiatedSettingsMode: ('standalone' | 'consumer') = SDK.settings.mode;
+const instantiatedSettingsMode: ('standalone' | 'consumer' | 'consumer_partial' | 'localhost') = SDK.settings.mode;
 const instantiatedSettingsScheduler: { [key: string]: number } = SDK.settings.scheduler;
 const instantiatedSettingsStartup: { [key: string]: number } = SDK.settings.startup;
-const instantiatedSettingsStorage: {
-  prefix: string,
-  options: Object,
-  // It can have any of the storages.
-  type: SplitIO.NodeSyncStorage | SplitIO.NodeAsyncStorage | SplitIO.BrowserStorage
-} = SDK.settings.storage;
+const instantiatedSettingsStorage = SDK.settings.storage as SplitIO.StorageOptions;
 const instantiatedSettingsUrls: { [key: string]: string } = SDK.settings.urls;
 const instantiatedSettingsVersion: string = SDK.settings.version;
 let instantiatedSettingsFeatures = SDK.settings.features as SplitIO.MockedFeaturesMap;
 // We should be able to write on features prop. The rest are readonly props.
 instantiatedSettingsFeatures.something = 'something';
-SDK.settings.features = 'new_file_path'; // Node
+SDK.settings.features = 'new_file_path'; // Node.js
 SDK.settings.features = { 'split_x': 'on' }; // Browser
 
 // Client and Manager
 client = SDK.client();
 manager = SDK.manager();
 manager = BrowserSDK.manager();
-// Today async clients are only possible on Node. Shared client creation not available here.
+// Today async clients are only possible on Node.js. Shared client creation not available here.
 asyncClient = AsyncSDK.client();
 asyncManager = AsyncSDK.manager();
 // Browser client for attributes binding
@@ -228,7 +245,7 @@ splitEvent = client.Event.SDK_READY_FROM_CACHE;
 splitEvent = client.Event.SDK_READY_TIMED_OUT;
 splitEvent = client.Event.SDK_UPDATE;
 
-// Client implements methods from NodeJS.Events. Testing a few.
+// Client implements methods from Node.js EventEmitter. Testing a few.
 client = client.on(splitEvent, () => { });
 const a: boolean = client.emit(splitEvent);
 client = client.removeAllListeners(splitEvent);
@@ -246,58 +263,74 @@ promise = SDK.destroy();
 // We can call getTreatment with or without a key.
 treatment = client.getTreatment(splitKey, 'mySplit');
 treatment = browserClient.getTreatment('mySplit');
-// Attributes parameter is optional on both signatures.
+// Attributes and EvaluationOptions parameters are optional
 treatment = client.getTreatment(splitKey, 'mySplit', attributes);
+treatment = client.getTreatment(splitKey, 'mySplit', undefined, evaluationOptions);
 treatment = browserClient.getTreatment('mySplit', attributes);
+treatment = browserClient.getTreatment('mySplit', undefined, evaluationOptions);
 
 // We can call getTreatments with or without a key.
 treatments = client.getTreatments(splitKey, ['mySplit']);
 treatments = browserClient.getTreatments(['mySplit']);
-// Attributes parameter is optional on both signatures.
+// Attributes and EvaluationOptions parameters are optional
 treatments = client.getTreatments(splitKey, ['mySplit'], attributes);
+treatments = client.getTreatments(splitKey, ['mySplit'], undefined, evaluationOptions);
 treatments = browserClient.getTreatments(['mySplit'], attributes);
+treatments = browserClient.getTreatments(['mySplit'], undefined, evaluationOptions);
 
 // We can call getTreatmentWithConfig with or without a key.
 treatmentWithConfig = client.getTreatmentWithConfig(splitKey, 'mySplit');
 treatmentWithConfig = browserClient.getTreatmentWithConfig('mySplit');
-// Attributes parameter is optional on both signatures.
+// Attributes and EvaluationOptions parameters are optional
 treatmentWithConfig = client.getTreatmentWithConfig(splitKey, 'mySplit', attributes);
+treatmentWithConfig = client.getTreatmentWithConfig(splitKey, 'mySplit', undefined, evaluationOptions);
 treatmentWithConfig = browserClient.getTreatmentWithConfig('mySplit', attributes);
+treatmentWithConfig = browserClient.getTreatmentWithConfig('mySplit', undefined, evaluationOptions);
 
 // We can call getTreatmentsWithConfig with or without a key.
 treatmentsWithConfig = client.getTreatmentsWithConfig(splitKey, ['mySplit']);
 treatmentsWithConfig = browserClient.getTreatmentsWithConfig(['mySplit']);
-// Attributes parameter is optional on both signatures.
+// Attributes and EvaluationOptions parameters are optional
 treatmentsWithConfig = client.getTreatmentsWithConfig(splitKey, ['mySplit'], attributes);
+treatmentsWithConfig = client.getTreatmentsWithConfig(splitKey, ['mySplit'], undefined, evaluationOptions);
 treatmentsWithConfig = browserClient.getTreatmentsWithConfig(['mySplit'], attributes);
+treatmentsWithConfig = browserClient.getTreatmentsWithConfig(['mySplit'], undefined, evaluationOptions);
 
 // We can call getTreatmentsByFlagSet with or without a key.
 treatments = client.getTreatmentsByFlagSet(splitKey, 'set_a');
 treatments = browserClient.getTreatmentsByFlagSet('set_a');
-// Attributes parameter is optional.
+// Attributes and EvaluationOptions parameters are optional
 treatments = client.getTreatmentsByFlagSet(splitKey, 'set_a', attributes);
+treatments = client.getTreatmentsByFlagSet(splitKey, 'set_a', undefined, evaluationOptions);
 treatments = browserClient.getTreatmentsByFlagSet('set_a', attributes);
+treatments = browserClient.getTreatmentsByFlagSet('set_a', undefined, evaluationOptions);
 
 // We can call getTreatmentsByFlagSets with or without a key.
 treatments = client.getTreatmentsByFlagSets(splitKey, ['set_a']);
 treatments = browserClient.getTreatmentsByFlagSets(['set_a']);
-// Attributes parameter is optional.
+// Attributes and EvaluationOptions parameters are optional
 treatments = client.getTreatmentsByFlagSets(splitKey, ['set_a'], attributes);
+treatments = client.getTreatmentsByFlagSets(splitKey, ['set_a'], undefined, evaluationOptions);
 treatments = browserClient.getTreatmentsByFlagSets(['set_a'], attributes);
+treatments = browserClient.getTreatmentsByFlagSets(['set_a'], undefined, evaluationOptions);
 
 // We can call getTreatmentsWithConfigByFlagSet with or without a key.
 treatmentsWithConfig = client.getTreatmentsWithConfigByFlagSet(splitKey, 'set_a');
 treatmentsWithConfig = browserClient.getTreatmentsWithConfigByFlagSet('set_a');
-// Attributes parameter is optional.
+// Attributes and EvaluationOptions parameters are optional
 treatmentsWithConfig = client.getTreatmentsWithConfigByFlagSet(splitKey, 'set_a', attributes);
+treatmentsWithConfig = client.getTreatmentsWithConfigByFlagSet(splitKey, 'set_a', undefined, evaluationOptions);
 treatmentsWithConfig = browserClient.getTreatmentsWithConfigByFlagSet('set_a', attributes);
+treatmentsWithConfig = browserClient.getTreatmentsWithConfigByFlagSet('set_a', undefined, evaluationOptions);
 
 // We can call getTreatmentsWithConfigByFlagSets with or without a key.
 treatmentsWithConfig = client.getTreatmentsWithConfigByFlagSets(splitKey, ['set_a']);
 treatmentsWithConfig = browserClient.getTreatmentsWithConfigByFlagSets(['set_a']);
-// Attributes parameter is optional.
+// Attributes and EvaluationOptions parameters are optional
 treatmentsWithConfig = client.getTreatmentsWithConfigByFlagSets(splitKey, ['set_a'], attributes);
+treatmentsWithConfig = client.getTreatmentsWithConfigByFlagSets(splitKey, ['set_a'], undefined, evaluationOptions);
 treatmentsWithConfig = browserClient.getTreatmentsWithConfigByFlagSets(['set_a'], attributes);
+treatmentsWithConfig = browserClient.getTreatmentsWithConfigByFlagSets(['set_a'], undefined, evaluationOptions);
 
 // We can call track with or without a key.
 tracked = client.track(splitKey, 'myTrafficType', 'myEventType'); // all params
@@ -318,7 +351,7 @@ splitEvent = asyncClient.Event.SDK_READY_FROM_CACHE;
 splitEvent = asyncClient.Event.SDK_READY_TIMED_OUT;
 splitEvent = asyncClient.Event.SDK_UPDATE;
 
-// Client implements methods from NodeJS.Events. (same as for sync client, just for interface checking)
+// Client implements methods from Node.js EventEmitter. (same as for sync client, just for interface checking)
 asyncClient = asyncClient.on(splitEvent, () => { });
 const a1: boolean = asyncClient.emit(splitEvent);
 asyncClient = asyncClient.removeAllListeners(splitEvent);
@@ -335,43 +368,51 @@ promise = AsyncSDK.destroy();
 
 // We can call getTreatment but always with a key.
 asyncTreatment = asyncClient.getTreatment(splitKey, 'mySplit');
-// Attributes parameter is optional
+// Attributes and EvaluationOptions parameters are optional
 asyncTreatment = asyncClient.getTreatment(splitKey, 'mySplit', attributes);
+asyncTreatment = asyncClient.getTreatment(splitKey, 'mySplit', undefined, evaluationOptions);
 
 // We can call getTreatments but always with a key.
 asyncTreatments = asyncClient.getTreatments(splitKey, ['mySplit']);
-// Attributes parameter is optional
+// Attributes and EvaluationOptions parameters are optional
 asyncTreatments = asyncClient.getTreatments(splitKey, ['mySplit'], attributes);
+asyncTreatments = asyncClient.getTreatments(splitKey, ['mySplit'], undefined, evaluationOptions);
 
 // We can call getTreatmentWithConfig but always with a key.
 asyncTreatmentWithConfig = asyncClient.getTreatmentWithConfig(splitKey, 'mySplit');
-// Attributes parameter is optional
+// Attributes and EvaluationOptions parameters are optional
 asyncTreatmentWithConfig = asyncClient.getTreatmentWithConfig(splitKey, 'mySplit', attributes);
+asyncTreatmentWithConfig = asyncClient.getTreatmentWithConfig(splitKey, 'mySplit', undefined, evaluationOptions);
 
 // We can call getTreatments but always with a key.
 asyncTreatmentsWithConfig = asyncClient.getTreatmentsWithConfig(splitKey, ['mySplit']);
-// Attributes parameter is optional
+// Attributes and EvaluationOptions parameters are optional
 asyncTreatmentsWithConfig = asyncClient.getTreatmentsWithConfig(splitKey, ['mySplit'], attributes);
+asyncTreatmentsWithConfig = asyncClient.getTreatmentsWithConfig(splitKey, ['mySplit'], undefined, evaluationOptions);
 
 // We can call getTreatmentsByFlagSet
 asyncTreatments = asyncClient.getTreatmentsByFlagSet(splitKey, 'set_a');
-// Attributes parameter is optional
+// Attributes and EvaluationOptions parameters are optional
 asyncTreatments = asyncClient.getTreatmentsByFlagSet(splitKey, 'set_a', attributes);
+asyncTreatments = asyncClient.getTreatmentsByFlagSet(splitKey, 'set_a', undefined, evaluationOptions);
 
 // We can call getTreatmentsByFlagSets
 asyncTreatments = asyncClient.getTreatmentsByFlagSets(splitKey, ['set_a']);
-// Attributes parameter is optional
+// Attributes and EvaluationOptions parameters are optional
 asyncTreatments = asyncClient.getTreatmentsByFlagSets(splitKey, ['set_a'], attributes);
+asyncTreatments = asyncClient.getTreatmentsByFlagSets(splitKey, ['set_a'], undefined, evaluationOptions);
 
 // We can call getTreatmentsWithConfigByFlagSet
 asyncTreatmentsWithConfig = asyncClient.getTreatmentsWithConfigByFlagSet(splitKey, 'set_a');
-// Attributes parameter is optional
+// Attributes and EvaluationOptions parameters are optional
 asyncTreatmentsWithConfig = asyncClient.getTreatmentsWithConfigByFlagSet(splitKey, 'set_a', attributes);
+asyncTreatmentsWithConfig = asyncClient.getTreatmentsWithConfigByFlagSet(splitKey, 'set_a', undefined, evaluationOptions);
 
 // We can call getTreatmentsByFlagSets but always with a key.
 asyncTreatmentsWithConfig = asyncClient.getTreatmentsWithConfigByFlagSets(splitKey, ['set_a']);
-// Attributes parameter is optional
+// Attributes and EvaluationOptions parameters are optional
 asyncTreatmentsWithConfig = asyncClient.getTreatmentsWithConfigByFlagSets(splitKey, ['set_a'], attributes);
+asyncTreatmentsWithConfig = asyncClient.getTreatmentsWithConfigByFlagSets(splitKey, ['set_a'], undefined, evaluationOptions);
 
 // We can call track only with a key.
 trackPromise = asyncClient.track(splitKey, 'myTrafficType', 'myEventType'); // all required params
@@ -389,7 +430,7 @@ splitViews = manager.splits();
 // Manager implements ready promise.
 promise = manager.ready();
 
-// Manager implements methods from NodeJS.Events. Testing a few.
+// Manager implements methods from Node.js EventEmitter. Testing a few.
 manager = manager.on(splitEvent, () => { });
 const aa: boolean = manager.emit(splitEvent);
 manager = manager.removeAllListeners(splitEvent);
@@ -413,7 +454,7 @@ splitViewsAsync = asyncManager.splits();
 // asyncManager implements ready promise.
 promise = asyncManager.ready();
 
-// asyncManager implements methods from NodeJS.Events. Testing a few.
+// asyncManager implements methods from Node.js EventEmitter. Testing a few.
 asyncManager = asyncManager.on(splitEvent, () => { });
 const aaa: boolean = asyncManager.emit(splitEvent);
 asyncManager = asyncManager.removeAllListeners(splitEvent);
@@ -468,6 +509,7 @@ let attr: SplitIO.Attributes = {
   stringArrayAttribute: ['value1', 'value2'],
   numberArrayAttribute: [1, 2]
 }
+let attr2: SplitTypes.Attributes = attr;
 
 stored = browserClient.setAttributes(attr);
 let storedAttr: SplitIO.Attributes = browserClient.getAttributes();
@@ -522,7 +564,9 @@ let fullBrowserSettings: SplitIO.IBrowserSettings = {
   features: mockedFeaturesMap,
   storage: {
     type: 'LOCALSTORAGE',
-    prefix: 'PREFIX'
+    prefix: 'PREFIX',
+    expirationDays: 1,
+    clearOnInit: true
   },
   impressionListener: impressionListener,
   debug: true,
@@ -635,6 +679,7 @@ let fullAsyncSettings: SplitIO.INodeAsyncSettings = {
   debug: true,
   sync: {
     splitFilters: splitFilters,
+    impressionsMode: 'DEBUG',
   }
 };
 

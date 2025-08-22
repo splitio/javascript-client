@@ -46,7 +46,7 @@ export default function (assert) {
     const testAttrs = { is_test: true };
 
     // Impression listener is shared across all client instances and does not get affected by configurations.
-    client.getTreatment('hierarchical_splits_test');
+    client.getTreatment('hierarchical_splits_test', undefined, { properties: { prop1: 'prop-value' } });
     client2.getTreatment('qc_team');
     client2.getTreatmentWithConfig('qc_team'); // Validate that the impression is the same.
     client3.getTreatment('qc_team', testAttrs);
@@ -57,17 +57,22 @@ export default function (assert) {
         keyName: 'marcio@split.io',
         treatment: 'no',
         bucketingKey: 'impr_bucketing_2',
-        label: 'default rule'
+        label: 'default rule',
+        pt: undefined,
+        properties: undefined
       };
 
       assert.equal(listener.logImpression.callCount, 4, 'Impression listener logImpression method should be called after we call client.getTreatment, once per each impression generated.');
-      assert.true(listener.logImpression.getCall(0).calledWithMatch({
+      assert.true(listener.logImpression.getCall(0).calledWithExactly({
         impression: {
           feature: 'hierarchical_splits_test',
           keyName: 'nicolas@split.io',
           treatment: 'on',
+          time: listener.logImpression.getCall(0).args[0].impression.time,
           bucketingKey: undefined,
           label: 'expected label',
+          changeNumber: 2828282828,
+          properties: '{"prop1":"prop-value"}'
         },
         attributes: undefined,
         ...metaData

@@ -18,8 +18,8 @@ export function nearlyEqual(actual, expected, epsilon = DEFAULT_ERROR_MARGIN) {
  *  - when `?since=-1`, it returns the given segment `keys` in `added` list.
  *  - otherwise, it returns empty `added` and `removed` lists, and the same since and till values.
  *
- * @param {Object} fetchMock see http://www.wheresrhys.co.uk/fetch-mock
- * @param {string|RegExp|...} matcher see http://www.wheresrhys.co.uk/fetch-mock/#api-mockingmock_matcher
+ * @param {Object} fetchMock see https://www.wheresrhys.co.uk/fetch-mock
+ * @param {string|RegExp|...} matcher see https://www.wheresrhys.co.uk/fetch-mock/#api-mockingmock_matcher
  * @param {string[]} keys array of segment keys to fetch
  * @param {number} changeNumber optional changeNumber
  */

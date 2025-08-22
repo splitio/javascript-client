@@ -168,10 +168,10 @@ tape('Browser offline mode', function (assert) {
 
     // Manager tests
     const expectedSplitView1 = {
-      name: 'testing_split', trafficType: 'localhost', killed: false, changeNumber: 0, treatments: ['on'], configs: {}, defaultTreatment: 'control', sets: []
+      name: 'testing_split', trafficType: 'localhost', killed: false, changeNumber: 0, treatments: ['on'], configs: {}, defaultTreatment: 'control', sets: [], impressionsDisabled: false, prerequisites: []
     };
     const expectedSplitView2 = {
-      name: 'testing_split_with_config', trafficType: 'localhost', killed: false, changeNumber: 0, treatments: ['off'], configs: { off: '{ "color": "blue" }' }, defaultTreatment: 'control', sets: []
+      name: 'testing_split_with_config', trafficType: 'localhost', killed: false, changeNumber: 0, treatments: ['off'], configs: { off: '{ "color": "blue" }' }, defaultTreatment: 'control', sets: [], impressionsDisabled: false, prerequisites: []
     };
     assert.deepEqual(manager.names(), ['testing_split', 'testing_split_with_config']);
     assert.deepEqual(manager.split('testing_split'), expectedSplitView1);
@@ -282,7 +282,7 @@ tape('Browser offline mode', function (assert) {
 
       // Manager tests
       const expectedSplitView3 = {
-        name: 'testing_split_with_config', trafficType: 'localhost', killed: false, changeNumber: 0, treatments: ['nope'], configs: {}, defaultTreatment: 'control', sets: []
+        name: 'testing_split_with_config', trafficType: 'localhost', killed: false, changeNumber: 0, treatments: ['nope'], configs: {}, defaultTreatment: 'control', sets: [], impressionsDisabled: false, prerequisites: []
       };
       assert.deepEqual(manager.names(), ['testing_split', 'testing_split_2', 'testing_split_3', 'testing_split_with_config']);
       assert.deepEqual(manager.split('testing_split'), expectedSplitView1);

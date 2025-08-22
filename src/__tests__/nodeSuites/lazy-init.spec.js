@@ -29,14 +29,27 @@ export default function (settings, fetchMock, t) {
       assert.equal(client.track('user-1', 'user', 'my_event'), true, 'We should track the event');
     }
 
-    fetchMock.getOnce('https://not-called/api/splitChanges?s=1.1&since=-1', { status: 200, body: { splits: [], since: -1, till: 1457552620999 } });
-    fetchMock.getOnce('https://not-called/api/splitChanges?s=1.1&since=1457552620999', { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
+    fetchMock.getOnce('https://not-called/api/splitChanges?s=1.3&since=-1&rbSince=-1', { status: 200, body: { ff: { d: [], s: -1, t: 1457552620999 } } });
+    fetchMock.getOnce('https://not-called/api/splitChanges?s=1.3&since=1457552620999&rbSince=-1', { status: 200, body: { ff: { d: [], s: 1457552620999, t: 1457552620999 } } });
     fetchMock.postOnce('https://not-called/api/testImpressions/bulk', 200);
     fetchMock.postOnce('https://not-called/api/events/bulk', 200);
+    fetchMock.get('https://not-called/api/v2/auth?s=1.3', 200);
+
+    // Validate that init and destroy are idempotent
+    for (let i = 0; i < 3; i++) { splitio.init(); splitio.init(); splitio.destroy(); splitio.destroy(); }
 
     splitio.init();
     await splitio.client().ready();
-    assert.true(splitio.client().__getStatus().isReady, 'Split SDK is ready');
+
+    assert.deepEqual(splitio.client().__getStatus(), { isReady: true, isReadyFromCache: false, isTimedout: false, hasTimedout: false, isDestroyed: false, isOperational: true, lastUpdate: splitio.client().__getStatus().lastUpdate }, 'Status');
+
+    await splitio.destroy();
+    assert.deepEqual(splitio.client().__getStatus(), { isReady: true, isReadyFromCache: false, isTimedout: false, hasTimedout: false, isDestroyed: true, isOperational: false, lastUpdate: splitio.client().__getStatus().lastUpdate }, 'Status');
+
+    splitio.init();
+
+    assert.deepEqual(splitio.client().__getStatus(), { isReady: true, isReadyFromCache: false, isTimedout: false, hasTimedout: false, isDestroyed: false, isOperational: true, lastUpdate: splitio.client().__getStatus().lastUpdate }, 'Status');
+
     await splitio.destroy();
 
     assert.end();
@@ -72,16 +85,29 @@ export default function (settings, fetchMock, t) {
       assert.equal(otherClient.track('user', 'my_event'), true, 'We should track the event');
     }
 
-    fetchMock.getOnce('https://not-called/api/splitChanges?s=1.2&since=-1', { status: 200, body: { splits: [], since: -1, till: 1457552620999 } });
-    fetchMock.getOnce('https://not-called/api/splitChanges?s=1.2&since=1457552620999', { status: 200, body: { splits: [], since: 1457552620999, till: 1457552620999 } });
+    fetchMock.getOnce('https://not-called/api/splitChanges?s=1.3&since=-1&rbSince=-1', { status: 200, body: { ff: { d: [], s: -1, t: 1457552620999 } } });
+    fetchMock.getOnce('https://not-called/api/splitChanges?s=1.3&since=1457552620999&rbSince=-1', { status: 200, body: { ff: { d: [], s: 1457552620999, t: 1457552620999 } } });
     fetchMock.getOnce('https://not-called/api/memberships/user-99', { status: 200, body: {} });
     fetchMock.getOnce('https://not-called/api/memberships/other-user', { status: 200, body: {} });
     fetchMock.postOnce('https://not-called/api/testImpressions/bulk', 200);
     fetchMock.postOnce('https://not-called/api/events/bulk', 200);
+    fetchMock.get('https://not-called/api/v2/auth?s=1.3&users=user-99', 200);
+
+    // Validate that init and destroy are idempotent
+    for (let i = 0; i < 3; i++) { splitio.init(); splitio.init(); splitio.destroy(); splitio.destroy(); }
 
     splitio.init();
     await splitio.client().ready();
-    assert.true(splitio.client().__getStatus().isReady, 'Split SDK is ready');
+
+    assert.deepEqual(splitio.client().__getStatus(), { isReady: true, isReadyFromCache: false, isTimedout: false, hasTimedout: false, isDestroyed: false, isOperational: true, lastUpdate: splitio.client().__getStatus().lastUpdate }, 'Status');
+
+    await splitio.destroy();
+    assert.deepEqual(splitio.client().__getStatus(), { isReady: true, isReadyFromCache: false, isTimedout: false, hasTimedout: false, isDestroyed: true, isOperational: false, lastUpdate: splitio.client().__getStatus().lastUpdate }, 'Status');
+
+    splitio.init();
+
+    assert.deepEqual(splitio.client().__getStatus(), { isReady: true, isReadyFromCache: false, isTimedout: false, hasTimedout: false, isDestroyed: false, isOperational: true, lastUpdate: splitio.client().__getStatus().lastUpdate }, 'Status');
+
     await splitio.destroy();
 
     assert.end();

@@ -2,25 +2,25 @@ name: sonar-scan
 on:
   pull_request:
     branches:
-      - master
+      - main
       - development
   push:
     branches:
-      - master
+      - main
       - development
 
 jobs:
   build:
     name: Build
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Set up nodejs
-        uses: actions/setup-node@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 'lts/*'
           cache: 'npm'
