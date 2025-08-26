@@ -1,6 +1,5 @@
 11.5.0 (August XX, 2025)
- - Added support for targeting rules based on large segments for browsers.
- - Added `factory.getState()` method for standalone server-side SDKs, which returns the rollout plan snapshot from the storage.
+ - Added `factory.getCache()` method for standalone server-side SDKs, which returns the rollout plan snapshot from the storage.
  - Added `preloadedData` configuration option for standalone client-side SDKs, which allows preloading the SDK storage with a snapshot of the rollout plan.
 
 11.4.1 (June 3, 2025)

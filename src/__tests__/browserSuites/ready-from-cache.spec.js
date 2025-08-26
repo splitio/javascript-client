@@ -480,8 +480,7 @@ export default function (fetchMock, assert) {
 
     t.plan(5);
 
-    fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.2&since=25', { status: 200, body: { ...splitChangesMock1, since: 25 } });
-    fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.2&since=1457552620999', { status: 200, body: splitChangesMock2 });
+    fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.3&since=25&rbSince=-1', { status: 200, body: { ff: { ...splitChangesMock1.ff, s: 25 } } });
     fetchMock.getOnce(testUrls.sdk + '/memberships/nicolas%40split.io', { status: 200, body: membershipsNicolas });
     fetchMock.getOnce(testUrls.sdk + '/memberships/nicolas2%40split.io', { status: 200, body: { 'ms': {} } });
 
@@ -496,7 +495,7 @@ export default function (fetchMock, assert) {
       urls: testUrls,
       preloadedData: {
         since: 25,
-        splitsData: [JSON.parse(alwaysOnSplitInverted)]
+        flags: [JSON.parse(alwaysOnSplitInverted)]
       }
     });
 

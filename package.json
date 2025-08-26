@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio",
-  "version": "11.4.1",
+  "version": "11.5.0-rc.0",
   "description": "Split SDK",
   "files": [
     "README.md",
@@ -38,7 +38,7 @@
     "node": ">=14.0.0"
   },
   "dependencies": {
-    "@splitsoftware/splitio-commons": "2.4.1",
+    "@splitsoftware/splitio-commons": "2.5.0-rc.0",
     "bloom-filters": "^3.0.4",
     "ioredis": "^4.28.0",
     "js-yaml": "^3.13.1",
@@ -111,7 +111,7 @@
     "test-ts-decls": "tsc --build ts-tests",
     "test": "npm run test-node && npm run test-browser",
     "all": "npm run check && npm run build && npm run test-ts-decls && npm run test",
-    "publish:rc": "npm run check && npm run build && npm publish --tag canary",
+    "publish:rc": "npm run check && npm run build && npm publish --tag rc",
     "publish:stable": "npm run check && npm run build && npm publish"
   },
   "greenkeeper": {
