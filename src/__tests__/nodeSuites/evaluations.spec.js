@@ -281,17 +281,29 @@ export default async function (config, key, assert) {
     getTreatmentsTests(client, i);
     getTreatmentsWithConfigTests(client, i);
 
-    // getCache method
-    const serverSideState = splitio.getCache();
-    assert.equal(serverSideState.since, 1457552620999);
-    assert.equal(serverSideState.flags.length, splitChangesMock1.ff.d.length);
-    assert.deepEqual(serverSideState.segments, { employees: [], splitters: [], developers: [], segment_excluded_by_rbs: ['emi@split.io'] });
-    assert.deepEqual(serverSideState.memberships, undefined);
-    const clientSideState = splitio.getCache(['user1']);
-    assert.equal(clientSideState.since, 1457552620999);
-    assert.equal(clientSideState.flags.length, splitChangesMock1.ff.d.length);
-    assert.deepEqual(clientSideState.segments, undefined);
-    assert.deepEqual(clientSideState.memberships, { user1: { ms: { k: [] }, ls: { k: [] } } });
+    // getRolloutPlan method
+    const expectedRolloutPlan = {
+      splitChanges: splitChangesMock1,
+      segmentChanges: [
+        { name: 'employees', added: [], removed: [], till: 1 },
+        { name: 'splitters', added: [], removed: [], till: 1 },
+        { name: 'developers', added: [], removed: [], till: 1 },
+        { name: 'segment_excluded_by_rbs', added: ['emi@split.io'], removed: [], till: 1 }
+      ],
+      memberships: { 'emi@split.io': { ms: { k: [{ n: 'segment_excluded_by_rbs' }] }, ls: { k: [] } } }
+    };
+
+    const rolloutPlan = splitio.getRolloutPlan();
+    assert.deepEqual(rolloutPlan, { ...expectedRolloutPlan, segmentChanges: undefined, memberships: undefined });
+
+    const rolloutPlanWithMemberships = splitio.getRolloutPlan({ keys: ['emi@split.io'] });
+    assert.deepEqual(rolloutPlanWithMemberships, { ...expectedRolloutPlan, segmentChanges: undefined });
+
+    const rolloutPlanWithSegments = splitio.getRolloutPlan({ exposeSegments: true });
+    assert.deepEqual(rolloutPlanWithSegments, { ...expectedRolloutPlan, memberships: undefined });
+
+    const rolloutPlanWithMembershipsAndSegments = splitio.getRolloutPlan({ keys: [{ matchingKey: 'emi@split.io', bucketingKey: 'bucketingKey' }], exposeSegments: true });
+    assert.deepEqual(rolloutPlanWithMembershipsAndSegments, expectedRolloutPlan);
 
     await client.destroy();
 

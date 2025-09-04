@@ -25,6 +25,25 @@ const alwaysOnSplitInverted = JSON.stringify({
         'combiner': 'AND',
         'matchers': [
           {
+            'matcherType': 'IN_SEGMENT',
+            'userDefinedSegmentMatcherData': {
+              'segmentName': 'employees'
+            },
+          }
+        ]
+      },
+      'partitions': [
+        {
+          'treatment': 'on',
+          'size': 100
+        }
+      ]
+    },
+    {
+      'matcherGroup': {
+        'combiner': 'AND',
+        'matchers': [
+          {
             'keySelector': {
               'trafficType': 'user',
               'attribute': null
@@ -472,17 +491,17 @@ export default function (fetchMock, assert) {
     });
   });
 
-  assert.test(t => { // Testing when we start with preloaded data and MEMORY storage type (is ready from cache immediately)
+  assert.test(t => { // Testing when we start with initial rollout plan data and MEMORY storage type (is ready from cache immediately)
     const testUrls = {
-      sdk: 'https://sdk.baseurl/readyFromCacheWithPreloadedData',
-      events: 'https://events.baseurl/readyFromCacheWithPreloadedData'
+      sdk: 'https://sdk.baseurl/readyFromCacheWithInitialRolloutPlan',
+      events: 'https://events.baseurl/readyFromCacheWithInitialRolloutPlan'
     };
 
     t.plan(5);
 
     fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.3&since=25&rbSince=-1', { status: 200, body: { ff: { ...splitChangesMock1.ff, s: 25 } } });
     fetchMock.getOnce(testUrls.sdk + '/memberships/nicolas%40split.io', { status: 200, body: membershipsNicolas });
-    fetchMock.getOnce(testUrls.sdk + '/memberships/nicolas2%40split.io', { status: 200, body: { 'ms': {} } });
+    fetchMock.getOnce(testUrls.sdk + '/memberships/emi%40split.io', { status: 200, body: { 'ms': {} } });
 
     fetchMock.postOnce(testUrls.events + '/testImpressions/bulk', 200);
     fetchMock.postOnce(testUrls.events + '/testImpressions/count', 200);
@@ -493,19 +512,26 @@ export default function (fetchMock, assert) {
         type: 'MEMORY',
       },
       urls: testUrls,
-      preloadedData: {
-        since: 25,
-        flags: [JSON.parse(alwaysOnSplitInverted)]
+      initialRolloutPlan: {
+        splitChanges: {
+          ff: {
+            t: 25,
+            d: [JSON.parse(alwaysOnSplitInverted)]
+          }
+        },
+        memberships: {
+          'emi@split.io': { ms: { k: [{ n: 'employees' }] } }
+        }
       }
     });
 
     const client = splitio.client();
-    const client2 = splitio.client('nicolas2@split.io');
+    const client2 = splitio.client('emi@split.io');
 
     t.equal(client.__getStatus().isReadyFromCache, true, 'Client is ready from cache');
 
-    t.equal(client.getTreatment('always_on'), 'off', 'It should evaluate treatments with data from cache instead of control due to Input Validation');
-    t.equal(client2.getTreatment('always_on'), 'off', 'It should evaluate treatments with data from cache instead of control due to Input Validation');
+    t.equal(client.getTreatment('always_on'), 'off', 'It should evaluate treatments with data from cache. Key without memberships');
+    t.equal(client2.getTreatment('always_on'), 'on', 'It should evaluate treatments with data from cache. Key with memberships');
 
     client.on(client.Event.SDK_READY_TIMED_OUT, () => {
       t.fail('It should not timeout in this scenario.');
