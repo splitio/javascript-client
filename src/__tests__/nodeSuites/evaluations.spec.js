@@ -285,10 +285,10 @@ export default async function (config, key, assert) {
     const expectedRolloutPlan = {
       splitChanges: splitChangesMock1,
       segmentChanges: [
-        { name: 'employees', added: [], removed: [], till: 1 },
-        { name: 'splitters', added: [], removed: [], till: 1 },
-        { name: 'developers', added: [], removed: [], till: 1 },
-        { name: 'segment_excluded_by_rbs', added: ['emi@split.io'], removed: [], till: 1 }
+        { name: 'employees', added: [], removed: [], till: 1, since: -1 },
+        { name: 'splitters', added: [], removed: [], till: 1, since: -1 },
+        { name: 'developers', added: [], removed: [], till: 1, since: -1 },
+        { name: 'segment_excluded_by_rbs', added: ['emi@split.io'], removed: [], till: 1, since: -1 }
       ],
       memberships: { 'emi@split.io': { ms: { k: [{ n: 'segment_excluded_by_rbs' }] }, ls: { k: [] } } }
     };

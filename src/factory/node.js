@@ -4,7 +4,7 @@ import { pushManagerFactory } from '@splitsoftware/splitio-commons/src/sync/stre
 import { pollingManagerSSFactory } from '@splitsoftware/splitio-commons/src/sync/polling/pollingManagerSS';
 import { InRedisStorage } from '@splitsoftware/splitio-commons/src/storages/inRedis';
 import { InMemoryStorageFactory } from '@splitsoftware/splitio-commons/src/storages/inMemory/InMemoryStorage';
-import { getRolloutPlan } from '@splitsoftware/splitio-commons/src/storages/dataLoader';
+import { getRolloutPlan } from '@splitsoftware/splitio-commons/src/storages/getRolloutPlan';
 import { sdkManagerFactory } from '@splitsoftware/splitio-commons/src/sdkManager';
 import { sdkClientMethodFactory } from '@splitsoftware/splitio-commons/src/sdkClient/sdkClientMethod';
 import { impressionObserverSSFactory } from '@splitsoftware/splitio-commons/src/trackers/impressionObserver/impressionObserverSS';

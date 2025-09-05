@@ -1,4 +1,4 @@
-11.5.0 (August XX, 2025)
+11.5.0 (September 9, 2025)
  - Added `factory.getRolloutPlan()` method for standalone server-side SDKs, which returns the rollout plan snapshot from the storage.
  - Added `initialRolloutPlan` configuration option for standalone client-side SDKs, which allows preloading the SDK storage with a snapshot of the rollout plan.
 

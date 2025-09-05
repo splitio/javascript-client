@@ -10,7 +10,7 @@ import membershipsNicolas from '../mocks/memberships.nicolas@split.io.json';
 
 const DEFAULT_CACHE_EXPIRATION_IN_MILLIS = 864000000; // 10 days
 
-const alwaysOnSplitInverted = JSON.stringify({
+export const alwaysOnSplitInverted = JSON.stringify({
   'environment': null,
   'trafficTypeId': null,
   'trafficTypeName': null,
@@ -491,7 +491,7 @@ export default function (fetchMock, assert) {
     });
   });
 
-  assert.test(t => { // Testing when we start with initial rollout plan data and MEMORY storage type (is ready from cache immediately)
+  assert.test(t => { // Testing when we start with initial rollout plan data and sync storage type (is ready from cache immediately)
     const testUrls = {
       sdk: 'https://sdk.baseurl/readyFromCacheWithInitialRolloutPlan',
       events: 'https://events.baseurl/readyFromCacheWithInitialRolloutPlan'
@@ -509,7 +509,7 @@ export default function (fetchMock, assert) {
     const splitio = SplitFactory({
       ...baseConfig,
       storage: {
-        type: 'MEMORY',
+        type: 'MEMORY', // LOCALSTORAGE is supported too
       },
       urls: testUrls,
       initialRolloutPlan: {
