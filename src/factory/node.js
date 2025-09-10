@@ -10,6 +10,7 @@ import { sdkClientMethodFactory } from '@splitsoftware/splitio-commons/src/sdkCl
 import { impressionObserverSSFactory } from '@splitsoftware/splitio-commons/src/trackers/impressionObserver/impressionObserverSS';
 import { sdkFactory } from '@splitsoftware/splitio-commons/src/sdkFactory';
 import { CONSUMER_MODE, LOCALHOST_MODE } from '@splitsoftware/splitio-commons/src/utils/constants';
+import { isConsumerMode } from '@splitsoftware/splitio-commons/src/utils/settingsValidation/mode';
 
 import { localhostFromFileFactory } from '../sync/offline/LocalhostFromFile';
 import { settingsFactory } from '../settings/node';
@@ -52,7 +53,7 @@ function getModules(settings) {
     filterAdapterFactory: bloomFilterFactory,
 
     extraProps: (params) => {
-      if (params.settings.mode !== CONSUMER_MODE) {
+      if (!isConsumerMode(params.settings.mode)) {
         return {
           getRolloutPlan(userKeys) {
             return getRolloutPlan(params.settings.log, params.storage, userKeys);
