@@ -1,4 +1,5 @@
 import { SplitFactory } from '../../';
+import splitChangesMock1 from '../mocks/splitchanges.since.-1.json';
 
 const SDK_INSTANCES_TO_TEST = 4;
 
@@ -279,6 +280,30 @@ export default async function (config, key, assert) {
     getTreatmentTests(client, i);
     getTreatmentsTests(client, i);
     getTreatmentsWithConfigTests(client, i);
+
+    // getRolloutPlan method
+    const expectedRolloutPlan = {
+      splitChanges: splitChangesMock1,
+      segmentChanges: [
+        { name: 'employees', added: [], removed: [], till: 1, since: -1 },
+        { name: 'splitters', added: [], removed: [], till: 1, since: -1 },
+        { name: 'developers', added: [], removed: [], till: 1, since: -1 },
+        { name: 'segment_excluded_by_rbs', added: ['emi@split.io'], removed: [], till: 1, since: -1 }
+      ],
+      memberships: { 'emi@split.io': { ms: { k: [{ n: 'segment_excluded_by_rbs' }] }, ls: { k: [] } } }
+    };
+
+    const rolloutPlan = splitio.getRolloutPlan();
+    assert.deepEqual(rolloutPlan, { ...expectedRolloutPlan, segmentChanges: undefined, memberships: undefined });
+
+    const rolloutPlanWithMemberships = splitio.getRolloutPlan({ keys: ['emi@split.io'] });
+    assert.deepEqual(rolloutPlanWithMemberships, { ...expectedRolloutPlan, segmentChanges: undefined });
+
+    const rolloutPlanWithSegments = splitio.getRolloutPlan({ exposeSegments: true });
+    assert.deepEqual(rolloutPlanWithSegments, { ...expectedRolloutPlan, memberships: undefined });
+
+    const rolloutPlanWithMembershipsAndSegments = splitio.getRolloutPlan({ keys: [{ matchingKey: 'emi@split.io', bucketingKey: 'bucketingKey' }], exposeSegments: true });
+    assert.deepEqual(rolloutPlanWithMembershipsAndSegments, expectedRolloutPlan);
 
     await client.destroy();
 
