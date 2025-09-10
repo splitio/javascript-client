@@ -7,7 +7,7 @@ const VERSION = pkg.version;
 module.exports = env => merge(common, {
   mode: 'production',
   output: {
-    filename: `[name]${env.branch !== 'master' ? `-dev-${VERSION}` : `-${VERSION}`}.min.js`
+    filename: `[name]${env.branch !== 'main' ? `-dev-${VERSION}` : `-${VERSION}`}.min.js`
   },
   performance: {
     hints: 'error', // build fails if asset size exceeded

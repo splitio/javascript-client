@@ -1,3 +1,8 @@
+11.5.0 (September 10, 2025)
+ - Added `factory.getRolloutPlan()` method for standalone server-side SDK (Node.js), which returns the rollout plan snapshot from the storage.
+ - Added `initialRolloutPlan` configuration option for standalone client-side SDK (Browser), which allows preloading the SDK storage with a snapshot of the rollout plan.
+ - Updated @splitsoftware/splitio-commons package to version 2.5.0.
+
 11.4.1 (June 3, 2025)
  - Updated @splitsoftware/splitio-commons package to version 2.4.1, which improves the Proxy fallback to flag spec version 1.2 by handling the case when the Proxy does not return an end-of-stream marker in 400 status code responses.
 
