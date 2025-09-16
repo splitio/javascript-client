@@ -688,3 +688,8 @@ let fullAsyncSettings: SplitIO.INodeAsyncSettings = {
 fullBrowserSettings.debug = 'ERROR';
 fullNodeSettings.debug = 'WARN';
 fullAsyncSettings.debug = 'INFO';
+
+// Preload rollout plan
+let rolloutPlanSnapshot: SplitIO.RolloutPlan = SDK.getRolloutPlan();
+rolloutPlanSnapshot = SDK.getRolloutPlan({ keys: ['key1', { matchingKey: 'key2', bucketingKey: 'bucketingKey' }], exposeSegments: true });
+browserSettings.initialRolloutPlan = rolloutPlanSnapshot;
