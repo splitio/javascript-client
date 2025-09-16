@@ -586,6 +586,13 @@ fullBrowserSettings.storage.type = 'MEMORY';
 fullBrowserSettings.userConsent = 'DECLINED';
 fullBrowserSettings.userConsent = 'UNKNOWN';
 
+const customStorage: SplitIO.StorageWrapper = {
+  getItem(key: string) { return Promise.resolve('value') },
+  setItem(key: string, value: string) { return Promise.resolve() },
+  removeItem(key: string) { return Promise.resolve() },
+}
+fullBrowserSettings.storage.wrapper = customStorage;
+
 let fullNodeSettings: SplitIO.INodeSettings = {
   core: {
     authorizationKey: 'asd',
