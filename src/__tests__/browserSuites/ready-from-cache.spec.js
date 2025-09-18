@@ -8,7 +8,7 @@ import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
 import membershipsNicolas from '../mocks/memberships.nicolas@split.io.json';
 
 
-const DEFAULT_CACHE_EXPIRATION_IN_MILLIS = 864000000; // 10 days
+export const DEFAULT_CACHE_EXPIRATION_IN_MILLIS = 864000000; // 10 days
 
 export const alwaysOnSplitInverted = JSON.stringify({
   'environment': null,
@@ -67,7 +67,7 @@ export const alwaysOnSplitInverted = JSON.stringify({
   ]
 });
 
-const splitDeclarations = {
+export const splitDeclarations = {
   p1__split: {
     'name': 'p1__split',
     'status': 'ACTIVE',
@@ -85,7 +85,7 @@ const splitDeclarations = {
   },
 };
 
-const baseConfig = {
+export const baseConfig = {
   core: {
     authorizationKey: '<fake-token-rfc>',
     key: 'nicolas@split.io'
@@ -103,8 +103,8 @@ const baseConfig = {
   streamingEnabled: false
 };
 
-const expectedHashNullFilter = '193e6f3f'; // for SDK key '<fake-token-rfc>', filter query null, and flags spec version '1.3'
-const expectedHashWithFilter = '2ce5cc38'; // for SDK key '<fake-token-rfc>', filter query '&names=p1__split,p2__split', and flags spec version '1.3'
+export const expectedHashNullFilter = '193e6f3f'; // for SDK key '<fake-token-rfc>', filter query null, and flags spec version '1.3'
+export const expectedHashWithFilter = '2ce5cc38'; // for SDK key '<fake-token-rfc>', filter query '&names=p1__split,p2__split', and flags spec version '1.3'
 
 export default function (fetchMock, assert) {
 
@@ -894,13 +894,14 @@ export default function (fetchMock, assert) {
     let client = splitio.client();
     let manager = splitio.manager();
 
-    t.true(console.log.calledWithMatch('clearOnInit was set and cache was not cleared in the last 24 hours. Cleaning up cache'), 'It should log a message about cleaning up cache');
-
     client.once(client.Event.SDK_READY_FROM_CACHE, () => {
       t.true(client.__getStatus().isReady, 'Client should emit SDK_READY_FROM_CACHE alongside SDK_READY, because clearOnInit is true');
     });
 
     await client.ready();
+
+    t.true(console.log.calledWithMatch('clearOnInit was set and cache was not cleared in the last 24 hours. Cleaning up cache'), 'It should log a message about cleaning up cache');
+
     t.equal(manager.names().sort().length, 36, 'active splits should be present for evaluation');
 
     await splitio.destroy();

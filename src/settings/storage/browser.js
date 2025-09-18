@@ -1,4 +1,3 @@
-import { isLocalStorageAvailable } from '@splitsoftware/splitio-commons/src/utils/env/isLocalStorageAvailable';
 import { LOCALHOST_MODE, STORAGE_MEMORY } from '@splitsoftware/splitio-commons/src/utils/constants';
 
 const STORAGE_LOCALSTORAGE = 'LOCALSTORAGE';
@@ -12,7 +11,8 @@ export function validateStorage(settings) {
       options = {},
       prefix,
       expirationDays,
-      clearOnInit
+      clearOnInit,
+      wrapper
     } = { type: STORAGE_MEMORY },
   } = settings;
   let __originalType;
@@ -28,12 +28,10 @@ export function validateStorage(settings) {
     fallbackToMemory();
   }
 
-  // If an invalid storage type is provided OR we want to use LOCALSTORAGE and
-  // it's not available, fallback into MEMORY
-  if (type !== STORAGE_MEMORY && type !== STORAGE_LOCALSTORAGE ||
-    type === STORAGE_LOCALSTORAGE && !isLocalStorageAvailable()) {
+  // If an invalid storage type is provided, fallback into MEMORY
+  if (type !== STORAGE_MEMORY && type !== STORAGE_LOCALSTORAGE) {
     fallbackToMemory();
-    log.error('Invalid or unavailable storage. Fallback into MEMORY storage');
+    log.error('Invalid storage type. Fallback into MEMORY storage');
   }
 
   return {
@@ -42,6 +40,7 @@ export function validateStorage(settings) {
     prefix,
     expirationDays,
     clearOnInit,
+    wrapper,
     __originalType
   };
 }

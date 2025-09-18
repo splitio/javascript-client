@@ -566,7 +566,8 @@ let fullBrowserSettings: SplitIO.IBrowserSettings = {
     type: 'LOCALSTORAGE',
     prefix: 'PREFIX',
     expirationDays: 1,
-    clearOnInit: true
+    clearOnInit: true,
+    wrapper: window.sessionStorage
   },
   impressionListener: impressionListener,
   debug: true,
@@ -584,6 +585,13 @@ let fullBrowserSettings: SplitIO.IBrowserSettings = {
 fullBrowserSettings.storage.type = 'MEMORY';
 fullBrowserSettings.userConsent = 'DECLINED';
 fullBrowserSettings.userConsent = 'UNKNOWN';
+
+const customStorage: SplitIO.StorageWrapper = {
+  getItem(key: string) { return Promise.resolve('value') },
+  setItem(key: string, value: string) { return Promise.resolve() },
+  removeItem(key: string) { return Promise.resolve() },
+}
+fullBrowserSettings.storage.wrapper = customStorage;
 
 let fullNodeSettings: SplitIO.INodeSettings = {
   core: {

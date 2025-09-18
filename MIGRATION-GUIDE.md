@@ -12,7 +12,7 @@ Below you will find a list of the changes:
 
 ### • Removed the `core.trafficType` configuration option (`SplitIO.IBrowserSettings['core']['trafficType]`) and the `trafficType` parameter from the SDK `client()` method in Browser (`SplitIO.IBrowserSDK['client']`). As a result, traffic types can no longer be bound to SDK clients, and the traffic type must be provided in the `track` method
 
-This change was made to align the SDK with the client-side APIs of the [Browser SDK](https://help.split.io/hc/en-us/articles/360058730852-Browser-SDK) and [React Native SDK](https://help.split.io/hc/en-us/articles/4406066357901-React-Native-SDK).
+This change was made to align the SDK with the client-side APIs of the [Browser SDK](https://developer.harness.io/docs/feature-management-experimentation/sdks-and-infrastructure/client-side-sdks/browser-sdk/) and [React Native SDK](https://developer.harness.io/docs/feature-management-experimentation/sdks-and-infrastructure/client-side-sdks/react-native-sdk/).
 
 SDK clients cannot be bound to a traffic type anymore, and so the traffic type must be provided when calling the `client.track` method. For example:
 
@@ -53,7 +53,7 @@ accountClient.track('account', 'my_event');
 
 ### • Removed the deprecated `GOOGLE_ANALYTICS_TO_SPLIT` and `SPLIT_TO_GOOGLE_ANALYTICS` integrations. The `integrations` configuration option has been removed from the SDK factory configuration, along with the associated interfaces in the TypeScript definitions
 
-The Google Analytics integrations were removed since they integrate with the *Google Universal Analytics* library, which was shut down on July 1, 2024, and [replaced by *Google Analytics 4*](https://support.google.com/analytics/answer/11583528?hl=en). Go to Split's [Google Analytics integration guide](https://help.split.io/hc/en-us/articles/360040838752-Google-Analytics) for more information on how to integrate Split with Google Analytics 4.
+The Google Analytics integrations were removed since they integrate with the *Google Universal Analytics* library, which was shut down on July 1, 2024, and [replaced by *Google Analytics 4*](https://support.google.com/analytics/answer/11583528?hl=en). Go to [Google Analytics integration guide](https://developer.harness.io/docs/feature-management-experimentation/integrations/google-analytics/) for more information on how to integrate Split with Google Analytics 4.
 
 The integrations have stopped being used and maintained, and were removed from the SDK, together with the `integrations` configuration option. If you were using the `integrations` option, you should remove it from your SDK configuration object.
 
