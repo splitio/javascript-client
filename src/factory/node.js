@@ -55,8 +55,8 @@ function getModules(settings) {
     extraProps: (params) => {
       if (!isConsumerMode(params.settings.mode)) {
         return {
-          getRolloutPlan(userKeys) {
-            return getRolloutPlan(params.settings.log, params.storage, userKeys);
+          getRolloutPlan(options) {
+            return getRolloutPlan(params.settings.log, params.storage, options);
           }
         };
       }
