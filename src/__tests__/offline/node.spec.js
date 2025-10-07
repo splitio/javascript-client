@@ -70,9 +70,16 @@ tape('Node.js Offline Mode', function (t) {
   t.test('Trying to specify an invalid extension it will timeout', assert => {
     const config = settingsGenerator('.forbidden');
 
-    sinon.spy(console, 'log');
+    sinon.stub(console, 'error');
+    sinon.stub(console, 'warn');
+    sinon.stub(console, 'info');
+    sinon.stub(console, 'debug');
 
-    const factory = SplitFactory({ ...config, debug: 'ERROR' }); // enable error level logs to check the message.
+    const factory = SplitFactory({
+      ...config,
+      debug: 'ERROR', // enable logs to check the message. If logger is provided, any log level different than 'NONE' will be overridden to 'DEBUG'.
+      logger: console // use console as custom logger.
+    });
     const client = factory.client();
 
     client.on(client.Event.SDK_READY, () => {
@@ -84,9 +91,15 @@ tape('Node.js Offline Mode', function (t) {
     client.on(client.Event.SDK_READY_TIMED_OUT, () => {
       assert.pass('If tried to load a file with invalid extension, we should emit SDK_READY_TIMED_OUT.');
 
-      assert.ok(console.log.calledWithMatch(`[ERROR] splitio => sync:offline: There was an issue loading the mock feature flags data. No changes will be applied to the current cache. Error: Invalid extension specified for feature flags mock file. Accepted extensions are ".yml" and ".yaml". Your specified file is ${config.features}`));
+      assert.ok(console.error.calledWithMatch(`splitio => sync:offline: There was an issue loading the mock feature flags data. No changes will be applied to the current cache. Error: Invalid extension specified for feature flags mock file. Accepted extensions are ".yml" and ".yaml". Your specified file is ${config.features}`));
+      assert.notOk(console.warn.called, 'warn should not be called');
+      assert.ok(console.info.called, 'info should be called');
+      assert.ok(console.debug.called, 'debug should be called');
 
-      console.log.restore();
+      console.error.restore();
+      console.warn.restore();
+      console.info.restore();
+      console.debug.restore();
       client.destroy();
       assert.end();
     });
