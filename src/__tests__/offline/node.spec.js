@@ -77,7 +77,7 @@ tape('Node.js Offline Mode', function (t) {
 
     const factory = SplitFactory({
       ...config,
-      debug: 'ERROR', // enable logs to check the message.
+      debug: 'ERROR', // enable logs to check the message. If logger is provided, any log level different than 'NONE' will be overridden to 'DEBUG'.
       logger: console // use console as custom logger.
     });
     const client = factory.client();

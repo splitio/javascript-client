@@ -1,4 +1,4 @@
-11.7.0 (October 6, 2025)
+11.7.0 (October 7, 2025)
  - Added support for custom loggers: added `logger` configuration option and `LoggerAPI.setLogger` method to allow the SDK to use a custom logger.
  - Updated @splitsoftware/splitio-commons package to version 2.7.0.
 
