@@ -1,3 +1,6 @@
+11.7.1 (October 8, 2025)
+ - Bugfix - Updated @splitsoftware/splitio-commons package to version 2.7.1, which fixes the `debug` option to support log levels when the `logger` option is used.
+
 11.7.0 (October 7, 2025)
  - Added support for custom loggers: added `logger` configuration option and `factory.Logger.setLogger` method to allow the SDK to use a custom logger.
  - Updated @splitsoftware/splitio-commons package to version 2.7.0.
