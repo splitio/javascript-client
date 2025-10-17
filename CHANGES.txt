@@ -1,5 +1,6 @@
 11.8.0 (October XX, 2025)
  - Updated @splitsoftware/splitio-commons package to version 2.8.0, which updates the SDK’s initial synchronization in Node.js (server-side) to use the `startup.requestTimeoutBeforeReady` and `startup.retriesOnFailureBeforeReady` options to control the timeout and retry behavior of segment requests.
+ - Updated node-fetch to version 3.3.2, which fixes some issues with the Fetch API implementation.
 
 11.7.1 (October 8, 2025)
  - Bugfix - Updated @splitsoftware/splitio-commons package to version 2.7.1, which fixes the `debug` option to support log levels when the `logger` option is used.

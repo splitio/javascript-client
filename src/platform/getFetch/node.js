@@ -1,18 +1,31 @@
-let nodeFetch;
+let __setFetchCalled = false;
+let nodeFetchImport;
 
-try {
-  nodeFetch = require('node-fetch');
+let nodeFetch = (url, options) => {
+  try {
+    if (!nodeFetchImport) {
+      // lazy import, recommended for other runtimes than Node.js
+      nodeFetchImport = import('node-fetch').then(({ default: fetch }) => {
+        if (!__setFetchCalled) nodeFetch = fetch;
+      }).catch(() => {
+        if (!__setFetchCalled) nodeFetch = typeof fetch === 'function' ? fetch : undefined;
+      });
+    }
 
-  // Handle node-fetch issue https://github.com/node-fetch/node-fetch/issues/1037
-  if (typeof nodeFetch !== 'function') nodeFetch = nodeFetch.default;
-
-} catch (error) {
-  // Try to access global fetch if `node-fetch` package couldn't be imported (e.g., not in a Node environment)
-  nodeFetch = typeof fetch === 'function' ? fetch : undefined;
-}
+    return nodeFetchImport.then(() => {
+      if (!nodeFetch) throw new Error('Fetch API not available');
+      return nodeFetch(url, options);
+    });
+  } catch (error) {
+    if (!__setFetchCalled) nodeFetch = typeof fetch === 'function' ? fetch : undefined;
+    if (!nodeFetch) throw new Error('Fetch API not available');
+    return nodeFetch(url, options);
+  }
+};
 
 // This function is only exposed for testing purposes.
 export function __setFetch(fetch) {
+  __setFetchCalled = true;
   nodeFetch = fetch;
 }
 
