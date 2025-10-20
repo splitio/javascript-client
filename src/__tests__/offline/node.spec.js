@@ -77,7 +77,11 @@ tape('Node.js Offline Mode', function (t) {
 
     const factory = SplitFactory({
       ...config,
-      debug: 'ERROR', // enable logs to check the message. If logger is provided, any log level different than 'NONE' will be overridden to 'DEBUG'.
+      core: {
+        ...config.core,
+        key: 'ignored' // just set to log a warning
+      },
+      debug: 'INFO', // enable logs to check the message.
       logger: console // use console as custom logger.
     });
     const client = factory.client();
@@ -92,9 +96,9 @@ tape('Node.js Offline Mode', function (t) {
       assert.pass('If tried to load a file with invalid extension, we should emit SDK_READY_TIMED_OUT.');
 
       assert.ok(console.error.calledWithMatch(`splitio => sync:offline: There was an issue loading the mock feature flags data. No changes will be applied to the current cache. Error: Invalid extension specified for feature flags mock file. Accepted extensions are ".yml" and ".yaml". Your specified file is ${config.features}`));
-      assert.notOk(console.warn.called, 'warn should not be called');
+      assert.ok(console.warn.calledWithMatch('splitio => Provided `key` is ignored in server-side SDK.'));
       assert.ok(console.info.called, 'info should be called');
-      assert.ok(console.debug.called, 'debug should be called');
+      assert.notOk(console.debug.called, 'debug should not be called');
 
       console.error.restore();
       console.warn.restore();
