@@ -152,12 +152,12 @@ export default async function (fetchMock, assert) {
 
       validateImpressionData('any_flag', 'fallback - not ready');
       validateImpressionData('user_account_in_whitelist', 'not ready');
-      t.end();
 
       return 200;
     });
 
     await client.destroy();
+    t.end();
 
   });
 
@@ -225,15 +225,10 @@ export default async function (fetchMock, assert) {
 
       return 200;
     });
-
-    setTimeout(() => {
-      t.equal(listener.logImpression.callCount, POSTED_IMPRESSIONS_COUNT, 'Impression listener should be called once per each impression generated.');
-
-      t.end();
-    }, 0);
+    t.equal(listener.logImpression.callCount, POSTED_IMPRESSIONS_COUNT, 'Impression listener should be called once per each impression generated.');
     await client.destroy();
 
-
+    t.end();
   });
 
   assert.test('FallbackTreatment / LocalhostMode', async t => {
