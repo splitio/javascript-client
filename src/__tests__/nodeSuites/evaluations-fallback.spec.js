@@ -113,7 +113,7 @@ export default async function (fetchMock, assert) {
 
     await client.ready();
 
-    t.equal(client.getTreatment('emma@harness.io', 'user_account_in_whitelist'), 'off', 'The evaluation will return the treatment defined in the flag if it exists');
+    t.equal(client.getTreatment('emma@harness.io', 'real_split'), 'on', 'The evaluation will return the treatment defined in the flag if it exists');
     t.equal(client.getTreatment('emma@harness.io', 'non_existent_flag'), 'OFF_FALLBACK', 'The evaluation will return `OFF_FALLBACK` if the flag does not exist and no fallbackTreatment is defined');
 
     await client.destroy();
