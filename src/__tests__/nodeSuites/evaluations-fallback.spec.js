@@ -1,3 +1,4 @@
+import path from 'path';
 import sinon from 'sinon';
 import { SplitFactory } from '../../';
 
@@ -238,12 +239,13 @@ export default async function (fetchMock, assert) {
     config.fallbackTreatments = {
       global: 'OFF_FALLBACK'
     };
+    config.features = path.join(__dirname, '../offline/split.yaml');
     const splitio = SplitFactory(config);
     const client = splitio.client();
 
     await client.ready();
 
-    t.deepEqual(client.getTreatment('emma@harness.io', 'workspaces_v1'), 'on', 'The evaluation should return the treatment defined in localhost mode');
+    t.deepEqual(client.getTreatment('emma@harness.io', 'testing_split_on'), 'on', 'The evaluation should return the treatment defined in localhost mode');
     t.deepEqual(client.getTreatment('emma@harness.io', 'non_existent_flag'), 'OFF_FALLBACK', 'The evaluation will return `OFF_FALLBACK` if the flag does not exist');
 
     await client.destroy();
@@ -251,5 +253,4 @@ export default async function (fetchMock, assert) {
     t.end();
   });
 
-  assert.end();
 }
