@@ -57,8 +57,6 @@ fetchMock.post(url(settings, '/v1/metrics/config'), 200);
 fetchMock.post(url(settings, '/v1/metrics/usage'), 200);
 
 tape('## Node.js - E2E CI Tests ##', async function (assert) {
-  /* Check evaluations fallback */
-  assert.test('E2E / In Memory - Fallback treatment', evaluationsFallbackSuite.bind(null, fetchMock));
 
   /* Check client evaluations. */
   assert.test('E2E / In Memory', evaluationsSuite.bind(null, config, key));
@@ -91,6 +89,9 @@ tape('## Node.js - E2E CI Tests ##', async function (assert) {
 
   /* Validate readiness with ready promises */
   assert.test('E2E / Ready promise', readyPromiseSuite.bind(null, key, fetchMock));
+
+  /* Check evaluations fallback */
+  assert.test('E2E / In Memory - Fallback treatment', evaluationsFallbackSuite.bind(null, fetchMock));
 
   /* Validate fetching specific splits */
   assert.test('E2E / Fetch specific splits', fetchSpecificSplits.bind(null, fetchMock));
