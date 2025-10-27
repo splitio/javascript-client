@@ -226,7 +226,7 @@ export default function (fetchMock, assert) {
       t.true(Date.now() - startTime >= 400, 'It should emit SDK_READY too but after syncing with the cloud.');
       t.equal(client.getTreatment('always_on'), 'on', 'It should evaluate treatments with updated data after syncing with the cloud.');
     });
-    client.ready().then(() => {
+    client.whenReady().then(() => {
       t.true(Date.now() - startTime >= 400, 'It should resolve ready promise after syncing with the cloud.');
       t.equal(client.getTreatment('always_on'), 'on', 'It should evaluate treatments with updated data after syncing with the cloud.');
     });
@@ -234,12 +234,12 @@ export default function (fetchMock, assert) {
       t.true(Date.now() - startTime >= 700, 'It should emit SDK_READY too but after syncing with the cloud.');
       t.equal(client2.getTreatment('always_on'), 'on', 'It should evaluate treatments with updated data after syncing with the cloud.');
     });
-    client2.ready().then(() => {
+    client2.whenReady().then(() => {
       t.true(Date.now() - startTime >= 700, 'It should resolve ready promise after syncing with the cloud.');
       t.equal(client2.getTreatment('always_on'), 'on', 'It should evaluate treatments with updated data after syncing with the cloud.');
     });
     client3.on(client3.Event.SDK_READY, () => {
-      client3.ready().then(() => {
+      client3.whenReady().then(() => {
         t.true(Date.now() - startTime >= 1000, 'It should resolve ready promise after syncing with the cloud.');
         t.equal(client3.getTreatment('always_on'), 'on', 'It should evaluate treatments with updated data after syncing with the cloud.');
 
@@ -254,7 +254,7 @@ export default function (fetchMock, assert) {
       t.equal(client3.getTreatment('always_on'), 'on', 'It should evaluate treatments with updated data after syncing with the cloud.');
     });
     client3.on(client3.Event.SDK_READY_TIMED_OUT, () => {
-      client3.ready().catch(() => {
+      client3.whenReady().catch(() => {
         t.true(Date.now() - startTime >= 850, 'It should reject ready promise before syncing memberships data with the cloud.');
         t.equal(client3.getTreatment('always_on'), 'on', 'It should evaluate treatments with memberships data from cache.');
       });
@@ -269,7 +269,7 @@ export default function (fetchMock, assert) {
       events: 'https://events.baseurl/readyFromCacheWithData3'
     };
     localStorage.clear();
-    t.plan(12 * 2 + 5);
+    t.plan(12 * 2 + 14);
 
     fetchMock.get(testUrls.sdk + '/splitChanges?s=1.3&since=25&rbSince=-1', () => {
       t.equal(localStorage.getItem('readyFromCache_3.SPLITIO.split.always_on'), alwaysOnSplitInverted, 'feature flags must not be cleaned from cache');
@@ -285,8 +285,16 @@ export default function (fetchMock, assert) {
       return new Promise(res => { setTimeout(() => res({ status: 200, body: { 'ms': {} }, headers: {} }), 1000); }); // Third client memberships will come after 1s
     });
     fetchMock.get(testUrls.sdk + '/memberships/nicolas4%40split.io', { 'ms': {} });
-    fetchMock.postOnce(testUrls.events + '/testImpressions/bulk', 200);
-    fetchMock.postOnce(testUrls.events + '/testImpressions/count', 200);
+    fetchMock.postOnce(testUrls.events + '/testImpressions/bulk', (_, opts) => {
+      const payload = JSON.parse(opts.body);
+      t.equal(payload.length, 1, 'Only one flag was evaluated');
+      t.equal(payload[0].i.length, 14, '14 impressions were queued, one per getTreatment call');
+      t.equal(payload[0].i.filter((imp) => imp.t === 'control').length, 2, '2 impressions were queued for control (not ready from cache)');
+      t.equal(payload[0].i.filter((imp) => imp.t === 'off').length, 4, '4 impressions were queued for off (ready from cache)');
+      t.equal(payload[0].i.filter((imp) => imp.t === 'on').length, 8, '8 impressions were queued for on (ready)');
+
+      return 200;
+    });
 
     localStorage.setItem('some_user_item', 'user_item');
     localStorage.setItem('readyFromCache_3.SPLITIO.splits.till', 25);
@@ -300,6 +308,9 @@ export default function (fetchMock, assert) {
       storage: {
         type: 'LOCALSTORAGE',
         prefix: 'readyFromCache_3'
+      },
+      sync: {
+        impressionsMode: 'DEBUG'
       },
       startup: {
         readyTimeout: 0.85
@@ -320,6 +331,8 @@ export default function (fetchMock, assert) {
 
     client.on(client.Event.SDK_READY_FROM_CACHE, () => {
       t.true(Date.now() - startTime < 400, 'It should emit SDK_READY_FROM_CACHE on every client if there was data in the cache and we subscribe on time. Should be considerably faster than actual readiness from the cloud.');
+      t.false(client.__getStatus().isReady, 'It should not be ready yet');
+
       t.equal(client.getTreatment('always_on'), 'off', 'It should evaluate treatments with data from cache instead of control due to Input Validation');
 
       const client4 = splitio.client('nicolas4@split.io');
@@ -342,7 +355,11 @@ export default function (fetchMock, assert) {
       t.true(Date.now() - startTime >= 400, 'It should emit SDK_READY too but after syncing with the cloud.');
       t.equal(client.getTreatment('always_on'), 'on', 'It should evaluate treatments with updated data after syncing with the cloud.');
     });
-    client.ready().then(() => {
+    client.whenReadyFromCache().then((isReady) => {
+      t.false(isReady, 'It should be ready from cache before ready (syncing with the cloud).');
+      t.true(Date.now() - startTime < 50, 'It should resolve ready from cache promise almost immediately.');
+    });
+    client.whenReady().then(() => {
       t.true(Date.now() - startTime >= 400, 'It should resolve ready promise after syncing with the cloud.');
       t.equal(client.getTreatment('always_on'), 'on', 'It should evaluate treatments with updated data after syncing with the cloud.');
     });
@@ -350,12 +367,15 @@ export default function (fetchMock, assert) {
       t.true(Date.now() - startTime >= 700, 'It should emit SDK_READY too but after syncing with the cloud.');
       t.equal(client2.getTreatment('always_on'), 'on', 'It should evaluate treatments with updated data after syncing with the cloud.');
     });
-    client2.ready().then(() => {
+    client2.whenReadyFromCache().then((isReady) => {
+      t.false(isReady, 'It should be ready from cache before ready (syncing with the cloud).');
+    });
+    client2.whenReady().then(() => {
       t.true(Date.now() - startTime >= 700, 'It should resolve ready promise after syncing with the cloud.');
       t.equal(client2.getTreatment('always_on'), 'on', 'It should evaluate treatments with updated data after syncing with the cloud.');
     });
     client3.on(client3.Event.SDK_READY, () => {
-      client3.ready().then(() => {
+      client3.whenReady().then(() => {
         t.true(Date.now() - startTime >= 1000, 'It should resolve ready promise after syncing with the cloud.');
         t.equal(client3.getTreatment('always_on'), 'on', 'It should evaluate treatments with updated data after syncing with the cloud.');
 
@@ -370,7 +390,7 @@ export default function (fetchMock, assert) {
       t.equal(client3.getTreatment('always_on'), 'on', 'It should evaluate treatments with updated data after syncing with the cloud.');
     });
     client3.on(client3.Event.SDK_READY_TIMED_OUT, () => {
-      client3.ready().catch(() => {
+      client3.whenReady().catch(() => {
         t.true(Date.now() - startTime >= 850, 'It should reject ready promise before syncing memberships data with the cloud.');
         t.equal(client3.getTreatment('always_on'), 'on', 'It should evaluate treatments with memberships data from cache.');
       });
@@ -452,7 +472,11 @@ export default function (fetchMock, assert) {
       t.true(nearlyEqual(Date.now() - startTime, CLIENT_READY_MS), 'It should emit SDK_READY after syncing with the cloud.');
       t.equal(client.getTreatment('always_on'), 'on', 'It should evaluate treatments with updated data after syncing with the cloud.');
     });
-    client.ready().then(() => {
+    client.whenReadyFromCache().then((isReady) => {
+      t.true(isReady, 'It should be ready from cache and ready.');
+      t.true(nearlyEqual(Date.now() - startTime, CLIENT_READY_MS), 'It should resolve ready from cache promise after syncing with the cloud.');
+    });
+    client.whenReady().then(() => {
       t.true(nearlyEqual(Date.now() - startTime, CLIENT_READY_MS), 'It should resolve ready promise after syncing with the cloud.');
       t.equal(client.getTreatment('always_on'), 'on', 'It should evaluate treatments with updated data after syncing with the cloud.');
     });
@@ -460,12 +484,12 @@ export default function (fetchMock, assert) {
       t.true(nearlyEqual(Date.now() - startTime, CLIENT2_READY_MS), 'It should emit SDK_READY after syncing with the cloud.');
       t.equal(client2.getTreatment('always_on'), 'on', 'It should evaluate treatments with updated data after syncing with the cloud.');
     });
-    client2.ready().then(() => {
+    client2.whenReady().then(() => {
       t.true(nearlyEqual(Date.now() - startTime, CLIENT2_READY_MS), 'It should resolve ready promise after syncing with the cloud.');
       t.equal(client2.getTreatment('always_on'), 'on', 'It should evaluate treatments with updated data after syncing with the cloud.');
     });
     client3.on(client3.Event.SDK_READY, () => {
-      client3.ready().then(() => {
+      client3.whenReady().then(() => {
         t.true(nearlyEqual(Date.now() - startTime, CLIENT3_READY_MS), 'It should resolve ready promise after syncing with the cloud.');
         t.equal(client3.getTreatment('always_on'), 'on', 'It should evaluate treatments with updated data after syncing with the cloud.');
 
@@ -482,7 +506,7 @@ export default function (fetchMock, assert) {
       t.equal(client3.getTreatment('always_on'), 'on', 'It should evaluate treatments with updated data after syncing with the cloud.');
     });
     client3.on(client3.Event.SDK_READY_TIMED_OUT, () => {
-      client3.ready().catch(() => {
+      client3.whenReady().catch(() => {
         t.true(Date.now() - startTime >= 850, 'It should reject ready promise before syncing memberships data with the cloud.');
         t.equal(client3.getTreatment('always_on'), 'control', 'It should not evaluate treatments with memberships data from cache.');
       });
@@ -898,7 +922,7 @@ export default function (fetchMock, assert) {
       t.true(client.__getStatus().isReady, 'Client should emit SDK_READY_FROM_CACHE alongside SDK_READY, because clearOnInit is true');
     });
 
-    await client.ready();
+    await client.whenReady();
 
     t.true(console.log.calledWithMatch('clearOnInit was set and cache was not cleared in the last 24 hours. Cleaning up cache'), 'It should log a message about cleaning up cache');
 

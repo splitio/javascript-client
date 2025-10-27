@@ -31,7 +31,7 @@ function assertGetTreatmentWhenReady(assert, client) {
 function assertGetTreatmentControlNotReady(assert, client) {
   consoleSpy.log.resetHistory();
   assert.equal(client.getTreatment('hierarchical_splits_test'), 'control', 'We should get control if client is not ready.');
-  assert.true(consoleSpy.log.calledWithExactly('[WARN]  splitio => getTreatment: the SDK is not ready, results may be incorrect for feature flag hierarchical_splits_test. Make sure to wait for SDK readiness before using this method.'), 'Telling us that calling getTreatment would return CONTROL since SDK is not ready at this point.');
+  assert.true(consoleSpy.log.calledWithExactly('[WARN]  splitio => getTreatment: the SDK is not ready to evaluate. Results may be incorrect for feature flag hierarchical_splits_test. Make sure to wait for SDK readiness before using this method.'), 'Telling us that calling getTreatment would return CONTROL since SDK is not ready at this point.');
 }
 
 function assertGetTreatmentControlNotReadyOnDestroy(assert, client) {
@@ -68,7 +68,7 @@ export default function readyPromiseAssertions(fetchMock, assert) {
     const splitio = SplitFactory(config);
     const client = splitio.client();
 
-    client.ready()
+    client.whenReady()
       .then(() => {
         t.fail('### SDK IS READY - not TIMED OUT when it should.');
       })
@@ -77,7 +77,7 @@ export default function readyPromiseAssertions(fetchMock, assert) {
         assertGetTreatmentControlNotReady(t, client);
 
         client.destroy().then(() => {
-          client.ready()
+          client.whenReady()
             .then(() => {
               t.fail('### SDK IS READY - It should not in this scenario.');
               t.end();
@@ -118,13 +118,13 @@ export default function readyPromiseAssertions(fetchMock, assert) {
     // In this case, we use the manager instead of the client to get the ready promise
     const manager = splitio.manager();
 
-    manager.ready()
+    manager.whenReady()
       .then(() => {
         t.pass('### SDK IS READY - the retry request is under the limits.');
         assertGetTreatmentWhenReady(t, client);
 
         client.destroy().then(() => {
-          client.ready()
+          client.whenReady()
             .then(() => {
               t.pass('### SDK IS READY - the promise remains resolved after client destruction.');
               assertGetTreatmentControlNotReadyOnDestroy(t, client);
@@ -166,7 +166,7 @@ export default function readyPromiseAssertions(fetchMock, assert) {
     const splitio = SplitFactory(config);
     const client = splitio.client();
 
-    client.ready()
+    client.whenReady()
       .then(() => {
         t.fail('### SDK IS READY - not TIMED OUT when it should.');
       })
@@ -175,13 +175,13 @@ export default function readyPromiseAssertions(fetchMock, assert) {
         assertGetTreatmentControlNotReady(t, client);
 
         setTimeout(() => {
-          client.ready()
+          client.whenReady()
             .then(() => {
               t.pass('### SDK IS READY - retry attempt finishes before the requestTimeoutBeforeReady limit');
               assertGetTreatmentWhenReady(t, client);
 
               client.destroy().then(() => {
-                client.ready()
+                client.whenReady()
                   .then(() => {
                     t.pass('### SDK IS READY - the promise remains resolved after client destruction.');
                     assertGetTreatmentControlNotReadyOnDestroy(t, client);
@@ -244,7 +244,7 @@ export default function readyPromiseAssertions(fetchMock, assert) {
     const client = splitio.client();
     const nicolasClient = splitio.client('nicolas@split.io');
 
-    client.ready()
+    client.whenReady()
       .then(() => {
         t.fail('### SDK IS READY - not TIMED OUT when it should.');
       })
@@ -253,25 +253,25 @@ export default function readyPromiseAssertions(fetchMock, assert) {
         assertGetTreatmentControlNotReady(t, client);
 
         client.on(client.Event.SDK_READY, () => {
-          client.ready().then(() => {
+          client.whenReady().then(() => {
             t.pass('### SDK IS READY - the scheduled refresh changes the client state into "ready"');
             assertGetTreatmentWhenReady(t, client);
 
             const tStart = Date.now();
-            nicolasClient.ready().then(() => {
+            nicolasClient.whenReady().then(() => {
               const delta = Date.now() - tStart;
               t.true(nearlyEqual(delta, 0), 'shared client is ready as soon as main client is ready (i.e., splits have arrived)');
 
               const timeoutClient = splitio.client('emiliano@split.io');
-              timeoutClient.ready().then(undefined, () => { // setting onRejected handler via `then` method
+              timeoutClient.whenReady().then(undefined, () => { // setting onRejected handler via `then` method
                 t.pass('### Shared client TIMED OUT - promise rejected since memberships fetch took more time than readyTimeout');
-                timeoutClient.ready().catch(() => { // setting onRejected handler via `catch` method
+                timeoutClient.whenReady().catch(() => { // setting onRejected handler via `catch` method
                   t.pass('### Shared client TIMED OUT - promise keeps being rejected');
                   timeoutClient.on(timeoutClient.Event.SDK_READY, () => {
-                    timeoutClient.ready().then(() => {
+                    timeoutClient.whenReady().then(() => {
                       t.pass('### Shared client READY - `ready` returns a new resolved promise');
                       Promise.all([timeoutClient.destroy(), nicolasClient.destroy(), client.destroy()]).then(() => {
-                        client.ready()
+                        client.whenReady()
                           .then(() => {
                             t.pass('### SDK IS READY - the promise remains resolved after client destruction.');
                             assertGetTreatmentControlNotReadyOnDestroy(t, client);
@@ -318,7 +318,7 @@ export default function readyPromiseAssertions(fetchMock, assert) {
     const splitio = SplitFactory(config);
     const client = splitio.client();
 
-    client.ready()
+    client.whenReady()
       .then(() => {
         t.fail('### SDK IS READY - not TIMED OUT when it should.');
         client.destroy().then(() => { t.end(); });
@@ -330,7 +330,7 @@ export default function readyPromiseAssertions(fetchMock, assert) {
       .catch((error) => {
         t.equal(error, 'error', '### Handled thrown exception on onRejected callback.');
         client.destroy().then(() => {
-          client.ready()
+          client.whenReady()
             .then(() => {
               t.fail('### SDK IS READY - It should not in this scenario.');
               t.end();
@@ -368,7 +368,7 @@ export default function readyPromiseAssertions(fetchMock, assert) {
     const splitio = SplitFactory(config);
     const client = splitio.client();
 
-    client.ready()
+    client.whenReady()
       .then(() => {
         t.pass('### SDK IS READY as it should, request is under the limits.');
         assertGetTreatmentWhenReady(t, client);
@@ -377,7 +377,7 @@ export default function readyPromiseAssertions(fetchMock, assert) {
       .catch((error) => {
         t.equal(error, 'error', '### Handled thrown exception on onRejected callback.');
         client.destroy().then(() => {
-          client.ready()
+          client.whenReady()
             .then(() => {
               t.pass('### SDK IS READY - the promise remains resolved after client destruction.');
               assertGetTreatmentControlNotReadyOnDestroy(t, client);
@@ -421,7 +421,7 @@ export default function readyPromiseAssertions(fetchMock, assert) {
     // `ready` is called immediately. Thus, the 'reject' callback is expected to be called in 0.15 seconds aprox.
     setTimeout(() => {
       const tStart = Date.now();
-      client.ready()
+      client.whenReady()
         .then(() => {
           t.fail('### SDK IS READY - not TIMED OUT when it should.');
         })
@@ -436,7 +436,7 @@ export default function readyPromiseAssertions(fetchMock, assert) {
     // `ready` is called in 0.15 seconds, when the promise is just rejected. Thus, the 'reject' callback is expected to be called immediately (0 seconds aprox).
     setTimeout(() => {
       const tStart = Date.now();
-      manager.ready()
+      manager.whenReady()
         .then(() => {
           t.fail('### SDK IS READY - not TIMED OUT when it should.');
         })
@@ -451,7 +451,7 @@ export default function readyPromiseAssertions(fetchMock, assert) {
     // `ready` is called in 0.25 seconds, right after the promise is resolved (0.2 secs). Thus, the 'resolve' callback is expected to be called immediately (0 seconds aprox).
     setTimeout(() => {
       const tStart = Date.now();
-      manager.ready()
+      manager.whenReady()
         .then(() => {
           t.pass('### SDK IS READY - retry attempt finishes before the requestTimeoutBeforeReady limit');
           assertGetTreatmentWhenReady(t, client);
@@ -465,7 +465,7 @@ export default function readyPromiseAssertions(fetchMock, assert) {
         })
         .then(() => {
           client.destroy().then(() => {
-            client.ready()
+            client.whenReady()
               .then(() => {
                 t.pass('### SDK IS READY - the promise remains resolved after client destruction.');
                 assertGetTreatmentControlNotReadyOnDestroy(t, client);
@@ -506,26 +506,24 @@ export default function readyPromiseAssertions(fetchMock, assert) {
 
     const splitio = SplitFactory(config);
 
-    const onReadycallback = function () { };
+    const onReadyCallback = function () { };
 
     // We invoke the ready method and also add and remove SDK_READY event listeners using the client and manager instances
     const client = splitio.client();
-    client.ready();
-    client.on(client.Event.SDK_READY, onReadycallback);
-    client.off(client.Event.SDK_READY, onReadycallback);
+    client.whenReady().then(() => t.fail('SDK TIMED OUT - Should not resolve')).catch(() => t.pass('SDK TIMED OUT - Should reject'));
+    client.on(client.Event.SDK_READY, onReadyCallback);
+    client.off(client.Event.SDK_READY, onReadyCallback);
 
     const manager = splitio.manager();
-    manager.ready();
-    manager.on(manager.Event.SDK_READY, onReadycallback);
-    manager.off(manager.Event.SDK_READY, onReadycallback);
+    client.whenReadyFromCache().then(() => t.fail('SDK TIMED OUT - Should not resolve')).catch(() => t.pass('SDK TIMED OUT - Should reject'));
+    manager.on(manager.Event.SDK_READY, onReadyCallback);
+    manager.off(manager.Event.SDK_READY, onReadyCallback);
 
     consoleSpy.log.resetHistory();
     setTimeout(() => {
-      client.ready();
+      client.whenReadyFromCache().then((isReady) => t.true(isReady, 'SDK IS READY (& READY FROM CACHE) - Should resolve')).catch(() => t.fail('SDK TIMED OUT - Should not reject'));
 
       assertGetTreatmentWhenReady(t, client);
-      t.true(consoleSpy.log.calledWithExactly('[WARN]  splitio => No listeners for SDK Readiness detected. Incorrect control treatments could have been logged if you called getTreatment/s while the SDK was not yet ready.'),
-        'Warning that there are not listeners for SDK_READY event');
 
       // assert error messages when adding event listeners after SDK has already triggered them
       consoleSpy.log.resetHistory();
@@ -540,15 +538,15 @@ export default function readyPromiseAssertions(fetchMock, assert) {
       consoleSpy.log.resetHistory();
       const sharedClientWithCb = splitio.client('nicolas@split.io');
       sharedClientWithCb.on(client.Event.SDK_READY, () => {
-        t.false(consoleSpy.log.calledWithExactly('[WARN]  splitio => No listeners for SDK Readiness detected. Incorrect control treatments could have been logged if you called getTreatment/s while the SDK was not yet ready.'),
+        t.false(consoleSpy.log.calledWithExactly('[WARN]  splitio => No listeners for SDK_READY event detected. Incorrect control treatments could have been logged if you called getTreatment/s while the SDK was not yet synchronized with the backend.'),
           'No warning logged');
 
         const sharedClientWithoutCb = splitio.client('emiliano@split.io');
         setTimeout(() => {
-          t.true(consoleSpy.log.calledWithExactly('[WARN]  splitio => No listeners for SDK Readiness detected. Incorrect control treatments could have been logged if you called getTreatment/s while the SDK was not yet ready.'),
+          t.true(consoleSpy.log.calledWithExactly('[WARN]  splitio => No listeners for SDK_READY event detected. Incorrect control treatments could have been logged if you called getTreatment/s while the SDK was not yet synchronized with the backend.'),
             'Warning logged');
           Promise.all([sharedClientWithoutCb.destroy(), client.destroy()]).then(() => {
-            client.ready()
+            client.whenReady()
               .then(() => {
                 t.pass('### SDK IS READY - the promise remains resolved after client destruction.');
                 assertGetTreatmentControlNotReadyOnDestroy(t, client);
@@ -594,18 +592,12 @@ export default function readyPromiseAssertions(fetchMock, assert) {
     // Assert getTreatment return CONTROL and trigger warning when SDK is not ready yet
     assertGetTreatmentControlNotReady(t, client);
 
-    client.ready()
-      .then(() => {
-        t.fail('### SDK IS READY - not TIMED OUT when it should.');
-      });
-    otherClient.ready()
-      .then(() => {
-        t.fail('### SDK IS READY - not TIMED OUT when it should.');
-      });
+    client.whenReady().then(() => t.fail('SDK TIMED OUT - Should not resolve')).catch(() => t.pass('SDK TIMED OUT - Should reject'));
+    otherClient.whenReady().then(() => t.fail('SDK TIMED OUT - Should not resolve')).catch(() => t.pass('SDK TIMED OUT - Should reject'));
 
     setTimeout(() => {
       Promise.all([client.destroy(), otherClient.destroy()]).then(() => {
-        client.ready()
+        client.whenReady()
           .then(() => {
             t.fail('### SDK IS READY - It should not in this scenario.');
             t.end();

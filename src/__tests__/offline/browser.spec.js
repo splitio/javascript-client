@@ -116,21 +116,23 @@ tape('Browser offline mode', function (assert) {
 
       const clientStatus = client.__getStatus();
       assert.equal(clientStatus.isReadyFromCache, true, 'If ready from cache, READY_FROM_CACHE status must be true');
-      assert.equal(clientStatus.isReady, false, 'READY status must not be set before READY_FROM_CACHE');
+      assert.equal(clientStatus.isReady, configs[i].storage && configs[i].storage.type === 'LOCALSTORAGE' ? false : true, 'When not using LOCALSTORAGE, READY status is set together with READY_FROM_CACHE');
+      if (!clientStatus.isReady) readyFromCacheCount++;
 
       assert.deepEqual(manager.names(), ['testing_split', 'testing_split_with_config']);
       assert.equal(client.getTreatment('testing_split_with_config'), 'off');
-      readyFromCacheCount++;
 
       client.on(client.Event.SDK_READY_FROM_CACHE, () => {
         assert.fail('It should not emit SDK_READY_FROM_CACHE again');
       });
 
-      const newClient = factory.client('another');
-      assert.equal(newClient.getTreatment('testing_split_with_config'), 'off', 'It should evaluate treatments with data from cache instead of control');
-      newClient.on(newClient.Event.SDK_READY_FROM_CACHE, () => {
-        assert.fail('It should not emit SDK_READY_FROM_CACHE if already done.');
-      });
+      if (configs[i].storage && configs[i].storage.type === 'LOCALSTORAGE') {
+        const newClient = factory.client('another');
+        assert.equal(newClient.getTreatment('testing_split_with_config'), 'off', 'It should evaluate treatments with data from cache instead of control');
+        newClient.on(newClient.Event.SDK_READY_FROM_CACHE, () => {
+          assert.fail('It should not emit SDK_READY_FROM_CACHE if already done.');
+        });
+      }
     };
 
     client.on(client.Event.SDK_READY_FROM_CACHE, sdkReadyFromCache(client));

@@ -41,14 +41,14 @@ export default function (settings, fetchMock, t) {
     splitio.init();
     await splitio.client().ready();
 
-    assert.deepEqual(splitio.client().__getStatus(), { isReady: true, isReadyFromCache: false, isTimedout: false, hasTimedout: false, isDestroyed: false, isOperational: true, lastUpdate: splitio.client().__getStatus().lastUpdate }, 'Status');
+    assert.deepEqual(splitio.client().__getStatus(), { isReady: true, isReadyFromCache: true, isTimedout: false, hasTimedout: false, isDestroyed: false, isOperational: true, lastUpdate: splitio.client().__getStatus().lastUpdate }, 'Status');
 
     await splitio.destroy();
-    assert.deepEqual(splitio.client().__getStatus(), { isReady: true, isReadyFromCache: false, isTimedout: false, hasTimedout: false, isDestroyed: true, isOperational: false, lastUpdate: splitio.client().__getStatus().lastUpdate }, 'Status');
+    assert.deepEqual(splitio.client().__getStatus(), { isReady: true, isReadyFromCache: true, isTimedout: false, hasTimedout: false, isDestroyed: true, isOperational: false, lastUpdate: splitio.client().__getStatus().lastUpdate }, 'Status');
 
     splitio.init();
 
-    assert.deepEqual(splitio.client().__getStatus(), { isReady: true, isReadyFromCache: false, isTimedout: false, hasTimedout: false, isDestroyed: false, isOperational: true, lastUpdate: splitio.client().__getStatus().lastUpdate }, 'Status');
+    assert.deepEqual(splitio.client().__getStatus(), { isReady: true, isReadyFromCache: true, isTimedout: false, hasTimedout: false, isDestroyed: false, isOperational: true, lastUpdate: splitio.client().__getStatus().lastUpdate }, 'Status');
 
     await splitio.destroy();
 
@@ -99,14 +99,14 @@ export default function (settings, fetchMock, t) {
     splitio.init();
     await splitio.client().ready();
 
-    assert.deepEqual(splitio.client().__getStatus(), { isReady: true, isReadyFromCache: false, isTimedout: false, hasTimedout: false, isDestroyed: false, isOperational: true, lastUpdate: splitio.client().__getStatus().lastUpdate }, 'Status');
+    assert.deepEqual(splitio.client().__getStatus(), { isReady: true, isReadyFromCache: true, isTimedout: false, hasTimedout: false, isDestroyed: false, isOperational: true, lastUpdate: splitio.client().__getStatus().lastUpdate }, 'Status');
 
     await splitio.destroy();
-    assert.deepEqual(splitio.client().__getStatus(), { isReady: true, isReadyFromCache: false, isTimedout: false, hasTimedout: false, isDestroyed: true, isOperational: false, lastUpdate: splitio.client().__getStatus().lastUpdate }, 'Status');
+    assert.deepEqual(splitio.client().__getStatus(), { isReady: true, isReadyFromCache: true, isTimedout: false, hasTimedout: false, isDestroyed: true, isOperational: false, lastUpdate: splitio.client().__getStatus().lastUpdate }, 'Status');
 
     splitio.init();
 
-    assert.deepEqual(splitio.client().__getStatus(), { isReady: true, isReadyFromCache: false, isTimedout: false, hasTimedout: false, isDestroyed: false, isOperational: true, lastUpdate: splitio.client().__getStatus().lastUpdate }, 'Status');
+    assert.deepEqual(splitio.client().__getStatus(), { isReady: true, isReadyFromCache: true, isTimedout: false, hasTimedout: false, isDestroyed: false, isOperational: true, lastUpdate: splitio.client().__getStatus().lastUpdate }, 'Status');
 
     await splitio.destroy();
 
