@@ -69,6 +69,8 @@ tape('## Node.js - E2E CI Tests ##', async function (assert) {
   assert.test('E2E / Impressions None Mode', impressionsSuiteNone.bind(null, key, fetchMock));
   assert.test('E2E / Impressions listener', impressionsListenerSuite);
 
+  // /* Check telemetry */
+  assert.test('E2E / Telemetry', telemetrySuite.bind(null, key, fetchMock));
 
   /* Check events in memory */
   assert.test('E2E / Events', eventsSuite.bind(null, fetchMock));
@@ -100,10 +102,6 @@ tape('## Node.js - E2E CI Tests ##', async function (assert) {
 
   // @TODO remove when dropping support for Split Proxy v5.10.0 or below
   assert.test('E2E / Proxy fallback', proxyFallbackSuite.bind(null, fetchMock));
-
-
-  /* Check telemetry */
-  assert.test('E2E / Telemetry', telemetrySuite.bind(null, key, fetchMock));
 
   assert.end();
 });
