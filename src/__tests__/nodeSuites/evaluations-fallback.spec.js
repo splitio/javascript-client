@@ -251,6 +251,5 @@ export default async function (fetchMock, assert) {
     t.end();
   });
 
-
   assert.end();
 }
