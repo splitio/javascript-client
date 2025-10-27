@@ -57,6 +57,9 @@ fetchMock.post(url(settings, '/v1/metrics/config'), 200);
 fetchMock.post(url(settings, '/v1/metrics/usage'), 200);
 
 tape('## Node.js - E2E CI Tests ##', async function (assert) {
+  /* Check evaluations fallback */
+  assert.test('E2E / In Memory - Fallback treatment', evaluationsFallbackSuite.bind(null, fetchMock));
+
   /* Check client evaluations. */
   assert.test('E2E / In Memory', evaluationsSuite.bind(null, config, key));
   assert.test('E2E / In Memory - Semver', evaluationsSemverSuite.bind(null, fetchMock));
@@ -100,9 +103,6 @@ tape('## Node.js - E2E CI Tests ##', async function (assert) {
 
   // @TODO remove when dropping support for Split Proxy v5.10.0 or below
   assert.test('E2E / Proxy fallback', proxyFallbackSuite.bind(null, fetchMock));
-
-  /* Check evaluations fallback */
-  assert.test('E2E / In Memory - Fallback treatment', evaluationsFallbackSuite.bind(null, fetchMock));
 
   assert.end();
 });
