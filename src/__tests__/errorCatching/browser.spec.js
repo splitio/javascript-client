@@ -91,13 +91,13 @@ tape('Error catching on callbacks - Browsers', assert => {
   }
 
   client.on(client.Event.SDK_READY_TIMED_OUT, () => {
-    assert.true(client.__getStatus().hasTimedout); // SDK status should be already updated
+    assert.true(client.getStatus().hasTimedout); // SDK status should be already updated
     attachErrorHandlerIfApplicable();
     null.willThrowForTimedOut();
   });
 
   client.once(client.Event.SDK_READY, () => {
-    assert.true(client.__getStatus().isReady); // SDK status should be already updated
+    assert.true(client.getStatus().isReady); // SDK status should be already updated
     attachErrorHandlerIfApplicable();
     null.willThrowForReady();
   });
@@ -108,7 +108,7 @@ tape('Error catching on callbacks - Browsers', assert => {
   });
 
   client.once(client.Event.SDK_READY_FROM_CACHE, () => {
-    assert.true(client.__getStatus().isReadyFromCache); // SDK status should be already updated
+    assert.true(client.getStatus().isReadyFromCache); // SDK status should be already updated
     attachErrorHandlerIfApplicable();
     null.willThrowForReadyFromCache();
   });

@@ -70,17 +70,17 @@ export default function (fetchMock, assert) {
       t.end();
     });
     client.once(client.Event.SDK_READY_FROM_CACHE, () => {
-      t.true(client.__getStatus().isReady, 'Client should emit SDK_READY_FROM_CACHE alongside SDK_READY');
+      t.true(client.getStatus().isReady, 'Client should emit SDK_READY_FROM_CACHE alongside SDK_READY');
     });
 
     client.on(client.Event.SDK_READY, () => {
-      t.true(client.__getStatus().isReadyFromCache, 'Client should emit SDK_READY and it should be ready from cache');
+      t.true(client.getStatus().isReadyFromCache, 'Client should emit SDK_READY and it should be ready from cache');
     });
     client2.on(client.Event.SDK_READY, () => {
-      t.true(client2.__getStatus().isReadyFromCache, 'Non-default client should emit SDK_READY and it should be ready from cache');
+      t.true(client2.getStatus().isReadyFromCache, 'Non-default client should emit SDK_READY and it should be ready from cache');
     });
     client3.on(client.Event.SDK_READY, () => {
-      t.true(client2.__getStatus().isReadyFromCache, 'Non-default client should emit SDK_READY and it should be ready from cache');
+      t.true(client2.getStatus().isReadyFromCache, 'Non-default client should emit SDK_READY and it should be ready from cache');
     });
 
   });
@@ -356,7 +356,7 @@ export default function (fetchMock, assert) {
     let manager = splitio.manager();
 
     client.once(client.Event.SDK_READY_FROM_CACHE, () => {
-      t.true(client.__getStatus().isReady, 'Client should emit SDK_READY_FROM_CACHE alongside SDK_READY, because clearOnInit is true');
+      t.true(client.getStatus().isReady, 'Client should emit SDK_READY_FROM_CACHE alongside SDK_READY, because clearOnInit is true');
     });
 
     await client.whenReady();
@@ -400,7 +400,7 @@ export default function (fetchMock, assert) {
     manager = splitio.manager();
 
     client.once(client.Event.SDK_READY_FROM_CACHE, () => {
-      t.true(client.__getStatus().isReady, 'Client should emit SDK_READY_FROM_CACHE alongside SDK_READY, because clearOnInit is true');
+      t.true(client.getStatus().isReady, 'Client should emit SDK_READY_FROM_CACHE alongside SDK_READY, because clearOnInit is true');
     });
 
     await new Promise(res => client.once(client.Event.SDK_READY, res));

@@ -114,7 +114,7 @@ tape('Browser offline mode', function (assert) {
     const sdkReadyFromCache = (client) => () => {
       assert.equal(factory.settings.storage.type, 'MEMORY', 'In localhost mode, storage must fallback to memory storage');
 
-      const clientStatus = client.__getStatus();
+      const clientStatus = client.getStatus();
       assert.equal(clientStatus.isReadyFromCache, true, 'If ready from cache, READY_FROM_CACHE status must be true');
       assert.equal(clientStatus.isReady, configs[i].storage && configs[i].storage.type === 'LOCALSTORAGE' ? false : true, 'When not using LOCALSTORAGE, READY status is set together with READY_FROM_CACHE');
       if (!clientStatus.isReady) readyFromCacheCount++;
