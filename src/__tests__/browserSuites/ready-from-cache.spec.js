@@ -521,7 +521,7 @@ export default function (fetchMock, assert) {
       events: 'https://events.baseurl/readyFromCacheWithInitialRolloutPlan'
     };
 
-    t.plan(5);
+    t.plan(6);
 
     fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.3&since=25&rbSince=-1', { status: 200, body: { ff: { ...splitChangesMock1.ff, s: 25 } } });
     fetchMock.getOnce(testUrls.sdk + '/memberships/nicolas%40split.io', { status: 200, body: membershipsNicolas });
