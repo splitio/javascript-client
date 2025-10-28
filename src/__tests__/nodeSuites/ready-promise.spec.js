@@ -484,7 +484,7 @@ export default function readyPromiseAssertions(key, fetchMock, assert) {
     client.off(client.Event.SDK_READY, onReadyCallback);
 
     const manager = splitio.manager();
-    client.whenReadyFromCache().then(() => t.fail('SDK TIMED OUT - Should not resolve')).catch(() => t.pass('SDK TIMED OUT - Should reject'));
+    manager.whenReadyFromCache().then(() => t.fail('SDK TIMED OUT - Should not resolve')).catch(() => t.pass('SDK TIMED OUT - Should reject'));
     manager.on(manager.Event.SDK_READY, onReadyCallback);
     manager.off(manager.Event.SDK_READY, onReadyCallback);
 
