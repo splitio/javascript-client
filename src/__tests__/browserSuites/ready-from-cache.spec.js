@@ -142,17 +142,17 @@ export default function (fetchMock, assert) {
       t.end();
     });
     client.once(client.Event.SDK_READY_FROM_CACHE, () => {
-      t.true(client.__getStatus().isReady, 'Client should emit SDK_READY_FROM_CACHE alongside SDK_READY');
+      t.true(client.getStatus().isReady, 'Client should emit SDK_READY_FROM_CACHE alongside SDK_READY');
     });
 
     client.on(client.Event.SDK_READY, () => {
-      t.true(client.__getStatus().isReadyFromCache, 'Client should emit SDK_READY and it should be ready from cache');
+      t.true(client.getStatus().isReadyFromCache, 'Client should emit SDK_READY and it should be ready from cache');
     });
     client2.on(client.Event.SDK_READY, () => {
-      t.true(client2.__getStatus().isReadyFromCache, 'Non-default client should emit SDK_READY and it should be ready from cache');
+      t.true(client2.getStatus().isReadyFromCache, 'Non-default client should emit SDK_READY and it should be ready from cache');
     });
     client3.on(client.Event.SDK_READY, () => {
-      t.true(client2.__getStatus().isReadyFromCache, 'Non-default client should emit SDK_READY and it should be ready from cache');
+      t.true(client2.getStatus().isReadyFromCache, 'Non-default client should emit SDK_READY and it should be ready from cache');
     });
 
   });
@@ -331,7 +331,7 @@ export default function (fetchMock, assert) {
 
     client.on(client.Event.SDK_READY_FROM_CACHE, () => {
       t.true(Date.now() - startTime < 400, 'It should emit SDK_READY_FROM_CACHE on every client if there was data in the cache and we subscribe on time. Should be considerably faster than actual readiness from the cloud.');
-      t.false(client.__getStatus().isReady, 'It should not be ready yet');
+      t.false(client.getStatus().isReady, 'It should not be ready yet');
 
       t.equal(client.getTreatment('always_on'), 'off', 'It should evaluate treatments with data from cache instead of control due to Input Validation');
 
@@ -515,13 +515,13 @@ export default function (fetchMock, assert) {
     });
   });
 
-  assert.test(t => { // Testing when we start with initial rollout plan data and sync storage type (is ready from cache immediately)
+  assert.test(async t => { // Testing when we start with initial rollout plan data and sync storage type (is ready from cache immediately)
     const testUrls = {
       sdk: 'https://sdk.baseurl/readyFromCacheWithInitialRolloutPlan',
       events: 'https://events.baseurl/readyFromCacheWithInitialRolloutPlan'
     };
 
-    t.plan(5);
+    t.plan(6);
 
     fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.3&since=25&rbSince=-1', { status: 200, body: { ff: { ...splitChangesMock1.ff, s: 25 } } });
     fetchMock.getOnce(testUrls.sdk + '/memberships/nicolas%40split.io', { status: 200, body: membershipsNicolas });
@@ -552,7 +552,7 @@ export default function (fetchMock, assert) {
     const client = splitio.client();
     const client2 = splitio.client('emi@split.io');
 
-    t.equal(client.__getStatus().isReadyFromCache, true, 'Client is ready from cache');
+    t.equal(client.getStatus().isReadyFromCache, true, 'Client is ready from cache');
 
     t.equal(client.getTreatment('always_on'), 'off', 'It should evaluate treatments with data from cache. Key without memberships');
     t.equal(client2.getTreatment('always_on'), 'on', 'It should evaluate treatments with data from cache. Key with memberships');
@@ -577,6 +577,10 @@ export default function (fetchMock, assert) {
         t.end();
       });
     });
+
+    const startTime = Date.now();
+    await client.whenReadyFromCache();
+    t.true(nearlyEqual(Date.now() - startTime, 0), 'whenReadyFromCache should be resolved immediately');
   });
 
   /** Fetch specific splits **/
@@ -613,7 +617,7 @@ export default function (fetchMock, assert) {
     const manager = splitio.manager();
 
     client.once(client.Event.SDK_READY_FROM_CACHE, () => {
-      t.true(client.__getStatus().isReady, 'Client should emit SDK_READY_FROM_CACHE alongside SDK_READY');
+      t.true(client.getStatus().isReady, 'Client should emit SDK_READY_FROM_CACHE alongside SDK_READY');
     });
 
     client.once(client.Event.SDK_READY, () => {
@@ -657,7 +661,7 @@ export default function (fetchMock, assert) {
     const manager = splitio.manager();
 
     client.once(client.Event.SDK_READY_FROM_CACHE, () => {
-      t.true(client.__getStatus().isReady, 'Client should emit SDK_READY_FROM_CACHE alongside SDK_READY');
+      t.true(client.getStatus().isReady, 'Client should emit SDK_READY_FROM_CACHE alongside SDK_READY');
     });
 
     client.once(client.Event.SDK_READY, () => {
@@ -758,7 +762,7 @@ export default function (fetchMock, assert) {
     const manager = splitio.manager();
 
     client.once(client.Event.SDK_READY_FROM_CACHE, () => {
-      t.true(client.__getStatus().isReady, 'Client should emit SDK_READY_FROM_CACHE alongside SDK_READY');
+      t.true(client.getStatus().isReady, 'Client should emit SDK_READY_FROM_CACHE alongside SDK_READY');
     });
 
     client.once(client.Event.SDK_READY, () => {
@@ -819,7 +823,7 @@ export default function (fetchMock, assert) {
         const manager = splitio.manager();
 
         client.once(client.Event.SDK_READY_FROM_CACHE, () => {
-          t.true(client.__getStatus().isReady, 'Client should emit SDK_READY_FROM_CACHE alongside SDK_READY');
+          t.true(client.getStatus().isReady, 'Client should emit SDK_READY_FROM_CACHE alongside SDK_READY');
         });
 
         client.once(client.Event.SDK_READY, () => {
@@ -919,7 +923,7 @@ export default function (fetchMock, assert) {
     let manager = splitio.manager();
 
     client.once(client.Event.SDK_READY_FROM_CACHE, () => {
-      t.true(client.__getStatus().isReady, 'Client should emit SDK_READY_FROM_CACHE alongside SDK_READY, because clearOnInit is true');
+      t.true(client.getStatus().isReady, 'Client should emit SDK_READY_FROM_CACHE alongside SDK_READY, because clearOnInit is true');
     });
 
     await client.whenReady();
@@ -959,7 +963,7 @@ export default function (fetchMock, assert) {
     manager = splitio.manager();
 
     client.once(client.Event.SDK_READY_FROM_CACHE, () => {
-      t.true(client.__getStatus().isReady, 'Client should emit SDK_READY_FROM_CACHE alongside SDK_READY, because clearOnInit is true');
+      t.true(client.getStatus().isReady, 'Client should emit SDK_READY_FROM_CACHE alongside SDK_READY, because clearOnInit is true');
     });
 
     await new Promise(res => client.once(client.Event.SDK_READY, res));
