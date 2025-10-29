@@ -23,7 +23,7 @@ export default async function (fetchMock, assert) {
     const splitio = SplitFactory(baseConfig);
     const client = splitio.client();
 
-    await client.ready();
+    await client.whenReady();
 
     t.equal(client.getTreatment('emi@harness.io', 'non_existent_flag'), 'control', 'The evaluation will return `control` if the flag does not exist and no fallbackTreatment is defined');
     t.equal(client.getTreatment('emma@harness.io', 'non_existent_flag_2'), 'control', 'The evaluation will return `control` if the flag does not exist and no fallbackTreatment is defined');
@@ -35,14 +35,16 @@ export default async function (fetchMock, assert) {
 
   assert.test('FallbackTreatment / Split factory with global fallbackTreatment defined', async t => {
 
-    const config = Object.assign({}, baseConfig);
-    config.fallbackTreatments = {
-      global: 'FALLBACK_TREATMENT'
+    const config = {
+      ...baseConfig,
+      fallbackTreatments: {
+        global: 'FALLBACK_TREATMENT'
+      }
     };
     const splitio = SplitFactory(config);
     const client = splitio.client();
 
-    await client.ready();
+    await client.whenReady();
 
 
     t.equal(client.getTreatment('emi@harness.io', 'non_existent_flag'), 'FALLBACK_TREATMENT', 'The evaluation will return `FALLBACK_TREATMENT` if the flag does not exist and no fallbackTreatment is defined');
@@ -55,16 +57,18 @@ export default async function (fetchMock, assert) {
 
   assert.test('FallbackTreatment / Split factory with specific fallbackTreatment defined', async t => {
 
-    const config = Object.assign({}, baseConfig);
-    config.fallbackTreatments = {
-      byFlag: {
-        'non_existent_flag': 'FALLBACK_TREATMENT',
+    const config = {
+      ...baseConfig,
+      fallbackTreatments: {
+        byFlag: {
+          'non_existent_flag': 'FALLBACK_TREATMENT',
+        }
       }
     };
     const splitio = SplitFactory(config);
     const client = splitio.client();
 
-    await client.ready();
+    await client.whenReady();
 
     t.equal(client.getTreatment('emi@harness.io', 'non_existent_flag'), 'FALLBACK_TREATMENT', 'The evaluation will return `FALLBACK_TREATMENT` if the flag does not exist and no fallbackTreatment is defined');
     t.equal(client.getTreatment('emi@harness.io', 'non_existent_flag_2'), 'control', 'The evaluation will return `control` if the flag does not exist and no fallbackTreatment is defined');
@@ -80,17 +84,19 @@ export default async function (fetchMock, assert) {
 
   assert.test('FallbackTreatment / flag override beats global fallbackTreatment', async t => {
 
-    const config = Object.assign({}, baseConfig);
-    config.fallbackTreatments = {
-      global: 'OFF_FALLBACK',
-      byFlag: {
-        'my_flag': 'ON_FALLBACK',
+    const config = {
+      ...baseConfig,
+      fallbackTreatments: {
+        global: 'OFF_FALLBACK',
+        byFlag: {
+          'my_flag': 'ON_FALLBACK',
+        }
       }
     };
     const splitio = SplitFactory(config);
     const client = splitio.client();
 
-    await client.ready();
+    await client.whenReady();
 
     t.equal(client.getTreatment('emi@harness.io', 'my_flag'), 'ON_FALLBACK', 'The evaluation will return `ON_FALLBACK` if the flag does not exist and no fallbackTreatment is defined');
     t.equal(client.getTreatment('emi@harness.io', 'non_existent_flag_2'), 'OFF_FALLBACK', 'The evaluation will return `OFF_FALLBACK` if the flag does not exist and no fallbackTreatment is defined');
@@ -105,14 +111,16 @@ export default async function (fetchMock, assert) {
 
   assert.test('FallbackTreatment / override applies only when original is control', async t => {
 
-    const config = Object.assign({}, baseConfig);
-    config.fallbackTreatments = {
-      global: 'OFF_FALLBACK'
+    const config = {
+      ...baseConfig,
+      fallbackTreatments: {
+        global: 'OFF_FALLBACK'
+      }
     };
     const splitio = SplitFactory(config);
     const client = splitio.client();
 
-    await client.ready();
+    await client.whenReady();
 
     t.equal(client.getTreatment('emma@harness.io', 'user_account_in_whitelist'), 'off', 'The evaluation will return the treatment defined in the flag if it exists');
     t.equal(client.getTreatment('emma@harness.io', 'non_existent_flag'), 'OFF_FALLBACK', 'The evaluation will return `OFF_FALLBACK` if the flag does not exist and no fallbackTreatment is defined');
@@ -124,13 +132,15 @@ export default async function (fetchMock, assert) {
 
   assert.test('FallbackTreatment / Impressions correctness with fallback when client is not ready', async t => {
 
-    const config = Object.assign({}, baseConfig);
-    config.urls = {
-      events: 'https://events.fallbacktreatment/api'
-    };
-    config.fallbackTreatments = {
-      byFlag: {
-        'any_flag': 'OFF_FALLBACK'
+    const config = {
+      ...baseConfig,
+      urls: {
+        events: 'https://events.fallbacktreatment/api'
+      },
+      fallbackTreatments: {
+        byFlag: {
+          'any_flag': 'OFF_FALLBACK'
+        }
       }
     };
     const splitio = SplitFactory(config);
@@ -139,7 +149,7 @@ export default async function (fetchMock, assert) {
     t.equal(client.getTreatment('emi@harness.io', 'any_flag'), 'OFF_FALLBACK', 'The evaluation will return the fallbackTreatment if the client is not ready yet');
     t.equal(client.getTreatment('emma@harness.io', 'user_account_in_whitelist'), 'control', 'The evaluation will return the fallbackTreatment if the client is not ready yet');
 
-    await client.ready();
+    await client.whenReady();
 
     fetchMock.postOnce(config.urls.events + '/testImpressions/bulk', (_, opts) => {
 
@@ -164,17 +174,19 @@ export default async function (fetchMock, assert) {
 
   assert.test('FallbackTreatment / Fallback dynamic config propagation', async t => {
 
-    const config = Object.assign({}, baseConfig);
-    config.fallbackTreatments = {
-      global: { treatment: 'OFF_FALLBACK', config: '{"global": true}' },
-      byFlag: {
-        'my_flag': { treatment: 'ON_FALLBACK', config: '{"flag": true}' }
+    const config = {
+      ...baseConfig,
+      fallbackTreatments: {
+        global: { treatment: 'OFF_FALLBACK', config: '{"global": true}' },
+        byFlag: {
+          'my_flag': { treatment: 'ON_FALLBACK', config: '{"flag": true}' }
+        }
       }
     };
     const splitio = SplitFactory(config);
     const client = splitio.client();
 
-    await client.ready();
+    await client.whenReady();
 
     t.deepEqual(client.getTreatmentWithConfig('emma@harness.io', 'my_flag'), { treatment: 'ON_FALLBACK', config: '{"flag": true}' }, 'The evaluation will propagate the config along with the treatment from the fallbackTreatment');
     t.deepEqual(client.getTreatmentWithConfig('emma@harness.io', 'non_existent_flag'), { treatment: 'OFF_FALLBACK', config: '{"global": true}' }, 'The evaluation will propagate the config along with the treatment from the fallbackTreatment');
@@ -186,22 +198,24 @@ export default async function (fetchMock, assert) {
 
   assert.test('FallbackTreatment / Evaluations non existing flags with fallback do not generate impressions', async t => {
 
-    const config = Object.assign({}, baseConfig);
-    config.urls = {
-      events: 'https://events.fallbacktreatment/api'
+    const config = {
+      ...baseConfig,
+      urls: {
+        events: 'https://events.fallbacktreatment/api'
+      },
+      fallbackTreatments: {
+        global: { treatment: 'OFF_FALLBACK', config: '{"global": true}' },
+        byFlag: {
+          'my_flag': { treatment: 'ON_FALLBACK', config: '{"flag": true}' }
+        }
+      },
+      impressionListener: listener
     };
-    config.fallbackTreatments = {
-      global: { treatment: 'OFF_FALLBACK', config: '{"global": true}' },
-      byFlag: {
-        'my_flag': { treatment: 'ON_FALLBACK', config: '{"flag": true}' }
-      }
-    };
-    config.impressionListener = listener;
 
     const splitio = SplitFactory(config);
     const client = splitio.client();
 
-    await client.ready();
+    await client.whenReady();
 
     t.deepEqual(client.getTreatmentWithConfig('emma@harness.io', 'my_flag'), { treatment: 'ON_FALLBACK', config: '{"flag": true}' }, 'The evaluation will propagate the config along with the treatment from the fallbackTreatment');
     t.deepEqual(client.getTreatmentWithConfig('emma@harness.io', 'non_existent_flag'), { treatment: 'OFF_FALLBACK', config: '{"global": true}' }, 'The evaluation will propagate the config along with the treatment from the fallbackTreatment');
@@ -234,16 +248,21 @@ export default async function (fetchMock, assert) {
 
   assert.test('FallbackTreatment / LocalhostMode', async t => {
 
-    const config = Object.assign({}, baseConfig);
-    config.core.authorizationKey = 'localhost';
-    config.fallbackTreatments = {
-      global: 'OFF_FALLBACK'
+    const config = {
+      ...baseConfig,
+      core: {
+        ...baseConfig.core,
+        authorizationKey: 'localhost'
+      },
+      fallbackTreatments: {
+        global: 'OFF_FALLBACK'
+      },
+      features: path.join(__dirname, '../offline/split.yaml')
     };
-    config.features = path.join(__dirname, '../offline/split.yaml');
     const splitio = SplitFactory(config);
     const client = splitio.client();
 
-    await client.ready();
+    await client.whenReady();
 
     t.deepEqual(client.getTreatment('emma@harness.io', 'testing_split_on'), 'on', 'The evaluation should return the treatment defined in localhost mode');
     t.deepEqual(client.getTreatment('emma@harness.io', 'non_existent_flag'), 'OFF_FALLBACK', 'The evaluation will return `OFF_FALLBACK` if the flag does not exist');

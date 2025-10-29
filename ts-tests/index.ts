@@ -598,7 +598,14 @@ let fullBrowserSettings: SplitIO.IBrowserSettings = {
       getHeaderOverrides(context) { return { ...context.headers, 'header': 'value' } },
     }
   },
-  userConsent: 'GRANTED'
+  userConsent: 'GRANTED',
+  fallbackTreatments: {
+    global: { treatment: 'global-treatment', config: '{"global": true}' },
+    byFlag: {
+      'my_flag': { treatment: 'flag-treatment', config: '{"flag": true}' },
+      'my_other_flag': 'other-flag-treatment'
+    }
+  }
 };
 fullBrowserSettings.storage.type = 'MEMORY';
 fullBrowserSettings.userConsent = 'DECLINED';
@@ -658,6 +665,13 @@ let fullNodeSettings: SplitIO.INodeSettings = {
       getHeaderOverrides(context) { return { ...context.headers, 'header': 'value' } },
       agent: new (require('https')).Agent(),
     }
+  },
+  fallbackTreatments: {
+    global: { treatment: 'global-treatment', config: '{"global": true}' },
+    byFlag: {
+      'my_flag': { treatment: 'flag-treatment', config: '{"flag": true}' },
+      'my_other_flag': 'other-flag-treatment'
+    }
   }
 };
 fullNodeSettings.storage.type = 'MEMORY';
@@ -706,6 +720,13 @@ let fullAsyncSettings: SplitIO.INodeAsyncSettings = {
   sync: {
     splitFilters: splitFilters,
     impressionsMode: 'DEBUG',
+  },
+  fallbackTreatments: {
+    global: 'global-treatment',
+    byFlag: {
+      'my_flag': { treatment: 'flag-treatment', config: '{"flag": true}' },
+      'my_other_flag': 'other-flag-treatment'
+    }
   }
 };
 
