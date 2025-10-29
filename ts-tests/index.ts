@@ -258,10 +258,24 @@ let nodeEventEmitter: NodeJS.EventEmitter = client;
 
 // Ready, destroy and flush
 let promise: Promise<void> = client.ready();
+promise = client.whenReady();
 promise = client.destroy();
 promise = SDK.destroy();
 // @TODO not public yet
 // promise = client.flush();
+const promiseWhenReadyFromCache: Promise<boolean> = client.whenReadyFromCache();
+
+// Get readiness status
+let status: SplitIO.ReadinessStatus = client.getStatus();
+status = {
+  isReady: false,
+  isReadyFromCache: false,
+  isTimedout: false,
+  isDestroyed: false,
+  isOperational: false,
+  hasTimedout: false,
+  lastUpdate: 0
+}
 
 // We can call getTreatment with or without a key.
 treatment = client.getTreatment(splitKey, 'mySplit');
