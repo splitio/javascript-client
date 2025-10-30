@@ -1,4 +1,4 @@
-11.8.0 (October 28, 2025)
+11.8.0 (October 30, 2025)
  - Added new configuration for Fallback Treatments, which allows setting a treatment value and optional config to be returned in place of "control", either globally or by flag. Read more in our docs.
  - Added `client.getStatus()` method to retrieve the client readiness status properties (`isReady`, `isReadyFromCache`, etc).
  - Added `client.whenReady()` and `client.whenReadyFromCache()` methods to replace the deprecated `client.ready()` method, which has an issue causing the returned promise to hang when using async/await syntax if it was rejected.
