@@ -1,6 +1,6 @@
 const assign = require('lodash/assign');
 
-module.exports = function(config) {
+module.exports = function (config) {
   'use strict';
 
   config.set(assign({}, require('./config'), {

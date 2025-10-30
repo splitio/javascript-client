@@ -89,7 +89,7 @@ export default function (fetchMock, assert) {
 
     const client = splitio.client();
 
-    t.equal(client.__getStatus().isReadyFromCache, true, 'Client is ready from cache');
+    t.equal(client.getStatus().isReadyFromCache, true, 'Client is ready from cache');
 
     t.equal(client.getTreatment('nicolas@split.io', 'always_on'), 'off', 'It should evaluate treatments with data from cache. Key not in segment');
     t.equal(client.getTreatment('emi@split.io', 'always_on'), 'on', 'It should evaluate treatments with data from cache. Key in segment');
