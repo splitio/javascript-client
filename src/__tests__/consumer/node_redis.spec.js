@@ -550,7 +550,14 @@ tape('Node.js Redis', function (t) {
   t.test('Connection error', assert => {
     initializeRedisServer()
       .then((server) => {
-        const sdk = SplitFactory(config);
+        const sdk = SplitFactory({
+          ...config,
+          fallbackTreatments: {
+            byFlag: {
+              'always-on': 'control_always_on'
+            }
+          }
+        });
         const client = sdk.client();
 
         client.once(client.Event.SDK_READY_TIMED_OUT, assert.fail);
@@ -585,7 +592,7 @@ tape('Node.js Redis', function (t) {
               assert.equal(await client.getTreatment('UT_Segment_member', 'UT_NOT_SET_MATCHER', {
                 permissions: ['not_matching']
               }), 'control', 'In the event of a Redis error like a disconnection, getTreatments should not hang but resolve to "control".');
-              assert.equal(await client.getTreatment('UT_Segment_member', 'always-on'), 'control', 'In the event of a Redis error like a disconnection, getTreatments should not hang but resolve to "control".');
+              assert.equal(await client.getTreatment('UT_Segment_member', 'always-on'), 'control_always_on', 'In the event of a Redis error like a disconnection, getTreatments should not hang but resolve to fallback treatment or "control".');
 
               assert.false(await client.track('nicolas@split.io', 'user', 'test.redis.event', 18), 'In the event of a Redis error like a disconnection, track should resolve to false.');
 
