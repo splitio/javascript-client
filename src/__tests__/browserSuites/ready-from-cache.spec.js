@@ -108,18 +108,30 @@ export const expectedHashWithFilter = '2ce5cc38'; // for SDK key '<fake-token-rf
 
 export default function (fetchMock, assert) {
 
-  assert.test(t => { // Testing when we start from scratch
+  assert.test(t => { // Testing when we start from scratch, with an initial localStorage write operation fail (should retry splitChanges with -1)
     const testUrls = {
       sdk: 'https://sdk.baseurl/readyFromCacheEmpty',
       events: 'https://events.baseurl/readyFromCacheEmpty'
     };
     localStorage.clear();
+
+    // simulate a localStorage failure when saving a FF
+    const originalSetItem = localStorage.setItem;
+    localStorage.setItem = (key, value) => {
+      if (key.includes('.split.')) {
+        localStorage.setItem = originalSetItem;
+        throw new Error('localStorage.setItem failed');
+      }
+      return originalSetItem.call(localStorage, key, value);
+    };
+
     t.plan(4);
 
-    fetchMock.get(testUrls.sdk + '/splitChanges?s=1.3&since=-1&rbSince=-1', { status: 200, body: splitChangesMock1 });
-    fetchMock.get(testUrls.sdk + '/memberships/nicolas%40split.io', { status: 200, body: membershipsNicolas });
-    fetchMock.get(testUrls.sdk + '/memberships/nicolas2%40split.io', { status: 200, body: { 'ms': {} } });
-    fetchMock.get(testUrls.sdk + '/memberships/nicolas3%40split.io', { status: 200, body: { 'ms': {} } });
+    fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.3&since=-1&rbSince=-1', { status: 200, body: splitChangesMock1 });
+    fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.3&since=-1&rbSince=-1', { status: 200, body: splitChangesMock1 });
+    fetchMock.getOnce(testUrls.sdk + '/memberships/nicolas%40split.io', { status: 200, body: membershipsNicolas });
+    fetchMock.getOnce(testUrls.sdk + '/memberships/nicolas2%40split.io', { status: 200, body: { 'ms': {} } });
+    fetchMock.getOnce(testUrls.sdk + '/memberships/nicolas3%40split.io', { status: 200, body: { 'ms': {} } });
 
     const splitio = SplitFactory({
       ...baseConfig,
