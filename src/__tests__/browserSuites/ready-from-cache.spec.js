@@ -88,19 +88,31 @@ const expectedHashWithFilter = 'fdf7bd89'; // for SDK key '<fake-token-rfc>', fi
 
 export default function (fetchMock, assert) {
 
-  assert.test(t => { // Testing when we start from scratch
+  assert.test(t => { // Testing when we start from scratch, with an initial localStorage write operation fail (should retry splitChanges with -1)
     const testUrls = {
       sdk: 'https://sdk.baseurl/readyFromCacheEmpty',
       events: 'https://events.baseurl/readyFromCacheEmpty'
     };
     localStorage.clear();
+
+    // simulate a localStorage failure when saving a FF
+    const originalSetItem = localStorage.setItem;
+    localStorage.setItem = (key, value) => {
+      if (key.includes('.split.')) {
+        localStorage.setItem = originalSetItem;
+        throw new Error('localStorage.setItem failed');
+      }
+      return originalSetItem.call(localStorage, key, value);
+    };
+
     t.plan(3);
 
-    fetchMock.get(testUrls.sdk + '/splitChanges?s=1.1&since=-1', { status: 200, body: splitChangesMock1 });
-    fetchMock.get(testUrls.sdk + '/splitChanges?s=1.1&since=1457552620999', { status: 200, body: splitChangesMock2 });
-    fetchMock.get(testUrls.sdk + '/mySegments/nicolas%40split.io', { status: 200, body: mySegmentsNicolas });
-    fetchMock.get(testUrls.sdk + '/mySegments/nicolas2%40split.io', { status: 200, body: { 'mySegments': [] } });
-    fetchMock.get(testUrls.sdk + '/mySegments/nicolas3%40split.io', { status: 200, body: { 'mySegments': [] } });
+    fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.1&since=-1', { status: 200, body: splitChangesMock1 });
+    fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.1&since=-1', { status: 200, body: splitChangesMock1 });
+    fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.1&since=1457552620999', { status: 200, body: splitChangesMock2 });
+    fetchMock.getOnce(testUrls.sdk + '/mySegments/nicolas%40split.io', { status: 200, body: mySegmentsNicolas });
+    fetchMock.getOnce(testUrls.sdk + '/mySegments/nicolas2%40split.io', { status: 200, body: { 'mySegments': [] } });
+    fetchMock.getOnce(testUrls.sdk + '/mySegments/nicolas3%40split.io', { status: 200, body: { 'mySegments': [] } });
 
     const splitio = SplitFactory({
       ...baseConfig,
