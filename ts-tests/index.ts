@@ -258,10 +258,24 @@ let nodeEventEmitter: NodeJS.EventEmitter = client;
 
 // Ready, destroy and flush
 let promise: Promise<void> = client.ready();
+promise = client.whenReady();
 promise = client.destroy();
 promise = SDK.destroy();
 // @TODO not public yet
 // promise = client.flush();
+let promiseWhenReadyFromCache: Promise<boolean> = client.whenReadyFromCache();
+
+// Get readiness status
+let status: SplitIO.ReadinessStatus = client.getStatus();
+status = {
+  isReady: false,
+  isReadyFromCache: false,
+  isTimedout: false,
+  isDestroyed: false,
+  isOperational: false,
+  hasTimedout: false,
+  lastUpdate: 0
+}
 
 // We can call getTreatment with or without a key.
 treatment = client.getTreatment(splitKey, 'mySplit');
@@ -364,10 +378,15 @@ nodeEventEmitter = asyncClient;
 
 // Ready, destroy and flush (same as for sync client, just for interface checking)
 promise = asyncClient.ready();
+promise = asyncClient.whenReady();
 promise = asyncClient.destroy();
 promise = AsyncSDK.destroy();
 // @TODO not public yet
 // promise = asyncClient.flush();
+promiseWhenReadyFromCache = asyncClient.whenReadyFromCache();
+
+// Get readiness status
+status = asyncClient.getStatus();
 
 // We can call getTreatment but always with a key.
 asyncTreatment = asyncClient.getTreatment(splitKey, 'mySplit');
@@ -584,7 +603,14 @@ let fullBrowserSettings: SplitIO.IBrowserSettings = {
       getHeaderOverrides(context) { return { ...context.headers, 'header': 'value' } },
     }
   },
-  userConsent: 'GRANTED'
+  userConsent: 'GRANTED',
+  fallbackTreatments: {
+    global: { treatment: 'global-treatment', config: '{"global": true}' },
+    byFlag: {
+      'my_flag': { treatment: 'flag-treatment', config: '{"flag": true}' },
+      'my_other_flag': 'other-flag-treatment'
+    }
+  }
 };
 fullBrowserSettings.storage.type = 'MEMORY';
 fullBrowserSettings.userConsent = 'DECLINED';
@@ -644,6 +670,13 @@ let fullNodeSettings: SplitIO.INodeSettings = {
       getHeaderOverrides(context) { return { ...context.headers, 'header': 'value' } },
       agent: new (require('https')).Agent(),
     }
+  },
+  fallbackTreatments: {
+    global: { treatment: 'global-treatment', config: '{"global": true}' },
+    byFlag: {
+      'my_flag': { treatment: 'flag-treatment', config: '{"flag": true}' },
+      'my_other_flag': 'other-flag-treatment'
+    }
   }
 };
 fullNodeSettings.storage.type = 'MEMORY';
@@ -692,6 +725,13 @@ let fullAsyncSettings: SplitIO.INodeAsyncSettings = {
   sync: {
     splitFilters: splitFilters,
     impressionsMode: 'DEBUG',
+  },
+  fallbackTreatments: {
+    global: 'global-treatment',
+    byFlag: {
+      'my_flag': { treatment: 'flag-treatment', config: '{"flag": true}' },
+      'my_other_flag': 'other-flag-treatment'
+    }
   }
 };
 
