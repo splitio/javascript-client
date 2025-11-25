@@ -115,9 +115,12 @@ export default function (fetchMock, assert) {
     };
     localStorage.clear();
 
-    // simulate a localStorage failure when saving a FF
+    // simulate a localStorage failure when saving a FF and a membership
     const originalSetItem = localStorage.setItem;
     localStorage.setItem = (key, value) => {
+      if (key.includes('.nicolas@split.io.')) {
+        throw new Error('localStorage.setItem failed');
+      }
       if (key.includes('.split.')) {
         localStorage.setItem = originalSetItem;
         throw new Error('localStorage.setItem failed');
@@ -128,8 +131,9 @@ export default function (fetchMock, assert) {
     t.plan(4);
 
     fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.3&since=-1&rbSince=-1', { status: 200, body: splitChangesMock1 });
-    fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.3&since=-1&rbSince=-1', { status: 200, body: splitChangesMock1 });
+    fetchMock.getOnce(testUrls.sdk + '/splitChanges?s=1.3&since=-1&rbSince=-1', { status: 200, body: splitChangesMock1 }); // retry
     fetchMock.getOnce(testUrls.sdk + '/memberships/nicolas%40split.io', { status: 200, body: membershipsNicolas });
+    fetchMock.getOnce(testUrls.sdk + '/memberships/nicolas%40split.io', { status: 200, body: membershipsNicolas }); // retry
     fetchMock.getOnce(testUrls.sdk + '/memberships/nicolas2%40split.io', { status: 200, body: { 'ms': {} } });
     fetchMock.getOnce(testUrls.sdk + '/memberships/nicolas3%40split.io', { status: 200, body: { 'ms': {} } });
 
@@ -143,7 +147,8 @@ export default function (fetchMock, assert) {
         type: 'LOCALSTORAGE',
         prefix: 'readyFromCache_1'
       },
-      urls: testUrls
+      urls: testUrls,
+      debug: 'WARN'
     });
     const client = splitio.client();
     const client2 = splitio.client('nicolas2@split.io');
