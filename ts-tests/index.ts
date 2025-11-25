@@ -86,6 +86,7 @@ const attributes: SplitIO.Attributes = {
   attr7: true
 };
 const evaluationOptions: SplitIO.EvaluationOptions = {
+  impressionsDisabled: true,
   properties: {
     prop1: 1,
     prop2: '2',

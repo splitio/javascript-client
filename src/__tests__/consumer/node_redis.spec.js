@@ -54,7 +54,7 @@ const expectedImpressionCount = [
   `UT_SET_MATCHER::${truncateTimeFrame(timeFrame)}`, '2',
   `UT_NOT_SET_MATCHER::${truncateTimeFrame(timeFrame)}`, '3',
   `always-o.n-with-config::${truncateTimeFrame(timeFrame)}`, '1',
-  `always-on::${truncateTimeFrame(timeFrame)}`, '1',
+  `always-on::${truncateTimeFrame(timeFrame)}`, '5',
   `hierarchical_splits_testing_on::${truncateTimeFrame(timeFrame)}`, '1',
   `hierarchical_splits_testing_off::${truncateTimeFrame(timeFrame)}`, '1',
   `hierarchical_splits_testing_on_negated::${truncateTimeFrame(timeFrame)}`, '1',
@@ -158,6 +158,12 @@ tape('Node.js Redis', function (t) {
         assert.equal(await client.getTreatment('UT_Segment_member', 'hierarchical_splits_testing_on_negated'), 'off', 'Evaluations using Redis storage should be correct.');
         assert.equal(await client.getTreatment('other_key', 'always-on-impressions-disabled-true'), 'on', 'Evaluations using Redis storage should be correct.');
 
+        // Verify impressionsDisabled option
+        assert.deepEqual(await client.getTreatment('other_key', 'always-on', undefined, { impressionsDisabled: true }), 'on', 'Evaluations with impressionsDisabled: true should be correct.');
+        assert.deepEqual(await client.getTreatmentWithConfig('other_key', 'always-on', undefined, { impressionsDisabled: true }), { treatment: 'on', config: null }, 'Evaluations with impressionsDisabled: true should be correct.');
+        assert.deepEqual(await client.getTreatments('other_key', ['always-on'], undefined, { impressionsDisabled: true }), { 'always-on': 'on' }, 'Evaluations with impressionsDisabled: true should be correct.');
+        assert.deepEqual(await client.getTreatmentsWithConfig('other_key', ['always-on'], undefined, { impressionsDisabled: true }), { 'always-on': { treatment: 'on', config: null } }, 'Evaluations with impressionsDisabled: true should be correct.');
+
         // Evaluations with rule-based segments
         assert.equal(await client.getTreatment('emi@split.io', 'rbs_test_flag'), 'v2', 'key in excluded segment');
         assert.equal(await client.getTreatment('mauro@split.io', 'rbs_test_flag'), 'v2', 'excluded key');
@@ -189,11 +195,11 @@ tape('Node.js Redis', function (t) {
         // Validate Impression Counts and Unique Keys for 'always-on-impressions-disabled-true'
         exec(`echo "HGETALL ${config.storage.prefix}.SPLITIO.impressions.count" | redis-cli  -p ${redisPort}`, async (error, stdout) => {
           const trackedImpressionCounts = stdout.split('\n').filter(line => line !== '');
-          assert.deepEqual(trackedImpressionCounts, [`always-on-impressions-disabled-true::${truncateTimeFrame(timeFrame)}`, '1',], 'Tracked impression counts should be stored in Redis TODO');
+          assert.deepEqual(trackedImpressionCounts, [`always-on-impressions-disabled-true::${truncateTimeFrame(timeFrame)}`, '1',`always-on::${truncateTimeFrame(timeFrame)}`, '4',], 'Tracked impression counts should be stored in Redis TODO');
 
           exec(`echo "LRANGE ${config.storage.prefix}.SPLITIO.uniquekeys 0 20" | redis-cli  -p ${redisPort}`, async (error, stdout) => {
             const storedUniqueKeys = stdout.split('\n').filter(line => line !== '').map(JSON.parse);
-            assert.deepEqual(storedUniqueKeys, [{ 'f': 'always-on-impressions-disabled-true', 'ks': ['other_key'] }], 'Unique keys should be stored in Redis TODO');
+            assert.deepEqual(storedUniqueKeys, [{ 'f': 'always-on-impressions-disabled-true', 'ks': ['other_key'] }, { f: 'always-on', ks: [ 'other_key' ] }], 'Unique keys should be stored in Redis TODO');
 
             // Validate stored impressions and events
             exec(`echo "LLEN ${config.storage.prefix}.SPLITIO.impressions \n LLEN ${config.storage.prefix}.SPLITIO.events" | redis-cli  -p ${redisPort}`, (error, stdout) => {
@@ -308,6 +314,12 @@ tape('Node.js Redis', function (t) {
         // this should be deduped
         assert.equal(await client.getTreatment('UT_Segment_member', 'hierarchical_splits_testing_on_negated'), 'off', 'Evaluations using Redis storage should be correct.');
 
+        // Verify impressionsDisabled option
+        assert.deepEqual(await client.getTreatment('other_key', 'always-on', undefined, { impressionsDisabled: true }), 'on', 'Evaluations with impressionsDisabled: true should be correct.');
+        assert.deepEqual(await client.getTreatmentWithConfig('other_key', 'always-on', undefined, { impressionsDisabled: true }), { treatment: 'on', config: null }, 'Evaluations with impressionsDisabled: true should be correct.');
+        assert.deepEqual(await client.getTreatments('other_key', ['always-on'], undefined, { impressionsDisabled: true }), { 'always-on': 'on' }, 'Evaluations with impressionsDisabled: true should be correct.');
+        assert.deepEqual(await client.getTreatmentsWithConfig('other_key', ['always-on'], undefined, { impressionsDisabled: true }), { 'always-on': { treatment: 'on', config: null } }, 'Evaluations with impressionsDisabled: true should be correct.');
+
         assert.equal(typeof client.track('nicolas@split.io', 'user', 'test.redis.event', 18).then, 'function', 'Track calls should always return a promise on Redis mode.');
         assert.equal(typeof client.track().then, 'function', 'Track calls should always return a promise on Redis mode, even when parameters are incorrect.');
 
@@ -357,7 +369,7 @@ tape('Node.js Redis', function (t) {
           { 'f': 'UT_SET_MATCHER', 'ks': ['UT_Segment_member'] },
           { 'f': 'UT_NOT_SET_MATCHER', 'ks': ['UT_Segment_member'] },
           { 'f': 'always-o.n-with-config', 'ks': ['UT_Segment_member'] },
-          { 'f': 'always-on', 'ks': ['UT_Segment_member'] },
+          { 'f': 'always-on', 'ks': ['UT_Segment_member', 'other_key'] },
           { 'f': 'hierarchical_splits_testing_on', 'ks': ['UT_Segment_member'] },
           { 'f': 'hierarchical_splits_testing_off', 'ks': ['UT_Segment_member'] },
           { 'f': 'hierarchical_splits_testing_on_negated', 'ks': ['UT_Segment_member'] },
@@ -403,6 +415,12 @@ tape('Node.js Redis', function (t) {
         assert.equal(await client.getTreatment('UT_Segment_member', 'hierarchical_splits_testing_on'), 'on', 'Evaluations using Redis storage should be correct.');
         assert.equal(await client.getTreatment('UT_Segment_member', 'hierarchical_splits_testing_off'), 'off', 'Evaluations using Redis storage should be correct.');
         assert.equal(await client.getTreatment('UT_Segment_member', 'hierarchical_splits_testing_on_negated'), 'off', 'Evaluations using Redis storage should be correct.');
+
+        // Verify impressionsDisabled option
+        assert.deepEqual(await client.getTreatment('other_key', 'always-on', undefined, { impressionsDisabled: true }), 'on', 'Evaluations with impressionsDisabled: true should be correct.');
+        assert.deepEqual(await client.getTreatmentWithConfig('other_key', 'always-on', undefined, { impressionsDisabled: true }), { treatment: 'on', config: null }, 'Evaluations with impressionsDisabled: true should be correct.');
+        assert.deepEqual(await client.getTreatments('other_key', ['always-on'], undefined, { impressionsDisabled: true }), { 'always-on': 'on' }, 'Evaluations with impressionsDisabled: true should be correct.');
+        assert.deepEqual(await client.getTreatmentsWithConfig('other_key', ['always-on'], undefined, { impressionsDisabled: true }), { 'always-on': { treatment: 'on', config: null } }, 'Evaluations with impressionsDisabled: true should be correct.');
 
         assert.equal(typeof client.track('nicolas@split.io', 'user', 'test.redis.event', 18).then, 'function', 'Track calls should always return a promise on Redis mode.');
         assert.equal(typeof client.track().then, 'function', 'Track calls should always return a promise on Redis mode, even when parameters are incorrect.');

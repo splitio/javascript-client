@@ -53,7 +53,8 @@ export default async function (key, fetchMock, assert) {
         { f: 'split_with_config', m: truncatedTimeFrame, rc: 3 },
         { f: 'always_off', m: truncatedTimeFrame, rc: 3 },
         { f: 'always_on', m: truncatedTimeFrame, rc: 5 },
-        { f: 'always_on_impressions_disabled_true', m: truncatedTimeFrame, rc: 1 }
+        { f: 'always_on_impressions_disabled_true', m: truncatedTimeFrame, rc: 3 },
+        { f: 'whitelist', m: truncatedTimeFrame, rc: 2 }
       ]
     });
     return 200;
@@ -79,6 +80,10 @@ export default async function (key, fetchMock, assert) {
         {
           f: 'always_on_impressions_disabled_true',
           ks: ['emi@split.io']
+        },
+        {
+          f: 'whitelist',
+          ks: ['emma@split.io']
         }
       ]
     }, 'We performed evaluations for 4 flags, so we should have 4 items total.');
@@ -99,6 +104,11 @@ export default async function (key, fetchMock, assert) {
   client.getTreatment('emi@split.io', 'split_with_config');
   client.getTreatment('emma@split.io', 'split_with_config');
   client.getTreatment('emi@split.io', 'always_on_impressions_disabled_true');
+  client.getTreatment('emma@split.io', 'whitelist', undefined, { impressionsDisabled: false });
+  client.getTreatment('emma@split.io', 'whitelist', undefined, { impressionsDisabled: true });
+  client.getTreatment('emi@split.io', 'always_on_impressions_disabled_true', undefined, { impressionsDisabled: true });
+  client.getTreatment('emi@split.io', 'always_on_impressions_disabled_true', undefined, { impressionsDisabled: false });
+
 
   client.destroy().then(() => {
     assert.end();

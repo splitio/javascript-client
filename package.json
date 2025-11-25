@@ -38,7 +38,7 @@
     "node": ">=14.0.0"
   },
   "dependencies": {
-    "@splitsoftware/splitio-commons": "2.8.0",
+    "@splitsoftware/splitio-commons": "2.8.1-rc.1",
     "bloom-filters": "^3.0.4",
     "ioredis": "^4.28.0",
     "js-yaml": "^3.13.1",
@@ -107,7 +107,7 @@
     "test-node-e2e-destroy": "cross-env NODE_ENV=test tape -r ./ts-node.register src/__tests__/destroy/node.spec.js | tap-min",
     "test-node-e2e-errorCatching": "cross-env NODE_ENV=test tape -r ./ts-node.register src/__tests__/errorCatching/node.spec.js | tap-min",
     "test-node-e2e-push": "cross-env NODE_ENV=test tape -r ./ts-node.register src/__tests__/push/node.spec.js | tap-min",
-    "test-node-e2e-redis": "cross-env NODE_ENV=test tape -r ./ts-node.register src/__tests__/consumer/node_redis.spec.js | tap-min",
+    "test-node-e2e-redis": "cross-env NODE_ENV=test tape -r ./ts-node.register src/__tests__/consumer/node_redis.spec.js",
     "test-ts-decls": "tsc --build ts-tests",
     "test": "npm run test-node && npm run test-browser",
     "all": "npm run check && npm run build && npm run test-ts-decls && npm run test",

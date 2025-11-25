@@ -49,18 +49,20 @@ export default async function (key, fetchMock, assert) {
     assert.equal(opts.headers.SplitSDKImpressionsMode, OPTIMIZED);
     const data = JSON.parse(opts.body);
 
-    assert.equal(data.length, 3, 'We performed evaluations for 4 features, but one with `impressionsDisabled` true, so we should have 3 items total.');
+    assert.equal(data.length, 3, 'We performed evaluations for 5 features, but two with `impressionsDisabled` true, so we should have 3 items total.');
 
     // finding these validate the feature names collection too
     const dependencyChildImpr = data.filter(e => e.f === 'hierarchical_splits_test')[0];
     const splitWithConfigImpr = data.filter(e => e.f === 'split_with_config')[0];
     const notExistentSplitImpr = data.filter(e => e.f === 'not_existent_split')[0];
     const alwaysOnWithImpressionsDisabledTrue = data.filter(e => e.f === 'always_on_impressions_disabled_true');
+    const whitelist = data.filter(e => e.f === 'whitelist');
 
     assert.equal(notExistentSplitImpr.i.length, 1); // Only one, the split not found is filtered by the non existent Split check.
     assert.equal(splitWithConfigImpr.i.length, 3);
     assert.equal(dependencyChildImpr.i.length, 1);
     assert.equal(alwaysOnWithImpressionsDisabledTrue.length, 0);
+    assert.equal(whitelist.length, 0);
 
     assert.true(dependencyChildImpr, 'Split we wanted to evaluate should be present on the impressions.');
     assert.false(data.some(e => e.f === 'hierarchical_dep_always_on'), 'Parent split evaluations should not result in impressions.');
@@ -112,11 +114,12 @@ export default async function (key, fetchMock, assert) {
   fetchMock.postOnce(url(settings, '/testImpressions/count'), (url, opts) => {
     const data = JSON.parse(opts.body);
 
-    assert.equal(data.pf.length, 2, 'We should generate impression count for 2 features.');
+    assert.equal(data.pf.length, 3, 'We should generate impression count for 3 features.');
 
     // finding these validate the feature names collection too
     const splitWithConfigImpr = data.pf.filter(e => e.f === 'split_with_config')[0];
     const alwaysOnWithImpressionsDisabledTrue = data.pf.filter(e => e.f === 'always_on_impressions_disabled_true')[0];
+    const whitelist = data.pf.filter(e => e.f === 'whitelist')[0];
 
     assert.equal(splitWithConfigImpr.rc, 1);
     assert.equal(typeof splitWithConfigImpr.m, 'number');
@@ -124,13 +127,16 @@ export default async function (key, fetchMock, assert) {
     assert.equal(alwaysOnWithImpressionsDisabledTrue.rc, 1);
     assert.equal(typeof alwaysOnWithImpressionsDisabledTrue.m, 'number');
     assert.equal(alwaysOnWithImpressionsDisabledTrue.m, truncatedTimeFrame);
+    assert.equal(whitelist.rc, 1);
+    assert.equal(typeof whitelist.m, 'number');
+    assert.equal(whitelist.m, truncatedTimeFrame);
 
     return 200;
   });
 
   fetchMock.postOnce(url(settings, '/v1/keys/ss'), (url, opts) => {
     assert.deepEqual(JSON.parse(opts.body), {
-      keys: [{ f: 'always_on_impressions_disabled_true', ks: ['other_key'] }]
+      keys: [{ f: 'whitelist', ks: ['facundo@split.io'] }, { f: 'always_on_impressions_disabled_true', ks: ['other_key'] }]
     }, 'We should only track unique keys for features flags with track impressions disabled.');
 
     return 200;
@@ -156,6 +162,7 @@ export default async function (key, fetchMock, assert) {
     config: '{"color":"brown","dimensions":{"height":12,"width":14},"text":{"inner":"click me"}}'
   }, 'We should get an evaluation as always.');
   client.getTreatmentWithConfig({ matchingKey: key, bucketingKey: 'test_buck_key' }, 'split_with_config');
+  client.getTreatmentWithConfig({ matchingKey: key, bucketingKey: 'test_buck_key' }, 'whitelist', undefined, { impressionsDisabled: true });
   client.getTreatmentWithConfig({ matchingKey: 'different', bucketingKey: 'test_buck_key' }, 'split_with_config');
 
   // Impression should not be tracked (passed properties will not be submitted)

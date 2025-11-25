@@ -9,6 +9,7 @@ import splitChangesMock2 from '../mocks/splitchanges.since.1457552620999.json';
 import evaluationsSuite from '../nodeSuites/evaluations.spec';
 import evaluationsSemverSuite from '../nodeSuites/evaluations-semver.spec';
 import evaluationsFallbackSuite from '../nodeSuites/evaluations-fallback.spec';
+import evaluationsImpressionsDisabledSuite from '../nodeSuites/evaluations-impressionsDisabled.spec';
 import eventsSuite from '../nodeSuites/events.spec';
 import impressionsSuite from '../nodeSuites/impressions.spec';
 import impressionsSuiteDebug from '../nodeSuites/impressions.debug.spec';
@@ -62,6 +63,7 @@ tape('## Node.js - E2E CI Tests ##', async function (assert) {
   assert.test('E2E / In Memory', evaluationsSuite.bind(null, config, key));
   assert.test('E2E / In Memory - Semver', evaluationsSemverSuite.bind(null, fetchMock));
   assert.test('E2E / In Memory - Fallback treatment', evaluationsFallbackSuite.bind(null, fetchMock));
+  assert.test('E2E / In Memory - Impressions Disabled', evaluationsImpressionsDisabledSuite.bind(null, fetchMock));
 
   /* Check impressions */
   assert.test('E2E / Impressions', impressionsSuite.bind(null, key, fetchMock));

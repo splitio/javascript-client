@@ -199,6 +199,12 @@ function DotYAMLTests(mockFileName, mockFileExt, assert) {
     assert.equal(client.getTreatment('qa-user', 'testing_split_off_with_config'), 'off');
     assert.equal(client.getTreatment('qa-user', 'not_existent'), 'control');
 
+    // Verify impressionsDisabled option
+    assert.equal(client.getTreatment('qa-user', 'testing_split_on', { impressionsDisabled: false }), 'on');
+    assert.deepEqual(client.getTreatmentWithConfig('qa-user', 'testing_split_on', { impressionsDisabled: false }), { treatment: 'on', config: null });
+    assert.deepEqual(client.getTreatments('qa-user', ['testing_split_on'], { impressionsDisabled: true }), { testing_split_on: 'on' });
+    assert.deepEqual(client.getTreatmentsWithConfig('qa-user', ['testing_split_on'], { impressionsDisabled: true }), { testing_split_on: { treatment: 'on', config: null } });
+
     assert.deepEqual(client.getTreatmentWithConfig('qa-user', 'testing_split_on'), { treatment: 'on', config: null });
     assert.deepEqual(client.getTreatmentWithConfig('qa-user', 'testing_split_only_wl'), { treatment: 'control', config: null });
     assert.deepEqual(client.getTreatmentWithConfig('key_for_wl', 'testing_split_only_wl'), { treatment: 'whitelisted', config: null });

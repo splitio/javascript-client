@@ -70,7 +70,12 @@ export default async function (key, fetchMock, assert) {
       }, {
         k: 'emi@split.io', t: 'o.n', m: data[0].i[6].m, c: 828282828282, r: 'another expected label', properties: '{"prop1":"value4"}'
       }]
-    }], 'We performed evaluations for one split, so we should have 1 item total.');
+    }, {
+      f: 'whitelist',
+      i: [{
+        k: 'emi@split.io', t: 'not_allowed', m: data[1].i[0].m, r: 'default rule', properties: '{"prop1":"value2"}'
+      }]
+    }], 'We performed evaluations for two splits, so we should have 2 items total.');
 
     client.destroy().then(() => {
       assert.end();
@@ -81,7 +86,10 @@ export default async function (key, fetchMock, assert) {
 
   fetchMock.postOnce(url(settings, '/testImpressions/count'), (url, opts) => {
     assert.deepEqual(JSON.parse(opts.body), {
-      pf: [{ f: 'always_on_impressions_disabled_true', m: truncatedTimeFrame, rc: 1 }]
+      pf: [
+        { f: 'always_on_impressions_disabled_true', m: truncatedTimeFrame, rc: 3 },
+        { f: 'whitelist', m: truncatedTimeFrame, rc: 3 }
+      ]
     }, 'We should generate impression count for the feature with track impressions disabled.');
 
     return 200;
@@ -89,7 +97,10 @@ export default async function (key, fetchMock, assert) {
 
   fetchMock.postOnce(url(settings, '/v1/keys/ss'), (url, opts) => {
     assert.deepEqual(JSON.parse(opts.body), {
-      keys: [{ f: 'always_on_impressions_disabled_true', ks: ['other_key'] }]
+      keys: [
+        { f: 'always_on_impressions_disabled_true', ks: ['other_key', 'emma@split.io'] },
+        { f: 'whitelist', ks: ['emi@split.io', 'emma@split.io'] }
+      ]
     }, 'We should track unique keys for the feature with track impressions disabled.');
 
     return 200;
@@ -109,4 +120,18 @@ export default async function (key, fetchMock, assert) {
   assert.equal(client.getTreatments('emi@split.io', ['split_with_config'], undefined, { properties: { prop1: 'value2' } }).split_with_config, 'o.n');
   assert.equal(client.getTreatmentWithConfig('emi@split.io', 'split_with_config', undefined, { properties: { prop1: 'value3' } }).treatment, 'o.n');
   assert.equal(client.getTreatmentsWithConfig('emi@split.io', ['split_with_config'], undefined, { properties: { prop1: 'value4' } }).split_with_config.treatment, 'o.n');
+
+  // impressions disabled
+  // Flags with impression enabled should generate:
+  // - 1 impression for whitelist
+  // - 3 impressions count for whitelist
+  // - 2 impressions unique keys for whitelist
+  assert.equal(client.getTreatment('emi@split.io', 'whitelist', undefined, { impressionsDisabled: true, properties: { prop1: 'value1' } }), 'not_allowed');
+  assert.equal(client.getTreatments('emi@split.io', ['whitelist'], undefined, { properties: { prop1: 'value2' } }).whitelist, 'not_allowed');
+  assert.equal(client.getTreatmentWithConfig('emi@split.io', 'whitelist', undefined, { impressionsDisabled: true, properties: { prop1: 'value3' } }).treatment, 'not_allowed');
+  assert.equal(client.getTreatmentsWithConfig('emma@split.io', ['whitelist'], undefined, { impressionsDisabled: true, properties: { prop1: 'value4' } }).whitelist.treatment, 'not_allowed');
+
+  // Flags with impression disabled should only generate impressions count and unique keys
+  assert.equal(client.getTreatment('emma@split.io', 'always_on_impressions_disabled_true', undefined, { impressionsDisabled: true }), 'on');
+  assert.equal(client.getTreatment('emma@split.io', 'always_on_impressions_disabled_true', undefined, { impressionsDisabled: false }), 'on');
 }
