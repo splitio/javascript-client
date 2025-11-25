@@ -147,8 +147,7 @@ export default function (fetchMock, assert) {
         type: 'LOCALSTORAGE',
         prefix: 'readyFromCache_1'
       },
-      urls: testUrls,
-      debug: 'WARN'
+      urls: testUrls
     });
     const client = splitio.client();
     const client2 = splitio.client('nicolas2@split.io');
