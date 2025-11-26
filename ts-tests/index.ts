@@ -263,7 +263,7 @@ promise = client.destroy();
 promise = SDK.destroy();
 // @TODO not public yet
 // promise = client.flush();
-const promiseWhenReadyFromCache: Promise<boolean> = client.whenReadyFromCache();
+let promiseWhenReadyFromCache: Promise<boolean> = client.whenReadyFromCache();
 
 // Get readiness status
 let status: SplitIO.ReadinessStatus = client.getStatus();
@@ -378,10 +378,15 @@ nodeEventEmitter = asyncClient;
 
 // Ready, destroy and flush (same as for sync client, just for interface checking)
 promise = asyncClient.ready();
+promise = asyncClient.whenReady();
 promise = asyncClient.destroy();
 promise = AsyncSDK.destroy();
 // @TODO not public yet
 // promise = asyncClient.flush();
+promiseWhenReadyFromCache = asyncClient.whenReadyFromCache();
+
+// Get readiness status
+status = asyncClient.getStatus();
 
 // We can call getTreatment but always with a key.
 asyncTreatment = asyncClient.getTreatment(splitKey, 'mySplit');
