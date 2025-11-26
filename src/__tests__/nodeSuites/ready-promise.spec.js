@@ -105,7 +105,11 @@ export default function readyPromiseAssertions(key, fetchMock, assert) {
     // /splitChanges takes longer than 'requestTimeoutBeforeReady' only for the first attempt
     fetchMock.getOnce(config.urls.sdk + '/splitChanges?s=1.3&since=-1&rbSince=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) + 20 });
     fetchMock.getOnce(config.urls.sdk + '/splitChanges?s=1.3&since=-1&rbSince=-1', splitChangesMock1, { delay: fromSecondsToMillis(config.startup.requestTimeoutBeforeReady) - 20 });
-    mockSegmentChanges(fetchMock, new RegExp(config.urls.sdk + '/segmentChanges/*'), ['some_key']);
+    mockSegmentChanges(fetchMock, new RegExp(config.urls.sdk + '/segmentChanges/(splitters|developers|segment_excluded_by_rbs)'), ['some_key']);
+    fetchMock.getOnce(config.urls.sdk + '/segmentChanges/employees?since=-1', { status: 500, body: 'server error' });
+    fetchMock.getOnce(config.urls.sdk + '/segmentChanges/employees?since=-1', { since: -1, till: 10, name: 'employees', added: ['some_key'], removed: [] });
+    fetchMock.getOnce(config.urls.sdk + '/segmentChanges/employees?since=10', { since: 10, till: 10, name: 'employees', added: [], removed: [] });
+
     fetchMock.postOnce(config.urls.events + '/testImpressions/bulk', 200);
     fetchMock.postOnce(config.urls.events + '/testImpressions/count', 200);
 
