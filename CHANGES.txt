@@ -1,6 +1,18 @@
-11.8.0 (October XX, 2025)
- - Updated @splitsoftware/splitio-commons package to version 2.8.0, which updates the SDK’s initial synchronization in Node.js (server-side) to use the `startup.requestTimeoutBeforeReady` and `startup.retriesOnFailureBeforeReady` options to control the timeout and retry behavior of segment requests.
+
+11.9.1 (December XX, 2025)
  - Updated node-fetch to version 3.3.2, which fixes some issues with the Fetch API implementation.
+
+11.9.0 (November 26, 2025)
+ - Updated @splitsoftware/splitio-commons package to version 2.9.0, which:
+    - updates the SDK’s initial synchronization in Node.js (server-side) to use the `startup.requestTimeoutBeforeReady` and `startup.retriesOnFailureBeforeReady` options to control the timeout and retry behavior of segment requests.
+    - updates the order of storage operations to prevent inconsistent states when using the `LOCALSTORAGE` storage type and the browser’s `localStorage` fails due to quota limits.
+
+11.8.0 (October 30, 2025)
+ - Added new configuration for Fallback Treatments, which allows setting a treatment value and optional config to be returned in place of "control", either globally or by flag. Read more in our docs.
+ - Added `client.getStatus()` method to retrieve the client readiness status properties (`isReady`, `isReadyFromCache`, etc).
+ - Added `client.whenReady()` and `client.whenReadyFromCache()` methods to replace the deprecated `client.ready()` method, which has an issue causing the returned promise to hang when using async/await syntax if it was rejected.
+ - Updated the SDK_READY_FROM_CACHE event to be emitted alongside the SDK_READY event if it hasn’t already been emitted.
+ - Updated @splitsoftware/splitio-commons package to version 2.8.0.
 
 11.7.1 (October 8, 2025)
  - Bugfix - Updated @splitsoftware/splitio-commons package to version 2.7.1, which fixes the `debug` option to support log levels when the `logger` option is used.
