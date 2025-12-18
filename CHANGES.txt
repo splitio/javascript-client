@@ -1,3 +1,7 @@
+11.9.1 (December 18, 2025)
+ - Updated @splitsoftware/splitio-commons package to version 2.10.1, which:
+    - Bugfix - Handle `null` prerequisites properly
+
 11.9.0 (November 26, 2025)
  - Updated @splitsoftware/splitio-commons package to version 2.9.0, which:
     - updates the SDK’s initial synchronization in Node.js (server-side) to use the `startup.requestTimeoutBeforeReady` and `startup.retriesOnFailureBeforeReady` options to control the timeout and retry behavior of segment requests.
