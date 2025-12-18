@@ -1,5 +1,5 @@
 11.9.1 (December 18, 2025)
-- Bugfix - Updated @splitsoftware/splitio-commons package to version 2.10.1 to handle `null` prerequisites properly
+ - Bugfix - Updated @splitsoftware/splitio-commons package to version 2.10.1 to handle `null` prerequisites properly
 
 11.9.0 (November 26, 2025)
  - Updated @splitsoftware/splitio-commons package to version 2.9.0, which:
