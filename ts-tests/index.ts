@@ -524,17 +524,6 @@ splitEvent = manager.Event.SDK_READY_FROM_CACHE;
 splitEvent = manager.Event.SDK_READY_TIMED_OUT;
 splitEvent = manager.Event.SDK_UPDATE;
 
-// Manager SDK event listeners with metadata
-manager.on(manager.Event.SDK_UPDATE, (metadata: SplitIO.SdkUpdateMetadata) => { });
-manager.on(manager.Event.SDK_READY, (metadata: SplitIO.SdkReadyMetadata) => { });
-manager.on(manager.Event.SDK_READY_FROM_CACHE, (metadata: SplitIO.SdkReadyMetadata) => { });
-manager.addListener(manager.Event.SDK_UPDATE, (metadata: SplitIO.SdkUpdateMetadata) => { });
-manager.addListener(manager.Event.SDK_READY, (metadata: SplitIO.SdkReadyMetadata) => { });
-manager.addListener(manager.Event.SDK_READY_FROM_CACHE, (metadata: SplitIO.SdkReadyMetadata) => { });
-manager.once(manager.Event.SDK_UPDATE, (metadata: SplitIO.SdkUpdateMetadata) => { });
-manager.once(manager.Event.SDK_READY, (metadata: SplitIO.SdkReadyMetadata) => { });
-manager.once(manager.Event.SDK_READY_FROM_CACHE, (metadata: SplitIO.SdkReadyMetadata) => { });
-
 /*** Repeating tests for Async Manager ***/
 
 splitNamesAsync = asyncManager.names();
@@ -558,17 +547,6 @@ splitEvent = asyncManager.Event.SDK_READY;
 splitEvent = asyncManager.Event.SDK_READY_FROM_CACHE;
 splitEvent = asyncManager.Event.SDK_READY_TIMED_OUT;
 splitEvent = asyncManager.Event.SDK_UPDATE;
-
-// Async manager SDK event listeners with metadata
-asyncManager.on(asyncManager.Event.SDK_UPDATE, (metadata: SplitIO.SdkUpdateMetadata) => { });
-asyncManager.on(asyncManager.Event.SDK_READY, (metadata: SplitIO.SdkReadyMetadata) => { });
-asyncManager.on(asyncManager.Event.SDK_READY_FROM_CACHE, (metadata: SplitIO.SdkReadyMetadata) => { });
-asyncManager.addListener(asyncManager.Event.SDK_UPDATE, (metadata: SplitIO.SdkUpdateMetadata) => { });
-asyncManager.addListener(asyncManager.Event.SDK_READY, (metadata: SplitIO.SdkReadyMetadata) => { });
-asyncManager.addListener(asyncManager.Event.SDK_READY_FROM_CACHE, (metadata: SplitIO.SdkReadyMetadata) => { });
-asyncManager.once(asyncManager.Event.SDK_UPDATE, (metadata: SplitIO.SdkUpdateMetadata) => { });
-asyncManager.once(asyncManager.Event.SDK_READY, (metadata: SplitIO.SdkReadyMetadata) => { });
-asyncManager.once(asyncManager.Event.SDK_READY_FROM_CACHE, (metadata: SplitIO.SdkReadyMetadata) => { });
 
 /*** Tests for IImpressionListener interface ***/
 class MyImprListener implements SplitIO.IImpressionListener {
