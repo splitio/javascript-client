@@ -359,6 +359,52 @@ tracked = browserClient.track('myTrafficType', 'myEventType', 10);
 tracked = client.track(splitKey, 'myTrafficType', 'myEventType', 10, { prop1: 1, prop2: '2', prop3: false, prop4: null });
 tracked = browserClient.track('myTrafficType', 'myEventType', undefined, { prop1: 1, prop2: '2', prop3: false, prop4: null });
 
+/*** Tests for SDK Events Metadata (new in commons 2.10+) ***/
+// SdkUpdateMetadata type for SDK_UPDATE events
+let sdkUpdateMetadata: SplitIO.SdkUpdateMetadata;
+sdkUpdateMetadata = {
+  type: 'FLAGS_UPDATE' as SplitIO.SdkUpdateMetadataKeys,
+  names: ['feature1', 'feature2']
+};
+sdkUpdateMetadata = {
+  type: 'SEGMENTS_UPDATE' as SplitIO.SdkUpdateMetadataKeys,
+  names: ['segment1']
+};
+// SDK_UPDATE event listener with metadata
+client.on(client.Event.SDK_UPDATE, (metadata: SplitIO.SdkUpdateMetadata) => {
+  const updateType: SplitIO.SdkUpdateMetadataKeys = metadata.type;
+  const updatedNames: string[] = metadata.names;
+});
+
+// SdkReadyMetadata type for SDK_READY and SDK_READY_FROM_CACHE events
+let sdkReadyMetadata: SplitIO.SdkReadyMetadata;
+sdkReadyMetadata = {
+  initialCacheLoad: true,
+  lastUpdateTimestamp: Date.now()
+};
+sdkReadyMetadata = {
+  initialCacheLoad: false,
+  lastUpdateTimestamp: Date.now()
+};
+// SDK_READY event listener with metadata
+client.on(client.Event.SDK_READY, (metadata: SplitIO.SdkReadyMetadata) => {
+  const fromCache: boolean = metadata.initialCacheLoad;
+  const timestamp: number = metadata.lastUpdateTimestamp;
+});
+// SDK_READY_FROM_CACHE event listener with metadata
+client.on(client.Event.SDK_READY_FROM_CACHE, (metadata: SplitIO.SdkReadyMetadata) => {
+  const fromCache: boolean = metadata.initialCacheLoad;
+  const timestamp: number = metadata.lastUpdateTimestamp;
+});
+// Using addListener with typed metadata
+client.addListener(client.Event.SDK_UPDATE, (metadata: SplitIO.SdkUpdateMetadata) => { });
+client.addListener(client.Event.SDK_READY, (metadata: SplitIO.SdkReadyMetadata) => { });
+client.addListener(client.Event.SDK_READY_FROM_CACHE, (metadata: SplitIO.SdkReadyMetadata) => { });
+// Using once with typed metadata
+client.once(client.Event.SDK_UPDATE, (metadata: SplitIO.SdkUpdateMetadata) => { });
+client.once(client.Event.SDK_READY, (metadata: SplitIO.SdkReadyMetadata) => { });
+client.once(client.Event.SDK_READY_FROM_CACHE, (metadata: SplitIO.SdkReadyMetadata) => { });
+
 /*** Repeating tests for Async Client ***/
 
 // Events constants we get (same as for sync client, just for interface checking)
@@ -443,6 +489,17 @@ trackPromise = asyncClient.track(splitKey, 'myTrafficType', 'myEventType', 10);
 // Properties parameter is optional
 trackPromise = asyncClient.track(splitKey, 'myTrafficType', 'myEventType', 10, { prop1: 1, prop2: '2', prop3: true, prop4: null });
 
+// Async client SDK event listeners with metadata
+asyncClient.on(asyncClient.Event.SDK_UPDATE, (metadata: SplitIO.SdkUpdateMetadata) => { });
+asyncClient.on(asyncClient.Event.SDK_READY, (metadata: SplitIO.SdkReadyMetadata) => { });
+asyncClient.on(asyncClient.Event.SDK_READY_FROM_CACHE, (metadata: SplitIO.SdkReadyMetadata) => { });
+asyncClient.addListener(asyncClient.Event.SDK_UPDATE, (metadata: SplitIO.SdkUpdateMetadata) => { });
+asyncClient.addListener(asyncClient.Event.SDK_READY, (metadata: SplitIO.SdkReadyMetadata) => { });
+asyncClient.addListener(asyncClient.Event.SDK_READY_FROM_CACHE, (metadata: SplitIO.SdkReadyMetadata) => { });
+asyncClient.once(asyncClient.Event.SDK_UPDATE, (metadata: SplitIO.SdkUpdateMetadata) => { });
+asyncClient.once(asyncClient.Event.SDK_READY, (metadata: SplitIO.SdkReadyMetadata) => { });
+asyncClient.once(asyncClient.Event.SDK_READY_FROM_CACHE, (metadata: SplitIO.SdkReadyMetadata) => { });
+
 /**** Tests for IManager interface ****/
 
 splitNames = manager.names();
@@ -467,6 +524,17 @@ splitEvent = manager.Event.SDK_READY_FROM_CACHE;
 splitEvent = manager.Event.SDK_READY_TIMED_OUT;
 splitEvent = manager.Event.SDK_UPDATE;
 
+// Manager SDK event listeners with metadata
+manager.on(manager.Event.SDK_UPDATE, (metadata: SplitIO.SdkUpdateMetadata) => { });
+manager.on(manager.Event.SDK_READY, (metadata: SplitIO.SdkReadyMetadata) => { });
+manager.on(manager.Event.SDK_READY_FROM_CACHE, (metadata: SplitIO.SdkReadyMetadata) => { });
+manager.addListener(manager.Event.SDK_UPDATE, (metadata: SplitIO.SdkUpdateMetadata) => { });
+manager.addListener(manager.Event.SDK_READY, (metadata: SplitIO.SdkReadyMetadata) => { });
+manager.addListener(manager.Event.SDK_READY_FROM_CACHE, (metadata: SplitIO.SdkReadyMetadata) => { });
+manager.once(manager.Event.SDK_UPDATE, (metadata: SplitIO.SdkUpdateMetadata) => { });
+manager.once(manager.Event.SDK_READY, (metadata: SplitIO.SdkReadyMetadata) => { });
+manager.once(manager.Event.SDK_READY_FROM_CACHE, (metadata: SplitIO.SdkReadyMetadata) => { });
+
 /*** Repeating tests for Async Manager ***/
 
 splitNamesAsync = asyncManager.names();
@@ -490,6 +558,17 @@ splitEvent = asyncManager.Event.SDK_READY;
 splitEvent = asyncManager.Event.SDK_READY_FROM_CACHE;
 splitEvent = asyncManager.Event.SDK_READY_TIMED_OUT;
 splitEvent = asyncManager.Event.SDK_UPDATE;
+
+// Async manager SDK event listeners with metadata
+asyncManager.on(asyncManager.Event.SDK_UPDATE, (metadata: SplitIO.SdkUpdateMetadata) => { });
+asyncManager.on(asyncManager.Event.SDK_READY, (metadata: SplitIO.SdkReadyMetadata) => { });
+asyncManager.on(asyncManager.Event.SDK_READY_FROM_CACHE, (metadata: SplitIO.SdkReadyMetadata) => { });
+asyncManager.addListener(asyncManager.Event.SDK_UPDATE, (metadata: SplitIO.SdkUpdateMetadata) => { });
+asyncManager.addListener(asyncManager.Event.SDK_READY, (metadata: SplitIO.SdkReadyMetadata) => { });
+asyncManager.addListener(asyncManager.Event.SDK_READY_FROM_CACHE, (metadata: SplitIO.SdkReadyMetadata) => { });
+asyncManager.once(asyncManager.Event.SDK_UPDATE, (metadata: SplitIO.SdkUpdateMetadata) => { });
+asyncManager.once(asyncManager.Event.SDK_READY, (metadata: SplitIO.SdkReadyMetadata) => { });
+asyncManager.once(asyncManager.Event.SDK_READY_FROM_CACHE, (metadata: SplitIO.SdkReadyMetadata) => { });
 
 /*** Tests for IImpressionListener interface ***/
 class MyImprListener implements SplitIO.IImpressionListener {
