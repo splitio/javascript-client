@@ -358,52 +358,62 @@ tracked = browserClient.track('myTrafficType', 'myEventType', 10);
 // Properties parameter is optional on all signatures.
 tracked = client.track(splitKey, 'myTrafficType', 'myEventType', 10, { prop1: 1, prop2: '2', prop3: false, prop4: null });
 tracked = browserClient.track('myTrafficType', 'myEventType', undefined, { prop1: 1, prop2: '2', prop3: false, prop4: null });
+/*** Tests for SDK Update Metadata ***/
 
-/*** Tests for SDK Events Metadata (new in commons 2.10+) ***/
-// SdkUpdateMetadata type for SDK_UPDATE events
-let sdkUpdateMetadata: SplitIO.SdkUpdateMetadata;
-sdkUpdateMetadata = {
-  type: 'FLAGS_UPDATE' as SplitIO.SdkUpdateMetadataKeys,
-  names: ['feature1', 'feature2']
-};
-sdkUpdateMetadata = {
-  type: 'SEGMENTS_UPDATE' as SplitIO.SdkUpdateMetadataKeys,
-  names: ['segment1']
-};
-// SDK_UPDATE event listener with metadata
-client.on(client.Event.SDK_UPDATE, (metadata: SplitIO.SdkUpdateMetadata) => {
-  const updateType: SplitIO.SdkUpdateMetadataKeys = metadata.type;
-  const updatedNames: string[] = metadata.names;
+// Using addListener with typed metadata
+client.addListener(client.Event.SDK_UPDATE, (metadata: SplitIO.SdkUpdateMetadata) => {
+  const type: SplitIO.SdkUpdateMetadataKeys['FLAGS_UPDATE'] | SplitIO.SdkUpdateMetadataKeys['SEGMENTS_UPDATE'] = metadata.type;
+  const names: string[] = metadata.names;
 });
+client.addListener(client.Event.SDK_READY, (metadata: SplitIO.SdkReadyMetadata) => {
+  const fromCache: boolean = metadata.initialCacheLoad;
+  const timestamp: number = metadata.lastUpdateTimestamp;
+});
+client.addListener(client.Event.SDK_READY_FROM_CACHE, (metadata: SplitIO.SdkReadyMetadata) => {
+  const fromCache: boolean = metadata.initialCacheLoad;
+  const timestamp: number = metadata.lastUpdateTimestamp;
+});
+client.addListener(client.Event.SDK_UPDATE, () => { });
+client.addListener(client.Event.SDK_READY, () => { });
+client.addListener(client.Event.SDK_READY_FROM_CACHE, () => { });
 
-// SdkReadyMetadata type for SDK_READY and SDK_READY_FROM_CACHE events
-let sdkReadyMetadata: SplitIO.SdkReadyMetadata;
-sdkReadyMetadata = {
-  initialCacheLoad: true,
-  lastUpdateTimestamp: Date.now()
-};
-sdkReadyMetadata = {
-  initialCacheLoad: false,
-  lastUpdateTimestamp: Date.now()
-};
+// Using once with typed metadata
+client.once(client.Event.SDK_UPDATE, (metadata: SplitIO.SdkUpdateMetadata) => {
+  const type: SplitIO.SdkUpdateMetadataKeys['FLAGS_UPDATE'] | SplitIO.SdkUpdateMetadataKeys['SEGMENTS_UPDATE'] = metadata.type;
+  const names: string[] = metadata.names;
+});
+client.once(client.Event.SDK_READY, (metadata: SplitIO.SdkReadyMetadata) => {
+  const fromCache: boolean = metadata.initialCacheLoad;
+  const timestamp: number = metadata.lastUpdateTimestamp;
+});
+client.once(client.Event.SDK_READY_FROM_CACHE, (metadata: SplitIO.SdkReadyMetadata) => {
+  const fromCache: boolean = metadata.initialCacheLoad;
+  const timestamp: number = metadata.lastUpdateTimestamp;
+});
+client.once(client.Event.SDK_UPDATE, () => { });
+client.once(client.Event.SDK_READY, () => { });
+client.once(client.Event.SDK_READY_FROM_CACHE, () => { });
+
 // SDK_READY event listener with metadata
 client.on(client.Event.SDK_READY, (metadata: SplitIO.SdkReadyMetadata) => {
   const fromCache: boolean = metadata.initialCacheLoad;
   const timestamp: number = metadata.lastUpdateTimestamp;
 });
+
 // SDK_READY_FROM_CACHE event listener with metadata
 client.on(client.Event.SDK_READY_FROM_CACHE, (metadata: SplitIO.SdkReadyMetadata) => {
   const fromCache: boolean = metadata.initialCacheLoad;
   const timestamp: number = metadata.lastUpdateTimestamp;
 });
-// Using addListener with typed metadata
-client.addListener(client.Event.SDK_UPDATE, (metadata: SplitIO.SdkUpdateMetadata) => { });
-client.addListener(client.Event.SDK_READY, (metadata: SplitIO.SdkReadyMetadata) => { });
-client.addListener(client.Event.SDK_READY_FROM_CACHE, (metadata: SplitIO.SdkReadyMetadata) => { });
-// Using once with typed metadata
-client.once(client.Event.SDK_UPDATE, (metadata: SplitIO.SdkUpdateMetadata) => { });
-client.once(client.Event.SDK_READY, (metadata: SplitIO.SdkReadyMetadata) => { });
-client.once(client.Event.SDK_READY_FROM_CACHE, (metadata: SplitIO.SdkReadyMetadata) => { });
+
+// SDK_UPDATE event listener with metadata
+client.on(client.Event.SDK_UPDATE, (metadata: SplitIO.SdkUpdateMetadata) => {
+  const type: SplitIO.SdkUpdateMetadataKeys['FLAGS_UPDATE'] | SplitIO.SdkUpdateMetadataKeys['SEGMENTS_UPDATE'] = metadata.type;
+  const names: string[] = metadata.names;
+});
+client.on(client.Event.SDK_UPDATE, () => { });
+client.on(client.Event.SDK_READY, () => { });
+client.on(client.Event.SDK_READY_FROM_CACHE, () => { });
 
 /*** Repeating tests for Async Client ***/
 
@@ -489,16 +499,62 @@ trackPromise = asyncClient.track(splitKey, 'myTrafficType', 'myEventType', 10);
 // Properties parameter is optional
 trackPromise = asyncClient.track(splitKey, 'myTrafficType', 'myEventType', 10, { prop1: 1, prop2: '2', prop3: true, prop4: null });
 
-// Async client SDK event listeners with metadata
-asyncClient.on(asyncClient.Event.SDK_UPDATE, (metadata: SplitIO.SdkUpdateMetadata) => { });
-asyncClient.on(asyncClient.Event.SDK_READY, (metadata: SplitIO.SdkReadyMetadata) => { });
-asyncClient.on(asyncClient.Event.SDK_READY_FROM_CACHE, (metadata: SplitIO.SdkReadyMetadata) => { });
-asyncClient.addListener(asyncClient.Event.SDK_UPDATE, (metadata: SplitIO.SdkUpdateMetadata) => { });
-asyncClient.addListener(asyncClient.Event.SDK_READY, (metadata: SplitIO.SdkReadyMetadata) => { });
-asyncClient.addListener(asyncClient.Event.SDK_READY_FROM_CACHE, (metadata: SplitIO.SdkReadyMetadata) => { });
-asyncClient.once(asyncClient.Event.SDK_UPDATE, (metadata: SplitIO.SdkUpdateMetadata) => { });
-asyncClient.once(asyncClient.Event.SDK_READY, (metadata: SplitIO.SdkReadyMetadata) => { });
-asyncClient.once(asyncClient.Event.SDK_READY_FROM_CACHE, (metadata: SplitIO.SdkReadyMetadata) => { });
+/*** Tests for SDK Update Metadata ***/
+
+// Using addListener with typed metadata
+asyncClient.addListener(asyncClient.Event.SDK_UPDATE, (metadata: SplitIO.SdkUpdateMetadata) => {
+  const type: SplitIO.SdkUpdateMetadataKeys['FLAGS_UPDATE'] | SplitIO.SdkUpdateMetadataKeys['SEGMENTS_UPDATE'] = metadata.type;
+  const names: string[] = metadata.names;
+});
+asyncClient.addListener(asyncClient.Event.SDK_READY, (metadata: SplitIO.SdkReadyMetadata) => {
+  const fromCache: boolean = metadata.initialCacheLoad;
+  const timestamp: number = metadata.lastUpdateTimestamp;
+});
+asyncClient.addListener(asyncClient.Event.SDK_READY_FROM_CACHE, (metadata: SplitIO.SdkReadyMetadata) => {
+  const fromCache: boolean = metadata.initialCacheLoad;
+  const timestamp: number = metadata.lastUpdateTimestamp;
+});
+asyncClient.addListener(asyncClient.Event.SDK_UPDATE, () => { });
+asyncClient.addListener(asyncClient.Event.SDK_READY, () => { });
+asyncClient.addListener(asyncClient.Event.SDK_READY_FROM_CACHE, () => { });
+
+// Using once with typed metadata
+asyncClient.once(asyncClient.Event.SDK_UPDATE, (metadata: SplitIO.SdkUpdateMetadata) => {
+  const type: SplitIO.SdkUpdateMetadataKeys['FLAGS_UPDATE'] | SplitIO.SdkUpdateMetadataKeys['SEGMENTS_UPDATE'] = metadata.type;
+  const names: string[] = metadata.names;
+});
+asyncClient.once(asyncClient.Event.SDK_READY, (metadata: SplitIO.SdkReadyMetadata) => {
+  const fromCache: boolean = metadata.initialCacheLoad;
+  const timestamp: number = metadata.lastUpdateTimestamp;
+});
+asyncClient.once(asyncClient.Event.SDK_READY_FROM_CACHE, (metadata: SplitIO.SdkReadyMetadata) => {
+  const fromCache: boolean = metadata.initialCacheLoad;
+  const timestamp: number = metadata.lastUpdateTimestamp;
+});
+asyncClient.once(asyncClient.Event.SDK_UPDATE, () => { });
+asyncClient.once(asyncClient.Event.SDK_READY, () => { });
+asyncClient.once(asyncClient.Event.SDK_READY_FROM_CACHE, () => { });
+
+// SDK_READY event listener with metadata
+asyncClient.on(asyncClient.Event.SDK_READY, (metadata: SplitIO.SdkReadyMetadata) => {
+  const fromCache: boolean = metadata.initialCacheLoad;
+  const timestamp: number = metadata.lastUpdateTimestamp;
+});
+
+// SDK_READY_FROM_CACHE event listener with metadata
+asyncClient.on(asyncClient.Event.SDK_READY_FROM_CACHE, (metadata: SplitIO.SdkReadyMetadata) => {
+  const fromCache: boolean = metadata.initialCacheLoad;
+  const timestamp: number = metadata.lastUpdateTimestamp;
+});
+
+// SDK_UPDATE event listener with metadata
+asyncClient.on(asyncClient.Event.SDK_UPDATE, (metadata: SplitIO.SdkUpdateMetadata) => {
+  const type: SplitIO.SdkUpdateMetadataKeys['FLAGS_UPDATE'] | SplitIO.SdkUpdateMetadataKeys['SEGMENTS_UPDATE'] = metadata.type;
+  const names: string[] = metadata.names;
+});
+asyncClient.on(asyncClient.Event.SDK_UPDATE, () => { });
+asyncClient.on(asyncClient.Event.SDK_READY, () => { });
+asyncClient.on(asyncClient.Event.SDK_READY_FROM_CACHE, () => { });
 
 /**** Tests for IManager interface ****/
 
