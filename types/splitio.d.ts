@@ -3,3 +3,4 @@
 import '@splitsoftware/splitio-commons';
 
 export as namespace SplitIO;
+export = SplitIO;
