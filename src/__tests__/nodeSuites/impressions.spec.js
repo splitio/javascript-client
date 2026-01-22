@@ -52,15 +52,15 @@ export default async function (key, fetchMock, assert) {
     assert.equal(data.length, 3, 'We performed evaluations for 4 features, but one with `impressionsDisabled` true, so we should have 3 items total.');
 
     // finding these validate the feature names collection too
-    const dependencyChildImpr = data.filter(e => e.f === 'hierarchical_splits_test')[0];
-    const splitWithConfigImpr = data.filter(e => e.f === 'split_with_config')[0];
-    const notExistentSplitImpr = data.filter(e => e.f === 'not_existent_split')[0];
-    const alwaysOnWithImpressionsDisabledTrue = data.filter(e => e.f === 'always_on_impressions_disabled_true');
+    const dependencyChildImpr = data.find(e => e.f === 'hierarchical_splits_test');
+    const splitWithConfigImpr = data.find(e => e.f === 'split_with_config');
+    const notExistentSplitImpr = data.find(e => e.f === 'not_existent_split');
+    const alwaysOnWithImpressionsDisabledTrue = data.find(e => e.f === 'always_on_impressions_disabled_true');
 
     assert.equal(notExistentSplitImpr.i.length, 1); // Only one, the split not found is filtered by the non existent Split check.
     assert.equal(splitWithConfigImpr.i.length, 3);
     assert.equal(dependencyChildImpr.i.length, 1);
-    assert.equal(alwaysOnWithImpressionsDisabledTrue.length, 0);
+    assert.equal(alwaysOnWithImpressionsDisabledTrue, undefined);
 
     assert.true(dependencyChildImpr, 'Split we wanted to evaluate should be present on the impressions.');
     assert.false(data.some(e => e.f === 'hierarchical_dep_always_on'), 'Parent split evaluations should not result in impressions.');
@@ -115,8 +115,8 @@ export default async function (key, fetchMock, assert) {
     assert.equal(data.pf.length, 2, 'We should generate impression count for 2 features.');
 
     // finding these validate the feature names collection too
-    const splitWithConfigImpr = data.pf.filter(e => e.f === 'split_with_config')[0];
-    const alwaysOnWithImpressionsDisabledTrue = data.pf.filter(e => e.f === 'always_on_impressions_disabled_true')[0];
+    const splitWithConfigImpr = data.pf.find(e => e.f === 'split_with_config');
+    const alwaysOnWithImpressionsDisabledTrue = data.pf.find(e => e.f === 'always_on_impressions_disabled_true');
 
     assert.equal(splitWithConfigImpr.rc, 1);
     assert.equal(typeof splitWithConfigImpr.m, 'number');
