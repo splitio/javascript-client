@@ -371,8 +371,8 @@ export default function (fetchMock, assert) {
       t.true(Date.now() - startTime >= 400, 'It should emit SDK_READY too but after syncing with the cloud.');
       t.equal(client.getTreatment('always_on'), 'on', 'It should evaluate treatments with updated data after syncing with the cloud.');
     });
-    client.whenReadyFromCache().then((isReady) => {
-      t.false(isReady, 'It should be ready from cache before ready (syncing with the cloud).');
+    client.whenReadyFromCache().then((metadata) => {
+      t.false(metadata.initialCacheLoad, 'It should be ready from cache before ready (syncing with the cloud).');
       t.true(Date.now() - startTime < 50, 'It should resolve ready from cache promise almost immediately.');
     });
     client.whenReady().then(() => {
@@ -383,8 +383,8 @@ export default function (fetchMock, assert) {
       t.true(Date.now() - startTime >= 700, 'It should emit SDK_READY too but after syncing with the cloud.');
       t.equal(client2.getTreatment('always_on'), 'on', 'It should evaluate treatments with updated data after syncing with the cloud.');
     });
-    client2.whenReadyFromCache().then((isReady) => {
-      t.false(isReady, 'It should be ready from cache before ready (syncing with the cloud).');
+    client2.whenReadyFromCache().then((metadata) => {
+      t.false(metadata.initialCacheLoad, 'It should be ready from cache before ready (syncing with the cloud).');
     });
     client2.whenReady().then(() => {
       t.true(Date.now() - startTime >= 700, 'It should resolve ready promise after syncing with the cloud.');
@@ -488,8 +488,8 @@ export default function (fetchMock, assert) {
       t.true(nearlyEqual(Date.now() - startTime, CLIENT_READY_MS), 'It should emit SDK_READY after syncing with the cloud.');
       t.equal(client.getTreatment('always_on'), 'on', 'It should evaluate treatments with updated data after syncing with the cloud.');
     });
-    client.whenReadyFromCache().then((isReady) => {
-      t.true(isReady, 'It should be ready from cache and ready.');
+    client.whenReadyFromCache().then((metadata) => {
+      t.true(metadata.initialCacheLoad, 'It should be ready from cache and ready.');
       t.true(nearlyEqual(Date.now() - startTime, CLIENT_READY_MS), 'It should resolve ready from cache promise after syncing with the cloud.');
     });
     client.whenReady().then(() => {
