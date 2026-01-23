@@ -343,6 +343,7 @@
  - Updated readiness events on consumer mode: the SDK emits SDK_READY event once the connection to Redis cache is successful.
  - Updated streamingEnabled default value from false to true, to use streaming synchronization by default.
  - Removed the use of Promise.prototype.finally to avoid issues with some promise polyfills.
+ - Bugfix - Always emit SDK_READY and SDK_READY_FROM_CACHE events asynchronously, ensuring that listeners attached after client instantiation are invoked.
 
 10.12.1 (May 18, 2020)
  - Updated logging messages for streaming notifications to DEBUG log level.
