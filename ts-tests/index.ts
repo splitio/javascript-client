@@ -258,12 +258,12 @@ let nodeEventEmitter: NodeJS.EventEmitter = client;
 
 // Ready, destroy and flush
 let promise: Promise<void> = client.ready();
-promise = client.whenReady();
 promise = client.destroy();
 promise = SDK.destroy();
 // @TODO not public yet
 // promise = client.flush();
-let promiseWhenReadyFromCache: Promise<boolean> = client.whenReadyFromCache();
+let promiseWithMetadata: Promise<SplitIO.SdkReadyMetadata> = client.whenReady();
+promiseWithMetadata = client.whenReadyFromCache();
 
 // Get readiness status
 let status: SplitIO.ReadinessStatus = client.getStatus();
@@ -434,12 +434,12 @@ nodeEventEmitter = asyncClient;
 
 // Ready, destroy and flush (same as for sync client, just for interface checking)
 promise = asyncClient.ready();
-promise = asyncClient.whenReady();
 promise = asyncClient.destroy();
 promise = AsyncSDK.destroy();
 // @TODO not public yet
 // promise = asyncClient.flush();
-promiseWhenReadyFromCache = asyncClient.whenReadyFromCache();
+promiseWithMetadata = asyncClient.whenReady();
+promiseWithMetadata = asyncClient.whenReadyFromCache();
 
 // Get readiness status
 status = asyncClient.getStatus();
