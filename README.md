@@ -52,7 +52,7 @@ The Split team monitors all issues submitted to this [issue tracker](https://git
 Please see [Contributors Guide](CONTRIBUTORS-GUIDE.md) to find all you need to submit a Pull Request (PR).
 
 ## License
-Licensed under the Apache License, Version 2.0. See: [Apache License](http://www.apache.org/licenses/).
+Licensed under the Apache License, Version 2.0. See: [Apache License](https://www.apache.org/licenses/).
 
 ## About Split
 
@@ -61,7 +61,6 @@ Split is the leading Feature Delivery Platform for engineering teams that want t
 To learn more about Split, contact hello@split.io, or get started with feature flags for free at https://www.split.io/signup.
 
 Split has built and maintains SDKs for:
-
 
 * .NET [Github](https://github.com/splitio/dotnet-client) [Docs](https://developer.harness.io/docs/feature-management-experimentation/sdks-and-infrastructure/server-side-sdks/net-sdk/)
 * Android [Github](https://github.com/splitio/android-client) [Docs](https://developer.harness.io/docs/feature-management-experimentation/sdks-and-infrastructure/client-side-sdks/android-sdk/)
