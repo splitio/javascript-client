@@ -8,7 +8,7 @@ Split SDK is an open source project and we welcome feedback and contribution. Th
 
 1. Fork the repository and create a topic branch from `development` branch. Please use a descriptive name for your branch.
 2. Run `nvm use` to ensure that you are using the right npm and Node.js version, and `npm install` to have the dependencies up to date.
-3. While developing, use descriptive messages in your commits. Avoid short or meaningless sentences like: "fix bug".
+3. While developing, use descriptive messages in your commits. Avoid short or meaningless sentences like "fix bug".
 4. Make sure to add tests for both positive and negative cases.
 5. If your changes have any impact on the public API, make sure you update the TypeScript declarations as well as it's related test file.
 6. Run the linter script of the project and fix any issues you find.

@@ -1,4 +1,4 @@
-name: Update License Year
+name: Update Notice Year
 
 on:
   schedule:
@@ -23,23 +23,23 @@ jobs:
       - name: Set Previous Year
         run: "echo PREVIOUS=$(($CURRENT-1)) >> $GITHUB_ENV"
 
-      - name: Update LICENSE
+      - name: Update NOTICE
         uses: jacobtomlinson/gha-find-replace@v3
         with:
           find: ${{ env.PREVIOUS }}
           replace: ${{ env.CURRENT }}
-          include: "LICENSE"
+          include: "NOTICE"
           regex: false
 
       - name: Commit files
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
-          git commit -m "Updated License Year" -a
+          git commit -m "Updated Notice Year" -a
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          title: Update License Year
-          branch: update-license
+          title: Update Notice Year
+          branch: update-notice
