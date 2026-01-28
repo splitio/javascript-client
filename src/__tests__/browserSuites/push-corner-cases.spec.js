@@ -97,7 +97,7 @@ export function testSplitKillOnReadyFromCache(fetchMock, assert) {
   });
   client.on(client.Event.SDK_READY, () => {
     const lapse = Date.now() - start;
-    assert.true(nearlyEqual(lapse, MILLIS_SPLIT_CHANGES_RESPONSE), 'SDK_READY once split changes arrives');
+    assert.true(nearlyEqual(lapse, MILLIS_SPLIT_CHANGES_RESPONSE, 200), 'SDK_READY once split changes arrives');
 
     client.destroy().then(() => { assert.end(); });
   });

@@ -258,12 +258,12 @@ let nodeEventEmitter: NodeJS.EventEmitter = client;
 
 // Ready, destroy and flush
 let promise: Promise<void> = client.ready();
-promise = client.whenReady();
 promise = client.destroy();
 promise = SDK.destroy();
 // @TODO not public yet
 // promise = client.flush();
-let promiseWhenReadyFromCache: Promise<boolean> = client.whenReadyFromCache();
+let promiseWithMetadata: Promise<SplitIO.SdkReadyMetadata> = client.whenReady();
+promiseWithMetadata = client.whenReadyFromCache();
 
 // Get readiness status
 let status: SplitIO.ReadinessStatus = client.getStatus();
@@ -358,6 +358,62 @@ tracked = browserClient.track('myTrafficType', 'myEventType', 10);
 // Properties parameter is optional on all signatures.
 tracked = client.track(splitKey, 'myTrafficType', 'myEventType', 10, { prop1: 1, prop2: '2', prop3: false, prop4: null });
 tracked = browserClient.track('myTrafficType', 'myEventType', undefined, { prop1: 1, prop2: '2', prop3: false, prop4: null });
+/*** Tests for SDK Update Metadata ***/
+
+// Using addListener with typed metadata
+client.addListener(client.Event.SDK_UPDATE, (metadata: SplitIO.SdkUpdateMetadata) => {
+  const type: SplitIO.SdkUpdateMetadataType = metadata.type;
+  const names: string[] = metadata.names;
+});
+client.addListener(client.Event.SDK_READY, (metadata: SplitIO.SdkReadyMetadata) => {
+  const fromCache: boolean = metadata.initialCacheLoad;
+  const timestamp: number = metadata.lastUpdateTimestamp;
+});
+client.addListener(client.Event.SDK_READY_FROM_CACHE, (metadata: SplitIO.SdkReadyMetadata) => {
+  const fromCache: boolean = metadata.initialCacheLoad;
+  const timestamp: number = metadata.lastUpdateTimestamp;
+});
+client.addListener(client.Event.SDK_UPDATE, () => { });
+client.addListener(client.Event.SDK_READY, () => { });
+client.addListener(client.Event.SDK_READY_FROM_CACHE, () => { });
+
+// Using once with typed metadata
+client.once(client.Event.SDK_UPDATE, (metadata: SplitIO.SdkUpdateMetadata) => {
+  const type: SplitIO.SdkUpdateMetadataType = metadata.type;
+  const names: string[] = metadata.names;
+});
+client.once(client.Event.SDK_READY, (metadata: SplitIO.SdkReadyMetadata) => {
+  const fromCache: boolean = metadata.initialCacheLoad;
+  const timestamp: number = metadata.lastUpdateTimestamp;
+});
+client.once(client.Event.SDK_READY_FROM_CACHE, (metadata: SplitIO.SdkReadyMetadata) => {
+  const fromCache: boolean = metadata.initialCacheLoad;
+  const timestamp: number = metadata.lastUpdateTimestamp;
+});
+client.once(client.Event.SDK_UPDATE, () => { });
+client.once(client.Event.SDK_READY, () => { });
+client.once(client.Event.SDK_READY_FROM_CACHE, () => { });
+
+// SDK_READY event listener with metadata
+client.on(client.Event.SDK_READY, (metadata: SplitIO.SdkReadyMetadata) => {
+  const fromCache: boolean = metadata.initialCacheLoad;
+  const timestamp: number = metadata.lastUpdateTimestamp;
+});
+
+// SDK_READY_FROM_CACHE event listener with metadata
+client.on(client.Event.SDK_READY_FROM_CACHE, (metadata: SplitIO.SdkReadyMetadata) => {
+  const fromCache: boolean = metadata.initialCacheLoad;
+  const timestamp: number = metadata.lastUpdateTimestamp;
+});
+
+// SDK_UPDATE event listener with metadata
+client.on(client.Event.SDK_UPDATE, (metadata: SplitIO.SdkUpdateMetadata) => {
+  const type: SplitIO.SdkUpdateMetadataType = metadata.type;
+  const names: string[] = metadata.names;
+});
+client.on(client.Event.SDK_UPDATE, () => { });
+client.on(client.Event.SDK_READY, () => { });
+client.on(client.Event.SDK_READY_FROM_CACHE, () => { });
 
 /*** Repeating tests for Async Client ***/
 
@@ -378,12 +434,12 @@ nodeEventEmitter = asyncClient;
 
 // Ready, destroy and flush (same as for sync client, just for interface checking)
 promise = asyncClient.ready();
-promise = asyncClient.whenReady();
 promise = asyncClient.destroy();
 promise = AsyncSDK.destroy();
 // @TODO not public yet
 // promise = asyncClient.flush();
-promiseWhenReadyFromCache = asyncClient.whenReadyFromCache();
+promiseWithMetadata = asyncClient.whenReady();
+promiseWithMetadata = asyncClient.whenReadyFromCache();
 
 // Get readiness status
 status = asyncClient.getStatus();
@@ -442,6 +498,63 @@ trackPromise = asyncClient.track(splitKey, 'myTrafficType', 'myEventType'); // a
 trackPromise = asyncClient.track(splitKey, 'myTrafficType', 'myEventType', 10);
 // Properties parameter is optional
 trackPromise = asyncClient.track(splitKey, 'myTrafficType', 'myEventType', 10, { prop1: 1, prop2: '2', prop3: true, prop4: null });
+
+/*** Tests for SDK Update Metadata ***/
+
+// Using addListener with typed metadata
+asyncClient.addListener(asyncClient.Event.SDK_UPDATE, (metadata: SplitIO.SdkUpdateMetadata) => {
+  const type: SplitIO.SdkUpdateMetadataType = metadata.type;
+  const names: string[] = metadata.names;
+});
+asyncClient.addListener(asyncClient.Event.SDK_READY, (metadata: SplitIO.SdkReadyMetadata) => {
+  const fromCache: boolean = metadata.initialCacheLoad;
+  const timestamp: number = metadata.lastUpdateTimestamp;
+});
+asyncClient.addListener(asyncClient.Event.SDK_READY_FROM_CACHE, (metadata: SplitIO.SdkReadyMetadata) => {
+  const fromCache: boolean = metadata.initialCacheLoad;
+  const timestamp: number = metadata.lastUpdateTimestamp;
+});
+asyncClient.addListener(asyncClient.Event.SDK_UPDATE, () => { });
+asyncClient.addListener(asyncClient.Event.SDK_READY, () => { });
+asyncClient.addListener(asyncClient.Event.SDK_READY_FROM_CACHE, () => { });
+
+// Using once with typed metadata
+asyncClient.once(asyncClient.Event.SDK_UPDATE, (metadata: SplitIO.SdkUpdateMetadata) => {
+  const type: SplitIO.SdkUpdateMetadataType = metadata.type;
+  const names: string[] = metadata.names;
+});
+asyncClient.once(asyncClient.Event.SDK_READY, (metadata: SplitIO.SdkReadyMetadata) => {
+  const fromCache: boolean = metadata.initialCacheLoad;
+  const timestamp: number = metadata.lastUpdateTimestamp;
+});
+asyncClient.once(asyncClient.Event.SDK_READY_FROM_CACHE, (metadata: SplitIO.SdkReadyMetadata) => {
+  const fromCache: boolean = metadata.initialCacheLoad;
+  const timestamp: number = metadata.lastUpdateTimestamp;
+});
+asyncClient.once(asyncClient.Event.SDK_UPDATE, () => { });
+asyncClient.once(asyncClient.Event.SDK_READY, () => { });
+asyncClient.once(asyncClient.Event.SDK_READY_FROM_CACHE, () => { });
+
+// SDK_READY event listener with metadata
+asyncClient.on(asyncClient.Event.SDK_READY, (metadata: SplitIO.SdkReadyMetadata) => {
+  const fromCache: boolean = metadata.initialCacheLoad;
+  const timestamp: number = metadata.lastUpdateTimestamp;
+});
+
+// SDK_READY_FROM_CACHE event listener with metadata
+asyncClient.on(asyncClient.Event.SDK_READY_FROM_CACHE, (metadata: SplitIO.SdkReadyMetadata) => {
+  const fromCache: boolean = metadata.initialCacheLoad;
+  const timestamp: number = metadata.lastUpdateTimestamp;
+});
+
+// SDK_UPDATE event listener with metadata
+asyncClient.on(asyncClient.Event.SDK_UPDATE, (metadata: SplitIO.SdkUpdateMetadata) => {
+  const type: SplitIO.SdkUpdateMetadataType = metadata.type;
+  const names: string[] = metadata.names;
+});
+asyncClient.on(asyncClient.Event.SDK_UPDATE, () => { });
+asyncClient.on(asyncClient.Event.SDK_READY, () => { });
+asyncClient.on(asyncClient.Event.SDK_READY_FROM_CACHE, () => { });
 
 /**** Tests for IManager interface ****/
 

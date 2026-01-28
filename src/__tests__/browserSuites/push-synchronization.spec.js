@@ -91,7 +91,7 @@ const EXPECTED_DELAY_AND_BACKOFF = 241 + 100;
 export function testSynchronization(fetchMock, assert) {
   // Force the backoff base of UpdateWorkers to reduce test time
   Backoff.__TEST__BASE_MILLIS = 100;
-  assert.plan(34);
+  assert.plan(39); // +3 for FLAGS_UPDATE metadata, +2 for SEGMENTS_UPDATE metadata
   fetchMock.reset();
 
   let start, splitio, client, otherClient, keylistAddClient, keylistRemoveClient, bitmapTrueClient, sharedClients = [];
@@ -108,7 +108,10 @@ export function testSynchronization(fetchMock, assert) {
 
     setTimeout(() => {
       assert.equal(client.getTreatment('whitelist'), 'not_allowed', 'evaluation of initial Split');
-      client.once(client.Event.SDK_UPDATE, () => {
+      client.once(client.Event.SDK_UPDATE, (metadata) => {
+        assert.equal(metadata.type, 'FLAGS_UPDATE', 'SDK_UPDATE for SPLIT_UPDATE should have type FLAGS_UPDATE');
+        assert.true(Array.isArray(metadata.names), 'metadata.names should be an array');
+        assert.true(metadata.names.includes('whitelist'), 'metadata.names should include the updated whitelist split');
         const lapse = Date.now() - start;
         assert.true(nearlyEqual(lapse, MILLIS_FIRST_SPLIT_UPDATE_EVENT), 'SDK_UPDATE due to SPLIT_UPDATE event');
         assert.equal(client.getTreatment('whitelist'), 'allowed', 'evaluation of updated Split');
@@ -202,7 +205,9 @@ export function testSynchronization(fetchMock, assert) {
 
               const timestampUnboundEvent = Date.now();
 
-              client.once(client.Event.SDK_UPDATE, () => {
+              client.once(client.Event.SDK_UPDATE, (metadata) => {
+                assert.equal(metadata.type, 'SEGMENTS_UPDATE', 'SDK_UPDATE for MEMBERSHIPS_LS_UPDATE should have type SEGMENTS_UPDATE');
+                assert.true(Array.isArray(metadata.names), 'metadata.names should be an array');
                 assert.true(nearlyEqual(Date.now() - timestampUnboundEvent, EXPECTED_DELAY_AND_BACKOFF), 'SDK_UPDATE after fetching memberships with a delay');
                 assert.equal(client.getTreatment('in_large_segment'), 'yes', 'evaluation after myLargeSegment fetch');
               });
