@@ -494,7 +494,7 @@ export default function readyPromiseAssertions(key, fetchMock, assert) {
 
     consoleSpy.log.resetHistory();
     setTimeout(() => {
-      client.whenReadyFromCache().then((isReady) => t.true(isReady, 'SDK IS READY (& READY FROM CACHE) - Should resolve')).catch(() => t.fail('SDK TIMED OUT - Should not reject'));
+      client.whenReadyFromCache().then((metadata) => t.true(metadata.initialCacheLoad, 'SDK IS READY (& READY FROM CACHE) - Should resolve')).catch(() => t.fail('SDK TIMED OUT - Should not reject'));
 
       assertGetTreatmentWhenReady(t, client, key);
 

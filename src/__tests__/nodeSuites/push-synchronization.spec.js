@@ -92,7 +92,7 @@ const MILLIS_DESTROY = 1700;
  *  1.6 secs: RB_SEGMENT_UPDATE IFFU event with ZLib compression
  */
 export function testSynchronization(fetchMock, assert) {
-  assert.plan(53);
+  assert.plan(56); // +3 for SDK_UPDATE metadata (type, names array, names includes whitelist)
   fetchMock.reset();
   __setEventSource(EventSourceMock);
 
@@ -114,7 +114,10 @@ export function testSynchronization(fetchMock, assert) {
     }, MILLIS_SSE_OPEN); // open SSE connection after 0.1 seconds
     setTimeout(() => {
       assert.equal(client.getTreatment(key, 'whitelist'), 'not_allowed', 'evaluation of initial Split');
-      client.once(client.Event.SDK_UPDATE, () => {
+      client.once(client.Event.SDK_UPDATE, (metadata) => {
+        assert.equal(metadata.type, 'FLAGS_UPDATE', 'SDK_UPDATE for SPLIT_UPDATE should have type FLAGS_UPDATE');
+        assert.true(Array.isArray(metadata.names), 'metadata.names should be an array');
+        assert.true(metadata.names.includes('whitelist'), 'metadata.names should include the updated whitelist split');
         const lapse = Date.now() - start;
         assert.true(nearlyEqual(lapse, MILLIS_FIRST_SPLIT_UPDATE_EVENT), 'SDK_UPDATE due to SPLIT_UPDATE event');
         assert.equal(client.getTreatment(key, 'whitelist'), 'allowed', 'evaluation of updated Split');

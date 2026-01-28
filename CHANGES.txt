@@ -1,3 +1,7 @@
+11.10.0 (January 28, 2026)
+ - Updated @splitsoftware/splitio-commons package to version 2.11.0, which:
+    - Added functionality to provide metadata alongside SDK update and READY events. Read more in our docs.
+
 11.9.1 (December 18, 2025)
  - Bugfix - Updated @splitsoftware/splitio-commons package to version 2.10.1 to handle `null` prerequisites properly
 
@@ -343,6 +347,7 @@
  - Updated readiness events on consumer mode: the SDK emits SDK_READY event once the connection to Redis cache is successful.
  - Updated streamingEnabled default value from false to true, to use streaming synchronization by default.
  - Removed the use of Promise.prototype.finally to avoid issues with some promise polyfills.
+ - Bugfix - Always emit SDK_READY and SDK_READY_FROM_CACHE events asynchronously, ensuring that listeners attached after client instantiation are invoked.
 
 10.12.1 (May 18, 2020)
  - Updated logging messages for streaming notifications to DEBUG log level.
