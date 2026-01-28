@@ -179,7 +179,7 @@ export default function (fetchMock, assert) {
       events: 'https://events.baseurl/readyFromCacheWithData'
     };
     localStorage.clear();
-    t.plan(12 * 2 + 3);
+    t.plan(12 * 2 + 3 + 2); // +2 for SDK_READY and SDK_READY_FROM_CACHE metadata.initialCacheLoad asserts
 
     fetchMock.get(testUrls.sdk + '/splitChanges?s=1.3&since=25&rbSince=-1', () => {
       return new Promise(res => { setTimeout(() => res({ status: 200, body: { ff: { ...splitChangesMock1.ff, s: 25 } }, headers: {} }), 200); }); // 400ms is how long it'll take to reply with Splits, no SDK_READY should be emitted before that.
@@ -225,7 +225,8 @@ export default function (fetchMock, assert) {
       t.end();
     });
 
-    client.on(client.Event.SDK_READY_FROM_CACHE, () => {
+    client.on(client.Event.SDK_READY_FROM_CACHE, (metadata) => {
+      t.false(metadata.initialCacheLoad, 'SDK_READY_FROM_CACHE from cache should have initialCacheLoad false');
       t.true(Date.now() - startTime < 400, 'It should emit SDK_READY_FROM_CACHE on every client if there was data in the cache and we subscribe on time. Should be considerably faster than actual readiness from the cloud.');
       t.equal(client.getTreatment('always_on'), 'off', 'It should evaluate treatments with data from cache instead of control due to Input Validation');
     });
@@ -238,7 +239,8 @@ export default function (fetchMock, assert) {
       t.equal(client3.getTreatment('always_on'), 'off', 'It should evaluate treatments with data from cache instead of control due to Input Validation');
     });
 
-    client.on(client.Event.SDK_READY, () => {
+    client.on(client.Event.SDK_READY, (metadata) => {
+      t.false(metadata.initialCacheLoad, 'SDK_READY when from cache first should have initialCacheLoad false');
       t.true(Date.now() - startTime >= 400, 'It should emit SDK_READY too but after syncing with the cloud.');
       t.equal(client.getTreatment('always_on'), 'on', 'It should evaluate treatments with updated data after syncing with the cloud.');
     });
@@ -474,7 +476,9 @@ export default function (fetchMock, assert) {
       t.end();
     });
 
-    client.once(client.Event.SDK_READY_FROM_CACHE, () => {
+    client.once(client.Event.SDK_READY_FROM_CACHE, (metadata) => {
+      t.true(metadata.initialCacheLoad, 'SDK_READY_FROM_CACHE on fresh install should have initialCacheLoad true');
+      t.equal(metadata.lastUpdateTimestamp, undefined, 'lastUpdateTimestamp should be undefined when initialCacheLoad is true');
       t.true(nearlyEqual(Date.now() - startTime, CLIENT_READY_MS), 'It should emit SDK_READY_FROM_CACHE alongside SDK_READY');
     });
     client2.once(client2.Event.SDK_READY_FROM_CACHE, () => {
@@ -484,7 +488,8 @@ export default function (fetchMock, assert) {
       t.true(nearlyEqual(Date.now() - startTime, CLIENT3_READY_MS), 'It should emit SDK_READY_FROM_CACHE alongside SDK_READY');
     });
 
-    client.on(client.Event.SDK_READY, () => {
+    client.on(client.Event.SDK_READY, (metadata) => {
+      t.true(metadata.initialCacheLoad, 'SDK_READY on fresh install should have initialCacheLoad true');
       t.true(nearlyEqual(Date.now() - startTime, CLIENT_READY_MS), 'It should emit SDK_READY after syncing with the cloud.');
       t.equal(client.getTreatment('always_on'), 'on', 'It should evaluate treatments with updated data after syncing with the cloud.');
     });

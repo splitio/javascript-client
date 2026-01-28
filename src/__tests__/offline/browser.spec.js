@@ -105,7 +105,9 @@ tape('Browser offline mode', function (assert) {
       assert.equal(client.getTreatment('testing_split_with_config'), 'off');
       readyCount++;
     });
-    client.on(client.Event.SDK_UPDATE, () => {
+    client.on(client.Event.SDK_UPDATE, (metadata) => {
+      assert.equal(metadata.type, 'FLAGS_UPDATE', 'SDK_UPDATE for localhost features update should have type FLAGS_UPDATE');
+      assert.true(Array.isArray(metadata.names), 'metadata.names should be an array');
       assert.deepEqual(manager.names().sort(), ['testing_split', 'testing_split_2', 'testing_split_3', 'testing_split_with_config']);
       assert.equal(client.getTreatment('testing_split_with_config'), 'nope');
       updateCount++;
