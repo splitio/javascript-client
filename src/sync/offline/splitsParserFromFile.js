@@ -115,7 +115,7 @@ export function splitsParserFromFileFactory() {
       if (data === previousMock) return false;
       previousMock = data;
 
-      yamldoc = yaml.safeLoad(data);
+      yamldoc = yaml.load(data);
     } catch (e) {
       log.error(e);
 
