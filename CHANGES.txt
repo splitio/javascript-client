@@ -1,5 +1,5 @@
 11.10.1 (February 3, 2026)
- - Updated js-yaml dependency for vulnerability fixes.
+ - Updated js-yaml dependency for vulnerability fixes (Related to issue https://github.com/splitio/javascript-client/issues/913).
 
 11.10.0 (January 28, 2026)
  - Updated @splitsoftware/splitio-commons package to version 2.11.0, which:
