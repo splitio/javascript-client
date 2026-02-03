@@ -1,3 +1,6 @@
+11.10.1 (February 3, 2026)
+ - Updated js-yaml dependency for vulnerability fixes.
+
 11.10.0 (January 28, 2026)
  - Updated @splitsoftware/splitio-commons package to version 2.11.0, which:
     - Added functionality to provide metadata alongside SDK update and READY events. Read more in our docs.
