@@ -1,0 +1,14 @@
+inputSet:
+  name: javascript-client
+  identifier: javascriptclient
+  orgIdentifier: PROD
+  projectIdentifier: Harness_Split
+  pipeline:
+    identifier: javascriptclient
+    properties:
+      ci:
+        codebase:
+          build:
+            type: branch
+            spec:
+              branch: <+trigger.branch>

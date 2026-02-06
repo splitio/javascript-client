@@ -1,0 +1,88 @@
+pipeline:
+  name: javascript-client
+  identifier: javascriptclient
+  projectIdentifier: Harness_Split
+  orgIdentifier: PROD
+  tags: {}
+  properties:
+    ci:
+      codebase:
+        connectorRef: fmegithubharnessgitops
+        repoName: javascript-client
+        build: <+input>
+  stages:
+    - stage:
+        name: Check-Test-Build-Upload
+        identifier: Checkout_code
+        description: ""
+        type: CI
+        spec:
+          cloneCodebase: true
+          caching:
+            enabled: true
+            override: true
+            paths: []
+          platform:
+            os: Linux
+            arch: Amd64
+          runtime:
+            type: Cloud
+            spec:
+              size: small
+              imageSpec:
+                imageName: ubuntu-latest
+          buildIntelligence:
+            enabled: false
+          execution:
+            steps:
+              - step:
+                  type: Action
+                  name: Set up Node.js
+                  identifier: Set_up_Nodejs
+                  spec:
+                    uses: dcodeIO/setup-node-nvm@master
+                    with:
+                      node-version: lts/*
+              - step:
+                  type: Run
+                  name: npm ci
+                  identifier: npm_ci
+                  spec:
+                    shell: Sh
+                    command: npm ci
+              - step:
+                  type: Run
+                  name: npm run check
+                  identifier: npm_run_check
+                  spec:
+                    shell: Sh
+                    command: npm run check
+              - step:
+                  type: Run
+                  name: npm run build
+                  identifier: npm_run_build
+                  spec:
+                    shell: Sh
+                    command: npm run build
+              - parallel:
+                  - step:
+                      type: Run
+                      name: upload dev assets to CDN
+                      identifier: upload_dev_assets_to_CDN
+                      spec:
+                        shell: Sh
+                        command: |-
+                          # aws configure set region us-east-1
+                          aws s3 sync ./umd s3://split-public-stage/sdk --acl public-read --follow-symlinks --cache-control max-age=31536000,public
+                        connectorRef: artifacts
+                      when:
+                        stageStatus: Success
+                  - step:
+                      type: Run
+                      name: upload prod assets to CDN
+                      identifier: upload_prod_assets_to_CDN
+                      spec:
+                        shell: Sh
+                      when:
+                        stageStatus: Success
+                        condition: <+trigger.event> == "push" && <+trigger.branch> == "refs/heads/main"
