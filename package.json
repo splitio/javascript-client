@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio",
-  "version": "11.10.1",
+  "version": "11.11.0",
   "description": "Split SDK",
   "files": [
     "README.md",
@@ -40,11 +40,18 @@
   "dependencies": {
     "@splitsoftware/splitio-commons": "2.11.0",
     "bloom-filters": "^3.0.4",
-    "ioredis": "^4.28.0",
     "js-yaml": "^4.1.1",
     "node-fetch": "^2.7.0",
     "tslib": "^2.3.1",
     "unfetch": "^4.2.0"
+  },
+  "peerDependencies": {
+    "ioredis": "^4.28.0 || ^5.0.0"
+  },
+  "peerDependenciesMeta": {
+    "ioredis": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@types/node-fetch": "^2.6.10",
@@ -107,7 +114,10 @@
     "test-node-e2e-destroy": "cross-env NODE_ENV=test tape -r ./ts-node.register src/__tests__/destroy/node.spec.js | tap-min",
     "test-node-e2e-errorCatching": "cross-env NODE_ENV=test tape -r ./ts-node.register src/__tests__/errorCatching/node.spec.js | tap-min",
     "test-node-e2e-push": "cross-env NODE_ENV=test tape -r ./ts-node.register src/__tests__/push/node.spec.js | tap-min",
-    "test-node-e2e-redis": "cross-env NODE_ENV=test tape -r ./ts-node.register src/__tests__/consumer/node_redis.spec.js | tap-min",
+    "test-node-e2e-redis-run": "cross-env NODE_ENV=test tape -r ./ts-node.register src/__tests__/consumer/node_redis.spec.js | tap-min",
+    "test-node-e2e-redis": "npm run test-node-e2e-redis:v4 && npm run test-node-e2e-redis:v5",
+    "test-node-e2e-redis:v4": "npm install ioredis@4 --no-save && node -e \"console.log('\\n>> Testing with ioredis', require('./node_modules/ioredis/package.json').version, '\\n')\"&& npm run test-node-e2e-redis-run",
+    "test-node-e2e-redis:v5": "npm install ioredis@5 --no-save && node -e \"console.log('\\n>> Testing with ioredis', require('./node_modules/ioredis/package.json').version, '\\n')\"&& npm run test-node-e2e-redis-run",
     "test-ts-decls": "tsc --build ts-tests",
     "test": "npm run test-node && npm run test-browser",
     "all": "npm run check && npm run build && npm run test-ts-decls && npm run test",
