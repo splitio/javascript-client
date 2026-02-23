@@ -1,5 +1,5 @@
 11.11.0 (February 23, 2026)
- - Updated @splitsoftware/splitio-commons package to version 2.12.0, which:
+ - Updated @splitsoftware/splitio-commons package to version 2.12.0, which supports both ioredis v4 and v5 as transitive dependency.
     - Add support for ioredis v5
 
 11.10.1 (February 3, 2026)
