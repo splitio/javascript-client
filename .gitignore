@@ -26,3 +26,6 @@ dump.rdb
 ## TS tests compilated files
 /ts-tests/*.js
 /ts-tests/package-lock.json
+
+.yalc/
+yalc.lock
