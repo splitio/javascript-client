@@ -83,7 +83,9 @@ module.exports = {
       ]
     },
     plugins: [
-      new NodePolyfillPlugin()
+      new NodePolyfillPlugin({
+        additionalAliases: ['process']
+      })
     ],
     resolve: {
       extensions: ['.ts', '.js'],
