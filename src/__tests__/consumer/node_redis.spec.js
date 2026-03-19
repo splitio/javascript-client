@@ -662,8 +662,8 @@ tape('Node.js Redis', function (t) {
           const impressionsKey = keys.buildImpressionsKey();
 
           // Clean up list of events and impressions.
-          connection.del(eventKey);
-          connection.del(impressionsKey);
+          await connection.del(eventKey);
+          await connection.del(impressionsKey);
 
           // Init Split client for current config
           const sdk = SplitFactory(config);
