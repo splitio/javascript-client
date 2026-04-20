@@ -1,6 +1,6 @@
 import { SplitFactory } from '../..';
 import EventSourceMock, { setMockListener } from '../testUtils/eventSourceMock';
-import { __setEventSource } from '../../platform/getEventSource/node';
+import { __setEventSource } from '@splitsoftware/splitio-commons/src/platform/getEventSource/node';
 import { mockSegmentChanges } from '../testUtils';
 
 import notification1 from '../mocks/message.SPLIT_UPDATE.FS.1.json';

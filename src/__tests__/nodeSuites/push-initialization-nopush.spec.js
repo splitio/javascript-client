@@ -8,7 +8,7 @@ import authInvalidCredentials from '../mocks/auth.invalidCredentials.txt';
 import authNoUserSpecified from '../mocks/auth.noUserSpecified.txt';
 import { nearlyEqual, url } from '../testUtils';
 
-import { __setEventSource, __restore } from '../../platform/getEventSource/node';
+import { __setEventSource, __restore } from '@splitsoftware/splitio-commons/src/platform/getEventSource/node';
 import EventSourceMock, { setMockListener } from '../testUtils/eventSourceMock';
 
 const baseUrls = {
