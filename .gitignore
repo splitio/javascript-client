@@ -9,9 +9,6 @@
 /.vscode
 dump.rdb
 
-## local environment setup
-/startup.sh
-
 ## coverage info
 /karma/coverage
 
