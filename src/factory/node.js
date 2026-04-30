@@ -38,7 +38,7 @@ function getModules(settings) {
 
     storageFactory: getStorage(settings),
 
-    splitApiFactory,
+    serviceApiFactory: splitApiFactory,
 
     syncManagerFactory: syncManagerOnlineSSFactory,
 
@@ -63,7 +63,7 @@ function getModules(settings) {
 
   switch (settings.mode) {
     case LOCALHOST_MODE:
-      modules.splitApiFactory = undefined;
+      modules.serviceApiFactory = undefined;
       modules.syncManagerFactory = localhostFromFileFactory;
       modules.SignalListener = undefined;
       break;
