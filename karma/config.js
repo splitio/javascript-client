@@ -18,6 +18,7 @@ module.exports = {
   customLaunchers: {
     ChromeHeadlessNoSandbox: {
       base: 'ChromeHeadless',
+      // Flags required to run in ubuntu-22.04 or above (https://chromium.googlesource.com/chromium/src/+/master/docs/linux/suid_sandbox_development.md)
       flags: ['--no-sandbox', '--disable-setuid-sandbox']
     }
   },
