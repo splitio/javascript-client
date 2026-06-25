@@ -1,7 +1,7 @@
 'use strict';
-// Comment the next two lines if you want to run with Chrome instead of Chromium
-const puppeteer = require('puppeteer');
-process.env.CHROME_BIN = puppeteer.executablePath();
+if (!process.env.CHROME_BIN) {
+  process.env.CHROME_BIN = require('puppeteer').executablePath();
+}
 
 const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
 
@@ -18,7 +18,6 @@ module.exports = {
   customLaunchers: {
     ChromeHeadlessNoSandbox: {
       base: 'ChromeHeadless',
-      // Flags required to run in ubuntu-22.04 or above (https://chromium.googlesource.com/chromium/src/+/master/docs/linux/suid_sandbox_development.md)
       flags: ['--no-sandbox', '--disable-setuid-sandbox']
     }
   },
@@ -29,21 +28,7 @@ module.exports = {
     // Uncomment to run a particular UT:
     // '**/listeners/__tests__/browser.spec.js',
     // Run browser UTs. Commons and Node UTs run with `test-node` npm script
-    '*/**/__tests__/**/browser.spec.js',
-    {
-      pattern: 'engine/__tests__/engine/mocks/murmur3*.csv',
-      watched: false,
-      included: false,
-      served: true,
-      nocache: true
-    },
-    {
-      pattern: 'engine/__tests__/matchers/mocks/regex.txt',
-      watched: false,
-      included: false,
-      served: true,
-      nocache: true
-    }
+    '*/**/__tests__/**/browser.spec.js'
   ],
 
   // list of files / patterns to exclude

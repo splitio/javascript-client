@@ -522,11 +522,17 @@ tape('Node.js Redis', function (t) {
       };
       const sdk2 = SplitFactory(configWithVeryShortTimeout);
       const client2 = sdk2.client();
-      client2.on(client2.Event.SDK_READY_TIMED_OUT, () => {
-        assert.pass('SDK_READY_TIMED_OUT event must be emitted');
+      // Wait for SDK_READY_TIMED_OUT before proceeding in SDK_READY handler to avoid race condition
+      // where fast Redis connections (e.g., ioredis v5) cause SDK_READY to fire before the 1ms timeout
+      const timedOutPromise = new Promise(resolve => {
+        client2.on(client2.Event.SDK_READY_TIMED_OUT, () => {
+          assert.pass('SDK_READY_TIMED_OUT event must be emitted');
+          resolve();
+        });
       });
 
       client2.on(client2.Event.SDK_READY, async () => {
+        await timedOutPromise;
         assert.pass('SDK_READY event must be emitted');
 
         // some asserts to test regular usage

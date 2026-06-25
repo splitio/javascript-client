@@ -8,6 +8,9 @@ on:
     branches:
       - '*'
 
+env:
+  PUPPETEER_SKIP_DOWNLOAD: 'true'
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name == 'push' && github.run_number || github.event.pull_request.number }}
   cancel-in-progress: true
@@ -40,6 +43,13 @@ jobs:
 
       - name: npm ci
         run: npm ci
+
+      - name: Setup Chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: '125'
+      - name: Set CHROME_BIN
+        run: echo "CHROME_BIN=$(which chrome)" >> $GITHUB_ENV
 
       - name: npm ts tests
         run: npm run test-ts-decls
