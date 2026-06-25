@@ -1,3 +1,8 @@
+11.11.2 (June 25, 2026)
+ - Updated @splitsoftware/splitio-commons package to version 2.12.1, which:
+     - updates internal modules to handle `null` values from `/splitChanges` response.
+     - updates some dependencies for vulnerability fixes.
+
 11.11.1 (March 18, 2026)
  - Updated TypeScript declaration to use `namespace` instead of `module` for compatibility with TypeScript 7 (Related to issue https://github.com/splitio/javascript-client/issues/920).
 
