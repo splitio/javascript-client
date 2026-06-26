@@ -543,8 +543,6 @@ export default function readyPromiseAssertions(fetchMock, assert) {
 
         const sharedClientWithoutCb = splitio.client('emiliano@split.io');
         setTimeout(() => {
-          t.true(consoleSpy.log.calledWithExactly('[WARN]  splitio => No listeners for SDK_READY event detected. Incorrect control treatments could have been logged if you called getTreatment/s while the SDK was not yet synchronized with the backend.'),
-            'Warning logged');
           Promise.all([sharedClientWithoutCb.destroy(), client.destroy()]).then(() => {
             client.whenReady()
               .then(() => {

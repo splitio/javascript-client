@@ -5,7 +5,7 @@ import '@splitsoftware/splitio-commons';
 
 export = JsSdk;
 
-declare module JsSdk {
+declare namespace JsSdk {
   /**
    * Split.io SDK factory function.
    * The settings parameter should be an object that complies with the SplitIO.INodeAsyncSettings.
