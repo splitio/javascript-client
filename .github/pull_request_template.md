@@ -1,4 +1,4 @@
-# JS SDK
+# JavaScript SDK
 
 ## What did you accomplish?
 

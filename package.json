@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio",
-  "version": "11.11.1",
+  "version": "11.11.2",
   "description": "Split SDK",
   "files": [
     "README.md",
@@ -38,20 +38,18 @@
     "node": ">=14.0.0"
   },
   "dependencies": {
-    "@splitsoftware/splitio-commons": "2.12.0",
+    "@splitsoftware/splitio-commons": "2.12.1",
     "bloom-filters": "^3.0.4",
     "ioredis": "^4.28.0 || ^5.0.0",
-    "js-yaml": "^4.1.1",
+    "js-yaml": "^4.2.0",
     "node-fetch": "^2.7.0",
     "tslib": "^2.3.1",
     "unfetch": "^4.2.0"
   },
   "devDependencies": {
     "@types/node-fetch": "^2.6.10",
-    "@types/seedrandom": "^3.0.2",
     "copyfiles": "^2.4.1",
     "cross-env": "^7.0.3",
-    "csv-streamify": "4.0.0",
     "eslint": "^8.48.0",
     "eslint-plugin-compat": "^4.2.0",
     "eslint-plugin-import": "^2.25.4",
@@ -108,7 +106,7 @@
     "test-node-e2e-errorCatching": "cross-env NODE_ENV=test tape -r ./ts-node.register src/__tests__/errorCatching/node.spec.js | tap-min",
     "test-node-e2e-push": "cross-env NODE_ENV=test tape -r ./ts-node.register src/__tests__/push/node.spec.js | tap-min",
     "test-node-e2e-redis-run": "cross-env NODE_ENV=test tape -r ./ts-node.register src/__tests__/consumer/node_redis.spec.js | tap-min",
-    "test-node-e2e-redis": "npm run test-node-e2e-redis:v4 && npm run test-node-e2e-redis:v5",
+    "test-node-e2e-redis": "npm run test-node-e2e-redis:v5 && npm run test-node-e2e-redis:v4",
     "test-node-e2e-redis:v4": "npm install ioredis@4 --no-save && node -e \"console.log('\\n>> Testing with ioredis', require('./node_modules/ioredis/package.json').version, '\\n')\"&& npm run test-node-e2e-redis-run",
     "test-node-e2e-redis:v5": "npm install ioredis@5 --no-save && node -e \"console.log('\\n>> Testing with ioredis', require('./node_modules/ioredis/package.json').version, '\\n')\"&& npm run test-node-e2e-redis-run",
     "test-ts-decls": "tsc --build ts-tests",

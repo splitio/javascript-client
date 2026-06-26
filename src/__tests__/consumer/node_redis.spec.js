@@ -522,27 +522,28 @@ tape('Node.js Redis', function (t) {
       };
       const sdk2 = SplitFactory(configWithVeryShortTimeout);
       const client2 = sdk2.client();
-      client2.on(client2.Event.SDK_READY_TIMED_OUT, () => {
-        assert.pass('SDK_READY_TIMED_OUT event must be emitted');
-      });
 
-      client2.on(client2.Event.SDK_READY, async () => {
-        assert.pass('SDK_READY event must be emitted');
+      // Wait for both events, ensuring SDK_READY_TIMED_OUT is captured even if SDK_READY fires first
+      // (race condition with fast Redis connections like ioredis v5)
+      const timedOutPromise = new Promise(resolve => client2.on(client2.Event.SDK_READY_TIMED_OUT, resolve));
+      const readyPromise = new Promise(resolve => client2.on(client2.Event.SDK_READY, resolve));
 
-        // some asserts to test regular usage
-        assert.equal(await client2.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT'), 'on', 'Evaluations using Redis storage should be correct.');
-        assert.equal(await client2.getTreatment('other', 'UT_IN_SEGMENT'), 'off', 'Evaluations using Redis storage should be correct.');
-        assert.true(await client2.track('nicolas@split.io', 'user', 'test.redis.event', 18), 'If the event was successfully queued the promise will resolve to true');
-        assert.false(await client2.track(), 'If the event was NOT successfully queued the promise will resolve to false');
+      await timedOutPromise;
+      assert.pass('SDK_READY_TIMED_OUT event must be emitted');
 
-        await client2.destroy();
+      await readyPromise;
+      assert.pass('SDK_READY event must be emitted');
 
-        // close server connection
-        redisServer.close().then(() => {
-          assert.pass();
-          assert.end();
-        });
-      });
+      // some asserts to test regular usage
+      assert.equal(await client2.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT'), 'on', 'Evaluations using Redis storage should be correct.');
+      assert.equal(await client2.getTreatment('other', 'UT_IN_SEGMENT'), 'off', 'Evaluations using Redis storage should be correct.');
+      assert.true(await client2.track('nicolas@split.io', 'user', 'test.redis.event', 18), 'If the event was successfully queued the promise will resolve to true');
+      assert.false(await client2.track(), 'If the event was NOT successfully queued the promise will resolve to false');
+
+      await client2.destroy();
+      await redisServer.close();
+      assert.pass();
+      assert.end();
     });
 
   });
