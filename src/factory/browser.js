@@ -60,7 +60,6 @@ function getModules(settings) {
     case LOCALHOST_MODE:
       modules.serviceApiFactory = undefined;
       modules.syncManagerFactory = localhostFromObjectFactory;
-      modules.SignalListener = undefined;
       break;
   }
 
