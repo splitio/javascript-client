@@ -1,5 +1,5 @@
 inputSet:
-  name: javascript-client-stage
+  name: javascript-client
   tags: {}
   identifier: javascriptclient
   orgIdentifier: PROD
@@ -13,13 +13,3 @@ inputSet:
             type: branch
             spec:
               branch: <+trigger.branch>
-    stages:
-      - stage:
-          identifier: Check_Test_Build_Upload
-          type: CI
-          spec:
-            infrastructure:
-              type: KubernetesDirect
-              spec:
-                connectorRef: use1stage1cd
-                serviceAccountName: use1-stage-1-mfe-assets
