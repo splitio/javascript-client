@@ -134,9 +134,9 @@ pipeline:
           infrastructure:
             type: KubernetesDirect
             spec:
-              connectorRef: <+input>
+              connectorRef: "<+codebase.branch == \"main\" ? \"use1prod1cd\" : \"use1stage1cd\">"
               namespace: harness-delegate
-              serviceAccountName: <+input>
+              serviceAccountName: "<+codebase.branch == \"main\" ? \"use1-prod-1-public-assets\" : \"use1-stage-1-public-assets\">"
               automountServiceAccountToken: false
               nodeSelector: {}
               os: Linux
