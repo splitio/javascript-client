@@ -36,50 +36,29 @@ pipeline:
           execution:
             steps:
               - step:
-                  type: Run
-                  name: Set up Node.js
-                  identifier: Set_up_Nodejs
+                  type: Background
+                  name: Redis
+                  identifier: Redis
                   spec:
-                    shell: Bash
-                    command: |-
-                      curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
-                      sudo apt-get install -y nodejs
-                      node --version
-                      npm --version
-              - step:
-                  type: Run
-                  name: Install Redis
-                  identifier: Install_Redis
-                  spec:
-                    shell: Bash
-                    command: |-
-                      sudo add-apt-repository ppa:redislabs/redis
-                      sudo apt-get install -y redis-tools redis-server
+                    connectorRef: dockerhub
+                    image: redis:7
+                    shell: Sh
               - step:
                   type: Run
                   name: Check Redis
                   identifier: Check_Redis
                   spec:
-                    shell: Bash
-                    command: redis-cli ping
-              - step:
-                  type: Run
-                  name: Install Chrome
-                  identifier: Install_Chrome
-                  spec:
-                    shell: Bash
-                    command: |-
-                      curl -fsSL https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb -o /tmp/chrome.deb
-                      apt-get update -qq && apt-get install -y -qq /tmp/chrome.deb || true
-                      # Fallback: install via chromium if the .deb install failed
-                      which google-chrome-stable || apt-get install -y -qq chromium-browser
-                      CHROME_BIN=$(which google-chrome-stable || which chromium-browser || which chromium)
-                      echo "CHROME_BIN=$CHROME_BIN"
+                    connectorRef: dockerhub
+                    image: redis:7
+                    shell: Sh
+                    command: redis-cli -h localhost ping
               - step:
                   type: Run
                   name: npm ci
                   identifier: npm_ci
                   spec:
+                    connectorRef: dockerhub
+                    image: node:lts
                     shell: Bash
                     command: npm ci
                     envVariables:
@@ -89,6 +68,8 @@ pipeline:
                   name: npm ts tests
                   identifier: npm_ts_tests
                   spec:
+                    connectorRef: dockerhub
+                    image: node:lts
                     shell: Bash
                     command: npm run test-ts-decls
               - step:
@@ -96,6 +77,8 @@ pipeline:
                   name: npm run check
                   identifier: npm_run_check
                   spec:
+                    connectorRef: dockerhub
+                    image: node:lts
                     shell: Bash
                     command: npm run check
               - step:
@@ -103,6 +86,8 @@ pipeline:
                   name: npm test-browser
                   identifier: npm_test_browser
                   spec:
+                    connectorRef: dockerhub
+                    image: cypress/browsers:latest
                     shell: Bash
                     command: |-
                       CHROME_BIN=$(which google-chrome-stable || which chromium-browser || which chromium)
@@ -113,6 +98,8 @@ pipeline:
                   name: npm test-node
                   identifier: npm_test_node
                   spec:
+                    connectorRef: dockerhub
+                    image: node:lts
                     shell: Bash
                     command: npm run test-node
               - step:
@@ -120,6 +107,8 @@ pipeline:
                   name: npm run build
                   identifier: npm_run_build
                   spec:
+                    connectorRef: dockerhub
+                    image: node:lts
                     shell: Bash
                     command: BUILD_BRANCH=<+codebase.branch> npm run build
               - parallel:
