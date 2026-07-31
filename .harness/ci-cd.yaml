@@ -45,11 +45,44 @@ pipeline:
                       node-version: lts/*
               - step:
                   type: Run
+                  name: Install Redis
+                  identifier: Install_Redis
+                  spec:
+                    shell: Sh
+                    command: |-
+                      sudo add-apt-repository ppa:redislabs/redis
+                      sudo apt-get install -y redis-tools redis-server
+              - step:
+                  type: Run
+                  name: Check Redis
+                  identifier: Check_Redis
+                  spec:
+                    shell: Sh
+                    command: redis-cli ping
+              - step:
+                  type: Action
+                  name: Setup Chrome
+                  identifier: Setup_Chrome
+                  spec:
+                    uses: browser-actions/setup-chrome@19ae4b339ee18925ab85cf12c1041150ea4a44c8
+                    with:
+                      chrome-version: "125"
+              - step:
+                  type: Run
                   name: npm ci
                   identifier: npm_ci
                   spec:
                     shell: Sh
                     command: npm ci
+                    envVariables:
+                      PUPPETEER_SKIP_DOWNLOAD: "true"
+              - step:
+                  type: Run
+                  name: npm ts tests
+                  identifier: npm_ts_tests
+                  spec:
+                    shell: Sh
+                    command: npm run test-ts-decls
               - step:
                   type: Run
                   name: npm run check
@@ -59,11 +92,27 @@ pipeline:
                     command: npm run check
               - step:
                   type: Run
+                  name: npm test-browser
+                  identifier: npm_test_browser
+                  spec:
+                    shell: Sh
+                    command: |-
+                      export CHROME_BIN=$(which chrome)
+                      npm run test-browser
+              - step:
+                  type: Run
+                  name: npm test-node
+                  identifier: npm_test_node
+                  spec:
+                    shell: Sh
+                    command: npm run test-node
+              - step:
+                  type: Run
                   name: npm run build
                   identifier: npm_run_build
                   spec:
                     shell: Sh
-                    command: npm run build
+                    command: BUILD_BRANCH=<+codebase.branch> npm run build
               - parallel:
                   - step:
                       type: Run
@@ -72,17 +121,24 @@ pipeline:
                       spec:
                         shell: Sh
                         command: |-
-                          # aws configure set region us-east-1
                           aws s3 sync ./umd s3://split-public-stage/sdk --acl public-read --follow-symlinks --cache-control max-age=31536000,public
                         connectorRef: artifacts
+                        envVariables:
+                          AWS_DEFAULT_REGION: us-east-1
                       when:
                         stageStatus: Success
+                        condition: <+trigger.event> == "PUSH" && <+trigger.branch> == "development"
                   - step:
                       type: Run
                       name: upload prod assets to CDN
                       identifier: upload_prod_assets_to_CDN
                       spec:
                         shell: Sh
+                        command: |-
+                          aws s3 sync ./umd s3://split-public/sdk --acl public-read --follow-symlinks --cache-control max-age=31536000,public
+                        connectorRef: artifacts
+                        envVariables:
+                          AWS_DEFAULT_REGION: us-east-1
                       when:
                         stageStatus: Success
-                        condition: <+trigger.event> == "push" && <+trigger.branch> == "refs/heads/main"
+                        condition: <+trigger.event> == "PUSH" && <+trigger.branch> == "main"
