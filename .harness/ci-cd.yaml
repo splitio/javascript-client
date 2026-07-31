@@ -60,13 +60,18 @@ pipeline:
                     shell: Sh
                     command: redis-cli ping
               - step:
-                  type: Action
-                  name: Setup Chrome
-                  identifier: Setup_Chrome
+                  type: Run
+                  name: Install Chrome
+                  identifier: Install_Chrome
                   spec:
-                    uses: browser-actions/setup-chrome@19ae4b339ee18925ab85cf12c1041150ea4a44c8
-                    with:
-                      chrome-version: "125"
+                    shell: Bash
+                    command: |-
+                      curl -fsSL https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb -o /tmp/chrome.deb
+                      apt-get update -qq && apt-get install -y -qq /tmp/chrome.deb || true
+                      # Fallback: install via chromium if the .deb install failed
+                      which google-chrome-stable || apt-get install -y -qq chromium-browser
+                      CHROME_BIN=$(which google-chrome-stable || which chromium-browser || which chromium)
+                      echo "CHROME_BIN=$CHROME_BIN"
               - step:
                   type: Run
                   name: npm ci
@@ -95,9 +100,10 @@ pipeline:
                   name: npm test-browser
                   identifier: npm_test_browser
                   spec:
-                    shell: Sh
+                    shell: Bash
                     command: |-
-                      export CHROME_BIN=$(which chrome)
+                      CHROME_BIN=$(which google-chrome-stable || which chromium-browser || which chromium)
+                      export CHROME_BIN
                       npm run test-browser
               - step:
                   type: Run
