@@ -43,7 +43,7 @@ const config = {
     impressionsMode: 'DEBUG'
   },
   startup: {
-    readyTimeout: 36000 // 10hs
+    readyTimeout: 15 // 15 secs. Enough to connect to a local Redis, but avoids hanging the test suite if the connection never succeeds
   }
 };
 const expectedConfig = '{"color":"brown"}';
@@ -71,25 +71,36 @@ const MOCKS = {
 /**
  * Initialize redis server and run a cli bash command to load redis with data to do the proper tests
  */
-const initializeRedisServer = (mock = '') => {
+const initializeRedisServer = (assert, mock = '') => {
   // Simply pass the port that you want a Redis server to listen on.
   const server = new RedisServer(redisPort);
   const mockFileName = MOCKS[mock];
 
-  const promise = new Promise((resolve, reject) => {
+  // If the server fails to start (e.g. port 6385 is already in use by a stale redis-server
+  // from a previous interrupted run) or the data cannot be loaded, fail and end the test
+  // right away. Otherwise the returned promise never settles and `tape` hangs forever.
+  const handleError = (err) => {
+    assert.fail(err);
+    assert.end();
+  };
+
+  // The returned promise only resolves on success; on failure the test is already ended above,
+  // so the `.then` consumer never runs and there is no unhandled rejection to hang on.
+  const promise = new Promise((resolve) => {
     server
       .open()
       .then(() => {
         exec(`cat ./src/__tests__/mocks/${mockFileName}.txt | redis-cli -p ${redisPort}`, err => {
           if (err) {
-            reject(server);
             // Node.js couldn't execute the command
+            handleError(err);
             return;
           }
 
           resolve(server);
         });
-      });
+      })
+      .catch(handleError);
   });
 
   return promise;
@@ -98,7 +109,7 @@ const initializeRedisServer = (mock = '') => {
 tape('Node.js Redis', function (t) {
 
   t.test('Regular usage - DEBUG strategy', assert => {
-    initializeRedisServer()
+    initializeRedisServer(assert)
       .then(async (server) => {
         const sdk = SplitFactory(config);
         const client = sdk.client();
@@ -223,7 +234,7 @@ tape('Node.js Redis', function (t) {
 
   t.test('Regular usage - OPTIMIZED strategy', assert => {
     config.sync.impressionsMode = OPTIMIZED;
-    initializeRedisServer()
+    initializeRedisServer(assert)
       .then(async (server) => {
         assert.equal(config.sync.impressionsMode, OPTIMIZED, 'impressionsMode should be OPTIMIZED');
         const sdk = SplitFactory(config);
@@ -349,7 +360,7 @@ tape('Node.js Redis', function (t) {
 
   t.test('Regular usage - NONE strategy', assert => {
     config.sync.impressionsMode = NONE;
-    initializeRedisServer()
+    initializeRedisServer(assert)
       .then(async (server) => {
         const expectedUniqueKeys = [
           { 'f': 'UT_IN_SEGMENT', 'ks': ['UT_Segment_member', 'other'] },
@@ -549,7 +560,7 @@ tape('Node.js Redis', function (t) {
   });
 
   t.test('Connection error', assert => {
-    initializeRedisServer()
+    initializeRedisServer(assert)
       .then((server) => {
         const sdk = SplitFactory({
           ...config,
@@ -607,7 +618,7 @@ tape('Node.js Redis', function (t) {
   });
 
   t.test('Calling destroy with pending operations', assert => {
-    initializeRedisServer()
+    initializeRedisServer(assert)
       .then(async (server) => {
         const sdk = SplitFactory({
           ...config,
@@ -644,7 +655,7 @@ tape('Node.js Redis', function (t) {
   });
 
   t.test('Check IP and Hostname in Redis', assert => {
-    initializeRedisServer()
+    initializeRedisServer(assert)
       .then(async (server) => {
 
         const configs = [
@@ -700,7 +711,7 @@ tape('Node.js Redis', function (t) {
   });
 
   t.test('Getting treatments with flag sets', assert => {
-    initializeRedisServer('flag_sets')
+    initializeRedisServer(assert, 'flag_sets')
       .then(async (server) => {
         const sdk = SplitFactory(config);
 
