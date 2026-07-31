@@ -19,7 +19,7 @@ pipeline:
         spec:
           cloneCodebase: true
           caching:
-            enabled: true
+            enabled: false
             override: true
             paths: []
           buildIntelligence:
