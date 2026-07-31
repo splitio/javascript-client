@@ -36,13 +36,16 @@ pipeline:
           execution:
             steps:
               - step:
-                  type: Action
+                  type: Run
                   name: Set up Node.js
                   identifier: Set_up_Nodejs
                   spec:
-                    uses: dcodeIO/setup-node-nvm@master
-                    with:
-                      node-version: lts/*
+                    shell: Bash
+                    command: |-
+                      curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+                      sudo apt-get install -y nodejs
+                      node --version
+                      npm --version
               - step:
                   type: Run
                   name: Install Redis
