@@ -48,7 +48,7 @@ pipeline:
                   name: Install Redis
                   identifier: Install_Redis
                   spec:
-                    shell: Sh
+                    shell: Bash
                     command: |-
                       sudo add-apt-repository ppa:redislabs/redis
                       sudo apt-get install -y redis-tools redis-server
@@ -57,7 +57,7 @@ pipeline:
                   name: Check Redis
                   identifier: Check_Redis
                   spec:
-                    shell: Sh
+                    shell: Bash
                     command: redis-cli ping
               - step:
                   type: Run
@@ -77,7 +77,7 @@ pipeline:
                   name: npm ci
                   identifier: npm_ci
                   spec:
-                    shell: Sh
+                    shell: Bash
                     command: npm ci
                     envVariables:
                       PUPPETEER_SKIP_DOWNLOAD: "true"
@@ -86,14 +86,14 @@ pipeline:
                   name: npm ts tests
                   identifier: npm_ts_tests
                   spec:
-                    shell: Sh
+                    shell: Bash
                     command: npm run test-ts-decls
               - step:
                   type: Run
                   name: npm run check
                   identifier: npm_run_check
                   spec:
-                    shell: Sh
+                    shell: Bash
                     command: npm run check
               - step:
                   type: Run
@@ -110,14 +110,14 @@ pipeline:
                   name: npm test-node
                   identifier: npm_test_node
                   spec:
-                    shell: Sh
+                    shell: Bash
                     command: npm run test-node
               - step:
                   type: Run
                   name: npm run build
                   identifier: npm_run_build
                   spec:
-                    shell: Sh
+                    shell: Bash
                     command: BUILD_BRANCH=<+codebase.branch> npm run build
               - parallel:
                   - step:
@@ -125,7 +125,7 @@ pipeline:
                       name: upload dev assets to CDN
                       identifier: upload_dev_assets_to_CDN
                       spec:
-                        shell: Sh
+                        shell: Bash
                         command: aws s3 sync ./umd s3://split-public-stage/sdk --acl public-read --follow-symlinks --cache-control max-age=31536000,public
                         connectorRef: artifacts
                         envVariables:
@@ -138,7 +138,7 @@ pipeline:
                       name: upload prod assets to CDN
                       identifier: upload_prod_assets_to_CDN
                       spec:
-                        shell: Sh
+                        shell: Bash
                         command: aws s3 sync ./umd s3://split-public/sdk --acl public-read --follow-symlinks --cache-control max-age=31536000,public
                         connectorRef: artifacts
                         envVariables:
