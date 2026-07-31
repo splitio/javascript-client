@@ -13,7 +13,7 @@ pipeline:
   stages:
     - stage:
         name: Check-Test-Build-Upload
-        identifier: Checkout_code
+        identifier: Check_Test_Build_Upload
         description: ""
         type: CI
         spec:
@@ -126,8 +126,7 @@ pipeline:
                       identifier: upload_dev_assets_to_CDN
                       spec:
                         shell: Sh
-                        command: |-
-                          aws s3 sync ./umd s3://split-public-stage/sdk --acl public-read --follow-symlinks --cache-control max-age=31536000,public
+                        command: aws s3 sync ./umd s3://split-public-stage/sdk --acl public-read --follow-symlinks --cache-control max-age=31536000,public
                         connectorRef: artifacts
                         envVariables:
                           AWS_DEFAULT_REGION: us-east-1
@@ -140,8 +139,7 @@ pipeline:
                       identifier: upload_prod_assets_to_CDN
                       spec:
                         shell: Sh
-                        command: |-
-                          aws s3 sync ./umd s3://split-public/sdk --acl public-read --follow-symlinks --cache-control max-age=31536000,public
+                        command: aws s3 sync ./umd s3://split-public/sdk --acl public-read --follow-symlinks --cache-control max-age=31536000,public
                         connectorRef: artifacts
                         envVariables:
                           AWS_DEFAULT_REGION: us-east-1
