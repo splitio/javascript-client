@@ -125,9 +125,10 @@ pipeline:
                       name: upload dev assets to CDN
                       identifier: upload_dev_assets_to_CDN
                       spec:
+                        connectorRef: dockerhub
+                        image: amazon/aws-cli:2.31.5
                         shell: Bash
                         command: aws s3 sync ./umd s3://split-public-stage/sdk --acl public-read --follow-symlinks --cache-control max-age=31536000,public
-                        connectorRef: artifacts
                         envVariables:
                           AWS_DEFAULT_REGION: us-east-1
                       when:
@@ -138,9 +139,10 @@ pipeline:
                       name: upload prod assets to CDN
                       identifier: upload_prod_assets_to_CDN
                       spec:
+                        connectorRef: dockerhub
+                        image: amazon/aws-cli:2.31.5
                         shell: Bash
                         command: aws s3 sync ./umd s3://split-public/sdk --acl public-read --follow-symlinks --cache-control max-age=31536000,public
-                        connectorRef: artifacts
                         envVariables:
                           AWS_DEFAULT_REGION: us-east-1
                       when:
