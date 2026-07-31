@@ -22,15 +22,6 @@ pipeline:
             enabled: true
             override: true
             paths: []
-          platform:
-            os: Linux
-            arch: Amd64
-          runtime:
-            type: Cloud
-            spec:
-              size: small
-              imageSpec:
-                imageName: ubuntu-latest
           buildIntelligence:
             enabled: false
           execution:
@@ -140,3 +131,12 @@ pipeline:
                       when:
                         stageStatus: Success
                         condition: <+trigger.event> == "PUSH" && <+trigger.branch> == "main"
+          infrastructure:
+            type: KubernetesDirect
+            spec:
+              connectorRef: <+input>
+              namespace: harness-delegate
+              serviceAccountName: <+input>
+              automountServiceAccountToken: false
+              nodeSelector: {}
+              os: Linux
