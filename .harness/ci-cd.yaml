@@ -140,3 +140,5 @@ pipeline:
               automountServiceAccountToken: false
               nodeSelector: {}
               os: Linux
+        delegateSelectors:
+          - "<+codebase.branch == \"main\" ? \"use1prod1cd\" : \"use1stage1cd\">"
