@@ -81,7 +81,7 @@ pipeline:
                     image: cypress/browsers:latest
                     shell: Bash
                     command: |-
-                      CHROME_BIN=$(which google-chrome-stable || which chromium-browser || which chromium)
+                      CHROME_BIN=$(which google-chrome || which google-chrome-stable || which chromium-browser || which chromium)
                       export CHROME_BIN
                       npm run test-browser
               - step:
