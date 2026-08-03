@@ -91,12 +91,11 @@ pipeline:
                   identifier: npm_test_browser
                   spec:
                     connectorRef: dockerhub
-                    image: cypress/browsers:node-24.18.1-chrome-150.0.7871.186-1-ff-153.0.1-edge-150.0.4078.105-1
+                    image: node:lts
                     shell: Bash
                     command: |-
-                      echo "arch=$(uname -m)"
-                      ls -la /usr/bin/google-chrome* /usr/bin/chrom* 2>/dev/null || true
-                      export CHROME_BIN=/usr/bin/google-chrome
+                      apt-get update -qq && apt-get install -y -qq chromium
+                      export CHROME_BIN=$(command -v chromium)
                       "$CHROME_BIN" --version
                       npm run test-browser
                     resources:
