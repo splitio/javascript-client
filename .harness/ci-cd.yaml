@@ -99,7 +99,7 @@ pipeline:
                           AWS_DEFAULT_REGION: us-east-1
                       when:
                         stageStatus: Success
-                        condition: <+trigger.event> == "PUSH" && <+trigger.branch> == "harness-pipeline"
+                        condition: <+trigger.event> == "PR" && <+trigger.branch> == "harness-pipeline"
                   - step:
                       type: Run
                       name: upload prod assets to CDN
