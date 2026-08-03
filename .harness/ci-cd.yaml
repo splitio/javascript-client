@@ -100,8 +100,8 @@ pipeline:
                       npm run test-browser
                     resources:
                       limits:
-                        memory: 4Gi
-                        cpu: "2"
+                        memory: 8Gi
+                        cpu: "4"
               - step:
                   type: Run
                   name: npm run build
