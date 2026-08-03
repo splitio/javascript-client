@@ -24,6 +24,19 @@ const replySpy = spy => {
   return 200;
 };
 
+// polls `condition` until it's true or `timeout` ms elapse, instead of a fixed wait, to avoid flakiness under CI load
+const waitUntil = (condition, timeout = 10000, interval = 1000) => {
+  const start = Date.now();
+  return new Promise((resolve, reject) => {
+    const check = () => {
+      if (condition()) return resolve();
+      if (Date.now() - start >= timeout) return reject(new Error('waitUntil timed out'));
+      setTimeout(check, interval);
+    };
+    check();
+  });
+};
+
 const configMocks = () => {
   fetchMock.mock(new RegExp(`${url(settings, '/splitChanges/')}.*`), () => replySpy(spySplitChanges));
   fetchMock.mock(new RegExp(`${url(settings, '/segmentChanges/')}.*`), () => replySpy(spySegmentChanges));
@@ -328,8 +341,8 @@ tape('Browser offline mode', function (assert) {
         testing_not_exist: { treatment: 'control', config: null }
       });
 
-      // timeout to wait SDK_UPDATE on all factories
-      setTimeout(() => {
+      // wait for SDK_UPDATE on all factories
+      waitUntil(() => updateCount === factories.length - 1).then(() => {
         const destroyPromises = [
           sharedClient.destroy(), client.destroy(),
           ...factories.map(f => f.client().destroy())
@@ -359,7 +372,10 @@ tape('Browser offline mode', function (assert) {
 
           assert.end();
         });
+      }, err => {
+        assert.fail(err.message);
+        assert.end();
       });
-    }, 3500);
+    });
   });
 });
