@@ -85,7 +85,7 @@ pipeline:
                     image: cypress/browsers:latest
                     shell: Bash
                     command: |-
-                      CHROME_BIN="${CHROME_PATH:-$(command -v google-chrome || command -v google-chrome-stable || command -v chromium-browser || command -v chromium || true)}"
+                      CHROME_BIN="${CHROME_PATH:-$(command -v chrome || command -v google-chrome || command -v google-chrome-stable || command -v chromium-browser || command -v chromium || true)}"
                       export CHROME_BIN
                       echo "CHROME_BIN=$CHROME_BIN"
                       "$CHROME_BIN" --version || true
