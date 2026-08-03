@@ -78,6 +78,33 @@ pipeline:
                     command: npm run check
               - step:
                   type: Run
+                  name: npm test-node
+                  identifier: npm_test_node
+                  spec:
+                    connectorRef: dockerhub
+                    image: node:lts
+                    shell: Bash
+                    command: npm run test-node
+              - step:
+                  type: Run
+                  name: npm test-browser
+                  identifier: npm_test_browser
+                  spec:
+                    connectorRef: dockerhub
+                    image: cypress/browsers:node-24.18.1-chrome-150.0.7871.186-1-ff-153.0.1-edge-150.0.4078.105-1
+                    shell: Bash
+                    command: |-
+                      CHROME_BIN="${CHROME_PATH:-$(command -v chrome || command -v google-chrome || command -v google-chrome-stable || command -v chromium-browser || command -v chromium || true)}"
+                      export CHROME_BIN
+                      echo "CHROME_BIN=$CHROME_BIN"
+                      "$CHROME_BIN" --version || true
+                      npm run test-browser
+                    resources:
+                      limits:
+                        memory: 4Gi
+                        cpu: "2"
+              - step:
+                  type: Run
                   name: npm run build
                   identifier: npm_run_build
                   spec:
@@ -99,7 +126,7 @@ pipeline:
                           AWS_DEFAULT_REGION: us-east-1
                       when:
                         stageStatus: Success
-                        condition: <+trigger.event> == "PR" && <+trigger.branch> == "harness-pipeline"
+                        condition: <+trigger.event> == "PUSH" && <+trigger.branch> == "development"
                   - step:
                       type: Run
                       name: upload prod assets to CDN
