@@ -19,7 +19,7 @@ pipeline:
         spec:
           cloneCodebase: true
           caching:
-            enabled: false
+            enabled: true
             override: true
             paths: []
           buildIntelligence:
@@ -94,10 +94,10 @@ pipeline:
                     image: cypress/browsers:node-24.18.1-chrome-150.0.7871.186-1-ff-153.0.1-edge-150.0.4078.105-1
                     shell: Bash
                     command: |-
-                      CHROME_BIN="${CHROME_PATH:-$(command -v chrome || command -v google-chrome || command -v google-chrome-stable || command -v chromium-browser || command -v chromium || true)}"
-                      export CHROME_BIN
-                      echo "CHROME_BIN=$CHROME_BIN"
-                      "$CHROME_BIN" --version || true
+                      echo "arch=$(uname -m)"
+                      ls -la /usr/bin/google-chrome* /usr/bin/chrom* 2>/dev/null || true
+                      export CHROME_BIN=/usr/bin/google-chrome
+                      "$CHROME_BIN" --version
                       npm run test-browser
                     resources:
                       limits:
