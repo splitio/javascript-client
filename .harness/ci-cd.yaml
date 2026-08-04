@@ -16,6 +16,19 @@ pipeline:
         identifier: Check_Test_Build_Upload
         description: ""
         type: CI
+        # drone-s3 plugin settings for the S3Upload steps (not exposed as step spec fields).
+        # PLUGIN_CACHE_CONTROL is a plain string, so drone-s3 maps it to the ".*" regex key (all files).
+        # PLUGIN_STRIP_PREFIX removes "umd/" so object keys become sdk/<file> instead of sdk/umd/<file>.
+        variables:
+          - name: PLUGIN_ACL
+            type: String
+            value: public-read
+          - name: PLUGIN_CACHE_CONTROL
+            type: String
+            value: max-age=31536000,public
+          - name: PLUGIN_STRIP_PREFIX
+            type: String
+            value: umd/
         spec:
           cloneCodebase: true
           caching:
@@ -28,7 +41,7 @@ pipeline:
           runtime:
             type: Cloud
             spec:
-              size: small
+              size: large
               imageSpec:
                 imageName: ubuntu-latest
           buildIntelligence:
@@ -128,7 +141,8 @@ pipeline:
                         connectorRef: publicassetsstage
                         region: us-east-1
                         bucket: split-public-stage
-                        sourcePath: ./umd/*
+                        sourcePath: umd/*
+                        target: sdk
                       when:
                         stageStatus: Success
                         condition: <+trigger.event> == "PUSH" && <+trigger.branch> == "development"
@@ -140,7 +154,8 @@ pipeline:
                         connectorRef: publicassetsprod
                         region: us-east-1
                         bucket: split-public
-                        sourcePath: ./umd/*
+                        sourcePath: umd/*
+                        target: sdk
                       when:
                         stageStatus: Success
                         condition: <+trigger.event> == "PUSH" && <+trigger.branch> == "main"
