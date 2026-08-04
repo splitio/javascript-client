@@ -36,19 +36,22 @@ pipeline:
           execution:
             steps:
               - step:
-                  type: Action
+                  type: Run
                   name: Set up Node.js
                   identifier: Set_up_Nodejs
                   spec:
-                    uses: dcodeIO/setup-node-nvm@master
-                    with:
-                      node-version: lts/*
+                    shell: Bash
+                    command: |-
+                      curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+                      sudo apt-get install -y nodejs
+                      node --version
+                      npm --version
               - step:
                   type: Run
                   name: Install Redis
                   identifier: Install_Redis
                   spec:
-                    shell: Sh
+                    shell: Bash
                     command: |-
                       sudo add-apt-repository ppa:redislabs/redis
                       sudo apt-get install -y redis-tools redis-server
@@ -57,27 +60,14 @@ pipeline:
                   name: Check Redis
                   identifier: Check_Redis
                   spec:
-                    shell: Sh
-                    command: redis-cli ping
-              - step:
-                  type: Run
-                  name: Install Chrome
-                  identifier: Install_Chrome
-                  spec:
                     shell: Bash
-                    command: |-
-                      curl -fsSL https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb -o /tmp/chrome.deb
-                      apt-get update -qq && apt-get install -y -qq /tmp/chrome.deb || true
-                      # Fallback: install via chromium if the .deb install failed
-                      which google-chrome-stable || apt-get install -y -qq chromium-browser
-                      CHROME_BIN=$(which google-chrome-stable || which chromium-browser || which chromium)
-                      echo "CHROME_BIN=$CHROME_BIN"
+                    command: redis-cli ping
               - step:
                   type: Run
                   name: npm ci
                   identifier: npm_ci
                   spec:
-                    shell: Sh
+                    shell: Bash
                     command: npm ci
                     envVariables:
                       PUPPETEER_SKIP_DOWNLOAD: "true"
@@ -86,15 +76,26 @@ pipeline:
                   name: npm ts tests
                   identifier: npm_ts_tests
                   spec:
-                    shell: Sh
+                    shell: Bash
                     command: npm run test-ts-decls
               - step:
                   type: Run
                   name: npm run check
                   identifier: npm_run_check
                   spec:
-                    shell: Sh
+                    shell: Bash
                     command: npm run check
+              - step:
+                  type: Run
+                  name: Install Chrome
+                  identifier: Install_Chrome
+                  spec:
+                    shell: Bash
+                    command: |-
+                      curl -fsSL https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb -o /tmp/chrome.deb
+                      sudo apt-get update -qq
+                      sudo apt-get install -y -qq /tmp/chrome.deb
+                      google-chrome-stable --version
               - step:
                   type: Run
                   name: npm test-browser
@@ -102,47 +103,44 @@ pipeline:
                   spec:
                     shell: Bash
                     command: |-
-                      CHROME_BIN=$(which google-chrome-stable || which chromium-browser || which chromium)
-                      export CHROME_BIN
+                      export CHROME_BIN=$(which google-chrome-stable)
                       npm run test-browser
               - step:
                   type: Run
                   name: npm test-node
                   identifier: npm_test_node
                   spec:
-                    shell: Sh
+                    shell: Bash
                     command: npm run test-node
               - step:
                   type: Run
                   name: npm run build
                   identifier: npm_run_build
                   spec:
-                    shell: Sh
+                    shell: Bash
                     command: BUILD_BRANCH=<+codebase.branch> npm run build
               - parallel:
                   - step:
-                      type: Run
+                      type: S3Upload
                       name: upload dev assets to CDN
                       identifier: upload_dev_assets_to_CDN
                       spec:
-                        shell: Sh
-                        command: aws s3 sync ./umd s3://split-public-stage/sdk --acl public-read --follow-symlinks --cache-control max-age=31536000,public
-                        connectorRef: artifacts
-                        envVariables:
-                          AWS_DEFAULT_REGION: us-east-1
+                        connectorRef: publicassetsstage
+                        region: us-east-1
+                        bucket: split-public-stage
+                        sourcePath: ./umd/*
                       when:
                         stageStatus: Success
                         condition: <+trigger.event> == "PUSH" && <+trigger.branch> == "development"
                   - step:
-                      type: Run
+                      type: S3Upload
                       name: upload prod assets to CDN
                       identifier: upload_prod_assets_to_CDN
                       spec:
-                        shell: Sh
-                        command: aws s3 sync ./umd s3://split-public/sdk --acl public-read --follow-symlinks --cache-control max-age=31536000,public
-                        connectorRef: artifacts
-                        envVariables:
-                          AWS_DEFAULT_REGION: us-east-1
+                        connectorRef: publicassetsprod
+                        region: us-east-1
+                        bucket: split-public
+                        sourcePath: ./umd/*
                       when:
                         stageStatus: Success
                         condition: <+trigger.event> == "PUSH" && <+trigger.branch> == "main"

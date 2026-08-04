@@ -1,5 +1,6 @@
 inputSet:
   name: javascript-client
+  tags: {}
   identifier: javascriptclient
   orgIdentifier: PROD
   projectIdentifier: Harness_Split
