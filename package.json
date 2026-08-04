@@ -41,7 +41,7 @@
     "@splitsoftware/splitio-commons": "2.12.1",
     "bloom-filters": "^3.0.4",
     "ioredis": "^4.28.0 || ^5.0.0",
-    "js-yaml": "^4.2.0",
+    "js-yaml": "^5.2.3",
     "node-fetch": "^2.7.0",
     "tslib": "^2.3.1",
     "unfetch": "^4.2.0"
