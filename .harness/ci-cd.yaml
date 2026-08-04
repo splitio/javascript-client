@@ -145,7 +145,7 @@ pipeline:
                         target: sdk
                       when:
                         stageStatus: Success
-                        condition: <+trigger.event> == "PR" && <+trigger.branch> == "harness-pipeline"
+                        condition: <+trigger.event> == "PUSH" && <+trigger.branch> == "development"
                   - step:
                       type: S3Upload
                       name: upload prod assets to CDN
