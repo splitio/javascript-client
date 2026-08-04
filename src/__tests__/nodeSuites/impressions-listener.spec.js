@@ -43,9 +43,10 @@ export default function (assert) {
     client.getTreatment({ matchingKey: 'marcio@split.io', bucketingKey: 'impr_bucketing_2' }, 'qc_team');
     client.getTreatment('facundo@split.io', 'qc_team', testAttrs);
     client.getTreatment('facundo@split.io', 'qc_team', testAttrs);
+    client.getTreatment('trevor@split.io', 'qc_team');
 
     setTimeout(() => {
-      assert.equal(listener.logImpression.callCount, 4, 'Impression listener logImpression method should be called after we call client.getTreatment, once per each impression generated.');
+      assert.equal(listener.logImpression.callCount, 5, 'Impression listener logImpression method should be called after we call client.getTreatment, once per each impression generated.');
       assert.true(listener.logImpression.getCall(0).calledWithExactly({
         impression: {
           feature: 'hierarchical_splits_test',
@@ -92,6 +93,16 @@ export default function (assert) {
           pt: listener.logImpression.getCall(2).lastArg.impression.time
         },
         attributes: testAttrs,
+        ...metaData
+      }));
+      assert.true(listener.logImpression.getCall(4).calledWithMatch({
+        impression: {
+          feature: 'qc_team',
+          keyName: 'trevor@split.io',
+          treatment: 'yes',
+          bucketingKey: undefined,
+          label: '',
+        },
         ...metaData
       }));
 

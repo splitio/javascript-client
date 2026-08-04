@@ -14,7 +14,7 @@ import { createUserConsentAPI } from '@splitsoftware/splitio-commons/src/consent
 import { localhostFromObjectFactory } from '@splitsoftware/splitio-commons/src/sync/offline/LocalhostFromObject';
 
 import { settingsFactory } from '../settings/browser';
-import { platform, SignalListener } from '../platform';
+import { platform } from '../platform';
 
 const syncManagerOnlineCSFactory = syncManagerOnlineFactory(pollingManagerCSFactory, pushManagerFactory);
 
@@ -39,15 +39,13 @@ function getModules(settings) {
 
     storageFactory: getStorage(settings),
 
-    splitApiFactory,
+    serviceApiFactory: splitApiFactory,
 
     syncManagerFactory: syncManagerOnlineCSFactory,
 
     sdkManagerFactory,
 
     sdkClientMethodFactory: sdkClientMethodCSFactory,
-
-    SignalListener,
 
     impressionsObserverFactory: impressionObserverCSFactory,
 
@@ -60,9 +58,8 @@ function getModules(settings) {
 
   switch (settings.mode) {
     case LOCALHOST_MODE:
-      modules.splitApiFactory = undefined;
+      modules.serviceApiFactory = undefined;
       modules.syncManagerFactory = localhostFromObjectFactory;
-      modules.SignalListener = undefined;
       break;
   }
 

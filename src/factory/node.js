@@ -14,8 +14,8 @@ import { isConsumerMode } from '@splitsoftware/splitio-commons/src/utils/setting
 
 import { localhostFromFileFactory } from '../sync/offline/LocalhostFromFile';
 import { settingsFactory } from '../settings/node';
-import { platform, SignalListener } from '../platform';
-import { bloomFilterFactory } from '../platform/filter/bloomFilter';
+import { platform } from '../platform';
+import { bloomFilterFactory } from '@splitsoftware/splitio-commons/src/utils/filter/bloomFilter';
 
 const syncManagerOnlineSSFactory = syncManagerOnlineFactory(pollingManagerSSFactory, pushManagerFactory);
 
@@ -38,15 +38,13 @@ function getModules(settings) {
 
     storageFactory: getStorage(settings),
 
-    splitApiFactory,
+    serviceApiFactory: splitApiFactory,
 
     syncManagerFactory: syncManagerOnlineSSFactory,
 
     sdkManagerFactory,
 
     sdkClientMethodFactory,
-
-    SignalListener,
 
     impressionsObserverFactory: impressionObserverSSFactory,
 
@@ -65,9 +63,8 @@ function getModules(settings) {
 
   switch (settings.mode) {
     case LOCALHOST_MODE:
-      modules.splitApiFactory = undefined;
+      modules.serviceApiFactory = undefined;
       modules.syncManagerFactory = localhostFromFileFactory;
-      modules.SignalListener = undefined;
       break;
     case CONSUMER_MODE:
       modules.syncManagerFactory = undefined;

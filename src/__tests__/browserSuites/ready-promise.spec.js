@@ -31,7 +31,7 @@ function assertGetTreatmentWhenReady(assert, client) {
 function assertGetTreatmentControlNotReady(assert, client) {
   consoleSpy.log.resetHistory();
   assert.equal(client.getTreatment('hierarchical_splits_test'), 'control', 'We should get control if client is not ready.');
-  assert.true(consoleSpy.log.calledWithExactly('[WARN]  splitio => getTreatment: the SDK is not ready to evaluate. Results may be incorrect for feature flag hierarchical_splits_test. Make sure to wait for SDK readiness before using this method.'), 'Telling us that calling getTreatment would return CONTROL since SDK is not ready at this point.');
+  assert.true(consoleSpy.log.calledWithExactly('[WARN]  splitio => getTreatment: the SDK is not ready to evaluate. Results may be incorrect. Make sure to wait for SDK readiness before using this method.'), 'Telling us that calling getTreatment would return CONTROL since SDK is not ready at this point.');
 }
 
 function assertGetTreatmentControlNotReadyOnDestroy(assert, client) {
@@ -538,8 +538,6 @@ export default function readyPromiseAssertions(fetchMock, assert) {
       consoleSpy.log.resetHistory();
       const sharedClientWithCb = splitio.client('nicolas@split.io');
       sharedClientWithCb.on(client.Event.SDK_READY, () => {
-        t.false(consoleSpy.log.calledWithExactly('[WARN]  splitio => No listeners for SDK_READY event detected. Incorrect control treatments could have been logged if you called getTreatment/s while the SDK was not yet synchronized with the backend.'),
-          'No warning logged');
 
         const sharedClientWithoutCb = splitio.client('emiliano@split.io');
         setTimeout(() => {
