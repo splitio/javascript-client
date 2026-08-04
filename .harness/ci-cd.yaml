@@ -108,7 +108,7 @@ pipeline:
                         connectorRef: publicassetsstage
                         region: us-east-1
                         bucket: split-public-stage
-                        sourcePath: ./umd
+                        sourcePath: ./umd/*
                       when:
                         stageStatus: Success
                         condition: <+trigger.event> == "PR" && <+trigger.branch> == "harness-pipeline"
@@ -120,7 +120,7 @@ pipeline:
                         connectorRef: publicassetsprod
                         region: us-east-1
                         bucket: split-public
-                        sourcePath: ./umd
+                        sourcePath: ./umd/*
                       when:
                         stageStatus: Success
                         condition: <+trigger.event> == "PUSH" && <+trigger.branch> == "main"
