@@ -41,7 +41,7 @@ pipeline:
           runtime:
             type: Cloud
             spec:
-              size: small
+              size: large
               imageSpec:
                 imageName: ubuntu-latest
           buildIntelligence:
