@@ -1,0 +1,161 @@
+pipeline:
+  name: javascript-client
+  identifier: javascriptclient
+  projectIdentifier: Harness_Split
+  orgIdentifier: PROD
+  tags: {}
+  properties:
+    ci:
+      codebase:
+        connectorRef: fmegithubharnessgitops
+        repoName: javascript-client
+        build: <+input>
+  stages:
+    - stage:
+        name: Check-Test-Build-Upload
+        identifier: Check_Test_Build_Upload
+        description: ""
+        type: CI
+        # drone-s3 plugin settings for the S3Upload steps (not exposed as step spec fields).
+        # PLUGIN_CACHE_CONTROL is a plain string, so drone-s3 maps it to the ".*" regex key (all files).
+        # PLUGIN_STRIP_PREFIX removes "umd/" so object keys become sdk/<file> instead of sdk/umd/<file>.
+        variables:
+          - name: PLUGIN_ACL
+            type: String
+            value: public-read
+          - name: PLUGIN_CACHE_CONTROL
+            type: String
+            value: max-age=31536000,public
+          - name: PLUGIN_STRIP_PREFIX
+            type: String
+            value: umd/
+        spec:
+          cloneCodebase: true
+          caching:
+            enabled: true
+            override: true
+            paths: []
+          platform:
+            os: Linux
+            arch: Amd64
+          runtime:
+            type: Cloud
+            spec:
+              size: large
+              imageSpec:
+                imageName: ubuntu-latest
+          buildIntelligence:
+            enabled: false
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: Set up Node.js
+                  identifier: Set_up_Nodejs
+                  spec:
+                    shell: Bash
+                    command: |-
+                      curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+                      sudo apt-get install -y nodejs
+                      node --version
+                      npm --version
+              - step:
+                  type: Run
+                  name: Install Redis
+                  identifier: Install_Redis
+                  spec:
+                    shell: Bash
+                    command: |-
+                      sudo add-apt-repository ppa:redislabs/redis
+                      sudo apt-get install -y redis-tools redis-server
+              - step:
+                  type: Run
+                  name: Check Redis
+                  identifier: Check_Redis
+                  spec:
+                    shell: Bash
+                    command: redis-cli ping
+              - step:
+                  type: Run
+                  name: npm ci
+                  identifier: npm_ci
+                  spec:
+                    shell: Bash
+                    command: npm ci
+                    envVariables:
+                      PUPPETEER_SKIP_DOWNLOAD: "true"
+              - step:
+                  type: Run
+                  name: npm ts tests
+                  identifier: npm_ts_tests
+                  spec:
+                    shell: Bash
+                    command: npm run test-ts-decls
+              - step:
+                  type: Run
+                  name: npm run check
+                  identifier: npm_run_check
+                  spec:
+                    shell: Bash
+                    command: npm run check
+              - step:
+                  type: Run
+                  name: Install Chrome
+                  identifier: Install_Chrome
+                  spec:
+                    shell: Bash
+                    command: |-
+                      curl -fsSL https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb -o /tmp/chrome.deb
+                      sudo apt-get update -qq
+                      sudo apt-get install -y -qq /tmp/chrome.deb
+                      google-chrome-stable --version
+              - step:
+                  type: Run
+                  name: npm test-browser
+                  identifier: npm_test_browser
+                  spec:
+                    shell: Bash
+                    command: |-
+                      export CHROME_BIN=$(which google-chrome-stable)
+                      npm run test-browser
+              - step:
+                  type: Run
+                  name: npm test-node
+                  identifier: npm_test_node
+                  spec:
+                    shell: Bash
+                    command: npm run test-node
+              - step:
+                  type: Run
+                  name: npm run build
+                  identifier: npm_run_build
+                  spec:
+                    shell: Bash
+                    command: BUILD_BRANCH=<+codebase.branch> npm run build
+              - parallel:
+                  - step:
+                      type: S3Upload
+                      name: upload dev assets to CDN
+                      identifier: upload_dev_assets_to_CDN
+                      spec:
+                        connectorRef: publicassetsstage
+                        region: us-east-1
+                        bucket: split-public-stage
+                        sourcePath: umd/*
+                        target: sdk
+                      when:
+                        stageStatus: Success
+                        condition: <+trigger.event> == "PUSH" && <+trigger.branch> == "development"
+                  - step:
+                      type: S3Upload
+                      name: upload prod assets to CDN
+                      identifier: upload_prod_assets_to_CDN
+                      spec:
+                        connectorRef: publicassetsprod
+                        region: us-east-1
+                        bucket: split-public
+                        sourcePath: umd/*
+                        target: sdk
+                      when:
+                        stageStatus: Success
+                        condition: <+trigger.event> == "PUSH" && <+trigger.branch> == "main"

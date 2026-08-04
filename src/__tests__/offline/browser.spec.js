@@ -24,6 +24,19 @@ const replySpy = spy => {
   return 200;
 };
 
+// polls `condition` until it's true or `timeout` ms elapse, instead of a fixed wait, to avoid flakiness under CI load
+const waitUntil = (condition, timeout = 10000, interval = 1000) => {
+  const start = Date.now();
+  return new Promise((resolve, reject) => {
+    const check = () => {
+      if (condition()) return resolve();
+      if (Date.now() - start >= timeout) return reject(new Error('waitUntil timed out'));
+      setTimeout(check, interval);
+    };
+    check();
+  });
+};
+
 const configMocks = () => {
   fetchMock.mock(new RegExp(`${url(settings, '/splitChanges/')}.*`), () => replySpy(spySplitChanges));
   fetchMock.mock(new RegExp(`${url(settings, '/segmentChanges/')}.*`), () => replySpy(spySegmentChanges));
@@ -251,7 +264,7 @@ tape('Browser offline mode', function (assert) {
     setTimeout(() => { factory.settings.features = { testing_split: 'on', testing_split_with_config: { treatment: 'off', config: '{ "color": "blue" }' } }; }, 750);
 
     // once updated, test again.
-    client.once(client.Event.SDK_UPDATE, function () {
+    client.once(client.Event.SDK_UPDATE, async () => {
       assert.true((Date.now() - readyTimestamp) > 1000, 'Should only emit SDK_UPDATE after a real update.');
 
       client.once(client.Event.SDK_UPDATE, function () { assert.fail('Should not emit a second SDK_UPDATE event'); });
@@ -328,38 +341,43 @@ tape('Browser offline mode', function (assert) {
         testing_not_exist: { treatment: 'control', config: null }
       });
 
-      // timeout to wait SDK_UPDATE on all factories
-      setTimeout(() => {
-        const destroyPromises = [
-          sharedClient.destroy(), client.destroy(),
-          ...factories.map(f => f.client().destroy())
-        ];
+      try {
+        // wait for SDK_UPDATE on all factories
+        await waitUntil(() => updateCount === factories.length - 1);
+      } catch (err) {
+        assert.fail(err.message);
+        assert.end();
+      }
 
-        // When both promises have been resolved, we check for network activity
-        Promise.all(destroyPromises).then(() => {
-          // We test the breakdown instead of just the misc because it's faster to spot where the issue is
-          assert.notOk(spySplitChanges.called, 'On offline mode we should not call the splitChanges endpoint.');
-          assert.notOk(spySegmentChanges.called, 'On offline mode we should not call the segmentChanges endpoint.');
-          assert.notOk(spyMemberships.called, 'On offline mode we should not call the Memberships endpoint.');
-          assert.notOk(spyEventsBulk.called, 'On offline mode we should not call the events endpoint.');
-          assert.notOk(spyTestImpressionsBulk.called, 'On offline mode we should not call the impressions endpoint.');
-          assert.notOk(spyTestImpressionsCount.called, 'On offline mode we should not call the impressions count endpoint.');
-          assert.notOk(spyMetricsTimes.called, 'On offline mode we should not call the metric times endpoint.');
-          assert.notOk(spyMetricsCounters.called, 'On offline mode we should not call the metric counters endpoint.');
-          assert.notOk(spyAny.called, 'On offline mode we should NOT call to ANY endpoint, we are completely isolated from BE.');
+      const destroyPromises = [
+        sharedClient.destroy(), client.destroy(),
+        ...factories.map(f => f.client().destroy())
+      ];
 
-          // SDK events on shared client
-          assert.equal(sharedReadyCount, 1, 'Shared client should have emitted SDK_READY event once');
-          assert.equal(sharedUpdateCount, 1, 'Shared client should have emitted SDK_UPDATE event once');
+      // When both promises have been resolved, we check for network activity
+      await Promise.all(destroyPromises);
 
-          // SDK events on other factory clients
-          assert.equal(readyCount, factories.length, 'Each factory client should have emitted SDK_READY event once');
-          assert.equal(updateCount, factories.length - 1, 'Each factory client except one should have emitted SDK_UPDATE event once');
-          assert.equal(readyFromCacheCount, 2, 'The main and shared client of the factory with LOCALSTORAGE should have emitted SDK_READY_FROM_CACHE event');
+      // We test the breakdown instead of just the misc because it's faster to spot where the issue is
+      assert.notOk(spySplitChanges.called, 'On offline mode we should not call the splitChanges endpoint.');
+      assert.notOk(spySegmentChanges.called, 'On offline mode we should not call the segmentChanges endpoint.');
+      assert.notOk(spyMemberships.called, 'On offline mode we should not call the Memberships endpoint.');
+      assert.notOk(spyEventsBulk.called, 'On offline mode we should not call the events endpoint.');
+      assert.notOk(spyTestImpressionsBulk.called, 'On offline mode we should not call the impressions endpoint.');
+      assert.notOk(spyTestImpressionsCount.called, 'On offline mode we should not call the impressions count endpoint.');
+      assert.notOk(spyMetricsTimes.called, 'On offline mode we should not call the metric times endpoint.');
+      assert.notOk(spyMetricsCounters.called, 'On offline mode we should not call the metric counters endpoint.');
+      assert.notOk(spyAny.called, 'On offline mode we should NOT call to ANY endpoint, we are completely isolated from BE.');
 
-          assert.end();
-        });
-      });
-    }, 3500);
+      // SDK events on shared client
+      assert.equal(sharedReadyCount, 1, 'Shared client should have emitted SDK_READY event once');
+      assert.equal(sharedUpdateCount, 1, 'Shared client should have emitted SDK_UPDATE event once');
+
+      // SDK events on other factory clients
+      assert.equal(readyCount, factories.length, 'Each factory client should have emitted SDK_READY event once');
+      assert.equal(updateCount, factories.length - 1, 'Each factory client except one should have emitted SDK_UPDATE event once');
+      assert.equal(readyFromCacheCount, 2, 'The main and shared client of the factory with LOCALSTORAGE should have emitted SDK_READY_FROM_CACHE event');
+
+      assert.end();
+    });
   });
 });
