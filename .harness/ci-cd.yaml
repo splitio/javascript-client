@@ -87,6 +87,26 @@ pipeline:
                     command: npm run check
               - step:
                   type: Run
+                  name: Install Chrome
+                  identifier: Install_Chrome
+                  spec:
+                    shell: Bash
+                    command: |-
+                      curl -fsSL https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb -o /tmp/chrome.deb
+                      sudo apt-get update -qq
+                      sudo apt-get install -y -qq /tmp/chrome.deb
+                      google-chrome-stable --version
+              - step:
+                  type: Run
+                  name: npm test-browser
+                  identifier: npm_test_browser
+                  spec:
+                    shell: Bash
+                    command: |-
+                      export CHROME_BIN=$(which google-chrome-stable)
+                      npm run test-browser
+              - step:
+                  type: Run
                   name: npm test-node
                   identifier: npm_test_node
                   spec:
