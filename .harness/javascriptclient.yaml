@@ -1,0 +1,24 @@
+inputSet:
+  name: javascript-client-prod
+  identifier: javascriptclient
+  orgIdentifier: PROD
+  projectIdentifier: Harness_Split
+  pipeline:
+    identifier: javascriptclient
+    properties:
+      ci:
+        codebase:
+          build:
+            type: branch
+            spec:
+              branch: <+trigger.branch>
+    stages:
+      - stage:
+          identifier: Check_Test_Build_Upload
+          type: CI
+          spec:
+            infrastructure:
+              type: KubernetesDirect
+              spec:
+                connectorRef: use1prod1cd
+                serviceAccountName: use1-prod-1-mfe-assets
