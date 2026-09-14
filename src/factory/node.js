@@ -17,7 +17,7 @@ import { settingsFactory } from '../settings/node';
 import { platform } from '../platform';
 import { bloomFilterFactory } from '@splitsoftware/splitio-commons/src/utils/filter/bloomFilter';
 
-const syncManagerOnlineSSFactory = syncManagerOnlineFactory(pollingManagerSSFactory, pushManagerFactory);
+const syncManagerOnlineSSFactory = syncManagerOnlineFactory(pollingManagerSSFactory(), pushManagerFactory);
 
 function getStorage(settings) {
   return settings.storage.type === 'REDIS' ?

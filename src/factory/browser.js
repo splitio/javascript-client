@@ -16,7 +16,7 @@ import { localhostFromObjectFactory } from '@splitsoftware/splitio-commons/src/s
 import { settingsFactory } from '../settings/browser';
 import { platform } from '../platform';
 
-const syncManagerOnlineCSFactory = syncManagerOnlineFactory(pollingManagerCSFactory, pushManagerFactory);
+const syncManagerOnlineCSFactory = syncManagerOnlineFactory(pollingManagerCSFactory(), pushManagerFactory);
 
 function getStorage(settings) {
   return settings.storage.type === STORAGE_LOCALSTORAGE ?
