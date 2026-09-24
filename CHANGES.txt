@@ -1,3 +1,7 @@
+11.12.0 (September 24, 2026)
+ - Added support for ioredis v6 as a dependency of the Redis storage, which fixes a vulnerability present in ioredis v4 and v5 (Related to issue https://github.com/splitio/javascript-client/issues/951). Note that ioredis v6 requires Node.js 20 or above. If you are running an older Node.js version, pin ioredis to v4 or v5 in your application dependencies.
+ - Updated @splitsoftware/splitio-commons package to version 2.13.0 and some transitive dependencies for vulnerability fixes.
+
 11.11.2 (June 26, 2026)
  - Updated @splitsoftware/splitio-commons package to version 2.12.1, which:
      - updates internal modules to handle `null` values from `/splitChanges` response.
