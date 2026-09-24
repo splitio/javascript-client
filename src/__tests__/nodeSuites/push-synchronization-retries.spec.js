@@ -13,7 +13,7 @@ import { nearlyEqual, mockSegmentChanges, url } from '../testUtils';
 import { Backoff } from '@splitsoftware/splitio-commons/src/utils/Backoff';
 
 import EventSourceMock, { setMockListener } from '../testUtils/eventSourceMock';
-import { __setEventSource } from '../../platform/getEventSource/node';
+import { __setEventSource } from '@splitsoftware/splitio-commons/src/platform/getEventSource/node';
 
 import { SplitFactory } from '../../';
 import { settingsFactory } from '../../settings';

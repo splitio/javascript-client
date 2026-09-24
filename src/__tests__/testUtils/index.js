@@ -45,8 +45,9 @@ export function hasNoCacheHeader(fetchMockOpts) {
 
 const telemetryEndpointMatcher = /^\/v1\/(metrics|keys)\/(config|usage|ss|cs)/;
 const eventsEndpointMatcher = /^\/(testImpressions|metrics|events)/;
-const authEndpointMatcher = /^\/v2\/auth/;
+const authEndpointMatcher = /^\/(v2|v3)\/auth/;
 const streamingEndpointMatcher = /^\/(sse|event-stream)/;
+const configsEndpointMatcher = /^\/v1\/(configs|segmentChanges)/;
 
 /**
  * Switch URLs servers based on target.
@@ -68,6 +69,9 @@ export function url(settings, target) {
   }
   if (streamingEndpointMatcher.test(target)) {
     return `${settings.urls.streaming}${target}`;
+  }
+  if (configsEndpointMatcher.test(target)) {
+    return `${settings.urls.configs}${target}`;
   }
   return `${settings.urls.sdk}${target}`;
 }

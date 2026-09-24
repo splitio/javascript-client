@@ -1,5 +1,5 @@
 import fetchMock from 'fetch-mock';
-import { __setFetch } from '../../platform/getFetch/node';
+import { __setFetch } from '@splitsoftware/splitio-commons/src/platform/getFetch/node';
 
 const sandboxFetchMock = fetchMock.sandbox();
 
