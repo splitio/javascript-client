@@ -127,6 +127,13 @@ pipeline:
                     command: npm run test-node
               - step:
                   type: Run
+                  name: ioredis dependency matrix
+                  identifier: ioredis_dependency_matrix
+                  spec:
+                    shell: Bash
+                    command: npm run test-node-e2e-redis
+              - step:
+                  type: Run
                   name: npm run build
                   identifier: npm_run_build
                   spec:
