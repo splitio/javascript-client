@@ -512,7 +512,9 @@ tape('Node.js Redis', function (t) {
       await client.ready();
 
       const delay = Date.now() - readyTimestamp;
-      assert.true(nearlyEqual(delay, 0), 'SDK_READY event is emitted and Ready promise resolved soon once Redis server is connected');
+      // Wider error margin than the default one, because the SDK must retry the Redis connection
+      // after the server is started, and the retry backoff dominates the measured delay.
+      assert.true(nearlyEqual(delay, 0, 500), 'SDK_READY event is emitted and Ready promise resolved soon once Redis server is connected');
 
       // some asserts to test regular usage
       assert.equal(await client.getTreatment('UT_Segment_member', 'UT_IN_SEGMENT'), 'on', 'Evaluations using Redis storage should be correct.');
@@ -534,10 +536,15 @@ tape('Node.js Redis', function (t) {
       const sdk2 = SplitFactory(configWithVeryShortTimeout);
       const client2 = sdk2.client();
 
-      // Wait for both events, ensuring SDK_READY_TIMED_OUT is captured even if SDK_READY fires first
-      // (race condition with fast Redis connections like ioredis v5)
       const timedOutPromise = new Promise(resolve => client2.on(client2.Event.SDK_READY_TIMED_OUT, resolve));
       const readyPromise = new Promise(resolve => client2.on(client2.Event.SDK_READY, resolve));
+
+      // The Redis connection can complete in under a millisecond, so SDK_READY and SDK_READY_TIMED_OUT
+      // race each other. Blocking the event loop past the readyTimeout deadline makes the outcome
+      // deterministic: Node runs the timers phase before the poll (I/O) phase, so the already-expired
+      // timeout callback is guaranteed to run before the Redis connection is processed.
+      const deadline = Date.now() + 20;
+      while (Date.now() < deadline) { /* busy wait */ }
 
       await timedOutPromise;
       assert.pass('SDK_READY_TIMED_OUT event must be emitted');
