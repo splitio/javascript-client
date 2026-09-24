@@ -1,6 +1,6 @@
 {
   "name": "@splitsoftware/splitio",
-  "version": "11.11.2-rc.2",
+  "version": "11.11.3-rc.0",
   "description": "Split SDK",
   "files": [
     "README.md",
@@ -38,9 +38,9 @@
     "node": ">=14.0.0"
   },
   "dependencies": {
-    "@splitsoftware/splitio-commons": "2.12.1",
+    "@splitsoftware/splitio-commons": "2.13.0",
     "bloom-filters": "^3.0.4",
-    "ioredis": "^4.28.0 || ^5.0.0",
+    "ioredis": "^4.28.0 || ^5.0.0 || ^6.0.0",
     "js-yaml": "^4.2.0",
     "node-fetch": "^2.7.0",
     "tslib": "^2.3.1",
@@ -62,7 +62,6 @@
     "node-polyfill-webpack-plugin": "^4.1.0",
     "proxyquire": "^2.1.3",
     "puppeteer": "^3.3.0",
-    "redis-dumpz": "0.1.12",
     "redis-server": "1.2.2",
     "replace": "^1.2.1",
     "rimraf": "^3.0.2",
@@ -106,9 +105,10 @@
     "test-node-e2e-errorCatching": "cross-env NODE_ENV=test tape -r ./ts-node.register src/__tests__/errorCatching/node.spec.js | tap-min",
     "test-node-e2e-push": "cross-env NODE_ENV=test tape -r ./ts-node.register src/__tests__/push/node.spec.js | tap-min",
     "test-node-e2e-redis-run": "cross-env NODE_ENV=test tape -r ./ts-node.register src/__tests__/consumer/node_redis.spec.js | tap-min",
-    "test-node-e2e-redis": "npm run test-node-e2e-redis:v5 && npm run test-node-e2e-redis:v4",
+    "test-node-e2e-redis": "npm run test-node-e2e-redis:v4 && npm run test-node-e2e-redis:v5 && npm run test-node-e2e-redis:v6 && npm ci",
     "test-node-e2e-redis:v4": "npm install ioredis@4 --no-save && node -e \"console.log('\\n>> Testing with ioredis', require('./node_modules/ioredis/package.json').version, '\\n')\"&& npm run test-node-e2e-redis-run",
     "test-node-e2e-redis:v5": "npm install ioredis@5 --no-save && node -e \"console.log('\\n>> Testing with ioredis', require('./node_modules/ioredis/package.json').version, '\\n')\"&& npm run test-node-e2e-redis-run",
+    "test-node-e2e-redis:v6": "npm install ioredis@6 --no-save && node -e \"console.log('\\n>> Testing with ioredis', require('./node_modules/ioredis/package.json').version, '\\n')\"&& npm run test-node-e2e-redis-run",
     "test-ts-decls": "tsc --build ts-tests",
     "test": "npm run test-node && npm run test-browser",
     "all": "npm run check && npm run build && npm run test-ts-decls && npm run test",
