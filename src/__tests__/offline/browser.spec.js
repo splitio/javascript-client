@@ -89,6 +89,9 @@ tape('Browser offline mode', function (assert) {
   assert.equal(sharedClient.getTreatment('testing_split'), 'control', 'control due to not ready');
   assert.equal(manager.splits().length, 0);
 
+  // Sorted names of the flags added ('testing_split_2', 'testing_split_3') or modified ('testing_split_with_config') by the features update. 'testing_split' is unchanged
+  const UPDATED_NAMES = ['testing_split_2', 'testing_split_3', 'testing_split_with_config'];
+
   // SDK events on shared client
   let sharedReadyCount = 0;
   sharedClient.on(sharedClient.Event.SDK_READY, function () {
@@ -96,7 +99,9 @@ tape('Browser offline mode', function (assert) {
     sharedReadyCount++;
   });
   let sharedUpdateCount = 0;
-  sharedClient.on(sharedClient.Event.SDK_UPDATE, function () {
+  sharedClient.on(sharedClient.Event.SDK_UPDATE, function (metadata) {
+    assert.equal(metadata.type, 'FLAGS_UPDATE');
+    assert.deepEqual(metadata.names.sort(), UPDATED_NAMES, 'SDK_UPDATE on shared client should carry the names of the added and modified flags');
     sharedUpdateCount++;
   });
 
@@ -120,7 +125,7 @@ tape('Browser offline mode', function (assert) {
     });
     client.on(client.Event.SDK_UPDATE, (metadata) => {
       assert.equal(metadata.type, 'FLAGS_UPDATE', 'SDK_UPDATE for localhost features update should have type FLAGS_UPDATE');
-      assert.true(Array.isArray(metadata.names), 'metadata.names should be an array');
+      assert.deepEqual(metadata.names.sort(), UPDATED_NAMES, 'SDK_UPDATE should carry the names of the added and modified flags');
       assert.deepEqual(manager.names().sort(), ['testing_split', 'testing_split_2', 'testing_split_3', 'testing_split_with_config']);
       assert.equal(client.getTreatment('testing_split_with_config'), 'nope');
       updateCount++;
@@ -301,11 +306,11 @@ tape('Browser offline mode', function (assert) {
       const expectedSplitView3 = {
         name: 'testing_split_with_config', trafficType: 'localhost', killed: false, changeNumber: 0, treatments: ['nope'], configs: {}, defaultTreatment: 'control', sets: [], impressionsDisabled: false, prerequisites: []
       };
-      assert.deepEqual(manager.names(), ['testing_split', 'testing_split_2', 'testing_split_3', 'testing_split_with_config']);
+      assert.deepEqual(manager.names().sort(), ['testing_split', 'testing_split_2', 'testing_split_3', 'testing_split_with_config']);
       assert.deepEqual(manager.split('testing_split'), expectedSplitView1);
       assert.deepEqual(manager.split('not_existent'), null);
       assert.deepEqual(manager.split('testing_split_with_config'), expectedSplitView3);
-      assert.deepEqual(manager.splits(), [
+      assert.deepEqual(manager.splits().sort((a, b) => a.name < b.name ? -1 : 1), [
         expectedSplitView1,
         {
           ...expectedSplitView3, name: 'testing_split_2', treatments: ['off']

@@ -168,7 +168,8 @@ function DotSplitTests(assert) {
     setTimeout(() => { factory.settings.features = path.join(__dirname, '.split'); }, 890);
     setTimeout(() => { factory.settings.features = path.join(__dirname, 'update.split'); }, 1000);
 
-    client.once(client.Event.SDK_UPDATE, () => {
+    client.once(client.Event.SDK_UPDATE, (metadata) => {
+      assert.deepEqual(metadata, { type: 'FLAGS_UPDATE', names: ['testing_split4'] }, 'SDK_UPDATE should carry the names of the added flags');
       assert.equal(client.getTreatment('qa-user', 'testing_split4'), 'updated_treatment');
 
       networkAssertions(client, assert).then(() => {
@@ -243,7 +244,8 @@ function DotYAMLTests(mockFileName, mockFileExt, assert) {
     setTimeout(() => { factory.settings.features = path.join(__dirname, `${mockFileName}.${mockFileExt}`); }, 890);
     setTimeout(() => { factory.settings.features = path.join(__dirname, `update.${mockFileName}.${mockFileExt}`); }, 1000);
 
-    client.once(client.Event.SDK_UPDATE, () => {
+    client.once(client.Event.SDK_UPDATE, (metadata) => {
+      assert.deepEqual(metadata, { type: 'FLAGS_UPDATE', names: ['testing_split_off_with_config', 'testing_split_update'] }, 'SDK_UPDATE should carry the names of the added and removed flags');
       assert.equal(client.getTreatment('qa-user', 'testing_split_update'), 'updated_treatment', 'the update should be properly processed');
       assert.true((Date.now() - readyTimestamp) > 1000);
 
@@ -455,7 +457,8 @@ function MultipleInstancesTests(assert) {
 
       });
 
-      client.once(client.Event.SDK_UPDATE, () => {
+      client.once(client.Event.SDK_UPDATE, (metadata) => {
+        assert.deepEqual(metadata, { type: 'FLAGS_UPDATE', names: ['testing_split4'] }, 'SDK_UPDATE should carry the names of the added flags');
         assert.equal(client.getTreatment('qa-user', 'testing_split4'), 'updated_treatment');
 
         client.once(client.Event.SDK_UPDATE, function () { assert.fail('Should not emit a second SDK_UPDATE event'); });
