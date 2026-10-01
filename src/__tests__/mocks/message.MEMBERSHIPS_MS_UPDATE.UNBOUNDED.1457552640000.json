@@ -1,4 +1,4 @@
 {
-  "type": "message",
+  "event": "message",
   "data": "{\"data\":\"{\\\"type\\\":\\\"MEMBERSHIPS_MS_UPDATE\\\",\\\"cn\\\":1457552640000,\\\"u\\\": 0,\\\"h\\\":0}\"}"
 }

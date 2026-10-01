@@ -30,7 +30,7 @@ import authPushEnabled from '../mocks/auth.pushEnabled.node.json';
 import { nearlyEqual, mockSegmentChanges, url, hasNoCacheHeader } from '../testUtils';
 
 import EventSourceMock, { setMockListener } from '../testUtils/eventSourceMock';
-import { __setEventSource } from '../../platform/getEventSource/node';
+import { __setEventSource } from '@splitsoftware/splitio-commons/src/platform/getEventSource/node';
 
 import { SplitFactory } from '../../';
 import { settingsFactory } from '../../settings';
@@ -92,7 +92,7 @@ const MILLIS_DESTROY = 1700;
  *  1.6 secs: RB_SEGMENT_UPDATE IFFU event with ZLib compression
  */
 export function testSynchronization(fetchMock, assert) {
-  assert.plan(56); // +3 for SDK_UPDATE metadata (type, names array, names includes whitelist)
+  assert.plan(55);
   fetchMock.reset();
   __setEventSource(EventSourceMock);
 
@@ -138,13 +138,13 @@ export function testSynchronization(fetchMock, assert) {
     }, MILLIS_SEGMENT_UPDATE_EVENT); // send a SEGMENT_UPDATE event with a new changeNumber after 0.4 seconds
     setTimeout(() => {
       assert.equal(client.getTreatment(key, 'whitelist'), 'allowed', 'evaluation with not killed Split');
-      const onUpdateCb = () => {
+      const onUpdateCb = (metadata) => {
+        assert.deepEqual(metadata, { type: 'FLAGS_UPDATE', names: ['whitelist'] }, 'SDK_UPDATE due to SPLIT_KILL event carries the killed flag name');
         const lapse = Date.now() - start;
         assert.true(nearlyEqual(lapse, MILLIS_SPLIT_KILL_EVENT), 'SDK_UPDATE due to SPLIT_KILL event');
         assert.equal(client.getTreatment(key, 'whitelist'), 'not_allowed', 'evaluation with killed Split');
       };
-      // SPLIT_KILL triggers two SDK_UPDATE events. The 1st due to `killLocally` and the 2nd due to `/splitChanges` fetch
-      client.once(client.Event.SDK_UPDATE, onUpdateCb);
+      // SPLIT_KILL triggers one SDK_UPDATE event due to `killLocally`. The `/splitChanges` fetch doesn't emit another one, since the flag was already updated with the same changeNumber
       client.once(client.Event.SDK_UPDATE, onUpdateCb);
       eventSourceInstance.emitMessage(splitKillMessage);
     }, MILLIS_SPLIT_KILL_EVENT); // send a SPLIT_KILL event with a new changeNumber after 0.5 seconds
@@ -256,8 +256,7 @@ export function testSynchronization(fetchMock, assert) {
     setTimeout(() => {
       client.destroy().then(() => {
         assert.equal(client.getTreatment(key, 'whitelist'), 'control', 'evaluation returns control if client is destroyed');
-        // @TODO SDK_UPDATE should be emitted 13 times, but currently it is being emitted twice on SPLIT_KILL
-        assert.equal(sdkUpdateCount, 14, 'SDK_UPDATE should be emitted 14 times');
+        assert.equal(sdkUpdateCount, 13, 'SDK_UPDATE should be emitted 13 times');
         assert.end();
       });
     }, MILLIS_DESTROY); // destroy client

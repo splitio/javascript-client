@@ -129,8 +129,8 @@ export default function (fetchMock, assert) {
     if (startWithSegments) {
       // Adjust since and till so the order is inverted.
       fetchMock.get(testUrls.sdk + '/splitChanges?s=1.3&since=-1&rbSince=-1', { status: 200, body: splitChangesStartWithSegmentsMock });
-      fetchMock.get(testUrls.sdk + '/splitChanges?s=1.3&since=1457552620999&rbSince=-1', { status: 200, body: { ff: { ...splitChangesUpdateWithoutSegmentsMock.ff, s: 1457552620999, t: 1457552649999 } } });
-      fetchMock.get(testUrls.sdk + '/splitChanges?s=1.3&since=1457552649999&rbSince=-1', { status: 200, body: { ff: { ...splitChangesUpdateWithSegmentsMock.ff, s: 1457552649999, t: 1457552669999 } } });
+      fetchMock.get(testUrls.sdk + '/splitChanges?s=1.3&since=1457552620999&rbSince=-1', { status: 200, body: { ff: { ...splitChangesUpdateWithoutSegmentsMock.ff, d: splitChangesUpdateWithoutSegmentsMock.ff.d.map(f => ({ ...f, changeNumber: 1457552649999 })), s: 1457552620999, t: 1457552649999 } } });
+      fetchMock.get(testUrls.sdk + '/splitChanges?s=1.3&since=1457552649999&rbSince=-1', { status: 200, body: { ff: { ...splitChangesUpdateWithSegmentsMock.ff, d: splitChangesUpdateWithSegmentsMock.ff.d.map(f => ({ ...f, changeNumber: 1457552669999 })), s: 1457552649999, t: 1457552669999 } } });
       fetchMock.get(testUrls.sdk + '/splitChanges?s=1.3&since=1457552669999&rbSince=-1', { status: 200, body: { ff: { d: [], s: 1457552669999, t: 1457552669999 } } });
     } else {
       fetchMock.get(testUrls.sdk + '/splitChanges?s=1.3&since=-1&rbSince=-1', { status: 200, body: splitChangesStartWithoutSegmentsMock });

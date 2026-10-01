@@ -3,6 +3,7 @@ import path from 'path';
 import yaml from 'js-yaml';
 import { isString, endsWith, find, forOwn, uniq, } from '@splitsoftware/splitio-commons/src/utils/lang';
 import { parseCondition } from '@splitsoftware/splitio-commons/src/sync/offline/splitsParser/parseCondition';
+import { definitionChangesBuilderFactory } from '@splitsoftware/splitio-commons/src/sync/offline/splitsParser/definitionChangesBuilder';
 
 const logPrefix = 'sync:offline:fetcher: ';
 
@@ -63,6 +64,7 @@ function arrangeConditions(mocksData) {
 export function splitsParserFromFileFactory() {
 
   let previousMock = 'NO_MOCK_LOADED';
+  const definitionChangesBuilder = definitionChangesBuilderFactory();
 
   // Parse `.split` configuration file and return a map of feature flag objects
   function readFeatureFlagConfigFile(log, filePath) {
@@ -167,7 +169,10 @@ export function splitsParserFromFileFactory() {
       mockData = readYAMLConfigFile(log, filePath);
     }
 
-    return mockData;
+    // The file content was not modified since the last call
+    if (mockData === false) return {};
+
+    return definitionChangesBuilder(mockData);
   };
 
 }
