@@ -3,7 +3,7 @@ import sinon from 'sinon';
 import osFunction from 'os';
 import * as ipFunction from '../../utils/ip';
 import { settingsFactory } from '../node';
-import { CONSUMER_MODE, NA } from '@splitsoftware/splitio-commons/src/utils/constants';
+import { CONSUMER_MODE, CONSUMER_PARTIAL_MODE, NA } from '@splitsoftware/splitio-commons/src/utils/constants';
 
 const IP_VALUE = ipFunction.address();
 const HOSTNAME_VALUE = osFunction.hostname();
@@ -96,7 +96,7 @@ tape('SETTINGS / IPAddressesEnabled should be overwritable and true by default',
   assert.end();
 });
 
-tape('SETTINGS / Throws exception if no "REDIS" storage is provided in consumer mode', (assert) => {
+tape('SETTINGS / Throws exception if no async storage is provided in consumer mode', (assert) => {
   const config = {
     core: {
       authorizationKey: 'dummy token'
@@ -106,13 +106,13 @@ tape('SETTINGS / Throws exception if no "REDIS" storage is provided in consumer 
 
   assert.throws(() => {
     settingsFactory(config);
-  }, /A REDIS storage is required on consumer mode/);
+  }, /A REDIS or PLUGGABLE storage is required on consumer mode/);
   assert.throws(() => {
     settingsFactory({
       ...config,
       storage: { type: 'invalid type' }
     });
-  }, /A REDIS storage is required on consumer mode/);
+  }, /A REDIS or PLUGGABLE storage is required on consumer mode/);
 
   assert.end();
 });
@@ -139,6 +139,42 @@ tape('SETTINGS / Log error and fallback to InMemory storage if no valid storage 
   ], 'logs error message');
 
   settings.forEach(setting => { assert.equal(setting.storage.type, 'MEMORY', 'fallbacks to memory storage'); });
+
+  logSpy.restore();
+  assert.end();
+});
+
+tape('SETTINGS / PLUGGABLE storage is accepted in consumer modes', (assert) => {
+  const wrapper = { get: () => {}, set: () => {} };
+
+  [CONSUMER_MODE, CONSUMER_PARTIAL_MODE].forEach(mode => {
+    const settings = settingsFactory({
+      core: { authorizationKey: 'dummy token' },
+      mode,
+      storage: { type: 'PLUGGABLE', prefix: 'test_prefix', options: { wrapper } }
+    });
+
+    assert.deepEqual(settings.storage, {
+      type: 'PLUGGABLE', prefix: 'test_prefix', options: { wrapper }
+    }, `Pluggable storage settings and options should be passed through in ${mode} mode.`);
+  });
+
+  assert.end();
+});
+
+tape('SETTINGS / Log error and fallback to InMemory storage if PLUGGABLE storage is used outside consumer modes', (assert) => {
+  const logSpy = sinon.spy(console, 'log');
+
+  const settings = settingsFactory({
+    core: { authorizationKey: 'dummy token' }, // standalone mode
+    storage: { type: 'PLUGGABLE', options: { wrapper: {} } },
+    debug: 'ERROR'
+  });
+
+  assert.deepEqual(logSpy.args, [
+    ['[ERROR] splitio => The provided PLUGGABLE storage is invalid for this mode. It requires consumer mode. Fallback into default MEMORY storage.']
+  ], 'logs error message');
+  assert.equal(settings.storage.type, 'MEMORY', 'fallbacks to memory storage');
 
   logSpy.restore();
   assert.end();

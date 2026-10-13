@@ -1,4 +1,4 @@
-import { LOCALHOST_MODE, STORAGE_MEMORY, STORAGE_REDIS, CONSUMER_MODE, STANDALONE_MODE } from '@splitsoftware/splitio-commons/src/utils/constants';
+import { LOCALHOST_MODE, STORAGE_MEMORY, STORAGE_REDIS, STORAGE_PLUGGABLE, CONSUMER_MODE, STANDALONE_MODE } from '@splitsoftware/splitio-commons/src/utils/constants';
 
 export function validateStorage(settings) {
   const {
@@ -11,7 +11,7 @@ export function validateStorage(settings) {
     } = { type: STORAGE_MEMORY }
   } = settings;
 
-  // We can have MEMORY, REDIS or an invalid storage type
+  // We can have MEMORY, REDIS, PLUGGABLE or an invalid storage type
   switch (type) {
     case STORAGE_REDIS: {
       // If passing REDIS storage in localhost or standalone mode, we log an error and fallback to MEMORY storage
@@ -68,11 +68,28 @@ export function validateStorage(settings) {
       };
     }
 
+    case STORAGE_PLUGGABLE: {
+      // If passing PLUGGABLE storage in localhost or standalone mode, we log an error and fallback to MEMORY storage
+      if (mode === STANDALONE_MODE || mode === LOCALHOST_MODE) {
+        log.error('The provided PLUGGABLE storage is invalid for this mode. It requires consumer mode. Fallback into default MEMORY storage.');
+        return {
+          type: STORAGE_MEMORY,
+          prefix
+        };
+      }
+
+      return {
+        type,
+        prefix,
+        options
+      };
+    }
+
     // For now, we don't have modifiers or settings for MEMORY in Node.js
     case STORAGE_MEMORY:
     default: {
-      // If passing MEMORY storage in consumer mode, throw an error (no way to fallback to REDIS storage)
-      if (mode === CONSUMER_MODE) throw new Error('A REDIS storage is required on consumer mode');
+      // If passing MEMORY storage in consumer mode, throw an error (no way to fallback to an async storage)
+      if (mode === CONSUMER_MODE) throw new Error('A REDIS or PLUGGABLE storage is required on consumer mode');
       // If passing an invalid storage type, log an error
       if (type !== STORAGE_MEMORY) log.error(`The provided '${type}' storage type is invalid. Fallback into default MEMORY storage.`);
       return {

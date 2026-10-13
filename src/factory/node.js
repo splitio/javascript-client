@@ -3,13 +3,14 @@ import { syncManagerOnlineFactory } from '@splitsoftware/splitio-commons/src/syn
 import { pushManagerFactory } from '@splitsoftware/splitio-commons/src/sync/streaming/pushManager';
 import { pollingManagerSSFactory } from '@splitsoftware/splitio-commons/src/sync/polling/pollingManagerSS';
 import { InRedisStorage } from '@splitsoftware/splitio-commons/src/storages/inRedis';
+import { PluggableStorage } from '@splitsoftware/splitio-commons/src/storages/pluggable';
 import { InMemoryStorageFactory } from '@splitsoftware/splitio-commons/src/storages/inMemory/InMemoryStorage';
 import { getRolloutPlan } from '@splitsoftware/splitio-commons/src/storages/getRolloutPlan';
 import { sdkManagerFactory } from '@splitsoftware/splitio-commons/src/sdkManager';
 import { sdkClientMethodFactory } from '@splitsoftware/splitio-commons/src/sdkClient/sdkClientMethod';
 import { impressionObserverSSFactory } from '@splitsoftware/splitio-commons/src/trackers/impressionObserver/impressionObserverSS';
 import { sdkFactory } from '@splitsoftware/splitio-commons/src/sdkFactory';
-import { CONSUMER_MODE, LOCALHOST_MODE } from '@splitsoftware/splitio-commons/src/utils/constants';
+import { CONSUMER_MODE, LOCALHOST_MODE, STORAGE_REDIS, STORAGE_PLUGGABLE } from '@splitsoftware/splitio-commons/src/utils/constants';
 import { isConsumerMode } from '@splitsoftware/splitio-commons/src/utils/settingsValidation/mode';
 
 import { localhostFromFileFactory } from '../sync/offline/LocalhostFromFile';
@@ -20,9 +21,14 @@ import { bloomFilterFactory } from '../platform/filter/bloomFilter';
 const syncManagerOnlineSSFactory = syncManagerOnlineFactory(pollingManagerSSFactory, pushManagerFactory);
 
 function getStorage(settings) {
-  return settings.storage.type === 'REDIS' ?
-    InRedisStorage(settings.storage) :
-    InMemoryStorageFactory;
+  switch (settings.storage.type) {
+    case STORAGE_REDIS:
+      return InRedisStorage(settings.storage);
+    case STORAGE_PLUGGABLE:
+      return PluggableStorage({ prefix: settings.storage.prefix, wrapper: settings.storage.options.wrapper });
+    default:
+      return InMemoryStorageFactory;
+  }
 }
 
 /**
